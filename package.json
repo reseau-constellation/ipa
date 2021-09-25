@@ -1,11 +1,12 @@
 {
   "name": "@constl/ipa",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "L'IPA pour le réseau Constellation",
   "scripts": {
     "compiler": "tsc",
     "vérifier": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' ts-mocha \"tests/**/*.test.ts\" --exit --require mocha-steps -r tsconfig-paths/register",
-    "couverture": "nyc yarn vérifier"
+    "couverture": "nyc yarn vérifier",
+    "publier": "yarn compiler && yarn publish --access public"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -19,7 +20,6 @@
     "@types/chai-as-promised": "^7.1.4",
     "@types/deep-equal": "^1.0.1",
     "@types/file-saver": "^2.0.3",
-    "@types/it-all": "^1.0.4",
     "@types/mocha": "^9.0.0",
     "@types/rimraf": "^3.0.2",
     "@types/uuid": "^8.3.1",
@@ -62,5 +62,8 @@
     "uuid": "^8.3.2",
     "wrtc": "^0.4.7",
     "xlsx": "^0.17.2"
-  }
+  },
+  "files": [
+    "lib"
+  ]
 }
