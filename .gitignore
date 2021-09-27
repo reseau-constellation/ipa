@@ -5,7 +5,7 @@
 /.nyc_output
 /.vscode
 /_stockageTemp
-/tests/ipa/_temp
+/tests/_temp
 
 .yarn/*
 !.yarn/cache

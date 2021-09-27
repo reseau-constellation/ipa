@@ -353,18 +353,27 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async suivreIdBdRacine(
-    f: schémaFonctionSuivi<string | undefined>
+    f: schémaFonctionSuivi<string>
   ): Promise<schémaFonctionOublier> {
-    const fFinale = () => f(this.idBdRacine);
+    const fFinale = () => {
+      if (this.idBdRacine) f(this.idBdRacine)
+    };
     this.on("compteChangé", fFinale);
     fFinale();
     return () => this.off("compteChangé", fFinale);
   }
 
+  async suivreIdSFIP(
+    f: schémaFonctionSuivi<IDResult>
+  ): Promise<schémaFonctionOublier> {
+    f(this.idNodeSFIP!);
+    return faisRien
+  }
+
   async suivreIdOrbite(
-    f: schémaFonctionSuivi<string | undefined>
+    f: schémaFonctionSuivi<OrbitDB["identity"]>
   ): Promise<schémaFonctionOublier> {
-    f(this.orbite!.identity.id);
+    f(this.orbite!.identity);
     return faisRien;
   }
 
@@ -503,6 +512,7 @@ export default class ClientConstellation extends EventEmitter {
     for (const é of événements) {
       bd.events.on(é, fFinale);
     }
+
     fFinale();
     const oublier = () => {
       événements.forEach((é) => {

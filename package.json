@@ -5,6 +5,7 @@
   "scripts": {
     "compiler": "tsc",
     "vérifier": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' ts-mocha \"tests/**/*.test.ts\" --exit --require mocha-steps -r tsconfig-paths/register",
+    "vérifier:tous": "env TOUS=true yarn vérifier",
     "couverture": "nyc yarn vérifier",
     "publier": "yarn compiler && yarn publish --access public"
   },

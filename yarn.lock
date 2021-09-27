@@ -1218,13 +1218,6 @@
   resolved "https://registry.yarnpkg.com/@types/http-cache-semantics/-/http-cache-semantics-4.0.1.tgz#0ea7b61496902b95890dc4c3a116b60cb8dae812"
   integrity sha512-SZs7ekbP8CN0txVG2xVRH6EgKmEm31BOxA07vkFaETzZz1xh+cbt8BcI0slpymvwhx5dlFnQG2rTlPVQn+iRPQ==
 
-"@types/it-all@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@types/it-all/-/it-all-1.0.4.tgz#9102416cfe40cc2dd877629fa551b38abf66e4f0"
-  integrity sha512-7z/YlZnxNoc/fipGfQNfK3SLTXdPA9sa3jxXtOFDpe+Bw7u1TwlfnqN19ud8U/xhHKLViQscigOlKRz63CscOg==
-  dependencies:
-    it-all "*"
-
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
@@ -5299,7 +5292,7 @@ istanbul-reports@^3.0.2:
     html-escaper "^2.0.0"
     istanbul-lib-report "^3.0.0"
 
-it-all@*, it-all@^1.0.1, it-all@^1.0.2, it-all@^1.0.4, it-all@^1.0.5:
+it-all@^1.0.1, it-all@^1.0.2, it-all@^1.0.4, it-all@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/it-all/-/it-all-1.0.5.tgz#e880510d7e73ebb79063a76296a2eb3cb77bbbdb"
   integrity sha512-ygD4kA4vp8fi+Y+NBgEKt6W06xSbv6Ub/0V8d1r3uCyJ9Izwa1UspkIOlqY9fOee0Z1w3WRo1+VWyAU4DgtufA==

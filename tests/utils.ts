@@ -8,7 +8,9 @@ import { v4 as uuidv4 } from "uuid";
 import OrbitDB, { Store, KeyValueStore, FeedStore } from "orbit-db";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
-import ClientConstellation from "@/client";
+import ClientConstellation, { schémaFonctionOublier } from "@/client";
+const générerProxyProc = import("@/proxy/ipaProc");
+const générerProxyTravailleur = import("@/proxy/ipaTravailleur");
 
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   new Promise<void>((resolve) => {
@@ -139,22 +141,48 @@ export const générerOrbites = async (
   return { orbites, fOublier };
 };
 
+type typeClient = "directe" | "proc" | "travailleur"
+
 export const générerClients = async (
   n = 1,
-  API: string
+  API: string,
+  type: typeClient = "directe"
 ): Promise<{
   clients: ClientConstellation[];
   fOublier: () => Promise<void>;
 }> => {
   const clients: ClientConstellation[] = [];
+  const fsOublier: schémaFonctionOublier[] = [];
 
-  const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n, API);
   for (const i in [...Array(n).keys()]) {
-    const client = await ClientConstellation.créer(
-      undefined,
-      undefined,
-      orbites[i]
-    );
+    let client: ClientConstellation
+    switch (type) {
+      case "directe": {
+        const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n, API);
+        fsOublier.push(fOublierOrbites);
+
+        client = await ClientConstellation.créer(
+          undefined,
+          undefined,
+          orbites[i]
+        );
+        break;
+      }
+
+      case "proc": {
+        const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n, API);
+        fsOublier.push(fOublierOrbites);
+        client = (await générerProxyProc).default(undefined, orbites[i])
+        break;
+      }
+
+      case "travailleur":
+        client = (await générerProxyTravailleur).default()
+        break;
+
+      default:
+        throw new Error(type);
+    }
     clients.push(client);
   }
 
@@ -164,7 +192,9 @@ export const générerClients = async (
         await client.fermer();
       })
     );
-    fOublierOrbites();
+    fsOublier.forEach(f=>f());
   };
   return { fOublier, clients };
 };
+
+export const typesClients: typeClient[] = process.env.TOUS ? ["directe", "proc"] : ["directe"]
