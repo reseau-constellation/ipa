@@ -107,7 +107,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "tests/**/*.ts",
+    // "tests/**/*.ts",
   ],
   "exclude": [
     "./node_modules",

@@ -2,7 +2,7 @@ import GestionnaireClient from "./gestionnaireClient";
 import {
   MessageDeTravailleur,
   MessageErreurDeTravailleur,
-} from "./ipaParallèle";
+} from "./proxy";
 
 const fMessage = (message: MessageDeTravailleur)=>postMessage(message);
 

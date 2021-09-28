@@ -363,18 +363,12 @@ export default class ClientConstellation extends EventEmitter {
     return () => this.off("compteChangé", fFinale);
   }
 
-  async suivreIdSFIP(
-    f: schémaFonctionSuivi<IDResult>
-  ): Promise<schémaFonctionOublier> {
-    f(this.idNodeSFIP!);
-    return faisRien
+  async obtIdSFIP(): Promise<IDResult> {
+    return this.idNodeSFIP!
   }
 
-  async suivreIdOrbite(
-    f: schémaFonctionSuivi<OrbitDB["identity"]>
-  ): Promise<schémaFonctionOublier> {
-    f(this.orbite!.identity);
-    return faisRien;
+  async obtIdOrbite(): Promise<string> {
+    return this.orbite!.identity.id;
   }
 
   async copierContenuBdListe(

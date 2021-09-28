@@ -11,7 +11,7 @@ import {
   MessageSuivreDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
   MessageOublierPourTravailleur,
-} from "./ipaParallèle";
+} from "./proxy";
 
 export default class GestionnaireClient {
   ipa?: ClientConstellation;

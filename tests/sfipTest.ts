@@ -1,4 +1,5 @@
 import Ctl from "ipfsd-ctl";
+import { NodeType } from "ipfsd-ctl/dist/src/types";
 
 export const config = {
   timeout: 30000,
@@ -53,7 +54,7 @@ export const config = {
 };
 export const testAPIs = {
   "js-ipfs": {
-    type: "proc",
+    type: "proc" as NodeType,
     test: true,
     disposable: true,
     ipfsModule: require("ipfs"),

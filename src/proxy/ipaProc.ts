@@ -5,7 +5,7 @@ import générerProxy, {
   MessagePourTravailleur,
   MessageErreurDeTravailleur,
   ProxyClientConstellation,
-} from "./ipaParallèle";
+} from "./proxy";
 import GestionnaireClient from "./gestionnaireClient";
 
 export class IPAProc extends téléClient {
@@ -33,6 +33,6 @@ export class IPAProc extends téléClient {
   }
 }
 
-export default (idBdRacine?: string, orbite?: OrbitDB, sujetRéseau?: string): ProxyClientConstellation => {
-  return générerProxy(new IPAProc(), idBdRacine, orbite, sujetRéseau)
+export default (idBdRacine?: string, souleverErreurs=false, orbite?: OrbitDB, sujetRéseau?: string): ProxyClientConstellation => {
+  return générerProxy(new IPAProc(), souleverErreurs, idBdRacine, orbite, sujetRéseau)
 }

@@ -108,11 +108,13 @@ export class IPAParallèle extends Callable {
   ipaPrêt: boolean;
   messagesEnAttente: MessagePourTravailleur[];
   erreurs: (Error)[];
+  souleverErreurs: boolean;
 
-  constructor(client: téléClient, idBdRacine?: string, orbite?: OrbitDB, sujetRéseau?: string) {
+  constructor(client: téléClient, souleverErreurs: boolean, idBdRacine?: string, orbite?: OrbitDB, sujetRéseau?: string) {
     super();
 
     this.client = client;
+    this.souleverErreurs = souleverErreurs;
 
     this.événements = new EventEmitter();
     this.tâches = {};
@@ -241,7 +243,7 @@ export class IPAParallèle extends Callable {
     this.envoyerMessage(message);
 
     const événements = this.événements;
-    const résultat = await once(événements, id);
+    const résultat = (await once(événements, id))[0];
 
     return résultat;
   }
@@ -264,6 +266,7 @@ export class IPAParallèle extends Callable {
   erreur(e: Error): void {
     this.erreurs.unshift(e);
     this.événements.emit("erreur", { nouvelle: e, toutes: this.erreurs });
+    if (this.souleverErreurs) throw e
   }
 
   oublierTâche(id: string): void {
@@ -298,8 +301,8 @@ class Handler {
 
 export type ProxyClientConstellation = ClientConstellation & IPAParallèle;
 
-export default (client: téléClient, idBdRacine?: string, orbite?: OrbitDB, sujetRéseau?: string): ProxyClientConstellation => {
+export default (client: téléClient, souleverErreurs: boolean, idBdRacine?: string, orbite?: OrbitDB, sujetRéseau?: string): ProxyClientConstellation => {
   const handler = new Handler();
-  const ipa = new IPAParallèle(client, idBdRacine, orbite, sujetRéseau);
+  const ipa = new IPAParallèle(client, souleverErreurs, idBdRacine, orbite, sujetRéseau);
   return new Proxy<IPAParallèle>(ipa, handler) as ProxyClientConstellation;
 };

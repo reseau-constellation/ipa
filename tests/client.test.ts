@@ -88,7 +88,6 @@ Object.keys(testAPIs).forEach((API) => {
     describe("Contrôl dispositifs", function () {
       let fOublierDispositifs: schémaFonctionOublier;
       let fOublierIdBdRacine: schémaFonctionOublier;
-      let fOublierIdOrbite: schémaFonctionOublier;
 
       let mesDispositifs: string[];
       let idBdRacine: string | undefined;
@@ -104,14 +103,11 @@ Object.keys(testAPIs).forEach((API) => {
         fOublierIdBdRacine = await client3.suivreIdBdRacine(
           (id) => (idBdRacine = id)
         );
-        fOublierIdOrbite = await client3.suivreIdOrbite(
-          (id) => (idOrbite = id)
-        );
+        idOrbite = await client3.obtIdOrbite();
       });
       after(async () => {
         if (fOublierDispositifs) fOublierDispositifs();
         if (fOublierIdBdRacine) fOublierIdBdRacine();
-        if (fOublierIdOrbite) fOublierIdOrbite();
       });
       step("Mon dispositif est présent", async () => {
         const monId = client.orbite!.identity.id;

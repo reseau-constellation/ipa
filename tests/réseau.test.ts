@@ -1,8 +1,6 @@
 import { expect } from "chai";
 import { step } from "mocha-steps";
 
-import OrbitDB from "orbit-db"
-
 import fs from "fs";
 import path from "path";
 
@@ -26,7 +24,7 @@ import { attendreRésultat, générerClients, typesClients } from "./utils";
 typesClients.forEach((type)=>{
   describe("Client " + type, function() {
     Object.keys(testAPIs).forEach((API) => {
-      describe.only("Réseau", function () {
+      describe("Réseau", function () {
         this.timeout(config.timeout);
 
         let fOublierClients: () => Promise<void>;
@@ -35,8 +33,8 @@ typesClients.forEach((type)=>{
         let idBdRacine1: string;
         let idBdRacine2: string;
         let idNodeSFIP2: string;
-        let idOrbite1: OrbitDB["identity"];
-        let idOrbite2: OrbitDB["identity"];
+        let idOrbite1: string;
+        let idOrbite2: string;
 
         before(async () => {
           ({ fOublier: fOublierClients, clients } = await générerClients(2, API, type));
@@ -56,23 +54,11 @@ typesClients.forEach((type)=>{
             }
           )
 
-          idNodeSFIP2 = await uneFois(
-            async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdSFIP((id)=>fSuivi(id.id))
-            }
-          )
+          idNodeSFIP2 = (await client2.obtIdSFIP()).id
 
-          idOrbite1 = await uneFois(
-            async (fSuivi: schémaFonctionSuivi<OrbitDB["identity"]>): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdOrbite((id)=>fSuivi(id))
-            }
-          )
+          idOrbite1 = await client.obtIdOrbite()
 
-          idOrbite2 = await uneFois(
-            async (fSuivi: schémaFonctionSuivi<OrbitDB["identity"]>): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdOrbite((id)=>fSuivi(id))
-            }
-          )
+          idOrbite2 = await client2.obtIdOrbite()
         });
 
         after(async () => {
@@ -101,11 +87,6 @@ typesClients.forEach((type)=>{
             );
             expect(rés.ultat).to.be.an("array").with.lengthOf(2);
 
-            const idBdRacine1 = uneFois(
-              async (fSuivi: schémaFonctionSuivi<unknown>): Promise<schémaFonctionOublier> => {
-                return await client.suivreIdBdRacine(fSuivi)
-              }
-            )
             expect(rés.ultat!.map((r) => r.idBdRacine)).to.include.members([
               idBdRacine1,
               idBdRacine2,
@@ -234,7 +215,7 @@ typesClients.forEach((type)=>{
           before(async () => {
             fsOublier.push(
               await client2.réseau!.suivreBdsMembre(
-                client.idBdRacine!,
+                idBdRacine1,
                 (bds) => (rés.ultat = bds)
               )
             );
@@ -302,7 +283,7 @@ typesClients.forEach((type)=>{
             );
             expect(rés.ultat).to.be.an("array").with.lengthOf(1);
             expect(rés.ultat!.map((r) => r.idOrbite)).to.have.members([
-              idOrbite1.id,
+              idOrbite1,
             ]);
           });
 

@@ -17,7 +17,7 @@ import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 
 typesClients.forEach((type)=>{
-  describe("Client " + type, function() {
+  describe.only("Client " + type, function() {
     Object.keys(testAPIs).forEach((API) => {
       describe("Compte", function () {
         this.timeout(config.timeout);
@@ -119,7 +119,7 @@ typesClients.forEach((type)=>{
           });
 
           step("Pas d'image pour commencer", async () => {
-            expect(rés["ultat"]).to.be.null;
+            expect(rés.ultat).to.be.null;
           });
 
           step("Ajouter une image", async () => {

@@ -73,15 +73,6 @@ export default class ContrôleurAccès extends EventEmitter {
     const estUnMod = this.estUnModérateurPatient(idÉlément);
     const rôleValide = rôles.includes(rôle);
 
-    /*console.log({
-      estUnMod,
-      rôleValide,
-      rôle,
-      idÉlément,
-      idAjout,
-      accèsÉcriture: [...this._accèsÉcriture],
-      entry,
-    });*/
     const validSig = async () =>
       identityProvider.verifyIdentity(entry.identity);
 

@@ -334,7 +334,6 @@ export default class BDs {
     const fFinale = async (bds: string[]): Promise<void> => {
       let idBd: string;
       const idBdLocale = localStorage.getItem(clefStockageLocal);
-      console.log({ idBdLocale });
 
       switch (bds.length) {
         case 0: {
@@ -396,7 +395,6 @@ export default class BDs {
       idBd: string,
       fSuivreBd: schémaFonctionSuivi<string | undefined>
     ): Promise<schémaFonctionOublier> => {
-      console.log({ idBd, idTableauUnique });
       return await this.suivreTableauParIdUnique(
         idBd,
         idTableauUnique,

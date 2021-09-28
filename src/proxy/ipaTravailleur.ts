@@ -3,7 +3,7 @@ import générerProxy, {
   MessageDeTravailleur,
   MessagePourTravailleur,
   ProxyClientConstellation,
-} from "./ipaParallèle";
+} from "./proxy";
 
 export class IPATravailleur extends téléClient {
   travailleur: Worker;
@@ -26,6 +26,6 @@ export class IPATravailleur extends téléClient {
 }
 
 
-export default (idBdRacine?: string, sujetRéseau?: string): ProxyClientConstellation => {
-  return générerProxy(new IPATravailleur(), idBdRacine, undefined, sujetRéseau)
+export default (idBdRacine?: string, souleverErreurs=false, sujetRéseau?: string): ProxyClientConstellation => {
+  return générerProxy(new IPATravailleur(), souleverErreurs, idBdRacine, undefined, sujetRéseau)
 }

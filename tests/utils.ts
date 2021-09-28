@@ -172,12 +172,12 @@ export const générerClients = async (
       case "proc": {
         const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n, API);
         fsOublier.push(fOublierOrbites);
-        client = (await générerProxyProc).default(undefined, orbites[i])
+        client = (await générerProxyProc).default(undefined, true, orbites[i])
         break;
       }
 
       case "travailleur":
-        client = (await générerProxyTravailleur).default()
+        client = (await générerProxyTravailleur).default(undefined, true)
         break;
 
       default:
