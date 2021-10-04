@@ -1,0 +1,26 @@
+name: Apli internet
+on:
+  push:
+    branches:
+      - master
+jobs:
+  gh-pages-deploy:
+    name: On déploie à gh-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Préparation de Node.js
+        uses: actions/setup-node@v1.4.4
+        with:
+          version: 15.x
+
+      - name: Ouvrir la branche
+        uses: actions/checkout@v2
+
+      - name: Nétoyer les dépendances d'installation
+        run: yarn install --frozen-lockfile
+
+      - name: Vérifier les tests
+        run: yarn couverture
+
+      - name: Envoyer couverure à Codecov
+        uses: codecov/codecov-action@v2
