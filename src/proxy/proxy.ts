@@ -5,7 +5,7 @@ import OrbitDB from "orbit-db";
 import ClientConstellation, {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-} from "@/client";
+} from "../client";
 
 interface Tâche {
   id: string;

@@ -1,6 +1,12 @@
+import electron from "electron";
+import estÉlectron from "is-electron";
+import path from "path";
+
 declare let localStorage: any;
 
-export const DOSSIER_STOCKAGE_LOCAL = "./_stockageTemp";
+export const DOSSIER_STOCKAGE_LOCAL = path.join(
+  estÉlectron() ? electron.app.getPath('userData') : ".", "_stockageTemp"
+);
 
 let final: any;
 

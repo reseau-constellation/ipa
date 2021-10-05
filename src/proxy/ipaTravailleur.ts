@@ -11,7 +11,7 @@ export class IPATravailleur extends téléClient {
   constructor() {
     super();
 
-    this.travailleur = new Worker(new URL("./travailleur.ts", import.meta.url));
+    this.travailleur = new Worker(new URL("./travailleur.js", import.meta.url));
     this.travailleur.onerror = (e: ErrorEvent) => {
       this.emit("erreur", e.error);
     };

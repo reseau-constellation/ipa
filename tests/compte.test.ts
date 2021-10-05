@@ -17,7 +17,7 @@ import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 
 typesClients.forEach((type)=>{
-  describe.only("Client " + type, function() {
+  describe("Client " + type, function() {
     Object.keys(testAPIs).forEach((API) => {
       describe("Compte", function () {
         this.timeout(config.timeout);

@@ -30,7 +30,7 @@ export interface schémaBd {
     cols: {
       idVariable: string;
       idColonne: string;
-      indexe?: boolean;
+      index?: boolean;
     }[];
     idUnique?: string;
   }[];
@@ -589,7 +589,7 @@ export default class Réseau extends EventEmitter {
     const fBranche = async (
       idBdRacine: string,
       fSuivreBranche: schémaFonctionSuivi<infoRéplication[]>,
-      branche?: infoMembreEnLigne
+      branche: infoMembreEnLigne
     ) => {
       const fFinaleSuivreBranche = (favoris?: string[]) => {
         if (!favoris) return;
@@ -598,9 +598,9 @@ export default class Réseau extends EventEmitter {
           .map((fav) => {
             return {
               idBd: fav,
-              idBdRacine: branche!.idBdRacine,
-              idOrbite: branche!.idOrbite,
-              vuÀ: branche!.vuÀ,
+              idBdRacine: branche.idBdRacine,
+              idOrbite: branche.idOrbite,
+              vuÀ: branche.vuÀ,
             };
           });
         return fSuivreBranche(réplications);
@@ -712,9 +712,9 @@ export default class Réseau extends EventEmitter {
     const fBranche = async (
       idBd: string,
       f: schémaFonctionSuivi<élémentDeMembre<T>[]>,
-      branche?: bdDeMembre
+      branche: bdDeMembre
     ): Promise<schémaFonctionOublier> => {
-      const { idBdAuteur } = branche!;
+      const { idBdAuteur } = branche;
 
       const fSuivreTableaux = async (
         fSuivreNouveauTableau: (nouvelIdBdCible: string) => Promise<void>

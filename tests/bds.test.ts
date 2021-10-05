@@ -521,7 +521,7 @@ typesClients.forEach((type)=>{
                     {
                       idVariable: idVarClef,
                       idColonne: "clef",
-                      indexe: true,
+                      index: true,
                     },
                     {
                       idVariable: idVarTrad,
@@ -650,7 +650,7 @@ typesClients.forEach((type)=>{
                     {
                       idVariable: idVarClef,
                       idColonne: "clef",
-                      indexe: true,
+                      index: true,
                     },
                     {
                       idVariable: idVarTrad,
@@ -664,7 +664,7 @@ typesClients.forEach((type)=>{
                     {
                       idVariable: idVarLangue,
                       idColonne: "langue",
-                      indexe: true,
+                      index: true,
                     },
                   ],
                   idUnique: "tableau langues",
@@ -721,12 +721,12 @@ typesClients.forEach((type)=>{
               .and.members([idMotClef]);
           });
 
-          step("Indexe colonne", async () => {
+          step("Index colonne", async () => {
             const indexes = await uneFois(
               async (
                 fSuivi: schémaFonctionSuivi<string[]>
               ): Promise<schémaFonctionOublier> => {
-                return await client.tableaux!.suivreIndexe(tableaux[0], fSuivi);
+                return await client.tableaux!.suivreIndex(tableaux[0], fSuivi);
               }
             );
             expect(indexes)
@@ -765,7 +765,7 @@ typesClients.forEach((type)=>{
                     {
                       idVariable: idVarClef,
                       idColonne: "clef",
-                      indexe: true,
+                      index: true,
                     },
                     {
                       idVariable: idVarTrad,
@@ -779,7 +779,7 @@ typesClients.forEach((type)=>{
                     {
                       idVariable: idVarLangue,
                       idColonne: "langue",
-                      indexe: true,
+                      index: true,
                     },
                   ],
                   idUnique: "tableau langues",
@@ -863,7 +863,7 @@ typesClients.forEach((type)=>{
                     {
                       idVariable: idVarClef,
                       idColonne: "clef",
-                      indexe: true,
+                      index: true,
                     },
                     {
                       idVariable: idVarTrad,

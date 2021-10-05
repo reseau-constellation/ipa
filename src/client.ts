@@ -441,7 +441,7 @@ export default class ClientConstellation extends EventEmitter {
   async combinerBdsListe(
     bdBase: FeedStore,
     bd2: FeedStore,
-    indexe?: string[]
+    index?: string[]
   ): Promise<void> {
     const contenuBdBase = ClientConstellation.obtÉlémentsDeBdListe(
       bdBase,
@@ -453,12 +453,12 @@ export default class ClientConstellation extends EventEmitter {
     for (const é of contenuBd2) {
       const valBd2 = é.payload.value;
 
-      if (indexe) {
+      if (index) {
         if (typeof valBd2 !== "object") throw new Error();
         const existant = contenuBdBase.find(
           (x) =>
             typeof x.payload.value === "object" &&
-            indexe.every(
+            index.every(
               (i) =>
                 (x as élémentBdListe<élémentBdObjet>).payload.value[i] ===
                 (valBd2 as élémentBdObjet)[i]
@@ -694,7 +694,7 @@ export default class ClientConstellation extends EventEmitter {
     fBranche: (
       id: string,
       f: schémaFonctionSuivi<U>,
-      branche?: T
+      branche: T
     ) => Promise<schémaFonctionOublier | undefined>,
     fIdBdDeBranche: (b: T) => string = (b) => b as string,
     fRéduction: schémaFonctionRéduction<U[], V[]> = (branches: U[]) =>
@@ -724,7 +724,7 @@ export default class ClientConstellation extends EventEmitter {
     fBranche: (
       id: string,
       f: schémaFonctionSuivi<U>,
-      branche?: T
+      branche: T
     ) => Promise<schémaFonctionOublier | undefined>,
     fIdBdDeBranche: (b: T) => string = (b) => b as string,
     fRéduction: schémaFonctionRéduction<U[], V[]> = (branches: U[]) =>

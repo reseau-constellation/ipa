@@ -147,14 +147,14 @@ export default class Projets {
     const fBranche = async (
       idBdRacine: string,
       fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
-      branche?: infoAccès
+      branche: infoAccès
     ) => {
       const fFinaleSuivreBranche = (projetsMembre?: string[]) => {
         projetsMembre = projetsMembre || [];
         return fSuivreBranche([
           {
-            idBdRacine: branche!.idBdRacine,
-            rôle: branche!.rôle,
+            idBdRacine: branche.idBdRacine,
+            rôle: branche.rôle,
             accepté: projetsMembre.includes(id),
           },
         ]);

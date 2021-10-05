@@ -204,14 +204,14 @@ export default class BDs {
         );
 
       for (const c of cols) {
-        const { idColonne, idVariable, indexe } = c;
+        const { idColonne, idVariable, index } = c;
         await this.client.tableaux!.ajouterColonneTableau(
           idTableau,
           idVariable,
           idColonne
         );
-        if (indexe)
-          await this.client.tableaux!.changerColIndexe(
+        if (index)
+          await this.client.tableaux!.changerColIndex(
             idTableau,
             idColonne,
             true
@@ -643,14 +643,14 @@ export default class BDs {
     const fBranche = async (
       idBdRacine: string,
       fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
-      branche?: infoAccès
+      branche: infoAccès
     ) => {
       const fFinaleSuivreBranche = (bdsMembre?: string[]) => {
         bdsMembre = bdsMembre || [];
         return fSuivreBranche([
           {
-            idBdRacine: branche!.idBdRacine,
-            rôle: branche!.rôle,
+            idBdRacine: branche.idBdRacine,
+            rôle: branche.rôle,
             accepté: bdsMembre.includes(id),
           },
         ]);

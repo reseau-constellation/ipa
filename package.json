@@ -1,13 +1,13 @@
 {
   "name": "@constl/ipa",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "L'IPA pour le réseau Constellation",
   "scripts": {
     "compiler": "tsc",
-    "vérifier": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' ts-mocha \"tests/**/*.test.ts\" --exit --require mocha-steps -r tsconfig-paths/register",
-    "vérifier:tous": "env TOUS=true yarn vérifier",
-    "couverture": "nyc yarn vérifier",
-    "couverture:tous": "nyc yarn vérifier:tous",
+    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' ts-mocha \"tests/**/*.test.ts\" --exit --require mocha-steps -r tsconfig-paths/register",
+    "test:tous": "env TOUS=true yarn test",
+    "couverture": "nyc yarn test",
+    "couverture:tous": "nyc yarn test:tous",
     "publier": "yarn compiler && yarn publish --access public"
   },
   "main": "lib/index.js",

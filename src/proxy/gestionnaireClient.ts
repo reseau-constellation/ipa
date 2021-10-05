@@ -1,4 +1,4 @@
-import ClientConstellation, { schémaFonctionOublier } from "@/client";
+import ClientConstellation, { schémaFonctionOublier } from "../client";
 
 import {
   MessagePourTravailleur,
@@ -142,8 +142,7 @@ export default class GestionnaireClient {
           attr in fonctionIPA &&
           fonctionIPA[attr as keyof typeof fonctionIPA]
         ) {
-          //@ts-ignore
-          fonctionIPA = fonctionIPA[attr];
+          fonctionIPA = fonctionIPA[attr as keyof typeof fonctionIPA];
         } else {
           this.fErreur(erreur);
           return;
@@ -160,5 +159,11 @@ export default class GestionnaireClient {
       return;
     }
     return fonctionIPA;
+  }
+
+  async fermer(): Promise<void> {
+    if (this.ipa) {
+      await this.ipa.fermer();
+    }
   }
 }

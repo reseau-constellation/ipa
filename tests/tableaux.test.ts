@@ -39,7 +39,7 @@ typesClients.forEach((type)=>{
         let client: ClientConstellation;
 
         let idTableau: string;
-        let colonnes: InfoCol[];
+        let colonnes: InfoColAvecCatégorie[];
 
         before(async () => {
           enregistrerContrôleurs();
@@ -130,7 +130,7 @@ typesClients.forEach((type)=>{
             expect(idUnique).to.be.undefined;
           });
 
-          step("Ajouter un nom", async () => {
+          step("Ajouter une id unique", async () => {
             await client.tableaux!.spécifierIdUniqueTableau(
               idTableau,
               "quelque chose d'unique"
@@ -268,12 +268,12 @@ typesClients.forEach((type)=>{
           });
         });
 
-        describe("Colonnes indexe", function () {
+        describe("Colonnes index", function () {
           let indexes: string[];
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.tableaux!.suivreIndexe(
+            fOublier = await client.tableaux!.suivreIndex(
               idTableau,
               (x) => (indexes = x)
             );
@@ -283,12 +283,12 @@ typesClients.forEach((type)=>{
             if (fOublier) fOublier();
           });
 
-          step("Pas d'indexe pour commencer", async () => {
+          step("Pas d'index pour commencer", async () => {
             expect(indexes).to.be.an.empty("array");
           });
 
-          step("Ajouter un indexe", async () => {
-            await client.tableaux!.changerColIndexe(
+          step("Ajouter un index", async () => {
+            await client.tableaux!.changerColIndex(
               idTableau,
               colonnes[0].id,
               true
@@ -298,8 +298,8 @@ typesClients.forEach((type)=>{
               .and.to.have.members([colonnes[0].id]);
           });
 
-          step("Effacer l'indexe", async () => {
-            await client.tableaux!.changerColIndexe(
+          step("Effacer l'index", async () => {
+            await client.tableaux!.changerColIndex(
               idTableau,
               colonnes[0].id,
               false
@@ -630,6 +630,71 @@ typesClients.forEach((type)=>{
           });
         });
 
+        describe("Tableau avec variables non locales", function () {
+          let idTableau: string;
+          let idColonne: string;
+          let variables: string[];
+          let colonnes: InfoColAvecCatégorie[];
+          let colonnesSansCatégorie: InfoCol[];
+          let données: élémentDonnées[];
+
+          const idVarChaîne = "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF/dd77aec3-e7b8-4695-b068-49ce4227b360"
+          const fsOublier: schémaFonctionOublier[] = []
+
+          before(async () => {
+
+            idTableau = await client.tableaux!.créerTableau();
+            idColonne = await client.tableaux!.ajouterColonneTableau(
+              idTableau, idVarChaîne
+            );
+            fsOublier.push(
+              await client.tableaux!.suivreVariables(
+                idTableau, v=>variables = v
+              )
+            )
+            fsOublier.push(
+              await client.tableaux!.suivreColonnes(
+                idTableau, c=>colonnes=c
+              )
+            )
+            fsOublier.push(
+              await client.tableaux!.suivreColonnes(
+                idTableau, c=>colonnesSansCatégorie=c, false
+              )
+            )
+            fsOublier.push(
+              await client.tableaux!.suivreDonnées(
+                idTableau, d=>données=d
+              )
+            )
+          });
+
+          after(()=>{
+            fsOublier.forEach(f=>f());
+          })
+          step("Tableau créé", () => {
+            expect(adresseOrbiteValide(idTableau)).to.be.true;
+          });
+          step("Suivre variables", () => {
+            expect(variables).to.be.an("array").with.lengthOf(1).and.members([idVarChaîne])
+          });
+          step("Suivre colonnes", () => {
+            expect(colonnes).to.be.undefined;
+          })
+          step("Suivre colonnes sans catégorie", () => {
+            expect(colonnesSansCatégorie).to.be.an("array").with.lengthOf(1)
+              .and.deep.members([{id: idColonne, variable: idVarChaîne}])
+          })
+          step("Ajouter données", async () => {
+            await client.tableaux!.ajouterÉlément(
+              idTableau, {[idColonne]: "Bonjour !"}
+            );
+            expect(données).to.be.an("array").with.lengthOf(1)
+            expect(données[0].données[idColonne]).to.equal("Bonjour !");
+          });
+
+        })
+
         describe("Copier tableau", function () {
           let idTableau: string;
           let idVariable: string;
@@ -668,7 +733,7 @@ typesClients.forEach((type)=>{
               idTableau,
               idVariable
             );
-            await client.tableaux!.changerColIndexe(idTableau, idColonne, true);
+            await client.tableaux!.changerColIndex(idTableau, idColonne, true);
 
             await client.tableaux!.ajouterÉlément(idTableau, { [idColonne]: 123 });
 
@@ -705,7 +770,7 @@ typesClients.forEach((type)=>{
               )
             );
             fsOublier.push(
-              await client.tableaux!.suivreIndexe(
+              await client.tableaux!.suivreIndex(
                 idTableauCopie,
                 (x) => (colsIndexe = x)
               )
@@ -722,7 +787,7 @@ typesClients.forEach((type)=>{
             fsOublier.forEach((f) => f());
           });
 
-          it("Le tableau est copiée", async () => {
+          it("Le tableau est copié", async () => {
             expect(adresseOrbiteValide(idTableauCopie)).to.be.true;
           });
 
@@ -800,12 +865,12 @@ typesClients.forEach((type)=>{
               );
             }
             for (const idVar of [idVarDate, idVarEndroit]) {
-              await client.tableaux!.changerColIndexe(
+              await client.tableaux!.changerColIndex(
                 idTableauBase,
                 idsCols[idVar],
                 true
               );
-              await client.tableaux!.changerColIndexe(
+              await client.tableaux!.changerColIndex(
                 idTableau2,
                 idsCols[idVar],
                 true

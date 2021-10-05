@@ -67,13 +67,13 @@ export default class Compte {
     await bd.del(langue);
   }
 
-  async sauvegarderImage(image: ImportCandidate | File): Promise<void> {
+  async sauvegarderImage(image: ImportCandidate): Promise<void> {
     let contenu: ImportCandidate;
 
-    if (image instanceof File) {
-      if (image.size > MAX_TAILLE_IMAGE)
+    if ((image as File).size !== undefined) {
+      if ((image as File).size > MAX_TAILLE_IMAGE)
         throw new Error("Taille maximale excédée");
-      contenu = await image.arrayBuffer();
+      contenu = await (image as File).arrayBuffer();
     } else {
       contenu = image;
     }
