@@ -2,7 +2,7 @@ name: Tests IPA
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   tests-et-couverture:
     name: On test l'IPA
