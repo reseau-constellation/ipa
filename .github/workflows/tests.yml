@@ -1,11 +1,11 @@
-name: Apli internet
+name: Tests IPA
 on:
   push:
     branches:
       - master
 jobs:
-  gh-pages-deploy:
-    name: On déploie à gh-pages
+  tests-et-couverture:
+    name: On test l'IPA
     runs-on: ubuntu-latest
     steps:
       - name: Préparation de Node.js

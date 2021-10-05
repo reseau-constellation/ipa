@@ -29,7 +29,7 @@ declare module "orbit-db" {
 
   export default class OrbitDB {
     static createInstance(
-      ipfs: any,
+      ipfs: IPFS,
       options: { [key: string]: any }
     ): Promise<OrbitDB>;
     identity: identity;
