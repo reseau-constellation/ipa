@@ -13,6 +13,7 @@ import ClientConstellation, {
   faisRien,
   infoAccès,
   élémentBdListe,
+  uneFois,
 } from "@/client";
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
 
@@ -55,9 +56,31 @@ Object.keys(testAPIs).forEach((API) => {
       client2: ClientConstellation,
       client3: ClientConstellation;
 
+    let idOrbite1: string;
+    let idOrbite3: string;
+
+    let idBdRacine1: string;
+    let idBdRacine2: string;
+
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClients(3, API));
       [client, client2, client3] = clients;
+
+      idBdRacine1 = await uneFois(
+        async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
+          return await client.suivreIdBdRacine(fSuivi)
+        }
+      )
+
+      idBdRacine2 = await uneFois(
+        async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
+          return await client2.suivreIdBdRacine(fSuivi)
+        }
+      )
+
+      idOrbite1 = await client.obtIdOrbite()
+      idOrbite3 = await client3.obtIdOrbite()
+
     });
 
     after(async () => {
@@ -89,57 +112,48 @@ Object.keys(testAPIs).forEach((API) => {
       let fOublierIdBdRacine: schémaFonctionOublier;
 
       let mesDispositifs: string[];
-      let idBdRacine: string | undefined;
-      let idOrbite: string | undefined;
+      let idBdRacine3EnDirecte: string | undefined;
 
-      let idOrbiteClient3Avant: string;
+      let idOrbiteClient3Après: string;
 
       before(async () => {
-        idOrbiteClient3Avant = client3.orbite!.identity.id;
         fOublierDispositifs = await client.suivreDispositifs(
           (dispositifs) => (mesDispositifs = dispositifs)
         );
         fOublierIdBdRacine = await client3.suivreIdBdRacine(
-          (id) => (idBdRacine = id)
+          (id) => (idBdRacine3EnDirecte = id)
         );
-        idOrbite = await client3.obtIdOrbite();
       });
       after(async () => {
         if (fOublierDispositifs) fOublierDispositifs();
         if (fOublierIdBdRacine) fOublierIdBdRacine();
       });
       step("Mon dispositif est présent", async () => {
-        const monId = client.orbite!.identity.id;
         expect(mesDispositifs)
           .to.be.an("array")
           .that.has.lengthOf(1)
-          .and.that.includes(monId);
+          .and.that.includes(idOrbite1);
       });
       describe("Ajouter dispositif", function () {
-        let sonId: string;
         let idBd: string;
 
         before(async () => {
-          sonId = client3.orbite!.identity.id;
-          await client.ajouterDispositif(sonId);
-          await client3.rejoindreCompte(client.idBdRacine!);
+          await client.ajouterDispositif(idOrbite3);
+          await client3.rejoindreCompte(idBdRacine1);
           idBd = await client.créerBdIndépendante("kvstore");
+          idOrbiteClient3Après = await client3.obtIdOrbite();
         });
 
         it("Mes dispositifs sont mis à jour", async () => {
-          expect(mesDispositifs).to.have.lengthOf(2).and.to.include(sonId);
+          expect(mesDispositifs).to.have.lengthOf(2).and.to.include(idOrbite3);
         });
 
         it("Le nouveau dispositif a rejoint notre compte", () => {
-          expect(client3.idBdRacine).to.equal(client.idBdRacine);
-        });
-
-        it("idBdRacine est suivie correctement", async () => {
-          expect(idBdRacine).to.equal(client.idBdRacine);
+          expect(idBdRacine3EnDirecte).to.equal(idBdRacine1);
         });
 
         it("idOrbite ne change pas", async () => {
-          expect(idOrbite).to.equal(idOrbiteClient3Avant);
+          expect(idOrbiteClient3Après).to.equal(idOrbite3);
         });
 
         it("Le nouveau dispositif peut modifier mes BDs", async () => {
@@ -1013,7 +1027,7 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("On détecte l'ajout d'une permission membre", async () => {
-        await client.donnerAccès(idBd, client2.idBdRacine!, MEMBRE);
+        await client.donnerAccès(idBd, idBdRacine2, MEMBRE);
         await attendreRésultat(rés, "ultat");
         expect(rés.ultat).to.equal(MEMBRE);
       });
@@ -1025,7 +1039,7 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("On détecte l'ajout d'une permission modératrice", async () => {
-        await client.donnerAccès(idBd, client2.idBdRacine!, MODÉRATEUR);
+        await client.donnerAccès(idBd, idBdRacine2, MODÉRATEUR);
         await attendreRésultat(rés, "ultat", MODÉRATEUR);
         expect(rés.ultat).to.equal(MODÉRATEUR);
       });
@@ -1073,11 +1087,11 @@ Object.keys(testAPIs).forEach((API) => {
         if (fOublierPermission) fOublierPermission();
       });
       step("On détecte l'ajout d'une permission membre", async () => {
-        await client.donnerAccès(idBd, client2.idBdRacine!, MEMBRE);
+        await client.donnerAccès(idBd, idBdRacine2, MEMBRE);
         await attendreRésultat(résultatPermission, "permission", MEMBRE);
 
         const infoInvité = lAccès.find(
-          (a) => a.idBdRacine === client2.idBdRacine
+          (a) => a.idBdRacine === idBdRacine2
         );
         expect(infoInvité?.rôle).to.equal(MEMBRE);
       });
@@ -1088,11 +1102,11 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("On détecte l'ajout d'une permission modératrice", async () => {
-        await client.donnerAccès(idBd, client2.idBdRacine!, MODÉRATEUR);
+        await client.donnerAccès(idBd, idBdRacine2, MODÉRATEUR);
         await attendreRésultat(résultatPermission, "permission", MODÉRATEUR);
 
         const infoInvité = lAccès.find(
-          (a) => a.idBdRacine === client2.idBdRacine
+          (a) => a.idBdRacine === idBdRacine2
         );
         expect(infoInvité?.rôle).to.equal(MODÉRATEUR);
       });
