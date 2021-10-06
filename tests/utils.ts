@@ -92,11 +92,6 @@ export const peutÉcrire = async (
   }
 };
 
-export const fermerBd = async (bd: Store): Promise<void> => {
-  await bd.close();
-  await bd.access.close();
-};
-
 export const générerOrbites = async (
   n = 1,
   API: string

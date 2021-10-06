@@ -22,7 +22,6 @@ import { testAPIs, config } from "./sfipTest";
 import {
   générerClients,
   peutÉcrire,
-  fermerBd,
   attendreRésultat,
 } from "./utils";
 
@@ -170,7 +169,7 @@ Object.keys(testAPIs).forEach((API) => {
 
       after(async () => {
         fOublier();
-        await fermerBd(bd);
+        await bd.close();
       });
 
       it("Les données initiales sont détectées", async () => {
@@ -213,8 +212,8 @@ Object.keys(testAPIs).forEach((API) => {
         fOublier = await client.suivreBdDeFonction(fRacine, f);
       });
       after(async () => {
-        if (bd) await fermerBd(bd);
-        if (bd2) await fermerBd(bd2);
+        if (bd) await bd.close();
+        if (bd2) await bd2.close();
         if (fOublier) fOublier();
       });
       it("`undefined` est retourné si la fonction ne renvoie pas de BD", async () => {
@@ -257,9 +256,9 @@ Object.keys(testAPIs).forEach((API) => {
 
       after(async () => {
         fOublier();
-        if (bdBase) await fermerBd(bdBase);
-        if (bd2) await fermerBd(bd2);
-        if (bd) await fermerBd(bd);
+        if (bdBase) await bdBase.close();
+        if (bd2) await bd2.close();
+        if (bd) await bd.close();
       });
 
       it("`undefined` est retourné si la clef n'existe pas", async () => {
@@ -303,7 +302,7 @@ Object.keys(testAPIs).forEach((API) => {
         await client.suivreBdDicDeClef(idBdBase, CLEF, fSuivre);
       });
       after(async () => {
-        if (bdBase) await fermerBd(bdBase);
+        if (bdBase) await bdBase.close();
       });
       it("`{}` est retourné si la clef n'existe pas", async () => {
         expect(données).to.be.empty;
@@ -339,8 +338,8 @@ Object.keys(testAPIs).forEach((API) => {
         await client.suivreBdListeDeClef(idBdBase, CLEF, fSuivre, false);
       });
       after(async () => {
-        if (bdBase) await fermerBd(bdBase);
-        if (bd) await fermerBd(bd);
+        if (bdBase) await bdBase.close();
+        if (bd) await bd.close();
       });
       step("`[]` est retourné si la clef n'existe pas", async () => {
         expect(donnéesValeur).to.be.an("array").that.is.empty;
@@ -376,7 +375,7 @@ Object.keys(testAPIs).forEach((API) => {
         await client.suivreBdListe(idBd, fSuivre, false);
       });
       after(async () => {
-        if (bd) await fermerBd(bd);
+        if (bd) await bd.close();
       });
       it("Avec renvoyer valeur", async () => {
         expect(donnéesValeur).to.be.empty;
@@ -400,7 +399,7 @@ Object.keys(testAPIs).forEach((API) => {
         await bd.add("abc");
       });
       after(async () => {
-        if (bd) await fermerBd(bd);
+        if (bd) await bd.close();
       });
       it("On retrouve le bon élément", async () => {
         const fRecherche = (e: élémentFeedStore<string>): boolean => {
@@ -456,9 +455,9 @@ Object.keys(testAPIs).forEach((API) => {
       });
       after(async () => {
         if (fOublier) fOublier();
-        if (bdListe) fermerBd(bdListe);
-        if (bd1) fermerBd(bd1);
-        if (bd2) fermerBd(bd2);
+        if (bdListe) await bdListe.close();
+        if (bd1) await bd1.close();
+        if (bd2) await bd2.close();
       });
       it("Les éléments sont retournés", async () => {
         expect(données).to.be.an("array");
@@ -508,8 +507,8 @@ Object.keys(testAPIs).forEach((API) => {
         });
         after(async () => {
           if (fOublier) fOublier();
-          if (bd1) await fermerBd(bd1);
-          if (bd2) await fermerBd(bd2);
+          if (bd1) await bd1.close();
+          if (bd2) await bd2.close();
         });
 
         it("Sans branches", async () => {
@@ -590,8 +589,8 @@ Object.keys(testAPIs).forEach((API) => {
         after(async () => {
           if (fOublier) fOublier();
           if (fOublierComplexe) fOublierComplexe();
-          if (bd1) await fermerBd(bd1);
-          if (bd2) await fermerBd(bd2);
+          if (bd1) await bd1.close();
+          if (bd2) await bd2.close();
         });
 
         it("Ajout d'une branche ou deux", async () => {
@@ -681,8 +680,8 @@ Object.keys(testAPIs).forEach((API) => {
       });
       after(async () => {
         if (fOublier) fOublier();
-        if (bd1) await fermerBd(bd1);
-        if (bd2) await fermerBd(bd2);
+        if (bd1) await bd1.close();
+        if (bd2) await bd2.close();
       });
       it("Seules les bonnes BDs sont retournées", async () => {
         expect(sélectionnées).to.be.an("array").that.is.empty;
@@ -1136,8 +1135,8 @@ Object.keys(testAPIs).forEach((API) => {
         await client.épinglerBd(idBdKv);
       });
       after(async () => {
-        if (bdKv) fermerBd(bdKv);
-        if (bdListe) fermerBd(bdListe);
+        if (bdKv) bdKv.close();
+        if (bdListe) bdListe.close();
       });
 
       step("La BD est épinglée", async () => {

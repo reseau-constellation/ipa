@@ -12,6 +12,7 @@ import ClientConstellation, {
 } from "@/client";
 import {
   infoMembreEnLigne,
+  infoDispositifEnLigne,
   infoRéplication,
   schémaBd,
   élémentDeMembre,
@@ -22,7 +23,7 @@ import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 
 typesClients.forEach((type)=>{
-  describe("Client " + type, function() {
+  describe.only("Client " + type, function() {
     Object.keys(testAPIs).forEach((API) => {
       describe("Réseau", function () {
         this.timeout(config.timeout);
@@ -117,6 +118,26 @@ typesClients.forEach((type)=>{
           });
         });
 
+        describe("Suivre dispositifs en ligne", function () {
+          let dispositifs: infoDispositifEnLigne[];
+          let fOublier: schémaFonctionOublier;
+
+          before(async ()=>{
+            fOublier = await client.réseau!.suivreDispositifsEnLigne(
+              (d)=>dispositifs = d
+            )
+          });
+
+          after(async () => {
+            if (fOublier) fOublier();
+          });
+
+          step("Autres dispositifs détectés", async () => {
+            expect(dispositifs).to.be.an("array").with.lengthOf(2);
+            expect(dispositifs.map(d=>d.info.idOrbite)).to.have.deep.members([idOrbite1, idOrbite2]);
+          })
+        })
+
         describe("Suivre noms membre", function () {
           const rés: { ultat: { [key: string]: string } | undefined } = {
             ultat: undefined,
@@ -135,7 +156,7 @@ typesClients.forEach((type)=>{
             await attendreRésultat(
               rés,
               "ultat",
-              (x: { [key: string]: string }) => x.fr
+              (x: { [key: string]: string }) => x && x.fr
             );
             expect(rés.ultat?.fr).to.exist;
             expect(rés.ultat?.fr).to.equal("Julien");

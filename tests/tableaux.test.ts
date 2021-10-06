@@ -548,15 +548,16 @@ typesClients.forEach((type)=>{
           });
         });
 
-        describe("Règles: Règle bornes relative colonne", function () {
+        describe("Règles: Règle bornes relative à une colonne", function () {
           let règles: règleColonne[];
           let erreurs: erreurValidation[];
           let idTableauRègles: string;
 
           let idVariableTempMin: string;
-          let idVariableTempMax: string;
           let idColonneTempMin: string;
-          let idColonneTempMax: string;
+          let idVariableTempMax: string;
+
+          const idColonneTempMax = "col temp max";
           const fsOublier: schémaFonctionOublier[] = [];
 
           beforeEach(async () => {
@@ -587,7 +588,7 @@ typesClients.forEach((type)=>{
             fsOublier.forEach((f) => f());
           });
 
-          step("Erreur si colonne n'existe pas", async () => {
+          step("Erreur si la colonne n'existe pas", async () => {
             const règle: règleBornes = {
               typeRègle: "bornes",
               détails: {
@@ -600,12 +601,16 @@ typesClients.forEach((type)=>{
               idColonneTempMin,
               règle
             );
+            expect(erreurs).to.be.an("array").of.length(1)
+            console.log({erreurs})
           });
           step("Ajout colonne réf détectée", async () => {
-            idColonneTempMax = await client.tableaux!.ajouterColonneTableau(
+            await client.tableaux!.ajouterColonneTableau(
               idTableauRègles,
-              idVariableTempMax
+              idVariableTempMax,
+              idColonneTempMax
             );
+            
           });
           step("Ajout éléments colonne réf détecté");
           step("Ajout éléments valides");
