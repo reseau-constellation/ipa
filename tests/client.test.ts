@@ -107,7 +107,7 @@ Object.keys(testAPIs).forEach((API) => {
       });
     });
 
-    describe("Contrôl dispositifs", function () {
+    describe("Contrôle dispositifs", function () {
       let fOublierDispositifs: schémaFonctionOublier;
       let fOublierIdBdRacine: schémaFonctionOublier;
 
