@@ -10,7 +10,7 @@ import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import OrbitDB, { KeyValueStore } from "orbit-db";
 
 import { testAPIs, config } from "../sfipTest";
-import { peutÉcrire, fermerBd, attendreSync, générerOrbites } from "../utils";
+import { peutÉcrire, attendreSync, générerOrbites } from "../utils";
 
 Object.keys(testAPIs).forEach((API) => {
   describe("Contrôleur Constellation", function () {
@@ -59,7 +59,7 @@ Object.keys(testAPIs).forEach((API) => {
 
           const autorisé = await peutÉcrire(bdOrbite2);
 
-          await fermerBd(bdOrbite2);
+          await bdOrbite2.close();;
           expect(autorisé).to.be.false;
         });
 
@@ -71,12 +71,12 @@ Object.keys(testAPIs).forEach((API) => {
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
 
-          await fermerBd(bdOrbite2);
+          await bdOrbite2.close();;
           expect(autorisé).to.be.true;
         });
 
         after(async () => {
-          await fermerBd(bd);
+          await bd.close();
         });
       });
 
@@ -148,7 +148,7 @@ Object.keys(testAPIs).forEach((API) => {
 
           const autorisé = await peutÉcrire(bdOrbite3, orbitdb3);
 
-          await fermerBd(bdOrbite3);
+          await bdOrbite3.close();
           expect(autorisé).to.be.true;
         });
         step("On peut inviter un modérateur", async () => {
@@ -167,7 +167,7 @@ Object.keys(testAPIs).forEach((API) => {
 
           const autorisé = await peutÉcrire(bdOrbite4, orbitdb4);
 
-          await fermerBd(bdOrbite4);
+          await bdOrbite4.close();
           expect(autorisé).to.be.true;
         });
 
@@ -180,7 +180,7 @@ Object.keys(testAPIs).forEach((API) => {
         });
 
         step("Invitations transitives lors de bd.load()", async () => {
-          await fermerBd(bd);
+          await bd.close();
           bd = (await orbitdb1.open(bd.id)) as KeyValueStore;
           await bd.load();
 
@@ -192,8 +192,8 @@ Object.keys(testAPIs).forEach((API) => {
         });
 
         after(async () => {
-          await fermerBd(bd);
-          if (bdOrbite2) await fermerBd(bdOrbite2);
+          await bd.close();
+          if (bdOrbite2) await bdOrbite2.close();
         });
       });
     });

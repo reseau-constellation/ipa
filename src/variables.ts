@@ -74,8 +74,6 @@ export default class Variables {
 
     await bdVariable.set("catégorie", catégorie);
 
-    await bdVariable.set("unités", undefined);
-
     await this.établirStatut(idBdVariable, { statut: STATUT.ACTIVE });
 
     return idBdVariable;
