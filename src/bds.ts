@@ -128,10 +128,14 @@ export default class BDs {
     }
   }
 
-  async copierBd(id: string, ajouter = true): Promise<string> {
+  async copierBd(
+    id: string,
+    ajouterÀMesBds = true,
+    copierDonnées = true
+  ): Promise<string> {
     const bdBase = (await this.client.ouvrirBd(id)) as KeyValueStore;
     const licence = await bdBase.get("licence");
-    const idNouvelleBd = await this.créerBd(licence, ajouter);
+    const idNouvelleBd = await this.créerBd(licence, ajouterÀMesBds);
     const nouvelleBd = (await this.client.ouvrirBd(
       idNouvelleBd
     )) as KeyValueStore;
@@ -173,7 +177,7 @@ export default class BDs {
     await Promise.all(
       tableaux.map(async (idT: string) => {
         const idNouveauTableau: string =
-          await this.client.tableaux!.copierTableau(idT);
+          await this.client.tableaux!.copierTableau(idT, copierDonnées);
         await nouvelleBdTableaux.add(idNouveauTableau);
       })
     );

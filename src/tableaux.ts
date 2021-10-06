@@ -106,7 +106,7 @@ export default class Tableaux {
     return idBdTableau;
   }
 
-  async copierTableau(id: string): Promise<string> {
+  async copierTableau(id: string, copierDonnées = true): Promise<string> {
     const bdBase = (await this.client.ouvrirBd(id)) as KeyValueStore;
     const idNouveauTableau = await this.créerTableau();
     const nouvelleBd = (await this.client.ouvrirBd(
@@ -122,14 +122,16 @@ export default class Tableaux {
     const noms = ((await this.client.ouvrirBd(idBdNoms)) as KeyValueStore).all;
     await this.ajouterNomsTableau(idNouveauTableau, noms);
 
-    //Copier les données
-    await this.client.copierContenuBdListe(bdBase, nouvelleBd, "données");
-
     //Copier les colonnes
     await this.client.copierContenuBdListe(bdBase, nouvelleBd, "colonnes");
 
     //Copier les règles
     await this.client.copierContenuBdListe(bdBase, nouvelleBd, "règles");
+
+    if (copierDonnées) {
+      //Copier les données
+      await this.client.copierContenuBdListe(bdBase, nouvelleBd, "données");
+    }
 
     return idNouveauTableau;
   }
