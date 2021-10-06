@@ -331,6 +331,26 @@ export default class ClientConstellation extends EventEmitter {
   async rejoindreCompte(idBdRacine: string): Promise<void> {
     if (!adresseOrbiteValide(idBdRacine))
       throw new Error(`Adresse compte ${idBdRacine} non valide`);
+
+    //Attendre de recevoir la permission
+    let permission: keyof objRôles | undefined
+    const oublierPermission = await this.suivrePermission(
+      idBdRacine, p=>permission = p
+    )
+    await new Promise<void>(résoudre=>{
+      const x = setInterval(
+        () => {
+          if (permission === MODÉRATEUR) {
+            oublierPermission();
+            clearInterval(x);
+            résoudre();
+          }
+        },
+        10
+      )
+    })
+
+    //Là on peut y aller
     this.idBdRacine = idBdRacine;
     await this.initialiserBds();
     this.emit("compteChangé");
