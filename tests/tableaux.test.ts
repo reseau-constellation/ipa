@@ -548,7 +548,7 @@ typesClients.forEach((type)=>{
           });
         });
 
-        describe("Règles: Règle bornes relative à une colonne", function () {
+        describe.skip("Règles: Règle bornes relative à une colonne", function () {
           let règles: règleColonne[];
           let erreurs: erreurValidation[];
           let idTableauRègles: string;
@@ -610,7 +610,7 @@ typesClients.forEach((type)=>{
               idVariableTempMax,
               idColonneTempMax
             );
-            
+
           });
           step("Ajout éléments colonne réf détecté");
           step("Ajout éléments valides");
@@ -618,6 +618,10 @@ typesClients.forEach((type)=>{
         });
 
         describe("Règle valeur catégorique", function () {
+          describe("Catégories fixes", function () {
+            it("Ajout éléments valides");
+            it("Ajout éléments invalides");
+          })
           describe("Dans le même tableau", function () {
             it("Erreur si colonne n'existe pas");
             it("Ajout colonne réf détectée");
