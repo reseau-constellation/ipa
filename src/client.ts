@@ -332,15 +332,17 @@ export default class ClientConstellation extends EventEmitter {
     if (!adresseOrbiteValide(idBdRacine))
       throw new Error(`Adresse compte ${idBdRacine} non valide`);
 
-    //Attendre de recevoir la permission
-    let permission: keyof objRôles | undefined
-    const oublierPermission = await this.suivrePermission(
-      idBdRacine, p=>permission = p
-    )
+    //Attendre de recevoir la permission d'écrire à idBdRacine
+    let autorisé: boolean
+    const accès = (await this.ouvrirBd(idBdRacine)).access as ContrôleurConstellation
+    const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
+      (autorisés: string[]) => autorisé = autorisés.includes(this.orbite!.identity.id)
+    );
     await new Promise<void>(résoudre=>{
       const x = setInterval(
         () => {
-          if (permission === MODÉRATEUR) {
+          console.log({autorisé})
+          if (autorisé) {
             oublierPermission();
             clearInterval(x);
             résoudre();
@@ -384,10 +386,12 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async obtIdSFIP(): Promise<IDResult> {
+    if (!this.idNodeSFIP) await once(this, "prêt")
     return this.idNodeSFIP!
   }
 
   async obtIdOrbite(): Promise<string> {
+    if (!this.orbite) await once(this, "prêt")
     return this.orbite!.identity.id;
   }
 
