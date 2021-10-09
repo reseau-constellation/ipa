@@ -1,6 +1,6 @@
 {
   "name": "@constl/ipa",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "L'IPA pour le réseau Constellation",
   "scripts": {
     "compiler": "tsc",
@@ -29,7 +29,7 @@
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "go-ipfs": "^0.9.1",
-    "ipfs-core-types": "^0.5.2",
+    "ipfs-core-types": "0.8.1",
     "ipfsd-ctl": "^10.0.3",
     "it-all": "^1.0.5",
     "mocha": "^9.1.1",
