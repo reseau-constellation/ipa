@@ -10,7 +10,6 @@ import {
   MessageSuivrePourTravailleur,
   MessageSuivreDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
-  MessageOublierPourTravailleur,
 } from "./proxy";
 
 export default class GestionnaireClient {
@@ -18,11 +17,11 @@ export default class GestionnaireClient {
   dicFOublier: { [key: string]: schémaFonctionOublier };
 
   fMessage: (m: MessageDeTravailleur) => void;
-  fErreur: (e: Error) => void;
+  fErreur: (e: Error, idRequète: string) => void;
 
   constructor(
     fMessage: (m: MessageDeTravailleur) => void,
-    fErreur: (e: Error) => void
+    fErreur: (e: Error, idRequète: string) => void
   ) {
 
     this.fMessage = fMessage;
@@ -31,7 +30,7 @@ export default class GestionnaireClient {
   }
 
   async gérerMessage(message: MessagePourTravailleur): Promise<void> {
-    const { type } = message;
+    const { type, id } = message;
     switch (type) {
       case "init": {
         if (this.ipa) return; //Au cas où
@@ -48,11 +47,11 @@ export default class GestionnaireClient {
         break;
       }
       case "suivre": {
-        if (!this.ipa) this.fErreur(new Error("IPA non initialisé"));
+        if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
 
-        const { id, fonction, args, iArgFonction } =
+        const { fonction, args, iArgFonction } =
           message as MessageSuivrePourTravailleur;
-        const fonctionIPA = this.extraireFonctionIPA(fonction);
+        const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; //L'erreur est déjà envoyée par extraireFonctionIPA
 
         const fFinale = (données: unknown) => {
@@ -76,9 +75,10 @@ export default class GestionnaireClient {
         break;
       }
       case "action": {
-        if (!this.ipa) this.fErreur(new Error("IPA non initialisé"));
-        const { id, fonction, args } = message as MessageActionPourTravailleur;
-        const fonctionIPA = this.extraireFonctionIPA(fonction);
+        if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
+
+        const { fonction, args } = message as MessageActionPourTravailleur;
+        const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; //L'erreur est déjà envoyée par extraireFonctionIPA
 
         const résultat = await fonctionIPA(...args);
@@ -91,7 +91,6 @@ export default class GestionnaireClient {
         break;
       }
       case "oublier": {
-        const { id } = message as MessageOublierPourTravailleur;
         const fOublier = this.dicFOublier[id];
         if (fOublier) fOublier();
         delete this.dicFOublier[id];
@@ -101,7 +100,8 @@ export default class GestionnaireClient {
         this.fErreur(
           new Error(
             `Type de requète ${type} non reconnu dans message ${message}`
-          )
+          ),
+          id
         );
         break;
       }
@@ -109,7 +109,8 @@ export default class GestionnaireClient {
   }
 
   extraireFonctionIPA(
-    adresseFonction: string[]
+    adresseFonction: string[],
+    idMessage: string
   ): ((...args: any[]) => any) | undefined {
     const erreur = new Error(
       `Fonction ClientConstellation.${adresseFonction.join(
@@ -133,7 +134,7 @@ export default class GestionnaireClient {
           //@ts-ignore
           fonctionIPA = fonctionIPA[attr].bind(fonctionIPA);
         } else {
-          this.fErreur(erreur);
+          this.fErreur(erreur, idMessage);
           return;
         }
       } else {
@@ -144,18 +145,18 @@ export default class GestionnaireClient {
         ) {
           fonctionIPA = fonctionIPA[attr as keyof typeof fonctionIPA];
         } else {
-          this.fErreur(erreur);
+          this.fErreur(erreur, idMessage);
           return;
         }
       }
 
       if (!fonctionIPA) {
-        this.fErreur(erreur);
+        this.fErreur(erreur, idMessage);
         return;
       }
     }
     if (typeof fonctionIPA !== "function") {
-      this.fErreur(erreur);
+      this.fErreur(erreur, idMessage);
       return;
     }
     return fonctionIPA;

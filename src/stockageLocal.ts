@@ -1,21 +1,28 @@
-import electron from "electron";
 import estÉlectron from "is-electron";
 import path from "path";
 
-declare let localStorage: any;
+let _localStorage: Storage
 
-export const DOSSIER_STOCKAGE_LOCAL = path.join(
-  estÉlectron() ? electron.app.getPath('userData') : ".", "_stockageTemp"
-);
+export default async (): Promise<Storage> => {
+  if (typeof localStorage === "undefined" || localStorage === null) {
+    if (_localStorage) return _localStorage;
 
-let final: any;
+    let DOSSIER_STOCKAGE_LOCAL: string;
 
-if (typeof localStorage === "undefined" || localStorage === null) {
-  /* eslint-disable @typescript-eslint/no-var-requires */
-  const LocalStorage = require("node-localstorage").LocalStorage;
-  final = new LocalStorage(DOSSIER_STOCKAGE_LOCAL);
-} else {
-  final = localStorage;
+    if (estÉlectron()) {
+      const electron = await import("electron");
+      DOSSIER_STOCKAGE_LOCAL = path.join(
+        electron.default.app.getPath('userData'), "_stockageTemp"
+      );
+    } else {
+      DOSSIER_STOCKAGE_LOCAL = path.join(".", "_stockageTemp");
+    }
+
+    const LocalStorage = require("node-localstorage").LocalStorage;
+
+    _localStorage = new LocalStorage(DOSSIER_STOCKAGE_LOCAL);
+    return _localStorage;
+  } else {
+    return localStorage
+  }
 }
-
-export default final;

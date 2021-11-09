@@ -15,6 +15,7 @@ interface Tâche {
 
 export interface MessageDeTravailleur {
   type: "prêt" | "suivre" | "suivrePrêt" | "action" | "erreur";
+  id?: string;
 }
 
 export interface MessagePrêtDeTravailleur extends MessageDeTravailleur {
@@ -45,6 +46,7 @@ export interface MessageErreurDeTravailleur extends MessageDeTravailleur {
 
 export interface MessagePourTravailleur {
   type: "oublier" | "suivre" | "action" | "init";
+  id: string;
 }
 
 export interface MessageInitPourTravailleur extends MessagePourTravailleur {
@@ -56,7 +58,6 @@ export interface MessageInitPourTravailleur extends MessagePourTravailleur {
 
 export interface MessageSuivrePourTravailleur extends MessagePourTravailleur {
   type: "suivre";
-  id: string;
   fonction: string[];
   args: unknown[];
   iArgFonction: number;
@@ -64,14 +65,12 @@ export interface MessageSuivrePourTravailleur extends MessagePourTravailleur {
 
 export interface MessageActionPourTravailleur extends MessagePourTravailleur {
   type: "action";
-  id: string;
   fonction: string[];
   args: unknown[];
 }
 
 export interface MessageOublierPourTravailleur extends MessagePourTravailleur {
   type: "oublier";
-  id: string;
 }
 
 class Callable extends Function {
@@ -166,6 +165,7 @@ export class IPAParallèle extends Callable {
     });
     const messageInit: MessageInitPourTravailleur = {
       type: "init",
+      id: uuidv4(),
       idBdRacine,
       orbite,
       sujetRéseau

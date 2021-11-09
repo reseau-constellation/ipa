@@ -4,7 +4,7 @@ import XLSX from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import localStorage from "./stockageLocal";
+import obtLocalStorage from "./stockageLocal";
 import { schémaBd } from "./reseau";
 import { InfoColAvecCatégorie } from "./tableaux";
 import {
@@ -337,7 +337,7 @@ export default class BDs {
 
     const fFinale = async (bds: string[]): Promise<void> => {
       let idBd: string;
-      const idBdLocale = localStorage.getItem(clefStockageLocal);
+      const idBdLocale = (await obtLocalStorage()).getItem(clefStockageLocal);
 
       switch (bds.length) {
         case 0: {
@@ -345,13 +345,13 @@ export default class BDs {
             idBd = idBdLocale;
           } else {
             idBd = await this.créerBdDeSchéma(schéma);
-            localStorage.setItem(clefStockageLocal, idBd);
+            (await obtLocalStorage()).setItem(clefStockageLocal, idBd);
           }
           break;
         }
         case 1: {
           idBd = bds[0];
-          localStorage.setItem(clefStockageLocal, idBd);
+          (await obtLocalStorage()).setItem(clefStockageLocal, idBd);
           if (idBdLocale && idBd !== idBdLocale) {
             await this.combinerBds(idBd, idBdLocale);
           }
@@ -360,7 +360,7 @@ export default class BDs {
         default: {
           if (idBdLocale) bds = [...new Set([...bds, idBdLocale])];
           idBd = bds.sort()[0];
-          localStorage.setItem(clefStockageLocal, idBd);
+          (await obtLocalStorage()).setItem(clefStockageLocal, idBd);
 
           for (const bd of bds.slice(1)) {
             if (déjàCombinées.has(bd)) continue;

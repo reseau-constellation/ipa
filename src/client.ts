@@ -28,7 +28,7 @@ import MotsClefs from "./motsClefs";
 import Automatisations from "./automatisation";
 
 import { cidValide } from "./utils";
-import localStorage from "./stockageLocal";
+import obtLocalStorage from "./stockageLocal";
 import ContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
@@ -137,8 +137,8 @@ class ÉmetteurUneFois<T> extends EventEmitter {
 export const uneFois = async function <T>(
   f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>
 ): Promise<T> {
-  const test = new ÉmetteurUneFois(f);
-  const résultat = (await once(test, "fini")) as [T];
+  const émetteur = new ÉmetteurUneFois(f);
+  const résultat = (await once(émetteur, "fini")) as [T];
   return résultat[0];
 };
 
@@ -338,10 +338,10 @@ export default class ClientConstellation extends EventEmitter {
     const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
       (autorisés: string[]) => autorisé = autorisés.includes(this.orbite!.identity.id)
     );
-    await new Promise<void>(résoudre=>{
+    await new Promise<void>(résoudre => {
       const x = setInterval(
-        () => {
-          console.log({autorisé})
+        () => {
+          console.log({ autorisé })
           if (autorisé) {
             oublierPermission();
             clearInterval(x);
@@ -385,7 +385,7 @@ export default class ClientConstellation extends EventEmitter {
     return () => this.off("compteChangé", fFinale);
   }
 
-  async obtIdSFIP(): Promise<IDResult> {
+  async obtIdSFIP(): Promise<IDResult> {
     if (!this.idNodeSFIP) await once(this, "prêt")
     return this.idNodeSFIP!
   }
@@ -944,7 +944,7 @@ export default class ClientConstellation extends EventEmitter {
     let idBd = await bdRacine.get(nom);
 
     const clefLocale = idBdRacine + nom;
-    const idBdPrécédente = localStorage.getItem(clefLocale);
+    const idBdPrécédente = (await obtLocalStorage()).getItem(clefLocale);
 
     if (idBd && idBdPrécédente && idBd !== idBdPrécédente) {
       try {
@@ -978,7 +978,7 @@ export default class ClientConstellation extends EventEmitter {
       }
     }
 
-    if (idBd) localStorage.setItem(clefLocale, idBd);
+    if (idBd) (await obtLocalStorage()).setItem(clefLocale, idBd);
     return idBd;
   }
 
@@ -1033,8 +1033,8 @@ export default class ClientConstellation extends EventEmitter {
         const rôlePlusPuissant = mesRôles.includes(MODÉRATEUR)
           ? MODÉRATEUR
           : mesRôles.includes(MEMBRE)
-          ? MEMBRE
-          : undefined;
+            ? MEMBRE
+            : undefined;
         f(rôlePlusPuissant);
       };
       return await accès.suivreUtilisateursAutorisés(fFinale);

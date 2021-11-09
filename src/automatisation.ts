@@ -6,7 +6,7 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import isNode from "is-node";
 import isElectron from "is-electron";
 
-import localStorage from "./stockageLocal";
+import obtLocalStorage from "./stockageLocal";
 import ClientConstellation, {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -59,7 +59,7 @@ export interface infoImporterFeuilleCalcul {
 
 export interface SourceDonnéesImportation<
   T = infoImporterJSON | infoImporterFeuilleCalcul
-> {
+  > {
   typeSource: "url" | "fichier";
   info: T;
 }
@@ -317,13 +317,13 @@ const lancerAutomatisation = async (
     const fAutoAvecÉtatsRécursif = async () => {
       await fAutoAvecÉtats();
       const maintenant = new Date().getTime();
-      localStorage.setItem(clefStockageDernièreFois, maintenant.toString());
+      (await obtLocalStorage()).setItem(clefStockageDernièreFois, maintenant.toString());
       const crono = setTimeout(fAutoAvecÉtatsRécursif, tempsInterval);
       dicFOublierIntervale.f = () => clearTimeout(crono);
     };
 
     const maintenant = new Date().getTime();
-    const dernièreFoisChaîne = localStorage.getItem(clefStockageDernièreFois);
+    const dernièreFoisChaîne = (await obtLocalStorage()).getItem(clefStockageDernièreFois);
     const dernièreFois = dernièreFoisChaîne
       ? parseInt(dernièreFoisChaîne)
       : -Infinity;
@@ -347,14 +347,14 @@ const lancerAutomatisation = async (
     switch (spéc.type) {
       case "exportation": {
         const spécExp = spéc as SpécificationExporter;
-        const empreinteDernièreModifImportée = localStorage.getItem(
+        const empreinteDernièreModifImportée = (await obtLocalStorage()).getItem(
           clefStockageDernièreFois
         );
-        const fOublier = await client.suivreBd(spécExp.idObjet, (bd) => {
+        const fOublier = await client.suivreBd(spécExp.idObjet, async (bd) => {
           const tête = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
           if (tête !== empreinteDernièreModifImportée) {
             fAutoAvecÉtats();
-            localStorage.setItem(clefStockageDernièreFois, tête);
+            (await obtLocalStorage()).setItem(clefStockageDernièreFois, tête);
           }
         });
         return fOublier;
@@ -375,7 +375,7 @@ const lancerAutomatisation = async (
             const écouteur = _chokidar.watch(source.adresseFichier);
             écouteur.on("change", () => {
               fAutoAvecÉtats();
-              localStorage.setItem(
+              (await obtLocalStorage()).setItem(
                 clefStockageDernièreFois,
                 new Date().getTime().toString()
               );
@@ -384,7 +384,7 @@ const lancerAutomatisation = async (
             const dernièreModif = fs
               .statSync(source.adresseFichier)
               .mtime.getTime();
-            const dernièreImportation = localStorage.getItem(
+            const dernièreImportation = (await obtLocalStorage()).getItem(
               clefStockageDernièreFois
             );
             const fichierModifié = dernièreImportation
@@ -393,7 +393,7 @@ const lancerAutomatisation = async (
             if (fichierModifié) {
               const maintenant = new Date().getTime();
               fAutoAvecÉtats();
-              localStorage.setItem(
+              (await obtLocalStorage()).setItem(
                 clefStockageDernièreFois,
                 maintenant.toString()
               );
