@@ -1,31 +1,103 @@
-# L'interface de programmation d'applications (IPA) de Constellation
-[![Couverture](https://codecov.io/gh/reseau-constellation/ipa/branch/main/graph/badge.svg?token=D41D2XBE0P)](https://codecov.io/gh/reseau-constellation/ipa)
+# TSDX User Guide
 
-L'IPA JavaScript de Constellation contient tout le code nécessaire pour se joindre
-et pour participer au réseau Constellation. Le code roule entièrement sur le
-client (pensez navigateur, téléphone «intelligent», Électron, etc.). Donc,
-vous pouvez oublier les serveurs !
+Congrats! You just saved yourself hours of work by bootstrapping this project with TSDX. Let’s get you oriented with what’s here and how to use it.
 
-Si vous cherchez le code pour l'application Constellation elle-même
-(l'interface graphique), veuillez vous rendre [ici](https://github.com/reseau-constellation/constellation).
+> This TSDX setup is meant for developing libraries (not apps!) that can be published to NPM. If you’re looking to build a Node app, you could use `ts-node-dev`, plain `ts-node`, or simple `tsc`.
 
-**Attention ! Constellation est un programme en développement actif. Pis encore,
-il se repose sur des technologies (Orbit-DB et SFIP) qui sont en mode alpha
-elles-mêmes. Tout peut briser à tout moment. Utilisez à vos propres risques et
-gardez toujours une copie de vos données externe à Constellation (on vous
-expliquera comment faire ça facilement dans la documentation).**
+> If you’re new to TypeScript, checkout [this handy cheatsheet](https://devhints.io/typescript)
 
-## Comment ça marche
-Vous pouvez installer Constellation avec `yarn`:
-`yarn install @constl/ipa`
+## Commands
 
-Si vous voulez utiliser Constellation pour partager vos données, l'interface
-générale offerte par [l'appli Constellation](https://reseau-constellation.github.io/constellation/) est probablement suffisante. Vous n'avez plus rien à faire ici !
+TSDX scaffolds your new library inside `/src`.
 
-Cependant, si vous développez votre propre logiciel ou appli pour la science citoyenne
-(p. ex., une appli de recensement écologique, un projet de collecte de données hydriques...)
-vous voudrez probablement développer votre propre interface. C'est là que vous
-devrez utiliser l'IPA de Constellation.
+To run TSDX, use:
 
-## Exemples et tutoriels
-*On en écrira éventuellement !* En attendant, contactez-moi au julien.malard@mail.mcgill.ca.
+```bash
+npm start # or yarn start
+```
+
+This builds to `/dist` and runs the project in watch mode so any edits you save inside `src` causes a rebuild to `/dist`.
+
+To do a one-off build, use `npm run build` or `yarn build`.
+
+To run tests, use `npm test` or `yarn test`.
+
+## Configuration
+
+Code quality is set up for you with `prettier`, `husky`, and `lint-staged`. Adjust the respective fields in `package.json` accordingly.
+
+### Jest
+
+Jest tests are set up to run with `npm test` or `yarn test`.
+
+### Bundle Analysis
+
+[`size-limit`](https://github.com/ai/size-limit) is set up to calculate the real cost of your library with `npm run size` and visualize the bundle with `npm run analyze`.
+
+#### Setup Files
+
+This is the folder structure we set up for you:
+
+```txt
+/src
+  index.tsx       # EDIT THIS
+/test
+  blah.test.tsx   # EDIT THIS
+.gitignore
+package.json
+README.md         # EDIT THIS
+tsconfig.json
+```
+
+### Rollup
+
+TSDX uses [Rollup](https://rollupjs.org) as a bundler and generates multiple rollup configs for various module formats and build settings. See [Optimizations](#optimizations) for details.
+
+### TypeScript
+
+`tsconfig.json` is set up to interpret `dom` and `esnext` types, as well as `react` for `jsx`. Adjust according to your needs.
+
+## Continuous Integration
+
+### GitHub Actions
+
+Two actions are added by default:
+
+- `main` which installs deps w/ cache, lints, tests, and builds on all pushes against a Node and OS matrix
+- `size` which comments cost comparison of your library on every pull request using [`size-limit`](https://github.com/ai/size-limit)
+
+## Optimizations
+
+Please see the main `tsdx` [optimizations docs](https://github.com/palmerhq/tsdx#optimizations). In particular, know that you can take advantage of development-only optimizations:
+
+```js
+// ./types/index.d.ts
+declare var __DEV__: boolean;
+
+// inside your code...
+if (__DEV__) {
+  console.log('foo');
+}
+```
+
+You can also choose to install and use [invariant](https://github.com/palmerhq/tsdx#invariant) and [warning](https://github.com/palmerhq/tsdx#warning) functions.
+
+## Module Formats
+
+CJS, ESModules, and UMD module formats are supported.
+
+The appropriate paths are configured in `package.json` and `dist/index.js` accordingly. Please report if any issues are found.
+
+## Named Exports
+
+Per Palmer Group guidelines, [always use named exports.](https://github.com/palmerhq/typescript#exports) Code split inside your React app instead of your React library.
+
+## Including Styles
+
+There are many ways to ship styles, including with CSS-in-JS. TSDX has no opinion on this, configure how you like.
+
+For vanilla CSS, you can include it at the root directory and add it to the `files` section in your `package.json`, so that it can be imported separately by your users and run through their bundler's loader.
+
+## Publishing to NPM
+
+We recommend using [np](https://github.com/sindresorhus/np).

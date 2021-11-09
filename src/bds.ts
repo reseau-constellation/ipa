@@ -4,15 +4,15 @@ import XLSX from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import obtLocalStorage from "./stockageLocal";
-import { schémaBd } from "./reseau";
-import { InfoColAvecCatégorie } from "./tableaux";
+import obtLocalStorage from "@/stockageLocal";
+import { schémaBd } from "@/reseau";
+import { InfoColAvecCatégorie } from "@/tableaux";
 import {
   règleColonne,
   élémentDonnées,
   élémentBdListeDonnées,
   erreurValidation,
-} from "./valid";
+} from "@/valid";
 import ClientConstellation, {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -20,10 +20,10 @@ import ClientConstellation, {
   infoAccès,
   uneFois,
   faisRien,
-} from "./client";
-import { traduire, zipper } from "./utils";
-import { objRôles } from "./accès/types";
-import ContrôleurConstellation from "./accès/cntrlConstellation";
+} from "@/client";
+import { traduire, zipper } from "@/utils";
+import { objRôles } from "@/accès/types";
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
 
 export const STATUT = {
   ACTIVE: "active",
@@ -712,7 +712,7 @@ export default class BDs {
     f: schémaFonctionSuivi<number | undefined>
   ): Promise<schémaFonctionOublier> {
     //À faire
-    f(undefined);
+    f(Number.parseInt(id));
     return faisRien;
   }
 
