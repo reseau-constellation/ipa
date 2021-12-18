@@ -10,7 +10,7 @@ describe("XLSX", function () {
     let importateur: ImportateurFeuilleCalcul;
 
     before(async () => {
-      //Données de https://covid.ourworldindata.org/data/owid-covid-data.json
+      // Données de https://covid.ourworldindata.org/data/owid-covid-data.json
       const doc = XLSX.readFile(
         path.resolve(__dirname, "../_ressources/donnéesTest.ods")
       );

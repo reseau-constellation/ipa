@@ -33,7 +33,7 @@ export interface règleExiste extends règleVariable {
 export interface règleBornes extends règleVariable {
   typeRègle: "bornes";
   détails: {
-    val: number | string; //Peut être numérique ou bien le nom d'une autre variable
+    val: number | string; // Peut être numérique ou bien le nom d'une autre variable
     op: typeOp;
   };
 }
@@ -61,22 +61,20 @@ export interface erreurValidation {
   erreur: Erreur;
 }
 
-export type schémaFonctionValidation<T extends élémentBdListeDonnées> = (
+export type schémaFonctionValidation<T extends LogEntryDonnées> = (
   valeurs: élémentDonnées<T>[]
 ) => erreurValidation[];
 
-export type élémentBdListeDonnées = {
+export type LogEntryDonnées = {
   [key: string]: élémentsBd;
 };
 
-export interface élémentDonnées<
-  T extends élémentBdListeDonnées = élémentBdListeDonnées
-> {
+export interface élémentDonnées<T extends LogEntryDonnées = LogEntryDonnées> {
   données: T;
   empreinte: string;
 }
 
-export function générerFonctionRègle<T extends élémentBdListeDonnées>(
+export function générerFonctionRègle<T extends LogEntryDonnées>(
   règle: règleColonne,
   varsÀColonnes: { [key: string]: string }
 ): schémaFonctionValidation<T> {
@@ -228,7 +226,7 @@ export function validerCatégorieVal(
   val: unknown,
   catégorie: catégorieVariables
 ): boolean {
-  if (val === undefined) return true; //Permettre les valeurs manquantes
+  if (val === undefined) return true; // Permettre les valeurs manquantes
 
   const estUnHoroDatage = (v: unknown): boolean => {
     if (!["number", "string"].includes(typeof v)) return false;

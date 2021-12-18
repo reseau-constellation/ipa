@@ -1,12 +1,13 @@
-import { FeedStore, KeyValueStore } from "orbit-db";
-import XLSX from "xlsx";
+import KeyValueStore from "orbit-db-kvstore";
+import FeedStore from "orbit-db-feedstore";
+import { WorkBook, BookType, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
 import ClientConstellation, {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  élémentBdListe,
+  LogEntry,
   infoAccès,
   uneFois,
 } from "./client";
@@ -16,7 +17,7 @@ import ContrôleurConstellation from "./accès/cntrlConstellation";
 import { traduire, zipper } from "./utils";
 
 export interface donnéesProjetExportées {
-  docs: { doc: XLSX.WorkBook; nom: string }[];
+  docs: { doc: WorkBook; nom: string }[];
   fichiersSFIP: Set<{ cid: string; ext: string }>;
   nomFichier: string;
 }
@@ -162,7 +163,7 @@ export default class Projets {
       return await this.client.réseau!.suivreProjetsMembre(
         idBdRacine,
         fFinaleSuivreBranche
-        //false
+        // false
       );
     };
     const fIdBdDeBranche = (x: infoAccès) => x.idBdRacine;
@@ -187,8 +188,9 @@ export default class Projets {
       "kvstore",
       optionsAccès
     );
-    if (!idBdNoms)
+    if (!idBdNoms) {
       throw `Permission de modification refusée pour Projet ${id}.`;
+    }
 
     const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
     return bdNoms;
@@ -226,8 +228,9 @@ export default class Projets {
       "kvstore",
       optionsAccès
     );
-    if (!idBdDescr)
+    if (!idBdDescr) {
       throw `Permission de modification refusée pour Projet ${id}.`;
+    }
 
     const bdDescr = (await this.client.ouvrirBd(idBdDescr)) as KeyValueStore;
     return bdDescr;
@@ -265,8 +268,9 @@ export default class Projets {
       "feed",
       optionsAccès
     );
-    if (!idBdMotsClefs)
+    if (!idBdMotsClefs) {
       throw `Permission de modification refusée pour projet ${id}.`;
+    }
 
     const bdMotsClefs = (await this.client.ouvrirBd(
       idBdMotsClefs
@@ -300,9 +304,7 @@ export default class Projets {
       bdMotsClefs,
       false
     );
-    const entrée = entrées.find(
-      (e: élémentBdListe) => e.payload.value === idMotClef
-    );
+    const entrée = entrées.find((e: LogEntry) => e.payload.value === idMotClef);
     if (entrée) await bdMotsClefs.remove(entrée.hash);
   }
 
@@ -327,7 +329,7 @@ export default class Projets {
     const entrée = bdBds
       .iterator({ limit: -1 })
       .collect()
-      .find((e: élémentBdListe<string>) => e.payload.value === idBd);
+      .find((e: LogEntry<string>) => e.payload.value === idBd);
     await bdBds.remove(entrée.hash);
   }
 
@@ -481,21 +483,21 @@ export default class Projets {
 
   async exporterDocumentDonnées(
     données: donnéesProjetExportées,
-    formatDoc: XLSX.BookType | "xls",
+    formatDoc: BookType | "xls",
     dir = "",
     inclureFichiersSFIP = true
   ): Promise<void> {
     const { docs, fichiersSFIP, nomFichier } = données;
 
-    const conversionsTypes: { [key: string]: XLSX.BookType } = {
+    const conversionsTypes: { [key: string]: BookType } = {
       xls: "biff8",
     };
-    const bookType: XLSX.BookType = conversionsTypes[formatDoc] || formatDoc;
+    const bookType: BookType = conversionsTypes[formatDoc] || formatDoc;
 
     const fichiersDocs = docs.map((d) => {
       return {
         nom: `${d.nom}.${formatDoc}`,
-        octets: XLSX.write(d.doc, { bookType, type: "buffer" }),
+        octets: writeXLSX(d.doc, { bookType, type: "buffer" }),
       };
     });
     const fichiersDeSFIP = [];
@@ -516,7 +518,7 @@ export default class Projets {
     const entrée = bdRacine
       .iterator({ limit: -1 })
       .collect()
-      .find((e: élémentBdListe<string>) => e.payload.value === id);
+      .find((e: LogEntry<string>) => e.payload.value === id);
     await bdRacine.remove(entrée.hash);
 
     // Et puis maintenant aussi effacer les données et le projet lui-même

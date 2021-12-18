@@ -1,6 +1,5 @@
-import { expect } from "chai";
+import chai, { expect } from "chai";
 import { step } from "mocha-steps";
-import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
 import all from "it-all";
@@ -17,14 +16,11 @@ import ClientConstellation, {
 } from "@/client";
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
 
-import { KeyValueStore, FeedStore, élémentFeedStore } from "orbit-db";
+import FeedStore from "orbit-db-feedstore";
+import KeyValueStore from "orbit-db-kvstore";
 
 import { testAPIs, config } from "./sfipTest";
-import {
-  générerClients,
-  peutÉcrire,
-  attendreRésultat,
-} from "./utils";
+import { générerClients, peutÉcrire, attendreRésultat } from "./utils";
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -67,20 +63,23 @@ Object.keys(testAPIs).forEach((API) => {
       [client, client2, client3] = clients;
 
       idBdRacine1 = await uneFois(
-        async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
-          return await client.suivreIdBdRacine(fSuivi)
+        async (
+          fSuivi: schémaFonctionSuivi<string>
+        ): Promise<schémaFonctionOublier> => {
+          return await client.suivreIdBdRacine(fSuivi);
         }
-      )
+      );
 
       idBdRacine2 = await uneFois(
-        async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
-          return await client2.suivreIdBdRacine(fSuivi)
+        async (
+          fSuivi: schémaFonctionSuivi<string>
+        ): Promise<schémaFonctionOublier> => {
+          return await client2.suivreIdBdRacine(fSuivi);
         }
-      )
+      );
 
-      idOrbite1 = await client.obtIdOrbite()
-      idOrbite3 = await client3.obtIdOrbite()
-
+      idOrbite1 = await client.obtIdOrbite();
+      idOrbite3 = await client3.obtIdOrbite();
     });
 
     after(async () => {
@@ -187,12 +186,12 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       it("Les données initiales sont détectées", async () => {
-        expect(données["a"]).to.equal(1);
+        expect(données.a).to.equal(1);
       });
 
       it("Les changements sont détectés", async () => {
         await bd.put("b", 2);
-        expect(données["b"]).to.equal(2);
+        expect(données.b).to.equal(2);
       });
     });
 
@@ -237,13 +236,13 @@ Object.keys(testAPIs).forEach((API) => {
         await changerBd(idBd);
         await bd.put("a", 1);
         expect(données).to.not.be.undefined;
-        expect(données!["a"]).to.equal(1);
+        expect(données!.a).to.equal(1);
       });
       it("Les changements à l'id de la BD suivie sont détectés", async () => {
         await bd2.put("a", 2);
         await changerBd(idBd2);
         expect(données).to.not.be.undefined;
-        expect(données!["a"]).to.equal(2);
+        expect(données!.a).to.equal(2);
       });
     });
 
@@ -284,7 +283,7 @@ Object.keys(testAPIs).forEach((API) => {
         bd = await client.ouvrirBd(idBd!);
         await bd.put("a", 1);
         expect(données).to.not.be.undefined;
-        expect(données!["a"]).to.equal(1);
+        expect(données!.a).to.equal(1);
       });
 
       it("Les changements à la clef sont détectés", async () => {
@@ -293,7 +292,7 @@ Object.keys(testAPIs).forEach((API) => {
         await bd2.put("a", 2);
         await bdBase.put(CLEF, idBd2);
         expect(données).to.not.be.undefined;
-        expect(données!["a"]).to.equal(2);
+        expect(données!.a).to.equal(2);
       });
     });
 
@@ -326,7 +325,7 @@ Object.keys(testAPIs).forEach((API) => {
         expect(données).to.be.empty;
 
         await bd.put("a", 1);
-        expect(données["a"]).to.equal(1);
+        expect(données.a).to.equal(1);
       });
     });
 
@@ -406,7 +405,7 @@ Object.keys(testAPIs).forEach((API) => {
 
     describe("Rechercher élément BD liste selon empreinte", function () {
       let idBd: string;
-      let bd: FeedStore;
+      let bd: FeedStore<string>;
       before(async () => {
         idBd = await client.créerBdIndépendante("feed");
         bd = (await client.ouvrirBd(idBd)) as FeedStore;
@@ -416,14 +415,14 @@ Object.keys(testAPIs).forEach((API) => {
         if (bd) await bd.close();
       });
       it("On retrouve le bon élément", async () => {
-        const fRecherche = (e: élémentFeedStore<string>): boolean => {
+        const fRecherche = (e: LogEntry<string>): boolean => {
           return e.payload.value === "abc";
         };
         const résultat = await client.rechercherBdListe(idBd, fRecherche);
         expect(résultat.payload.value).to.equal("abc");
       });
       it("`undefined` est retourné si l'empreinte n'existe pas", async () => {
-        const fRecherche = (e: élémentFeedStore<string>): boolean => {
+        const fRecherche = (e: LogEntry<string>): boolean => {
           return e.payload.value === "def";
         };
         const résultat = await client.rechercherBdListe(idBd, fRecherche);
@@ -1077,7 +1076,7 @@ Object.keys(testAPIs).forEach((API) => {
         fOublierÉcrire = await client2.suivrePermissionÉcrire(idBd, fÉcrire);
 
         const fPermission = (accès?: typeof MODÉRATEUR | typeof MEMBRE) => {
-          résultatPermission["permission"] = accès;
+          résultatPermission.permission = accès;
         };
         fOublierPermission = await client2.suivrePermission(idBd, fPermission);
       });
@@ -1090,24 +1089,20 @@ Object.keys(testAPIs).forEach((API) => {
         await client.donnerAccès(idBd, idBdRacine2, MEMBRE);
         await attendreRésultat(résultatPermission, "permission", MEMBRE);
 
-        const infoInvité = lAccès.find(
-          (a) => a.idBdRacine === idBdRacine2
-        );
+        const infoInvité = lAccès.find((a) => a.idBdRacine === idBdRacine2);
         expect(infoInvité?.rôle).to.equal(MEMBRE);
       });
 
       step("L'invité détecte l'ajout de sa permission membre", async () => {
         expect(permissionÉcrire).to.be.true;
-        expect(résultatPermission["permission"]).to.equal(MEMBRE);
+        expect(résultatPermission.permission).to.equal(MEMBRE);
       });
 
       step("On détecte l'ajout d'une permission modératrice", async () => {
         await client.donnerAccès(idBd, idBdRacine2, MODÉRATEUR);
         await attendreRésultat(résultatPermission, "permission", MODÉRATEUR);
 
-        const infoInvité = lAccès.find(
-          (a) => a.idBdRacine === idBdRacine2
-        );
+        const infoInvité = lAccès.find((a) => a.idBdRacine === idBdRacine2);
         expect(infoInvité?.rôle).to.equal(MODÉRATEUR);
       });
 
@@ -1115,7 +1110,7 @@ Object.keys(testAPIs).forEach((API) => {
         "L'invité détecte l'ajout de sa permission modératrice",
         async () => {
           expect(permissionÉcrire).to.be.true;
-          expect(résultatPermission["permission"]).to.equal(MODÉRATEUR);
+          expect(résultatPermission.permission).to.equal(MODÉRATEUR);
         }
       );
     });

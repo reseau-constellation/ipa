@@ -2,20 +2,19 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { step } from "mocha-steps";
 
-chai.should();
-chai.use(chaiAsPromised);
-
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation, { schémaFonctionOublier } from "@/client";
 import { catégorieVariables } from "@/variables";
 import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid";
 
 import { testAPIs, config } from "./sfipTest";
-import { générerClients, typesClients} from "./utils";
+import { générerClients, typesClients } from "./utils";
 
+chai.should();
+chai.use(chaiAsPromised);
 
-typesClients.forEach((type)=>{
-  describe("Client " + type, function() {
+typesClients.forEach((type) => {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Variables", function () {
         this.timeout(config.timeout);
@@ -28,7 +27,11 @@ typesClients.forEach((type)=>{
 
         before(async () => {
           enregistrerContrôleurs();
-          ({ fOublier: fOublierClients, clients } = await générerClients(1, API, type));
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+            1,
+            API,
+            type
+          ));
           client = clients[0];
         });
 
@@ -145,7 +148,9 @@ typesClients.forEach((type)=>{
               "fr",
               "la quantité de précipitation quotidienne"
             );
-            expect(descrs.fr).to.equal("la quantité de précipitation quotidienne");
+            expect(descrs.fr).to.equal(
+              "la quantité de précipitation quotidienne"
+            );
           });
 
           step("Ajouter des descriptions", async () => {
@@ -166,12 +171,17 @@ typesClients.forEach((type)=>{
               "fr",
               "La quantité de précipitation quotidienne"
             );
-            expect(descrs?.fr).to.equal("La quantité de précipitation quotidienne");
+            expect(descrs?.fr).to.equal(
+              "La quantité de précipitation quotidienne"
+            );
           });
 
           step("Effacer une description", async () => {
             await client.variables!.effacerDescrVariable(idVariable, "fr");
-            expect(descrs).to.deep.equal({ த: "தினசரி மழை", हिं: "दैनिक बारिश" });
+            expect(descrs).to.deep.equal({
+              த: "தினசரி மழை",
+              हिं: "दैनिक बारिश",
+            });
           });
         });
 
@@ -272,14 +282,17 @@ typesClients.forEach((type)=>{
             expect(règles).to.have.lengthOf(1);
           });
 
-          step("On ne peut pas effacer une règle générique de base", async () => {
-            const règleDeBase = règles[0];
-            await client.variables!.effacerRègleVariable(
-              idVariable,
-              règleDeBase.id
-            );
-            expect(règles[0].id).to.equal(règleDeBase.id);
-          });
+          step(
+            "On ne peut pas effacer une règle générique de base",
+            async () => {
+              const règleDeBase = règles[0];
+              await client.variables!.effacerRègleVariable(
+                idVariable,
+                règleDeBase.id
+              );
+              expect(règles[0].id).to.equal(règleDeBase.id);
+            }
+          );
 
           step("On détecte le changement de catégorie", async () => {
             await client.variables!.sauvegarderCatégorieVariable(
@@ -290,7 +303,9 @@ typesClients.forEach((type)=>{
               (r) => r.règle.typeRègle === "catégorie"
             );
             expect(règleCatégorie).to.exist;
-            expect(règleCatégorie?.règle.détails.catégorie).to.equal("horoDatage");
+            expect(règleCatégorie?.règle.détails.catégorie).to.equal(
+              "horoDatage"
+            );
           });
         });
 
@@ -318,7 +333,9 @@ typesClients.forEach((type)=>{
               await client.variables!.suivreVariables((x) => (variables = x))
             );
 
-            const idVariable = await client.variables!.créerVariable("numérique");
+            const idVariable = await client.variables!.créerVariable(
+              "numérique"
+            );
             await client.variables!.ajouterNomsVariable(idVariable, {
               த: "மழை",
               हिं: "बारिश",
@@ -377,7 +394,10 @@ typesClients.forEach((type)=>{
           });
 
           it("Les descriptions sont copiés", async () => {
-            expect(descrs).to.deep.equal({ த: "தினசரி மழை", हिं: "दैनिक बारिश" });
+            expect(descrs).to.deep.equal({
+              த: "தினசரி மழை",
+              हिं: "दैनिक बारिश",
+            });
           });
 
           it("Les règles sont copiés", async () => {

@@ -1,9 +1,6 @@
-import générerProxy, {
-  téléClient,
-  MessageDeTravailleur,
-  MessagePourTravailleur,
-  ProxyClientConstellation,
-} from "./proxy";
+import générerProxy, { téléClient, ProxyClientConstellation } from "./proxy";
+
+import { MessageDeTravailleur, MessagePourTravailleur } from "./messages";
 
 export class IPATravailleur extends téléClient {
   travailleur: Worker;
@@ -25,7 +22,16 @@ export class IPATravailleur extends téléClient {
   }
 }
 
-
-export default (idBdRacine?: string, souleverErreurs=false, sujetRéseau?: string): ProxyClientConstellation => {
-  return générerProxy(new IPATravailleur(), souleverErreurs, idBdRacine, undefined, sujetRéseau)
-}
+export default (
+  idBdRacine?: string,
+  souleverErreurs = false,
+  sujetRéseau?: string
+): ProxyClientConstellation => {
+  return générerProxy(
+    new IPATravailleur(),
+    souleverErreurs,
+    idBdRacine,
+    undefined,
+    sujetRéseau
+  );
+};

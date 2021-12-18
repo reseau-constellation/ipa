@@ -160,7 +160,7 @@ export const extraireDonnées = (
 };
 
 export default class ImportateurDonnéesJSON {
-  //Exemple: https://coordinates.native-land.ca/indigenousLanguages.json
+  // Exemple: https://coordinates.native-land.ca/indigenousLanguages.json
   donnéesJSON: DonnéesJSON;
 
   constructor(données: DonnéesJSON) {
@@ -175,8 +175,9 @@ export default class ImportateurDonnéesJSON {
     let données: élémentDic[] = [];
 
     let racineDonnéesJSON = extraireDonnées(this.donnéesJSON, clefsRacine);
-    if (typeof racineDonnéesJSON !== "object")
+    if (typeof racineDonnéesJSON !== "object") {
       throw new Error(racineDonnéesJSON.toString());
+    }
 
     racineDonnéesJSON = aplatirDonnées(
       racineDonnéesJSON as élémentListe | élémentDic,

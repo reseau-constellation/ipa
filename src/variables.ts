@@ -1,15 +1,18 @@
-import { FeedStore, KeyValueStore } from "orbit-db";
+import FeedStore from "orbit-db-feedstore";
+import KeyValueStore from "orbit-db-kvstore";
 
-import ClientConstellation, {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  élémentBdListe,
-} from "./client";
+import ClientConstellation from "./client";
 import ContrôleurConstellation from "./accès/cntrlConstellation";
 import { règleVariableAvecId, règleVariable, règleCatégorie } from "./valid";
 import { v4 as uuidv4 } from "uuid";
 
-import { STATUT } from "./bds";
+import { dicTrads } from "@/utils/types";
+
+import {
+  TYPES_STATUT,
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
+} from "@/utils";
 
 export type catégorieVariables =
   | "numérique"
@@ -40,7 +43,9 @@ export default class Variables {
   }
 
   async créerVariable(catégorie: catégorieVariables): Promise<string> {
-    const bdRacine = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
+    const bdRacine = (await this.client.ouvrirBd(
+      this.idBd
+    )) as FeedStore<string>;
     const idBdVariable = await this.client.créerBdIndépendante("kvstore", {
       adresseBd: undefined,
       premierMod: this.client.bdRacine!.id,
@@ -74,7 +79,7 @@ export default class Variables {
 
     await bdVariable.set("catégorie", catégorie);
 
-    await this.établirStatut(idBdVariable, { statut: STATUT.ACTIVE });
+    await this.établirStatut(idBdVariable, { statut: TYPES_STATUT.ACTIVE });
 
     return idBdVariable;
   }
@@ -123,10 +128,7 @@ export default class Variables {
     return idNouvelleBd;
   }
 
-  async ajouterNomsVariable(
-    id: string,
-    noms: { [key: string]: string }
-  ): Promise<void> {
+  async ajouterNomsVariable(id: string, noms: dicTrads): Promise<void> {
     const idBdNoms = await this.client.obtIdBd("noms", id, "kvstore");
     if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
 
@@ -158,7 +160,7 @@ export default class Variables {
 
   async ajouterDescriptionsVariable(
     id: string,
-    descriptions: { [key: string]: string }
+    descriptions: dicTrads
   ): Promise<void> {
     const idBdDescr = await this.client.obtIdBd("descriptions", id, "kvstore");
     if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
@@ -212,8 +214,9 @@ export default class Variables {
     règle: règleVariable
   ): Promise<string> {
     const idBdRègles = await this.client.obtIdBd("règles", idVariable, "feed");
-    if (!idBdRègles)
+    if (!idBdRègles) {
       throw `Permission de modification refusée pour variable ${idVariable}.`;
+    }
 
     const id = uuidv4();
     const règleAvecId: règleVariableAvecId = {
@@ -230,8 +233,9 @@ export default class Variables {
     idRègle: string
   ): Promise<void> {
     const idBdRègles = await this.client.obtIdBd("règles", idVariable, "feed");
-    if (!idBdRègles)
+    if (!idBdRègles) {
       throw `Permission de modification refusée pour variable ${idVariable}.`;
+    }
     const bdRègles = (await this.client.ouvrirBd(idBdRègles)) as FeedStore;
 
     const entrées =
@@ -345,7 +349,7 @@ export default class Variables {
     const entrée = bdRacine
       .iterator({ limit: -1 })
       .collect()
-      .find((e: élémentBdListe<string>) => e.payload.value === id);
+      .find((e: LogEntry<string>) => e.payload.value === id);
     await bdRacine.remove(entrée.hash);
     await this.client.effacerBd(id);
   }

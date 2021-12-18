@@ -1,4 +1,6 @@
-import { FeedStore, élémentFeedStore, isValidAddress } from "orbit-db";
+import FeedStore from "orbit-db-feedstore";
+import OrbitDB from "orbit-db";
+
 import { PeersResult } from "ipfs-core-types/src/swarm";
 import { Message as MessagePubSub } from "ipfs-core-types/src/pubsub";
 import { EventEmitter } from "events";
@@ -8,12 +10,12 @@ import ContrôleurConstellation from "./accès/cntrlConstellation";
 import ClientConstellation, {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  élémentBdListe,
+  LogEntry,
   Signature,
 } from "./client";
 import { infoAuteur } from "./bds";
 
-import { élémentDonnées, élémentBdListeDonnées } from "./valid";
+import { élémentDonnées, LogEntryDonnées } from "./valid";
 
 export type infoMembre = {
   idSFIP: string;
@@ -22,19 +24,6 @@ export type infoMembre = {
   clefPublique: string;
   signatures: { id: string; publicKey: string };
 };
-
-export interface schémaBd {
-  licence: string;
-  motsClefs?: string[];
-  tableaux: {
-    cols: {
-      idVariable: string;
-      idColonne: string;
-      index?: boolean;
-    }[];
-    idUnique?: string;
-  }[];
-}
 
 export type infoMembreEnLigne = infoMembre & {
   vuÀ?: number;
@@ -52,7 +41,7 @@ export type infoDispositifEnLigne = {
   vuÀ: number;
 };
 
-export type élémentDeMembre<T extends élémentBdListeDonnées> = {
+export type élémentDeMembre<T extends LogEntryDonnées> = {
   idBdAuteur: string;
   élément: élémentDonnées<T>;
 };
@@ -98,6 +87,7 @@ export default class Réseau extends EventEmitter {
   dispositifsEnLigne: {
     [key: string]: infoDispositifEnLigne;
   };
+
   fOublierMembres: { [key: string]: schémaFonctionOublier };
   oublierSalut?: schémaFonctionOublier;
 
@@ -133,7 +123,7 @@ export default class Réseau extends EventEmitter {
     );
 
     for (const é of ["peer:connect", "peer:disconnect"]) {
-      //@ts-ignore
+      // @ts-ignore
       this.client.sfip!.libp2p.connectionManager.on(é, () => {
         this.emit("changementConnexions");
       });
@@ -180,8 +170,9 @@ export default class Réseau extends EventEmitter {
     const { valeur, signature } = messageJSON;
 
     // Ignorer les messages de nous-mêmes
-    if (signature.clefPublique === this.client.orbite!.identity.publicKey)
+    if (signature.clefPublique === this.client.orbite!.identity.publicKey) {
       return;
+    }
 
     // Assurer que la signature est valide (message envoyé par détenteur de idOrbite)
     const signatureValide = await this.client.vérifierSignature(
@@ -283,7 +274,7 @@ export default class Réseau extends EventEmitter {
       clefPublique + signatures.id
     );
 
-    if (!isValidAddress(idBdRacine)) return false;
+    if (!OrbitDB.isValidAddress(idBdRacine)) return false;
     const bdRacine = await this.client.ouvrirBd(idBdRacine);
     if (!(bdRacine.access instanceof ContrôleurConstellation)) return false;
     const bdRacineValide = bdRacine.access.estAutorisé(idOrbite);
@@ -299,8 +290,7 @@ export default class Réseau extends EventEmitter {
       await verrouAjouterMembre.acquire(idOrbite);
       const existante = await this.client.rechercherBdListe(
         this.idBd,
-        (e: élémentFeedStore<infoMembre>) =>
-          e.payload.value.idOrbite === idOrbite
+        (e: LogEntry<infoMembre>) => e.payload.value.idOrbite === idOrbite
       );
       if (!existante) {
         const bdRacine = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
@@ -338,7 +328,7 @@ export default class Réseau extends EventEmitter {
     const entrée = bdMembres
       .iterator({ limit: -1 })
       .collect()
-      .find((e: élémentBdListe) => e.payload.value === id);
+      .find((e: LogEntry) => e.payload.value === id);
     await bdMembres.remove(entrée.hash);
   }
 
@@ -667,7 +657,7 @@ export default class Réseau extends EventEmitter {
     );
   }
 
-  async suivreÉlémentsDeTableauxUniques<T extends élémentBdListeDonnées>(
+  async suivreÉlémentsDeTableauxUniques<T extends LogEntryDonnées>(
     motClefUnique: string,
     idUniqueTableau: string,
     f: schémaFonctionSuivi<élémentDeMembre<T>[]>

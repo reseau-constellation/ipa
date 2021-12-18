@@ -5,29 +5,33 @@ import { step } from "mocha-steps";
 import fs from "fs";
 import path from "path";
 
-chai.should();
-chai.use(chaiAsPromised);
-
-const assert = chai.assert;
-
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation, { schémaFonctionOublier } from "@/client";
 import { MAX_TAILLE_IMAGE } from "@/compte";
 import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 
-typesClients.forEach((type)=>{
-  describe("Client " + type, function() {
+chai.should();
+chai.use(chaiAsPromised);
+
+const assert = chai.assert;
+
+typesClients.forEach((type) => {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Compte", function () {
         this.timeout(config.timeout);
 
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
-        let client: ClientConstellation
+        let client: ClientConstellation;
 
         before(async () => {
-          ({ fOublier: fOublierClients, clients } = await générerClients(1, API, type));
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+            1,
+            API,
+            type
+          ));
           [client] = clients;
 
           enregistrerContrôleurs();
@@ -44,7 +48,9 @@ typesClients.forEach((type)=>{
           const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
           before(async () => {
-            fOublier = await client.compte!.suivreCourriel((c) => (courriel = c));
+            fOublier = await client.compte!.suivreCourriel(
+              (c) => (courriel = c)
+            );
           });
 
           step("Pas de courriel pour commencer", async () => {
@@ -73,7 +79,7 @@ typesClients.forEach((type)=>{
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.compte!.suivreNoms((n) => (rés["ultat"] = n));
+            fOublier = await client.compte!.suivreNoms((n) => (rés.ultat = n));
           });
 
           after(async () => {

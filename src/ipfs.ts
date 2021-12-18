@@ -1,12 +1,12 @@
 import { create } from "ipfs";
-import IPFS from "ipfs-core-types"
+import { IPFS } from "ipfs-core-types";
 import wrtc from "wrtc";
 import WebRTCStar from "libp2p-webrtc-star";
 import Websockets from "libp2p-websockets";
 import WebRTCDirect from "libp2p-webrtc-direct";
 import { NOISE } from "libp2p-noise";
 
-export default async function initSFIP(dir = "./ipfs"): Promise<IPFS.IPFS> {
+export default async function initSFIP(dir = "./sfip-cnstl"): Promise<IPFS> {
   // @ts-ignore
   const sfip = await create({
     libp2p: {

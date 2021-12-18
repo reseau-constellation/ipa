@@ -1,25 +1,21 @@
 import { EventEmitter } from "events";
-import { FeedStore } from "orbit-db";
-import XLSX from "xlsx";
+import FeedStore from "orbit-db-feedstore";
+import { BookType, readFile } from "xlsx";
 import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 import isNode from "is-node";
 import isElectron from "is-electron";
 
-import obtLocalStorage from "./stockageLocal";
-import ClientConstellation, {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  élémentBdListe,
-  faisRien,
-} from "./client";
-import { importerFeuilleCalculDURL, importerJSONdURL } from "./importateur";
-import ImportateurFeuilleCalcul from "./importateur/xlsx";
-import ImportateurDonnéesJSON, { clefsExtraction } from "./importateur/json";
+import obtLocalStorage from "@/stockageLocal";
+import ClientConstellation from "@/client";
+import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils";
+import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx";
+import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json";
 
 // const chokidar = import("chokidar");
 
-export type formatTélécharger = XLSX.BookType | "xls";
+export type formatTélécharger = BookType | "xls";
 
 export type fréquence = {
   unités: "années" | "mois" | "semaines" | "jours" | "heures" | "minutes";
@@ -59,7 +55,7 @@ export interface infoImporterFeuilleCalcul {
 
 export interface SourceDonnéesImportation<
   T = infoImporterJSON | infoImporterFeuilleCalcul
-  > {
+> {
   typeSource: "url" | "fichier";
   info: T;
 }
@@ -177,7 +173,7 @@ const obtDonnéesImportation = async (spéc: SpécificationImporter) => {
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source
             .info as infoImporterFeuilleCalcul;
-          const docXLSX = XLSX.readFile(adresseFichier);
+          const docXLSX = readFile(adresseFichier);
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
           return importateur.obtDonnées(nomTableau, cols);
         }
@@ -317,13 +313,18 @@ const lancerAutomatisation = async (
     const fAutoAvecÉtatsRécursif = async () => {
       await fAutoAvecÉtats();
       const maintenant = new Date().getTime();
-      (await obtLocalStorage()).setItem(clefStockageDernièreFois, maintenant.toString());
+      (await obtLocalStorage()).setItem(
+        clefStockageDernièreFois,
+        maintenant.toString()
+      );
       const crono = setTimeout(fAutoAvecÉtatsRécursif, tempsInterval);
       dicFOublierIntervale.f = () => clearTimeout(crono);
     };
 
     const maintenant = new Date().getTime();
-    const dernièreFoisChaîne = (await obtLocalStorage()).getItem(clefStockageDernièreFois);
+    const dernièreFoisChaîne = (await obtLocalStorage()).getItem(
+      clefStockageDernièreFois
+    );
     const dernièreFois = dernièreFoisChaîne
       ? parseInt(dernièreFoisChaîne)
       : -Infinity;
@@ -347,9 +348,9 @@ const lancerAutomatisation = async (
     switch (spéc.type) {
       case "exportation": {
         const spécExp = spéc as SpécificationExporter;
-        const empreinteDernièreModifImportée = (await obtLocalStorage()).getItem(
-          clefStockageDernièreFois
-        );
+        const empreinteDernièreModifImportée = (
+          await obtLocalStorage()
+        ).getItem(clefStockageDernièreFois);
         const fOublier = await client.suivreBd(spécExp.idObjet, async (bd) => {
           const tête = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
           if (tête !== empreinteDernièreModifImportée) {
@@ -365,12 +366,13 @@ const lancerAutomatisation = async (
 
         switch (spécImp.source.typeSource) {
           case "fichier": {
-            if (!isNode() && !isElectron())
+            if (!isNode() && !isElectron()) {
               throw new Error(
                 "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation."
               );
+            }
 
-            /*const _chokidar = await chokidar
+            /* const _chokidar = await chokidar
             const source = spécImp.source as SourceDonnéesImportationFichier;
             const écouteur = _chokidar.watch(source.adresseFichier);
             écouteur.on("change", () => {
@@ -505,7 +507,7 @@ export default class Automatisations extends EventEmitter {
   }
 
   async mettreAutosÀJour(
-    autos: élémentBdListe<SpécificationAutomatisation>[]
+    autos: LogEntry<SpécificationAutomatisation>[]
   ): Promise<void> {
     for (const a of autos) {
       const {
@@ -550,7 +552,9 @@ export default class Automatisations extends EventEmitter {
       inclureFichiersSFIP,
       dir,
     };
-    const bd = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
+    const bd = (await this.client.ouvrirBd(
+      this.idBd
+    )) as FeedStore<SpécificationAutomatisation>;
     const idÉlément = await bd.add(élément);
     return idÉlément;
   }
@@ -561,7 +565,9 @@ export default class Automatisations extends EventEmitter {
     source: SourceDonnéesImportation,
     dispositif?: string
   ): Promise<string> {
-    const bd = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
+    const bd = (await this.client.ouvrirBd(
+      this.idBd
+    )) as FeedStore<SpécificationAutomatisation>;
 
     dispositif = dispositif || this.client.orbite!.identity.id;
 
@@ -582,7 +588,9 @@ export default class Automatisations extends EventEmitter {
       this.idBd,
       (é) => é.hash === empreinte
     );
-    const bd = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
+    const bd = (await this.client.ouvrirBd(
+      this.idBd
+    )) as FeedStore<SpécificationAutomatisation>;
     await bd.remove(élément.hash);
   }
 

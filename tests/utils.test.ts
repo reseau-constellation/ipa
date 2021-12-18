@@ -66,7 +66,7 @@ describe("Utils", function () {
     step("Le fichier zip est créé", async () => {
       expect(fs.existsSync(nomFichier)).to.be.true;
       const zip = new AdmZip(nomFichier);
-      zip.extractAllTo(/*target path*/ fichierExtrait, /*overwrite*/ true);
+      zip.extractAllTo(/* target path */ fichierExtrait, /* overwrite */ true);
 
       expect(fs.existsSync(fichierExtrait)).to.be.true;
     });

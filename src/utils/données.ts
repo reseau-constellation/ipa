@@ -1,20 +1,7 @@
-import { CID } from "multiformats/cid";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import fs from "fs";
 import path from "path";
-
-export function cidValide(cid: unknown): boolean {
-  if (typeof cid === "string") {
-    try {
-      CID.parse(cid);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-  return false;
-}
 
 export function traduire(
   trads: { [key: string]: string },

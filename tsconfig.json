@@ -45,12 +45,12 @@
     "types": [
       // "webpack-env",
       "mocha",
-      "chai",
+      "chai"
     ],
     "plugins": [
       {
-        "transform": "@zerollup/ts-transform-paths",
+        "transform": "@zerollup/ts-transform-paths"
       }
-    ],
+    ]
   }
 }

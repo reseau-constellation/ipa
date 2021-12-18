@@ -2,16 +2,16 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { step } from "mocha-steps";
 
-chai.should();
-chai.use(chaiAsPromised);
-
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation, { schémaFonctionOublier } from "@/client";
 import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 
-typesClients.forEach((type)=>{
-  describe("Client " + type, function() {
+chai.should();
+chai.use(chaiAsPromised);
+
+typesClients.forEach((type) => {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Mots-clefs", function () {
         this.timeout(config.timeout);
@@ -22,7 +22,11 @@ typesClients.forEach((type)=>{
 
         before(async () => {
           enregistrerContrôleurs();
-          ({ fOublier: fOublierClients, clients } = await générerClients(1, API, type));
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+            1,
+            API,
+            type
+          ));
           client = clients[0];
 
           enregistrerContrôleurs();
@@ -71,7 +75,7 @@ typesClients.forEach((type)=>{
             idMotClef = await client.motsClefs!.créerMotClef();
             fOublier = await client.motsClefs!.suivreNomsMotClef(
               idMotClef,
-              (n) => (rés["ultat"] = n)
+              (n) => (rés.ultat = n)
             );
           });
 
@@ -116,7 +120,10 @@ typesClients.forEach((type)=>{
 
           step("Effacer un nom", async () => {
             await client.motsClefs!.effacerNomMotClef(idMotClef, "fr");
-            expect(rés.ultat).to.deep.equal({ த: "நீரியல்", हिं: "जल विज्ञान" });
+            expect(rés.ultat).to.deep.equal({
+              த: "நீரியல்",
+              हिं: "जल विज्ञान",
+            });
           });
         });
 

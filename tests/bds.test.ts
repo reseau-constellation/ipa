@@ -2,9 +2,6 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { step } from "mocha-steps";
 
-chai.should();
-chai.use(chaiAsPromised);
-
 import XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
@@ -22,18 +19,16 @@ import { InfoColAvecCatégorie } from "@/tableaux";
 import { infoAuteur, infoScore } from "@/bds";
 import { schémaBd } from "@/reseau";
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
-import {
-  élémentDonnées,
-  élémentBdListeDonnées,
-  règleBornes,
-} from "@/valid";
+import { élémentDonnées, élémentBdListeDonnées, règleBornes } from "@/valid";
 
 import { testAPIs, config } from "./sfipTest";
 import { générerClients, attendreRésultat, typesClients } from "./utils";
 
+chai.should();
+chai.use(chaiAsPromised);
 
-typesClients.forEach((type)=>{
-  describe("Client " + type, function() {
+typesClients.forEach((type) => {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("BDs", function () {
         this.timeout(config.timeout);
@@ -50,19 +45,27 @@ typesClients.forEach((type)=>{
 
         before(async () => {
           enregistrerContrôleurs();
-          ({ fOublier: fOublierClients, clients } = await générerClients(2, API, type));
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+            2,
+            API,
+            type
+          ));
           client = clients[0];
           client2 = clients[1];
 
           idBdRacine1 = await uneFois(
-            async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdBdRacine(fSuivi)
+            async (
+              fSuivi: schémaFonctionSuivi<string>
+            ): Promise<schémaFonctionOublier> => {
+              return await client.suivreIdBdRacine(fSuivi);
             }
           );
 
           idBdRacine2 = await uneFois(
-            async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdBdRacine(fSuivi)
+            async (
+              fSuivi: schémaFonctionSuivi<string>
+            ): Promise<schémaFonctionOublier> => {
+              return await client2.suivreIdBdRacine(fSuivi);
             }
           );
         });
@@ -142,7 +145,11 @@ typesClients.forEach((type)=>{
           });
 
           step("Changer un nom", async () => {
-            await client.bds!.sauvegarderNomBd(idBd, "fr", "Systèmes d'écriture");
+            await client.bds!.sauvegarderNomBd(
+              idBd,
+              "fr",
+              "Systèmes d'écriture"
+            );
             expect(noms?.fr).to.equal("Systèmes d'écriture");
           });
 
@@ -157,7 +164,10 @@ typesClients.forEach((type)=>{
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.bds!.suivreDescrBd(idBd, (d) => (descrs = d));
+            fOublier = await client.bds!.suivreDescrBd(
+              idBd,
+              (d) => (descrs = d)
+            );
           });
 
           after(async () => {
@@ -186,7 +196,11 @@ typesClients.forEach((type)=>{
           });
 
           step("Changer une description", async () => {
-            await client.bds!.sauvegarderDescrBd(idBd, "fr", "Systèmes d'écriture");
+            await client.bds!.sauvegarderDescrBd(
+              idBd,
+              "fr",
+              "Systèmes d'écriture"
+            );
             expect(descrs?.fr).to.equal("Systèmes d'écriture");
           });
 
@@ -232,7 +246,10 @@ typesClients.forEach((type)=>{
 
           before(async () => {
             idBd = await client.bds!.créerBd("ODbl-1_0");
-            fOublier = await client.bds!.suivreLicence(idBd, (l) => (licence = l));
+            fOublier = await client.bds!.suivreLicence(
+              idBd,
+              (l) => (licence = l)
+            );
           });
 
           after(async () => {
@@ -280,11 +297,7 @@ typesClients.forEach((type)=>{
           });
 
           step("Inviter un membre", async () => {
-            await client.bds!.inviterAuteur(
-              idBdAuteurs,
-              idBdRacine2,
-              MEMBRE
-            );
+            await client.bds!.inviterAuteur(idBdAuteurs, idBdRacine2, MEMBRE);
             await attendreRésultat(
               rés,
               "ultat",
@@ -461,13 +474,22 @@ typesClients.forEach((type)=>{
               await client.bds!.suivreLicence(idBdCopie, (x) => (licence = x))
             );
             fsOublier.push(
-              await client.bds!.suivreMotsClefsBd(idBdCopie, (x) => (motsClefs = x))
+              await client.bds!.suivreMotsClefsBd(
+                idBdCopie,
+                (x) => (motsClefs = x)
+              )
             );
             fsOublier.push(
-              await client.bds!.suivreVariablesBd(idBdCopie, (x) => (variables = x))
+              await client.bds!.suivreVariablesBd(
+                idBdCopie,
+                (x) => (variables = x)
+              )
             );
             fsOublier.push(
-              await client.bds!.suivreTableauxBd(idBdCopie, (x) => (tableaux = x))
+              await client.bds!.suivreTableauxBd(
+                idBdCopie,
+                (x) => (tableaux = x)
+              )
             );
           });
 
@@ -561,7 +583,7 @@ typesClients.forEach((type)=>{
                 trad: "Constellation",
               },
               {
-                clef: "kaq", //Une trad vide, par erreur disons
+                clef: "kaq", // Une trad vide, par erreur disons
               },
             ];
             for (const élément of éléments1) {
@@ -571,7 +593,7 @@ typesClients.forEach((type)=>{
             const éléments2 = [
               {
                 clef: "fr",
-                trad: "Constellation!", //Une erreur ici, disons
+                trad: "Constellation!", // Une erreur ici, disons
               },
               {
                 clef: "kaq",
@@ -606,7 +628,7 @@ typesClients.forEach((type)=>{
 
             expect(
               donnéesCombinées.map((d) => {
-                delete d["id"];
+                delete d.id;
                 return d;
               })
             )
@@ -698,7 +720,10 @@ typesClients.forEach((type)=>{
               async (
                 fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>
               ): Promise<schémaFonctionOublier> => {
-                return await client.tableaux!.suivreColonnes(tableaux[0], fSuivi);
+                return await client.tableaux!.suivreColonnes(
+                  tableaux[0],
+                  fSuivi
+                );
               }
             );
             expect(colonnes.map((c) => c.id))
@@ -911,10 +936,15 @@ typesClients.forEach((type)=>{
             idTableau = await client.bds!.ajouterTableauBd(idBd);
 
             idVarNumérique = await client.variables!.créerVariable("numérique");
-            idVarNumérique2 = await client.variables!.créerVariable("numérique");
+            idVarNumérique2 = await client.variables!.créerVariable(
+              "numérique"
+            );
             idVarChaîne = await client.variables!.créerVariable("chaîne");
 
-            fOublier = await client.bds!.suivreScoreBd(idBd, (s) => (score = s));
+            fOublier = await client.bds!.suivreScoreBd(
+              idBd,
+              (s) => (score = s)
+            );
           });
 
           after(async () => {
@@ -939,7 +969,10 @@ typesClients.forEach((type)=>{
                 idTableau,
                 idVarNumérique2
               );
-              await client.tableaux!.ajouterColonneTableau(idTableau, idVarChaîne);
+              await client.tableaux!.ajouterColonneTableau(
+                idTableau,
+                idVarChaîne
+              );
               expect(score.couverture).to.equal(0);
             });
 
@@ -972,10 +1005,13 @@ typesClients.forEach((type)=>{
             });
 
             step("Ajout d'éléments", async () => {
-              empreinteÉlément = await client.tableaux!.ajouterÉlément(idTableau, {
-                [idColNumérique]: -1,
-                [idColNumérique2]: 1,
-              });
+              empreinteÉlément = await client.tableaux!.ajouterÉlément(
+                idTableau,
+                {
+                  [idColNumérique]: -1,
+                  [idColNumérique2]: 1,
+                }
+              );
               expect(score.valide).to.equal(0.5);
               await client.tableaux!.ajouterÉlément(idTableau, {
                 [idColNumérique]: 1,
@@ -1022,7 +1058,9 @@ typesClients.forEach((type)=>{
             const idTableau2 = await client.bds!.ajouterTableauBd(idBd);
 
             const idVarNum = await client.variables!.créerVariable("numérique");
-            const idVarFichier = await client.variables!.créerVariable("fichier");
+            const idVarFichier = await client.variables!.créerVariable(
+              "fichier"
+            );
             await client.tableaux!.ajouterColonneTableau(idTableau1, idVarNum);
             const idColFichier = await client.tableaux!.ajouterColonneTableau(
               idTableau2,
@@ -1048,10 +1086,8 @@ typesClients.forEach((type)=>{
               fr: nomTableau2,
             });
 
-            ({ doc, fichiersSFIP, nomFichier } = await client.bds!.exporterDonnées(
-              idBd,
-              ["fr"]
-            ));
+            ({ doc, fichiersSFIP, nomFichier } =
+              await client.bds!.exporterDonnées(idBd, ["fr"]));
           });
 
           after(() => {
@@ -1092,17 +1128,20 @@ typesClients.forEach((type)=>{
             });
 
             it("Les données sont exportées", () => {
-              expect(fs.existsSync(path.join(fichierExtrait, nomFichier + ".ods")))
-                .to.be.true;
+              expect(
+                fs.existsSync(path.join(fichierExtrait, nomFichier + ".ods"))
+              ).to.be.true;
             });
 
             step("Le dossier pour les données SFIP existe", () => {
-              expect(fs.existsSync(path.join(fichierExtrait, "sfip"))).to.be.true;
+              expect(fs.existsSync(path.join(fichierExtrait, "sfip"))).to.be
+                .true;
             });
 
             step("Les fichiers SFIP existent", () => {
-              expect(fs.existsSync(path.join(fichierExtrait, "sfip", cid + ".svg")))
-                .to.be.true;
+              expect(
+                fs.existsSync(path.join(fichierExtrait, "sfip", cid + ".svg"))
+              ).to.be.true;
             });
           });
         });

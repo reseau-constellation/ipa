@@ -6,7 +6,7 @@ import accesseurBdOrbite from "./accesseurBdOrbite";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  élémentBdListe,
+  LogEntry,
 } from "../client";
 import { MODÉRATEUR, MEMBRE, rôles } from "./consts";
 import { entréeBDAccès, objRôles } from "./types";
@@ -23,7 +23,7 @@ export const suivreBdAccès = async (
     const éléments: entréeBDAccès[] = bd
       .iterator({ limit: -1 })
       .collect()
-      .map((e: élémentBdListe<entréeBDAccès>) => e.payload.value);
+      .map((e: LogEntry<entréeBDAccès>) => e.payload.value);
     f(éléments);
   };
 
@@ -100,8 +100,9 @@ class AccèsUtilisateur extends EventEmitter {
 
   async fermer() {
     if (this.oublierSuivi) this.oublierSuivi();
-    if (this.prêt)
+    if (this.prêt) {
       await accesseurBdOrbite.fermerBd(this.orbite, this.idBd, this.idRequète);
+    }
   }
 }
 
@@ -113,6 +114,7 @@ export default class GestionnaireAccès extends EventEmitter {
       [key: string]: AccèsUtilisateur;
     };
   };
+
   _miseÀJourEnCours: boolean;
   orbite: OrbitDB;
 

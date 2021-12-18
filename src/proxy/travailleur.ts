@@ -1,14 +1,12 @@
 import GestionnaireClient from "./gestionnaireClient";
-import {
-  MessageDeTravailleur,
-  MessageErreurDeTravailleur,
-} from "./proxy";
+import { MessageDeTravailleur, MessageErreurDeTravailleur } from "./messages";
 
-const fMessage = (message: MessageDeTravailleur)=>postMessage(message);
+const fMessage = (message: MessageDeTravailleur) => postMessage(message);
 
-const fErreur = (erreur: Error) => {
+const fErreur = (erreur: Error, id?: string) => {
   const messageErreur: MessageErreurDeTravailleur = {
     type: "erreur",
+    id,
     erreur,
   };
   postMessage(messageErreur);

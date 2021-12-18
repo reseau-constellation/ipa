@@ -22,8 +22,8 @@ import { élémentBdListeDonnées } from "@/valid";
 import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 
-typesClients.forEach((type)=>{
-  describe("Client " + type, function() {
+typesClients.forEach((type) => {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Réseau", function () {
         this.timeout(config.timeout);
@@ -38,28 +38,36 @@ typesClients.forEach((type)=>{
         let idOrbite2: string;
 
         before(async () => {
-          ({ fOublier: fOublierClients, clients } = await générerClients(2, API, type));
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+            2,
+            API,
+            type
+          ));
           [client, client2] = clients;
 
           enregistrerContrôleurs();
 
           idBdRacine1 = await uneFois(
-            async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdBdRacine(fSuivi)
+            async (
+              fSuivi: schémaFonctionSuivi<string>
+            ): Promise<schémaFonctionOublier> => {
+              return await client.suivreIdBdRacine(fSuivi);
             }
-          )
+          );
 
           idBdRacine2 = await uneFois(
-            async (fSuivi: schémaFonctionSuivi<string>): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdBdRacine(fSuivi)
+            async (
+              fSuivi: schémaFonctionSuivi<string>
+            ): Promise<schémaFonctionOublier> => {
+              return await client2.suivreIdBdRacine(fSuivi);
             }
-          )
+          );
 
-          idNodeSFIP2 = (await client2.obtIdSFIP()).id
+          idNodeSFIP2 = (await client2.obtIdSFIP()).id;
 
-          idOrbite1 = await client.obtIdOrbite()
+          idOrbite1 = await client.obtIdOrbite();
 
-          idOrbite2 = await client2.obtIdOrbite()
+          idOrbite2 = await client2.obtIdOrbite();
         });
 
         after(async () => {
@@ -73,7 +81,9 @@ typesClients.forEach((type)=>{
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.réseau!.suivreMembres((c) => (rés.ultat = c));
+            fOublier = await client.réseau!.suivreMembres(
+              (c) => (rés.ultat = c)
+            );
           });
 
           after(async () => {
@@ -118,25 +128,27 @@ typesClients.forEach((type)=>{
           });
         });
 
-        describe("Suivre dispositifs en ligne", function () {
+        describe("Suivre dispositifs en ligne", function () {
           let dispositifs: infoDispositifEnLigne[];
           let fOublier: schémaFonctionOublier;
 
-          before(async ()=>{
+          before(async () => {
             fOublier = await client.réseau!.suivreDispositifsEnLigne(
-              (d)=>dispositifs = d
-            )
+              (d) => (dispositifs = d)
+            );
           });
 
           after(async () => {
             if (fOublier) fOublier();
           });
 
-          step("Autres dispositifs détectés", async () => {
+          step("Autres dispositifs détectés", async () => {
             expect(dispositifs).to.be.an("array").with.lengthOf(2);
-            expect(dispositifs.map(d=>d.info.idOrbite)).to.have.deep.members([idOrbite1, idOrbite2]);
-          })
-        })
+            expect(
+              dispositifs.map((d) => d.info.idOrbite)
+            ).to.have.deep.members([idOrbite1, idOrbite2]);
+          });
+        });
 
         describe("Suivre noms membre", function () {
           const rés: { ultat: { [key: string]: string } | undefined } = {
@@ -168,7 +180,9 @@ typesClients.forEach((type)=>{
         });
 
         describe("Suivre courriel membre", function () {
-          const rés: { ultat: string | null | undefined } = { ultat: undefined };
+          const rés: { ultat: string | null | undefined } = {
+            ultat: undefined,
+          };
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
@@ -180,8 +194,10 @@ typesClients.forEach((type)=>{
           });
 
           step("Courriel détecté", async () => {
-            await attendreRésultat(rés, "ultat", (x: string | null | undefined) =>
-              Boolean(x)
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x: string | null | undefined) => Boolean(x)
             );
             expect(rés.ultat).to.equal("தொடர்பு@லஸ்ஸி.இந்தியா");
           });
@@ -252,7 +268,11 @@ typesClients.forEach((type)=>{
           });
 
           step("BD d'un autre membre détectée", async () => {
-            await attendreRésultat(rés, "ultat", (x?: string[]) => x && x.length);
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x?: string[]) => x && x.length
+            );
             expect(rés.ultat)
               .to.be.an("array")
               .with.lengthOf(1)
@@ -336,7 +356,11 @@ typesClients.forEach((type)=>{
           let empreinte3: string;
 
           const idUniqueTableau = "tableau trads";
-          const données1 = { clef: "titre", langue: "fr", trad: "Constellation" };
+          const données1 = {
+            clef: "titre",
+            langue: "fr",
+            trad: "Constellation",
+          };
           const données2 = { clef: "titre", langue: "हिं", trad: "तारामंडल" };
           const données3 = { clef: "titre", langue: "kaq", trad: "Ch'umil" };
 
@@ -451,7 +475,7 @@ typesClients.forEach((type)=>{
             );
             expect(
               rés.ultat2!.map((r) => {
-                delete r.élément.données["id"];
+                delete r.élément.données.id;
                 return r;
               })
             )

@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  élémentBdListe,
+  LogEntry,
 } from "../client";
 import GestionnaireAccès, { suivreBdAccès } from "./gestionnaireUtilisateurs";
 import accesseurBdOrbite from "./accesseurBdOrbite";
@@ -166,7 +166,7 @@ export default class ContrôleurConstellation extends AccessController {
   async _miseÀJourBdAccès(): Promise<void> {
     let éléments: entréeBDAccès[] = this.bd!.iterator({ limit: -1 })
       .collect()
-      .map((x: élémentBdListe<entréeBDAccès>) => x.payload.value);
+      .map((x: LogEntry<entréeBDAccès>) => x.payload.value);
 
     éléments = [{ rôle: MODÉRATEUR, id: this._premierMod }, ...éléments];
 
@@ -247,10 +247,11 @@ export default class ContrôleurConstellation extends AccessController {
       await this._miseÀJourBdAccès();
     } catch (_e) {
       const e = _e as Error;
-      if (e.toString().includes("not append entry"))
+      if (e.toString().includes("not append entry")) {
         throw new Error(
           `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`
         );
+      }
       throw e;
     }
   }
@@ -259,11 +260,12 @@ export default class ContrôleurConstellation extends AccessController {
     const élément = this.bd!.iterator({ limit: -1 })
       .collect()
       .find(
-        (e: élémentBdListe<entréeBDAccès>) =>
+        (e: LogEntry<entréeBDAccès>) =>
           e.payload.value.rôle === rôle && e.payload.value.id === id
       );
-    if (!élément)
+    if (!élément) {
       throw new Error(`Erreur : Le rôle ${rôle} n'existait pas pour ${id}.`);
+    }
     const empreinte = élément.hash;
     await this.bd!.remove(empreinte);
     await this._miseÀJourBdAccès();

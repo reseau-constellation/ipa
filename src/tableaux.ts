@@ -1,20 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
-import XLSX from "xlsx";
-import {
-  FeedStore,
-  KeyValueStore,
-  élémentFeedStore,
-  isValidAddress,
-} from "orbit-db";
+import { WorkBook, utils } from "xlsx";
+import FeedStore from "orbit-db-feedstore";
+import KeyValueStore from "orbit-db-kvstore";
+import OrbitDB from "orbit-db";
 
-import ClientConstellation, {
+import ClientConstellation from "@/client";
+import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  élémentsBd,
-  élémentBdListe,
   uneFois,
   faisRien,
-} from "./client";
+} from "@/utils";
 import ContrôleurConstellation from "./accès/cntrlConstellation";
 import { donnéesBdExportées } from "./bds";
 import {
@@ -25,7 +21,7 @@ import {
   générerFonctionRègle,
   schémaFonctionValidation,
   élémentDonnées,
-  élémentBdListeDonnées,
+  LogEntryDonnées,
 } from "./valid";
 import { catégorieVariables } from "./variables";
 import { traduire } from "./utils";
@@ -59,6 +55,8 @@ export function indexÉlémentsÉgaux(
   if (!index.every((x) => élément1[x] === élément2[x])) return false;
   return true;
 }
+
+export type typeÉlémentsBdTableaux = string;
 
 export default class Tableaux {
   client: ClientConstellation;
@@ -113,23 +111,23 @@ export default class Tableaux {
       idNouveauTableau
     )) as KeyValueStore;
 
-    //Copier l'id unique s'il y a lieu
+    // Copier l'id unique s'il y a lieu
     const idUnique = await bdBase.get("idUnique");
     if (idUnique) await nouvelleBd.put("idUnique", idUnique);
 
-    //Copier les noms
+    // Copier les noms
     const idBdNoms = await bdBase.get("noms");
     const noms = ((await this.client.ouvrirBd(idBdNoms)) as KeyValueStore).all;
     await this.ajouterNomsTableau(idNouveauTableau, noms);
 
-    //Copier les colonnes
+    // Copier les colonnes
     await this.client.copierContenuBdListe(bdBase, nouvelleBd, "colonnes");
 
-    //Copier les règles
+    // Copier les règles
     await this.client.copierContenuBdListe(bdBase, nouvelleBd, "règles");
 
     if (copierDonnées) {
-      //Copier les données
+      // Copier les données
       await this.client.copierContenuBdListe(bdBase, nouvelleBd, "données");
     }
 
@@ -167,8 +165,9 @@ export default class Tableaux {
       "feed",
       optionsAccès
     );
-    if (!idBdColonnes)
+    if (!idBdColonnes) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdColonnes = (await this.client.ouvrirBd(idBdColonnes)) as FeedStore;
     const éléments = ClientConstellation.obtÉlémentsDeBdListe<InfoCol>(
@@ -196,13 +195,13 @@ export default class Tableaux {
     return await this.suivreColonnes(idTableau, fFinale);
   }
 
-  async suivreDonnées<T extends élémentBdListeDonnées>(
+  async suivreDonnées<T extends LogEntryDonnées>(
     idTableau: string,
     f: schémaFonctionSuivi<élémentDonnées<T>[]>,
     clefsSelonVariables = false
   ): Promise<schémaFonctionOublier> {
     const info: {
-      données?: élémentBdListe<T>[];
+      données?: LogEntry<T>[];
       colonnes?: { [key: string]: string };
     } = {};
 
@@ -218,7 +217,7 @@ export default class Tableaux {
             const données: T = clefsSelonVariables
               ? Object.keys(élément).reduce((acc: T, elem: string) => {
                   const idVar = elem === "id" ? "id" : colonnes[elem];
-                  (acc as élémentBdListeDonnées)[idVar] = élément[elem];
+                  (acc as LogEntryDonnées)[idVar] = élément[elem];
                   return acc;
                 }, {} as T)
               : élément;
@@ -242,7 +241,7 @@ export default class Tableaux {
       false
     );
 
-    const fSuivreDonnées = (données: élémentBdListe<T>[]) => {
+    const fSuivreDonnées = (données: LogEntry<T>[]) => {
       info.données = données;
       fFinale();
     };
@@ -262,11 +261,11 @@ export default class Tableaux {
   async exporterDonnées(
     idTableau: string,
     langues?: string[],
-    doc?: XLSX.WorkBook,
+    doc?: WorkBook,
     nomFichier?: string
   ): Promise<donnéesBdExportées> {
     /* Créer le document si nécessaire */
-    doc = doc || XLSX.utils.book_new();
+    doc = doc || utils.book_new();
     const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
 
     let nomTableau: string;
@@ -288,14 +287,12 @@ export default class Tableaux {
     );
 
     const données = await uneFois(
-      (f: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) =>
+      (f: schémaFonctionSuivi<élémentDonnées<LogEntryDonnées>[]>) =>
         this.suivreDonnées(idTableau, f)
     );
 
-    const formaterÉlément = (
-      é: élémentBdListeDonnées
-    ): élémentBdListeDonnées => {
-      const élémentFinal: élémentBdListeDonnées = {};
+    const formaterÉlément = (é: LogEntryDonnées): LogEntryDonnées => {
+      const élémentFinal: LogEntryDonnées = {};
 
       for (const col of Object.keys(é)) {
         const colonne = colonnes.find((c) => c.id === col);
@@ -351,7 +348,7 @@ export default class Tableaux {
         nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
       }
       donnéesPourXLSX = donnéesPourXLSX.map((d) =>
-        Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {
+        Object.keys(d).reduce((acc: LogEntryDonnées, elem: string) => {
           const nomVar = nomsVariables[elem];
           acc[nomVar] = d[elem];
           return acc;
@@ -360,10 +357,10 @@ export default class Tableaux {
     }
 
     /* créer le tableau */
-    const tableau = XLSX.utils.json_to_sheet(donnéesPourXLSX);
+    const tableau = utils.json_to_sheet(donnéesPourXLSX);
 
     /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-    XLSX.utils.book_append_sheet(doc, tableau, nomTableau.slice(0, 30));
+    utils.book_append_sheet(doc, tableau, nomTableau.slice(0, 30));
 
     nomFichier = nomFichier || nomTableau;
     return { doc, fichiersSFIP, nomFichier };
@@ -380,8 +377,9 @@ export default class Tableaux {
       "feed",
       optionsAccès
     );
-    if (!idBdDonnées)
+    if (!idBdDonnées) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdDonnées = (await this.client.ouvrirBd(idBdDonnées)) as FeedStore;
     vals = await this.vérifierClefsÉlément(idTableau, vals);
@@ -401,12 +399,13 @@ export default class Tableaux {
       "feed",
       optionsAccès
     );
-    if (!idBdDonnées)
+    if (!idBdDonnées) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdDonnées = (await this.client.ouvrirBd(idBdDonnées)) as FeedStore;
 
-    const précédent = this.client.obtÉlémentBdListeSelonEmpreinte(
+    const précédent = this.client.obtLogEntrySelonEmpreinte(
       bdDonnées,
       empreintePrécédente
     ) as { [key: string]: élémentsBd };
@@ -439,14 +438,15 @@ export default class Tableaux {
       "feed",
       optionsAccès
     );
-    if (!idBdColonnes)
+    if (!idBdColonnes) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdColonnes = (await this.client.ouvrirBd(idBdColonnes)) as FeedStore;
     const idsColonnes: string[] = bdColonnes
       .iterator({ limit: -1 })
       .collect()
-      .map((e: élémentFeedStore<InfoCol>) => e.payload.value.id);
+      .map((e: LogEntry<InfoCol>) => e.payload.value.id);
     const clefsPermises = [...idsColonnes, "id"];
     const clefsFinales = Object.keys(élément).filter((x: string) =>
       clefsPermises.includes(x)
@@ -465,8 +465,9 @@ export default class Tableaux {
       "feed",
       optionsAccès
     );
-    if (!idBdDonnées)
+    if (!idBdDonnées) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdDonnées = (await this.client.ouvrirBd(idBdDonnées)) as FeedStore;
     await bdDonnées.remove(empreinteÉlément);
@@ -484,7 +485,7 @@ export default class Tableaux {
 
     const donnéesTableauBase = await uneFois(
       async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
+        fSuivi: schémaFonctionSuivi<élémentDonnées<LogEntryDonnées>[]>
       ) => {
         return await this.suivreDonnées(idTableauBase, fSuivi);
       }
@@ -492,7 +493,7 @@ export default class Tableaux {
 
     const donnéesTableau2 = await uneFois(
       async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
+        fSuivi: schémaFonctionSuivi<élémentDonnées<LogEntryDonnées>[]>
       ) => {
         return await this.suivreDonnées(idTableau2, fSuivi);
       }
@@ -528,17 +529,17 @@ export default class Tableaux {
 
   async importerDonnées(
     idTableau: string,
-    données: élémentBdListeDonnées[]
+    données: LogEntryDonnées[]
   ): Promise<void> {
     const donnéesTableau = await uneFois(
       async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
+        fSuivi: schémaFonctionSuivi<élémentDonnées<LogEntryDonnées>[]>
       ) => {
         return await this.suivreDonnées(idTableau, fSuivi);
       }
     );
 
-    const nouveaux: élémentBdListeDonnées[] = [];
+    const nouveaux: LogEntryDonnées[] = [];
     for (const élément of données) {
       if (!donnéesTableau.some((x) => élémentsÉgaux(x.données, élément))) {
         nouveaux.push(élément);
@@ -572,8 +573,9 @@ export default class Tableaux {
       "kvstore",
       optionsAccès
     );
-    if (!idBdNoms)
+    if (!idBdNoms) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
     for (const lng in noms) {
@@ -593,8 +595,9 @@ export default class Tableaux {
       "kvstore",
       optionsAccès
     );
-    if (!idBdNoms)
+    if (!idBdNoms) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
     await bdNoms.set(langue, nom);
@@ -608,8 +611,9 @@ export default class Tableaux {
       "kvstore",
       optionsAccès
     );
-    if (!idBdNoms)
+    if (!idBdNoms) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
     await bdNoms.del(langue);
@@ -634,8 +638,9 @@ export default class Tableaux {
       "feed",
       optionsAccès
     );
-    if (!idBdColonnes)
+    if (!idBdColonnes) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdColonnes = (await this.client.ouvrirBd(idBdColonnes)) as FeedStore;
     const entrée: InfoCol = {
@@ -657,13 +662,14 @@ export default class Tableaux {
       "feed",
       optionsAccès
     );
-    if (!idBdColonnes)
+    if (!idBdColonnes) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
+    }
 
     const bdColonnes = (await this.client.ouvrirBd(idBdColonnes)) as FeedStore;
     const élément = await this.client.rechercherBdListe(
       idBdColonnes,
-      (x: élémentFeedStore<InfoCol>) => x.payload.value.id === idColonne
+      (x: LogEntry<InfoCol>) => x.payload.value.id === idColonne
     );
 
     await bdColonnes.remove(élément.hash);
@@ -674,16 +680,19 @@ export default class Tableaux {
     f: schémaFonctionSuivi<InfoColAvecCatégorie[]>,
     catégories?: true
   ): Promise<schémaFonctionOublier>;
+
   suivreColonnes(
     idTableau: string,
     f: schémaFonctionSuivi<InfoCol[]>,
     catégories: false
   ): Promise<schémaFonctionOublier>;
+
   suivreColonnes(
     idTableau: string,
     f: schémaFonctionSuivi<(InfoCol | InfoColAvecCatégorie)[]>,
     catégories?: boolean
   ): Promise<schémaFonctionOublier>;
+
   async suivreColonnes(
     idTableau: string,
     f: schémaFonctionSuivi<InfoColAvecCatégorie[]>,
@@ -735,10 +744,9 @@ export default class Tableaux {
       return await this.client.suivreBdListeDeClef(
         idTableau,
         "colonnes",
-        fFinale,
+        fFinale
       );
     }
-
   }
 
   async suivreVariables(
@@ -746,7 +754,7 @@ export default class Tableaux {
     f: schémaFonctionSuivi<string[]>
   ): Promise<schémaFonctionOublier> {
     const fFinale = (variables?: string[]) => {
-      f((variables || []).filter((v) => v && isValidAddress(v)));
+      f((variables || []).filter((v) => v && OrbitDB.isValidAddress(v)));
     };
     const fSuivreBdColonnes = async (
       id: string,
@@ -776,8 +784,9 @@ export default class Tableaux {
       "feed",
       optionsAccès
     );
-    if (!idBdRègles)
+    if (!idBdRègles) {
       throw `Permission de modification refusée pour tableau ${idTableau}.`;
+    }
 
     const bdRègles = (await this.client.ouvrirBd(idBdRègles)) as FeedStore;
 
@@ -806,8 +815,9 @@ export default class Tableaux {
       optionsAccès
     );
 
-    if (!idBdRègles)
+    if (!idBdRègles) {
       throw `Permission de modification refusée pour tableau ${idTableau}.`;
+    }
 
     const bdRègles = (await this.client.ouvrirBd(idBdRègles)) as FeedStore;
 
@@ -831,7 +841,7 @@ export default class Tableaux {
       return f([...dicRègles.tableau, ...dicRègles.variable]);
     };
 
-    //Suivre les règles spécifiées dans le tableau
+    // Suivre les règles spécifiées dans le tableau
     const fFinaleRèglesTableau = (règles: règleColonne[]) => {
       dicRègles.tableau = règles;
       fFinale();
@@ -889,7 +899,7 @@ export default class Tableaux {
       fCode
     );
 
-    //Tout oublier
+    // Tout oublier
     const fOublier = () => {
       oublierRèglesTableau();
       oublierRèglesVariable();
@@ -897,7 +907,7 @@ export default class Tableaux {
     return fOublier;
   }
 
-  async suivreValidDonnées<T extends élémentBdListeDonnées>(
+  async suivreValidDonnées<T extends LogEntryDonnées>(
     idTableau: string,
     f: schémaFonctionSuivi<erreurValidation[]>
   ): Promise<schémaFonctionOublier> {

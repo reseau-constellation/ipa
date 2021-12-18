@@ -3,11 +3,12 @@ import { v4 as uuidv4 } from "uuid";
 import { step } from "mocha-steps";
 import assert from "assert";
 
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts"; // "../../src/ipa/accès/consts";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts"; // "../../src/ipa/acces/consts";
 import { enregistrerContrôleurs } from "@/accès";
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 
-import OrbitDB, { KeyValueStore } from "orbit-db";
+import OrbitDB from "orbit-db";
+import KeyValueStore from "orbit-db-kvstore";
 
 import { testAPIs, config } from "../sfipTest";
 import { peutÉcrire, attendreSync, générerOrbites } from "../utils";
@@ -59,7 +60,7 @@ Object.keys(testAPIs).forEach((API) => {
 
           const autorisé = await peutÉcrire(bdOrbite2);
 
-          await bdOrbite2.close();;
+          await bdOrbite2.close();
           expect(autorisé).to.be.false;
         });
 
@@ -71,7 +72,7 @@ Object.keys(testAPIs).forEach((API) => {
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
 
-          await bdOrbite2.close();;
+          await bdOrbite2.close();
           expect(autorisé).to.be.true;
         });
 

@@ -2,16 +2,10 @@ import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { step } from "mocha-steps";
 
-chai.should();
-chai.use(chaiAsPromised);
-
 import XLSX from "xlsx";
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation, {
-  schémaFonctionOublier,
-  adresseOrbiteValide,
-  élémentsBd,
-} from "@/client";
+import ClientConstellation, { élémentsBd } from "@/client";
+import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils";
 
 import { InfoCol, InfoColAvecCatégorie } from "@/tableaux";
 import {
@@ -21,15 +15,16 @@ import {
   règleValeurCatégorique,
   erreurValidation,
   élémentDonnées,
-  élémentBdListeDonnées,
 } from "@/valid";
 
 import { testAPIs, config } from "./sfipTest";
 import { générerClients, attendreRésultat, typesClients } from "./utils";
 
+chai.should();
+chai.use(chaiAsPromised);
 
-typesClients.forEach((type)=>{
-  describe("Client " + type, function() {
+typesClients.forEach((type) => {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Tableaux", function () {
         this.timeout(config.timeout);
@@ -43,7 +38,11 @@ typesClients.forEach((type)=>{
 
         before(async () => {
           enregistrerContrôleurs();
-          ({ fOublier: fOublierClients, clients } = await générerClients(1, API, type));
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+            1,
+            API,
+            type
+          ));
           client = clients[0];
         });
 
@@ -162,10 +161,15 @@ typesClients.forEach((type)=>{
               )
             );
             fsOublier.push(
-              await client.tableaux!.suivreDonnées(idTableau, (d) => (données = d))
+              await client.tableaux!.suivreDonnées(
+                idTableau,
+                (d) => (données = d)
+              )
             );
 
-            const idVariable1 = await client.variables!.créerVariable("numérique");
+            const idVariable1 = await client.variables!.créerVariable(
+              "numérique"
+            );
             const idVariable2 = await client.variables!.créerVariable("chaîne");
             idsVariables = [idVariable1, idVariable2];
           });
@@ -234,7 +238,9 @@ typesClients.forEach((type)=>{
             );
 
             const nouvelÉlémentDonnées = données[0];
-            expect(nouvelÉlémentDonnées.données).to.not.have.key(idsColonnes[0]);
+            expect(nouvelÉlémentDonnées.données).to.not.have.key(
+              idsColonnes[0]
+            );
           });
 
           step("Modifier un élément - ajouter une clef", async () => {
@@ -261,7 +267,10 @@ typesClients.forEach((type)=>{
           });
 
           step("Effacer une colonne", async () => {
-            await client.tableaux!.effacerColonneTableau(idTableau, idsColonnes[0]);
+            await client.tableaux!.effacerColonneTableau(
+              idTableau,
+              idsColonnes[0]
+            );
             expect(colonnes.map((c) => c.variable))
               .have.lengthOf(1)
               .and.to.have.members([idsVariables[1]]);
@@ -318,8 +327,10 @@ typesClients.forEach((type)=>{
           let idColonneNumérique: string;
           let idColonneChaîne: string;
 
-          const résultats: { règles: règleColonne[]; erreurs: erreurValidation[] } =
-            { règles: [], erreurs: [] };
+          const résultats: {
+            règles: règleColonne[];
+            erreurs: erreurValidation[];
+          } = { règles: [], erreurs: [] };
           const fsOublier: schémaFonctionOublier[] = [];
 
           beforeEach(async () => {
@@ -453,7 +464,9 @@ typesClients.forEach((type)=>{
               [idColonneNumérique]: 123,
             });
             expect(résultats.erreurs).to.have.lengthOf(1);
-            expect(résultats.erreurs[0].erreur.règle.règle.id).to.equal(idRègle);
+            expect(résultats.erreurs[0].erreur.règle.règle.id).to.equal(
+              idRègle
+            );
           });
 
           step("Ajouter des données invalides (règle variable)", async () => {
@@ -473,7 +486,9 @@ typesClients.forEach((type)=>{
               [idColonneNumérique]: 123,
             });
             expect(résultats.erreurs).to.have.lengthOf(1);
-            expect(résultats.erreurs[0].erreur.règle.règle.id).to.equal(idRègle);
+            expect(résultats.erreurs[0].erreur.règle.règle.id).to.equal(
+              idRègle
+            );
           });
 
           step(
@@ -490,7 +505,10 @@ typesClients.forEach((type)=>{
                 idVariableNumérique,
                 règle
               );
-              await client.tableaux!.effacerRègleTableau(idTableauRègles, idRègle);
+              await client.tableaux!.effacerRègleTableau(
+                idTableauRègles,
+                idRègle
+              );
               expect(
                 résultats.règles.filter((r) => r.règle.id === idRègle)
               ).to.have.lengthOf(1);
@@ -514,7 +532,10 @@ typesClients.forEach((type)=>{
               [idColonneNumérique]: 123,
             });
 
-            await client.tableaux!.effacerRègleTableau(idTableauRègles, idRègle);
+            await client.tableaux!.effacerRègleTableau(
+              idTableauRègles,
+              idRègle
+            );
             expect(résultats.règles).to.have.lengthOf(2);
             expect(résultats.erreurs).to.have.lengthOf(0);
           });
@@ -575,8 +596,12 @@ typesClients.forEach((type)=>{
               )
             );
 
-            idVariableTempMin = await client.variables!.créerVariable("numérique");
-            idVariableTempMax = await client.variables!.créerVariable("numérique");
+            idVariableTempMin = await client.variables!.créerVariable(
+              "numérique"
+            );
+            idVariableTempMax = await client.variables!.créerVariable(
+              "numérique"
+            );
 
             idColonneTempMin = await client.tableaux!.ajouterColonneTableau(
               idTableauRègles,
@@ -601,8 +626,8 @@ typesClients.forEach((type)=>{
               idColonneTempMin,
               règle
             );
-            expect(erreurs).to.be.an("array").of.length(1)
-            console.log({erreurs})
+            expect(erreurs).to.be.an("array").of.length(1);
+            console.log({ erreurs });
           });
           step("Ajout colonne réf détectée", async () => {
             await client.tableaux!.ajouterColonneTableau(
@@ -610,7 +635,6 @@ typesClients.forEach((type)=>{
               idVariableTempMax,
               idColonneTempMax
             );
-
           });
           step("Ajout éléments colonne réf détecté");
           step("Ajout éléments valides");
@@ -621,7 +645,7 @@ typesClients.forEach((type)=>{
           describe("Catégories fixes", function () {
             it("Ajout éléments valides");
             it("Ajout éléments invalides");
-          })
+          });
           describe("Dans le même tableau", function () {
             it("Erreur si colonne n'existe pas");
             it("Ajout colonne réf détectée");
@@ -647,62 +671,72 @@ typesClients.forEach((type)=>{
           let colonnesSansCatégorie: InfoCol[];
           let données: élémentDonnées[];
 
-          const idVarChaîne = "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF/dd77aec3-e7b8-4695-b068-49ce4227b360"
-          const fsOublier: schémaFonctionOublier[] = []
+          const idVarChaîne =
+            "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF/dd77aec3-e7b8-4695-b068-49ce4227b360";
+          const fsOublier: schémaFonctionOublier[] = [];
 
-          before(async () => {
-
+          before(async () => {
             idTableau = await client.tableaux!.créerTableau();
             idColonne = await client.tableaux!.ajouterColonneTableau(
-              idTableau, idVarChaîne
+              idTableau,
+              idVarChaîne
             );
             fsOublier.push(
               await client.tableaux!.suivreVariables(
-                idTableau, v=>variables = v
+                idTableau,
+                (v) => (variables = v)
               )
-            )
+            );
             fsOublier.push(
               await client.tableaux!.suivreColonnes(
-                idTableau, c=>colonnes=c
+                idTableau,
+                (c) => (colonnes = c)
               )
-            )
+            );
             fsOublier.push(
               await client.tableaux!.suivreColonnes(
-                idTableau, c=>colonnesSansCatégorie=c, false
+                idTableau,
+                (c) => (colonnesSansCatégorie = c),
+                false
               )
-            )
+            );
             fsOublier.push(
               await client.tableaux!.suivreDonnées(
-                idTableau, d=>données=d
+                idTableau,
+                (d) => (données = d)
               )
-            )
+            );
           });
 
-          after(()=>{
-            fsOublier.forEach(f=>f());
-          })
-          step("Tableau créé", () => {
+          after(() => {
+            fsOublier.forEach((f) => f());
+          });
+          step("Tableau créé", () => {
             expect(adresseOrbiteValide(idTableau)).to.be.true;
           });
-          step("Suivre variables", () => {
-            expect(variables).to.be.an("array").with.lengthOf(1).and.members([idVarChaîne])
+          step("Suivre variables", () => {
+            expect(variables)
+              .to.be.an("array")
+              .with.lengthOf(1)
+              .and.members([idVarChaîne]);
           });
-          step("Suivre colonnes", () => {
+          step("Suivre colonnes", () => {
             expect(colonnes).to.be.undefined;
-          })
-          step("Suivre colonnes sans catégorie", () => {
-            expect(colonnesSansCatégorie).to.be.an("array").with.lengthOf(1)
-              .and.deep.members([{id: idColonne, variable: idVarChaîne}])
-          })
-          step("Ajouter données", async () => {
-            await client.tableaux!.ajouterÉlément(
-              idTableau, {[idColonne]: "Bonjour !"}
-            );
-            expect(données).to.be.an("array").with.lengthOf(1)
+          });
+          step("Suivre colonnes sans catégorie", () => {
+            expect(colonnesSansCatégorie)
+              .to.be.an("array")
+              .with.lengthOf(1)
+              .and.deep.members([{ id: idColonne, variable: idVarChaîne }]);
+          });
+          step("Ajouter données", async () => {
+            await client.tableaux!.ajouterÉlément(idTableau, {
+              [idColonne]: "Bonjour !",
+            });
+            expect(données).to.be.an("array").with.lengthOf(1);
             expect(données[0].données[idColonne]).to.equal("Bonjour !");
           });
-
-        })
+        });
 
         describe("Copier tableau", function () {
           let idTableau: string;
@@ -744,7 +778,9 @@ typesClients.forEach((type)=>{
             );
             await client.tableaux!.changerColIndex(idTableau, idColonne, true);
 
-            await client.tableaux!.ajouterÉlément(idTableau, { [idColonne]: 123 });
+            await client.tableaux!.ajouterÉlément(idTableau, {
+              [idColonne]: 123,
+            });
 
             idRègle = await client.tableaux!.ajouterRègleTableau(
               idTableau,
@@ -947,7 +983,7 @@ typesClients.forEach((type)=>{
               données
                 .map((d) => d.données)
                 .map((d) => {
-                  delete d["id"];
+                  delete d.id;
                   return d;
                 })
             ).to.have.deep.members([
@@ -1078,25 +1114,25 @@ typesClients.forEach((type)=>{
           });
 
           it("Données numériques exportées", async () => {
-            const val = doc.Sheets[nomTableauFr]["A2"].v;
+            const val = doc.Sheets[nomTableauFr].A2.v;
             expect(val).to.equal(123);
 
-            const val2 = doc.Sheets[nomTableauFr]["A3"].v;
+            const val2 = doc.Sheets[nomTableauFr].A3.v;
             expect(val2).to.equal(456);
           });
 
           it("Données chaîne exportées", async () => {
-            const val = doc.Sheets[nomTableauFr]["B2"].v;
+            const val = doc.Sheets[nomTableauFr].B2.v;
             expect(val).to.equal("வணக்கம்");
           });
 
           it("Données booléennes exportées", async () => {
-            const val = doc.Sheets[nomTableauFr]["C2"].v;
+            const val = doc.Sheets[nomTableauFr].C2.v;
             expect(val).to.equal("true");
           });
 
           it("Données fichier exportées", async () => {
-            const val = doc.Sheets[nomTableauFr]["D2"].v;
+            const val = doc.Sheets[nomTableauFr].D2.v;
             expect(val).to.equal(
               "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4"
             );
@@ -1105,7 +1141,10 @@ typesClients.forEach((type)=>{
           it("Les fichiers SFIP sont détectés", async () => {
             expect(fichiersSFIP.size).equal(1);
             expect(fichiersSFIP).to.have.deep.keys([
-              { cid: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ", ext: "mp4" },
+              {
+                cid: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ",
+                ext: "mp4",
+              },
             ]);
           });
 

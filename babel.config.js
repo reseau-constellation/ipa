@@ -1,32 +1,48 @@
-const sharedPresets = ['@babel/preset-typescript'];
+const sharedPresets = ["@babel/preset-typescript"];
 const shared = {
-  ignore: ['src/**/*.spec.ts'],
-  presets: sharedPresets
-}
+  ignore: ["src/**/*.spec.ts"],
+  presets: sharedPresets,
+};
 
 module.exports = {
   env: {
     esmUnbundled: shared,
     esmBundled: {
       ...shared,
-      presets: [['@babel/preset-env', {
-        targets: "> 0.25%, not dead"
-      }], ...sharedPresets],
+      presets: [
+        [
+          "@babel/preset-env",
+          {
+            targets: "> 0.25%, not dead",
+          },
+        ],
+        ...sharedPresets,
+      ],
     },
     cjs: {
       ...shared,
-      presets: [['@babel/preset-env', {
-        modules: 'commonjs'
-      }], ...sharedPresets],
-    }
+      presets: [
+        [
+          "@babel/preset-env",
+          {
+            modules: "commonjs",
+          },
+        ],
+        ...sharedPresets,
+      ],
+    },
   },
-  plugins: [["module-resolver",
-    {
-      "root": "./",
-      "alias": {
-        "@": ["./src"]
+  plugins: [
+    [
+      "module-resolver",
+      {
+        root: "./",
+        alias: {
+          "@": ["./src"],
+        },
+        extensions: [".ts", ".tsx"],
       },
-      "extensions": [".ts", ".tsx"]
-    }],
-  "@babel/plugin-transform-runtime"]
-}
+    ],
+    "@babel/plugin-transform-runtime",
+  ],
+};

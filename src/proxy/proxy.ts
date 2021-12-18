@@ -6,71 +6,23 @@ import ClientConstellation, {
   schémaFonctionSuivi,
   schémaFonctionOublier,
 } from "../client";
+import {
+  MessagePourTravailleur,
+  MessageSuivrePourTravailleur,
+  MessageOublierPourTravailleur,
+  MessageActionPourTravailleur,
+  MessageDeTravailleur,
+  MessageSuivreDeTravailleur,
+  MessagePrêtDeTravailleur,
+  MessageActionDeTravailleur,
+  MessageSuivrePrêtDeTravailleur,
+  MessageErreurDeTravailleur,
+} from "./messages";
 
 interface Tâche {
   id: string;
   fSuivre: schémaFonctionSuivi<unknown>;
   fOublier: schémaFonctionOublier;
-}
-
-export interface MessageDeTravailleur {
-  type: "prêt" | "suivre" | "suivrePrêt" | "action" | "erreur";
-  id?: string;
-}
-
-export interface MessagePrêtDeTravailleur extends MessageDeTravailleur {
-  type: "prêt";
-}
-
-export interface MessageSuivreDeTravailleur extends MessageDeTravailleur {
-  type: "suivre";
-  id: string;
-  données: unknown;
-}
-
-export interface MessageSuivrePrêtDeTravailleur extends MessageDeTravailleur {
-  type: "suivrePrêt";
-  id: string;
-}
-
-export interface MessageActionDeTravailleur extends MessageDeTravailleur {
-  type: "action";
-  id: string;
-  résultat: unknown;
-}
-
-export interface MessageErreurDeTravailleur extends MessageDeTravailleur {
-  type: "erreur";
-  erreur: Error;
-}
-
-export interface MessagePourTravailleur {
-  type: "oublier" | "suivre" | "action" | "init";
-  id: string;
-}
-
-export interface MessageInitPourTravailleur extends MessagePourTravailleur {
-  type: "init";
-  idBdRacine?: string;
-  orbite?: OrbitDB;
-  sujetRéseau?: string;
-}
-
-export interface MessageSuivrePourTravailleur extends MessagePourTravailleur {
-  type: "suivre";
-  fonction: string[];
-  args: unknown[];
-  iArgFonction: number;
-}
-
-export interface MessageActionPourTravailleur extends MessagePourTravailleur {
-  type: "action";
-  fonction: string[];
-  args: unknown[];
-}
-
-export interface MessageOublierPourTravailleur extends MessagePourTravailleur {
-  type: "oublier";
 }
 
 class Callable extends Function {
@@ -106,10 +58,16 @@ export class IPAParallèle extends Callable {
   tâches: { [key: string]: Tâche };
   ipaPrêt: boolean;
   messagesEnAttente: MessagePourTravailleur[];
-  erreurs: (Error)[];
+  erreurs: Error[];
   souleverErreurs: boolean;
 
-  constructor(client: téléClient, souleverErreurs: boolean, idBdRacine?: string, orbite?: OrbitDB, sujetRéseau?: string) {
+  constructor(
+    client: téléClient,
+    souleverErreurs: boolean,
+    idBdRacine?: string,
+    orbite?: OrbitDB,
+    sujetRéseau?: string
+  ) {
     super();
 
     this.client = client;
@@ -149,28 +107,18 @@ export class IPAParallèle extends Callable {
             break;
           }
           case "erreur": {
-            const { erreur } = m as MessageErreurDeTravailleur;
-            this.erreur(erreur);
+            const { erreur, id } = m as MessageErreurDeTravailleur;
+            this.erreur(erreur, id);
             break;
           }
           default: {
-            this.erreur(
-              new Error(`Type inconnu ${type} dans message ${m}.`)
-            );
+            this.erreur(new Error(`Type inconnu ${type} dans message ${m}.`));
           }
         }
       } catch (err) {
-        this.erreur(err as Error)
+        this.erreur(err as Error);
       }
     });
-    const messageInit: MessageInitPourTravailleur = {
-      type: "init",
-      id: uuidv4(),
-      idBdRacine,
-      orbite,
-      sujetRéseau
-    };
-    this.client.recevoirMessage(messageInit);
   }
 
   __call__(fonction: string[], listeArgs: unknown[]): Promise<unknown> {
@@ -193,7 +141,7 @@ export class IPAParallèle extends Callable {
     const f = listeArgs[iArgFonction] as schémaFonctionSuivi<unknown>;
     const args = listeArgs.filter((a) => typeof a !== "function");
     if (args.length !== listeArgs.length - 1) {
-      this.erreur(new Error("Plus d'un argument est une fonction."));
+      this.erreur(new Error("Plus d'un argument est une fonction."), id);
       return new Promise((_resolve, reject) => reject());
     }
 
@@ -225,30 +173,38 @@ export class IPAParallèle extends Callable {
 
     this.envoyerMessage(message);
 
-    await once(this.événements, id);
+    await new Promise<void>(async (résoudre) => {
+      await once(this.événements, id);
+      résoudre();
+    });
+
     return fOublierTâche;
   }
 
-  async appelerFonctionAction(
+  async appelerFonctionAction<T = unknown>(
     id: string,
     fonction: string[],
     listeArgs: unknown[]
-  ): Promise<unknown> {
+  ): Promise<T> {
     const message: MessageActionPourTravailleur = {
       type: "action",
       id,
       fonction,
       args: listeArgs,
     };
+
+    const promesse = new Promise<T>(async (résoudre) => {
+      const résultat = (await once(this.événements, id))[0];
+      résoudre(résultat);
+    });
+
     this.envoyerMessage(message);
 
-    const événements = this.événements;
-    const résultat = (await once(événements, id))[0];
-
-    return résultat;
+    return await promesse;
   }
 
   ipaActivé(): void {
+    if (this.ipaPrêt) return;
     this.messagesEnAttente.forEach((m) => this.client.recevoirMessage(m));
 
     this.messagesEnAttente = [];
@@ -263,10 +219,10 @@ export class IPAParallèle extends Callable {
     }
   }
 
-  erreur(e: Error): void {
+  erreur(e: Error, id?: string): void {
     this.erreurs.unshift(e);
     this.événements.emit("erreur", { nouvelle: e, toutes: this.erreurs });
-    if (this.souleverErreurs) throw e
+    if (this.souleverErreurs) throw e;
   }
 
   oublierTâche(id: string): void {
@@ -301,8 +257,20 @@ class Handler {
 
 export type ProxyClientConstellation = ClientConstellation & IPAParallèle;
 
-export default (client: téléClient, souleverErreurs: boolean, idBdRacine?: string, orbite?: OrbitDB, sujetRéseau?: string): ProxyClientConstellation => {
+export default (
+  client: téléClient,
+  souleverErreurs: boolean,
+  idBdRacine?: string,
+  orbite?: OrbitDB,
+  sujetRéseau?: string
+): ProxyClientConstellation => {
   const handler = new Handler();
-  const ipa = new IPAParallèle(client, souleverErreurs, idBdRacine, orbite, sujetRéseau);
+  const ipa = new IPAParallèle(
+    client,
+    souleverErreurs,
+    idBdRacine,
+    orbite,
+    sujetRéseau
+  );
   return new Proxy<IPAParallèle>(ipa, handler) as ProxyClientConstellation;
 };

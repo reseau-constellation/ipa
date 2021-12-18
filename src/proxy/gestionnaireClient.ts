@@ -1,58 +1,81 @@
-import ClientConstellation, { schémaFonctionOublier } from "../client";
+import Semaphore from "@chriscdn/promise-semaphore";
+
+import ClientConstellation, { schémaFonctionOublier } from "@/client";
 
 import {
   MessagePourTravailleur,
   MessageDeTravailleur,
-  MessageInitPourTravailleur,
   MessagePrêtDeTravailleur,
   MessageActionPourTravailleur,
   MessageActionDeTravailleur,
   MessageSuivrePourTravailleur,
   MessageSuivreDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
-} from "./proxy";
+  MessageOublierPourTravailleur,
+} from "./messages";
 
 export default class GestionnaireClient {
   ipa?: ClientConstellation;
   dicFOublier: { [key: string]: schémaFonctionOublier };
+  opts: OptionsConstellation;
 
   fMessage: (m: MessageDeTravailleur) => void;
-  fErreur: (e: Error, idRequète: string) => void;
+  fErreur: (e: Error, idRequète?: string) => void;
+
+  _verrou: Semaphore;
 
   constructor(
     fMessage: (m: MessageDeTravailleur) => void,
-    fErreur: (e: Error, idRequète: string) => void
+    fErreur: (e: Error, idRequète?: string) => void,
+    opts: OptionsConstellation = {}
   ) {
-
     this.fMessage = fMessage;
     this.fErreur = fErreur;
+    this.opts = opts;
     this.dicFOublier = {};
+
+    this._verrou = new Semaphore();
+    this.init();
+  }
+
+  async init(): Promise<void> {
+    this._verrou.acquire("init");
+    const messageRetour: MessagePrêtDeTravailleur = {
+      type: "prêt",
+    };
+
+    if (this.ipa) {
+      this.fMessage(messageRetour);
+      return;
+    } // Nécessaire si on a plus qu'un client connecté au même client (serveur) Constellation
+
+    const { idBdRacine, orbite, sujetRéseau } =
+      message as MessageInitPourTravailleur;
+    this.ipa = new ClientConstellation(
+      idBdRacine,
+      undefined,
+      orbite,
+      sujetRéseau
+    );
+
+    await this.ipa.initialiser();
+
+    this.fMessage(messageRetour);
+
+    this._verrou.release("init");
   }
 
   async gérerMessage(message: MessagePourTravailleur): Promise<void> {
-    const { type, id } = message;
+    const { type } = message;
     switch (type) {
-      case "init": {
-        if (this.ipa) return; //Au cas où
-
-        const { idBdRacine, orbite, sujetRéseau } = message as MessageInitPourTravailleur;
-        this.ipa = new ClientConstellation(idBdRacine, undefined, orbite, sujetRéseau);
-
-        await this.ipa.initialiser();
-        const messageRetour: MessagePrêtDeTravailleur = {
-          type: "prêt",
-        };
-
-        this.fMessage(messageRetour);
-        break;
-      }
       case "suivre": {
+        const { id } = message as MessageSuivrePourTravailleur;
         if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
 
         const { fonction, args, iArgFonction } =
           message as MessageSuivrePourTravailleur;
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
-        if (!fonctionIPA) return; //L'erreur est déjà envoyée par extraireFonctionIPA
+        if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
         const fFinale = (données: unknown) => {
           const messageRetour: MessageSuivreDeTravailleur = {
@@ -75,11 +98,12 @@ export default class GestionnaireClient {
         break;
       }
       case "action": {
+        const { id } = message as MessageActionPourTravailleur;
         if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
 
         const { fonction, args } = message as MessageActionPourTravailleur;
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
-        if (!fonctionIPA) return; //L'erreur est déjà envoyée par extraireFonctionIPA
+        if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
         const résultat = await fonctionIPA(...args);
         const messageRetour: MessageActionDeTravailleur = {
@@ -91,6 +115,7 @@ export default class GestionnaireClient {
         break;
       }
       case "oublier": {
+        const { id } = message as MessageOublierPourTravailleur;
         const fOublier = this.dicFOublier[id];
         if (fOublier) fOublier();
         delete this.dicFOublier[id];
@@ -101,7 +126,7 @@ export default class GestionnaireClient {
           new Error(
             `Type de requète ${type} non reconnu dans message ${message}`
           ),
-          id
+          message.id
         );
         break;
       }
@@ -131,7 +156,7 @@ export default class GestionnaireClient {
           attr in fonctionIPA &&
           fonctionIPA[attr as keyof typeof fonctionIPA]
         ) {
-          //@ts-ignore
+          // @ts-ignore
           fonctionIPA = fonctionIPA[attr].bind(fonctionIPA);
         } else {
           this.fErreur(erreur, idMessage);

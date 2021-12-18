@@ -1,4 +1,4 @@
-import XLSX from "xlsx";
+import { WorkBook, read as readXLSX } from "xlsx";
 
 import { DonnéesJSON } from "./json";
 
@@ -10,10 +10,10 @@ export async function importerJSONdURL(url: string): Promise<DonnéesJSON> {
 export async function importerFeuilleCalculDURL(
   url: string,
   modDePasse?: string
-): Promise<XLSX.WorkBook> {
+): Promise<WorkBook> {
   const réponse = await fetch(url);
   const données = await réponse.arrayBuffer();
-  return XLSX.read(données, {
+  return readXLSX(données, {
     type: "array",
     cellDates: true,
     password: modDePasse,

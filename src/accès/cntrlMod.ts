@@ -104,8 +104,9 @@ export default class ContrôleurAccès extends EventEmitter {
     options: OptionsContrôleurAccèsConstellation = {}
   ): Promise<ContrôleurAccès> {
     const premierMod = options.premierMod;
-    if (!premierMod)
+    if (!premierMod) {
       throw new Error("Contrôle d'accès: premier modérateur requis");
+    }
     return new ContrôleurAccès(orbitdb, { premierMod });
   }
 }

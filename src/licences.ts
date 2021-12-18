@@ -39,7 +39,7 @@ export interface InfoLicence {
 }
 
 export const infoLicences: { [key: string]: InfoLicence } = {
-  //Licences pour BD
+  // Licences pour BD
   "ODbl-1_0": {
     droits: [droits.CMRC, droits.PRTG, droits.PRV, droits.ADPT],
     conditions: [conditions.ATTR, conditions.ÉGAL, conditions.INCL],
@@ -81,7 +81,7 @@ export const infoLicences: { [key: string]: InfoLicence } = {
     spécialisée: true,
   },
 
-  //Licences créatives
+  // Licences créatives
   "CC-BY-SA-4_0": {
     droits: [droits.PRTG, droits.ADPT, droits.CMRC, droits.PRV],
     conditions: [conditions.INCL, conditions.CHNG, conditions.ÉGAL],
@@ -116,7 +116,7 @@ export const infoLicences: { [key: string]: InfoLicence } = {
     catégorie: catégories.ART,
   },
 
-  //Licences code informatique
+  // Licences code informatique
   "0bsd": {
     droits: [droits.CMRC, droits.PRTG, droits.ADPT, droits.PRV],
     conditions: [],

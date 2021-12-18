@@ -147,7 +147,7 @@ describe("JSON", function () {
     let données: élément[];
 
     before(async () => {
-      //Données de https://covid.ourworldindata.org/data/owid-covid-data.json
+      // Données de https://covid.ourworldindata.org/data/owid-covid-data.json
       const donnéesJSON = JSON.parse(
         (
           await fs.promises.readFile(

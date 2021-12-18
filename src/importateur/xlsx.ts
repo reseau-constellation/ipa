@@ -1,11 +1,9 @@
-import XLSX from "xlsx";
-// '/Users/julienmalard/Documents/Projet Wietske Medema/BD test/Copy of Wilmot_2016-2018_FWIS.xlsm'
-// XLSX.readFile('test.xlsx')
+import { utils, WorkBook } from "xlsx";
 
 export default class ImportateurFeuilleCalcul {
-  doc: XLSX.WorkBook;
+  doc: WorkBook;
 
-  constructor(données: XLSX.WorkBook) {
+  constructor(données: WorkBook) {
     this.doc = données;
   }
 
@@ -15,7 +13,7 @@ export default class ImportateurFeuilleCalcul {
 
   obtColsTableau(nomTableau: string): string[] {
     const feuille = this.doc.Sheets[nomTableau];
-    const données = XLSX.utils.sheet_to_json(feuille, { header: 1 });
+    const données = utils.sheet_to_json(feuille, { header: 1 });
     return données[0] as string[];
   }
 
@@ -24,7 +22,7 @@ export default class ImportateurFeuilleCalcul {
     cols: { [key: string]: string }
   ): { [key: string]: string | number }[] {
     const feuille = this.doc.Sheets[nomTableau];
-    const données = XLSX.utils.sheet_to_json(feuille) as {
+    const données = utils.sheet_to_json(feuille) as {
       [key: string]: string | number;
     }[];
 

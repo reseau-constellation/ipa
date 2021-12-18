@@ -5,7 +5,10 @@ import { startIpfs, stopIpfs, config } from "./sfipTest";
 import { once } from "events";
 import rmrf from "rimraf";
 import { v4 as uuidv4 } from "uuid";
-import OrbitDB, { Store, KeyValueStore, FeedStore } from "orbit-db";
+import OrbitDB from "orbit-db";
+import Store from "orbit-db-store";
+import KeyValueStore from "orbit-db-kvstore";
+import FeedStore from "orbit-db-feedstore";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation, { schémaFonctionOublier } from "@/client";
@@ -81,8 +84,9 @@ export const peutÉcrire = async (
 
       const autorisé =
         éléments.length === 1 && éléments[0].payload.value === VAL;
-      if (éléments.length === 1)
+      if (éléments.length === 1) {
         await (bd as FeedStore).remove(éléments[0].hash);
+      }
       return autorisé;
     } else {
       throw new Error(`Type de BD ${bd.type} non supporté par ce test.`);
@@ -136,7 +140,7 @@ export const générerOrbites = async (
   return { orbites, fOublier };
 };
 
-type typeClient = "directe" | "proc" | "travailleur"
+type typeClient = "directe" | "proc" | "travailleur";
 
 export const générerClients = async (
   n = 1,
@@ -150,10 +154,13 @@ export const générerClients = async (
   const fsOublier: schémaFonctionOublier[] = [];
 
   for (const i in [...Array(n).keys()]) {
-    let client: ClientConstellation
+    let client: ClientConstellation;
     switch (type) {
       case "directe": {
-        const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n, API);
+        const { orbites, fOublier: fOublierOrbites } = await générerOrbites(
+          n,
+          API
+        );
         fsOublier.push(fOublierOrbites);
 
         client = await ClientConstellation.créer(
@@ -165,14 +172,17 @@ export const générerClients = async (
       }
 
       case "proc": {
-        const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n, API);
+        const { orbites, fOublier: fOublierOrbites } = await générerOrbites(
+          n,
+          API
+        );
         fsOublier.push(fOublierOrbites);
-        client = (await générerProxyProc).default(undefined, true, orbites[i])
+        client = (await générerProxyProc).default(undefined, true, orbites[i]);
         break;
       }
 
       case "travailleur":
-        client = (await générerProxyTravailleur).default(undefined, true)
+        client = (await générerProxyTravailleur).default(undefined, true);
         break;
 
       default:
@@ -187,9 +197,11 @@ export const générerClients = async (
         await client.fermer();
       })
     );
-    fsOublier.forEach(f=>f());
+    fsOublier.forEach((f) => f());
   };
   return { fOublier, clients };
 };
 
-export const typesClients: typeClient[] = process.env.TOUS ? ["directe", "proc"] : ["directe"]
+export const typesClients: typeClient[] = process.env.TOUS
+  ? ["directe", "proc"]
+  : ["directe"];
