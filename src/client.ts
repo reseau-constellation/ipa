@@ -114,7 +114,6 @@ export default class ClientConstellation extends EventEmitter {
 
   async initialiser(): Promise<void> {
     const { sfip, orbite } = await this._générerSFIPetOrbite();
-    console.log("SFIP et Orbite initialisés")
     this.sfip = sfip;
     this.orbite = orbite;
 
