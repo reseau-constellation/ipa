@@ -4,23 +4,27 @@ import { WorkBook, BookType, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import ClientConstellation, {
+import ClientConstellation, { infoAccès } from "@/client";
+import { objRôles } from "@/accès/types";
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
+import {
+  traduire,
+  zipper,
+  TYPES_STATUT,
+  schémaStatut,
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  LogEntry,
-  infoAccès,
+  infoAuteur,
   uneFois,
-} from "./client";
-import { STATUT, infoAuteur } from "./bds";
-import { objRôles } from "./accès/types";
-import ContrôleurConstellation from "./accès/cntrlConstellation";
-import { traduire, zipper } from "./utils";
+} from "@/utils";
 
 export interface donnéesProjetExportées {
   docs: { doc: WorkBook; nom: string }[];
   fichiersSFIP: Set<{ cid: string; ext: string }>;
   nomFichier: string;
 }
+
+export type typeÉlémentsBdProjet = string | schémaStatut;
 
 export default class Projets {
   client: ClientConstellation;
@@ -40,13 +44,17 @@ export default class Projets {
   }
 
   async créerProjet(): Promise<string> {
-    const bdRacine = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
+    const { bd: bdRacine, fOublier: fOublierRacine } =
+      await this.client.ouvrirBd<FeedStore<string>>(this.idBd);
     const idBdProjet = await this.client.créerBdIndépendante("kvstore", {
       adresseBd: undefined,
       premierMod: this.client.bdRacine!.id,
     });
 
-    const bdProjet = (await this.client.ouvrirBd(idBdProjet)) as KeyValueStore;
+    const { bd: bdProjet, fOublier: fOublierProjet } =
+      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdProjet>>(
+        idBdProjet
+      );
 
     const accès = bdProjet.access as unknown as ContrôleurConstellation;
     const optionsAccès = { adresseBd: accès.adresseBd };
@@ -72,44 +80,56 @@ export default class Projets {
     );
     await bdProjet.set("motsClefs", idBdMotsClefs);
 
-    await bdProjet.set("statut", { statut: STATUT.ACTIVE });
+    await bdProjet.set("statut", { statut: TYPES_STATUT.ACTIVE });
 
     await bdRacine.add(idBdProjet);
+
+    fOublierRacine();
+    fOublierProjet();
+
     return idBdProjet;
   }
 
   async copierProjet(id: string): Promise<string> {
-    const bdBase = (await this.client.ouvrirBd(id)) as KeyValueStore;
+    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdProjet>
+    >(id);
     const idNouveauProjet = await this.créerProjet();
-    const nouvelleBd = (await this.client.ouvrirBd(
-      idNouveauProjet
-    )) as KeyValueStore;
+    const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
+      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdProjet>>(
+        idNouveauProjet
+      );
 
-    const idBdNoms = await bdBase.get("noms");
-    const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
+    const idBdNoms = bdBase.get("noms") as string;
+    const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >(idBdNoms);
     const noms = ClientConstellation.obtObjetdeBdDic(bdNoms) as {
       [key: string]: string;
     };
     await this.ajouterNomsProjet(idNouveauProjet, noms);
 
-    const idBdDescr = await bdBase.get("descriptions");
-    const bdDescr = (await this.client.ouvrirBd(idBdDescr)) as KeyValueStore;
+    const idBdDescr = bdBase.get("descriptions") as string;
+    const { bd: bdDescr, fOublier: fOublierDescr } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >(idBdDescr);
     const descriptions = ClientConstellation.obtObjetdeBdDic(bdDescr) as {
       [key: string]: string;
     };
     await this.ajouterDescriptionsProjet(idNouveauProjet, descriptions);
 
-    const idBdMotsClefs = await bdBase.get("motsClefs");
-    const bdMotsClefs = (await this.client.ouvrirBd(
-      idBdMotsClefs
-    )) as FeedStore;
+    const idBdMotsClefs = bdBase.get("motsClefs") as string;
+    const { bd: bdMotsClefs, fOublier: fOublierMotsClefs } =
+      await this.client.ouvrirBd<FeedStore<string>>(idBdMotsClefs);
     const motsClefs = ClientConstellation.obtÉlémentsDeBdListe(
       bdMotsClefs
     ) as string[];
     await this.ajouterMotsClefsProjet(idNouveauProjet, motsClefs);
 
-    const idBdBds = await bdBase.get("bds");
-    const bdBds = (await this.client.ouvrirBd(idBdBds)) as FeedStore;
+    const idBdBds = bdBase.get("bds") as string;
+    const { bd: bdBds, fOublier: fOublierBds } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >(idBdBds);
     const bds = ClientConstellation.obtÉlémentsDeBdListe(bdBds) as string[];
     await Promise.all(
       bds.map(async (idBd: string) => {
@@ -117,15 +137,23 @@ export default class Projets {
       })
     );
 
-    const statut = (await bdBase.get("statut")) || STATUT.ACTIVE;
-    await nouvelleBd.set("statut", { statut });
+    const statut = bdBase.get("statut") || {statut: TYPES_STATUT.ACTIVE};
+    await nouvelleBd.set("statut", statut);
+
+    fOublierBase();
+    fOublierNouvelle();
+    fOublierNoms();
+    fOublierDescr();
+    fOublierMotsClefs();
+    fOublierBds();
 
     return idNouveauProjet;
   }
 
   async ajouterÀMesProjets(id: string): Promise<void> {
-    const bdRacine = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
+    const {bd: bdRacine, fOublier} = await this.client.ouvrirBd<FeedStore<string>>(this.idBd);
     await bdRacine.add(id);
+    fOublier();
   }
 
   async inviterAuteur(
@@ -180,7 +208,7 @@ export default class Projets {
     return fOublier;
   }
 
-  async _obtBdNoms(id: string): Promise<KeyValueStore> {
+  async _obtBdNoms(id: string): Promise<{bd: KeyValueStore<string>, fOublier: schémaFonctionOublier}> {
     const optionsAccès = await this.client.obtOpsAccès(id);
     const idBdNoms = await this.client.obtIdBd(
       "noms",
@@ -192,18 +220,18 @@ export default class Projets {
       throw `Permission de modification refusée pour Projet ${id}.`;
     }
 
-    const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
-    return bdNoms;
+    return await this.client.ouvrirBd<KeyValueStore<string>>(idBdNoms);
   }
 
   async ajouterNomsProjet(
     id: string,
     noms: { [key: string]: string }
   ): Promise<void> {
-    const bdNoms = await this._obtBdNoms(id);
+    const {bd: bdNoms, fOublier} = await this._obtBdNoms(id);
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
+    fOublier();
   }
 
   async sauvegarderNomProjet(
@@ -211,16 +239,18 @@ export default class Projets {
     langue: string,
     nom: string
   ): Promise<void> {
-    const bdNoms = await this._obtBdNoms(id);
+    const {bd: bdNoms, fOublier} = await this._obtBdNoms(id);
     await bdNoms.set(langue, nom);
+    fOublier();
   }
 
   async effacerNomProjet(id: string, langue: string): Promise<void> {
-    const bdNoms = await this._obtBdNoms(id);
+    const {bd: bdNoms, fOublier} = await this._obtBdNoms(id);
     await bdNoms.del(langue);
+    fOublier();
   }
 
-  async _obtBdDescr(id: string): Promise<KeyValueStore> {
+  async _obtBdDescr(id: string): Promise<{bd: KeyValueStore<string>, fOublier: schémaFonctionOublier}> {
     const optionsAccès = await this.client.obtOpsAccès(id);
     const idBdDescr = await this.client.obtIdBd(
       "descriptions",
@@ -232,18 +262,18 @@ export default class Projets {
       throw `Permission de modification refusée pour Projet ${id}.`;
     }
 
-    const bdDescr = (await this.client.ouvrirBd(idBdDescr)) as KeyValueStore;
-    return bdDescr;
+    return await this.client.ouvrirBd<KeyValueStore<string>>(idBdDescr);
   }
 
   async ajouterDescriptionsProjet(
     id: string,
     descriptions: { [key: string]: string }
   ): Promise<void> {
-    const bdDescr = await this._obtBdDescr(id);
+    const {bd: bdDescr, fOublier} = await this._obtBdDescr(id);
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
+    fOublier();
   }
 
   async sauvegarderDescrProjet(
@@ -251,16 +281,18 @@ export default class Projets {
     langue: string,
     nom: string
   ): Promise<void> {
-    const bdDescr = await this._obtBdDescr(id);
+    const {bd: bdDescr, fOublier} = await this._obtBdDescr(id);
     await bdDescr.set(langue, nom);
+    fOublier();
   }
 
   async effacerDescrProjet(id: string, langue: string): Promise<void> {
-    const bdDescr = await this._obtBdDescr(id);
+    const {bd: bdDescr, fOublier} = await this._obtBdDescr(id);
     await bdDescr.del(langue);
+    fOublier();
   }
 
-  async _obtBdMotsClefs(id: string): Promise<FeedStore> {
+  async _obtBdMotsClefs(id: string): Promise<{bd: FeedStore<string>, fOublier: schémaFonctionOublier}> {
     const optionsAccès = await this.client.obtOpsAccès(id);
     const idBdMotsClefs = await this.client.obtIdBd(
       "motsClefs",
@@ -272,10 +304,9 @@ export default class Projets {
       throw `Permission de modification refusée pour projet ${id}.`;
     }
 
-    const bdMotsClefs = (await this.client.ouvrirBd(
+    return await this.client.ouvrirBd<FeedStore<string>>(
       idBdMotsClefs
-    )) as FeedStore;
-    return bdMotsClefs;
+    );
   }
 
   async ajouterMotsClefsProjet(
@@ -283,7 +314,7 @@ export default class Projets {
     idsMotsClefs: string | string[]
   ): Promise<void> {
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
-    const bdMotsClefs = await this._obtBdMotsClefs(idProjet);
+    const {bd: bdMotsClefs, fOublier} = await this._obtBdMotsClefs(idProjet);
 
     await Promise.all(
       idsMotsClefs.map(async (id: string) => {
@@ -292,50 +323,69 @@ export default class Projets {
         if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
       })
     );
+    fOublier();
   }
 
   async effacerMotClefProjet(
     idProjet: string,
     idMotClef: string
   ): Promise<void> {
-    const bdMotsClefs = await this._obtBdMotsClefs(idProjet);
-
-    const entrées = ClientConstellation.obtÉlémentsDeBdListe(
-      bdMotsClefs,
-      false
-    );
-    const entrée = entrées.find((e: LogEntry) => e.payload.value === idMotClef);
-    if (entrée) await bdMotsClefs.remove(entrée.hash);
+    const {bd: bdMotsClefs, fOublier} = await this._obtBdMotsClefs(idProjet);
+    await this.client.effacerÉlémentDeBdListe(bdMotsClefs, idMotClef);
+    fOublier();
   }
 
-  async _obtBdBds(id: string): Promise<FeedStore> {
+  async _obtBdBds(id: string): Promise<{bd: FeedStore<string>, fOublier: schémaFonctionOublier}> {
     const optionsAccès = await this.client.obtOpsAccès(id);
     const idBdBds = await this.client.obtIdBd("bds", id, "feed", optionsAccès);
     if (!idBdBds) throw `Permission de modification refusée pour Projet ${id}.`;
 
-    const bdBds = (await this.client.ouvrirBd(idBdBds)) as FeedStore;
-    return bdBds;
+    return await this.client.ouvrirBd<FeedStore<string>>(idBdBds);
   }
 
   async ajouterBdProjet(idProjet: string, idBd: string): Promise<void> {
-    const bdBds = await this._obtBdBds(idProjet);
+    const {bd: bdBds, fOublier} = await this._obtBdBds(idProjet);
     await bdBds.add(idBd);
+    fOublier();
   }
 
   async effacerBdProjet(idProjet: string, idBd: string): Promise<void> {
-    const bdBds = await this._obtBdBds(idProjet);
+    const {bd: bdBds, fOublier} = await this._obtBdBds(idProjet);
 
     // Effacer l'entrée dans notre liste de bds (n'efface pas la BD elle-même)
-    const entrée = bdBds
-      .iterator({ limit: -1 })
-      .collect()
-      .find((e: LogEntry<string>) => e.payload.value === idBd);
-    await bdBds.remove(entrée.hash);
+    await this.client.effacerÉlémentDeBdListe(bdBds, idBd);
+    fOublier();
   }
 
-  async marquerObsolète(id: string, idNouveau?: string): Promise<void> {
-    const bd = (await this.client.ouvrirBd(id)) as KeyValueStore;
-    bd.set("statut", { statut: STATUT.OBSOLÈTE, idNouveau });
+  async marquerObsolète(id: string, idNouvelle?: string): Promise<void> {
+    const {bd, fOublier} = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdProjet>>(id);
+    bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
+    fOublier();
+  }
+
+
+  async marquerActive(id: string): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdProjet>
+    >(id);
+    bd.set("statut", { statut: TYPES_STATUT.ACTIVE });
+    fOublier();
+  }
+
+  async marquerBêta(id: string): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdProjet>
+    >(id);
+    bd.set("statut", { statut: TYPES_STATUT.BÊTA });
+    fOublier();
+  }
+
+  async marquerInterne(id: string): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdProjet>
+    >(id);
+    bd.set("statut", { statut: TYPES_STATUT.INTERNE });
+    fOublier();
   }
 
   async suivreNomsProjet(
@@ -514,12 +564,8 @@ export default class Projets {
 
   async effacerProjet(id: string): Promise<void> {
     // Dabord effacer l'entrée dans notre liste de projets
-    const bdRacine = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
-    const entrée = bdRacine
-      .iterator({ limit: -1 })
-      .collect()
-      .find((e: LogEntry<string>) => e.payload.value === id);
-    await bdRacine.remove(entrée.hash);
+    const {bd: bdRacine, fOublier } = await this.client.ouvrirBd<FeedStore<string>>(this.idBd);
+    await this.client.effacerÉlémentDeBdListe(bdRacine, id)
 
     // Et puis maintenant aussi effacer les données et le projet lui-même
     const optionsAccès = await this.client.obtOpsAccès(id);
@@ -529,5 +575,7 @@ export default class Projets {
     }
 
     await this.client.effacerBd(id);
+
+    fOublier();
   }
 }

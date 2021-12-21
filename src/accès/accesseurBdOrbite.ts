@@ -1,6 +1,7 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import OrbitDB, { Store } from "orbit-db";
+import OrbitDB from "orbit-db";
+import Store from "orbit-db-store";
 
 const verrouOuvertureBd = new Semaphore();
 

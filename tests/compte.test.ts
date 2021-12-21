@@ -6,8 +6,9 @@ import fs from "fs";
 import path from "path";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation, { schémaFonctionOublier } from "@/client";
+import ClientConstellation from "@/client";
 import { MAX_TAILLE_IMAGE } from "@/compte";
+import { schémaFonctionOublier } from "@/utils";
 import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 

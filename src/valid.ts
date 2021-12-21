@@ -1,8 +1,8 @@
 import gjv from "geojson-validation";
 
-import { cidValide } from "./utils";
-import { catégorieVariables } from "./variables";
-import { élémentsBd } from "./client";
+import { cidValide, élémentsBd } from "@/utils";
+import { catégorieVariables } from "@/variables";
+import { élémentBdListeDonnées } from "@/tableaux"
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle = "variable" | "tableau";
@@ -61,20 +61,16 @@ export interface erreurValidation {
   erreur: Erreur;
 }
 
-export type schémaFonctionValidation<T extends LogEntryDonnées> = (
+export type schémaFonctionValidation<T extends élémentBdListeDonnées> = (
   valeurs: élémentDonnées<T>[]
 ) => erreurValidation[];
 
-export type LogEntryDonnées = {
-  [key: string]: élémentsBd;
-};
-
-export interface élémentDonnées<T extends LogEntryDonnées = LogEntryDonnées> {
+export interface élémentDonnées<T extends élémentBdListeDonnées = élémentBdListeDonnées> {
   données: T;
   empreinte: string;
 }
 
-export function générerFonctionRègle<T extends LogEntryDonnées>(
+export function générerFonctionRègle<T extends élémentBdListeDonnées>(
   règle: règleColonne,
   varsÀColonnes: { [key: string]: string }
 ): schémaFonctionValidation<T> {

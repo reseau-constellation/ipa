@@ -5,17 +5,18 @@ import { PeersResult } from "ipfs-core-types/src/swarm";
 import { Message as MessagePubSub } from "ipfs-core-types/src/pubsub";
 import { EventEmitter } from "events";
 import Semaphore from "@chriscdn/promise-semaphore";
-import ContrôleurConstellation from "./accès/cntrlConstellation";
 
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation, {
+  Signature,
+} from "@/client";
+import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  LogEntry,
-  Signature,
-} from "./client";
-import { infoAuteur } from "./bds";
-
-import { élémentDonnées, LogEntryDonnées } from "./valid";
+  infoAuteur,
+} from "@/utils"
+import { élémentBdListeDonnées } from "@/tableaux"
+import { élémentDonnées } from "@/valid";
 
 export type infoMembre = {
   idSFIP: string;
@@ -41,7 +42,7 @@ export type infoDispositifEnLigne = {
   vuÀ: number;
 };
 
-export type élémentDeMembre<T extends LogEntryDonnées> = {
+export type élémentDeMembre<T extends élémentBdListeDonnées> = {
   idBdAuteur: string;
   élément: élémentDonnées<T>;
 };
@@ -113,12 +114,12 @@ export default class Réseau extends EventEmitter {
   async initialiser(): Promise<void> {
     const idSFIP = this.client.idNodeSFIP!.id;
     await this.client.sfip!.pubsub.subscribe(
-      `${this.client.SUJET_RÉSEAU}-${idSFIP}`,
+      `${this.client.sujet_réseau}-${idSFIP}`,
       (msg: MessagePubSub) => this.messageReçu(msg, true)
     );
 
     await this.client.sfip!.pubsub.subscribe(
-      this.client.SUJET_RÉSEAU,
+      this.client.sujet_réseau,
       (msg: MessagePubSub) => this.messageReçu(msg, false)
     );
 
@@ -139,8 +140,8 @@ export default class Réseau extends EventEmitter {
 
   async envoyerMessage(msg: Message, idSFIP?: string): Promise<void> {
     const sujet = idSFIP
-      ? `${this.client.SUJET_RÉSEAU}-${idSFIP}`
-      : this.client.SUJET_RÉSEAU;
+      ? `${this.client.sujet_réseau}-${idSFIP}`
+      : this.client.sujet_réseau;
     const msgBinaire = Buffer.from(JSON.stringify(msg));
     await this.client.sfip!.pubsub.publish(sujet, msgBinaire);
   }
@@ -231,7 +232,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async _nettoyerListeMembres(): Promise<void> {
-    const bd = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
+    const {bd, fOublier}= await this.client.ouvrirBd<FeedStore>(this.idBd);
     const éléments = ClientConstellation.obtÉlémentsDeBdListe<infoMembre>(
       bd,
       false
@@ -252,6 +253,8 @@ export default class Réseau extends EventEmitter {
         déjàVus.push(id);
       }
     }
+
+    fOublier();
   }
 
   async _validerInfoMembre(info: infoMembre): Promise<boolean> {
@@ -275,10 +278,11 @@ export default class Réseau extends EventEmitter {
     );
 
     if (!OrbitDB.isValidAddress(idBdRacine)) return false;
-    const bdRacine = await this.client.ouvrirBd(idBdRacine);
+    const {bd: bdRacine, fOublier } = await this.client.ouvrirBd(idBdRacine);
     if (!(bdRacine.access instanceof ContrôleurConstellation)) return false;
     const bdRacineValide = bdRacine.access.estAutorisé(idOrbite);
 
+    fOublier();
     return sigIdValide && sigClefPubliqueValide && bdRacineValide;
   }
 
@@ -324,12 +328,9 @@ export default class Réseau extends EventEmitter {
 
   async enleverMembre(id: string): Promise<void> {
     this.fOublierMembres[id]();
-    const bdMembres = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
-    const entrée = bdMembres
-      .iterator({ limit: -1 })
-      .collect()
-      .find((e: LogEntry) => e.payload.value === id);
-    await bdMembres.remove(entrée.hash);
+    const {bd: bdMembres, fOublier } = await this.client.ouvrirBd<FeedStore<infoMembre>>(this.idBd);
+    await this.client.effacerÉlémentDeBdListe(bdMembres, é=>é.payload.value.id === id)
+    fOublier();
   }
 
   async suivreMembres(
@@ -657,7 +658,7 @@ export default class Réseau extends EventEmitter {
     );
   }
 
-  async suivreÉlémentsDeTableauxUniques<T extends LogEntryDonnées>(
+  async suivreÉlémentsDeTableauxUniques<T extends élémentBdListeDonnées>(
     motClefUnique: string,
     idUniqueTableau: string,
     f: schémaFonctionSuivi<élémentDeMembre<T>[]>

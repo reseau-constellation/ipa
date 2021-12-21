@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { v4 as uuidv4 } from "uuid";
-import { élémentsBd } from "@/client";
+import { élémentsBd } from "@/utils";
 import {
   validerCatégorieVal,
   générerFonctionRègle,
@@ -21,11 +21,11 @@ const catégories: {
 } = {
   numérique: {
     valides: [-12.3, 0, 1, 123e5],
-    invalides: [null, "abc", { a: 2 }],
+    invalides: [false, "abc", { a: 2 }],
   },
   chaîne: {
     valides: ["abc", "வணக்கம்", ""],
-    invalides: [123, null, ["abc"]],
+    invalides: [123, true, ["abc"]],
   },
   horoDatage: {
     valides: [new Date(Date.now()).toISOString(), Date.now(), "1947-08-15"],
@@ -36,12 +36,12 @@ const catégories: {
     invalides: ["01-01-2021"],
   },
   catégorique: {
-    valides: ["abc", 1, null, true, false, { a: 1 }], // Tout dépend des options...rien à vérifier pour l'instant
+    valides: ["abc", 1, true, false, { a: 1 }], // Tout dépend des options...rien à vérifier pour l'instant
     invalides: [],
   },
   booléen: {
     valides: [true, false],
-    invalides: [1, 0, null],
+    invalides: [1, 0, "abc"],
   },
   géojson: {
     valides: [

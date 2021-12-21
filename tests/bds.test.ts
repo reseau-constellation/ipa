@@ -9,17 +9,19 @@ import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation, {
+import ClientConstellation from "@/client";
+import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   adresseOrbiteValide,
   uneFois,
-} from "@/client";
+  infoAuteur
+} from "@/utils"
 import { InfoColAvecCatégorie } from "@/tableaux";
-import { infoAuteur, infoScore } from "@/bds";
-import { schémaBd } from "@/reseau";
+import { infoScore, schémaSpécificationBd } from "@/bds";
+import { élémentBdListeDonnées } from "@/tableaux";
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
-import { élémentDonnées, élémentBdListeDonnées, règleBornes } from "@/valid";
+import { élémentDonnées, règleBornes } from "@/valid";
 
 import { testAPIs, config } from "./sfipTest";
 import { générerClients, attendreRésultat, typesClients } from "./utils";
@@ -535,7 +537,7 @@ typesClients.forEach((type) => {
             idVarClef = await client.variables!.créerVariable("chaîne");
             idVarTrad = await client.variables!.créerVariable("chaîne");
 
-            const schéma: schémaBd = {
+            const schéma: schémaSpécificationBd = {
               licence: "ODbl-1_0",
               tableaux: [
                 {
@@ -663,7 +665,7 @@ typesClients.forEach((type) => {
 
             idMotClef = await client.motsClefs!.créerMotClef();
 
-            const schéma: schémaBd = {
+            const schéma: schémaSpécificationBd = {
               licence: "ODbl-1_0",
               motsClefs: [idMotClef],
               tableaux: [
@@ -781,7 +783,7 @@ typesClients.forEach((type) => {
 
             const motClefUnique = await client.motsClefs!.créerMotClef();
 
-            const schéma: schémaBd = {
+            const schéma: schémaSpécificationBd = {
               licence: "ODbl-1_0",
               motsClefs: [motClefUnique],
               tableaux: [
@@ -879,7 +881,7 @@ typesClients.forEach((type) => {
 
             const motClefUnique = await client.motsClefs!.créerMotClef();
 
-            const schéma: schémaBd = {
+            const schéma: schémaSpécificationBd = {
               licence: "ODbl-1_0",
               motsClefs: [motClefUnique],
               tableaux: [

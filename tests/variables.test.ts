@@ -3,8 +3,9 @@ import chaiAsPromised from "chai-as-promised";
 import { step } from "mocha-steps";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation, { schémaFonctionOublier } from "@/client";
+import ClientConstellation from "@/client";
 import { catégorieVariables } from "@/variables";
+import { schémaFonctionOublier } from "@/utils";
 import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid";
 
 import { testAPIs, config } from "./sfipTest";

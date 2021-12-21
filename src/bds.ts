@@ -12,9 +12,9 @@ import { infoAuteur, schémaStatut, TYPES_STATUT } from "@/utils/types";
 import {
   règleColonne,
   élémentDonnées,
-  LogEntryDonnées,
   erreurValidation,
 } from "@/valid";
+import { élémentBdListeDonnées } from "@/tableaux"
 import ClientConstellation, { infoAccès } from "@/client";
 import {
   traduire,
@@ -150,28 +150,29 @@ export default class BDs {
     >(id);
     const licence = bdBase.get("licence") as string;
     const idNouvelleBd = await this.créerBd(licence, ajouterÀMesBds);
-    const {bd: nouvelleBd, fOublier: fOublierNouvelle} = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdBD>>(idNouvelleBd);
+    const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
+      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdBD>>(idNouvelleBd);
 
     const idBdNoms = bdBase.get("noms") as string;
-    const {bd: bdNoms, fOublier: fOublierBdNoms} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdNoms);
+    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >(idBdNoms);
     const noms = ClientConstellation.obtObjetdeBdDic(bdNoms) as {
       [key: string]: string;
     };
     await this.ajouterNomsBd(idNouvelleBd, noms);
 
     const idBdDescr = bdBase.get("descriptions") as string;
-    const {bd: bdDescr, fOublier: fOublierBdDescr} = await this.client.ouvrirBd<KeyValueStore<string>>(
-      idBdDescr
-    );
+    const { bd: bdDescr, fOublier: fOublierBdDescr } =
+      await this.client.ouvrirBd<KeyValueStore<string>>(idBdDescr);
     const descriptions = ClientConstellation.obtObjetdeBdDic(bdDescr) as {
       [key: string]: string;
     };
     await this.ajouterDescriptionsBd(idNouvelleBd, descriptions);
 
     const idBdMotsClefs = bdBase.get("motsClefs") as string;
-    const {bd: bdMotsClefs, fOublier: fOublierBdMotsClefs} = await this.client.ouvrirBd<FeedStore<string>>(
-      idBdMotsClefs
-    );
+    const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
+      await this.client.ouvrirBd<FeedStore<string>>(idBdMotsClefs);
     const motsClefs = ClientConstellation.obtÉlémentsDeBdListe(
       bdMotsClefs
     ) as string[];
@@ -198,9 +199,8 @@ export default class BDs {
       })
     );
 
-    const statut = (bdBase.get("statut") ||
-      TYPES_STATUT.ACTIVE) as TYPES_STATUT;
-    await nouvelleBd.set("statut", { statut });
+    const statut = bdBase.get("statut") || {statut: TYPES_STATUT.ACTIVE};
+    await nouvelleBd.set("statut", statut);
 
     fOublier();
     fOublierNouvelleTableaux();
@@ -434,7 +434,7 @@ export default class BDs {
         fSuivreBd
       );
     };
-    return await this.client.suivreBdDeFonction<string | undefined>(
+    return await this.client.suivreBdDeFonction<string>(
       fRacine,
       f,
       fSuivre
@@ -478,7 +478,9 @@ export default class BDs {
     );
     if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const {bd:bdNoms, fOublier} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdNoms);
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >(idBdNoms);
     await bdNoms.set(langue, nom);
     fOublier();
   }
@@ -493,7 +495,9 @@ export default class BDs {
     );
     if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const {bd:bdNoms, fOublier} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdNoms);
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >(idBdNoms);
     await bdNoms.del(langue);
     fOublier();
   }
@@ -511,7 +515,9 @@ export default class BDs {
     );
     if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const {bd: bdDescr, fOublier} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdDescr);
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >(idBdDescr);
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
@@ -532,10 +538,11 @@ export default class BDs {
     );
     if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const bdDescr = (await this.client.ouvrirBd(
-      idBdDescr
-    )) as KeyValueStore<string>;
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >(idBdDescr);
     await bdDescr.set(langue, nom);
+    fOublier();
   }
 
   async effacerDescrBd(id: string, langue: string): Promise<void> {
@@ -548,17 +555,19 @@ export default class BDs {
     );
     if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const bdDescr = (await this.client.ouvrirBd(
-      idBdDescr
-    )) as KeyValueStore<string>;
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >(idBdDescr);
     await bdDescr.del(langue);
+    fOublier();
   }
 
   async changerLicenceBd(idBd: string, licence: string): Promise<void> {
-    const bdBd = (await this.client.ouvrirBd(
-      idBd
-    )) as KeyValueStore<typeÉlémentsBdBD>;
+    const { bd: bdBd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdBD>
+    >(idBd);
     await bdBd.set("licence", licence);
+    fOublier();
   }
 
   async ajouterMotsClefsBd(
@@ -577,9 +586,9 @@ export default class BDs {
       throw `Permission de modification refusée pour BD ${idBd}.`;
     }
 
-    const bdMotsClefs = (await this.client.ouvrirBd(
-      idBdMotsClefs
-    )) as FeedStore<string>;
+    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >(idBdMotsClefs);
     await Promise.all(
       idsMotsClefs.map(async (id: string) => {
         const motsClefsExistants =
@@ -587,6 +596,7 @@ export default class BDs {
         if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
       })
     );
+    fOublier();
   }
 
   async effacerMotClefBd(idBd: string, idMotClef: string): Promise<void> {
@@ -601,18 +611,13 @@ export default class BDs {
       throw `Permission de modification refusée pour BD ${idBd}.`;
     }
 
-    const bdMotsClefs = (await this.client.ouvrirBd(
-      idBdMotsClefs
-    )) as FeedStore<string>;
+    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >(idBdMotsClefs);
 
-    const entrées = ClientConstellation.obtÉlémentsDeBdListe(
-      bdMotsClefs,
-      false
-    );
-    const entrée = entrées.find(
-      (e: LogEntry<string>) => e.payload.value === idMotClef
-    );
-    if (entrée) await bdMotsClefs.remove(entrée.hash);
+    await this.client.effacerÉlémentDeBdListe(bdMotsClefs, idMotClef);
+
+    fOublier();
   }
 
   async ajouterTableauBd(id: string): Promise<string> {
@@ -627,11 +632,13 @@ export default class BDs {
       throw `Permission de modification refusée pour BD ${id}.`;
     }
 
-    const bdTableaux = (await this.client.ouvrirBd(
-      idBdTableaux
-    )) as FeedStore<string>;
+    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >(idBdTableaux);
     const idTableau = await this.client.tableaux!.créerTableau();
     await bdTableaux.add(idTableau);
+
+    fOublier();
     return idTableau;
   }
 
@@ -648,45 +655,46 @@ export default class BDs {
       throw `Permission de modification refusée pour BD ${id}.`;
     }
 
-    const bdTableaux = (await this.client.ouvrirBd(
-      idBdTableaux
-    )) as FeedStore<string>;
-    const entrées = ClientConstellation.obtÉlémentsDeBdListe(bdTableaux, false);
-    const entrée = entrées.find(
-      (e: LogEntry<string>) => e.payload.value === idTableau
-    );
-    if (entrée) await bdTableaux.remove(entrée.hash);
+    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >(idBdTableaux);
+    await this.client.effacerÉlémentDeBdListe(bdTableaux, idTableau);
+    fOublier();
 
     // Enfin, effacer les données et le tableau lui-même
     await this.client.tableaux!.effacerTableau(idTableau);
   }
 
   async marquerObsolète(id: string, idNouvelle?: string): Promise<void> {
-    const bd = (await this.client.ouvrirBd(
-      id
-    )) as KeyValueStore<typeÉlémentsBdBD>;
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdBD>
+    >(id);
     bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
+    fOublier();
   }
 
   async marquerActive(id: string): Promise<void> {
-    const bd = (await this.client.ouvrirBd(
-      id
-    )) as KeyValueStore<typeÉlémentsBdBD>;
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdBD>
+    >(id);
     bd.set("statut", { statut: TYPES_STATUT.ACTIVE });
+    fOublier();
   }
 
   async marquerBêta(id: string): Promise<void> {
-    const bd = (await this.client.ouvrirBd(
-      id
-    )) as KeyValueStore<typeÉlémentsBdBD>;
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdBD>
+    >(id);
     bd.set("statut", { statut: TYPES_STATUT.BÊTA });
+    fOublier();
   }
 
   async marquerInterne(id: string): Promise<void> {
-    const bd = (await this.client.ouvrirBd(
-      id
-    )) as KeyValueStore<typeÉlémentsBdBD>;
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdBD>
+    >(id);
     bd.set("statut", { statut: TYPES_STATUT.INTERNE });
+    fOublier();
   }
 
   async suivreLicence(
@@ -892,7 +900,7 @@ export default class BDs {
       f: schémaFonctionSuivi<scoreTableau>
     ): Promise<schémaFonctionOublier> => {
       const info: {
-        données?: élémentDonnées<LogEntryDonnées>[];
+        données?: élémentDonnées<élémentBdListeDonnées>[];
         cols?: InfoColAvecCatégorie[];
         erreurs?: erreurValidation[];
       } = {};
@@ -1141,9 +1149,8 @@ export default class BDs {
       optionsAccès
     );
     if (idBdTableaux) {
-      const bdTableaux = (await this.client.ouvrirBd(
-        idBdTableaux
-      )) as FeedStore<string>;
+      const { bd: bdTableaux, fOublier: fOublierTableaux } =
+        await this.client.ouvrirBd<FeedStore<string>>(idBdTableaux);
       const tableaux: string[] = bdTableaux
         .iterator({ limit: -1 })
         .collect()
@@ -1151,7 +1158,9 @@ export default class BDs {
       for (const t of tableaux) {
         await this.client.tableaux!.effacerTableau(t);
       }
+      fOublierTableaux();
     }
+
     await this.enleverDeMesBds(id);
     await this.client.effacerBd(id);
   }

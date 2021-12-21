@@ -5,6 +5,7 @@ import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 import isNode from "is-node";
 import isElectron from "is-electron";
+import { v4 as uuidv4 } from "uuid"
 
 import obtLocalStorage from "@/stockageLocal";
 import ClientConstellation from "@/client";
@@ -27,6 +28,7 @@ export type typeObjetExportation = "projet" | "bd" | "tableau";
 export type SpécificationAutomatisation = {
   fréquence?: fréquence;
   type: "importation" | "exportation";
+  id: string;
 };
 
 export interface SpécificationExporter extends SpécificationAutomatisation {
@@ -544,6 +546,7 @@ export default class Automatisations extends EventEmitter {
 
     const élément: SpécificationExporter = {
       type: "exportation",
+      id: uuidv4(),
       idObjet: id,
       typeObjet,
       dispositifs,
@@ -552,10 +555,11 @@ export default class Automatisations extends EventEmitter {
       inclureFichiersSFIP,
       dir,
     };
-    const bd = (await this.client.ouvrirBd(
-      this.idBd
-    )) as FeedStore<SpécificationAutomatisation>;
+    const {bd, fOublier} = await this.client.ouvrirBd<FeedStore<SpécificationAutomatisation>>(this.idBd);
     const idÉlément = await bd.add(élément);
+
+    fOublier();
+
     return idÉlément;
   }
 
@@ -565,14 +569,13 @@ export default class Automatisations extends EventEmitter {
     source: SourceDonnéesImportation,
     dispositif?: string
   ): Promise<string> {
-    const bd = (await this.client.ouvrirBd(
-      this.idBd
-    )) as FeedStore<SpécificationAutomatisation>;
+    const {bd, fOublier} = await this.client.ouvrirBd<FeedStore<SpécificationAutomatisation>>(this.idBd);
 
     dispositif = dispositif || this.client.orbite!.identity.id;
 
     const élément: SpécificationImporter = {
       type: "importation",
+      id: uuidv4(),
       idTableau,
       dispositif,
       fréquence,
@@ -580,18 +583,16 @@ export default class Automatisations extends EventEmitter {
     };
 
     const idÉlément = await bd.add(élément);
+
+    fOublier();
+
     return idÉlément;
   }
 
-  async annulerAutomatisation(empreinte: string): Promise<void> {
-    const élément = await this.client.rechercherBdListe(
-      this.idBd,
-      (é) => é.hash === empreinte
-    );
-    const bd = (await this.client.ouvrirBd(
-      this.idBd
-    )) as FeedStore<SpécificationAutomatisation>;
-    await bd.remove(élément.hash);
+  async annulerAutomatisation(id: string): Promise<void> {
+    const {bd, fOublier} = await this.client.ouvrirBd<FeedStore<SpécificationAutomatisation>>(this.idBd);
+    await this.client.effacerÉlémentDeBdListe(bd, é=>é.payload.value.id === id)
+    fOublier();
   }
 
   async suivreAutomatisations(

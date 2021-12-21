@@ -33,17 +33,19 @@ export default class Compte {
   }
 
   async sauvegarderCourriel(courriel: string): Promise<void> {
-    const bd = (await this.client.ouvrirBd(
-      this.idBd
-    )) as KeyValueStore<typeÉlémentsBdCompte>;
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdCompte>
+    >(this.idBd);
     await bd.set("courriel", courriel);
+    fOublier();
   }
 
   async effacerCourriel(): Promise<void> {
-    const bd = (await this.client.ouvrirBd(
-      this.idBd
-    )) as KeyValueStore<typeÉlémentsBdCompte>;
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdCompte>
+    >(this.idBd);
     await bd.del("courriel");
+    fOublier();
   }
 
   async suivreNoms(
@@ -60,8 +62,11 @@ export default class Compte {
       throw `Permission de modification refusée pour BD ${this.idBd}.`;
     }
 
-    const bd = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore<string>;
+    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>(
+      idBdNoms
+    );
     await bd.set(langue, nom);
+    fOublier();
   }
 
   async effacerNom(langue: string): Promise<void> {
@@ -70,8 +75,11 @@ export default class Compte {
       throw `Permission de modification refusée pour BD ${this.idBd}.`;
     }
 
-    const bd = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore<string>;
+    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>(
+      idBdNoms
+    );
     await bd.del(langue);
+    fOublier();
   }
 
   async sauvegarderImage(image: ImportCandidate): Promise<void> {
@@ -86,17 +94,19 @@ export default class Compte {
       contenu = image;
     }
     const idImage = await this.client.ajouterÀSFIP(contenu);
-    const bd = (await this.client.ouvrirBd(
-      this.idBd
-    )) as KeyValueStore<typeÉlémentsBdCompte>;
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdCompte>
+    >(this.idBd);
     await bd.set("image", idImage);
+    fOublier();
   }
 
   async effacerImage(): Promise<void> {
-    const bd = (await this.client.ouvrirBd(
-      this.idBd
-    )) as KeyValueStore<typeÉlémentsBdCompte>;
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdCompte>
+    >(this.idBd);
     await bd.del("image");
+    fOublier();
   }
 
   async suivreImage(

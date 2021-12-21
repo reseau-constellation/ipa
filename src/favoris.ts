@@ -39,9 +39,7 @@ export default class Favoris {
         );
         const àOublier = précédentes.filter((id) => !nouvelles.includes(id));
         await Promise.all(
-          àOublier.map(
-            async (id) => await this.client.épingles!.désépinglerBd(id)
-          )
+          àOublier.map(async (id) => this.client.épingles!.désépinglerBd(id))
         );
       }
     );
@@ -73,14 +71,15 @@ export default class Favoris {
     );
     const élément = { id, dispositifs };
 
-    if (!deepEqual(élément, existant.payload.value)) {
-      const bdRacine = (await this.client.ouvrirBd(
-        this.idBd
-      )) as FeedStore<ÉlémentFavoris>;
+    if (!existant || !deepEqual(élément, existant.payload.value)) {
+      const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
+        FeedStore<ÉlémentFavoris>
+      >(this.idBd);
       await bdRacine.add(élément);
       if (existant) {
         await bdRacine.remove(existant.hash);
       }
+      fOublier();
     }
   }
 
@@ -90,10 +89,11 @@ export default class Favoris {
       (e) => e.payload.value.id === id
     );
     if (existante) {
-      const bdRacine = (await this.client.ouvrirBd(
-        this.idBd
-      )) as FeedStore<ÉlémentFavoris>;
+      const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
+        FeedStore<ÉlémentFavoris>
+      >(this.idBd);
       await bdRacine.remove(existante.hash);
+      fOublier();
     }
   }
 

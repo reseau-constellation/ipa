@@ -5,19 +5,22 @@ import fs from "fs";
 import path from "path";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation, {
+import ClientConstellation from "@/client";
+import  {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   uneFois,
-} from "@/client";
+} from "@/utils";
 import {
   infoMembreEnLigne,
   infoDispositifEnLigne,
   infoRéplication,
-  schémaBd,
   élémentDeMembre,
 } from "@/reseau";
-import { élémentBdListeDonnées } from "@/valid";
+import {
+  schémaSpécificationBd
+} from "@/bds"
+import { élémentBdListeDonnées } from "@/tableaux";
 
 import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
@@ -316,7 +319,7 @@ typesClients.forEach((type) => {
           });
 
           step("Auteur de la BD pour commencer", async () => {
-            await client.favoris!.épinglerFavori(idBd);
+            await client.favoris!.épinglerFavori(idBd, "TOUS");
             await attendreRésultat(
               rés,
               "ultat",
@@ -329,7 +332,7 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout d'une réplication détectée", async () => {
-            await client2.favoris!.épinglerFavori(idBd);
+            await client2.favoris!.épinglerFavori(idBd, "TOUS");
 
             await attendreRésultat(
               rés,
@@ -377,7 +380,7 @@ typesClients.forEach((type) => {
 
             motClef = await client.motsClefs!.créerMotClef();
 
-            const schéma: schémaBd = {
+            const schéma: schémaSpécificationBd = {
               licence: "ODbl-1_0",
               motsClefs: [motClef],
               tableaux: [

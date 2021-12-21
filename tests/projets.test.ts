@@ -9,13 +9,14 @@ import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation, {
+import ClientConstellation from "@/client";
+import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   adresseOrbiteValide,
   uneFois,
-} from "@/client";
-import { infoAuteur } from "@/bds";
+  infoAuteur
+} from "@/utils";
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
 
 import { testAPIs, config } from "./sfipTest";

@@ -12,6 +12,7 @@ import {
   TYPES_STATUT,
   schémaFonctionSuivi,
   schémaFonctionOublier,
+  schémaStatut,
 } from "@/utils";
 
 export type catégorieVariables =
@@ -26,6 +27,8 @@ export type catégorieVariables =
   | "audio"
   | "photo"
   | "fichier";
+
+export type typeÉlémentsBdVariable = string | schémaStatut;
 
 export default class Variables {
   client: ClientConstellation;
@@ -43,18 +46,14 @@ export default class Variables {
   }
 
   async créerVariable(catégorie: catégorieVariables): Promise<string> {
-    const bdRacine = (await this.client.ouvrirBd(
-      this.idBd
-    )) as FeedStore<string>;
+    const {bd: bdRacine, fOublier} = await this.client.ouvrirBd<FeedStore<string>>(this.idBd);
     const idBdVariable = await this.client.créerBdIndépendante("kvstore", {
       adresseBd: undefined,
       premierMod: this.client.bdRacine!.id,
     });
     await bdRacine.add(idBdVariable);
 
-    const bdVariable = (await this.client.ouvrirBd(
-      idBdVariable
-    )) as KeyValueStore;
+    const { bd: bdVariable, fOublier: fOublierVariable } = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>(idBdVariable);
 
     const accès = bdVariable.access as unknown as ContrôleurConstellation;
     const optionsAccès = { adresseBd: accès.adresseBd };
@@ -81,37 +80,38 @@ export default class Variables {
 
     await this.établirStatut(idBdVariable, { statut: TYPES_STATUT.ACTIVE });
 
+    fOublier();
+    fOublierVariable();
+
     return idBdVariable;
   }
 
   async copierVariable(id: string): Promise<string> {
-    const bdBase = (await this.client.ouvrirBd(id)) as KeyValueStore;
-    const catégorie = await bdBase.get("catégorie");
+    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>(id);
+    const catégorie = bdBase.get("catégorie") as catégorieVariables;
 
     const idNouvelleBd = await this.créerVariable(catégorie);
-    const bdNouvelle = (await this.client.ouvrirBd(
-      idNouvelleBd
-    )) as KeyValueStore;
+    const { bd: bdNouvelle, fOublier: fOublierNouvelle } = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>(idNouvelleBd);
 
-    const idBdNoms = await bdBase.get("noms");
-    const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
+    const idBdNoms = bdBase.get("noms") as string;
+    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd<KeyValueStore<string>>(idBdNoms);
     const noms = ClientConstellation.obtObjetdeBdDic(bdNoms) as {
       [key: string]: string;
     };
     await this.ajouterNomsVariable(idNouvelleBd, noms);
 
-    const idBdDescr = await bdBase.get("descriptions");
-    const bdDescr = (await this.client.ouvrirBd(idBdDescr)) as KeyValueStore;
+    const idBdDescr = bdBase.get("descriptions") as string;
+    const { bd: bdDescr, fOublier: fOublierBdDescr } = await this.client.ouvrirBd<KeyValueStore<string>>(idBdDescr);
     const descriptions = ClientConstellation.obtObjetdeBdDic(bdDescr) as {
       [key: string]: string;
     };
     await this.ajouterDescriptionsVariable(idNouvelleBd, descriptions);
 
-    const unités = await bdBase.get("unités");
+    const unités = bdBase.get("unités");
     if (unités) await bdNouvelle.put("unités", unités);
 
-    const idBdRègles = await bdBase.get("règles");
-    const bdRègles = (await this.client.ouvrirBd(idBdRègles)) as FeedStore;
+    const idBdRègles = bdBase.get("règles") as string;
+    const {bd: bdRègles, fOublier: fOublierBdRègles} = await this.client.ouvrirBd<FeedStore<règleVariableAvecId>>(idBdRègles);
     const règles = ClientConstellation.obtÉlémentsDeBdListe(
       bdRègles
     ) as règleVariableAvecId[];
@@ -122,8 +122,14 @@ export default class Variables {
       })
     );
 
-    const statut = (await bdBase.get("statut")) || STATUT.ACTIVE;
-    await this.établirStatut(idNouvelleBd, { statut });
+    const statut = (bdBase.get("statut") as schémaStatut) || {statut: TYPES_STATUT.ACTIVE};
+    await this.établirStatut(idNouvelleBd, statut);
+
+    fOublierBase();
+    fOublierNouvelle();
+    fOublierBdNoms();
+    fOublierBdDescr();
+    fOublierBdRègles();
 
     return idNouvelleBd;
   }
@@ -132,10 +138,11 @@ export default class Variables {
     const idBdNoms = await this.client.obtIdBd("noms", id, "kvstore");
     if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
+    const {bd: bdNoms, fOublier} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdNoms);
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
+    fOublier();
   }
 
   async sauvegarderNomVariable(
@@ -146,16 +153,18 @@ export default class Variables {
     const idBdNoms = await this.client.obtIdBd("noms", id, "kvstore");
     if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
+    const {bd: bdNoms, fOublier} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdNoms);
     await bdNoms.set(langue, nom);
+    fOublier();
   }
 
   async effacerNomVariable(id: string, langue: string): Promise<void> {
     const idBdNoms = await this.client.obtIdBd("noms", id, "kvstore");
     if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const bdNoms = (await this.client.ouvrirBd(idBdNoms)) as KeyValueStore;
+    const {bd: bdNoms, fOublier} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdNoms);
     await bdNoms.del(langue);
+    fOublier();
   }
 
   async ajouterDescriptionsVariable(
@@ -165,10 +174,11 @@ export default class Variables {
     const idBdDescr = await this.client.obtIdBd("descriptions", id, "kvstore");
     if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const bdDescr = (await this.client.ouvrirBd(idBdDescr)) as KeyValueStore;
+    const { bd: bdDescr, fOublier }= await this.client.ouvrirBd<KeyValueStore<string>>(idBdDescr);
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
+    fOublier();
   }
 
   async sauvegarderDescrVariable(
@@ -179,34 +189,40 @@ export default class Variables {
     const idBdDescr = await this.client.obtIdBd("descriptions", id, "kvstore");
     if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const bdDescr = (await this.client.ouvrirBd(idBdDescr)) as KeyValueStore;
+    const {bd: bdDescr, fOublier} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdDescr);
     await bdDescr.set(langue, nom);
+
+    fOublier();
   }
 
   async effacerDescrVariable(id: string, langue: string): Promise<void> {
     const idBdDescr = await this.client.obtIdBd("descriptions", id, "kvstore");
     if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
 
-    const bdDescr = (await this.client.ouvrirBd(idBdDescr)) as KeyValueStore;
+    const {bd: bdDescr, fOublier} = await this.client.ouvrirBd<KeyValueStore<string>>(idBdDescr);
     await bdDescr.del(langue);
+
+    fOublier();
   }
 
   async sauvegarderCatégorieVariable(
-    id: string,
+    idVariable: string,
     catégorie: catégorieVariables
   ): Promise<void> {
-    const bdVariable = (await this.client.ouvrirBd(id)) as KeyValueStore;
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>(idVariable);
     await bdVariable.set("catégorie", catégorie);
+
+    fOublier();
   }
 
   async sauvegarderUnitésVariable(
     idVariable: string,
     idUnité: string
   ): Promise<void> {
-    const bdVariable = (await this.client.ouvrirBd(
-      idVariable
-    )) as KeyValueStore;
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>(idVariable);
     await bdVariable.set("unités", idUnité);
+
+    fOublier();
   }
 
   async ajouterRègleVariable(
@@ -223,8 +239,11 @@ export default class Variables {
       id,
       règle,
     };
-    const bdRègles = (await this.client.ouvrirBd(idBdRègles)) as FeedStore;
+    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<FeedStore<règleVariableAvecId>>(idBdRègles);
     await bdRègles.add(règleAvecId);
+
+    fOublier();
+
     return id;
   }
 
@@ -236,15 +255,11 @@ export default class Variables {
     if (!idBdRègles) {
       throw `Permission de modification refusée pour variable ${idVariable}.`;
     }
-    const bdRègles = (await this.client.ouvrirBd(idBdRègles)) as FeedStore;
+    const {bd: bdRègles, fOublier }= await this.client.ouvrirBd<FeedStore<règleVariableAvecId>>(idBdRègles);
 
-    const entrées =
-      ClientConstellation.obtÉlémentsDeBdListe<règleVariableAvecId>(
-        bdRègles,
-        false
-      );
-    const entrée = entrées.find((e) => e.payload.value.id === idRègle);
-    if (entrée) await bdRègles.remove(entrée.hash);
+    await this.client.effacerÉlémentDeBdListe(bdRègles, é=>é.payload.value.id === idRègle)
+
+    fOublier();
   }
 
   async suivreNomsVariable(
@@ -265,8 +280,8 @@ export default class Variables {
     id: string,
     f: schémaFonctionSuivi<catégorieVariables>
   ): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBd(id, async (bd) => {
-      const catégorie = await (bd as KeyValueStore).get("catégorie");
+    return await this.client.suivreBd(id, async (bd: KeyValueStore<typeÉlémentsBdVariable>) => {
+      const catégorie = bd.get("catégorie") as catégorieVariables;
       f(catégorie);
     });
   }
@@ -275,9 +290,9 @@ export default class Variables {
     id: string,
     f: schémaFonctionSuivi<string>
   ): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBd(id, async (bd) => {
-      const catégorie = await (bd as KeyValueStore).get("unités");
-      f(catégorie);
+    return await this.client.suivreBd(id, async (bd: KeyValueStore<string>) => {
+      const unités = bd.get("unités");
+      f(unités);
     });
   }
 
@@ -332,25 +347,25 @@ export default class Variables {
 
   async établirStatut(
     id: string,
-    statut: { statut: string; idNouvelle?: string }
+    statut: schémaStatut
   ): Promise<void> {
-    const bd = (await this.client.ouvrirBd(id)) as KeyValueStore;
+    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>(id);
     await bd.set("statut", statut);
+    fOublier();
   }
 
   async marquerObsolète(id: string, idNouvelle?: string): Promise<void> {
-    const bd = (await this.client.ouvrirBd(id)) as KeyValueStore;
-    bd.set("statut", { statut: STATUT.OBSOLÈTE, idNouvelle });
+    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>(id);
+    bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
+    fOublier();
   }
 
   async effacerVariable(id: string): Promise<void> {
     // Effacer l'entrée dans notre liste de variables
-    const bdRacine = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
-    const entrée = bdRacine
-      .iterator({ limit: -1 })
-      .collect()
-      .find((e: LogEntry<string>) => e.payload.value === id);
-    await bdRacine.remove(entrée.hash);
+    const {bd: bdRacine, fOublier } = await this.client.ouvrirBd<FeedStore<string>>(this.idBd);
+    await this.client.effacerÉlémentDeBdListe(bdRacine, id);
+    // Effacer la variable elle-même
     await this.client.effacerBd(id);
+    fOublier();
   }
 }

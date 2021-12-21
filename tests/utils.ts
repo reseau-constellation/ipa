@@ -11,7 +11,8 @@ import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
-import ClientConstellation, { schémaFonctionOublier } from "@/client";
+import ClientConstellation from "@/client";
+import { schémaFonctionOublier } from "@/utils";
 const générerProxyProc = import("@/proxy/ipaProc");
 const générerProxyTravailleur = import("@/proxy/ipaTravailleur");
 
@@ -29,7 +30,7 @@ const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   });
 
 export const attendreSync = async (bd: Store): Promise<void> => {
-  const accès: ContrôleurConstellation = bd.access;
+  const accès = bd.access as ContrôleurConstellation;
   await once(accès.bd!.events, "peer.exchanged");
 };
 
@@ -59,7 +60,7 @@ export const attendreRésultat = async (
 };
 
 export const peutÉcrire = async (
-  bd: KeyValueStore | FeedStore,
+  bd: KeyValueStore<number> | FeedStore<string>,
   attendre?: OrbitDB
 ): Promise<boolean> => {
   if (attendre) {
@@ -71,21 +72,21 @@ export const peutÉcrire = async (
       const CLEF = "test";
       const VAL = 123;
 
-      await (bd as KeyValueStore).set(CLEF, VAL);
-      const val = await bd.get(CLEF);
+      await (bd as KeyValueStore<number>).set(CLEF, VAL);
+      const val = bd.get(CLEF);
 
-      await (bd as KeyValueStore).del(CLEF);
+      await (bd as KeyValueStore<number>).del(CLEF);
       return val === VAL;
     } else if (bd.type === "feed") {
       const VAL = "test";
 
-      await (bd as FeedStore).add(VAL);
-      const éléments = (bd as FeedStore).iterator({ limit: -1 }).collect();
+      await (bd as FeedStore<string>).add(VAL);
+      const éléments = (bd as FeedStore<string>).iterator({ limit: -1 }).collect();
 
       const autorisé =
         éléments.length === 1 && éléments[0].payload.value === VAL;
       if (éléments.length === 1) {
-        await (bd as FeedStore).remove(éléments[0].hash);
+        await (bd as FeedStore<string>).remove(éléments[0].hash);
       }
       return autorisé;
     } else {
@@ -164,9 +165,7 @@ export const générerClients = async (
         fsOublier.push(fOublierOrbites);
 
         client = await ClientConstellation.créer(
-          undefined,
-          undefined,
-          orbites[i]
+          { orbite: orbites[i] }
         );
         break;
       }
