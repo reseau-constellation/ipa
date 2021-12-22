@@ -55,14 +55,14 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdBdRacine(fSuivi);
+              return await client.suivreIdBdCompte(fSuivi);
             }
           );
           idBdRacine2 = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdBdRacine(fSuivi);
+              return await client2.suivreIdBdCompte(fSuivi);
             }
           );
         });
@@ -270,7 +270,7 @@ typesClients.forEach((type) => {
             expect(rés.ultat).to.be.an("array").with.lengthOf(1);
             const moi = rés.ultat![0];
             expect(moi?.accepté).to.be.true;
-            expect(moi?.idBdRacine).to.equal(idBdRacine1);
+            expect(moi?.idBdCompte).to.equal(idBdRacine1);
             expect(moi?.rôle).to.equal(MODÉRATEUR);
           });
 
@@ -289,7 +289,7 @@ typesClients.forEach((type) => {
             expect(rés.ultat).to.be.an("array").with.lengthOf(2);
 
             const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdRacine === idBdRacine2
+              (x) => x.idBdCompte === idBdRacine2
             );
             expect(nouvelAuteur).to.exist;
             expect(nouvelAuteur?.accepté).to.be.false;
@@ -306,7 +306,7 @@ typesClients.forEach((type) => {
             );
 
             const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdRacine === idBdRacine2
+              (x) => x.idBdCompte === idBdRacine2
             );
             expect(nouvelAuteur?.accepté).to.be.true;
           });
@@ -325,7 +325,7 @@ typesClients.forEach((type) => {
             );
 
             const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdRacine === idBdRacine2
+              (x) => x.idBdCompte === idBdRacine2
             );
             expect(nouvelAuteur?.accepté).to.be.true; // L'acceptation de l'invitation est toujours valide
             expect(nouvelAuteur?.rôle).to.equal(MODÉRATEUR);

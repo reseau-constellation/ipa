@@ -7,9 +7,9 @@ import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
-export type typeÉlémentsBdCompte = string;
+export type typeÉlémentsBdProfil = string;
 
-export default class Compte {
+export default class Profil {
   client: ClientConstellation;
   idBd: string;
 
@@ -20,12 +20,12 @@ export default class Compte {
 
   async suivreCourriel(
     f: schémaFonctionSuivi<string | null>,
-    idBdCompte?: string
+    idBdProfil?: string
   ): Promise<schémaFonctionOublier> {
-    idBdCompte = idBdCompte || this.idBd;
+    idBdProfil = idBdProfil || this.idBd;
     return await this.client.suivreBd(
-      idBdCompte,
-      async (bd: KeyValueStore<typeÉlémentsBdCompte>) => {
+      idBdProfil,
+      async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
         const courriel = bd.get("courriel");
         f(courriel || null);
       }
@@ -34,7 +34,7 @@ export default class Compte {
 
   async sauvegarderCourriel(courriel: string): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdCompte>
+      KeyValueStore<typeÉlémentsBdProfil>
     >(this.idBd);
     await bd.set("courriel", courriel);
     fOublier();
@@ -42,7 +42,7 @@ export default class Compte {
 
   async effacerCourriel(): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdCompte>
+      KeyValueStore<typeÉlémentsBdProfil>
     >(this.idBd);
     await bd.del("courriel");
     fOublier();
@@ -50,10 +50,10 @@ export default class Compte {
 
   async suivreNoms(
     f: schémaFonctionSuivi<{ [key: string]: string }>,
-    idBdCompte?: string
+    idBdProfil?: string
   ): Promise<schémaFonctionOublier> {
-    idBdCompte = idBdCompte || this.idBd;
-    return await this.client.suivreBdDicDeClef<string>(idBdCompte, "noms", f);
+    idBdProfil = idBdProfil || this.idBd;
+    return await this.client.suivreBdDicDeClef<string>(idBdProfil, "noms", f);
   }
 
   async sauvegarderNom(langue: string, nom: string): Promise<void> {
@@ -95,7 +95,7 @@ export default class Compte {
     }
     const idImage = await this.client.ajouterÀSFIP(contenu);
     const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdCompte>
+      KeyValueStore<typeÉlémentsBdProfil>
     >(this.idBd);
     await bd.set("image", idImage);
     fOublier();
@@ -103,7 +103,7 @@ export default class Compte {
 
   async effacerImage(): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdCompte>
+      KeyValueStore<typeÉlémentsBdProfil>
     >(this.idBd);
     await bd.del("image");
     fOublier();
@@ -111,12 +111,12 @@ export default class Compte {
 
   async suivreImage(
     f: schémaFonctionSuivi<Uint8Array | null>,
-    idBdCompte?: string
+    idBdProfil?: string
   ): Promise<schémaFonctionOublier> {
-    idBdCompte = idBdCompte || this.idBd;
+    idBdProfil = idBdProfil || this.idBd;
     return await this.client.suivreBd(
-      idBdCompte,
-      async (bd: KeyValueStore<typeÉlémentsBdCompte>) => {
+      idBdProfil,
+      async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
         const idImage = bd.get("image");
         if (!idImage) return f(null);
         const image = await this.client.obtFichierSFIP(

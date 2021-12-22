@@ -27,7 +27,7 @@ export default class MotsClefs {
       await this.client.ouvrirBd<FeedStore<string>>(this.idBd);
     const idBdMotClef = await this.client.créerBdIndépendante("kvstore", {
       adresseBd: undefined,
-      premierMod: this.client.bdRacine!.id,
+      premierMod: this.client.bdCompte!.id,
     });
     await bdRacine.add(idBdMotClef);
 

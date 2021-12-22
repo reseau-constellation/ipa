@@ -7,7 +7,7 @@ import path from "path";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
-import { MAX_TAILLE_IMAGE } from "@/compte";
+import { MAX_TAILLE_IMAGE } from "@/profil";
 import { schémaFonctionOublier } from "@/utils";
 import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
@@ -49,7 +49,7 @@ typesClients.forEach((type) => {
           const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
           before(async () => {
-            fOublier = await client.compte!.suivreCourriel(
+            fOublier = await client.profil!.suivreCourriel(
               (c) => (courriel = c)
             );
           });
@@ -59,12 +59,12 @@ typesClients.forEach((type) => {
           });
 
           step("Ajouter un courriel", async () => {
-            await client.compte!.sauvegarderCourriel(COURRIEL);
+            await client.profil!.sauvegarderCourriel(COURRIEL);
             expect(courriel).to.equal(COURRIEL);
           });
 
           step("Effacer le courriel", async () => {
-            await client.compte!.effacerCourriel();
+            await client.profil!.effacerCourriel();
             expect(courriel).to.be.null;
           });
 
@@ -80,7 +80,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.compte!.suivreNoms((n) => (rés.ultat = n));
+            fOublier = await client.profil!.suivreNoms((n) => (rés.ultat = n));
           });
 
           after(async () => {
@@ -93,20 +93,20 @@ typesClients.forEach((type) => {
           });
 
           step("Ajouter un nom", async () => {
-            await client.compte!.sauvegarderNom("fr", "Julien Malard-Adam");
+            await client.profil!.sauvegarderNom("fr", "Julien Malard-Adam");
             expect(rés.ultat?.fr).to.equal("Julien Malard-Adam");
 
-            await client.compte!.sauvegarderNom("த", "ஜூலீஎன்");
+            await client.profil!.sauvegarderNom("த", "ஜூலீஎன்");
             expect(rés.ultat?.த).to.equal("ஜூலீஎன்");
           });
 
           step("Changer un nom", async () => {
-            await client.compte!.sauvegarderNom("த", "ம.-ஆதான் ஜூலீஎன்");
+            await client.profil!.sauvegarderNom("த", "ம.-ஆதான் ஜூலீஎன்");
             expect(rés.ultat?.த).to.equal("ம.-ஆதான் ஜூலீஎன்");
           });
 
           step("Effacer un nom", async () => {
-            await client.compte!.effacerNom("fr");
+            await client.profil!.effacerNom("fr");
             expect(rés.ultat).to.deep.equal({ த: "ம.-ஆதான் ஜூலீஎன்" });
           });
         });
@@ -122,7 +122,7 @@ typesClients.forEach((type) => {
           );
 
           before(async () => {
-            fOublier = await client.compte!.suivreImage((i) => (rés.ultat = i));
+            fOublier = await client.profil!.suivreImage((i) => (rés.ultat = i));
           });
 
           step("Pas d'image pour commencer", async () => {
@@ -130,19 +130,19 @@ typesClients.forEach((type) => {
           });
 
           step("Ajouter une image", async () => {
-            await client.compte!.sauvegarderImage(IMAGE);
+            await client.profil!.sauvegarderImage(IMAGE);
             await attendreRésultat(rés, "ultat", (v: unknown) => Boolean(v));
             expect(rés.ultat).to.deep.equal(new Uint8Array(IMAGE));
           });
 
           step("Effacer l'image", async () => {
-            await client.compte!.effacerImage();
+            await client.profil!.effacerImage();
             expect(rés.ultat).to.be.null;
           });
 
           step("Ajouter une image trop grande", async () => {
             assert.isRejected(
-              client.compte!.sauvegarderImage(
+              client.profil!.sauvegarderImage(
                 Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 })
               )
             );

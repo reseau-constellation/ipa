@@ -1,23 +1,19 @@
 import ensureAddress from "orbit-db-access-controllers/src/utils/ensure-ac-address";
 
-import OrbitDB, {
-  FeedStore,
-  isValidAddress,
-  entréeBD,
-  identityProvider,
-} from "orbit-db";
+import OrbitDB from "orbit-db";
+import FeedStore from "orbit-db-feedstore";
+import IdentityProvider from "orbit-db-identity-provider";
 import AccessController from "orbit-db-access-controllers/src/access-controller-interface";
 import { v4 as uuidv4 } from "uuid";
 
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  LogEntry,
-} from "../client";
+} from "@/utils";
 import GestionnaireAccès, { suivreBdAccès } from "./gestionnaireUtilisateurs";
 import accesseurBdOrbite from "./accesseurBdOrbite";
 import { MODÉRATEUR, MEMBRE, rôles } from "./consts";
-import { entréeBDAccès, infoUtilisateur } from "./types";
+import { élémentBdAccès, infoUtilisateur } from "./types";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License
@@ -58,7 +54,7 @@ interface OptionsInitContrôleurConstellation
 }
 
 export default class ContrôleurConstellation extends AccessController {
-  bd?: FeedStore;
+  bd?: FeedStore<élémentBdAccès>;
   nom: string;
   _orbitdb: OrbitDB;
   _premierMod: string;
@@ -84,7 +80,7 @@ export default class ContrôleurConstellation extends AccessController {
 
   // return address of AC (in this case orbitdb address of AC)
   get address(): string {
-    return this.bd!.address;
+    return this.bd!.id;
   }
 
   async estUnMembre(id: string): Promise<boolean> {
@@ -107,21 +103,20 @@ export default class ContrôleurConstellation extends AccessController {
         this.gestRôles._rôlesUtilisateurs[MODÉRATEUR]
       ).map((m) => {
         return {
-          idBdRacine: m,
+          idBdCompte: m,
           rôle: MODÉRATEUR,
         };
       });
-      const idsMods = mods.map((m) => m.idBdRacine);
+      const idsMods = mods.map((m) => m.idBdCompte);
       const membres: infoUtilisateur[] = Object.keys(
         this.gestRôles._rôlesUtilisateurs[MEMBRE]
-      )
-        .map((m) => {
+      ).map((m) => {
           return {
-            idBdRacine: m,
+            idBdCompte: m,
             rôle: MEMBRE,
           } as infoUtilisateur;
         })
-        .filter((m) => !idsMods.includes(m.idBdRacine));
+        .filter((m) => !idsMods.includes(m.idBdCompte));
 
       const utilisateurs: infoUtilisateur[] = [...mods, ...membres];
       f(utilisateurs);
@@ -149,8 +144,8 @@ export default class ContrôleurConstellation extends AccessController {
   }
 
   async canAppend(
-    entry: entréeBD<entréeBDAccès>,
-    identityProvider: identityProvider
+    entry: LogEntry<élémentBdAccès>,
+    identityProvider: IdentityProvider
   ): Promise<boolean> {
     const vraiSiSigValide = async () =>
       await identityProvider.verifyIdentity(entry.identity);
@@ -164,9 +159,9 @@ export default class ContrôleurConstellation extends AccessController {
   }
 
   async _miseÀJourBdAccès(): Promise<void> {
-    let éléments: entréeBDAccès[] = this.bd!.iterator({ limit: -1 })
+    let éléments = this.bd!.iterator({ limit: -1 })
       .collect()
-      .map((x: LogEntry<entréeBDAccès>) => x.payload.value);
+      .map((x: LogEntry<élémentBdAccès>) => x.payload.value);
 
     éléments = [{ rôle: MODÉRATEUR, id: this._premierMod }, ...éléments];
 
@@ -183,24 +178,24 @@ export default class ContrôleurConstellation extends AccessController {
   }
 
   async load(address: string): Promise<void> {
-    const addresseValide = isValidAddress(address);
+    const addresseValide = OrbitDB.isValidAddress(address);
 
-    let adresseFinale;
+    let adresseFinale: string;
     if (addresseValide) {
       adresseFinale = address;
     } else {
-      adresseFinale = this._orbitdb.determineAddress(
+      adresseFinale = (await this._orbitdb.determineAddress(
         ensureAddress(address),
         "feed",
         this._createOrbitOpts(addresseValide)
-      );
+      )).toString();
     }
 
     this.bd = (await accesseurBdOrbite.ouvrirBd(
       this._orbitdb,
       adresseFinale,
       this.idRequète
-    )) as FeedStore;
+    )) as FeedStore<élémentBdAccès>;
 
     suivreBdAccès(this.bd, () => this._miseÀJourBdAccès());
   }
@@ -241,7 +236,7 @@ export default class ContrôleurConstellation extends AccessController {
       return;
     }
     try {
-      const entry: entréeBDAccès = { rôle, id };
+      const entry: élémentBdAccès = { rôle, id };
 
       await this.bd!.add(entry);
       await this._miseÀJourBdAccès();
@@ -260,7 +255,7 @@ export default class ContrôleurConstellation extends AccessController {
     const élément = this.bd!.iterator({ limit: -1 })
       .collect()
       .find(
-        (e: LogEntry<entréeBDAccès>) =>
+        (e: LogEntry<élémentBdAccès>) =>
           e.payload.value.rôle === rôle && e.payload.value.id === id
       );
     if (!élément) {

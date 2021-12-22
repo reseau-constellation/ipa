@@ -16,7 +16,7 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import initOrbite from "@/orbitdb";
 import initSFIP from "@/ipfs";
 import Épingles from "@/épingles";
-import Compte from "@/compte";
+import Profil from "@/profil";
 import BDs from "@/bds";
 import Tableaux from "@/tableaux";
 import Variables from "@/variables";
@@ -46,7 +46,7 @@ import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts";
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
 export type infoAccès = {
-  idBdRacine: string;
+  idBdCompte: string;
   rôle: keyof objRôles;
 };
 
@@ -77,18 +77,18 @@ type optsInitSFIP = {
 
 type bdOuverte<T extends Store> = { bd: T; idsRequètes: string[] };
 
-type typeÉlémentsBdRacineClient = string;
+type typeÉlémentsBdCompteClient = string;
 
 export default class ClientConstellation extends EventEmitter {
   _opts: optsConstellation;
   optionsAccès?: { [key: string]: unknown };
-  bdRacine?: KeyValueStore<typeÉlémentsBdRacineClient>;
+  bdCompte?: KeyValueStore<typeÉlémentsBdCompteClient>;
   _bds: { [key: string]: bdOuverte<Store> };
   orbite?: OrbitDB;
   sfip?: SFIP;
   idNodeSFIP?: IDResult;
   épingles?: Épingles;
-  compte?: Compte;
+  profil?: Profil;
   bds?: BDs;
   tableaux?: Tableaux;
   variables?: Variables;
@@ -100,7 +100,7 @@ export default class ClientConstellation extends EventEmitter {
   _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
 
   prêt: boolean;
-  idBdRacine?: string;
+  idBdCompte?: string;
   sujet_réseau: string;
 
   constructor(opts: optsConstellation = {}) {
@@ -125,9 +125,9 @@ export default class ClientConstellation extends EventEmitter {
       nom: "racine",
     };
 
-    this.idBdRacine = this._opts.compte;
-    if (!this.idBdRacine) {
-      this.idBdRacine = await this.créerBdIndépendante(
+    this.idBdCompte = this._opts.compte;
+    if (!this.idBdCompte) {
+      this.idBdCompte = await this.créerBdIndépendante(
         "kvstore",
         optionsAccèsRacine,
         "racine"
@@ -140,6 +140,7 @@ export default class ClientConstellation extends EventEmitter {
 
     this.prêt = true;
     this.emit("prêt");
+
   }
 
   async _générerSFIPetOrbite(): Promise<{ sfip: SFIP; orbite: OrbitDB }> {
@@ -190,55 +191,59 @@ export default class ClientConstellation extends EventEmitter {
 
   async initialiserBds(): Promise<void> {
     const { bd } = await this.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdRacineClient>
-    >(this.idBdRacine!);
-    this.bdRacine = bd;
+      KeyValueStore<typeÉlémentsBdCompteClient>
+    >(this.idBdCompte!);
+    this.bdCompte = bd;
 
-    const accès = this.bdRacine.access as unknown as ContrôleurConstellation;
+    const accès = this.bdCompte.access as unknown as ContrôleurConstellation;
     this.optionsAccès = {
       type: "controlleur-constellation",
-      adresseBd: accès.bd!.address,
+      adresseBd: accès.bd!.id,
     };
 
-    const idBdCompte = await this.obtIdBd("compte", this.bdRacine, "kvstore");
-    this.compte = new Compte(this, idBdCompte!);
+    const idBdProfil = await this.obtIdBd("compte", this.bdCompte, "kvstore");
+    this.profil = new Profil(this, idBdProfil!);
 
-    const idBdBDs = await this.obtIdBd("bds", this.bdRacine, "feed");
+    const idBdBDs = await this.obtIdBd("bds", this.bdCompte, "feed");
     this.bds = new BDs(this, idBdBDs!);
 
     this.tableaux = new Tableaux(this);
 
     const idBdVariables = await this.obtIdBd(
       "variables",
-      this.bdRacine,
+      this.bdCompte,
       "feed"
     );
     this.variables = new Variables(this, idBdVariables!);
 
-    const idBdRéseau = await this.obtIdBd("reseau", this.bdRacine, "feed");
+    const idBdRéseau = await this.obtIdBd("reseau", this.bdCompte, "feed");
     this.réseau = new Réseau(this, idBdRéseau!);
     await this.réseau.initialiser();
 
-    const idBdFavoris = await this.obtIdBd("favoris", this.bdRacine, "feed");
+    const idBdFavoris = await this.obtIdBd("favoris", this.bdCompte, "kvstore");
     this.favoris = new Favoris(this, idBdFavoris!);
 
-    const idBdProjets = await this.obtIdBd("projets", this.bdRacine, "feed");
+    const idBdProjets = await this.obtIdBd("projets", this.bdCompte, "feed");
     this.projets = new Projets(this, idBdProjets!);
 
     const idBdMotsClefs = await this.obtIdBd(
       "motsClefs",
-      this.bdRacine,
+      this.bdCompte,
       "feed"
     );
     this.motsClefs = new MotsClefs(this, idBdMotsClefs!);
 
     const idBdAuto = await this.obtIdBd(
       "automatisations",
-      this.bdRacine,
+      this.bdCompte,
       "feed"
     );
     this.automatisations = new Automatisations(this, idBdAuto!);
     await this.automatisations.initialiser();
+
+    for (const idBd in [idBdProfil, idBdBDs, idBdVariables, idBdRéseau, idBdFavoris, idBdProjets, idBdMotsClefs, idBdAuto]) {
+      this.épingles!.épinglerBd(idBd, false, false)
+    }
   }
 
   async signer(message: string): Promise<Signature> {
@@ -264,11 +269,11 @@ export default class ClientConstellation extends EventEmitter {
 
   async suivreDispositifs(
     f: schémaFonctionSuivi<string[]>,
-    idBdRacine?: string
+    idBdCompte?: string
   ): Promise<schémaFonctionOublier> {
-    if (!this.bdRacine) await once(this, "prêt");
-    idBdRacine = idBdRacine || this.bdRacine!.id;
-    const { bd, fOublier } = await this.ouvrirBd(idBdRacine);
+    if (!this.bdCompte) await once(this, "prêt");
+    idBdCompte = idBdCompte || this.bdCompte!.id;
+    const { bd, fOublier } = await this.ouvrirBd(idBdCompte);
     const accès = bd.access;
 
     const typeAccès = (accès.constructor as unknown as AccessController).type;
@@ -295,25 +300,25 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async ajouterDispositif(identité: string): Promise<void> {
-    if (!this.bdRacine) await once(this, "prêt");
-    const accès = this.bdRacine!.access as unknown as ContrôleurConstellation;
+    if (!this.bdCompte) await once(this, "prêt");
+    const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
     accès.grant(MODÉRATEUR, identité);
   }
 
   async enleverDispositif(identité: string): Promise<void> {
-    if (!this.bdRacine) await once(this, "prêt");
-    const accès = this.bdRacine!.access as unknown as ContrôleurConstellation;
+    if (!this.bdCompte) await once(this, "prêt");
+    const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
     await accès.revoke(MODÉRATEUR, identité);
   }
 
-  async rejoindreCompte(idBdRacine: string): Promise<void> {
-    if (!adresseOrbiteValide(idBdRacine)) {
-      throw new Error(`Adresse compte ${idBdRacine} non valide`);
+  async rejoindreCompte(idBdCompte: string): Promise<void> {
+    if (!adresseOrbiteValide(idBdCompte)) {
+      throw new Error(`Adresse compte ${idBdCompte} non valide`);
     }
 
-    // Attendre de recevoir la permission d'écrire à idBdRacine
+    // Attendre de recevoir la permission d'écrire à idBdCompte
     let autorisé: boolean;
-    const { bd, fOublier } = await this.ouvrirBd(idBdRacine);
+    const { bd, fOublier } = await this.ouvrirBd(idBdCompte);
     const accès = bd.access as ContrôleurConstellation;
     const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
       (autorisés: string[]) =>
@@ -331,7 +336,7 @@ export default class ClientConstellation extends EventEmitter {
     });
 
     // Là on peut y aller
-    this.idBdRacine = idBdRacine;
+    this.idBdCompte = idBdCompte;
     await this.initialiserBds();
     this.emit("compteChangé");
   }
@@ -354,11 +359,11 @@ export default class ClientConstellation extends EventEmitter {
     fOublier();
   }
 
-  async suivreIdBdRacine(
+  async suivreIdBdCompte(
     f: schémaFonctionSuivi<string>
   ): Promise<schémaFonctionOublier> {
     const fFinale = () => {
-      if (this.idBdRacine) f(this.idBdRacine);
+      if (this.idBdCompte) f(this.idBdCompte);
     };
     this.on("compteChangé", fFinale);
     fFinale();
@@ -1039,11 +1044,11 @@ export default class ClientConstellation extends EventEmitter {
     } else {
       bdRacine = racine;
     }
-    const idBdRacine = bdRacine.id;
+    const idBdCompte = bdRacine.id;
 
     let idBd = bdRacine.get(nom);
 
-    const clefLocale = idBdRacine + nom;
+    const clefLocale = idBdCompte + nom;
     const idBdPrécédente = (await obtLocalStorage()).getItem(clefLocale);
 
     if (idBd && idBdPrécédente && idBd !== idBdPrécédente) {
@@ -1112,11 +1117,11 @@ export default class ClientConstellation extends EventEmitter {
 
   async obtOpsAccès(idBd: string): Promise<OptionsContrôleurConstellation> {
     const { bd, fOublier } = await this.ouvrirBd(idBd);
-    const accès = bd.access as unknown as ContrôleurConstellation;
+    const accès = bd.access as ContrôleurConstellation;
 
     fOublier();
     return {
-      adresseBd: accès.bd!.address,
+      adresseBd: accès.bd!.id,
     };
   }
 
@@ -1136,7 +1141,7 @@ export default class ClientConstellation extends EventEmitter {
     } else if (typeAccès === nomTypeContrôleurConstellation) {
       const fFinale = (utilisateurs: infoUtilisateur[]) => {
         const mesRôles = utilisateurs
-          .filter((u) => u.idBdRacine === this.idBdRacine)
+          .filter((u) => u.idBdCompte === this.idBdCompte)
           .map((u) => u.rôle);
         const rôlePlusPuissant = mesRôles.includes(MODÉRATEUR)
           ? MODÉRATEUR
@@ -1178,7 +1183,7 @@ export default class ClientConstellation extends EventEmitter {
     if (typeAccès === "ipfs") {
       const listeAccès: infoAccès[] = accès.write.map((id) => {
         return {
-          idBdRacine: id,
+          idBdCompte: id,
           rôle: MODÉRATEUR,
         };
       });

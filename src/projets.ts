@@ -48,7 +48,7 @@ export default class Projets {
       await this.client.ouvrirBd<FeedStore<string>>(this.idBd);
     const idBdProjet = await this.client.créerBdIndépendante("kvstore", {
       adresseBd: undefined,
-      premierMod: this.client.bdRacine!.id,
+      premierMod: this.client.bdCompte!.id,
     });
 
     const { bd: bdProjet, fOublier: fOublierProjet } =
@@ -182,7 +182,7 @@ export default class Projets {
         projetsMembre = projetsMembre || [];
         return fSuivreBranche([
           {
-            idBdRacine: branche.idBdRacine,
+            idBdCompte: branche.idBdCompte,
             rôle: branche.rôle,
             accepté: projetsMembre.includes(id),
           },
@@ -194,8 +194,8 @@ export default class Projets {
         // false
       );
     };
-    const fIdBdDeBranche = (x: infoAccès) => x.idBdRacine;
-    const fCode = (x: infoAccès) => x.idBdRacine;
+    const fIdBdDeBranche = (x: infoAccès) => x.idBdCompte;
+    const fCode = (x: infoAccès) => x.idBdCompte;
 
     const fOublier = this.client.suivreBdsDeFonctionListe(
       fListe,

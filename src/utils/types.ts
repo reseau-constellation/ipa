@@ -1,7 +1,7 @@
 import { objRôles } from "@/accès/types";
 
 export interface infoAuteur {
-  idBdRacine: string;
+  idBdCompte: string;
   accepté: boolean;
   rôle: keyof objRôles;
 }

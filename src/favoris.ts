@@ -1,13 +1,14 @@
-import deepEqual from "deep-equal";
+import KeyValueStore from "orbit-db-kvstore";
 
-import FeedStore from "orbit-db-feedstore";
-
-import ClientConstellation from "./client";
+import ClientConstellation from "@/client";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 
+type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ"
+
 export type ÉlémentFavoris = {
-  id: string;
-  dispositifs?: string | string[] | "TOUS" | "INSTALLÉ";
+  récursif: boolean;
+  dispositifs: typeDispositifs;
+  dispositifsFichiers?: typeDispositifs;
 };
 
 export default class Favoris {
@@ -22,100 +23,109 @@ export default class Favoris {
   }
 
   async _épinglerFavoris() {
-    const précédentes: string[] = [];
+    let précédentes: string[] = [];
 
-    const fOublier = await this.client.suivreBdListe<ÉlémentFavoris>(
+    const fOublier = await this.client.suivreBdDic<ÉlémentFavoris>(
       this.idBd,
       async (favoris) => {
         const nouvelles: string[] = [];
+
         await Promise.all(
-          favoris.map(async (fav) => {
-            const épingler = await this._épinglerSurCeDispositif(
+          Object.entries(favoris).map(async ([id, fav]) => {
+            const épinglerBd = await this.estÉpingléSurDispositif(
               fav.dispositifs
             );
-            if (épingler) await this.client.épingles!.épinglerBd(fav.id);
-            nouvelles.push(fav.id);
+            const épinglerFichiers = await this.estÉpingléSurDispositif(
+              fav.dispositifsFichiers
+            );
+            if (épinglerBd) await this.client.épingles!.épinglerBd(
+              id, fav.récursif, épinglerFichiers
+            );
+            nouvelles.push(id);
           })
         );
+
         const àOublier = précédentes.filter((id) => !nouvelles.includes(id));
+
         await Promise.all(
           àOublier.map(async (id) => this.client.épingles!.désépinglerBd(id))
         );
+
+        précédentes = nouvelles;
       }
     );
+
     this.oublierÉpingler = fOublier;
   }
 
   async suivreFavoris(
-    f: schémaFonctionSuivi<ÉlémentFavoris[]>,
-    idBdRacine?: string
+    f: schémaFonctionSuivi<{[key: string]: ÉlémentFavoris}>,
+    idBdCompte?: string
   ): Promise<schémaFonctionOublier> {
-    idBdRacine = idBdRacine || this.idBd;
-    const fFinale = (listeFavoris: ÉlémentFavoris[]) => {
-      f(
-        listeFavoris
-          .map((x: ÉlémentFavoris) => (typeof x === "string" ? { id: x } : x))
-          .filter((x) => x)
-      );
-    };
-    return await this.client.suivreBdListe<ÉlémentFavoris>(idBdRacine, fFinale);
+    idBdCompte = idBdCompte || this.idBd;
+    return await this.client.suivreBdDic<ÉlémentFavoris>(idBdCompte, f);
   }
 
   async épinglerFavori(
     id: string,
-    dispositifs: ÉlémentFavoris["dispositifs"]
+    dispositifs: typeDispositifs,
+    dispositifsFichiers: typeDispositifs,
+    récursif = true
   ): Promise<void> {
-    const existant = await this.client.rechercherBdListe(
-      this.idBd,
-      (e: LogEntry<ÉlémentFavoris>) => e.payload.value.id === id
-    );
-    const élément = { id, dispositifs };
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<ÉlémentFavoris>
+    >(this.idBd);
 
-    if (!existant || !deepEqual(élément, existant.payload.value)) {
-      const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-        FeedStore<ÉlémentFavoris>
-      >(this.idBd);
-      await bdRacine.add(élément);
-      if (existant) {
-        await bdRacine.remove(existant.hash);
-      }
-      fOublier();
-    }
+    const élément: ÉlémentFavoris = { récursif, dispositifs, dispositifsFichiers };
+    await bd.put(id, élément)
+
+    fOublier();
   }
 
   async désépinglerFavori(id: string): Promise<void> {
-    const existante = await this.client.rechercherBdListe<ÉlémentFavoris>(
-      this.idBd,
-      (e) => e.payload.value.id === id
-    );
-    if (existante) {
-      const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-        FeedStore<ÉlémentFavoris>
-      >(this.idBd);
-      await bdRacine.remove(existante.hash);
-      fOublier();
-    }
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<ÉlémentFavoris>
+    >(this.idBd);
+    await bd.del(id);
+    fOublier();
   }
 
   async suivreÉtatFavori(
     id: string,
-    f: schémaFonctionSuivi<boolean>
+    f: schémaFonctionSuivi<ÉlémentFavoris|undefined>
   ): Promise<schémaFonctionOublier> {
-    const fFinale = (favoris: ÉlémentFavoris[]) => {
-      f(favoris.map((x) => x.id).includes(id));
-    };
-    return await this.client.suivreBdListe(
+
+    return await this.client.suivreBdDic<ÉlémentFavoris>(
       this.idBd,
-      fFinale as (x: unknown) => Promise<schémaFonctionOublier>
+      favoris => f(favoris[id])
     );
   }
 
-  async _épinglerSurCeDispositif(
-    dispositifs: ÉlémentFavoris["dispositifs"],
+  async suivreEstÉpingléSurDispositif(
+    id: string,
+    f: schémaFonctionSuivi<{ bd: boolean, fichiers: boolean, récursif: boolean }>,
+    idOrbite?: string,
+  ): Promise<schémaFonctionOublier> {
+    const fFinale = async (élément?: ÉlémentFavoris): Promise<void> => {
+      const bdEstÉpinglée = await this.estÉpingléSurDispositif(élément?.dispositifs, idOrbite)
+      const fichiersSontÉpinglés = await this.estÉpingléSurDispositif(élément?.dispositifsFichiers, idOrbite)
+
+      f({bd: bdEstÉpinglée, fichiers: fichiersSontÉpinglés, récursif: élément?.récursif || false})
+    }
+    return await this.suivreÉtatFavori(
+      id,
+      fFinale
+    )
+  }
+
+  async estÉpingléSurDispositif(
+    dispositifs: ÉlémentFavoris["dispositifs"]|undefined,
     idOrbite?: string
   ): Promise<boolean> {
     idOrbite = idOrbite || (await this.client.obtIdOrbite());
-    if (dispositifs === "TOUS" || dispositifs === undefined) {
+    if (dispositifs === undefined) {
+      return false
+    } else if (dispositifs === "TOUS") {
       return true;
     } else if (typeof dispositifs === "string") {
       return dispositifs === idOrbite;

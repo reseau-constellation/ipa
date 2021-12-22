@@ -1,4 +1,4 @@
-import { AccessControllers } from "orbit-db";
+import AccessControllers from "orbit-db-access-controllers";
 import ContrôleurConstellation from "./cntrlConstellation";
 import ContrôleurAccès from "./cntrlMod";
 

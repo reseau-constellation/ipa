@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
-import OrbitDB, { entréeBD, identityProvider } from "orbit-db";
+import OrbitDB from "orbit-db";
+import identityProvider from "orbit-db-identity-provider";
 
 import GestionnaireAccès from "./gestionnaireUtilisateurs";
 import { MODÉRATEUR, rôles } from "./consts";
@@ -65,7 +66,7 @@ export default class ContrôleurAccès extends EventEmitter {
   }
 
   async canAppend(
-    entry: entréeBD<entréeBDAccès>,
+    entry: LogEntry<entréeBDAccès>,
     identityProvider: identityProvider
   ): Promise<boolean> {
     const idÉlément = entry.identity.id;

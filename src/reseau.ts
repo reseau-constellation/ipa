@@ -21,7 +21,7 @@ import { élémentDonnées } from "@/valid";
 export type infoMembre = {
   idSFIP: string;
   idOrbite: string;
-  idBdRacine: string;
+  idBdCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
 };
@@ -32,7 +32,7 @@ export type infoMembreEnLigne = infoMembre & {
 
 export type infoRéplication = {
   idBd: string;
-  idBdRacine: string;
+  idBdCompte: string;
   idOrbite: string;
   vuÀ?: number;
 };
@@ -74,7 +74,7 @@ interface ValeurMessageSalut extends ValeurMessage {
 interface ContenuMessageSalut extends ContenuMessage {
   idSFIP: string;
   idOrbite: string;
-  idBdRacine: string;
+  idBdCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
 }
@@ -106,7 +106,7 @@ export default class Réseau extends EventEmitter {
       idOrbite: this.client.orbite!.identity.id,
       clefPublique: this.client.orbite!.identity.publicKey,
       signatures: this.client.orbite!.identity.signatures,
-      idBdRacine: this.client.bdRacine!.id,
+      idBdCompte: this.client.bdCompte!.id,
     });
     this._nettoyerListeMembres();
   }
@@ -154,7 +154,7 @@ export default class Réseau extends EventEmitter {
         idOrbite: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
-        idBdRacine: this.client.bdRacine!.id,
+        idBdCompte: this.client.bdCompte!.id,
       },
     };
     const signature = await this.client.signer(JSON.stringify(valeur));
@@ -258,8 +258,8 @@ export default class Réseau extends EventEmitter {
   }
 
   async _validerInfoMembre(info: infoMembre): Promise<boolean> {
-    const { idBdRacine, signatures, clefPublique, idOrbite } = info;
-    if (!(idBdRacine && signatures && clefPublique && idOrbite)) return false;
+    const { idBdCompte, signatures, clefPublique, idOrbite } = info;
+    if (!(idBdCompte && signatures && clefPublique && idOrbite)) return false;
 
     const sigIdValide = await this.client.vérifierSignature(
       {
@@ -277,39 +277,39 @@ export default class Réseau extends EventEmitter {
       clefPublique + signatures.id
     );
 
-    if (!OrbitDB.isValidAddress(idBdRacine)) return false;
-    const {bd: bdRacine, fOublier } = await this.client.ouvrirBd(idBdRacine);
-    if (!(bdRacine.access instanceof ContrôleurConstellation)) return false;
-    const bdRacineValide = bdRacine.access.estAutorisé(idOrbite);
+    if (!OrbitDB.isValidAddress(idBdCompte)) return false;
+    const {bd: bdCompte, fOublier } = await this.client.ouvrirBd(idBdCompte);
+    if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
+    const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
 
     fOublier();
-    return sigIdValide && sigClefPubliqueValide && bdRacineValide;
+    return sigIdValide && sigClefPubliqueValide && bdCompteValide;
   }
 
   async ajouterMembre(info: infoMembre): Promise<void> {
     if (!(await this._validerInfoMembre(info))) return;
 
     const _ajouterMembre = async (info: infoMembre, récursif = false) => {
-      const { idOrbite, idBdRacine } = info;
+      const { idOrbite, idBdCompte } = info;
       await verrouAjouterMembre.acquire(idOrbite);
       const existante = await this.client.rechercherBdListe(
         this.idBd,
         (e: LogEntry<infoMembre>) => e.payload.value.idOrbite === idOrbite
       );
       if (!existante) {
-        const bdRacine = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
-        await bdRacine.add(info);
+        const bdCompte = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
+        await bdCompte.add(info);
       }
-      if (!this.fOublierMembres[idBdRacine] && !récursif) {
+      if (!this.fOublierMembres[idBdCompte] && !récursif) {
         const f = async (membres: infoMembre[]) => {
           membres.forEach((m: infoMembre) => _ajouterMembre(m));
         };
         const fOublier = await this.client.suivreBdListeDeClef<infoMembre>(
-          idBdRacine,
+          idBdCompte,
           "reseau",
           f
         );
-        this.fOublierMembres[idBdRacine] = fOublier;
+        this.fOublierMembres[idBdCompte] = fOublier;
       }
       verrouAjouterMembre.release(idOrbite);
     };
@@ -396,7 +396,7 @@ export default class Réseau extends EventEmitter {
       "compte",
       fFinale,
       (id: string, f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-        this.client.compte!.suivreNoms(f, id)
+        this.client.profil!.suivreNoms(f, id)
     );
   }
 
@@ -409,7 +409,7 @@ export default class Réseau extends EventEmitter {
       "compte",
       f,
       async (id: string, f: schémaFonctionSuivi<string | null>) =>
-        await this.client.compte!.suivreCourriel(f, id)
+        await this.client.profil!.suivreCourriel(f, id)
     );
   }
 
@@ -424,7 +424,7 @@ export default class Réseau extends EventEmitter {
       id: string,
       f: schémaFonctionSuivi<Uint8Array | null>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.compte!.suivreImage(f, id);
+      return await this.client.profil!.suivreImage(f, id);
     };
     return await this.client.suivreBdDeClef(
       idMembre,
@@ -447,7 +447,7 @@ export default class Réseau extends EventEmitter {
         id,
         (auteurs: infoAuteur[]) => {
           const estUnAuteur = auteurs.some(
-            (a) => a.idBdRacine === idMembre && a.accepté
+            (a) => a.idBdCompte === idMembre && a.accepté
           );
           fSuivreCondition(estUnAuteur);
         }
@@ -546,7 +546,7 @@ export default class Réseau extends EventEmitter {
         oublierBdsFavoris();
       };
     };
-    const fIdBdDeBranche = (x: unknown) => (x as infoMembre).idBdRacine;
+    const fIdBdDeBranche = (x: unknown) => (x as infoMembre).idBdCompte;
     const fCode = (x: unknown) => (x as infoMembre).idOrbite;
 
     const fListe = async (
@@ -578,7 +578,7 @@ export default class Réseau extends EventEmitter {
     };
 
     const fBranche = async (
-      idBdRacine: string,
+      idBdCompte: string,
       fSuivreBranche: schémaFonctionSuivi<infoRéplication[]>,
       branche: infoMembreEnLigne
     ) => {
@@ -589,17 +589,17 @@ export default class Réseau extends EventEmitter {
           .map((fav) => {
             return {
               idBd: fav,
-              idBdRacine: branche.idBdRacine,
+              idBdCompte: branche.idBdCompte,
               idOrbite: branche.idOrbite,
               vuÀ: branche.vuÀ,
             };
           });
         return fSuivreBranche(réplications);
       };
-      return await this.suivreFavorisMembre(idBdRacine, fFinaleSuivreBranche);
+      return await this.suivreFavorisMembre(idBdCompte, fFinaleSuivreBranche);
     };
 
-    const fIdBdDeBranche = (x: infoMembre) => x.idBdRacine;
+    const fIdBdDeBranche = (x: infoMembre) => x.idBdCompte;
     const fCode = (x: infoMembre) => x.idOrbite;
 
     const oublierRéplications = await this.client.suivreBdsDeFonctionListe(
@@ -637,7 +637,7 @@ export default class Réseau extends EventEmitter {
         }
       );
     };
-    const fIdBdDeBranche = (x: unknown) => (x as infoMembre).idBdRacine;
+    const fIdBdDeBranche = (x: unknown) => (x as infoMembre).idBdCompte;
     const fCode = (x: unknown) => (x as infoMembre).idOrbite;
 
     const fListe = async (
@@ -682,7 +682,7 @@ export default class Réseau extends EventEmitter {
         return await this.client.bds!.suivreAuteurs(
           idBd,
           (auteurs: infoAuteur[]) => {
-            const idBdAuteur = auteurs.find((a) => a.accepté)?.idBdRacine;
+            const idBdAuteur = auteurs.find((a) => a.accepté)?.idBdCompte;
             const infoBdDeMembre: bdDeMembre | undefined = idBdAuteur
               ? {
                   bd: idBd,

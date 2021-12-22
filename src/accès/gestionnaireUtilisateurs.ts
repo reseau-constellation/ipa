@@ -1,29 +1,31 @@
-import OrbitDB, { FeedStore, isValidAddress } from "orbit-db";
+import OrbitDB from "orbit-db";
+import Store from "orbit-db-store";
+import FeedStore from "orbit-db-feedstore";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 
-import accesseurBdOrbite from "./accesseurBdOrbite";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  LogEntry,
-} from "../client";
+} from "@/utils";
+
+import accesseurBdOrbite from "./accesseurBdOrbite";
 import { MODÉRATEUR, MEMBRE, rôles } from "./consts";
-import { entréeBDAccès, objRôles } from "./types";
+import { élémentBdAccès, objRôles } from "./types";
 
 import ContrôleurConstellation from "./cntrlConstellation";
 
 const événementsSuiviBd = ["ready", "write", "replicated"];
 
 export const suivreBdAccès = async (
-  bd: FeedStore,
-  f: schémaFonctionSuivi<entréeBDAccès[]>
+  bd: FeedStore<élémentBdAccès>,
+  f: schémaFonctionSuivi<élémentBdAccès[]>
 ): Promise<schémaFonctionOublier> => {
   const fFinale = () => {
-    const éléments: entréeBDAccès[] = bd
+    const éléments: élémentBdAccès[] = bd
       .iterator({ limit: -1 })
       .collect()
-      .map((e: LogEntry<entréeBDAccès>) => e.payload.value);
+      .map(e => e.payload.value);
     f(éléments);
   };
 
@@ -43,9 +45,9 @@ export const suivreBdAccès = async (
 class AccèsUtilisateur extends EventEmitter {
   orbite: OrbitDB;
   idBd: string;
-  bd?: FeedStore;
+  bd?: Store;
   idBdAccès?: string;
-  bdAccès?: FeedStore;
+  bdAccès?: FeedStore<élémentBdAccès>;
   oublierSuivi?: schémaFonctionOublier;
   autorisés: string[];
   accès?: ContrôleurConstellation;
@@ -63,26 +65,26 @@ class AccèsUtilisateur extends EventEmitter {
   }
 
   async initialiser(): Promise<void> {
-    this.bd = (await accesseurBdOrbite.ouvrirBd(
+    this.bd = await accesseurBdOrbite.ouvrirBd(
       this.orbite,
       this.idBd,
       this.idRequète
-    )) as FeedStore;
+    );
 
-    this.accès = this.bd.access as unknown as ContrôleurConstellation;
+    this.accès = this.bd.access as ContrôleurConstellation;
     this.bdAccès = this.accès.bd!;
     this.idBdAccès = this.bdAccès.id;
 
     this.oublierSuivi = await suivreBdAccès(
       this.bdAccès,
-      async (éléments: entréeBDAccès[]) => {
+      async éléments => {
         await this._miseÀJour(éléments);
       }
     );
     this.prêt = true;
   }
 
-  async _miseÀJour(éléments: entréeBDAccès[]) {
+  async _miseÀJour(éléments: élémentBdAccès[]) {
     const autorisés: string[] = [];
     éléments = [
       {
@@ -142,13 +144,13 @@ export default class GestionnaireAccès extends EventEmitter {
     return (await this.estUnModérateur(id)) || (await this.estUnMembre(id));
   }
 
-  async ajouterÉléments(éléments: entréeBDAccès[]): Promise<void> {
+  async ajouterÉléments(éléments: élémentBdAccès[]): Promise<void> {
     this._miseÀJourEnCours = true;
     await Promise.all(
       éléments.map(async (élément) => {
         const { rôle, id } = élément;
 
-        if (isValidAddress(id)) {
+        if (OrbitDB.isValidAddress(id)) {
           if (!this._rôlesUtilisateurs[rôle][id]) {
             const objAccèsUtilisateur = new AccèsUtilisateur(this.orbite, id);
             objAccèsUtilisateur.on("misÀJour", () => this._mettreRôlesÀJour());

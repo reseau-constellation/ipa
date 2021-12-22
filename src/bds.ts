@@ -66,16 +66,16 @@ export default class BDs {
 
   async suivreBds(
     f: schémaFonctionSuivi<string[]>,
-    idBdRacine?: string
+    idBdCompte?: string
   ): Promise<schémaFonctionOublier> {
-    idBdRacine = idBdRacine || this.idBd;
-    return await this.client.suivreBdListe(idBdRacine, f);
+    idBdCompte = idBdCompte || this.idBd;
+    return await this.client.suivreBdListe(idBdCompte, f);
   }
 
   async créerBd(licence: string, ajouter = true): Promise<string> {
     const idBdBd = await this.client.créerBdIndépendante("kvstore", {
       adresseBd: undefined,
-      premierMod: this.client.bdRacine!.id,
+      premierMod: this.client.bdCompte!.id,
     });
 
     const { bd: bdBD, fOublier } = await this.client.ouvrirBd<
@@ -261,12 +261,12 @@ export default class BDs {
   async rechercherBdsParMotsClefs(
     motsClefs: string[],
     f: schémaFonctionSuivi<string[]>,
-    idBdRacine?: string
+    idBdCompte?: string
   ): Promise<schémaFonctionOublier> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBds(fSuivreRacine, idBdRacine);
+      return await this.suivreBds(fSuivreRacine, idBdCompte);
     };
 
     const fCondition = async (
@@ -711,10 +711,10 @@ export default class BDs {
 
   async inviterAuteur(
     idBd: string,
-    idBdRacineAuteur: string,
+    idBdCompteAuteur: string,
     rôle: keyof objRôles
   ): Promise<void> {
-    await this.client.donnerAccès(idBd, idBdRacineAuteur, rôle);
+    await this.client.donnerAccès(idBd, idBdCompteAuteur, rôle);
   }
 
   async suivreAuteurs(
@@ -727,7 +727,7 @@ export default class BDs {
       return await this.client.suivreAccèsBd(id, fSuivreRacine);
     };
     const fBranche = async (
-      idBdRacine: string,
+      idBdCompte: string,
       fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
       branche: infoAccès
     ) => {
@@ -735,20 +735,20 @@ export default class BDs {
         bdsMembre = bdsMembre || [];
         return fSuivreBranche([
           {
-            idBdRacine: branche.idBdRacine,
+            idBdCompte: branche.idBdCompte,
             rôle: branche.rôle,
             accepté: bdsMembre.includes(id),
           },
         ]);
       };
       return await this.client.réseau!.suivreBdsMembre(
-        idBdRacine,
+        idBdCompte,
         fFinaleSuivreBranche,
         false
       );
     };
-    const fIdBdDeBranche = (x: infoAccès) => x.idBdRacine;
-    const fCode = (x: infoAccès) => x.idBdRacine;
+    const fIdBdDeBranche = (x: infoAccès) => x.idBdCompte;
+    const fCode = (x: infoAccès) => x.idBdCompte;
 
     const fOublier = this.client.suivreBdsDeFonctionListe(
       fListe,

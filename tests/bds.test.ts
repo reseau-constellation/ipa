@@ -40,8 +40,8 @@ typesClients.forEach((type) => {
         let client: ClientConstellation;
         let client2: ClientConstellation;
 
-        let idBdRacine1: string;
-        let idBdRacine2: string;
+        let idBdCompte1: string;
+        let idBdCompte2: string;
 
         let idBd: string;
 
@@ -55,19 +55,19 @@ typesClients.forEach((type) => {
           client = clients[0];
           client2 = clients[1];
 
-          idBdRacine1 = await uneFois(
+          idBdCompte1 = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdBdRacine(fSuivi);
+              return await client.suivreIdBdCompte(fSuivi);
             }
           );
 
-          idBdRacine2 = await uneFois(
+          idBdCompte2 = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdBdRacine(fSuivi);
+              return await client2.suivreIdBdCompte(fSuivi);
             }
           );
         });
@@ -294,12 +294,12 @@ typesClients.forEach((type) => {
             expect(rés.ultat).to.be.an("array").with.lengthOf(1);
             const moi = rés.ultat![0];
             expect(moi?.accepté).to.be.true;
-            expect(moi?.idBdRacine).to.equal(idBdRacine1);
+            expect(moi?.idBdCompte).to.equal(idBdCompte1);
             expect(moi?.rôle).to.equal(MODÉRATEUR);
           });
 
           step("Inviter un membre", async () => {
-            await client.bds!.inviterAuteur(idBdAuteurs, idBdRacine2, MEMBRE);
+            await client.bds!.inviterAuteur(idBdAuteurs, idBdCompte2, MEMBRE);
             await attendreRésultat(
               rés,
               "ultat",
@@ -309,7 +309,7 @@ typesClients.forEach((type) => {
             expect(rés.ultat).to.be.an("array").with.lengthOf(2);
 
             const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdRacine === idBdRacine2
+              (x) => x.idBdCompte === idBdCompte2
             );
             expect(nouvelAuteur).to.exist;
             expect(nouvelAuteur?.accepté).to.be.false;
@@ -326,7 +326,7 @@ typesClients.forEach((type) => {
             );
 
             const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdRacine === idBdRacine2
+              (x) => x.idBdCompte === idBdCompte2
             );
             expect(nouvelAuteur?.accepté).to.be.true;
           });
@@ -334,7 +334,7 @@ typesClients.forEach((type) => {
           step("Promotion à modérateur", async () => {
             await client.bds!.inviterAuteur(
               idBdAuteurs,
-              idBdRacine2,
+              idBdCompte2,
               MODÉRATEUR
             );
 
@@ -345,7 +345,7 @@ typesClients.forEach((type) => {
             );
 
             const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdRacine === idBdRacine2
+              (x) => x.idBdCompte === idBdCompte2
             );
             expect(nouvelAuteur?.accepté).to.be.true; // L'acceptation de l'invitation est toujours valide
             expect(nouvelAuteur?.rôle).to.equal(MODÉRATEUR);
@@ -579,7 +579,9 @@ typesClients.forEach((type) => {
               )
             )[0];
 
-            const éléments1 = [
+            type élémentTrad = {clef: string, trad?: string}
+
+            const éléments1:élémentTrad[] = [
               {
                 clef: "fr",
                 trad: "Constellation",
@@ -592,7 +594,7 @@ typesClients.forEach((type) => {
               await client.tableaux!.ajouterÉlément(idTableau1, élément);
             }
 
-            const éléments2 = [
+            const éléments2:élémentTrad[] = [
               {
                 clef: "fr",
                 trad: "Constellation!", // Une erreur ici, disons
