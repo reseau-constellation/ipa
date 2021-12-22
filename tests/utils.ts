@@ -176,12 +176,12 @@ export const générerClients = async (
           API
         );
         fsOublier.push(fOublierOrbites);
-        client = (await générerProxyProc).default(undefined, true, orbites[i]);
+        client = (await générerProxyProc).default({orbite: orbites[i]}, true);
         break;
       }
 
       case "travailleur":
-        client = (await générerProxyTravailleur).default(undefined, true);
+        client = (await générerProxyTravailleur).default(undefined, undefined, true);
         break;
 
       default:

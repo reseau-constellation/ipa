@@ -12,8 +12,15 @@ const fErreur = (erreur: Error, id?: string) => {
   postMessage(messageErreur);
 };
 
-const client = new GestionnaireClient(fMessage, fErreur);
-
+let client: GestionnaireClient
 onmessage = async function ({ data }) {
-  client.gérerMessage(data);
+  if (!client) {
+    if (data.type === "init") {
+      client = new GestionnaireClient(fMessage, fErreur, data.opts);
+    } else {
+      throw Error("Client non initialisé")
+    }
+  } else {
+    client.gérerMessage(data);
+  }
 };

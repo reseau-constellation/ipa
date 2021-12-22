@@ -1,5 +1,7 @@
 import OrbitDB from "orbit-db";
 
+import { optsConstellation } from "@/client";
+
 import générerProxy, { téléClient, ProxyClientConstellation } from "./proxy";
 import {
   MessageDeTravailleur,
@@ -11,7 +13,7 @@ import GestionnaireClient from "./gestionnaireClient";
 export class IPAProc extends téléClient {
   client: GestionnaireClient;
 
-  constructor() {
+  constructor(opts: optsConstellation = {}) {
     super();
 
     this.client = new GestionnaireClient(
@@ -25,7 +27,8 @@ export class IPAProc extends téléClient {
           erreur,
         };
         this.emit("erreur", messageErreur);
-      }
+      },
+      opts
     );
   }
 
@@ -35,17 +38,12 @@ export class IPAProc extends téléClient {
 }
 
 export const générerProxyProc = (
-  idBdRacine?: string,
+  opts: optsConstellation = {},
   souleverErreurs = false,
-  orbite?: OrbitDB,
-  sujetRéseau?: string
 ): ProxyClientConstellation => {
   return générerProxy(
-    new IPAProc(),
+    new IPAProc(opts),
     souleverErreurs,
-    idBdRacine,
-    orbite,
-    sujetRéseau
   );
 };
 

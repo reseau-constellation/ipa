@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 import { EventEmitter, once } from "events";
-import OrbitDB from "orbit-db";
 
-import ClientConstellation, {
+import ClientConstellation from "@/client";
+import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-} from "../client";
+} from "@/utils";
 import {
   MessagePourTravailleur,
   MessageSuivrePourTravailleur,
@@ -13,7 +13,6 @@ import {
   MessageActionPourTravailleur,
   MessageDeTravailleur,
   MessageSuivreDeTravailleur,
-  MessagePrêtDeTravailleur,
   MessageActionDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
   MessageErreurDeTravailleur,
@@ -64,9 +63,6 @@ export class IPAParallèle extends Callable {
   constructor(
     client: téléClient,
     souleverErreurs: boolean,
-    idBdRacine?: string,
-    orbite?: OrbitDB,
-    sujetRéseau?: string
   ) {
     super();
 
@@ -260,17 +256,11 @@ export type ProxyClientConstellation = ClientConstellation & IPAParallèle;
 export default (
   client: téléClient,
   souleverErreurs: boolean,
-  idBdRacine?: string,
-  orbite?: OrbitDB,
-  sujetRéseau?: string
 ): ProxyClientConstellation => {
   const handler = new Handler();
   const ipa = new IPAParallèle(
     client,
     souleverErreurs,
-    idBdRacine,
-    orbite,
-    sujetRéseau
   );
   return new Proxy<IPAParallèle>(ipa, handler) as ProxyClientConstellation;
 };

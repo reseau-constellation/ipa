@@ -1,4 +1,5 @@
 import FeedStore from "orbit-db-feedstore";
+import KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
 import { PeersResult } from "ipfs-core-types/src/swarm";
@@ -195,7 +196,53 @@ export default class Réseau extends EventEmitter {
     }
   }
 
-  async suivreConnexionsPostes(
+  async suivreMembres(): Promise<schémaFonctionOublier> {
+
+  }
+
+  async suivreMaConfiancePourMembre(
+    idBdCompte: string,
+    f: schémaFonctionSuivi<-1|0|1>
+  ): Promise<schémaFonctionOublier> {
+    const fFinale = (vals: {[key: string]: -1 | 1}): void => {
+      const confiance = vals[idBdCompte] === undefined ? 0 : vals[idBdCompte]
+      f(confiance)
+    }
+    return await this.client.suivreBdDic(this.idBd, fFinale);
+  }
+
+  async faireConfianceAuMembre(idBdCompte: string): Promise<void> {
+    await this.spécifierConfianceMembre(idBdCompte, 1);
+  }
+
+  async bloquerMembre(idBdCompte: string): Promise<void> {
+    await this.spécifierConfianceMembre(idBdCompte, -1);
+  }
+
+  async spécifierConfianceMembre(
+    idBdCompte: string,
+    confiance: -1|0|1
+  ): Promise<void> {
+    const { bd: bdConfiance, fOublier } = await this.client.ouvrirBd<KeyValueStore<-1|1>>(this.idBd);
+    if (confiance !== 0) {
+      await bdConfiance.set(idBdCompte, confiance);
+    } else {
+      await bdConfiance.del(idBdCompte);
+    }
+
+    fOublier();
+  }
+
+  async suivreConfianceMonRéseauPourMembre(
+    idBdCompte: string,
+    f: schémaFonctionSuivi<number>,
+    opts: { profondeur: number, facteur: number } = { profondeur: 4, facteur: 0.5}
+  ): Promise<schémaFonctionOublier> {
+    const { profondeur, facteur } = opts
+
+  }
+
+  async suivreConnexionsPostesSFIP(
     f: schémaFonctionSuivi<{ addr: string; peer: string }[]>
   ): Promise<schémaFonctionOublier> {
     const dédédoublerConnexions = (
@@ -230,6 +277,20 @@ export default class Réseau extends EventEmitter {
     };
     return oublier;
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
   async _nettoyerListeMembres(): Promise<void> {
     const {bd, fOublier}= await this.client.ouvrirBd<FeedStore>(this.idBd);

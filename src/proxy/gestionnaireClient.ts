@@ -1,7 +1,7 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import ClientConstellation, { schémaFonctionOublier } from "@/client";
-
+import ClientConstellation, { optsConstellation } from "@/client";
+import { schémaFonctionOublier } from "@/utils";
 import {
   MessagePourTravailleur,
   MessageDeTravailleur,
@@ -17,7 +17,7 @@ import {
 export default class GestionnaireClient {
   ipa?: ClientConstellation;
   dicFOublier: { [key: string]: schémaFonctionOublier };
-  opts: OptionsConstellation;
+  opts: optsConstellation;
 
   fMessage: (m: MessageDeTravailleur) => void;
   fErreur: (e: Error, idRequète?: string) => void;
@@ -27,7 +27,7 @@ export default class GestionnaireClient {
   constructor(
     fMessage: (m: MessageDeTravailleur) => void,
     fErreur: (e: Error, idRequète?: string) => void,
-    opts: OptionsConstellation = {}
+    opts: optsConstellation = {}
   ) {
     this.fMessage = fMessage;
     this.fErreur = fErreur;
@@ -49,14 +49,7 @@ export default class GestionnaireClient {
       return;
     } // Nécessaire si on a plus qu'un client connecté au même client (serveur) Constellation
 
-    const { idBdRacine, orbite, sujetRéseau } =
-      message as MessageInitPourTravailleur;
-    this.ipa = new ClientConstellation(
-      idBdRacine,
-      undefined,
-      orbite,
-      sujetRéseau
-    );
+    this.ipa = new ClientConstellation(this.opts);
 
     await this.ipa.initialiser();
 

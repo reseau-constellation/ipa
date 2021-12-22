@@ -1,3 +1,5 @@
+import { optsConstellation } from "@/client";
+
 import générerProxy, { téléClient, ProxyClientConstellation } from "./proxy";
 
 import { MessageDeTravailleur, MessagePourTravailleur } from "./messages";
@@ -5,7 +7,7 @@ import { MessageDeTravailleur, MessagePourTravailleur } from "./messages";
 export class IPATravailleur extends téléClient {
   travailleur: Worker;
 
-  constructor() {
+  constructor(opts: optsIpaTravailleur) {
     super();
 
     this.travailleur = new Worker(new URL("./travailleur.js"));
@@ -15,6 +17,8 @@ export class IPATravailleur extends téléClient {
     this.travailleur.onmessage = (e: MessageEvent<MessageDeTravailleur>) => {
       this.emit("message", e.data);
     };
+
+    this.travailleur.postMessage({ type: "init", opts })
   }
 
   recevoirMessage(message: MessagePourTravailleur): void {
@@ -22,16 +26,23 @@ export class IPATravailleur extends téléClient {
   }
 }
 
+export interface optsIpaTravailleur extends optsConstellation {
+  compte?: string;
+  sujetRéseau?: string;
+  orbite?: {
+    dossier?: string;
+    sfip?: {
+      dossier?: string
+    };
+  };
+}
+
 export default (
-  idBdRacine?: string,
+  opts: optsIpaTravailleur = {},
   souleverErreurs = false,
-  sujetRéseau?: string
 ): ProxyClientConstellation => {
   return générerProxy(
-    new IPATravailleur(),
+    new IPATravailleur(opts),
     souleverErreurs,
-    idBdRacine,
-    undefined,
-    sujetRéseau
   );
 };

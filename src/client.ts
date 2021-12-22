@@ -57,7 +57,7 @@ export interface Signature {
 
 const verrouOuvertureBd = new Semaphore();
 
-interface optsConstellation {
+export interface optsConstellation {
   compte?: string;
   sujetRéseau?: string;
   orbite?: optsOrbite;
