@@ -57,7 +57,7 @@ export class IPAParallèle extends Callable {
   tâches: { [key: string]: Tâche };
   ipaPrêt: boolean;
   messagesEnAttente: MessagePourTravailleur[];
-  erreurs: Error[];
+  erreurs: { erreur: Error, id?: string }[];
   souleverErreurs: boolean;
 
   constructor(
@@ -215,10 +215,11 @@ export class IPAParallèle extends Callable {
     }
   }
 
-  erreur(e: Error, id?: string): void {
-    this.erreurs.unshift(e);
-    this.événements.emit("erreur", { nouvelle: e, toutes: this.erreurs });
-    if (this.souleverErreurs) throw e;
+  erreur(erreur: Error, id?: string): void {
+    const infoErreur = {erreur, id}
+    this.erreurs.unshift(infoErreur);
+    this.événements.emit("erreur", { nouvelle: infoErreur, toutes: this.erreurs });
+    if (this.souleverErreurs) throw infoErreur;
   }
 
   oublierTâche(id: string): void {
