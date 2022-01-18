@@ -181,7 +181,7 @@ export const générerClients = async (
       }
 
       case "travailleur":
-        client = (await générerProxyTravailleur).default(undefined, undefined, true);
+        client = (await générerProxyTravailleur).default({}, true);
         break;
 
       default:

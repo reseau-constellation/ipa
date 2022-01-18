@@ -1,5 +1,3 @@
-import OrbitDB from "orbit-db";
-
 import { optsConstellation } from "@/client";
 
 import générerProxy, { téléClient, ProxyClientConstellation } from "./proxy";

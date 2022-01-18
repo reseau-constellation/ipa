@@ -19,37 +19,44 @@ import {
 import { élémentBdListeDonnées } from "@/tableaux"
 import { élémentDonnées } from "@/valid";
 
-export type infoMembre = {
+export interface infoDispositif {
   idSFIP: string;
   idOrbite: string;
-  idBdCompte: string;
+  idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
-};
+}
 
-export type infoMembreEnLigne = infoMembre & {
+export interface statutDispositif {
+  infoDispositif: infoDispositif;
   vuÀ?: number;
-};
+}
 
-export type infoRéplication = {
-  idBd: string;
+export interface infoMembre {
   idBdCompte: string;
-  idOrbite: string;
-  vuÀ?: number;
-};
+  dispositifs: infoDispositif[];
+}
 
-export type infoDispositifEnLigne = {
-  info: infoMembre;
-  vuÀ: number;
-};
+export interface statutMembre {
+  infoMembre: infoMembre;
+  maConfiance: number;
+  confianceMonRéseau: number;
+  vuÀ?: number;
+}
+
+export interface infoRéplications {
+  idBd: string;
+  membres: statutMembre[];
+  dispositifs: statutDispositif[];
+}
 
 export type élémentDeMembre<T extends élémentBdListeDonnées> = {
-  idBdAuteur: string;
+  idBdCompte: string;
   élément: élémentDonnées<T>;
 };
 
 export type bdDeMembre = {
-  idBdAuteur: string;
+  idBdCompte: string;
   bd: string;
 };
 
@@ -290,7 +297,7 @@ export default class Réseau extends EventEmitter {
 
 
 
-  
+
 
   async _nettoyerListeMembres(): Promise<void> {
     const {bd, fOublier}= await this.client.ouvrirBd<FeedStore>(this.idBd);
