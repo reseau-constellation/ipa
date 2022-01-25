@@ -14,10 +14,14 @@ import ClientConstellation, {
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
+  schémaFonctionRecherche,
   infoAuteur,
 } from "@/utils"
 import { élémentBdListeDonnées } from "@/tableaux"
 import { élémentDonnées } from "@/valid";
+import {
+  rechercherCompteSelonActivité
+} from "@/recherche";
 
 export interface infoDispositif {
   idSFIP: string;
@@ -82,9 +86,14 @@ interface ValeurMessageSalut extends ValeurMessage {
 interface ContenuMessageSalut extends ContenuMessage {
   idSFIP: string;
   idOrbite: string;
-  idBdCompte: string;
+  idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
+}
+
+export interface réponseSuivreRecherche {
+  fOublier: schémaFonctionOublier;
+  fChangerN: schémaFonctionChangerNRecherche
 }
 
 const verrouAjouterMembre = new Semaphore();
@@ -94,11 +103,11 @@ export default class Réseau extends EventEmitter {
   client: ClientConstellation;
   idBd: string;
   dispositifsEnLigne: {
-    [key: string]: infoDispositifEnLigne;
+    [key: string]: statutDispositif;
   };
 
+  fsOublier: schémaFonctionOublier[];
   fOublierMembres: { [key: string]: schémaFonctionOublier };
-  oublierSalut?: schémaFonctionOublier;
 
   constructor(client: ClientConstellation, id: string) {
     super();
@@ -107,6 +116,7 @@ export default class Réseau extends EventEmitter {
     this.idBd = id;
     this.dispositifsEnLigne = {};
     this.fOublierMembres = {};
+    this.fsOublier = [()=>Object.values(this.fOublierMembres).forEach(f=>f())];
 
     // N'oublions pas de nous ajouter nous-mêmes
     this.ajouterMembre({
@@ -141,7 +151,7 @@ export default class Réseau extends EventEmitter {
     const x = setInterval(() => {
       this.direSalut();
     }, INTERVALE_SALUT);
-    this.oublierSalut = () => clearInterval(x);
+    this.fsOublier.push(() => clearInterval(x));
 
     this.direSalut();
   }
@@ -162,7 +172,7 @@ export default class Réseau extends EventEmitter {
         idOrbite: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
-        idBdCompte: this.client.bdCompte!.id,
+        idCompte: this.client.bdCompte!.id,
       },
     };
     const signature = await this.client.signer(JSON.stringify(valeur));
@@ -203,9 +213,63 @@ export default class Réseau extends EventEmitter {
     }
   }
 
-  async suivreMembres(): Promise<schémaFonctionOublier> {
+  async suivreMembresQueJeSuis(f: schémaFonctionSuivi<infoMembre>): Promise<schémaFonctionOublier> {
 
   }
+
+  async rechercherMembres(
+    f: schémaFonctionSuivi<string[]>,
+    n: number,
+    fRecherche?: schémaFonctionRecherche
+  ): Promise<réponseSuivreRecherche> {
+    if (!fRecherche) {
+      fRecherche = rechercherCompteSelonActivité()
+    }
+
+    const fConfiance = async (idCompte: string, fSuivre: schémaFonctionSuivi<number>) => {
+     return await this.suivreConfianceMonRéseauPourMembre(idCompte, fSuivre)
+   }
+
+    return await this.rechercher(f, n, fConfiance, fRecherche);
+  }
+
+
+  async rechercher(
+    f: schémaFonctionSuivi<string[]>,
+    n: number,
+    fConfiance: schémaFonctionConfiance,
+    fRecherche: schémaFonctionRecherche
+  ): Promise<réponseSuivreRecherche> {
+    interface interfaceScores { scoreConfiance: number, scoreRecherche: number }
+    const dicRésultats: { [key: string]: interfaceScores } = {}
+
+    const fScore = (x: interfaceScores): number => {
+      return x.scoreConfiance * x.scoreRecherche
+    }
+
+    const envoyerRésultats = () => {
+      const résultats = Object.entries(dicRésultats).sort((a,b)=>fScore(a[1]) < fScore(b[1]) ? -1 : 1).slice(0, n).map(x=>x[0])
+      f(résultats)
+    }
+
+    const fChangerN = (nouveauN: number) => {
+      n = nouveauN;
+      envoyerRésultats();
+    }
+
+    const fOublier
+
+    return { fChangerN, fOublier }
+  }
+
+
+
+
+
+
+
+
+
 
   async suivreMaConfiancePourMembre(
     idBdCompte: string,
@@ -831,7 +895,6 @@ export default class Réseau extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-    if (this.oublierSalut) this.oublierSalut();
-    Object.values(this.fOublierMembres).forEach((f) => f());
+    this.fsOublier.forEach(f=>f());
   }
 }

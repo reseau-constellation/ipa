@@ -1,4 +1,5 @@
 import { objRôles } from "@/accès/types";
+import ClientConstellation from "@/client";
 
 export interface infoAuteur {
   idBdCompte: string;
@@ -30,3 +31,5 @@ export type dicTrads = { [key: string]: string };
 export type schémaFonctionSuivi<T> = (x: T) => void;
 
 export type schémaFonctionOublier = () => void;
+
+export type schémaFonctionRecherche = (client: ClientConstellation, id: string, f: schémaFonctionSuivi<number>) => Promise<schémaFonctionOublier>;

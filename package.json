@@ -1,4 +1,6 @@
 {
+  "name": "@constl/ipa",
+  "author": "julienmalard",
   "version": "0.1.13",
   "license": "MIT",
   "main": "lib/cjs/index.js",
@@ -36,8 +38,6 @@
       "pre-commit": "tsdx lint"
     }
   },
-  "name": "@constl/ipa",
-  "author": "julienmalard",
   "size-limit": [
     {
       "path": "lib/cjs/index.js",
@@ -113,12 +113,14 @@
     "geojson-validation": "^1.0.2",
     "ipfs": "0.61.0",
     "ipfs-core": "0.13.0",
+    "js-levenshtein": "^1.1.6",
     "jszip": "^3.7.1",
     "libp2p-noise": "^4.0.0",
     "libp2p-webrtc-direct": "^0.7.1",
     "node-localstorage": "^2.2.1",
     "orbit-db": "^0.28.0",
     "orbit-db-access-controllers": "^0.3.2",
+    "ssim": "^0.0.0",
     "uuid": "^8.3.2",
     "xlsx": "^0.17.3"
   }
