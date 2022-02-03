@@ -1,73 +1,117 @@
 import ClientConstellation from "@/client";
 import {
-  schémaFonctionSuivi,
   schémaFonctionOublier,
   schémaFonctionRecherche,
+  schémaFonctionSuiviRecherche,
 } from "@/utils"
 
+import { rechercherVariableSelonNom } from "./variable";
+import { rechercherMotClefSelonNom } from "./motClef";
 import {
-  maxLevenshtein01,
   combinerRecherches,
+  sousRecherche,
+  rechercherSelonId,
+  similTexte,
  } from "./utils";
 
-export const rechercherBdSelonIdVariable: (idVariable: string) => schémaFonctionRecherche = (
-  idVariable: string
-) => {
+export const rechercherBdSelonNom = (
+  nomBd: string
+): schémaFonctionRecherche => {
   return async (
     client: ClientConstellation,
     idBd: string,
-    fSuivreRecherche: schémaFonctionSuivi<number>
+    fSuivreRecherche: schémaFonctionSuiviRecherche
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (variables: string[]) => {
-      const score = maxLevenshtein01(idVariable, variables);
-      fSuivreRecherche(score);
+    const fSuivre = (noms: {[key: string]: string}) => {
+      const corresp = similTexte(nomBd, noms);
+      if (corresp) {
+        const { score, clef, info } = corresp
+        fSuivreRecherche({
+          score, clef, info,
+          de: "nom",
+        });
+      } else {
+        fSuivreRecherche();
+      }
     }
-    const fOublier = await client.bds!.suivreVariablesBd(idBd, fSuivre)
+    const fOublier = await client.bds!.suivreNomsBd(idBd, fSuivre)
     return fOublier;
   }
 }
 
-export const rechercherBdSelonNomVariable: (nomVariable: string) => schémaFonctionRecherche = (
-  nomVariable: string
-) => {
+export const rechercherBdSelonDescr = (
+  descrBd: string
+): schémaFonctionRecherche => {
   return async (
     client: ClientConstellation,
     idBd: string,
-    fSuivreRecherche: schémaFonctionSuivi<number>
+    fSuivreRecherche: schémaFonctionSuiviRecherche
   ): Promise<schémaFonctionOublier> => {
-    const fSuivreNomsVar = (variables: string[]) => {
-      const score = maxLevenshtein01(nomVariable, variables);
-      fSuivreRecherche(score);
+    const fSuivre = (descrs: {[key: string]: string}) => {
+      const corresp = similTexte(descrBd, descrs);
+      if (corresp) {
+        const { score, clef, info } = corresp
+        fSuivreRecherche({
+          score, clef, info,
+          de: "descr",
+        });
+      } else {
+        fSuivreRecherche();
+      }
     }
+    const fOublier = await client.bds!.suivreDescrBd(idBd, fSuivre)
+    return fOublier;
+  }
+}
 
+export const rechercherBdSelonIdVariable = (
+  idVariable: string
+): schémaFonctionRecherche => {
+  return async (
+    client: ClientConstellation,
+    idBd: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche
+  ): Promise<schémaFonctionOublier> => {
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.bds!.suivreVariablesBd(idBd, fSuivreRacine);
-    };
-
-    const fBranche = async (
-      idVariable: string,
-      f: schémaFonctionSuivi<{[key: string]: string}>
-    ) => {
-      return await client.variables!.suivreNomsVariable(
-        idVariable,
-        f
-      )
     }
 
-    const fOublier = await client.suivreBdsDeFonctionListe(fListe, fSuivreNomsVar, fBranche)
-    return fOublier;
+    const fRechercher = rechercherSelonId(idVariable);
+
+    return await sousRecherche("variable", fListe, fRechercher, client, fSuivreRecherche);
   }
 }
 
-export const rechercherBdSelonVariable: (texte: string) => schémaFonctionRecherche = (
-  texte: string
-) => {
+export const rechercherBdSelonNomVariable = (
+  nomVariable: string
+): schémaFonctionRecherche => {
   return async (
     client: ClientConstellation,
     idBd: string,
-    fSuivreRecherche: schémaFonctionSuivi<number>
+    fSuivreRecherche: schémaFonctionSuiviRecherche
+  ): Promise<schémaFonctionOublier> => {
+
+    const fListe = async (
+      fSuivreRacine: (idsVariables: string[]) => void
+    ): Promise<schémaFonctionOublier> => {
+      return await client.bds!.suivreVariablesBd(idBd, fSuivreRacine);
+    }
+
+    const fRechercher = rechercherVariableSelonNom(nomVariable);
+
+    return await sousRecherche("variable", fListe, fRechercher, client, fSuivreRecherche);
+  }
+}
+
+export const rechercherBdSelonVariable = (
+  texte: string
+): schémaFonctionRecherche => {
+  return async (
+    client: ClientConstellation,
+    idBd: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche
   ) => {
     return await combinerRecherches(
       {
@@ -81,69 +125,81 @@ export const rechercherBdSelonVariable: (texte: string) => schémaFonctionRecher
   }
 }
 
-export const rechercherBdSelonIdMotClef: (idMotClef: string) => schémaFonctionRecherche = (
+export const rechercherBdSelonIdMotClef = (
   idMotClef: string
-) => {
+): schémaFonctionRecherche => {
   return async (
     client: ClientConstellation,
     idBd: string,
-    fSuivreRecherche: schémaFonctionSuivi<number>
+    fSuivreRecherche: schémaFonctionSuiviRecherche
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (motClefs: string[]) => {
-      const score = maxLevenshtein01(idMotClef, motClefs);
-      fSuivreRecherche(score);
-    }
-    const fOublier = await client.bds!.suivreMotsClefsBd(idBd, fSuivre)
-    return fOublier;
-  }
-}
-
-export const rechercherBdSelonNomMotClef: (nomMotClef: string) => schémaFonctionRecherche = (
-  nomMotClef: string
-) => {
-  return async (
-    client: ClientConstellation,
-    idBd: string,
-    fSuivreRecherche: schémaFonctionSuivi<number>
-  ): Promise<schémaFonctionOublier> => {
-    const fSuivreNomsMotClef = (motsClefs: string[]) => {
-      const score = maxLevenshtein01(nomMotClef, motsClefs);
-      fSuivreRecherche(score);
-    }
-
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.bds!.suivreMotsClefsBd(idBd, fSuivreRacine);
-    };
-
-    const fBranche = async (
-      idMotClef: string,
-      f: schémaFonctionSuivi<{[key: string]: string}>
-    ) => {
-      return await client.motsClefs!.suivreNomsMotClef(
-        idMotClef,
-        f
-      )
     }
 
-    const fOublier = await client.suivreBdsDeFonctionListe(fListe, fSuivreNomsMotClef, fBranche)
-    return fOublier;
+    const fRechercher = rechercherSelonId(idMotClef);
+
+    return await sousRecherche("motClef", fListe, fRechercher, client, fSuivreRecherche);
   }
 }
 
-export const rechercherBdSelonMotClef: (texte: string) => schémaFonctionRecherche = (
-  texte: string
-) => {
+export const rechercherBdSelonNomMotClef = (
+  nomMotClef: string
+): schémaFonctionRecherche => {
   return async (
     client: ClientConstellation,
     idBd: string,
-    fSuivreRecherche: schémaFonctionSuivi<number>
+    fSuivreRecherche: schémaFonctionSuiviRecherche
+  ): Promise<schémaFonctionOublier> => {
+    const fListe = async (
+      fSuivreRacine: (idsVariables: string[]) => void
+    ): Promise<schémaFonctionOublier> => {
+      return await client.bds!.suivreMotsClefsBd(idBd, fSuivreRacine);
+    }
+
+    const fRechercher = rechercherMotClefSelonNom(nomMotClef);
+
+    return await sousRecherche("variable", fListe, fRechercher, client, fSuivreRecherche);
+  }
+}
+
+export const rechercherBdSelonMotClef = (
+  texte: string
+): schémaFonctionRecherche => {
+  return async (
+    client: ClientConstellation,
+    idBd: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche
   ) => {
     return await combinerRecherches(
       {
         id: rechercherBdSelonIdMotClef(texte),
         nom: rechercherBdSelonNomMotClef(texte)
+      },
+      client,
+      idBd,
+      fSuivreRecherche
+    )
+  }
+}
+
+export const rechercherBdSelonTexte = (
+  texte: string
+): schémaFonctionRecherche => {
+  return async (
+    client: ClientConstellation,
+    idBd: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche
+  ) => {
+    return await combinerRecherches(
+      {
+        nom: rechercherBdSelonNom(texte),
+        descr: rechercherBdSelonDescr(texte),
+        variables: rechercherBdSelonVariable(texte),
+        motsClefs: rechercherBdSelonMotClef(texte),
+        id: rechercherSelonId(texte),
       },
       client,
       idBd,

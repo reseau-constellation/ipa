@@ -1,43 +1,74 @@
-import levenshtein from "js-levenshtein";
+import ssim from "ssim";
+import correspTexte from "approx-string-match";
 
 import ClientConstellation from "@/client";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  schémaFonctionRecherche
+  schémaFonctionRecherche,
+  schémaFonctionSuiviRecherche,
+  faisRien,
+  résultatRecherche,
+  infoRésultatTexte,
 } from "@/utils"
 
-export const levenshtein01 = (texte1: string, texte2: string): number => {
-  // Une alternative - https://www.npmjs.com/package/approx-string-match
-  const simil = levenshtein(texte1, texte2)
-  const score =  1 / (simil + 1)
-  return score
+export const rechercherDansTexte = (schéma: string, texte: string): { score: number, début: number, fin: number }|undefined => {
+  // Une alternative - https://www.npmjs.com/package/js-levenshtein
+  const correspondances = correspTexte(texte, schéma, Math.ceil(texte.length / 4))
+  const meilleure = correspondances.sort((a, b) => a.errors > b.errors ?  1 : -1)[0];
+  if (meilleure) {
+    const score =  1 / (meilleure.errors + 1)
+    return { score, début: meilleure.start, fin: meilleure.end }
+  }
+  return
 }
 
-export const maxLevenshtein01 = (texteCible: string, possibilités: string[]): number => {
-  return Math.max.apply(null, possibilités.map(x=>levenshtein01(x, texteCible)))
+export const similTexte = (texte: string, possibilités: {[key: string]: string}|string[]): { score: number, clef: string, info: infoRésultatTexte } | undefined => {
+  if (Array.isArray(possibilités)) {
+    possibilités = Object.fromEntries(possibilités.map(x=>[x, x]))
+  }
+  const similairités = Object.entries(possibilités).map(
+    ([clef, val]) => {
+      const corresp = rechercherDansTexte(texte, val)
+      if (corresp) {
+        const { score, début, fin } = corresp
+        return { score, clef, info: { texte, début, fin }}
+      }
+      return
+    }
+  ).filter(x=>x)
+  const meilleure = similairités.sort((a, b) => a!.score > b!.score ? -1 : 1)[0];
+  return meilleure;
+}
+
+export const similImages = (image: Uint8Array, imageRef: Uint8Array | null): number => {
+  if (!imageRef) {
+    return 0
+  }
+  const { mssim } = ssim(image, imageRef);
+  return mssim
 }
 
 export const combinerRecherches = async (
   fsRecherche: { [key: string]: schémaFonctionRecherche },
   client: ClientConstellation,
   id: string,
-  fSuivreRecherche: schémaFonctionSuivi<number>,
+  fSuivreRecherche: schémaFonctionSuiviRecherche,
 ): Promise<schémaFonctionOublier> => {
 
   const fsOublier: schémaFonctionOublier[] = []
 
-  const scores = Object.fromEntries(Object.keys(fsRecherche).map(x=>[x, 0]))
+  const résultats: { [key: string]: résultatRecherche|undefined } = Object.fromEntries(Object.keys(fsRecherche).map(x=>[x, undefined]))
 
   const fSuivreFinale = (): void => {
-    const scoreFinal = Math.max.apply(Object.values(scores));
-    fSuivreRecherche(scoreFinal);
+    const résultat = Object.values(résultats).filter(x=>x).sort((a, b) => a!.score > b!.score ? -1 : 1)[0];
+    fSuivreRecherche(résultat);
   }
 
   await Promise.all(Object.entries(fsRecherche).map(
     async ( [clef, fRecherche] ) => {
-      const fSuivre = (score: number) => {
-        scores[clef] = score;
+      const fSuivre = (résultat?: résultatRecherche) => {
+        résultats[clef] = résultat;
         fSuivreFinale();
       }
       fsOublier.push(
@@ -48,5 +79,59 @@ export const combinerRecherches = async (
 
   return () => {
     fsOublier.forEach(f=>f());
+  }
+}
+
+export const sousRecherche = async (
+  de: string,
+  fListe: (fSuivreRacine: (ids: string[]) => void) => Promise<schémaFonctionOublier>,
+  fRechercher: schémaFonctionRecherche,
+  client: ClientConstellation,
+  fSuivreRecherche: schémaFonctionSuivi<résultatRecherche>
+): Promise<schémaFonctionOublier> => {
+  const fBranche = async (
+    idBd: string,
+    f: (x: {id: string, résultat?: résultatRecherche}) => void
+  ): Promise<schémaFonctionOublier> => {
+    return await fRechercher(client, idBd, (résultat?: résultatRecherche) => f({id: idBd, résultat}))
+  }
+  const fFinale = (résultats: {id: string, résultat: résultatRecherche}[]) => {
+    const meilleur = Object.values(résultats).filter(x=>x).sort((a, b) => a.résultat.score > b.résultat.score ? -1 : 1)[0];
+    fSuivreRecherche(Object.assign({ de, clef: meilleur.id }, meilleur.résultat));
+  };
+
+  const fOublier = await client.suivreBdsDeFonctionListe(
+    fListe,
+    fFinale,
+    fBranche
+  )
+  return fOublier;
+}
+
+
+export const rechercherSelonId = (
+  idRecherché: string,
+): schémaFonctionRecherche => {
+  return async (
+    _client: ClientConstellation,
+    id: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche
+  ): Promise<schémaFonctionOublier> => {
+
+    const résultat = rechercherDansTexte(idRecherché, id)
+    if (résultat) {
+      const { score, début, fin } = résultat
+      fSuivreRecherche({
+        score,
+        de: "id",
+        info: {
+          début, fin, texte: id
+        }
+      });
+    } else {
+      fSuivreRecherche();
+    }
+
+    return faisRien;
   }
 }
