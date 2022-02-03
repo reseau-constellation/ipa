@@ -20,7 +20,7 @@ import {
 import { élémentBdListeDonnées } from "@/tableaux"
 import { élémentDonnées } from "@/valid";
 import {
-  rechercherCompteSelonActivité
+  rechercherProfilSelonActivité
 } from "@/recherche";
 
 export interface infoDispositif {
@@ -223,7 +223,7 @@ export default class Réseau extends EventEmitter {
     fRecherche?: schémaFonctionRecherche
   ): Promise<réponseSuivreRecherche> {
     if (!fRecherche) {
-      fRecherche = rechercherCompteSelonActivité()
+      fRecherche = rechercherProfilSelonActivité();
     }
 
     const fConfiance = async (idCompte: string, fSuivre: schémaFonctionSuivi<number>) => {
