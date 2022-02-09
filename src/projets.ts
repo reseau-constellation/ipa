@@ -35,7 +35,7 @@ export default class Projets {
     this.idBd = id;
   }
 
-  async suivreProjetsMembre(
+  async suivreProjets(
     f: schémaFonctionSuivi<string[]>,
     idBdRacine?: string
   ): Promise<schémaFonctionOublier> {
