@@ -36,6 +36,26 @@ export interface statutDispositif {
   vuÀ?: number;
 }
 
+export interface élémentBdMembres {
+  idBdCompte: string;
+  dispositifs: []
+}
+
+export interface infoMembreRéseau {
+  idBdCompte: string;
+  profondeur: number;
+  confiance: number;
+}
+
+export interface infoRelation {
+  de: string;
+  pour: string;
+  confiance: number;
+  pronfondeur: number;
+}
+
+
+
 export interface infoMembre {
   idBdCompte: string;
   dispositifs: infoDispositif[];
@@ -98,6 +118,9 @@ export interface réponseSuivreRecherche {
 
 const verrouAjouterMembre = new Semaphore();
 const INTERVALE_SALUT = 1000 * 60;
+const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
+
+const verrou = new Semaphore()
 
 export default class Réseau extends EventEmitter {
   client: ClientConstellation;
@@ -109,11 +132,11 @@ export default class Réseau extends EventEmitter {
   fsOublier: schémaFonctionOublier[];
   fOublierMembres: { [key: string]: schémaFonctionOublier };
 
-  constructor(client: ClientConstellation, id: string) {
+  constructor(client: ClientConstellation, idBd: string) {
     super();
 
     this.client = client;
-    this.idBd = id;
+    this.idBd = idBd;
     this.dispositifsEnLigne = {};
     this.fOublierMembres = {};
     this.fsOublier = [()=>Object.values(this.fOublierMembres).forEach(f=>f())];
@@ -236,11 +259,15 @@ export default class Réseau extends EventEmitter {
 
   async rechercher(
     f: schémaFonctionSuivi<string[]>,
-    n: number,
+    nRésultatsDésirés: number,
     fConfiance: schémaFonctionConfiance,
     fRecherche: schémaFonctionRecherche
   ): Promise<réponseSuivreRecherche> {
-    interface interfaceScores { scoreConfiance: number, scoreRecherche: number }
+    interface interfaceScores {
+      scoreConfiance: number,
+      scoreRecherche: number,
+      scoreQualité?: number,
+    }
     const dicRésultats: { [key: string]: interfaceScores } = {}
 
     const fScore = (x: interfaceScores): number => {
@@ -257,9 +284,152 @@ export default class Réseau extends EventEmitter {
       envoyerRésultats();
     }
 
-    const fOublier
+    const fSuivreComptes = async () => {
+      return await this.client.suivreBdsDeFonctionListe(
+        fListe,
+        fSuivreObjetsDeCompte,
+        fBranche
+      )
+    }
+
+    const { fChangerProfondeur, fOublier } = await this.suivreComptesRéseau(
+      this.client.idBdCompte!,
+      fSuivreComptes
+    )
 
     return { fChangerN, fOublier }
+  }
+
+  async suivreRelationsConfiance(
+    idCompteDébut: string,
+    f: schémaFonctionSuivi<infoRelation[]>,
+    profondeur = 0
+  ): Promise<{ fOublier: schémaFonctionOublier, fChangerProfondeur: (p: number) => void }> {
+
+  }
+
+  async suivreComptesRéseau(
+    idCompteDébut: string,
+    f: schémaFonctionSuivi<infoMembreRéseau[]>,
+    profondeur = 0
+  ): Promise<{ fOublier: schémaFonctionOublier, fChangerProfondeur: (p: number) => void }> {
+
+    const fSuivi = (relations: infoRelation[]) => {
+      const dicRelations: {[key: string]: infoRelation[]} = {};
+
+      relations.forEach(
+        r => {
+          if (!Object.keys(dicRelations).includes(r.pour)) {
+            dicRelations[r.pour] = []
+          }
+          dicRelations[r.pour].push(r)
+        }
+      );
+
+      const comptes: infoMembreRéseau[] = Object.entries(dicRelations).map(
+        ([idBdCompte, rs]) => {
+          const profondeur = Math.min.apply(rs.map(r=>r.pronfondeur));
+          const confiance = 1 - rs.map(
+            r => 1 - r.confiance * Math.pow(FACTEUR_ATÉNUATION_CONFIANCE, r.pronfondeur)
+          ).reduce((total, c) => c * total, 1);
+
+          return {
+            idBdCompte, profondeur, confiance
+          }
+        }
+      );
+
+      f(comptes);
+    }
+
+    return await this.suivreRelationsConfiance(
+      idCompteDébut,
+      fSuivi,
+      profondeur
+    )
+
+    const fsOublier: schémaFonctionOublier[] = [];
+
+    const comptes: { suivis: infoMembre[], favoris: infoMembre[], coauteurs: infoMembre[] } = {
+      suivis: [],
+      favoris: [],
+      coauteurs: [],
+    }
+
+    const comptesRéseau = {}
+
+    fsOublier.push(
+      await this.client.suivreBdListe<infoMembre>(this.idBd,
+        (membres: infoMembre[]) => {
+          comptes.suivis = membres
+        }
+      )
+    )
+
+    fsOublier.push(
+      await this.client.suivreBdsDeFonctionListe(
+        async (fSuivreRacine: (é: string[])=>Promise<void>) => {
+          return await this.client.favoris!.suivreFavoris((favoris) => fSuivreRacine(Object.keys(favoris)));
+        },
+        (membres: infoMembre[]) => comptes.favoris = membres,
+        async (id: string, fSuivi: schémaFonctionSuivi<infoAuteur[]>)=>{
+          return await this.client.suivreAuteurs(id, fSuivi);
+        }
+      )
+    )
+
+    fsOublier.push(
+      await this.client.suivreBdsDeFonctionListe(
+        async (fSuivreRacine: (é: string[])=>Promise<void>) => {
+          return await this.client.bds!.suivreBds((bds) => fSuivreRacine(bds));
+        },
+        (membres: infoMembre[]) => comptes.coauteurs.bds = membres,
+        async (id: string, fSuivi: schémaFonctionSuivi<infoAuteur[]>)=>{
+          return await this.client.suivreAuteurs(id, fSuivi);
+        }
+      )
+    )
+
+    fsOublier.push(
+      await this.client.suivreBdsDeFonctionListe(
+        async (fSuivreRacine: (é: string[])=>Promise<void>) => {
+          return await this.client.projets!.suivreProjets((projets) => fSuivreRacine(projets));
+        },
+        (membres: infoMembre[]) => comptes.coauteurs.projets = membres,
+        async (id: string, fSuivi: schémaFonctionSuivi<infoAuteur[]>)=>{
+          return await this.client.suivreAuteurs(id, fSuivi);
+        }
+      )
+    )
+    // À faire: variables et mot-clefs
+
+    if (profondeur > 1) {
+      fsOublier.push(
+        await this.suivreComptesRéseau(idCompte, f, profondeur-1)
+      )
+    }
+
+    const fFinale = () => {
+      const comptesFinaux = []
+    }
+
+    const ajouterMembre = (membre: infoMembre) => {
+      verrou.acquire(membre.idBdCompte);
+      if (!comptes[membre.idBdCompte]) {
+        comptes[membre.idBdCompte] = {
+          idBdCompte: membre.idBdCompte,
+          profondeur: 1,
+          confiance: 1
+        }
+      }
+      verrou.release(membre.idBdCompte);
+    }
+
+    const fOublier = () => {
+      fsOublier.forEach(f=>f());
+    }
+
+    return { fOublier, fChangerProfondeur }
   }
 
 
