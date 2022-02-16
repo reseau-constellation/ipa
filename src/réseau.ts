@@ -119,6 +119,7 @@ export interface réponseSuivreRecherche {
 const verrouAjouterMembre = new Semaphore();
 const INTERVALE_SALUT = 1000 * 60;
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
+const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
 
 const verrou = new Semaphore()
 
@@ -329,9 +330,15 @@ export default class Réseau extends EventEmitter {
       const comptes: infoMembreRéseau[] = Object.entries(dicRelations).map(
         ([idBdCompte, rs]) => {
           const profondeur = Math.min.apply(rs.map(r=>r.pronfondeur));
-          const confiance = 1 - rs.map(
+          const rsPositives = rs.filter(r=>r.confiance >= 0);
+          const rsNégatives = rs.filter(r=>r.confiance < 0);
+          const coûtNégatif = rsNégatives.map(
+            r => -r.confiance * Math.pow(FACTEUR_ATÉNUATION_BLOQUÉS, r.pronfondeur)
+          ).reduce((total, c) => c + total, 0)
+
+          const confiance = 1 - rsPositives.map(
             r => 1 - r.confiance * Math.pow(FACTEUR_ATÉNUATION_CONFIANCE, r.pronfondeur)
-          ).reduce((total, c) => c * total, 1);
+          ).reduce((total, c) => c * total, 1) - coûtNégatif;
 
           return {
             idBdCompte, profondeur, confiance
