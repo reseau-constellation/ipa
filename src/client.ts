@@ -20,7 +20,7 @@ import Profil from "@/profil";
 import BDs from "@/bds";
 import Tableaux from "@/tableaux";
 import Variables from "@/variables";
-import Réseau from "@/reseau";
+import Réseau from "@/réseau";
 import Favoris from "@/favoris";
 import Projets from "@/projets";
 import MotsClefs from "@/motsClefs";
