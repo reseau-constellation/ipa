@@ -16,6 +16,7 @@ import {
   schémaFonctionOublier,
   schémaFonctionRecherche,
   infoAuteur,
+  élémentsBd,
 } from "@/utils"
 import { élémentBdListeDonnées } from "@/tableaux"
 import { élémentDonnées } from "@/valid";
@@ -52,6 +53,11 @@ export interface infoRelation {
   pour: string;
   confiance: number;
   pronfondeur: number;
+}
+
+export interface infoConfiance {
+  idBdCompte: string;
+  confiance: number;
 }
 
 
@@ -301,6 +307,88 @@ export default class Réseau extends EventEmitter {
     return { fChangerN, fOublier }
   }
 
+  async suivreRelationsImmédiates(
+    idCompteDébut: string,
+    f: schémaFonctionSuivi<infoConfiance[]>
+  ): Promise<schémaFonctionOublier> {
+    idCompteDébut = idCompteDébut ? idCompteDébut : this.client.idBdCompte!;
+
+    const fsOublier: schémaFonctionOublier[] = [];
+
+    const comptes: {
+      suivis: infoConfiance[],
+      favoris: infoConfiance[],
+      coauteursBds: infoConfiance[],
+      coauteursProjets: infoConfiance[],
+      coauteursVariables: infoConfiance[],
+      coauteursMotsClefs: infoConfiance[],
+    } = {
+      suivis: [],
+      favoris: [],
+      coauteursBds: [],
+      coauteursProjets: [],
+      coauteursVariables: [],
+      coauteursMotsClefs: [],
+    }
+
+    const fFinale = () => {
+      
+    }
+
+    fsOublier.push(
+      await this.client.suivreBdListe<>(this.idBd,
+        (membres: string[]) => {
+          comptes.suivis = membres.map(m=>{return {idBdCompte: m, confiance: 1}});
+          fFinale();
+        }
+      )
+    )
+
+    const inscrireSuiviAuteurs = async (fListe: (fSuivreRacine: (é: string[])=>Promise<void>) => Promise<schémaFonctionOublier>, confiance: number) => {
+      fsOublier.push(
+        await this.client.suivreBdsDeFonctionListe(
+          fListe,
+          (membres: string[]) => {
+            comptes.favoris = membres.map(idBdCompte=>{return {idBdCompte, confiance }});
+            fFinale();
+          },
+          async (id: string, fSuivi: schémaFonctionSuivi<infoAuteur[]>)=>{
+            return await this.client.suivreAuteurs(id, fSuivi);
+          }
+        )
+      )
+    }
+
+    const fSuivreFavoris = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
+      return await this.client.favoris!.suivreFavoris((favoris) => fSuivreRacine(Object.keys(favoris)));
+    };
+    await inscrireSuiviAuteurs(fSuivreFavoris, CONFIANCE_DE_FAVORIS);
+
+    const fSuivreBds = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
+      return await this.client.bds!.suivreBds((bds) => fSuivreRacine(bds));
+    }
+    await inscrireSuiviAuteurs(fSuivreBds, CONFIANCE_DE_COAUTEUR);
+
+    const fSuivreProjets = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
+      return await this.client.projets!.suivreProjets((projets) => fSuivreRacine(projets));
+    }
+    await inscrireSuiviAuteurs(fSuivreProjets, CONFIANCE_DE_COAUTEUR);
+
+    const fSuivreVariables = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
+      return await this.client.variables!.suivreVariables((variables) => fSuivreRacine(variables));
+    }
+    await inscrireSuiviAuteurs(fSuivreVariables, CONFIANCE_DE_COAUTEUR);
+
+    const fSuivreMotsClefs = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
+      return await this.client.projets!.suivreProjets((projets) => fSuivreRacine(projets));
+    }
+    await inscrireSuiviAuteurs(fSuivreMotsClefs, CONFIANCE_DE_COAUTEUR);
+
+    return () => {
+      fsOublier.forEach(f=>f())
+    }
+  }
+
   async suivreRelationsConfiance(
     idCompteDébut: string,
     f: schémaFonctionSuivi<infoRelation[]>,
@@ -332,9 +420,9 @@ export default class Réseau extends EventEmitter {
           const profondeur = Math.min.apply(rs.map(r=>r.pronfondeur));
           const rsPositives = rs.filter(r=>r.confiance >= 0);
           const rsNégatives = rs.filter(r=>r.confiance < 0);
-          const coûtNégatif = rsNégatives.map(
-            r => -r.confiance * Math.pow(FACTEUR_ATÉNUATION_BLOQUÉS, r.pronfondeur)
-          ).reduce((total, c) => c + total, 0)
+          const coûtNégatif = 1 - rsNégatives.map(
+            r => 1 + r.confiance * Math.pow(FACTEUR_ATÉNUATION_BLOQUÉS, r.pronfondeur)
+          ).reduce((total, c) => c * total, 0);
 
           const confiance = 1 - rsPositives.map(
             r => 1 - r.confiance * Math.pow(FACTEUR_ATÉNUATION_CONFIANCE, r.pronfondeur)
@@ -355,60 +443,10 @@ export default class Réseau extends EventEmitter {
       profondeur
     )
 
-    const fsOublier: schémaFonctionOublier[] = [];
 
-    const comptes: { suivis: infoMembre[], favoris: infoMembre[], coauteurs: infoMembre[] } = {
-      suivis: [],
-      favoris: [],
-      coauteurs: [],
-    }
 
     const comptesRéseau = {}
 
-    fsOublier.push(
-      await this.client.suivreBdListe<infoMembre>(this.idBd,
-        (membres: infoMembre[]) => {
-          comptes.suivis = membres
-        }
-      )
-    )
-
-    fsOublier.push(
-      await this.client.suivreBdsDeFonctionListe(
-        async (fSuivreRacine: (é: string[])=>Promise<void>) => {
-          return await this.client.favoris!.suivreFavoris((favoris) => fSuivreRacine(Object.keys(favoris)));
-        },
-        (membres: infoMembre[]) => comptes.favoris = membres,
-        async (id: string, fSuivi: schémaFonctionSuivi<infoAuteur[]>)=>{
-          return await this.client.suivreAuteurs(id, fSuivi);
-        }
-      )
-    )
-
-    fsOublier.push(
-      await this.client.suivreBdsDeFonctionListe(
-        async (fSuivreRacine: (é: string[])=>Promise<void>) => {
-          return await this.client.bds!.suivreBds((bds) => fSuivreRacine(bds));
-        },
-        (membres: infoMembre[]) => comptes.coauteurs.bds = membres,
-        async (id: string, fSuivi: schémaFonctionSuivi<infoAuteur[]>)=>{
-          return await this.client.suivreAuteurs(id, fSuivi);
-        }
-      )
-    )
-
-    fsOublier.push(
-      await this.client.suivreBdsDeFonctionListe(
-        async (fSuivreRacine: (é: string[])=>Promise<void>) => {
-          return await this.client.projets!.suivreProjets((projets) => fSuivreRacine(projets));
-        },
-        (membres: infoMembre[]) => comptes.coauteurs.projets = membres,
-        async (id: string, fSuivi: schémaFonctionSuivi<infoAuteur[]>)=>{
-          return await this.client.suivreAuteurs(id, fSuivi);
-        }
-      )
-    )
-    // À faire: variables et mot-clefs
 
     if (profondeur > 1) {
       fsOublier.push(
