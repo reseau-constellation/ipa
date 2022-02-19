@@ -35,7 +35,7 @@ import {
   élémentsBd,
   toBuffer,
 } from "@/utils";
-import obtLocalStorage from "@/stockageLocal";
+import obtStockageLocal from "@/stockageLocal";
 import ContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
@@ -1049,7 +1049,7 @@ export default class ClientConstellation extends EventEmitter {
     let idBd = bdRacine.get(nom);
 
     const clefLocale = idBdCompte + nom;
-    const idBdPrécédente = (await obtLocalStorage()).getItem(clefLocale);
+    const idBdPrécédente = (await obtStockageLocal()).getItem(clefLocale);
 
     if (idBd && idBdPrécédente && idBd !== idBdPrécédente) {
       try {
@@ -1083,7 +1083,7 @@ export default class ClientConstellation extends EventEmitter {
       }
     }
 
-    if (idBd) (await obtLocalStorage()).setItem(clefLocale, idBd);
+    if (idBd) (await obtStockageLocal()).setItem(clefLocale, idBd);
 
     if (fOublier) fOublier();
     return idBd;

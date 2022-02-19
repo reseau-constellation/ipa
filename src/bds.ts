@@ -5,7 +5,7 @@ import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import obtLocalStorage from "@/stockageLocal";
+import obtStockageLocal from "@/stockageLocal";
 import { InfoColAvecCatégorie, typeÉlémentsBdTableaux } from "@/tableaux";
 import { infoAuteur, schémaStatut, TYPES_STATUT } from "@/utils/types";
 
@@ -366,7 +366,7 @@ export default class BDs {
 
     const fFinale = async (bds: string[]): Promise<void> => {
       let idBd: string;
-      const idBdLocale = (await obtLocalStorage()).getItem(clefStockageLocal);
+      const idBdLocale = (await obtStockageLocal()).getItem(clefStockageLocal);
 
       switch (bds.length) {
         case 0: {
@@ -374,13 +374,13 @@ export default class BDs {
             idBd = idBdLocale;
           } else {
             idBd = await this.créerBdDeSchéma(schéma);
-            (await obtLocalStorage()).setItem(clefStockageLocal, idBd);
+            (await obtStockageLocal()).setItem(clefStockageLocal, idBd);
           }
           break;
         }
         case 1: {
           idBd = bds[0];
-          (await obtLocalStorage()).setItem(clefStockageLocal, idBd);
+          (await obtStockageLocal()).setItem(clefStockageLocal, idBd);
           if (idBdLocale && idBd !== idBdLocale) {
             await this.combinerBds(idBd, idBdLocale);
           }
@@ -389,7 +389,7 @@ export default class BDs {
         default: {
           if (idBdLocale) bds = [...new Set([...bds, idBdLocale])];
           idBd = bds.sort()[0];
-          (await obtLocalStorage()).setItem(clefStockageLocal, idBd);
+          (await obtStockageLocal()).setItem(clefStockageLocal, idBd);
 
           for (const bd of bds.slice(1)) {
             if (déjàCombinées.has(bd)) continue;
