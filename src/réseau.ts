@@ -60,6 +60,10 @@ export interface infoConfiance {
   confiance: number;
 }
 
+export interface infoBloqué {
+  idBdCompte: string;
+  privé: boolean;
+}
 
 
 export interface infoMembre {
@@ -307,6 +311,17 @@ export default class Réseau extends EventEmitter {
     return { fChangerN, fOublier }
   }
 
+  async bloquerMembre(privé = false): Promise<void> {
+
+  }
+
+  async suivreBloqués(
+    f: schémaFonctionSuivi<infoBloqué[]>,
+    idBdRacine?: string
+  ): Promise<schémaFonctionOublier> {
+
+  }
+
   async suivreRelationsImmédiates(
     idCompteDébut: string,
     f: schémaFonctionSuivi<infoConfiance[]>
@@ -331,18 +346,43 @@ export default class Réseau extends EventEmitter {
       coauteursMotsClefs: [],
     }
 
+    let bloqués: string[] = []
+
     const fFinale = () => {
-      
+      const tous = [
+        ...comptes.suivis, ...comptes.favoris, ...comptes.coauteursBds,
+        ...comptes.coauteursProjets, ...comptes.coauteursMotsClefs
+      ]
+      const membresUniques = [...new Set(tous)]
+      const relations = membresUniques.map(
+        m => {
+          const { idBdCompte } = m;
+          if (idBdCompte in bloqués) {
+            return { idBdCompte,  confiance: -1 }
+          }
+          const points = tous.filter(x=>x.idBdCompte === idBdCompte).map(x=>x.confiance);
+          const confiance = combinerConfiance(points);
+          return { idBdCompte,  confiance }
+        }
+      )
+      f(relations)
     }
 
     fsOublier.push(
-      await this.client.suivreBdListe<>(this.idBd,
+      await this.suivreBloqués(
+        (blqs: infoBloqué[]) => bloqués = blqs.map(b=>b.idBdCompte),
+        idCompteDébut
+      )
+    );
+
+    fsOublier.push(
+      await this.client.suivreBdListe<>(idCompteDébut,
         (membres: string[]) => {
           comptes.suivis = membres.map(m=>{return {idBdCompte: m, confiance: 1}});
           fFinale();
         }
       )
-    )
+    );
 
     const inscrireSuiviAuteurs = async (fListe: (fSuivreRacine: (é: string[])=>Promise<void>) => Promise<schémaFonctionOublier>, confiance: number) => {
       fsOublier.push(
@@ -360,27 +400,30 @@ export default class Réseau extends EventEmitter {
     }
 
     const fSuivreFavoris = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
-      return await this.client.favoris!.suivreFavoris((favoris) => fSuivreRacine(Object.keys(favoris)));
+      return await this.client.favoris!.suivreFavoris(
+        (favoris) => fSuivreRacine(Object.keys(favoris)),
+        idCompteDébut
+      );
     };
     await inscrireSuiviAuteurs(fSuivreFavoris, CONFIANCE_DE_FAVORIS);
 
     const fSuivreBds = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
-      return await this.client.bds!.suivreBds((bds) => fSuivreRacine(bds));
+      return await this.client.bds!.suivreBds((bds) => fSuivreRacine(bds), idCompteDébut);
     }
     await inscrireSuiviAuteurs(fSuivreBds, CONFIANCE_DE_COAUTEUR);
 
     const fSuivreProjets = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
-      return await this.client.projets!.suivreProjets((projets) => fSuivreRacine(projets));
+      return await this.client.projets!.suivreProjets((projets) => fSuivreRacine(projets), idCompteDébut);
     }
     await inscrireSuiviAuteurs(fSuivreProjets, CONFIANCE_DE_COAUTEUR);
 
     const fSuivreVariables = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
-      return await this.client.variables!.suivreVariables((variables) => fSuivreRacine(variables));
+      return await this.client.variables!.suivreVariables((variables) => fSuivreRacine(variables), idCompteDébut);
     }
     await inscrireSuiviAuteurs(fSuivreVariables, CONFIANCE_DE_COAUTEUR);
 
     const fSuivreMotsClefs = async (fSuivreRacine: (é: string[])=>Promise<void>) => {
-      return await this.client.projets!.suivreProjets((projets) => fSuivreRacine(projets));
+      return await this.client.projets!.suivreProjets((projets) => fSuivreRacine(projets), idCompteDébut);
     }
     await inscrireSuiviAuteurs(fSuivreMotsClefs, CONFIANCE_DE_COAUTEUR);
 
@@ -394,7 +437,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoRelation[]>,
     profondeur = 0
   ): Promise<{ fOublier: schémaFonctionOublier, fChangerProfondeur: (p: number) => void }> {
-
+    
   }
 
   async suivreComptesRéseau(
