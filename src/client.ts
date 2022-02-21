@@ -216,7 +216,7 @@ export default class ClientConstellation extends EventEmitter {
     );
     this.variables = new Variables(this, idBdVariables!);
 
-    const idBdRéseau = await this.obtIdBd("reseau", this.bdCompte, "feed");
+    const idBdRéseau = await this.obtIdBd("réseau", this.bdCompte, "kvstore");
     this.réseau = new Réseau(this, idBdRéseau!);
     await this.réseau.initialiser();
 
