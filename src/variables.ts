@@ -40,9 +40,11 @@ export default class Variables {
   }
 
   async suivreVariables(
-    f: schémaFonctionSuivi<string[]>
+    f: schémaFonctionSuivi<string[]>,
+    idBdVariables?: string,
   ): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdListe<string>(this.idBd, f);
+    idBdVariables = idBdVariables || this.idBd;
+    return await this.client.suivreBdListe<string>(idBdVariables, f);
   }
 
   async créerVariable(catégorie: catégorieVariables): Promise<string> {
