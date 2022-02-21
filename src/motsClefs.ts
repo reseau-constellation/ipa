@@ -17,9 +17,11 @@ export default class MotsClefs {
   }
 
   async suivreMotsClefs(
-    f: schémaFonctionSuivi<string[]>
+    f: schémaFonctionSuivi<string[]>,
+    idBdMotsClefs?: string,
   ): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdListe<string>(this.idBd, f);
+    idBdMotsClefs = idBdMotsClefs || this.idBd;
+    return await this.client.suivreBdListe<string>(idBdMotsClefs, f);
   }
 
   async créerMotClef(): Promise<string> {

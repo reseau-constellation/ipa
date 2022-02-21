@@ -60,10 +60,10 @@ export default class Favoris {
 
   async suivreFavoris(
     f: schémaFonctionSuivi<{[key: string]: ÉlémentFavoris}>,
-    idBdCompte?: string
+    idBdFavoris?: string
   ): Promise<schémaFonctionOublier> {
-    idBdCompte = idBdCompte || this.idBd;
-    return await this.client.suivreBdDic<ÉlémentFavoris>(idBdCompte, f);
+    idBdFavoris = idBdFavoris || this.idBd;
+    return await this.client.suivreBdDic<ÉlémentFavoris>(idBdFavoris, f);
   }
 
   async épinglerFavori(
