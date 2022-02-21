@@ -37,10 +37,10 @@ export default class Projets {
 
   async suivreProjets(
     f: schémaFonctionSuivi<string[]>,
-    idBdRacine?: string
+    idBdProjets?: string
   ): Promise<schémaFonctionOublier> {
-    idBdRacine = idBdRacine || this.idBd;
-    return await this.client.suivreBdListe(idBdRacine, f);
+    idBdProjets = idBdProjets || this.idBd;
+    return await this.client.suivreBdListe(idBdProjets, f);
   }
 
   async créerProjet(): Promise<string> {

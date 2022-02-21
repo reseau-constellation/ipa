@@ -66,10 +66,10 @@ export default class BDs {
 
   async suivreBds(
     f: schémaFonctionSuivi<string[]>,
-    idBdCompte?: string
+    idBdBdsCompte?: string
   ): Promise<schémaFonctionOublier> {
-    idBdCompte = idBdCompte || this.idBd;
-    return await this.client.suivreBdListe(idBdCompte, f);
+    idBdBdsCompte = idBdBdsCompte || this.idBd;
+    return await this.client.suivreBdListe(idBdBdsCompte, f);
   }
 
   async créerBd(licence: string, ajouter = true): Promise<string> {
@@ -261,12 +261,12 @@ export default class BDs {
   async rechercherBdsParMotsClefs(
     motsClefs: string[],
     f: schémaFonctionSuivi<string[]>,
-    idBdCompte?: string
+    idBdBdsCompte?: string
   ): Promise<schémaFonctionOublier> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBds(fSuivreRacine, idBdCompte);
+      return await this.suivreBds(fSuivreRacine, idBdBdsCompte);
     };
 
     const fCondition = async (
@@ -711,10 +711,10 @@ export default class BDs {
 
   async inviterAuteur(
     idBd: string,
-    idBdCompteAuteur: string,
+    idBdBdsCompteAuteur: string,
     rôle: keyof objRôles
   ): Promise<void> {
-    await this.client.donnerAccès(idBd, idBdCompteAuteur, rôle);
+    await this.client.donnerAccès(idBd, idBdBdsCompteAuteur, rôle);
   }
 
   async suivreAuteurs(
@@ -727,7 +727,7 @@ export default class BDs {
       return await this.client.suivreAccèsBd(id, fSuivreRacine);
     };
     const fBranche = async (
-      idBdCompte: string,
+      idBdBdsCompte: string,
       fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
       branche: infoAccès
     ) => {
@@ -742,7 +742,7 @@ export default class BDs {
         ]);
       };
       return await this.client.réseau!.suivreBdsMembre(
-        idBdCompte,
+        idBdBdsCompte,
         fFinaleSuivreBranche,
         false
       );
