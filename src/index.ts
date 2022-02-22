@@ -14,7 +14,7 @@ export * as favoris from "@/favoris";
 export * as licences from "@/licences";
 export * as motsClefs from "@/motsClefs";
 export * as projets from "@/projets";
-export * as réseau from "@/reseau";
+export * as réseau from "@/réseau";
 export * as tableaux from "@/tableaux";
 export * as valid from "@/valid";
 export * as variables from "@/variables";
