@@ -579,8 +579,11 @@ export default class Réseau extends EventEmitter {
     const dicInfoSuiviRelations: {
       [key: string]: { fOublier: schémaFonctionOublier, demandéePar: Set<string>}
     } = {};
+    const fsOublierÉvénements: { [key: string]: schémaFonctionOublier } = {}
 
     const fFinale = () => f(listeRelations);
+
+    const événementsChangementProfondeur = new EventEmitter()
 
     const onNeSuitPasEncore = (idBdCompte: string): boolean => {
       return !dicInfoSuiviRelations[idBdCompte]
@@ -592,8 +595,8 @@ export default class Réseau extends EventEmitter {
 
       if (!demandéePar.size) {
         fOublier();
-        const plusDemandées = listeRelations.filter(r=>r.de === idBdCompteDemandeur);
-        listeRelations = listeRelations.filter(r=>r.de !== idBdCompteDemandeur);
+        const plusDemandées = listeRelations.filter(r=>r.de === idBdCompte);
+        listeRelations = listeRelations.filter(r=>r.de !== idBdCompte);
 
         plusDemandées.forEach(r=>onVeutOublier(r.pour, r.de));
         delete dicInfoSuiviRelations[idBdCompte];
@@ -639,49 +642,36 @@ export default class Réseau extends EventEmitter {
         confiance: r.confiance,
       }))
       fFinale();
+      obsolètes.forEach(o => onVeutOublier(o.pour, de));
 
-      if (profondeurActuelle < profondeur) {
-        obsolètes.forEach(o => onVeutOublier(o.pour, de));
-        await Promise.all(nouvelles.map(n => onVeutSuivre(
-          n.idBdCompte,
-          de,
-          profondeurActuelle + 1
-        )));
-      }
-    }
+      const ajusterProfondeur = async () => {
+        if (profondeurActuelle < profondeur) {
 
-    await this.suivreRelationsImmédiates(
-      idCompteDébut,
-      async (relations: infoConfiance[]) => await fSuivreRelationsImmédiates(
-        relations,
-        idCompteDébut,
-        0
-      )
-    )
-
-    const ajusterProfondeur = (nouvelleProfondeur: number) => {
-      if (nouvelleProfondeur === profondeur) {
-        return
-      } else if (nouvelleProfondeur > profondeur) {
-        for (let p = profondeurActuelle; p <= nouvelleProfondeur; p++) {
-
-          throw "À faire"
-        }
-      } else {
-        for (let p = profondeurActuelle + 1; p > nouvelleProfondeur; p--) {
-
-          throw "À faire"
+          await Promise.all(nouvelles.map(n => onVeutSuivre(
+            n.idBdCompte,
+            de,
+            profondeurActuelle + 1
+          )));
+        } else if (profondeurActuelle > profondeur) {
+          relations.forEach(r=>onVeutOublier(r.idBdCompte, de));
         }
       }
-      profondeur = nouvelleProfondeur;
+
+      await ajusterProfondeur();
+      événementsChangementProfondeur.on("changé", ajusterProfondeur)
+      if (fsOublierÉvénements[de]) fsOublierÉvénements[de]();
+      fsOublierÉvénements[de] = () => événementsChangementProfondeur.off("changé", ajusterProfondeur)
     }
+
+    await onVeutSuivre(idCompteDébut, "", 0)
 
     const fOublier = () => {
       Object.values(dicInfoSuiviRelations).forEach(r=>r.fOublier());
     }
 
     const fChangerProfondeur = (p: number) => {
-      ajusterProfondeur(p);
+      profondeur = p;
+      événementsChangementProfondeur.emit("changé")
     }
 
     return { fOublier, fChangerProfondeur }
