@@ -120,6 +120,7 @@
     "node-localstorage": "^2.2.1",
     "orbit-db": "^0.28.0",
     "orbit-db-access-controllers": "^0.3.2",
+    "ssim": "^0.0.0",
     "uuid": "^8.3.2",
     "xlsx": "^0.17.3"
   }

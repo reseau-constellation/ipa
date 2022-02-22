@@ -2756,6 +2756,11 @@ available-typed-arrays@^1.0.5:
   resolved "https://registry.yarnpkg.com/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz#92f95616501069d07d10edb2fc37d3e1c65123b7"
   integrity sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==
 
+average@~0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/average/-/average-0.0.1.tgz#093073310c521f32bac996b9604ec5d3ff645e42"
+  integrity sha1-CTBzMQxSHzK6yZa5YE7F0/9kXkI=
+
 aws-sign2@~0.7.0:
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/aws-sign2/-/aws-sign2-0.7.0.tgz#b46e890934a9591f2d2f6f86d7e6a9f1b3fe76a8"
@@ -3499,6 +3504,13 @@ core-util-is@~1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.3.tgz#a6042d3634c2b27e9328f837b965fac83808db85"
   integrity sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==
+
+covariance@~0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/covariance/-/covariance-0.0.0.tgz#1744bee107d659efc5dba40b1c927cd7cd9fc53a"
+  integrity sha1-F0S+4QfWWe/F26QLHJJ8182fxTo=
+  dependencies:
+    average "~0.0.1"
 
 crc-32@~1.2.0:
   version "1.2.1"
@@ -10145,6 +10157,15 @@ sshpk@^1.7.0:
     safer-buffer "^2.0.2"
     tweetnacl "~0.14.0"
 
+ssim@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/ssim/-/ssim-0.0.0.tgz#4cbaa2e41986d0a0bbca0a17a98f6e1363ff077b"
+  integrity sha1-TLqi5BmG0KC7ygoXqY9uE2P/B3s=
+  dependencies:
+    average "~0.0.1"
+    covariance "~0.0.0"
+    variance "~0.0.1"
+
 stream-shift@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/stream-shift/-/stream-shift-1.0.1.tgz#d7088281559ab2778424279b0877da3c392d5a3d"
@@ -10789,6 +10810,13 @@ v8-compile-cache@^2.0.3:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/v8-compile-cache/-/v8-compile-cache-2.3.0.tgz#2de19618c66dc247dcfb6f99338035d8245a2cee"
   integrity sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA==
+
+variance@~0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/variance/-/variance-0.0.1.tgz#8589b3534f6b2384349b0c7244a62cec52449ac2"
+  integrity sha1-hYmzU09rI4Q0mwxyRKYs7FJEmsI=
+  dependencies:
+    average "~0.0.1"
 
 varint-decoder@^1.0.0:
   version "1.0.0"
