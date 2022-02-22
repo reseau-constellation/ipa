@@ -260,10 +260,6 @@ export default class Réseau extends EventEmitter {
     }
   }
 
-  async suivreMembresQueJeSuis(f: schémaFonctionSuivi<infoMembre>): Promise<schémaFonctionOublier> {
-
-  }
-
   async rechercherMembres(
     f: schémaFonctionSuivi<string[]>,
     n: number,
@@ -391,6 +387,7 @@ export default class Réseau extends EventEmitter {
       this.bloquésPrivés.delete(idBdCompte);
       await this._sauvegarderBloquésPrivés();
     }
+    this.emit("changementMembresBloqués");
   }
 
   async suivreBloquésPubliques(
@@ -450,8 +447,9 @@ export default class Réseau extends EventEmitter {
 
     if (idBdRacine === this.client.idBdCompte) {
       await this._initaliserBloquésPrivés();
+      this.on("changementMembresBloqués", fFinale);
+      fsOublier.push(()=>this.off("changementMembresBloqués", fFinale));
       fFinale();
-      this.on("changementMembresBloqués", () => fFinale());
     }
 
     return () => {
@@ -460,8 +458,8 @@ export default class Réseau extends EventEmitter {
   }
 
   async suivreRelationsImmédiates(
-    f: schémaFonctionSuivi<infoConfiance[]>,
     idBdCompte: string,
+    f: schémaFonctionSuivi<infoConfiance[]>,
   ): Promise<schémaFonctionOublier> {
     idBdCompte = idBdCompte ? idBdCompte : this.client.idBdCompte!;
 
@@ -576,36 +574,95 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoRelation[]>,
     profondeur = 0
   ): Promise<{ fOublier: schémaFonctionOublier, fChangerProfondeur: (p: number) => void }> {
-    const dicRelations: { [key: string]: { [key: string]: infoConfiance[] } } = {};
-    const dicOublierRelations: {[key: string]: schémaFonctionOublier} = {};
 
-    const fFinale = () => {
-      const relations: infoRelation[] = []
+    let listeRelations: infoRelation[] = [];
+    const dicInfoSuiviRelations: {
+      [key: string]: { fOublier: schémaFonctionOublier, demandéePar: Set<string>}
+    } = {};
 
-      for (const p in dicRelations) {
-        for (const de in dicRelations[p]) {
-          const listeConfs = dicRelations[p][de];
-          for (const c of listeConfs) {
-            const relation: infoRelation = {
-              de,
-              pour: c.idBdCompte,
-              confiance: c.confiance,
-              pronfondeur: parseInt(p)
-            }
-            relations.push(relation)
-          }
-        }
-      }
+    const fFinale = () => f(listeRelations);
 
-      f(relations);
+    const onNeSuitPasEncore = (idBdCompte: string): boolean => {
+      return !dicInfoSuiviRelations[idBdCompte]
     }
 
-    let profondeurActuelle: number;
+    const onVeutOublier = (idBdCompte: string, idBdCompteDemandeur: string): void => {
+      const { fOublier, demandéePar} = dicInfoSuiviRelations[idBdCompte];
+      demandéePar.delete(idBdCompteDemandeur);
+
+      if (!demandéePar.size) {
+        fOublier();
+        const plusDemandées = listeRelations.filter(r=>r.de === idBdCompteDemandeur);
+        listeRelations = listeRelations.filter(r=>r.de !== idBdCompteDemandeur);
+
+        plusDemandées.forEach(r=>onVeutOublier(r.pour, r.de));
+        delete dicInfoSuiviRelations[idBdCompte];
+      }
+    }
+
+    const onVeutSuivre = async (
+      idBdCompte: string,
+      idBdCompteDemandeur: string,
+      profondeurActuelle: number
+    ): Promise<void> => {
+      if (!dicInfoSuiviRelations[idBdCompte]) {
+        const fOublier = await this.suivreRelationsImmédiates(
+          idBdCompte,
+          async (relations: infoConfiance[]) => await fSuivreRelationsImmédiates(
+            relations,
+            idBdCompte,
+            profondeurActuelle
+          )
+        )
+        const demandéePar = new Set<string>()
+        dicInfoSuiviRelations[idBdCompte] = { fOublier, demandéePar }
+      }
+      dicInfoSuiviRelations[idBdCompte].demandéePar.add(idBdCompteDemandeur)
+    }
+
+    const fSuivreRelationsImmédiates = async (
+      relations: infoConfiance[],
+      de: string,
+      profondeurActuelle: number,
+    ) => {
+
+      const nouvelles = relations.filter(r=>onNeSuitPasEncore(r.idBdCompte))
+      const obsolètes = listeRelations.filter(
+        r=>r.de === de && !relations.map(r=>r.idBdCompte).includes(r.pour)
+      )
+
+      listeRelations = listeRelations.filter(r=>r.de !== de)
+      relations.forEach(r=>listeRelations.push({
+        de,
+        pronfondeur: profondeurActuelle,
+        pour: r.idBdCompte,
+        confiance: r.confiance,
+      }))
+      fFinale();
+
+      if (profondeurActuelle < profondeur) {
+        obsolètes.forEach(o => onVeutOublier(o.pour, de));
+        await Promise.all(nouvelles.map(n => onVeutSuivre(
+          n.idBdCompte,
+          de,
+          profondeurActuelle + 1
+        )));
+      }
+    }
+
+    await this.suivreRelationsImmédiates(
+      idCompteDébut,
+      async (relations: infoConfiance[]) => await fSuivreRelationsImmédiates(
+        relations,
+        idCompteDébut,
+        0
+      )
+    )
 
     const ajusterProfondeur = (nouvelleProfondeur: number) => {
-      if (nouvelleProfondeur === profondeurActuelle) {
+      if (nouvelleProfondeur === profondeur) {
         return
-      } else if (nouvelleProfondeur > profondeurActuelle) {
+      } else if (nouvelleProfondeur > profondeur) {
         for (let p = profondeurActuelle; p <= nouvelleProfondeur; p++) {
 
           throw "À faire"
@@ -616,13 +673,11 @@ export default class Réseau extends EventEmitter {
           throw "À faire"
         }
       }
-
+      profondeur = nouvelleProfondeur;
     }
 
-    ajusterProfondeur(profondeur);
-
     const fOublier = () => {
-      Object.values(dicOublierRelations).forEach(f=>f());
+      Object.values(dicInfoSuiviRelations).forEach(r=>r.fOublier());
     }
 
     const fChangerProfondeur = (p: number) => {
