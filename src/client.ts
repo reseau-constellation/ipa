@@ -140,7 +140,6 @@ export default class ClientConstellation extends EventEmitter {
 
     this.prêt = true;
     this.emit("prêt");
-
   }
 
   async _générerSFIPetOrbite(): Promise<{ sfip: SFIP; orbite: OrbitDB }> {
@@ -241,8 +240,17 @@ export default class ClientConstellation extends EventEmitter {
     this.automatisations = new Automatisations(this, idBdAuto!);
     await this.automatisations.initialiser();
 
-    for (const idBd in [idBdProfil, idBdBDs, idBdVariables, idBdRéseau, idBdFavoris, idBdProjets, idBdMotsClefs, idBdAuto]) {
-      this.épingles!.épinglerBd(idBd, false, false)
+    for (const idBd in [
+      idBdProfil,
+      idBdBDs,
+      idBdVariables,
+      idBdRéseau,
+      idBdFavoris,
+      idBdProjets,
+      idBdMotsClefs,
+      idBdAuto,
+    ]) {
+      this.épingles!.épinglerBd(idBd, false, false);
     }
   }
 
@@ -465,11 +473,11 @@ export default class ClientConstellation extends EventEmitter {
     bdBase: FeedStore<{ [key: string]: T }>,
     bd2: FeedStore<{ [key: string]: T }>,
     index: string[]
-  ): Promise<void>
+  ): Promise<void>;
   async combinerBdsListe<T extends élémentsBd = élémentsBd>(
     bdBase: FeedStore<T>,
-    bd2: FeedStore<T>,
-  ): Promise<void>
+    bd2: FeedStore<T>
+  ): Promise<void>;
   async combinerBdsListe<T extends élémentsBd = élémentsBd>(
     bdBase: FeedStore<{ [key: string]: T }>,
     bd2: FeedStore<{ [key: string]: T }>,
@@ -549,7 +557,7 @@ export default class ClientConstellation extends EventEmitter {
     return oublier;
   }
 
-  async suivreBdDeFonction<T extends élémentsBd>(
+  async suivreBdDeFonction<T>(
     fRacine: (
       fSuivreRacine: (nouvelIdBdCible: string) => Promise<void>
     ) => Promise<schémaFonctionOublier>,
@@ -559,7 +567,6 @@ export default class ClientConstellation extends EventEmitter {
       fSuivreBd: schémaFonctionSuivi<T | undefined>
     ) => Promise<schémaFonctionOublier>
   ): Promise<schémaFonctionOublier> {
-
     let oublierFSuivre: schémaFonctionOublier | undefined;
     let idBdCible: string | undefined;
     let premièreFois = true;
@@ -587,13 +594,13 @@ export default class ClientConstellation extends EventEmitter {
     };
   }
 
-  async suivreBdDeClef<T extends élémentsBd>(
+  async suivreBdDeClef<T>(
     id: string,
     clef: string,
     f: schémaFonctionSuivi<T | undefined>,
     fSuivre: (
       id: string,
-      fSuivreBd: schémaFonctionSuivi<T | undefined>
+      fSuivreBd: schémaFonctionSuivi<T>
     ) => Promise<schémaFonctionOublier>
   ): Promise<schémaFonctionOublier> {
     const fRacine = async (
@@ -605,7 +612,7 @@ export default class ClientConstellation extends EventEmitter {
       };
       return await this.suivreBd(id, fSuivreBdRacine);
     };
-    return await this.suivreBdDeFonction(fRacine, f, fSuivre);
+    return await this.suivreBdDeFonction<T>(fRacine, f, fSuivre);
   }
 
   async suivreBdDic<T extends élémentsBd>(
@@ -624,15 +631,15 @@ export default class ClientConstellation extends EventEmitter {
     clef: string,
     f: schémaFonctionSuivi<{ [key: string]: T }>
   ): Promise<schémaFonctionOublier> {
-    const fFinale = async (valeurs?: {[key: string]: T}) => {
+    const fFinale = async (valeurs?: { [key: string]: T }) => {
       f(valeurs || {});
     };
-    const fSuivre = async (id: string, fSuivreBd: schémaFonctionSuivi<{[key: string]: T}>) => {
-      return await this.suivreBdDic(
-        id,
-        fSuivreBd
-      );
-    }
+    const fSuivre = async (
+      id: string,
+      fSuivreBd: schémaFonctionSuivi<{ [key: string]: T }>
+    ) => {
+      return await this.suivreBdDic(id, fSuivreBd);
+    };
     return await this.suivreBdDeClef(id, clef, fFinale, fSuivre);
   }
 
@@ -666,59 +673,59 @@ export default class ClientConstellation extends EventEmitter {
     clef: string,
     f: schémaFonctionSuivi<T[]>,
     renvoyerValeur?: true
-  ): Promise<schémaFonctionOublier>
+  ): Promise<schémaFonctionOublier>;
   async suivreBdListeDeClef<T extends élémentsBd>(
     id: string,
     clef: string,
     f: schémaFonctionSuivi<LogEntry<T>[]>,
     renvoyerValeur: false
-  ): Promise<schémaFonctionOublier>
+  ): Promise<schémaFonctionOublier>;
   async suivreBdListeDeClef<T extends élémentsBd>(
     id: string,
     clef: string,
     f: schémaFonctionSuivi<T[] | LogEntry<T>[]>,
     renvoyerValeur?: boolean
-  ): Promise<schémaFonctionOublier>
+  ): Promise<schémaFonctionOublier>;
   async suivreBdListeDeClef<T extends élémentsBd>(
     id: string,
     clef: string,
     f: schémaFonctionSuivi<T[] | LogEntry<T>[]>,
     renvoyerValeur = true
   ): Promise<schémaFonctionOublier> {
-
     // À faire : très laid en raison de contraintes Typescript...peut-être existe-il une meilleure façon ?
-    if (renvoyerValeur){
+    if (renvoyerValeur) {
       const fFinale = async (valeurs?: T[]) => {
         f(valeurs || []);
       };
-      const fSuivre = async (id: string, fSuivreBd: schémaFonctionSuivi<T[]>) => {
-        return await this.suivreBdListe(
-          id,
-          fSuivreBd,
-          renvoyerValeur
-        );
-      }
+      const fSuivre = async (
+        id: string,
+        fSuivreBd: schémaFonctionSuivi<T[]>
+      ) => {
+        return await this.suivreBdListe(id, fSuivreBd, renvoyerValeur);
+      };
 
-      return await this.suivreBdDeClef(
-        id, clef, fFinale, fSuivre
-      );
+      return await this.suivreBdDeClef(id, clef, fFinale, fSuivre);
     } else {
       const fFinale = async (valeurs?: LogEntry<T>[]) => {
         f(valeurs || []);
       };
-      const fSuivre = async (id: string, fSuivreBd: schémaFonctionSuivi<LogEntry<T>[]>) => {
-        return await this.suivreBdListe(
-          id,
-          fSuivreBd,
-          renvoyerValeur
-        );
-      }
+      const fSuivre = async (
+        id: string,
+        fSuivreBd: schémaFonctionSuivi<LogEntry<T>[]>
+      ) => {
+        return await this.suivreBdListe(id, fSuivreBd, renvoyerValeur);
+      };
 
       return await this.suivreBdDeClef(
         id,
         clef,
-        fFinale as unknown as (x?: élémentsBd) => Promise<schémaFonctionOublier>,
-        fSuivre as unknown as (id: string, fSuivreBd: schémaFonctionSuivi<élémentsBd[]>) => Promise<schémaFonctionOublier>
+        fFinale as unknown as (
+          x?: élémentsBd
+        ) => Promise<schémaFonctionOublier>,
+        fSuivre as unknown as (
+          id: string,
+          fSuivreBd: schémaFonctionSuivi<élémentsBd[]>
+        ) => Promise<schémaFonctionOublier>
       );
     }
   }
@@ -794,7 +801,11 @@ export default class ClientConstellation extends EventEmitter {
     const retrouvé = bd
       .iterator({ limit: -1 })
       .collect()
-      .find((e: LogEntry<T>) => typeof élément === "function" ? élément(e) : deepEqual(e.payload.value, élément));
+      .find((e: LogEntry<T>) =>
+        typeof élément === "function"
+          ? élément(e)
+          : deepEqual(e.payload.value, élément)
+      );
 
     if (retrouvé) await bd.remove(retrouvé.hash);
   }

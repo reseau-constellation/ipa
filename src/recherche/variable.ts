@@ -3,14 +3,9 @@ import {
   schémaFonctionOublier,
   schémaFonctionRecherche,
   schémaFonctionSuiviRecherche,
-} from "@/utils"
+} from "@/utils";
 
-import {
-  similTexte,
-  combinerRecherches,
-  rechercherSelonId,
- } from "./utils";
-
+import { similTexte, combinerRecherches, rechercherSelonId } from "./utils";
 
 export const rechercherVariableSelonNom = (
   nom: string
@@ -20,10 +15,10 @@ export const rechercherVariableSelonNom = (
     idVariable: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (nomsVariable: {[key: string]: string}) => {
-      const résultat = similTexte(nom, nomsVariable)
+    const fSuivre = (nomsVariable: { [key: string]: string }) => {
+      const résultat = similTexte(nom, nomsVariable);
       if (résultat) {
-        const { score, clef, info } = résultat
+        const { score, clef, info } = résultat;
         fSuivreRecherche({
           score,
           de: "nom",
@@ -33,13 +28,14 @@ export const rechercherVariableSelonNom = (
       } else {
         fSuivreRecherche();
       }
-
-    }
-    const fOublier = await client.variables!.suivreNomsVariable(idVariable, fSuivre);
+    };
+    const fOublier = await client.variables!.suivreNomsVariable(
+      idVariable,
+      fSuivre
+    );
     return fOublier;
-  }
-}
-
+  };
+};
 
 export const rechercherVariableSelonTexte = (
   texte: string
@@ -49,7 +45,6 @@ export const rechercherVariableSelonTexte = (
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche
   ): Promise<schémaFonctionOublier> => {
-
     const fRechercherNoms = rechercherVariableSelonNom(texte);
     const fRechercherId = rechercherSelonId(texte);
 
@@ -58,6 +53,6 @@ export const rechercherVariableSelonTexte = (
       client,
       idCompte,
       fSuivreRecherche
-    )
-  }
-}
+    );
+  };
+};

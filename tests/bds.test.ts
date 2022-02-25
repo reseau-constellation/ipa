@@ -15,8 +15,8 @@ import {
   schémaFonctionOublier,
   adresseOrbiteValide,
   uneFois,
-  infoAuteur
-} from "@/utils"
+  infoAuteur,
+} from "@/utils";
 import { InfoColAvecCatégorie } from "@/tableaux";
 import { infoScore, schémaSpécificationBd } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
@@ -579,9 +579,9 @@ typesClients.forEach((type) => {
               )
             )[0];
 
-            type élémentTrad = {clef: string, trad?: string}
+            type élémentTrad = { clef: string; trad?: string };
 
-            const éléments1:élémentTrad[] = [
+            const éléments1: élémentTrad[] = [
               {
                 clef: "fr",
                 trad: "Constellation",
@@ -594,7 +594,7 @@ typesClients.forEach((type) => {
               await client.tableaux!.ajouterÉlément(idTableau1, élément);
             }
 
-            const éléments2:élémentTrad[] = [
+            const éléments2: élémentTrad[] = [
               {
                 clef: "fr",
                 trad: "Constellation!", // Une erreur ici, disons

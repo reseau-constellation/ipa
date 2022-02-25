@@ -1,1 +1,1 @@
-declare module 'js-levenshtein';
+declare module "js-levenshtein";

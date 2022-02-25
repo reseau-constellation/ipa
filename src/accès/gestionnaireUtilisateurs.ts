@@ -4,10 +4,7 @@ import FeedStore from "orbit-db-feedstore";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 
-import {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-} from "@/utils";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 
 import accesseurBdOrbite from "./accesseurBdOrbite";
 import { MODÉRATEUR, MEMBRE, rôles } from "./consts";
@@ -25,7 +22,7 @@ export const suivreBdAccès = async (
     const éléments: élémentBdAccès[] = bd
       .iterator({ limit: -1 })
       .collect()
-      .map(e => e.payload.value);
+      .map((e) => e.payload.value);
     f(éléments);
   };
 
@@ -75,12 +72,9 @@ class AccèsUtilisateur extends EventEmitter {
     this.bdAccès = this.accès.bd!;
     this.idBdAccès = this.bdAccès.id;
 
-    this.oublierSuivi = await suivreBdAccès(
-      this.bdAccès,
-      async éléments => {
-        await this._miseÀJour(éléments);
-      }
-    );
+    this.oublierSuivi = await suivreBdAccès(this.bdAccès, async (éléments) => {
+      await this._miseÀJour(éléments);
+    });
     this.prêt = true;
   }
 

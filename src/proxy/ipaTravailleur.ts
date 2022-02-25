@@ -18,7 +18,7 @@ export class IPATravailleur extends téléClient {
       this.emit("message", e.data);
     };
 
-    this.travailleur.postMessage({ type: "init", opts })
+    this.travailleur.postMessage({ type: "init", opts });
   }
 
   recevoirMessage(message: MessagePourTravailleur): void {
@@ -32,17 +32,14 @@ export interface optsIpaTravailleur extends optsConstellation {
   orbite?: {
     dossier?: string;
     sfip?: {
-      dossier?: string
+      dossier?: string;
     };
   };
 }
 
 export default (
   opts: optsIpaTravailleur = {},
-  souleverErreurs = false,
+  souleverErreurs = false
 ): ProxyClientConstellation => {
-  return générerProxy(
-    new IPATravailleur(opts),
-    souleverErreurs,
-  );
+  return générerProxy(new IPATravailleur(opts), souleverErreurs);
 };

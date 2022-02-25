@@ -2,10 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { EventEmitter, once } from "events";
 
 import ClientConstellation from "@/client";
-import {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-} from "@/utils";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 import {
   MessagePourTravailleur,
   MessageSuivrePourTravailleur,
@@ -57,13 +54,10 @@ export class IPAParallèle extends Callable {
   tâches: { [key: string]: Tâche };
   ipaPrêt: boolean;
   messagesEnAttente: MessagePourTravailleur[];
-  erreurs: { erreur: Error, id?: string }[];
+  erreurs: { erreur: Error; id?: string }[];
   souleverErreurs: boolean;
 
-  constructor(
-    client: téléClient,
-    souleverErreurs: boolean,
-  ) {
+  constructor(client: téléClient, souleverErreurs: boolean) {
     super();
 
     this.client = client;
@@ -216,9 +210,12 @@ export class IPAParallèle extends Callable {
   }
 
   erreur(erreur: Error, id?: string): void {
-    const infoErreur = {erreur, id}
+    const infoErreur = { erreur, id };
     this.erreurs.unshift(infoErreur);
-    this.événements.emit("erreur", { nouvelle: infoErreur, toutes: this.erreurs });
+    this.événements.emit("erreur", {
+      nouvelle: infoErreur,
+      toutes: this.erreurs,
+    });
     if (this.souleverErreurs) throw infoErreur;
   }
 
@@ -256,12 +253,9 @@ export type ProxyClientConstellation = ClientConstellation & IPAParallèle;
 
 export default (
   client: téléClient,
-  souleverErreurs: boolean,
+  souleverErreurs: boolean
 ): ProxyClientConstellation => {
   const handler = new Handler();
-  const ipa = new IPAParallèle(
-    client,
-    souleverErreurs,
-  );
+  const ipa = new IPAParallèle(client, souleverErreurs);
   return new Proxy<IPAParallèle>(ipa, handler) as ProxyClientConstellation;
 };

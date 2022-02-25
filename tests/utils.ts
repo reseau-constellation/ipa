@@ -12,7 +12,7 @@ import FeedStore from "orbit-db-feedstore";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation from "@/client";
-import { schémaFonctionOublier } from "@/utils";
+import { schémaFonctionOublier } from "@/utils";
 const générerProxyProc = import("@/proxy/ipaProc");
 const générerProxyTravailleur = import("@/proxy/ipaTravailleur");
 
@@ -81,7 +81,9 @@ export const peutÉcrire = async (
       const VAL = "test";
 
       await (bd as FeedStore<string>).add(VAL);
-      const éléments = (bd as FeedStore<string>).iterator({ limit: -1 }).collect();
+      const éléments = (bd as FeedStore<string>)
+        .iterator({ limit: -1 })
+        .collect();
 
       const autorisé =
         éléments.length === 1 && éléments[0].payload.value === VAL;
@@ -164,9 +166,7 @@ export const générerClients = async (
         );
         fsOublier.push(fOublierOrbites);
 
-        client = await ClientConstellation.créer(
-          { orbite: orbites[i] }
-        );
+        client = await ClientConstellation.créer({ orbite: orbites[i] });
         break;
       }
 
@@ -176,7 +176,7 @@ export const générerClients = async (
           API
         );
         fsOublier.push(fOublierOrbites);
-        client = (await générerProxyProc).default({orbite: orbites[i]}, true);
+        client = (await générerProxyProc).default({ orbite: orbites[i] }, true);
         break;
       }
 

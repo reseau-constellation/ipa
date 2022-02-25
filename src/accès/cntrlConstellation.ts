@@ -6,10 +6,7 @@ import IdentityProvider from "orbit-db-identity-provider";
 import AccessController from "orbit-db-access-controllers/src/access-controller-interface";
 import { v4 as uuidv4 } from "uuid";
 
-import {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-} from "@/utils";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 import GestionnaireAccès, { suivreBdAccès } from "./gestionnaireUtilisateurs";
 import accesseurBdOrbite from "./accesseurBdOrbite";
 import { MODÉRATEUR, MEMBRE, rôles } from "./consts";
@@ -110,7 +107,8 @@ export default class ContrôleurConstellation extends AccessController {
       const idsMods = mods.map((m) => m.idBdCompte);
       const membres: infoUtilisateur[] = Object.keys(
         this.gestRôles._rôlesUtilisateurs[MEMBRE]
-      ).map((m) => {
+      )
+        .map((m) => {
           return {
             idBdCompte: m,
             rôle: MEMBRE,
@@ -184,11 +182,13 @@ export default class ContrôleurConstellation extends AccessController {
     if (addresseValide) {
       adresseFinale = address;
     } else {
-      adresseFinale = (await this._orbitdb.determineAddress(
-        ensureAddress(address),
-        "feed",
-        this._createOrbitOpts(addresseValide)
-      )).toString();
+      adresseFinale = (
+        await this._orbitdb.determineAddress(
+          ensureAddress(address),
+          "feed",
+          this._createOrbitOpts(addresseValide)
+        )
+      ).toString();
     }
 
     this.bd = (await accesseurBdOrbite.ouvrirBd(

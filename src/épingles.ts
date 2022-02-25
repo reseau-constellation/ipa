@@ -8,7 +8,7 @@ import {
 
 interface RequèteÉpingle {
   id: string;
-  fOublier: schémaFonctionOublier | (()=>Promise<void>);
+  fOublier: schémaFonctionOublier | (() => Promise<void>);
   parent?: string;
 }
 
@@ -23,7 +23,11 @@ export default class Épingles {
     this.fsOublier = {};
   }
 
-  async épinglerBd(id: string, récursif = true, fichiers = true): Promise<void> {
+  async épinglerBd(
+    id: string,
+    récursif = true,
+    fichiers = true
+  ): Promise<void> {
     if (this.épinglée(id)) return;
 
     await this._épingler(id, récursif, fichiers);
@@ -31,19 +35,23 @@ export default class Épingles {
 
   async désépinglerBd(id: string) {
     await Promise.all(
-      this.requètes.filter((r) => r.id === id).map(async r => await r.fOublier())
+      this.requètes
+        .filter((r) => r.id === id)
+        .map(async (r) => await r.fOublier())
     );
     this.requètes = this.requètes.filter((r) => r.id !== id);
 
     const dépendants = this.requètes.filter((r) => r.parent === id);
 
-    await Promise.all(dépendants.map(async (d) => {
-      if (
-        !this.requètes.filter((r) => r.id === d.id && r.parent !== id).length
-      ) {
-        await this.désépinglerBd(d.id);
-      }
-    }));
+    await Promise.all(
+      dépendants.map(async (d) => {
+        if (
+          !this.requètes.filter((r) => r.id === d.id && r.parent !== id).length
+        ) {
+          await this.désépinglerBd(d.id);
+        }
+      })
+    );
   }
 
   épinglée(id: string): boolean {
@@ -92,18 +100,20 @@ export default class Épingles {
           cids.forEach((id_) => {
             // pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
             // (sinon ça bloquerait tout le programme en attendant de trouver le contenu !)
-            this.client.sfip!.pin.add(id_)
+            this.client.sfip!.pin.add(id_);
 
             const fOublier_ = async () => {
               // rm par contre peut être async
-              await this.client.sfip!.pin.rm(id)
-            }
-            this.requètes.push({ id: id_, parent: id, fOublier: fOublier_ })
+              await this.client.sfip!.pin.rm(id);
+            };
+            this.requètes.push({ id: id_, parent: id, fOublier: fOublier_ });
           });
         }
 
         await Promise.all(
-          idsOrbite.map(async (id_) => await this._épingler(id_, récursif, fichiers, id))
+          idsOrbite.map(
+            async (id_) => await this._épingler(id_, récursif, fichiers, id)
+          )
         );
       };
 

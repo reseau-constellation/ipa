@@ -6,20 +6,14 @@ import path from "path";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
-import  {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  uneFois,
-} from "@/utils";
+import { schémaFonctionSuivi, schémaFonctionOublier, uneFois } from "@/utils";
 import {
   infoMembreEnLigne,
   infoDispositifEnLigne,
   infoRéplication,
   élémentDeMembre,
 } from "@/reseau";
-import {
-  schémaSpécificationBd
-} from "@/bds"
+import { schémaSpécificationBd } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
 
 import { testAPIs, config } from "./sfipTest";

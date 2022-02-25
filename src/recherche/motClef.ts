@@ -3,14 +3,9 @@ import {
   schémaFonctionOublier,
   schémaFonctionRecherche,
   schémaFonctionSuiviRecherche,
-} from "@/utils"
+} from "@/utils";
 
-import {
-  similTexte,
-  combinerRecherches,
-  rechercherSelonId,
- } from "./utils";
-
+import { similTexte, combinerRecherches, rechercherSelonId } from "./utils";
 
 export const rechercherMotClefSelonNom = (
   nomMotClef: string
@@ -20,22 +15,27 @@ export const rechercherMotClefSelonNom = (
     idMotClef: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (noms: {[key: string]: string}) => {
+    const fSuivre = (noms: { [key: string]: string }) => {
       const corresp = similTexte(nomMotClef, noms);
       if (corresp) {
-        const { score, clef, info } = corresp
+        const { score, clef, info } = corresp;
         fSuivreRecherche({
-          score, clef, info,
+          score,
+          clef,
+          info,
           de: "nom",
         });
       } else {
         fSuivreRecherche();
       }
-    }
-    const fOublier = await client.motsClefs!.suivreNomsMotClef(idMotClef, fSuivre);
+    };
+    const fOublier = await client.motsClefs!.suivreNomsMotClef(
+      idMotClef,
+      fSuivre
+    );
     return fOublier;
-  }
-}
+  };
+};
 
 export const rechercherMotClefSelonTexte = (
   texte: string
@@ -45,7 +45,6 @@ export const rechercherMotClefSelonTexte = (
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche
   ): Promise<schémaFonctionOublier> => {
-
     const fRechercherNoms = rechercherMotClefSelonNom(texte);
     const fRechercherId = rechercherSelonId(texte);
 
@@ -54,6 +53,6 @@ export const rechercherMotClefSelonTexte = (
       client,
       idCompte,
       fSuivreRecherche
-    )
-  }
-}
+    );
+  };
+};

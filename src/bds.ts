@@ -9,12 +9,8 @@ import obtStockageLocal from "@/stockageLocal";
 import { InfoColAvecCatégorie, typeÉlémentsBdTableaux } from "@/tableaux";
 import { infoAuteur, schémaStatut, TYPES_STATUT } from "@/utils/types";
 
-import {
-  règleColonne,
-  élémentDonnées,
-  erreurValidation,
-} from "@/valid";
-import { élémentBdListeDonnées } from "@/tableaux"
+import { règleColonne, élémentDonnées, erreurValidation } from "@/valid";
+import { élémentBdListeDonnées } from "@/tableaux";
 import ClientConstellation, { infoAccès } from "@/client";
 import {
   traduire,
@@ -199,7 +195,7 @@ export default class BDs {
       })
     );
 
-    const statut = bdBase.get("statut") || {statut: TYPES_STATUT.ACTIVE};
+    const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
     await nouvelleBd.set("statut", statut);
 
     fOublier();
@@ -434,11 +430,7 @@ export default class BDs {
         fSuivreBd
       );
     };
-    return await this.client.suivreBdDeFonction<string>(
-      fRacine,
-      f,
-      fSuivre
-    );
+    return await this.client.suivreBdDeFonction<string>(fRacine, f, fSuivre);
   }
 
   async ajouterNomsBd(

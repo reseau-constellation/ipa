@@ -38,7 +38,6 @@ typesClients.forEach((type) => {
         });
 
         describe("Épingler BDs", function () {
-
           step("Pas d'épingles pour commencer", async () => {
             expect(variables).to.be.an.empty("array");
           });
@@ -56,7 +55,6 @@ typesClients.forEach((type) => {
         });
 
         describe("Épingler BDs récursives", function () {
-
           step("Épingler liste récursive", async () => {
             expect(noms).to.be.empty;
           });
@@ -98,7 +96,6 @@ typesClients.forEach((type) => {
         });
 
         describe("Épingler fichiers", function () {
-
           step("Fichier non épinglé", async () => {
             expect(descrs).to.be.empty;
           });
@@ -126,16 +123,19 @@ typesClients.forEach((type) => {
             });
           });
 
-          step("Fichier toujours épinglé si présent dans une autre BD", async () => {
-            await client.variables!.sauvegarderDescrVariable(
-              idVariable,
-              "fr",
-              "La quantité de précipitation quotidienne"
-            );
-            expect(descrs?.fr).to.equal(
-              "La quantité de précipitation quotidienne"
-            );
-          });
+          step(
+            "Fichier toujours épinglé si présent dans une autre BD",
+            async () => {
+              await client.variables!.sauvegarderDescrVariable(
+                idVariable,
+                "fr",
+                "La quantité de précipitation quotidienne"
+              );
+              expect(descrs?.fr).to.equal(
+                "La quantité de précipitation quotidienne"
+              );
+            }
+          );
 
           step("Fichier épinglé dans BD récursive", async () => {
             await client.variables!.effacerDescrVariable(idVariable, "fr");

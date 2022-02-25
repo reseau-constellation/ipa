@@ -2,7 +2,7 @@ import gjv from "geojson-validation";
 
 import { cidValide, élémentsBd } from "@/utils";
 import { catégorieVariables } from "@/variables";
-import { élémentBdListeDonnées } from "@/tableaux"
+import { élémentBdListeDonnées } from "@/tableaux";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle = "variable" | "tableau";
@@ -65,7 +65,9 @@ export type schémaFonctionValidation<T extends élémentBdListeDonnées> = (
   valeurs: élémentDonnées<T>[]
 ) => erreurValidation[];
 
-export interface élémentDonnées<T extends élémentBdListeDonnées = élémentBdListeDonnées> {
+export interface élémentDonnées<
+  T extends élémentBdListeDonnées = élémentBdListeDonnées
+> {
   données: T;
   empreinte: string;
 }

@@ -46,14 +46,16 @@ export interface infoRésultatRecherche {
   info: infoRésultatTexte | infoRésultatVide | infoRésultatRecherche;
 }
 
-export interface résultatRecherche extends infoRésultatRecherche {
+export interface résultatObjectifRecherche extends infoRésultatRecherche {
   score: number;
 }
 
-export type schémaFonctionRecherche = (
+export type schémaFonctionObjectifRecherche = (
   client: ClientConstellation,
   id: string,
-  f: schémaFonctionSuivi<résultatRecherche|undefined>
+  f: schémaFonctionSuivi<résultatObjectifRecherche | undefined>
 ) => Promise<schémaFonctionOublier>;
 
-export type schémaFonctionSuiviRecherche = (x?: résultatRecherche) => void;
+export type schémaFonctionSuiviRecherche = (
+  x?: résultatObjectifRecherche
+) => void;

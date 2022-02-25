@@ -39,7 +39,6 @@ typesClients.forEach((type) => {
         });
 
         describe("Épingler BDs", function () {
-
           step("Pas de favori pour commencer", async () => {
             expect(variables).to.be.an.empty("array");
           });

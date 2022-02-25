@@ -18,7 +18,7 @@ export default class MotsClefs {
 
   async suivreMotsClefs(
     f: schémaFonctionSuivi<string[]>,
-    idBdMotsClefs?: string,
+    idBdMotsClefs?: string
   ): Promise<schémaFonctionOublier> {
     idBdMotsClefs = idBdMotsClefs || this.idBd;
     return await this.client.suivreBdListe<string>(idBdMotsClefs, f);

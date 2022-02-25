@@ -5,7 +5,7 @@ import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 import isNode from "is-node";
 import isElectron from "is-electron";
-import { v4 as uuidv4 } from "uuid"
+import { v4 as uuidv4 } from "uuid";
 
 import obtStockageLocal from "@/stockageLocal";
 import ClientConstellation from "@/client";
@@ -555,7 +555,9 @@ export default class Automatisations extends EventEmitter {
       inclureFichiersSFIP,
       dir,
     };
-    const {bd, fOublier} = await this.client.ouvrirBd<FeedStore<SpécificationAutomatisation>>(this.idBd);
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      FeedStore<SpécificationAutomatisation>
+    >(this.idBd);
     const idÉlément = await bd.add(élément);
 
     fOublier();
@@ -569,7 +571,9 @@ export default class Automatisations extends EventEmitter {
     source: SourceDonnéesImportation,
     dispositif?: string
   ): Promise<string> {
-    const {bd, fOublier} = await this.client.ouvrirBd<FeedStore<SpécificationAutomatisation>>(this.idBd);
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      FeedStore<SpécificationAutomatisation>
+    >(this.idBd);
 
     dispositif = dispositif || this.client.orbite!.identity.id;
 
@@ -590,8 +594,13 @@ export default class Automatisations extends EventEmitter {
   }
 
   async annulerAutomatisation(id: string): Promise<void> {
-    const {bd, fOublier} = await this.client.ouvrirBd<FeedStore<SpécificationAutomatisation>>(this.idBd);
-    await this.client.effacerÉlémentDeBdListe(bd, é=>é.payload.value.id === id)
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      FeedStore<SpécificationAutomatisation>
+    >(this.idBd);
+    await this.client.effacerÉlémentDeBdListe(
+      bd,
+      (é) => é.payload.value.id === id
+    );
     fOublier();
   }
 

@@ -37,12 +37,9 @@ export class IPAProc extends téléClient {
 
 export const générerProxyProc = (
   opts: optsConstellation = {},
-  souleverErreurs = false,
+  souleverErreurs = false
 ): ProxyClientConstellation => {
-  return générerProxy(
-    new IPAProc(opts),
-    souleverErreurs,
-  );
+  return générerProxy(new IPAProc(opts), souleverErreurs);
 };
 
 export default générerProxyProc;

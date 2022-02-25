@@ -15,7 +15,7 @@ import {
   schémaFonctionOublier,
   adresseOrbiteValide,
   uneFois,
-  infoAuteur
+  infoAuteur,
 } from "@/utils";
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
 

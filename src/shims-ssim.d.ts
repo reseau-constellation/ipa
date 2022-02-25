@@ -1,1 +1,1 @@
-declare module 'ssim';
+declare module "ssim";
