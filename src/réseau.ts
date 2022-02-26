@@ -320,11 +320,16 @@ export default class Réseau extends EventEmitter {
       };
     } = {};
 
-    const DÉLAI_REBOURS = 3000
-    let annuler: NodeJS.Timeout
+    const DÉLAI_REBOURS = 3000;
+    let annuler: NodeJS.Timeout;
     let profondeur = 0;
 
-    const débuterReboursAjusterPronfondeur = () => {
+    const ajusterProfondeur = (p: number) => {
+      fChangerProfondeur(p);
+      if (annuler) clearTimeout(annuler);
+    }
+
+    const débuterReboursAjusterPronfondeur = (délai = DÉLAI_REBOURS) => {
       if (annuler) clearTimeout(annuler);
 
       const parProfondeur = Object.values(résultatsParMembre).reduce(function (r, a) {
@@ -332,9 +337,9 @@ export default class Réseau extends EventEmitter {
         r[String(a.membre.profondeur)].push(a);
         return r;
       }, Object.create(null));
-      if (nouvelleProfondeur > pronfondeur) {
-        annuler = setTimeout(() => ajouterProfondeur(nouvelleProfondeur), DÉLAI_REBOURS)
-      } else if (nouvelleProfondeur < pronfondeur) {
+      if (nouvelleProfondeur > profondeur) {
+        annuler = setTimeout(() => ajusterProfondeur(nouvelleProfondeur), DÉLAI_REBOURS)
+      } else if (nouvelleProfondeur < profondeur) {
         ajusterProfondeur(nouvelleProfondeur)
       }
 
@@ -459,23 +464,12 @@ export default class Réseau extends EventEmitter {
       fSuivreComptes
     );
 
-    return { fChangerN, fOublier };
-
-    const dicRésultats: { [key: string]: interfaceScores } = {};
-
-
-    const envoyerRésultats = () => {
-      const résultats = Object.entries(dicRésultats)
-        .sort((a, b) => (fScore(a[1]) < fScore(b[1]) ? -1 : 1))
-        .slice(0, n)
-        .map((x) => x[0]);
-      f(résultats);
-    };
-
     const fChangerN = (nouveauN: number) => {
-      n = nouveauN;
-      envoyerRésultats();
+      nRésultatsDésirés = nouveauN;
+      débuterReboursAjusterPronfondeur(0);
     };
+
+    return { fChangerN, fOublier };
   }
 
   async faireConfianceAuMembre(idBdCompte: string): Promise<void> {
