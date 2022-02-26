@@ -82,7 +82,7 @@ typesClients.forEach((type) => {
           let idNouveauProjet: string;
 
           before(async () => {
-            fOublier = await client.projets!.suivreProjetsMembre(
+            fOublier = await client.projets!.suivreProjets(
               (prjs) => (projets = prjs)
             );
           });
