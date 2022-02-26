@@ -17,7 +17,7 @@ describe("Utils", function () {
       expect(valide).to.be.true;
     });
     step("non valide", () => {
-      const valide = cidValide("Bonjour, je ne suis pas une CID.");
+      const valide = cidValide("Bonjour, je ne suis pas un IDC.");
       expect(valide).to.be.false;
     });
   });
