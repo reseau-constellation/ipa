@@ -894,7 +894,7 @@ export default class ClientConstellation extends EventEmitter {
       );
       const changés = Object.entries(dictÉléments)
         .filter((é) => {
-          return dictBranches[é[0]] !== é[1];
+          return !deepEqual(dictBranches[é[0]], é[1]);
         })
         .map((é) => é[0]);
       nouveaux.push(...changés);
