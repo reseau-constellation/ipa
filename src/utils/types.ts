@@ -50,10 +50,22 @@ export interface résultatObjectifRecherche extends infoRésultatRecherche {
   score: number;
 }
 
-export type schémaFonctionObjectifRecherche = (
+export type schémaFonctionSuivreObjectifRecherche<T extends résultatObjectifRecherche> = (
   client: ClientConstellation,
   id: string,
-  f: schémaFonctionSuivi<résultatObjectifRecherche | undefined>
+  f: schémaFonctionSuivi<T | undefined>
+) => Promise<schémaFonctionOublier>;
+
+export type schémaFonctionSuivreConfianceRecherche = (
+  client: ClientConstellation,
+  id: string,
+  f: schémaFonctionSuivi<number>
+) => Promise<schémaFonctionOublier>;
+
+export type schémaFonctionSuivreQualitéRecherche = (
+  client: ClientConstellation,
+  id: string,
+  f: schémaFonctionSuivi<number>
 ) => Promise<schémaFonctionOublier>;
 
 export type schémaFonctionSuiviRecherche = (

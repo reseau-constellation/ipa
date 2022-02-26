@@ -8,11 +8,8 @@ import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import { schémaFonctionSuivi, schémaFonctionOublier, uneFois } from "@/utils";
 import {
-  infoMembreEnLigne,
-  infoDispositifEnLigne,
-  infoRéplication,
   élémentDeMembre,
-} from "@/reseau";
+} from "@/réseau";
 import { schémaSpécificationBd } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
 
@@ -48,7 +45,7 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdBdRacine(fSuivi);
+              return await client.suivreIdBdCompte(fSuivi);
             }
           );
 
@@ -56,7 +53,7 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdBdRacine(fSuivi);
+              return await client2.suivreIdBdCompte(fSuivi);
             }
           );
 

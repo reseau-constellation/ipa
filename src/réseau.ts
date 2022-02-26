@@ -12,7 +12,9 @@ import ClientConstellation, { Signature } from "@/client";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  schémaFonctionObjectifRecherche,
+  schémaFonctionSuivreObjectifRecherche,
+  schémaFonctionSuivreQualitéRecherche,
+  schémaFonctionSuivreConfianceRecherche,
   infoAuteur,
   résultatObjectifRecherche,
 } from "@/utils";
@@ -81,6 +83,18 @@ export interface infoRéplications {
   dispositifs: statutDispositif[];
 }
 
+export interface résultatRechercheSansScore<T extends résultatObjectifRecherche> {
+  id: string;
+  objectif: T;
+  confiance: number;
+  qualité: number;
+
+}
+
+export interface résultatRecherche<T extends résultatObjectifRecherche> extends résultatRechercheSansScore<T> {
+  score: number;
+}
+
 export type élémentDeMembre<T extends élémentBdListeDonnées> = {
   idBdCompte: string;
   élément: élémentDonnées<T>;
@@ -120,7 +134,7 @@ interface ContenuMessageSalut extends ContenuMessage {
 
 export interface réponseSuivreRecherche {
   fOublier: schémaFonctionOublier;
-  fChangerN: schémaFonctionChangerNRecherche;
+  fChangerN: (n: number) => void;
 }
 
 export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
@@ -262,7 +276,7 @@ export default class Réseau extends EventEmitter {
   async rechercherMembres(
     f: schémaFonctionSuivi<string[]>,
     n: number,
-    fRecherche?: schémaFonctionObjectifRecherche
+    fRecherche?: schémaFonctionSuivreObjectifRecherche
   ): Promise<réponseSuivreRecherche> {
     if (!fRecherche) {
       fRecherche = rechercherProfilSelonActivité();
@@ -278,66 +292,166 @@ export default class Réseau extends EventEmitter {
     return await this.rechercher(f, n, fConfiance, fRecherche);
   }
 
-  async rechercher<T>(
-    f: schémaFonctionSuivi<string[]>,
+  async rechercher<T extends résultatObjectifRecherche>(
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     nRésultatsDésirés: number,
     fRecherche: (
       compte: string,
-      fSuivi: (x: résultatRecherche<T>) => void
+      fSuivi: (x: string[]) => void
     ) => Promise<schémaFonctionOublier>,
-    fConfiance: (x: string) => Promise<number>,
-    fQualité: (x: string) => Promise<number>,
-    fObjectif: schémaFonctionObjectifRecherche
+    fConfiance: schémaFonctionSuivreConfianceRecherche,
+    fQualité: schémaFonctionSuivreQualitéRecherche,
+    fObjectif: schémaFonctionSuivreObjectifRecherche<T>,
+    fScore?: (r: résultatRechercheSansScore<T>) => number,
   ): Promise<réponseSuivreRecherche> {
 
-    interface résultatRecherche {
-      confiance: number;
-      objectif: résultatObjectifRecherche;
-      qualité: number;
-      score: number
+    if (!fScore) {
+      fScore = (x: résultatRechercheSansScore<T>): number => {
+        return (x.confiance + x.qualité + x.objectif.score) / 3
+      }
     }
 
     const résultatsParMembre: {
       [key: string]: {
-        résultats: résultatRecherche[];
+        résultats: résultatRecherche<T>[];
         membre: infoMembreRéseau;
-      }[];
+        fOublierRecherche: schémaFonctionOublier;
+        mettreÀJour: (membre: infoMembreRéseau) => void;
+      };
     } = {};
 
+    const DÉLAI_REBOURS = 3000
+    let annuler: NodeJS.Timeout
+    let profondeur = 0;
+
+    const débuterReboursAjusterPronfondeur = () => {
+      if (annuler) clearTimeout(annuler);
+
+      const parProfondeur = Object.values(résultatsParMembre).reduce(function (r, a) {
+        r[String(a.membre.profondeur)] = r[String(a.membre.profondeur)] || [];
+        r[String(a.membre.profondeur)].push(a);
+        return r;
+      }, Object.create(null));
+      if (nouvelleProfondeur > pronfondeur) {
+        annuler = setTimeout(() => ajouterProfondeur(nouvelleProfondeur), DÉLAI_REBOURS)
+      } else if (nouvelleProfondeur < pronfondeur) {
+        ajusterProfondeur(nouvelleProfondeur)
+      }
+
+    }
+
     const fFinale = () => {
-      let résultats: résultatRecherche[] = [];
-      Object.values(résultatsParMembre).forEach(
-        (listeRésultats) => (résultats = [...résultats, ...listeRésultats])
+      const résultats: résultatRecherche<T>[] = Object.values(résultatsParMembre).map(
+        listeRésultats => listeRésultats.résultats
+      ).flat();
+
+      const résultatsOrdonnés = résultats.sort(
+        (a, b) => (a.score < b.score ? -1 : 1)
+      )
+      f(résultatsOrdonnés.slice(0, nRésultatsDésirés));
+      débuterReboursAjusterPronfondeur();
+    };
+
+    const suivreRésultatsMembre = async (
+      membre: infoMembreRéseau,
+    ): Promise<void> => {
+      const { idBdCompte } = membre
+
+      const fListe = async (
+        fSuivreRacine: (éléments: string[]) => Promise<void>
+      ): Promise<schémaFonctionOublier> => {
+        return await fRecherche(membre.idBdCompte, fSuivreRacine)
+      }
+
+      const fSuivi = (résultats: résultatRecherche<T>[]) => {
+        résultatsParMembre[idBdCompte].résultats = résultats
+      }
+
+      const fBranche = async (
+        id: string,
+        fSuivreBranche: schémaFonctionSuivi<résultatRecherche<T> | undefined>
+      ): Promise<schémaFonctionOublier> => {
+        const rés: { id: string, objectif?: T, confiance?: number, qualité?: number} = {
+          id
+        }
+        const fFinaleSuivreBranche = () => {
+          const { objectif, confiance, qualité } = rés
+          if (objectif && confiance !== undefined && qualité !== undefined) {
+
+            const résultatFinalBranche: résultatRecherche<T> = {
+              id, objectif, confiance, qualité, score: fScore!(rés as résultatRechercheSansScore<T>)
+            }
+            fSuivreBranche(résultatFinalBranche)
+          }
+        }
+
+        const fSuivreObjectif = (objectif?: T) => {
+          rés.objectif = objectif
+          fFinaleSuivreBranche();
+        };
+        const fOublierObjectif = await fObjectif(this.client, id, fSuivreObjectif);
+
+        const fSuivreConfiance = (confiance?: number) => {
+          rés.confiance = confiance
+          fFinaleSuivreBranche();
+        };
+        const fOublierConfiance = await fConfiance(this.client, id, fSuivreConfiance);
+
+
+        const fSuivreQualité = (confiance?: number) => {
+          rés.confiance = confiance
+          fFinaleSuivreBranche();
+        };
+        const fOublierQualité = await fQualité(this.client, id, fSuivreQualité);
+
+        const fOublierBranche = () => {
+          fOublierObjectif();
+          fOublierConfiance();
+          fOublierQualité();
+        }
+
+        return fOublierBranche
+      }
+
+      const fOublierRechercheMembre = await this.client.suivreBdsDeFonctionListe(
+        fListe,
+        fSuivi,
+        fBranche
       );
-      résultats.forEach((r) => r);
-      f(résultats);
-    };
 
-    const mettreRésultatsMembreÀJour = (
-      membre: string,
-      résultats: résultatObjectifRecherche[]
-    ) => {
-      résultatsParMembre[membre] = résultats;
+      résultatsParMembre[idBdCompte] = {
+        résultats: [] as résultatRecherche<T>[],
+        membre,
+        fOublierRecherche: fOublierRechercheMembre,
+        mettreÀJour: () => fSuivi(résultatsParMembre[idBdCompte].résultats)
+      };
+    }
+
+    const oublierRésultatsMembre = (compte: string) => {
+      résultatsParMembre[compte]?.fOublierRecherche();
+      delete résultatsParMembre[compte];
       fFinale();
-    };
+    }
 
-    const fSuivreComptes = (comptes: infoMembreRéseau[]): void => {
+    const fSuivreComptes = async (comptes: infoMembreRéseau[]): Promise<void> => {
 
       comptes = comptes.filter((c) => c.confiance >= 0); // Enlever les membres bloqués
 
-      const nouveaux = comptes.filter((c) => !résultatsParMembre[c.idBdCompte]);
+      const nouveaux = comptes.filter(c => !résultatsParMembre[c.idBdCompte]);
       const clefsObsolètes = Object.keys(résultatsParMembre).filter(
         (m) => !comptes.find((c) => c.idBdCompte === m)
       );
+      const changés = comptes.filter(
+        c => {
+          const avant = résultatsParMembre[c.idBdCompte]
+          return avant && (c.confiance !== avant.membre.confiance || c.profondeur !== avant.membre.profondeur)
+        }
+      );
 
-      nouveaux.forEach((m) => {
-        const fOublierRechercheMembre = await fRecherche(m, (rslts: résul) =>
-          mettreRésultatsMembreÀJour(m, rslts)
-        );
-      });
+      await Promise.all(nouveaux.map(suivreRésultatsMembre));
+      changés.forEach(c=>résultatsParMembre[c.idBdCompte].mettreÀJour(c));
+
       clefsObsolètes.forEach((o) => oublierRésultatsMembre(o));
-
-      fFinale();
     };
 
     const { fChangerProfondeur, fOublier } = await this.suivreComptesRéseau(
@@ -349,9 +463,6 @@ export default class Réseau extends EventEmitter {
 
     const dicRésultats: { [key: string]: interfaceScores } = {};
 
-    const fScore = (x: interfaceScores): number => {
-      return x.scoreConfiance + x.scoreObjectif + x.scoreQualité;
-    };
 
     const envoyerRésultats = () => {
       const résultats = Object.entries(dicRésultats)
@@ -365,8 +476,6 @@ export default class Réseau extends EventEmitter {
       n = nouveauN;
       envoyerRésultats();
     };
-
-    return { fChangerN, fOublier };
   }
 
   async faireConfianceAuMembre(idBdCompte: string): Promise<void> {

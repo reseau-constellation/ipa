@@ -13,8 +13,8 @@ import FeedStore from "orbit-db-feedstore";
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation from "@/client";
 import { schémaFonctionOublier } from "@/utils";
-const générerProxyProc = import("@/proxy/ipaProc");
-const générerProxyTravailleur = import("@/proxy/ipaTravailleur");
+import générerProxyProc from "@/proxy/ipaProc";
+import générerProxyTravailleur from"@/proxy/ipaTravailleur";
 
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   new Promise<void>((resolve) => {

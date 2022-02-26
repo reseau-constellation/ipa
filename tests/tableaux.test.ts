@@ -4,8 +4,8 @@ import { step } from "mocha-steps";
 
 import XLSX from "xlsx";
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation, { élémentsBd } from "@/client";
-import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils";
+import ClientConstellation from "@/client";
+import { schémaFonctionOublier, adresseOrbiteValide, élémentsBd } from "@/utils";
 
 import { InfoCol, InfoColAvecCatégorie } from "@/tableaux";
 import {

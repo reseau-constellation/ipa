@@ -5,7 +5,7 @@ import ClientConstellation from "@/client";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  schémaFonctionRecherche,
+  schémaFonctionObjectifRecherche,
   schémaFonctionSuiviRecherche,
   faisRien,
   résultatObjectifRecherche,
@@ -67,7 +67,7 @@ export const similImages = (
 };
 
 export const combinerRecherches = async (
-  fsRecherche: { [key: string]: schémaFonctionRecherche },
+  fsRecherche: { [key: string]: schémaFonctionObjectifRecherche },
   client: ClientConstellation,
   id: string,
   fSuivreRecherche: schémaFonctionSuiviRecherche
@@ -104,7 +104,7 @@ export const sousRecherche = async (
   fListe: (
     fSuivreRacine: (ids: string[]) => void
   ) => Promise<schémaFonctionOublier>,
-  fRechercher: schémaFonctionRecherche,
+  fRechercher: schémaFonctionObjectifRecherche,
   client: ClientConstellation,
   fSuivreRecherche: schémaFonctionSuivi<résultatObjectifRecherche>
 ): Promise<schémaFonctionOublier> => {
@@ -139,7 +139,7 @@ export const sousRecherche = async (
 
 export const rechercherSelonId = (
   idRecherché: string
-): schémaFonctionRecherche => {
+): schémaFonctionObjectifRecherche => {
   return async (
     _client: ClientConstellation,
     id: string,
