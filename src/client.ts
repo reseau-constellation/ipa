@@ -845,7 +845,7 @@ export default class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<V[]>,
     fBranche: (
       id: string,
-      f: schémaFonctionSuivi<U>,
+      fSuivreBranche: schémaFonctionSuivi<U>,
       branche: T
     ) => Promise<schémaFonctionOublier | undefined>,
     fIdBdDeBranche: (b: T) => string = (b) => b as string,
