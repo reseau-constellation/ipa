@@ -1,7 +1,7 @@
 import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
-  schémaFonctionRecherche,
+  schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
 } from "@/utils";
 
@@ -17,7 +17,7 @@ import {
 
 export const rechercherProjetSelonNom = (
   nomProjet: string
-): schémaFonctionRecherche => {
+): schémaFonctionSuivreObjectifRecherche => {
   return async (
     client: ClientConstellation,
     idProjet: string,

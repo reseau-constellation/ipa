@@ -5,7 +5,7 @@ import ClientConstellation from "@/client";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  schémaFonctionObjectifRecherche,
+  schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
   faisRien,
   résultatObjectifRecherche,
@@ -67,7 +67,7 @@ export const similImages = (
 };
 
 export const combinerRecherches = async (
-  fsRecherche: { [key: string]: schémaFonctionObjectifRecherche },
+  fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche },
   client: ClientConstellation,
   id: string,
   fSuivreRecherche: schémaFonctionSuiviRecherche
@@ -104,7 +104,7 @@ export const sousRecherche = async (
   fListe: (
     fSuivreRacine: (ids: string[]) => void
   ) => Promise<schémaFonctionOublier>,
-  fRechercher: schémaFonctionObjectifRecherche,
+  fRechercher: schémaFonctionSuivreObjectifRecherche,
   client: ClientConstellation,
   fSuivreRecherche: schémaFonctionSuivi<résultatObjectifRecherche>
 ): Promise<schémaFonctionOublier> => {
@@ -139,7 +139,7 @@ export const sousRecherche = async (
 
 export const rechercherSelonId = (
   idRecherché: string
-): schémaFonctionObjectifRecherche => {
+): schémaFonctionSuivreObjectifRecherche<résultatObjectifRecherche> => {
   return async (
     _client: ClientConstellation,
     id: string,
@@ -164,3 +164,14 @@ export const rechercherSelonId = (
     return faisRien;
   };
 };
+
+export const rechercherTous = <T extends résultatObjectifRecherche>(): schémaFonctionSuivreObjectifRecherche<T> => {
+  return async (
+    _client: ClientConstellation,
+    _id: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<T>
+  ): Promise<schémaFonctionOublier> => {
+    fSuivreRecherche({score: 1, de: "*", info: {}});
+    return faisRien
+  }
+}
