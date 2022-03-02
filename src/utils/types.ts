@@ -32,6 +32,11 @@ export type schémaFonctionSuivi<T> = (x: T) => void;
 
 export type schémaFonctionOublier = () => void;
 
+export type schémaRetourFonctionRecherche = {
+  fOublier: schémaFonctionOublier;
+  fChangerProfondeur: (p: number) => void;
+}
+
 export interface infoRésultatTexte {
   texte: string;
   début: number;

@@ -279,7 +279,6 @@ export default class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<string[]>,
     idBdCompte?: string
   ): Promise<schémaFonctionOublier> {
-    if (!this.bdCompte) await once(this, "prêt");
     idBdCompte = idBdCompte || this.bdCompte!.id;
     const { bd, fOublier } = await this.ouvrirBd(idBdCompte);
     const accès = bd.access;
@@ -944,6 +943,52 @@ export default class ClientConstellation extends EventEmitter {
       });
     };
     return oublier;
+  }
+
+  async suivreBdsDeFonctionRecherche<T extends élémentsBd, U, V>(
+    fListe: (
+      fSuivreRacine: (éléments: T[]) => Promise<void>
+    ) => Promise<{
+      fOublier: schémaFonctionOublier,
+      fChangerProfondeur: (p: number) => void
+    }>,
+    f: schémaFonctionSuivi<V[]>,
+    fBranche: (
+      id: string,
+      fSuivreBranche: schémaFonctionSuivi<U>,
+      branche: T
+    ) => Promise<schémaFonctionOublier | undefined>,
+    fIdBdDeBranche: (b: T) => string = (b) => b as string,
+    fRéduction: schémaFonctionRéduction<U[], V[]> = (branches: U[]) =>
+      [...new Set(branches.flat())] as unknown as V[],
+    fCode: (é: T) => string = (é) => é as string
+  ): Promise<{
+    fOublier: schémaFonctionOublier,
+    fChangerProfondeur: (p: number) => void
+  }> {
+
+    let _fChangerProfondeur: ((p: number) => void) | undefined = undefined
+    const fChangerProfondeur = (p: number) => {
+      if (_fChangerProfondeur) _fChangerProfondeur(p);
+    }
+
+    const fListeFinale = async (
+      fSuivreRacine: (éléments: T[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      const { fOublier: fOublierL, fChangerProfondeur: fChangerL } = await fListe(fSuivreRacine);
+      _fChangerProfondeur = fChangerL;
+      return fOublierL
+    }
+
+    const fOublier = await this.suivreBdsDeFonctionListe(
+      fListeFinale,
+      f,
+      fBranche,
+      fIdBdDeBranche,
+      fRéduction,
+      fCode
+    );
+    return { fOublier, fChangerProfondeur }
   }
 
   async suivreBdsSelonCondition(
