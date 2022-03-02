@@ -179,14 +179,13 @@ export default class Réseau extends EventEmitter {
     ];
 
     // N'oublions pas de nous ajouter nous-mêmes
-    this.ajouterMembre({
+    this.recevoirSalut({
       idSFIP: this.client.idNodeSFIP!.id,
       idOrbite: this.client.orbite!.identity.id,
+      idCompte: this.client.idBdCompte!,
       clefPublique: this.client.orbite!.identity.publicKey,
       signatures: this.client.orbite!.identity.signatures,
-      idBdCompte: this.client.bdCompte!.id,
     });
-    this._nettoyerListeMembres();
   }
 
   async initialiser(): Promise<void> {
@@ -271,18 +270,54 @@ export default class Réseau extends EventEmitter {
       case "Salut !": {
         const contenuSalut = contenu as ContenuMessageSalut
 
-        this.dispositifsEnLigne[contenuSalut.idOrbite] = {
-          infoDispositif: contenuSalut,
-          vuÀ: new Date().getTime(),
-        };
-
-        this.emit("membreVu");
+        this.recevoirSalut(contenuSalut);
 
         if (!personnel) this.direSalut(contenuSalut.idSFIP);  // Renvoyer le message, si ce n'était pas déjà fait
         break;
       }
       default: console.error(`Message inconnu: ${valeur.type}`)
     }
+  }
+
+  async recevoirSalut(message: ContenuMessageSalut): Promise<void> {
+    const dispositifValid = await this._validerInfoMembre(message)
+    if (!dispositifValid) return
+    this.dispositifsEnLigne[message.idOrbite] = {
+      infoDispositif: message,
+      vuÀ: new Date().getTime(),
+    };
+
+    this.emit("membreVu");
+  }
+
+  async _validerInfoMembre(info: infoDispositif): Promise<boolean> {
+    const { idCompte, signatures, clefPublique, idOrbite } = info;
+
+    if (!(idCompte && signatures && clefPublique && idOrbite)) return false;
+
+    const sigIdValide = await this.client.vérifierSignature(
+      {
+        signature: signatures.id,
+        clefPublique: clefPublique,
+      },
+      idOrbite
+    );
+
+    const sigClefPubliqueValide = await this.client.vérifierSignature(
+      {
+        signature: signatures.publicKey,
+        clefPublique: idOrbite,
+      },
+      clefPublique + signatures.id
+    );
+
+    if (!OrbitDB.isValidAddress(idCompte)) return false;
+    const { bd: bdCompte, fOublier } = await this.client.ouvrirBd(idCompte);
+    if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
+    const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
+
+    fOublier();
+    return sigIdValide && sigClefPubliqueValide && bdCompteValide;
   }
 
   async faireConfianceAuMembre(idBdCompte: string): Promise<void> {
@@ -1311,95 +1346,6 @@ export default class Réseau extends EventEmitter {
     return await this.rechercherObjets(
       f, nRésultatsDésirés, fRecherche, fObjectif
     );
-  }
-
-
-
-  async _nettoyerListeMembres(): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<FeedStore>(this.idBd);
-    const éléments = ClientConstellation.obtÉlémentsDeBdListe<infoMembre>(
-      bd,
-      false
-    );
-    const déjàVus: string[] = [];
-    for (const é of éléments) {
-      const entrée = é.payload.value;
-
-      // Enlever les entrées non valides (d'une ancienne version de Constellation)
-      const valide = await this._validerInfoMembre(entrée);
-      if (!valide) await bd.remove(é.hash);
-
-      // Enlever les doublons (ne devraient plus se présenter avec la nouvelle version)
-      const id = entrée.idOrbite;
-      if (id && déjàVus.includes(id)) {
-        await bd.remove(é.hash);
-      } else {
-        déjàVus.push(id);
-      }
-    }
-
-    fOublier();
-  }
-
-  async _validerInfoMembre(info: infoMembre): Promise<boolean> {
-    const { idBdCompte, signatures, clefPublique, idOrbite } = info;
-    if (!(idBdCompte && signatures && clefPublique && idOrbite)) return false;
-
-    const sigIdValide = await this.client.vérifierSignature(
-      {
-        signature: signatures.id,
-        clefPublique: clefPublique,
-      },
-      idOrbite
-    );
-
-    const sigClefPubliqueValide = await this.client.vérifierSignature(
-      {
-        signature: signatures.publicKey,
-        clefPublique: idOrbite,
-      },
-      clefPublique + signatures.id
-    );
-
-    if (!OrbitDB.isValidAddress(idBdCompte)) return false;
-    const { bd: bdCompte, fOublier } = await this.client.ouvrirBd(idBdCompte);
-    if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
-    const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
-
-    fOublier();
-    return sigIdValide && sigClefPubliqueValide && bdCompteValide;
-  }
-
-  async ajouterMembre(info: infoMembre): Promise<void> {
-    if (!(await this._validerInfoMembre(info))) return;
-
-    const _ajouterMembre = async (info: infoMembre, récursif = false) => {
-      const { idOrbite, idBdCompte } = info;
-      await verrouAjouterMembre.acquire(idOrbite);
-      const existante = await this.client.rechercherBdListe(
-        this.idBd,
-        (e: LogEntry<infoMembre>) => e.payload.value.idOrbite === idOrbite
-      );
-      if (!existante) {
-        const bdCompte = (await this.client.ouvrirBd(this.idBd)) as FeedStore;
-        await bdCompte.add(info);
-      }
-      if (!this.fOublierMembres[idBdCompte] && !récursif) {
-        const f = async (membres: infoMembre[]) => {
-          membres.forEach((m: infoMembre) => _ajouterMembre(m));
-        };
-        const fOublier = await this.client.suivreBdListeDeClef<infoMembre>(
-          idBdCompte,
-          "reseau",
-          f
-        );
-        this.fOublierMembres[idBdCompte] = fOublier;
-      }
-      verrouAjouterMembre.release(idOrbite);
-    };
-
-    await _ajouterMembre(info, true);
-    this._vu(info);
   }
 
   async enleverMembre(id: string): Promise<void> {
