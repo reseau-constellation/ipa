@@ -576,10 +576,7 @@ export default class Réseau extends EventEmitter {
     idCompteDébut: string,
     f: schémaFonctionSuivi<infoRelation[]>,
     profondeur = 0
-  ): Promise<{
-    fOublier: schémaFonctionOublier;
-    fChangerProfondeur: (p: number) => void;
-  }> {
+  ): Promise<schémaRetourFonctionRecherche> {
     let listeRelations: infoRelation[] = [];
     const dicInfoSuiviRelations: {
       [key: string]: {
@@ -697,10 +694,7 @@ export default class Réseau extends EventEmitter {
     idCompteDébut: string,
     f: schémaFonctionSuivi<infoMembreRéseau[]>,
     profondeur = 0
-  ): Promise<{
-    fOublier: schémaFonctionOublier;
-    fChangerProfondeur: (p: number) => void;
-  }> {
+  ): Promise<schémaRetourFonctionRecherche> {
     const fSuivi = (relations: infoRelation[]) => {
       const dicRelations: { [key: string]: infoRelation[] } = {};
 
@@ -757,15 +751,65 @@ export default class Réseau extends EventEmitter {
     );
   }
 
+  async suivreComptesRéseauEtEnLigne(
+    idCompteDébut: string,
+    f: schémaFonctionSuivi<infoMembreRéseau[]>,
+    profondeur = 0
+  ): Promise<schémaRetourFonctionRecherche> {
+
+    const dicComptes: { réseau: infoMembreRéseau[], enLigne: infoMembreRéseau[] } = {
+      réseau: [],
+      enLigne: []
+    }
+    const fFinale = () => {
+      const membres = [...dicComptes.réseau];
+      dicComptes.enLigne.forEach(c=>{
+        if (!membres.find(m=>m.idBdCompte === c.idBdCompte)) {
+          membres.push(c);
+        }
+      });
+      f(membres);
+    }
+
+    const fOublierComptesEnLigne = await this.suivreConnexionsMembres(
+      (membres: statutMembre[]) => {
+        const infoMembresEnLigne: infoMembreRéseau[] = membres.map(
+          m=> {
+            return {
+              idBdCompte: m.infoMembre.idBdCompte,
+              profondeur: -1,
+              confiance: 0
+            }
+          }
+        )
+        dicComptes.enLigne = infoMembresEnLigne
+        fFinale();
+      }
+    )
+
+    const fSuivreComptesRéseau = (comptes: infoMembreRéseau[]) => {
+      dicComptes.réseau = comptes;
+      fFinale();
+    }
+
+    const { fOublier: fOublierComptesRéseau, fChangerProfondeur } = await this.suivreComptesRéseau(
+      idCompteDébut, fSuivreComptesRéseau, profondeur
+    )
+
+    const fOublier = () => {
+      fOublierComptesEnLigne();
+      fOublierComptesRéseau();
+    }
+
+    return { fOublier, fChangerProfondeur }
+  }
+
   async suivreConfianceMonRéseauPourMembre(
     idBdCompte: string,
     f: schémaFonctionSuivi<number>,
     profondeur = 4,
     idBdCompteRéférence?: string
-  ): Promise<{
-    fOublier: schémaFonctionOublier;
-    fChangerProfondeur: (p: number) => void;
-  }> {
+  ): Promise<schémaRetourFonctionRecherche> {
     idBdCompteRéférence = idBdCompteRéférence || this.client.idBdCompte!;
 
     const fFinale = (membres: infoMembreRéseau[]) => {
@@ -1080,7 +1124,7 @@ export default class Réseau extends EventEmitter {
       clefsObsolètes.forEach((o) => oublierRésultatsMembre(o));
     };
 
-    const { fChangerProfondeur, fOublier } = await this.suivreComptesRéseau(
+    const { fChangerProfondeur, fOublier } = await this.suivreComptesRéseauEtEnLigne(
       this.client.idBdCompte!,
       fSuivreComptes
     );
@@ -1498,7 +1542,7 @@ export default class Réseau extends EventEmitter {
         fSuivreRacine(infosMembres.map(i=>i.idBdCompte))
       }
 
-      return await this.suivreComptesRéseau(
+      return await this.suivreComptesRéseauEtEnLigne(
         this.client.idBdCompte!, fSuivreComptes, profondeur
       )
     }
