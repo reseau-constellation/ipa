@@ -1,11 +1,10 @@
-import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
 import { PeersResult } from "ipfs-core-types/src/swarm";
 import { Message as MessagePubSub } from "ipfs-core-types/src/pubsub";
 import { EventEmitter } from "events";
-import Semaphore from "@chriscdn/promise-semaphore";
+import { sum } from "lodash";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation, { Signature } from "@/client";
@@ -21,7 +20,7 @@ import {
   faisRien,
 } from "@/utils";
 import { élémentBdListeDonnées } from "@/tableaux";
-import { ÉlémentFavoris } from "@/favoris";
+import { ÉlémentFavoris, épingleDispositif } from "@/favoris";
 import { élémentDonnées } from "@/valid";
 import { rechercherProfilSelonActivité, rechercherTous } from "@/recherche";
 import obtStockageLocal from "@/stockageLocal";
@@ -78,9 +77,8 @@ export interface statutMembre {
 }
 
 export interface infoRéplications {
-  idBd: string;
-  membres: infoMembre[];
-  dispositifs: infoDispositif[];
+  membres: statutMembre[];
+  dispositifs: épingleDispositif[] & { vuÀ: number };
 }
 
 export interface résultatRechercheSansScore<T extends résultatObjectifRecherche> {
@@ -143,14 +141,14 @@ export type typeÉlémentsBdRéseau = {
   statut: statutConfianceMembre;
 };
 
-const verrouAjouterMembre = new Semaphore();
 const INTERVALE_SALUT = 1000 * 60;
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
 const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
 const CONFIANCE_DE_COAUTEUR = 0.9;
 const CONFIANCE_DE_FAVORIS = 0.7;
+const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;
+const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
-const verrou = new Semaphore();
 
 export default class Réseau extends EventEmitter {
   client: ClientConstellation;
@@ -161,8 +159,7 @@ export default class Réseau extends EventEmitter {
     [key: string]: statutDispositif;
   };
 
-  fsOublier: schémaFonctionOublier[];
-  fOublierMembres: { [key: string]: schémaFonctionOublier };
+  fsOublier: schémaFonctionOublier[]
 
   constructor(client: ClientConstellation, idBd: string) {
     super();
@@ -173,10 +170,7 @@ export default class Réseau extends EventEmitter {
     this.bloquésPrivés = new Set();
 
     this.dispositifsEnLigne = {};
-    this.fOublierMembres = {};
-    this.fsOublier = [
-      () => Object.values(this.fOublierMembres).forEach((f) => f()),
-    ];
+    this.fsOublier = [];
 
     // N'oublions pas de nous ajouter nous-mêmes
     this.recevoirSalut({
@@ -288,6 +282,25 @@ export default class Réseau extends EventEmitter {
     };
 
     this.emit("membreVu");
+    this._sauvegarderDispositifsEnLigne();
+  }
+
+  _nettoyerDispositifsEnLigne(): void {
+    const maintenant = new Date().getTime();
+    const effaçables = Object.values(this.dispositifsEnLigne).filter(
+      d=> maintenant - (d.vuÀ || 0) > DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE
+    ).sort((a, b) => (a.vuÀ || 0) < (b.vuÀ || 0) ? -1 : 1).map(d=>d.infoDispositif.idOrbite);
+
+    const nEffacer = Object.keys(this.dispositifsEnLigne).length - N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE
+    const àEffacer = effaçables.slice(effaçables.length - nEffacer)
+    àEffacer.forEach(m=>delete this.dispositifsEnLigne[m]);
+  }
+
+  async _sauvegarderDispositifsEnLigne(): Promise<void> {
+    const stockageLocal = await obtStockageLocal();
+
+    this._nettoyerDispositifsEnLigne();
+    stockageLocal.setItem("dispositifsEnLigne", JSON.stringify(this.dispositifsEnLigne));
   }
 
   async _validerInfoMembre(info: infoDispositif): Promise<boolean> {
@@ -1020,24 +1033,45 @@ export default class Réseau extends EventEmitter {
     } = {};
 
     const DÉLAI_REBOURS = 3000;
-    let annuler: NodeJS.Timeout;
-    let profondeur = 0;
+    let annulerRebours: NodeJS.Timeout;
+    let profondeur = 3;
 
     const ajusterProfondeur = (p: number) => {
       fChangerProfondeur(p);
-      if (annuler) clearTimeout(annuler);
+      if (annulerRebours) clearTimeout(annulerRebours);
     }
 
     const débuterReboursAjusterPronfondeur = (délai = DÉLAI_REBOURS) => {
-      if (annuler) clearTimeout(annuler);
+      if (annulerRebours) clearTimeout(annulerRebours);
+
+      const scores = Object.values(résultatsParMembre).map(
+        r=>r.résultats
+      ).flat().map(r=>r.score);
+      const pireScoreInclus = scores.length >= nRésultatsDésirés ? Math.min.apply(scores.slice(0, nRésultatsDésirés)) : 0
 
       const parProfondeur = Object.values(résultatsParMembre).reduce(function (r, a) {
         r[String(a.membre.profondeur)] = r[String(a.membre.profondeur)] || [];
-        r[String(a.membre.profondeur)].push(a);
+        r[String(a.membre.profondeur)].push(...a.résultats);
         return r;
-      }, Object.create(null));
+      }, {} as {
+        [key: string]: résultatRecherche<T>[]
+      });
+
+      const lParProfondeur = Object.entries(parProfondeur).sort(
+        (a, b) => Number(a[0]) < Number(b[0]) ? -1 : 1
+      ).map(p=>p[1])
+
+      const nScoresInclusParProfondeur = lParProfondeur.map(rs=>rs.filter(r=>r.score>=pireScoreInclus).length);
+
+      const dernierTrois = nScoresInclusParProfondeur.slice(nScoresInclusParProfondeur.length - 3)
+      const dernierQuatre = nScoresInclusParProfondeur.slice(nScoresInclusParProfondeur.length - 4)
+      const nouvelleProfondeur = Math.max(
+        3,
+        sum(dernierTrois) ? profondeur + 1 : sum(dernierQuatre) ? profondeur : profondeur - 1
+      )
+
       if (nouvelleProfondeur > profondeur) {
-        annuler = setTimeout(() => ajusterProfondeur(nouvelleProfondeur), DÉLAI_REBOURS)
+        annulerRebours = setTimeout(() => ajusterProfondeur(nouvelleProfondeur), délai)
       } else if (nouvelleProfondeur < profondeur) {
         ajusterProfondeur(nouvelleProfondeur)
       }
@@ -1093,7 +1127,7 @@ export default class Réseau extends EventEmitter {
           rés.objectif = objectif
           fFinaleSuivreBranche();
         };
-        const fOublierObjectif = await fObjectif(this.client, id, fSuivreObjectif);
+        const fOublierObjectif = await fObjectif!(this.client, id, fSuivreObjectif);
 
         const fSuivreConfiance = (confiance?: number) => {
           rés.confiance = confiance
@@ -1161,7 +1195,8 @@ export default class Réseau extends EventEmitter {
 
     const { fChangerProfondeur, fOublier } = await this.suivreComptesRéseauEtEnLigne(
       this.client.idBdCompte!,
-      fSuivreComptes
+      fSuivreComptes,
+      profondeur,
     );
 
     const fChangerN = (nouveauN: number) => {
@@ -1348,18 +1383,6 @@ export default class Réseau extends EventEmitter {
     );
   }
 
-  async enleverMembre(id: string): Promise<void> {
-    this.fOublierMembres[id]();
-    const { bd: bdMembres, fOublier } = await this.client.ouvrirBd<
-      FeedStore<infoMembre>
-    >(this.idBd);
-    await this.client.effacerÉlémentDeBdListe(
-      bdMembres,
-      (é) => é.payload.value.id === id
-    );
-    fOublier();
-  }
-
   async suivreBdsMembre(
     idMembre: string,
     f: schémaFonctionSuivi<string[] | undefined>,
@@ -1522,7 +1545,11 @@ export default class Réseau extends EventEmitter {
             fSuivreBranche(lFavoris)
           }
         }
-      )
+      );
+      return () => {
+        fOublierDispositifsMembre();
+        fOublierFavorisMembre();
+      }
     }
 
 
@@ -1532,7 +1559,7 @@ export default class Réseau extends EventEmitter {
       favoris.map(f=>f.)
     }
 
-    const fOublierFavoris = await this.client.suivreBdsDeFonctionListe(
+    const fOublierFavoris = await this.client.suivreBdsDeFonctionRecherche(
       fListe,
       fSuivi,
       fBranche,
@@ -1624,13 +1651,13 @@ export default class Réseau extends EventEmitter {
 
     const fListe = async (
       fSuivreRacine: (éléments: infoMembre[]) => Promise<void>
-    ): Promise<schémaFonctionOublier> => {
-      return await this.suivreMembres((membres: infoMembreEnLigne[]) =>
+    ): Promise<schémaRetourFonctionRecherche> => {
+      return await this.rechercherMembres((membres: infoMembreEnLigne[]) =>
         fSuivreRacine(membres)
       );
     };
 
-    return await this.client.suivreBdsDeFonctionListe(
+    return await this.client.suivreBdsDeFonctionRecherche(
       fListe,
       f,
       fBranche,

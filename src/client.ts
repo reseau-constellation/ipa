@@ -30,6 +30,7 @@ import {
   adresseOrbiteValide,
   schémaFonctionSuivi,
   schémaFonctionOublier,
+  schémaRetourFonctionRecherche,
   faisRien,
   uneFois,
   élémentsBd,
@@ -948,10 +949,7 @@ export default class ClientConstellation extends EventEmitter {
   async suivreBdsDeFonctionRecherche<T extends élémentsBd, U, V>(
     fListe: (
       fSuivreRacine: (éléments: T[]) => Promise<void>
-    ) => Promise<{
-      fOublier: schémaFonctionOublier,
-      fChangerProfondeur: (p: number) => void
-    }>,
+    ) => Promise<schémaRetourFonctionRecherche>,
     f: schémaFonctionSuivi<V[]>,
     fBranche: (
       id: string,

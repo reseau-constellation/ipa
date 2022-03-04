@@ -3,7 +3,13 @@ import KeyValueStore from "orbit-db-kvstore";
 import ClientConstellation from "@/client";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 
-type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
+export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
+
+export interface épingleDispositif {
+  bd: boolean;
+  fichiers: boolean;
+  récursif: boolean;
+}
 
 export type ÉlémentFavoris = {
   récursif: boolean;
@@ -108,11 +114,7 @@ export default class Favoris {
 
   async suivreEstÉpingléSurDispositif(
     id: string,
-    f: schémaFonctionSuivi<{
-      bd: boolean;
-      fichiers: boolean;
-      récursif: boolean;
-    }>,
+    f: schémaFonctionSuivi<épingleDispositif>,
     idOrbite?: string
   ): Promise<schémaFonctionOublier> {
     const fFinale = async (élément?: ÉlémentFavoris): Promise<void> => {
