@@ -68,11 +68,22 @@ export default class Favoris {
   }
 
   async suivreFavoris(
-    f: schémaFonctionSuivi<{ [key: string]: ÉlémentFavoris }>,
+    f: schémaFonctionSuivi<(ÉlémentFavoris & { idObjet: string })[]>,
     idBdFavoris?: string
   ): Promise<schémaFonctionOublier> {
     idBdFavoris = idBdFavoris || this.idBd;
-    return await this.client.suivreBdDic<ÉlémentFavoris>(idBdFavoris, f);
+
+    const fFinale = (favoris: {[key: string]: ÉlémentFavoris}): void => {
+      const favorisFinaux = Object.entries(favoris).map(([idObjet, élément]) => {
+        return {
+          idObjet,
+          ...élément
+        }
+      })
+      f(favorisFinaux);
+    }
+
+    return await this.client.suivreBdDic<ÉlémentFavoris>(idBdFavoris, fFinale);
   }
 
   async épinglerFavori(
@@ -113,7 +124,7 @@ export default class Favoris {
   }
 
   async suivreEstÉpingléSurDispositif(
-    id: string,
+    idObjet: string,
     f: schémaFonctionSuivi<épingleDispositif>,
     idOrbite?: string
   ): Promise<schémaFonctionOublier> {
@@ -133,7 +144,7 @@ export default class Favoris {
         récursif: élément?.récursif || false,
       });
     };
-    return await this.suivreÉtatFavori(id, fFinale);
+    return await this.suivreÉtatFavori(idObjet, fFinale);
   }
 
   async estÉpingléSurDispositif(
