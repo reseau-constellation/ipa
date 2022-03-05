@@ -6,6 +6,7 @@ import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
 
 export interface épingleDispositif {
+  idObjet: string;
   bd: boolean;
   fichiers: boolean;
   récursif: boolean;
@@ -139,6 +140,7 @@ export default class Favoris {
       );
 
       f({
+        idObjet,
         bd: bdEstÉpinglée,
         fichiers: fichiersSontÉpinglés,
         récursif: élément?.récursif || false,
