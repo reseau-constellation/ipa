@@ -7,7 +7,7 @@ import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import { schémaFonctionOublier, adresseOrbiteValide, élémentsBd } from "@/utils";
 
-import { InfoCol, InfoColAvecCatégorie } from "@/tableaux";
+import { InfoCol, InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux";
 import {
   règleVariableAvecId,
   règleBornes,
@@ -24,7 +24,7 @@ chai.should();
 chai.use(chaiAsPromised);
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Tableaux", function () {
         this.timeout(config.timeout);
@@ -569,30 +569,26 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.skip("Règles: Règle bornes relative à une colonne", function () {
-          let règles: règleColonne[];
-          let erreurs: erreurValidation[];
+        describe("Règles: Règle bornes relative à une colonne", function () {
+
           let idTableauRègles: string;
 
           let idVariableTempMin: string;
           let idColonneTempMin: string;
           let idVariableTempMax: string;
 
+          const err: { eurs: erreurValidation[] } = { eurs: [] };
           const idColonneTempMax = "col temp max";
+          const empreintesDonnées: string[] = [];
           const fsOublier: schémaFonctionOublier[] = [];
 
-          beforeEach(async () => {
+          before(async () => {
             idTableauRègles = await client.tableaux!.créerTableau();
-            fsOublier.push(
-              await client.tableaux!.suivreRègles(
-                idTableauRègles,
-                (r) => (règles = r)
-              )
-            );
+
             fsOublier.push(
               await client.tableaux!.suivreValidDonnées(
                 idTableauRègles,
-                (e) => (erreurs = e)
+                (e) => (err.eurs = e)
               )
             );
 
@@ -607,9 +603,15 @@ typesClients.forEach((type) => {
               idTableauRègles,
               idVariableTempMin
             );
+            for (const min of [0, 5]) {
+              empreintesDonnées.push(await client.tableaux!.ajouterÉlément(
+                idTableauRègles,
+                { [idColonneTempMin]: min }
+              ))
+            }
           });
 
-          afterEach(async () => {
+          after(async () => {
             fsOublier.forEach((f) => f());
           });
 
@@ -626,25 +628,108 @@ typesClients.forEach((type) => {
               idColonneTempMin,
               règle
             );
-            expect(erreurs).to.be.an("array").of.length(1);
-            console.log({ erreurs });
+            expect(err.eurs).to.be.an("array").of.length(2);
+
           });
+
           step("Ajout colonne réf détectée", async () => {
             await client.tableaux!.ajouterColonneTableau(
               idTableauRègles,
               idVariableTempMax,
               idColonneTempMax
             );
+            await attendreRésultat(
+              err, "eurs", (x: []) => x.length===0
+            )
+            expect(err.eurs).to.be.empty;
           });
-          step("Ajout éléments colonne réf détecté");
-          step("Ajout éléments valides");
-          step("Ajout éléments invalides");
+
+          step("Ajout éléments colonne réf détecté", async () => {
+            empreintesDonnées[0] = await client.tableaux!.modifierÉlément(
+              idTableauRègles,
+              { [idColonneTempMax]: -1 },
+              empreintesDonnées[0]
+            );
+            expect(err.eurs).to.have.lengthOf(1);
+            expect(err.eurs[0].erreur.règle.colonne).to.equal(idColonneTempMin);
+
+            await client.tableaux!.modifierÉlément(
+              idTableauRègles,
+              { [idColonneTempMax]: 6 },
+              empreintesDonnées[0]
+            );
+            expect(err.eurs).to.be.empty;
+          });
+
+          step("Ajout éléments valides", async () => {
+            await client.tableaux!.ajouterÉlément(
+              idTableauRègles,
+              { [idColonneTempMin]: -15, [idColonneTempMax]: -5 },
+            );
+            expect(err.eurs).to.be.empty;
+          });
+
+          step("Ajout éléments invalides", async () => {
+            await client.tableaux!.ajouterÉlément(
+              idTableauRègles,
+              { [idColonneTempMin]: -15, [idColonneTempMax]: -25 },
+            );
+            expect(err.eurs).to.have.lengthOf(1);
+          });
+
+          step("Règle bornes relatives variable", async () => {
+            await client.variables!.ajouterRègleVariable(
+              idVariableTempMax, { typeRègle: "bornes", détails: { val: idVariableTempMin, op: ">="}}
+            );
+            expect(err.eurs).to.have.lengthOf(2);
+          });
         });
 
-        describe("Règle valeur catégorique", function () {
+        describe.only("Règle valeur catégorique", function () {
           describe("Catégories fixes", function () {
-            it("Ajout éléments valides");
-            it("Ajout éléments invalides");
+
+            let idTableauRègles: string;
+            let idColonne: string;
+            let idVariable: string;
+
+            const err: { eurs: erreurValidation[] } = { eurs: [] };
+
+            const empreintesDonnées: string[] = [];
+            const fsOublier: schémaFonctionOublier[] = [];
+
+            before(async () => {
+              idTableauRègles = await client.tableaux!.créerTableau();
+              idVariable = await client.variables!.créerVariable("chaîne")
+              idColonne = await client.tableaux!.ajouterColonneTableau(
+                idTableauRègles, idVariable
+              );
+
+              const règleCatégorique: règleValeurCatégorique = {
+                typeRègle: "valeurCatégorique",
+                détails: { options: ["வணக்கம்", "សួស្ឌី"]}
+              }
+
+              await client.tableaux!.ajouterRègleTableau(
+                idTableauRègles, idColonne, règleCatégorique
+              )
+            })
+            after(()=>fsOublier.forEach(f=>f()))
+
+            step("Ajout éléments valides", async () => {
+              await client.tableaux!.ajouterÉlément(
+                idTableauRègles,
+                { [idColonne]: "வணக்கம்"}
+              )
+              expect(err.eurs).to.be.empty;
+            });
+            it("Ajout éléments invalides", async () => {
+              await client.tableaux!.ajouterÉlément(
+                idTableauRègles,
+                { [idColonne]: "សូស្ឌី"}
+              )
+              await attendreRésultat(err, "eurs", (x:[] )=>x.length > 0)
+              expect(err.eurs).to.have.lengthOf(1);
+            });
           });
           describe("Dans le même tableau", function () {
             it("Erreur si colonne n'existe pas");
@@ -658,6 +743,15 @@ typesClients.forEach((type) => {
             it("Erreur si colonne n'existe pas");
             it("Ajout colonne réf détectée");
             it("Ajout éléments colonne réf détectée");
+            it("Ajout éléments valides");
+            it("Ajout éléments invalides");
+          });
+          describe("De la part d'une variable", function () {
+            it("Erreur relatif à variable");
+            it("Erreur si tableau n'existe pas");
+            it("Erreur si colonne n'existe pas");
+            it("Ajout colonne avec var réf détectée");
+            it("Ajout éléments colonne avec var réf détectée");
             it("Ajout éléments valides");
             it("Ajout éléments invalides");
           });
