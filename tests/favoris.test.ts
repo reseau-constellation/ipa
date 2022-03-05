@@ -4,7 +4,6 @@ import { step } from "mocha-steps";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
-import { schémaFonctionOublier } from "@/utils";
 
 import { testAPIs, config } from "./sfipTest";
 import { générerClients, typesClients } from "./utils";
