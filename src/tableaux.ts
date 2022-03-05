@@ -997,7 +997,7 @@ export default class Tableaux {
     const fFinaleRègles = (règles: règleColonne[]) => {
       if (info.varsÀColonnes) {
         info.règles = règles.map((r) =>
-          générerFonctionRègle(r, info.varsÀColonnes!)
+          générerFonctionRègle(r, info.varsÀColonnes!, r.source)
         );
         fFinale();
       }
