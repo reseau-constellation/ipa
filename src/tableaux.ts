@@ -422,7 +422,7 @@ export default class Tableaux {
     idTableau: string,
     vals: élémentBdListeDonnées,
     empreintePrécédente: string
-  ): Promise<string | void> {
+  ): Promise<string> {
     const optionsAccès = await this.client.obtOpsAccès(idTableau);
     const idBdDonnées = await this.client.obtIdBd(
       "données",
@@ -459,7 +459,7 @@ export default class Tableaux {
       return résultat[1];
     } else {
       fOublier();
-      return Promise.resolve();
+      return Promise.resolve(empreintePrécédente);
     }
   }
 
