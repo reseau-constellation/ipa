@@ -143,7 +143,8 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>(
           fComp = (v: élémentDonnées<T>) =>
             fOp(
               v.données[colonne] as number,
-              v.données[varsÀColonnes[val]] as number
+              // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
+              (v.données[varsÀColonnes[val]] ? v.données[varsÀColonnes[val]] : v.données[val]) as number
             );
           break;
         case "number":
