@@ -156,38 +156,39 @@ export const générerClients = async (
   const clients: ClientConstellation[] = [];
   const fsOublier: schémaFonctionOublier[] = [];
 
-  for (const i in [...Array(n).keys()]) {
-    let client: ClientConstellation;
-    switch (type) {
-      case "directe": {
-        const { orbites, fOublier: fOublierOrbites } = await générerOrbites(
-          n,
-          API
-        );
-        fsOublier.push(fOublierOrbites);
+  if (type === "directe" || type == "proc") {
+    const { orbites, fOublier: fOublierOrbites } = await générerOrbites(
+      n,
+      API
+    );
+    for (const i in [...Array(n).keys()]) {
+      let client: ClientConstellation;
+      switch (type) {
+        case "directe": {
+          fsOublier.push(fOublierOrbites);
+          client = await ClientConstellation.créer({ orbite: orbites[i] });
+          break;
+        }
 
-        client = await ClientConstellation.créer({ orbite: orbites[i] });
-        break;
+        case "proc": {
+          fsOublier.push(fOublierOrbites);
+          client = générerProxyProc({ orbite: orbites[i] }, true);
+          break;
+        }
+
+        default:
+          throw new Error(type);
       }
-
-      case "proc": {
-        const { orbites, fOublier: fOublierOrbites } = await générerOrbites(
-          n,
-          API
-        );
-        fsOublier.push(fOublierOrbites);
-        client = (await générerProxyProc).default({ orbite: orbites[i] }, true);
-        break;
-      }
-
-      case "travailleur":
-        client = (await générerProxyTravailleur).default({}, true);
-        break;
-
-      default:
-        throw new Error(type);
+      clients.push(client);
     }
-    clients.push(client);
+  } else if (type === "travailleur") {
+    let client: ClientConstellation;
+    for (const i in [...Array(n).keys()]) {
+      client = générerProxyTravailleur({ orbite: { dossier: String(i)}}, true);
+      clients.push(client);
+    }
+  } else {
+    throw new Error(type);
   }
 
   const fOublier = async () => {
