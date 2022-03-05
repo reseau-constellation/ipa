@@ -30,7 +30,6 @@ typesClients.forEach((type) => {
           ));
           client = clients[0];
 
-          enregistrerContrôleurs();
         });
 
         after(async () => {
