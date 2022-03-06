@@ -354,6 +354,7 @@ describe("Validation", function () {
           règle: {
             typeRègle: "valeurCatégorique",
             détails: {
+              type: "fixe",
               options: ["a", "b", "c"],
             },
           },

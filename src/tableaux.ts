@@ -972,6 +972,7 @@ export default class Tableaux {
       oublierRèglesTableau();
       oublierRèglesVariable();
     };
+
     return fOublier;
   }
 
@@ -994,10 +995,10 @@ export default class Tableaux {
       }
       f(erreurs);
     };
-    const fFinaleRègles = (règles: règleColonne[]) => {
+    const fFinaleRègles = (règles: { règle: règleColonne, donnéesCatégorie?: élémentsBd[] }[]) => {
       if (info.varsÀColonnes) {
         info.règles = règles.map((r) =>
-          générerFonctionRègle(r, info.varsÀColonnes!)
+          générerFonctionRègle(r.règle, info.varsÀColonnes!, r.donnéesCatégorie)
         );
         fFinale();
       }
@@ -1016,7 +1017,42 @@ export default class Tableaux {
         info.varsÀColonnes = varsÀColonnes;
       }
     );
-    const fOublierRègles = await this.suivreRègles(idTableau, fFinaleRègles);
+
+    const fListeRègles = async (
+      fSuivreRacine: (règles: règleColonne[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.suivreRègles(idTableau, fSuivreRacine)
+    }
+
+    const fBrancheRègles = async (
+      _id: string,
+      fSuivreBranche: schémaFonctionSuivi<{ règle: règleColonne, donnéesCatégorie?: élémentsBd[] }>,
+      règle: règleColonne,
+    ): Promise<schémaFonctionOublier> => {
+      if (règle.règle.règle.typeRègle === "valeurCatégorique" && règle.règle.règle.détails.tableau) {
+        const { tableau, colonne } = règle.règle.règle.détails
+        return await this.suivreDonnées(
+          tableau as string,
+          (données) => fSuivreBranche({ règle, donnéesCatégorie: données.map(d=>d.données[colonne as string])})
+        )
+      } else {
+        fSuivreBranche({ règle })
+        return faisRien
+      }
+    }
+
+    const fIdDeBranche = (b: règleColonne) => b.règle.id;
+    const fCode = (b: règleColonne) => b.règle.id;
+
+    const fOublierRègles = await this.client.suivreBdsDeFonctionListe(
+      fListeRègles,
+      fFinaleRègles,
+      fBrancheRègles,
+      fIdDeBranche,
+      undefined,
+      fCode,
+    );
+
     const fOublierDonnées = await this.suivreDonnées(idTableau, fFinaleDonnées);
     const fOublier = () => {
       fOublierRègles();

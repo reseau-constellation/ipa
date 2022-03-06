@@ -41,7 +41,12 @@ export interface règleBornes extends règleVariable {
 export interface règleValeurCatégorique extends règleVariable {
   typeRègle: "valeurCatégorique";
   détails: {
+    type: "fixe";
     options: élémentsBd[];
+  } | {
+    type: "dynamique";
+    tableau: string;
+    colonne: string;
   };
 }
 
@@ -75,6 +80,7 @@ export interface élémentDonnées<
 export function générerFonctionRègle<T extends élémentBdListeDonnées>(
   règle: règleColonne,
   varsÀColonnes: { [key: string]: string },
+  donnéesCatégorie?: élémentsBd[],
 ): schémaFonctionValidation<T> {
   const règleVariable = règle.règle;
   const { colonne } = règle;
@@ -176,8 +182,12 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>(
     }
 
     case "valeurCatégorique": {
-      const options = (règleVariable.règle as règleValeurCatégorique).détails
-        .options;
+      const règleCatégorique = règleVariable.règle as règleValeurCatégorique
+
+      const options = règleCatégorique.détails.type === "fixe" ? règleCatégorique.détails.options : donnéesCatégorie;
+
+      if (!options) throw "Options non spécifiées";
+
       return (vals: élémentDonnées<T>[]) => {
         const nonValides = vals.filter(
           (v: élémentDonnées<T>) =>

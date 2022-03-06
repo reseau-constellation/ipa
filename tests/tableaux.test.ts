@@ -9,7 +9,6 @@ import { schémaFonctionOublier, adresseOrbiteValide, élémentsBd } from "@/uti
 
 import { InfoCol, InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux";
 import {
-  règleVariableAvecId,
   règleBornes,
   règleColonne,
   règleValeurCatégorique,
@@ -713,7 +712,7 @@ typesClients.forEach((type) => {
 
               const règleCatégorique: règleValeurCatégorique = {
                 typeRègle: "valeurCatégorique",
-                détails: { options: ["வணக்கம்", "សួស្ឌី"]}
+                détails: { type: "fixe", options: ["வணக்கம்", "សួស្ឌី"]}
               }
 
               await client.tableaux!.ajouterRègleTableau(
@@ -739,29 +738,92 @@ typesClients.forEach((type) => {
             });
           });
 
-          describe("Dans le même tableau", function () {
-            it("Erreur si colonne n'existe pas");
-            it("Ajout colonne réf détectée");
-            it("Ajout éléments colonne réf détecté");
-            it("Ajout éléments valides");
-            it("Ajout éléments invalides");
-          });
-          describe("Inter-tableau", function () {
-            it("Erreur si tableau n'existe pas");
-            it("Erreur si colonne n'existe pas");
-            it("Ajout colonne réf détectée");
-            it("Ajout éléments colonne réf détectée");
-            it("Ajout éléments valides");
-            it("Ajout éléments invalides");
-          });
-          describe("De la part d'une variable", function () {
-            it("Erreur relatif à variable");
-            it("Erreur si tableau n'existe pas");
-            it("Erreur si colonne n'existe pas");
-            it("Ajout colonne avec var réf détectée");
-            it("Ajout éléments colonne avec var réf détectée");
-            it("Ajout éléments valides");
-            it("Ajout éléments invalides");
+          describe("Catégories d'une colonne d'un tableau", function () {
+            let idTableauÀTester: string;
+            let idColonneÀTester: string;
+            let idTableauCatégories: string;
+
+            let idVariable: string;
+            let idVariableRéf: string;
+
+            const idColonneCatégories = "id colonne catégories";
+
+            const err: { eurs: erreurValidation[] } = { eurs: [] };
+            const fsOublier: schémaFonctionOublier[] = [];
+
+            before(async () => {
+              idTableauÀTester = await client.tableaux!.créerTableau();
+
+              fsOublier.push(
+                await client.tableaux!.suivreValidDonnées(
+                  idTableauÀTester,
+                  (e) => (err.eurs = e)
+                )
+              );
+
+              idVariable = await client.variables!.créerVariable("chaîne")
+              idVariableRéf = await client.variables!.créerVariable("chaîne")
+              idColonneÀTester = await client.tableaux!.ajouterColonneTableau(
+                idTableauÀTester, idVariable
+              );
+
+              idTableauCatégories = await client.tableaux!.créerTableau()
+
+              const règleCatégorique: règleValeurCatégorique = {
+                typeRègle: "valeurCatégorique",
+                détails: { type: "dynamique", tableau: idTableauCatégories, colonne: idColonneCatégories }
+              }
+
+              await client.tableaux!.ajouterRègleTableau(
+                idTableauÀTester, idColonneÀTester, règleCatégorique
+              )
+            })
+
+            after(()=>fsOublier.forEach(f=>f()));
+
+            step("Pas d'erreur (ici, au moins) si la colonne n'existe pas", async () => {
+              expect(err.eurs).to.be.empty;
+            });
+
+            step("Ajout colonne réf", async () => {
+              await client.tableaux!.ajouterColonneTableau(
+                idTableauCatégories,
+                idVariableRéf,
+                idColonneCatégories
+              )
+              expect(err.eurs).to.be.empty;
+            });
+
+            it("Ajout éléments colonne réf détecté", async () => {
+              await client.tableaux!.ajouterÉlément(
+                idTableauÀTester,
+                { [idColonneÀTester]: "வணக்கம்" }
+              )
+              expect(err.eurs).to.have.lengthOf(1);
+
+              for (const mot of ["வணக்கம்", "Ütz iwäch"]) {
+                await client.tableaux!.ajouterÉlément(
+                  idTableauCatégories, { [idColonneCatégories]: mot }
+                );
+              }
+
+              expect(err.eurs).to.be.empty;
+
+            });
+            it("Ajout éléments valides", async () => {
+              await client.tableaux!.ajouterÉlément(
+                idTableauÀTester,
+                { [idColonneÀTester]: "Ütz iwäch" }
+              );
+              expect(err.eurs).to.be.empty;
+            });
+            it("Ajout éléments invalides", async () => {
+              await client.tableaux!.ajouterÉlément(
+                idTableauÀTester,
+                { [idColonneÀTester]: "வணக்கம" }
+              );
+              expect(err.eurs).to.have.lengthOf(1);
+            });
           });
         });
 
