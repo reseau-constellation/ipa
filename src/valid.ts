@@ -75,7 +75,6 @@ export interface élémentDonnées<
 export function générerFonctionRègle<T extends élémentBdListeDonnées>(
   règle: règleColonne,
   varsÀColonnes: { [key: string]: string },
-  source: sourceRègle,
 ): schémaFonctionValidation<T> {
   const règleVariable = règle.règle;
   const { colonne } = règle;
@@ -143,14 +142,14 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>(
         case "string": {
           const idsColonnes = Object.values(varsÀColonnes);
 
-          if (source === "tableau" && !idsColonnes.includes(val)) {
+          if (règle.source === "tableau" && !idsColonnes.includes(val)) {
             fComp = (_: élémentDonnées<T>) => false
           } else {
             fComp = (v: élémentDonnées<T>) =>
               fOp(
                 v.données[colonne] as number,
                 // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
-                (source === "variable" ? v.données[varsÀColonnes[val]] : v.données[val]) as number
+                (règle.source === "variable" ? v.données[varsÀColonnes[val]] : v.données[val]) as number
               );
           }
           break;
