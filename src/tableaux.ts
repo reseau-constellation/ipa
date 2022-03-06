@@ -420,7 +420,7 @@ export default class Tableaux {
 
   async modifierÉlément(
     idTableau: string,
-    vals: élémentBdListeDonnées,
+    vals: {[key: string]: élémentsBd | undefined},
     empreintePrécédente: string
   ): Promise<string> {
     const optionsAccès = await this.client.obtOpsAccès(idTableau);
