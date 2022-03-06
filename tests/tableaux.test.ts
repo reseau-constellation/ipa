@@ -685,7 +685,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Règle valeur catégorique", function () {
+        describe("Règle valeur catégorique", function () {
           describe("Catégories fixes", function () {
 
             let idTableauRègles: string;
@@ -694,11 +694,18 @@ typesClients.forEach((type) => {
 
             const err: { eurs: erreurValidation[] } = { eurs: [] };
 
-            const empreintesDonnées: string[] = [];
             const fsOublier: schémaFonctionOublier[] = [];
 
             before(async () => {
               idTableauRègles = await client.tableaux!.créerTableau();
+
+              fsOublier.push(
+                await client.tableaux!.suivreValidDonnées(
+                  idTableauRègles,
+                  (e) => (err.eurs = e)
+                )
+              );
+
               idVariable = await client.variables!.créerVariable("chaîne")
               idColonne = await client.tableaux!.ajouterColonneTableau(
                 idTableauRègles, idVariable
@@ -722,15 +729,16 @@ typesClients.forEach((type) => {
               )
               expect(err.eurs).to.be.empty;
             });
-            it("Ajout éléments invalides", async () => {
+            step("Ajout éléments invalides", async () => {
               await client.tableaux!.ajouterÉlément(
                 idTableauRègles,
-                { [idColonne]: "សូស្ឌី"}
+                { [idColonne]: "សូស្ដី" }
               )
               await attendreRésultat(err, "eurs", (x:[] )=>x.length > 0)
               expect(err.eurs).to.have.lengthOf(1);
             });
           });
+
           describe("Dans le même tableau", function () {
             it("Erreur si colonne n'existe pas");
             it("Ajout colonne réf détectée");
