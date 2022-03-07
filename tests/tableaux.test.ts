@@ -1176,6 +1176,111 @@ typesClients.forEach((type) => {
           });
         });
 
+        describe("Importer données", function () {
+          let fOublier: schémaFonctionOublier;
+          let idTableau: string;
+
+          let idVarDate: string;
+          let idVarEndroit: string;
+          let idVarTempMin: string;
+          let idVarTempMax: string;
+
+          let données: élémentDonnées<élémentBdListeDonnées>[];
+
+          const idsCols: { [key: string]: string } = {};
+
+          before(async () => {
+            idTableau = await client.tableaux!.créerTableau();
+
+            idVarDate = await client.variables!.créerVariable("horoDatage");
+            idVarEndroit = await client.variables!.créerVariable("chaîne");
+            idVarTempMin = await client.variables!.créerVariable("numérique");
+            idVarTempMax = await client.variables!.créerVariable("numérique");
+
+            for (const idVar of [
+              idVarDate,
+              idVarEndroit,
+              idVarTempMin,
+              idVarTempMax,
+            ]) {
+              const idCol = await client.tableaux!.ajouterColonneTableau(
+                idTableau,
+                idVar
+              );
+              idsCols[idVar] = idCol;
+            }
+
+            fOublier = await client.tableaux!.suivreDonnées(
+              idTableau,
+              (d) => (données = d)
+            );
+
+            const élémentsBase = [
+              {
+                [idsCols[idVarEndroit]]: "ici",
+                [idsCols[idVarDate]]: "2021-01-01",
+                [idsCols[idVarTempMin]]: 25,
+              },
+              {
+                [idsCols[idVarEndroit]]: "ici",
+                [idsCols[idVarDate]]: "2021-01-02",
+                [idsCols[idVarTempMin]]: 25,
+              },
+              {
+                [idsCols[idVarEndroit]]: "là-bas",
+                [idsCols[idVarDate]]: "2021-01-01",
+                [idsCols[idVarTempMin]]: 25,
+              },
+            ];
+            for (const élément of élémentsBase) {
+              await client.tableaux!.ajouterÉlément(idTableau, élément);
+            }
+
+            const nouvellesDonnées = [
+              {
+                [idsCols[idVarEndroit]]: "ici",
+                [idsCols[idVarDate]]: "2021-01-01",
+                [idsCols[idVarTempMin]]: 25,
+              },
+              {
+                [idsCols[idVarEndroit]]: "ici",
+                [idsCols[idVarDate]]: "2021-01-02",
+                [idsCols[idVarTempMin]]: 27,
+              },
+            ]
+            await client.tableaux!.importerDonnées(idTableau, nouvellesDonnées);
+          })
+
+          after(async () => {
+            if (fOublier) fOublier();
+          });
+
+          it("Données importées correctement", async () => {
+            expect(données).to.be.an("array").with.lengthOf(2);
+            expect(
+              données
+                .map((d) => d.données)
+                .map((d) => {
+                  delete d.id;
+                  return d;
+                })
+            ).to.have.deep.members(
+              [
+                {
+                  [idsCols[idVarEndroit]]: "ici",
+                  [idsCols[idVarDate]]: "2021-01-01",
+                  [idsCols[idVarTempMin]]: 25,
+                },
+                {
+                  [idsCols[idVarEndroit]]: "ici",
+                  [idsCols[idVarDate]]: "2021-01-02",
+                  [idsCols[idVarTempMin]]: 27,
+                },
+              ]
+            )
+          })
+        })
+
         describe("Exporter données", function () {
           let idTableau: string;
           let idVarNumérique: string;
