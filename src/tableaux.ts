@@ -239,6 +239,7 @@ export default class Tableaux {
 
             const données: T = clefsSelonVariables
               ? Object.keys(élément).reduce((acc: T, elem: string) => {
+                  // Convertir au nom de la variable si souhaité
                   const idVar = elem === "id" ? "id" : colonnes[elem];
                   (acc as élémentBdListeDonnées)[idVar] = élément[elem];
                   return acc;
