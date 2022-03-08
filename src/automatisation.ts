@@ -82,13 +82,13 @@ export interface SpécificationImporter extends SpécificationAutomatisation {
 }
 
 export interface ÉtatAutomatisation {
-  type: "erreur" | "écoute" | "sync" | "schédulé";
+  type: "erreur" | "écoute" | "sync" | "programmée";
 }
 
 interface ÉtatErreur extends ÉtatAutomatisation {
   type: "erreur";
   erreur: string;
-  prochainSchédulé?: number;
+  prochainProgrammée?: number;
 }
 
 interface ÉtatÉcoute extends ÉtatAutomatisation {
@@ -100,8 +100,8 @@ interface ÉtatEnSync extends ÉtatAutomatisation {
   depuis: number;
 }
 
-interface ÉtatSchédulé extends ÉtatAutomatisation {
-  type: "schédulé";
+interface ÉtatProgrammée extends ÉtatAutomatisation {
+  type: "programmée";
   dans?: number;
 }
 
@@ -289,8 +289,8 @@ const lancerAutomatisation = async (
 
     try {
       await fAuto();
-      const nouvelÉtat: ÉtatSchédulé = {
-        type: "schédulé",
+      const nouvelÉtat: ÉtatProgrammée = {
+        type: "programmée",
         dans: tempsInterval,
       };
       fÉtat(nouvelÉtat);
@@ -298,15 +298,15 @@ const lancerAutomatisation = async (
       const nouvelÉtat: ÉtatErreur = {
         type: "erreur",
         erreur: (e as Error).toString(),
-        prochainSchédulé: tempsInterval,
+        prochainProgrammée: tempsInterval,
       };
       fÉtat(nouvelÉtat);
     }
   };
 
   if (spéc.fréquence) {
-    const nouvelÉtat: ÉtatSchédulé = {
-      type: "schédulé",
+    const nouvelÉtat: ÉtatProgrammée = {
+      type: "programmée",
       dans: tempsInterval,
     };
     fÉtat(nouvelÉtat);
@@ -414,7 +414,7 @@ const lancerAutomatisation = async (
               type: "erreur",
               erreur:
                 "La fréquence d'une automatisation d'importation d'URL doit être spécifiée.",
-              prochainSchédulé: undefined,
+              prochainProgrammée: undefined,
             };
             fÉtat(étatErreur);
             return faisRien;
