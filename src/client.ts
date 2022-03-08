@@ -15,7 +15,7 @@ import Semaphore from "@chriscdn/promise-semaphore";
 
 import initOrbite from "@/orbitdb";
 import initSFIP from "@/ipfs";
-import Épingles from "@/épingles";
+import Épingles from "@/epingles";
 import Profil from "@/profil";
 import BDs from "@/bds";
 import Tableaux from "@/tableaux";

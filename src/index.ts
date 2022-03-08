@@ -9,6 +9,7 @@ export * as proxy from "@/proxy";
 export * as automatisation from "@/automatisation";
 export * as bds from "@/bds";
 export * as client from "@/client";
+export * as épingles from "@/epingles";
 export * as profil from "@/profil";
 export * as favoris from "@/favoris";
 export * as licences from "@/licences";

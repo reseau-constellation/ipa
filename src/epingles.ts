@@ -39,9 +39,10 @@ export default class Épingles {
         .filter((r) => r.id === id)
         .map(async (r) => await r.fOublier())
     );
-    this.requètes = this.requètes.filter((r) => r.id !== id);
-
     const dépendants = this.requètes.filter((r) => r.parent === id);
+
+    this.requètes = this.requètes.filter((r) => r.id !== id);
+    this.requètes = this.requètes.filter((r) => r.parent !== id)
 
     await Promise.all(
       dépendants.map(async (d) => {
@@ -99,12 +100,17 @@ export default class Épingles {
 
           cids.forEach((id_) => {
             // pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
-            // (sinon ça bloquerait tout le programme en attendant de trouver le contenu !)
+            // (sinon ça bloquerait tout le programme en attendant de trouver le contenu sur le réseau SFIP !)
             this.client.sfip!.pin.add(id_);
 
             const fOublier_ = async () => {
               // rm par contre peut être async
-              await this.client.sfip!.pin.rm(id);
+              try {
+                await this.client.sfip!.pin.rm(id_);
+              } catch {
+                // ignorer erreur si id_ n'était pas épinglé sur SFIP
+              }
+
             };
             this.requètes.push({ id: id_, parent: id, fOublier: fOublier_ });
           });
@@ -125,6 +131,12 @@ export default class Épingles {
         this.fsOublier[id] = fOublierBd;
       }
     }
+  }
+
+  async toutDésépingler(): Promise<void> {
+    await Promise.all([...this.épingles()].map(async é => {
+      await this.désépinglerBd(é);
+    }));
   }
 
   async fermer(): Promise<void> {
