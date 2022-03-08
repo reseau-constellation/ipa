@@ -1,4 +1,6 @@
 import KeyValueStore from "orbit-db-kvstore";
+import estNode from "is-node";
+import estÉlectron from "is-electron";
 
 import ClientConstellation from "@/client";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
@@ -158,6 +160,12 @@ export default class Favoris {
       return false;
     } else if (dispositifs === "TOUS") {
       return true;
+    } else if (dispositifs === "INSTALLÉ" ) {
+      if (idOrbite === await this.client.obtIdOrbite()) {
+        return estNode() || estÉlectron();
+      } else {
+        return false  // En réalité, inconnu
+      }
     } else if (typeof dispositifs === "string") {
       return dispositifs === idOrbite;
     } else {
