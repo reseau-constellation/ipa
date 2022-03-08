@@ -14,7 +14,7 @@ chai.should();
 chai.use(chaiAsPromised);
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Épingles", function () {
         this.timeout(config.timeout);

@@ -20,6 +20,8 @@ export type ÉlémentFavoris = {
   dispositifsFichiers?: typeDispositifs;
 };
 
+export type ÉlémentFavorisAvecObjet = ÉlémentFavoris & { idObjet: string }
+
 export default class Favoris {
   client: ClientConstellation;
   idBd: string;
@@ -71,7 +73,7 @@ export default class Favoris {
   }
 
   async suivreFavoris(
-    f: schémaFonctionSuivi<(ÉlémentFavoris & { idObjet: string })[]>,
+    f: schémaFonctionSuivi<(ÉlémentFavorisAvecObjet)[]>,
     idBdFavoris?: string
   ): Promise<schémaFonctionOublier> {
     idBdFavoris = idBdFavoris || this.idBd;
@@ -92,7 +94,7 @@ export default class Favoris {
   async épinglerFavori(
     id: string,
     dispositifs: typeDispositifs,
-    dispositifsFichiers: typeDispositifs,
+    dispositifsFichiers: typeDispositifs = "INSTALLÉ",
     récursif = true
   ): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
@@ -162,9 +164,9 @@ export default class Favoris {
       return true;
     } else if (dispositifs === "INSTALLÉ" ) {
       if (idOrbite === await this.client.obtIdOrbite()) {
-        return estNode() || estÉlectron();
+        return estNode || estÉlectron();
       } else {
-        return false  // En réalité, inconnu
+        return false  // En réalité, inconnu. Mais on ne peut pas magiquement deviner la plateforme d'un autre paire.
       }
     } else if (typeof dispositifs === "string") {
       return dispositifs === idOrbite;

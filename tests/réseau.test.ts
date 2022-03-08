@@ -9,7 +9,7 @@ import ClientConstellation from "@/client";
 import { schémaFonctionSuivi, schémaFonctionOublier, uneFois } from "@/utils";
 import {
   élémentDeMembre,
-} from "@/réseau";
+} from "@/reseau";
 import { schémaSpécificationBd } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
 
