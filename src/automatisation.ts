@@ -354,7 +354,7 @@ const lancerAutomatisation = async (
           await obtStockageLocal()
         ).getItem(clefStockageDernièreFois);
         const fOublier = await client.suivreBd(spécExp.idObjet, async (bd) => {
-          const tête = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
+          const tête: string = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
           if (tête !== empreinteDernièreModifImportée) {
             fAutoAvecÉtats();
             (await obtStockageLocal()).setItem(clefStockageDernièreFois, tête);
@@ -368,7 +368,7 @@ const lancerAutomatisation = async (
 
         switch (spécImp.source.typeSource) {
           case "fichier": {
-            if (!isNode() && !isElectron()) {
+            if (!isNode && !isElectron()) {
               throw new Error(
                 "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation."
               );
