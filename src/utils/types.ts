@@ -45,21 +45,27 @@ export interface infoRésultatTexte {
 
 export interface infoRésultatVide {}
 
-export interface infoRésultatRecherche {
+export interface infoRésultatRecherche<T extends infoRésultat = infoRésultatVide> {
   de: string;
   clef?: string;
-  info: infoRésultatTexte | infoRésultatVide | infoRésultatRecherche;
+  info: T;
 }
 
-export interface résultatObjectifRecherche extends infoRésultatRecherche {
+export type infoRésultat = infoRésultatTexte | infoRésultatVide | infoRésultatRecherche
+
+export interface résultatObjectifRecherche<T extends infoRésultat> extends infoRésultatRecherche<T> {
   score: number;
 }
 
-export type schémaFonctionSuivreObjectifRecherche<T extends résultatObjectifRecherche> = (
+export type schémaFonctionSuivreObjectifRecherche<T extends infoRésultat> = (
   client: ClientConstellation,
   id: string,
-  f: schémaFonctionSuivi<T>
+  f: schémaFonctionSuiviRecherche<T>
 ) => Promise<schémaFonctionOublier>;
+
+export type schémaFonctionSuiviRecherche<T extends infoRésultat> = (
+  résultat?: résultatObjectifRecherche<T>
+) => void;
 
 export type schémaFonctionSuivreConfianceRecherche = (
   id: string,
@@ -71,7 +77,3 @@ export type schémaFonctionSuivreQualitéRecherche = (
   id: string,
   f: schémaFonctionSuivi<number>
 ) => Promise<schémaFonctionOublier>;
-
-export type schémaFonctionSuiviRecherche<T extends résultatObjectifRecherche> = (
-  x: T
-) => void;

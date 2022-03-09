@@ -1,19 +1,20 @@
 import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
-  schémaFonctionRecherche,
+  schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
+  infoRésultatTexte,
 } from "@/utils";
 
 import { similTexte, combinerRecherches, rechercherSelonId } from "./utils";
 
 export const rechercherMotClefSelonNom = (
   nomMotClef: string
-): schémaFonctionRecherche => {
+): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idMotClef: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = (noms: { [key: string]: string }) => {
       const corresp = similTexte(nomMotClef, noms);
@@ -39,11 +40,11 @@ export const rechercherMotClefSelonNom = (
 
 export const rechercherMotClefSelonTexte = (
   texte: string
-): schémaFonctionRecherche => {
+): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherMotClefSelonNom(texte);
     const fRechercherId = rechercherSelonId(texte);

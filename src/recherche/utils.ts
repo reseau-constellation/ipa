@@ -1,15 +1,17 @@
 import ssim from "ssim";
-// import correspTexte from "approx-string-match";
+import correspTexte from "@/_internalisés/approx-string-match";
 
 import ClientConstellation from "@/client";
 import {
-  schémaFonctionSuivi,
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
   faisRien,
   résultatObjectifRecherche,
   infoRésultatTexte,
+  infoRésultatVide,
+  infoRésultatRecherche,
+  infoRésultat,
 } from "@/utils";
 
 export const rechercherDansTexte = (
@@ -66,15 +68,15 @@ export const similImages = (
   return mssim;
 };
 
-export const combinerRecherches = async (
-  fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche },
+export const combinerRecherches = async<T extends infoRésultat> (
+  fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche<T>},
   client: ClientConstellation,
   id: string,
-  fSuivreRecherche: schémaFonctionSuiviRecherche
+  fSuivreRecherche: schémaFonctionSuiviRecherche<T>
 ): Promise<schémaFonctionOublier> => {
   const fsOublier: schémaFonctionOublier[] = [];
 
-  const résultats: { [key: string]: résultatObjectifRecherche | undefined } =
+  const résultats: { [key: string]: résultatObjectifRecherche<T> | undefined } =
     Object.fromEntries(Object.keys(fsRecherche).map((x) => [x, undefined]));
 
   const fSuivreFinale = (): void => {
@@ -86,7 +88,7 @@ export const combinerRecherches = async (
 
   await Promise.all(
     Object.entries(fsRecherche).map(async ([clef, fRecherche]) => {
-      const fSuivre = (résultat?: résultatObjectifRecherche) => {
+      const fSuivre = (résultat?: résultatObjectifRecherche<T>) => {
         résultats[clef] = résultat;
         fSuivreFinale();
       };
@@ -99,27 +101,27 @@ export const combinerRecherches = async (
   };
 };
 
-export const sousRecherche = async (
+export const sousRecherche = async<T extends infoRésultat> (
   de: string,
   fListe: (
     fSuivreRacine: (ids: string[]) => void
   ) => Promise<schémaFonctionOublier>,
-  fRechercher: schémaFonctionSuivreObjectifRecherche,
+  fRechercher: schémaFonctionSuivreObjectifRecherche<T>,
   client: ClientConstellation,
-  fSuivreRecherche: schémaFonctionSuivi<résultatObjectifRecherche>
+  fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<T>>
 ): Promise<schémaFonctionOublier> => {
   const fBranche = async (
     idBd: string,
-    f: (x: { id: string; résultat?: résultatObjectifRecherche }) => void
+    f: (x: { id: string; résultat?: résultatObjectifRecherche<T> }) => void
   ): Promise<schémaFonctionOublier> => {
     return await fRechercher(
       client,
       idBd,
-      (résultat?: résultatObjectifRecherche) => f({ id: idBd, résultat })
+      (résultat?: résultatObjectifRecherche<T>) => f({ id: idBd, résultat })
     );
   };
   const fFinale = (
-    résultats: { id: string; résultat: résultatObjectifRecherche }[]
+    résultats: { id: string; résultat: résultatObjectifRecherche<infoRésultatRecherche<T>> }[]
   ) => {
     const meilleur = Object.values(résultats)
       .filter((x) => x)
@@ -139,11 +141,11 @@ export const sousRecherche = async (
 
 export const rechercherSelonId = (
   idRecherché: string
-): schémaFonctionSuivreObjectifRecherche<résultatObjectifRecherche> => {
+): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     _client: ClientConstellation,
     id: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
     const résultat = rechercherDansTexte(idRecherché, id);
     if (résultat) {
@@ -165,11 +167,11 @@ export const rechercherSelonId = (
   };
 };
 
-export const rechercherTous = <T extends résultatObjectifRecherche>(): schémaFonctionSuivreObjectifRecherche<T> => {
+export const rechercherTous = (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
   return async (
     _client: ClientConstellation,
     _id: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<T>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
   ): Promise<schémaFonctionOublier> => {
     fSuivreRecherche({score: 1, de: "*", info: {}});
     return faisRien
