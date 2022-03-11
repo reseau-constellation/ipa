@@ -119,7 +119,7 @@ export const rechercherProfilSelonCourriel = (
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = (courrielProfil: string | null) => {
       const corresp = courrielProfil
-        ? rechercherDansTexte(courrielProfil, courriel)
+        ? rechercherDansTexte(courriel, courrielProfil)
         : undefined;
 
       if (corresp) {
