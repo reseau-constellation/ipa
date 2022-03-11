@@ -20,7 +20,7 @@ import {
 } from "@/recherche/profil";
 
 import { testAPIs, config } from "../sfipTest";
-import { générerClients, typesClients } from "../utils";
+import { générerClients, typesClients, attendreRésultat } from "../utils";
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -50,15 +50,16 @@ typesClients.forEach((type) => {
         });
 
         describe("Selon activité", function () {
-          let résultat: résultatObjectifRecherche<infoRésultatVide> | undefined;
           let fOublier: schémaFonctionOublier;
+
+          const rés: {ultat: résultatObjectifRecherche<infoRésultatVide> | undefined} = { ultat: undefined};
 
           before(async () => {
             const fRecherche = rechercherProfilSelonActivité();
             fOublier = await fRecherche(
               client,
               client.profil!.idBd,
-              (r) => (résultat = r)
+              (r) => (rés.ultat = r)
             );
           });
 
@@ -70,7 +71,7 @@ typesClients.forEach((type) => {
           });
 
           step("Score 0 pour commencer", async () => {
-            expect(résultat).to.deep.equal({
+            expect(rés.ultat).to.deep.equal({
               type: "résultat",
               score: 0,
               de: "activité",
@@ -80,13 +81,12 @@ typesClients.forEach((type) => {
 
           step("On améliore le score en ajoutant notre nom", async () => {
             await client.profil!.sauvegarderNom("த", "ஜூலீஎன்");
-            await new Promise(résoudre=>setTimeout(résoudre, 2000))
-            expect(résultat?.score).to.equal(1/3);
+            expect(rés.ultat?.score).to.equal(1/3);
           });
 
           step("Encore mieux avec un courriel", async () => {
             await client.profil!.sauvegarderCourriel("julien.malard@mail.mcgill.ca");
-            expect(résultat?.score).to.equal(2/3);
+            expect(rés.ultat?.score).to.equal(2/3);
           });
           step("C'est parfait avec un photo !", async () => {
             const IMAGE = fs.readFileSync(
@@ -94,7 +94,9 @@ typesClients.forEach((type) => {
             );
 
             await client.profil!.sauvegarderImage(IMAGE);
-            expect(résultat?.score).to.equal(1);
+            await attendreRésultat(rés, "ultat", (x: résultatObjectifRecherche<infoRésultatVide> | undefined) => x?.score === 1)
+
+            expect(rés.ultat?.score).to.equal(1);
           });
         });
 
@@ -129,7 +131,7 @@ typesClients.forEach((type) => {
               clef: "es",
               score: 0.5,
               de: "nom",
-              info: { type: "texte", texte: "Julián", début: 0, fin: 6, info: { type: "vide" } },
+              info: { type: "texte", texte: "Julián", début: 0, fin: 6 },
             });
           });
 
@@ -141,21 +143,22 @@ typesClients.forEach((type) => {
               clef: "fr",
               score: 1,
               de: "nom",
-              info: { type: "texte", début: 0, fin: 6, info: { type: "vide" } },
+              info: { type: "texte", texte: "Julien", début: 0, fin: 6 },
             });
           });
         });
 
         describe("Selon courriel", function () {
-          let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
           let fOublier: schémaFonctionOublier;
 
+          const rés: {ultat: résultatObjectifRecherche<infoRésultatTexte> | undefined} = { ultat: undefined};
+
           before(async () => {
-            const fRecherche = rechercherProfilSelonCourriel("Julien");
+            const fRecherche = rechercherProfilSelonCourriel("julien");
             fOublier = await fRecherche(
               client,
               client.profil!.idBd,
-              (r) => (résultat = r)
+              (r) => (rés.ultat = r)
             );
           });
 
@@ -165,17 +168,17 @@ typesClients.forEach((type) => {
           });
 
           step("Rien pour commencer", async () => {
-            expect(résultat).to.be.undefined;
+            expect(rés.ultat).to.be.undefined;
           });
 
           step("Ajout courriel détecté", async () => {
             await client.profil!.sauvegarderCourriel("julien.malard@mail.mcgill.ca");
 
-            expect(résultat).to.deep.equal({
+            expect(rés.ultat).to.deep.equal({
               type: "résultat",
               score: 1,
               de: "courriel",
-              info: { type: "texte", texte: "julien.malard@mail.mcgill.ca", début: 0, fin: 6, info: { type: "vide" } },
+              info: { type: "texte", texte: "julien.malard@mail.mcgill.ca", début: 0, fin: 6 },
             });
           });
         });
@@ -191,7 +194,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            const fRechercheNom = rechercherProfilSelonTexte("Julien");
+            const fRechercheNom = rechercherProfilSelonTexte("Julien Malard");
             fsOublier.push(
               await fRechercheNom(client, client.profil!.idBd, (r) => (résultatNom = r))
             );
@@ -210,7 +213,7 @@ typesClients.forEach((type) => {
           });
 
           step("Rien pour commencer", async () => {
-            expect(résultatNom?.score).to.equal(0);
+            expect(résultatNom).to.be.undefined;
           });
 
           step("Ajout nom détecté", async () => {
@@ -222,8 +225,8 @@ typesClients.forEach((type) => {
               info: {
                 type: "texte",
                 début: 0,
-                fin: 6,
-                texte: "Julien Malad-Adam",
+                fin: 13,
+                texte: "Julien Malard-Adam",
               },
               score: 1,
             });
@@ -234,10 +237,10 @@ typesClients.forEach((type) => {
               info: {
                 type: "texte",
                 début: 0,
-                fin: 6,
-                texte: "Julien Malad-Adam",
+                fin: 7,
+                texte: "Julien Malard-Adam",
               },
-              score: 0.25,
+              score: 1/3,
             });
           });
 
@@ -249,7 +252,7 @@ typesClients.forEach((type) => {
               info: {
                 type: "texte",
                 début: 0,
-                fin: 6,
+                fin: 7,
                 texte: "julien.malard@mail.mcgill.ca",
               },
               score: 1,
