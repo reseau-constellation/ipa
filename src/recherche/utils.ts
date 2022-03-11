@@ -17,7 +17,7 @@ import {
 export const rechercherDansTexte = (
   schéma: string,
   texte: string
-): { type: "texte", score: number; début: number; fin: number } | undefined => {
+): { type: "texte"; score: number; début: number; fin: number } | undefined => {
   // Une alternative - https://www.npmjs.com/package/js-levenshtein
   const correspondances = correspTexte(
     texte,
@@ -41,29 +41,28 @@ export const similTexte = (
   if (Array.isArray(possibilités)) {
     possibilités = Object.fromEntries(possibilités.map((x) => [x, x]));
   }
-  const similairités = Object.entries(possibilités)
-    .map(([clef, val]) => {
-      const corresp = rechercherDansTexte(texte, val);
-      if (corresp) {
-        const { score, début, fin } = corresp;
-        return {
-          type: "résultat",
-          score,
-          clef,
-          info: { type: "texte", texte: val, début, fin }
-        } as {
-          type: "résultat",
-          score: number,
-          clef: string,
-          info: { type: "texte", texte: string, début: number, fin: number }
-        };
-      }
-      return;
-    })
+  const similairités = Object.entries(possibilités).map(([clef, val]) => {
+    const corresp = rechercherDansTexte(texte, val);
+    if (corresp) {
+      const { score, début, fin } = corresp;
+      return {
+        type: "résultat",
+        score,
+        clef,
+        info: { type: "texte", texte: val, début, fin },
+      } as {
+        type: "résultat";
+        score: number;
+        clef: string;
+        info: { type: "texte"; texte: string; début: number; fin: number };
+      };
+    }
+    return;
+  });
 
-  const meilleure = similairités.filter((x) => x).sort((a, b) =>
-    a!.score > b!.score ? -1 : 1
-  )[0];
+  const meilleure = similairités
+    .filter((x) => x)
+    .sort((a, b) => (a!.score > b!.score ? -1 : 1))[0];
   return meilleure;
 };
 
@@ -78,8 +77,8 @@ export const similImages = (
   return mssim;
 };
 
-export const combinerRecherches = async<T extends infoRésultat> (
-  fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche<T>},
+export const combinerRecherches = async <T extends infoRésultat>(
+  fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche<T> },
   client: ClientConstellation,
   id: string,
   fSuivreRecherche: schémaFonctionSuiviRecherche<T>
@@ -111,7 +110,7 @@ export const combinerRecherches = async<T extends infoRésultat> (
   };
 };
 
-export const sousRecherche = async<T extends infoRésultat> (
+export const sousRecherche = async <T extends infoRésultat>(
   de: string,
   fListe: (
     fSuivreRacine: (ids: string[]) => void
@@ -131,7 +130,10 @@ export const sousRecherche = async<T extends infoRésultat> (
     );
   };
   const fFinale = (
-    résultats: { id: string; résultat: résultatObjectifRecherche<infoRésultatRecherche<T>>}[]
+    résultats: {
+      id: string;
+      résultat: résultatObjectifRecherche<infoRésultatRecherche<T>>;
+    }[]
   ) => {
     const meilleur = meilleurRésultat<infoRésultatRecherche<T>>(résultats);
     fSuivreRecherche(
@@ -147,7 +149,10 @@ export const sousRecherche = async<T extends infoRésultat> (
   return fOublier;
 };
 
-const aMieuxQueB = <T extends infoRésultat>(a: résultatObjectifRecherche<T>, b: résultatObjectifRecherche<T>): boolean => {
+const aMieuxQueB = <T extends infoRésultat>(
+  a: résultatObjectifRecherche<T>,
+  b: résultatObjectifRecherche<T>
+): boolean => {
   const xPlusLongQueY = (x: infoRésultat, y: infoRésultat): boolean => {
     while (x.type === "résultat") x = x.info;
     while (y.type === "résultat") x = y.info;
@@ -155,31 +160,32 @@ const aMieuxQueB = <T extends infoRésultat>(a: résultatObjectifRecherche<T>, b
     switch (x.type) {
       case "texte":
         if (y.type === "texte") {
-          return (x.fin - x.début) > (y.fin - y.début)
+          return x.fin - x.début > y.fin - y.début;
         } else {
-          return false
+          return false;
         }
       default:
         return true;
     }
-  }
-  return a.score > b.score ? true : (
-    a.score < b.score ? false : (
-      xPlusLongQueY(a.info, b.info) ? true: false
-    )
-  )
+  };
+  return a.score > b.score
+    ? true
+    : a.score < b.score
+    ? false
+    : xPlusLongQueY(a.info, b.info)
+    ? true
+    : false;
+};
 
-}
-
-const meilleurRésultat = <T extends infoRésultat>(résultats:{ id: string; résultat: résultatObjectifRecherche<T>}[]): { id: string; résultat: résultatObjectifRecherche<T>} => {
+const meilleurRésultat = <T extends infoRésultat>(
+  résultats: { id: string; résultat: résultatObjectifRecherche<T> }[]
+): { id: string; résultat: résultatObjectifRecherche<T> } => {
   const meilleur = Object.values(résultats)
     .filter((x) => x)
-    .sort((a, b) => (
-      aMieuxQueB(a.résultat, b.résultat) ? -1 : 1
-    ))[0];
+    .sort((a, b) => (aMieuxQueB(a.résultat, b.résultat) ? -1 : 1))[0];
 
-  return meilleur
-}
+  return meilleur;
+};
 
 export const rechercherSelonId = (
   idRecherché: string
@@ -211,18 +217,19 @@ export const rechercherSelonId = (
   };
 };
 
-export const rechercherTous = (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
-  return async (
-    _client: ClientConstellation,
-    _id: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
-  ): Promise<schémaFonctionOublier> => {
-    fSuivreRecherche({
-      type: "résultat",
-      score: 1,
-      de: "*",
-      info: {type: "vide"}
-    });
-    return faisRien
-  }
-}
+export const rechercherTous =
+  (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
+    return async (
+      _client: ClientConstellation,
+      _id: string,
+      fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
+    ): Promise<schémaFonctionOublier> => {
+      fSuivreRecherche({
+        type: "résultat",
+        score: 1,
+        de: "*",
+        info: { type: "vide" },
+      });
+      return faisRien;
+    };
+  };

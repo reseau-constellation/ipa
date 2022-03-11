@@ -4,8 +4,15 @@ import { step } from "mocha-steps";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
-import { schémaFonctionOublier, résultatObjectifRecherche, infoRésultatTexte } from "@/utils";
-import { rechercherMotClefSelonNom, rechercherMotClefSelonTexte } from "@/recherche/motClef"
+import {
+  schémaFonctionOublier,
+  résultatObjectifRecherche,
+  infoRésultatTexte,
+} from "@/utils";
+import {
+  rechercherMotClefSelonNom,
+  rechercherMotClefSelonTexte,
+} from "@/recherche/motClef";
 
 import { testAPIs, config } from "../sfipTest";
 import { générerClients, typesClients } from "../utils";
@@ -14,7 +21,7 @@ chai.should();
 chai.use(chaiAsPromised);
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Rechercher mots clefs", function () {
         this.timeout(config.timeout);
@@ -39,128 +46,132 @@ typesClients.forEach((type) => {
 
         describe("Rechercher mot-clef selon nom", function () {
           let idMotClef: string;
-          let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined
-          let fOublier: schémaFonctionOublier
+          let résultat:
+            | résultatObjectifRecherche<infoRésultatTexte>
+            | undefined;
+          let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            idMotClef = await client.motsClefs!.créerMotClef()
+            idMotClef = await client.motsClefs!.créerMotClef();
 
-            const fRecherche = rechercherMotClefSelonNom("hydrologie")
+            const fRecherche = rechercherMotClefSelonNom("hydrologie");
             fOublier = await fRecherche(
               client,
               idMotClef,
-              r => résultat = r
+              (r) => (résultat = r)
             );
-
           });
 
-          after(()=>{
+          after(() => {
             if (fOublier) fOublier();
-          })
+          });
 
           step("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
             expect(résultat).to.be.undefined;
           });
           it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
             await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
-              "த": "நீரியல்"
-            })
+              த: "நீரியல்",
+            });
             expect(résultat).to.be.undefined;
           });
           it("Résultat si le mot-clef est presque exacte", async () => {
             await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
-              "fr": "Sciences hydrologiques"
+              fr: "Sciences hydrologiques",
             });
 
-            expect(résultat).to.deep.equal(
-              {
-                clef: "fr",
-                de: "nom",
-                info: {
-                  début: 9,
-                  fin: 19,
-                  texte: "hydrologie"
-                },
-                score: 0.5
-              }
-            )
-          });
-          it("Résultat si le mot-clef est exacte", async () => {
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
-              "fr": "hydrologie"
-            })
-            expect(résultat).to.deep.equal(
-              {
-                clef: "fr",
-                de: "nom",
-                info: {
-                  début: 0,
-                  fin: 10,
-                  texte: "hydrologie"
-                },
-                score: 1
-              }
-            )
-          });
-        })
-
-        describe("Rechercher mot-clef selon texte", function () {
-          let idMotClef: string;
-          let résultatId: résultatObjectifRecherche<infoRésultatTexte> | undefined
-          let résultatNom: résultatObjectifRecherche<infoRésultatTexte> | undefined
-
-          const fsOublier: schémaFonctionOublier[] = []
-
-          before(async () => {
-            idMotClef = await client.motsClefs!.créerMotClef()
-
-            const fRechercheNom = rechercherMotClefSelonTexte("hydrologie")
-            fsOublier.push(await fRechercheNom(
-              client,
-              idMotClef,
-              r => résultatNom = r
-            ));
-
-            const fRechercheId = rechercherMotClefSelonTexte(idMotClef.slice(0, 15))
-            fsOublier.push(await fRechercheId(
-              client,
-              idMotClef,
-              r => résultatId = r
-            ));
-
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
-              "fr": "hydrologie"
-            })
-
-          });
-
-          after(()=>{
-            fsOublier.forEach(f=>f())
-          })
-
-          step("Résultat nom détecté", async () => {
-            expect(résultatNom).to.deep.equal({
+            expect(résultat).to.deep.equal({
+              type: "résultat",
               clef: "fr",
               de: "nom",
               info: {
+                type: "texte",
+                début: 9,
+                fin: 19,
+                texte: "Sciences hydrologiques",
+              },
+              score: 0.5,
+            });
+          });
+          it("Résultat si le mot-clef est exacte", async () => {
+            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+              fr: "hydrologie",
+            });
+            expect(résultat).to.deep.equal({
+              type: "résultat",
+              clef: "fr",
+              de: "nom",
+              info: {
+                type: "texte",
                 début: 0,
                 fin: 10,
-                texte: "hydrologie"
+                texte: "hydrologie",
               },
-              score: 1
+              score: 1,
+            });
+          });
+        });
+
+        describe("Rechercher mot-clef selon texte", function () {
+          let idMotClef: string;
+          let résultatId:
+            | résultatObjectifRecherche<infoRésultatTexte>
+            | undefined;
+          let résultatNom:
+            | résultatObjectifRecherche<infoRésultatTexte>
+            | undefined;
+
+          const fsOublier: schémaFonctionOublier[] = [];
+
+          before(async () => {
+            idMotClef = await client.motsClefs!.créerMotClef();
+
+            const fRechercheNom = rechercherMotClefSelonTexte("hydrologie");
+            fsOublier.push(
+              await fRechercheNom(client, idMotClef, (r) => (résultatNom = r))
+            );
+
+            const fRechercheId = rechercherMotClefSelonTexte(
+              idMotClef.slice(0, 15)
+            );
+            fsOublier.push(
+              await fRechercheId(client, idMotClef, (r) => (résultatId = r))
+            );
+
+            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+              fr: "hydrologie",
+            });
+          });
+
+          after(() => {
+            fsOublier.forEach((f) => f());
+          });
+
+          step("Résultat nom détecté", async () => {
+            expect(résultatNom).to.deep.equal({
+              type: "résultat",
+              clef: "fr",
+              de: "nom",
+              info: {
+                type: "texte",
+                début: 0,
+                fin: 10,
+                texte: "hydrologie",
+              },
+              score: 1,
             });
           });
           it("Résultat id détecté", async () => {
-
             expect(résultatId).to.be.deep.equal({
-              clef: "fr",
+              type: "résultat",
               de: "id",
               info: {
+                type: "texte",
                 début: 0,
                 fin: 15,
-                texte: idMotClef
+                texte: idMotClef,
               },
-              score: 1
+              score: 1,
             });
           });
         });

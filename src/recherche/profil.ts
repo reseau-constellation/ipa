@@ -40,7 +40,12 @@ export const rechercherProfilSelonActivité =
             infosCompte.courriel,
           ].filter(Boolean).length / 3;
 
-        return { type: "résultat", score, de: "activité", info: { type: "vide" } };
+        return {
+          type: "résultat",
+          score,
+          de: "activité",
+          info: { type: "vide" },
+        };
       };
       const fSuivreNoms = (noms: { [key: string]: string }) => {
         infosCompte.noms = noms;

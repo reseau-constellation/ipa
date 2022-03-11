@@ -42,7 +42,7 @@ export default class Épingles {
     const dépendants = this.requètes.filter((r) => r.parent === id);
 
     this.requètes = this.requètes.filter((r) => r.id !== id);
-    this.requètes = this.requètes.filter((r) => r.parent !== id)
+    this.requètes = this.requètes.filter((r) => r.parent !== id);
 
     await Promise.all(
       dépendants.map(async (d) => {
@@ -110,7 +110,6 @@ export default class Épingles {
               } catch {
                 // ignorer erreur si id_ n'était pas épinglé sur SFIP
               }
-
             };
             this.requètes.push({ id: id_, parent: id, fOublier: fOublier_ });
           });
@@ -134,9 +133,11 @@ export default class Épingles {
   }
 
   async toutDésépingler(): Promise<void> {
-    await Promise.all([...this.épingles()].map(async é => {
-      await this.désépinglerBd(é);
-    }));
+    await Promise.all(
+      [...this.épingles()].map(async (é) => {
+        await this.désépinglerBd(é);
+      })
+    );
   }
 
   async fermer(): Promise<void> {

@@ -241,7 +241,7 @@ export default class ClientConstellation extends EventEmitter {
     this.automatisations = new Automatisations(this, idBdAuto!);
     await this.automatisations.initialiser();
 
-    this.épingles!.épinglerBd(idBdProfil!)  // Celle-ci doit être récursive
+    this.épingles!.épinglerBd(idBdProfil!); // Celle-ci doit être récursive
     for (const idBd in [
       idBdBDs,
       idBdVariables,
@@ -961,22 +961,22 @@ export default class ClientConstellation extends EventEmitter {
       [...new Set(branches.flat())] as unknown as V[],
     fCode: (é: T) => string = (é) => é as string
   ): Promise<{
-    fOublier: schémaFonctionOublier,
-    fChangerProfondeur: (p: number) => void
+    fOublier: schémaFonctionOublier;
+    fChangerProfondeur: (p: number) => void;
   }> {
-
-    let _fChangerProfondeur: ((p: number) => void) | undefined = undefined
+    let _fChangerProfondeur: ((p: number) => void) | undefined = undefined;
     const fChangerProfondeur = (p: number) => {
       if (_fChangerProfondeur) _fChangerProfondeur(p);
-    }
+    };
 
     const fListeFinale = async (
       fSuivreRacine: (éléments: T[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      const { fOublier: fOublierL, fChangerProfondeur: fChangerL } = await fListe(fSuivreRacine);
+      const { fOublier: fOublierL, fChangerProfondeur: fChangerL } =
+        await fListe(fSuivreRacine);
       _fChangerProfondeur = fChangerL;
-      return fOublierL
-    }
+      return fOublierL;
+    };
 
     const fOublier = await this.suivreBdsDeFonctionListe(
       fListeFinale,
@@ -986,7 +986,7 @@ export default class ClientConstellation extends EventEmitter {
       fRéduction,
       fCode
     );
-    return { fOublier, fChangerProfondeur }
+    return { fOublier, fChangerProfondeur };
   }
 
   async suivreBdsSelonCondition(

@@ -7,7 +7,7 @@ import estNode from "is-node";
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris";
-import { schémaFonctionOublier } from "@/utils";
+import { schémaFonctionOublier } from "@/utils";
 
 import { testAPIs, config } from "./sfipTest";
 import { générerClients, typesClients } from "./utils";
@@ -41,15 +41,21 @@ typesClients.forEach((type) => {
 
         describe("estÉpingléSurDispositif", function () {
           it("undefined", async () => {
-            const épinglé = await client.favoris!.estÉpingléSurDispositif(undefined);
+            const épinglé = await client.favoris!.estÉpingléSurDispositif(
+              undefined
+            );
             expect(épinglé).to.be.false;
           });
           it("tous", async () => {
-            const épinglé = await client.favoris!.estÉpingléSurDispositif("TOUS");
+            const épinglé = await client.favoris!.estÉpingléSurDispositif(
+              "TOUS"
+            );
             expect(épinglé).to.be.true;
           });
           it("installé", async () => {
-            const épinglé = await client.favoris!.estÉpingléSurDispositif("INSTALLÉ");
+            const épinglé = await client.favoris!.estÉpingléSurDispositif(
+              "INSTALLÉ"
+            );
             if (estNode || estÉlectron()) {
               expect(épinglé).to.be.true;
             } else {
@@ -57,21 +63,28 @@ typesClients.forEach((type) => {
             }
           });
           it("installé, pour un autre dispositif", async () => {
-            const idOrbiteAutre = "abc"
-            const épinglé = await client.favoris!.estÉpingléSurDispositif("INSTALLÉ", idOrbiteAutre);
+            const idOrbiteAutre = "abc";
+            const épinglé = await client.favoris!.estÉpingléSurDispositif(
+              "INSTALLÉ",
+              idOrbiteAutre
+            );
             expect(épinglé).to.be.false;
           });
           it("idOrbite", async () => {
-            const idOrbite = await client.obtIdOrbite()
-            const épinglé = await client.favoris!.estÉpingléSurDispositif(idOrbite);
+            const idOrbite = await client.obtIdOrbite();
+            const épinglé = await client.favoris!.estÉpingléSurDispositif(
+              idOrbite
+            );
             expect(épinglé).to.be.true;
           });
           it("listeIdOrbite", async () => {
-            const idOrbite = await client.obtIdOrbite()
-            const épinglé = await client.favoris!.estÉpingléSurDispositif([idOrbite]);
+            const idOrbite = await client.obtIdOrbite();
+            const épinglé = await client.favoris!.estÉpingléSurDispositif([
+              idOrbite,
+            ]);
             expect(épinglé).to.be.true;
           });
-        })
+        });
 
         describe("Épingler BDs", function () {
           let idBd: string;
@@ -81,54 +94,58 @@ typesClients.forEach((type) => {
 
           const fsOublier: schémaFonctionOublier[] = [];
 
-          before(async ()=>{
+          before(async () => {
             idBd = await client.bds!.créerBd("ODbl-1_0");
 
-            fsOublier.push(await client.favoris!.suivreFavoris(
-              favs => favoris = favs
-            ))
-            fsOublier.push(await client.favoris!.suivreEstÉpingléSurDispositif(
-              idBd, épingle => épingleBd = épingle
-            ))
+            fsOublier.push(
+              await client.favoris!.suivreFavoris((favs) => (favoris = favs))
+            );
+            fsOublier.push(
+              await client.favoris!.suivreEstÉpingléSurDispositif(
+                idBd,
+                (épingle) => (épingleBd = épingle)
+              )
+            );
           });
 
-          after(()=>{
-            fsOublier.forEach(f=>f());
+          after(() => {
+            fsOublier.forEach((f) => f());
           });
 
           step("Pas de favori pour commencer", async () => {
             expect(favoris).to.be.an.empty("array");
           });
 
-
           step("Ajouter un favori", async () => {
-            await client.favoris!.épinglerFavori(idBd, "TOUS")
+            await client.favoris!.épinglerFavori(idBd, "TOUS");
             expect(favoris)
               .to.be.an("array")
               .with.lengthOf(1)
-              .with.deep.members([{
-                récursif: true,
-                dispositifs: "TOUS",
-                dispositifsFichiers: "INSTALLÉ",
-                idObjet: idBd
-              }]);
+              .with.deep.members([
+                {
+                  récursif: true,
+                  dispositifs: "TOUS",
+                  dispositifsFichiers: "INSTALLÉ",
+                  idObjet: idBd,
+                },
+              ]);
             expect(épingleBd).to.deep.equal({
               idObjet: idBd,
               bd: true,
               fichiers: true,
               récursif: true,
-            })
+            });
           });
 
           step("Enlever un favori", async () => {
-            await client.favoris!.désépinglerFavori(idBd)
+            await client.favoris!.désépinglerFavori(idBd);
             expect(favoris).to.be.empty;
             expect(épingleBd).to.deep.equal({
               idObjet: idBd,
               bd: false,
               fichiers: false,
               récursif: false,
-            })
+            });
           });
 
           step("Ajouter un favori avec fichiers", async () => {
@@ -136,15 +153,16 @@ typesClients.forEach((type) => {
 
             const idTableau = await client.bds!.ajouterTableauBd(idBd);
             const idVarPhoto = await client.variables!.créerVariable("photo");
-            const idColPhoto = await client.tableaux!.ajouterColonneTableau(idTableau, idVarPhoto);
-            await client.tableaux!.ajouterÉlément(
+            const idColPhoto = await client.tableaux!.ajouterColonneTableau(
               idTableau,
-              {[idColPhoto]: idc}
-            )
+              idVarPhoto
+            );
+            await client.tableaux!.ajouterÉlément(idTableau, {
+              [idColPhoto]: idc,
+            });
 
             expect(client.épingles!.épinglée(idc));
           });
-
         });
       });
     });

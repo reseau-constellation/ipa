@@ -43,14 +43,13 @@ typesClients.forEach((type) => {
           before(async () => {
             await client.épingles!.toutDésépingler();
             idBd = await client!.créerBdIndépendante("kvstore");
-          })
+          });
 
           step("Pas d'épingles pour commencer", async () => {
             const épingles = client.épingles!.épingles();
             expect(épingles).to.be.an.empty("set");
           });
           step("Ajouter une épingle", async () => {
-
             await client.épingles!.épinglerBd(idBd);
 
             const épingles = client.épingles!.épingles();
@@ -81,12 +80,14 @@ typesClients.forEach((type) => {
 
             idBdDic2 = await client!.créerBdIndépendante("kvstore");
             idBdAutre = await client!.créerBdIndépendante("kvstore");
-          })
+          });
 
           step("Épingler liste récursive", async () => {
             await client.épingles!.épinglerBd(idBdListe);
 
-            const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(idBdListe)
+            const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(
+              idBdListe
+            );
             await bd.add(idBdAutre);
             fOublier();
 
@@ -95,7 +96,6 @@ typesClients.forEach((type) => {
             expect([...épingles])
               .to.have.lengthOf(2)
               .with.members([idBdListe, idBdAutre]);
-
           });
 
           step("Désépingler liste récursive", async () => {
@@ -107,11 +107,15 @@ typesClients.forEach((type) => {
           step("Épingler dic récursif", async () => {
             await client.épingles!.épinglerBd(idBdDic);
 
-            const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(idBdDic)
+            const { bd, fOublier } = await client.ouvrirBd<
+              KeyValueStore<string>
+            >(idBdDic);
             await bd.set("clef", idBdDic2);
             fOublier();
 
-            const { bd: bdDic2, fOublier: fOublier2 } = await client.ouvrirBd<KeyValueStore<string>>(idBdDic2)
+            const { bd: bdDic2, fOublier: fOublier2 } = await client.ouvrirBd<
+              KeyValueStore<string>
+            >(idBdDic2);
             await bdDic2.set("clef", idBdAutre);
             fOublier2();
 
@@ -150,32 +154,35 @@ typesClients.forEach((type) => {
             idBd = await client.créerBdIndépendante("kvstore");
             idBd2 = await client.créerBdIndépendante("kvstore");
             idBdListe = await client.créerBdIndépendante("feed");
-
-          })
+          });
 
           step("Fichier non épinglé", async () => {
             expect(client.épingles!.épinglée(idc)).to.be.false;
           });
 
           step("Fichier épinglé", async () => {
-            const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(idBd);
+            const { bd, fOublier } = await client.ouvrirBd<
+              KeyValueStore<string>
+            >(idBd);
             await bd.set("clef", idc);
             await bd.set("clef2", idc2);
             fOublier();
 
-            const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<KeyValueStore<string>>(idBd2);
+            const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<
+              KeyValueStore<string>
+            >(idBd2);
             await bd2.set("clef2", idc2);
             fOublier2();
 
-            await client.épingles!.épinglerBd(idBd)
-            await client.épingles!.épinglerBd(idBd2)
+            await client.épingles!.épinglerBd(idBd);
+            await client.épingles!.épinglerBd(idBd2);
 
             expect(client.épingles!.épinglée(idc));
             expect(client.épingles!.épinglée(idc2));
           });
 
           step("Fichier désépinglé", async () => {
-            await client.épingles!.désépinglerBd(idBd)
+            await client.épingles!.désépinglerBd(idBd);
 
             expect(client.épingles!.épinglée(idc)).to.be.false;
           });
@@ -194,11 +201,13 @@ typesClients.forEach((type) => {
           step("Fichier épinglé dans BD récursive", async () => {
             await client.épingles!.épinglerBd(idBdListe);
 
-            const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(idBdListe);
+            const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(
+              idBdListe
+            );
             await bd.add(idBd);
             fOublier();
 
-            await new Promise(resolve => setTimeout(resolve, 100))
+            await new Promise((resolve) => setTimeout(resolve, 100));
             expect(client.épingles!.épinglée(idc));
           });
 

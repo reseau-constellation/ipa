@@ -29,7 +29,6 @@ typesClients.forEach((type) => {
             type
           ));
           client = clients[0];
-
         });
 
         after(async () => {

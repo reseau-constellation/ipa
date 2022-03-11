@@ -40,14 +40,16 @@ export interface règleBornes extends règleVariable {
 
 export interface règleValeurCatégorique extends règleVariable {
   typeRègle: "valeurCatégorique";
-  détails: {
-    type: "fixe";
-    options: élémentsBd[];
-  } | {
-    type: "dynamique";
-    tableau: string;
-    colonne: string;
-  };
+  détails:
+    | {
+        type: "fixe";
+        options: élémentsBd[];
+      }
+    | {
+        type: "dynamique";
+        tableau: string;
+        colonne: string;
+      };
 }
 
 export interface règleCatégorie extends règleVariable {
@@ -80,7 +82,7 @@ export interface élémentDonnées<
 export function générerFonctionRègle<T extends élémentBdListeDonnées>(
   règle: règleColonne,
   varsÀColonnes: { [key: string]: string },
-  donnéesCatégorie?: élémentsBd[],
+  donnéesCatégorie?: élémentsBd[]
 ): schémaFonctionValidation<T> {
   const règleVariable = règle.règle;
   const { colonne } = règle;
@@ -149,13 +151,15 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>(
           const idsColonnes = Object.values(varsÀColonnes);
 
           if (règle.source === "tableau" && !idsColonnes.includes(val)) {
-            fComp = (_: élémentDonnées<T>) => false
+            fComp = (_: élémentDonnées<T>) => false;
           } else {
             fComp = (v: élémentDonnées<T>) =>
               fOp(
                 v.données[colonne] as number,
                 // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
-                (règle.source === "variable" ? v.données[varsÀColonnes[val]] : v.données[val]) as number
+                (règle.source === "variable"
+                  ? v.données[varsÀColonnes[val]]
+                  : v.données[val]) as number
               );
           }
           break;
@@ -182,9 +186,12 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>(
     }
 
     case "valeurCatégorique": {
-      const règleCatégorique = règleVariable.règle as règleValeurCatégorique
+      const règleCatégorique = règleVariable.règle as règleValeurCatégorique;
 
-      const options = règleCatégorique.détails.type === "fixe" ? règleCatégorique.détails.options : donnéesCatégorie;
+      const options =
+        règleCatégorique.détails.type === "fixe"
+          ? règleCatégorique.détails.options
+          : donnéesCatégorie;
 
       if (!options) throw "Options non spécifiées";
 

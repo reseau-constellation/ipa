@@ -38,10 +38,7 @@ typesClients.forEach((type) => {
         });
 
         describe("Importation", function () {
-
-          before(async () => {
-
-          })
+          before(async () => {});
 
           step("Aucune automatisation pour commencer");
           step("Ajout automatisation détecté");
@@ -56,13 +53,11 @@ typesClients.forEach((type) => {
           step("Exportation tableau");
           step("Exportation BD");
           step("Exportation projet");
-
         });
 
         describe("Exportation nuée bds", function () {
           step("Exportation selon fréquence");
           step("Exportation selon changements");
-
         });
 
         describe("Suivre état automatisations", function () {
@@ -71,7 +66,6 @@ typesClients.forEach((type) => {
           it("sync");
           it("programmée");
         });
-
       });
     });
   });

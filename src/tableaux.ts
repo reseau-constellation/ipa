@@ -421,7 +421,7 @@ export default class Tableaux {
 
   async modifierÉlément(
     idTableau: string,
-    vals: {[key: string]: élémentsBd | undefined},
+    vals: { [key: string]: élémentsBd | undefined },
     empreintePrécédente: string
   ): Promise<string> {
     const optionsAccès = await this.client.obtOpsAccès(idTableau);
@@ -996,7 +996,9 @@ export default class Tableaux {
       }
       f(erreurs);
     };
-    const fFinaleRègles = (règles: { règle: règleColonne, donnéesCatégorie?: élémentsBd[] }[]) => {
+    const fFinaleRègles = (
+      règles: { règle: règleColonne; donnéesCatégorie?: élémentsBd[] }[]
+    ) => {
       if (info.varsÀColonnes) {
         info.règles = règles.map((r) =>
           générerFonctionRègle(r.règle, info.varsÀColonnes!, r.donnéesCatégorie)
@@ -1022,25 +1024,33 @@ export default class Tableaux {
     const fListeRègles = async (
       fSuivreRacine: (règles: règleColonne[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreRègles(idTableau, fSuivreRacine)
-    }
+      return await this.suivreRègles(idTableau, fSuivreRacine);
+    };
 
     const fBrancheRègles = async (
       _id: string,
-      fSuivreBranche: schémaFonctionSuivi<{ règle: règleColonne, donnéesCatégorie?: élémentsBd[] }>,
-      règle: règleColonne,
+      fSuivreBranche: schémaFonctionSuivi<{
+        règle: règleColonne;
+        donnéesCatégorie?: élémentsBd[];
+      }>,
+      règle: règleColonne
     ): Promise<schémaFonctionOublier> => {
-      if (règle.règle.règle.typeRègle === "valeurCatégorique" && règle.règle.règle.détails.tableau) {
-        const { tableau, colonne } = règle.règle.règle.détails
-        return await this.suivreDonnées(
-          tableau as string,
-          (données) => fSuivreBranche({ règle, donnéesCatégorie: données.map(d=>d.données[colonne as string])})
-        )
+      if (
+        règle.règle.règle.typeRègle === "valeurCatégorique" &&
+        règle.règle.règle.détails.tableau
+      ) {
+        const { tableau, colonne } = règle.règle.règle.détails;
+        return await this.suivreDonnées(tableau as string, (données) =>
+          fSuivreBranche({
+            règle,
+            donnéesCatégorie: données.map((d) => d.données[colonne as string]),
+          })
+        );
       } else {
-        fSuivreBranche({ règle })
-        return faisRien
+        fSuivreBranche({ règle });
+        return faisRien;
       }
-    }
+    };
 
     const fIdDeBranche = (b: règleColonne) => b.règle.id;
     const fCode = (b: règleColonne) => b.règle.id;
@@ -1051,7 +1061,7 @@ export default class Tableaux {
       fBrancheRègles,
       fIdDeBranche,
       undefined,
-      fCode,
+      fCode
     );
 
     const fOublierDonnées = await this.suivreDonnées(idTableau, fFinaleDonnées);

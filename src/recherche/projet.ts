@@ -75,11 +75,15 @@ export const rechercherProjetSelonDescr = (
 
 export const rechercherProjetSelonIdBd = (
   idBd: string
-): schémaFonctionSuivreObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> => {
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatRecherche<infoRésultatTexte>
+> => {
   return async (
     client: ClientConstellation,
     idProjet: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatRecherche<infoRésultatTexte>
+    >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
@@ -101,11 +105,19 @@ export const rechercherProjetSelonIdBd = (
 
 export const rechercherProjetSelonBd = (
   texte: string
-): schémaFonctionSuivreObjectifRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>> => {
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatRecherche<
+    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+  >
+> => {
   return async (
     client: ClientConstellation,
     idProjet: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatRecherche<
+        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+      >
+    >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
@@ -127,11 +139,15 @@ export const rechercherProjetSelonBd = (
 
 export const rechercherProjetSelonIdVariable = (
   idVariable: string
-): schémaFonctionSuivreObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> => {
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatRecherche<infoRésultatTexte>
+> => {
   return async (
     client: ClientConstellation,
     idProjet: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatRecherche<infoRésultatTexte>
+    >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
@@ -156,11 +172,15 @@ export const rechercherProjetSelonIdVariable = (
 
 export const rechercherProjetSelonVariable = (
   texte: string
-): schémaFonctionSuivreObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> => {
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatRecherche<infoRésultatTexte>
+> => {
   return async (
     client: ClientConstellation,
     idProjet: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatRecherche<infoRésultatTexte>
+    >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
@@ -185,11 +205,15 @@ export const rechercherProjetSelonVariable = (
 
 export const rechercherProjetSelonIdMotClef = (
   idMotClef: string
-): schémaFonctionSuivreObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> => {
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatRecherche<infoRésultatTexte>
+> => {
   return async (
     client: ClientConstellation,
     idProjet: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatRecherche<infoRésultatTexte>
+    >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
@@ -214,11 +238,15 @@ export const rechercherProjetSelonIdMotClef = (
 
 export const rechercherProjetSelonMotClef = (
   texte: string
-): schémaFonctionSuivreObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> => {
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatRecherche<infoRésultatTexte>
+> => {
   return async (
     client: ClientConstellation,
     idProjet: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatRecherche<infoRésultatTexte>
+    >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
@@ -243,11 +271,21 @@ export const rechercherProjetSelonMotClef = (
 
 export const rechercherProjetSelonTexte = (
   texte: string
-): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>> => {
+): schémaFonctionSuivreObjectifRecherche<
+  | infoRésultatTexte
+  | infoRésultatRecherche<
+      infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+    >
+> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      | infoRésultatTexte
+      | infoRésultatRecherche<
+          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        >
+    >
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherProjetSelonNom(texte);
     const fRechercherDescr = rechercherProjetSelonDescr(texte);
@@ -256,7 +294,12 @@ export const rechercherProjetSelonTexte = (
     const fRechercherMotClef = rechercherProjetSelonMotClef(texte);
     const fRechercherId = rechercherSelonId(texte);
 
-    return await combinerRecherches<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>>(
+    return await combinerRecherches<
+      | infoRésultatTexte
+      | infoRésultatRecherche<
+          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        >
+    >(
       {
         noms: fRechercherNoms,
         descr: fRechercherDescr,

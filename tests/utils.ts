@@ -14,7 +14,7 @@ import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation from "@/client";
 import { schémaFonctionOublier } from "@/utils";
 import générerProxyProc from "@/proxy/ipaProc";
-import générerProxyTravailleur from"@/proxy/ipaTravailleur";
+import générerProxyTravailleur from "@/proxy/ipaTravailleur";
 
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   new Promise<void>((resolve) => {
@@ -157,10 +157,7 @@ export const générerClients = async (
   const fsOublier: schémaFonctionOublier[] = [];
 
   if (type === "directe" || type == "proc") {
-    const { orbites, fOublier: fOublierOrbites } = await générerOrbites(
-      n,
-      API
-    );
+    const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n, API);
     for (const i in [...Array(n).keys()]) {
       let client: ClientConstellation;
       switch (type) {
@@ -184,7 +181,10 @@ export const générerClients = async (
   } else if (type === "travailleur") {
     let client: ClientConstellation;
     for (const i in [...Array(n).keys()]) {
-      client = générerProxyTravailleur({ orbite: { dossier: String(i)}}, true);
+      client = générerProxyTravailleur(
+        { orbite: { dossier: String(i) } },
+        true
+      );
       clients.push(client);
     }
   } else {

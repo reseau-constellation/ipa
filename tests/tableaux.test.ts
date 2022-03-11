@@ -5,9 +5,17 @@ import { step } from "mocha-steps";
 import XLSX from "xlsx";
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
-import { schémaFonctionOublier, adresseOrbiteValide, élémentsBd } from "@/utils";
+import {
+  schémaFonctionOublier,
+  adresseOrbiteValide,
+  élémentsBd,
+} from "@/utils";
 
-import { InfoCol, InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux";
+import {
+  InfoCol,
+  InfoColAvecCatégorie,
+  élémentBdListeDonnées,
+} from "@/tableaux";
 import {
   règleBornes,
   règleColonne,
@@ -569,7 +577,6 @@ typesClients.forEach((type) => {
         });
 
         describe("Règles: Règle bornes relative à une colonne", function () {
-
           let idTableauRègles: string;
 
           let idVariableTempMin: string;
@@ -603,10 +610,11 @@ typesClients.forEach((type) => {
               idVariableTempMin
             );
             for (const min of [0, 5]) {
-              empreintesDonnées.push(await client.tableaux!.ajouterÉlément(
-                idTableauRègles,
-                { [idColonneTempMin]: min }
-              ))
+              empreintesDonnées.push(
+                await client.tableaux!.ajouterÉlément(idTableauRègles, {
+                  [idColonneTempMin]: min,
+                })
+              );
             }
           });
 
@@ -628,7 +636,6 @@ typesClients.forEach((type) => {
               règle
             );
             expect(err.eurs).to.be.an("array").of.length(2);
-
           });
 
           step("Ajout colonne réf détectée", async () => {
@@ -637,9 +644,7 @@ typesClients.forEach((type) => {
               idVariableTempMax,
               idColonneTempMax
             );
-            await attendreRésultat(
-              err, "eurs", (x: []) => x.length===0
-            )
+            await attendreRésultat(err, "eurs", (x: []) => x.length === 0);
             expect(err.eurs).to.be.empty;
           });
 
@@ -661,32 +666,32 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout éléments valides", async () => {
-            await client.tableaux!.ajouterÉlément(
-              idTableauRègles,
-              { [idColonneTempMin]: -15, [idColonneTempMax]: -5 },
-            );
+            await client.tableaux!.ajouterÉlément(idTableauRègles, {
+              [idColonneTempMin]: -15,
+              [idColonneTempMax]: -5,
+            });
             expect(err.eurs).to.be.empty;
           });
 
-          step("Ajout éléments invalides", async () => {
-            await client.tableaux!.ajouterÉlément(
-              idTableauRègles,
-              { [idColonneTempMin]: -15, [idColonneTempMax]: -25 },
-            );
+          step("Ajout éléments invalides", async () => {
+            await client.tableaux!.ajouterÉlément(idTableauRègles, {
+              [idColonneTempMin]: -15,
+              [idColonneTempMax]: -25,
+            });
             expect(err.eurs).to.have.lengthOf(1);
           });
 
           step("Règle bornes relatives variable", async () => {
-            await client.variables!.ajouterRègleVariable(
-              idVariableTempMax, { typeRègle: "bornes", détails: { val: idVariableTempMin, op: ">="}}
-            );
+            await client.variables!.ajouterRègleVariable(idVariableTempMax, {
+              typeRègle: "bornes",
+              détails: { val: idVariableTempMin, op: ">=" },
+            });
             expect(err.eurs).to.have.lengthOf(2);
           });
         });
 
         describe("Règle valeur catégorique", function () {
           describe("Catégories fixes", function () {
-
             let idTableauRègles: string;
             let idColonne: string;
             let idVariable: string;
@@ -705,35 +710,36 @@ typesClients.forEach((type) => {
                 )
               );
 
-              idVariable = await client.variables!.créerVariable("chaîne")
+              idVariable = await client.variables!.créerVariable("chaîne");
               idColonne = await client.tableaux!.ajouterColonneTableau(
-                idTableauRègles, idVariable
+                idTableauRègles,
+                idVariable
               );
 
               const règleCatégorique: règleValeurCatégorique = {
                 typeRègle: "valeurCatégorique",
-                détails: { type: "fixe", options: ["வணக்கம்", "សួស្ឌី"]}
-              }
+                détails: { type: "fixe", options: ["வணக்கம்", "សួស្ឌី"] },
+              };
 
               await client.tableaux!.ajouterRègleTableau(
-                idTableauRègles, idColonne, règleCatégorique
-              )
-            })
-            after(()=>fsOublier.forEach(f=>f()))
+                idTableauRègles,
+                idColonne,
+                règleCatégorique
+              );
+            });
+            after(() => fsOublier.forEach((f) => f()));
 
             step("Ajout éléments valides", async () => {
-              await client.tableaux!.ajouterÉlément(
-                idTableauRègles,
-                { [idColonne]: "வணக்கம்"}
-              )
+              await client.tableaux!.ajouterÉlément(idTableauRègles, {
+                [idColonne]: "வணக்கம்",
+              });
               expect(err.eurs).to.be.empty;
             });
             step("Ajout éléments invalides", async () => {
-              await client.tableaux!.ajouterÉlément(
-                idTableauRègles,
-                { [idColonne]: "សូស្ដី" }
-              )
-              await attendreRésultat(err, "eurs", (x:[] )=>x.length > 0)
+              await client.tableaux!.ajouterÉlément(idTableauRègles, {
+                [idColonne]: "សូស្ដី",
+              });
+              await attendreRésultat(err, "eurs", (x: []) => x.length > 0);
               expect(err.eurs).to.have.lengthOf(1);
             });
           });
@@ -761,67 +767,73 @@ typesClients.forEach((type) => {
                 )
               );
 
-              idVariable = await client.variables!.créerVariable("chaîne")
-              idVariableRéf = await client.variables!.créerVariable("chaîne")
+              idVariable = await client.variables!.créerVariable("chaîne");
+              idVariableRéf = await client.variables!.créerVariable("chaîne");
               idColonneÀTester = await client.tableaux!.ajouterColonneTableau(
-                idTableauÀTester, idVariable
+                idTableauÀTester,
+                idVariable
               );
 
-              idTableauCatégories = await client.tableaux!.créerTableau()
+              idTableauCatégories = await client.tableaux!.créerTableau();
 
               const règleCatégorique: règleValeurCatégorique = {
                 typeRègle: "valeurCatégorique",
-                détails: { type: "dynamique", tableau: idTableauCatégories, colonne: idColonneCatégories }
-              }
+                détails: {
+                  type: "dynamique",
+                  tableau: idTableauCatégories,
+                  colonne: idColonneCatégories,
+                },
+              };
 
               await client.tableaux!.ajouterRègleTableau(
-                idTableauÀTester, idColonneÀTester, règleCatégorique
-              )
-            })
-
-            after(()=>fsOublier.forEach(f=>f()));
-
-            step("Pas d'erreur (ici, au moins) si la colonne n'existe pas", async () => {
-              expect(err.eurs).to.be.empty;
+                idTableauÀTester,
+                idColonneÀTester,
+                règleCatégorique
+              );
             });
+
+            after(() => fsOublier.forEach((f) => f()));
+
+            step(
+              "Pas d'erreur (ici, au moins) si la colonne n'existe pas",
+              async () => {
+                expect(err.eurs).to.be.empty;
+              }
+            );
 
             step("Ajout colonne réf", async () => {
               await client.tableaux!.ajouterColonneTableau(
                 idTableauCatégories,
                 idVariableRéf,
                 idColonneCatégories
-              )
+              );
               expect(err.eurs).to.be.empty;
             });
 
             it("Ajout éléments colonne réf détecté", async () => {
-              await client.tableaux!.ajouterÉlément(
-                idTableauÀTester,
-                { [idColonneÀTester]: "வணக்கம்" }
-              )
+              await client.tableaux!.ajouterÉlément(idTableauÀTester, {
+                [idColonneÀTester]: "வணக்கம்",
+              });
               expect(err.eurs).to.have.lengthOf(1);
 
               for (const mot of ["வணக்கம்", "Ütz iwäch"]) {
-                await client.tableaux!.ajouterÉlément(
-                  idTableauCatégories, { [idColonneCatégories]: mot }
-                );
+                await client.tableaux!.ajouterÉlément(idTableauCatégories, {
+                  [idColonneCatégories]: mot,
+                });
               }
 
               expect(err.eurs).to.be.empty;
-
             });
             it("Ajout éléments valides", async () => {
-              await client.tableaux!.ajouterÉlément(
-                idTableauÀTester,
-                { [idColonneÀTester]: "Ütz iwäch" }
-              );
+              await client.tableaux!.ajouterÉlément(idTableauÀTester, {
+                [idColonneÀTester]: "Ütz iwäch",
+              });
               expect(err.eurs).to.be.empty;
             });
             it("Ajout éléments invalides", async () => {
-              await client.tableaux!.ajouterÉlément(
-                idTableauÀTester,
-                { [idColonneÀTester]: "வணக்கம" }
-              );
+              await client.tableaux!.ajouterÉlément(idTableauÀTester, {
+                [idColonneÀTester]: "வணக்கம",
+              });
               expect(err.eurs).to.have.lengthOf(1);
             });
           });
@@ -1247,9 +1259,9 @@ typesClients.forEach((type) => {
                 [idsCols[idVarDate]]: "2021-01-02",
                 [idsCols[idVarTempMin]]: 27,
               },
-            ]
+            ];
             await client.tableaux!.importerDonnées(idTableau, nouvellesDonnées);
-          })
+          });
 
           after(async () => {
             if (fOublier) fOublier();
@@ -1264,22 +1276,20 @@ typesClients.forEach((type) => {
                   delete d.id;
                   return d;
                 })
-            ).to.have.deep.members(
-              [
-                {
-                  [idsCols[idVarEndroit]]: "ici",
-                  [idsCols[idVarDate]]: "2021-01-01",
-                  [idsCols[idVarTempMin]]: 25,
-                },
-                {
-                  [idsCols[idVarEndroit]]: "ici",
-                  [idsCols[idVarDate]]: "2021-01-02",
-                  [idsCols[idVarTempMin]]: 27,
-                },
-              ]
-            )
-          })
-        })
+            ).to.have.deep.members([
+              {
+                [idsCols[idVarEndroit]]: "ici",
+                [idsCols[idVarDate]]: "2021-01-01",
+                [idsCols[idVarTempMin]]: 25,
+              },
+              {
+                [idsCols[idVarEndroit]]: "ici",
+                [idsCols[idVarDate]]: "2021-01-02",
+                [idsCols[idVarTempMin]]: 27,
+              },
+            ]);
+          });
+        });
 
         describe("Exporter données", function () {
           let idTableau: string;

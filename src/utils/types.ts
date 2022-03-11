@@ -35,7 +35,7 @@ export type schémaFonctionOublier = () => void;
 export type schémaRetourFonctionRecherche = {
   fOublier: schémaFonctionOublier;
   fChangerProfondeur: (p: number) => void;
-}
+};
 
 export interface infoRésultatTexte {
   type: "texte";
@@ -55,9 +55,13 @@ export interface infoRésultatRecherche<T extends infoRésultat = infoRésultat>
   info: T;
 }
 
-export type infoRésultat = infoRésultatTexte | infoRésultatVide | infoRésultatRecherche
+export type infoRésultat =
+  | infoRésultatTexte
+  | infoRésultatVide
+  | infoRésultatRecherche;
 
-export interface résultatObjectifRecherche<T extends infoRésultat> extends infoRésultatRecherche<T> {
+export interface résultatObjectifRecherche<T extends infoRésultat>
+  extends infoRésultatRecherche<T> {
   score: number;
 }
 

@@ -20,7 +20,7 @@ export type ÉlémentFavoris = {
   dispositifsFichiers?: typeDispositifs;
 };
 
-export type ÉlémentFavorisAvecObjet = ÉlémentFavoris & { idObjet: string }
+export type ÉlémentFavorisAvecObjet = ÉlémentFavoris & { idObjet: string };
 
 export default class Favoris {
   client: ClientConstellation;
@@ -73,20 +73,22 @@ export default class Favoris {
   }
 
   async suivreFavoris(
-    f: schémaFonctionSuivi<(ÉlémentFavorisAvecObjet)[]>,
+    f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[]>,
     idBdFavoris?: string
   ): Promise<schémaFonctionOublier> {
     idBdFavoris = idBdFavoris || this.idBd;
 
-    const fFinale = (favoris: {[key: string]: ÉlémentFavoris}): void => {
-      const favorisFinaux = Object.entries(favoris).map(([idObjet, élément]) => {
-        return {
-          idObjet,
-          ...élément
+    const fFinale = (favoris: { [key: string]: ÉlémentFavoris }): void => {
+      const favorisFinaux = Object.entries(favoris).map(
+        ([idObjet, élément]) => {
+          return {
+            idObjet,
+            ...élément,
+          };
         }
-      })
+      );
       f(favorisFinaux);
-    }
+    };
 
     return await this.client.suivreBdDic<ÉlémentFavoris>(idBdFavoris, fFinale);
   }
@@ -162,11 +164,11 @@ export default class Favoris {
       return false;
     } else if (dispositifs === "TOUS") {
       return true;
-    } else if (dispositifs === "INSTALLÉ" ) {
-      if (idOrbite === await this.client.obtIdOrbite()) {
+    } else if (dispositifs === "INSTALLÉ") {
+      if (idOrbite === (await this.client.obtIdOrbite())) {
         return estNode || estÉlectron();
       } else {
-        return false  // En réalité, inconnu. Mais on ne peut pas magiquement deviner la plateforme d'un autre paire.
+        return false; // En réalité, inconnu. Mais on ne peut pas magiquement deviner la plateforme d'un autre paire.
       }
     } else if (typeof dispositifs === "string") {
       return dispositifs === idOrbite;
