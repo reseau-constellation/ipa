@@ -30,6 +30,7 @@ export const rechercherBdSelonNom = (
       if (corresp) {
         const { score, clef, info } = corresp;
         fSuivreRecherche({
+          type: "résultat",
           score,
           clef,
           info,
@@ -58,6 +59,7 @@ export const rechercherBdSelonDescr = (
       if (corresp) {
         const { score, clef, info } = corresp;
         fSuivreRecherche({
+          type: "résultat",
           score,
           clef,
           info,

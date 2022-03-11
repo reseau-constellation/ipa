@@ -21,6 +21,7 @@ export const rechercherVariableSelonNom = (
       if (résultat) {
         const { score, clef, info } = résultat;
         fSuivreRecherche({
+          type: "résultat",
           score,
           de: "nom",
           clef,

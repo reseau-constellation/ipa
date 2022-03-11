@@ -21,6 +21,7 @@ export const rechercherMotClefSelonNom = (
       if (corresp) {
         const { score, clef, info } = corresp;
         fSuivreRecherche({
+          type: "résultat",
           score,
           clef,
           info,

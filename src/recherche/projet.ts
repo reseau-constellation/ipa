@@ -30,6 +30,7 @@ export const rechercherProjetSelonNom = (
       if (corresp) {
         const { score, clef, info } = corresp;
         fSuivreRecherche({
+          type: "résultat",
           score,
           clef,
           info,
@@ -57,6 +58,7 @@ export const rechercherProjetSelonDescr = (
       if (corresp) {
         const { score, clef, info } = corresp;
         fSuivreRecherche({
+          type: "résultat",
           score,
           clef,
           info,

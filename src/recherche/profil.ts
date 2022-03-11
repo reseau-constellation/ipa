@@ -40,7 +40,7 @@ export const rechercherProfilSelonActivité =
             infosCompte.courriel,
           ].filter(Boolean).length / 3;
 
-        return { score, de: "activité", info: {} };
+        return { type: "résultat", score, de: "activité", info: { type: "vide" } };
       };
       const fSuivreNoms = (noms: { [key: string]: string }) => {
         infosCompte.noms = noms;
@@ -89,6 +89,7 @@ export const rechercherProfilSelonNom = (
       if (corresp) {
         const { score, clef, info } = corresp;
         fSuivreRecherche({
+          type: "résultat",
           score,
           clef,
           info,
@@ -119,9 +120,10 @@ export const rechercherProfilSelonCourriel = (
       if (corresp) {
         const { score, début, fin } = corresp;
         fSuivreRecherche({
+          type: "résultat",
           score,
           de: "courriel",
-          info: { début, fin, texte: courrielProfil! },
+          info: { type: "texte", début, fin, texte: courrielProfil! },
         });
       } else {
         fSuivreRecherche();
@@ -168,9 +170,10 @@ export const rechercherProfilSelonImage = (
     const fSuivre = (imageCompte: Uint8Array | null) => {
       const score = similImages(image, imageCompte);
       fSuivreRecherche({
+        type: "résultat",
         score,
         de: "image",
-        info: {},
+        info: { type: "vide" },
       });
     };
     const fOublier = await client.profil!.suivreImage(fSuivre, idCompte);

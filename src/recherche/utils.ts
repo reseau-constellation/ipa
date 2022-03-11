@@ -17,7 +17,7 @@ import {
 export const rechercherDansTexte = (
   schéma: string,
   texte: string
-): { score: number; début: number; fin: number } | undefined => {
+): { type: "texte", score: number; début: number; fin: number } | undefined => {
   // Une alternative - https://www.npmjs.com/package/js-levenshtein
   const correspondances = correspTexte(
     texte,
@@ -29,7 +29,7 @@ export const rechercherDansTexte = (
   )[0];
   if (meilleure) {
     const score = 1 / (meilleure.errors + 1);
-    return { score, début: meilleure.start, fin: meilleure.end };
+    return { type: "texte", score, début: meilleure.start, fin: meilleure.end };
   }
   return;
 };
@@ -46,12 +46,22 @@ export const similTexte = (
       const corresp = rechercherDansTexte(texte, val);
       if (corresp) {
         const { score, début, fin } = corresp;
-        return { score, clef, info: { texte, début, fin } };
+        return {
+          type: "résultat",
+          score,
+          clef,
+          info: { type: "texte", texte: val, début, fin }
+        } as {
+          type: "résultat",
+          score: number,
+          clef: string,
+          info: { type: "texte", texte: string, début: number, fin: number }
+        };
       }
       return;
     })
-    .filter((x) => x);
-  const meilleure = similairités.sort((a, b) =>
+
+  const meilleure = similairités.filter((x) => x).sort((a, b) =>
     a!.score > b!.score ? -1 : 1
   )[0];
   return meilleure;
@@ -82,7 +92,7 @@ export const combinerRecherches = async<T extends infoRésultat> (
   const fSuivreFinale = (): void => {
     const résultat = Object.values(résultats)
       .filter((x) => x)
-      .sort((a, b) => (a!.score > b!.score ? -1 : 1))[0];
+      .sort((a, b) => (aMieuxQueB(a!, b!) ? -1 : 1))[0];
     fSuivreRecherche(résultat);
   };
 
@@ -121,11 +131,9 @@ export const sousRecherche = async<T extends infoRésultat> (
     );
   };
   const fFinale = (
-    résultats: { id: string; résultat: résultatObjectifRecherche<infoRésultatRecherche<T>> }[]
+    résultats: { id: string; résultat: résultatObjectifRecherche<infoRésultatRecherche<T>>}[]
   ) => {
-    const meilleur = Object.values(résultats)
-      .filter((x) => x)
-      .sort((a, b) => (a.résultat.score > b.résultat.score ? -1 : 1))[0];
+    const meilleur = meilleurRésultat<infoRésultatRecherche<T>>(résultats);
     fSuivreRecherche(
       Object.assign({ de, clef: meilleur.id }, meilleur.résultat)
     );
@@ -138,6 +146,40 @@ export const sousRecherche = async<T extends infoRésultat> (
   );
   return fOublier;
 };
+
+const aMieuxQueB = <T extends infoRésultat>(a: résultatObjectifRecherche<T>, b: résultatObjectifRecherche<T>): boolean => {
+  const xPlusLongQueY = (x: infoRésultat, y: infoRésultat): boolean => {
+    while (x.type === "résultat") x = x.info;
+    while (y.type === "résultat") x = y.info;
+
+    switch (x.type) {
+      case "texte":
+        if (y.type === "texte") {
+          return (x.fin - x.début) > (y.fin - y.début)
+        } else {
+          return false
+        }
+      default:
+        return true;
+    }
+  }
+  return a.score > b.score ? true : (
+    a.score < b.score ? false : (
+      xPlusLongQueY(a.info, b.info) ? true: false
+    )
+  )
+
+}
+
+const meilleurRésultat = <T extends infoRésultat>(résultats:{ id: string; résultat: résultatObjectifRecherche<T>}[]): { id: string; résultat: résultatObjectifRecherche<T>} => {
+  const meilleur = Object.values(résultats)
+    .filter((x) => x)
+    .sort((a, b) => (
+      aMieuxQueB(a.résultat, b.résultat) ? -1 : 1
+    ))[0];
+
+  return meilleur
+}
 
 export const rechercherSelonId = (
   idRecherché: string
@@ -152,8 +194,10 @@ export const rechercherSelonId = (
       const { score, début, fin } = résultat;
       fSuivreRecherche({
         score,
+        type: "résultat",
         de: "id",
         info: {
+          type: "texte",
           début,
           fin,
           texte: id,
@@ -173,7 +217,12 @@ export const rechercherTous = (): schémaFonctionSuivreObjectifRecherche<infoRé
     _id: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
   ): Promise<schémaFonctionOublier> => {
-    fSuivreRecherche({score: 1, de: "*", info: {}});
+    fSuivreRecherche({
+      type: "résultat",
+      score: 1,
+      de: "*",
+      info: {type: "vide"}
+    });
     return faisRien
   }
 }

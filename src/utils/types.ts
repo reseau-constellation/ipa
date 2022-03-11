@@ -38,14 +38,18 @@ export type schémaRetourFonctionRecherche = {
 }
 
 export interface infoRésultatTexte {
+  type: "texte";
   texte: string;
   début: number;
   fin: number;
 }
 
-export interface infoRésultatVide {}
+export interface infoRésultatVide {
+  type: "vide";
+}
 
-export interface infoRésultatRecherche<T extends infoRésultat = infoRésultatVide> {
+export interface infoRésultatRecherche<T extends infoRésultat = infoRésultat> {
+  type: "résultat";
   de: string;
   clef?: string;
   info: T;
