@@ -22,7 +22,7 @@ export const rechercherDansTexte = (
   const correspondances = correspTexte(
     texte,
     schéma,
-    Math.ceil(texte.length / 4)
+    Math.ceil(schéma.length / 4)
   );
   const meilleure = correspondances.sort((a, b) =>
     a.errors > b.errors ? 1 : -1
