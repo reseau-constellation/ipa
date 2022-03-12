@@ -44,7 +44,7 @@ typesClients.forEach((type) => {
           if (fOublierClients) await fOublierClients();
         });
 
-        describe("Rechercher mot-clef selon nom", function () {
+        describe("Selon nom", function () {
           let idMotClef: string;
           let résultat:
             | résultatObjectifRecherche<infoRésultatTexte>
@@ -112,7 +112,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Rechercher mot-clef selon texte", function () {
+        describe("Selon texte", function () {
           let idMotClef: string;
           let résultatId:
             | résultatObjectifRecherche<infoRésultatTexte>

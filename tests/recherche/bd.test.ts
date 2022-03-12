@@ -29,7 +29,7 @@ chai.should();
 chai.use(chaiAsPromised);
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Rechercher bds", function () {
         this.timeout(config.timeout);
@@ -52,7 +52,7 @@ typesClients.forEach((type) => {
           if (fOublierClients) await fOublierClients();
         });
 
-        describe("Rechercher bd selon nom", function () {
+        describe("Selon nom", function () {
           let idBd: string;
           let résultat:
             | résultatObjectifRecherche<infoRésultatTexte>
@@ -98,7 +98,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Rechercher bd selon description", function () {
+        describe("Selon description", function () {
           let idBd: string;
           let résultat:
             | résultatObjectifRecherche<infoRésultatTexte>
@@ -144,7 +144,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Rechercher bd selon mot-clef", function () {
+        describe("Selon mot-clef", function () {
           let idBd: string;
           let idMotClef: string;
           let résultatNom:
@@ -246,7 +246,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Rechercher bd selon variable", function () {
+        describe("Selon variable", function () {
           let idBd: string;
           let idVariable: string;
           let résultatNom:
@@ -349,7 +349,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Rechercher bd selon texte", function () {
+        describe("Selon texte", function () {
           let idBd: string;
           let résultatId:
             | résultatObjectifRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>

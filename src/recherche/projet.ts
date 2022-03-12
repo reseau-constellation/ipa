@@ -8,8 +8,8 @@ import {
 } from "@/utils";
 
 import { rechercherBdSelonTexte } from "./bd";
-import { rechercherVariableSelonTexte } from "./variable";
-import { rechercherMotClefSelonTexte } from "./motClef";
+import { rechercherVariableSelonTexte, rechercherVariableSelonNom } from "./variable";
+import { rechercherMotClefSelonTexte, rechercherMotClefSelonNom } from "./motClef";
 import {
   similTexte,
   combinerRecherches,
@@ -170,6 +170,38 @@ export const rechercherProjetSelonIdVariable = (
   };
 };
 
+
+export const rechercherProjetSelonNomVariable = (
+  nomVariable: string
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatRecherche<infoRésultatTexte>
+> => {
+  return async (
+    client: ClientConstellation,
+    idProjet: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatRecherche<infoRésultatTexte>
+    >
+  ): Promise<schémaFonctionOublier> => {
+    const fListe = async (
+      fSuivreRacine: (idsVariables: string[]) => void
+    ): Promise<schémaFonctionOublier> => {
+      return await client.projets!.suivreVariablesProjet(idProjet, fSuivreRacine);
+    };
+
+    const fRechercher = rechercherVariableSelonNom(nomVariable);
+
+    return await sousRecherche(
+      "variable",
+      fListe,
+      fRechercher,
+      client,
+      fSuivreRecherche
+    );
+  };
+};
+
+
 export const rechercherProjetSelonVariable = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
@@ -235,6 +267,37 @@ export const rechercherProjetSelonIdMotClef = (
     );
   };
 };
+
+export const rechercherProjetSelonNomMotClef = (
+  nomMotClef: string
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatRecherche<infoRésultatTexte>
+> => {
+  return async (
+    client: ClientConstellation,
+    idProjet: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatRecherche<infoRésultatTexte>
+    >
+  ): Promise<schémaFonctionOublier> => {
+    const fListe = async (
+      fSuivreRacine: (idsVariables: string[]) => void
+    ): Promise<schémaFonctionOublier> => {
+      return await client.projets!.suivreMotsClefsProjet(idProjet, fSuivreRacine);
+    };
+
+    const fRechercher = rechercherMotClefSelonNom(nomMotClef);
+
+    return await sousRecherche(
+      "motClef",
+      fListe,
+      fRechercher,
+      client,
+      fSuivreRecherche
+    );
+  };
+};
+
 
 export const rechercherProjetSelonMotClef = (
   texte: string

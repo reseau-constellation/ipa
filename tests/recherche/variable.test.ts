@@ -44,7 +44,7 @@ typesClients.forEach((type) => {
           if (fOublierClients) await fOublierClients();
         });
 
-        describe("Rechercher variable selon nom", function () {
+        describe("Selon nom", function () {
           let idVariable: string;
           let résultat:
             | résultatObjectifRecherche<infoRésultatTexte>
@@ -112,7 +112,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Rechercher variable selon texte", function () {
+        describe("Selon texte", function () {
           let idVariable: string;
           let résultatId:
             | résultatObjectifRecherche<infoRésultatTexte>
