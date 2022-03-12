@@ -230,7 +230,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
           it("Résultat détecté", () => {
-            expect(résultat).to.deep.equal({
+            const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
               type: "résultat",
               de: "id",
               info: {
@@ -240,7 +240,9 @@ typesClients.forEach((type) => {
                 texte: "voici mon id",
               },
               score: 1,
-            });
+            }
+
+            expect(résultat).to.deep.equal(réfRés);
           });
         });
 
@@ -268,7 +270,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
           it("Résultat détecté", () => {
-            expect(résultat).to.deep.equal({
+            const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
               type: "résultat",
               de: "id",
               info: {
@@ -278,7 +280,8 @@ typesClients.forEach((type) => {
                 texte: "abcdefghij",
               },
               score: 1,
-            });
+            }
+            expect(résultat).to.deep.equal(réfRés);
           });
         });
 
@@ -333,18 +336,24 @@ typesClients.forEach((type) => {
             await bd.add("precipitation");
             fOublier();
 
-            expect(résultat).to.deep.equal({
+            const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+              type: "résultat",
               clef: "precipitation",
-              de: "id",
+              de: "variable",
               info: {
-                début: 0,
-                fin: 13,
-                texte: "precipitation",
-                type: "texte",
+                type: "résultat",
+                de: "id",
+                info: {
+                  début: 0,
+                  fin: 13,
+                  texte: "precipitation",
+                  type: "texte",
+                }
               },
               score: 0.5,
-              type: "résultat",
-            });
+            }
+
+            expect(résultat).to.deep.equal(réfRés);
           });
 
           step("Ajout meilleure variable détecté", async () => {
@@ -354,18 +363,24 @@ typesClients.forEach((type) => {
             await bd.add("précipitation");
             fOublier();
 
-            expect(résultat).to.deep.equal({
+            const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
               clef: "précipitation",
-              de: "id",
+              de: "variable",
               info: {
-                début: 0,
-                fin: 13,
-                texte: "précipitation",
-                type: "texte",
+                type: "résultat",
+                de: "id",
+                info: {
+                  début: 0,
+                  fin: 13,
+                  texte: "précipitation",
+                  type: "texte",
+                }
               },
               score: 1,
               type: "résultat",
-            });
+            }
+
+            expect(résultat).to.deep.equal(réfRés);
           });
         });
 
@@ -385,12 +400,13 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
           it("Tous ont le même score", () => {
-            expect(résultat).to.deep.equal({
+            const réfRés: résultatObjectifRecherche<infoRésultatVide> = {
               type: "résultat",
               score: 1,
               de: "*",
               info: { type: "vide" },
-            });
+            }
+            expect(résultat).to.deep.equal(réfRés);
           });
         });
       });

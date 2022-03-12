@@ -132,12 +132,24 @@ export const sousRecherche = async <T extends infoRésultat>(
   const fFinale = (
     résultats: {
       id: string;
-      résultat: résultatObjectifRecherche<infoRésultatRecherche<T>>;
+      résultat: résultatObjectifRecherche<T>;
     }[]
   ) => {
-    const meilleur = meilleurRésultat<infoRésultatRecherche<T>>(résultats);
+    const meilleur = meilleurRésultat<T>(résultats);
+
+    const résultat: résultatObjectifRecherche<infoRésultatRecherche<T>> = {
+      type: "résultat",
+      de,
+      clef: meilleur.id,
+      score: meilleur.résultat.score,
+      info: {
+        type: "résultat",
+        de: meilleur.résultat.de,
+        info: meilleur.résultat.info,
+      }
+    }
     fSuivreRecherche(
-      Object.assign({ de, clef: meilleur.id }, meilleur.résultat)
+      résultat
     );
   };
 
