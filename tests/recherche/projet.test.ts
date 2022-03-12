@@ -705,7 +705,7 @@ typesClients.forEach((type) => {
                 info: {
                   type: "texte",
                   début: 0,
-                  fin: 15,
+                  fin: idBd.length,
                   texte: idBd,
                 }
               },
