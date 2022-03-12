@@ -148,6 +148,9 @@ export const sousRecherche = async <T extends infoRésultat>(
         info: meilleur.résultat.info,
       }
     }
+    if (meilleur.résultat.clef) {
+      résultat.info.clef = meilleur.résultat.clef;
+    }
     fSuivreRecherche(
       résultat
     );
