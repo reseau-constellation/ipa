@@ -207,7 +207,7 @@ export const rechercherBdSelonNomMotClef = (
     const fRechercher = rechercherMotClefSelonNom(nomMotClef);
 
     return await sousRecherche(
-      "variable",
+      "motClef",
       fListe,
       fRechercher,
       client,
