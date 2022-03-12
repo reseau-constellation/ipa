@@ -16,7 +16,7 @@ chai.use(chaiAsPromised);
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
-      describe("Épingles", function () {
+      describe("Automatisation", function () {
         this.timeout(config.timeout);
 
         let fOublierClients: () => Promise<void>;
