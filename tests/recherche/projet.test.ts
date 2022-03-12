@@ -31,7 +31,7 @@ chai.should();
 chai.use(chaiAsPromised);
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Rechercher projets", function () {
         this.timeout(config.timeout);
@@ -395,29 +395,29 @@ typesClients.forEach((type) => {
             idProjet = await client.projets!.créerProjet();
             idBd = await client.bds!.créerBd("ODbl-1_0");
 
-            const fRechercheNom = rechercherProjetSelonTexte("Hydrologie");
+            const fRechercheNom = rechercherProjetSelonBd("Hydrologie");
             fsOublier.push(
               await fRechercheNom(client, idProjet, (r) => (résultatNom = r))
             );
 
-            const fRechercheId = rechercherProjetSelonTexte(
+            const fRechercheId = rechercherProjetSelonIdBd(
               idBd.slice(0, 15)
             );
             fsOublier.push(
               await fRechercheId(client, idProjet, (r) => (résultatId = r))
             );
 
-            const fRechercheDescr = rechercherProjetSelonTexte("Montréal");
+            const fRechercheDescr = rechercherProjetSelonBd("Montréal");
             fsOublier.push(
               await fRechercheDescr(client, idProjet, (r) => (résultatDescr = r))
             );
 
-            const fRechercheVariables = rechercherProjetSelonTexte("Température");
+            const fRechercheVariables = rechercherProjetSelonBd("Température");
             fsOublier.push(
               await fRechercheVariables(client, idProjet, (r) => (résultatVariable = r))
             );
 
-            const fRechercheMotsClef = rechercherProjetSelonTexte("Météo");
+            const fRechercheMotsClef = rechercherProjetSelonBd("Météo");
             fsOublier.push(
               await fRechercheMotsClef(client, idProjet, (r) => (résultatMotsClef = r))
             );
@@ -530,8 +530,8 @@ typesClients.forEach((type) => {
 
           step("Résultat mot-clef détecté", async () => {
             const idMotClef = await client.motsClefs!.créerMotClef();
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, { fr: "Météorologie" });
             await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
+            await client.motsClefs!.ajouterNomsMotClef(idMotClef, { fr: "Météorologie" });
 
             const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>> = {
               type: "résultat",
@@ -625,7 +625,7 @@ typesClients.forEach((type) => {
               await fRechercheDescr(client, idProjet, (r) => (résultatDescr = r))
             );
 
-            const fRechercheBds = rechercherProjetSelonTexte("Température");
+            const fRechercheBds = rechercherProjetSelonTexte(idBd);
             fsOublier.push(
               await fRechercheBds(client, idProjet, (r) => (résultatBd = r))
             );
@@ -653,7 +653,7 @@ typesClients.forEach((type) => {
                 type: "texte",
                 début: 0,
                 fin: 15,
-                texte: idBd,
+                texte: idProjet,
               },
               score: 1,
             });
