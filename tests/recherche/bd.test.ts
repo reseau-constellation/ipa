@@ -478,13 +478,9 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat mot-clef détecté", async () => {
-            console.log(1)
             const idMotClef = await client.motsClefs!.créerMotClef();
-            console.log(2)
             await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
-            console.log(3)
             await client.motsClefs!.ajouterNomsMotClef(idMotClef, { fr: "Météorologie" });
-            console.log(4)
 
             await new Promise(résoudre=>setTimeout(résoudre, 2000))
             expect(résultatMotsClef).to.deep.equal({
