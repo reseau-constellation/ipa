@@ -581,13 +581,10 @@ export default class BDs {
     const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
     >(idBdMotsClefs);
-    await Promise.all(
-      idsMotsClefs.map(async (id: string) => {
-        const motsClefsExistants =
-          ClientConstellation.obtÉlémentsDeBdListe(bdMotsClefs);
-        if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
-      })
-    );
+    for (const id of idsMotsClefs) {
+      const motsClefsExistants = ClientConstellation.obtÉlémentsDeBdListe(bdMotsClefs);
+      if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
+    }
     fOublier();
   }
 
