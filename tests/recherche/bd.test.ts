@@ -349,7 +349,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Selon texte", function () {
+        describe.skip("Selon texte", function () {
           let idBd: string;
           let résultatId:
             | résultatObjectifRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>

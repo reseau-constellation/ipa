@@ -561,7 +561,7 @@ typesClients.forEach((type) => {
 
         });
 
-        describe("Selon texte", function () {
+        describe.skip("Selon texte", function () {
           let idProjet: string;
           let idBd: string;
           let résultatId:
