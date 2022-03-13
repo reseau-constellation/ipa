@@ -187,13 +187,11 @@ export default class BDs {
       );
     const tableaux = ClientConstellation.obtÉlémentsDeBdListe(bdTableaux);
 
-    await Promise.all(
-      tableaux.map(async (idT: string) => {
-        const idNouveauTableau: string =
-          await this.client.tableaux!.copierTableau(idT, copierDonnées);
-        await nouvelleBdTableaux.add(idNouveauTableau);
-      })
-    );
+    for (const idT of tableaux) {
+      const idNouveauTableau: string =
+        await this.client.tableaux!.copierTableau(idT, copierDonnées);
+      await nouvelleBdTableaux.add(idNouveauTableau);
+    }
 
     const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
     await nouvelleBd.set("statut", statut);

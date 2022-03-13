@@ -482,7 +482,6 @@ typesClients.forEach((type) => {
             await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
             await client.motsClefs!.ajouterNomsMotClef(idMotClef, { fr: "Météorologie" });
 
-            await new Promise(résoudre=>setTimeout(résoudre, 2000))
             expect(résultatMotsClef).to.deep.equal({
               type: "résultat",
               clef: idMotClef,
