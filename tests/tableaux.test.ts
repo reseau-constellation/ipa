@@ -31,7 +31,7 @@ chai.should();
 chai.use(chaiAsPromised);
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Tableaux", function () {
         this.timeout(config.timeout);

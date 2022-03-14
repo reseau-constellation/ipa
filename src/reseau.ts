@@ -15,6 +15,7 @@ import {
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuivreQualitéRecherche,
   schémaFonctionSuivreConfianceRecherche,
+  infoRésultatRecherche,
   infoAuteur,
   résultatObjectifRecherche,
   faisRien,
@@ -88,11 +89,6 @@ export interface résultatRechercheSansScore<
   objectif: T;
   confiance: number;
   qualité: number;
-}
-
-export interface résultatRecherche<T extends résultatObjectifRecherche>
-  extends résultatRechercheSansScore<T> {
-  score: number;
 }
 
 export type élémentDeMembre<T extends élémentBdListeDonnées> = {
@@ -350,20 +346,31 @@ export default class Réseau extends EventEmitter {
     fOublier();
   }
 
+  async nePlusFaireConfianceAuMembre(idBdCompte: string): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<statutConfianceMembre>
+    >(this.idBd);
+    if (
+      Object.keys(ClientConstellation.obtObjetdeBdDic(bd)).includes(idBdCompte) && bd.get(idBdCompte) === "FIABLE"
+    ) {
+      await bd.del(idBdCompte);
+    }
+    fOublier();
+  }
+
   async suivreFiables(
     f: schémaFonctionSuivi<string[]>,
     idBdCompte?: string
   ): Promise<schémaFonctionOublier> {
     idBdCompte = idBdCompte || this.client.idBdCompte!;
 
-    const fFinale = (membres: typeÉlémentsBdRéseau[]): void => {
-      const bloqués = membres
-        .filter((m) => m.statut === "FIABLE")
-        .map((m) => m.idBdCompte);
-      f(bloqués);
+    const fFinale = (membres: {[key: string]: statutConfianceMembre}): void => {
+      const fiables = Object.keys(membres)
+        .filter((m) => membres[m] === "FIABLE");
+      f(fiables);
     };
 
-    return await this.client.suivreBdListeDeClef<typeÉlémentsBdRéseau>(
+    return await this.client.suivreBdDicDeClef<statutConfianceMembre>(
       idBdCompte,
       "réseau",
       fFinale
@@ -390,6 +397,7 @@ export default class Réseau extends EventEmitter {
 
   async bloquerMembre(idBdCompte: string, privé = false): Promise<void> {
     if (privé) {
+      await this.débloquerMembre(idBdCompte);  // Enlever du régistre publique s'il y est déjà
       this.bloquésPrivés.add(idBdCompte);
       await this._sauvegarderBloquésPrivés();
     } else {
@@ -407,7 +415,7 @@ export default class Réseau extends EventEmitter {
       KeyValueStore<statutConfianceMembre>
     >(this.idBd);
     if (
-      Object.keys(ClientConstellation.obtObjetdeBdDic(bd)).includes(idBdCompte)
+      Object.keys(ClientConstellation.obtObjetdeBdDic(bd)).includes(idBdCompte) && bd.get(idBdCompte) === "BLOQUÉ"
     ) {
       await bd.del(idBdCompte);
     }
@@ -426,14 +434,13 @@ export default class Réseau extends EventEmitter {
   ): Promise<schémaFonctionOublier> {
     idBdCompte = idBdCompte || this.client.idBdCompte!;
 
-    const fFinale = (membres: typeÉlémentsBdRéseau[]): void => {
-      const bloqués = membres
-        .filter((m) => m.statut === "BLOQUÉ")
-        .map((m) => m.idBdCompte);
+    const fFinale = (membres: {[key: string]: statutConfianceMembre}): void => {
+      const bloqués = Object.keys(membres)
+        .filter((m) => membres[m] === "BLOQUÉ");
       f(bloqués);
     };
 
-    return await this.client.suivreBdListeDeClef<typeÉlémentsBdRéseau>(
+    return await this.client.suivreBdDicDeClef<statutConfianceMembre>(
       idBdCompte,
       "réseau",
       fFinale
@@ -1017,7 +1024,7 @@ export default class Réseau extends EventEmitter {
     );
   }
 
-  async rechercher<T extends résultatObjectifRecherche>(
+  async rechercher<T extends infoRésultatRecherche>(
     f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     nRésultatsDésirés: number,
     fRecherche: (
@@ -1035,7 +1042,7 @@ export default class Réseau extends EventEmitter {
       };
     }
 
-    fObjectif = fObjectif || rechercherTous<T>();
+    fObjectif = fObjectif || rechercherTous();
 
     const résultatsParMembre: {
       [key: string]: {
