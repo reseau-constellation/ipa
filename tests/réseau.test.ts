@@ -121,13 +121,16 @@ typesClients.forEach((type) => {
         });
 
         describe.only("Membres fiables", function () {
-          let fiables: string[];
+          const fiables: {propres?: string[], autre?: string[]} = {};
           const fsOublier: schémaFonctionOublier[] = [];
 
 
           before(async () => {
             fsOublier.push(await client.réseau!.suivreFiables(
-              (m) => (fiables = m)
+              (m) => (fiables.propres = m)
+            ));
+            fsOublier.push(await client2.réseau!.suivreFiables(
+              (m) => (fiables.autre = m), idBdRacine1
             ));
           });
 
@@ -137,12 +140,12 @@ typesClients.forEach((type) => {
 
           step("Personne pour commencer", async () => {
             // await attendreRésultat(mem, "bres")
-            expect(fiables).to.be.empty;
+            expect(fiables.propres).to.be.empty;
           })
 
           step("Faire confiance", async () => {
             await client.réseau!.faireConfianceAuMembre(idBdRacine2);
-            expect(fiables).to.be.an("array").with.lengthOf(1).and.deep.members([idBdRacine2]);
+            expect(fiables.propres).to.be.an("array").with.lengthOf(1).and.deep.members([idBdRacine2]);
           });
 
           step("Détecter confiance d'autre membre", async() => {
@@ -151,12 +154,12 @@ typesClients.forEach((type) => {
 
           step("Un débloquage accidental ne fait rien", async () => {
             await client.réseau!.débloquerMembre(idBdRacine2);
-            expect(fiables).to.be.an("array").with.lengthOf(1).and.deep.members([idBdRacine2]);
+            expect(fiables.propres).to.be.an("array").with.lengthOf(1).and.deep.members([idBdRacine2]);
           });
 
           step("Changer d'avis", async () => {
             await client.réseau!.nePlusFaireConfianceAuMembre(idBdRacine2);
-            expect(fiables).to.be.empty;
+            expect(fiables.propres).to.be.empty;
           });
 
         });

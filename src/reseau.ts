@@ -449,8 +449,10 @@ export default class Réseau extends EventEmitter {
 
   async suivreBloqués(
     f: schémaFonctionSuivi<infoBloqué[]>,
-    idBdRacine?: string
+    idBdCompte?: string
   ): Promise<schémaFonctionOublier> {
+    idBdCompte = idBdCompte || this.client.idBdCompte;
+
     const fsOublier: schémaFonctionOublier[] = [];
 
     let bloquésPubliques: string[] = [];
@@ -474,10 +476,10 @@ export default class Réseau extends EventEmitter {
       await this.suivreBloquésPubliques((blqs: string[]) => {
         bloquésPubliques = blqs;
         fFinale();
-      }, idBdRacine)
+      }, idBdCompte)
     );
 
-    if (idBdRacine === this.client.idBdCompte) {
+    if (idBdCompte === this.client.idBdCompte) {
       await this._initaliserBloquésPrivés();
       this.on("changementMembresBloqués", fFinale);
       fsOublier.push(() => this.off("changementMembresBloqués", fFinale));
