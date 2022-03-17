@@ -697,10 +697,10 @@ export default class BDs {
 
   async inviterAuteur(
     idBd: string,
-    idBdBdsCompteAuteur: string,
+    idBdCompteAuteur: string,
     rôle: keyof objRôles
   ): Promise<void> {
-    await this.client.donnerAccès(idBd, idBdBdsCompteAuteur, rôle);
+    await this.client.donnerAccès(idBd, idBdCompteAuteur, rôle);
   }
 
   async suivreAuteurs(
