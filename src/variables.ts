@@ -1,11 +1,12 @@
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
+import { v4 as uuidv4 } from "uuid";
 
 import ClientConstellation from "./client";
 import ContrôleurConstellation from "./accès/cntrlConstellation";
 import { règleVariableAvecId, règleVariable, règleCatégorie } from "./valid";
-import { v4 as uuidv4 } from "uuid";
 
+import { objRôles } from "@/accès/types";
 import { dicTrads } from "@/utils/types";
 
 import {
@@ -150,6 +151,14 @@ export default class Variables {
     fOublierBdRègles();
 
     return idNouvelleBd;
+  }
+
+  async inviterAuteur(
+    idVariable: string,
+    idBdCompteAuteur: string,
+    rôle: keyof objRôles
+  ): Promise<void> {
+    await this.client.donnerAccès(idVariable, idBdCompteAuteur, rôle);
   }
 
   async ajouterNomsVariable(id: string, noms: dicTrads): Promise<void> {
