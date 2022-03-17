@@ -1051,6 +1051,21 @@ export default class ClientConstellation extends EventEmitter {
     return résultat.cid.toString();
   }
 
+  async obtDeStockageLocal(clef: string): Promise<string | null> {
+    const clefClient = `${this.idBdCompte!.slice(this.idBdCompte!.length - 23, this.idBdCompte!.length - 8)} : ${clef}`
+    return (await obtStockageLocal()).getItem(clefClient)
+  }
+
+  async sauvegarderAuStockageLocal(clef: string, val: string): Promise<void> {
+    const clefClient = `${this.idBdCompte!.slice(this.idBdCompte!.length - 23, this.idBdCompte!.length - 8)} : ${clef}`
+    return (await obtStockageLocal()).setItem(clefClient, val)
+  }
+
+  async effacerDeStockageLocal(clef: string): Promise<void> {
+    const clefClient = `${this.idBdCompte!.slice(this.idBdCompte!.length - 23, this.idBdCompte!.length - 8)} : ${clef}`
+    return (await obtStockageLocal()).removeItem(clefClient)
+  }
+
   async ouvrirBd<T extends Store>(
     id: string
   ): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
@@ -1103,7 +1118,7 @@ export default class ClientConstellation extends EventEmitter {
     let idBd = bdRacine.get(nom);
 
     const clefLocale = idBdCompte + nom;
-    const idBdPrécédente = (await obtStockageLocal()).getItem(clefLocale);
+    const idBdPrécédente = await this.obtDeStockageLocal(clefLocale);
 
     if (idBd && idBdPrécédente && idBd !== idBdPrécédente) {
       try {
@@ -1137,7 +1152,7 @@ export default class ClientConstellation extends EventEmitter {
       }
     }
 
-    if (idBd) (await obtStockageLocal()).setItem(clefLocale, idBd);
+    if (idBd) await this.sauvegarderAuStockageLocal(clefLocale, idBd);
 
     if (fOublier) fOublier();
     return idBd;

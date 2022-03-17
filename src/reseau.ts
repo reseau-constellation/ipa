@@ -24,7 +24,6 @@ import { élémentBdListeDonnées } from "@/tableaux";
 import { ÉlémentFavoris, épingleDispositif } from "@/favoris";
 import { élémentDonnées } from "@/valid";
 import { rechercherProfilSelonActivité, rechercherTous } from "@/recherche";
-import obtStockageLocal from "@/stockageLocal";
 
 export interface infoDispositif {
   idSFIP: string;
@@ -299,10 +298,8 @@ export default class Réseau extends EventEmitter {
   }
 
   async _sauvegarderDispositifsEnLigne(): Promise<void> {
-    const stockageLocal = await obtStockageLocal();
-
     this._nettoyerDispositifsEnLigne();
-    stockageLocal.setItem(
+    await this.client.sauvegarderAuStockageLocal(
       "dispositifsEnLigne",
       JSON.stringify(this.dispositifsEnLigne)
     );
@@ -378,8 +375,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async _initaliserBloquésPrivés(): Promise<void> {
-    const stockageLocal = await obtStockageLocal();
-    const bloquésPrivésChaîne = stockageLocal.getItem("membresBloqués");
+    const bloquésPrivésChaîne = await this.client.obtDeStockageLocal("membresBloqués");
     if (bloquésPrivésChaîne) {
       JSON.parse(bloquésPrivésChaîne).forEach((b: string) =>
         this.bloquésPrivés.add(b)
@@ -389,10 +385,9 @@ export default class Réseau extends EventEmitter {
   }
 
   async _sauvegarderBloquésPrivés(): Promise<void> {
-    const stockageLocal = await obtStockageLocal();
     const bloqués = [...this.bloquésPrivés];
 
-    stockageLocal.setItem("membresBloqués", JSON.stringify(bloqués));
+    this.client.sauvegarderAuStockageLocal("membresBloqués", JSON.stringify(bloqués));
   }
 
   async bloquerMembre(idBdCompte: string, privé = false): Promise<void> {

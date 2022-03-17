@@ -7,7 +7,6 @@ import isNode from "is-node";
 import isElectron from "is-electron";
 import { v4 as uuidv4 } from "uuid";
 
-import obtStockageLocal from "@/stockageLocal";
 import ClientConstellation from "@/client";
 import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils";
 import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur";
@@ -315,7 +314,7 @@ const lancerAutomatisation = async (
     const fAutoAvecÉtatsRécursif = async () => {
       await fAutoAvecÉtats();
       const maintenant = new Date().getTime();
-      (await obtStockageLocal()).setItem(
+      client.sauvegarderAuStockageLocal(
         clefStockageDernièreFois,
         maintenant.toString()
       );
@@ -324,7 +323,7 @@ const lancerAutomatisation = async (
     };
 
     const maintenant = new Date().getTime();
-    const dernièreFoisChaîne = (await obtStockageLocal()).getItem(
+    const dernièreFoisChaîne = await client.obtDeStockageLocal(
       clefStockageDernièreFois
     );
     const dernièreFois = dernièreFoisChaîne
@@ -350,14 +349,12 @@ const lancerAutomatisation = async (
     switch (spéc.type) {
       case "exportation": {
         const spécExp = spéc as SpécificationExporter;
-        const empreinteDernièreModifImportée = (
-          await obtStockageLocal()
-        ).getItem(clefStockageDernièreFois);
+        const empreinteDernièreModifImportée = await client.obtDeStockageLocal(clefStockageDernièreFois);
         const fOublier = await client.suivreBd(spécExp.idObjet, async (bd) => {
           const tête: string = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
           if (tête !== empreinteDernièreModifImportée) {
             fAutoAvecÉtats();
-            (await obtStockageLocal()).setItem(clefStockageDernièreFois, tête);
+            await client.sauvegarderAuStockageLocal(clefStockageDernièreFois, tête);
           }
         });
         return fOublier;
@@ -379,7 +376,7 @@ const lancerAutomatisation = async (
             const écouteur = _chokidar.watch(source.adresseFichier);
             écouteur.on("change", () => {
               fAutoAvecÉtats();
-              (await obtStockageLocal()).setItem(
+              await client.sauvegarderAuStockageLocal(
                 clefStockageDernièreFois,
                 new Date().getTime().toString()
               );
@@ -388,7 +385,7 @@ const lancerAutomatisation = async (
             const dernièreModif = fs
               .statSync(source.adresseFichier)
               .mtime.getTime();
-            const dernièreImportation = (await obtStockageLocal()).getItem(
+            const dernièreImportation = await client.sauvegarderAuStockageLocal(
               clefStockageDernièreFois
             );
             const fichierModifié = dernièreImportation
@@ -397,7 +394,7 @@ const lancerAutomatisation = async (
             if (fichierModifié) {
               const maintenant = new Date().getTime();
               fAutoAvecÉtats();
-              (await obtStockageLocal()).setItem(
+              await client.sauvegarderAuStockageLocal(
                 clefStockageDernièreFois,
                 maintenant.toString()
               );
