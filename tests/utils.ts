@@ -36,7 +36,7 @@ export const attendreSync = async (bd: Store): Promise<void> => {
 
 export const attendreRésultat = async (
   dic: { [key: string]: unknown },
-  clef: string,
+  clef: keyof typeof dic,
   valDésirée?: unknown
 ): Promise<void> => {
   if (valDésirée === undefined) {
@@ -103,8 +103,8 @@ export const générerOrbites = async (
   n = 1,
   API: string
 ): Promise<{ orbites: OrbitDB[]; fOublier: () => Promise<void> }> => {
-  const ipfsds: Controller[] = [];
-  const ipfss: Controller["api"][] = [];
+  const dssfip: Controller[] = [];
+  const sfips: Controller["api"][] = [];
   const orbites: OrbitDB[] = [];
 
   const racineDossierOrbite = "./tests/_temp/" + uuidv4();
@@ -113,18 +113,18 @@ export const générerOrbites = async (
 
   for (const i in [...Array(n).keys()]) {
     const racineDossier = `${racineDossierOrbite}/sfip_${i}`;
-    const ipfsd = await startIpfs(API, config.daemon1);
-    const ipfs = ipfsd.api;
-    const orbite = await OrbitDB.createInstance(ipfs, {
+    const dsfip = await startIpfs(API, config.daemon1);
+    const sfip = dsfip.api;
+    const orbite = await OrbitDB.createInstance(sfip, {
       directory: racineDossier,
     });
 
-    for (const ip of ipfss) {
-      await connectPeers(ipfs, ip);
+    for (const ip of sfips) {
+      await connectPeers(sfip, ip);
     }
 
-    ipfsds.push(ipfsd);
-    ipfss.push(ipfs);
+    dssfip.push(dsfip);
+    sfips.push(sfip);
     orbites.push(orbite);
   }
   const fOublier = async () => {
@@ -134,8 +134,8 @@ export const générerOrbites = async (
       })
     );
     await Promise.all(
-      ipfsds.map(async (ipfsd) => {
-        await stopIpfs(ipfsd);
+      dssfip.map(async (dssfip) => {
+        await stopIpfs(dssfip);
       })
     );
     rmrf.sync(racineDossierOrbite);
