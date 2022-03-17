@@ -1,8 +1,10 @@
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 
-import ClientConstellation from "./client";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import { objRôles } from "@/accès/types";
+
+import ClientConstellation from "./client";
 import ContrôleurConstellation from "./accès/cntrlConstellation";
 
 type typeÉlémentsBdMotClef = string;
@@ -71,6 +73,14 @@ export default class MotsClefs {
     fOublierBase();
     fOublierNoms();
     return idNouveauMotClef;
+  }
+
+  async inviterAuteur(
+    idMotClef: string,
+    idBdCompteAuteur: string,
+    rôle: keyof objRôles
+  ): Promise<void> {
+    await this.client.donnerAccès(idMotClef, idBdCompteAuteur, rôle);
   }
 
   async ajouterNomsMotClef(
