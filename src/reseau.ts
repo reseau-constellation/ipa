@@ -7,7 +7,7 @@ import { EventEmitter } from "events";
 import { sum } from "lodash";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
-import ClientConstellation, { Signature } from "@/client";
+import ClientConstellation, { Signature, infoAccès } from "@/client";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -487,8 +487,8 @@ export default class Réseau extends EventEmitter {
   }
 
   async suivreRelationsImmédiates(
-    idBdCompte: string,
-    f: schémaFonctionSuivi<infoConfiance[]>
+    f: schémaFonctionSuivi<infoConfiance[]>,
+    idBdCompte?: string,
   ): Promise<schémaFonctionOublier> {
     idBdCompte = idBdCompte ? idBdCompte : this.client.idBdCompte!;
 
@@ -518,6 +518,7 @@ export default class Réseau extends EventEmitter {
         ...comptes.favoris,
         ...comptes.coauteursBds,
         ...comptes.coauteursProjets,
+        ...comptes.coauteursVariables,
         ...comptes.coauteursMotsClefs,
       ];
       const membresUniques = [...new Set(tous)];
@@ -544,12 +545,12 @@ export default class Réseau extends EventEmitter {
     );
 
     fsOublier.push(
-      await this.client.suivreBdListeDeClef<string>(
+      await this.client.suivreBdDicDeClef<statutConfianceMembre>(
         idBdCompte,
-        "réseau.membresBloqués",
-        (membres: string[]) => {
-          comptes.suivis = membres.map((m) => {
-            return { idBdCompte: m, confiance: 1 };
+        "réseau",
+        (membres: { [key: string]: statutConfianceMembre }) => {
+          comptes.suivis = Object.entries(membres).filter(([_, statut]) => statut === "FIABLE").map(([id, _]) => {
+            return { idBdCompte: id, confiance: 1 };
           });
           fFinale();
         }
@@ -560,19 +561,24 @@ export default class Réseau extends EventEmitter {
       fListe: (
         fSuivreRacine: (é: string[]) => Promise<void>
       ) => Promise<schémaFonctionOublier>,
-      confiance: number
+      clef: keyof typeof comptes,
+      confiance: number,
     ) => {
       fsOublier.push(
         await this.client.suivreBdsDeFonctionListe(
           fListe,
           (membres: string[]) => {
-            comptes.favoris = membres.map((idBdCompte) => {
+            comptes[clef] = membres.map((idBdCompte) => {
               return { idBdCompte, confiance };
             });
             fFinale();
           },
-          async (id: string, fSuivi: schémaFonctionSuivi<infoAuteur[]>) => {
-            return await this.client.suivreAuteurs(id, fSuivi);
+          async (id: string, fSuivi: schémaFonctionSuivi<string[]>) => {
+            return await this.client.suivreAccèsBd(
+              id,
+              // Enlever nous-même de la liste des coauteurs
+              (accès: infoAccès[]) => fSuivi(accès.map(a=>a.idBdCompte).filter(id => id !== idBdCompte))
+            );
           }
         )
       );
@@ -581,52 +587,54 @@ export default class Réseau extends EventEmitter {
     const fSuivreFavoris = async (
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
-      return await this.client.favoris!.suivreFavoris(
-        (favoris) => fSuivreRacine(Object.keys(favoris)),
-        idBdCompte
+      return await this.suivreFavorisMembre(
+        idBdCompte!,
+        (favoris) => {
+          return fSuivreRacine((favoris || []).map(f=>f.idObjet))
+        },
       );
     };
-    await inscrireSuiviAuteurs(fSuivreFavoris, CONFIANCE_DE_FAVORIS);
+    await inscrireSuiviAuteurs(fSuivreFavoris, "favoris", CONFIANCE_DE_FAVORIS);
 
     const fSuivreBds = async (
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
-      return await this.client.bds!.suivreBds(
-        (bds) => fSuivreRacine(bds),
-        idBdCompte
+      return await this.suivreBdsMembre(
+        idBdCompte!,
+        (bds) => fSuivreRacine(bds || []),
       );
     };
-    await inscrireSuiviAuteurs(fSuivreBds, CONFIANCE_DE_COAUTEUR);
+    await inscrireSuiviAuteurs(fSuivreBds, "coauteursBds", CONFIANCE_DE_COAUTEUR);
 
     const fSuivreProjets = async (
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
-      return await this.client.projets!.suivreProjets(
-        (projets) => fSuivreRacine(projets),
-        idBdCompte
+      return await this.suivreProjetsMembre(
+        idBdCompte!,
+        (projets) => fSuivreRacine(projets || []),
       );
     };
-    await inscrireSuiviAuteurs(fSuivreProjets, CONFIANCE_DE_COAUTEUR);
+    await inscrireSuiviAuteurs(fSuivreProjets, "coauteursProjets", CONFIANCE_DE_COAUTEUR);
 
     const fSuivreVariables = async (
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
-      return await this.client.variables!.suivreVariables(
-        (variables) => fSuivreRacine(variables),
-        idBdCompte
+      return await this.suivreVariablesMembre(
+        idBdCompte!,
+        (variables) => fSuivreRacine(variables || []),
       );
     };
-    await inscrireSuiviAuteurs(fSuivreVariables, CONFIANCE_DE_COAUTEUR);
+    await inscrireSuiviAuteurs(fSuivreVariables, "coauteursVariables", CONFIANCE_DE_COAUTEUR);
 
     const fSuivreMotsClefs = async (
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
-      return await this.client.projets!.suivreProjets(
-        (projets) => fSuivreRacine(projets),
-        idBdCompte
+      return await this.suivreMotsClefsMembre(
+        idBdCompte!,
+        (motsClefs) => fSuivreRacine(motsClefs || []),
       );
     };
-    await inscrireSuiviAuteurs(fSuivreMotsClefs, CONFIANCE_DE_COAUTEUR);
+    await inscrireSuiviAuteurs(fSuivreMotsClefs, "coauteursMotsClefs", CONFIANCE_DE_COAUTEUR);
 
     return () => {
       fsOublier.forEach((f) => f());
@@ -679,13 +687,13 @@ export default class Réseau extends EventEmitter {
     ): Promise<void> => {
       if (!dicInfoSuiviRelations[idBdCompte]) {
         const fOublier = await this.suivreRelationsImmédiates(
-          idBdCompte,
           async (relations: infoConfiance[]) =>
             await fSuivreRelationsImmédiates(
               relations,
               idBdCompte,
               profondeurActuelle
-            )
+            ),
+          idBdCompte,
         );
         const demandéePar = new Set<string>();
         dicInfoSuiviRelations[idBdCompte] = { fOublier, demandéePar };
@@ -896,12 +904,15 @@ export default class Réseau extends EventEmitter {
     ): PeersResult[] => {
       const adrDéjàVues: string[] = [];
       const dédupliquées: PeersResult[] = [];
+
+      // Enlever les doublons
       for (const c of connexions) {
-        if (!adrDéjàVues.includes(c.addr.toString())) {
-          adrDéjàVues.push(c.addr.toString());
+        if (!adrDéjàVues.includes(c.peer)) {
+          adrDéjàVues.push(c.peer);
           dédupliquées.push(c);
         }
       }
+
       return dédupliquées;
     };
 
@@ -1449,62 +1460,99 @@ export default class Réseau extends EventEmitter {
     );
   }
 
+  async suivreAuteursObjet(
+    idObjet: string,
+    clef: string,
+    f: schémaFonctionSuivi<infoAuteur[]>
+  ): Promise<schémaFonctionOublier> {
+    const fListe = async (
+      fSuivreRacine: (éléments: infoAccès[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.client.suivreAccèsBd(idObjet, fSuivreRacine);
+    };
+    const fBranche = async (
+      idBdCompte: string,
+      fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
+      branche: infoAccès
+    ) => {
+      const fFinaleSuivreBranche = (bdsMembre?: string[]) => {
+        bdsMembre = bdsMembre || [];
+        return fSuivreBranche([
+          {
+            idBdCompte: branche.idBdCompte,
+            rôle: branche.rôle,
+            accepté: bdsMembre.includes(idObjet),
+          },
+        ]);
+      };
+      return await this.client.suivreBdListeDeClef(
+        idBdCompte,
+        clef,
+        fFinaleSuivreBranche,
+      );
+    };
+    const fIdBdDeBranche = (x: infoAccès) => x.idBdCompte;
+    const fCode = (x: infoAccès) => x.idBdCompte;
+
+    const fOublier = this.client.suivreBdsDeFonctionListe(
+      fListe,
+      f,
+      fBranche,
+      fIdBdDeBranche,
+      undefined,
+      fCode
+    );
+    return fOublier;
+  }
+
+  async suivreObjetsMembre(
+    idMembre: string,
+    clef: string,
+    fListeObjets: (id: string, fSuivi: schémaFonctionSuivi<string[]>) => Promise<schémaFonctionOublier>,
+    fSuivi: schémaFonctionSuivi<string[] | undefined>,
+  ): Promise<schémaFonctionOublier> {
+
+    const fListe = async (fSuivreRacine: schémaFonctionSuivi<string[]>): Promise<schémaFonctionOublier> => {
+      return await this.client.suivreBdDeClef(
+        idMembre,
+        clef,
+        (ids?: string[]) => fSuivreRacine(ids || []),
+        fListeObjets
+      );
+    }
+    return await this.client.suivreBdsSelonCondition(
+      fListe,
+      async (id: string, fSuivreCondition: schémaFonctionSuivi<boolean>): Promise<schémaFonctionOublier> => {
+        return await this.client.suivreAccèsBd(
+          id,
+          (autorisés: infoAccès[]) => fSuivreCondition(autorisés.map(a=>a.idBdCompte).includes(idMembre))
+        )
+      },
+      fSuivi
+    )
+  }
+
   async suivreBdsMembre(
     idMembre: string,
     f: schémaFonctionSuivi<string[] | undefined>,
-    vérifierAutorisation = true
   ): Promise<schémaFonctionOublier> {
-    const fCondition = async (
-      id: string,
-      fSuivreCondition: (état: boolean) => void
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds!.suivreAuteurs(
-        id,
-        (auteurs: infoAuteur[]) => {
-          const estUnAuteur = auteurs.some(
-            (a) => a.idBdCompte === idMembre && a.accepté
-          );
-          fSuivreCondition(estUnAuteur);
-        }
-      );
-    };
-
-    const fSuivreAvecAutorisation = async (
-      id: string,
-      f: schémaFonctionSuivi<string[]>
-    ) => {
-      return await this.client.suivreBdsSelonCondition(
-        async (
-          fSuivreRacine: (ids: string[]) => Promise<void>
-        ): Promise<schémaFonctionOublier> => {
-          return await this.client.bds!.suivreBds(fSuivreRacine, id);
-        },
-        fCondition,
-        f
-      );
-    };
-
-    const fSuivreSansAutorisation = async (
-      id: string,
-      f: schémaFonctionSuivi<string[]>
-    ) => await this.client.bds!.suivreBds(f, id);
-
-    const fSuivreBd = vérifierAutorisation
-      ? fSuivreAvecAutorisation
-      : fSuivreSansAutorisation;
-
-    return await this.client.suivreBdDeClef(idMembre, "bds", f, fSuivreBd);
+    return await this.suivreObjetsMembre(
+      idMembre,
+      "bds",
+      async (id, fSuivi) => await this.client.bds!.suivreBds(fSuivi, id),
+      f
+    );
   }
 
   async suivreProjetsMembre(
     idMembre: string,
     f: schémaFonctionSuivi<string[] | undefined>
   ): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDeClef(
+    return await this.suivreObjetsMembre(
       idMembre,
       "projets",
-      f,
-      async (id, f) => await this.client.projets!.suivreProjets(f, id)
+      async (id, fSuivi) => await this.client.projets!.suivreProjets(fSuivi, id),
+      f
     );
   }
 
@@ -1512,6 +1560,8 @@ export default class Réseau extends EventEmitter {
     idMembre: string,
     f: schémaFonctionSuivi<(ÉlémentFavoris & { idObjet: string })[] | undefined>
   ): Promise<schémaFonctionOublier> {
+
+    // suivreFavoris est différent parce qu'on n'a pas besoin de vérifier l'autorisation du membre
     const fSuivreFavoris = async (
       id: string,
       fSuivi: schémaFonctionSuivi<(ÉlémentFavoris & { idObjet: string })[]>
@@ -1522,25 +1572,19 @@ export default class Réseau extends EventEmitter {
       idMembre,
       "favoris",
       f,
-      fSuivreFavoris
-    );
+      fSuivreFavoris,
+    )
   }
 
   async suivreVariablesMembre(
     idMembre: string,
     f: schémaFonctionSuivi<string[] | undefined>
   ): Promise<schémaFonctionOublier> {
-    const fSuivreVariables = async (
-      id: string,
-      f: schémaFonctionSuivi<string[]>
-    ) => {
-      return await this.client.variables!.suivreVariables(f, id);
-    };
-    return await this.client.suivreBdDeClef(
+    return await this.suivreObjetsMembre(
       idMembre,
       "variables",
-      f,
-      fSuivreVariables
+      async (id, fSuivi) => await this.client.variables!.suivreVariables(fSuivi, id),
+      f
     );
   }
 
@@ -1548,17 +1592,11 @@ export default class Réseau extends EventEmitter {
     idMembre: string,
     f: schémaFonctionSuivi<string[] | undefined>
   ): Promise<schémaFonctionOublier> {
-    const fSuivreMotsClefs = async (
-      id: string,
-      f: schémaFonctionSuivi<string[]>
-    ) => {
-      return await this.client.motsClefs!.suivreMotsClefs(f, id);
-    };
-    return await this.client.suivreBdDeClef(
+    return await this.suivreObjetsMembre(
       idMembre,
       "motsClefs",
-      f,
-      fSuivreMotsClefs
+      async (id, fSuivi) => await this.client.motsClefs!.suivreMotsClefs(fSuivi, id),
+      f
     );
   }
 
