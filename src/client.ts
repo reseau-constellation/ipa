@@ -1195,15 +1195,15 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async suivrePermission(
-    id: string,
+    idObjet: string,
     f: schémaFonctionSuivi<typeof rôles[number] | undefined>
   ): Promise<schémaFonctionOublier> {
-    const moi = this.orbite!.identity.id;
-    const { bd, fOublier } = await this.ouvrirBd(id);
+    const { bd, fOublier } = await this.ouvrirBd(idObjet);
     const accès = bd.access;
     const typeAccès = (accès.constructor as unknown as AccessController).type;
 
     if (typeAccès === "ipfs") {
+      const moi = this.orbite!.identity.id;
       f(accès.write.includes(moi) ? MEMBRE : undefined);
       fOublier();
       return faisRien;
