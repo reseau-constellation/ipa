@@ -297,9 +297,9 @@ export default class ClientConstellation extends EventEmitter {
       };
       accès.on("misÀJour", fFinale);
       fFinale();
-      fOublier();
       return () => {
         accès.off("misÀJour", fFinale);
+        fOublier();
       };
     } else {
       fOublier();
