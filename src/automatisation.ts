@@ -450,11 +450,22 @@ class AutomatisationActive extends EventEmitter {
         this.état = état;
         this.emit("misÀJour");
       }
-    ).then((fOublier) => (this.fOublier = fOublier));
+    ).then((fOublier) => {
+      this.fOublier = fOublier
+      this.emit("prêt");
+    });
   }
 
-  fermer(): void {
-    if (this.fOublier) this.fOublier();
+  async fermer(): Promise<void> {
+    if (!this.fOublier) {
+      const soimême = this;
+      await new Promise(function(résoudre) {
+        soimême.once('prêt', function(e) {
+          résoudre(e.data);
+        });
+      });
+    }
+    this.fOublier!();
   }
 }
 
