@@ -4,6 +4,8 @@ import { step } from "mocha-steps";
 import fs from "fs";
 import path from "path";
 import { WorkBook, BookType, readFile } from "xlsx";
+import AdmZip from "adm-zip";
+import tmp from "tmp";
 
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
@@ -52,7 +54,7 @@ const vérifierDonnéesTableau = (
 
   const cols = importateur.obtColsTableau(tableau);
   const donnéesFichier = importateur.obtDonnées(tableau, cols);
-  console.log({cols, donnéesFichier})
+
   expect(donnéesFichier).to.have.deep.members(données);
 }
 
@@ -69,14 +71,19 @@ const vérifierDonnéesBd = (
 }
 
 const vérifierDonnéesProjet = (
-  doc: string | WorkBook, données: { [key: string]: { [key: string]: string | number }[] }
+  doc: string, données: { [key: string]: { [key: string]: { [key: string]: string | number }[] } }
 ): void => {
-  if (typeof doc === "string") {
-    expect(fs.existsSync(doc));
-    doc = readFile(doc);
-  }
-  for (const tableau of Object.keys(données)) {
-    vérifierDonnéesTableau(doc, tableau, données[tableau]);
+  const zip = new AdmZip(doc);
+  const fichierExtrait = tmp.dirSync();
+  zip.extractAllTo(fichierExtrait.name, true);
+
+  try {
+    for (const fichierBd of Object.keys(données)) {
+      vérifierDonnéesBd(path.join(fichierExtrait.name, fichierBd), données[fichierBd]);
+    }
+  } catch(e) {
+    fichierExtrait.removeCallback();
+    throw e
   }
 }
 
@@ -123,15 +130,21 @@ typesClients.forEach((type) => {
 
           before(async () => {
             idBd = await client.bds!.créerBd("ODbl-1_0");
-            await client.bds!.ajouterNomsBd(idBd, { fr: "Ma bd"})
+            await client.bds!.ajouterNomsBd(idBd, { fr: "Ma bd"});
+
             idTableau = await client.bds!.ajouterTableauBd(idBd);
-            await client.tableaux!.ajouterNomsTableau(idTableau, { fr: "météo" })
+            await client.tableaux!.ajouterNomsTableau(idTableau, { fr: "météo" });
+
             idVariable = await client.variables!.créerVariable("numérique");
             idCol = await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
-            await client.variables!.ajouterNomsVariable(idVariable, { fr: "précipitation" })
+            await client.variables!.ajouterNomsVariable(idVariable, { fr: "précipitation" });
             await client.tableaux!.ajouterÉlément(idTableau, {
               [idCol]: 3
-            })
+            });
+
+            idProjet = await client.projets!.créerProjet();
+            await client.projets!.ajouterBdProjet(idProjet, idBd);
+            await client.projets!.ajouterNomsProjet(idProjet, { fr: "Mon projet"})
           })
 
           after(async () => {
@@ -151,7 +164,7 @@ typesClients.forEach((type) => {
               dir,
               ["fr"],
             );
-            const fichier = path.join(dir, "Ma bd.ods");
+            const fichier = path.join(dir, "météo.ods");
             await attendreFichierExiste(fichier);
             vérifierDonnéesTableau(
               fichier,
@@ -161,30 +174,44 @@ typesClients.forEach((type) => {
           });
 
           step("Exportation BD", async () => {
-            const idBd = await client.bds!.créerBd("ODbd-1_0")
+            const dir = path.join(__dirname, "_temp/testExporterBd");
+            const fichier = path.join(dir, "Ma bd.ods");
+
             await client.automatisations!.ajouterAutomatisationExporter(
               idBd,
               "bd",
               "ods",
               false,
-              "exportations",
+              dir,
+              ["fr"]
             )
+            await attendreFichierExiste(fichier);
             vérifierDonnéesBd(
-              "exportations/MaBd.ods",
-              {[idTableau]: [{[idCol]: 3}]}
+              fichier,
+              { météo: [ { précipitation: 3 } ] }
             );
           });
 
           step("Exportation projet", async () => {
-            const idProjet = await client.projets!.créerProjet();
+            const dir = path.join(__dirname, "_temp/testExporterBd");
+            const fichier = path.join(dir, "Mon projet.zip");
             await client.automatisations!.ajouterAutomatisationExporter(
               idProjet,
               "projet",
               "ods",
               false,
-              "exportations",
+              dir,
+              ["fr"]
             )
-            expect(donnéesExportées);
+            await attendreFichierExiste(fichier);
+            vérifierDonnéesProjet(
+              fichier,
+              {
+                "Ma bd.ods": {
+                  météo: [ {  précipitation: 3 } ]
+                }
+              }
+            );
           });
 
           step("Exportation selon changements", async () => {
