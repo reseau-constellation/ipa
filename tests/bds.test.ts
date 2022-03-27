@@ -1107,6 +1107,7 @@ typesClients.forEach((type) => {
             expect(fichiersSFIP.size).equal(1);
             expect(fichiersSFIP).to.have.deep.keys([{ cid, ext: "svg" }]);
           });
+
           describe("Exporter document données", async () => {
             const dirZip = path.join(__dirname, "_temp/testExporterBd");
             const fichierExtrait = path.join(
@@ -1131,7 +1132,7 @@ typesClients.forEach((type) => {
               expect(fs.existsSync(fichierExtrait)).to.be.true;
             });
 
-            it("Les données sont exportées", () => {
+            step("Les données sont exportées", () => {
               expect(
                 fs.existsSync(path.join(fichierExtrait, nomFichier + ".ods"))
               ).to.be.true;
