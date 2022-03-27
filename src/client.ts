@@ -239,7 +239,6 @@ export default class ClientConstellation extends EventEmitter {
       "feed"
     );
     this.automatisations = new Automatisations(this, idBdAuto!);
-    await this.automatisations.initialiser();
 
     this.épingles!.épinglerBd(idBdProfil!); // Celle-ci doit être récursive
     for (const idBd in [

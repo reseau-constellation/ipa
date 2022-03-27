@@ -511,6 +511,8 @@ export default class Automatisations extends EventEmitter {
     this.idBd = id;
 
     this.automatisations = {};
+
+    this.initialiser();
   }
 
   async initialiser(): Promise<void> {
