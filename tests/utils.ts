@@ -9,6 +9,7 @@ import OrbitDB from "orbit-db";
 import Store from "orbit-db-store";
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
+import fs from "fs";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation from "@/client";
@@ -56,6 +57,21 @@ export const attendreRésultat = async (
         résoudre();
       }
     }, 10);
+  });
+};
+
+export const attendreFichierExiste = async (
+  fichier: string,
+): Promise<void> => {
+  return new Promise((résoudre) => {
+    const interval = setInterval(() => {
+      const prêt = fs.existsSync(fichier);
+      if (prêt) {
+        clearInterval(interval);
+        résoudre();
+      }
+    }, 10);
+    if (fs.existsSync(fichier)) résoudre();
   });
 };
 
