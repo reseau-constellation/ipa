@@ -22,7 +22,7 @@ import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Réseau", function () {
         this.timeout(config.timeout);
@@ -520,6 +520,11 @@ typesClients.forEach((type) => {
             expect(relations.autre).to.be.empty;
           });
         });
+
+        describe.skip("Suivre relations confiance", async () => {});
+        describe.skip("Suivre comptes réseau", async () => {});
+        describe.skip("Suivre comptes réseau et en ligne", async () => {});
+        describe.skip("Suivre confiance mon réseau pour membre", async () => {});
 
         describe("Suivre noms membre", function () {
           const rés: { ultat: { [key: string]: string } | undefined } = {
