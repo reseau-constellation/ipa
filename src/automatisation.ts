@@ -554,12 +554,12 @@ export default class Automatisations extends EventEmitter {
     typeObjet: typeObjetExportation,
     formatDoc: formatTélécharger,
     inclureFichiersSFIP: boolean,
-    fréquence: fréquence,
     dir: string,
+    langues?: string[],
+    fréquence?: fréquence,
     dispositifs?: string[]
   ): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
-
     const élément: SpécificationExporter = {
       type: "exportation",
       id: uuidv4(),
@@ -568,9 +568,17 @@ export default class Automatisations extends EventEmitter {
       dispositifs,
       fréquence,
       formatDoc,
+      langues,
       inclureFichiersSFIP,
       dir,
     };
+
+    // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
+    Object.keys(élément).forEach((clef) => {
+      if (élément[clef as keyof SpécificationExporter] === undefined) {
+        delete élément[clef as keyof SpécificationExporter];
+      }
+    });
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
     >(this.idBd);
@@ -601,6 +609,13 @@ export default class Automatisations extends EventEmitter {
       fréquence,
       source,
     };
+
+    // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
+    Object.keys(élément).forEach((clef) => {
+      if (élément[clef as keyof SpécificationImporter] === undefined) {
+        delete élément[clef as keyof SpécificationImporter];
+      }
+    });
 
     const idÉlément = await bd.add(élément);
 
