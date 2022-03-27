@@ -3,6 +3,7 @@ import KeyValueStore from "orbit-db-kvstore";
 
 import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
+import fs from "fs";
 import path from "path";
 
 import { InfoColAvecCatégorie, typeÉlémentsBdTableaux } from "@/tableaux";
@@ -1108,6 +1109,10 @@ export default class BDs {
       }
       await zipper([fichierDoc], fichiersDeSFIP, path.join(dir, nomFichier));
     } else {
+      // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir)
+      }
       writeFile(doc, path.join(dir, `${nomFichier}.${formatDoc}`), {
         bookType,
       });
