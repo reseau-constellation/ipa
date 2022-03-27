@@ -18,7 +18,7 @@ import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json";
 export type formatTélécharger = BookType | "xls";
 
 export type fréquence = {
-  unités: "années" | "mois" | "semaines" | "jours" | "heures" | "minutes";
+  unités: "années" | "mois" | "semaines" | "jours" | "heures" | "minutes" | "secondes" | "millisecondes";
   n: number;
 };
 
@@ -124,6 +124,12 @@ const obtTempsInterval = (fréq: fréquence): number => {
 
     case "minutes":
       return n * 60 * 1000;
+
+    case "secondes":
+      return n * 1000;
+
+    case "millisecondes":
+      return n
 
     default:
       throw new Error(unités);
