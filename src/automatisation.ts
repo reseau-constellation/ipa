@@ -376,7 +376,7 @@ const lancerAutomatisation = async (
                 "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation."
               );
             }
-
+            throw "À faire !!!"
             /* const _chokidar = await chokidar
             const source = spécImp.source as SourceDonnéesImportationFichier;
             const écouteur = _chokidar.watch(source.adresseFichier);
