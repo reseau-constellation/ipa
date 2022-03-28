@@ -75,6 +75,24 @@ export const attendreFichierExiste = async (
   });
 };
 
+export const attendreFichierModifié = async (
+  fichier: string,
+  tempsAvant: number,
+): Promise<void> => {
+  await attendreFichierExiste(fichier);
+
+  return new Promise((résoudre) => {
+    const interval = setInterval(() => {
+      const { mtime } = fs.statSync(fichier)
+      const prêt = mtime.getTime() > tempsAvant;
+      if (prêt) {
+        clearInterval(interval);
+        résoudre();
+      }
+    }, 10);
+  });
+}
+
 export const peutÉcrire = async (
   bd: KeyValueStore<number> | FeedStore<string>,
   attendre?: OrbitDB
