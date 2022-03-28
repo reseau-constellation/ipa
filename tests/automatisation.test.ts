@@ -17,7 +17,7 @@ import { uneFois, schémaFonctionSuivi } from "@/utils";
 import { SpécificationAutomatisation } from "@/automatisation";
 
 import { testAPIs, config } from "./sfipTest";
-import { générerClients, typesClients, attendreFichierExiste } from "./utils";
+import { générerClients, typesClients, attendreFichierExiste, attendreFichierModifié } from "./utils";
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -128,6 +128,8 @@ typesClients.forEach((type) => {
           let idBd: string;
           let idProjet: string;
 
+          const dir = path.join(__dirname, "_temp/testExporterBd");
+
           before(async () => {
             idBd = await client.bds!.créerBd("ODbl-1_0");
             await client.bds!.ajouterNomsBd(idBd, { fr: "Ma bd"});
@@ -155,7 +157,6 @@ typesClients.forEach((type) => {
           })
 
           step("Exportation tableau", async () => {
-            const dir = path.join(__dirname, "_temp/testExporterBd");
             await client.automatisations!.ajouterAutomatisationExporter(
               idTableau,
               "tableau",
@@ -174,9 +175,7 @@ typesClients.forEach((type) => {
           });
 
           step("Exportation BD", async () => {
-            const dir = path.join(__dirname, "_temp/testExporterBd");
             const fichier = path.join(dir, "Ma bd.ods");
-
             await client.automatisations!.ajouterAutomatisationExporter(
               idBd,
               "bd",
@@ -193,7 +192,6 @@ typesClients.forEach((type) => {
           });
 
           step("Exportation projet", async () => {
-            const dir = path.join(__dirname, "_temp/testExporterBd");
             const fichier = path.join(dir, "Mon projet.zip");
             await client.automatisations!.ajouterAutomatisationExporter(
               idProjet,
@@ -215,24 +213,22 @@ typesClients.forEach((type) => {
           });
 
           step("Exportation selon changements", async () => {
-            const idBd = await client.bds!.créerBd("ODbl-1_0")
-            await client.automatisations!.ajouterAutomatisationExporter(
-              idBd,
-              "bd",
-              "ods",
-              false,
-              "exportations",
-              {
-                unités: "secondes",
-                n: 1
-              },
-            )
-            expect(fichier).to.exist
+            const fichier = path.join(dir, "Ma bd.ods");
 
-            await faireChangementsÀLaBd();
-            await attendreFichierModifié();
+            const avant = Date.now();
+            await client.tableaux!.ajouterÉlément(
+              idTableau, { [idCol]: 5 }
+            );
 
-            expect(nouvellesDonnéesExportées);
+            await attendreFichierModifié(
+              fichier,
+              avant
+            );
+
+            vérifierDonnéesBd(
+              fichier,
+              { météo: [ { précipitation: 3 }, { précipitation: 5 } ] }
+            );
           });
 
           step("Exportation selon fréquence", async () => {
