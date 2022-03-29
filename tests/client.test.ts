@@ -462,7 +462,7 @@ Object.keys(testAPIs).forEach((API) => {
       });
     });
 
-    describe.only("Suivre BDs récursives", function () {
+    describe("Suivre BDs récursives", function () {
       let idBd: string;
       let idBdListe: string;
       let idBd2: string;
