@@ -831,7 +831,7 @@ export default class ClientConstellation extends EventEmitter {
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBdsRécursives(
         idBd,
-        (bds) => fSuivreRacine(bds)
+        (bds) => fSuivreRacine(bds)
       )
     }
 
@@ -1344,11 +1344,9 @@ export default class ClientConstellation extends EventEmitter {
         // (à un niveau de profondeur) qui représentent une adresse de BD Orbit.
         let l_vals: string[] = [];
         if (typeof vals === "object") {
-          await Promise.all(
-            (l_vals = Object.values(vals).filter(
-              (v) => typeof v === "string"
-            ) as string[])
-          );
+          l_vals = Object.values(vals).filter(
+            (v) => typeof v === "string"
+          ) as string[];
         } else if (Array.isArray(vals)) {
           l_vals = vals;
         } else if (typeof vals === "string") {
@@ -1382,15 +1380,6 @@ export default class ClientConstellation extends EventEmitter {
       const { type } = bd;
       fOublier();
 
-      let fOublierSuiviBd: schémaFonctionOublier
-      if (type === "keyvalue") {
-        fOublierSuiviBd = await this.suivreBdDic(id, fSuivreBd);
-      } else if (type === "feed") {
-        fOublierSuiviBd = await this.suivreBdListe(id, fSuivreBd);
-      } else {
-        fOublierSuiviBd = faisRien  // Rien à suivre mais il faut l'inclure quand même !
-      }
-
       dicBds[id] = {
         requètes: new Set([de]),
         sousBds: [],
@@ -1398,6 +1387,15 @@ export default class ClientConstellation extends EventEmitter {
           fOublierSuiviBd();
           enleverRequètesDe(id);
         }
+      }
+
+      let fOublierSuiviBd: schémaFonctionOublier
+      if (type === "keyvalue") {
+        fOublierSuiviBd = await this.suivreBdDic(id, fSuivreBd);
+      } else if (type === "feed") {
+        fOublierSuiviBd = await this.suivreBdListe(id, fSuivreBd);
+      } else {
+        fOublierSuiviBd = faisRien  // Rien à suivre mais il faut l'inclure quand même !
       }
 
       verrou.release(id);
