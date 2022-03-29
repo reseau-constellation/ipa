@@ -352,17 +352,29 @@ const lancerAutomatisation = async (
     };
     fÉtat(nouvelÉtat);
 
+    const verrou = new Semaphore();
+    let idDernièreRequèteOpération = ""
+
     switch (spéc.type) {
       case "exportation": {
         const spécExp = spéc as SpécificationExporter;
-        const empreinteDernièreModifImportée = await client.obtDeStockageLocal(clefStockageDernièreFois);
-        const fOublier = await client.suivreBd(spécExp.idObjet, async (bd) => {
-          const tête: string = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
-          if (tête !== empreinteDernièreModifImportée) {
-            fAutoAvecÉtats();
-            await client.sauvegarderAuStockageLocal(clefStockageDernièreFois, tête);
+
+        const fOublier = await client.suivreEmpreinteTêtesBdRécursive(
+          spécExp.idObjet,
+          async (empreinteTêtes) => {
+            await verrou.acquire("écriture");
+            const empreinteDernièreModifImportée = await client.obtDeStockageLocal(clefStockageDernièreFois);
+
+            if (empreinteTêtes !== empreinteDernièreModifImportée) {
+              await client.sauvegarderAuStockageLocal(clefStockageDernièreFois, empreinteTêtes);
+              idDernièreRequèteOpération = empreinteTêtes
+
+              if (idDernièreRequèteOpération !== empreinteTêtes) return
+              fAutoAvecÉtats();
+            }
+            verrou.release("écriture")
           }
-        });
+        );
         return fOublier;
       }
 
