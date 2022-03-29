@@ -2,6 +2,7 @@ import { IPFS as SFIP } from "ipfs";
 import { IDResult } from "ipfs-core-types/src/root";
 import { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
+import crypto from "crypto";
 
 import OrbitDB from "orbit-db";
 import Store from "orbit-db-store";
@@ -809,6 +810,49 @@ export default class ClientConstellation extends EventEmitter {
     if (retrouvé) await bd.remove(retrouvé.hash);
   }
 
+  async suivreEmpreinteTêtesBdRécursive(
+    idBd: string,
+    f: schémaFonctionSuivi<string>
+  ): Promise<schémaFonctionOublier> {
+    const obtTêteBd = (
+      bd: Store
+    ): string => {
+      const tête = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
+      return tête;
+    }
+    const calculerEmpreinte = (texte: string) => crypto.createHash('md5').update(texte).digest('hex');
+
+    const fFinale = (têtes: string[]) => {
+      f(calculerEmpreinte(têtes.sort().join()));
+    }
+
+    const fListe = async (
+      fSuivreRacine: schémaFonctionSuivi<string[]>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.suivreBdsRécursives(
+        idBd,
+        (bds) => fSuivreRacine(bds)
+      )
+    }
+
+    const fBranche = async (
+      id: string,
+      fSuivreBranche: schémaFonctionSuivi<string>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.suivreBd(
+        id,
+        (bd) => fSuivreBranche(obtTêteBd(bd))
+      )
+    }
+
+    return await this.suivreBdsDeFonctionListe(
+      fListe,
+      fFinale,
+      fBranche
+    )
+
+  }
+
   async suivreBdsDeBdListe<T extends élémentsBd, U, V>(
     id: string,
     f: schémaFonctionSuivi<V[]>,
@@ -1265,6 +1309,107 @@ export default class ClientConstellation extends EventEmitter {
     }
     fOublier();
     return faisRien;
+  }
+
+  async suivreBdsRécursives(
+    idBd: string,
+    f: schémaFonctionSuivi<string[]>,
+  ): Promise<schémaFonctionOublier> {
+
+    const dicBds: { [key: string]: {
+      requètes: Set<string>;
+      sousBds: string[],
+      fOublier: schémaFonctionOublier;
+    } } = {}
+
+    const fFinale = () => {
+      f(Object.keys(dicBds));
+    }
+
+    const verrou = new Semaphore()
+
+    const enleverRequètesDe = (de: string) => {
+      delete dicBds[de]
+      Object.keys(dicBds).forEach(id => {
+        dicBds[id].requètes.delete(de);
+        if (!dicBds[id].requètes.size) {
+          dicBds[id].fOublier()
+        }
+      })
+    }
+
+    const _suivreBdsRécursives = async (id: string, de: string): Promise<void> => {
+      const fSuivreBd = async (vals: élémentsBd) => {
+        // Cette fonction détectera les éléments d'une liste ou d'un dictionnaire
+        // (à un niveau de profondeur) qui représentent une adresse de BD Orbit.
+        let l_vals: string[] = [];
+        if (typeof vals === "object") {
+          await Promise.all(
+            (l_vals = Object.values(vals).filter(
+              (v) => typeof v === "string"
+            ) as string[])
+          );
+        } else if (Array.isArray(vals)) {
+          l_vals = vals;
+        } else if (typeof vals === "string") {
+          l_vals = [vals];
+        }
+        const idsOrbite = l_vals.filter((v) => adresseOrbiteValide(v));
+        const nouvelles = idsOrbite.filter(id_=> !dicBds[id].sousBds.includes(id_))
+        const obsolètes = dicBds[id].sousBds.filter(id_ => !idsOrbite.includes(id_))
+
+        dicBds[id].sousBds = idsOrbite;
+
+        obsolètes.forEach(o=>{
+          dicBds[o].requètes.delete(id);
+          if (!dicBds[o].requètes.size) dicBds[o].fOublier();
+        })
+        await Promise.all(
+          nouvelles.map(
+            async (id_) => await _suivreBdsRécursives(id_, id)
+          )
+        );
+        fFinale();
+      };
+
+      await verrou.acquire(id)
+      if (dicBds[id]) {
+        dicBds[id].requètes.add(de);
+        return
+      }
+
+      const { bd, fOublier } = await this.ouvrirBd(id);
+      const { type } = bd;
+      fOublier();
+
+      let fOublierSuiviBd: schémaFonctionOublier
+      if (type === "keyvalue") {
+        fOublierSuiviBd = await this.suivreBdDic(id, fSuivreBd);
+      } else if (type === "feed") {
+        fOublierSuiviBd = await this.suivreBdListe(id, fSuivreBd);
+      } else {
+        fOublierSuiviBd = faisRien  // Rien à suivre mais il faut l'inclure quand même !
+      }
+
+      dicBds[id] = {
+        requètes: new Set([de]),
+        sousBds: [],
+        fOublier: () => {
+          fOublierSuiviBd();
+          enleverRequètesDe(id);
+        }
+      }
+
+      verrou.release(id);
+      fFinale();
+    }
+
+    await _suivreBdsRécursives(idBd, "");
+
+    const fOublier = () => {
+      Object.values(dicBds).forEach(v => v.fOublier())
+    }
+    return fOublier
   }
 
   async fermer(): Promise<void> {
