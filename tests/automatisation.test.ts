@@ -145,7 +145,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             idBd = await client.bds!.créerBd("ODbl-1_0");
-            await client.bds!.ajouterNomsBd(idBd, { fr: "Ma bd"});
+            await client.bds!.ajouterNomsBd(idBd, { fr: "Ma bd", es: "Mi bd"});
 
             idTableau = await client.bds!.ajouterTableauBd(idBd);
             await client.tableaux!.ajouterNomsTableau(idTableau, { fr: "météo" });
@@ -248,25 +248,34 @@ typesClients.forEach((type) => {
             );
           });
 
-          it.skip("Exportation selon fréquence", async () => {
-            const idBd = await client.bds!.créerBd("ODbl-1_0")
+          step("Exportation selon fréquence", async () => {
+            const fichier = path.join(dir, "Mi bd.ods");
+
             await client.automatisations!.ajouterAutomatisationExporter(
               idBd,
               "bd",
               "ods",
               false,
-              "exportations",
+              dir,
+              ["es"],
               {
                 unités: "secondes",
-                n: 1
+                n: 0.3
               },
             )
-            expect(fichier).to.exist
+            await attendreFichierExiste(fichier);
+            console.log("existe");
+
             const maintenant = Date.now();
-            await faireChangementsÀLaBd();
-            await attendreFichierModifié();
+            await client.tableaux!.ajouterÉlément(
+              idTableau, { [idCol]: 7 }
+            );
+            console.log("modifié");
+            await attendreFichierModifié(fichier, maintenant);
+            console.log("modification détectée");
+
             const après = Date.now();
-            expect (après - maintenant).to.be.greaterThanOrEqual(1 * 1000)
+            expect (après - maintenant).to.be.greaterThanOrEqual(0.3 * 1000)
           });
         });
 
