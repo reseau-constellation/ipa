@@ -6,6 +6,7 @@ import path from "path";
 import { WorkBook, BookType, readFile } from "xlsx";
 import AdmZip from "adm-zip";
 import tmp from "tmp";
+import rmrf from "rimraf"
 
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
@@ -70,10 +71,21 @@ const vérifierDonnéesBd = (
   }
 }
 
-const vérifierDonnéesProjet = (
+const vérifierDonnéesProjet = async (
   doc: string, données: { [key: string]: { [key: string]: { [key: string]: string | number }[] } }
-): void => {
-  const zip = new AdmZip(doc);
+): Promise<void> => {
+  const zip = await new Promise<AdmZip>(résoudre => {
+    const interval = setInterval(() => {
+      let zip: AdmZip
+      try {
+        zip = new AdmZip(doc)
+        clearInterval(interval);
+        résoudre(zip);
+      } catch {
+        // Réessayer
+      }
+    }, 10);
+  });
   const fichierExtrait = tmp.dirSync();
   zip.extractAllTo(fichierExtrait.name, true);
 
@@ -109,6 +121,7 @@ typesClients.forEach((type) => {
 
         after(async () => {
           if (fOublierClients) await fOublierClients();
+          rmrf.sync(path.join(__dirname, "_temp"));
         });
 
         describe("Importation", function () {
@@ -157,7 +170,7 @@ typesClients.forEach((type) => {
           })
 
           step("Exportation tableau", async () => {
-            await client.automatisations!.ajouterAutomatisationExporter(
+            const idAuto = await client.automatisations!.ajouterAutomatisationExporter(
               idTableau,
               "tableau",
               "ods",
@@ -172,6 +185,8 @@ typesClients.forEach((type) => {
               "météo",
               [{précipitation: 3}]
             );
+
+            await client.automatisations!.annulerAutomatisation(idAuto);
           });
 
           step("Exportation BD", async () => {
@@ -193,7 +208,7 @@ typesClients.forEach((type) => {
 
           step("Exportation projet", async () => {
             const fichier = path.join(dir, "Mon projet.zip");
-            await client.automatisations!.ajouterAutomatisationExporter(
+            const idAuto = await client.automatisations!.ajouterAutomatisationExporter(
               idProjet,
               "projet",
               "ods",
@@ -202,7 +217,7 @@ typesClients.forEach((type) => {
               ["fr"]
             )
             await attendreFichierExiste(fichier);
-            vérifierDonnéesProjet(
+            await vérifierDonnéesProjet(
               fichier,
               {
                 "Ma bd.ods": {
@@ -210,6 +225,8 @@ typesClients.forEach((type) => {
                 }
               }
             );
+
+            await client.automatisations!.annulerAutomatisation(idAuto);
           });
 
           step("Exportation selon changements", async () => {
@@ -231,7 +248,7 @@ typesClients.forEach((type) => {
             );
           });
 
-          step("Exportation selon fréquence", async () => {
+          it.skip("Exportation selon fréquence", async () => {
             const idBd = await client.bds!.créerBd("ODbl-1_0")
             await client.automatisations!.ajouterAutomatisationExporter(
               idBd,
