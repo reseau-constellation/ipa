@@ -23,27 +23,6 @@ import { générerClients, typesClients, attendreFichierExiste, attendreFichierM
 chai.should();
 chai.use(chaiAsPromised);
 
-/*
-step("Le fichier zip existe", () => {
-  const nomZip = path.join(dirZip, nomFichier + ".zip");
-  expect(fs.existsSync(nomZip)).to.be.true;
-  const zip = new AdmZip(nomZip);
-  zip.extractAllTo(fichierExtrait, true);
-  expect(fs.existsSync(fichierExtrait)).to.be.true;
-});
-
-it("Les données sont exportées", () => {
-  expect(
-    fs.existsSync(path.join(fichierExtrait, nomFichier + ".ods"))
-  ).to.be.true;
-});
-
-step("Le dossier pour les données SFIP existe", () => {
-  expect(fs.existsSync(path.join(fichierExtrait, "sfip"))).to.be
-    .true;
-});
-*/
-
 const vérifierDonnéesTableau = (
   doc: string | WorkBook, tableau: string, données: {[key: string]: string | number }[]
 ): void => {
@@ -100,7 +79,7 @@ const vérifierDonnéesProjet = async (
 }
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Automatisation", function () {
         this.timeout(config.timeout);
