@@ -35,20 +35,20 @@ export const attendreSync = async (bd: Store): Promise<void> => {
   await once(accès.bd!.events, "peer.exchanged");
 };
 
-export const attendreRésultat = async (
-  dic: { [key: string]: unknown },
+export const attendreRésultat = async <T = unknown>(
+  dic: { [key: string]: T },
   clef: keyof typeof dic,
-  valDésirée?: unknown
+  valDésirée?: ((x: T) => boolean) | T
 ): Promise<void> => {
   if (valDésirée === undefined) {
-    valDésirée = (x: unknown) => x !== undefined;
+    valDésirée = (x: T) => x !== undefined;
   }
   return new Promise((résoudre) => {
     const interval = setInterval(() => {
       const val = dic[clef];
       let prêt = false;
       if (typeof valDésirée === "function") {
-        prêt = valDésirée(val);
+        prêt = (valDésirée as Function)(val);
       } else {
         prêt = val === valDésirée;
       }
