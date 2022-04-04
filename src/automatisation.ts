@@ -77,7 +77,6 @@ export interface SpécificationImporter<T extends infoImporterJSON | infoImporte
   type: "importation";
   idTableau: string;
   dispositif: string;
-  fréquence: fréquence;
   source: SourceDonnéesImportation<T>;
 }
 
@@ -85,24 +84,24 @@ export interface ÉtatAutomatisation {
   type: "erreur" | "écoute" | "sync" | "programmée";
 }
 
-interface ÉtatErreur extends ÉtatAutomatisation {
+export interface ÉtatErreur extends ÉtatAutomatisation {
   type: "erreur";
   erreur: string;
-  prochainProgrammée?: number;
+  prochaineProgramméeÀ?: number;
 }
 
-interface ÉtatÉcoute extends ÉtatAutomatisation {
+export interface ÉtatÉcoute extends ÉtatAutomatisation {
   type: "écoute";
 }
 
-interface ÉtatEnSync extends ÉtatAutomatisation {
+export interface ÉtatEnSync extends ÉtatAutomatisation {
   type: "sync";
   depuis: number;
 }
 
-interface ÉtatProgrammée extends ÉtatAutomatisation {
+export interface ÉtatProgrammée extends ÉtatAutomatisation {
   type: "programmée";
-  dans?: number;
+  à?: number;
 }
 
 const obtTempsInterval = (fréq: fréquence): number => {
@@ -312,14 +311,14 @@ const lancerAutomatisation = async (
       await fAuto();
       const nouvelÉtat: ÉtatProgrammée = {
         type: "programmée",
-        dans: tempsInterval,
+        à: tempsInterval ? Date.now() + tempsInterval : undefined,
       };
       fÉtat(nouvelÉtat);
     } catch (e) {
       const nouvelÉtat: ÉtatErreur = {
         type: "erreur",
         erreur: (e as Error).toString(),
-        prochainProgrammée: tempsInterval,
+        prochaineProgramméeÀ: tempsInterval ? Date.now() + tempsInterval : undefined,
       };
       fÉtat(nouvelÉtat);
     }
@@ -329,7 +328,7 @@ const lancerAutomatisation = async (
   if (spéc.fréquence) {
     const nouvelÉtat: ÉtatProgrammée = {
       type: "programmée",
-      dans: tempsInterval,
+      à: tempsInterval,
     };
     fÉtat(nouvelÉtat);
     const dicFOublierIntervale: { f?: schémaFonctionOublier } = {};
@@ -593,8 +592,8 @@ export default class Automatisations extends EventEmitter {
 
   async ajouterAutomatisationImporter<T extends infoImporter>(
     idTableau: string,
-    fréquence: fréquence,
     source: SourceDonnéesImportation<T>,
+    fréquence?: fréquence,
     dispositif?: string
   ): Promise<string> {
     const { bd, fOublier } = await this.client.ouvrirBd<
@@ -646,12 +645,12 @@ export default class Automatisations extends EventEmitter {
   }
 
   async suivreÉtatAutomatisations(
-    f: schémaFonctionSuivi<{ [key: string]: ÉtatAutomatisation }[]>
+    f: schémaFonctionSuivi<{ [key: string]: ÉtatAutomatisation }>
   ): Promise<schémaFonctionOublier> {
     const fFinale = () => {
-      const étatsAuto = Object.fromEntries(
+      const étatsAuto: { [key: string]: ÉtatAutomatisation } = Object.fromEntries(
         Object.keys(this.automatisations)
-          .map((a) => [a, this.automatisations[a]])
+          .map((a) => [a, this.automatisations[a].état])
           .filter((x) => x[1])
       );
       f(étatsAuto);
