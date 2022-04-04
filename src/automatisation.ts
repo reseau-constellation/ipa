@@ -13,7 +13,6 @@ import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json";
 
-// const chokidar = import("chokidar");
 
 export type formatTélécharger = BookType | "xls";
 
@@ -41,43 +40,45 @@ export interface SpécificationExporter extends SpécificationAutomatisation {
   inclureFichiersSFIP: boolean;
 }
 
-export interface infoImporterJSON {
+export interface infoImporter {
+  formatDonnées: "json" | "feuilleCalcul",
+}
+
+export interface infoImporterJSON extends infoImporter {
   formatDonnées: "json";
   clefsRacine: clefsExtraction;
   clefsÉléments: clefsExtraction;
   cols: { [key: string]: clefsExtraction };
 }
 
-export interface infoImporterFeuilleCalcul {
+export interface infoImporterFeuilleCalcul extends infoImporter {
   formatDonnées: "feuilleCalcul";
   nomTableau: string;
   cols: { [key: string]: string };
 }
 
-export interface SourceDonnéesImportation<
-  T = infoImporterJSON | infoImporterFeuilleCalcul
-> {
+export interface SourceDonnéesImportation<T extends infoImporterJSON | infoImporterFeuilleCalcul > {
   typeSource: "url" | "fichier";
   info: T;
 }
 
-export interface SourceDonnéesImportationURL extends SourceDonnéesImportation {
+export interface SourceDonnéesImportationURL<T extends infoImporterJSON | infoImporterFeuilleCalcul> extends SourceDonnéesImportation<T> {
   typeSource: "url";
   url: string;
 }
 
-export interface SourceDonnéesImportationFichier
-  extends SourceDonnéesImportation {
+export interface SourceDonnéesImportationFichier<T extends infoImporterJSON | infoImporterFeuilleCalcul>
+  extends SourceDonnéesImportation<T> {
   typeSource: "fichier";
   adresseFichier: string;
 }
 
-export interface SpécificationImporter extends SpécificationAutomatisation {
+export interface SpécificationImporter<T extends infoImporterJSON | infoImporterFeuilleCalcul> extends SpécificationAutomatisation {
   type: "importation";
   idTableau: string;
   dispositif: string;
   fréquence: fréquence;
-  source: SourceDonnéesImportation;
+  source: SourceDonnéesImportation<T>;
 }
 
 export interface ÉtatAutomatisation {
@@ -136,25 +137,23 @@ const obtTempsInterval = (fréq: fréquence): number => {
   }
 };
 
-const obtDonnéesImportation = async (spéc: SpécificationImporter) => {
+const obtDonnéesImportation = async <T extends infoImporterJSON | infoImporterFeuilleCalcul>(spéc: SpécificationImporter<T>) => {
   const { typeSource } = spéc.source;
   const { formatDonnées } = spéc.source.info;
 
   switch (typeSource) {
     case "url": {
-      const { url } = spéc.source as SourceDonnéesImportationURL;
+      const { url } = spéc.source as SourceDonnéesImportationURL<T>;
       switch (formatDonnées) {
         case "json": {
-          const { clefsRacine, clefsÉléments, cols } = spéc.source
-            .info as infoImporterJSON;
+          const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
           const donnéesJson = await importerJSONdURL(url);
           const importateur = new ImportateurDonnéesJSON(donnéesJson);
           return importateur.obtDonnées(clefsRacine, clefsÉléments, cols);
         }
 
         case "feuilleCalcul": {
-          const { nomTableau, cols } = spéc.source
-            .info as infoImporterFeuilleCalcul;
+          const { nomTableau, cols } = spéc.source.info;
           const docXLSX = await importerFeuilleCalculDURL(url);
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
           return importateur.obtDonnées(nomTableau, cols);
@@ -165,21 +164,22 @@ const obtDonnéesImportation = async (spéc: SpécificationImporter) => {
       }
     }
     case "fichier": {
-      const { adresseFichier } = spéc.source as SourceDonnéesImportationFichier;
+      const { adresseFichier } = spéc.source as SourceDonnéesImportationFichier<T>;
       switch (formatDonnées) {
         case "json": {
           const { clefsRacine, clefsÉléments, cols } = spéc.source
-            .info as infoImporterJSON;
+            .info as unknown as infoImporterJSON;
 
           const contenuFichier = await fs.promises.readFile(adresseFichier);
           const donnéesJson = JSON.parse(contenuFichier.toString());
           const importateur = new ImportateurDonnéesJSON(donnéesJson);
+
           return importateur.obtDonnées(clefsRacine, clefsÉléments, cols);
         }
 
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source
-            .info as infoImporterFeuilleCalcul;
+            .info as unknown as infoImporterFeuilleCalcul;
           const docXLSX = readFile(adresseFichier);
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
           return importateur.obtDonnées(nomTableau, cols);
@@ -255,7 +255,7 @@ const générerFAuto = (
 ): (() => Promise<void>) => {
   switch (spéc.type) {
     case "importation": {
-      const spécImp = spéc as SpécificationImporter;
+      const spécImp = spéc as SpécificationImporter<T>;
       return async () => {
         const données = await obtDonnéesImportation(spécImp);
         await client.tableaux!.importerDonnées(spécImp.idTableau, données);
@@ -285,7 +285,23 @@ const lancerAutomatisation = async (
     ? obtTempsInterval(spéc.fréquence)
     : undefined;
 
-  const fAutoAvecÉtats = async () => {
+  const verrou = new Semaphore();
+  let idDernièreRequèteOpération = ""
+
+  const fAutoAvecÉtats = async (requète: string) => {
+    const requèteDernièreModifImportée = await client.obtDeStockageLocal(clefStockageDernièreFois);
+
+    if (requète === requèteDernièreModifImportée) return
+
+    idDernièreRequèteOpération = requète;
+
+    await verrou.acquire("opération");
+    if (requète !== idDernièreRequèteOpération) {
+      verrou.release("opération");
+      return
+    }
+    await client.sauvegarderAuStockageLocal(clefStockageDernièreFois, requète);
+
     const nouvelÉtat: ÉtatEnSync = {
       type: "sync",
       depuis: new Date().getTime(),
@@ -307,6 +323,7 @@ const lancerAutomatisation = async (
       };
       fÉtat(nouvelÉtat);
     }
+    verrou.release("opération");
   };
 
   if (spéc.fréquence) {
@@ -352,34 +369,17 @@ const lancerAutomatisation = async (
     };
     fÉtat(nouvelÉtat);
 
-    const verrou = new Semaphore();
-    let idDernièreRequèteOpération = ""
-
     switch (spéc.type) {
       case "exportation": {
-        const spécExp = spéc as SpécificationExporter;
-
         const fOublier = await client.suivreEmpreinteTêtesBdRécursive(
-          spécExp.idObjet,
-          async (empreinteTêtes) => {
-            await verrou.acquire("écriture");
-            const empreinteDernièreModifImportée = await client.obtDeStockageLocal(clefStockageDernièreFois);
-
-            if (empreinteTêtes !== empreinteDernièreModifImportée) {
-              await client.sauvegarderAuStockageLocal(clefStockageDernièreFois, empreinteTêtes);
-              idDernièreRequèteOpération = empreinteTêtes
-
-              if (idDernièreRequèteOpération !== empreinteTêtes) return
-              fAutoAvecÉtats();
-            }
-            verrou.release("écriture")
-          }
+          spéc.idObjet,
+          fAutoAvecÉtats
         );
         return fOublier;
       }
 
       case "importation": {
-        const spécImp = spéc as SpécificationImporter;
+        const spécImp = spéc as SpécificationImporter<infer T>;
 
         switch (spécImp.source.typeSource) {
           case "fichier": {
@@ -388,40 +388,30 @@ const lancerAutomatisation = async (
                 "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation."
               );
             }
-            throw "À faire !!!"
-            /* const _chokidar = await chokidar
+            const chokidar = await import("chokidar");
             const source = spécImp.source as SourceDonnéesImportationFichier;
-            const écouteur = _chokidar.watch(source.adresseFichier);
-            écouteur.on("change", () => {
-              fAutoAvecÉtats();
-              await client.sauvegarderAuStockageLocal(
-                clefStockageDernièreFois,
-                new Date().getTime().toString()
-              );
+            const écouteur = chokidar.watch(source.adresseFichier);
+            écouteur.on("change", async () => {
+              const maintenant = new Date().getTime().toString()
+              fAutoAvecÉtats(maintenant);
             });
 
             const dernièreModif = fs
               .statSync(source.adresseFichier)
               .mtime.getTime();
-            const dernièreImportation = await client.sauvegarderAuStockageLocal(
+            const dernièreImportation = await client.obtDeStockageLocal(
               clefStockageDernièreFois
             );
             const fichierModifié = dernièreImportation
               ? dernièreModif > parseInt(dernièreImportation)
               : true;
             if (fichierModifié) {
-              const maintenant = new Date().getTime();
-              fAutoAvecÉtats();
-              await client.sauvegarderAuStockageLocal(
-                clefStockageDernièreFois,
-                maintenant.toString()
-              );
+              const maintenant = new Date().getTime().toString();
+              fAutoAvecÉtats(maintenant);
             }
 
             const fOublier = async () => await écouteur.close();
             return fOublier;
-            */
-            return faisRien;
           }
 
           case "url": {
@@ -601,10 +591,10 @@ export default class Automatisations extends EventEmitter {
     return idÉlément;
   }
 
-  async ajouterAutomatisationImporter(
+  async ajouterAutomatisationImporter<T extends infoImporter>(
     idTableau: string,
     fréquence: fréquence,
-    source: SourceDonnéesImportation,
+    source: SourceDonnéesImportation<T>,
     dispositif?: string
   ): Promise<string> {
     const { bd, fOublier } = await this.client.ouvrirBd<
@@ -613,7 +603,7 @@ export default class Automatisations extends EventEmitter {
 
     dispositif = dispositif || this.client.orbite!.identity.id;
 
-    const élément: SpécificationImporter = {
+    const élément: SpécificationImporter<T> = {
       type: "importation",
       id: uuidv4(),
       idTableau,
@@ -624,8 +614,8 @@ export default class Automatisations extends EventEmitter {
 
     // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
     Object.keys(élément).forEach((clef) => {
-      if (élément[clef as keyof SpécificationImporter] === undefined) {
-        delete élément[clef as keyof SpécificationImporter];
+      if (élément[clef as keyof SpécificationImporter<T>] === undefined) {
+        delete élément[clef as keyof SpécificationImporter<T>];
       }
     });
 

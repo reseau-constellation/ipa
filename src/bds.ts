@@ -1097,7 +1097,7 @@ export default class BDs {
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir)
+      fs.mkdirSync(dir, { recursive: true })
     }
 
     if (inclureFichierSFIP) {

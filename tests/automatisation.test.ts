@@ -3,22 +3,21 @@ import chaiAsPromised from "chai-as-promised";
 import { step } from "mocha-steps";
 import fs from "fs";
 import path from "path";
-import { WorkBook, BookType, readFile } from "xlsx";
+import XLSX, { WorkBook, BookType, readFile, writeFile } from "xlsx";
 import AdmZip from "adm-zip";
 import tmp from "tmp";
 import rmrf from "rimraf"
 
-import KeyValueStore from "orbit-db-kvstore";
-import FeedStore from "orbit-db-feedstore";
-
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx"
-import { uneFois, schémaFonctionSuivi } from "@/utils";
-import { SpécificationAutomatisation } from "@/automatisation";
+import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import { SpécificationAutomatisation, SourceDonnéesImportationURL, SourceDonnéesImportationFichier, infoImporterJSON, infoImporterFeuilleCalcul } from "@/automatisation";
+import { élémentDonnées } from "@/valid";
+import { élémentBdListeDonnées } from "@/tableaux";
 
 import { testAPIs, config } from "./sfipTest";
-import { générerClients, typesClients, attendreFichierExiste, attendreFichierModifié } from "./utils";
+import { générerClients, typesClients, attendreFichierExiste, attendreFichierModifié, attendreRésultat } from "./utils";
 
 chai.should();
 chai.use(chaiAsPromised);
@@ -53,6 +52,10 @@ const vérifierDonnéesBd = (
 const vérifierDonnéesProjet = async (
   doc: string, données: { [key: string]: { [key: string]: { [key: string]: string | number }[] } }
 ): Promise<void> => {
+
+  // Il faut essayer plusieurs fois parce que le fichier ZIP peut
+  // être créé avant la fin de l'écriture du fichier (ce qui cause
+  // une erreur de lecture).
   const zip = await new Promise<AdmZip>(résoudre => {
     const interval = setInterval(() => {
       let zip: AdmZip
@@ -65,6 +68,7 @@ const vérifierDonnéesProjet = async (
       }
     }, 10);
   });
+
   const fichierExtrait = tmp.dirSync();
   zip.extractAllTo(fichierExtrait.name, true);
 
@@ -78,8 +82,15 @@ const vérifierDonnéesProjet = async (
   }
 }
 
+const comparerDonnéesTableau = (données: élémentDonnées<élémentBdListeDonnées>[], réf: élémentBdListeDonnées[]): void => {
+  const enleverId = (x: élémentBdListeDonnées): élémentBdListeDonnées => {
+    return Object.fromEntries(Object.entries(x).filter(([clef, _val])=>clef!=="id"))
+  }
+  expect(données.map(d=>enleverId(d.données))).to.have.deep.members(réf);
+}
+
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Automatisation", function () {
         this.timeout(config.timeout);
@@ -104,13 +115,226 @@ typesClients.forEach((type) => {
         });
 
         describe("Importation", function () {
-          before(async () => {});
+          let idTableau: string;
+          let idCol1: string;
+          let idCol2: string;
 
-          step("Aucune automatisation pour commencer");
-          step("Ajout automatisation détecté");
-          step("Importation selon fréquence");
-          step("Importation selon changements");
-          step("Effacer automatisation");
+          const dir = path.join(__dirname, "_temp/testImporterBd");
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true })
+          }
+
+          const rés: { ultat?: élémentDonnées<élémentBdListeDonnées>[] } = {}
+          const fsOublier: schémaFonctionOublier[] = []
+
+          beforeEach(async () => {
+            idTableau = await client.tableaux!.créerTableau();
+            const idVar1 = await client.variables!.créerVariable("numérique");
+            const idVar2 = await client.variables!.créerVariable("chaîne");
+
+            idCol1 = await client.tableaux!.ajouterColonneTableau(idTableau, idVar1);
+            idCol2 = await client.tableaux!.ajouterColonneTableau(idTableau, idVar2);
+
+            fsOublier.push(await client.tableaux!.suivreDonnées(
+              idTableau,
+              données => rés.ultat = données
+            ))
+          });
+
+          afterEach(async () => {
+            fsOublier.forEach(f=>f());
+            delete rés["ultat"]
+          })
+
+          it("Importer de fichier JSON", async () => {
+            const fichierJSON = path.join(dir, "données.json");
+            const données = {
+              "données": [
+                { "col 1": 1, "col 2": "អ"},
+                { "col 1": 2, "col 2": "அ"},
+                { "col 1": 3, "col 2": "a"},
+              ]
+            }
+
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+              typeSource: "fichier",
+              adresseFichier: fichierJSON,
+              info: {
+                formatDonnées: "json",
+                clefsRacine: ["données"],
+                clefsÉléments: [],
+                cols: {
+                  [idCol1]: ["col 1"],
+                  [idCol2]: ["col 2"]
+                }
+              }
+            }
+
+            await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau,
+              undefined,
+              source
+            );
+
+            await attendreRésultat(rés, "ultat", x=>x && x.length === 3)
+
+            comparerDonnéesTableau(rés.ultat!, [
+                { [idCol1]: 1, [idCol2]: "អ"},
+                { [idCol1]: 2, [idCol2]: "அ"},
+                { [idCol1]: 3, [idCol2]: "a"},
+            ]);
+          });
+
+          it("Importer de fichier tableau", async () => {
+            const fichierFeuilleCalcul = path.join(dir, "données.ods");
+
+            const données = XLSX.utils.book_new();
+            const tableau = XLSX.utils.json_to_sheet([
+              { "col 1": 4, "col 2": "អ"},
+              { "col 1": 5, "col 2": "அ"},
+              { "col 1": 6, "col 2": "a"},
+            ])
+            XLSX.utils.book_append_sheet(données, tableau, "tableau")
+
+            writeFile(données, fichierFeuilleCalcul, {
+              bookType: "ods",
+            });
+
+            const source: SourceDonnéesImportationFichier<infoImporterFeuilleCalcul> = {
+              typeSource: "fichier",
+              adresseFichier: fichierFeuilleCalcul,
+              info: {
+                nomTableau: "tableau",
+                formatDonnées: "feuilleCalcul",
+                cols: {
+                  [idCol1]: "col 1",
+                  [idCol2]: "col 2"
+                }
+              }
+            }
+
+            await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau,
+              undefined,
+              source
+            );
+
+            await attendreRésultat(rés, "ultat", x=>x && x.length === 3);
+
+            comparerDonnéesTableau(rés.ultat!, [
+                { [idCol1]: 4, [idCol2]: "អ"},
+                { [idCol1]: 5, [idCol2]: "அ"},
+                { [idCol1]: 6, [idCol2]: "a"},
+            ]);
+
+          });
+
+          it("Importer d'un URL (feuille calcul)", async () => {
+            const source: SourceDonnéesImportationURL<infoImporterFeuilleCalcul> = {
+              typeSource: "url",
+              url: "https://coviddata.github.io/coviddata/v1/countries/cases.csv",
+              info: {
+                nomTableau: "Sheet1",
+                formatDonnées: "feuilleCalcul",
+                cols: {
+                  [idCol1]: "1/22/21",
+                  [idCol2]: "Country"
+                }
+              }
+            }
+
+            await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau,
+              {
+                unités: "jours",
+                n: 1
+              },
+              source
+            );
+
+            await attendreRésultat(rés, "ultat", x=>x && x.length >= 10);
+
+            comparerDonnéesTableau(rés.ultat!, [
+                { [idCol1]: 24846678, [idCol2]: "United States"},
+                { [idCol1]: 10639684, [idCol2]: "India"},
+                { [idCol1]: 8753920, [idCol2]: "Brazil"},
+                { [idCol1]: 3594094, [idCol2]: "United Kingdom"},
+                { [idCol1]: 3637862, [idCol2]: "Russia"},
+                { [idCol1]: 3069695, [idCol2]: "France"},
+                { [idCol1]: 2499560, [idCol2]: "Spain"},
+                { [idCol1]: 2441854, [idCol2]: "Italy"},
+                { [idCol1]: 2418472, [idCol2]: "Turkey"},
+                { [idCol1]: 2125261, [idCol2]: "Germany"},
+            ]);
+          });
+
+          it("Importer d'un URL (json)", async () => {
+            const source: SourceDonnéesImportationURL<infoImporterJSON> = {
+              typeSource: "url",
+              url: "https://coordinates.native-land.ca/indigenousLanguages.json",
+              info: {
+                formatDonnées: "json",
+                clefsRacine: ["features"],
+                clefsÉléments: [],
+                cols: {
+                  [idCol2]: ["properties", "Name"],
+                  [idCol1]: ["geometry", "coordinates", 0, 0, 0]
+                }
+              }
+            }
+
+            await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau,
+              {
+                unités: "jours",
+                n: 1
+              },
+              source
+            );
+
+            await attendreRésultat(rés, "ultat", x=>x && x.length >= 10);
+
+            // Les résultats peuvent varier avec le temps !
+            // Nom de la langue
+            expect(rés.ultat!.map(r=>r.données[idCol1]).every(n=>typeof n === "string"))
+
+            // Longitude
+            expect(rés.ultat!.map(r=>r.données[idCol2]).every(n=> -180 <= n && n <= 180))
+          });
+
+          it.skip("Importation selon changements", async () => {
+            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+              typeSource: "fichier",
+              adresseFichier: fichierJSON,
+              info: {
+                formatDonnées: "json",
+                clefsRacine: ["données"],
+                clefsÉléments: [],
+                cols: {
+                  [idCol1]: ["col 1"],
+                  [idCol2]: ["col 2"]
+                }
+              }
+            }
+
+            await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau,
+              undefined,
+              source
+            );
+
+            await ajouterDonnéesAuFichier()
+
+            expect(rés.ultat).to.exist;
+            expect(rés.ultat!.filter(d=>d.données).map(d=>d.données)).to.have.deep.members([
+              { [idCol1]: [1, 2, 3], [idCol2]: ["អ", "அ", "a"] }
+            ]);
+          });
+
+          it("Importation selon fréquence");
+          it("Effacer automatisation");
         });
 
         describe("Exportation", function () {
@@ -243,15 +467,12 @@ typesClients.forEach((type) => {
               },
             )
             await attendreFichierExiste(fichier);
-            console.log("existe");
 
             const maintenant = Date.now();
             await client.tableaux!.ajouterÉlément(
               idTableau, { [idCol]: 7 }
             );
-            console.log("modifié");
             await attendreFichierModifié(fichier, maintenant);
-            console.log("modification détectée");
 
             const après = Date.now();
             expect (après - maintenant).to.be.greaterThanOrEqual(0.3 * 1000)
@@ -259,11 +480,22 @@ typesClients.forEach((type) => {
         });
 
         describe("Exportation nuée bds", function () {
+          step("Exportation selon changements", async () => {
+            await client.automatisations!.ajouterAutomatisationExporterNuée(
+              idMotClef,
+              undefined,
+              fichier,
+            );
+
+          });
           step("Exportation selon fréquence");
-          step("Exportation selon changements");
         });
 
         describe("Suivre état automatisations", function () {
+          before(async () => {
+            await client.automatisations!.suivreÉtatAutomatisations();
+            await client.automatisations!.suivreAutomatisations();
+          })
           it("erreur");
           it("écoute");
           it("sync");
