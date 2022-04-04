@@ -3,16 +3,17 @@ import chaiAsPromised from "chai-as-promised";
 import { step } from "mocha-steps";
 import fs from "fs";
 import path from "path";
-import XLSX, { WorkBook, BookType, readFile, writeFile } from "xlsx";
+import XLSX, { WorkBook, readFile, writeFile } from "xlsx";
 import AdmZip from "adm-zip";
 import tmp from "tmp";
 import rmrf from "rimraf"
+import { v4 as uuid} from "uuid";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx"
 import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
-import { SpécificationAutomatisation, SourceDonnéesImportationURL, SourceDonnéesImportationFichier, infoImporterJSON, infoImporterFeuilleCalcul } from "@/automatisation";
+import { SpécificationAutomatisation, SourceDonnéesImportationURL, SourceDonnéesImportationFichier, infoImporterJSON, infoImporterFeuilleCalcul, ÉtatAutomatisation, ÉtatErreur, ÉtatProgrammée, ÉtatEnSync, ÉtatÉcoute } from "@/automatisation";
 import { élémentDonnées } from "@/valid";
 import { élémentBdListeDonnées } from "@/tableaux";
 
@@ -118,16 +119,15 @@ typesClients.forEach((type) => {
           let idTableau: string;
           let idCol1: string;
           let idCol2: string;
-
-          const dir = path.join(__dirname, "_temp/testImporterBd");
-          if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true })
-          }
+          let dir: string;
 
           const rés: { ultat?: élémentDonnées<élémentBdListeDonnées>[] } = {}
           const fsOublier: schémaFonctionOublier[] = []
 
           beforeEach(async () => {
+            dir = path.join(__dirname, "_temp/testImporterBd/" + uuid());
+            fs.mkdirSync(dir, { recursive: true });
+
             idTableau = await client.tableaux!.créerTableau();
             const idVar1 = await client.variables!.créerVariable("numérique");
             const idVar2 = await client.variables!.créerVariable("chaîne");
@@ -143,8 +143,9 @@ typesClients.forEach((type) => {
 
           afterEach(async () => {
             fsOublier.forEach(f=>f());
+            rmrf.sync(dir);
             delete rés["ultat"]
-          })
+          });
 
           it("Importer de fichier JSON", async () => {
             const fichierJSON = path.join(dir, "données.json");
@@ -174,7 +175,6 @@ typesClients.forEach((type) => {
 
             await client.automatisations!.ajouterAutomatisationImporter(
               idTableau,
-              undefined,
               source
             );
 
@@ -217,7 +217,6 @@ typesClients.forEach((type) => {
 
             await client.automatisations!.ajouterAutomatisationImporter(
               idTableau,
-              undefined,
               source
             );
 
@@ -247,11 +246,11 @@ typesClients.forEach((type) => {
 
             await client.automatisations!.ajouterAutomatisationImporter(
               idTableau,
+              source,
               {
                 unités: "jours",
                 n: 1
-              },
-              source
+              }
             );
 
             await attendreRésultat(rés, "ultat", x=>x && x.length >= 10);
@@ -287,11 +286,11 @@ typesClients.forEach((type) => {
 
             await client.automatisations!.ajouterAutomatisationImporter(
               idTableau,
+              source,
               {
                 unités: "jours",
                 n: 1
               },
-              source
             );
 
             await attendreRésultat(rés, "ultat", x=>x && x.length >= 10);
@@ -304,7 +303,18 @@ typesClients.forEach((type) => {
             expect(rés.ultat!.map(r=>r.données[idCol2]).every(n=> -180 <= n && n <= 180))
           });
 
-          it.skip("Importation selon changements", async () => {
+          it("Importation selon changements", async () => {
+            const fichierJSON = path.join(dir, "données.json");
+            const données = {
+              "données": [
+                { "col 1": 1, "col 2": "អ"},
+                { "col 1": 2, "col 2": "அ"},
+                { "col 1": 3, "col 2": "a"},
+              ]
+            }
+
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
             const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
               typeSource: "fichier",
               adresseFichier: fichierJSON,
@@ -321,19 +331,74 @@ typesClients.forEach((type) => {
 
             await client.automatisations!.ajouterAutomatisationImporter(
               idTableau,
-              undefined,
               source
             );
 
-            await ajouterDonnéesAuFichier()
+            données.données.push({"col 1": 4, "col 2": "子"});
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            expect(rés.ultat).to.exist;
-            expect(rés.ultat!.filter(d=>d.données).map(d=>d.données)).to.have.deep.members([
-              { [idCol1]: [1, 2, 3], [idCol2]: ["អ", "அ", "a"] }
+            await attendreRésultat(rés, "ultat", x => x.length === 4);
+
+            comparerDonnéesTableau(rés.ultat!, [
+                { [idCol1]: 1, [idCol2]: "អ"},
+                { [idCol1]: 2, [idCol2]: "அ"},
+                { [idCol1]: 3, [idCol2]: "a"},
+                { [idCol1]: 4, [idCol2]: "子"},
             ]);
           });
 
-          it("Importation selon fréquence");
+          it("Importation selon fréquence", async () => {
+            const fichierJSON = path.join(dir, "données.json");
+            const données = {
+              "données": [
+                { "col 1": 1, "col 2": "អ"},
+                { "col 1": 2, "col 2": "அ"},
+                { "col 1": 3, "col 2": "a"},
+              ]
+            }
+
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+              typeSource: "fichier",
+              adresseFichier: fichierJSON,
+              info: {
+                formatDonnées: "json",
+                clefsRacine: ["données"],
+                clefsÉléments: [],
+                cols: {
+                  [idCol1]: ["col 1"],
+                  [idCol2]: ["col 2"]
+                }
+              }
+            }
+
+            await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau,
+              source,
+              {
+                unités: "millisecondes",
+                n: 300
+              }
+            );
+
+            const maintenant = Date.now();
+            données.données.push({"col 1": 4, "col 2": "子"});
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+            await attendreRésultat(rés, "ultat", x => x.length === 4);
+
+            const après = Date.now();
+            expect (après - maintenant).to.be.greaterThanOrEqual(0.3 * 1000)
+
+            comparerDonnéesTableau(rés.ultat!, [
+                { [idCol1]: 1, [idCol2]: "អ"},
+                { [idCol1]: 2, [idCol2]: "அ"},
+                { [idCol1]: 3, [idCol2]: "a"},
+                { [idCol1]: 4, [idCol2]: "子"},
+            ]);
+
+          });
           it("Effacer automatisation");
         });
 
@@ -491,15 +556,297 @@ typesClients.forEach((type) => {
           step("Exportation selon fréquence");
         });
 
-        describe("Suivre état automatisations", function () {
-          before(async () => {
-            await client.automatisations!.suivreÉtatAutomatisations();
-            await client.automatisations!.suivreAutomatisations();
+        describe.only("Suivre état automatisations exportation", function () {
+          let idVariable: string;
+          let idCol: string;
+          let idTableau: string;
+          let idBd: string;
+
+          const rés: { états?: {[key: string]: ÉtatAutomatisation}, autos?: SpécificationAutomatisation[] } = {}
+          const fsOublier: schémaFonctionOublier[] = [];
+          const dir = path.join(__dirname, "_temp/testExporterBd");
+
+          beforeEach(async () => {
+            fsOublier.push(await client.automatisations!.suivreÉtatAutomatisations(états => rés.états = états));
+            fsOublier.push(await client.automatisations!.suivreAutomatisations(autos => rés.autos = autos));
+
+            idBd = await client.bds!.créerBd("ODbl-1_0");
+            await client.bds!.ajouterNomsBd(idBd, { fr: "Ma bd", es: "Mi bd"});
+
+            idTableau = await client.bds!.ajouterTableauBd(idBd);
+            await client.tableaux!.ajouterNomsTableau(idTableau, { fr: "météo" });
+
+            idVariable = await client.variables!.créerVariable("numérique");
+            idCol = await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
+            await client.variables!.ajouterNomsVariable(idVariable, { fr: "précipitation" });
+            await client.tableaux!.ajouterÉlément(idTableau, {
+              [idCol]: 3
+            });
           })
-          it("erreur");
-          it("écoute");
-          it("sync");
-          it("programmée");
+
+          afterEach(async () => {
+            fsOublier.forEach(f=>f());
+            const automatisations = await uneFois(
+              async (fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>) => await client.automatisations!.suivreAutomatisations(fSuivi)
+            )
+            await Promise.all(automatisations.map(async a=> await client.automatisations!.annulerAutomatisation(a.id)));
+            rmrf.sync(dir)
+          })
+
+          it("sync et écoute", async () => {
+            const idAuto = await client.automatisations!.ajouterAutomatisationExporter(
+              idBd,
+              "bd",
+              "ods",
+              false,
+              dir,
+              ["fr"],
+            );
+            await attendreFichierExiste(path.join(dir, "Ma bd.ods"));
+            expect(rés.états![idAuto]).to.deep.equal({
+              type: "écoute"
+            });
+
+            const avantAjout = Date.now();
+            await client.tableaux!.ajouterÉlément(idTableau, {[idCol]: 4});
+
+            expect(rés.états![idAuto].type).to.equal("sync")
+            const étatSync = rés.états![idAuto] as ÉtatEnSync
+            expect(étatSync.depuis).to.be.greaterThanOrEqual(avantAjout);
+          });
+
+          it("programmée", async ()=> {
+            const idAuto = await client.automatisations!.ajouterAutomatisationExporter(
+              idBd,
+              "bd",
+              "ods",
+              false,
+              dir,
+              ["fr"],
+              {
+                unités: "heures",
+                n: 1
+              }
+            );
+
+            await attendreFichierExiste(path.join(dir, "Ma bd.ods"));
+            const maintenant = Date.now();
+
+            // @ts-ignore
+            await attendreRésultat(rés, "états", x=>x[idAuto])
+
+            const état = rés.états![idAuto] as ÉtatProgrammée;
+
+            expect(état.type).to.equal("programmée");
+            expect(état.à).to.be.lessThanOrEqual(maintenant + 1000 * 60 * 60);
+          });
+
+          it("erreur", async () => {
+            const avant = Date.now();
+
+            const idAuto = await client.automatisations!.ajouterAutomatisationExporter(
+              idBd,
+              "bd",
+              // @ts-ignore: on fait une erreur par exprès !
+              "ods!",
+              false,
+              dir,
+              ["fr"],
+              {
+                unités: "semaines",
+                n: 1
+              }
+            );
+
+            // @ts-ignore: Je sais pas comment faire ça
+            await attendreRésultat(rés, "états", x=>!!x[idAuto]);
+
+            const après = Date.now();
+
+            expect(rés.états![idAuto].type).to.equal("erreur");
+            const état = rés.états![idAuto] as ÉtatErreur;
+
+            expect(état.erreur).to.equal("Error: Unrecognized bookType |ods!|");
+            expect(état.prochaineProgramméeÀ).to.be.lessThanOrEqual(après + 1000 * 60 * 60 * 24 * 7);
+            expect(état.prochaineProgramméeÀ).to.be.greaterThanOrEqual(avant + 1000 * 60 * 60 * 24 * 7);
+          });
+        });
+
+        describe.only("Suivre état automatisations importation", function () {
+          let idTableau: string;
+          let idCol1: string;
+          let idCol2: string;
+          let dir: string;
+
+          const rés: { états?: {[key: string]: ÉtatAutomatisation}, autos?: SpécificationAutomatisation[] } = {}
+          const fsOublier: schémaFonctionOublier[] = [];
+
+          beforeEach(async () => {
+            fsOublier.push(await client.automatisations!.suivreÉtatAutomatisations(états => rés.états = états));
+            fsOublier.push(await client.automatisations!.suivreAutomatisations(autos => rés.autos = autos));
+
+            dir = path.join(__dirname, "_temp/testImporterBd/" + uuid());
+
+            fs.mkdirSync(dir, { recursive: true });
+
+            idTableau = await client.tableaux!.créerTableau();
+            const idVar1 = await client.variables!.créerVariable("numérique");
+            const idVar2 = await client.variables!.créerVariable("chaîne");
+
+            idCol1 = await client.tableaux!.ajouterColonneTableau(idTableau, idVar1);
+            idCol2 = await client.tableaux!.ajouterColonneTableau(idTableau, idVar2);
+          });
+
+          afterEach(async () => {
+            fsOublier.forEach(f=>f());
+            rmrf.sync(dir);
+            delete rés["états"];
+            delete rés["autos"];
+          });
+
+          it("sync et écoute", async () => {
+            const fichierJSON = path.join(dir, "données.json");
+            const données = {
+              "données": [
+                { "col 1": 1, "col 2": "អ"},
+                { "col 1": 2, "col 2": "அ"},
+                { "col 1": 3, "col 2": "a"},
+              ]
+            }
+
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+              typeSource: "fichier",
+              adresseFichier: fichierJSON,
+              info: {
+                formatDonnées: "json",
+                clefsRacine: ["données"],
+                clefsÉléments: [],
+                cols: {
+                  [idCol1]: ["col 1"],
+                  [idCol2]: ["col 2"]
+                }
+              }
+            }
+
+            const idAuto = await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau,
+              source
+            );
+
+            // @ts-ignore: Je sais pas comment faire ça
+            await attendreRésultat(rés, "états", x=>x[idAuto]);
+
+            expect(rés.états![idAuto]).to.deep.equal({
+              type: "écoute"
+            });
+
+            données.données.push({"col 1": 4, "col 2": "子"});
+
+            const avantAjout = Date.now();
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+            expect(rés.états![idAuto].type).to.equal("sync");
+            const étatSync = rés.états![idAuto] as ÉtatEnSync;
+            expect(étatSync.depuis).to.be.greaterThanOrEqual(avantAjout);
+          });
+
+          it("programmée", async ()=> {
+            const fichierJSON = path.join(dir, "données.json");
+            const données = {
+              "données": [
+                { "col 1": 1, "col 2": "អ"},
+                { "col 1": 2, "col 2": "அ"},
+                { "col 1": 3, "col 2": "a"},
+              ]
+            }
+
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+              typeSource: "fichier",
+              adresseFichier: fichierJSON,
+              info: {
+                formatDonnées: "json",
+                clefsRacine: ["données"],
+                clefsÉléments: [],
+                cols: {
+                  [idCol1]: ["col 1"],
+                  [idCol2]: ["col 2"]
+                }
+              }
+            }
+
+            const idAuto = await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau,
+              source,
+              {
+                unités: "minutes",
+                n: 3
+              }
+            );
+
+            // @ts-ignore: Je sais pas comment faire ça
+            await attendreRésultat(rés, "états", x=>x[idAuto]);
+
+            const maintenant = Date.now();
+
+            expect(rés.états![idAuto].type).to.equal("programmée");
+
+            const état = rés.états![idAuto] as ÉtatProgrammée;
+            expect(état.à).to.be.lessThanOrEqual(maintenant + 1000 * 60 * 3)
+          });
+
+          it("erreur", async () => {
+            const avant = Date.now();
+
+            const fichierJSON = path.join(dir, "données.json");
+            const données = {
+              "données": [
+                { "col 1": 1, "col 2": "អ"},
+                { "col 1": 2, "col 2": "அ"},
+                { "col 1": 3, "col 2": "a"},
+              ]
+            }
+
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+              typeSource: "fichier",
+              adresseFichier: fichierJSON,
+              info: {
+                formatDonnées: "json",
+                clefsRacine: ["données"],
+                clefsÉléments: [],
+                cols: {
+                  [idCol1]: ["col 1"],
+                  [idCol2]: ["col 2"]
+                }
+              }
+            }
+
+            const idAuto = await client.automatisations!.ajouterAutomatisationImporter(
+              idTableau+"!",
+              source,
+              {
+                unités: "minutes",
+                n: 3
+              }
+            );
+
+            // @ts-ignore: Je sais pas comment faire ça
+            await attendreRésultat(rés, "états", x=>x[idAuto]);
+
+            const après = Date.now();
+
+            expect(rés.états![idAuto].type).to.equal("erreur");
+            const état = rés.états![idAuto] as ÉtatErreur;
+
+            expect(état.erreur).to.equal("Error: ");
+            expect(état.prochaineProgramméeÀ).to.be.lessThanOrEqual(après + 1000 * 60 * 3);
+            expect(état.prochaineProgramméeÀ).to.be.greaterThanOrEqual(avant + 1000 * 60 * 3);
+          });
         });
       });
     });

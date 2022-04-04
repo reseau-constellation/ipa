@@ -101,7 +101,7 @@ export interface ÉtatEnSync extends ÉtatAutomatisation {
 
 export interface ÉtatProgrammée extends ÉtatAutomatisation {
   type: "programmée";
-  à?: number;
+  à: number;
 }
 
 const obtTempsInterval = (fréq: fréquence): number => {
@@ -309,11 +309,19 @@ const lancerAutomatisation = async (
 
     try {
       await fAuto();
-      const nouvelÉtat: ÉtatProgrammée = {
-        type: "programmée",
-        à: tempsInterval ? Date.now() + tempsInterval : undefined,
-      };
-      fÉtat(nouvelÉtat);
+      if (tempsInterval) {
+        const nouvelÉtat: ÉtatProgrammée = {
+          type: "programmée",
+          à: Date.now() + tempsInterval,
+        };
+        fÉtat(nouvelÉtat);
+      } else {
+        const nouvelÉtat: ÉtatÉcoute = {
+          type: "écoute",
+        };
+        fÉtat(nouvelÉtat);
+      }
+
     } catch (e) {
       const nouvelÉtat: ÉtatErreur = {
         type: "erreur",
@@ -328,7 +336,7 @@ const lancerAutomatisation = async (
   if (spéc.fréquence) {
     const nouvelÉtat: ÉtatProgrammée = {
       type: "programmée",
-      à: tempsInterval,
+      à: tempsInterval!,
     };
     fÉtat(nouvelÉtat);
     const dicFOublierIntervale: { f?: schémaFonctionOublier } = {};
