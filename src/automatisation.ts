@@ -254,7 +254,7 @@ const générerFAuto = (
 ): (() => Promise<void>) => {
   switch (spéc.type) {
     case "importation": {
-      const spécImp = spéc as SpécificationImporter<T>;
+      const spécImp = spéc as SpécificationImporter;
       return async () => {
         const données = await obtDonnéesImportation(spécImp);
         await client.tableaux!.importerDonnées(spécImp.idTableau, données);
@@ -386,7 +386,7 @@ const lancerAutomatisation = async (
       }
 
       case "importation": {
-        const spécImp = spéc as SpécificationImporter<infer T>;
+        const spécImp = spéc as SpécificationImporter;
 
         switch (spécImp.source.typeSource) {
           case "fichier": {

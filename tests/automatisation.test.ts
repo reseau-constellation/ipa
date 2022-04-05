@@ -556,7 +556,7 @@ typesClients.forEach((type) => {
           step("Exportation selon fréquence");
         });
 
-        describe.only("Suivre état automatisations exportation", function () {
+        describe("Suivre état automatisations exportation", function () {
           let idVariable: string;
           let idCol: string;
           let idTableau: string;
@@ -603,6 +603,9 @@ typesClients.forEach((type) => {
               ["fr"],
             );
             await attendreFichierExiste(path.join(dir, "Ma bd.ods"));
+            // @ts-ignore
+            await attendreRésultat(rés, "états", x=>x[idAuto]);
+
             expect(rés.états![idAuto]).to.deep.equal({
               type: "écoute"
             });
@@ -610,9 +613,12 @@ typesClients.forEach((type) => {
             const avantAjout = Date.now();
             await client.tableaux!.ajouterÉlément(idTableau, {[idCol]: 4});
 
-            expect(rés.états![idAuto].type).to.equal("sync")
-            const étatSync = rés.états![idAuto] as ÉtatEnSync
-            expect(étatSync.depuis).to.be.greaterThanOrEqual(avantAjout);
+            // @ts-ignore
+            await attendreRésultat(rés, "états", x=>x[idAuto].type === "sync");
+
+            const { type, depuis } = rés.états![idAuto] as ÉtatEnSync;
+            expect(type).to.equal("sync");
+            expect(depuis).to.be.greaterThanOrEqual(avantAjout);
           });
 
           it("programmée", async ()=> {
@@ -672,7 +678,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre état automatisations importation", function () {
+        describe("Suivre état automatisations importation", function () {
           let idTableau: string;
           let idCol1: string;
           let idCol2: string;
@@ -736,7 +742,7 @@ typesClients.forEach((type) => {
             );
 
             // @ts-ignore: Je sais pas comment faire ça
-            await attendreRésultat(rés, "états", x=>x[idAuto]);
+            await attendreRésultat(rés, "états", x => x && x[idAuto]?.type === "écoute");
 
             expect(rés.états![idAuto]).to.deep.equal({
               type: "écoute"
@@ -746,6 +752,9 @@ typesClients.forEach((type) => {
 
             const avantAjout = Date.now();
             fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+            // @ts-ignore: Je sais pas comment faire ça
+            await attendreRésultat(rés, "états", x=>x[idAuto].type === "sync");
 
             expect(rés.états![idAuto].type).to.equal("sync");
             const étatSync = rés.états![idAuto] as ÉtatEnSync;
@@ -788,7 +797,7 @@ typesClients.forEach((type) => {
             );
 
             // @ts-ignore: Je sais pas comment faire ça
-            await attendreRésultat(rés, "états", x=>x[idAuto]);
+            await attendreRésultat(rés, "états", x=>x && x[idAuto]?.type === "programmée");
 
             const maintenant = Date.now();
 
@@ -814,7 +823,7 @@ typesClients.forEach((type) => {
 
             const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
               typeSource: "fichier",
-              adresseFichier: fichierJSON,
+              adresseFichier: fichierJSON+"!",
               info: {
                 formatDonnées: "json",
                 clefsRacine: ["données"],
@@ -827,7 +836,7 @@ typesClients.forEach((type) => {
             }
 
             const idAuto = await client.automatisations!.ajouterAutomatisationImporter(
-              idTableau+"!",
+              idTableau,
               source,
               {
                 unités: "minutes",
@@ -836,14 +845,14 @@ typesClients.forEach((type) => {
             );
 
             // @ts-ignore: Je sais pas comment faire ça
-            await attendreRésultat(rés, "états", x=>x[idAuto]);
+            await attendreRésultat(rés, "états", x=>x && x[idAuto]?.type === "erreur");
 
             const après = Date.now();
 
             expect(rés.états![idAuto].type).to.equal("erreur");
             const état = rés.états![idAuto] as ÉtatErreur;
 
-            expect(état.erreur).to.equal("Error: ");
+            expect(état.erreur.startsWith("Error: ENOENT: no such file or directory, open "), état.erreur);
             expect(état.prochaineProgramméeÀ).to.be.lessThanOrEqual(après + 1000 * 60 * 3);
             expect(état.prochaineProgramméeÀ).to.be.greaterThanOrEqual(avant + 1000 * 60 * 3);
           });
