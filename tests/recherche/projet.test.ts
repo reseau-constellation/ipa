@@ -122,9 +122,12 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Pas de résultat quand le projet n'a pas de description", async () => {
-            expect(résultat).to.be.undefined;
-          });
+          step(
+            "Pas de résultat quand le projet n'a pas de description",
+            async () => {
+              expect(résultat).to.be.undefined;
+            }
+          );
 
           step("Ajout description détecté", async () => {
             await client.projets!.ajouterDescriptionsProjet(idProjet, {
@@ -150,57 +153,64 @@ typesClients.forEach((type) => {
           let idProjet: string;
           let idMotClef: string;
           let résultatNom:
-            | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+            | résultatObjectifRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              >
             | undefined;
           let résultatId:
-            | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+            | résultatObjectifRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              >
             | undefined;
           let résultatTous:
-            | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+            | résultatObjectifRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              >
             | undefined;
 
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
             idProjet = await client.projets!.créerProjet();
-            idMotClef = await client.motsClefs!.créerMotClef()
+            idMotClef = await client.motsClefs!.créerMotClef();
 
             const fRechercheNom = rechercherProjetSelonNomMotClef("Météo");
-            fsOublier.push(await fRechercheNom(
-              client,
-              idProjet,
-              (r) => (résultatNom = r)
-            ));
+            fsOublier.push(
+              await fRechercheNom(client, idProjet, (r) => (résultatNom = r))
+            );
 
-            const fRechercheId = rechercherProjetSelonIdMotClef(idMotClef.slice(0, 15));
-            fsOublier.push(await fRechercheId(
-              client,
-              idProjet,
-              (r) => (résultatId = r)
-            ));
+            const fRechercheId = rechercherProjetSelonIdMotClef(
+              idMotClef.slice(0, 15)
+            );
+            fsOublier.push(
+              await fRechercheId(client, idProjet, (r) => (résultatId = r))
+            );
 
             const fRechercheTous = rechercherProjetSelonMotClef("Météo");
-            fsOublier.push(await fRechercheTous(
-              client,
-              idProjet,
-              (r) => (résultatTous = r)
-            ));
+            fsOublier.push(
+              await fRechercheTous(client, idProjet, (r) => (résultatTous = r))
+            );
           });
 
           after(() => {
-            fsOublier.forEach(f=>f());
+            fsOublier.forEach((f) => f());
           });
 
-          step("Pas de résultat quand le projet n'a pas de mot-clef", async () => {
-            expect(résultatId).to.be.undefined;
-            expect(résultatNom).to.be.undefined;
-            expect(résultatTous).to.be.undefined;
-          });
+          step(
+            "Pas de résultat quand le projet n'a pas de mot-clef",
+            async () => {
+              expect(résultatId).to.be.undefined;
+              expect(résultatNom).to.be.undefined;
+              expect(résultatTous).to.be.undefined;
+            }
+          );
 
           step("Ajout mot-clef détecté", async () => {
             await client.projets!.ajouterMotsClefsProjet(idProjet, idMotClef);
 
-            const réfRésId: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            const réfRésId: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
               type: "résultat",
               clef: idMotClef,
               de: "motClef",
@@ -212,10 +222,10 @@ typesClients.forEach((type) => {
                   début: 0,
                   fin: 15,
                   texte: idMotClef,
-                }
+                },
               },
               score: 1,
-            }
+            };
 
             expect(résultatId).to.deep.equal(réfRésId);
           });
@@ -225,7 +235,9 @@ typesClients.forEach((type) => {
               fr: "Météo historique pour la région de Montréal",
             });
 
-            const réfRésNom: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            const réfRésNom: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
               type: "résultat",
               clef: idMotClef,
               de: "motClef",
@@ -241,7 +253,7 @@ typesClients.forEach((type) => {
                 },
               },
               score: 1,
-            }
+            };
 
             expect(résultatNom).to.deep.equal(réfRésNom);
             expect(résultatTous).to.deep.equal(réfRésNom);
@@ -252,45 +264,47 @@ typesClients.forEach((type) => {
           let idProjet: string;
           let idVariable: string;
           let résultatNom:
-            | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+            | résultatObjectifRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              >
             | undefined;
           let résultatId:
-            | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+            | résultatObjectifRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              >
             | undefined;
           let résultatTous:
-            | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+            | résultatObjectifRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              >
             | undefined;
 
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
             idProjet = await client.bds!.créerBd("ODbl-1_0");
-            idVariable = await client.variables!.créerVariable("numérique")
+            idVariable = await client.variables!.créerVariable("numérique");
 
             const fRechercheNom = rechercherProjetSelonNomVariable("Précip");
-            fsOublier.push(await fRechercheNom(
-              client,
-              idProjet,
-              (r) => (résultatNom = r)
-            ));
+            fsOublier.push(
+              await fRechercheNom(client, idProjet, (r) => (résultatNom = r))
+            );
 
-            const fRechercheId = rechercherProjetSelonIdVariable(idVariable.slice(0, 15));
-            fsOublier.push(await fRechercheId(
-              client,
-              idProjet,
-              (r) => (résultatId = r)
-            ));
+            const fRechercheId = rechercherProjetSelonIdVariable(
+              idVariable.slice(0, 15)
+            );
+            fsOublier.push(
+              await fRechercheId(client, idProjet, (r) => (résultatId = r))
+            );
 
             const fRechercheTous = rechercherProjetSelonVariable("Précip");
-            fsOublier.push(await fRechercheTous(
-              client,
-              idProjet,
-              (r) => (résultatTous = r)
-            ));
+            fsOublier.push(
+              await fRechercheTous(client, idProjet, (r) => (résultatTous = r))
+            );
           });
 
           after(() => {
-            fsOublier.forEach(f=>f());
+            fsOublier.forEach((f) => f());
           });
 
           step("Pas de résultat quand la bd n'a pas de variable", async () => {
@@ -306,7 +320,9 @@ typesClients.forEach((type) => {
             const idTableau = await client.bds!.ajouterTableauBd(idBd);
             await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
 
-            const réfRésId: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            const réfRésId: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
               type: "résultat",
               clef: idVariable,
               de: "variable",
@@ -318,10 +334,10 @@ typesClients.forEach((type) => {
                   début: 0,
                   fin: 15,
                   texte: idVariable,
-                }
+                },
               },
               score: 1,
-            }
+            };
 
             expect(résultatId).to.deep.equal(réfRésId);
           });
@@ -331,7 +347,9 @@ typesClients.forEach((type) => {
               fr: "Précipitation mensuelle",
             });
 
-            const réfRésNom: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            const réfRésNom: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
               type: "résultat",
               clef: idVariable,
               de: "variable",
@@ -347,7 +365,7 @@ typesClients.forEach((type) => {
                 },
               },
               score: 1,
-            }
+            };
 
             expect(résultatNom).to.deep.equal(réfRésNom);
             expect(résultatTous).to.deep.equal(réfRésNom);
@@ -358,36 +376,45 @@ typesClients.forEach((type) => {
           let idProjet: string;
           let idBd: string;
           let résultatId:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatNom:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatDescr:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatVariable:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatMotsClef:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
-
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -400,26 +427,36 @@ typesClients.forEach((type) => {
               await fRechercheNom(client, idProjet, (r) => (résultatNom = r))
             );
 
-            const fRechercheId = rechercherProjetSelonIdBd(
-              idBd.slice(0, 15)
-            );
+            const fRechercheId = rechercherProjetSelonIdBd(idBd.slice(0, 15));
             fsOublier.push(
               await fRechercheId(client, idProjet, (r) => (résultatId = r))
             );
 
             const fRechercheDescr = rechercherProjetSelonBd("Montréal");
             fsOublier.push(
-              await fRechercheDescr(client, idProjet, (r) => (résultatDescr = r))
+              await fRechercheDescr(
+                client,
+                idProjet,
+                (r) => (résultatDescr = r)
+              )
             );
 
             const fRechercheVariables = rechercherProjetSelonBd("Température");
             fsOublier.push(
-              await fRechercheVariables(client, idProjet, (r) => (résultatVariable = r))
+              await fRechercheVariables(
+                client,
+                idProjet,
+                (r) => (résultatVariable = r)
+              )
             );
 
             const fRechercheMotsClef = rechercherProjetSelonBd("Météo");
             fsOublier.push(
-              await fRechercheMotsClef(client, idProjet, (r) => (résultatMotsClef = r))
+              await fRechercheMotsClef(
+                client,
+                idProjet,
+                (r) => (résultatMotsClef = r)
+              )
             );
           });
 
@@ -430,30 +467,34 @@ typesClients.forEach((type) => {
           step("Résultat id détecté", async () => {
             await client.projets!.ajouterBdProjet(idProjet, idBd);
 
-            const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            const réfRés: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
+              type: "résultat",
+              de: "bd",
+              clef: idBd,
+              info: {
                 type: "résultat",
-                de: "bd",
-                clef: idBd,
+                de: "id",
                 info: {
-                  type: "résultat",
-                  de: "id",
-                  info: {
-                    type: "texte",
-                    début: 0,
-                    fin: 15,
-                    texte: idBd,
-                  }
+                  type: "texte",
+                  début: 0,
+                  fin: 15,
+                  texte: idBd,
                 },
-                score: 1,
-              }
+              },
+              score: 1,
+            };
 
             expect(résultatId).to.be.deep.equal(réfRés);
           });
 
           step("Résultat nom détecté", async () => {
-            await client.bds!.ajouterNomsBd(idBd, {fr: "Hydrologie"});
+            await client.bds!.ajouterNomsBd(idBd, { fr: "Hydrologie" });
 
-            const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            const réfRés: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
               type: "résultat",
               de: "bd",
               clef: idBd,
@@ -469,14 +510,18 @@ typesClients.forEach((type) => {
                 },
               },
               score: 1,
-            }
+            };
 
             expect(résultatNom).to.deep.equal(réfRés);
           });
 
           step("Résultat descr détecté", async () => {
-            await client.bds!.ajouterDescriptionsBd(idBd, { fr: "Hydrologie de Montréal"})
-            const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            await client.bds!.ajouterDescriptionsBd(idBd, {
+              fr: "Hydrologie de Montréal",
+            });
+            const réfRés: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
               type: "résultat",
               de: "bd",
               clef: idBd,
@@ -492,17 +537,23 @@ typesClients.forEach((type) => {
                 },
               },
               score: 1,
-            }
+            };
             expect(résultatDescr).to.deep.equal(réfRés);
           });
 
           step("Résultat variable détecté", async () => {
-            const idVariable = await client.variables!.créerVariable("numérique");
+            const idVariable = await client.variables!.créerVariable(
+              "numérique"
+            );
             const idTableau = await client.bds!.ajouterTableauBd(idBd);
             await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
-            await client.variables!.ajouterNomsVariable(idVariable, { fr: "Température maximale" });
+            await client.variables!.ajouterNomsVariable(idVariable, {
+              fr: "Température maximale",
+            });
 
-            const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>> = {
+            const réfRés: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>
+            > = {
               type: "résultat",
               de: "bd",
               clef: idBd,
@@ -523,7 +574,7 @@ typesClients.forEach((type) => {
                 },
               },
               score: 1,
-            }
+            };
 
             expect(résultatVariable).to.deep.equal(réfRés);
           });
@@ -531,9 +582,13 @@ typesClients.forEach((type) => {
           step("Résultat mot-clef détecté", async () => {
             const idMotClef = await client.motsClefs!.créerMotClef();
             await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, { fr: "Météorologie" });
+            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+              fr: "Météorologie",
+            });
 
-            const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>> = {
+            const réfRés: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>
+            > = {
               type: "résultat",
               de: "bd",
               clef: idBd,
@@ -550,57 +605,67 @@ typesClients.forEach((type) => {
                     début: 0,
                     fin: 5,
                     texte: "Météorologie",
-                  }
+                  },
                 },
               },
               score: 1,
-            }
+            };
 
             expect(résultatMotsClef).to.deep.equal(réfRés);
           });
-
         });
 
         describe.skip("Selon texte", function () {
           let idProjet: string;
           let idBd: string;
           let résultatId:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatNom:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatDescr:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatBd:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatVariable:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
           let résultatMotsClef:
-            | résultatObjectifRecherche<infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >>
+            | résultatObjectifRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<
+                    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+                  >
+              >
             | undefined;
-
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -622,7 +687,11 @@ typesClients.forEach((type) => {
 
             const fRechercheDescr = rechercherProjetSelonTexte("Montréal");
             fsOublier.push(
-              await fRechercheDescr(client, idProjet, (r) => (résultatDescr = r))
+              await fRechercheDescr(
+                client,
+                idProjet,
+                (r) => (résultatDescr = r)
+              )
             );
 
             const fRechercheBds = rechercherProjetSelonTexte(idBd);
@@ -630,14 +699,23 @@ typesClients.forEach((type) => {
               await fRechercheBds(client, idProjet, (r) => (résultatBd = r))
             );
 
-            const fRechercheVariables = rechercherProjetSelonTexte("Température");
+            const fRechercheVariables =
+              rechercherProjetSelonTexte("Température");
             fsOublier.push(
-              await fRechercheVariables(client, idProjet, (r) => (résultatVariable = r))
+              await fRechercheVariables(
+                client,
+                idProjet,
+                (r) => (résultatVariable = r)
+              )
             );
 
             const fRechercheMotsClef = rechercherProjetSelonTexte("Météo");
             fsOublier.push(
-              await fRechercheMotsClef(client, idProjet, (r) => (résultatMotsClef = r))
+              await fRechercheMotsClef(
+                client,
+                idProjet,
+                (r) => (résultatMotsClef = r)
+              )
             );
           });
 
@@ -660,7 +738,9 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat nom détecté", async () => {
-            await client.projets!.ajouterNomsProjet(idProjet, { fr: "Hydrologie" });
+            await client.projets!.ajouterNomsProjet(idProjet, {
+              fr: "Hydrologie",
+            });
 
             expect(résultatNom).to.deep.equal({
               type: "résultat",
@@ -677,7 +757,9 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat descr détecté", async () => {
-            await client.projets!.ajouterDescriptionsProjet(idProjet, { fr: "Hydrologie de Montréal"})
+            await client.projets!.ajouterDescriptionsProjet(idProjet, {
+              fr: "Hydrologie de Montréal",
+            });
             expect(résultatDescr).to.deep.equal({
               type: "résultat",
               clef: "fr",
@@ -707,19 +789,25 @@ typesClients.forEach((type) => {
                   début: 0,
                   fin: idBd.length,
                   texte: idBd,
-                }
+                },
               },
               score: 1,
             });
           });
 
           step("Résultat variable détecté", async () => {
-            const idVariable = await client.variables!.créerVariable("numérique");
+            const idVariable = await client.variables!.créerVariable(
+              "numérique"
+            );
             const idTableau = await client.bds!.ajouterTableauBd(idBd);
             await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
-            await client.variables!.ajouterNomsVariable(idVariable, { fr: "Température maximale" });
+            await client.variables!.ajouterNomsVariable(idVariable, {
+              fr: "Température maximale",
+            });
 
-            const résRéf: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            const résRéf: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
               type: "résultat",
               clef: idVariable,
               de: "variable",
@@ -732,20 +820,24 @@ typesClients.forEach((type) => {
                   début: 0,
                   fin: 11,
                   texte: "Température maximale",
-                }
+                },
               },
               score: 1,
-            }
+            };
 
             expect(résultatVariable).to.deep.equal(résRéf);
           });
 
           step("Résultat mot-clef détecté", async () => {
             const idMotClef = await client.motsClefs!.créerMotClef();
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, { fr: "Météorologie" });
+            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+              fr: "Météorologie",
+            });
             await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
 
-            const résRéf: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+            const résRéf: résultatObjectifRecherche<
+              infoRésultatRecherche<infoRésultatTexte>
+            > = {
               type: "résultat",
               clef: idMotClef,
               de: "motClef",
@@ -758,14 +850,13 @@ typesClients.forEach((type) => {
                   début: 0,
                   fin: 5,
                   texte: "Météorologie",
-                }
+                },
               },
               score: 1,
-            }
+            };
 
             expect(résultatMotsClef).to.deep.equal(résRéf);
           });
-
         });
       });
     });

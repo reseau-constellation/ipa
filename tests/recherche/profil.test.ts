@@ -52,7 +52,9 @@ typesClients.forEach((type) => {
         describe("Selon activité", function () {
           let fOublier: schémaFonctionOublier;
 
-          const rés: {ultat: résultatObjectifRecherche<infoRésultatVide> | undefined} = { ultat: undefined};
+          const rés: {
+            ultat: résultatObjectifRecherche<infoRésultatVide> | undefined;
+          } = { ultat: undefined };
 
           before(async () => {
             const fRecherche = rechercherProfilSelonActivité();
@@ -81,12 +83,14 @@ typesClients.forEach((type) => {
 
           step("On améliore le score en ajoutant notre nom", async () => {
             await client.profil!.sauvegarderNom("த", "ஜூலீஎன்");
-            expect(rés.ultat?.score).to.equal(1/3);
+            expect(rés.ultat?.score).to.equal(1 / 3);
           });
 
           step("Encore mieux avec un courriel", async () => {
-            await client.profil!.sauvegarderCourriel("julien.malard@mail.mcgill.ca");
-            expect(rés.ultat?.score).to.equal(2/3);
+            await client.profil!.sauvegarderCourriel(
+              "julien.malard@mail.mcgill.ca"
+            );
+            expect(rés.ultat?.score).to.equal(2 / 3);
           });
           step("C'est parfait avec un photo !", async () => {
             const IMAGE = fs.readFileSync(
@@ -94,14 +98,21 @@ typesClients.forEach((type) => {
             );
 
             await client.profil!.sauvegarderImage(IMAGE);
-            await attendreRésultat(rés, "ultat", (x: résultatObjectifRecherche<infoRésultatVide> | undefined) => x?.score === 1)
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x: résultatObjectifRecherche<infoRésultatVide> | undefined) =>
+                x?.score === 1
+            );
 
             expect(rés.ultat?.score).to.equal(1);
           });
         });
 
         describe("Selon nom", function () {
-          let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+          let résultat:
+            | résultatObjectifRecherche<infoRésultatTexte>
+            | undefined;
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
@@ -151,7 +162,9 @@ typesClients.forEach((type) => {
         describe("Selon courriel", function () {
           let fOublier: schémaFonctionOublier;
 
-          const rés: {ultat: résultatObjectifRecherche<infoRésultatTexte> | undefined} = { ultat: undefined};
+          const rés: {
+            ultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+          } = { ultat: undefined };
 
           before(async () => {
             const fRecherche = rechercherProfilSelonCourriel("julien");
@@ -172,13 +185,20 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout courriel détecté", async () => {
-            await client.profil!.sauvegarderCourriel("julien.malard@mail.mcgill.ca");
+            await client.profil!.sauvegarderCourriel(
+              "julien.malard@mail.mcgill.ca"
+            );
 
             expect(rés.ultat).to.deep.equal({
               type: "résultat",
               score: 1,
               de: "courriel",
-              info: { type: "texte", texte: "julien.malard@mail.mcgill.ca", début: 0, fin: 6 },
+              info: {
+                type: "texte",
+                texte: "julien.malard@mail.mcgill.ca",
+                début: 0,
+                fin: 6,
+              },
             });
           });
         });
@@ -196,16 +216,21 @@ typesClients.forEach((type) => {
           before(async () => {
             const fRechercheNom = rechercherProfilSelonTexte("Julien Malard");
             fsOublier.push(
-              await fRechercheNom(client, client.profil!.idBd, (r) => (résultatNom = r))
+              await fRechercheNom(
+                client,
+                client.profil!.idBd,
+                (r) => (résultatNom = r)
+              )
             );
 
-            const fRechercherCourriel = rechercherProfilSelonTexte(
-              "julien."
-            );
+            const fRechercherCourriel = rechercherProfilSelonTexte("julien.");
             fsOublier.push(
-              await fRechercherCourriel(client, client.profil!.idBd, (r) => (résultatCourriel = r))
+              await fRechercherCourriel(
+                client,
+                client.profil!.idBd,
+                (r) => (résultatCourriel = r)
+              )
             );
-
           });
 
           after(() => {
@@ -217,7 +242,7 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout nom détecté", async () => {
-            await client.profil!.sauvegarderNom("fr", "Julien Malard-Adam")
+            await client.profil!.sauvegarderNom("fr", "Julien Malard-Adam");
             expect(résultatNom).to.deep.equal({
               type: "résultat",
               clef: "fr",
@@ -240,12 +265,14 @@ typesClients.forEach((type) => {
                 fin: 7,
                 texte: "Julien Malard-Adam",
               },
-              score: 1/3,
+              score: 1 / 3,
             });
           });
 
           it("Ajout courriel détecté", async () => {
-            await client.profil!.sauvegarderCourriel("julien.malard@mail.mcgill.ca")
+            await client.profil!.sauvegarderCourriel(
+              "julien.malard@mail.mcgill.ca"
+            );
             expect(résultatCourriel).to.deep.equal({
               type: "résultat",
               de: "courriel",

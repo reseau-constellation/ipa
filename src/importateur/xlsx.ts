@@ -34,7 +34,9 @@ export default class ImportateurFeuilleCalcul {
         )
       );
     } else {
-      const colsInversées = Object.fromEntries(Object.entries(cols).map(([c, v]) => [v, c]))
+      const colsInversées = Object.fromEntries(
+        Object.entries(cols).map(([c, v]) => [v, c])
+      );
       return données.map((d) =>
         Object.fromEntries(
           Object.keys(d)

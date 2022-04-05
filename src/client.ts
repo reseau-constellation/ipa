@@ -814,43 +814,31 @@ export default class ClientConstellation extends EventEmitter {
     idBd: string,
     f: schémaFonctionSuivi<string>
   ): Promise<schémaFonctionOublier> {
-    const obtTêteBd = (
-      bd: Store
-    ): string => {
+    const obtTêteBd = (bd: Store): string => {
       const tête = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
       return tête;
-    }
-    const calculerEmpreinte = (texte: string) => crypto.createHash('md5').update(texte).digest('hex');
+    };
+    const calculerEmpreinte = (texte: string) =>
+      crypto.createHash("md5").update(texte).digest("hex");
 
     const fFinale = (têtes: string[]) => {
       f(calculerEmpreinte(têtes.sort().join()));
-    }
+    };
 
     const fListe = async (
       fSuivreRacine: schémaFonctionSuivi<string[]>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdsRécursives(
-        idBd,
-        (bds) => fSuivreRacine(bds)
-      )
-    }
+      return await this.suivreBdsRécursives(idBd, (bds) => fSuivreRacine(bds));
+    };
 
     const fBranche = async (
       id: string,
       fSuivreBranche: schémaFonctionSuivi<string>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBd(
-        id,
-        (bd) => fSuivreBranche(obtTêteBd(bd))
-      )
-    }
+      return await this.suivreBd(id, (bd) => fSuivreBranche(obtTêteBd(bd)));
+    };
 
-    return await this.suivreBdsDeFonctionListe(
-      fListe,
-      fFinale,
-      fBranche
-    )
-
+    return await this.suivreBdsDeFonctionListe(fListe, fFinale, fBranche);
   }
 
   async suivreBdsDeBdListe<T extends élémentsBd, U, V>(
@@ -1095,18 +1083,27 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async obtDeStockageLocal(clef: string): Promise<string | null> {
-    const clefClient = `${this.idBdCompte!.slice(this.idBdCompte!.length - 23, this.idBdCompte!.length - 8)} : ${clef}`
-    return (await obtStockageLocal()).getItem(clefClient)
+    const clefClient = `${this.idBdCompte!.slice(
+      this.idBdCompte!.length - 23,
+      this.idBdCompte!.length - 8
+    )} : ${clef}`;
+    return (await obtStockageLocal()).getItem(clefClient);
   }
 
   async sauvegarderAuStockageLocal(clef: string, val: string): Promise<void> {
-    const clefClient = `${this.idBdCompte!.slice(this.idBdCompte!.length - 23, this.idBdCompte!.length - 8)} : ${clef}`
-    return (await obtStockageLocal()).setItem(clefClient, val)
+    const clefClient = `${this.idBdCompte!.slice(
+      this.idBdCompte!.length - 23,
+      this.idBdCompte!.length - 8
+    )} : ${clef}`;
+    return (await obtStockageLocal()).setItem(clefClient, val);
   }
 
   async effacerDeStockageLocal(clef: string): Promise<void> {
-    const clefClient = `${this.idBdCompte!.slice(this.idBdCompte!.length - 23, this.idBdCompte!.length - 8)} : ${clef}`
-    return (await obtStockageLocal()).removeItem(clefClient)
+    const clefClient = `${this.idBdCompte!.slice(
+      this.idBdCompte!.length - 23,
+      this.idBdCompte!.length - 8
+    )} : ${clef}`;
+    return (await obtStockageLocal()).removeItem(clefClient);
   }
 
   async ouvrirBd<T extends Store>(
@@ -1313,32 +1310,36 @@ export default class ClientConstellation extends EventEmitter {
 
   async suivreBdsRécursives(
     idBd: string,
-    f: schémaFonctionSuivi<string[]>,
+    f: schémaFonctionSuivi<string[]>
   ): Promise<schémaFonctionOublier> {
-
-    const dicBds: { [key: string]: {
-      requètes: Set<string>;
-      sousBds: string[],
-      fOublier: schémaFonctionOublier;
-    } } = {}
+    const dicBds: {
+      [key: string]: {
+        requètes: Set<string>;
+        sousBds: string[];
+        fOublier: schémaFonctionOublier;
+      };
+    } = {};
 
     const fFinale = () => {
       f(Object.keys(dicBds));
-    }
+    };
 
-    const verrou = new Semaphore()
+    const verrou = new Semaphore();
 
-    const enleverRequètesDe = (de: string) => {
-      delete dicBds[de]
-      Object.keys(dicBds).forEach(id => {
+    const enleverRequètesDe = (de: string) => {
+      delete dicBds[de];
+      Object.keys(dicBds).forEach((id) => {
         dicBds[id].requètes.delete(de);
         if (!dicBds[id].requètes.size) {
-          dicBds[id].fOublier()
+          dicBds[id].fOublier();
         }
-      })
-    }
+      });
+    };
 
-    const _suivreBdsRécursives = async (id: string, de: string): Promise<void> => {
+    const _suivreBdsRécursives = async (
+      id: string,
+      de: string
+    ): Promise<void> => {
       const fSuivreBd = async (vals: élémentsBd) => {
         // Cette fonction détectera les éléments d'une liste ou d'un dictionnaire
         // (à un niveau de profondeur) qui représentent une adresse de BD Orbit.
@@ -1353,27 +1354,29 @@ export default class ClientConstellation extends EventEmitter {
           l_vals = [vals];
         }
         const idsOrbite = l_vals.filter((v) => adresseOrbiteValide(v));
-        const nouvelles = idsOrbite.filter(id_=> !dicBds[id].sousBds.includes(id_))
-        const obsolètes = dicBds[id].sousBds.filter(id_ => !idsOrbite.includes(id_))
+        const nouvelles = idsOrbite.filter(
+          (id_) => !dicBds[id].sousBds.includes(id_)
+        );
+        const obsolètes = dicBds[id].sousBds.filter(
+          (id_) => !idsOrbite.includes(id_)
+        );
 
         dicBds[id].sousBds = idsOrbite;
 
-        obsolètes.forEach(o=>{
+        obsolètes.forEach((o) => {
           dicBds[o].requètes.delete(id);
           if (!dicBds[o].requètes.size) dicBds[o].fOublier();
-        })
+        });
         await Promise.all(
-          nouvelles.map(
-            async (id_) => await _suivreBdsRécursives(id_, id)
-          )
+          nouvelles.map(async (id_) => await _suivreBdsRécursives(id_, id))
         );
         fFinale();
       };
 
-      await verrou.acquire(id)
+      await verrou.acquire(id);
       if (dicBds[id]) {
         dicBds[id].requètes.add(de);
-        return
+        return;
       }
 
       const { bd, fOublier } = await this.ouvrirBd(id);
@@ -1386,28 +1389,28 @@ export default class ClientConstellation extends EventEmitter {
         fOublier: () => {
           fOublierSuiviBd();
           enleverRequètesDe(id);
-        }
-      }
+        },
+      };
 
-      let fOublierSuiviBd: schémaFonctionOublier
+      let fOublierSuiviBd: schémaFonctionOublier;
       if (type === "keyvalue") {
         fOublierSuiviBd = await this.suivreBdDic(id, fSuivreBd);
       } else if (type === "feed") {
         fOublierSuiviBd = await this.suivreBdListe(id, fSuivreBd);
       } else {
-        fOublierSuiviBd = faisRien  // Rien à suivre mais il faut l'inclure quand même !
+        fOublierSuiviBd = faisRien; // Rien à suivre mais il faut l'inclure quand même !
       }
 
       verrou.release(id);
       fFinale();
-    }
+    };
 
     await _suivreBdsRécursives(idBd, "");
 
     const fOublier = () => {
-      Object.values(dicBds).forEach(v => v.fOublier())
-    }
-    return fOublier
+      Object.values(dicBds).forEach((v) => v.fOublier());
+    };
+    return fOublier;
   }
 
   async fermer(): Promise<void> {

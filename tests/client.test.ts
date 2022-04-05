@@ -468,7 +468,7 @@ Object.keys(testAPIs).forEach((API) => {
       let idBd2: string;
       let fOublier: schémaFonctionOublier;
 
-      const rés: {ultat?: string[]} = {};
+      const rés: { ultat?: string[] } = {};
 
       before(async () => {
         idBd = await client.créerBdIndépendante("kvstore");
@@ -476,51 +476,60 @@ Object.keys(testAPIs).forEach((API) => {
         idBd2 = await client.créerBdIndépendante("feed");
 
         fOublier = await client.suivreBdsRécursives(
-          idBd, ids_ => rés.ultat = ids_
-        )
+          idBd,
+          (ids_) => (rés.ultat = ids_)
+        );
       });
 
       after(() => {
-        if (fOublier) fOublier()
-      })
+        if (fOublier) fOublier();
+      });
 
       step("Ajout idBd", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(idBd);
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
+          idBd
+        );
         await bd.set("clef", idBd2);
         fOublier();
 
-        await attendreRésultat(rés, "ultat", (x: string[])=>x.length > 1)
+        await attendreRésultat(rés, "ultat", (x: string[]) => x.length > 1);
         expect(rés.ultat).to.have.members([idBd, idBd2]);
       });
 
-      step("Enlever idBd", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(idBd);
-        await bd.del("clef")
+      step("Enlever idBd", async () => {
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
+          idBd
+        );
+        await bd.del("clef");
         fOublier();
 
-        await attendreRésultat(rés, "ultat", (x: string[])=>x.length === 1)
+        await attendreRésultat(rés, "ultat", (x: string[]) => x.length === 1);
         expect(rés.ultat).to.have.members([idBd]);
       });
 
       step("Ajout récursif", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(idBd);
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
+          idBd
+        );
         await bd.set("clef", idBdListe);
         fOublier();
 
-        const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<FeedStore<string>>(idBdListe);
+        const { bd: bdListe, fOublier: fOublierBdListe } =
+          await client.ouvrirBd<FeedStore<string>>(idBdListe);
         await bdListe.add(idBd2);
         fOublierBdListe();
 
-        await attendreRésultat(rés, "ultat", (x: string[])=>x.length === 3)
+        await attendreRésultat(rés, "ultat", (x: string[]) => x.length === 3);
         expect(rés.ultat).to.have.members([idBd, idBdListe, idBd2]);
       });
 
       step("Enlever récursif", async () => {
-        const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<FeedStore<string>>(idBdListe);
-        await client.effacerÉlémentDeBdListe(bdListe, idBd2)
+        const { bd: bdListe, fOublier: fOublierBdListe } =
+          await client.ouvrirBd<FeedStore<string>>(idBdListe);
+        await client.effacerÉlémentDeBdListe(bdListe, idBd2);
         fOublierBdListe();
 
-        await attendreRésultat(rés, "ultat", (x: string[])=>x.length === 2)
+        await attendreRésultat(rés, "ultat", (x: string[]) => x.length === 2);
         expect(rés.ultat).to.have.members([idBd, idBdListe]);
       });
     });
@@ -531,7 +540,7 @@ Object.keys(testAPIs).forEach((API) => {
       let idBd2: string;
       let fOublier: schémaFonctionOublier;
 
-      const rés: {ultat?: string} = {};
+      const rés: { ultat?: string } = {};
 
       before(async () => {
         idBd = await client.créerBdIndépendante("kvstore");
@@ -539,67 +548,97 @@ Object.keys(testAPIs).forEach((API) => {
         idBd2 = await client.créerBdIndépendante("feed");
 
         fOublier = await client.suivreEmpreinteTêtesBdRécursive(
-          idBd, empr => rés.ultat = empr
-        )
+          idBd,
+          (empr) => (rés.ultat = empr)
+        );
       });
 
       after(() => {
-        if (fOublier) fOublier()
-      })
+        if (fOublier) fOublier();
+      });
 
       step("Ajout élément", async () => {
         const empreinteAvant = rés.ultat;
 
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(idBd);
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
+          idBd
+        );
         await bd.set("clef", idBd2);
         fOublier();
 
-        await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant)
+        await attendreRésultat(
+          rés,
+          "ultat",
+          (x: string) => x !== empreinteAvant
+        );
       });
 
       step("Enlever élément", async () => {
         const empreinteAvant = rés.ultat;
 
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(idBd);
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
+          idBd
+        );
         await bd.del("clef");
         fOublier();
 
-        await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant)
+        await attendreRésultat(
+          rés,
+          "ultat",
+          (x: string) => x !== empreinteAvant
+        );
       });
 
       step("Ajout récursif", async () => {
-
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(idBd);
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
+          idBd
+        );
         await bd.set("clef", idBdListe);
         fOublier();
 
         const empreinteDébut = rés.ultat;
 
-        const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<FeedStore<string>>(idBdListe);
+        const { bd: bdListe, fOublier: fOublierBdListe } =
+          await client.ouvrirBd<FeedStore<string>>(idBdListe);
         await bdListe.add(idBd2);
         fOublierBdListe();
 
-        await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteDébut);
+        await attendreRésultat(
+          rés,
+          "ultat",
+          (x: string) => x !== empreinteDébut
+        );
 
         const empreinteAvant = rés.ultat;
 
-        const { bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd<FeedStore<string>>(idBd2);
+        const { bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd<
+          FeedStore<string>
+        >(idBd2);
         await bd2.add("abc");
         fOublierBd2();
 
-        await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
+        await attendreRésultat(
+          rés,
+          "ultat",
+          (x: string) => x !== empreinteAvant
+        );
       });
 
       step("Enlever récursif", async () => {
         const empreinteAvant = rés.ultat;
 
-        const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<FeedStore<string>>(idBdListe);
-        await client.effacerÉlémentDeBdListe(bdListe, idBd2)
+        const { bd: bdListe, fOublier: fOublierBdListe } =
+          await client.ouvrirBd<FeedStore<string>>(idBdListe);
+        await client.effacerÉlémentDeBdListe(bdListe, idBd2);
         fOublierBdListe();
 
-        await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
+        await attendreRésultat(
+          rés,
+          "ultat",
+          (x: string) => x !== empreinteAvant
+        );
       });
-    })
+    });
 
     describe("Rechercher élément BD liste selon empreinte", function () {
       let idBd: string;

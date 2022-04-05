@@ -146,14 +146,12 @@ export const sousRecherche = async <T extends infoRésultat>(
         type: "résultat",
         de: meilleur.résultat.de,
         info: meilleur.résultat.info,
-      }
-    }
+      },
+    };
     if (meilleur.résultat.clef) {
       résultat.info.clef = meilleur.résultat.clef;
     }
-    fSuivreRecherche(
-      résultat
-    );
+    fSuivreRecherche(résultat);
   };
 
   const fOublier = await client.suivreBdsDeFonctionListe(

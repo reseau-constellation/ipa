@@ -360,7 +360,9 @@ export default class BDs {
 
     const fFinale = async (bds: string[]): Promise<void> => {
       let idBd: string;
-      const idBdLocale = await this.client.obtDeStockageLocal(clefStockageLocal);
+      const idBdLocale = await this.client.obtDeStockageLocal(
+        clefStockageLocal
+      );
 
       switch (bds.length) {
         case 0: {
@@ -368,7 +370,10 @@ export default class BDs {
             idBd = idBdLocale;
           } else {
             idBd = await this.créerBdDeSchéma(schéma);
-            await this.client.sauvegarderAuStockageLocal(clefStockageLocal, idBd);
+            await this.client.sauvegarderAuStockageLocal(
+              clefStockageLocal,
+              idBd
+            );
           }
           break;
         }
@@ -580,7 +585,8 @@ export default class BDs {
       FeedStore<string>
     >(idBdMotsClefs);
     for (const id of idsMotsClefs) {
-      const motsClefsExistants = ClientConstellation.obtÉlémentsDeBdListe(bdMotsClefs);
+      const motsClefsExistants =
+        ClientConstellation.obtÉlémentsDeBdListe(bdMotsClefs);
       if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
     }
     fOublier();
@@ -1097,7 +1103,7 @@ export default class BDs {
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
+      fs.mkdirSync(dir, { recursive: true });
     }
 
     if (inclureFichierSFIP) {

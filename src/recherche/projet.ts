@@ -8,8 +8,14 @@ import {
 } from "@/utils";
 
 import { rechercherBdSelonTexte } from "./bd";
-import { rechercherVariableSelonTexte, rechercherVariableSelonNom } from "./variable";
-import { rechercherMotClefSelonTexte, rechercherMotClefSelonNom } from "./motClef";
+import {
+  rechercherVariableSelonTexte,
+  rechercherVariableSelonNom,
+} from "./variable";
+import {
+  rechercherMotClefSelonTexte,
+  rechercherMotClefSelonNom,
+} from "./motClef";
 import {
   similTexte,
   combinerRecherches,
@@ -170,7 +176,6 @@ export const rechercherProjetSelonIdVariable = (
   };
 };
 
-
 export const rechercherProjetSelonNomVariable = (
   nomVariable: string
 ): schémaFonctionSuivreObjectifRecherche<
@@ -186,7 +191,10 @@ export const rechercherProjetSelonNomVariable = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
-      return await client.projets!.suivreVariablesProjet(idProjet, fSuivreRacine);
+      return await client.projets!.suivreVariablesProjet(
+        idProjet,
+        fSuivreRacine
+      );
     };
 
     const fRechercher = rechercherVariableSelonNom(nomVariable);
@@ -200,7 +208,6 @@ export const rechercherProjetSelonNomVariable = (
     );
   };
 };
-
 
 export const rechercherProjetSelonVariable = (
   texte: string
@@ -283,7 +290,10 @@ export const rechercherProjetSelonNomMotClef = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
-      return await client.projets!.suivreMotsClefsProjet(idProjet, fSuivreRacine);
+      return await client.projets!.suivreMotsClefsProjet(
+        idProjet,
+        fSuivreRacine
+      );
     };
 
     const fRechercher = rechercherMotClefSelonNom(nomMotClef);
@@ -297,7 +307,6 @@ export const rechercherProjetSelonNomMotClef = (
     );
   };
 };
-
 
 export const rechercherProjetSelonMotClef = (
   texte: string

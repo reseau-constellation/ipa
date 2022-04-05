@@ -56,15 +56,13 @@ export const attendreRésultat = async <T = unknown>(
         clearInterval(interval);
         résoudre();
       }
-    }
+    };
     const interval = setInterval(vérifierPrêt, 10);
     vérifierPrêt();
   });
 };
 
-export const attendreFichierExiste = async (
-  fichier: string,
-): Promise<void> => {
+export const attendreFichierExiste = async (fichier: string): Promise<void> => {
   return new Promise((résoudre) => {
     const interval = setInterval(() => {
       const prêt = fs.existsSync(fichier);
@@ -79,13 +77,13 @@ export const attendreFichierExiste = async (
 
 export const attendreFichierModifié = async (
   fichier: string,
-  tempsAvant: number,
+  tempsAvant: number
 ): Promise<void> => {
   await attendreFichierExiste(fichier);
 
   return new Promise((résoudre) => {
     const interval = setInterval(() => {
-      const { mtime } = fs.statSync(fichier)
+      const { mtime } = fs.statSync(fichier);
       const prêt = mtime.getTime() > tempsAvant;
       if (prêt) {
         clearInterval(interval);
@@ -93,7 +91,7 @@ export const attendreFichierModifié = async (
       }
     }, 10);
   });
-}
+};
 
 export const peutÉcrire = async (
   bd: KeyValueStore<number> | FeedStore<string>,

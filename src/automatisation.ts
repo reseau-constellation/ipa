@@ -13,11 +13,18 @@ import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json";
 
-
 export type formatTélécharger = BookType | "xls";
 
 export type fréquence = {
-  unités: "années" | "mois" | "semaines" | "jours" | "heures" | "minutes" | "secondes" | "millisecondes";
+  unités:
+    | "années"
+    | "mois"
+    | "semaines"
+    | "jours"
+    | "heures"
+    | "minutes"
+    | "secondes"
+    | "millisecondes";
   n: number;
 };
 
@@ -41,7 +48,7 @@ export interface SpécificationExporter extends SpécificationAutomatisation {
 }
 
 export interface infoImporter {
-  formatDonnées: "json" | "feuilleCalcul",
+  formatDonnées: "json" | "feuilleCalcul";
 }
 
 export interface infoImporterJSON extends infoImporter {
@@ -57,23 +64,30 @@ export interface infoImporterFeuilleCalcul extends infoImporter {
   cols: { [key: string]: string };
 }
 
-export interface SourceDonnéesImportation<T extends infoImporterJSON | infoImporterFeuilleCalcul > {
+export interface SourceDonnéesImportation<
+  T extends infoImporterJSON | infoImporterFeuilleCalcul
+> {
   typeSource: "url" | "fichier";
   info: T;
 }
 
-export interface SourceDonnéesImportationURL<T extends infoImporterJSON | infoImporterFeuilleCalcul> extends SourceDonnéesImportation<T> {
+export interface SourceDonnéesImportationURL<
+  T extends infoImporterJSON | infoImporterFeuilleCalcul
+> extends SourceDonnéesImportation<T> {
   typeSource: "url";
   url: string;
 }
 
-export interface SourceDonnéesImportationFichier<T extends infoImporterJSON | infoImporterFeuilleCalcul>
-  extends SourceDonnéesImportation<T> {
+export interface SourceDonnéesImportationFichier<
+  T extends infoImporterJSON | infoImporterFeuilleCalcul
+> extends SourceDonnéesImportation<T> {
   typeSource: "fichier";
   adresseFichier: string;
 }
 
-export interface SpécificationImporter<T extends infoImporterJSON | infoImporterFeuilleCalcul> extends SpécificationAutomatisation {
+export interface SpécificationImporter<
+  T extends infoImporterJSON | infoImporterFeuilleCalcul
+> extends SpécificationAutomatisation {
   type: "importation";
   idTableau: string;
   dispositif: string;
@@ -129,14 +143,18 @@ const obtTempsInterval = (fréq: fréquence): number => {
       return n * 1000;
 
     case "millisecondes":
-      return n
+      return n;
 
     default:
       throw new Error(unités);
   }
 };
 
-const obtDonnéesImportation = async <T extends infoImporterJSON | infoImporterFeuilleCalcul>(spéc: SpécificationImporter<T>) => {
+const obtDonnéesImportation = async <
+  T extends infoImporterJSON | infoImporterFeuilleCalcul
+>(
+  spéc: SpécificationImporter<T>
+) => {
   const { typeSource } = spéc.source;
   const { formatDonnées } = spéc.source.info;
 
@@ -163,7 +181,8 @@ const obtDonnéesImportation = async <T extends infoImporterJSON | infoImporterF
       }
     }
     case "fichier": {
-      const { adresseFichier } = spéc.source as SourceDonnéesImportationFichier<T>;
+      const { adresseFichier } =
+        spéc.source as SourceDonnéesImportationFichier<T>;
       switch (formatDonnées) {
         case "json": {
           const { clefsRacine, clefsÉléments, cols } = spéc.source
@@ -252,12 +271,12 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
   spéc: T,
   client: ClientConstellation
 ): (() => Promise<void>) => {
-  type R = T extends SpécificationImporter<infer R> ? R : never
+  type R = T extends SpécificationImporter<infer R> ? R : never;
 
   switch (spéc.type) {
     case "importation": {
       return async () => {
-        const spécImp = spéc as unknown as SpécificationImporter<R>
+        const spécImp = spéc as unknown as SpécificationImporter<R>;
         const données = await obtDonnéesImportation(spécImp);
         await client.tableaux!.importerDonnées(spécImp.idTableau, données);
       };
@@ -287,19 +306,21 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
     : undefined;
 
   const verrou = new Semaphore();
-  let idDernièreRequèteOpération = ""
+  let idDernièreRequèteOpération = "";
 
   const fAutoAvecÉtats = async (requète: string) => {
-    const requèteDernièreModifImportée = await client.obtDeStockageLocal(clefStockageDernièreFois);
+    const requèteDernièreModifImportée = await client.obtDeStockageLocal(
+      clefStockageDernièreFois
+    );
 
-    if (requète === requèteDernièreModifImportée) return
+    if (requète === requèteDernièreModifImportée) return;
 
     idDernièreRequèteOpération = requète;
 
     await verrou.acquire("opération");
     if (requète !== idDernièreRequèteOpération) {
       verrou.release("opération");
-      return
+      return;
     }
     await client.sauvegarderAuStockageLocal(clefStockageDernièreFois, requète);
 
@@ -323,12 +344,13 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
         };
         fÉtat(nouvelÉtat);
       }
-
     } catch (e) {
       const nouvelÉtat: ÉtatErreur = {
         type: "erreur",
         erreur: (e as Error).toString(),
-        prochaineProgramméeÀ: tempsInterval ? Date.now() + tempsInterval : undefined,
+        prochaineProgramméeÀ: tempsInterval
+          ? Date.now() + tempsInterval
+          : undefined,
       };
       fÉtat(nouvelÉtat);
     }
@@ -377,7 +399,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
 
     switch (spéc.type) {
       case "exportation": {
-        const spécExp = spéc as unknown as SpécificationExporter
+        const spécExp = spéc as unknown as SpécificationExporter;
         const fOublier = await client.suivreEmpreinteTêtesBdRécursive(
           spécExp.idObjet,
           fAutoAvecÉtats
@@ -400,7 +422,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
             const source = spécImp.source as SourceDonnéesImportationFichier<R>;
             const écouteur = chokidar.watch(source.adresseFichier);
             écouteur.on("change", async () => {
-              const maintenant = new Date().getTime().toString()
+              const maintenant = new Date().getTime().toString();
               fAutoAvecÉtats(maintenant);
             });
 
@@ -467,17 +489,16 @@ class AutomatisationActive extends EventEmitter {
         this.emit("misÀJour");
       }
     ).then((fOublier) => {
-      this.fOublier = fOublier
+      this.fOublier = fOublier;
       this.emit("prêt");
     });
   }
 
   async fermer(): Promise<void> {
     if (!this.fOublier) {
-      const soimême = this;
-      await new Promise(function(résoudre) {
-        soimême.once('prêt', function(e) {
-          résoudre(e.data);
+      await new Promise<void>((résoudre) => {
+        this.once("prêt", () => {
+          résoudre();
         });
       });
     }
@@ -491,7 +512,7 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
 ): boolean => {
   switch (spéc.type) {
     case "importation": {
-      type R = T extends SpécificationImporter<infer R> ? R : never
+      type R = T extends SpécificationImporter<infer R> ? R : never;
 
       const spécImp = spéc as unknown as SpécificationImporter<R>;
       return spécImp.dispositif === monIdOrbite;
@@ -601,7 +622,9 @@ export default class Automatisations extends EventEmitter {
     return idÉlément;
   }
 
-  async ajouterAutomatisationImporter<T extends infoImporterJSON | infoImporterFeuilleCalcul>(
+  async ajouterAutomatisationImporter<
+    T extends infoImporterJSON | infoImporterFeuilleCalcul
+  >(
     idTableau: string,
     source: SourceDonnéesImportation<T>,
     fréquence?: fréquence,
@@ -659,11 +682,12 @@ export default class Automatisations extends EventEmitter {
     f: schémaFonctionSuivi<{ [key: string]: ÉtatAutomatisation }>
   ): Promise<schémaFonctionOublier> {
     const fFinale = () => {
-      const étatsAuto: { [key: string]: ÉtatAutomatisation } = Object.fromEntries(
-        Object.keys(this.automatisations)
-          .map((a) => [a, this.automatisations[a].état])
-          .filter((x) => x[1])
-      );
+      const étatsAuto: { [key: string]: ÉtatAutomatisation } =
+        Object.fromEntries(
+          Object.keys(this.automatisations)
+            .map((a) => [a, this.automatisations[a].état])
+            .filter((x) => x[1])
+        );
       f(étatsAuto);
     };
     this.on("misÀJour", fFinale);

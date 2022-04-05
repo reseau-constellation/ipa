@@ -40,10 +40,7 @@ Object.keys(testAPIs).forEach((API) => {
 
     before(async () => {
       enregistrerContrôleurs();
-      ({ fOublier: fOublierClients, clients } = await générerClients(
-        1,
-        API
-      ));
+      ({ fOublier: fOublierClients, clients } = await générerClients(1, API));
       client = clients[0];
     });
 
@@ -209,9 +206,7 @@ Object.keys(testAPIs).forEach((API) => {
     });
 
     describe("Rechercher selon id", function () {
-      let résultat:
-        | résultatObjectifRecherche<infoRésultatTexte>
-        | undefined;
+      let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
       let fOublier: schémaFonctionOublier;
 
       const fRecherche = rechercherSelonId("id");
@@ -237,16 +232,14 @@ Object.keys(testAPIs).forEach((API) => {
             texte: "voici mon id",
           },
           score: 1,
-        }
+        };
 
         expect(résultat).to.deep.equal(réfRés);
       });
     });
 
     describe("Combiner recherches", function () {
-      let résultat:
-        | résultatObjectifRecherche<infoRésultatTexte>
-        | undefined;
+      let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
       let fOublier: schémaFonctionOublier;
 
       before(async () => {
@@ -277,7 +270,7 @@ Object.keys(testAPIs).forEach((API) => {
             texte: "abcdefghij",
           },
           score: 1,
-        }
+        };
         expect(résultat).to.deep.equal(réfRés);
       });
     });
@@ -285,9 +278,7 @@ Object.keys(testAPIs).forEach((API) => {
     describe("Sous-recherche", function () {
       let idBd: string;
       let résultat:
-        | résultatObjectifRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
-          >
+        | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
         | undefined;
 
       const fsOublier: schémaFonctionOublier[] = [];
@@ -327,13 +318,13 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("Ajout variable détecté", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(
-          idBd
-        );
+        const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(idBd);
         await bd.add("precipitation");
         fOublier();
 
-        const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+        const réfRés: résultatObjectifRecherche<
+          infoRésultatRecherche<infoRésultatTexte>
+        > = {
           type: "résultat",
           clef: "precipitation",
           de: "variable",
@@ -345,22 +336,22 @@ Object.keys(testAPIs).forEach((API) => {
               fin: 13,
               texte: "precipitation",
               type: "texte",
-            }
+            },
           },
           score: 0.5,
-        }
+        };
 
         expect(résultat).to.deep.equal(réfRés);
       });
 
       step("Ajout meilleure variable détecté", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(
-          idBd
-        );
+        const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(idBd);
         await bd.add("précipitation");
         fOublier();
 
-        const réfRés: résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>> = {
+        const réfRés: résultatObjectifRecherche<
+          infoRésultatRecherche<infoRésultatTexte>
+        > = {
           clef: "précipitation",
           de: "variable",
           info: {
@@ -371,11 +362,11 @@ Object.keys(testAPIs).forEach((API) => {
               fin: 13,
               texte: "précipitation",
               type: "texte",
-            }
+            },
           },
           score: 1,
           type: "résultat",
-        }
+        };
 
         expect(résultat).to.deep.equal(réfRés);
       });
@@ -387,11 +378,7 @@ Object.keys(testAPIs).forEach((API) => {
 
       before(async () => {
         const fRecherche = rechercherTous();
-        fOublier = await fRecherche(
-          client,
-          "abc",
-          (rés) => (résultat = rés)
-        );
+        fOublier = await fRecherche(client, "abc", (rés) => (résultat = rés));
       });
       after(() => {
         if (fOublier) fOublier();
@@ -402,7 +389,7 @@ Object.keys(testAPIs).forEach((API) => {
           score: 1,
           de: "*",
           info: { type: "vide" },
-        }
+        };
         expect(résultat).to.deep.equal(réfRés);
       });
     });
