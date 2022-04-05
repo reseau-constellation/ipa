@@ -91,7 +91,7 @@ const comparerDonnéesTableau = (données: élémentDonnées<élémentBdListeDon
 }
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Automatisation", function () {
         this.timeout(config.timeout);
