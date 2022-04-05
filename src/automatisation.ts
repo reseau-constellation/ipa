@@ -248,21 +248,23 @@ const générerFExportation = (
   };
 };
 
-const générerFAuto = (
-  spéc: SpécificationAutomatisation,
+const générerFAuto = <T extends SpécificationAutomatisation>(
+  spéc: T,
   client: ClientConstellation
 ): (() => Promise<void>) => {
+  type R = T extends SpécificationImporter<infer R> ? R : never
+
   switch (spéc.type) {
     case "importation": {
-      const spécImp = spéc as SpécificationImporter;
       return async () => {
+        const spécImp = spéc as unknown as SpécificationImporter<R>
         const données = await obtDonnéesImportation(spécImp);
         await client.tableaux!.importerDonnées(spécImp.idTableau, données);
       };
     }
 
     case "exportation": {
-      const spécExp = spéc as SpécificationExporter;
+      const spécExp = spéc as unknown as SpécificationExporter;
       return générerFExportation(spécExp, client);
     }
 
@@ -271,8 +273,8 @@ const générerFAuto = (
   }
 };
 
-const lancerAutomatisation = async (
-  spéc: SpécificationAutomatisation,
+const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
+  spéc: T,
   idSpéc: string,
   client: ClientConstellation,
   fÉtat: (état: ÉtatAutomatisation) => void
@@ -342,12 +344,9 @@ const lancerAutomatisation = async (
     const dicFOublierIntervale: { f?: schémaFonctionOublier } = {};
 
     const fAutoAvecÉtatsRécursif = async () => {
-      await fAutoAvecÉtats();
       const maintenant = new Date().getTime();
-      client.sauvegarderAuStockageLocal(
-        clefStockageDernièreFois,
-        maintenant.toString()
-      );
+      await fAutoAvecÉtats(maintenant.toString());
+
       const crono = setTimeout(fAutoAvecÉtatsRécursif, tempsInterval);
       dicFOublierIntervale.f = () => clearTimeout(crono);
     };
@@ -378,15 +377,17 @@ const lancerAutomatisation = async (
 
     switch (spéc.type) {
       case "exportation": {
+        const spécExp = spéc as unknown as SpécificationExporter
         const fOublier = await client.suivreEmpreinteTêtesBdRécursive(
-          spéc.idObjet,
+          spécExp.idObjet,
           fAutoAvecÉtats
         );
         return fOublier;
       }
 
       case "importation": {
-        const spécImp = spéc as SpécificationImporter;
+        type R = T extends SpécificationImporter<infer R> ? R : never;
+        const spécImp = spéc as unknown as SpécificationImporter<R>;
 
         switch (spécImp.source.typeSource) {
           case "fichier": {
@@ -396,7 +397,7 @@ const lancerAutomatisation = async (
               );
             }
             const chokidar = await import("chokidar");
-            const source = spécImp.source as SourceDonnéesImportationFichier;
+            const source = spécImp.source as SourceDonnéesImportationFichier<R>;
             const écouteur = chokidar.watch(source.adresseFichier);
             écouteur.on("change", async () => {
               const maintenant = new Date().getTime().toString()
@@ -426,7 +427,7 @@ const lancerAutomatisation = async (
               type: "erreur",
               erreur:
                 "La fréquence d'une automatisation d'importation d'URL doit être spécifiée.",
-              prochainProgrammée: undefined,
+              prochaineProgramméeÀ: undefined,
             };
             fÉtat(étatErreur);
             return faisRien;
@@ -484,18 +485,20 @@ class AutomatisationActive extends EventEmitter {
   }
 }
 
-const activePourCeDispositif = (
-  spéc: SpécificationAutomatisation,
+const activePourCeDispositif = <T extends SpécificationAutomatisation>(
+  spéc: T,
   monIdOrbite: string
 ): boolean => {
   switch (spéc.type) {
     case "importation": {
-      const spécImp = spéc as SpécificationImporter;
+      type R = T extends SpécificationImporter<infer R> ? R : never
+
+      const spécImp = spéc as unknown as SpécificationImporter<R>;
       return spécImp.dispositif === monIdOrbite;
     }
 
     case "exportation": {
-      const spécExp = spéc as SpécificationExporter;
+      const spécExp = spéc as unknown as SpécificationExporter;
       return spécExp.dispositifs.includes(monIdOrbite);
     }
 
@@ -598,7 +601,7 @@ export default class Automatisations extends EventEmitter {
     return idÉlément;
   }
 
-  async ajouterAutomatisationImporter<T extends infoImporter>(
+  async ajouterAutomatisationImporter<T extends infoImporterJSON | infoImporterFeuilleCalcul>(
     idTableau: string,
     source: SourceDonnéesImportation<T>,
     fréquence?: fréquence,
