@@ -44,7 +44,7 @@ export const attendreRésultat = async <T = unknown>(
     valDésirée = (x: T) => x !== undefined;
   }
   return new Promise((résoudre) => {
-    const interval = setInterval(() => {
+    const vérifierPrêt = () => {
       const val = dic[clef];
       let prêt = false;
       if (typeof valDésirée === "function") {
@@ -56,7 +56,9 @@ export const attendreRésultat = async <T = unknown>(
         clearInterval(interval);
         résoudre();
       }
-    }, 10);
+    }
+    const interval = setInterval(vérifierPrêt, 10);
+    vérifierPrêt();
   });
 };
 
