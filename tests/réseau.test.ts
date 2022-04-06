@@ -6,7 +6,13 @@ import path from "path";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
-import { schémaFonctionSuivi, schémaFonctionOublier, uneFois } from "@/utils";
+import {
+  schémaFonctionSuivi,
+  schémaRetourFonctionRecherche,
+  schémaFonctionOublier,
+  uneFois,
+  infoAuteur,
+} from "@/utils";
 import {
   élémentDeMembre,
   statutDispositif,
@@ -14,6 +20,8 @@ import {
   infoConfiance,
   infoMembre,
   statutMembre,
+  infoRelation,
+  infoMembreRéseau,
 } from "@/reseau";
 import { schémaSpécificationBd } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
@@ -131,7 +139,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               dis,
               "positifs",
-              (x?: statutDispositif[]) => x && x.length === 3
+              (x?: statutDispositif[]) => !!x && x.length === 3
             );
             expect(
               dis.positifs!.map((d) => d.infoDispositif.idOrbite)
@@ -326,11 +334,7 @@ typesClients.forEach((type) => {
           });
 
           step("On détecte bloqué publique d'un autre membre", async () => {
-            await attendreRésultat(
-              bloqués,
-              "autreMembre",
-              (x: infoBloqué[]) => x.length > 0
-            );
+            await attendreRésultat(bloqués, "autreMembre", (x) => x.length > 0);
             expect(bloqués.autreMembre)
               .to.be.an("array")
               .with.lengthOf(1)
@@ -400,10 +404,8 @@ typesClients.forEach((type) => {
 
           step("Ajout membre de confiance détecté", async () => {
             await client.réseau!.faireConfianceAuMembre(idBdRacine2);
-            await attendreRésultat(
-              relations,
-              "propres",
-              (x: infoConfiance[]) => x.length
+            await attendreRésultat(relations, "propres", (x) =>
+              Boolean(x.length)
             );
             expect(
               relations.propres!.map((r) => r.idBdCompte)
@@ -416,7 +418,7 @@ typesClients.forEach((type) => {
               await attendreRésultat(
                 relations,
                 "autre",
-                (x?: infoConfiance[]) => x && x.length
+                (x?: infoConfiance[]) => !!x && Boolean(x.length)
               );
               expect(relations.autre).to.be.an("array").with.lengthOf(1);
               expect(
@@ -437,7 +439,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "propres",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
             expect(relations.propres!.map((r) => r.idBdCompte)).to.include(
               idBdRacine2
@@ -448,7 +450,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
             expect(relations.autre!.map((r) => r.idBdCompte)).to.include(
               idBdRacine2
@@ -462,7 +464,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && !x.length
+              (x?: infoConfiance[]) => !!x && !x.length
             );
             expect(relations.autre).to.be.empty;
           });
@@ -474,7 +476,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "propres",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
 
             expect(relations.propres!.map((r) => r.idBdCompte)).to.include(
@@ -486,7 +488,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
             expect(relations.autre!.map((r) => r.idBdCompte)).to.include(
               idBdRacine2
@@ -501,7 +503,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && !x.length
+              (x?: infoConfiance[]) => !!x && !x.length
             );
             expect(relations.autre).to.be.empty;
           });
@@ -517,7 +519,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "propres",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
             expect(relations.propres!.map((r) => r.idBdCompte)).to.include(
               idBdRacine2
@@ -528,7 +530,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
             expect(relations.autre!.map((r) => r.idBdCompte)).to.include(
               idBdRacine2
@@ -543,7 +545,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && !x.length
+              (x?: infoConfiance[]) => !!x && !x.length
             );
             expect(relations.autre).to.be.empty;
           });
@@ -559,7 +561,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "propres",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
 
             expect(relations.propres!.map((r) => r.idBdCompte)).to.include(
@@ -571,7 +573,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
             expect(relations.autre!.map((r) => r.idBdCompte)).to.include(
               idBdRacine2
@@ -586,7 +588,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && !x.length
+              (x?: infoConfiance[]) => !!x && !x.length
             );
             expect(relations.autre).to.be.empty;
           });
@@ -602,7 +604,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "propres",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
             expect(relations.propres!.map((r) => r.idBdCompte)).to.include(
               idBdRacine2
@@ -613,7 +615,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && x.length
+              (x) => !!x && Boolean(x.length)
             );
             expect(relations.autre!.map((r) => r.idBdCompte)).to.include(
               idBdRacine2
@@ -628,16 +630,898 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               relations,
               "autre",
-              (x?: infoConfiance[]) => x && !x.length
+              (x?: infoConfiance[]) => !!x && !x.length
             );
             expect(relations.autre).to.be.empty;
           });
         });
 
-        describe.skip("Suivre relations confiance", async () => {});
-        describe.skip("Suivre comptes réseau", async () => {});
-        describe.skip("Suivre comptes réseau et en ligne", async () => {});
-        describe.skip("Suivre confiance mon réseau pour membre", async () => {});
+        describe("Suivre relations confiance", async () => {
+          let fOublier: schémaFonctionOublier;
+          let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
+          const rés: { ultat?: infoRelation[] } = {};
+
+          before(async () => {
+            ({ fOublier, fChangerProfondeur } =
+              await client.réseau!.suivreRelationsConfiance(
+                (r) => (rés.ultat = r),
+                1
+              ));
+          });
+
+          after(async () => {
+            if (fOublier) fOublier();
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client2.idBdCompte!
+            );
+            await client2.réseau!.nePlusFaireConfianceAuMembre(
+              client3.idBdCompte!
+            );
+          });
+
+          step("Relations immédiates", async () => {
+            const réf: infoRelation[] = [
+              {
+                de: client.idBdCompte!,
+                pour: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+            ];
+            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => !!x.length);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Relations indirectes", async () => {
+            const réf: infoRelation[] = [
+              {
+                de: client.idBdCompte!,
+                pour: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                de: client2.idBdCompte!,
+                pour: client3.idBdCompte!,
+                confiance: 1,
+                profondeur: 1,
+              },
+            ];
+            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => x.length === 2);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+
+          step("Diminuer profondeur", async () => {
+            const réf: infoRelation[] = [
+              {
+                de: client.idBdCompte!,
+                pour: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+            ];
+            fChangerProfondeur(0);
+            await attendreRésultat(rés, "ultat", (x) => x.length === 1);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+
+          step("Augmenter profondeur", async () => {
+            const réf: infoRelation[] = [
+              {
+                de: client.idBdCompte!,
+                pour: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                de: client2.idBdCompte!,
+                pour: client3.idBdCompte!,
+                confiance: 1,
+                profondeur: 1,
+              },
+            ];
+
+            fChangerProfondeur(1);
+
+            await attendreRésultat(rés, "ultat", (x) => x.length === 2);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+        });
+
+        describe.only("Suivre comptes réseau", async () => {
+          let fOublier: schémaFonctionOublier;
+          let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
+
+          const rés: { ultat?: infoMembreRéseau[] } = {};
+
+          before(async () => {
+            ({ fOublier, fChangerProfondeur } =
+              await client.réseau!.suivreComptesRéseau((c) => (rés.ultat = c)));
+          });
+
+          after(async () => {
+            if (fOublier) fOublier();
+
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client2.idBdCompte!
+            );
+            await client2.réseau!.nePlusFaireConfianceAuMembre(
+              client3.idBdCompte!
+            );
+          });
+
+          step("Relations confiance immédiates", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+            ];
+            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => !!x.length);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Relations confiance indirectes", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: 0.5,
+                profondeur: 0,
+              },
+            ];
+            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => x.length == 2);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Relations confiance directes et indirectes", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+            ];
+            await client.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x) => x.map((y) => y.confiance).reduce((i, j) => i * j, 1) === 1
+            );
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Enlever relation confiance directe (en double)", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: 0.5,
+                profondeur: 0,
+              },
+            ];
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client3.idBdCompte!
+            );
+
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x) => x.map((y) => y.confiance).reduce((i, j) => i * j, 1) < 1
+            );
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Enlever relation confiance indirecte", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+            ];
+            await client2.réseau!.nePlusFaireConfianceAuMembre(
+              client3.idBdCompte!
+            );
+
+            await attendreRésultat(rés, "ultat", (x) => x.length === 1);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Enlever relation confiance directe", async () => {
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client2.idBdCompte!
+            );
+
+            await attendreRésultat(rés, "ultat", (x) => !x.length);
+            expect(rés.ultat).to.be.empty;
+          });
+          step("Membre bloqué directement", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: -1,
+                profondeur: 0,
+              },
+            ];
+            await client.réseau!.bloquerMembre(client2.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => !!x.length);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Membre débloqué directement", async () => {
+            await client.réseau!.débloquerMembre(client2.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => !x.length);
+            expect(rés.ultat).to.be.empty;
+          });
+          step("Membre bloqué indirectement", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: -0.5,
+                profondeur: 0,
+              },
+            ];
+            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+            await client2.réseau!.bloquerMembre(client3.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => x.length === 2);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Précédence confiance propre", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+            ];
+            await client.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => x.length === 2);
+            expect(rés.ultat).to.have.deep.members(réf);
+
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client3.idBdCompte!
+            );
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client2.idBdCompte!
+            );
+            await client2.réseau!.débloquerMembre(client3.idBdCompte!);
+          });
+          step("Diminuer profondeur", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+            ];
+            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await attendreRésultat(rés, "ultat", (x) => x.length === 2);
+
+            fChangerProfondeur(0);
+            await attendreRésultat(rés, "ultat", (x) => x.length === 1);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+          step("Augmenter profondeur", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: 0.5,
+                profondeur: 0,
+              },
+            ];
+
+            fChangerProfondeur(1);
+
+            await attendreRésultat(rés, "ultat", (x) => x.length === 2);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+        });
+
+        describe.only("Suivre comptes réseau et en ligne", async () => {
+          let fOublier: schémaFonctionOublier;
+          let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
+
+          const rés: { ultat?: infoMembreRéseau[] } = {};
+
+          before(async () => {
+            ({ fOublier, fChangerProfondeur } =
+              await client.réseau!.suivreComptesRéseauEtEnLigne(
+                (c) => (rés.ultat = c)
+              ));
+          });
+
+          after(async () => {
+            if (fOublier) fOublier();
+
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client2.idBdCompte!
+            );
+            await client2.réseau!.nePlusFaireConfianceAuMembre(
+              client3.idBdCompte!
+            );
+          });
+
+          step("Comptes en ligne détectés", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 0,
+                profondeur: -1,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: 0,
+                profondeur: -1,
+              },
+            ];
+
+            await attendreRésultat(rés, "ultat", (x) => x.length === 2);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+
+          step("Comptes réseau détectés", async () => {
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: 0,
+                profondeur: -1,
+              },
+            ];
+
+            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x) =>
+                x.find((x) => x.idBdCompte === client2.idBdCompte)
+                  ?.confiance === 1
+            );
+
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+
+          step("Changer profondeur", async () => {
+            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x) =>
+                (x.find((x) => x.idBdCompte === client3.idBdCompte)
+                  ?.confiance || 0) > 0
+            );
+
+            const réf: infoMembreRéseau[] = [
+              {
+                idBdCompte: client2.idBdCompte!,
+                confiance: 1,
+                profondeur: 0,
+              },
+              {
+                idBdCompte: client3.idBdCompte!,
+                confiance: 0,
+                profondeur: -1,
+              },
+            ];
+            fChangerProfondeur(0);
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x) =>
+                x.find((x) => x.idBdCompte === client3.idBdCompte)
+                  ?.confiance === 0
+            );
+
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+        });
+
+        describe.only("Suivre confiance mon réseau pour membre", async () => {
+          let fOublier: schémaFonctionOublier;
+          let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
+
+          const rés: { ultat?: number } = {};
+
+          before(async () => {
+            ({ fOublier, fChangerProfondeur } =
+              await client.réseau!.suivreConfianceMonRéseauPourMembre(
+                client3.idBdCompte!,
+                (confiance) => (rés.ultat = confiance)
+              ));
+          });
+
+          after(async () => {
+            if (fOublier) fOublier();
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client2.idBdCompte!
+            );
+            await client2.réseau!.nePlusFaireConfianceAuMembre(
+              client3.idBdCompte!
+            );
+          });
+
+          step("Confiance initiale 0", async () => {
+            await attendreRésultat(rés, "ultat", (x) => x === 0);
+          });
+
+          step("Faire confiance au membre", async () => {
+            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => x > 0);
+            expect(rés.ultat).to.equal(1);
+          });
+
+          step("Changer profondeur", async () => {
+            fChangerProfondeur(0);
+            await attendreRésultat(rés, "ultat", (x) => x === 0);
+          });
+        });
+
+        describe.only("Suivre confiance auteurs", async () => {
+          let fOublier: schémaFonctionOublier;
+          let idMotClef: string;
+
+          const rés: { ultat?: number } = {};
+
+          before(async () => {
+            idMotClef = await client2.motsClefs!.créerMotClef();
+            await client2.motsClefs!.inviterAuteur(
+              idMotClef,
+              client2.idBdCompte!,
+              "MEMBRE"
+            );
+            await client2.motsClefs!.ajouterÀMesMotsClefs(idMotClef);
+
+            fOublier = await client.réseau!.suivreConfianceAuteurs(
+              idMotClef,
+              (confiance) => (rés.ultat = confiance)
+            );
+          });
+
+          after(async () => {
+            if (fOublier) fOublier();
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client2.idBdCompte!
+            );
+            await client.réseau!.nePlusFaireConfianceAuMembre(
+              client3.idBdCompte!
+            );
+          });
+
+          step("Confiance 0 pour commencer", async () => {
+            await attendreRésultat(rés, "ultat", (x) => x === 0);
+          });
+
+          step("Ajout auteur au réseau", async () => {
+            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+
+            await attendreRésultat(rés, "ultat", (x) => x === 1);
+          });
+
+          step("Ajout coauteur au réseau", async () => {
+            await client.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await attendreRésultat(rés, "ultat", (x) => x > 1);
+
+            expect(rés.ultat).to.equal(1.5);
+          });
+
+          step("Coauteur se retire", async () => {
+            await client2.motsClefs!.inviterAuteur(
+              idMotClef,
+              client2.idBdCompte!,
+              "MEMBRE"
+            );
+          });
+        });
+
+        describe.only("Rechercher", async () => {
+          describe.skip("Membres", async () => {});
+          describe.skip("Variables", async () => {});
+          describe.skip("Mots-clefs", async () => {});
+          describe.skip("Bds", async () => {});
+          describe.skip("Projets", async () => {});
+        });
+
+        describe.only("Auteurs", function () {
+          describe("Mots-clefs", function () {
+            let idMotClef: string;
+            let fOublier: schémaFonctionOublier;
+
+            const rés: { ultat?: infoAuteur[] } = {};
+
+            before(async () => {
+              idMotClef = await client.motsClefs!.créerMotClef();
+              fOublier = await client.réseau!.suivreAuteursMotClef(
+                idMotClef,
+                (auteurs) => (rés.ultat = auteurs)
+              );
+            });
+
+            after(() => {
+              if (fOublier) fOublier();
+            });
+
+            step("Inviter auteur", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: false,
+                  rôle: "MEMBRE",
+                },
+              ];
+              await client.motsClefs!.inviterAuteur(
+                idMotClef,
+                client2.idBdCompte!,
+                "MEMBRE"
+              );
+
+              await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+            step("Accepter invitation", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: true,
+                  rôle: "MEMBRE",
+                },
+              ];
+
+              await client2.motsClefs!.ajouterÀMesMotsClefs(idMotClef);
+              await attendreRésultat(rés, "ultat", (x) =>
+                Boolean(
+                  x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                )
+              );
+
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+            step("Refuser invitation", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: false,
+                  rôle: "MEMBRE",
+                },
+              ];
+
+              await client2.motsClefs!.enleverDeMesMotsClefs(idMotClef);
+              await attendreRésultat(
+                rés,
+                "ultat",
+                (x) =>
+                  !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+              );
+
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+          });
+          describe("Variables", function () {
+            let idVariable: string;
+            let fOublier: schémaFonctionOublier;
+
+            const rés: { ultat?: infoAuteur[] } = {};
+
+            before(async () => {
+              idVariable = await client.variables!.créerVariable("numérique");
+              fOublier = await client.réseau!.suivreAuteursVariable(
+                idVariable,
+                (auteurs) => (rés.ultat = auteurs)
+              );
+            });
+
+            after(() => {
+              if (fOublier) fOublier();
+            });
+
+            step("Inviter auteur", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: false,
+                  rôle: "MEMBRE",
+                },
+              ];
+              await client.variables!.inviterAuteur(
+                idVariable,
+                client2.idBdCompte!,
+                "MEMBRE"
+              );
+
+              await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+            step("Accepter invitation", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: true,
+                  rôle: "MEMBRE",
+                },
+              ];
+
+              await client2.variables!.ajouterÀMesVariables(idVariable);
+              await attendreRésultat(rés, "ultat", (x) =>
+                Boolean(
+                  x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                )
+              );
+
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+            step("Refuser invitation", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: false,
+                  rôle: "MEMBRE",
+                },
+              ];
+
+              await client2.variables!.enleverDeMesVariables(idVariable);
+              await attendreRésultat(
+                rés,
+                "ultat",
+                (x) =>
+                  !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+              );
+
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+          });
+          describe("Bds", function () {
+            let idBd: string;
+            let fOublier: schémaFonctionOublier;
+
+            const rés: { ultat?: infoAuteur[] } = {};
+
+            before(async () => {
+              idBd = await client.bds!.créerBd("ODbl-1_0");
+              fOublier = await client.réseau!.suivreAuteursBd(
+                idBd,
+                (auteurs) => (rés.ultat = auteurs)
+              );
+            });
+
+            after(() => {
+              if (fOublier) fOublier();
+            });
+
+            step("Inviter auteur", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: false,
+                  rôle: "MEMBRE",
+                },
+              ];
+              await client.bds!.inviterAuteur(
+                idBd,
+                client2.idBdCompte!,
+                "MEMBRE"
+              );
+
+              await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+
+            step("Accepter invitation", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: true,
+                  rôle: "MEMBRE",
+                },
+              ];
+
+              await client2.bds!.ajouterÀMesBds(idBd);
+              await attendreRésultat(rés, "ultat", (x) =>
+                Boolean(
+                  x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                )
+              );
+
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+
+            step("Refuser invitation", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: false,
+                  rôle: "MEMBRE",
+                },
+              ];
+
+              await client2.bds!.enleverDeMesBds(idBd);
+              await attendreRésultat(
+                rés,
+                "ultat",
+                (x) =>
+                  !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+              );
+
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+          });
+
+          describe("Projets", function () {
+            let idProjet: string;
+            let fOublier: schémaFonctionOublier;
+
+            const rés: { ultat?: infoAuteur[] } = {};
+
+            before(async () => {
+              idProjet = await client.projets!.créerProjet();
+              fOublier = await client.réseau!.suivreAuteursProjet(
+                idProjet,
+                (auteurs) => (rés.ultat = auteurs)
+              );
+            });
+
+            after(() => {
+              if (fOublier) fOublier();
+            });
+
+            step("Inviter auteur", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: false,
+                  rôle: "MEMBRE",
+                },
+              ];
+              await client.projets!.inviterAuteur(
+                idProjet,
+                client2.idBdCompte!,
+                "MEMBRE"
+              );
+
+              await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+
+            step("Accepter invitation", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: true,
+                  rôle: "MEMBRE",
+                },
+              ];
+
+              await client2.projets!.ajouterÀMesProjets(idProjet);
+              await attendreRésultat(rés, "ultat", (x) =>
+                Boolean(
+                  x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                )
+              );
+
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+            step("Refuser invitation", async () => {
+              const réf: infoAuteur[] = [
+                {
+                  idBdCompte: client.idBdCompte!,
+                  accepté: true,
+                  rôle: "MODÉRATEUR",
+                },
+                {
+                  idBdCompte: client2.idBdCompte!,
+                  accepté: false,
+                  rôle: "MEMBRE",
+                },
+              ];
+
+              await client2.projets!.enleverDeMesProjets(idProjet);
+              await attendreRésultat(
+                rés,
+                "ultat",
+                (x) =>
+                  !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+              );
+
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+          });
+        });
 
         describe("Suivre noms membre", function () {
           const rés: { ultat: { [key: string]: string } | undefined } = {
@@ -654,11 +1538,7 @@ typesClients.forEach((type) => {
           });
 
           step("Noms détectés", async () => {
-            await attendreRésultat(
-              rés,
-              "ultat",
-              (x: { [key: string]: string }) => x && x.fr
-            );
+            await attendreRésultat(rés, "ultat", (x) => !!x && Boolean(x.fr));
             expect(rés.ultat?.fr).to.exist;
             expect(rés.ultat?.fr).to.equal("Julien");
           });
@@ -746,7 +1626,9 @@ typesClients.forEach((type) => {
               )
             );
             fsOublier.push(
-              await client2.réseau!.suivreBds((bds) => (rés.ultat_2 = bds))
+              await client2.réseau!.suivreBdsMembre(
+                (bds) => (rés.ultat_2 = bds)
+              )
             );
 
             idBd = await client.bds!.créerBd("ODbl-1_0");
