@@ -49,14 +49,11 @@ export default class Variables {
   }
 
   async créerVariable(catégorie: catégorieVariables): Promise<string> {
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >(this.idBd);
     const idBdVariable = await this.client.créerBdIndépendante("kvstore", {
       adresseBd: undefined,
       premierMod: this.client.bdCompte!.id,
     });
-    await bdRacine.add(idBdVariable);
+    await this.ajouterÀMesVariables(idBdVariable);
 
     const { bd: bdVariable, fOublier: fOublierVariable } =
       await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>(
@@ -88,10 +85,25 @@ export default class Variables {
 
     await this.établirStatut(idBdVariable, { statut: TYPES_STATUT.ACTIVE });
 
-    fOublier();
     fOublierVariable();
 
     return idBdVariable;
+  }
+
+  async ajouterÀMesVariables(id: string): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>(
+      this.idBd
+    );
+    await bd.add(id);
+    fOublier();
+  }
+
+  async enleverDeMesVariables(id: string): Promise<void> {
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >(this.idBd);
+    await this.client.effacerÉlémentDeBdListe(bdRacine, id);
+    fOublier();
   }
 
   async copierVariable(id: string): Promise<string> {
@@ -416,12 +428,14 @@ export default class Variables {
 
   async effacerVariable(id: string): Promise<void> {
     // Effacer l'entrée dans notre liste de variables
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >(this.idBd);
-    await this.client.effacerÉlémentDeBdListe(bdRacine, id);
+    await this.enleverDeMesVariables(id);
+
     // Effacer la variable elle-même
+    const optionsAccès = await this.client.obtOpsAccès(id);
+    for (const clef in ["noms", "descriptions", "règles"]) {
+      const idBd = await this.client.obtIdBd(clef, id, undefined, optionsAccès);
+      if (idBd) await this.client.effacerBd(idBd);
+    }
     await this.client.effacerBd(id);
-    fOublier();
   }
 }
