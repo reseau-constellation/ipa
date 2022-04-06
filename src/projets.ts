@@ -158,6 +158,14 @@ export default class Projets {
     fOublier();
   }
 
+  async enleverDeMesProjets(id: string): Promise<void> {
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >(this.idBd);
+    await this.client.effacerÉlémentDeBdListe(bdRacine, id);
+    fOublier();
+  }
+
   async inviterAuteur(
     idBd: string,
     idBdCompteAuteur: string,
@@ -572,11 +580,8 @@ export default class Projets {
   }
 
   async effacerProjet(id: string): Promise<void> {
-    // Dabord effacer l'entrée dans notre liste de projets
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >(this.idBd);
-    await this.client.effacerÉlémentDeBdListe(bdRacine, id);
+    // D'abord effacer l'entrée dans notre liste de projets
+    await this.enleverDeMesProjets(id);
 
     // Et puis maintenant aussi effacer les données et le projet lui-même
     const optionsAccès = await this.client.obtOpsAccès(id);
@@ -586,7 +591,5 @@ export default class Projets {
     }
 
     await this.client.effacerBd(id);
-
-    fOublier();
   }
 }
