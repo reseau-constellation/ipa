@@ -27,13 +27,12 @@ export default class MotsClefs {
   }
 
   async créerMotClef(): Promise<string> {
-    const { bd: bdRacine, fOublier: fOublierRacine } =
-      await this.client.ouvrirBd<FeedStore<string>>(this.idBd);
     const idBdMotClef = await this.client.créerBdIndépendante("kvstore", {
       adresseBd: undefined,
       premierMod: this.client.bdCompte!.id,
     });
-    await bdRacine.add(idBdMotClef);
+
+    await this.ajouterÀMesMotsClefs(idBdMotClef);
 
     const { bd: bdMotClef, fOublier: fOublierMotClef } =
       await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdMotClef>>(
@@ -49,9 +48,24 @@ export default class MotsClefs {
     );
     await bdMotClef.set("noms", idBdNoms);
 
-    fOublierRacine();
     fOublierMotClef();
     return idBdMotClef;
+  }
+
+  async ajouterÀMesMotsClefs(id: string): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>(
+      this.idBd
+    );
+    await bd.add(id);
+    fOublier();
+  }
+
+  async enleverDeMesMotsClefs(id: string): Promise<void> {
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >(this.idBd);
+    await this.client.effacerÉlémentDeBdListe(bdRacine, id);
+    fOublier();
   }
 
   async copierMotClef(id: string): Promise<string> {
@@ -140,11 +154,14 @@ export default class MotsClefs {
 
   async effacerMotClef(id: string): Promise<void> {
     // Effacer l'entrée dans notre liste de mots clefs
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >(this.idBd);
-    await this.client.effacerÉlémentDeBdListe(bdRacine, id);
+    await this.enleverDeMesMotsClefs(id);
+
+    // Effacer le mot-clef lui-même
+    const optionsAccès = await this.client.obtOpsAccès(id);
+    for (const clef in ["noms"]) {
+      const idBd = await this.client.obtIdBd(clef, id, undefined, optionsAccès);
+      if (idBd) await this.client.effacerBd(idBd);
+    }
     await this.client.effacerBd(id);
-    fOublier();
   }
 }
