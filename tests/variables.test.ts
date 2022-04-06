@@ -69,6 +69,37 @@ typesClients.forEach((type) => {
           });
         });
 
+        describe("Mes variables", function () {
+          let idVariable: string;
+          let mesVariables: string[] = [];
+          let fOublier: schémaFonctionOublier;
+
+          before(async () => {
+            idVariable = await client.variables!.créerVariable("numérique");
+            fOublier = await client.variables!.suivreVariables(
+              (vs) => (mesVariables = vs)
+            );
+          });
+
+          after(() => {
+            if (fOublier) fOublier();
+          });
+
+          step("La variable est déjà ajoutée", async () => {
+            expect(mesVariables).to.include(idVariable);
+          });
+
+          step("Enlever de mes variables", async () => {
+            await client.variables!.enleverDeMesVariables(idVariable);
+            expect(mesVariables).to.not.include(idVariable);
+          });
+
+          step("Ajouter à mes variables", async () => {
+            await client.variables!.ajouterÀMesVariables(idVariable);
+            expect(mesVariables).to.include(idVariable);
+          });
+        });
+
         describe("Noms", function () {
           let noms: { [key: string]: string };
           let fOublier: schémaFonctionOublier;
