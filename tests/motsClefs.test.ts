@@ -62,6 +62,37 @@ typesClients.forEach((type) => {
           });
         });
 
+        describe("Mes mots-clefs", function () {
+          let idMotClef: string;
+          let mesMotsClefs: string[] = [];
+          let fOublier: schémaFonctionOublier;
+
+          before(async () => {
+            idMotClef = await client.motsClefs!.créerMotClef();
+            fOublier = await client.motsClefs!.suivreMotsClefs(
+              (mc) => (mesMotsClefs = mc)
+            );
+          });
+
+          after(() => {
+            if (fOublier) fOublier();
+          });
+
+          step("Le mot-clef est déjà ajouté", async () => {
+            expect(mesMotsClefs).to.include(idMotClef);
+          });
+
+          step("Enlever de mes mots-clefs", async () => {
+            await client.motsClefs!.enleverDeMesMotsClefs(idMotClef);
+            expect(mesMotsClefs).to.not.include(idMotClef);
+          });
+
+          step("Ajouter à mes mots-clefs", async () => {
+            await client.motsClefs!.ajouterÀMesMotsClefs(idMotClef);
+            expect(mesMotsClefs).to.include(idMotClef);
+          });
+        });
+
         describe("Noms", function () {
           const rés: {
             ultat: { [key: string]: string } | undefined;
