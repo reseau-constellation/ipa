@@ -1538,6 +1538,34 @@ export default class Réseau extends EventEmitter {
     return fOublier;
   }
 
+  async suivreAuteursMotClef(
+    idMotClef: string,
+    f: schémaFonctionSuivi<infoAuteur[]>
+  ): Promise<schémaFonctionOublier> {
+    return await this.suivreAuteursObjet(idMotClef, "motsClefs", f);
+  }
+
+  async suivreAuteursVariable(
+    idMotClef: string,
+    f: schémaFonctionSuivi<infoAuteur[]>
+  ): Promise<schémaFonctionOublier> {
+    return await this.suivreAuteursObjet(idMotClef, "variables", f);
+  }
+
+  async suivreAuteursBd(
+    idMotClef: string,
+    f: schémaFonctionSuivi<infoAuteur[]>
+  ): Promise<schémaFonctionOublier> {
+    return await this.suivreAuteursObjet(idMotClef, "bds", f);
+  }
+
+  async suivreAuteursProjet(
+    idMotClef: string,
+    f: schémaFonctionSuivi<infoAuteur[]>
+  ): Promise<schémaFonctionOublier> {
+    return await this.suivreAuteursObjet(idMotClef, "projets", f);
+  }
+
   async suivreObjetsMembre(
     idMembre: string,
     clef: string,
