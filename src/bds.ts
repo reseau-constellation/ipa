@@ -1157,6 +1157,7 @@ export default class BDs {
         await this.client.tableaux!.effacerTableau(t);
       }
       fOublierTableaux();
+      await this.client.effacerBd(idBdTableaux);
     }
 
     await this.enleverDeMesBds(id);
