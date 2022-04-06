@@ -76,32 +76,39 @@ typesClients.forEach((type) => {
           expect(adresseOrbiteValide(idProjet)).to.be.true;
         });
 
-        describe("Mes projets", async () => {
-          let fOublier: schémaFonctionOublier;
-          let projets: string[];
+        describe("Mes projets", function () {
           let idNouveauProjet: string;
+          let mesProjets: string[] = [];
+          let fOublier: schémaFonctionOublier;
 
           before(async () => {
+            idNouveauProjet = await client.projets!.créerProjet();
             fOublier = await client.projets!.suivreProjets(
-              (prjs) => (projets = prjs)
+              (ps) => (mesProjets = ps)
             );
           });
-          after(async () => {
+
+          after(() => {
             if (fOublier) fOublier();
           });
-          step("Le projet déjà créé est présent", async () => {
-            expect(projets).to.be.an("array").with.lengthOf(1);
-            expect(projets[0]).to.equal(idProjet);
+
+          step("Le projet est déjà ajouté", async () => {
+            expect(mesProjets).to.include(idNouveauProjet);
           });
-          step("On crée un autre projet", async () => {
-            idNouveauProjet = await client.projets!.créerProjet();
-            expect(projets).to.be.an("array").with.lengthOf(2);
-            expect(projets).to.include.members([idNouveauProjet, idProjet]);
+
+          step("Enlever de mes projets", async () => {
+            await client.projets!.enleverDeMesProjets(idNouveauProjet);
+            expect(mesProjets).to.not.include(idNouveauProjet);
           });
+
+          step("Ajouter à mes projets", async () => {
+            await client.projets!.ajouterÀMesProjets(idNouveauProjet);
+            expect(mesProjets).to.include(idNouveauProjet);
+          });
+
           step("On peut aussi l'effacer", async () => {
             await client.projets!.effacerProjet(idNouveauProjet);
-            expect(projets).to.be.an("array").with.lengthOf(1);
-            expect(projets[0]).to.equal(idProjet);
+            expect(mesProjets).to.not.include(idNouveauProjet);
           });
         });
 
