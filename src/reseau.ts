@@ -1137,7 +1137,7 @@ export default class Réseau extends EventEmitter {
         .map((r) => r.score);
       const pireScoreInclus =
         scores.length >= nRésultatsDésirés
-          ? Math.min.apply(scores.slice(0, nRésultatsDésirés))
+          ? Math.min(...scores.slice(0, nRésultatsDésirés))
           : 0;
 
       const parProfondeur = Object.values(résultatsParMembre).reduce(
