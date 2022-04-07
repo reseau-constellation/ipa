@@ -840,6 +840,15 @@ export default class Réseau extends EventEmitter {
 
       const comptes: infoMembreRéseau[] = Object.entries(dicRelations).map(
         ([idBdCompte, rs]) => {
+          const maRelation = rs.find(r=>r.de === this.client.idBdCompte);
+
+          if ((maRelation?.confiance === 1) || (maRelation?.confiance === -1)) {
+            return {
+              idBdCompte,
+              profondeur: 0,
+              confiance: maRelation!.confiance,
+            }
+          }
           const profondeurCompte = Math.min(...rs.map((r) => r.profondeur));
           const rsPositives = rs.filter((r) => r.confiance >= 0);
           const rsNégatives = rs.filter((r) => r.confiance < 0);
