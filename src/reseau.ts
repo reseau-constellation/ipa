@@ -902,7 +902,9 @@ export default class Réseau extends EventEmitter {
 
     const fOublierComptesEnLigne = await this.suivreConnexionsMembres(
       (membres: statutMembre[]) => {
-        const infoMembresEnLigne: infoMembreRéseau[] = membres.map((m) => {
+        const infoMembresEnLigne: infoMembreRéseau[] = membres.filter(
+          m => m.infoMembre.idBdCompte !== this.client.idBdCompte
+        ).map((m) => {
           return {
             idBdCompte: m.infoMembre.idBdCompte,
             profondeur: -1,
