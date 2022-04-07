@@ -834,7 +834,7 @@ export default class Réseau extends EventEmitter {
 
       const comptes: infoMembreRéseau[] = Object.entries(dicRelations).map(
         ([idBdCompte, rs]) => {
-          const profondeur = Math.min.apply(rs.map((r) => r.profondeur));
+          const profondeurCompte = Math.min(...rs.map((r) => r.profondeur));
           const rsPositives = rs.filter((r) => r.confiance >= 0);
           const rsNégatives = rs.filter((r) => r.confiance < 0);
           const coûtNégatif =
@@ -862,7 +862,7 @@ export default class Réseau extends EventEmitter {
 
           return {
             idBdCompte,
-            profondeur,
+            profondeur: profondeurCompte,
             confiance,
           };
         }
