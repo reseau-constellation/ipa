@@ -528,13 +528,16 @@ export default class Réseau extends EventEmitter {
     let bloqués: string[] = [];
 
     const fFinale = () => {
-      const tous = [
+      const tous: infoConfiance[] = [
         ...comptes.suivis,
         ...comptes.favoris,
         ...comptes.coauteursBds,
         ...comptes.coauteursProjets,
         ...comptes.coauteursVariables,
         ...comptes.coauteursMotsClefs,
+        ...bloqués.map(b=>{
+          return { idBdCompte: b, confiance: -1 }
+        })
       ];
       const membresUniques = [...new Set(tous)];
       const relations = membresUniques.map((m) => {
@@ -554,7 +557,10 @@ export default class Réseau extends EventEmitter {
 
     fsOublier.push(
       await this.suivreBloqués(
-        (blqs: infoBloqué[]) => (bloqués = blqs.map((b) => b.idBdCompte)),
+        (blqs: infoBloqué[]) => {
+          bloqués = blqs.map((b) => b.idBdCompte);
+          fFinale();
+        },
         idBdCompte
       )
     );
