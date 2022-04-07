@@ -30,7 +30,7 @@ import { testAPIs, config } from "./sfipTest";
 import { attendreRésultat, générerClients, typesClients } from "./utils";
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Réseau", function () {
         this.timeout(config.timeout);
@@ -280,6 +280,8 @@ typesClients.forEach((type) => {
 
           after(async () => {
             fsOublier.forEach((f) => f());
+            await client.réseau!.débloquerMembre(idBdRacine2);
+            await client.réseau!.débloquerMembre(idBdRacine3);
           });
 
           step("Personne pour commencer", async () => {
@@ -367,7 +369,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre relations immédiates", function () {
+        describe("Suivre relations immédiates", function () {
           let idMotClef: string;
           let idBd: string;
           let idVariable: string;
@@ -398,8 +400,8 @@ typesClients.forEach((type) => {
           });
 
           step("Personne pour commencer", async () => {
-            await attendreRésultat(relations, "propres");
-            await attendreRésultat(relations, "autre");
+            await attendreRésultat(relations, "propres", x=>x?.length === 0);
+            await attendreRésultat(relations, "autre", x=>x?.length === 0);
 
             expect(relations.propres).to.be.an.empty("array");
             expect(relations.autre).to.be.an.empty("array");
@@ -751,7 +753,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre comptes réseau", async () => {
+        describe("Suivre comptes réseau", async () => {
           let fOublier: schémaFonctionOublier;
           let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
@@ -979,7 +981,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre comptes réseau et en ligne", async () => {
+        describe("Suivre comptes réseau et en ligne", async () => {
           let fOublier: schémaFonctionOublier;
           let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
@@ -1083,7 +1085,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre confiance mon réseau pour membre", async () => {
+        describe("Suivre confiance mon réseau pour membre", async () => {
           let fOublier: schémaFonctionOublier;
           let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
@@ -1125,7 +1127,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre confiance auteurs", async () => {
+        describe("Suivre confiance auteurs", async () => {
           let fOublier: schémaFonctionOublier;
           let idMotClef: string;
 
@@ -1182,7 +1184,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Rechercher", async () => {
+        describe("Rechercher", async () => {
           describe.skip("Membres", async () => {});
           describe.skip("Variables", async () => {});
           describe.skip("Mots-clefs", async () => {});
