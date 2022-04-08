@@ -1694,7 +1694,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre mots-clefs", function () {
+        describe("Suivre mots-clefs", function () {
           const rés: { propre?: string[]; autre?: string[] } = {};
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1739,7 +1739,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre variables", function () {
+        describe("Suivre variables", function () {
           const rés: { propres?: string[]; autres?: string[] } = {};
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1786,7 +1786,7 @@ typesClients.forEach((type) => {
 
         });
 
-        describe.only("Suivre BDs", function () {
+        describe("Suivre BDs", function () {
           const rés: { propres?: string[]; autres?: string[] } = {};
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1833,7 +1833,7 @@ typesClients.forEach((type) => {
 
         });
 
-        describe.only("Suivre projets", function () {
+        describe("Suivre projets", function () {
           const rés: { propres?: string[]; autres?: string[] } = {};
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1879,7 +1879,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre favoris", function () {
+        describe("Suivre favoris", function () {
           let idMotClef: string;
 
           const rés: { propres?: ÉlémentFavorisAvecObjet[]; autres?: ÉlémentFavorisAvecObjet[] } = {};
@@ -1944,6 +1944,70 @@ typesClients.forEach((type) => {
             expect(rés.autres).to.have.deep.members(réf);
           });
         });
+
+        describe("Suivre favoris objet", function () {
+          let idMotClef: string;
+          let fOublier: schémaFonctionOublier;
+
+          const rés: { ultat?: (ÉlémentFavorisAvecObjet & { idBdCompte: string})[] } = {}
+
+          before(async () => {
+            idMotClef = await client.motsClefs!.créerMotClef();
+
+            ({ fOublier } = await client.réseau!.suivreFavorisObjet(
+              idMotClef,
+              favoris => rés.ultat = favoris
+            ))
+          })
+
+          after(()=>{
+            if (fOublier) fOublier();
+          })
+
+          step("Aucun favoris pour commencer", async () => {
+            await attendreRésultat(rés, "ultat");
+            expect(rés.ultat).to.be.empty;
+          });
+
+          step("Ajout à mes favoris détecté", async () => {
+            const réf: (ÉlémentFavorisAvecObjet & { idBdCompte: string})[] = [
+              {
+                récursif: true,
+                dispositifs: "TOUS",
+                dispositifsFichiers: "INSTALLÉ",
+                idObjet: idMotClef,
+                idBdCompte: idBdRacine1
+              }
+            ]
+            await client.favoris!.épinglerFavori(idMotClef, "TOUS");
+            await attendreRésultat(rés, "ultat", x=>x && !!x.length);
+
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+
+          step("Ajout aux favoris d'un autre membre détecté", async () => {
+            const réf: (ÉlémentFavorisAvecObjet & { idBdCompte: string})[] = [
+              {
+                récursif: true,
+                dispositifs: "TOUS",
+                dispositifsFichiers: "INSTALLÉ",
+                idObjet: idMotClef,
+                idBdCompte: idBdRacine1
+              },
+              {
+                récursif: true,
+                dispositifs: "TOUS",
+                dispositifsFichiers: "INSTALLÉ",
+                idObjet: idMotClef,
+                idBdCompte: idBdRacine2
+              }
+            ]
+            await client2.favoris!.épinglerFavori(idMotClef, "TOUS");
+            await attendreRésultat(rés, "ultat", x=>x && x.length === 2);
+
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+        })
 
         describe("Suivre réplications", function () {
           let idBd: string;
