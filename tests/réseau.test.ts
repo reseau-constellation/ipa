@@ -12,7 +12,11 @@ import {
   schémaFonctionOublier,
   uneFois,
   infoAuteur,
+  résultatObjectifRecherche,
+  infoRésultatTexte
 } from "@/utils";
+import { ÉlémentFavorisAvecObjet } from "@/favoris";
+import { rechercherProfilSelonNom } from "@/recherche"
 import {
   élémentDeMembre,
   statutDispositif,
@@ -46,7 +50,7 @@ typesClients.forEach((type) => {
         let idNodeSFIP1: string, idNodeSFIP2: string, idNodeSFIP3: string;
         let idOrbite1: string, idOrbite2: string, idOrbite3: string;
 
-        before(async () => {
+        this.beforeAll(async () => {
           ({ fOublier: fOublierClients, clients } = await générerClients(
             3,
             API,
@@ -93,7 +97,7 @@ typesClients.forEach((type) => {
           console.log({ idBdRacine1, idBdRacine2, idBdRacine3 });
         });
 
-        after(async () => {
+        this.afterAll(async () => {
           if (fOublierClients) await fOublierClients();
         });
 
@@ -1127,7 +1131,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre confiance auteurs", async () => {
+        describe("Suivre confiance auteurs", async () => {
           let fOublier: schémaFonctionOublier;
           let idMotClef: string;
 
@@ -1189,8 +1193,57 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Rechercher", async () => {
-          describe.skip("Membres", async () => {});
+        describe.only("Rechercher", async () => {
+          let fOublier: schémaFonctionOublier;
+          let fChangerN: (n: number) => void;
+
+          const rés: { ultat?: résultatObjectifRecherche<infoRésultatTexte>[] } = {}
+
+          describe("Membres", async () => {
+            before(async () => {
+              ({ fOublier, fChangerN } = await client.réseau!.rechercherMembres(
+                membres => rés.ultat = membres,
+                2,
+                rechercherProfilSelonNom("Julien")
+              ))
+            })
+
+            after(() => {
+                if (fOublier) fOublier();
+            });
+
+            step("Moins de résultats que demandé s'il n'y a vraiment rien", async () => {
+              const réf: résultatObjectifRecherche<infoRésultatTexte>[] = [
+                {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  info: {
+                    type: "texte",
+                    texte: "Julien",
+                    début: 0,
+                    fin: 6
+                  }
+                }
+              ]
+              await client2.profil!.sauvegarderNom("fr", "Julien");
+
+              await attendreRésultat(rés, "ultat", x=>x && !!x.length);
+              expect(rés.ultat).to.have.deep.members(réf);
+            })
+
+            step("On suit les changements", async () => {
+              await client3.profil!.sauvegarderNom("fr", "Julien");
+              expect(rés.ultat).to.have.deep.members(réf);
+            })
+
+
+            step("Changer N désiré", async () => {
+              fChangerN(1);
+              expect(rés.ultat).to.have.deep.members(réf);
+            });
+
+          });
           describe.skip("Variables", async () => {});
           describe.skip("Mots-clefs", async () => {});
           describe.skip("Bds", async () => {});
@@ -1641,59 +1694,254 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Suivre BDs", function () {
-          let idBd: string;
-          let idBd2: string;
-
-          const rés: { ultat?: string[]; ultat_2?: string[] } = {
-            ultat: undefined,
-            ultat_2: undefined,
-          };
+        describe.only("Suivre mots-clefs", function () {
+          const rés: { propre?: string[]; autre?: string[] } = {};
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
             fsOublier.push(
-              await client2.réseau!.suivreBdsMembre(
+              await client2.réseau!.suivreMotsClefsMembre(
                 idBdRacine1,
-                (bds) => (rés.ultat = bds)
+                (motsClefs) => (rés.autre = motsClefs)
               )
             );
             fsOublier.push(
-              await client2.réseau!.suivreBdsMembre(
-                (bds) => (rés.ultat_2 = bds)
+              await client2.réseau!.suivreMotsClefsMembre(
+                idBdRacine2,
+                (motsClefs) => (rés.propre = motsClefs)
               )
             );
-
-            idBd = await client.bds!.créerBd("ODbl-1_0");
           });
 
           after(async () => {
             fsOublier.forEach((f) => f());
           });
 
-          step("BD d'un autre membre détectée", async () => {
-            /*await attendreRésultat(
+          step("Mes propres mots-clefs détectés", async () => {
+            const idMotClef = await client2.motsClefs!.créerMotClef();
+
+            await attendreRésultat(
               rés,
-              "ultat",
-              (x?: string[]) => x && x.length
-            );*/
-            expect(rés.ultat)
-              .to.be.an("array")
-              .with.lengthOf(1)
-              .and.members([idBd]);
+              "propre",
+              x => x && !!x.length
+            );
+            expect(rés.propre).to.have.members([idMotClef]);
           });
 
-          step("BDs du réseau détectées", async () => {
-            idBd2 = await client2.bds!.créerBd("ODbl-1_0");
-            /*await attendreRésultat(
+          step("Mot-clef d'un autre membre détecté", async () => {
+            const idMotClef = await client.motsClefs!.créerMotClef();
+            await attendreRésultat(
               rés,
-              "ultat_2",
-              (x?: string[]) => x && x.length === 2
-            );*/
-            expect(rés.ultat_2)
-              .to.be.an("array")
-              .with.lengthOf(2)
-              .and.members([idBd, idBd2]);
+              "autre",
+              x => x && !!x.length
+            );
+            expect(rés.autre).to.have.members([idMotClef]);
+          });
+        });
+
+        describe.only("Suivre variables", function () {
+          const rés: { propres?: string[]; autres?: string[] } = {};
+          const fsOublier: schémaFonctionOublier[] = [];
+
+          before(async () => {
+            fsOublier.push(
+              await client2.réseau!.suivreVariablesMembre(
+                idBdRacine1,
+                (variables) => (rés.autres = variables)
+              )
+            );
+            fsOublier.push(
+              await client2.réseau!.suivreVariablesMembre(
+                idBdRacine2,
+                (variables) => (rés.propres = variables)
+              )
+            );
+
+          });
+
+          after(async () => {
+            fsOublier.forEach((f) => f());
+          });
+
+          step("Mes variables détectées", async () => {
+            const idVariable = await client2.variables!.créerVariable("numérique");
+
+            await attendreRésultat(
+              rés,
+              "propres",
+              x => x && !!x.length
+            );
+            expect(rés.propres).to.have.members([idVariable]);
+          });
+
+          step("Variable d'un autre membre détectée", async () => {
+            const idVariable = await client.variables!.créerVariable("numérique");
+            await attendreRésultat(
+              rés,
+              "autres",
+              x => x && !!x.length
+            );
+            expect(rés.autres).to.have.members([idVariable]);
+          });
+
+        });
+
+        describe.only("Suivre BDs", function () {
+          const rés: { propres?: string[]; autres?: string[] } = {};
+          const fsOublier: schémaFonctionOublier[] = [];
+
+          before(async () => {
+            fsOublier.push(
+              await client2.réseau!.suivreBdsMembre(
+                idBdRacine1,
+                (bds) => (rés.autres = bds)
+              )
+            );
+            fsOublier.push(
+              await client2.réseau!.suivreBdsMembre(
+                idBdRacine2,
+                (bds) => (rés.propres = bds)
+              )
+            );
+
+          });
+
+          after(async () => {
+            fsOublier.forEach((f) => f());
+          });
+
+          step("Mes BDs détectées", async () => {
+            const idBd = await client2.bds!.créerBd("ODbl-1_0");
+
+            await attendreRésultat(
+              rés,
+              "propres",
+              x => x && !!x.length
+            );
+            expect(rés.propres).to.have.members([idBd]);
+          });
+
+          step("BD d'un autre membre détectée", async () => {
+            const idBd = await client.bds!.créerBd("ODbl-1_0");
+            await attendreRésultat(
+              rés,
+              "autres",
+              x => x && !!x.length
+            );
+            expect(rés.autres).to.have.members([idBd]);
+          });
+
+        });
+
+        describe.only("Suivre projets", function () {
+          const rés: { propres?: string[]; autres?: string[] } = {};
+          const fsOublier: schémaFonctionOublier[] = [];
+
+          before(async () => {
+            fsOublier.push(
+              await client2.réseau!.suivreProjetsMembre(
+                idBdRacine1,
+                (projets) => (rés.autres = projets)
+              )
+            );
+            fsOublier.push(
+              await client2.réseau!.suivreProjetsMembre(
+                idBdRacine2,
+                (projets) => (rés.propres = projets)
+              )
+            );
+
+          });
+
+          after(async () => {
+            fsOublier.forEach((f) => f());
+          });
+
+          step("Mes projets détectés", async () => {
+            const idProjet = await client2.projets!.créerProjet();
+
+            await attendreRésultat(
+              rés,
+              "propres",
+              x => x && !!x.length
+            );
+            expect(rés.propres).to.have.members([idProjet]);
+          });
+
+          step("Projet d'un autre membre détecté", async () => {
+            const idProjet = await client.projets!.créerProjet();
+            await attendreRésultat(
+              rés,
+              "autres",
+              x => x && !!x.length
+            );
+            expect(rés.autres).to.have.members([idProjet]);
+          });
+        });
+
+        describe.only("Suivre favoris", function () {
+          let idMotClef: string;
+
+          const rés: { propres?: ÉlémentFavorisAvecObjet[]; autres?: ÉlémentFavorisAvecObjet[] } = {};
+          const fsOublier: schémaFonctionOublier[] = [];
+
+          before(async () => {
+            fsOublier.push(
+              await client2.réseau!.suivreFavorisMembre(
+                idBdRacine1,
+                (favoris) => (rés.autres = favoris)
+              )
+            );
+            fsOublier.push(
+              await client2.réseau!.suivreFavorisMembre(
+                idBdRacine2,
+                (favoris) => (rés.propres = favoris)
+              )
+            );
+
+            idMotClef = await client.motsClefs!.créerMotClef();
+          });
+
+          after(async () => {
+            fsOublier.forEach((f) => f());
+          });
+
+          step("Mes favoris détectés", async () => {
+            const réf: ÉlémentFavorisAvecObjet[] = [
+              {
+                récursif: true,
+                dispositifs: "TOUS",
+                dispositifsFichiers: "INSTALLÉ",
+                idObjet: idMotClef
+              }
+            ]
+
+            await client2.favoris!.épinglerFavori(idMotClef, "TOUS");
+            await attendreRésultat(
+              rés,
+              "propres",
+              x => x && !!x.length
+            );
+            expect(rés.propres).to.have.deep.members(réf);
+          });
+
+          step("Favoris d'un autre membre détectés", async () => {
+            const réf: ÉlémentFavorisAvecObjet[] = [
+              {
+                récursif: true,
+                dispositifs: "TOUS",
+                dispositifsFichiers: "INSTALLÉ",
+                idObjet: idMotClef
+              }
+            ]
+
+            await client.favoris!.épinglerFavori(idMotClef, "TOUS");
+            await attendreRésultat(
+              rés,
+              "autres",
+              x => x && !!x.length
+            );
+            expect(rés.autres).to.have.deep.members(réf);
           });
         });
 
