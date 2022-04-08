@@ -1751,9 +1751,9 @@ export default class Réseau extends EventEmitter {
       };
 
       return await this.suivreComptesRéseauEtEnLigne(
-        this.client.idBdCompte!,
         fSuivreComptes,
-        profondeur
+        profondeur,
+        this.client.idBdCompte!,
       );
     };
 
