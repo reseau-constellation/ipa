@@ -1686,7 +1686,7 @@ export default class Réseau extends EventEmitter {
 
   async suivreFavorisMembre(
     idMembre: string,
-    f: schémaFonctionSuivi<(ÉlémentFavoris & { idObjet: string })[] | undefined>
+    f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[] | undefined>
   ): Promise<schémaFonctionOublier> {
     // suivreFavoris est différent parce qu'on n'a pas besoin de vérifier l'autorisation du membre
     const fSuivreFavoris = async (
