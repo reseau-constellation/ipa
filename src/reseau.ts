@@ -1382,12 +1382,23 @@ export default class Réseau extends EventEmitter {
 
   async suivreConfianceAuteurs(
     idItem: string,
+    clef: string,
     f: schémaFonctionSuivi<number>
   ): Promise<schémaFonctionOublier> {
     const fListe = async (
       fSuivreRacine: (auteurs: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreAuteurs(idItem, fSuivreRacine);
+      return await this.suivreAuteursObjet(
+        idItem,
+        clef,
+        async (auteurs: infoAuteur[]) => {
+          const idsAuteurs = auteurs.filter(
+            a => a.accepté
+          ).map(
+            a => a.idBdCompte
+          );
+          return await fSuivreRacine(idsAuteurs);
+        });
     };
 
     const fBranche = async (
@@ -1406,15 +1417,20 @@ export default class Réseau extends EventEmitter {
       f(confiance);
     };
 
+    const fRéduction = (branches: number[]) => branches.flat();
+
     return await this.client.suivreBdsDeFonctionListe(
       fListe,
       fFinale,
-      fBranche
+      fBranche,
+      undefined,
+      fRéduction
     );
   }
 
   async rechercherObjets<T extends infoRésultatRecherche>(
     f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
+    clef: string,
     nRésultatsDésirés: number,
     fRecherche: (
       idCompte: string,
@@ -1459,7 +1475,7 @@ export default class Réseau extends EventEmitter {
       id: string,
       f: schémaFonctionSuivi<number>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreConfianceAuteurs(id, f);
+      return await this.suivreConfianceAuteurs(id, clef, f);
     };
 
     return await this.rechercher(
@@ -1496,6 +1512,7 @@ export default class Réseau extends EventEmitter {
 
     return await this.rechercherObjets(
       f,
+      "variables",
       nRésultatsDésirés,
       fRecherche,
       fObjectif
@@ -1511,6 +1528,7 @@ export default class Réseau extends EventEmitter {
 
     return await this.rechercherObjets(
       f,
+      "motsClefs",
       nRésultatsDésirés,
       fRecherche,
       fObjectif
@@ -1527,6 +1545,7 @@ export default class Réseau extends EventEmitter {
     return await this.rechercherObjets(
       f,
       nRésultatsDésirés,
+      "projets",
       fRecherche,
       fObjectif
     );

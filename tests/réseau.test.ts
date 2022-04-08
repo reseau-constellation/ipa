@@ -1127,7 +1127,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Suivre confiance auteurs", async () => {
+        describe.only("Suivre confiance auteurs", async () => {
           let fOublier: schémaFonctionOublier;
           let idMotClef: string;
 
@@ -1135,15 +1135,10 @@ typesClients.forEach((type) => {
 
           before(async () => {
             idMotClef = await client2.motsClefs!.créerMotClef();
-            await client2.motsClefs!.inviterAuteur(
-              idMotClef,
-              client2.idBdCompte!,
-              "MEMBRE"
-            );
-            await client2.motsClefs!.ajouterÀMesMotsClefs(idMotClef);
 
             fOublier = await client.réseau!.suivreConfianceAuteurs(
               idMotClef,
+              "motsClefs",
               (confiance) => (rés.ultat = confiance)
             );
           });
@@ -1165,22 +1160,32 @@ typesClients.forEach((type) => {
           step("Ajout auteur au réseau", async () => {
             await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
 
-            await attendreRésultat(rés, "ultat", (x) => x === 0.8);
+            await attendreRésultat(rés, "ultat", (x) => x > 0);
+            expect(rés.ultat).to.equal(1)
           });
 
           step("Ajout coauteur au réseau", async () => {
-            await client.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client2.motsClefs!.inviterAuteur(
+              idMotClef,
+              client3.idBdCompte!,
+              "MEMBRE"
+            );
+            await client3.motsClefs!.ajouterÀMesMotsClefs(idMotClef);
             await attendreRésultat(rés, "ultat", (x) => x > 1);
 
-            expect(rés.ultat).to.equal(1.5);
+            expect(rés.ultat).to.approximately(1.72, 0.01);
+
+            await client.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await attendreRésultat(rés, "ultat", (x) => x > 1.8);
+
+            expect(rés.ultat).to.equal(2);
           });
 
           step("Coauteur se retire", async () => {
-            await client2.motsClefs!.inviterAuteur(
-              idMotClef,
-              client2.idBdCompte!,
-              "MEMBRE"
-            );
+            await client3.motsClefs!.enleverDeMesMotsClefs(idMotClef);
+            await attendreRésultat(rés, "ultat", (x) => x < 2);
+
+            expect(rés.ultat).to.equal(1);
           });
         });
 
