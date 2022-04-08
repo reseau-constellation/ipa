@@ -1732,7 +1732,7 @@ export default class Réseau extends EventEmitter {
   async suivreFavorisObjet(
     idObjet: string,
     f: schémaFonctionSuivi<
-      (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
+      (ÉlémentFavorisAvecObjet & { idBdCompte: string })[]
     >,
     profondeur = 5
   ): Promise<schémaRetourFonctionRecherche> {
