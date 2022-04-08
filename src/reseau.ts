@@ -1747,7 +1747,8 @@ export default class Réseau extends EventEmitter {
       fSuivreRacine: (membres: string[]) => Promise<void>
     ): Promise<schémaRetourFonctionRecherche> => {
       const fSuivreComptes = async (infosMembres: infoMembreRéseau[]) => {
-        return await fSuivreRacine(infosMembres.map((i) => i.idBdCompte));
+        // On s'ajoute à la liste des favoris
+        return await fSuivreRacine([this.client.idBdCompte!, ...infosMembres.map((i) => i.idBdCompte)]);
       };
 
       return await this.suivreComptesRéseauEtEnLigne(
