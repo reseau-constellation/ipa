@@ -174,50 +174,6 @@ export default class Projets {
     await this.client.donnerAccès(idBd, idBdCompteAuteur, rôle);
   }
 
-  async suivreAuteurs(
-    id: string,
-    f: schémaFonctionSuivi<infoAuteur[]>
-  ): Promise<schémaFonctionOublier> {
-    const fListe = async (
-      fSuivreRacine: (éléments: infoAccès[]) => Promise<void>
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreAccèsBd(id, fSuivreRacine);
-    };
-    const fBranche = async (
-      idBdRacine: string,
-      fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
-      branche: infoAccès
-    ) => {
-      const fFinaleSuivreBranche = (projetsMembre?: string[]) => {
-        projetsMembre = projetsMembre || [];
-        return fSuivreBranche([
-          {
-            idBdCompte: branche.idBdCompte,
-            rôle: branche.rôle,
-            accepté: projetsMembre.includes(id),
-          },
-        ]);
-      };
-      return await this.client.réseau!.suivreProjetsMembre(
-        idBdRacine,
-        fFinaleSuivreBranche
-        // false
-      );
-    };
-    const fIdBdDeBranche = (x: infoAccès) => x.idBdCompte;
-    const fCode = (x: infoAccès) => x.idBdCompte;
-
-    const fOublier = this.client.suivreBdsDeFonctionListe(
-      fListe,
-      f,
-      fBranche,
-      fIdBdDeBranche,
-      undefined,
-      fCode
-    );
-    return fOublier;
-  }
-
   async _obtBdNoms(
     id: string
   ): Promise<{ bd: KeyValueStore<string>; fOublier: schémaFonctionOublier }> {

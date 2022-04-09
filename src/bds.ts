@@ -710,50 +710,6 @@ export default class BDs {
     await this.client.donnerAccès(idBd, idBdCompteAuteur, rôle);
   }
 
-  async suivreAuteurs(
-    id: string,
-    f: schémaFonctionSuivi<infoAuteur[]>
-  ): Promise<schémaFonctionOublier> {
-    const fListe = async (
-      fSuivreRacine: (éléments: infoAccès[]) => Promise<void>
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreAccèsBd(id, fSuivreRacine);
-    };
-    const fBranche = async (
-      idBdBdsCompte: string,
-      fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
-      branche: infoAccès
-    ) => {
-      const fFinaleSuivreBranche = (bdsMembre?: string[]) => {
-        bdsMembre = bdsMembre || [];
-        return fSuivreBranche([
-          {
-            idBdCompte: branche.idBdCompte,
-            rôle: branche.rôle,
-            accepté: bdsMembre.includes(id),
-          },
-        ]);
-      };
-      return await this.client.réseau!.suivreBdsMembre(
-        idBdBdsCompte,
-        fFinaleSuivreBranche,
-        false
-      );
-    };
-    const fIdBdDeBranche = (x: infoAccès) => x.idBdCompte;
-    const fCode = (x: infoAccès) => x.idBdCompte;
-
-    const fOublier = this.client.suivreBdsDeFonctionListe(
-      fListe,
-      f,
-      fBranche,
-      fIdBdDeBranche,
-      undefined,
-      fCode
-    );
-    return fOublier;
-  }
-
   async suivreNomsBd(
     id: string,
     f: schémaFonctionSuivi<{ [key: string]: string }>
