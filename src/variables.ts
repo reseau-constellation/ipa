@@ -410,6 +410,86 @@ export default class Variables {
     return fOublier;
   }
 
+  async suivreQualitéVariable(
+    id: string,
+    f: schémaFonctionSuivi<number>
+  ): Promise<schémaFonctionOublier> {
+    const rés: {
+      noms: {[key: string]: string},
+      descr: {[key: string]: string},
+      règles: règleVariableAvecId<règleVariable>[],
+      unités?: string,
+      catégorie?: catégorieVariables,
+    } = {
+      noms: {},
+      descr: {},
+      règles: [],
+    }
+    const fFinale = () => {
+      const scores = [
+        Object.keys(rés.noms).length ? 1 : 0,
+        Object.keys(rés.descr).length ? 1 : 0,
+      ]
+      if (rés.catégorie === "numérique") {
+        scores.push(rés.unités ? 1 : 0)
+      }
+      if (rés.catégorie === "numérique" || rés.catégorie === "catégorique") {
+        scores.push(rés.règles.length >= 1 ? 1 : 0)
+      }
+      const qualité = scores.reduce((a, b) => a + b, 0) / scores.length
+      f(qualité)
+    }
+    const oublierNoms = await this.suivreNomsVariable(
+      id,
+      (noms) => {
+        rés.noms = noms;
+        fFinale();
+      }
+    );
+
+    const oublierDescr = await this.suivreDescrVariable(
+      id,
+      (descr) => {
+        rés.descr = descr;
+        fFinale();
+      }
+    );
+
+    const oublierUnités = await this.suivreUnitésVariable(
+      id,
+      (unités) => {
+        rés.unités = unités;
+        fFinale();
+      }
+    );
+
+    const oublierCatégorie = await this.suivreCatégorieVariable(
+      id,
+      (catégorie) => {
+        rés.catégorie = catégorie;
+        fFinale();
+      }
+    );
+
+    const oublierRègles = await this.suivreRèglesVariable(
+      id,
+      (règles) => {
+        rés.règles = règles;
+        fFinale();
+      }
+    );
+
+    const fOublier = () => {
+      oublierNoms();
+      oublierDescr();
+      oublierUnités();
+      oublierCatégorie();
+      oublierRègles();
+    }
+
+    return fOublier;
+  }
+
   async établirStatut(id: string, statut: schémaStatut): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdVariable>

@@ -164,4 +164,14 @@ export default class MotsClefs {
     }
     await this.client.effacerBd(id);
   }
+
+  async suivreQualitéMotClef(
+    id: string,
+    f: schémaFonctionSuivi<number>
+  ): Promise<schémaFonctionOublier> {
+    return await this.suivreNomsMotClef(
+      id,
+      (noms) => f(Object.keys(noms).length ? 1 : 0)
+    )
+  }
 }

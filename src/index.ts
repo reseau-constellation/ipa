@@ -17,5 +17,6 @@ export * as motsClefs from "@/motsClefs";
 export * as projets from "@/projets";
 export * as réseau from "@/reseau";
 export * as tableaux from "@/tableaux";
+export * as utils from "@/utils";
 export * as valid from "@/valid";
 export * as variables from "@/variables";

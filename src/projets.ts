@@ -4,7 +4,7 @@ import { WorkBook, BookType, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import ClientConstellation, { infoAccès } from "@/client";
+import ClientConstellation from "@/client";
 import { objRôles } from "@/accès/types";
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import {
@@ -14,7 +14,6 @@ import {
   schémaStatut,
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  infoAuteur,
   uneFois,
 } from "@/utils";
 
@@ -453,6 +452,37 @@ export default class Projets {
       return await this.client.suivreBdsDeBdListe(idBdBds, f, fBranche);
     };
     return await this.client.suivreBdDeClef(id, "bds", fFinale, fSuivreBds);
+  }
+
+  async suivreQualitéProjet(
+    idProjet: string,
+    f: schémaFonctionSuivi<number>
+  ): Promise<schémaFonctionOublier> {
+    const fFinale = (scoresBds: number[]) => {
+      f(scoresBds.length? scoresBds.reduce((a, b)=>a+b, 0) / scoresBds.length : 0)
+    }
+    const fListe = async (fSuiviListe: schémaFonctionSuivi<string[]>): Promise<schémaFonctionOublier> => {
+      return await this.suivreBdsProjet(idProjet, fSuiviListe)
+    }
+    const fBranche = async (
+      idBd: string,
+      fSuiviBranche: schémaFonctionSuivi<number>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.client.bds!.suivreScoreBd(
+        idBd,
+        (score)=>fSuiviBranche(score.total)
+      )
+    }
+    const fRéduction = (scores: number[]) => {
+      return scores.flat();
+    }
+    return await this.client.suivreBdsDeFonctionListe(
+      fListe,
+      fFinale,
+      fBranche,
+      undefined,
+      fRéduction
+    )
   }
 
   async exporterDonnées(

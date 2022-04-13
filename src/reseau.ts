@@ -17,13 +17,23 @@ import {
   schémaFonctionSuivreConfianceRecherche,
   infoRésultatRecherche,
   infoAuteur,
+  infoRésultat,
+  infoRésultatVide,
   résultatObjectifRecherche,
   faisRien,
 } from "@/utils";
+import { infoScore } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
-import { ÉlémentFavoris, épingleDispositif } from "@/favoris";
+import {
+  ÉlémentFavoris,
+  ÉlémentFavorisAvecObjet,
+  épingleDispositif
+} from "@/favoris";
 import { élémentDonnées } from "@/valid";
-import { rechercherProfilSelonActivité, rechercherTous } from "@/recherche";
+import {
+  rechercherProfilSelonActivité,
+} from "@/recherche/profil";
+import { rechercherTous } from "@/recherche/utils";
 
 export interface infoDispositif {
   idSFIP: string;
@@ -81,9 +91,9 @@ export interface infoRéplications {
   dispositifs: (épingleDispositif & { idDispositif: string; vuÀ?: number })[];
 }
 
-export interface résultatRechercheSansScore<T extends infoRésultatRecherche> {
+export interface résultatRechercheSansScore<T extends infoRésultat> {
   id: string;
-  objectif: T;
+  objectif: résultatObjectifRecherche<T>;
   confiance: number;
   qualité: number;
 }
@@ -1107,7 +1117,7 @@ export default class Réseau extends EventEmitter {
     );
   }
 
-  async rechercher<T extends infoRésultatRecherche>(
+  async rechercher<T extends (infoRésultat | infoRésultatVide)>(
     f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
     nRésultatsDésirés: number,
     fRecherche: (
@@ -1124,7 +1134,7 @@ export default class Réseau extends EventEmitter {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
       };
     }
-
+    // @ts-ignore
     fObjectif = fObjectif || rechercherTous();
 
     const résultatsParMembre: {
@@ -1241,7 +1251,7 @@ export default class Réseau extends EventEmitter {
       ): Promise<schémaFonctionOublier> => {
         const rés: {
           id: string;
-          objectif?: T;
+          objectif?: infoRésultatRecherche<T>;
           confiance?: number;
           qualité?: number;
         } = {
@@ -1250,18 +1260,15 @@ export default class Réseau extends EventEmitter {
         const fFinaleSuivreBranche = () => {
           const { objectif, confiance, qualité } = rés;
           if (objectif && confiance !== undefined && qualité !== undefined) {
+            const { type, de, info } = objectif
             const résultatFinalBranche: résultatObjectifRecherche<T> = {
-              id,
-              objectif,
-              confiance,
-              qualité,
-              score: fScore!(rés as résultatRechercheSansScore<T>),
+              type, de, info, score: fScore!(rés as résultatRechercheSansScore<T>),
             };
             fSuivreBranche(résultatFinalBranche);
           }
         };
 
-        const fSuivreObjectif = (objectif?: T) => {
+        const fSuivreObjectif = (objectif?: infoRésultatRecherche<T>) => {
           rés.objectif = objectif;
           fFinaleSuivreBranche();
         };
@@ -1281,7 +1288,7 @@ export default class Réseau extends EventEmitter {
           rés.confiance = confiance;
           fFinaleSuivreBranche();
         };
-        const fOublierQualité = await fQualité(this.client, id, fSuivreQualité);
+        const fOublierQualité = await fQualité(id, fSuivreQualité);
 
         const fOublierBranche = () => {
           fOublierObjectif();
@@ -1346,18 +1353,18 @@ export default class Réseau extends EventEmitter {
     return { fChangerN, fOublier };
   }
 
-  async rechercherMembres<T extends infoRésultatRecherche>(
+  async rechercherMembres<T extends infoRésultat>(
     f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
     const fConfiance = async (
       idCompte: string,
-      fSuivre: schémaFonctionSuivi<number>
+      fSuivi: schémaFonctionSuivi<number>
     ) => {
       const { fOublier } = await this.suivreConfianceMonRéseauPourMembre(
         idCompte,
-        fSuivre
+        fSuivi
       );
       return fOublier;
     };
@@ -1370,13 +1377,27 @@ export default class Réseau extends EventEmitter {
       return faisRien;
     };
 
+    const fQualité = async (
+      idCompte: string,
+      fSuivi: schémaFonctionSuivi<number>
+    ): Promise<schémaFonctionOublier> => {
+      const fRechercherSelonActivité = rechercherProfilSelonActivité()
+      return await fRechercherSelonActivité(
+        this.client,
+        idCompte,
+        (résultat) => {
+          fSuivi(résultat?.score || 0)
+        }
+      )
+    }
+
     return await this.rechercher(
       f,
       nRésultatsDésirés,
       fRecherche,
       fConfiance,
-      rechercherProfilSelonActivité(),
-      fObjectif!
+      fQualité,
+      fObjectif
     );
   }
 
@@ -1428,7 +1449,7 @@ export default class Réseau extends EventEmitter {
     );
   }
 
-  async rechercherObjets<T extends infoRésultatRecherche>(
+  async rechercherObjets<T extends infoRésultat>(
     f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
     clef: string,
     nRésultatsDésirés: number,
@@ -1436,6 +1457,7 @@ export default class Réseau extends EventEmitter {
       idCompte: string,
       fSuivi: (bds: string[] | undefined) => void
     ) => Promise<schémaFonctionOublier>,
+    fQualité: schémaFonctionSuivreQualitéRecherche,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
     const fRechercheFinale = async (
@@ -1483,70 +1505,101 @@ export default class Réseau extends EventEmitter {
       nRésultatsDésirés,
       fRechercheFinale,
       fConfiance,
-      rechercherProfilSelonActivité(),
+      fQualité,
       fObjectif
     );
   }
 
-  async rechercherBds<T extends infoRésultatRecherche>(
+  async rechercherBds<T extends infoRésultat>(
     f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
     const fRecherche = this.suivreBdsMembre.bind(this);
+    const fQualité = async (id: string, fSuivreQualité: schémaFonctionSuivi<number>) => {
+      const fFinaleSuivreQualité = (score: infoScore) => {
+        fSuivreQualité(score.total)
+      }
+      return await this.client.bds!.suivreScoreBd(
+        id, fFinaleSuivreQualité
+      )
+    };
 
     return await this.rechercherObjets(
       f,
+      "bds",
       nRésultatsDésirés,
       fRecherche,
+      fQualité,
       fObjectif
     );
   }
 
-  async rechercherVariables<T extends infoRésultatRecherche>(
+  async rechercherVariables<T extends infoRésultat>(
     f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
     const fRecherche = this.suivreVariablesMembre.bind(this);
 
+    const fQualité = async (id: string, fSuivreQualité: schémaFonctionSuivi<number>) => {
+      return await this.client.variables!.suivreQualitéVariable(
+        id, fSuivreQualité
+      )
+    };
+
     return await this.rechercherObjets(
       f,
       "variables",
       nRésultatsDésirés,
       fRecherche,
+      fQualité,
       fObjectif
     );
   }
 
-  async rechercherMotsClefs<T extends infoRésultatRecherche>(
+  async rechercherMotsClefs<T extends infoRésultat>(
     f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
     const fRecherche = this.suivreMotsClefsMembre.bind(this);
 
+    const fQualité = async (id: string, fSuivreQualité: schémaFonctionSuivi<number>) => {
+      return await this.client.motsClefs!.suivreQualitéMotClef(
+        id, fSuivreQualité
+      )
+    };
+
     return await this.rechercherObjets(
       f,
       "motsClefs",
       nRésultatsDésirés,
       fRecherche,
+      fQualité,
       fObjectif
     );
   }
 
-  async rechercherProjets<T extends infoRésultatRecherche>(
+  async rechercherProjets<T extends infoRésultat>(
     f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
     const fRecherche = this.suivreProjetsMembre.bind(this);
 
+    const fQualité = async (id: string, fSuivreQualité: schémaFonctionSuivi<number>) => {
+      return await this.client.projets!.suivreQualitéProjet(
+        id, fSuivreQualité
+      )
+    };
+
     return await this.rechercherObjets(
       f,
-      nRésultatsDésirés,
       "projets",
+      nRésultatsDésirés,
       fRecherche,
+      fQualité,
       fObjectif
     );
   }
@@ -1929,8 +1982,8 @@ export default class Réseau extends EventEmitter {
   async suivreBdsDeMotClefUnique(
     motClefUnique: string,
     f: schémaFonctionSuivi<string[]>,
-    nRésultatsDésirés: number
-  ): Promise<schémaFonctionOublier> {
+    nRésultatsDésirés: number,
+  ): Promise<schémaRetourFonctionRecherche> {
     const fBranche = async (
       idMembre: string,
       f: schémaFonctionSuivi<string[]>
@@ -1950,14 +2003,12 @@ export default class Réseau extends EventEmitter {
         }
       );
     };
-    const fIdBdDeBranche = (x: unknown) => (x as infoMembre).idBdCompte;
-    const fCode = (x: unknown) => (x as infoMembre).idOrbite;
 
     const fListe = async (
-      fSuivreRacine: (éléments: infoMembre[]) => Promise<void>
-    ): Promise<réponseSuivreRecherche> => {
-      return await this.rechercherMembres(
-        (membres: infoMembre[]) => fSuivreRacine(membres),
+      fSuivreRacine: (éléments: string[]) => Promise<void>
+    ): Promise<schémaRetourFonctionRecherche> => {
+      return await this.suivreComptesRéseauEtEnLigne(
+        (résultats) => fSuivreRacine(résultats.map(r=>r.idBdCompte)),
         nRésultatsDésirés
       );
     };
@@ -1965,27 +2016,26 @@ export default class Réseau extends EventEmitter {
     return await this.client.suivreBdsDeFonctionRecherche(
       fListe,
       f,
-      fBranche,
-      fIdBdDeBranche,
-      undefined,
-      fCode
+      fBranche
     );
   }
 
   async suivreÉlémentsDeTableauxUniques<T extends élémentBdListeDonnées>(
     motClefUnique: string,
     idUniqueTableau: string,
-    f: schémaFonctionSuivi<élémentDeMembre<T>[]>
-  ): Promise<schémaFonctionOublier> {
+    f: schémaFonctionSuivi<élémentDeMembre<T>[]>,
+    nBds = 100
+  ): Promise<schémaRetourFonctionRecherche> {
     const fListe = async (
       fSuivreRacine: (bds: bdDeMembre[]) => Promise<void>
-    ): Promise<schémaFonctionOublier> => {
+    ): Promise<schémaRetourFonctionRecherche> => {
       const fListeListe = async (
         fSuivreRacineListe: (bds: string[]) => Promise<void>
-      ): Promise<schémaFonctionOublier> => {
+      ): Promise<schémaRetourFonctionRecherche> => {
         return await this.suivreBdsDeMotClefUnique(
           motClefUnique,
-          fSuivreRacineListe
+          fSuivreRacineListe,
+          nBds
         );
       };
 
@@ -1993,7 +2043,7 @@ export default class Réseau extends EventEmitter {
         idBd: string,
         f: schémaFonctionSuivi<bdDeMembre | undefined>
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreAuteurs(
+        return await this.suivreAuteursBd(
           idBd,
           (auteurs: infoAuteur[]) => {
             const idBdCompte = auteurs.find((a) => a.accepté)?.idBdCompte;
@@ -2007,7 +2057,7 @@ export default class Réseau extends EventEmitter {
           }
         );
       };
-      return await this.client.suivreBdsDeFonctionListe(
+      return await this.client.suivreBdsDeFonctionRecherche(
         fListeListe,
         fSuivreRacine,
         fBrancheListe
@@ -2066,7 +2116,7 @@ export default class Réseau extends EventEmitter {
     const fIdDeBranche = (b: bdDeMembre) => b.bd;
     const fCode = (b: bdDeMembre) => b.bd;
 
-    return await this.client.suivreBdsDeFonctionListe(
+    return await this.client.suivreBdsDeFonctionRecherche(
       fListe,
       f,
       fBranche,

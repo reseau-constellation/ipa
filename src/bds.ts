@@ -7,11 +7,11 @@ import fs from "fs";
 import path from "path";
 
 import { InfoColAvecCatégorie, typeÉlémentsBdTableaux } from "@/tableaux";
-import { infoAuteur, schémaStatut, TYPES_STATUT } from "@/utils/types";
+import { schémaStatut, TYPES_STATUT } from "@/utils/types";
 
 import { règleColonne, élémentDonnées, erreurValidation } from "@/valid";
 import { élémentBdListeDonnées } from "@/tableaux";
-import ClientConstellation, { infoAccès } from "@/client";
+import ClientConstellation from "@/client";
 import {
   traduire,
   zipper,
@@ -40,7 +40,7 @@ export interface infoScore {
   accès?: number;
   couverture?: number;
   valide?: number;
-  total?: number;
+  total: number;
 }
 
 export interface donnéesBdExportées {

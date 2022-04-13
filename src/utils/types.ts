@@ -81,7 +81,6 @@ export type schémaFonctionSuivreConfianceRecherche = (
 ) => Promise<schémaFonctionOublier>;
 
 export type schémaFonctionSuivreQualitéRecherche = (
-  client: ClientConstellation,
   id: string,
   f: schémaFonctionSuivi<number>
 ) => Promise<schémaFonctionOublier>;

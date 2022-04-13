@@ -14,3 +14,5 @@ export const enregistrerContrôleurs = (): void => {
 enregistrerContrôleurs();
 
 export default AccessControllers;
+
+export * from "./consts";

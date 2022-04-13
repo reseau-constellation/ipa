@@ -147,9 +147,11 @@ export class IPAParallèle extends Callable {
       type: "oublier",
       id,
     };
+
     const fOublier = () => {
       this.envoyerMessage(messageOublier);
     };
+
     const tâche: Tâche = {
       id,
       fSuivre: f,

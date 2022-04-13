@@ -10,6 +10,7 @@ import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 
 import AccessController from "orbit-db-access-controllers/src/access-controller-interface";
+import IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller"
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -25,6 +26,7 @@ import Réseau from "@/reseau";
 import Favoris from "@/favoris";
 import Projets from "@/projets";
 import MotsClefs from "@/motsClefs";
+import Recherche from "@/recherche";
 import Automatisations from "@/automatisation";
 
 import {
@@ -97,6 +99,7 @@ export default class ClientConstellation extends EventEmitter {
   réseau?: Réseau;
   favoris?: Favoris;
   projets?: Projets;
+  recherche?: Recherche;
   motsClefs?: MotsClefs;
   automatisations?: Automatisations;
   _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
@@ -241,6 +244,8 @@ export default class ClientConstellation extends EventEmitter {
     );
     this.automatisations = new Automatisations(this, idBdAuto!);
 
+    this.recherche = new Recherche(this);
+
     this.épingles!.épinglerBd(idBdProfil!); // Celle-ci doit être récursive
     for (const idBd in [
       idBdBDs,
@@ -286,7 +291,7 @@ export default class ClientConstellation extends EventEmitter {
 
     const typeAccès = (accès.constructor as unknown as AccessController).type;
     if (typeAccès === "ipfs") {
-      f(accès.write);
+      f((accès as IPFSAccessController).write);
       fOublier();
       return faisRien;
     } else if (typeAccès === "controlleur-constellation") {
@@ -667,18 +672,11 @@ export default class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<LogEntry<T>[]>,
     renvoyerValeur: false
   ): Promise<schémaFonctionOublier>;
-
   async suivreBdListeDeClef<T extends élémentsBd>(
     id: string,
     clef: string,
     f: schémaFonctionSuivi<T[]>,
     renvoyerValeur?: true
-  ): Promise<schémaFonctionOublier>;
-  async suivreBdListeDeClef<T extends élémentsBd>(
-    id: string,
-    clef: string,
-    f: schémaFonctionSuivi<LogEntry<T>[]>,
-    renvoyerValeur: false
   ): Promise<schémaFonctionOublier>;
   async suivreBdListeDeClef<T extends élémentsBd>(
     id: string,
@@ -1244,7 +1242,7 @@ export default class ClientConstellation extends EventEmitter {
 
     if (typeAccès === "ipfs") {
       const moi = this.orbite!.identity.id;
-      f(accès.write.includes(moi) ? MEMBRE : undefined);
+      f((accès as IPFSAccessController).write.includes(moi) ? MEMBRE : undefined);
       fOublier();
       return faisRien;
     } else if (typeAccès === nomTypeContrôleurConstellation) {
@@ -1290,7 +1288,7 @@ export default class ClientConstellation extends EventEmitter {
     const typeAccès = (accès.constructor as unknown as AccessController).type;
 
     if (typeAccès === "ipfs") {
-      const listeAccès: infoAccès[] = accès.write.map((id) => {
+      const listeAccès: infoAccès[] = (accès as IPFSAccessController).write.map((id) => {
         return {
           idBdCompte: id,
           rôle: MODÉRATEUR,

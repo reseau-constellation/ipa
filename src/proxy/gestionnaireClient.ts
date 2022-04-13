@@ -80,9 +80,9 @@ export default class GestionnaireClient {
         };
 
         args.splice(iArgFonction, 0, fFinale);
-        const fSuivre = (await fonctionIPA(...args)) as schémaFonctionOublier;
+        const fOublier = (await fonctionIPA(...args)) as schémaFonctionOublier;
 
-        this.dicFOublier[id] = fSuivre;
+        this.dicFOublier[id] = fOublier;
         const messageRetour: MessageSuivrePrêtDeTravailleur = {
           type: "suivrePrêt",
           id,

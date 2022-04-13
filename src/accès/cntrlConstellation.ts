@@ -2,7 +2,7 @@ import ensureAddress from "orbit-db-access-controllers/src/utils/ensure-ac-addre
 
 import OrbitDB from "orbit-db";
 import FeedStore from "orbit-db-feedstore";
-import IdentityProvider from "orbit-db-identity-provider";
+import { IdentityProvider } from "orbit-db-identity-provider";
 import AccessController from "orbit-db-access-controllers/src/access-controller-interface";
 import { v4 as uuidv4 } from "uuid";
 
@@ -143,7 +143,7 @@ export default class ContrôleurConstellation extends AccessController {
 
   async canAppend(
     entry: LogEntry<élémentBdAccès>,
-    identityProvider: IdentityProvider
+    identityProvider: typeof IdentityProvider
   ): Promise<boolean> {
     const vraiSiSigValide = async () =>
       await identityProvider.verifyIdentity(entry.identity);
