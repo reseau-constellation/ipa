@@ -247,7 +247,7 @@ export default class ClientConstellation extends EventEmitter {
     this.recherche = new Recherche(this);
 
     this.épingles!.épinglerBd(idBdProfil!); // Celle-ci doit être récursive
-    for (const idBd in [
+    for (const idBd of [
       idBdBDs,
       idBdVariables,
       idBdRéseau,
