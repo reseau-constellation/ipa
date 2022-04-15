@@ -20,7 +20,7 @@ const assert = chai.assert;
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
-      describe("Compte", function () {
+      describe("Profil", function () {
         this.timeout(config.timeout);
 
         let fOublierClients: () => Promise<void>;
