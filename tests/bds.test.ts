@@ -15,12 +15,10 @@ import {
   schémaFonctionOublier,
   adresseOrbiteValide,
   uneFois,
-  infoAuteur,
 } from "@/utils";
 import { InfoColAvecCatégorie } from "@/tableaux";
 import { infoScore, schémaSpécificationBd } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
-import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
 import { élémentDonnées, règleBornes } from "@/valid";
 
 import { testAPIs, config } from "./sfipTest";
@@ -270,86 +268,6 @@ typesClients.forEach((type) => {
 
         describe("Statut BD", function () {
           step("À faire");
-        });
-
-        describe("Auteurs", function () {
-          let idBdAuteurs: string;
-          const rés: { ultat?: infoAuteur[] } = {};
-
-          let fOublier: schémaFonctionOublier;
-
-          before(async () => {
-            idBdAuteurs = await client.bds!.créerBd("ODbl-1_0");
-            fOublier = await client.bds!.suivreAuteurs(
-              idBdAuteurs,
-              (a) => (rés.ultat = a)
-            );
-          });
-
-          after(async () => {
-            if (fOublier) fOublier();
-          });
-
-          step("Juste moi pour commencer", async () => {
-            expect(rés.ultat).to.be.an("array").with.lengthOf(1);
-            const moi = rés.ultat![0];
-            expect(moi?.accepté).to.be.true;
-            expect(moi?.idBdCompte).to.equal(idBdCompte1);
-            expect(moi?.rôle).to.equal(MODÉRATEUR);
-          });
-
-          step("Inviter un membre", async () => {
-            await client.bds!.inviterAuteur(idBdAuteurs, idBdCompte2, MEMBRE);
-            await attendreRésultat(
-              rés,
-              "ultat",
-              (x: infoAuteur[]) => x && x.length === 2
-            );
-
-            expect(rés.ultat).to.be.an("array").with.lengthOf(2);
-
-            const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdCompte === idBdCompte2
-            );
-            expect(nouvelAuteur).to.exist;
-            expect(nouvelAuteur?.accepté).to.be.false;
-            expect(nouvelAuteur?.rôle).to.equal(MEMBRE);
-          });
-
-          step("Accepter une invitation", async () => {
-            await client2.bds!.ajouterÀMesBds(idBdAuteurs);
-
-            await attendreRésultat(
-              rés,
-              "ultat",
-              (x: infoAuteur[]) => x && x[1]?.accepté
-            );
-
-            const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdCompte === idBdCompte2
-            );
-            expect(nouvelAuteur?.accepté).to.be.true;
-          });
-
-          step("Promotion à modérateur", async () => {
-            await client.bds!.inviterAuteur(
-              idBdAuteurs,
-              idBdCompte2,
-              MODÉRATEUR
-            );
-
-            await attendreRésultat(
-              rés,
-              "ultat",
-              (x: infoAuteur[]) => x && x[1]?.rôle === MODÉRATEUR
-            );
-
-            const nouvelAuteur = rés.ultat?.find(
-              (x) => x.idBdCompte === idBdCompte2
-            );
-            expect(nouvelAuteur?.accepté).to.be.true; // L'acceptation de l'invitation est toujours valide
-            expect(nouvelAuteur?.rôle).to.equal(MODÉRATEUR);
-          });
         });
 
         describe("Tableaux", function () {
