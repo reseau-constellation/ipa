@@ -256,7 +256,7 @@ export default class ClientConstellation extends EventEmitter {
       idBdMotsClefs,
       idBdAuto,
     ]) {
-      this.épingles!.épinglerBd(idBd, false, false);
+      this.épingles!.épinglerBd(idBd!, false, false);
     }
   }
 
