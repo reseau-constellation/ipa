@@ -665,7 +665,6 @@ export default class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<T[]>,
     renvoyerValeur?: true
   ): Promise<schémaFonctionOublier>;
-
   async suivreBdListeDeClef<T extends élémentsBd>(
     id: string,
     clef: string,
