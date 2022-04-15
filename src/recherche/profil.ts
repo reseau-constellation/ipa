@@ -55,21 +55,22 @@ export const rechercherProfilSelonActivité =
         infosCompte.image = image;
         fSuivreRecherche(calculerScore());
       };
-      const fSuivreCourriel = (courriel: string | null) => {
+      const fSuivreCourriel = (courriel: string | null | undefined) => {
         infosCompte.courriel = courriel;
         fSuivreRecherche(calculerScore());
       };
-      const fOublierNoms = await client.profil!.suivreNoms(
-        fSuivreNoms,
-        idCompte
+
+      const fOublierNoms = await client.réseau!.suivreNomsMembre(
+        idCompte,
+        fSuivreNoms
       );
-      const fOublierImage = await client.profil!.suivreImage(
+      const fOublierImage = await client.réseau!.suivreImageMembre(
+        idCompte,
         fSuivreImage,
-        idCompte
       );
-      const fOublierCourriel = await client.profil!.suivreCourriel(
+      const fOublierCourriel = await client.réseau!.suivreCourrielMembre(
+        idCompte,
         fSuivreCourriel,
-        idCompte
       );
 
       const fOublier = () => {
@@ -77,6 +78,7 @@ export const rechercherProfilSelonActivité =
         fOublierImage();
         fOublierCourriel();
       };
+
       return fOublier;
     };
   };
@@ -104,7 +106,10 @@ export const rechercherProfilSelonNom = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.profil!.suivreNoms(fSuivre, idCompte);
+    const fOublier = await client.réseau!.suivreNomsMembre(
+      idCompte,
+      fSuivre
+    );
     return fOublier;
   };
 };
@@ -117,7 +122,7 @@ export const rechercherProfilSelonCourriel = (
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (courrielProfil: string | null) => {
+    const fSuivre = (courrielProfil: string | null | undefined) => {
       const corresp = courrielProfil
         ? rechercherDansTexte(courriel, courrielProfil)
         : undefined;
@@ -134,7 +139,10 @@ export const rechercherProfilSelonCourriel = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.profil!.suivreCourriel(fSuivre, idCompte);
+    const fOublier = await client.réseau!.suivreCourrielMembre(
+      idCompte,
+      fSuivre
+    );
     return fOublier;
   };
 };
@@ -181,7 +189,10 @@ export const rechercherProfilSelonImage = (
         info: { type: "vide" },
       });
     };
-    const fOublier = await client.profil!.suivreImage(fSuivre, idCompte);
+    const fOublier = await client.réseau!.suivreImageMembre(
+      idCompte,
+      fSuivre
+    );
     return fOublier;
   };
 };
