@@ -55,7 +55,7 @@
     "@babel/preset-env": "^7.16.0",
     "@babel/preset-flow": "^7.16.0",
     "@babel/preset-typescript": "^7.16.0",
-    "@constl/orbit-db-types": "1.0.1",
+    "@constl/orbit-db-types": "^1.0.2",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^21.0.1",
