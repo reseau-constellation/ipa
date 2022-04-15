@@ -20,6 +20,7 @@ import {
   infoRésultat,
   infoRésultatVide,
   résultatObjectifRecherche,
+  résultatRecherche,
   faisRien,
 } from "@/utils";
 import { infoScore } from "@/bds";
@@ -1118,7 +1119,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async rechercher<T extends (infoRésultat | infoRésultatVide)>(
-    f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     nRésultatsDésirés: number,
     fRecherche: (
       compte: string,
@@ -1139,7 +1140,7 @@ export default class Réseau extends EventEmitter {
 
     const résultatsParMembre: {
       [key: string]: {
-        résultats: résultatObjectifRecherche<T>[];
+        résultats: résultatRecherche<T>[];
         membre: infoMembreRéseau;
         fOublierRecherche: schémaFonctionOublier;
         mettreÀJour: (membre: infoMembreRéseau) => void;
@@ -1161,7 +1162,7 @@ export default class Réseau extends EventEmitter {
       const scores = Object.values(résultatsParMembre)
         .map((r) => r.résultats)
         .flat()
-        .map((r) => r.score);
+        .map((r) => r.résultatObjectif.score);
       const pireScoreInclus =
         scores.length >= nRésultatsDésirés
           ? Math.min(...scores.slice(0, nRésultatsDésirés))
@@ -1174,7 +1175,7 @@ export default class Réseau extends EventEmitter {
           return r;
         },
         {} as {
-          [key: string]: résultatObjectifRecherche<T>[];
+          [key: string]: résultatRecherche<T>[];
         }
       );
 
@@ -1183,7 +1184,7 @@ export default class Réseau extends EventEmitter {
         .map((p) => p[1]);
 
       const nScoresInclusParProfondeur = lParProfondeur.map(
-        (rs) => rs.filter((r) => r.score >= pireScoreInclus).length
+        (rs) => rs.filter((r) => r.résultatObjectif.score >= pireScoreInclus).length
       );
 
       const dernierTrois = nScoresInclusParProfondeur.slice(
@@ -1212,14 +1213,14 @@ export default class Réseau extends EventEmitter {
     };
 
     const fFinale = () => {
-      const résultats: résultatObjectifRecherche<T>[] = Object.values(
+      const résultats: résultatRecherche<T>[] = Object.values(
         résultatsParMembre
       )
         .map((listeRésultats) => listeRésultats.résultats)
         .flat();
 
       const résultatsOrdonnés = résultats.sort((a, b) =>
-        a.score < b.score ? -1 : 1
+        a.résultatObjectif.score < b.résultatObjectif.score ? -1 : 1
       );
       f(résultatsOrdonnés.slice(0, nRésultatsDésirés));
       débuterReboursAjusterProfondeur();
@@ -1239,14 +1240,14 @@ export default class Réseau extends EventEmitter {
         );
       };
 
-      const fSuivi = (résultats: résultatObjectifRecherche<T>[]) => {
+      const fSuivi = (résultats: résultatRecherche<T>[]) => {
         résultatsParMembre[idBdCompte].résultats = résultats;
       };
 
       const fBranche = async (
         id: string,
         fSuivreBranche: schémaFonctionSuivi<
-          résultatObjectifRecherche<T> | undefined
+          résultatRecherche<T> | undefined
         >
       ): Promise<schémaFonctionOublier> => {
         const rés: {
@@ -1261,8 +1262,11 @@ export default class Réseau extends EventEmitter {
           const { objectif, confiance, qualité } = rés;
           if (objectif && confiance !== undefined && qualité !== undefined) {
             const { type, de, info } = objectif
-            const résultatFinalBranche: résultatObjectifRecherche<T> = {
-              type, de, info, score: fScore!(rés as résultatRechercheSansScore<T>),
+            const résultatFinalBranche: résultatRecherche<T> = {
+              id,
+              résultatObjectif: {
+                type, de, info, score: fScore!(rés as résultatRechercheSansScore<T>)
+              },
             };
             fSuivreBranche(résultatFinalBranche);
           }
@@ -1303,7 +1307,7 @@ export default class Réseau extends EventEmitter {
         await this.client.suivreBdsDeFonctionListe(fListe, fSuivi, fBranche);
 
       résultatsParMembre[idBdCompte] = {
-        résultats: [] as résultatObjectifRecherche<T>[],
+        résultats: [] as résultatRecherche<T>[],
         membre,
         fOublierRecherche: fOublierRechercheMembre,
         mettreÀJour: () => {
@@ -1354,7 +1358,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async rechercherMembres<T extends infoRésultat>(
-    f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
@@ -1450,7 +1454,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async rechercherObjets<T extends infoRésultat>(
-    f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     clef: string,
     nRésultatsDésirés: number,
     fRecherche: (
@@ -1511,7 +1515,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async rechercherBds<T extends infoRésultat>(
-    f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
@@ -1536,7 +1540,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async rechercherVariables<T extends infoRésultat>(
-    f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
@@ -1559,7 +1563,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async rechercherMotsClefs<T extends infoRésultat>(
-    f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
@@ -1582,7 +1586,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async rechercherProjets<T extends infoRésultat>(
-    f: schémaFonctionSuivi<résultatObjectifRecherche<T>[]>,
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>,
     nRésultatsDésirés: number,
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>
   ): Promise<réponseSuivreRecherche> {
@@ -1979,7 +1983,7 @@ export default class Réseau extends EventEmitter {
     return { fOublier, fChangerProfondeur };
   }
 
-  async suivreBdsDeMotClefUnique(
+  async suivreBdsDeMotClef(
     motClefUnique: string,
     f: schémaFonctionSuivi<string[]>,
     nRésultatsDésirés: number,
@@ -2032,7 +2036,7 @@ export default class Réseau extends EventEmitter {
       const fListeListe = async (
         fSuivreRacineListe: (bds: string[]) => Promise<void>
       ): Promise<schémaRetourFonctionRecherche> => {
-        return await this.suivreBdsDeMotClefUnique(
+        return await this.suivreBdsDeMotClef(
           motClefUnique,
           fSuivreRacineListe,
           nBds

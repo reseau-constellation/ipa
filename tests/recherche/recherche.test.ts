@@ -6,7 +6,7 @@ import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
-  résultatObjectifRecherche,
+  résultatRecherche,
   infoRésultatTexte,
 } from "@/utils";
 
@@ -42,11 +42,11 @@ typesClients.forEach((type) => {
           if (fOublierClients) await fOublierClients();
         });
 
-        describe("Membres", async () => {
+        describe("Profils", async () => {
           let fOublier: schémaFonctionOublier;
           let fChangerN: (n: number) => void;
 
-          const rés: { ultat?: résultatObjectifRecherche<infoRésultatTexte>[] } = {}
+          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {}
           before(async () => {
             ({ fOublier, fChangerN } = await client.recherche!.rechercherProfilSelonNom(
               "Julien",
@@ -60,18 +60,21 @@ typesClients.forEach((type) => {
           });
 
           step("Moins de résultats que demandé s'il n'y a vraiment rien", async () => {
-            const réf: résultatObjectifRecherche<infoRésultatTexte>[] = [
+            const réf: résultatRecherche<infoRésultatTexte>[] = [
               {
-                score: 1,
-                type: "résultat",
-                de: "nom",
-                info: {
-                  type: "texte",
-                  texte: "Julien",
-                  début: 0,
-                  fin: 6
+                id: client2.idBdCompte!,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  info: {
+                    type: "texte",
+                    texte: "Julien",
+                    début: 0,
+                    fin: 6
+                  }
                 }
-              }
+              },
             ]
             await client2.profil!.sauvegarderNom("fr", "Julien");
 
@@ -80,19 +83,106 @@ typesClients.forEach((type) => {
           })
 
           step("On suit les changements", async () => {
+            const réf: résultatRecherche<infoRésultatTexte>[] = [
+              {
+                id: client2.idBdCompte!,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  info: {
+                    type: "texte",
+                    texte: "Julien",
+                    début: 0,
+                    fin: 6
+                  }
+                }
+              },
+              {
+                id: client3.idBdCompte!,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  info: {
+                    type: "texte",
+                    texte: "Julien",
+                    début: 0,
+                    fin: 6
+                  }
+                }
+              }
+            ]
             await client3.profil!.sauvegarderNom("fr", "Julien");
-            // expect(rés.ultat).to.have.deep.members(réf);
+
+            await attendreRésultat(rés, "ultat", x=>x.length > 1);
+            expect(rés.ultat).to.have.deep.members(réf);
           })
 
-
-          step("Changer N désiré", async () => {
+          step("Diminuer N désiré", async () => {
+            const réf: résultatRecherche<infoRésultatTexte>[] = [
+              {
+                id: client2.idBdCompte!,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  info: {
+                    type: "texte",
+                    texte: "Julien",
+                    début: 0,
+                    fin: 6
+                  }
+                }
+              },
+            ]
             fChangerN(1);
-            // expect(rés.ultat).to.have.deep.members(réf);
+
+            await attendreRésultat(rés, "ultat", x=>x.length === 1);
+            expect(rés.ultat).to.have.deep.members(réf);
+          });
+
+          step("Augmenter N désiré", async () => {
+            const réf: résultatRecherche<infoRésultatTexte>[] = [
+              {
+                id: client2.idBdCompte!,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  info: {
+                    type: "texte",
+                    texte: "Julien",
+                    début: 0,
+                    fin: 6
+                  }
+                }
+              },
+              {
+                id: client3.idBdCompte!,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  info: {
+                    type: "texte",
+                    texte: "Julien",
+                    début: 0,
+                    fin: 6
+                  }
+                }
+              }
+            ];
+            fChangerN(2);
+
+            await attendreRésultat(rés, "ultat", x=>x.length === 1);
+            expect(rés.ultat).to.have.deep.members(réf);
           });
 
         });
-        describe.skip("Variables", async () => {});
+
         describe.skip("Mots-clefs", async () => {});
+        describe.skip("Variables", async () => {});
         describe.skip("Bds", async () => {});
         describe.skip("Projets", async () => {});
       });

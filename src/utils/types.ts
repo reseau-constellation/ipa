@@ -65,6 +65,11 @@ export interface résultatObjectifRecherche<T extends infoRésultat>
   score: number;
 }
 
+export interface résultatRecherche<T extends infoRésultat> {
+  résultatObjectif: résultatObjectifRecherche<T>;
+  id: string;
+}
+
 export type schémaFonctionSuivreObjectifRecherche<T extends infoRésultat> = (
   client: ClientConstellation,
   id: string,
