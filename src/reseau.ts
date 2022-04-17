@@ -1241,7 +1241,9 @@ export default class Réseau extends EventEmitter {
       };
 
       const fSuivi = (résultats: résultatRecherche<T>[]) => {
+        console.log({idBdCompte, résultats})
         résultatsParMembre[idBdCompte].résultats = résultats;
+        fFinale();
       };
 
       const fBranche = async (
