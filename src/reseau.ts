@@ -1288,8 +1288,8 @@ export default class Réseau extends EventEmitter {
         };
         const fOublierConfiance = await fConfiance(id, fSuivreConfiance);
 
-        const fSuivreQualité = (confiance?: number) => {
-          rés.confiance = confiance;
+        const fSuivreQualité = (qualité?: number) => {
+          rés.qualité = qualité;
           fFinaleSuivreBranche();
         };
         const fOublierQualité = await fQualité(id, fSuivreQualité);
