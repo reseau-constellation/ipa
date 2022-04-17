@@ -1350,7 +1350,9 @@ export default class Réseau extends EventEmitter {
       await this.suivreComptesRéseauEtEnLigne(fSuivreComptes, profondeur);
 
     const fChangerN = (nouveauN: number) => {
+      const nDésirésAvant = nRésultatsDésirés
       nRésultatsDésirés = nouveauN;
+      if (nouveauN !== nDésirésAvant) fFinale();
       débuterReboursAjusterProfondeur(0);
     };
 
