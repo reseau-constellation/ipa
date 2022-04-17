@@ -143,7 +143,7 @@ export default class Recherche {
     nRésultatsDésirés: number,
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = utils.rechercherSelonId(idBd);
-    return await this.client.réseau!.rechercherVariables(
+    return await this.client.réseau!.rechercherBds(
       f,
       nRésultatsDésirés,
       fObjectif
