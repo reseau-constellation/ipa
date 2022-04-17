@@ -39,6 +39,39 @@ export const rechercherVariableSelonNom = (
   };
 };
 
+
+export const rechercherVariableSelonDescr = (
+  descr: string
+): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
+  return async (
+    client: ClientConstellation,
+    idVariable: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+  ): Promise<schémaFonctionOublier> => {
+    const fSuivre = (nomsVariable: { [key: string]: string }) => {
+      const résultat = similTexte(descr, nomsVariable);
+      if (résultat) {
+        const { score, clef, info } = résultat;
+        fSuivreRecherche({
+          type: "résultat",
+          score,
+          de: "descr",
+          clef,
+          info,
+        });
+      } else {
+        fSuivreRecherche();
+      }
+    };
+    const fOublier = await client.variables!.suivreDescrVariable(
+      idVariable,
+      fSuivre
+    );
+    return fOublier;
+  };
+};
+
+
 export const rechercherVariableSelonTexte = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {

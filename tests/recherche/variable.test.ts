@@ -112,6 +112,74 @@ typesClients.forEach((type) => {
           });
         });
 
+        describe("Selon descr", function () {
+          let idVariable: string;
+          let résultat:
+            | résultatObjectifRecherche<infoRésultatTexte>
+            | undefined;
+          let fOublier: schémaFonctionOublier;
+
+          before(async () => {
+            idVariable = await client.variables!.créerVariable("numérique");
+
+            const fRecherche = rechercherVariableSelonDescr("Radiation solaire");
+            fOublier = await fRecherche(
+              client,
+              idVariable,
+              (r) => (résultat = r)
+            );
+          });
+
+          after(() => {
+            if (fOublier) fOublier();
+          });
+
+          step("Pas de résultat quand la variable n'a pas de description", async () => {
+            expect(résultat).to.be.undefined;
+          });
+          it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
+            await client.variables!.ajouterDescriptionsVariable(idVariable, {
+              த: "சூரிய கதிர்வீச்சு",
+            });
+            expect(résultat).to.be.undefined;
+          });
+          it("Résultat si la variable est presque exacte", async () => {
+            await client.variables!.ajouterDescriptionsVariable(idVariable, {
+              es: "Radiación solar",
+            });
+
+            expect(résultat).to.deep.equal({
+              type: "résultat",
+              clef: "es",
+              de: "nom",
+              info: {
+                type: "texte",
+                début: 0,
+                fin: 15,
+                texte: "Radiación solar",
+              },
+              score: 0.2,
+            });
+          });
+          it("Résultat si la description est exacte", async () => {
+            await client.variables!.ajouterDescriptionsVariable(idVariable, {
+              fr: "Radiation solaire",
+            });
+            expect(résultat).to.deep.equal({
+              type: "résultat",
+              clef: "fr",
+              de: "nom",
+              info: {
+                type: "texte",
+                début: 0,
+                fin: 17,
+                texte: "Radiation solaire",
+              },
+              score: 1,
+            });
+          });
+        });
+
         describe("Selon texte", function () {
           let idVariable: string;
           let résultatId:
