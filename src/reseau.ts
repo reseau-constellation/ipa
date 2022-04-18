@@ -1218,9 +1218,8 @@ export default class Réseau extends EventEmitter {
       )
         .map((listeRésultats) => listeRésultats.résultats)
         .flat();
-
       const résultatsOrdonnés = résultats.sort((a, b) =>
-        a.résultatObjectif.score < b.résultatObjectif.score ? -1 : 1
+        a.résultatObjectif.score < b.résultatObjectif.score ? 1 : -1
       );
       f(résultatsOrdonnés.slice(0, nRésultatsDésirés));
       débuterReboursAjusterProfondeur();
@@ -1241,7 +1240,6 @@ export default class Réseau extends EventEmitter {
       };
 
       const fSuivi = (résultats: résultatRecherche<T>[]) => {
-        console.log({idBdCompte, résultats})
         résultatsParMembre[idBdCompte].résultats = résultats;
         fFinale();
       };
@@ -1269,7 +1267,6 @@ export default class Réseau extends EventEmitter {
                 ...objectif, score: fScore!(rés as résultatRechercheSansScore<T>)
               },
             };
-            console.log({résultatFinalBranche})
             fSuivreBranche(résultatFinalBranche);
           }
         };
