@@ -470,6 +470,19 @@ export default class Recherche {
     )
   }
 
+  async rechercherProjetSelonBd(
+    idBd: string,
+    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>>[]>,
+    nRésultatsDésirés: number,
+  ): Promise<réponseSuivreRecherche> {
+    const fObjectif = projet.rechercherProjetSelonBd(idBd);
+    return await this.client.réseau!.rechercherProjets(
+      f,
+      nRésultatsDésirés,
+      fObjectif
+    )
+  }
+
 
   async rechercherProjetSelonTexte(
     texte: string,
