@@ -1263,13 +1263,13 @@ export default class Réseau extends EventEmitter {
         const fFinaleSuivreBranche = () => {
           const { objectif, confiance, qualité } = rés;
           if (objectif && confiance !== undefined && qualité !== undefined) {
-            const { type, de, info } = objectif
             const résultatFinalBranche: résultatRecherche<T> = {
               id,
               résultatObjectif: {
-                type, de, info, score: fScore!(rés as résultatRechercheSansScore<T>)
+                ...objectif, score: fScore!(rés as résultatRechercheSansScore<T>)
               },
             };
+            console.log({résultatFinalBranche})
             fSuivreBranche(résultatFinalBranche);
           }
         };
