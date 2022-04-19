@@ -840,6 +840,13 @@ export default class Réseau extends EventEmitter {
     idCompteDébut?: string
   ): Promise<schémaRetourFonctionRecherche> {
     const fSuivi = (relations: infoRelation[]) => {
+      // Ajouter soi-même
+      relations.push({
+        de: this.client!.idBdCompte!,
+        pour: this.client!.idBdCompte!,
+        confiance: 1,
+        profondeur: 0
+      })
       const dicRelations: { [key: string]: infoRelation[] } = {};
 
       relations.forEach((r) => {
