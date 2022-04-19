@@ -4,6 +4,7 @@ import { step } from "mocha-steps";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
+import { statutMembre } from "@/reseau";
 import {
   schémaFonctionOublier,
   résultatRecherche,
@@ -39,13 +40,13 @@ const vérifierRecherche = (résultats: résultatRecherche<infoRésultat>[], ré
   expect(résultatsSansScore).to.have.deep.members(réfSansScore);
   for (const clef of Object.keys(scoresRésultat)) {
     const rés = scoresRésultat[clef];
-    (scores[clef] || ((x: number) => expect(x).to.be.greaterThan(0).and.lessThan(1)))(rés)
+    (scores[clef] || ((x: number) => expect(x).to.be.greaterThan(0).and.lessThanOrEqual(1)))(rés)
   }
 
 }
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe.skip("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
 
       describe("Rechercher dans réseau", function () {
@@ -977,14 +978,14 @@ typesClients.forEach((type) => {
             });
           });
 
-          describe("selon bd", () => {
+          describe.skip("selon bd", () => {
             let fOublier: schémaFonctionOublier;
             const rés: { ultat?: résultatRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>>[] } = {};
 
             before(async () => {
               ({ fOublier } = await client.recherche!.rechercherProjetSelonBd(
                 "meteorología",
-                bds => rés.ultat = bds,
+                projets => rés.ultat = projets,
                 2,
               ));
             })
@@ -1053,6 +1054,221 @@ typesClients.forEach((type) => {
               await attendreRésultat(rés, "ultat", x=>x && !!x.length);
               vérifierRecherche(rés.ultat!, [réf]);
             });
+          });
+        });
+      });
+    });
+  });
+});
+
+typesClients.forEach((type) => {
+  describe.only("Client " + type, function () {
+    Object.keys(testAPIs).forEach((API) => {
+
+      describe("Test fonctionnalités recherche", function () {
+        this.timeout(config.timeout * 2);
+
+        let fOublierClients: () => Promise<void>;
+        let clients: ClientConstellation[];
+        let client: ClientConstellation;
+
+        before(async () => {
+          enregistrerContrôleurs();
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+          5,
+            API,
+            type
+          ));
+          client = clients[0]
+          for (const [i, c] of clients.entries()) {
+            if (i < clients.length - 1) {
+              await c.réseau!.faireConfianceAuMembre(clients[i + 1].idBdCompte!)
+            }
+          }
+        });
+
+        after(async () => {
+          if (fOublierClients) await fOublierClients();
+        });
+
+        describe("Rechercher de réseau", () => {
+          this.timeout(config.timeout);
+          let fOublierRecherche: schémaFonctionOublier;
+          let fChangerN: (x: number) => void
+
+          const rés: { membresEnLigne?: statutMembre[], motsClefs?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const fsOublier: schémaFonctionOublier[] = [];
+          const motsClefs: { [key: string]: string } = {};
+
+
+          before(async () => {
+            fsOublier.push(
+              await client.réseau!.suivreConnexionsMembres(m=>rés.membresEnLigne = m)
+            );
+            await attendreRésultat(rés, "membresEnLigne", x => x && x.length === 5);
+
+            for (const c of clients) {
+              const idMotClef = await c.motsClefs!.créerMotClef();
+              motsClefs[c.idBdCompte!] = idMotClef;
+
+              c.réseau!.recevoirSalut = async () => {}
+              c.réseau!.dispositifsEnLigne = {}
+              c.réseau!.emit("membreVu");
+            };
+
+            await attendreRésultat(rés, "membresEnLigne", x => x && !x.length);
+
+            ({
+              fOublier: fOublierRecherche,
+              fChangerN
+            } = await client.recherche!.rechercherMotClefSelonNom(
+              "ភ្លៀង",
+              r => rés.motsClefs = r,
+              5
+            ));
+            fsOublier.push(fOublierRecherche);
+          });
+
+          after(async () => {
+            fsOublier.forEach(f=>f());
+          })
+
+          step("Mes objets sont détectés", async () => {
+            const idMotClef = motsClefs[client.idBdCompte!];
+            const réf: résultatRecherche<infoRésultatTexte>[] = [
+              {
+                id: idMotClef,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "ខ្មែរ",
+                  info: {
+                    type: "texte",
+                    texte: "ភ្លៀង",
+                    début: 0,
+                    fin: 5
+                  }
+                }
+              }
+            ];
+
+            await client.motsClefs!.ajouterNomsMotClef(idMotClef, { ខ្មែរ: "ភ្លៀង" });
+
+            await attendreRésultat(rés, "motsClefs", x => x && !!x.length);
+            vérifierRecherche(rés.motsClefs!, réf);
+          });
+
+          step("Objet devient intéressant", async () => {
+            const réf: résultatRecherche<infoRésultatTexte>[] = [];
+
+            for (const c of clients) {
+              const idMotClef = motsClefs[c.idBdCompte!];
+              réf.push({
+                id: idMotClef,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "ខ្មែរ",
+                  info: {
+                    type: "texte",
+                    texte: "ភ្លៀង",
+                    début: 0,
+                    fin: 5
+                  }
+                }
+              });
+              if (c === client) continue;
+
+              await c.motsClefs!.ajouterNomsMotClef(idMotClef, { ខ្មែរ: "ភ្លៀង" });
+            }
+
+            await attendreRésultat(rés, "motsClefs", x => x && x.length >= 5);
+            vérifierRecherche(rés.motsClefs!, réf);
+          });
+
+          step("Objet ne correspond plus", async () => {
+            const idMotClef = motsClefs[clients[4].idBdCompte!];
+            await clients[4].motsClefs!.effacerNomMotClef(idMotClef, "ខ្មែរ");
+
+            const réf: résultatRecherche<infoRésultatTexte>[] = [];
+            for (const c of clients) {
+              const idMC = motsClefs[c.idBdCompte!];
+              if (idMC === idMotClef) continue;
+              réf.push({
+                id: idMC,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "ខ្មែរ",
+                  info: {
+                    type: "texte",
+                    texte: "ភ្លៀង",
+                    début: 0,
+                    fin: 5
+                  }
+                }
+              });
+            }
+
+            await attendreRésultat(rés, "motsClefs", x => x && x.length <= 4);
+            vérifierRecherche(rés.motsClefs!, réf);
+          });
+
+          step("Diminuer N", async () => {
+            fChangerN(3);
+
+            const réf: résultatRecherche<infoRésultatTexte>[] = [];
+            for (const c of clients.slice(0, 3)) {
+              const idMC = motsClefs[c.idBdCompte!];
+              réf.push({
+                id: idMC,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "ខ្មែរ",
+                  info: {
+                    type: "texte",
+                    texte: "ភ្លៀង",
+                    début: 0,
+                    fin: 5
+                  }
+                }
+              });
+            };
+
+            await attendreRésultat(rés, "motsClefs", x => x && x.length <= 3);
+            vérifierRecherche(rés.motsClefs!, réf);
+          });
+
+          step("Augmenter N", async () => {
+            fChangerN(10);
+
+            const réf: résultatRecherche<infoRésultatTexte>[] = [];
+            for (const c of clients.slice(0, 4)) {
+              const idMC = motsClefs[c.idBdCompte!];
+              réf.push({
+                id: idMC,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "ខ្មែរ",
+                  info: {
+                    type: "texte",
+                    texte: "ភ្លៀង",
+                    début: 0,
+                    fin: 5
+                  }
+                }
+              });
+            };
+
+            await attendreRésultat(rés, "motsClefs", x => x && x.length >= 4);
+            vérifierRecherche(rés.motsClefs!, réf);
           });
         });
       });
