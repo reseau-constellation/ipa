@@ -11,13 +11,9 @@ import AdmZip from "adm-zip";
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import {
-  schémaFonctionSuivi,
   schémaFonctionOublier,
   adresseOrbiteValide,
-  uneFois,
-  infoAuteur,
 } from "@/utils";
-import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
 
 import { testAPIs, config } from "./sfipTest";
 import { générerClients, attendreRésultat, typesClients } from "./utils";
@@ -34,37 +30,17 @@ typesClients.forEach((type) => {
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
         let client: ClientConstellation;
-        let client2: ClientConstellation;
-
-        let idBdRacine1: string;
-        let idBdRacine2: string;
 
         let idProjet: string;
 
         before(async () => {
           enregistrerContrôleurs();
           ({ fOublier: fOublierClients, clients } = await générerClients(
-            2,
+            1,
             API,
             type
           ));
           client = clients[0];
-          client2 = clients[1];
-
-          idBdRacine1 = await uneFois(
-            async (
-              fSuivi: schémaFonctionSuivi<string>
-            ): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdBdCompte(fSuivi);
-            }
-          );
-          idBdRacine2 = await uneFois(
-            async (
-              fSuivi: schémaFonctionSuivi<string>
-            ): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdBdCompte(fSuivi);
-            }
-          );
         });
 
         after(async () => {
@@ -305,7 +281,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               rés,
               "motsClefs",
-              (x?: string[]) => x && x.length > 0
+              x => x && x.length > 0
             );
 
             expect(rés.motsClefs).to.be.an("array").of.length(1);
