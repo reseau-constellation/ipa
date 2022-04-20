@@ -393,6 +393,11 @@ export default class ClientConstellation extends EventEmitter {
     return this.orbite!.identity.id;
   }
 
+  async obtIdCompte(): Promise<string> {
+    if (!this.idBdCompte) await once(this, "prêt");
+    return this.idBdCompte!;
+  }
+
   async copierContenuBdListe<T extends élémentsBd = élémentsBd>(
     bdBase: KeyValueStore<string>,
     nouvelleBd: KeyValueStore<string>,
