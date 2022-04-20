@@ -3,6 +3,7 @@ import { IDResult } from "ipfs-core-types/src/root";
 import { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
 import crypto from "crypto";
+import { asymmetric, randomKey } from '@herbcaudill/crypto'
 
 import OrbitDB from "orbit-db";
 import Store from "orbit-db-store";
@@ -27,6 +28,7 @@ import Favoris from "@/favoris";
 import Projets from "@/projets";
 import MotsClefs from "@/motsClefs";
 import Recherche from "@/recherche";
+import { ContenuMessageRejoindreCompte } from "@/reseau";
 import Automatisations from "@/automatisation";
 
 import {
@@ -83,6 +85,8 @@ type bdOuverte<T extends Store> = { bd: T; idsRequètes: string[] };
 
 type typeÉlémentsBdCompteClient = string;
 
+const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5  // 5 minutes
+
 export default class ClientConstellation extends EventEmitter {
   _opts: optsConstellation;
   optionsAccès?: { [key: string]: unknown };
@@ -107,6 +111,8 @@ export default class ClientConstellation extends EventEmitter {
   prêt: boolean;
   idBdCompte?: string;
   sujet_réseau: string;
+  clefsEncryption: { publicKey: string, secretKey: string};
+  motsDePasseRejoindreCompte: {[key: string]: number};
 
   constructor(opts: optsConstellation = {}) {
     super();
@@ -115,6 +121,8 @@ export default class ClientConstellation extends EventEmitter {
     this._bds = {};
     this.prêt = false;
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
+    this.clefsEncryption = asymmetric.keyPair()
+    this.motsDePasseRejoindreCompte = {};
   }
 
   async initialiser(): Promise<void> {
@@ -281,6 +289,28 @@ export default class ClientConstellation extends EventEmitter {
     );
   }
 
+  encrypter(
+    message: string,
+    clefPubliqueDestinataire: string
+  ): string {
+    return asymmetric.encrypt({
+      secret: message,
+      recipientPublicKey: clefPubliqueDestinataire,
+      senderSecretKey: this.clefsEncryption.secretKey,
+    });
+  }
+
+  async décrypter(
+    message: string,
+    clefPubliqueExpéditeur: string,
+  ): Promise<string> {
+    return asymmetric.decrypt({
+      cipher: message,
+      senderPublicKey: clefPubliqueExpéditeur,
+      recipientSecretKey: this.clefsEncryption.secretKey,
+    });
+  }
+
   async suivreDispositifs(
     f: schémaFonctionSuivi<string[]>,
     idBdCompte?: string
@@ -312,16 +342,34 @@ export default class ClientConstellation extends EventEmitter {
     }
   }
 
-  async ajouterDispositif(identité: string): Promise<void> {
-    if (!this.bdCompte) await once(this, "prêt");
-    const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
-    accès.grant(MODÉRATEUR, identité);
+  async générerInvitationRejoindreCompte(): Promise<{ idCompte: string, codeSecret: string}> {
+    const idCompte = await this.obtIdCompte();
+    const codeSecret = randomKey();
+    this.motsDePasseRejoindreCompte[codeSecret] = Date.now();
+    return { idCompte, codeSecret }
   }
 
-  async enleverDispositif(identité: string): Promise<void> {
+  async considérerRequèteRejoindreCompte(requète: ContenuMessageRejoindreCompte): Promise<void> {
+    const { idOrbite, codeSecret } = requète;
+    const maintenant = Date.now();
+
+    const requèteValide = ((this.motsDePasseRejoindreCompte[codeSecret] || -Infinity) - maintenant) < DÉLAI_EXPIRATION_INVITATIONS;
+    if (requèteValide) {
+      delete this.motsDePasseRejoindreCompte[codeSecret];
+      await this.ajouterDispositif(idOrbite);
+    }
+  }
+
+  async ajouterDispositif(idOrbite: string): Promise<void> {
     if (!this.bdCompte) await once(this, "prêt");
     const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
-    await accès.revoke(MODÉRATEUR, identité);
+    accès.grant(MODÉRATEUR, idOrbite);
+  }
+
+  async enleverDispositif(idOrbite: string): Promise<void> {
+    if (!this.bdCompte) await once(this, "prêt");
+    const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
+    await accès.revoke(MODÉRATEUR, idOrbite);
   }
 
   async rejoindreCompte(idBdCompte: string): Promise<void> {
@@ -338,14 +386,18 @@ export default class ClientConstellation extends EventEmitter {
         (autorisé = autorisés.includes(this.orbite!.identity.id))
     );
     await new Promise<void>((résoudre) => {
-      const x = setInterval(() => {
+      const vérifierSiAutorisé = () => {
         if (autorisé) {
           oublierPermission();
           clearInterval(x);
           fOublier();
           résoudre();
         }
+      }
+      const x = setInterval(() => {
+        vérifierSiAutorisé()
       }, 10);
+      vérifierSiAutorisé();
     });
 
     // Là on peut y aller
