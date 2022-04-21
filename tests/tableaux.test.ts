@@ -378,7 +378,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(
               résultats,
               "règles",
-              (r: règleColonne[]) => r.length === 2
+              r => r.length === 2
             );
 
             expect(résultats.règles).to.be.an("array").with.lengthOf(2);
@@ -644,7 +644,7 @@ typesClients.forEach((type) => {
               idVariableTempMax,
               idColonneTempMax
             );
-            await attendreRésultat(err, "eurs", (x: []) => x.length === 0);
+            await attendreRésultat(err, "eurs", x => x.length === 0);
             expect(err.eurs).to.be.empty;
           });
 
@@ -739,7 +739,7 @@ typesClients.forEach((type) => {
               await client.tableaux!.ajouterÉlément(idTableauRègles, {
                 [idColonne]: "សូស្ដី",
               });
-              await attendreRésultat(err, "eurs", (x: []) => x.length > 0);
+              await attendreRésultat(err, "eurs", x => x.length > 0);
               expect(err.eurs).to.have.lengthOf(1);
             });
           });
