@@ -11,6 +11,7 @@ import {
 } from "@/utils";
 import {
   rechercherVariableSelonNom,
+  rechercherVariableSelonDescr,
   rechercherVariableSelonTexte,
 } from "@/recherche/variable";
 
