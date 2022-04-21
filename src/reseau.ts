@@ -303,7 +303,9 @@ export default class Réseau extends EventEmitter {
     await this.envoyerMessageAuDispositif(message, à);
   }
 
-  async demanderRejoindreCompte(idCompte: string, codeSecret: string): Promise<void> {
+  async demanderRejoindreCompte(invitation: { idCompte: string, codeSecret: string }): Promise<void> {
+    const { idComptet, codeSecret } = invitation;
+
     const valeur: ValeurMessageRequèteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
       contenu: {
