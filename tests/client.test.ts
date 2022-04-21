@@ -50,17 +50,19 @@ Object.keys(testAPIs).forEach((API) => {
     let clients: ClientConstellation[];
     let client: ClientConstellation,
       client2: ClientConstellation,
-      client3: ClientConstellation;
+      client3: ClientConstellation,
+      client4: ClientConstellation;
 
     let idOrbite1: string;
     let idOrbite3: string;
+    let idOrbite4: string;
 
     let idbdCompte1: string;
     let idbdCompte2: string;
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClients(3, API));
-      [client, client2, client3] = clients;
+      ({ fOublier: fOublierClients, clients } = await générerClients(4, API));
+      [client, client2, client3, client4] = clients;
 
       idbdCompte1 = await uneFois(
         async (
@@ -80,6 +82,7 @@ Object.keys(testAPIs).forEach((API) => {
 
       idOrbite1 = await client.obtIdOrbite();
       idOrbite3 = await client3.obtIdOrbite();
+      idOrbite4 = await client3.obtIdOrbite();
     });
 
     after(async () => {
@@ -133,6 +136,7 @@ Object.keys(testAPIs).forEach((API) => {
           .that.has.lengthOf(1)
           .and.that.includes(idOrbite1);
       });
+
       describe("Ajouter dispositif", function () {
         let idBd: string;
 
@@ -162,6 +166,15 @@ Object.keys(testAPIs).forEach((API) => {
           const autorisé = await peutÉcrire(bd_orbite3, client3.orbite);
           fOublier();
           expect(autorisé).to.be.true;
+        });
+      });
+
+      describe("Automatiser ajout dispositif", function () {
+
+        it("Inviter un dispositif", async () => {
+          const invitation = await client.générerInvitationRejoindreCompte();
+          await client4.réseau!.demanderRejoindreCompte(invitation);
+          expect(mesDispositifs).to.have.members([idOrbite1, idOrbite3, idOrbite4]);
         });
       });
     });
