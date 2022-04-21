@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import { step } from "mocha-steps";
 import assert from "assert";
 
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts"; // "../../src/ipa/acces/consts";
 import { enregistrerContrôleurs } from "@/accès";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts"; // "../../src/ipa/acces/consts";
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 
 import OrbitDB from "orbit-db";
