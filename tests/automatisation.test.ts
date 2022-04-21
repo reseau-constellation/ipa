@@ -589,13 +589,15 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("Exportation nuée bds", function () {
+        describe.skip ("Exportation nuée bds", function () {
           step("Exportation selon changements", async () => {
+            /*
             await client.automatisations!.ajouterAutomatisationExporterNuée(
               idMotClef,
               undefined,
               fichier
             );
+            */
           });
           step("Exportation selon fréquence");
         });
@@ -683,10 +685,10 @@ typesClients.forEach((type) => {
             const avantAjout = Date.now();
             await client.tableaux!.ajouterÉlément(idTableau, { [idCol]: 4 });
 
-            // @ts-ignore
             await attendreRésultat(
               rés,
               "états",
+              // @ts-ignore
               (x) => x[idAuto].type === "sync"
             );
 
@@ -839,10 +841,10 @@ typesClients.forEach((type) => {
                 source
               );
 
-            // @ts-ignore: Je sais pas comment faire ça
             await attendreRésultat(
               rés,
               "états",
+              // @ts-ignore
               (x) => x && x[idAuto]?.type === "écoute"
             );
 
@@ -855,10 +857,10 @@ typesClients.forEach((type) => {
             const avantAjout = Date.now();
             fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            // @ts-ignore: Je sais pas comment faire ça
             await attendreRésultat(
               rés,
               "états",
+              // @ts-ignore: Je sais pas comment faire ça
               (x) => x[idAuto].type === "sync"
             );
 
@@ -903,10 +905,10 @@ typesClients.forEach((type) => {
                 }
               );
 
-            // @ts-ignore: Je sais pas comment faire ça
             await attendreRésultat(
               rés,
               "états",
+              // @ts-ignore: Je sais pas comment faire ça
               (x) => x && x[idAuto]?.type === "programmée"
             );
 
@@ -956,10 +958,10 @@ typesClients.forEach((type) => {
                 }
               );
 
-            // @ts-ignore: Je sais pas comment faire ça
             await attendreRésultat(
               rés,
               "états",
+              // @ts-ignore: Je sais pas comment faire ça
               (x) => x && x[idAuto]?.type === "erreur"
             );
 
