@@ -36,38 +36,18 @@ typesClients.forEach((type) => {
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
         let client: ClientConstellation;
-        let client2: ClientConstellation;
 
-        let idBdCompte1: string;
-        let idBdCompte2: string;
 
         let idBd: string;
 
         before(async () => {
           enregistrerContrôleurs();
           ({ fOublier: fOublierClients, clients } = await générerClients(
-            2,
+            1,
             API,
             type
           ));
           client = clients[0];
-          client2 = clients[1];
-
-          idBdCompte1 = await uneFois(
-            async (
-              fSuivi: schémaFonctionSuivi<string>
-            ): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdBdCompte(fSuivi);
-            }
-          );
-
-          idBdCompte2 = await uneFois(
-            async (
-              fSuivi: schémaFonctionSuivi<string>
-            ): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdBdCompte(fSuivi);
-            }
-          );
         });
 
         after(async () => {
