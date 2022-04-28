@@ -170,12 +170,18 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       describe("Automatiser ajout dispositif", function () {
-
-        it("Inviter un dispositif", async () => {
+        before(async () => {
           const invitation = await client.générerInvitationRejoindreCompte();
           await client4.réseau!.demanderRejoindreCompte(invitation);
+        })
+
+        it("Nouveau dispositif ajouté au compte", async () => {
           expect(mesDispositifs).to.have.members([idOrbite1, idOrbite3, idOrbite4]);
         });
+
+        it("Nouveau dispositif indique le nouveau compte", async () => {
+          expect(client4.idBdCompte).to.equal(client.idBdCompte);
+        })
       });
     });
 
