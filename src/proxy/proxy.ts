@@ -5,6 +5,7 @@ import ClientConstellation from "@/client";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 import {
   MessagePourTravailleur,
+  MessagePrêtPourTravailleur,
   MessageSuivrePourTravailleur,
   MessageOublierPourTravailleur,
   MessageActionPourTravailleur,
@@ -109,6 +110,11 @@ export class IPAParallèle extends Callable {
         this.erreur(err as Error);
       }
     });
+
+    const messagePrêt: MessagePrêtPourTravailleur = {
+      type: "prêt ?"
+    }
+    this.client.recevoirMessage(messagePrêt);
   }
 
   __call__(fonction: string[], listeArgs: unknown[]): Promise<unknown> {

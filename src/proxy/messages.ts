@@ -31,8 +31,12 @@ export interface MessageErreurDeTravailleur extends MessageDeTravailleur {
 }
 
 export interface MessagePourTravailleur {
-  type: "oublier" | "suivre" | "action";
+  type:  "prêt ?" | "oublier" | "suivre" | "action";
   id?: string;
+}
+
+export interface MessagePrêtPourTravailleur extends MessagePourTravailleur {
+  type: "prêt ?";
 }
 
 export interface MessageSuivrePourTravailleur extends MessagePourTravailleur {
