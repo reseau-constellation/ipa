@@ -3,7 +3,6 @@ import { IDResult } from "ipfs-core-types/src/root";
 import { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
 import crypto from "crypto";
-import { asymmetric, randomKey } from '@herbcaudill/crypto'
 
 import OrbitDB from "orbit-db";
 import Store from "orbit-db-store";
@@ -16,14 +15,15 @@ import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import initOrbite from "@/orbitdb";
-import initSFIP from "@/ipfs";
+import initOrbite from "@/orbite";
+import initSFIP from "@/sfip";
 import Épingles from "@/epingles";
 import Profil from "@/profil";
 import BDs from "@/bds";
 import Tableaux from "@/tableaux";
 import Variables from "@/variables";
 import Réseau from "@/reseau";
+import { Encryption } from "@/encryption";
 import Favoris from "@/favoris";
 import Projets from "@/projets";
 import MotsClefs from "@/motsClefs";
@@ -49,6 +49,8 @@ import ContrôleurConstellation, {
 import { objRôles, infoUtilisateur } from "@/accès/types";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts";
 
+const encryption = import("@/encryption")
+
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
 export type infoAccès = {
@@ -67,6 +69,7 @@ export interface optsConstellation {
   compte?: string;
   sujetRéseau?: string;
   orbite?: optsOrbite;
+  encryption?: Encryption | boolean;
 }
 
 type optsOrbite = OrbitDB | optsInitOrbite;
@@ -110,8 +113,8 @@ export default class ClientConstellation extends EventEmitter {
 
   prêt: boolean;
   idBdCompte?: string;
+  encryption?: Encryption;
   sujet_réseau: string;
-  clefsEncryption: { publicKey: string, secretKey: string};
   motsDePasseRejoindreCompte: {[key: string]: number};
 
   constructor(opts: optsConstellation = {}) {
@@ -121,11 +124,26 @@ export default class ClientConstellation extends EventEmitter {
     this._bds = {};
     this.prêt = false;
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
-    this.clefsEncryption = asymmetric.keyPair()
     this.motsDePasseRejoindreCompte = {};
   }
 
   async initialiser(): Promise<void> {
+    switch (this._opts.encryption) {
+      case undefined:
+      case true: {
+          this.encryption = new (await encryption).EncryptionHerbCaudill();
+          break;
+      }
+      case null:
+      case false: {
+        this.encryption = undefined;
+        break;
+      }
+      default: {
+        this.encryption = this._opts.encryption
+      }
+    }
+
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = orbite;
@@ -254,7 +272,7 @@ export default class ClientConstellation extends EventEmitter {
 
     this.recherche = new Recherche(this);
 
-    this.épingles!.épinglerBd(idBdProfil!); // Celle-ci doit être récursive
+    this.épingles!.épinglerBd(idBdProfil!); // Celle-ci doit être récursive et inclure les fichiers
     for (const idBd of [
       idBdBDs,
       idBdVariables,
@@ -289,28 +307,6 @@ export default class ClientConstellation extends EventEmitter {
     );
   }
 
-  encrypter(
-    message: string,
-    clefPubliqueDestinataire: string
-  ): string {
-    return asymmetric.encrypt({
-      secret: message,
-      recipientPublicKey: clefPubliqueDestinataire,
-      senderSecretKey: this.clefsEncryption.secretKey,
-    });
-  }
-
-  async décrypter(
-    message: string,
-    clefPubliqueExpéditeur: string,
-  ): Promise<string> {
-    return asymmetric.decrypt({
-      cipher: message,
-      senderPublicKey: clefPubliqueExpéditeur,
-      recipientSecretKey: this.clefsEncryption.secretKey,
-    });
-  }
-
   async suivreDispositifs(
     f: schémaFonctionSuivi<string[]>,
     idBdCompte?: string
@@ -343,8 +339,9 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async générerInvitationRejoindreCompte(): Promise<{ idCompte: string, codeSecret: string}> {
+    if (!this.encryption) throw "On doit spécifier un module d'encryption au moment de l'initialisation du client afin d'automatiser les invitations.";
     const idCompte = await this.obtIdCompte();
-    const codeSecret = randomKey();
+    const codeSecret = this.encryption.clefAléatoire();
     this.motsDePasseRejoindreCompte[codeSecret] = Date.now();
     return { idCompte, codeSecret }
   }

@@ -42,7 +42,7 @@ export interface infoDispositif {
   idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
-  clefEncryptionPublique: string;
+  encryption?: { type: string, clefPublique: string };
 }
 
 export interface statutDispositif {
@@ -151,7 +151,7 @@ export interface ContenuMessageSalut extends ContenuMessage {
   idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
-  clefEncryptionPublique: string;
+  encryption?: { type: string, clefPublique: string };
 }
 
 export interface ValeurMessageRequèteRejoindreCompte extends ValeurMessage {
@@ -206,14 +206,20 @@ export default class Réseau extends EventEmitter {
     this.fsOublier = [];
 
     // N'oublions pas de nous ajouter nous-mêmes
-    this.recevoirSalut({
+    const messageSalut: ContenuMessageSalut = {
       idSFIP: this.client.idNodeSFIP!.id,
       idOrbite: this.client.orbite!.identity.id,
       idCompte: this.client.idBdCompte!,
       clefPublique: this.client.orbite!.identity.publicKey,
       signatures: this.client.orbite!.identity.signatures,
-      clefEncryptionPublique: this.client.clefsEncryption.publicKey,
-    });
+    }
+    if (this.client.encryption) {
+      messageSalut.encryption = {
+        type: this.client.encryption.nom,
+        clefPublique: this.client.encryption.clefs.publique
+      }
+    }
+    this.recevoirSalut(messageSalut);
   }
 
   async initialiser(): Promise<void> {
@@ -247,13 +253,18 @@ export default class Réseau extends EventEmitter {
     const sujet = idSFIP
       ? `${this.client.sujet_réseau}-${idSFIP}`
       : this.client.sujet_réseau;
+    // https://github.com/libp2p/js-libp2p/blob/199395de4d8139cc77d0b408626f37c9b8520d28/doc/migrations/v0.28-v0.29.md
+    // const uint8ArrayFromString from 'uint8arrays/from-string'
+    // const data = uint8ArrayFromString('JSON.stringify(msg)')
+    // await libp2p.pubsub.publish(topic, data)
     const msgBinaire = Buffer.from(JSON.stringify(msg));
     await this.client.sfip!.pubsub.publish(sujet, msgBinaire);
   }
 
   async envoyerMessageAuMembre(
-    msg: string,
+    msg: DonnéesMessage,
     idCompte: string,
+    encrypté = true,
   ): Promise<void> {
     const maintenant = Date.now()
     const dispositifsMembre = Object.values(this.dispositifsEnLigne).filter(
@@ -265,16 +276,35 @@ export default class Réseau extends EventEmitter {
     await Promise.all(
       dispositifsMembre.map(
         async d => {
-          const { idSFIP, clefEncryptionPublique } = d.infoDispositif;
-          const msgEncrypté = this.client.encrypter(msg, clefEncryptionPublique);
-          const msgPourDispositif: MessageEncrypté = {
-            encrypté: true,
-            clefPubliqueExpéditeur: this.client.clefsEncryption.publicKey,
-            données: msgEncrypté,
+          const { idSFIP, encryption } = d.infoDispositif;
+          if (encrypté) {
+            // Erreur si on n'a pas d'encryption
+            if (!this.client.encryption) throw "ClientConstellation n'a pas été initialisé avec un module d'encryption."
+
+            // Erreur si le client n'a pas d'encryption
+            if (!encryption) return;
+
+            const msgEncrypté = this.client.encryption.encrypter(
+              JSON.stringify(msg), encryption.clefPublique
+            );
+            const msgPourDispositif: MessageEncrypté = {
+              encrypté: true,
+              clefPubliqueExpéditeur: this.client.encryption.clefs.publique,
+              données: msgEncrypté,
+            }
+            await this.envoyerMessageAuDispositif(
+              msgPourDispositif, idSFIP
+            );
+          } else {
+            const msgPourDispositif: MessageNonEncrypté = {
+              encrypté: false,
+              données: msg,
+            }
+            await this.envoyerMessageAuDispositif(
+              msgPourDispositif, idSFIP
+            );
           }
-          await this.envoyerMessageAuDispositif(
-            msgPourDispositif, idSFIP
-          );
+
         }
       )
     )
@@ -289,9 +319,14 @@ export default class Réseau extends EventEmitter {
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
         idCompte: this.client.bdCompte!.id,
-        clefEncryptionPublique: this.client.clefsEncryption.publicKey,
       },
     };
+    if (this.client.encryption) {
+      valeur.contenu.encryption = {
+        type: this.client.encryption.nom,
+        clefPublique: this.client.encryption.clefs.publique
+      }
+    }
     const signature = await this.client.signer(JSON.stringify(valeur));
     const message: MessageNonEncrypté = {
       encrypté: false,
@@ -304,7 +339,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async demanderRejoindreCompte(invitation: { idCompte: string, codeSecret: string }): Promise<void> {
-    const { idComptet, codeSecret } = invitation;
+    const { idCompte, codeSecret } = invitation;
 
     const valeur: ValeurMessageRequèteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
@@ -320,16 +355,17 @@ export default class Réseau extends EventEmitter {
     };
 
     await this.envoyerMessageAuMembre(
-      JSON.stringify(données),
+      données,
       idCompte
     )
   }
 
   async messageReçu(msg: MessagePubSub, personnel: boolean): Promise<void> {
+    if (!this.client.encryption) return
     const messageJSON: Message = JSON.parse(msg.data.toString());
 
     const { encrypté } = messageJSON;
-    const données: DonnéesMessage = encrypté ? JSON.parse(await this.client.décrypter(
+    const données: DonnéesMessage = encrypté ? JSON.parse(this.client.encryption.décrypter(
       (messageJSON as MessageEncrypté).données,
       (messageJSON as MessageEncrypté).clefPubliqueExpéditeur,
     )) : messageJSON.données
