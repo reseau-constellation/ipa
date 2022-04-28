@@ -281,8 +281,11 @@ export default class Réseau extends EventEmitter {
             // Erreur si on n'a pas d'encryption
             if (!this.client.encryption) throw "ClientConstellation n'a pas été initialisé avec un module d'encryption."
 
-            // Erreur si le client n'a pas d'encryption
+            // Arrêter si le dispositif n'a pas d'encryption
             if (!encryption) return;
+
+            // Arrêter si le dispositif n'a pas la même encryption que nous
+            if (encryption.type !== this.client.encryption.nom) return;
 
             const msgEncrypté = this.client.encryption.encrypter(
               JSON.stringify(msg), encryption.clefPublique
