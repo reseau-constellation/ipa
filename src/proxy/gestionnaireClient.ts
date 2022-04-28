@@ -61,6 +61,10 @@ export default class GestionnaireClient {
   async gérerMessage(message: MessagePourTravailleur): Promise<void> {
     const { type } = message;
     switch (type) {
+      case "prêt ?": {
+        await this.init();
+        break;
+      }
       case "suivre": {
         const { id } = message as MessageSuivrePourTravailleur;
         if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
