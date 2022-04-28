@@ -14,6 +14,7 @@ import fs from "fs";
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation from "@/client";
 import { schémaFonctionOublier } from "@/utils";
+import { Encryption } from "@/encryption";
 import générerProxyProc from "@/proxy/ipaProc";
 import générerProxyTravailleur from "@/proxy/ipaTravailleur";
 
@@ -197,7 +198,10 @@ export const générerClients = async (
       switch (type) {
         case "directe": {
           fsOublier.push(fOublierOrbites);
-          client = await ClientConstellation.créer({ orbite: orbites[i] });
+          client = await ClientConstellation.créer({
+            orbite: orbites[i],
+            encryption: new EncryptionBidon()
+          });
           break;
         }
 
@@ -239,3 +243,28 @@ export const générerClients = async (
 export const typesClients: typeClient[] = process.env.TOUS
   ? ["directe", "proc"]
   : ["directe"];
+
+export class EncryptionBidon implements Encryption {
+  clefs : { publique: string, secrète: string};
+  nom = "bidon"
+
+  constructor() {
+    this.clefs = { publique: "abc", secrète: "def"};
+  }
+
+  encrypter(
+    message: string,
+  ): string {
+    return [...message].reverse().join();
+  }
+
+  décrypter(
+    message: string,
+  ): string {
+    return [...message].reverse().join();
+  }
+
+  clefAléatoire(): string {
+    return Math.random().toString();
+  }
+}
