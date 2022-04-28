@@ -134,7 +134,6 @@
   "dependencies": {
     "@babel/runtime": "^7.16.0",
     "@chriscdn/promise-semaphore": "^1.0.6",
-    "@herbcaudill/crypto": "^3.0.2",
     "@libp2p/kad-dht": "^1.0.7",
     "@libp2p/mdns": "^1.0.4",
     "@libp2p/mplex": "^1.0.3",
@@ -159,5 +158,8 @@
     "ssim": "^0.0.0",
     "uuid": "^8.3.2",
     "xlsx": "^0.18.3"
+  },
+  "peerDependencies": {
+    "@herbcaudill/crypto": "^3.0.2"
   }
 }
