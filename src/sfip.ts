@@ -43,7 +43,7 @@ export default async function initSFIP(dir = "./sfip-cnstl"): Promise<IPFS> {
 
   // https://github.com/LucaPanofsky/ipfs-wss-heroku-node
   // "/dns4/p2p-circuit.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB"
-  sfip.swarm.connect("/dns4/p2p-circuit-constellation.herokuapp.com/tcp/46396/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB")
+  sfip.swarm.connect("/dns4/p2p-circuit-constellation.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB")
 
   return sfip;
 }

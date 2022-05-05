@@ -1,4 +1,5 @@
-import { asymmetric, randomKey } from "@herbcaudill/crypto"
+import { keyPair, encrypt, decrypt } from "asymmetric-crypto";
+import { generateEntropy } from "@it-tools/bip39";
 
 export interface Encryption {
   clefs : { publique: string, secrète: string};
@@ -17,12 +18,12 @@ export interface Encryption {
   clefAléatoire(): string
 }
 
-export class EncryptionHerbCaudill implements Encryption {
+export class EncryptionParDéfaut implements Encryption {
   clefs : { publique: string, secrète: string};
-  nom = "herbcaudill";
+  nom = "défaut";
 
   constructor() {
-    const { publicKey, secretKey } = asymmetric.keyPair();
+    const { publicKey, secretKey } = keyPair();
     this.clefs = { publique: publicKey, secrète: secretKey };
   }
 
@@ -30,25 +31,27 @@ export class EncryptionHerbCaudill implements Encryption {
     message: string,
     clefPubliqueDestinataire: string
   ): string {
-    return asymmetric.encrypt({
-      secret: message,
-      recipientPublicKey: clefPubliqueDestinataire,
-      senderSecretKey: this.clefs.secrète,
-    });
+    return encrypt(
+      message,
+      clefPubliqueDestinataire,
+      this.clefs.secrète,
+    ).toString();
   }
 
   décrypter(
     message: string,
     clefPubliqueExpéditeur: string,
   ): string {
-    return asymmetric.decrypt({
-      cipher: message,
-      senderPublicKey: clefPubliqueExpéditeur,
-      recipientSecretKey: this.clefs.secrète,
-    });
+    const { data, nonce } = JSON.parse(message);
+    return decrypt(
+      data,
+      nonce,
+      clefPubliqueExpéditeur,
+      this.clefs.secrète,
+    );
   }
 
   clefAléatoire(): string {
-    return randomKey();
+    return generateEntropy();
   }
 }

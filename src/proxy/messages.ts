@@ -1,10 +1,6 @@
 export interface MessageDeTravailleur {
-  type: "prêt" | "suivre" | "suivrePrêt" | "action" | "erreur";
+  type: "suivre" | "suivrePrêt" | "action" | "erreur";
   id?: string;
-}
-
-export interface MessagePrêtDeTravailleur extends MessageDeTravailleur {
-  type: "prêt";
 }
 
 export interface MessageSuivreDeTravailleur extends MessageDeTravailleur {
@@ -31,12 +27,8 @@ export interface MessageErreurDeTravailleur extends MessageDeTravailleur {
 }
 
 export interface MessagePourTravailleur {
-  type:  "prêt ?" | "oublier" | "suivre" | "action";
+  type:  "oublier" | "suivre" | "action";
   id?: string;
-}
-
-export interface MessagePrêtPourTravailleur extends MessagePourTravailleur {
-  type: "prêt ?";
 }
 
 export interface MessageSuivrePourTravailleur extends MessagePourTravailleur {

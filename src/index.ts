@@ -11,6 +11,7 @@ export * as bds from "@/bds";
 export * as client from "@/client";
 export * as épingles from "@/epingles";
 export * as profil from "@/profil";
+export * as encryption from "@/encryption";
 export * as favoris from "@/favoris";
 export * as licences from "@/licences";
 export * as motsClefs from "@/motsClefs";

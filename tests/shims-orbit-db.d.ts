@@ -1,1 +1,1 @@
-import { OrbitDB } from "@constl/orbit-db-types";
+import { OrbidtDB, OrbitDBAccessControllers } from "@constl/orbit-db-types";

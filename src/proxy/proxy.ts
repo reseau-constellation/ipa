@@ -5,7 +5,6 @@ import ClientConstellation from "@/client";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 import {
   MessagePourTravailleur,
-  MessagePrêtPourTravailleur,
   MessageSuivrePourTravailleur,
   MessageOublierPourTravailleur,
   MessageActionPourTravailleur,
@@ -45,42 +44,29 @@ class Callable extends Function {
   }
 }
 
-export abstract class téléClient extends EventEmitter {
-  abstract recevoirMessage(message: MessagePourTravailleur): void;
-}
-
-export class IPAParallèle extends Callable {
+export abstract class ClientProxifiable extends Callable {
   événements: EventEmitter;
-  client: téléClient;
   tâches: { [key: string]: Tâche };
-  ipaPrêt: boolean;
-  messagesEnAttente: MessagePourTravailleur[];
   erreurs: { erreur: Error; id?: string }[];
   souleverErreurs: boolean;
 
-  constructor(client: téléClient, souleverErreurs: boolean) {
+  constructor(souleverErreurs: boolean) {
     super();
 
-    this.client = client;
+    this.événements = new EventEmitter();
     this.souleverErreurs = souleverErreurs;
 
     this.événements = new EventEmitter();
     this.tâches = {};
-    this.ipaPrêt = false;
-    this.messagesEnAttente = [];
     this.erreurs = [];
 
-    this.client.on("erreur", (e) => {
+    this.événements.on("erreur", (e) => {
       this.erreur(e);
     });
-    this.client.on("message", (m: MessageDeTravailleur) => {
+    this.événements.on("message", (m: MessageDeTravailleur) => {
       try {
         const { type } = m;
         switch (type) {
-          case "prêt": {
-            this.ipaActivé();
-            break;
-          }
           case "suivre": {
             const { id, données } = m as MessageSuivreDeTravailleur;
             const { fSuivre } = this.tâches[id];
@@ -110,11 +96,6 @@ export class IPAParallèle extends Callable {
         this.erreur(err as Error);
       }
     });
-
-    const messagePrêt: MessagePrêtPourTravailleur = {
-      type: "prêt ?"
-    }
-    this.client.recevoirMessage(messagePrêt);
   }
 
   __call__(fonction: string[], listeArgs: unknown[]): Promise<unknown> {
@@ -201,22 +182,6 @@ export class IPAParallèle extends Callable {
     return await promesse;
   }
 
-  ipaActivé(): void {
-    if (this.ipaPrêt) return;
-    this.messagesEnAttente.forEach((m) => this.client.recevoirMessage(m));
-
-    this.messagesEnAttente = [];
-    this.ipaPrêt = true;
-  }
-
-  envoyerMessage(message: MessagePourTravailleur): void {
-    if (this.ipaPrêt) {
-      this.client.recevoirMessage(message);
-    } else {
-      this.messagesEnAttente.push(message);
-    }
-  }
-
   erreur(erreur: Error, id?: string): void {
     const infoErreur = { erreur, id };
     this.erreurs.unshift(infoErreur);
@@ -232,6 +197,8 @@ export class IPAParallèle extends Callable {
     if (tâche) tâche.fOublier();
     delete this.tâches[id];
   }
+
+  abstract envoyerMessage(message: MessagePourTravailleur): void;
 }
 
 class Handler {
@@ -241,10 +208,10 @@ class Handler {
     this.listeAtributs = listeAtributs || [];
   }
 
-  get(obj: IPAParallèle, prop: string): unknown {
+  get(obj: ClientProxifiable, prop: string): unknown {
     const directes = ["événements", "erreurs"];
     if (directes.includes(prop)) {
-      return obj[prop as keyof IPAParallèle];
+      return obj[prop as keyof ClientProxifiable];
     } else {
       const listeAtributs = [...this.listeAtributs, prop];
       const h = new Handler(listeAtributs);
@@ -252,18 +219,16 @@ class Handler {
     }
   }
 
-  apply(target: IPAParallèle, _thisArg: Handler, argumentsList: unknown[]) {
+  apply(target: ClientProxifiable, _thisArg: Handler, argumentsList: unknown[]) {
     return target.__call__(this.listeAtributs, argumentsList);
   }
 }
 
-export type ProxyClientConstellation = ClientConstellation & IPAParallèle;
+export type ProxyClientConstellation = ClientConstellation & ClientProxifiable;
 
-export default (
-  client: téléClient,
-  souleverErreurs: boolean
+export const générerProxy = (
+  proxyClient: ClientProxifiable
 ): ProxyClientConstellation => {
   const handler = new Handler();
-  const ipa = new IPAParallèle(client, souleverErreurs);
-  return new Proxy<IPAParallèle>(ipa, handler) as ProxyClientConstellation;
+  return new Proxy<ClientProxifiable>(proxyClient, handler) as ProxyClientConstellation;
 };

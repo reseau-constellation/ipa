@@ -11,7 +11,7 @@ const pkg = require("./package.json");
 // Ref: https://dev.to/remshams/rolling-up-a-multi-module-system-esm-cjs-compatible-npm-library-with-typescript-and-babel-3gjg
 const extensions = [".js", ".ts"];
 
-export default {
+module.exports = {
   input: "src/index.ts",
   output: [
     {
@@ -25,7 +25,7 @@ export default {
       plugins: [terser()],
       sourcemap: true,
     },
-    /*{
+    {
       file: "lib/bundles/bundle.umd.js",
       format: "umd",
       name: "myLibrary",
@@ -37,7 +37,7 @@ export default {
       name: "myLibrary",
       plugins: [terser()],
       sourcemap: true,
-    },*/
+    },
   ],
   inlineDynamicImports: true,
   external: [/@babel\/runtime/],

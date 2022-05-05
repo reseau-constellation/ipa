@@ -23,7 +23,7 @@ import BDs from "@/bds";
 import Tableaux from "@/tableaux";
 import Variables from "@/variables";
 import Réseau from "@/reseau";
-import { Encryption } from "@/encryption";
+import { Encryption, EncryptionParDéfaut } from "@/encryption";
 import Favoris from "@/favoris";
 import Projets from "@/projets";
 import MotsClefs from "@/motsClefs";
@@ -48,8 +48,6 @@ import ContrôleurConstellation, {
 } from "@/accès/cntrlConstellation";
 import { objRôles, infoUtilisateur } from "@/accès/types";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts";
-
-const encryption = import("@/encryption")
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -113,7 +111,7 @@ export default class ClientConstellation extends EventEmitter {
 
   prêt: boolean;
   idBdCompte?: string;
-  encryption?: Encryption;
+  encryption: Encryption;
   sujet_réseau: string;
   motsDePasseRejoindreCompte: {[key: string]: number};
 
@@ -125,25 +123,11 @@ export default class ClientConstellation extends EventEmitter {
     this.prêt = false;
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
+
+    this.encryption = new EncryptionParDéfaut();
   }
 
   async initialiser(): Promise<void> {
-    switch (this._opts.encryption) {
-      case undefined:
-      case true: {
-          this.encryption = new (await encryption).EncryptionHerbCaudill();
-          break;
-      }
-      case null:
-      case false: {
-        this.encryption = undefined;
-        break;
-      }
-      default: {
-        this.encryption = this._opts.encryption
-      }
-    }
-
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = orbite;
@@ -1225,7 +1209,7 @@ export default class ClientConstellation extends EventEmitter {
         await this.orbite![type as keyof OrbitDB](idBd);
         return idBd;
       } catch {
-        return;
+        return undefined;
       }
     }
 

@@ -1,27 +1,27 @@
 import { optsConstellation } from "@/client";
 
-import générerProxy, { téléClient, ProxyClientConstellation } from "./proxy";
+import { générerProxy, ClientProxifiable, ProxyClientConstellation } from "./proxy";
 
 import { MessageDeTravailleur, MessagePourTravailleur } from "./messages";
 
-export class IPATravailleur extends téléClient {
+export class ProxyClientTravailleur extends ClientProxifiable {
   travailleur: Worker;
 
-  constructor(opts: optsIpaTravailleur) {
-    super();
+  constructor(opts: optsIpaTravailleur, souleverErreurs = false) {
+    super(souleverErreurs);
 
     this.travailleur = new Worker(new URL("./travailleur.js"));
     this.travailleur.onerror = (e: ErrorEvent) => {
-      this.emit("erreur", e.error);
+      this.événements.emit("erreur", e.error);
     };
     this.travailleur.onmessage = (e: MessageEvent<MessageDeTravailleur>) => {
-      this.emit("message", e.data);
+      this.événements.emit("message", e.data);
     };
 
     this.travailleur.postMessage({ type: "init", opts });
   }
 
-  recevoirMessage(message: MessagePourTravailleur): void {
+  envoyerMessage(message: MessagePourTravailleur): void {
     this.travailleur.postMessage(message);
   }
 }
@@ -41,5 +41,5 @@ export default (
   opts: optsIpaTravailleur = {},
   souleverErreurs = false
 ): ProxyClientConstellation => {
-  return générerProxy(new IPATravailleur(opts), souleverErreurs);
+  return générerProxy(new ProxyClientTravailleur(opts, souleverErreurs));
 };

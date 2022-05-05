@@ -5,7 +5,6 @@ import { schémaFonctionOublier } from "@/utils";
 import {
   MessagePourTravailleur,
   MessageDeTravailleur,
-  MessagePrêtDeTravailleur,
   MessageActionPourTravailleur,
   MessageActionDeTravailleur,
   MessageSuivrePourTravailleur,
@@ -16,6 +15,8 @@ import {
 
 export default class GestionnaireClient {
   ipa?: ClientConstellation;
+  _messagesEnAttente: MessagePourTravailleur[];
+  prêt: boolean;
   dicFOublier: { [key: string]: schémaFonctionOublier };
   opts: optsConstellation;
 
@@ -34,37 +35,39 @@ export default class GestionnaireClient {
     this.opts = opts;
     this.dicFOublier = {};
 
+    this.prêt = false;
+    this._messagesEnAttente = [];
     this._verrou = new Semaphore();
+
     this.init();
   }
 
   async init(): Promise<void> {
     this._verrou.acquire("init");
-    const messageRetour: MessagePrêtDeTravailleur = {
-      type: "prêt",
-    };
 
     if (this.ipa) {
-      this.fMessage(messageRetour);
       return;
-    } // Nécessaire si on a plus qu'un client connecté au même client (serveur) Constellation
+    } // Nécessaire si on a plus qu'un proxy client connecté au même client Constellation
 
-    this.ipa = new ClientConstellation(this.opts);
+    this.ipa = await ClientConstellation.créer(this.opts);
 
-    await this.ipa.initialiser();
-
-    this.fMessage(messageRetour);
-
+    this._messagesEnAttente.forEach(m=>this._gérerMessage(m))
+    this.prêt = true;
     this._verrou.release("init");
+
   }
 
   async gérerMessage(message: MessagePourTravailleur): Promise<void> {
+    if (this.prêt) {
+      await this._gérerMessage(message)
+    } else {
+      this._messagesEnAttente.unshift(message)
+    }
+  }
+
+  async _gérerMessage(message: MessagePourTravailleur): Promise<void> {
     const { type } = message;
     switch (type) {
-      case "prêt ?": {
-        await this.init();
-        break;
-      }
       case "suivre": {
         const { id } = message as MessageSuivrePourTravailleur;
         if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
