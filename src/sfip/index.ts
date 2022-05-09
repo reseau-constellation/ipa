@@ -1,17 +1,27 @@
+import oùSommesNous from "wherearewe";
 import { create } from "ipfs";
 import { IPFS } from "ipfs-core-types";
 import wrtc from "wrtc";
-import WebRTCStar from "libp2p-webrtc-star";
-import Websockets from "libp2p-websockets";
-import WebRTCDirect from "libp2p-webrtc-direct";
-import { NOISE } from "libp2p-noise";
+import { Noise } from "@chainsafe/libp2p-noise";
 
-export default async function initSFIP(dir = "./sfip-cnstl"): Promise<IPFS> {
-  const sfip: IPFS = await create({
+const configNavigateur = import("./configNavigateur");
+const configÉlectron = import("./configÉlectron");
+const configNode = import("./configNode");
+
+const obtConfigPlateforme = async () => {
+  if (oùSommesNous.isBrowser || oùSommesNous.isElectronRenderer) {
+    return (await configNavigateur).default;
+  } else if (oùSommesNous.isElectronMain) {
+    return (await configÉlectron).default;
+  } else {
+    return (await configNode).default;
+  }
+}
+
+const obtConfigCommun = (): { [key: string]: any } => {
+  return {
     libp2p: {
-      modules: {
-        transport: [WebRTCStar, Websockets, WebRTCDirect],
-      },
+      modules: {},
       config: {
         peerDiscovery: {
           webRTCStar: {
@@ -23,7 +33,7 @@ export default async function initSFIP(dir = "./sfip-cnstl"): Promise<IPFS> {
           WebRTCStar: {
             // <- note the upper-case w- see https://github.com/libp2p/js-libp2p/issues/576
             wrtc,
-            connEncryption: [NOISE],
+            connEncryption: [Noise],
           },
         },
       },
@@ -38,11 +48,22 @@ export default async function initSFIP(dir = "./sfip-cnstl"): Promise<IPFS> {
         ],
       },
     },
-    repo: dir,
-  });
+  }
+}
+
+export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
+  const config = obtConfigCommun();
+  const configPlateforme = await obtConfigPlateforme();
+
+  console.log(configPlateforme)
+  console.log(config)
+  config.libp2p.modules = configPlateforme
+  config.repo = dir;
+  console.log(config)
+
+  const sfip: IPFS = await create(config);
 
   // https://github.com/LucaPanofsky/ipfs-wss-heroku-node
-  // "/dns4/p2p-circuit.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB"
   sfip.swarm.connect("/dns4/p2p-circuit-constellation.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB")
 
   return sfip;
