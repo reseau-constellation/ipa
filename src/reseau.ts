@@ -204,22 +204,6 @@ export default class Réseau extends EventEmitter {
 
     this.dispositifsEnLigne = {};
     this.fsOublier = [];
-
-    // N'oublions pas de nous ajouter nous-mêmes
-    const messageSalut: ContenuMessageSalut = {
-      idSFIP: this.client.idNodeSFIP!.id,
-      idOrbite: this.client.orbite!.identity.id,
-      idCompte: this.client.idBdCompte!,
-      clefPublique: this.client.orbite!.identity.publicKey,
-      signatures: this.client.orbite!.identity.signatures,
-    }
-    if (this.client.encryption) {
-      messageSalut.encryption = {
-        type: this.client.encryption.nom,
-        clefPublique: this.client.encryption.clefs.publique
-      }
-    }
-    this.recevoirSalut(messageSalut);
   }
 
   async initialiser(): Promise<void> {
@@ -253,10 +237,6 @@ export default class Réseau extends EventEmitter {
     const sujet = idSFIP
       ? `${this.client.sujet_réseau}-${idSFIP}`
       : this.client.sujet_réseau;
-    // https://github.com/libp2p/js-libp2p/blob/199395de4d8139cc77d0b408626f37c9b8520d28/doc/migrations/v0.28-v0.29.md
-    // const uint8ArrayFromString from 'uint8arrays/from-string'
-    // const data = uint8ArrayFromString('JSON.stringify(msg)')
-    // await libp2p.pubsub.publish(topic, data)
     const msgBinaire = Buffer.from(JSON.stringify(msg));
     await this.client.sfip!.pubsub.publish(sujet, msgBinaire);
   }
@@ -375,8 +355,8 @@ export default class Réseau extends EventEmitter {
 
     const { valeur, signature } = données
 
-    // Ignorer les messages de nous-mêmes
-    if (signature.clefPublique === this.client.orbite!.identity.publicKey) {
+    // Ignorer la plupart des messages de nous-mêmes
+    if (signature.clefPublique === this.client.orbite!.identity.publicKey && valeur.type !== "Salut !") {
       return;
     }
 
