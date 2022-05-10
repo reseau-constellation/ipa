@@ -1,5 +1,7 @@
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
+import { ImportCandidate } from "ipfs-core-types/src/utils";
+
 import { WorkBook, BookType, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
@@ -24,6 +26,9 @@ export interface donnéesProjetExportées {
 }
 
 export type typeÉlémentsBdProjet = string | schémaStatut;
+
+export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
+export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
 export default class Projets {
   client: ClientConstellation;
@@ -138,6 +143,9 @@ export default class Projets {
 
     const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
     await nouvelleBd.set("statut", statut);
+
+    const image = bdBase.get("image");
+    if (image) await nouvelleBd.set("image", image);
 
     fOublierBase();
     fOublierNouvelle();
@@ -358,6 +366,56 @@ export default class Projets {
     >(id);
     bd.set("statut", { statut: TYPES_STATUT.INTERNE });
     fOublier();
+  }
+
+  async sauvegarderImage(
+    idProjet: string,
+    image: ImportCandidate
+  ): Promise<void> {
+    let contenu: ImportCandidate;
+
+    if ((image as File).size !== undefined) {
+      if ((image as File).size > MAX_TAILLE_IMAGE) {
+        throw new Error("Taille maximale excédée");
+      }
+      contenu = await (image as File).arrayBuffer();
+    } else {
+      contenu = image;
+    }
+    const idImage = await this.client.ajouterÀSFIP(contenu);
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdProjet>
+    >(idProjet);
+    await bd.set("image", idImage);
+    fOublier();
+  }
+
+  async effacerImage(
+    idProjet: string,
+  ): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdProjet>
+    >(idProjet);
+    await bd.del("image");
+    fOublier();
+  }
+
+  async suivreImage(
+    idProjet: string,
+    f: schémaFonctionSuivi<Uint8Array | null>,
+  ): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBd(
+      idProjet,
+      async (bd: KeyValueStore<typeÉlémentsBdProjet>) => {
+        const idImage = bd.get("image");
+        if (!idImage) return f(null);
+        const image = await this.client.obtFichierSFIP(
+          idImage as string,
+          MAX_TAILLE_IMAGE_VIS
+        );
+        return f(image);
+      }
+    );
   }
 
   async suivreNomsProjet(
