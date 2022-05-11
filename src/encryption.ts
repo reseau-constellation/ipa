@@ -5,9 +5,21 @@ export interface Encryption {
   clefs: { publique: string; secrète: string };
   nom: string;
 
-  encrypter({message, clefPubliqueDestinataire}: {message: string, clefPubliqueDestinataire: string}): string;
+  encrypter({
+    message,
+    clefPubliqueDestinataire,
+  }: {
+    message: string;
+    clefPubliqueDestinataire: string;
+  }): string;
 
-  décrypter({message, clefPubliqueExpéditeur }: {message: string, clefPubliqueExpéditeur: string}): string;
+  décrypter({
+    message,
+    clefPubliqueExpéditeur,
+  }: {
+    message: string;
+    clefPubliqueExpéditeur: string;
+  }): string;
 
   clefAléatoire(): string;
 }
@@ -21,7 +33,13 @@ export class EncryptionParDéfaut implements Encryption {
     this.clefs = { publique: publicKey, secrète: secretKey };
   }
 
-  encrypter({message, clefPubliqueDestinataire}: {message: string, clefPubliqueDestinataire: string}): string {
+  encrypter({
+    message,
+    clefPubliqueDestinataire,
+  }: {
+    message: string;
+    clefPubliqueDestinataire: string;
+  }): string {
     return encrypt(
       message,
       clefPubliqueDestinataire,
@@ -29,7 +47,13 @@ export class EncryptionParDéfaut implements Encryption {
     ).toString();
   }
 
-  décrypter({message, clefPubliqueExpéditeur}: {message: string, clefPubliqueExpéditeur: string}): string {
+  décrypter({
+    message,
+    clefPubliqueExpéditeur,
+  }: {
+    message: string;
+    clefPubliqueExpéditeur: string;
+  }): string {
     const { data, nonce } = JSON.parse(message);
     return decrypt(data, nonce, clefPubliqueExpéditeur, this.clefs.secrète);
   }

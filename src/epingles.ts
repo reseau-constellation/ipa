@@ -17,23 +17,27 @@ export default class Épingles {
   requètes: RequèteÉpingle[];
   fsOublier: { [key: string]: schémaFonctionOublier };
 
-  constructor({client}: {client: ClientConstellation}) {
+  constructor({ client }: { client: ClientConstellation }) {
     this.client = client;
     this.requètes = [];
     this.fsOublier = {};
   }
 
-  async épinglerBd({id, récursif = true, fichiers = true}: {
-    id: string,
-    récursif?: boolean,
-    fichiers?: boolean
+  async épinglerBd({
+    id,
+    récursif = true,
+    fichiers = true,
+  }: {
+    id: string;
+    récursif?: boolean;
+    fichiers?: boolean;
   }): Promise<void> {
-    if (this.épinglée({id})) return;
+    if (this.épinglée({ id })) return;
 
-    await this._épingler({id, récursif, fichiers});
+    await this._épingler({ id, récursif, fichiers });
   }
 
-  async désépinglerBd({id}: {id: string}) {
+  async désépinglerBd({ id }: { id: string }) {
     await Promise.all(
       this.requètes
         .filter((r) => r.id === id)
@@ -49,13 +53,13 @@ export default class Épingles {
         if (
           !this.requètes.filter((r) => r.id === d.id && r.parent !== id).length
         ) {
-          await this.désépinglerBd({id: d.id});
+          await this.désépinglerBd({ id: d.id });
         }
       })
     );
   }
 
-  épinglée({id}: {id: string}): boolean {
+  épinglée({ id }: { id: string }): boolean {
     return this.requètes.some((r) => r.id === id);
   }
 
@@ -63,15 +67,20 @@ export default class Épingles {
     return new Set(this.requètes.map((r) => r.id));
   }
 
-  async _épingler({id, récursif, fichiers, parent}: {
-    id: string,
-    récursif: boolean,
-    fichiers: boolean,
-    parent?: string
+  async _épingler({
+    id,
+    récursif,
+    fichiers,
+    parent,
+  }: {
+    id: string;
+    récursif: boolean;
+    fichiers: boolean;
+    parent?: string;
   }): Promise<void> {
-    if (this.épinglée({id})) return;
+    if (this.épinglée({ id })) return;
 
-    const { bd, fOublier } = await this.client.ouvrirBd({id});
+    const { bd, fOublier } = await this.client.ouvrirBd({ id });
     this.requètes.push({ id, parent, fOublier });
 
     if (récursif) {
@@ -117,16 +126,17 @@ export default class Épingles {
 
         await Promise.all(
           idsOrbite.map(
-            async (id_) => await this._épingler({id: id_, récursif, fichiers, parent: id})
+            async (id_) =>
+              await this._épingler({ id: id_, récursif, fichiers, parent: id })
           )
         );
       };
 
       if (bd.type === "keyvalue") {
-        const fOublierBd = await this.client.suivreBdDic({id,f: fSuivre});
+        const fOublierBd = await this.client.suivreBdDic({ id, f: fSuivre });
         this.fsOublier[id] = fOublierBd;
       } else if (bd.type === "feed") {
-        const fOublierBd = await this.client.suivreBdListe({id, f: fSuivre});
+        const fOublierBd = await this.client.suivreBdListe({ id, f: fSuivre });
         this.fsOublier[id] = fOublierBd;
       }
     }
@@ -135,7 +145,7 @@ export default class Épingles {
   async toutDésépingler(): Promise<void> {
     await Promise.all(
       [...this.épingles()].map(async (id) => {
-        await this.désépinglerBd({id});
+        await this.désépinglerBd({ id });
       })
     );
   }

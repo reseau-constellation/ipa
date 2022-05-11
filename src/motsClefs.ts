@@ -88,7 +88,7 @@ export default class MotsClefs {
     const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
       [key: string]: string;
     };
-    await this.ajouterNomsMotClef({id: idNouveauMotClef, noms});
+    await this.ajouterNomsMotClef({ id: idNouveauMotClef, noms });
 
     fOublierBase();
     fOublierNoms();
@@ -118,76 +118,109 @@ export default class MotsClefs {
     id: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    const idBdNoms = await this.client.obtIdBd({nom: "noms", racine: id, type: "kvstore"});
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: id,
+      type: "kvstore",
+    });
     if (!idBdNoms) {
       throw `Permission de modification refusée pour mot clef ${id}.`;
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >({id: idBdNoms});
+    >({ id: idBdNoms });
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
     fOublier();
   }
 
-  async sauvegarderNomMotClef({id, langue, nom}: {
-    id: string,
-    langue: string,
-    nom: string
+  async sauvegarderNomMotClef({
+    id,
+    langue,
+    nom,
+  }: {
+    id: string;
+    langue: string;
+    nom: string;
   }): Promise<void> {
-    const idBdNoms = await this.client.obtIdBd({nom: "noms", racine: id, type: "kvstore"});
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: id,
+      type: "kvstore",
+    });
     if (!idBdNoms) {
       throw `Permission de modification refusée pour mot clef ${id}.`;
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >({id: idBdNoms});
+    >({ id: idBdNoms });
     await bdNoms.set(langue, nom);
     fOublier();
   }
 
-  async effacerNomMotClef({id, langue}: {id: string, langue: string}): Promise<void> {
-    const idBdNoms = await this.client.obtIdBd({nom: "noms", racine: id, type: "kvstore"});
+  async effacerNomMotClef({
+    id,
+    langue,
+  }: {
+    id: string;
+    langue: string;
+  }): Promise<void> {
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: id,
+      type: "kvstore",
+    });
     if (!idBdNoms) {
       throw `Permission de modification refusée pour mot clef ${id}.`;
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >({id: idBdNoms});
+    >({ id: idBdNoms });
     await bdNoms.del(langue);
     fOublier();
   }
 
-  async suivreNomsMotClef({id, f}: {
-    id: string,
-    f: schémaFonctionSuivi<{ [key: string]: string }>
+  async suivreNomsMotClef({
+    id,
+    f,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({id, clef: "noms", f});
+    return await this.client.suivreBdDicDeClef({ id, clef: "noms", f });
   }
 
   async effacerMotClef(id: string): Promise<void> {
     // Effacer l'entrée dans notre liste de mots clefs
-    await this.enleverDeMesMotsClefs({id});
+    await this.enleverDeMesMotsClefs({ id });
 
     // Effacer le mot-clef lui-même
-    const optionsAccès = await this.client.obtOpsAccès({idBd: id});
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     for (const clef in ["noms"]) {
-      const idBd = await this.client.obtIdBd({nom: clef, racine: id, optionsAccès});
-      if (idBd) await this.client.effacerBd({id: idBd});
+      const idBd = await this.client.obtIdBd({
+        nom: clef,
+        racine: id,
+        optionsAccès,
+      });
+      if (idBd) await this.client.effacerBd({ id: idBd });
     }
-    await this.client.effacerBd({id});
+    await this.client.effacerBd({ id });
   }
 
-  async suivreQualitéMotClef({id, f}: {
-    id: string,
-    f: schémaFonctionSuivi<number>
+  async suivreQualitéMotClef({
+    id,
+    f,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
-    return await this.suivreNomsMotClef({id, f: (noms) =>
-      f(Object.keys(noms).length ? 1 : 0)
+    return await this.suivreNomsMotClef({
+      id,
+      f: (noms) => f(Object.keys(noms).length ? 1 : 0),
     });
   }
 }

@@ -13,14 +13,17 @@ export default class Profil {
   client: ClientConstellation;
   idBd: string;
 
-  constructor({client, id}: {client: ClientConstellation, id: string}) {
+  constructor({ client, id }: { client: ClientConstellation; id: string }) {
     this.client = client;
     this.idBd = id;
   }
 
-  async suivreCourriel({f, idBdProfil}: {
-    f: schémaFonctionSuivi<string | null>,
-    idBdProfil?: string
+  async suivreCourriel({
+    f,
+    idBdProfil,
+  }: {
+    f: schémaFonctionSuivi<string | null>;
+    idBdProfil?: string;
   }): Promise<schémaFonctionOublier> {
     idBdProfil = idBdProfil || this.idBd;
     return await this.client.suivreBd({
@@ -28,14 +31,14 @@ export default class Profil {
       f: async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
         const courriel = bd.get("courriel");
         f(courriel || null);
-      }
+      },
     });
   }
 
-  async sauvegarderCourriel({courriel}: {courriel: string}): Promise<void> {
+  async sauvegarderCourriel({ courriel }: { courriel: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdProfil>
-    >({id: this.idBd});
+    >({ id: this.idBd });
     await bd.set("courriel", courriel);
     fOublier();
   }
@@ -43,46 +46,67 @@ export default class Profil {
   async effacerCourriel(): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdProfil>
-    >({id: this.idBd});
+    >({ id: this.idBd });
     await bd.del("courriel");
     fOublier();
   }
 
-  async suivreNoms({f, idBdProfil}: {
-    f: schémaFonctionSuivi<{ [key: string]: string }>,
-    idBdProfil?: string
+  async suivreNoms({
+    f,
+    idBdProfil,
+  }: {
+    f: schémaFonctionSuivi<{ [key: string]: string }>;
+    idBdProfil?: string;
   }): Promise<schémaFonctionOublier> {
     idBdProfil = idBdProfil || this.idBd;
-    return await this.client.suivreBdDicDeClef<string>({id: idBdProfil, clef: "noms", f});
+    return await this.client.suivreBdDicDeClef<string>({
+      id: idBdProfil,
+      clef: "noms",
+      f,
+    });
   }
 
-  async sauvegarderNom({langue, nom}: {langue: string, nom: string}): Promise<void> {
-    const idBdNoms = await this.client.obtIdBd({nom: "noms", racine: this.idBd, type: "kvstore"});
+  async sauvegarderNom({
+    langue,
+    nom,
+  }: {
+    langue: string;
+    nom: string;
+  }): Promise<void> {
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: this.idBd,
+      type: "kvstore",
+    });
     if (!idBdNoms) {
       throw `Permission de modification refusée pour BD ${this.idBd}.`;
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>(
-      {id: idBdNoms}
-    );
+    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+      id: idBdNoms,
+    });
     await bd.set(langue, nom);
     fOublier();
   }
 
-  async effacerNom({langue}: {langue: string}): Promise<void> {
-    const idBdNoms = await this.client.obtIdBd({nom: "noms", racine: this.idBd, type: "kvstore"});
+  async effacerNom({ langue }: { langue: string }): Promise<void> {
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: this.idBd,
+      type: "kvstore",
+    });
     if (!idBdNoms) {
       throw `Permission de modification refusée pour BD ${this.idBd}.`;
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>(
-      {id: idBdNoms}
-    );
+    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+      id: idBdNoms,
+    });
     await bd.del(langue);
     fOublier();
   }
 
-  async sauvegarderImage({image}: {image: ImportCandidate}): Promise<void> {
+  async sauvegarderImage({ image }: { image: ImportCandidate }): Promise<void> {
     let contenu: ImportCandidate;
 
     if ((image as File).size !== undefined) {
@@ -93,10 +117,10 @@ export default class Profil {
     } else {
       contenu = image;
     }
-    const idImage = await this.client.ajouterÀSFIP({fichier: contenu});
+    const idImage = await this.client.ajouterÀSFIP({ fichier: contenu });
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdProfil>
-    >({id: this.idBd});
+    >({ id: this.idBd });
     await bd.set("image", idImage);
     fOublier();
   }
@@ -104,14 +128,17 @@ export default class Profil {
   async effacerImage(): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdProfil>
-    >({id: this.idBd});
+    >({ id: this.idBd });
     await bd.del("image");
     fOublier();
   }
 
-  async suivreImage({f, idBdProfil}: {
-    f: schémaFonctionSuivi<Uint8Array | null>,
-    idBdProfil?: string
+  async suivreImage({
+    f,
+    idBdProfil,
+  }: {
+    f: schémaFonctionSuivi<Uint8Array | null>;
+    idBdProfil?: string;
   }): Promise<schémaFonctionOublier> {
     idBdProfil = idBdProfil || this.idBd;
     return await this.client.suivreBd({
@@ -121,10 +148,10 @@ export default class Profil {
         if (!idImage) return f(null);
         const image = await this.client.obtFichierSFIP({
           id: idImage,
-          max: MAX_TAILLE_IMAGE_VIS
+          max: MAX_TAILLE_IMAGE_VIS,
         });
         return f(image);
-      }
+      },
     });
   }
 }
