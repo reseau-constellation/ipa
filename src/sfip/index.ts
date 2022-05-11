@@ -16,7 +16,7 @@ const obtConfigPlateforme = async () => {
   } else {
     return (await configNode).default;
   }
-}
+};
 
 const obtConfigCommun = (): { [key: string]: any } => {
   return {
@@ -51,26 +51,26 @@ const obtConfigCommun = (): { [key: string]: any } => {
         ConnMgr: {
           LowWater: 100,
           HighWater: 200,
-        }
+        },
       },
     },
-  }
-}
+  };
+};
 
 export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
   const config = obtConfigCommun();
   const configPlateforme = await obtConfigPlateforme();
 
-  console.log(configPlateforme)
-  console.log(config)
-  config.libp2p.modules = configPlateforme
+  config.libp2p.modules = configPlateforme;
   config.repo = dir;
-  console.log(config)
+  console.log(config);
 
   const sfip: IPFS = await create(config);
 
   // https://github.com/LucaPanofsky/ipfs-wss-heroku-node
-  sfip.swarm.connect("/dns4/p2p-circuit-constellation.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB")
+  sfip.swarm.connect(
+    "/dns4/p2p-circuit-constellation.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB"
+  );
 
   return sfip;
 }

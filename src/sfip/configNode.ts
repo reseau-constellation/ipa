@@ -1,3 +1,3 @@
-import configÉlectron from "./configÉlectron"
+import configÉlectron from "./configÉlectron";
 
-export default configÉlectron
+export default configÉlectron;

@@ -1,8 +1,8 @@
 import WebRTCStar from "libp2p-webrtc-star";
 import WebSockets from "libp2p-websockets";
 import WebRTCDirect from "libp2p-webrtc-direct";
-import MulticastDNS from 'libp2p-mdns'
-import KadDHT from 'libp2p-kad-dht';
+import MulticastDNS from "libp2p-mdns";
+import KadDHT from "libp2p-kad-dht";
 import { Noise } from "@chainsafe/libp2p-noise";
 import TCP from "libp2p-tcp";
 
@@ -10,13 +10,8 @@ import TCP from "libp2p-tcp";
 // https://github.com/ipfs/js-ipfs/blob/master/packages/ipfs-core-config/src/libp2p.browser.js
 // https://github.com/ipfs/js-ipfs/blob/master/packages/ipfs-core-config/src/libp2p.js
 export default {
-  transport: [
-    WebRTCStar,
-    WebSockets,
-    WebRTCDirect,
-    TCP,
-  ],
+  transport: [WebRTCStar, WebSockets, WebRTCDirect, TCP],
   connectionEncryption: [new Noise()],
   peerDiscovery: [MulticastDNS],
   dht: KadDHT,
-}
+};
