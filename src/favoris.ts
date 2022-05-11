@@ -27,7 +27,7 @@ export default class Favoris {
   idBd: string;
   oublierÉpingler?: schémaFonctionOublier;
 
-  constructor({client, id}: {client: ClientConstellation, id: string}) {
+  constructor({ client, id }: { client: ClientConstellation; id: string }) {
     this.client = client;
     this.idBd = id;
     this._épinglerFavoris();
@@ -53,7 +53,7 @@ export default class Favoris {
               await this.client.épingles!.épinglerBd({
                 id,
                 récursif: fav.récursif,
-                fichiers: épinglerFichiers
+                fichiers: épinglerFichiers,
               });
             nouvelles.push(id);
           })
@@ -62,19 +62,24 @@ export default class Favoris {
         const àOublier = précédentes.filter((id) => !nouvelles.includes(id));
 
         await Promise.all(
-          àOublier.map(async (id) => this.client.épingles!.désépinglerBd({id}))
+          àOublier.map(async (id) =>
+            this.client.épingles!.désépinglerBd({ id })
+          )
         );
 
         précédentes = nouvelles;
-      }
+      },
     });
 
     this.oublierÉpingler = fOublier;
   }
 
-  async suivreFavoris({f, idBdFavoris}: {
-    f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[]>,
-    idBdFavoris?: string
+  async suivreFavoris({
+    f,
+    idBdFavoris,
+  }: {
+    f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[]>;
+    idBdFavoris?: string;
   }): Promise<schémaFonctionOublier> {
     idBdFavoris = idBdFavoris || this.idBd;
 
@@ -90,7 +95,10 @@ export default class Favoris {
       f(favorisFinaux);
     };
 
-    return await this.client.suivreBdDic<ÉlémentFavoris>({id: idBdFavoris, f: fFinale});
+    return await this.client.suivreBdDic<ÉlémentFavoris>({
+      id: idBdFavoris,
+      f: fFinale,
+    });
   }
 
   async épinglerFavori({
@@ -106,7 +114,7 @@ export default class Favoris {
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<ÉlémentFavoris>
-    >({id: this.idBd});
+    >({ id: this.idBd });
 
     const élément: ÉlémentFavoris = {
       récursif,
@@ -121,18 +129,21 @@ export default class Favoris {
   async désépinglerFavori({ id }: { id: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<ÉlémentFavoris>
-    >({id: this.idBd});
+    >({ id: this.idBd });
     await bd.del(id);
     fOublier();
   }
 
-  async suivreÉtatFavori({id, f}: {
-    id: string,
-    f: schémaFonctionSuivi<ÉlémentFavoris | undefined>
+  async suivreÉtatFavori({
+    id,
+    f,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<ÉlémentFavoris | undefined>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDic<ÉlémentFavoris>({
       id: this.idBd,
-      f: (favoris) => f(favoris[id])
+      f: (favoris) => f(favoris[id]),
     });
   }
 
@@ -158,7 +169,7 @@ export default class Favoris {
         récursif: élément?.récursif || false,
       });
     };
-    return await this.suivreÉtatFavori({id: idObjet, f: fFinale});
+    return await this.suivreÉtatFavori({ id: idObjet, f: fFinale });
   }
 
   async estÉpingléSurDispositif(
