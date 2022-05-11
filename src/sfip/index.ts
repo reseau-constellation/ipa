@@ -47,6 +47,12 @@ const obtConfigCommun = (): { [key: string]: any } => {
           "/dns4/arcane-springs-02799.herokuapp.com/tcp/443/wss/p2p-webrtc-star/",
         ],
       },
+      Swarm: {
+        ConnMgr: {
+          LowWater: 100,
+          HighWater: 200,
+        }
+      },
     },
   }
 }
