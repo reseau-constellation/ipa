@@ -27,7 +27,7 @@ export default class Favoris {
   idBd: string;
   oublierÉpingler?: schémaFonctionOublier;
 
-  constructor(client: ClientConstellation, id: string) {
+  constructor({client, id}: {client: ClientConstellation, id: string}) {
     this.client = client;
     this.idBd = id;
     this._épinglerFavoris();
@@ -36,9 +36,9 @@ export default class Favoris {
   async _épinglerFavoris() {
     let précédentes: string[] = [];
 
-    const fOublier = await this.client.suivreBdDic<ÉlémentFavoris>(
-      this.idBd,
-      async (favoris) => {
+    const fOublier = await this.client.suivreBdDic<ÉlémentFavoris>({
+      id: this.idBd,
+      f: async (favoris) => {
         const nouvelles: string[] = [];
 
         await Promise.all(
@@ -50,11 +50,11 @@ export default class Favoris {
               fav.dispositifsFichiers
             );
             if (épinglerBd)
-              await this.client.épingles!.épinglerBd(
+              await this.client.épingles!.épinglerBd({
                 id,
-                fav.récursif,
-                épinglerFichiers
-              );
+                récursif: fav.récursif,
+                fichiers: épinglerFichiers
+              });
             nouvelles.push(id);
           })
         );
@@ -62,20 +62,20 @@ export default class Favoris {
         const àOublier = précédentes.filter((id) => !nouvelles.includes(id));
 
         await Promise.all(
-          àOublier.map(async (id) => this.client.épingles!.désépinglerBd(id))
+          àOublier.map(async (id) => this.client.épingles!.désépinglerBd({id}))
         );
 
         précédentes = nouvelles;
       }
-    );
+    });
 
     this.oublierÉpingler = fOublier;
   }
 
-  async suivreFavoris(
+  async suivreFavoris({f, idBdFavoris}: {
     f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[]>,
     idBdFavoris?: string
-  ): Promise<schémaFonctionOublier> {
+  }): Promise<schémaFonctionOublier> {
     idBdFavoris = idBdFavoris || this.idBd;
 
     const fFinale = (favoris: { [key: string]: ÉlémentFavoris }): void => {
@@ -90,44 +90,50 @@ export default class Favoris {
       f(favorisFinaux);
     };
 
-    return await this.client.suivreBdDic<ÉlémentFavoris>(idBdFavoris, fFinale);
+    return await this.client.suivreBdDic<ÉlémentFavoris>({id: idBdFavoris, f: fFinale});
   }
 
-  async épinglerFavori(
-    id: string,
-    dispositifs: typeDispositifs,
-    dispositifsFichiers: typeDispositifs = "INSTALLÉ",
-    récursif = true
-  ): Promise<void> {
+  async épinglerFavori({
+    id,
+    dispositifs,
+    dispositifsFichiers = "INSTALLÉ",
+    récursif = true,
+  }: {
+    id: string;
+    dispositifs: typeDispositifs;
+    dispositifsFichiers: typeDispositifs | undefined;
+    récursif: boolean;
+  }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<ÉlémentFavoris>
-    >(this.idBd);
+    >({id: this.idBd});
 
     const élément: ÉlémentFavoris = {
       récursif,
       dispositifs,
-      dispositifsFichiers,
     };
+    if (dispositifsFichiers) élément.dispositifsFichiers = dispositifsFichiers;
     await bd.put(id, élément);
 
     fOublier();
   }
 
-  async désépinglerFavori(id: string): Promise<void> {
+  async désépinglerFavori({ id }: { id: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<ÉlémentFavoris>
-    >(this.idBd);
+    >({id: this.idBd});
     await bd.del(id);
     fOublier();
   }
 
-  async suivreÉtatFavori(
+  async suivreÉtatFavori({id, f}: {
     id: string,
     f: schémaFonctionSuivi<ÉlémentFavoris | undefined>
-  ): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDic<ÉlémentFavoris>(this.idBd, (favoris) =>
-      f(favoris[id])
-    );
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDic<ÉlémentFavoris>({
+      id: this.idBd,
+      f: (favoris) => f(favoris[id])
+    });
   }
 
   async suivreEstÉpingléSurDispositif(
@@ -152,7 +158,7 @@ export default class Favoris {
         récursif: élément?.récursif || false,
       });
     };
-    return await this.suivreÉtatFavori(idObjet, fFinale);
+    return await this.suivreÉtatFavori({id: idObjet, f: fFinale});
   }
 
   async estÉpingléSurDispositif(
