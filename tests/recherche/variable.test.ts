@@ -123,7 +123,8 @@ typesClients.forEach((type) => {
           before(async () => {
             idVariable = await client.variables!.créerVariable("numérique");
 
-            const fRecherche = rechercherVariableSelonDescr("Radiation solaire");
+            const fRecherche =
+              rechercherVariableSelonDescr("Radiation solaire");
             fOublier = await fRecherche(
               client,
               idVariable,
@@ -135,9 +136,12 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Pas de résultat quand la variable n'a pas de description", async () => {
-            expect(résultat).to.be.undefined;
-          });
+          step(
+            "Pas de résultat quand la variable n'a pas de description",
+            async () => {
+              expect(résultat).to.be.undefined;
+            }
+          );
           it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
             await client.variables!.ajouterDescriptionsVariable(idVariable, {
               த: "சூரிய கதிர்வீச்சு",

@@ -589,7 +589,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.skip ("Exportation nuée bds", function () {
+        describe.skip("Exportation nuée bds", function () {
           step("Exportation selon changements", async () => {
             /*
             await client.automatisations!.ajouterAutomatisationExporterNuée(

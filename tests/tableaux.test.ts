@@ -375,11 +375,7 @@ typesClients.forEach((type) => {
           });
 
           step("Règles génériques de catégorie pour commencer", async () => {
-            await attendreRésultat(
-              résultats,
-              "règles",
-              r => r.length === 2
-            );
+            await attendreRésultat(résultats, "règles", (r) => r.length === 2);
 
             expect(résultats.règles).to.be.an("array").with.lengthOf(2);
             for (const r of résultats.règles) {
@@ -644,7 +640,7 @@ typesClients.forEach((type) => {
               idVariableTempMax,
               idColonneTempMax
             );
-            await attendreRésultat(err, "eurs", x => x.length === 0);
+            await attendreRésultat(err, "eurs", (x) => x.length === 0);
             expect(err.eurs).to.be.empty;
           });
 
@@ -739,7 +735,7 @@ typesClients.forEach((type) => {
               await client.tableaux!.ajouterÉlément(idTableauRègles, {
                 [idColonne]: "សូស្ដី",
               });
-              await attendreRésultat(err, "eurs", x => x.length > 0);
+              await attendreRésultat(err, "eurs", (x) => x.length > 0);
               expect(err.eurs).to.have.lengthOf(1);
             });
           });
