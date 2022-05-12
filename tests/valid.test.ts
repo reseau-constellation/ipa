@@ -134,7 +134,10 @@ describe("Validation", function () {
       describe(cat + " valides", function () {
         catégories[cat as catégorieVariables].valides.forEach((val) => {
           it(`${val}`, () => {
-            const valide = validerCatégorieVal(val, cat as catégorieVariables);
+            const valide = validerCatégorieVal({
+              val,
+              catégorie: cat as catégorieVariables,
+            });
             expect(valide).to.be.true;
           });
         });
@@ -142,7 +145,10 @@ describe("Validation", function () {
       describe(cat + " non valides", function () {
         catégories[cat as catégorieVariables].invalides.forEach((val) => {
           it(`${val}`, () => {
-            const valide = validerCatégorieVal(val, cat as catégorieVariables);
+            const valide = validerCatégorieVal({
+              val,
+              catégorie: cat as catégorieVariables,
+            });
             expect(valide).to.be.false;
           });
         });
@@ -162,7 +168,7 @@ describe("Validation", function () {
           },
         },
       };
-      const fonc = générerFonctionRègle(règle, {});
+      const fonc = générerFonctionRègle({ règle, varsÀColonnes: {} });
       const empreinte = uuidv4();
 
       it("Valeure existante", () => {
@@ -201,7 +207,7 @@ describe("Validation", function () {
           },
         },
       };
-      const fonc = générerFonctionRègle(règle, {});
+      const fonc = générerFonctionRègle({ règle, varsÀColonnes: {} });
       const empreinte = uuidv4();
 
       it("Catérogie valide", () => {
@@ -241,7 +247,7 @@ describe("Validation", function () {
             },
           },
         };
-        const fonc = générerFonctionRègle(règle, {});
+        const fonc = générerFonctionRègle({ règle, varsÀColonnes: {} });
         const erreurs = fonc([
           { données: { "une autre colonne": 1 }, empreinte: uuidv4() },
         ]);
@@ -271,7 +277,7 @@ describe("Validation", function () {
               },
             },
           };
-          const fonc = générerFonctionRègle(règle, {});
+          const fonc = générerFonctionRègle({ règle, varsÀColonnes: {} });
           const empreinte = uuidv4();
 
           op.valides.forEach((v) => {
@@ -316,8 +322,11 @@ describe("Validation", function () {
             },
           },
         };
-        const fonc = générerFonctionRègle(règle, {
-          "var temp min": "temp min",
+        const fonc = générerFonctionRègle({
+          règle,
+          varsÀColonnes: {
+            "var temp min": "temp min",
+          },
         });
         const empreinte = uuidv4();
         it("Pas d'erreur si la colonne n'existe pas", () => {
@@ -360,7 +369,10 @@ describe("Validation", function () {
           },
         },
       };
-      const fonc = générerFonctionRègle(règle, { "var temp min": "temp min" });
+      const fonc = générerFonctionRègle({
+        règle,
+        varsÀColonnes: { "var temp min": "temp min" },
+      });
       const empreinte = uuidv4();
 
       it("Pas d'erreur si la colonne n'existe pas", () => {

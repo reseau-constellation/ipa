@@ -39,7 +39,7 @@ export const attendreSync = async (bd: Store): Promise<void> => {
 export const attendreRésultat = async <T>(
   dic: { [key: string]: T },
   clef: keyof typeof dic,
-  valDésirée?: ((x: (typeof dic[typeof clef])) => boolean) | T
+  valDésirée?: ((x: typeof dic[typeof clef]) => boolean) | T
 ): Promise<void> => {
   if (valDésirée === undefined) {
     valDésirée = (x: T) => x !== undefined;
