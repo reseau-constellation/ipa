@@ -4,7 +4,7 @@ import { step } from "mocha-steps";
 import assert from "assert";
 
 import { enregistrerContrôleurs } from "@/accès";
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts"; // "../../src/ipa/acces/consts";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 
 import OrbitDB from "orbit-db";
