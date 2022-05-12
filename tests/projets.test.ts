@@ -10,10 +10,7 @@ import AdmZip from "adm-zip";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
-import {
-  schémaFonctionOublier,
-  adresseOrbiteValide,
-} from "@/utils";
+import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils";
 
 import { testAPIs, config } from "./sfipTest";
 import { générerClients, attendreRésultat, typesClients } from "./utils";
@@ -278,11 +275,7 @@ typesClients.forEach((type) => {
             const idMotClef = await client.motsClefs!.créerMotClef();
             await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
 
-            await attendreRésultat(
-              rés,
-              "motsClefs",
-              x => x && x.length > 0
-            );
+            await attendreRésultat(rés, "motsClefs", (x) => x && x.length > 0);
 
             expect(rés.motsClefs).to.be.an("array").of.length(1);
             expect(rés.motsClefs![0]).to.equal(idMotClef);
