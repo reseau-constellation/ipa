@@ -39,7 +39,7 @@ export const rechercherBdSelonNom = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.bds!.suivreNomsBd(idBd, fSuivre);
+    const fOublier = await client.bds!.suivreNomsBd({ id: idBd, f: fSuivre });
     return fOublier;
   };
 };
@@ -67,7 +67,7 @@ export const rechercherBdSelonDescr = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.bds!.suivreDescrBd(idBd, fSuivre);
+    const fOublier = await client.bds!.suivreDescrBd({ id: idBd, f: fSuivre });
     return fOublier;
   };
 };
@@ -87,7 +87,10 @@ export const rechercherBdSelonIdVariable = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
-      return await client.bds!.suivreVariablesBd(idBd, fSuivreRacine);
+      return await client.bds!.suivreVariablesBd({
+        id: idBd,
+        f: fSuivreRacine,
+      });
     };
 
     const fRechercher = rechercherSelonId(idVariable);
@@ -117,7 +120,10 @@ export const rechercherBdSelonNomVariable = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
-      return await client.bds!.suivreVariablesBd(idBd, fSuivreRacine);
+      return await client.bds!.suivreVariablesBd({
+        id: idBd,
+        f: fSuivreRacine,
+      });
     };
 
     const fRechercher = rechercherVariableSelonNom(nomVariable);
@@ -171,7 +177,10 @@ export const rechercherBdSelonIdMotClef = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
-      return await client.bds!.suivreMotsClefsBd(idBd, fSuivreRacine);
+      return await client.bds!.suivreMotsClefsBd({
+        id: idBd,
+        f: fSuivreRacine,
+      });
     };
 
     const fRechercher = rechercherSelonId(idMotClef);
@@ -201,7 +210,10 @@ export const rechercherBdSelonNomMotClef = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
-      return await client.bds!.suivreMotsClefsBd(idBd, fSuivreRacine);
+      return await client.bds!.suivreMotsClefsBd({
+        id: idBd,
+        f: fSuivreRacine,
+      });
     };
 
     const fRechercher = rechercherMotClefSelonNom(nomMotClef);

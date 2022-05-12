@@ -64,44 +64,47 @@ export type typeÉlémentsBdTableaux = string;
 export default class Tableaux {
   client: ClientConstellation;
 
-  constructor(client: ClientConstellation) {
+  constructor({ client }: { client: ClientConstellation }) {
     this.client = client;
   }
 
   async créerTableau(): Promise<string> {
-    const idBdTableau = await this.client.créerBdIndépendante("kvstore", {
-      adresseBd: undefined,
-      premierMod: this.client.bdCompte!.id,
+    const idBdTableau = await this.client.créerBdIndépendante({
+      type: "kvstore",
+      optionsAccès: {
+        adresseBd: undefined,
+        premierMod: this.client.bdCompte!.id,
+      },
     });
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
-    >(idBdTableau);
+    >({ id: idBdTableau });
 
     const accès = bdTableaux.access as unknown as ContrôleurConstellation;
     const optionsAccès = { adresseBd: accès.adresseBd };
 
-    const idBdNoms = await this.client.créerBdIndépendante(
-      "kvstore",
-      optionsAccès
-    );
+    const idBdNoms = await this.client.créerBdIndépendante({
+      type: "kvstore",
+      optionsAccès,
+    });
     await bdTableaux.set("noms", idBdNoms);
 
-    const idBdDonnées = await this.client.créerBdIndépendante(
-      "feed",
-      optionsAccès
-    );
+    const idBdDonnées = await this.client.créerBdIndépendante({
+      type: "feed",
+      optionsAccès,
+    });
     await bdTableaux.set("données", idBdDonnées);
 
-    const idBdColonnes = await this.client.créerBdIndépendante(
-      "feed",
-      optionsAccès
-    );
+    const idBdColonnes = await this.client.créerBdIndépendante({
+      type: "feed",
+      optionsAccès,
+    });
     await bdTableaux.set("colonnes", idBdColonnes);
 
-    const idBdRègles = await this.client.créerBdIndépendante(
-      "feed",
-      optionsAccès
-    );
+    const idBdRègles = await this.client.créerBdIndépendante({
+      type: "feed",
+      optionsAccès,
+    });
     await bdTableaux.set("règles", idBdRègles);
 
     fOublier();
@@ -109,15 +112,21 @@ export default class Tableaux {
     return idBdTableau;
   }
 
-  async copierTableau(id: string, copierDonnées = true): Promise<string> {
+  async copierTableau({
+    id,
+    copierDonnées = true,
+  }: {
+    id: string;
+    copierDonnées?: boolean;
+  }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
-    >(id);
+    >({ id });
     const idNouveauTableau = await this.créerTableau();
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
-      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdTableaux>>(
-        idNouveauTableau
-      );
+      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdTableaux>>({
+        id: idNouveauTableau,
+      });
 
     // Copier l'id unique s'il y a lieu
     const idUnique = bdBase.get("idUnique");
@@ -127,19 +136,31 @@ export default class Tableaux {
     const idBdNoms = bdBase.get("noms");
     const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >(idBdNoms);
+    >({ id: idBdNoms });
     const noms = bdNoms.all;
-    await this.ajouterNomsTableau(idNouveauTableau, noms);
+    await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
 
     // Copier les colonnes
-    await this.client.copierContenuBdListe(bdBase, nouvelleBd, "colonnes");
+    await this.client.copierContenuBdListe({
+      bdBase,
+      nouvelleBd,
+      clef: "colonnes",
+    });
 
     // Copier les règles
-    await this.client.copierContenuBdListe(bdBase, nouvelleBd, "règles");
+    await this.client.copierContenuBdListe({
+      bdBase,
+      nouvelleBd,
+      clef: "règles",
+    });
 
     if (copierDonnées) {
       // Copier les données
-      await this.client.copierContenuBdListe(bdBase, nouvelleBd, "données");
+      await this.client.copierContenuBdListe({
+        bdBase,
+        nouvelleBd,
+        clef: "données",
+      });
     }
 
     fOublier();
@@ -149,51 +170,61 @@ export default class Tableaux {
     return idNouveauTableau;
   }
 
-  async spécifierIdUniqueTableau(
-    idTableau: string,
-    idUnique: string
-  ): Promise<void> {
+  async spécifierIdUniqueTableau({
+    idTableau,
+    idUnique,
+  }: {
+    idTableau: string;
+    idUnique: string;
+  }): Promise<void> {
     const { bd: bdTableau, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >(idTableau);
+    >({ id: idTableau });
     await bdTableau.put("idUnique", idUnique);
     fOublier();
   }
 
-  async suivreIdUnique(
-    idTableau: string,
-    f: schémaFonctionSuivi<string | undefined>
-  ): Promise<schémaFonctionOublier> {
+  async suivreIdUnique({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<string | undefined>;
+  }): Promise<schémaFonctionOublier> {
     const fFinale = async (bd: KeyValueStore<typeÉlémentsBdTableaux>) => {
       const idUnique = bd.get("idUnique");
       f(idUnique);
     };
-    return await this.client.suivreBd(idTableau, fFinale);
+    return await this.client.suivreBd({ id: idTableau, f: fFinale });
   }
 
-  async changerColIndex(
-    idTableau: string,
-    idColonne: string,
-    val: boolean
-  ): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdColonnes = await this.client.obtIdBd(
-      "colonnes",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async changerColIndex({
+    idTableau,
+    idColonne,
+    val,
+  }: {
+    idTableau: string;
+    idColonne: string;
+    val: boolean;
+  }): Promise<void> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdColonnes = await this.client.obtIdBd({
+      nom: "colonnes",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
     if (!idBdColonnes) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
       FeedStore<InfoCol>
-    >(idBdColonnes);
-    const éléments = ClientConstellation.obtÉlémentsDeBdListe(
-      bdColonnes,
-      false
-    );
+    >({ id: idBdColonnes });
+    const éléments = ClientConstellation.obtÉlémentsDeBdListe({
+      bd: bdColonnes,
+      renvoyerValeur: false,
+    });
     const élémentCol = éléments.find((x) => x.payload.value.id === idColonne);
 
     // Changer uniquement si la colonne existe et était déjà sous le même statut que `val`
@@ -207,22 +238,29 @@ export default class Tableaux {
     fOublier();
   }
 
-  async suivreIndex(
-    idTableau: string,
-    f: schémaFonctionSuivi<string[]>
-  ): Promise<schémaFonctionOublier> {
+  async suivreIndex({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<string[]>;
+  }): Promise<schémaFonctionOublier> {
     const fFinale = (cols: InfoColAvecCatégorie[]) => {
       const indexes = cols.filter((c) => c.index).map((c) => c.id);
       f(indexes);
     };
-    return await this.suivreColonnes(idTableau, fFinale);
+    return await this.suivreColonnes({ idTableau, f: fFinale });
   }
 
-  async suivreDonnées<T extends élémentBdListeDonnées>(
-    idTableau: string,
-    f: schémaFonctionSuivi<élémentDonnées<T>[]>,
-    clefsSelonVariables = false
-  ): Promise<schémaFonctionOublier> {
+  async suivreDonnées<T extends élémentBdListeDonnées>({
+    idTableau,
+    f,
+    clefsSelonVariables = false,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<élémentDonnées<T>[]>;
+    clefsSelonVariables?: boolean;
+  }): Promise<schémaFonctionOublier> {
     const info: {
       données?: LogEntry<T>[];
       colonnes?: { [key: string]: string };
@@ -259,22 +297,22 @@ export default class Tableaux {
       );
       fFinale();
     };
-    const oublierColonnes = await this.suivreColonnes(
+    const oublierColonnes = await this.suivreColonnes({
       idTableau,
-      fSuivreColonnes,
-      false
-    );
+      f: fSuivreColonnes,
+      catégories: false,
+    });
 
     const fSuivreDonnées = (données: LogEntry<T>[]) => {
       info.données = données;
       fFinale();
     };
-    const oublierDonnées = await this.client.suivreBdListeDeClef<T>(
-      idTableau,
-      "données",
-      fSuivreDonnées,
-      false
-    );
+    const oublierDonnées = await this.client.suivreBdListeDeClef<T>({
+      id: idTableau,
+      clef: "données",
+      f: fSuivreDonnées,
+      renvoyerValeur: false,
+    });
 
     return () => {
       oublierDonnées();
@@ -282,12 +320,17 @@ export default class Tableaux {
     };
   }
 
-  async exporterDonnées(
-    idTableau: string,
-    langues?: string[],
-    doc?: WorkBook,
-    nomFichier?: string
-  ): Promise<donnéesBdExportées> {
+  async exporterDonnées({
+    idTableau,
+    langues,
+    doc,
+    nomFichier,
+  }: {
+    idTableau: string;
+    langues?: string[];
+    doc?: WorkBook;
+    nomFichier?: string;
+  }): Promise<donnéesBdExportées> {
     /* Créer le document si nécessaire */
     doc = doc || utils.book_new();
     const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
@@ -297,7 +340,7 @@ export default class Tableaux {
     if (langues) {
       const noms = await uneFois(
         (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.suivreNomsTableau(idTableau, f)
+          this.suivreNomsTableau({ idTableau, f })
       );
 
       nomTableau = traduire(noms, langues) || idCourtTableau;
@@ -307,12 +350,12 @@ export default class Tableaux {
 
     const colonnes = await uneFois(
       (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
-        this.suivreColonnes(idTableau, f)
+        this.suivreColonnes({ idTableau, f })
     );
 
     const données = await uneFois(
       (f: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) =>
-        this.suivreDonnées(idTableau, f)
+        this.suivreDonnées({ idTableau, f })
     );
 
     const formaterÉlément = (
@@ -362,13 +405,13 @@ export default class Tableaux {
 
     if (langues) {
       const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
-        this.suivreVariables(idTableau, f)
+        this.suivreVariables({ idTableau, f })
       );
       const nomsVariables: { [key: string]: string } = {};
       for (const idVar of variables) {
         const nomsDisponibles = await uneFois(
           (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-            this.client.variables!.suivreNomsVariable(idVar, f)
+            this.client.variables!.suivreNomsVariable({ id: idVar, f })
         );
         const idCol = colonnes.find((c) => c.variable === idVar)!.id!;
         nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
@@ -392,25 +435,28 @@ export default class Tableaux {
     return { doc, fichiersSFIP, nomFichier };
   }
 
-  async ajouterÉlément<T extends élémentBdListeDonnées>(
-    idTableau: string,
-    vals: T
-  ): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdDonnées = await this.client.obtIdBd(
-      "données",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async ajouterÉlément<T extends élémentBdListeDonnées>({
+    idTableau,
+    vals,
+  }: {
+    idTableau: string;
+    vals: T;
+  }): Promise<string> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdDonnées = await this.client.obtIdBd({
+      nom: "données",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
     if (!idBdDonnées) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
       FeedStore<T>
-    >(idBdDonnées);
-    vals = await this.vérifierClefsÉlément(idTableau, vals);
+    >({ id: idBdDonnées });
+    vals = await this.vérifierClefsÉlément({ idTableau, élément: vals });
     const id = uuidv4();
     const empreinte = await bdDonnées.add({ ...vals, id });
 
@@ -419,37 +465,41 @@ export default class Tableaux {
     return empreinte;
   }
 
-  async modifierÉlément(
-    idTableau: string,
-    vals: { [key: string]: élémentsBd | undefined },
-    empreintePrécédente: string
-  ): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdDonnées = await this.client.obtIdBd(
-      "données",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async modifierÉlément({
+    idTableau,
+    vals,
+    empreintePrécédente,
+  }: {
+    idTableau: string;
+    vals: { [key: string]: élémentsBd | undefined };
+    empreintePrécédente: string;
+  }): Promise<string> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdDonnées = await this.client.obtIdBd({
+      nom: "données",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
     if (!idBdDonnées) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
       FeedStore<élémentBdListeDonnées>
-    >(idBdDonnées);
+    >({ id: idBdDonnées });
 
-    const précédent = this.client.obtÉlémentBdListeSelonEmpreinte(
-      bdDonnées,
-      empreintePrécédente
-    ) as { [key: string]: élémentsBd };
+    const précédent = this.client.obtÉlémentBdListeSelonEmpreinte({
+      bd: bdDonnées,
+      empreinte: empreintePrécédente,
+    }) as { [key: string]: élémentsBd };
 
     let élément = Object.assign({}, précédent, vals);
 
     Object.keys(vals).map((c: string) => {
       if (vals[c] === undefined) delete élément[c];
     });
-    élément = await this.vérifierClefsÉlément(idTableau, élément);
+    élément = await this.vérifierClefsÉlément({ idTableau, élément });
 
     if (!élémentsÉgaux(élément, précédent)) {
       const résultat = await Promise.all([
@@ -464,24 +514,27 @@ export default class Tableaux {
     }
   }
 
-  async vérifierClefsÉlément<T extends élémentBdListeDonnées>(
-    idTableau: string,
-    élément: élémentBdListeDonnées
-  ): Promise<T> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdColonnes = await this.client.obtIdBd(
-      "colonnes",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async vérifierClefsÉlément<T extends élémentBdListeDonnées>({
+    idTableau,
+    élément,
+  }: {
+    idTableau: string;
+    élément: élémentBdListeDonnées;
+  }): Promise<T> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdColonnes = await this.client.obtIdBd({
+      nom: "colonnes",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
     if (!idBdColonnes) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
       FeedStore<InfoCol>
-    >(idBdColonnes);
+    >({ id: idBdColonnes });
     const idsColonnes: string[] = bdColonnes
       .iterator({ limit: -1 })
       .collect()
@@ -498,35 +551,44 @@ export default class Tableaux {
     ) as T;
   }
 
-  async effacerÉlément(
-    idTableau: string,
-    empreinteÉlément: string
-  ): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdDonnées = await this.client.obtIdBd(
-      "données",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async effacerÉlément({
+    idTableau,
+    empreinteÉlément,
+  }: {
+    idTableau: string;
+    empreinteÉlément: string;
+  }): Promise<void> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdDonnées = await this.client.obtIdBd({
+      nom: "données",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
     if (!idBdDonnées) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
       FeedStore<InfoCol>
-    >(idBdDonnées);
+    >({ id: idBdDonnées });
     await bdDonnées.remove(empreinteÉlément);
     fOublier();
   }
 
-  async combinerDonnées(
-    idTableauBase: string,
-    idTableau2: string
-  ): Promise<void> {
+  async combinerDonnées({
+    idTableauBase,
+    idTableau2,
+  }: {
+    idTableauBase: string;
+    idTableau2: string;
+  }): Promise<void> {
     const colsTableauBase = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
-        return await this.suivreColonnes(idTableauBase, fSuivi);
+        return await this.suivreColonnes({
+          idTableau: idTableauBase,
+          f: fSuivi,
+        });
       }
     );
 
@@ -534,7 +596,10 @@ export default class Tableaux {
       async (
         fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
       ) => {
-        return await this.suivreDonnées(idTableauBase, fSuivi);
+        return await this.suivreDonnées({
+          idTableau: idTableauBase,
+          f: fSuivi,
+        });
       }
     );
 
@@ -542,7 +607,7 @@ export default class Tableaux {
       async (
         fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
       ) => {
-        return await this.suivreDonnées(idTableau2, fSuivi);
+        return await this.suivreDonnées({ idTableau: idTableau2, f: fSuivi });
       }
     );
 
@@ -562,27 +627,36 @@ export default class Tableaux {
           }
         }
         if (Object.keys(àAjouter).length) {
-          await this.effacerÉlément(idTableauBase, existant.empreinte);
-          await this.ajouterÉlément(
-            idTableauBase,
-            Object.assign({}, existant.données, àAjouter)
-          );
+          await this.effacerÉlément({
+            idTableau: idTableauBase,
+            empreinteÉlément: existant.empreinte,
+          });
+          await this.ajouterÉlément({
+            idTableau: idTableauBase,
+            vals: Object.assign({}, existant.données, àAjouter),
+          });
         }
       } else {
-        await this.ajouterÉlément(idTableauBase, nouvelÉlément.données);
+        await this.ajouterÉlément({
+          idTableau: idTableauBase,
+          vals: nouvelÉlément.données,
+        });
       }
     }
   }
 
-  async importerDonnées(
-    idTableau: string,
-    données: élémentBdListeDonnées[]
-  ): Promise<void> {
+  async importerDonnées({
+    idTableau,
+    données,
+  }: {
+    idTableau: string;
+    données: élémentBdListeDonnées[];
+  }): Promise<void> {
     const donnéesTableau = await uneFois(
       async (
         fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
       ) => {
-        return await this.suivreDonnées(idTableau, fSuivi);
+        return await this.suivreDonnées({ idTableau, f: fSuivi });
       }
     );
 
@@ -601,32 +675,35 @@ export default class Tableaux {
     }
 
     for (const n of nouveaux) {
-      await this.ajouterÉlément(idTableau, n);
+      await this.ajouterÉlément({ idTableau, vals: n });
     }
 
     for (const e of àEffacer) {
-      await this.effacerÉlément(idTableau, e);
+      await this.effacerÉlément({ idTableau, empreinteÉlément: e });
     }
   }
 
-  async ajouterNomsTableau(
-    idTableau: string,
-    noms: { [key: string]: string }
-  ): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdNoms = await this.client.obtIdBd(
-      "noms",
-      idTableau,
-      "kvstore",
-      optionsAccès
-    );
+  async ajouterNomsTableau({
+    idTableau,
+    noms,
+  }: {
+    idTableau: string;
+    noms: { [key: string]: string };
+  }): Promise<void> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: idTableau,
+      type: "kvstore",
+      optionsAccès,
+    });
     if (!idBdNoms) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >(idBdNoms);
+    >({ id: idBdNoms });
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
@@ -634,75 +711,96 @@ export default class Tableaux {
     fOublier();
   }
 
-  async sauvegarderNomTableau(
-    idTableau: string,
-    langue: string,
-    nom: string
-  ): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdNoms = await this.client.obtIdBd(
-      "noms",
-      idTableau,
-      "kvstore",
-      optionsAccès
-    );
+  async sauvegarderNomTableau({
+    idTableau,
+    langue,
+    nom,
+  }: {
+    idTableau: string;
+    langue: string;
+    nom: string;
+  }): Promise<void> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: idTableau,
+      type: "kvstore",
+      optionsAccès,
+    });
     if (!idBdNoms) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >(idBdNoms);
+    >({ id: idBdNoms });
     await bdNoms.set(langue, nom);
     fOublier();
   }
 
-  async effacerNomTableau(idTableau: string, langue: string): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdNoms = await this.client.obtIdBd(
-      "noms",
-      idTableau,
-      "kvstore",
-      optionsAccès
-    );
+  async effacerNomTableau({
+    idTableau,
+    langue,
+  }: {
+    idTableau: string;
+    langue: string;
+  }): Promise<void> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: idTableau,
+      type: "kvstore",
+      optionsAccès,
+    });
     if (!idBdNoms) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >(idBdNoms);
+    >({ id: idBdNoms });
     await bdNoms.del(langue);
 
     fOublier();
   }
 
-  async suivreNomsTableau(
-    idTableau: string,
-    f: schémaFonctionSuivi<{ [key: string]: string }>
-  ): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef(idTableau, "noms", f);
+  async suivreNomsTableau({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<{ [key: string]: string }>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDicDeClef({
+      id: idTableau,
+      clef: "noms",
+      f,
+    });
   }
 
-  async ajouterColonneTableau(
-    idTableau: string,
-    idVariable: string,
-    idColonne?: string
-  ): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdColonnes = await this.client.obtIdBd(
-      "colonnes",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async ajouterColonneTableau({
+    idTableau,
+    idVariable,
+    idColonne,
+  }: {
+    idTableau: string;
+    idVariable: string;
+    idColonne?: string;
+  }): Promise<string> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdColonnes = await this.client.obtIdBd({
+      nom: "colonnes",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
     if (!idBdColonnes) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
       FeedStore<InfoCol>
-    >(idBdColonnes);
+    >({ id: idBdColonnes });
     const entrée: InfoCol = {
       id: idColonne || uuidv4(),
       variable: idVariable,
@@ -713,55 +811,74 @@ export default class Tableaux {
     return entrée.id;
   }
 
-  async effacerColonneTableau(
-    idTableau: string,
-    idColonne: string
-  ): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdColonnes = await this.client.obtIdBd(
-      "colonnes",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async effacerColonneTableau({
+    idTableau,
+    idColonne,
+  }: {
+    idTableau: string;
+    idColonne: string;
+  }): Promise<void> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdColonnes = await this.client.obtIdBd({
+      nom: "colonnes",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
     if (!idBdColonnes) {
       throw `Permission de modification refusée pour BD ${idTableau}.`;
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
       FeedStore<InfoCol>
-    >(idBdColonnes);
-    await this.client.effacerÉlémentDeBdListe(
-      bdColonnes,
-      (x) => x.payload.value.id === idColonne
-    );
+    >({ id: idBdColonnes });
+    await this.client.effacerÉlémentDeBdListe({
+      bd: bdColonnes,
+      élément: (x) => x.payload.value.id === idColonne,
+    });
 
     fOublier();
   }
 
-  suivreColonnes(
-    idTableau: string,
-    f: schémaFonctionSuivi<InfoColAvecCatégorie[]>,
-    catégories?: true
-  ): Promise<schémaFonctionOublier>;
+  suivreColonnes({
+    idTableau,
+    f,
+    catégories,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
+    catégories?: true;
+  }): Promise<schémaFonctionOublier>;
 
-  suivreColonnes(
-    idTableau: string,
-    f: schémaFonctionSuivi<InfoCol[]>,
-    catégories: false
-  ): Promise<schémaFonctionOublier>;
+  suivreColonnes({
+    idTableau,
+    f,
+    catégories,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<InfoCol[]>;
+    catégories: false;
+  }): Promise<schémaFonctionOublier>;
 
-  suivreColonnes(
-    idTableau: string,
-    f: schémaFonctionSuivi<(InfoCol | InfoColAvecCatégorie)[]>,
-    catégories?: boolean
-  ): Promise<schémaFonctionOublier>;
+  suivreColonnes({
+    idTableau,
+    f,
+    catégories,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<(InfoCol | InfoColAvecCatégorie)[]>;
+    catégories?: boolean;
+  }): Promise<schémaFonctionOublier>;
 
-  async suivreColonnes(
-    idTableau: string,
-    f: schémaFonctionSuivi<InfoColAvecCatégorie[]>,
-    catégories = true
-  ): Promise<schémaFonctionOublier> {
+  async suivreColonnes({
+    idTableau,
+    f,
+    catégories = true,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
+    catégories?: boolean;
+  }): Promise<schémaFonctionOublier> {
     const fFinale = (colonnes?: InfoColAvecCatégorie[]) => {
       return f(colonnes || []);
     };
@@ -772,89 +889,102 @@ export default class Tableaux {
     ): Promise<schémaFonctionOublier> => {
       if (!id) return faisRien;
 
-      return await this.client.variables!.suivreCatégorieVariable(
+      return await this.client.variables!.suivreCatégorieVariable({
         id,
-        (catégorie) => {
+        f: (catégorie) => {
           const col = Object.assign({ catégorie }, branche);
           fSuivi(col);
-        }
-      );
+        },
+      });
     };
     const fIdBdDeBranche = (x: InfoColAvecCatégorie) => x.variable;
 
     const fCode = (x: InfoColAvecCatégorie) => x.id;
-    const fSuivreBdColonnes = async (
-      id: string,
-      f: schémaFonctionSuivi<InfoColAvecCatégorie[]>
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreBdsDeBdListe(
+    const fSuivreBdColonnes = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.client.suivreBdsDeBdListe({
         id,
-        f,
+        f: fSuivreBd,
         fBranche,
         fIdBdDeBranche,
-        undefined,
-        fCode
-      );
+        fCode,
+      });
     };
 
     if (catégories) {
-      return await this.client.suivreBdDeClef(
-        idTableau,
-        "colonnes",
-        fFinale,
-        fSuivreBdColonnes
-      );
+      return await this.client.suivreBdDeClef({
+        id: idTableau,
+        clef: "colonnes",
+        f: fFinale,
+        fSuivre: fSuivreBdColonnes,
+      });
     } else {
-      return await this.client.suivreBdListeDeClef(
-        idTableau,
-        "colonnes",
-        fFinale
-      );
+      return await this.client.suivreBdListeDeClef({
+        id: idTableau,
+        clef: "colonnes",
+        f: fFinale,
+      });
     }
   }
 
-  async suivreVariables(
-    idTableau: string,
-    f: schémaFonctionSuivi<string[]>
-  ): Promise<schémaFonctionOublier> {
+  async suivreVariables({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<string[]>;
+  }): Promise<schémaFonctionOublier> {
     const fFinale = (variables?: string[]) => {
       f((variables || []).filter((v) => v && OrbitDB.isValidAddress(v)));
     };
-    const fSuivreBdColonnes = async (
-      id: string,
-      f: schémaFonctionSuivi<string[]>
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreBdListe(id, (cols: InfoCol[]) =>
-        f(cols.map((c) => c.variable))
-      );
+    const fSuivreBdColonnes = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<string[]>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.client.suivreBdListe({
+        id,
+        f: (cols: InfoCol[]) => fSuivreBd(cols.map((c) => c.variable)),
+      });
     };
-    return await this.client.suivreBdDeClef(
-      idTableau,
-      "colonnes",
-      fFinale,
-      fSuivreBdColonnes
-    );
+    return await this.client.suivreBdDeClef({
+      id: idTableau,
+      clef: "colonnes",
+      f: fFinale,
+      fSuivre: fSuivreBdColonnes,
+    });
   }
 
-  async ajouterRègleTableau(
-    idTableau: string,
-    idColonne: string,
-    règle: règleVariable
-  ): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdRègles = await this.client.obtIdBd(
-      "règles",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async ajouterRègleTableau({
+    idTableau,
+    idColonne,
+    règle,
+  }: {
+    idTableau: string;
+    idColonne: string;
+    règle: règleVariable;
+  }): Promise<string> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdRègles = await this.client.obtIdBd({
+      nom: "règles",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
     if (!idBdRègles) {
       throw `Permission de modification refusée pour tableau ${idTableau}.`;
     }
 
     const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
       FeedStore<règleColonne>
-    >(idBdRègles);
+    >({ id: idBdRègles });
 
     const id = uuidv4();
     const règleAvecId: règleVariableAvecId = {
@@ -874,14 +1004,20 @@ export default class Tableaux {
     return id;
   }
 
-  async effacerRègleTableau(idTableau: string, idRègle: string): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
-    const idBdRègles = await this.client.obtIdBd(
-      "règles",
-      idTableau,
-      "feed",
-      optionsAccès
-    );
+  async effacerRègleTableau({
+    idTableau,
+    idRègle,
+  }: {
+    idTableau: string;
+    idRègle: string;
+  }): Promise<void> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
+    const idBdRègles = await this.client.obtIdBd({
+      nom: "règles",
+      racine: idTableau,
+      type: "feed",
+      optionsAccès,
+    });
 
     if (!idBdRègles) {
       throw `Permission de modification refusée pour tableau ${idTableau}.`;
@@ -889,20 +1025,23 @@ export default class Tableaux {
 
     const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
       FeedStore<règleColonne>
-    >(idBdRègles);
+    >({ id: idBdRègles });
 
-    await this.client.effacerÉlémentDeBdListe(
-      bdRègles,
-      (é) => é.payload.value.règle.id === idRègle
-    );
+    await this.client.effacerÉlémentDeBdListe({
+      bd: bdRègles,
+      élément: (é) => é.payload.value.règle.id === idRègle,
+    });
 
     fOublier();
   }
 
-  async suivreRègles(
-    idTableau: string,
-    f: schémaFonctionSuivi<règleColonne[]>
-  ): Promise<schémaFonctionOublier> {
+  async suivreRègles({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<règleColonne[]>;
+  }): Promise<schémaFonctionOublier> {
     const dicRègles: { tableau?: règleColonne[]; variable?: règleColonne[] } =
       {};
     const fFinale = () => {
@@ -917,17 +1056,17 @@ export default class Tableaux {
     };
 
     const oublierRèglesTableau =
-      await this.client.suivreBdListeDeClef<règleColonne>(
-        idTableau,
-        "règles",
-        fFinaleRèglesTableau
-      );
+      await this.client.suivreBdListeDeClef<règleColonne>({
+        id: idTableau,
+        clef: "règles",
+        f: fFinaleRèglesTableau,
+      });
 
     // Suivre les règles spécifiées dans les variables
     const fListe = async (
       fSuivreRacine: (éléments: InfoCol[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreColonnes(idTableau, fSuivreRacine);
+      return await this.suivreColonnes({ idTableau, f: fSuivreRacine });
     };
 
     const fFinaleRèglesVariables = (règles: règleColonne[]) => {
@@ -950,23 +1089,22 @@ export default class Tableaux {
         });
         return fSuivreBranche(règlesColonnes);
       };
-      return await this.client.variables!.suivreRèglesVariable(
-        idVariable,
-        fFinaleSuivreBranche
-      );
+      return await this.client.variables!.suivreRèglesVariable({
+        id: idVariable,
+        f: fFinaleSuivreBranche,
+      });
     };
 
     const fIdBdDeBranche = (b: InfoCol) => b.variable;
     const fCode = (b: InfoCol) => b.id;
 
-    const oublierRèglesVariable = await this.client.suivreBdsDeFonctionListe(
+    const oublierRèglesVariable = await this.client.suivreBdsDeFonctionListe({
       fListe,
-      fFinaleRèglesVariables,
+      f: fFinaleRèglesVariables,
       fBranche,
       fIdBdDeBranche,
-      undefined,
-      fCode
-    );
+      fCode,
+    });
 
     // Tout oublier
     const fOublier = () => {
@@ -977,10 +1115,13 @@ export default class Tableaux {
     return fOublier;
   }
 
-  async suivreValidDonnées<T extends élémentBdListeDonnées>(
-    idTableau: string,
-    f: schémaFonctionSuivi<erreurValidation[]>
-  ): Promise<schémaFonctionOublier> {
+  async suivreValidDonnées<T extends élémentBdListeDonnées>({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<erreurValidation[]>;
+  }): Promise<schémaFonctionOublier> {
     const info: {
       données?: élémentDonnées<T>[];
       règles?: schémaFonctionValidation<T>[];
@@ -1001,7 +1142,11 @@ export default class Tableaux {
     ) => {
       if (info.varsÀColonnes) {
         info.règles = règles.map((r) =>
-          générerFonctionRègle(r.règle, info.varsÀColonnes!, r.donnéesCatégorie)
+          générerFonctionRègle({
+            règle: r.règle,
+            varsÀColonnes: info.varsÀColonnes!,
+            donnéesCatégorie: r.donnéesCatégorie,
+          })
         );
         fFinale();
       }
@@ -1010,21 +1155,21 @@ export default class Tableaux {
       info.données = données;
       fFinale();
     };
-    const fOublierVarsÀColonnes = await this.suivreColonnes(
+    const fOublierVarsÀColonnes = await this.suivreColonnes({
       idTableau,
-      (cols) => {
+      f: (cols) => {
         const varsÀColonnes = cols.reduce(
           (o, c) => ({ ...o, [c.variable]: c.id }),
           {}
         );
         info.varsÀColonnes = varsÀColonnes;
-      }
-    );
+      },
+    });
 
     const fListeRègles = async (
       fSuivreRacine: (règles: règleColonne[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreRègles(idTableau, fSuivreRacine);
+      return await this.suivreRègles({ idTableau, f: fSuivreRacine });
     };
 
     const fBrancheRègles = async (
@@ -1040,12 +1185,16 @@ export default class Tableaux {
         règle.règle.règle.détails.tableau
       ) {
         const { tableau, colonne } = règle.règle.règle.détails;
-        return await this.suivreDonnées(tableau as string, (données) =>
-          fSuivreBranche({
-            règle,
-            donnéesCatégorie: données.map((d) => d.données[colonne as string]),
-          })
-        );
+        return await this.suivreDonnées({
+          idTableau: tableau as string,
+          f: (données) =>
+            fSuivreBranche({
+              règle,
+              donnéesCatégorie: données.map(
+                (d) => d.données[colonne as string]
+              ),
+            }),
+        });
       } else {
         fSuivreBranche({ règle });
         return faisRien;
@@ -1055,16 +1204,18 @@ export default class Tableaux {
     const fIdDeBranche = (b: règleColonne) => b.règle.id;
     const fCode = (b: règleColonne) => b.règle.id;
 
-    const fOublierRègles = await this.client.suivreBdsDeFonctionListe(
-      fListeRègles,
-      fFinaleRègles,
-      fBrancheRègles,
-      fIdDeBranche,
-      undefined,
-      fCode
-    );
+    const fOublierRègles = await this.client.suivreBdsDeFonctionListe({
+      fListe: fListeRègles,
+      f: fFinaleRègles,
+      fBranche: fBrancheRègles,
+      fIdBdDeBranche: fIdDeBranche,
+      fCode,
+    });
 
-    const fOublierDonnées = await this.suivreDonnées(idTableau, fFinaleDonnées);
+    const fOublierDonnées = await this.suivreDonnées({
+      idTableau,
+      f: fFinaleDonnées,
+    });
     const fOublier = () => {
       fOublierRègles();
       fOublierDonnées();
@@ -1073,19 +1224,18 @@ export default class Tableaux {
     return fOublier;
   }
 
-  async effacerTableau(idTableau: string): Promise<void> {
+  async effacerTableau({ idTableau }: { idTableau: string }): Promise<void> {
     // Effacer toutes les composantes du tableau
-    const optionsAccès = await this.client.obtOpsAccès(idTableau);
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     for (const clef in ["noms", "données", "colonnes", "règles"]) {
-      const idBd = await this.client.obtIdBd(
-        clef,
-        idTableau,
-        undefined,
-        optionsAccès
-      );
-      if (idBd) await this.client.effacerBd(idBd);
+      const idBd = await this.client.obtIdBd({
+        nom: clef,
+        racine: idTableau,
+        optionsAccès,
+      });
+      if (idBd) await this.client.effacerBd({ id: idBd });
     }
     // Effacer le tableau lui-même
-    await this.client.effacerBd(idTableau);
+    await this.client.effacerBd({ id: idTableau });
   }
 }

@@ -31,10 +31,10 @@ export const rechercherMotClefSelonNom = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.motsClefs!.suivreNomsMotClef(
-      idMotClef,
-      fSuivre
-    );
+    const fOublier = await client.motsClefs!.suivreNomsMotClef({
+      id: idMotClef,
+      f: fSuivre,
+    });
     return fOublier;
   };
 };

@@ -224,40 +224,40 @@ const générerFExportation = (
           spéc.idObjet,
           spéc.langues
         );
-        await client.bds!.exporterDocumentDonnées(
-          donnéesExp,
-          spéc.formatDoc,
-          spéc.dir,
-          spéc.inclureFichiersSFIP
-        );
+        await client.bds!.exporterDocumentDonnées({
+          données: donnéesExp,
+          formatDoc: spéc.formatDoc,
+          dir: spéc.dir,
+          inclureFichierSFIP: spéc.inclureFichiersSFIP,
+        });
         break;
       }
 
       case "bd": {
-        const donnéesExp = await client.bds!.exporterDonnées(
-          spéc.idObjet,
-          spéc.langues
-        );
-        await client.bds!.exporterDocumentDonnées(
-          donnéesExp,
-          spéc.formatDoc,
-          spéc.dir,
-          spéc.inclureFichiersSFIP
-        );
+        const donnéesExp = await client.bds!.exporterDonnées({
+          id: spéc.idObjet,
+          langues: spéc.langues,
+        });
+        await client.bds!.exporterDocumentDonnées({
+          données: donnéesExp,
+          formatDoc: spéc.formatDoc,
+          dir: spéc.dir,
+          inclureFichierSFIP: spéc.inclureFichiersSFIP,
+        });
         break;
       }
 
       case "projet": {
-        const donnéesExp = await client.projets!.exporterDonnées(
-          spéc.idObjet,
-          spéc.langues
-        );
-        await client.projets!.exporterDocumentDonnées(
-          donnéesExp,
-          spéc.formatDoc,
-          spéc.dir,
-          spéc.inclureFichiersSFIP
-        );
+        const donnéesExp = await client.projets!.exporterDonnées({
+          id: spéc.idObjet,
+          langues: spéc.langues,
+        });
+        await client.projets!.exporterDocumentDonnées({
+          données: donnéesExp,
+          formatDoc: spéc.formatDoc,
+          dir: spéc.dir,
+          inclureFichiersSFIP: spéc.inclureFichiersSFIP,
+        });
         break;
       }
 
@@ -309,9 +309,9 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
   let idDernièreRequèteOpération = "";
 
   const fAutoAvecÉtats = async (requète: string) => {
-    const requèteDernièreModifImportée = await client.obtDeStockageLocal(
-      clefStockageDernièreFois
-    );
+    const requèteDernièreModifImportée = await client.obtDeStockageLocal({
+      clef: clefStockageDernièreFois,
+    });
 
     if (requète === requèteDernièreModifImportée) return;
 
@@ -322,7 +322,10 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
       verrou.release("opération");
       return;
     }
-    await client.sauvegarderAuStockageLocal(clefStockageDernièreFois, requète);
+    await client.sauvegarderAuStockageLocal({
+      clef: clefStockageDernièreFois,
+      val: requète,
+    });
 
     const nouvelÉtat: ÉtatEnSync = {
       type: "sync",
@@ -374,9 +377,9 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
     };
 
     const maintenant = new Date().getTime();
-    const dernièreFoisChaîne = await client.obtDeStockageLocal(
-      clefStockageDernièreFois
-    );
+    const dernièreFoisChaîne = await client.obtDeStockageLocal({
+      clef: clefStockageDernièreFois,
+    });
     const dernièreFois = dernièreFoisChaîne
       ? parseInt(dernièreFoisChaîne)
       : -Infinity;
@@ -400,10 +403,10 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
     switch (spéc.type) {
       case "exportation": {
         const spécExp = spéc as unknown as SpécificationExporter;
-        const fOublier = await client.suivreEmpreinteTêtesBdRécursive(
-          spécExp.idObjet,
-          fAutoAvecÉtats
-        );
+        const fOublier = await client.suivreEmpreinteTêtesBdRécursive({
+          idBd: spécExp.idObjet,
+          f: fAutoAvecÉtats,
+        });
         return fOublier;
       }
 
@@ -429,9 +432,9 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
             const dernièreModif = fs
               .statSync(source.adresseFichier)
               .mtime.getTime();
-            const dernièreImportation = await client.obtDeStockageLocal(
-              clefStockageDernièreFois
-            );
+            const dernièreImportation = await client.obtDeStockageLocal({
+              clef: clefStockageDernièreFois,
+            });
             const fichierModifié = dernièreImportation
               ? dernièreModif > parseInt(dernièreImportation)
               : true;
@@ -537,7 +540,7 @@ export default class Automatisations extends EventEmitter {
   automatisations: { [key: string]: AutomatisationActive };
   fOublier?: schémaFonctionOublier;
 
-  constructor(client: ClientConstellation, id: string) {
+  constructor({ client, id }: { client: ClientConstellation; id: string }) {
     super();
 
     this.client = client;
@@ -550,11 +553,11 @@ export default class Automatisations extends EventEmitter {
 
   async initialiser(): Promise<void> {
     this.fOublier =
-      await this.client.suivreBdListe<SpécificationAutomatisation>(
-        this.idBd,
-        (autos) => this.mettreAutosÀJour(autos),
-        false
-      );
+      await this.client.suivreBdListe<SpécificationAutomatisation>({
+        id: this.idBd,
+        f: (autos) => this.mettreAutosÀJour(autos),
+        renvoyerValeur: false,
+      });
   }
 
   async mettreAutosÀJour(
@@ -582,16 +585,25 @@ export default class Automatisations extends EventEmitter {
     }
   }
 
-  async ajouterAutomatisationExporter(
-    id: string,
-    typeObjet: typeObjetExportation,
-    formatDoc: formatTélécharger,
-    inclureFichiersSFIP: boolean,
-    dir: string,
-    langues?: string[],
-    fréquence?: fréquence,
-    dispositifs?: string[]
-  ): Promise<string> {
+  async ajouterAutomatisationExporter({
+    id,
+    typeObjet,
+    formatDoc,
+    inclureFichiersSFIP,
+    dir,
+    langues,
+    fréquence,
+    dispositifs,
+  }: {
+    id: string;
+    typeObjet: typeObjetExportation;
+    formatDoc: formatTélécharger;
+    inclureFichiersSFIP: boolean;
+    dir: string;
+    langues?: string[];
+    fréquence?: fréquence;
+    dispositifs?: string[];
+  }): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
     const élément: SpécificationExporter = {
       type: "exportation",
@@ -606,7 +618,7 @@ export default class Automatisations extends EventEmitter {
       dir,
     };
 
-    // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
+    // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
     Object.keys(élément).forEach((clef) => {
       if (élément[clef as keyof SpécificationExporter] === undefined) {
         delete élément[clef as keyof SpécificationExporter];
@@ -614,7 +626,7 @@ export default class Automatisations extends EventEmitter {
     });
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
-    >(this.idBd);
+    >({ id: this.idBd });
     const idÉlément = await bd.add(élément);
 
     fOublier();
@@ -624,15 +636,20 @@ export default class Automatisations extends EventEmitter {
 
   async ajouterAutomatisationImporter<
     T extends infoImporterJSON | infoImporterFeuilleCalcul
-  >(
-    idTableau: string,
-    source: SourceDonnéesImportation<T>,
-    fréquence?: fréquence,
-    dispositif?: string
-  ): Promise<string> {
+  >({
+    idTableau,
+    source,
+    fréquence,
+    dispositif,
+  }: {
+    idTableau: string;
+    source: SourceDonnéesImportation<T>;
+    fréquence?: fréquence;
+    dispositif?: string;
+  }): Promise<string> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
-    >(this.idBd);
+    >({ id: this.idBd });
 
     dispositif = dispositif || this.client.orbite!.identity.id;
 
@@ -645,7 +662,7 @@ export default class Automatisations extends EventEmitter {
       source,
     };
 
-    // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
+    // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
     Object.keys(élément).forEach((clef) => {
       if (élément[clef as keyof SpécificationImporter<T>] === undefined) {
         delete élément[clef as keyof SpécificationImporter<T>];
@@ -659,28 +676,33 @@ export default class Automatisations extends EventEmitter {
     return idÉlément;
   }
 
-  async annulerAutomatisation(id: string): Promise<void> {
+  async annulerAutomatisation({ id }: { id: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
-    >(this.idBd);
-    await this.client.effacerÉlémentDeBdListe(
+    >({ id: this.idBd });
+    await this.client.effacerÉlémentDeBdListe({
       bd,
-      (é) => é.payload.value.id === id
-    );
+      élément: (é) => é.payload.value.id === id,
+    });
     fOublier();
   }
 
-  async suivreAutomatisations(
-    f: schémaFonctionSuivi<SpécificationAutomatisation[]>,
-    idRacine?: string
-  ): Promise<schémaFonctionOublier> {
+  async suivreAutomatisations({
+    f,
+    idRacine,
+  }: {
+    f: schémaFonctionSuivi<SpécificationAutomatisation[]>;
+    idRacine?: string;
+  }): Promise<schémaFonctionOublier> {
     idRacine = idRacine || this.idBd;
-    return await this.client.suivreBdListe(idRacine, f);
+    return await this.client.suivreBdListe({ id: idRacine, f });
   }
 
-  async suivreÉtatAutomatisations(
-    f: schémaFonctionSuivi<{ [key: string]: ÉtatAutomatisation }>
-  ): Promise<schémaFonctionOublier> {
+  async suivreÉtatAutomatisations({
+    f,
+  }: {
+    f: schémaFonctionSuivi<{ [key: string]: ÉtatAutomatisation }>;
+  }): Promise<schémaFonctionOublier> {
     const fFinale = () => {
       const étatsAuto: { [key: string]: ÉtatAutomatisation } =
         Object.fromEntries(

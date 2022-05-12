@@ -31,14 +31,13 @@ export const rechercherVariableSelonNom = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.variables!.suivreNomsVariable(
-      idVariable,
-      fSuivre
-    );
+    const fOublier = await client.variables!.suivreNomsVariable({
+      id: idVariable,
+      f: fSuivre,
+    });
     return fOublier;
   };
 };
-
 
 export const rechercherVariableSelonDescr = (
   descr: string
@@ -63,14 +62,13 @@ export const rechercherVariableSelonDescr = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.variables!.suivreDescrVariable(
-      idVariable,
-      fSuivre
-    );
+    const fOublier = await client.variables!.suivreDescrVariable({
+      id: idVariable,
+      f: fSuivre,
+    });
     return fOublier;
   };
 };
-
 
 export const rechercherVariableSelonTexte = (
   texte: string

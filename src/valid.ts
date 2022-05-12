@@ -79,11 +79,15 @@ export interface élémentDonnées<
   empreinte: string;
 }
 
-export function générerFonctionRègle<T extends élémentBdListeDonnées>(
-  règle: règleColonne,
-  varsÀColonnes: { [key: string]: string },
-  donnéesCatégorie?: élémentsBd[]
-): schémaFonctionValidation<T> {
+export function générerFonctionRègle<T extends élémentBdListeDonnées>({
+  règle,
+  varsÀColonnes,
+  donnéesCatégorie,
+}: {
+  règle: règleColonne;
+  varsÀColonnes: { [key: string]: string };
+  donnéesCatégorie?: élémentsBd[];
+}): schémaFonctionValidation<T> {
   const règleVariable = règle.règle;
   const { colonne } = règle;
   const { typeRègle } = règleVariable.règle;
@@ -108,7 +112,7 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>(
         const catégorie = (règleVariable.règle as règleCatégorie).détails
           .catégorie;
         const nonValides = vals.filter(
-          (v) => !validerCatégorieVal(v.données[colonne], catégorie)
+          (v) => !validerCatégorieVal({ val: v.données[colonne], catégorie })
         );
         return nonValides.map((v: élémentDonnées<T>) => {
           const { empreinte } = v;
@@ -245,10 +249,13 @@ function validFichier(val: unknown, exts?: string[]): boolean {
   return true;
 }
 
-export function validerCatégorieVal(
-  val: unknown,
-  catégorie: catégorieVariables
-): boolean {
+export function validerCatégorieVal({
+  val,
+  catégorie,
+}: {
+  val: unknown;
+  catégorie: catégorieVariables;
+}): boolean {
   if (val === undefined) return true; // Permettre les valeurs manquantes
 
   const estUnHoroDatage = (v: unknown): boolean => {

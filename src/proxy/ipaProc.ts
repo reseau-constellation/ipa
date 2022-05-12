@@ -1,6 +1,10 @@
 import { optsConstellation } from "@/client";
 
-import { générerProxy, ClientProxifiable, ProxyClientConstellation } from "./proxy";
+import {
+  générerProxy,
+  ClientProxifiable,
+  ProxyClientConstellation,
+} from "./proxy";
 import {
   MessageDeTravailleur,
   MessagePourTravailleur,

@@ -154,11 +154,11 @@ export const sousRecherche = async <T extends infoRésultat>(
     fSuivreRecherche(résultat);
   };
 
-  const fOublier = await client.suivreBdsDeFonctionListe(
+  const fOublier = await client.suivreBdsDeFonctionListe({
     fListe,
-    fFinale,
-    fBranche
-  );
+    f: fFinale,
+    fBranche,
+  });
   return fOublier;
 };
 

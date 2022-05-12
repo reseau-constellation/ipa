@@ -60,18 +60,18 @@ export const rechercherProfilSelonActivité =
         fSuivreRecherche(calculerScore());
       };
 
-      const fOublierNoms = await client.réseau!.suivreNomsMembre(
+      const fOublierNoms = await client.réseau!.suivreNomsMembre({
         idCompte,
-        fSuivreNoms
-      );
-      const fOublierImage = await client.réseau!.suivreImageMembre(
+        f: fSuivreNoms,
+      });
+      const fOublierImage = await client.réseau!.suivreImageMembre({
         idCompte,
-        fSuivreImage,
-      );
-      const fOublierCourriel = await client.réseau!.suivreCourrielMembre(
+        f: fSuivreImage,
+      });
+      const fOublierCourriel = await client.réseau!.suivreCourrielMembre({
         idCompte,
-        fSuivreCourriel,
-      );
+        f: fSuivreCourriel,
+      });
 
       const fOublier = () => {
         fOublierNoms();
@@ -106,10 +106,10 @@ export const rechercherProfilSelonNom = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.réseau!.suivreNomsMembre(
+    const fOublier = await client.réseau!.suivreNomsMembre({
       idCompte,
-      fSuivre
-    );
+      f: fSuivre,
+    });
     return fOublier;
   };
 };
@@ -139,10 +139,10 @@ export const rechercherProfilSelonCourriel = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.réseau!.suivreCourrielMembre(
+    const fOublier = await client.réseau!.suivreCourrielMembre({
       idCompte,
-      fSuivre
-    );
+      f: fSuivre,
+    });
     return fOublier;
   };
 };
@@ -189,10 +189,10 @@ export const rechercherProfilSelonImage = (
         info: { type: "vide" },
       });
     };
-    const fOublier = await client.réseau!.suivreImageMembre(
+    const fOublier = await client.réseau!.suivreImageMembre({
       idCompte,
-      fSuivre
-    );
+      f: fSuivre,
+    });
     return fOublier;
   };
 };

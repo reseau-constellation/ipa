@@ -12,6 +12,7 @@ export interface MessageSuivreDeTravailleur extends MessageDeTravailleur {
 export interface MessageSuivrePrêtDeTravailleur extends MessageDeTravailleur {
   type: "suivrePrêt";
   id: string;
+  fonctions?: string[];
 }
 
 export interface MessageActionDeTravailleur extends MessageDeTravailleur {
@@ -27,7 +28,7 @@ export interface MessageErreurDeTravailleur extends MessageDeTravailleur {
 }
 
 export interface MessagePourTravailleur {
-  type:  "oublier" | "suivre" | "action";
+  type: "retour" | "suivre" | "action";
   id?: string;
 }
 
@@ -35,18 +36,20 @@ export interface MessageSuivrePourTravailleur extends MessagePourTravailleur {
   type: "suivre";
   id: string;
   fonction: string[];
-  args: unknown[];
-  iArgFonction: number;
+  args: { [key: string]: unknown };
+  nomArgFonction: string;
 }
 
 export interface MessageActionPourTravailleur extends MessagePourTravailleur {
   type: "action";
   id: string;
   fonction: string[];
-  args: unknown[];
+  args: { [key: string]: unknown };
 }
 
-export interface MessageOublierPourTravailleur extends MessagePourTravailleur {
-  type: "oublier";
+export interface MessageRetourPourTravailleur extends MessagePourTravailleur {
+  type: "retour";
   id: string;
+  fonction: string;
+  args?: unknown[];
 }

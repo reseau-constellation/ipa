@@ -6,7 +6,7 @@ import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 import {
   MessagePourTravailleur,
   MessageSuivrePourTravailleur,
-  MessageOublierPourTravailleur,
+  MessageRetourPourTravailleur,
   MessageActionPourTravailleur,
   MessageDeTravailleur,
   MessageSuivreDeTravailleur,
@@ -18,7 +18,7 @@ import {
 interface Tâche {
   id: string;
   fSuivre: schémaFonctionSuivi<unknown>;
-  fOublier: schémaFonctionOublier;
+  fRetour: (fonction: string, args?: unknown[]) => void;
 }
 
 class Callable extends Function {
@@ -74,8 +74,8 @@ export abstract class ClientProxifiable extends Callable {
             break;
           }
           case "suivrePrêt": {
-            const { id } = m as MessageSuivrePrêtDeTravailleur;
-            this.événements.emit(id);
+            const { id, fonctions } = m as MessageSuivrePrêtDeTravailleur;
+            this.événements.emit(id, fonctions);
             break;
           }
           case "action": {
@@ -98,26 +98,35 @@ export abstract class ClientProxifiable extends Callable {
     });
   }
 
-  __call__(fonction: string[], listeArgs: unknown[]): Promise<unknown> {
+  __call__(
+    fonction: string[],
+    args: { [key: string]: unknown }
+  ): Promise<unknown> {
     const id = uuidv4();
-    const iArgFonction = listeArgs.findIndex((a) => typeof a === "function");
+    const nomArgFonction = Object.entries(args).find(
+      (_c, v) => typeof v === "function"
+    )?.[0];
 
-    if (iArgFonction !== -1) {
-      return this.appelerFonctionSuivre(id, fonction, listeArgs, iArgFonction);
+    if (nomArgFonction) {
+      return this.appelerFonctionSuivre(id, fonction, args, nomArgFonction);
     } else {
-      return this.appelerFonctionAction(id, fonction, listeArgs);
+      return this.appelerFonctionAction(id, fonction, args);
     }
   }
 
   async appelerFonctionSuivre(
     id: string,
     fonction: string[],
-    listeArgs: unknown[],
-    iArgFonction: number
-  ) {
-    const f = listeArgs[iArgFonction] as schémaFonctionSuivi<unknown>;
-    const args = listeArgs.filter((a) => typeof a !== "function");
-    if (args.length !== listeArgs.length - 1) {
+    args: { [key: string]: unknown },
+    nomArgFonction: string
+  ): Promise<
+    schémaFonctionOublier | { [key: string]: (...args: unknown[]) => void }
+  > {
+    const f = args[nomArgFonction] as schémaFonctionSuivi<unknown>;
+    const argsSansF = Object.fromEntries(
+      Object.entries(args).filter((_c, v) => typeof v !== "function")
+    );
+    if (Object.keys(args).length !== Object.keys(argsSansF).length - 1) {
       this.erreur(new Error("Plus d'un argument est une fonction."), id);
       return new Promise((_resolve, reject) => reject());
     }
@@ -127,22 +136,23 @@ export abstract class ClientProxifiable extends Callable {
       id,
       fonction,
       args,
-      iArgFonction,
+      nomArgFonction,
     };
 
-    const messageOublier: MessageOublierPourTravailleur = {
-      type: "oublier",
-      id,
-    };
-
-    const fOublier = () => {
-      this.envoyerMessage(messageOublier);
+    const fRetour = (fonction: string, args?: unknown[]) => {
+      const messageRetour: MessageRetourPourTravailleur = {
+        type: "retour",
+        id,
+        fonction,
+        args,
+      };
+      this.envoyerMessage(messageRetour);
     };
 
     const tâche: Tâche = {
       id,
       fSuivre: f,
-      fOublier,
+      fRetour,
     };
     this.tâches[id] = tâche;
 
@@ -152,24 +162,32 @@ export abstract class ClientProxifiable extends Callable {
 
     this.envoyerMessage(message);
 
-    await new Promise<void>(async (résoudre) => {
-      await once(this.événements, id);
-      résoudre();
-    });
-
-    return fOublierTâche;
+    const fonctions = (await once(this.événements, id)) as string[] | undefined;
+    if (fonctions) {
+      const retour: { [key: string]: (...args: unknown[]) => void } = {
+        fOublier: fOublierTâche,
+      };
+      for (const f of fonctions) {
+        retour[f] = (...args: unknown[]) => {
+          this.tâches[id]?.fRetour(f, args);
+        };
+      }
+      return retour;
+    } else {
+      return fOublierTâche;
+    }
   }
 
   async appelerFonctionAction<T = unknown>(
     id: string,
     fonction: string[],
-    listeArgs: unknown[]
+    args: { [key: string]: unknown }
   ): Promise<T> {
     const message: MessageActionPourTravailleur = {
       type: "action",
       id,
       fonction,
-      args: listeArgs,
+      args: args,
     };
 
     const promesse = new Promise<T>(async (résoudre) => {
@@ -194,7 +212,7 @@ export abstract class ClientProxifiable extends Callable {
 
   oublierTâche(id: string): void {
     const tâche = this.tâches[id];
-    if (tâche) tâche.fOublier();
+    if (tâche) tâche.fRetour("fOublier");
     delete this.tâches[id];
   }
 
@@ -219,8 +237,12 @@ class Handler {
     }
   }
 
-  apply(target: ClientProxifiable, _thisArg: Handler, argumentsList: unknown[]) {
-    return target.__call__(this.listeAtributs, argumentsList);
+  apply(
+    target: ClientProxifiable,
+    _thisArg: Handler,
+    args: [{ [key: string]: unknown }]
+  ) {
+    return target.__call__(this.listeAtributs, args[0]);
   }
 }
 
@@ -230,5 +252,8 @@ export const générerProxy = (
   proxyClient: ClientProxifiable
 ): ProxyClientConstellation => {
   const handler = new Handler();
-  return new Proxy<ClientProxifiable>(proxyClient, handler) as ProxyClientConstellation;
+  return new Proxy<ClientProxifiable>(
+    proxyClient,
+    handler
+  ) as ProxyClientConstellation;
 };

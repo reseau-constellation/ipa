@@ -7,494 +7,538 @@ import * as utils from "./utils";
 
 import ClientConstellation from "@/client";
 import { réponseSuivreRecherche } from "@/reseau";
-import { schémaFonctionSuivi, résultatRecherche, infoRésultatRecherche, infoRésultatTexte, infoRésultatVide } from "@/utils";
+import {
+  schémaFonctionSuivi,
+  résultatRecherche,
+  infoRésultatRecherche,
+  infoRésultatTexte,
+  infoRésultatVide,
+} from "@/utils";
 
 export default class Recherche {
   client: ClientConstellation;
 
-  constructor(client: ClientConstellation) {
+  constructor({ client }: { client: ClientConstellation }) {
     this.client = client;
   }
 
   async rechercherVariables(
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
-    return await this.client.réseau!.rechercherVariables(
+    return await this.client.réseau!.rechercherVariables({
       f,
       nRésultatsDésirés,
-    )
+    });
   }
 
   async rechercherVariableSelonId(
     idVariable: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = utils.rechercherSelonId(idVariable);
-    return await this.client.réseau!.rechercherVariables(
+    return await this.client.réseau!.rechercherVariables({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherVariableSelonNom(
     nomBd: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = variable.rechercherVariableSelonNom(nomBd);
-    return await this.client.réseau!.rechercherVariables(
+    return await this.client.réseau!.rechercherVariables({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherVariableSelonDescr(
     nomBd: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = variable.rechercherVariableSelonDescr(nomBd);
-    return await this.client.réseau!.rechercherVariables(
+    return await this.client.réseau!.rechercherVariables({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherVariableSelonTexte(
     texte: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = variable.rechercherVariableSelonTexte(texte);
-    return await this.client.réseau!.rechercherVariables(
+    return await this.client.réseau!.rechercherVariables({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherMotsClefs(
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
-    return await this.client.réseau!.rechercherMotsClefs(
+    return await this.client.réseau!.rechercherMotsClefs({
       f,
       nRésultatsDésirés,
-    )
+    });
   }
 
   async rechercherMotClefSelonId(
     idMotClef: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = utils.rechercherSelonId(idMotClef);
-    return await this.client.réseau!.rechercherMotsClefs(
+    return await this.client.réseau!.rechercherMotsClefs({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherMotClefSelonNom(
     nomMotClef: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = motClef.rechercherMotClefSelonNom(nomMotClef);
-    return await this.client.réseau!.rechercherMotsClefs(
+    return await this.client.réseau!.rechercherMotsClefs({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherMotClefSelonTexte(
     texte: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = motClef.rechercherMotClefSelonTexte(texte);
-    return await this.client.réseau!.rechercherMotsClefs(
+    return await this.client.réseau!.rechercherMotsClefs({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBds(
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
-    return await this.client.réseau!.rechercherBds(
-      f,
-      nRésultatsDésirés,
-    );
+    return await this.client.réseau!.rechercherBds({ f, nRésultatsDésirés });
   }
 
   async rechercherBdSelonId(
     idBd: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = utils.rechercherSelonId(idBd);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonNom(
     nomBd: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonNom(nomBd);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonDescr(
     descrBd: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonDescr(descrBd);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonIdMotClef(
     idMotClef: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonIdMotClef(idMotClef);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonIdVariable(
     idVariable: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonIdVariable(idVariable);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonNomMotClef(
     nomMotClef: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonNomMotClef(nomMotClef);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonNomVariable(
     nomVariable: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonNomVariable(nomVariable);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonMotClef(
     texte: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonMotClef(texte);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonVariable(
     texte: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonVariable(texte);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherBdSelonTexte(
     texte: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<
+        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+      >[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = bd.rechercherBdSelonTexte(texte);
-    return await this.client.réseau!.rechercherBds(
+    return await this.client.réseau!.rechercherBds({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjets(
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-    )
+    });
   }
 
   async rechercherProfilSelonId(
     idCompte: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = utils.rechercherSelonId(idCompte);
-    return await this.client.réseau!.rechercherMembres(
+    return await this.client.réseau!.rechercherMembres({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProfilSelonNom(
     nom: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = profil.rechercherProfilSelonNom(nom);
-    return await this.client.réseau!.rechercherMembres(
+    return await this.client.réseau!.rechercherMembres({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProfilSelonImage(
     image: Uint8Array,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatVide>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = profil.rechercherProfilSelonImage(image);
-    return await this.client.réseau!.rechercherMembres(
+    return await this.client.réseau!.rechercherMembres({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProfilSelonActivité(
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatVide>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = profil.rechercherProfilSelonActivité();
-    return await this.client.réseau!.rechercherMembres(
+    return await this.client.réseau!.rechercherMembres({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProfilSelonCourriel(
     courriel: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = profil.rechercherProfilSelonCourriel(courriel);
-    return await this.client.réseau!.rechercherMembres(
+    return await this.client.réseau!.rechercherMembres({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonId(
     idProjet: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = utils.rechercherSelonId(idProjet);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonNom(
     nomProjet: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonNom(nomProjet);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonDescr(
     descrProjet: string,
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>,
-    nRésultatsDésirés: number,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonDescr(descrProjet);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonIdVariable(
     idVariable: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonIdVariable(idVariable);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
   async rechercherProjetSelonNomVariable(
     nomVariable: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonNomVariable(nomVariable);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonVariable(
     texte: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonVariable(texte);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonIdMotClef(
     idMotClef: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonIdMotClef(idMotClef);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonNomMotClef(
     nomMotClef: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonNomMotClef(nomMotClef);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonMotClef(
     texte: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonMotClef(texte);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonIdBd(
     idBd: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonIdBd(idBd);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
 
   async rechercherProjetSelonBd(
     idBd: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<
+        infoRésultatRecherche<
+          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        >
+      >[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonBd(idBd);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
-
 
   async rechercherProjetSelonTexte(
     texte: string,
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>>>[]>,
-    nRésultatsDésirés: number,
+    f: schémaFonctionSuivi<
+      résultatRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >[]
+    >,
+    nRésultatsDésirés: number
   ): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonTexte(texte);
-    return await this.client.réseau!.rechercherProjets(
+    return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
-      fObjectif
-    )
+      fObjectif,
+    });
   }
-
 }

@@ -10,14 +10,18 @@ import {
   MessageSuivrePourTravailleur,
   MessageSuivreDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
-  MessageOublierPourTravailleur,
+  MessageRetourPourTravailleur,
 } from "./messages";
 
 export default class GestionnaireClient {
   ipa?: ClientConstellation;
   _messagesEnAttente: MessagePourTravailleur[];
   prêt: boolean;
-  dicFOublier: { [key: string]: schémaFonctionOublier };
+  dicFRetourSuivi: {
+    [key: string]: { fOublier: schémaFonctionOublier } & {
+      [key: string]: (...args: unknown[]) => void;
+    };
+  };
   opts: optsConstellation;
 
   fMessage: (m: MessageDeTravailleur) => void;
@@ -33,7 +37,7 @@ export default class GestionnaireClient {
     this.fMessage = fMessage;
     this.fErreur = fErreur;
     this.opts = opts;
-    this.dicFOublier = {};
+    this.dicFRetourSuivi = {};
 
     this.prêt = false;
     this._messagesEnAttente = [];
@@ -51,17 +55,16 @@ export default class GestionnaireClient {
 
     this.ipa = await ClientConstellation.créer(this.opts);
 
-    this._messagesEnAttente.forEach(m=>this._gérerMessage(m))
+    this._messagesEnAttente.forEach((m) => this._gérerMessage(m));
     this.prêt = true;
     this._verrou.release("init");
-
   }
 
   async gérerMessage(message: MessagePourTravailleur): Promise<void> {
     if (this.prêt) {
-      await this._gérerMessage(message)
+      await this._gérerMessage(message);
     } else {
-      this._messagesEnAttente.unshift(message)
+      this._messagesEnAttente.unshift(message);
     }
   }
 
@@ -72,7 +75,7 @@ export default class GestionnaireClient {
         const { id } = message as MessageSuivrePourTravailleur;
         if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
 
-        const { fonction, args, iArgFonction } =
+        const { fonction, args, nomArgFonction } =
           message as MessageSuivrePourTravailleur;
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
@@ -86,14 +89,23 @@ export default class GestionnaireClient {
           this.fMessage(messageRetour);
         };
 
-        args.splice(iArgFonction, 0, fFinale);
-        const fOublier = (await fonctionIPA(...args)) as schémaFonctionOublier;
+        args[nomArgFonction] = fFinale;
+        const retour = (await fonctionIPA(args)) as
+          | schémaFonctionOublier
+          | {
+              fOublier: schémaFonctionOublier;
+              [key: string]: (...args: unknown[]) => void;
+            };
+        const retourFinal =
+          typeof retour === "function" ? { fOublier: retour } : retour;
 
-        this.dicFOublier[id] = fOublier;
+        this.dicFRetourSuivi[id] = retourFinal;
         const messageRetour: MessageSuivrePrêtDeTravailleur = {
           type: "suivrePrêt",
           id,
         };
+        if (typeof retour !== "function")
+          messageRetour.fonctions = Object.keys(retour);
         this.fMessage(messageRetour);
         break;
       }
@@ -105,7 +117,7 @@ export default class GestionnaireClient {
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
-        const résultat = await fonctionIPA(...args);
+        const résultat = await fonctionIPA(args);
         const messageRetour: MessageActionDeTravailleur = {
           type: "action",
           id,
@@ -114,11 +126,11 @@ export default class GestionnaireClient {
         this.fMessage(messageRetour);
         break;
       }
-      case "oublier": {
-        const { id } = message as MessageOublierPourTravailleur;
-        const fOublier = this.dicFOublier[id];
-        if (fOublier) fOublier();
-        delete this.dicFOublier[id];
+      case "retour": {
+        const { id, fonction } = message as MessageRetourPourTravailleur;
+        const retour = this.dicFRetourSuivi[id];
+        if (retour) retour[fonction]();
+        if (fonction === "fOublier") delete this.dicFRetourSuivi[id];
         break;
       }
       default: {
@@ -146,7 +158,7 @@ export default class GestionnaireClient {
     let fonctionIPA:
       | ClientConstellation
       | ClientConstellation[keyof ClientConstellation]
-      | ((...args: unknown[]) => Promise<unknown>) = this.ipa;
+      | ((args: { [key: string]: unknown }) => Promise<unknown>) = this.ipa;
 
     for (const [i, attr] of adresseFonction.entries()) {
       // Vive JavaScript et `this`!

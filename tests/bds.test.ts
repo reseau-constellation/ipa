@@ -37,7 +37,6 @@ typesClients.forEach((type) => {
         let clients: ClientConstellation[];
         let client: ClientConstellation;
 
-
         let idBd: string;
 
         before(async () => {
@@ -55,7 +54,7 @@ typesClients.forEach((type) => {
         });
 
         step("Création", async () => {
-          idBd = await client.bds!.créerBd("ODbl-1_0");
+          idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           expect(adresseOrbiteValide(idBd)).to.be.true;
         });
 
@@ -65,7 +64,9 @@ typesClients.forEach((type) => {
           let idNouvelleBd: string;
 
           before(async () => {
-            fOublier = await client.bds!.suivreBds((_bds) => (bds = _bds));
+            fOublier = await client.bds!.suivreBds({
+              f: (_bds) => (bds = _bds),
+            });
           });
           after(async () => {
             if (fOublier) fOublier();
@@ -75,17 +76,20 @@ typesClients.forEach((type) => {
             expect(bds[0]).to.equal(idBd);
           });
           step("On crée une autre BD sans l'ajouter", async () => {
-            idNouvelleBd = await client.bds!.créerBd("ODbl-1_0", false);
+            idNouvelleBd = await client.bds!.créerBd({
+              licence: "ODbl-1_0",
+              ajouter: false,
+            });
             expect(bds).to.be.an("array").with.lengthOf(1);
             expect(bds[0]).to.equal(idBd);
           });
           step("On peut l'ajouter ensuite à mes bds", async () => {
-            await client.bds!.ajouterÀMesBds(idNouvelleBd);
+            await client.bds!.ajouterÀMesBds({ id: idNouvelleBd });
             expect(bds).to.be.an("array").with.lengthOf(2);
             expect(bds).to.include.members([idNouvelleBd, idBd]);
           });
           step("On peut aussi l'effacer", async () => {
-            await client.bds!.effacerBd(idNouvelleBd);
+            await client.bds!.effacerBd({ id: idNouvelleBd });
             expect(bds).to.be.an("array").with.lengthOf(1);
             expect(bds[0]).to.equal(idBd);
           });
@@ -96,7 +100,10 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.bds!.suivreNomsBd(idBd, (n) => (noms = n));
+            fOublier = await client.bds!.suivreNomsBd({
+              id: idBd,
+              f: (n) => (noms = n),
+            });
           });
 
           after(async () => {
@@ -108,14 +115,21 @@ typesClients.forEach((type) => {
           });
 
           step("Ajouter un nom", async () => {
-            await client.bds!.sauvegarderNomBd(idBd, "fr", "Alphabets");
+            await client.bds!.sauvegarderNomBd({
+              id: idBd,
+              langue: "fr",
+              nom: "Alphabets",
+            });
             expect(noms.fr).to.equal("Alphabets");
           });
 
           step("Ajouter des noms", async () => {
-            await client.bds!.ajouterNomsBd(idBd, {
-              த: "எழுத்துகள்",
-              हिं: "वर्णमाला",
+            await client.bds!.ajouterNomsBd({
+              id: idBd,
+              noms: {
+                த: "எழுத்துகள்",
+                हिं: "वर्णमाला",
+              },
             });
             expect(noms).to.deep.equal({
               fr: "Alphabets",
@@ -125,16 +139,16 @@ typesClients.forEach((type) => {
           });
 
           step("Changer un nom", async () => {
-            await client.bds!.sauvegarderNomBd(
-              idBd,
-              "fr",
-              "Systèmes d'écriture"
-            );
+            await client.bds!.sauvegarderNomBd({
+              id: idBd,
+              langue: "fr",
+              nom: "Systèmes d'écriture",
+            });
             expect(noms?.fr).to.equal("Systèmes d'écriture");
           });
 
           step("Effacer un nom", async () => {
-            await client.bds!.effacerNomBd(idBd, "fr");
+            await client.bds!.effacerNomBd({ id: idBd, langue: "fr" });
             expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
           });
         });
@@ -144,10 +158,10 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.bds!.suivreDescrBd(
-              idBd,
-              (d) => (descrs = d)
-            );
+            fOublier = await client.bds!.suivreDescrBd({
+              id: idBd,
+              f: (d) => (descrs = d),
+            });
           });
 
           after(async () => {
@@ -196,10 +210,10 @@ typesClients.forEach((type) => {
           let idMotClef: string;
 
           before(async () => {
-            fOublier = await client.bds!.suivreMotsClefsBd(
-              idBd,
-              (m) => (motsClefs = m)
-            );
+            fOublier = await client.bds!.suivreMotsClefsBd({
+              id: idBd,
+              f: (m) => (motsClefs = m),
+            });
           });
 
           after(async () => {
@@ -210,11 +224,14 @@ typesClients.forEach((type) => {
           });
           step("Ajout d'un mot-clef", async () => {
             idMotClef = await client.motsClefs!.créerMotClef();
-            await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
+            await client.bds!.ajouterMotsClefsBd({
+              idBd,
+              idsMotsClefs: idMotClef,
+            });
             expect(motsClefs).to.be.an("array").of.length(1);
           });
           step("Effacer un mot-clef", async () => {
-            await client.bds!.effacerMotClefBd(idBd, idMotClef);
+            await client.bds!.effacerMotClefBd({ idBd, idMotClef });
             expect(motsClefs).to.be.an.empty("array");
           });
         });
@@ -225,11 +242,11 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            idBd = await client.bds!.créerBd("ODbl-1_0");
-            fOublier = await client.bds!.suivreLicence(
-              idBd,
-              (l) => (licence = l)
-            );
+            idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+            fOublier = await client.bds!.suivreLicence({
+              id: idBd,
+              f: (l) => (licence = l),
+            });
           });
 
           after(async () => {
@@ -241,7 +258,7 @@ typesClients.forEach((type) => {
           });
 
           step("Changement de licence", async () => {
-            await client.bds!.changerLicenceBd(idBd, "ODC-BY-1_0");
+            await client.bds!.changerLicenceBd({ idBd, licence: "ODC-BY-1_0" });
             expect(licence).to.equal("ODC-BY-1_0");
           });
         });
@@ -349,29 +366,44 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idBdOrig = await client.bds!.créerBd(réfLicence);
+            idBdOrig = await client.bds!.créerBd({ licence: réfLicence });
 
-            await client.bds!.ajouterNomsBd(idBdOrig, réfNoms);
-            await client.bds!.ajouterDescriptionsBd(idBdOrig, réfDescrs);
+            await client.bds!.ajouterNomsBd({ id: idBdOrig, noms: réfNoms });
+            await client.bds!.ajouterDescriptionsBd({
+              id: idBdOrig,
+              descriptions: réfDescrs,
+            });
 
             idMotClef = await client.motsClefs!.créerMotClef();
-            await client.bds!.ajouterMotsClefsBd(idBdOrig, idMotClef);
+            await client.bds!.ajouterMotsClefsBd({
+              idBd: idBdOrig,
+              idsMotsClefs: idMotClef,
+            });
 
-            idTableau = await client.bds!.ajouterTableauBd(idBdOrig);
+            idTableau = await client.bds!.ajouterTableauBd({ id: idBdOrig });
 
             idVariable = await client.variables!.créerVariable("numérique");
             await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
 
-            idBdCopie = await client.bds!.copierBd(idBdOrig);
+            idBdCopie = await client.bds!.copierBd({ id: idBdOrig });
 
             fsOublier.push(
-              await client.bds!.suivreNomsBd(idBdCopie, (x) => (noms = x))
+              await client.bds!.suivreNomsBd({
+                id: idBdCopie,
+                f: (x) => (noms = x),
+              })
             );
             fsOublier.push(
-              await client.bds!.suivreDescrBd(idBdCopie, (x) => (descrs = x))
+              await client.bds!.suivreDescrBd({
+                id: idBdCopie,
+                f: (x) => (descrs = x),
+              })
             );
             fsOublier.push(
-              await client.bds!.suivreLicence(idBdCopie, (x) => (licence = x))
+              await client.bds!.suivreLicence({
+                id: idBdCopie,
+                f: (x) => (licence = x),
+              })
             );
             fsOublier.push(
               await client.bds!.suivreMotsClefsBd(
@@ -843,10 +875,10 @@ typesClients.forEach((type) => {
             );
             idVarChaîne = await client.variables!.créerVariable("chaîne");
 
-            fOublier = await client.bds!.suivreScoreBd(
-              idBd,
-              (s) => (score = s)
-            );
+            fOublier = await client.bds!.suivreScoreBd({
+              id: idBd,
+              f: (s) => (score = s),
+            });
           });
 
           after(async () => {
@@ -954,10 +986,10 @@ typesClients.forEach((type) => {
           const nomTableau2 = "Tableau 2";
 
           before(async () => {
-            idBd = await client.bds!.créerBd("ODbl-1_0");
+            idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
-            const idTableau1 = await client.bds!.ajouterTableauBd(idBd);
-            const idTableau2 = await client.bds!.ajouterTableauBd(idBd);
+            const idTableau1 = await client.bds!.ajouterTableauBd({ id: idBd });
+            const idTableau2 = await client.bds!.ajouterTableauBd({ id: idBd });
 
             const idVarNum = await client.variables!.créerVariable("numérique");
             const idVarFichier = await client.variables!.créerVariable(
@@ -969,10 +1001,10 @@ typesClients.forEach((type) => {
               idVarFichier
             );
 
-            const OCTETS = fs.readFileSync(
+            const octets = fs.readFileSync(
               path.resolve(__dirname, "_ressources/logo.svg")
             );
-            cid = await client.ajouterÀSFIP(OCTETS);
+            cid = await client.ajouterÀSFIP({ fichier: octets });
 
             await client.tableaux!.ajouterÉlément(idTableau2, {
               [idColFichier]: {
@@ -989,7 +1021,7 @@ typesClients.forEach((type) => {
             });
 
             ({ doc, fichiersSFIP, nomFichier } =
-              await client.bds!.exporterDonnées(idBd, ["fr"]));
+              await client.bds!.exporterDonnées({ id: idBd, langues: ["fr"] }));
           });
 
           after(() => {
