@@ -100,7 +100,7 @@ export abstract class ClientProxifiable extends Callable {
 
   __call__(
     fonction: string[],
-    args: { [key: string]: unknown }
+    args: { [key: string]: unknown } = {}
   ): Promise<unknown> {
     const id = uuidv4();
     const nomArgFonction = Object.entries(args).find(
