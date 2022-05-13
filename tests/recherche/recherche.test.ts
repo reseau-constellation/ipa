@@ -57,7 +57,7 @@ const vérifierRecherche = (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     Object.keys(testAPIs).forEach((API) => {
       describe("Rechercher dans réseau", function () {
         this.timeout(config.timeout);
@@ -93,11 +93,11 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier, fChangerN } =
-                await client.recherche!.rechercherProfilSelonNom(
-                  "Julien",
-                  (membres) => (rés.ultat = membres),
-                  2
-                ));
+                await client.recherche!.rechercherProfilSelonNom({
+                  nom: "Julien",
+                  f: (membres) => (rés.ultat = membres),
+                  nRésultatsDésirés: 2
+                }));
               réfClient2 = {
                 id: client2.idBdCompte!,
                 résultatObjectif: {
@@ -147,21 +147,21 @@ typesClients.forEach((type) => {
             step("On suit les changements", async () => {
               await client3.profil!.sauvegarderNom({langue: "es", nom: "Julián"});
 
-              await attendreRésultat(rés, "ultat", (x) => x.length > 1);
+              await attendreRésultat(rés, "ultat", (x) => x && x.length > 1);
               vérifierRecherche(rés.ultat!, [réfClient2, réfClient3]);
             });
 
             step("Diminuer N désiré", async () => {
               fChangerN(1);
 
-              await attendreRésultat(rés, "ultat", (x) => x.length === 1);
+              await attendreRésultat(rés, "ultat", (x) => x && x.length === 1);
               vérifierRecherche(rés.ultat!, [réfClient2]);
             });
 
             step("Augmenter N désiré", async () => {
               fChangerN(2);
 
-              await attendreRésultat(rés, "ultat", (x) => x.length > 1);
+              await attendreRésultat(rés, "ultat", (x) => x && x.length > 1);
               vérifierRecherche(rés.ultat!, [réfClient2, réfClient3]);
             });
           });
@@ -173,11 +173,11 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await client.recherche!.rechercherProfilSelonCourriel(
-                  "தொடர்பு@லஸ்ஸி.இந்தியா",
-                  (membres) => (rés.ultat = membres),
-                  2
-                ));
+                await client.recherche!.rechercherProfilSelonCourriel({
+                  courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
+                  f: (membres) => (rés.ultat = membres),
+                  nRésultatsDésirés: 2
+                }));
               réfClient2 = {
                 id: client2.idBdCompte!,
                 résultatObjectif: {
@@ -233,11 +233,11 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherProfilSelonId(
-                client2.idBdCompte!,
-                (membres) => (rés.ultat = membres),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherProfilSelonId({
+                idCompte: client2.idBdCompte!,
+                f: (membres) => (rés.ultat = membres),
+                nRésultatsDésirés: 2
+              }));
               réfClient2 = {
                 id: client2.idBdCompte!,
                 résultatObjectif: {
@@ -274,11 +274,11 @@ typesClients.forEach((type) => {
 
             before(async () => {
               const idMotClef = await client2.motsClefs!.créerMotClef();
-              ({ fOublier } = await client.recherche!.rechercherMotClefSelonId(
+              ({ fOublier } = await client.recherche!.rechercherMotClefSelonId({
                 idMotClef,
-                (motsClefs) => (rés.ultat = motsClefs),
-                2
-              ));
+                f: (motsClefs) => (rés.ultat = motsClefs),
+                nRésultatsDésirés: 2
+              }));
               réfClient2 = {
                 id: client2.idBdCompte!,
                 résultatObjectif: {
@@ -310,11 +310,11 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherMotClefSelonNom(
-                "hydro",
-                (motsClefs) => (rés.ultat = motsClefs),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherMotClefSelonNom({
+                nomMotClef: "hydro",
+                f: (motsClefs) => (rés.ultat = motsClefs),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -358,10 +358,10 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherMotsClefs(
-                (motsClefs) => (rés.ultat = motsClefs),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherMotsClefs({
+                f: (motsClefs) => (rés.ultat = motsClefs),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -385,11 +385,11 @@ typesClients.forEach((type) => {
               const idVariable = await client2.variables!.créerVariable(
                 {catégorie: "numérique"}
               );
-              ({ fOublier } = await client.recherche!.rechercherVariableSelonId(
+              ({ fOublier } = await client.recherche!.rechercherVariableSelonId({
                 idVariable,
-                (motsClefs) => (rés.ultat = motsClefs),
-                2
-              ));
+                f: (motsClefs) => (rés.ultat = motsClefs),
+                nRésultatsDésirés: 2
+              }));
               réfClient2 = {
                 id: idVariable,
                 résultatObjectif: {
@@ -422,11 +422,11 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await client.recherche!.rechercherVariableSelonNom(
-                  "précip",
-                  (variables) => (rés.ultat = variables),
-                  2
-                ));
+                await client.recherche!.rechercherVariableSelonNom({
+                  nomVariable: "précip",
+                  f: (variables) => (rés.ultat = variables),
+                  nRésultatsDésirés: 2
+                }));
             });
 
             after(() => {
@@ -473,11 +473,11 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await client.recherche!.rechercherVariableSelonDescr(
-                  "précip",
-                  (variables) => (rés.ultat = variables),
-                  2
-                ));
+                await client.recherche!.rechercherVariableSelonDescr({
+                  descrVariable: "précip",
+                  f: (variables) => (rés.ultat = variables),
+                  nRésultatsDésirés: 2
+                }));
             });
 
             after(() => {
@@ -523,10 +523,10 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherVariables(
-                (variables) => (rés.ultat = variables),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherVariables({
+                f: (variables) => (rés.ultat = variables),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -549,11 +549,11 @@ typesClients.forEach((type) => {
             before(async () => {
               idBd = await client2.bds!.créerBd({licence: "ODbl-1_0"});
 
-              ({ fOublier } = await client.recherche!.rechercherBdSelonId(
+              ({ fOublier } = await client.recherche!.rechercherBdSelonId({
                 idBd,
-                (bds) => (rés.ultat = bds),
-                2
-              ));
+                f: (bds) => (rés.ultat = bds),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -584,11 +584,11 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherBdSelonNom(
-                "météo",
-                (bds) => (rés.ultat = bds),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherBdSelonNom({
+                nomBd: "météo",
+                f: (bds) => (rés.ultat = bds),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -622,11 +622,11 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherBdSelonDescr(
-                "météo",
-                (bds) => (rés.ultat = bds),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherBdSelonDescr({
+                descrBd: "météo",
+                f: (bds) => (rés.ultat = bds),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -666,11 +666,11 @@ typesClients.forEach((type) => {
             } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherBdSelonVariable(
-                "précipitation",
-                (bds) => (rés.ultat = bds),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherBdSelonVariable({
+                texte: "précipitation",
+                f: (bds) => (rés.ultat = bds),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -727,11 +727,11 @@ typesClients.forEach((type) => {
             } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherBdSelonMotClef(
-                "meteorología",
-                (bds) => (rés.ultat = bds),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherBdSelonMotClef({
+                texte: "meteorología",
+                f: (bds) => (rés.ultat = bds),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -778,10 +778,10 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherBds(
-                (bds) => (rés.ultat = bds),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherBds({
+                f: (bds) => (rés.ultat = bds),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -820,11 +820,11 @@ typesClients.forEach((type) => {
             before(async () => {
               idProjet = await client2.projets!.créerProjet();
 
-              ({ fOublier } = await client.recherche!.rechercherProjetSelonId(
+              ({ fOublier } = await client.recherche!.rechercherProjetSelonId({
                 idProjet,
-                (bds) => (rés.ultat = bds),
-                2
-              ));
+                f: (bds) => (rés.ultat = bds),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -856,11 +856,11 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherProjetSelonNom(
-                "météo",
-                (projets) => (rés.ultat = projets),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherProjetSelonNom({
+                nomProjet: "météo",
+                f: (projets) => (rés.ultat = projets),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -897,11 +897,11 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await client.recherche!.rechercherProjetSelonDescr(
-                  "météo",
-                  (projets) => (rés.ultat = projets),
-                  2
-                ));
+                await client.recherche!.rechercherProjetSelonDescr({
+                  descrProjet: "météo",
+                  f: (projets) => (rés.ultat = projets),
+                  nRésultatsDésirés: 2
+                }));
             });
 
             after(() => {
@@ -946,11 +946,11 @@ typesClients.forEach((type) => {
               await client2.projets!.ajouterBdProjet({idProjet, idBd});
 
               ({ fOublier } =
-                await client.recherche!.rechercherProjetSelonVariable(
-                  "précip",
-                  (bds) => (rés.ultat = bds),
-                  2
-                ));
+                await client.recherche!.rechercherProjetSelonVariable({
+                  texte: "précip",
+                  f: (bds) => (rés.ultat = bds),
+                  nRésultatsDésirés: 2
+                }));
             });
 
             after(() => {
@@ -1011,11 +1011,11 @@ typesClients.forEach((type) => {
               await client2.projets!.ajouterBdProjet({idProjet, idBd});
 
               ({ fOublier } =
-                await client.recherche!.rechercherProjetSelonMotClef(
-                  "meteorología",
-                  (bds) => (rés.ultat = bds),
-                  2
-                ));
+                await client.recherche!.rechercherProjetSelonMotClef({
+                  texte: "meteorología",
+                  f: (bds) => (rés.ultat = bds),
+                  nRésultatsDésirés: 2
+                }));
             });
 
             after(() => {
@@ -1068,11 +1068,11 @@ typesClients.forEach((type) => {
             } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherProjetSelonBd(
-                "meteorología",
-                (projets) => (rés.ultat = projets),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherProjetSelonBd({
+                texte: "meteorología",
+                f: (projets) => (rés.ultat = projets),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -1114,10 +1114,10 @@ typesClients.forEach((type) => {
             const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
 
             before(async () => {
-              ({ fOublier } = await client.recherche!.rechercherProjets(
-                (projets) => (rés.ultat = projets),
-                2
-              ));
+              ({ fOublier } = await client.recherche!.rechercherProjets({
+                f: (projets) => (rés.ultat = projets),
+                nRésultatsDésirés: 2
+              }));
             });
 
             after(() => {
@@ -1221,11 +1221,11 @@ typesClients.forEach((type) => {
             );
 
             ({ fOublier: fOublierRecherche, fChangerN } =
-              await client.recherche!.rechercherMotClefSelonNom(
-                "ភ្លៀង",
-                (r) => (rés.motsClefs = r),
-                5
-              ));
+              await client.recherche!.rechercherMotClefSelonNom({
+                nomMotClef: "ភ្លៀង",
+                f: (r) => (rés.motsClefs = r),
+                nRésultatsDésirés: 5
+              }));
             fsOublier.push(fOublierRecherche);
           });
 
