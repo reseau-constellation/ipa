@@ -53,7 +53,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
 
             const fRecherche = rechercherVariableSelonNom("Radiation solaire");
             fOublier = await fRecherche(
@@ -71,15 +71,15 @@ typesClients.forEach((type) => {
             expect(résultat).to.be.undefined;
           });
           it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               த: "சூரிய கதிர்வீச்சு",
-            });
+            }});
             expect(résultat).to.be.undefined;
           });
           it("Résultat si la variable est presque exacte", async () => {
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               es: "Radiación solar",
-            });
+            }});
 
             expect(résultat).to.deep.equal({
               type: "résultat",
@@ -95,9 +95,9 @@ typesClients.forEach((type) => {
             });
           });
           it("Résultat si le mot-clef est exacte", async () => {
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               fr: "Radiation solaire",
-            });
+            }});
             expect(résultat).to.deep.equal({
               type: "résultat",
               clef: "fr",
@@ -121,7 +121,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
 
             const fRecherche =
               rechercherVariableSelonDescr("Radiation solaire");
@@ -143,20 +143,20 @@ typesClients.forEach((type) => {
             }
           );
           it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
-            await client.variables!.ajouterDescriptionsVariable(idVariable, {
+            await client.variables!.ajouterDescriptionsVariable({id: idVariable, descriptions: {
               த: "சூரிய கதிர்வீச்சு",
-            });
+            }});
             expect(résultat).to.be.undefined;
           });
           it("Résultat si la variable est presque exacte", async () => {
-            await client.variables!.ajouterDescriptionsVariable(idVariable, {
+            await client.variables!.ajouterDescriptionsVariable({id: idVariable, descriptions: {
               es: "Radiación solar",
-            });
+            }});
 
             expect(résultat).to.deep.equal({
               type: "résultat",
               clef: "es",
-              de: "nom",
+              de: "descr",
               info: {
                 type: "texte",
                 début: 0,
@@ -167,9 +167,9 @@ typesClients.forEach((type) => {
             });
           });
           it("Résultat si la description est exacte", async () => {
-            await client.variables!.ajouterDescriptionsVariable(idVariable, {
+            await client.variables!.ajouterDescriptionsVariable({id: idVariable, descriptions: {
               fr: "Radiation solaire",
-            });
+            }});
             expect(résultat).to.deep.equal({
               type: "résultat",
               clef: "fr",
@@ -197,7 +197,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
 
             const fRechercheNom = rechercherVariableSelonTexte("précipitation");
             fsOublier.push(
@@ -211,9 +211,9 @@ typesClients.forEach((type) => {
               await fRechercheId(client, idVariable, (r) => (résultatId = r))
             );
 
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               fr: "précipitation",
-            });
+            }});
           });
 
           after(() => {

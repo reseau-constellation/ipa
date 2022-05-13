@@ -43,12 +43,12 @@ export default class Favoris {
 
         await Promise.all(
           Object.entries(favoris).map(async ([id, fav]) => {
-            const épinglerBd = await this.estÉpingléSurDispositif(
-              fav.dispositifs
-            );
-            const épinglerFichiers = await this.estÉpingléSurDispositif(
-              fav.dispositifsFichiers
-            );
+            const épinglerBd = await this.estÉpingléSurDispositif({
+              dispositifs: fav.dispositifs,
+            });
+            const épinglerFichiers = await this.estÉpingléSurDispositif({
+              dispositifs: fav.dispositifsFichiers,
+            });
             if (épinglerBd)
               await this.client.épingles!.épinglerBd({
                 id,
@@ -109,8 +109,8 @@ export default class Favoris {
   }: {
     id: string;
     dispositifs: typeDispositifs;
-    dispositifsFichiers: typeDispositifs | undefined;
-    récursif: boolean;
+    dispositifsFichiers?: typeDispositifs | undefined;
+    récursif?: boolean;
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<ÉlémentFavoris>
@@ -147,20 +147,24 @@ export default class Favoris {
     });
   }
 
-  async suivreEstÉpingléSurDispositif(
-    idObjet: string,
-    f: schémaFonctionSuivi<épingleDispositif>,
-    idOrbite?: string
-  ): Promise<schémaFonctionOublier> {
+  async suivreEstÉpingléSurDispositif({
+    idObjet,
+    f,
+    idOrbite,
+  }: {
+    idObjet: string;
+    f: schémaFonctionSuivi<épingleDispositif>;
+    idOrbite?: string;
+  }): Promise<schémaFonctionOublier> {
     const fFinale = async (élément?: ÉlémentFavoris): Promise<void> => {
-      const bdEstÉpinglée = await this.estÉpingléSurDispositif(
-        élément?.dispositifs,
-        idOrbite
-      );
-      const fichiersSontÉpinglés = await this.estÉpingléSurDispositif(
-        élément?.dispositifsFichiers,
-        idOrbite
-      );
+      const bdEstÉpinglée = await this.estÉpingléSurDispositif({
+        dispositifs: élément?.dispositifs,
+        idOrbite,
+      });
+      const fichiersSontÉpinglés = await this.estÉpingléSurDispositif({
+        dispositifs: élément?.dispositifsFichiers,
+        idOrbite,
+      });
 
       f({
         idObjet,
@@ -172,10 +176,13 @@ export default class Favoris {
     return await this.suivreÉtatFavori({ id: idObjet, f: fFinale });
   }
 
-  async estÉpingléSurDispositif(
-    dispositifs: ÉlémentFavoris["dispositifs"] | undefined,
-    idOrbite?: string
-  ): Promise<boolean> {
+  async estÉpingléSurDispositif({
+    dispositifs,
+    idOrbite,
+  }: {
+    dispositifs: ÉlémentFavoris["dispositifs"] | undefined;
+    idOrbite?: string;
+  }): Promise<boolean> {
     idOrbite = idOrbite || (await this.client.obtIdOrbite());
     if (dispositifs === undefined) {
       return false;

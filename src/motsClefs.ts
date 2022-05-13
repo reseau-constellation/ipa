@@ -194,7 +194,7 @@ export default class MotsClefs {
     return await this.client.suivreBdDicDeClef({ id, clef: "noms", f });
   }
 
-  async effacerMotClef(id: string): Promise<void> {
+  async effacerMotClef({id}: {id: string}): Promise<void> {
     // Effacer l'entrée dans notre liste de mots clefs
     await this.enleverDeMesMotsClefs({ id });
 

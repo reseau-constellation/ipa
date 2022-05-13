@@ -73,7 +73,7 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client.suivreIdBdCompte(fSuivi);
+              return await client.suivreIdBdCompte({f: fSuivi});
             }
           );
 
@@ -81,7 +81,7 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client2.suivreIdBdCompte(fSuivi);
+              return await client2.suivreIdBdCompte({f: fSuivi});
             }
           );
 
@@ -89,7 +89,7 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<string>
             ): Promise<schémaFonctionOublier> => {
-              return await client3.suivreIdBdCompte(fSuivi);
+              return await client3.suivreIdBdCompte({f: fSuivi});
             }
           );
 
@@ -108,7 +108,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fOublier = await client.réseau!.suivreConnexionsPostesSFIP(
-              (c) => (rés.ultat = c)
+              {f: (c) => (rés.ultat = c)}
             );
           });
 
@@ -130,7 +130,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fOublier = await client.réseau!.suivreConnexionsDispositifs(
-              (d) => (dis.positifs = d)
+              {f: (d) => (dis.positifs = d)}
             );
           });
 
@@ -156,7 +156,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fOublier = await client.réseau!.suivreConnexionsMembres(
-              (c) => (rés.ultat = c)
+              {f: (c) => (rés.ultat = c)}
             );
           });
 
@@ -167,6 +167,18 @@ typesClients.forEach((type) => {
           step("Autres membres détectés", async () => {
             const réfRés: infoMembre[] = [
               {
+                idBdCompte: idBdCompte1,
+                dispositifs: [
+                  {
+                    idSFIP: idNodeSFIP1,
+                    idOrbite: idOrbite1,
+                    idCompte: idBdCompte1,
+                    clefPublique: client.orbite!.identity.publicKey,
+                    encryption: {type: client.encryption.nom, clefPublique: client.encryption.clefs.publique},
+                    signatures: client.orbite!.identity.signatures,
+                  },
+                ],
+              },{
                 idBdCompte: idBdCompte2,
                 dispositifs: [
                   {
@@ -174,6 +186,7 @@ typesClients.forEach((type) => {
                     idOrbite: idOrbite2,
                     idCompte: idBdCompte2,
                     clefPublique: client2.orbite!.identity.publicKey,
+                    encryption: {type: client2.encryption.nom, clefPublique: client2.encryption.clefs.publique},
                     signatures: client2.orbite!.identity.signatures,
                   },
                 ],
@@ -186,6 +199,7 @@ typesClients.forEach((type) => {
                     idOrbite: idOrbite3,
                     idCompte: idBdCompte3,
                     clefPublique: client3.orbite!.identity.publicKey,
+                    encryption: {type: client3.encryption.nom, clefPublique: client3.encryption.clefs.publique},
                     signatures: client3.orbite!.identity.signatures,
                   },
                 ],
@@ -203,13 +217,13 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fsOublier.push(
-              await client.réseau!.suivreFiables((m) => (fiables.propres = m))
+              await client.réseau!.suivreFiables({f: (m) => (fiables.propres = m)})
             );
             fsOublier.push(
-              await client2.réseau!.suivreFiables(
-                (m) => (fiables.autre = m),
-                idBdCompte1
-              )
+              await client2.réseau!.suivreFiables({
+                f: (m) => (fiables.autre = m),
+                idBdCompte: idBdCompte1
+              })
             );
           });
 
@@ -222,7 +236,7 @@ typesClients.forEach((type) => {
           });
 
           step("Faire confiance", async () => {
-            await client.réseau!.faireConfianceAuMembre(idBdCompte2);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: idBdCompte2});
             expect(fiables.propres)
               .to.be.an("array")
               .with.lengthOf(1)
@@ -242,7 +256,7 @@ typesClients.forEach((type) => {
           });
 
           step("Un débloquage accidental ne fait rien", async () => {
-            await client.réseau!.débloquerMembre(idBdCompte2);
+            await client.réseau!.débloquerMembre({idBdCompte: idBdCompte2});
             expect(fiables.propres)
               .to.be.an("array")
               .with.lengthOf(1)
@@ -250,7 +264,7 @@ typesClients.forEach((type) => {
           });
 
           step("Changer d'avis", async () => {
-            await client.réseau!.nePlusFaireConfianceAuMembre(idBdCompte2);
+            await client.réseau!.nePlusFaireConfianceAuMembre({idBdCompte: idBdCompte2});
             expect(fiables.propres).to.be.empty;
           });
         });
@@ -266,25 +280,25 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fsOublier.push(
-              await client.réseau!.suivreBloqués((m) => (bloqués.tous = m))
+              await client.réseau!.suivreBloqués({f: (m) => (bloqués.tous = m)})
             );
             fsOublier.push(
               await client.réseau!.suivreBloquésPubliques(
-                (m) => (bloqués.publiques = m)
+                {f: (m) => (bloqués.publiques = m)}
               )
             );
             fsOublier.push(
-              await client2.réseau!.suivreBloqués(
-                (m) => (bloqués.autreMembre = m),
-                idBdCompte1
-              )
+              await client2.réseau!.suivreBloqués({
+                f: (m) => (bloqués.autreMembre = m),
+                idBdCompte: idBdCompte1
+              })
             );
           });
 
           after(async () => {
             fsOublier.forEach((f) => f());
-            await client.réseau!.débloquerMembre(idBdCompte2);
-            await client.réseau!.débloquerMembre(idBdCompte3);
+            await client.réseau!.débloquerMembre({idBdCompte: idBdCompte2});
+            await client.réseau!.débloquerMembre({idBdCompte: idBdCompte3});
           });
 
           step("Personne pour commencer", async () => {
@@ -292,7 +306,7 @@ typesClients.forEach((type) => {
           });
 
           step("Bloquer quelqu'un", async () => {
-            await client.réseau!.bloquerMembre(idBdCompte2);
+            await client.réseau!.bloquerMembre({idBdCompte: idBdCompte2});
             expect(bloqués.tous)
               .to.be.an("array")
               .with.lengthOf(1)
@@ -309,7 +323,7 @@ typesClients.forEach((type) => {
           });
 
           step("Un dé-confiance accidental ne fait rien", async () => {
-            await client.réseau!.nePlusFaireConfianceAuMembre(idBdCompte2);
+            await client.réseau!.nePlusFaireConfianceAuMembre({idBdCompte: idBdCompte2});
             expect(bloqués.tous)
               .to.be.an("array")
               .with.lengthOf(1)
@@ -322,7 +336,7 @@ typesClients.forEach((type) => {
           });
 
           step("Bloquer privé", async () => {
-            await client.réseau!.bloquerMembre(idBdCompte3, true);
+            await client.réseau!.bloquerMembre({idBdCompte: idBdCompte3, privé: true});
             expect(bloqués.tous)
               .to.be.an("array")
               .with.lengthOf(2)
@@ -362,12 +376,12 @@ typesClients.forEach((type) => {
           );
 
           step("Débloquer publique", async () => {
-            await client.réseau!.débloquerMembre(idBdCompte2);
+            await client.réseau!.débloquerMembre({idBdCompte: idBdCompte2});
             expect(bloqués.publiques).to.be.empty;
           });
 
           step("Débloquer privé", async () => {
-            await client.réseau!.débloquerMembre(idBdCompte3);
+            await client.réseau!.débloquerMembre({idBdCompte: idBdCompte3});
             expect(bloqués.tous).to.be.empty;
           });
         });
@@ -388,23 +402,23 @@ typesClients.forEach((type) => {
           before(async () => {
             fsOublier.push(
               await client.réseau!.suivreRelationsImmédiates(
-                (c) => (relations.propres = c)
+                {f: (c) => (relations.propres = c)}
               )
             );
             fsOublier.push(
               await client2.réseau!.suivreRelationsImmédiates(
-                (c) => (relations.autre = c),
-                idBdCompte1
+                {f: (c) => (relations.autre = c),
+                idBdCompte: idBdCompte1}
               )
             );
           });
 
           after(async () => {
             fsOublier.forEach((f) => f());
-            if (idMotClef1) await client2.motsClefs!.effacerMotClef(idMotClef1);
-            if (idMotClef2) await client2.motsClefs!.effacerMotClef(idMotClef2);
-            if (idBd) await client.bds!.effacerBd(idBd);
-            if (idProjet) await client.projets!.effacerProjet(idProjet);
+            if (idMotClef1) await client2.motsClefs!.effacerMotClef({id: idMotClef1});
+            if (idMotClef2) await client2.motsClefs!.effacerMotClef({id: idMotClef2});
+            if (idBd) await client.bds!.effacerBd({id: idBd});
+            if (idProjet) await client.projets!.effacerProjet({id: idProjet});
           });
 
           step("Personne pour commencer", async () => {
@@ -420,7 +434,7 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout membre de confiance détecté", async () => {
-            await client.réseau!.faireConfianceAuMembre(idBdCompte2);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: idBdCompte2});
             await attendreRésultat(relations, "propres", (x) =>
               Boolean(x.length)
             );
@@ -430,7 +444,7 @@ typesClients.forEach((type) => {
           });
 
           step("Bloquer membre détecté", async () => {
-            await client.réseau!.bloquerMembre(idBdCompte3);
+            await client.réseau!.bloquerMembre({idBdCompte: idBdCompte3});
             await attendreRésultat(relations, "propres", (x) => x.length === 2);
             expect(
               relations.propres!.map((r) => r.idBdCompte)
@@ -438,7 +452,7 @@ typesClients.forEach((type) => {
           });
 
           step("Débloquer membre détecté", async () => {
-            await client.réseau!.débloquerMembre(idBdCompte3);
+            await client.réseau!.débloquerMembre({idBdCompte: idBdCompte3});
             await attendreRésultat(relations, "propres", (x) => x.length === 1);
           });
 
@@ -458,13 +472,13 @@ typesClients.forEach((type) => {
           );
 
           step("Enlever membre de confiance détecté", async () => {
-            await client.réseau!.nePlusFaireConfianceAuMembre(idBdCompte2);
+            await client.réseau!.nePlusFaireConfianceAuMembre({idBdCompte: idBdCompte2});
             expect(relations.propres).to.be.empty;
           });
 
           step("Ajout aux favoris détecté", async () => {
             idMotClef2 = await client2.motsClefs!.créerMotClef();
-            await client.favoris!.épinglerFavori(idMotClef2, "TOUS");
+            await client.favoris!.épinglerFavori({id: idMotClef2, dispositifs: "TOUS"});
 
             await attendreRésultat(
               relations,
@@ -488,7 +502,7 @@ typesClients.forEach((type) => {
           });
 
           step("Enlever favori détecté", async () => {
-            await client.favoris!.désépinglerFavori(idMotClef2);
+            await client.favoris!.désépinglerFavori({id: idMotClef2});
             expect(relations.propres).to.be.empty;
 
             await attendreRésultat(
@@ -500,8 +514,8 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout coauteur BD détecté", async () => {
-            idBd = await client.bds!.créerBd("ODbl-1_0");
-            await client.bds!.inviterAuteur(idBd, idBdCompte2, MEMBRE);
+            idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
+            await client.bds!.inviterAuteur({idBd, idBdCompteAuteur: idBdCompte2, rôle: MEMBRE});
 
             await attendreRésultat(
               relations,
@@ -526,7 +540,7 @@ typesClients.forEach((type) => {
           });
 
           step("Enlever bd détecté", async () => {
-            await client.bds!.effacerBd(idBd);
+            await client.bds!.effacerBd({id: idBd});
 
             expect(relations.propres).to.be.empty;
 
@@ -540,7 +554,7 @@ typesClients.forEach((type) => {
 
           step("Ajout coauteur projet détecté", async () => {
             idProjet = await client.projets!.créerProjet();
-            await client.projets!.inviterAuteur(idProjet, idBdCompte2, MEMBRE);
+            await client.projets!.inviterAuteur({idProjet, idBdCompteAuteur: idBdCompte2, rôle: MEMBRE});
 
             await attendreRésultat(
               relations,
@@ -564,7 +578,7 @@ typesClients.forEach((type) => {
           });
 
           step("Enlever projet détecté", async () => {
-            await client.projets!.effacerProjet(idProjet);
+            await client.projets!.effacerProjet({id: idProjet});
 
             expect(relations.propres).to.be.empty;
 
@@ -577,12 +591,12 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout coauteur variable détecté", async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
-            await client.variables!.inviterAuteur(
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
+            await client.variables!.inviterAuteur({
               idVariable,
-              idBdCompte2,
-              MEMBRE
-            );
+              idBdCompteAuteur: idBdCompte2,
+              rôle: MEMBRE
+            });
 
             await attendreRésultat(
               relations,
@@ -607,7 +621,7 @@ typesClients.forEach((type) => {
           });
 
           step("Enlever variable détecté", async () => {
-            await client.variables!.effacerVariable(idVariable);
+            await client.variables!.effacerVariable({id: idVariable});
 
             expect(relations.propres).to.be.empty;
 
@@ -621,11 +635,11 @@ typesClients.forEach((type) => {
 
           step("Ajout coauteur mot-clef détecté", async () => {
             idMotClef1 = await client.motsClefs!.créerMotClef();
-            await client.motsClefs!.inviterAuteur(
-              idMotClef1,
-              idBdCompte2,
-              MEMBRE
-            );
+            await client.motsClefs!.inviterAuteur({
+              idMotClef: idMotClef1,
+              idBdCompteAuteur: idBdCompte2,
+              rôle: MEMBRE
+            });
 
             await attendreRésultat(
               relations,
@@ -649,7 +663,7 @@ typesClients.forEach((type) => {
           });
 
           step("Enlever mot-clef détecté", async () => {
-            await client.motsClefs!.effacerMotClef(idMotClef1);
+            await client.motsClefs!.effacerMotClef({id: idMotClef1});
 
             expect(relations.propres).to.be.empty;
 
@@ -669,20 +683,20 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier, fChangerProfondeur } =
-              await client.réseau!.suivreRelationsConfiance(
-                (r) => (rés.ultat = r),
-                1
-              ));
+              await client.réseau!.suivreRelationsConfiance({
+                f: (r) => (rés.ultat = r),
+                profondeur: 1
+              }));
           });
 
           after(async () => {
             if (fOublier) fOublier();
-            await client.réseau!.nePlusFaireConfianceAuMembre(
-              client2.idBdCompte!
-            );
-            await client2.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
-            );
+            await client.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client2.idBdCompte!
+            });
+            await client2.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client3.idBdCompte!
+            });
           });
 
           step("Relations immédiates", async () => {
@@ -694,7 +708,7 @@ typesClients.forEach((type) => {
                 profondeur: 0,
               },
             ];
-            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client2.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => !!x.length);
             expect(rés.ultat).to.have.deep.members(réf);
@@ -714,7 +728,7 @@ typesClients.forEach((type) => {
                 profondeur: 1,
               },
             ];
-            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client2.réseau!.faireConfianceAuMembre({idBdCompte: client3.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => x.length === 2);
             expect(rés.ultat).to.have.deep.members(réf);
@@ -765,26 +779,26 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier, fChangerProfondeur } =
-              await client.réseau!.suivreComptesRéseau(
-                (c) => (rés.ultat = c),
-                1
-              ));
+              await client.réseau!.suivreComptesRéseau({
+                f: (c) => (rés.ultat = c),
+                profondeur: 1
+              }));
           });
 
           after(async () => {
             if (fOublier) fOublier();
 
-            await client.réseau!.nePlusFaireConfianceAuMembre(
-              client2.idBdCompte!
-            );
-            await client.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
-            );
-            await client2.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
-            );
-            await client2.réseau!.débloquerMembre(client3.idBdCompte!);
-            await client.réseau!.débloquerMembre(client2.idBdCompte!);
+            await client.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client2.idBdCompte!
+            });
+            await client.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client3.idBdCompte!
+            });
+            await client2.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client3.idBdCompte!
+            });
+            await client2.réseau!.débloquerMembre({idBdCompte: client3.idBdCompte!});
+            await client.réseau!.débloquerMembre({idBdCompte: client2.idBdCompte!});
           });
 
           step("Relations confiance immédiates", async () => {
@@ -795,7 +809,7 @@ typesClients.forEach((type) => {
                 profondeur: 0,
               },
             ];
-            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client2.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => !!x.length);
             expect(rés.ultat).to.have.deep.members(réf);
@@ -813,7 +827,7 @@ typesClients.forEach((type) => {
                 profondeur: 1,
               },
             ];
-            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client2.réseau!.faireConfianceAuMembre({idBdCompte: client3.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => x.length > 1);
             expect(rés.ultat).to.have.deep.members(réf);
@@ -831,7 +845,7 @@ typesClients.forEach((type) => {
                 profondeur: 0,
               },
             ];
-            await client.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client3.idBdCompte!});
 
             await attendreRésultat(
               rés,
@@ -854,7 +868,7 @@ typesClients.forEach((type) => {
               },
             ];
             await client.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
+              {idBdCompte: client3.idBdCompte!}
             );
 
             await attendreRésultat(
@@ -873,7 +887,7 @@ typesClients.forEach((type) => {
               },
             ];
             await client2.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
+              {idBdCompte: client3.idBdCompte!}
             );
 
             await attendreRésultat(rés, "ultat", (x) => x.length === 1);
@@ -881,7 +895,7 @@ typesClients.forEach((type) => {
           });
           step("Enlever relation confiance directe", async () => {
             await client.réseau!.nePlusFaireConfianceAuMembre(
-              client2.idBdCompte!
+              {idBdCompte: client2.idBdCompte!}
             );
 
             await attendreRésultat(rés, "ultat", (x) => !x.length);
@@ -895,13 +909,13 @@ typesClients.forEach((type) => {
                 profondeur: 0,
               },
             ];
-            await client.réseau!.bloquerMembre(client2.idBdCompte!);
+            await client.réseau!.bloquerMembre({idBdCompte: client2.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => !!x.length);
             expect(rés.ultat).to.have.deep.members(réf);
           });
           step("Membre débloqué directement", async () => {
-            await client.réseau!.débloquerMembre(client2.idBdCompte!);
+            await client.réseau!.débloquerMembre({idBdCompte: client2.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => !x.length);
             expect(rés.ultat).to.be.empty;
@@ -919,8 +933,8 @@ typesClients.forEach((type) => {
                 profondeur: 1,
               },
             ];
-            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
-            await client2.réseau!.bloquerMembre(client3.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client2.idBdCompte!});
+            await client2.réseau!.bloquerMembre({idBdCompte: client3.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => x.length === 2);
             expect(rés.ultat).to.have.deep.members(réf);
@@ -938,7 +952,7 @@ typesClients.forEach((type) => {
                 profondeur: 0,
               },
             ];
-            await client.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client3.idBdCompte!});
 
             await attendreRésultat(
               rés,
@@ -950,12 +964,12 @@ typesClients.forEach((type) => {
             expect(rés.ultat).to.have.deep.members(réf);
 
             await client.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
+              {idBdCompte: client3.idBdCompte!}
             );
             await client.réseau!.nePlusFaireConfianceAuMembre(
-              client2.idBdCompte!
+              {idBdCompte: client2.idBdCompte!}
             );
-            await client2.réseau!.débloquerMembre(client3.idBdCompte!);
+            await client2.réseau!.débloquerMembre({idBdCompte: client3.idBdCompte!});
           });
           step("Diminuer profondeur", async () => {
             const réf: infoMembreRéseau[] = [
@@ -965,8 +979,8 @@ typesClients.forEach((type) => {
                 profondeur: 0,
               },
             ];
-            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
-            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client2.idBdCompte!});
+            await client2.réseau!.faireConfianceAuMembre({idBdCompte: client3.idBdCompte!});
             await attendreRésultat(rés, "ultat", (x) => x.length === 2);
 
             fChangerProfondeur(0);
@@ -1002,21 +1016,21 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier, fChangerProfondeur } =
-              await client.réseau!.suivreComptesRéseauEtEnLigne(
-                (c) => (rés.ultat = c),
-                1
-              ));
+              await client.réseau!.suivreComptesRéseauEtEnLigne({
+                f: (c) => (rés.ultat = c),
+                profondeur: 1
+              }));
           });
 
           after(async () => {
             if (fOublier) fOublier();
 
-            await client.réseau!.nePlusFaireConfianceAuMembre(
-              client2.idBdCompte!
-            );
-            await client2.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
-            );
+            await client.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client2.idBdCompte!
+            });
+            await client2.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client3.idBdCompte!
+            });
           });
 
           step("Comptes en ligne détectés", async () => {
@@ -1051,7 +1065,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client2.idBdCompte!});
             await attendreRésultat(
               rés,
               "ultat",
@@ -1064,7 +1078,7 @@ typesClients.forEach((type) => {
           });
 
           step("Changer profondeur", async () => {
-            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client2.réseau!.faireConfianceAuMembre({idBdCompte: client3.idBdCompte!});
             await attendreRésultat(
               rés,
               "ultat",
@@ -1106,20 +1120,20 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier, fChangerProfondeur } =
-              await client.réseau!.suivreConfianceMonRéseauPourMembre(
-                client3.idBdCompte!,
-                (confiance) => (rés.ultat = confiance)
-              ));
+              await client.réseau!.suivreConfianceMonRéseauPourMembre({
+                idBdCompte: client3.idBdCompte!,
+                f: (confiance) => (rés.ultat = confiance)
+              }));
           });
 
           after(async () => {
             if (fOublier) fOublier();
-            await client.réseau!.nePlusFaireConfianceAuMembre(
-              client2.idBdCompte!
-            );
-            await client2.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
-            );
+            await client.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client2.idBdCompte!
+            });
+            await client2.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client3.idBdCompte!
+            });
           });
 
           step("Confiance initiale 0", async () => {
@@ -1127,8 +1141,8 @@ typesClients.forEach((type) => {
           });
 
           step("Faire confiance au membre", async () => {
-            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
-            await client2.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client2.idBdCompte!});
+            await client2.réseau!.faireConfianceAuMembre({idBdCompte: client3.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => x > 0);
             expect(rés.ultat).to.equal(0.8);
@@ -1149,23 +1163,23 @@ typesClients.forEach((type) => {
           before(async () => {
             idMotClef = await client2.motsClefs!.créerMotClef();
 
-            fOublier = await client.réseau!.suivreConfianceAuteurs(
-              idMotClef,
-              "motsClefs",
-              (confiance) => (rés.ultat = confiance)
-            );
+            fOublier = await client.réseau!.suivreConfianceAuteurs({
+              idItem: idMotClef,
+              clef: "motsClefs",
+              f: (confiance) => (rés.ultat = confiance)
+            });
           });
 
           after(async () => {
             if (fOublier) fOublier();
-            if (idMotClef) await client2.motsClefs!.effacerMotClef(idMotClef);
+            if (idMotClef) await client2.motsClefs!.effacerMotClef({id: idMotClef});
 
-            await client.réseau!.nePlusFaireConfianceAuMembre(
-              client2.idBdCompte!
-            );
-            await client.réseau!.nePlusFaireConfianceAuMembre(
-              client3.idBdCompte!
-            );
+            await client.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client2.idBdCompte!
+            });
+            await client.réseau!.nePlusFaireConfianceAuMembre({
+              idBdCompte: client3.idBdCompte!
+            });
           });
 
           step("Confiance 0 pour commencer", async () => {
@@ -1173,31 +1187,31 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout auteur au réseau", async () => {
-            await client.réseau!.faireConfianceAuMembre(client2.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client2.idBdCompte!});
 
             await attendreRésultat(rés, "ultat", (x) => x > 0);
             expect(rés.ultat).to.equal(1);
           });
 
           step("Ajout coauteur au réseau", async () => {
-            await client2.motsClefs!.inviterAuteur(
+            await client2.motsClefs!.inviterAuteur({
               idMotClef,
-              client3.idBdCompte!,
-              MEMBRE
-            );
-            await client3.motsClefs!.ajouterÀMesMotsClefs(idMotClef);
+              idBdCompteAuteur: client3.idBdCompte!,
+              rôle: MEMBRE
+            });
+            await client3.motsClefs!.ajouterÀMesMotsClefs({id: idMotClef});
             await attendreRésultat(rés, "ultat", (x) => x > 1);
 
             expect(rés.ultat).to.approximately(1.72, 0.01);
 
-            await client.réseau!.faireConfianceAuMembre(client3.idBdCompte!);
+            await client.réseau!.faireConfianceAuMembre({idBdCompte: client3.idBdCompte!});
             await attendreRésultat(rés, "ultat", (x) => x > 1.8);
 
             expect(rés.ultat).to.equal(2);
           });
 
           step("Coauteur se retire", async () => {
-            await client3.motsClefs!.enleverDeMesMotsClefs(idMotClef);
+            await client3.motsClefs!.enleverDeMesMotsClefs({id: idMotClef});
             await attendreRésultat(rés, "ultat", (x) => x < 2);
 
             expect(rés.ultat).to.equal(1);
@@ -1213,17 +1227,17 @@ typesClients.forEach((type) => {
 
             before(async () => {
               idMotClef = await client.motsClefs!.créerMotClef();
-              fOublier = await client.réseau!.suivreAuteursMotClef(
+              fOublier = await client.réseau!.suivreAuteursMotClef({
                 idMotClef,
-                (auteurs) => (rés.ultat = auteurs)
-              );
+                f: (auteurs) => (rés.ultat = auteurs)
+              });
             });
 
             after(async () => {
               if (fOublier) fOublier();
               if (idMotClef) {
-                await client.motsClefs!.effacerMotClef(idMotClef);
-                await client2.motsClefs!.enleverDeMesMotsClefs(idMotClef);
+                await client.motsClefs!.effacerMotClef({id: idMotClef});
+                await client2.motsClefs!.enleverDeMesMotsClefs({id: idMotClef});
               }
             });
 
@@ -1240,11 +1254,11 @@ typesClients.forEach((type) => {
                   rôle: MEMBRE,
                 },
               ];
-              await client.motsClefs!.inviterAuteur(
+              await client.motsClefs!.inviterAuteur({
                 idMotClef,
-                client2.idBdCompte!,
-                MEMBRE
-              );
+                idBdCompteAuteur: client2.idBdCompte!,
+                rôle: MEMBRE
+              });
 
               await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
               expect(rés.ultat).to.have.deep.members(réf);
@@ -1263,7 +1277,7 @@ typesClients.forEach((type) => {
                 },
               ];
 
-              await client2.motsClefs!.ajouterÀMesMotsClefs(idMotClef);
+              await client2.motsClefs!.ajouterÀMesMotsClefs({id: idMotClef});
               await attendreRésultat(rés, "ultat", (x) =>
                 Boolean(
                   x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
@@ -1286,7 +1300,7 @@ typesClients.forEach((type) => {
                 },
               ];
 
-              await client2.motsClefs!.enleverDeMesMotsClefs(idMotClef);
+              await client2.motsClefs!.enleverDeMesMotsClefs({id: idMotClef});
               await attendreRésultat(
                 rés,
                 "ultat",
@@ -1297,11 +1311,11 @@ typesClients.forEach((type) => {
               expect(rés.ultat).to.have.deep.members(réf);
             });
             step("Promotion à modérateur", async () => {
-              await client.motsClefs!.inviterAuteur(
+              await client.motsClefs!.inviterAuteur({
                 idMotClef,
-                idBdCompte2,
-                MODÉRATEUR
-              );
+                idBdCompteAuteur: idBdCompte2,
+                rôle: MODÉRATEUR
+              });
 
               await attendreRésultat(
                 rés,
@@ -1319,17 +1333,17 @@ typesClients.forEach((type) => {
             const rés: { ultat?: infoAuteur[] } = {};
 
             before(async () => {
-              idVariable = await client.variables!.créerVariable("numérique");
-              fOublier = await client.réseau!.suivreAuteursVariable(
+              idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
+              fOublier = await client.réseau!.suivreAuteursVariable({
                 idVariable,
-                (auteurs) => (rés.ultat = auteurs)
-              );
+                f: (auteurs) => (rés.ultat = auteurs)
+              });
             });
 
             after(async () => {
               if (fOublier) fOublier();
               if (idVariable)
-                await client.variables!.effacerVariable(idVariable);
+                await client.variables!.effacerVariable({id: idVariable});
             });
 
             step("Inviter auteur", async () => {
@@ -1345,11 +1359,11 @@ typesClients.forEach((type) => {
                   rôle: MEMBRE,
                 },
               ];
-              await client.variables!.inviterAuteur(
+              await client.variables!.inviterAuteur({
                 idVariable,
-                client2.idBdCompte!,
-                MEMBRE
-              );
+                idBdCompteAuteur: client2.idBdCompte!,
+                rôle: MEMBRE
+              });
 
               await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
               expect(rés.ultat).to.have.deep.members(réf);
@@ -1368,7 +1382,7 @@ typesClients.forEach((type) => {
                 },
               ];
 
-              await client2.variables!.ajouterÀMesVariables(idVariable);
+              await client2.variables!.ajouterÀMesVariables({id: idVariable});
               await attendreRésultat(rés, "ultat", (x) =>
                 Boolean(
                   x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
@@ -1391,7 +1405,7 @@ typesClients.forEach((type) => {
                 },
               ];
 
-              await client2.variables!.enleverDeMesVariables(idVariable);
+              await client2.variables!.enleverDeMesVariables({id: idVariable});
               await attendreRésultat(
                 rés,
                 "ultat",
@@ -1402,11 +1416,11 @@ typesClients.forEach((type) => {
               expect(rés.ultat).to.have.deep.members(réf);
             });
             step("Promotion à modérateur", async () => {
-              await client.variables!.inviterAuteur(
+              await client.variables!.inviterAuteur({
                 idVariable,
-                idBdCompte2,
-                MODÉRATEUR
-              );
+                idBdCompteAuteur: idBdCompte2,
+                rôle: MODÉRATEUR
+              });
 
               await attendreRésultat(
                 rés,
@@ -1424,16 +1438,16 @@ typesClients.forEach((type) => {
             const rés: { ultat?: infoAuteur[] } = {};
 
             before(async () => {
-              idBd = await client.bds!.créerBd("ODbl-1_0");
-              fOublier = await client.réseau!.suivreAuteursBd(
+              idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
+              fOublier = await client.réseau!.suivreAuteursBd({
                 idBd,
-                (auteurs) => (rés.ultat = auteurs)
-              );
+                f: (auteurs) => (rés.ultat = auteurs)
+              });
             });
 
             after(async () => {
               if (fOublier) fOublier();
-              if (idBd) await client.bds!.effacerBd(idBd);
+              if (idBd) await client.bds!.effacerBd({id: idBd});
             });
 
             step("Inviter auteur", async () => {
@@ -1449,7 +1463,7 @@ typesClients.forEach((type) => {
                   rôle: MEMBRE,
                 },
               ];
-              await client.bds!.inviterAuteur(idBd, idBdCompte2, MEMBRE);
+              await client.bds!.inviterAuteur({idBd, idBdCompteAuteur: idBdCompte2, rôle: MEMBRE});
 
               await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
               expect(rés.ultat).to.have.deep.members(réf);
@@ -1469,7 +1483,7 @@ typesClients.forEach((type) => {
                 },
               ];
 
-              await client2.bds!.ajouterÀMesBds(idBd);
+              await client2.bds!.ajouterÀMesBds({id: idBd});
               await attendreRésultat(rés, "ultat", (x) =>
                 Boolean(
                   x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
@@ -1493,7 +1507,7 @@ typesClients.forEach((type) => {
                 },
               ];
 
-              await client2.bds!.enleverDeMesBds(idBd);
+              await client2.bds!.enleverDeMesBds({id: idBd});
               await attendreRésultat(
                 rés,
                 "ultat",
@@ -1505,7 +1519,7 @@ typesClients.forEach((type) => {
             });
 
             step("Promotion à modérateur", async () => {
-              await client.bds!.inviterAuteur(idBd, idBdCompte2, MODÉRATEUR);
+              await client.bds!.inviterAuteur({idBd, idBdCompteAuteur:idBdCompte2, rôle: MODÉRATEUR});
 
               await attendreRésultat(
                 rés,
@@ -1525,15 +1539,15 @@ typesClients.forEach((type) => {
 
             before(async () => {
               idProjet = await client.projets!.créerProjet();
-              fOublier = await client.réseau!.suivreAuteursProjet(
+              fOublier = await client.réseau!.suivreAuteursProjet({
                 idProjet,
-                (auteurs) => (rés.ultat = auteurs)
-              );
+                f: (auteurs) => (rés.ultat = auteurs)
+              });
             });
 
             after(async () => {
               if (fOublier) fOublier();
-              if (idProjet) await client.projets!.effacerProjet(idProjet);
+              if (idProjet) await client.projets!.effacerProjet({id: idProjet});
             });
 
             step("Inviter auteur", async () => {
@@ -1549,11 +1563,11 @@ typesClients.forEach((type) => {
                   rôle: MEMBRE,
                 },
               ];
-              await client.projets!.inviterAuteur(
+              await client.projets!.inviterAuteur({
                 idProjet,
-                client2.idBdCompte!,
-                MEMBRE
-              );
+                idBdCompteAuteur: client2.idBdCompte!,
+                rôle: MEMBRE
+              });
 
               await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
               expect(rés.ultat).to.have.deep.members(réf);
@@ -1607,11 +1621,11 @@ typesClients.forEach((type) => {
               expect(rés.ultat).to.have.deep.members(réf);
             });
             step("Promotion à modérateur", async () => {
-              await client.projets!.inviterAuteur(
+              await client.projets!.inviterAuteur({
                 idProjet,
-                idBdCompte2,
-                MODÉRATEUR
-              );
+                idBdCompteAuteur: idBdCompte2,
+                rôle: MODÉRATEUR
+              });
 
               await attendreRésultat(
                 rés,
@@ -1631,11 +1645,11 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            await client.profil!.sauvegarderNom("fr", "Julien");
-            fOublier = await client2.réseau!.suivreNomsMembre(
-              idBdCompte1,
-              (n) => (rés.ultat = n)
-            );
+            await client.profil!.sauvegarderNom({langue: "fr", nom: "Julien"});
+            fOublier = await client2.réseau!.suivreNomsMembre({
+              idCompte: idBdCompte1,
+              f: (n) => (rés.ultat = n)
+            });
           });
 
           step("Noms détectés", async () => {
@@ -1656,11 +1670,11 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            await client.profil!.sauvegarderCourriel("தொடர்பு@லஸ்ஸி.இந்தியா");
-            fOublier = await client2.réseau!.suivreCourrielMembre(
-              idBdCompte1,
-              (c) => (rés.ultat = c)
-            );
+            await client.profil!.sauvegarderCourriel({courriel: "தொடர்பு@லஸ்ஸி.இந்தியா"});
+            fOublier = await client2.réseau!.suivreCourrielMembre({
+              idCompte: idBdCompte1,
+              f: (c) => (rés.ultat = c)
+            });
           });
 
           step("Courriel détecté", async () => {
@@ -1688,11 +1702,11 @@ typesClients.forEach((type) => {
           );
 
           before(async () => {
-            await client.profil!.sauvegarderImage(IMAGE);
-            fOublier = await client2.réseau!.suivreImageMembre(
-              idBdCompte1,
-              (i) => (rés.ultat = i)
-            );
+            await client.profil!.sauvegarderImage({image: IMAGE});
+            fOublier = await client2.réseau!.suivreImageMembre({
+              idCompte: idBdCompte1,
+              f: (i) => (rés.ultat = i)
+            });
           });
 
           after(async () => {
@@ -1718,23 +1732,23 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fsOublier.push(
-              await client2.réseau!.suivreMotsClefsMembre(
-                idBdCompte1,
-                (motsClefs) => (rés.autre = motsClefs)
-              )
+              await client2.réseau!.suivreMotsClefsMembre({
+                idCompte: idBdCompte1,
+                f: (motsClefs) => (rés.autre = motsClefs)
+              })
             );
             fsOublier.push(
-              await client2.réseau!.suivreMotsClefsMembre(
-                idBdCompte2,
-                (motsClefs) => (rés.propre = motsClefs)
-              )
+              await client2.réseau!.suivreMotsClefsMembre({
+                idCompte: idBdCompte2,
+                f: (motsClefs) => (rés.propre = motsClefs)
+              })
             );
           });
 
           after(async () => {
             fsOublier.forEach((f) => f());
-            if (idMotClef1) await client.motsClefs!.effacerMotClef(idMotClef1);
-            if (idMotClef2) await client.motsClefs!.effacerMotClef(idMotClef2);
+            if (idMotClef1) await client.motsClefs!.effacerMotClef({id: idMotClef1});
+            if (idMotClef2) await client.motsClefs!.effacerMotClef({id: idMotClef2});
           });
 
           step("Mes propres mots-clefs détectés", async () => {
@@ -1760,36 +1774,36 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fsOublier.push(
-              await client2.réseau!.suivreVariablesMembre(
-                idBdCompte1,
-                (variables) => (rés.autres = variables)
-              )
+              await client2.réseau!.suivreVariablesMembre({
+                idCompte: idBdCompte1,
+                f: (variables) => (rés.autres = variables)
+              })
             );
             fsOublier.push(
-              await client2.réseau!.suivreVariablesMembre(
-                idBdCompte2,
-                (variables) => (rés.propres = variables)
-              )
+              await client2.réseau!.suivreVariablesMembre({
+                idCompte: idBdCompte2,
+                f: (variables) => (rés.propres = variables)
+              })
             );
           });
 
           after(async () => {
             fsOublier.forEach((f) => f());
             if (idVariable1)
-              await client.variables!.effacerVariable(idVariable1);
+              await client.variables!.effacerVariable({id: idVariable1});
             if (idVariable2)
-              await client2.variables!.effacerVariable(idVariable2);
+              await client2.variables!.effacerVariable({id: idVariable2});
           });
 
           step("Mes variables détectées", async () => {
-            idVariable2 = await client2.variables!.créerVariable("numérique");
+            idVariable2 = await client2.variables!.créerVariable({catégorie: "numérique"});
 
             await attendreRésultat(rés, "propres", (x) => x && !!x.length);
             expect(rés.propres).to.have.members([idVariable2]);
           });
 
           step("Variable d'un autre membre détectée", async () => {
-            idVariable1 = await client.variables!.créerVariable("numérique");
+            idVariable1 = await client.variables!.créerVariable({catégorie: "numérique"});
             await attendreRésultat(rés, "autres", (x) => Boolean(x?.length));
             expect(rés.autres).to.have.members([idVariable1]);
           });
@@ -1801,16 +1815,16 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fsOublier.push(
-              await client2.réseau!.suivreBdsMembre(
-                idBdCompte1,
-                (bds) => (rés.autres = bds)
-              )
+              await client2.réseau!.suivreBdsMembre({
+                idCompte: idBdCompte1,
+                f: (bds) => (rés.autres = bds)
+              })
             );
             fsOublier.push(
-              await client2.réseau!.suivreBdsMembre(
-                idBdCompte2,
-                (bds) => (rés.propres = bds)
-              )
+              await client2.réseau!.suivreBdsMembre({
+                idCompte: idBdCompte2,
+                f: (bds) => (rés.propres = bds)
+              })
             );
           });
 
@@ -1819,14 +1833,14 @@ typesClients.forEach((type) => {
           });
 
           step("Mes BDs détectées", async () => {
-            const idBd = await client2.bds!.créerBd("ODbl-1_0");
+            const idBd = await client2.bds!.créerBd({licence: "ODbl-1_0"});
 
             await attendreRésultat(rés, "propres", (x) => x && !!x.length);
             expect(rés.propres).to.have.members([idBd]);
           });
 
           step("BD d'un autre membre détectée", async () => {
-            const idBd = await client.bds!.créerBd("ODbl-1_0");
+            const idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
             await attendreRésultat(rés, "autres", (x) => x && !!x.length);
             expect(rés.autres).to.have.members([idBd]);
           });
@@ -1838,16 +1852,16 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fsOublier.push(
-              await client2.réseau!.suivreProjetsMembre(
-                idBdCompte1,
-                (projets) => (rés.autres = projets)
-              )
+              await client2.réseau!.suivreProjetsMembre({
+                idCompte: idBdCompte1,
+                f: (projets) => (rés.autres = projets)
+              })
             );
             fsOublier.push(
-              await client2.réseau!.suivreProjetsMembre(
-                idBdCompte2,
-                (projets) => (rés.propres = projets)
-              )
+              await client2.réseau!.suivreProjetsMembre({
+                idCompte: idBdCompte2,
+                f: (projets) => (rés.propres = projets)
+              })
             );
           });
 
@@ -1880,16 +1894,16 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fsOublier.push(
-              await client2.réseau!.suivreFavorisMembre(
-                idBdCompte1,
-                (favoris) => (rés.autres = favoris)
-              )
+              await client2.réseau!.suivreFavorisMembre({
+                idCompte: idBdCompte1,
+                f: (favoris) => (rés.autres = favoris)
+              })
             );
             fsOublier.push(
-              await client2.réseau!.suivreFavorisMembre(
-                idBdCompte2,
-                (favoris) => (rés.propres = favoris)
-              )
+              await client2.réseau!.suivreFavorisMembre({
+                idCompte: idBdCompte2,
+                f: (favoris) => (rés.propres = favoris)
+              })
             );
 
             idMotClef = await client.motsClefs!.créerMotClef();
@@ -1897,7 +1911,7 @@ typesClients.forEach((type) => {
 
           after(async () => {
             fsOublier.forEach((f) => f());
-            if (idMotClef) await client.motsClefs!.effacerMotClef(idMotClef);
+            if (idMotClef) await client.motsClefs!.effacerMotClef({id: idMotClef});
           });
 
           step("Mes favoris détectés", async () => {
@@ -1910,7 +1924,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await client2.favoris!.épinglerFavori(idMotClef, "TOUS");
+            await client2.favoris!.épinglerFavori({id: idMotClef, dispositifs: "TOUS"});
             await attendreRésultat(rés, "propres", (x) => x && !!x.length);
             expect(rés.propres).to.have.deep.members(réf);
           });
@@ -1925,7 +1939,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await client.favoris!.épinglerFavori(idMotClef, "TOUS");
+            await client.favoris!.épinglerFavori({id: idMotClef,dispositifs: "TOUS"});
             await attendreRésultat(rés, "autres", (x) => x && !!x.length);
             expect(rés.autres).to.have.deep.members(réf);
           });
@@ -1942,15 +1956,15 @@ typesClients.forEach((type) => {
           before(async () => {
             idMotClef = await client.motsClefs!.créerMotClef();
 
-            ({ fOublier } = await client.réseau!.suivreFavorisObjet(
-              idMotClef,
-              (favoris) => (rés.ultat = favoris)
-            ));
+            ({ fOublier } = await client.réseau!.suivreFavorisObjet({
+              idObjet: idMotClef,
+              f: (favoris) => (rés.ultat = favoris)
+            }));
           });
 
           after(async () => {
             if (fOublier) fOublier();
-            if (idMotClef) await client.motsClefs!.effacerMotClef(idMotClef);
+            if (idMotClef) await client.motsClefs!.effacerMotClef({id: idMotClef});
           });
 
           step("Aucun favoris pour commencer", async () => {
@@ -1968,7 +1982,7 @@ typesClients.forEach((type) => {
                 idBdCompte: idBdCompte1,
               },
             ];
-            await client.favoris!.épinglerFavori(idMotClef, "TOUS");
+            await client.favoris!.épinglerFavori({id: idMotClef, dispositifs: "TOUS"});
             await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
 
             expect(rés.ultat).to.have.deep.members(réf);
@@ -1991,7 +2005,7 @@ typesClients.forEach((type) => {
                 idBdCompte: idBdCompte2,
               },
             ];
-            await client2.favoris!.épinglerFavori(idMotClef, "TOUS");
+            await client2.favoris!.épinglerFavori({id: idMotClef, dispositifs: "TOUS"});
             await attendreRésultat(rés, "ultat", (x) => x && x.length === 2);
 
             expect(rés.ultat).to.have.deep.members(réf);
@@ -2007,13 +2021,13 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idBd = await client.bds!.créerBd("ODbl-1_0");
+            idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
             fsOublier.push(
               (
-                await client.réseau!.suivreRéplications(
-                  idBd,
-                  (bds) => (rés.ultat = bds)
-                )
+                await client.réseau!.suivreRéplications({
+                  idObjet: idBd,
+                  f: (bds) => (rés.ultat = bds)
+                })
               ).fOublier
             );
           });
@@ -2021,13 +2035,13 @@ typesClients.forEach((type) => {
           after(async () => {
             fsOublier.forEach((f) => f());
             if (idBd) {
-              await client.bds!.effacerBd(idBd);
-              await client2.favoris!.désépinglerFavori(idBd);
+              await client.bds!.effacerBd({id: idBd});
+              await client2.favoris!.désépinglerFavori({id: idBd});
             }
           });
 
           step("Auteur de la BD pour commencer", async () => {
-            await client.favoris!.épinglerFavori(idBd, "TOUS");
+            await client.favoris!.épinglerFavori({id: idBd, dispositifs: "TOUS"});
 
             await attendreRésultat(
               rés,
@@ -2044,7 +2058,7 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout d'une réplication détectée", async () => {
-            await client2.favoris!.épinglerFavori(idBd, "TOUS");
+            await client2.favoris!.épinglerFavori({id: idBd, dispositifs: "TOUS"});
 
             await attendreRésultat(
               rés,
@@ -2088,9 +2102,9 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            const idVarClef = await client.variables!.créerVariable("chaîne");
-            const idVarLangue = await client.variables!.créerVariable("chaîne");
-            const idVarTrad = await client.variables!.créerVariable("chaîne");
+            const idVarClef = await client.variables!.créerVariable({catégorie: "chaîne"});
+            const idVarLangue = await client.variables!.créerVariable({catégorie: "chaîne"});
+            const idVarTrad = await client.variables!.créerVariable({catégorie: "chaîne"});
 
             motClef = await client.motsClefs!.créerMotClef();
 
@@ -2118,15 +2132,15 @@ typesClients.forEach((type) => {
               ],
             };
 
-            idBd1 = await client.bds!.créerBdDeSchéma(schéma);
-            idBd2 = await client2.bds!.créerBdDeSchéma(schéma);
+            idBd1 = await client.bds!.créerBdDeSchéma({schéma});
+            idBd2 = await client2.bds!.créerBdDeSchéma({schéma});
 
             idTableau1 = (
               await uneFois(
                 async (
                   fSuivi: schémaFonctionSuivi<string[]>
                 ): Promise<schémaFonctionOublier> => {
-                  return await client.bds!.suivreTableauxBd(idBd1, fSuivi);
+                  return await client.bds!.suivreTableauxBd({id: idBd1, f: fSuivi});
                 }
               )
             )[0];
@@ -2136,42 +2150,42 @@ typesClients.forEach((type) => {
                 async (
                   fSuivi: schémaFonctionSuivi<string[]>
                 ): Promise<schémaFonctionOublier> => {
-                  return await client2.bds!.suivreTableauxBd(idBd2, fSuivi);
+                  return await client2.bds!.suivreTableauxBd({id: idBd2, f: fSuivi});
                 }
               )
             )[0];
 
             fsOublier.push(
               (
-                await client.réseau!.suivreBdsDeMotClef(
-                  motClef,
-                  (bds) => (rés.ultat = bds),
-                  100
-                )
+                await client.réseau!.suivreBdsDeMotClef({
+                  motClefUnique: motClef,
+                  f: (bds) => (rés.ultat = bds),
+                  nRésultatsDésirés: 100
+                })
               ).fOublier
             );
             fsOublier.push(
               (
-                await client.réseau!.suivreÉlémentsDeTableauxUniques(
-                  motClef,
+                await client.réseau!.suivreÉlémentsDeTableauxUniques({
+                  motClefUnique: motClef,
                   idUniqueTableau,
-                  (éléments) => (rés.ultat2 = éléments)
-                )
+                  f: (éléments) => (rés.ultat2 = éléments)
+                })
               ).fOublier
             );
 
-            empreinte1 = await client.tableaux!.ajouterÉlément(
-              idTableau1,
-              données1
-            );
-            empreinte2 = await client.tableaux!.ajouterÉlément(
-              idTableau1,
-              données2
-            );
-            empreinte3 = await client2.tableaux!.ajouterÉlément(
-              idTableau2,
-              données3
-            );
+            empreinte1 = await client.tableaux!.ajouterÉlément({
+              idTableau: idTableau1,
+              vals: données1
+            });
+            empreinte2 = await client.tableaux!.ajouterÉlément({
+              idTableau: idTableau1,
+              vals: données2
+            });
+            empreinte3 = await client2.tableaux!.ajouterÉlément({
+              idTableau: idTableau2,
+              vals: données3
+            });
           });
 
           after(async () => {

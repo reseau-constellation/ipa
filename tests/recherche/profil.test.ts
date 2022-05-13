@@ -67,7 +67,7 @@ typesClients.forEach((type) => {
 
           after(async () => {
             if (fOublier) fOublier();
-            await client.profil!.effacerNom("த");
+            await client.profil!.effacerNom({langue: "த"});
             await client.profil!.effacerImage();
             await client.profil!.effacerCourriel();
           });
@@ -82,14 +82,16 @@ typesClients.forEach((type) => {
           });
 
           step("On améliore le score en ajoutant notre nom", async () => {
-            await client.profil!.sauvegarderNom("த", "ஜூலீஎன்");
+            await client.profil!.sauvegarderNom({langue: "த", nom: "ஜூலீஎன்"});
+            await attendreRésultat(rés, "ultat", x=>!!x && x.score>0)
             expect(rés.ultat?.score).to.equal(1 / 3);
           });
 
           step("Encore mieux avec un courriel", async () => {
-            await client.profil!.sauvegarderCourriel(
-              "julien.malard@mail.mcgill.ca"
-            );
+            await client.profil!.sauvegarderCourriel({
+              courriel: "julien.malard@mail.mcgill.ca"
+            });
+            await attendreRésultat(rés, "ultat", x=>!!x && x.score>1/3)
             expect(rés.ultat?.score).to.equal(2 / 3);
           });
           step("C'est parfait avec un photo !", async () => {
@@ -97,7 +99,7 @@ typesClients.forEach((type) => {
               path.resolve(__dirname, "../_ressources/logo.png")
             );
 
-            await client.profil!.sauvegarderImage(IMAGE);
+            await client.profil!.sauvegarderImage({image: IMAGE});
             await attendreRésultat(
               rés,
               "ultat",
@@ -110,34 +112,36 @@ typesClients.forEach((type) => {
         });
 
         describe("Selon nom", function () {
-          let résultat:
-            | résultatObjectifRecherche<infoRésultatTexte>
-            | undefined;
           let fOublier: schémaFonctionOublier;
+
+          const rés: {
+            ultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+          } = { ultat: undefined };
 
           before(async () => {
             const fRecherche = rechercherProfilSelonNom("Julien");
             fOublier = await fRecherche(
               client,
               client.profil!.idBd,
-              (r) => (résultat = r)
+              (r) => (rés.ultat = r)
             );
           });
 
           after(async () => {
             if (fOublier) fOublier();
-            await client.profil!.effacerNom("es");
-            await client.profil!.effacerNom("fr");
+            await client.profil!.effacerNom({langue: "es"});
+            await client.profil!.effacerNom({langue: "fr"});
           });
 
           step("Rien pour commencer", async () => {
-            expect(résultat).to.be.undefined;
+            expect(rés.ultat).to.be.undefined;
           });
 
           step("Ajout nom détecté", async () => {
-            await client.profil!.sauvegarderNom("es", "Julián");
+            await client.profil!.sauvegarderNom({langue: "es", nom: "Julián"});
+            await attendreRésultat(rés, "ultat", x=>!!x && x.score>0)
 
-            expect(résultat).to.deep.equal({
+            expect(rés.ultat).to.deep.equal({
               type: "résultat",
               clef: "es",
               score: 0.5,
@@ -147,9 +151,10 @@ typesClients.forEach((type) => {
           });
 
           step("Meilleur nom détecté", async () => {
-            await client.profil!.sauvegarderNom("fr", "Julien");
+            await client.profil!.sauvegarderNom({langue: "fr", nom: "Julien"});
+            await attendreRésultat(rés, "ultat", x=>!!x && x.score>0.5)
 
-            expect(résultat).to.deep.equal({
+            expect(rés.ultat).to.deep.equal({
               type: "résultat",
               clef: "fr",
               score: 1,
@@ -186,8 +191,10 @@ typesClients.forEach((type) => {
 
           step("Ajout courriel détecté", async () => {
             await client.profil!.sauvegarderCourriel(
-              "julien.malard@mail.mcgill.ca"
+              {courriel: "julien.malard@mail.mcgill.ca"}
             );
+
+            await attendreRésultat(rés, "ultat", x=>!!x && x.score>0)
 
             expect(rés.ultat).to.deep.equal({
               type: "résultat",
@@ -242,7 +249,7 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout nom détecté", async () => {
-            await client.profil!.sauvegarderNom("fr", "Julien Malard-Adam");
+            await client.profil!.sauvegarderNom({langue: "fr", nom: "Julien Malard-Adam"});
             expect(résultatNom).to.deep.equal({
               type: "résultat",
               clef: "fr",
@@ -271,7 +278,7 @@ typesClients.forEach((type) => {
 
           it("Ajout courriel détecté", async () => {
             await client.profil!.sauvegarderCourriel(
-              "julien.malard@mail.mcgill.ca"
+              {courriel: "julien.malard@mail.mcgill.ca"}
             );
             expect(résultatCourriel).to.deep.equal({
               type: "résultat",

@@ -190,15 +190,15 @@ export default class Projets {
   }
 
   async inviterAuteur({
-    idBd,
+    idProjet,
     idBdCompteAuteur,
     rôle,
   }: {
-    idBd: string;
+    idProjet: string;
     idBdCompteAuteur: string;
     rôle: keyof objRôles;
   }): Promise<void> {
-    await this.client.donnerAccès({ idBd, identité: idBdCompteAuteur, rôle });
+    await this.client.donnerAccès({ idBd: idProjet, identité: idBdCompteAuteur, rôle });
   }
 
   async _obtBdNoms({

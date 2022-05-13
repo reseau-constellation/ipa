@@ -2280,14 +2280,14 @@ export default class Réseau extends EventEmitter {
                 } = {
                   idObjet,
                   idDispositif: d,
-                  bd: await this.client.favoris!.estÉpingléSurDispositif(
-                    favoris.dispositifs,
-                    d
-                  ),
-                  fichiers: await this.client.favoris!.estÉpingléSurDispositif(
-                    favoris.dispositifsFichiers,
-                    d
-                  ),
+                  bd: await this.client.favoris!.estÉpingléSurDispositif({
+                    dispositifs: favoris.dispositifs,
+                    idOrbite: d
+                  }),
+                  fichiers: await this.client.favoris!.estÉpingléSurDispositif({
+                    dispositifs: favoris.dispositifsFichiers,
+                    idOrbite: d
+                  }),
                   récursif: favoris.récursif,
                   vuÀ,
                 };

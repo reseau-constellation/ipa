@@ -284,12 +284,12 @@ Object.keys(testAPIs).forEach((API) => {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBd = await client.créerBdIndépendante("feed");
+        idBd = await client.créerBdIndépendante({ type: "feed" });
 
         const fListe = async (
           fSuivreRacine: (idsVariables: string[]) => void
         ): Promise<schémaFonctionOublier> => {
-          return await client.suivreBdListe(idBd, fSuivreRacine);
+          return await client.suivreBdListe({id: idBd, f: fSuivreRacine});
         };
 
         const fRechercher = rechercherSelonId("précipitation");
@@ -318,7 +318,7 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("Ajout variable détecté", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(idBd);
+        const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({id: idBd});
         await bd.add("precipitation");
         fOublier();
 
@@ -345,7 +345,7 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("Ajout meilleure variable détecté", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>(idBd);
+        const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({id: idBd});
         await bd.add("précipitation");
         fOublier();
 

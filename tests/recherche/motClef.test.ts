@@ -70,15 +70,15 @@ typesClients.forEach((type) => {
             expect(résultat).to.be.undefined;
           });
           it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+            await client.motsClefs!.ajouterNomsMotClef({id: idMotClef, noms: {
               த: "நீரியல்",
-            });
+            }});
             expect(résultat).to.be.undefined;
           });
           it("Résultat si le mot-clef est presque exacte", async () => {
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+            await client.motsClefs!.ajouterNomsMotClef({id: idMotClef, noms: {
               fr: "Sciences hydrologiques",
-            });
+            }});
 
             expect(résultat).to.deep.equal({
               type: "résultat",
@@ -94,9 +94,9 @@ typesClients.forEach((type) => {
             });
           });
           it("Résultat si le mot-clef est exacte", async () => {
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+            await client.motsClefs!.ajouterNomsMotClef({id: idMotClef, noms: {
               fr: "hydrologie",
-            });
+            }});
             expect(résultat).to.deep.equal({
               type: "résultat",
               clef: "fr",
@@ -138,9 +138,9 @@ typesClients.forEach((type) => {
               await fRechercheId(client, idMotClef, (r) => (résultatId = r))
             );
 
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+            await client.motsClefs!.ajouterNomsMotClef({id: idMotClef, noms: {
               fr: "hydrologie",
-            });
+            }});
           });
 
           after(() => {

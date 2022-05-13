@@ -1,7 +1,7 @@
 import chai, { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { step } from "mocha-steps";
-import estÉlectron from "is-electron";
+import oùSommesNous from "wherearewe";
 import estNode from "is-node";
 
 import { enregistrerContrôleurs } from "@/accès";
@@ -41,22 +41,22 @@ typesClients.forEach((type) => {
 
         describe("estÉpingléSurDispositif", function () {
           it("undefined", async () => {
-            const épinglé = await client.favoris!.estÉpingléSurDispositif(
-              undefined
-            );
+            const épinglé = await client.favoris!.estÉpingléSurDispositif({
+              dispositifs: undefined,
+            });
             expect(épinglé).to.be.false;
           });
           it("tous", async () => {
-            const épinglé = await client.favoris!.estÉpingléSurDispositif(
-              "TOUS"
-            );
+            const épinglé = await client.favoris!.estÉpingléSurDispositif({
+              dispositifs: "TOUS",
+            });
             expect(épinglé).to.be.true;
           });
           it("installé", async () => {
-            const épinglé = await client.favoris!.estÉpingléSurDispositif(
-              "INSTALLÉ"
-            );
-            if (estNode || estÉlectron()) {
+            const épinglé = await client.favoris!.estÉpingléSurDispositif({
+              dispositifs: "INSTALLÉ",
+            });
+            if (estNode || oùSommesNous.isElectronMain) {
               expect(épinglé).to.be.true;
             } else {
               expect(épinglé).to.be.false;
@@ -64,24 +64,24 @@ typesClients.forEach((type) => {
           });
           it("installé, pour un autre dispositif", async () => {
             const idOrbiteAutre = "abc";
-            const épinglé = await client.favoris!.estÉpingléSurDispositif(
-              "INSTALLÉ",
-              idOrbiteAutre
-            );
+            const épinglé = await client.favoris!.estÉpingléSurDispositif({
+              dispositifs: "INSTALLÉ",
+              idOrbite: idOrbiteAutre,
+            });
             expect(épinglé).to.be.false;
           });
           it("idOrbite", async () => {
             const idOrbite = await client.obtIdOrbite();
-            const épinglé = await client.favoris!.estÉpingléSurDispositif(
-              idOrbite
-            );
+            const épinglé = await client.favoris!.estÉpingléSurDispositif({
+              dispositifs: idOrbite,
+            });
             expect(épinglé).to.be.true;
           });
           it("listeIdOrbite", async () => {
             const idOrbite = await client.obtIdOrbite();
-            const épinglé = await client.favoris!.estÉpingléSurDispositif([
-              idOrbite,
-            ]);
+            const épinglé = await client.favoris!.estÉpingléSurDispositif({
+              dispositifs: [idOrbite],
+            });
             expect(épinglé).to.be.true;
           });
         });
@@ -95,16 +95,18 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idBd = await client.bds!.créerBd("ODbl-1_0");
+            idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
             fsOublier.push(
-              await client.favoris!.suivreFavoris((favs) => (favoris = favs))
+              await client.favoris!.suivreFavoris({
+                f: (favs) => (favoris = favs),
+              })
             );
             fsOublier.push(
-              await client.favoris!.suivreEstÉpingléSurDispositif(
-                idBd,
-                (épingle) => (épingleBd = épingle)
-              )
+              await client.favoris!.suivreEstÉpingléSurDispositif({
+                idObjet: idBd,
+                f: (épingle) => (épingleBd = épingle),
+              })
             );
           });
 
@@ -117,7 +119,10 @@ typesClients.forEach((type) => {
           });
 
           step("Ajouter un favori", async () => {
-            await client.favoris!.épinglerFavori(idBd, "TOUS");
+            await client.favoris!.épinglerFavori({
+              id: idBd,
+              dispositifs: "TOUS",
+            });
             expect(favoris)
               .to.be.an("array")
               .with.lengthOf(1)
@@ -138,7 +143,7 @@ typesClients.forEach((type) => {
           });
 
           step("Enlever un favori", async () => {
-            await client.favoris!.désépinglerFavori(idBd);
+            await client.favoris!.désépinglerFavori({ id: idBd });
             expect(favoris).to.be.empty;
             expect(épingleBd).to.deep.equal({
               idObjet: idBd,
@@ -151,17 +156,22 @@ typesClients.forEach((type) => {
           step("Ajouter un favori avec fichiers", async () => {
             const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ";
 
-            const idTableau = await client.bds!.ajouterTableauBd(idBd);
-            const idVarPhoto = await client.variables!.créerVariable("photo");
-            const idColPhoto = await client.tableaux!.ajouterColonneTableau(
+            const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+            const idVarPhoto = await client.variables!.créerVariable({
+              catégorie: "photo",
+            });
+            const idColPhoto = await client.tableaux!.ajouterColonneTableau({
               idTableau,
-              idVarPhoto
-            );
-            await client.tableaux!.ajouterÉlément(idTableau, {
-              [idColPhoto]: idc,
+              idVariable: idVarPhoto,
+            });
+            await client.tableaux!.ajouterÉlément({
+              idTableau,
+              vals: {
+                [idColPhoto]: idc,
+              },
             });
 
-            expect(client.épingles!.épinglée(idc));
+            expect(client.épingles!.épinglée({ id: idc }));
           });
         });
       });

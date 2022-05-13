@@ -220,10 +220,10 @@ const générerFExportation = (
   return async () => {
     switch (spéc.typeObjet) {
       case "tableau": {
-        const donnéesExp = await client.tableaux!.exporterDonnées(
-          spéc.idObjet,
-          spéc.langues
-        );
+        const donnéesExp = await client.tableaux!.exporterDonnées({
+          idTableau: spéc.idObjet,
+          langues: spéc.langues,
+        });
         await client.bds!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
@@ -278,7 +278,7 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
       return async () => {
         const spécImp = spéc as unknown as SpécificationImporter<R>;
         const données = await obtDonnéesImportation(spécImp);
-        await client.tableaux!.importerDonnées(spécImp.idTableau, données);
+        await client.tableaux!.importerDonnées({idTableau: spécImp.idTableau, données});
       };
     }
 

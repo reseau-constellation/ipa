@@ -81,9 +81,9 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout nom détecté", async () => {
-            await client.projets!.ajouterNomsProjet(idProjet, {
+            await client.projets!.ajouterNomsProjet({id: idProjet, noms: {
               fr: "Météorologie",
-            });
+            }});
 
             expect(résultat).to.deep.equal({
               type: "résultat",
@@ -130,9 +130,9 @@ typesClients.forEach((type) => {
           );
 
           step("Ajout description détecté", async () => {
-            await client.projets!.ajouterDescriptionsProjet(idProjet, {
+            await client.projets!.ajouterDescriptionsProjet({id: idProjet, descriptions: {
               fr: "Météo historique",
-            });
+            }});
 
             expect(résultat).to.deep.equal({
               type: "résultat",
@@ -206,7 +206,7 @@ typesClients.forEach((type) => {
           );
 
           step("Ajout mot-clef détecté", async () => {
-            await client.projets!.ajouterMotsClefsProjet(idProjet, idMotClef);
+            await client.projets!.ajouterMotsClefsProjet({idProjet, idsMotsClefs: idMotClef});
 
             const réfRésId: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>
@@ -231,9 +231,9 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout nom mot-clef détecté", async () => {
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+            await client.motsClefs!.ajouterNomsMotClef({id: idMotClef, noms: {
               fr: "Météo historique pour la région de Montréal",
-            });
+            }});
 
             const réfRésNom: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>
@@ -282,8 +282,8 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idProjet = await client.bds!.créerBd("ODbl-1_0");
-            idVariable = await client.variables!.créerVariable("numérique");
+            idProjet = await client.bds!.créerBd({licence: "ODbl-1_0"});
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
 
             const fRechercheNom = rechercherProjetSelonNomVariable("Précip");
             fsOublier.push(
@@ -314,11 +314,11 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout variable détecté", async () => {
-            const idBd = await client.bds!.créerBd("ODbl-1_0");
-            await client.projets!.ajouterBdProjet(idProjet, idBd);
+            const idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
+            await client.projets!.ajouterBdProjet({idProjet, idBd});
 
-            const idTableau = await client.bds!.ajouterTableauBd(idBd);
-            await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
+            const idTableau = await client.bds!.ajouterTableauBd({id: idBd});
+            await client.tableaux!.ajouterColonneTableau({idTableau, idVariable});
 
             const réfRésId: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>
@@ -343,9 +343,9 @@ typesClients.forEach((type) => {
           });
 
           step("Ajout nom variable détecté", async () => {
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               fr: "Précipitation mensuelle",
-            });
+            }});
 
             const réfRésNom: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>
@@ -420,7 +420,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             idProjet = await client.projets!.créerProjet();
-            idBd = await client.bds!.créerBd("ODbl-1_0");
+            idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
 
             const fRechercheNom = rechercherProjetSelonBd("Hydrologie");
             fsOublier.push(
@@ -465,7 +465,7 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat id détecté", async () => {
-            await client.projets!.ajouterBdProjet(idProjet, idBd);
+            await client.projets!.ajouterBdProjet({idProjet, idBd});
 
             const réfRés: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>
@@ -490,7 +490,7 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat nom détecté", async () => {
-            await client.bds!.ajouterNomsBd(idBd, { fr: "Hydrologie" });
+            await client.bds!.ajouterNomsBd({id: idBd, noms: { fr: "Hydrologie" }});
 
             const réfRés: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>
@@ -516,9 +516,9 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat descr détecté", async () => {
-            await client.bds!.ajouterDescriptionsBd(idBd, {
+            await client.bds!.ajouterDescriptionsBd({id: idBd, descriptions: {
               fr: "Hydrologie de Montréal",
-            });
+            }});
             const réfRés: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>
             > = {
@@ -543,13 +543,13 @@ typesClients.forEach((type) => {
 
           step("Résultat variable détecté", async () => {
             const idVariable = await client.variables!.créerVariable(
-              "numérique"
+              {catégorie: "numérique"}
             );
-            const idTableau = await client.bds!.ajouterTableauBd(idBd);
-            await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            const idTableau = await client.bds!.ajouterTableauBd({id: idBd});
+            await client.tableaux!.ajouterColonneTableau({idTableau, idVariable});
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               fr: "Température maximale",
-            });
+            }});
 
             const réfRés: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>
@@ -581,10 +581,10 @@ typesClients.forEach((type) => {
 
           step("Résultat mot-clef détecté", async () => {
             const idMotClef = await client.motsClefs!.créerMotClef();
-            await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+            await client.bds!.ajouterMotsClefsBd({idBd, idsMotsClefs: idMotClef});
+            await client.motsClefs!.ajouterNomsMotClef({id: idMotClef, noms: {
               fr: "Météorologie",
-            });
+            }});
 
             const réfRés: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>
@@ -671,7 +671,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             idProjet = await client.projets!.créerProjet();
-            idBd = await client.bds!.créerBd("ODbl-1_0");
+            idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
 
             const fRechercheNom = rechercherProjetSelonTexte("Hydrologie");
             fsOublier.push(
@@ -738,9 +738,9 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat nom détecté", async () => {
-            await client.projets!.ajouterNomsProjet(idProjet, {
+            await client.projets!.ajouterNomsProjet({id: idProjet, noms: {
               fr: "Hydrologie",
-            });
+            }});
 
             expect(résultatNom).to.deep.equal({
               type: "résultat",
@@ -757,9 +757,9 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat descr détecté", async () => {
-            await client.projets!.ajouterDescriptionsProjet(idProjet, {
+            await client.projets!.ajouterDescriptionsProjet({id: idProjet, descriptions: {
               fr: "Hydrologie de Montréal",
-            });
+            }});
             expect(résultatDescr).to.deep.equal({
               type: "résultat",
               clef: "fr",
@@ -775,7 +775,7 @@ typesClients.forEach((type) => {
           });
 
           step("Résultat bd détecté", async () => {
-            await client.projets!.ajouterBdProjet(idProjet, idBd);
+            await client.projets!.ajouterBdProjet({idProjet, idBd});
 
             expect(résultatBd).to.deep.equal({
               type: "résultat",
@@ -797,13 +797,13 @@ typesClients.forEach((type) => {
 
           step("Résultat variable détecté", async () => {
             const idVariable = await client.variables!.créerVariable(
-              "numérique"
+              {catégorie: "numérique"}
             );
-            const idTableau = await client.bds!.ajouterTableauBd(idBd);
-            await client.tableaux!.ajouterColonneTableau(idTableau, idVariable);
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            const idTableau = await client.bds!.ajouterTableauBd({id: idBd});
+            await client.tableaux!.ajouterColonneTableau({idTableau, idVariable});
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               fr: "Température maximale",
-            });
+            }});
 
             const résRéf: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>
@@ -830,10 +830,10 @@ typesClients.forEach((type) => {
 
           step("Résultat mot-clef détecté", async () => {
             const idMotClef = await client.motsClefs!.créerMotClef();
-            await client.motsClefs!.ajouterNomsMotClef(idMotClef, {
+            await client.motsClefs!.ajouterNomsMotClef({id: idMotClef, noms: {
               fr: "Météorologie",
-            });
-            await client.bds!.ajouterMotsClefsBd(idBd, idMotClef);
+            }});
+            await client.bds!.ajouterMotsClefsBd({idBd, idsMotsClefs: idMotClef});
 
             const résRéf: résultatObjectifRecherche<
               infoRésultatRecherche<infoRésultatTexte>

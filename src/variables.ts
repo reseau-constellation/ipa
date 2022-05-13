@@ -294,11 +294,11 @@ export default class Variables {
   async sauvegarderDescrVariable({
     id,
     langue,
-    nom,
+    description,
   }: {
     id: string;
     langue: string;
-    nom: string;
+    description: string;
   }): Promise<void> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
@@ -310,7 +310,7 @@ export default class Variables {
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
     >({ id: idBdDescr });
-    await bdDescr.set(langue, nom);
+    await bdDescr.set(langue, description);
 
     fOublier();
   }

@@ -28,7 +28,7 @@ chai.use(chaiAsPromised);
 const assert = chai.assert;
 
 Object.keys(testAPIs).forEach((API) => {
-  describe.only("adresseOrbiteValide", function () {
+  describe("adresseOrbiteValide", function () {
     it("adresse orbite est valide", () => {
       const valide = adresseOrbiteValide(
         "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e"
@@ -43,7 +43,7 @@ Object.keys(testAPIs).forEach((API) => {
     });
   });
 
-  describe.only("Client Constellation", function () {
+  describe("Client Constellation", function () {
     this.timeout(config.timeout);
 
     let fOublierClients: () => Promise<void>;
@@ -1247,11 +1247,14 @@ Object.keys(testAPIs).forEach((API) => {
           adresseBd: undefined,
           premierMod: client.bdCompte!.id,
         };
-        const idBd = await client.créerBdIndépendante({type: "kvstore", optionsAccès});
+        const idBd = await client.créerBdIndépendante({
+          type: "kvstore",
+          optionsAccès,
+        });
 
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<number>>(
-          {id: idBd}
-        );
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<number>>({
+          id: idBd,
+        });
         fsOublier.push(fOublier);
 
         const autorisé = await peutÉcrire(bd, client.orbite);
@@ -1259,11 +1262,14 @@ Object.keys(testAPIs).forEach((API) => {
       });
       it("Avec accès personalisé", async () => {
         const optionsAccès = { premierMod: client2.orbite!.identity.id };
-        const idBd = await client.créerBdIndépendante({type: "kvstore", optionsAccès});
+        const idBd = await client.créerBdIndépendante({
+          type: "kvstore",
+          optionsAccès,
+        });
 
         const { bd: bd_orbite2, fOublier } = await client2.ouvrirBd<
           KeyValueStore<number>
-        >({id: idBd});
+        >({ id: idBd });
         fsOublier.push(fOublier);
 
         const autorisé = await peutÉcrire(bd_orbite2, client2.orbite);
@@ -1285,10 +1291,10 @@ Object.keys(testAPIs).forEach((API) => {
 
         const { bd: bdDic1, fOublier: fOublierDic1 } = await client.ouvrirBd<
           KeyValueStore<number>
-        >({id: idBdDic1});
+        >({ id: idBdDic1 });
         const { bd: bdDic2, fOublier: fOublierDic2 } = await client.ouvrirBd<
           KeyValueStore<number>
-        >({id: idBdDic2});
+        >({ id: idBdDic2 });
 
         fsOublier.push(fOublierDic1);
         fsOublier.push(fOublierDic2);
@@ -1298,7 +1304,7 @@ Object.keys(testAPIs).forEach((API) => {
         await bdDic2.put("clef 1", -1);
         await bdDic2.put("clef 3", 3);
 
-        await client.combinerBdsDict({bdBase: bdDic1, bd2: bdDic2});
+        await client.combinerBdsDict({ bdBase: bdDic1, bd2: bdDic2 });
         const données = bdDic1.all;
 
         expect(données).to.deep.equal({
@@ -1313,9 +1319,9 @@ Object.keys(testAPIs).forEach((API) => {
         const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
         const { bd: bdListe1, fOublier: fOublierListe1 } =
-          await client.ouvrirBd<FeedStore<number>>({id: idBdListe1});
+          await client.ouvrirBd<FeedStore<number>>({ id: idBdListe1 });
         const { bd: bdListe2, fOublier: fOublierListe2 } =
-          await client.ouvrirBd<FeedStore<number>>({id: idBdListe2});
+          await client.ouvrirBd<FeedStore<number>>({ id: idBdListe2 });
 
         fsOublier.push(fOublierListe1);
         fsOublier.push(fOublierListe2);
@@ -1325,8 +1331,10 @@ Object.keys(testAPIs).forEach((API) => {
         await bdListe2.add(1);
         await bdListe2.add(3);
 
-        await client.combinerBdsListe({bdBase: bdListe1, bd2: bdListe2});
-        const données = ClientConstellation.obtÉlémentsDeBdListe({bd: bdListe1});
+        await client.combinerBdsListe({ bdBase: bdListe1, bd2: bdListe2 });
+        const données = ClientConstellation.obtÉlémentsDeBdListe({
+          bd: bdListe1,
+        });
 
         expect(données).to.be.an("array").with.lengthOf(3);
         expect(données).to.include.members([1, 2, 3]);
@@ -1337,13 +1345,13 @@ Object.keys(testAPIs).forEach((API) => {
         const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
         const { bd: bdListe1, fOublier: fOublierListe1 } =
-          await client.ouvrirBd<FeedStore<{ temps: number; val: number }>>(
-            {id: idBdListe1}
-          );
+          await client.ouvrirBd<FeedStore<{ temps: number; val: number }>>({
+            id: idBdListe1,
+          });
         const { bd: bdListe2, fOublier: fOublierListe2 } =
-          await client.ouvrirBd<FeedStore<{ temps: number; val: number }>>(
-            {id: idBdListe2}
-          );
+          await client.ouvrirBd<FeedStore<{ temps: number; val: number }>>({
+            id: idBdListe2,
+          });
 
         fsOublier.push(fOublierListe1);
         fsOublier.push(fOublierListe2);
@@ -1353,8 +1361,14 @@ Object.keys(testAPIs).forEach((API) => {
         await bdListe2.add({ temps: 1, val: 2 });
         await bdListe2.add({ temps: 3, val: 3 });
 
-        await client.combinerBdsListe({bdBase: bdListe1, bd2: bdListe2, index: ["temps"]});
-        const données = ClientConstellation.obtÉlémentsDeBdListe({bd: bdListe1});
+        await client.combinerBdsListe({
+          bdBase: bdListe1,
+          bd2: bdListe2,
+          index: ["temps"],
+        });
+        const données = ClientConstellation.obtÉlémentsDeBdListe({
+          bd: bdListe1,
+        });
 
         expect(données).to.be.an("array").with.lengthOf(3);
         expect(données).to.deep.include.members([
@@ -1370,10 +1384,10 @@ Object.keys(testAPIs).forEach((API) => {
 
         const { bd: bdDic1, fOublier: fOublierDic1 } = await client.ouvrirBd<
           KeyValueStore<string>
-        >({id: idBdDic1});
+        >({ id: idBdDic1 });
         const { bd: bdDic2, fOublier: fOublierDic2 } = await client.ouvrirBd<
           KeyValueStore<string>
-        >({id: idBdDic2});
+        >({ id: idBdDic2 });
 
         fsOublier.push(fOublierDic1);
         fsOublier.push(fOublierDic2);
@@ -1382,9 +1396,9 @@ Object.keys(testAPIs).forEach((API) => {
         const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
         const { bd: bdListe1, fOublier: fOublierListe1 } =
-          await client.ouvrirBd<FeedStore<number>>({id: idBdListe1});
+          await client.ouvrirBd<FeedStore<number>>({ id: idBdListe1 });
         const { bd: bdListe2, fOublier: fOublierListe2 } =
-          await client.ouvrirBd<FeedStore<number>>({id: idBdListe2});
+          await client.ouvrirBd<FeedStore<number>>({ id: idBdListe2 });
 
         fsOublier.push(fOublierListe1);
         fsOublier.push(fOublierListe2);
@@ -1396,15 +1410,17 @@ Object.keys(testAPIs).forEach((API) => {
         await bdDic1.put("clef", idBdListe1);
         await bdDic2.put("clef", idBdListe2);
 
-        await client.combinerBdsDict({bdBase: bdDic1, bd2: bdDic2});
+        await client.combinerBdsDict({ bdBase: bdDic1, bd2: bdDic2 });
 
         const idBdListeFinale = bdDic1.get("clef");
         const { bd: bdListeFinale, fOublier: fOublierBdListeFinale } =
-          await client.ouvrirBd<FeedStore<number>>({id: idBdListeFinale});
+          await client.ouvrirBd<FeedStore<number>>({ id: idBdListeFinale });
 
         fsOublier.push(fOublierBdListeFinale);
 
-        const données = ClientConstellation.obtÉlémentsDeBdListe({bd: bdListeFinale});
+        const données = ClientConstellation.obtÉlémentsDeBdListe({
+          bd: bdListeFinale,
+        });
 
         expect(données).to.be.an("array").with.lengthOf(2);
         expect(données).to.deep.include.members([1, 2]);
@@ -1415,13 +1431,13 @@ Object.keys(testAPIs).forEach((API) => {
         const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
         const { bd: bdListe1, fOublier: fOublierBdListe1 } =
-          await client.ouvrirBd<FeedStore<{ indexe: number; idBd: string }>>(
-            {id: idBdListe1}
-          );
+          await client.ouvrirBd<FeedStore<{ indexe: number; idBd: string }>>({
+            id: idBdListe1,
+          });
         const { bd: bdListe2, fOublier: fOublierBdListe2 } =
-          await client.ouvrirBd<FeedStore<{ indexe: number; idBd: string }>>(
-            {id: idBdListe2}
-          );
+          await client.ouvrirBd<FeedStore<{ indexe: number; idBd: string }>>({
+            id: idBdListe2,
+          });
 
         fsOublier.push(fOublierBdListe1);
         fsOublier.push(fOublierBdListe2);
@@ -1431,10 +1447,10 @@ Object.keys(testAPIs).forEach((API) => {
 
         const { bd: subBd1, fOublier: fOublierSubBd1 } = await client.ouvrirBd<
           FeedStore<number>
-        >({id: idSubBd1});
+        >({ id: idSubBd1 });
         const { bd: subBd2, fOublier: fOublierSubBd2 } = await client.ouvrirBd<
           FeedStore<number>
-        >({id: idSubBd2});
+        >({ id: idSubBd2 });
 
         fsOublier.push(fOublierSubBd1);
         fsOublier.push(fOublierSubBd2);
@@ -1447,19 +1463,25 @@ Object.keys(testAPIs).forEach((API) => {
         await bdListe1.add({ indexe: 1, idBd: idSubBd1 });
         await bdListe2.add({ indexe: 1, idBd: idSubBd2 });
 
-        await client.combinerBdsListe({bdBase: bdListe1, bd2: bdListe2, index: ["indexe"]});
+        await client.combinerBdsListe({
+          bdBase: bdListe1,
+          bd2: bdListe2,
+          index: ["indexe"],
+        });
 
         const donnéesBdListe: élément[] =
-          ClientConstellation.obtÉlémentsDeBdListe({bd: bdListe1});
+          ClientConstellation.obtÉlémentsDeBdListe({ bd: bdListe1 });
         expect(donnéesBdListe).to.be.an("array").with.lengthOf(1);
 
         const idBdListeFinale = donnéesBdListe[0]!.idBd;
         const { bd: subBdFinale, fOublier: fOublierSubBdFinale } =
-          await client.ouvrirBd<FeedStore<number>>({id: idBdListeFinale});
+          await client.ouvrirBd<FeedStore<number>>({ id: idBdListeFinale });
 
         fsOublier.push(fOublierSubBdFinale);
 
-        const données = ClientConstellation.obtÉlémentsDeBdListe({bd: subBdFinale});
+        const données = ClientConstellation.obtÉlémentsDeBdListe({
+          bd: subBdFinale,
+        });
 
         expect(données).to.be.an("array").with.lengthOf(2);
         expect(données).to.deep.include.members([1, 2]);
@@ -1472,9 +1494,9 @@ Object.keys(testAPIs).forEach((API) => {
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<number>>(
-          {id: idBd}
-        );
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<number>>({
+          id: idBd,
+        });
         fsOublier.push(fOublier);
 
         await bd.put("test", 123);
@@ -1486,10 +1508,10 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       it("Les données n'existent plus", async () => {
-        await client.effacerBd({id: idBd});
-        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
-          {id: idBd}
-        );
+        await client.effacerBd({ id: idBd });
+        const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
+          id: idBd,
+        });
 
         fsOublier.push(fOublier);
 
@@ -1506,15 +1528,21 @@ Object.keys(testAPIs).forEach((API) => {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBd = await client.créerBdIndépendante({type: "kvstore", optionsAccès: {
-          adresseBd: undefined,
-          premierMod: client.bdCompte!.id,
-        }});
+        idBd = await client.créerBdIndépendante({
+          type: "kvstore",
+          optionsAccès: {
+            adresseBd: undefined,
+            premierMod: client.bdCompte!.id,
+          },
+        });
 
         fsOublier.push(
-          await client2.suivrePermission({idObjet: idBd, f: (p) => {
-            rés.ultat = p;
-          }})
+          await client2.suivrePermission({
+            idObjet: idBd,
+            f: (p) => {
+              rés.ultat = p;
+            },
+          })
         );
       });
 
@@ -1527,15 +1555,15 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("On détecte l'ajout d'une permission membre", async () => {
-        await client.donnerAccès({idBd, identité: idbdCompte2, rôle: MEMBRE});
+        await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
         await attendreRésultat(rés, "ultat");
         expect(rés.ultat).to.equal(MEMBRE);
       });
 
       step("Le nouveau membre peut modifier la BD", async () => {
-        const { bd, fOublier } = await client2.ouvrirBd<KeyValueStore<number>>(
-          {id: idBd}
-        );
+        const { bd, fOublier } = await client2.ouvrirBd<KeyValueStore<number>>({
+          id: idBd,
+        });
 
         fsOublier.push(fOublier);
 
@@ -1544,7 +1572,11 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("On détecte l'ajout d'une permission modératrice", async () => {
-        await client.donnerAccès({idBd,identité: idbdCompte2, rôle: MODÉRATEUR});
+        await client.donnerAccès({
+          idBd,
+          identité: idbdCompte2,
+          rôle: MODÉRATEUR,
+        });
         await attendreRésultat(rés, "ultat", MODÉRATEUR);
         expect(rés.ultat).to.equal(MODÉRATEUR);
       });
@@ -1563,24 +1595,33 @@ Object.keys(testAPIs).forEach((API) => {
       let permissionÉcrire = false;
 
       before(async () => {
-        idBd = await client.créerBdIndépendante({type: "kvstore", optionsAccès: {
-          adresseBd: undefined,
-          premierMod: client.bdCompte!.id,
-        }});
+        idBd = await client.créerBdIndépendante({
+          type: "kvstore",
+          optionsAccès: {
+            adresseBd: undefined,
+            premierMod: client.bdCompte!.id,
+          },
+        });
         const f = (accès: infoAccès[]) => {
           lAccès = accès;
         };
-        fOublier = await client.suivreAccèsBd({id: idBd, f});
+        fOublier = await client.suivreAccèsBd({ id: idBd, f });
 
         const fÉcrire = (accès: boolean) => {
           permissionÉcrire = accès;
         };
-        fOublierÉcrire = await client2.suivrePermissionÉcrire({id: idBd, f: fÉcrire});
+        fOublierÉcrire = await client2.suivrePermissionÉcrire({
+          id: idBd,
+          f: fÉcrire,
+        });
 
         const fPermission = (accès?: typeof MODÉRATEUR | typeof MEMBRE) => {
           résultatPermission.permission = accès;
         };
-        fOublierPermission = await client2.suivrePermission({idObjet: idBd, f: fPermission});
+        fOublierPermission = await client2.suivrePermission({
+          idObjet: idBd,
+          f: fPermission,
+        });
       });
       after(async () => {
         if (fOublier) fOublier();
@@ -1588,7 +1629,7 @@ Object.keys(testAPIs).forEach((API) => {
         if (fOublierPermission) fOublierPermission();
       });
       step("On détecte l'ajout d'une permission membre", async () => {
-        await client.donnerAccès({idBd, identité: idbdCompte2, rôle: MEMBRE});
+        await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
         await attendreRésultat(résultatPermission, "permission", MEMBRE);
 
         const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
@@ -1601,7 +1642,11 @@ Object.keys(testAPIs).forEach((API) => {
       });
 
       step("On détecte l'ajout d'une permission modératrice", async () => {
-        await client.donnerAccès({idBd,identité: idbdCompte2, rôle: MODÉRATEUR});
+        await client.donnerAccès({
+          idBd,
+          identité: idbdCompte2,
+          rôle: MODÉRATEUR,
+        });
         await attendreRésultat(résultatPermission, "permission", MODÉRATEUR);
 
         const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
@@ -1630,13 +1675,13 @@ Object.keys(testAPIs).forEach((API) => {
         idBdKv = await client.créerBdIndépendante({ type: "kvstore" });
         const { bd: bdKv, fOublier: fOublierKv } = await client.ouvrirBd<
           KeyValueStore<string>
-        >({id: idBdKv});
+        >({ id: idBdKv });
 
         fsOublier.push(fOublierKv);
 
         idBdListe = await client.créerBdIndépendante({ type: "feed" });
         const { bd: bdListe, fOublier: fOublierBdListe } =
-          await client.ouvrirBd<FeedStore<string>>({id: idBdListe});
+          await client.ouvrirBd<FeedStore<string>>({ id: idBdListe });
 
         fsOublier.push(fOublierBdListe);
 
@@ -1648,7 +1693,7 @@ Object.keys(testAPIs).forEach((API) => {
         cidTexte = (await client2.sfip!.add("Bonjour !")).cid.toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
         await bdListe.add(cidTexte);
 
-        await client.épingles!.épinglerBd({id: idBdKv});
+        await client.épingles!.épinglerBd({ id: idBdKv });
       });
 
       after(() => {

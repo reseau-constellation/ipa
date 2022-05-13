@@ -619,11 +619,11 @@ export default class BDs {
   async sauvegarderDescrBd({
     id,
     langue,
-    nom,
+    descr,
   }: {
     id: string;
     langue: string;
-    nom: string;
+    descr: string;
   }): Promise<void> {
     const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdDescr = await this.client.obtIdBd({
@@ -637,7 +637,7 @@ export default class BDs {
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
     >({ id: idBdDescr });
-    await bdDescr.set(langue, nom);
+    await bdDescr.set(langue, descr);
     fOublier();
   }
 

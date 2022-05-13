@@ -46,7 +46,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fOublier = await client.variables!.suivreVariables(
-              (x) => (variables = x)
+              {f: (x) => (variables = x)}
             );
           });
 
@@ -57,14 +57,14 @@ typesClients.forEach((type) => {
             expect(variables).to.be.an.empty("array");
           });
           step("Créer des variables", async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
             expect(variables)
               .to.be.an("array")
               .with.lengthOf(1)
               .that.contains(idVariable);
           });
           step("Effacer un mot-clef", async () => {
-            await client.variables!.effacerVariable(idVariable);
+            await client.variables!.effacerVariable({id: idVariable});
             expect(variables).to.be.an.empty("array");
           });
         });
@@ -75,9 +75,9 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
             fOublier = await client.variables!.suivreVariables(
-              (vs) => (mesVariables = vs)
+              {f: (vs) => (mesVariables = vs)}
             );
           });
 
@@ -90,12 +90,12 @@ typesClients.forEach((type) => {
           });
 
           step("Enlever de mes variables", async () => {
-            await client.variables!.enleverDeMesVariables(idVariable);
+            await client.variables!.enleverDeMesVariables({id: idVariable});
             expect(mesVariables).to.not.include(idVariable);
           });
 
           step("Ajouter à mes variables", async () => {
-            await client.variables!.ajouterÀMesVariables(idVariable);
+            await client.variables!.ajouterÀMesVariables({id: idVariable});
             expect(mesVariables).to.include(idVariable);
           });
         });
@@ -105,10 +105,10 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.variables!.suivreNomsVariable(
-              idVariable,
-              (n) => (noms = n)
-            );
+            fOublier = await client.variables!.suivreNomsVariable({
+              id: idVariable,
+              f: (n) => (noms = n)
+            });
           });
 
           after(async () => {
@@ -120,19 +120,19 @@ typesClients.forEach((type) => {
           });
 
           step("Ajouter un nom", async () => {
-            await client.variables!.sauvegarderNomVariable(
-              idVariable,
-              "fr",
-              "Précipitation"
-            );
+            await client.variables!.sauvegarderNomVariable({
+              id: idVariable,
+              langue: "fr",
+              nom: "Précipitation"
+            });
             expect(noms.fr).to.equal("Précipitation");
           });
 
           step("Ajouter des noms", async () => {
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               த: "மழை",
               हिं: "बारिश",
-            });
+            }});
             expect(noms).to.deep.equal({
               த: "மழை",
               हिं: "बारिश",
@@ -141,16 +141,16 @@ typesClients.forEach((type) => {
           });
 
           step("Changer un nom", async () => {
-            await client.variables!.sauvegarderNomVariable(
-              idVariable,
-              "fr",
-              "précipitation"
-            );
+            await client.variables!.sauvegarderNomVariable({
+              id: idVariable,
+              langue: "fr",
+              nom: "précipitation"
+            });
             expect(noms?.fr).to.equal("précipitation");
           });
 
           step("Effacer un nom", async () => {
-            await client.variables!.effacerNomVariable(idVariable, "fr");
+            await client.variables!.effacerNomVariable({id: idVariable, langue: "fr"});
             expect(noms).to.deep.equal({ த: "மழை", हिं: "बारिश" });
           });
         });
@@ -160,10 +160,10 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            fOublier = await client.variables!.suivreDescrVariable(
-              idVariable,
-              (d) => (descrs = d)
-            );
+            fOublier = await client.variables!.suivreDescrVariable({
+              id: idVariable,
+              f: (d) => (descrs = d)
+            });
           });
 
           after(async () => {
@@ -175,21 +175,21 @@ typesClients.forEach((type) => {
           });
 
           step("Ajouter une description", async () => {
-            await client.variables!.sauvegarderDescrVariable(
-              idVariable,
-              "fr",
-              "la quantité de précipitation quotidienne"
-            );
+            await client.variables!.sauvegarderDescrVariable({
+              id: idVariable,
+              langue: "fr",
+              description: "la quantité de précipitation quotidienne"
+            });
             expect(descrs.fr).to.equal(
               "la quantité de précipitation quotidienne"
             );
           });
 
           step("Ajouter des descriptions", async () => {
-            await client.variables!.ajouterDescriptionsVariable(idVariable, {
+            await client.variables!.ajouterDescriptionsVariable({id: idVariable, descriptions: {
               த: "தினசரி மழை",
               हिं: "दैनिक बारिश",
-            });
+            }});
             expect(descrs).to.deep.equal({
               த: "தினசரி மழை",
               हिं: "दैनिक बारिश",
@@ -198,18 +198,18 @@ typesClients.forEach((type) => {
           });
 
           step("Changer une description", async () => {
-            await client.variables!.sauvegarderDescrVariable(
-              idVariable,
-              "fr",
-              "La quantité de précipitation quotidienne"
-            );
+            await client.variables!.sauvegarderDescrVariable({
+              id: idVariable,
+              langue: "fr",
+              description: "La quantité de précipitation quotidienne"
+            });
             expect(descrs?.fr).to.equal(
               "La quantité de précipitation quotidienne"
             );
           });
 
           step("Effacer une description", async () => {
-            await client.variables!.effacerDescrVariable(idVariable, "fr");
+            await client.variables!.effacerDescrVariable({id: idVariable, langue: "fr"});
             expect(descrs).to.deep.equal({
               த: "தினசரி மழை",
               हिं: "दैनिक बारिश",
@@ -223,11 +223,11 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
-            fOublier = await client.variables!.suivreCatégorieVariable(
-              idVariable,
-              (c) => (catégorie = c)
-            );
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
+            fOublier = await client.variables!.suivreCatégorieVariable({
+              id: idVariable,
+              f: (c) => (catégorie = c)
+            });
           });
 
           after(async () => {
@@ -235,10 +235,10 @@ typesClients.forEach((type) => {
           });
 
           step("Changer la catégorie", async () => {
-            await client.variables!.sauvegarderCatégorieVariable(
+            await client.variables!.sauvegarderCatégorieVariable({
               idVariable,
-              "chaîne"
-            );
+              catégorie: "chaîne"
+            });
             expect(catégorie).to.equal("chaîne");
           });
         });
@@ -249,11 +249,11 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
-            fOublier = await client.variables!.suivreUnitésVariable(
-              idVariable,
-              (u) => (unités = u)
-            );
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
+            fOublier = await client.variables!.suivreUnitésVariable({
+              id: idVariable,
+              f: (u) => (unités = u)
+            });
           });
 
           after(async () => {
@@ -265,7 +265,7 @@ typesClients.forEach((type) => {
           });
 
           step("Changer les unités", async () => {
-            await client.variables!.sauvegarderUnitésVariable(idVariable, "mm");
+            await client.variables!.sauvegarderUnitésVariable({ idVariable, idUnité: "mm" });
             expect(unités).to.equal("mm");
           });
         });
@@ -277,11 +277,11 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           before(async () => {
-            idVariable = await client.variables!.créerVariable("numérique");
-            fOublier = await client.variables!.suivreRèglesVariable(
-              idVariable,
-              (r) => (règles = r)
-            );
+            idVariable = await client.variables!.créerVariable({catégorie: "numérique"});
+            fOublier = await client.variables!.suivreRèglesVariable({
+              id: idVariable,
+              f: (r) => (règles = r)
+            });
           });
 
           after(async () => {
@@ -301,16 +301,16 @@ typesClients.forEach((type) => {
                 op: ">",
               },
             };
-            idRègle = await client.variables!.ajouterRègleVariable(
+            idRègle = await client.variables!.ajouterRègleVariable({
               idVariable,
               règle
-            );
+            });
             expect(règles).to.have.lengthOf(2);
             expect(règles.filter((r) => r.id === idRègle)).to.have.lengthOf(1);
           });
 
           step("Effacer une règle", async () => {
-            await client.variables!.effacerRègleVariable(idVariable, idRègle);
+            await client.variables!.effacerRègleVariable({idVariable, idRègle});
             expect(règles).to.have.lengthOf(1);
           });
 
@@ -318,19 +318,19 @@ typesClients.forEach((type) => {
             "On ne peut pas effacer une règle générique de base",
             async () => {
               const règleDeBase = règles[0];
-              await client.variables!.effacerRègleVariable(
+              await client.variables!.effacerRègleVariable({
                 idVariable,
-                règleDeBase.id
-              );
+                idRègle: règleDeBase.id
+              });
               expect(règles[0].id).to.equal(règleDeBase.id);
             }
           );
 
           step("On détecte le changement de catégorie", async () => {
-            await client.variables!.sauvegarderCatégorieVariable(
+            await client.variables!.sauvegarderCatégorieVariable({
               idVariable,
-              "horoDatage"
-            );
+              catégorie: "horoDatage"
+            });
             const règleCatégorie = règles.find(
               (r) => r.règle.typeRègle === "catégorie"
             );
@@ -362,54 +362,54 @@ typesClients.forEach((type) => {
 
           before(async () => {
             fsOublier.push(
-              await client.variables!.suivreVariables((x) => (variables = x))
+              await client.variables!.suivreVariables({f: (x) => (variables = x)})
             );
 
             const idVariable = await client.variables!.créerVariable(
-              "numérique"
+              {catégorie: "numérique"}
             );
-            await client.variables!.ajouterNomsVariable(idVariable, {
+            await client.variables!.ajouterNomsVariable({id: idVariable, noms: {
               த: "மழை",
               हिं: "बारिश",
-            });
-            await client.variables!.ajouterDescriptionsVariable(idVariable, {
+            }});
+            await client.variables!.ajouterDescriptionsVariable({id: idVariable, descriptions: {
               த: "தினசரி மழை",
               हिं: "दैनिक बारिश",
-            });
-            await client.variables!.ajouterRègleVariable(idVariable, règle);
-            await client.variables!.sauvegarderUnitésVariable(idVariable, "mm");
+            }});
+            await client.variables!.ajouterRègleVariable({idVariable, règle});
+            await client.variables!.sauvegarderUnitésVariable({idVariable, idUnité: "mm"});
 
-            idVariable2 = await client.variables!.copierVariable(idVariable);
+            idVariable2 = await client.variables!.copierVariable({id: idVariable});
 
             fsOublier.push(
-              await client.variables!.suivreNomsVariable(
-                idVariable2,
-                (x) => (noms = x)
-              )
+              await client.variables!.suivreNomsVariable({
+                id: idVariable2,
+                f: (x) => (noms = x)
+              })
             );
             fsOublier.push(
-              await client.variables!.suivreDescrVariable(
-                idVariable2,
-                (x) => (descrs = x)
-              )
+              await client.variables!.suivreDescrVariable({
+                id: idVariable2,
+                f: (x) => (descrs = x)
+              })
             );
             fsOublier.push(
-              await client.variables!.suivreRèglesVariable(
-                idVariable2,
-                (r) => (règles = r)
-              )
+              await client.variables!.suivreRèglesVariable({
+                id: idVariable2,
+                f: (r) => (règles = r)
+              })
             );
             fsOublier.push(
-              await client.variables!.suivreCatégorieVariable(
-                idVariable2,
-                (c) => (catégorie = c)
-              )
+              await client.variables!.suivreCatégorieVariable({
+                id: idVariable2,
+                f: (c) => (catégorie = c)
+              })
             );
             fsOublier.push(
-              await client.variables!.suivreUnitésVariable(
-                idVariable2,
-                (u) => (unités = u)
-              )
+              await client.variables!.suivreUnitésVariable({
+                id: idVariable2,
+                f: (u) => (unités = u)
+              })
             );
           });
 
