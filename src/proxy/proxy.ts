@@ -102,6 +102,7 @@ export abstract class ClientProxifiable extends Callable {
     fonction: string[],
     args: { [key: string]: unknown } = {}
   ): Promise<unknown> {
+    if (typeof args !== "object") throw `La fonction ${fonction} fut appelée avec arguments ${args}. Toute fonction proxy Constellation doit être appelée avec un seul argument en format d'objet (dictionnaire).`
     const id = uuidv4();
     const nomArgFonction = Object.entries(args).find(
       (_c, v) => typeof v === "function"
@@ -140,6 +141,7 @@ export abstract class ClientProxifiable extends Callable {
     };
 
     const fRetour = (fonction: string, args?: unknown[]) => {
+      console.log("fRetour", {fonction, args})
       const messageRetour: MessageRetourPourTravailleur = {
         type: "retour",
         id,
