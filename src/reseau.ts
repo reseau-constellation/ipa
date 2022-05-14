@@ -5,6 +5,8 @@ import { PeersResult } from "ipfs-core-types/src/swarm";
 import { Message as MessagePubSub } from "ipfs-core-types/src/pubsub";
 import { EventEmitter } from "events";
 import { sum } from "lodash";
+import Semaphore from "@chriscdn/promise-semaphore";
+
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation, { Signature, infoAccès } from "@/client";
@@ -1586,9 +1588,13 @@ export default class Réseau extends EventEmitter {
       fFinale();
     };
 
+    const verrou = new Semaphore()
+
     const fSuivreComptes = async (
       comptes: infoMembreRéseau[]
     ): Promise<void> => {
+      await verrou.acquire("rechercher");
+
       comptes = comptes.filter((c) => c.confiance >= 0); // Enlever les membres bloqués
 
       const nouveaux = comptes.filter((c) => !résultatsParMembre[c.idBdCompte]);
@@ -1608,9 +1614,11 @@ export default class Réseau extends EventEmitter {
       changés.forEach((c) => résultatsParMembre[c.idBdCompte].mettreÀJour(c));
 
       clefsObsolètes.forEach((o) => oublierRésultatsMembre(o));
+
+      verrou.release("rechercher")
     };
 
-    const { fChangerProfondeur, fOublier } =
+    const { fChangerProfondeur, fOublier: fOublierSuivreComptes } =
       await this.suivreComptesRéseauEtEnLigne({
         f: fSuivreComptes,
         profondeur,
@@ -1622,6 +1630,11 @@ export default class Réseau extends EventEmitter {
       if (nouveauN !== nDésirésAvant) fFinale();
       débuterReboursAjusterProfondeur(0);
     };
+
+    const fOublier = () => {
+      fOublierSuivreComptes();
+      Object.values(résultatsParMembre).forEach(r=>r.fOublierRecherche())
+    }
 
     return { fChangerN, fOublier };
   }
