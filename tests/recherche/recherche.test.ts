@@ -1057,7 +1057,7 @@ typesClients.forEach((type) => {
             });
           });
 
-          describe.skip("selon bd", () => {
+          describe("selon bd", () => {
             let fOublier: schémaFonctionOublier;
             const rés: {
               ultat?: résultatRecherche<
