@@ -370,9 +370,11 @@ export default class Variables {
   async ajouterRègleVariable({
     idVariable,
     règle,
+    idRègle
   }: {
     idVariable: string;
     règle: règleVariable;
+    idRègle?: string
   }): Promise<string> {
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
@@ -383,9 +385,9 @@ export default class Variables {
       throw `Permission de modification refusée pour variable ${idVariable}.`;
     }
 
-    const id = uuidv4();
+    idRègle = idRègle || uuidv4();
     const règleAvecId: règleVariableAvecId = {
-      id,
+      id: idRègle,
       règle,
     };
     const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
@@ -395,7 +397,7 @@ export default class Variables {
 
     fOublier();
 
-    return id;
+    return idRègle;
   }
 
   async effacerRègleVariable({
@@ -423,6 +425,19 @@ export default class Variables {
     });
 
     fOublier();
+  }
+
+  async modifierRègleVariable({
+    idVariable,
+    règleModifiée,
+    idRègle
+  }: {
+    idVariable: string,
+    règleModifiée: règleVariable,
+    idRègle: string,
+  }): Promise<void> {
+    await this.effacerRègleVariable({ idVariable, idRègle })
+    await this.ajouterRègleVariable({ idVariable, règle: règleModifiée, idRègle })
   }
 
   async suivreNomsVariable({
