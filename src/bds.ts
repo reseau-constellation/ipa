@@ -6,6 +6,7 @@ import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import fs from "fs";
 import path from "path";
+import oùSommesNous from "wherearewe";
 
 import { InfoColAvecCatégorie, typeÉlémentsBdTableaux } from "@/tableaux";
 import { schémaStatut, TYPES_STATUT } from "@/utils/types";
@@ -1303,12 +1304,12 @@ export default class BDs {
     données,
     formatDoc,
     dir = "",
-    inclureFichierSFIP = true,
+    inclureFichiersSFIP = true,
   }: {
     données: donnéesBdExportées;
     formatDoc: BookType | "xls";
     dir?: string;
-    inclureFichierSFIP?: boolean;
+    inclureFichiersSFIP?: boolean;
   }): Promise<void> {
     const { doc, fichiersSFIP, nomFichier } = données;
 
@@ -1317,25 +1318,27 @@ export default class BDs {
     };
     const bookType: BookType = conversionsTypes[formatDoc] || formatDoc;
 
-    // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre
-    if (!fs.existsSync(dir)) {
+    // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
+    if (!(oùSommesNous.isBrowser || oùSommesNous.isWebWorker) && !fs.existsSync(dir)) {
+      // Mais juste si on n'est pas dans le navigateur ! Dans le navigateur, ça télécharge sans problème.
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    if (inclureFichierSFIP) {
+    if (inclureFichiersSFIP) {
       const fichierDoc = {
         octets: writeXLSX(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
       };
-      const fichiersDeSFIP = [];
-      for (const fichier of fichiersSFIP) {
-        fichiersDeSFIP.push({
-          nom: `${fichier.cid}.${fichier.ext}`,
-          octets: await toBuffer(
-            this.client.obtItérableAsyncSFIP({ id: fichier.cid })
-          ),
-        });
-      }
+      const fichiersDeSFIP = await Promise.all([...fichiersSFIP].map(
+        async fichier => {
+          return {
+            nom: `${fichier.cid}.${fichier.ext}`,
+            octets: await toBuffer(
+              this.client.obtItérableAsyncSFIP({ id: fichier.cid })
+            ),
+          }
+        }
+      ));
       await zipper([fichierDoc], fichiersDeSFIP, path.join(dir, nomFichier));
     } else {
       writeFile(doc, path.join(dir, `${nomFichier}.${formatDoc}`), {

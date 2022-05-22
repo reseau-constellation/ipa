@@ -759,17 +759,16 @@ export default class Projets {
         octets: writeXLSX(d.doc, { bookType, type: "buffer" }),
       };
     });
-    const fichiersDeSFIP = [];
-    if (inclureFichiersSFIP) {
-      for (const fichier of fichiersSFIP) {
-        fichiersDeSFIP.push({
+    const fichiersDeSFIP = inclureFichiersSFIP ? await Promise.all([...fichiersSFIP].map(
+      async fichier => {
+        return {
           nom: `${fichier.cid}.${fichier.ext}`,
           octets: await toBuffer(
             this.client.obtItérableAsyncSFIP({ id: fichier.cid })
           ),
-        });
+        }
       }
-    }
+    )) : [];
     await zipper(fichiersDocs, fichiersDeSFIP, path.join(dir, nomFichier));
   }
 
