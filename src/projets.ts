@@ -163,6 +163,8 @@ export default class Projets {
     const image = bdBase.get("image");
     if (image) await nouvelleBd.set("image", image);
 
+    await nouvelleBd.set("copiéDe", id);
+
     fOublierBase();
     fOublierNouvelle();
     fOublierNoms();
