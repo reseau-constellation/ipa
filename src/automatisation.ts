@@ -228,7 +228,7 @@ const générerFExportation = (
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dir: spéc.dir,
-          inclureFichierSFIP: spéc.inclureFichiersSFIP,
+          inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
       }
@@ -242,7 +242,7 @@ const générerFExportation = (
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dir: spéc.dir,
-          inclureFichierSFIP: spéc.inclureFichiersSFIP,
+          inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
       }
