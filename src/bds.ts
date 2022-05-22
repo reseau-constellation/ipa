@@ -231,6 +231,8 @@ export default class BDs {
     const image = bdBase.get("image");
     if (image) await nouvelleBd.set("image", image);
 
+    await nouvelleBd.set("copiéDe", id);
+
     fOublier();
     fOublierNouvelleTableaux();
     fOublierBdNoms();
