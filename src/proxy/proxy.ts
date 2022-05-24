@@ -109,6 +109,7 @@ export abstract class ClientProxifiable extends Callable {
     )?.[0];
 
     if (nomArgFonction) {
+      args = Object.fromEntries(Object.entries(args).filter(x => x[0] !== nomArgFonction))
       return this.appelerFonctionSuivre(id, fonction, args, nomArgFonction);
     } else {
       return this.appelerFonctionAction(id, fonction, args);
