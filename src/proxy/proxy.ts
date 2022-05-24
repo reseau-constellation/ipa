@@ -105,11 +105,10 @@ export abstract class ClientProxifiable extends Callable {
     if (typeof args !== "object") throw `La fonction ${fonction} fut appelée avec arguments ${args}. Toute fonction proxy Constellation doit être appelée avec un seul argument en format d'objet (dictionnaire).`
     const id = uuidv4();
     const nomArgFonction = Object.entries(args).find(
-      (_c, v) => typeof v === "function"
+      x => typeof x[1] === "function"
     )?.[0];
 
     if (nomArgFonction) {
-      args = Object.fromEntries(Object.entries(args).filter(x => x[0] !== nomArgFonction))
       return this.appelerFonctionSuivre(id, fonction, args, nomArgFonction);
     } else {
       return this.appelerFonctionAction(id, fonction, args);
@@ -126,10 +125,10 @@ export abstract class ClientProxifiable extends Callable {
   > {
     const f = args[nomArgFonction] as schémaFonctionSuivi<unknown>;
     const argsSansF = Object.fromEntries(
-      Object.entries(args).filter((_c, v) => typeof v !== "function")
+      Object.entries(args).filter(x => typeof x[1] !== "function")
     );
-    if (Object.keys(args).length !== Object.keys(argsSansF).length - 1) {
-      this.erreur(new Error("Plus d'un argument est une fonction."), id);
+    if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
+      this.erreur(new Error("Plus d'un argument est une fonction : " + JSON.stringify(args)), id);
       return new Promise((_resolve, reject) => reject());
     }
 
@@ -137,12 +136,11 @@ export abstract class ClientProxifiable extends Callable {
       type: "suivre",
       id,
       fonction,
-      args,
+      args: argsSansF,
       nomArgFonction,
     };
 
     const fRetour = (fonction: string, args?: unknown[]) => {
-      console.log("fRetour", {fonction, args})
       const messageRetour: MessageRetourPourTravailleur = {
         type: "retour",
         id,
@@ -166,7 +164,7 @@ export abstract class ClientProxifiable extends Callable {
     this.envoyerMessage(message);
 
     const fonctions = (await once(this.événements, id)) as string[] | undefined;
-    if (fonctions) {
+    if (fonctions && fonctions[0]) {
       const retour: { [key: string]: (...args: unknown[]) => void } = {
         fOublier: fOublierTâche,
       };
@@ -206,11 +204,14 @@ export abstract class ClientProxifiable extends Callable {
   erreur(erreur: Error, id?: string): void {
     const infoErreur = { erreur, id };
     this.erreurs.unshift(infoErreur);
-    this.événements.emit("erreur", {
-      nouvelle: infoErreur,
-      toutes: this.erreurs,
-    });
-    if (this.souleverErreurs) throw infoErreur;
+    if (this.souleverErreurs) {
+      throw infoErreur
+    } else {
+      this.événements.emit("erreur", {
+        nouvelle: infoErreur,
+        toutes: this.erreurs,
+      });
+    };
   }
 
   oublierTâche(id: string): void {
