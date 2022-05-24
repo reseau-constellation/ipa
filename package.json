@@ -1,5 +1,5 @@
 {
-  "version": "0.4.2",
+  "version": "0.4.4",
   "license": "MIT",
   "name": "@constl/ipa",
   "author": "Julien Malard-Adam",
@@ -23,7 +23,7 @@
     "compiler:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts' --out-dir 'lib/cjs' --source-maps",
     "compiler:bundles": "cross-env BABEL_ENV=esmBundled rollup -c",
     "déclarations": "ttsc -p tsconfig.json",
-    "compiler": "yarn nettoyer && yarn compiler:esm && yarn compiler:cjs && yarn compiler:bundles && yarn déclarations",
+    "compiler": "yarn nettoyer && yarn compiler:esm && yarn compiler:cjs && yarn déclarations",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' yarn ts-mocha \"tests/**/*.test.ts\" --exit --require mocha-steps -r tsconfig-paths/register",
     "test:tous": "env TOUS=true yarn test",
     "test:navigateur": "karma start",
