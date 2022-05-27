@@ -48,6 +48,8 @@ export default class MotsClefs {
     const accès = bdMotClef.access as unknown as ContrôleurConstellation;
     const optionsAccès = { adresseBd: accès.adresseBd };
 
+    await bdMotClef.set("type", "motClef");
+
     const idBdNoms = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès,

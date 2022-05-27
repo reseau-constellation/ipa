@@ -1008,6 +1008,30 @@ export default class ClientConstellation extends EventEmitter {
     if (retrouvé) await bd.remove(retrouvé.hash);
   }
 
+  async suivreTypeObjet({ idObjet, f }: {
+    idObjet: string,
+    f: schémaFonctionSuivi<"motClef" | "variable" | "bd" | "projet" | undefined>
+  }): Promise<schémaFonctionOublier> {
+
+    const fFinale = (vals: {[key: string]: string}): void => {
+      let typeFinal = undefined as "motClef" | "variable" | "bd" | "projet" | undefined
+
+      const { type } = vals
+      if (type) {
+        typeFinal = ["motClef", "variable", "bd", "projet"].includes(type) ? type as "motClef" | "variable" | "bd" | "projet" : undefined
+      } else {
+        if (vals.bds) typeFinal = "projet";
+        else if (vals.tableaux) typeFinal = "bd";
+        else if (vals.catégorie) typeFinal = "variable";
+        else if (vals.nom) typeFinal = "motClef"
+      }
+      f(typeFinal);
+    }
+
+    const fOublier = await this.suivreBdDic({ id: idObjet, f: fFinale});
+    return fOublier;
+  }
+
   async suivreEmpreinteTêtesBdRécursive({
     idBd,
     f,

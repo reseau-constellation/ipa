@@ -94,6 +94,7 @@ export default class BDs {
     const { bd: bdBD, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdBD>
     >({ id: idBdBd });
+    await bdBD.set("type", "bd");
     await bdBD.set("licence", licence);
 
     const accès = bdBD.access as unknown as ContrôleurConstellation;

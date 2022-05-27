@@ -69,6 +69,8 @@ export default class Projets {
     const accès = bdProjet.access as unknown as ContrôleurConstellation;
     const optionsAccès = { adresseBd: accès.adresseBd };
 
+    await bdProjet.set("type", "projet");
+
     const idBdNoms = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès,
