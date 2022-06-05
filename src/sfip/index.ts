@@ -63,7 +63,6 @@ export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
 
   config.libp2p.modules = configPlateforme;
   config.repo = dir;
-  console.log(config);
 
   const sfip: IPFS = await create(config);
 
