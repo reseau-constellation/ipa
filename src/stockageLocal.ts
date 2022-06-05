@@ -11,10 +11,9 @@ export default async (dossier?: string): Promise<Storage> => {
 
     if (oùSommesNous.isElectronMain) {
       const electron = await import("electron");
-      const nomDossier = dossier || "_stockageTemp"
-      DOSSIER_STOCKAGE_LOCAL = path.join(
+      DOSSIER_STOCKAGE_LOCAL = dossier || path.join(
         electron.default.app.getPath("userData"),
-        nomDossier
+        "_stockageTemp"
       );
     } else {
       const nomDossier = dossier || path.join(".", "_stockageTemp")
@@ -26,6 +25,7 @@ export default async (dossier?: string): Promise<Storage> => {
     _localStorage = new LocalStorage(DOSSIER_STOCKAGE_LOCAL);
     return _localStorage;
   } else {
+    if (dossier) console.warn("Vous avez spécifié un dossier de stockage local mais votre choix sera ignoré car nous sommes dans le navigateur.")
     return localStorage;
   }
 };
