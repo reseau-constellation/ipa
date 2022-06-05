@@ -68,6 +68,7 @@ export interface optsConstellation {
   sujetRéseau?: string;
   orbite?: optsOrbite;
   encryption?: Encryption | boolean;
+  dossierStockageLocal?: string;
 }
 
 type optsOrbite = OrbitDB | optsInitOrbite;
@@ -1364,7 +1365,7 @@ export default class ClientConstellation extends EventEmitter {
       this.idBdCompte!.length - 23,
       this.idBdCompte!.length - 8
     )} : ${clef}`;
-    return (await obtStockageLocal()).getItem(clefClient);
+    return (await obtStockageLocal(this._opts.dossierStockageLocal)).getItem(clefClient);
   }
 
   async sauvegarderAuStockageLocal({
@@ -1378,7 +1379,7 @@ export default class ClientConstellation extends EventEmitter {
       this.idBdCompte!.length - 23,
       this.idBdCompte!.length - 8
     )} : ${clef}`;
-    return (await obtStockageLocal()).setItem(clefClient, val);
+    return (await obtStockageLocal(this._opts.dossierStockageLocal)).setItem(clefClient, val);
   }
 
   async effacerDeStockageLocal({ clef }: { clef: string }): Promise<void> {
@@ -1386,7 +1387,7 @@ export default class ClientConstellation extends EventEmitter {
       this.idBdCompte!.length - 23,
       this.idBdCompte!.length - 8
     )} : ${clef}`;
-    return (await obtStockageLocal()).removeItem(clefClient);
+    return (await obtStockageLocal(this._opts.dossierStockageLocal)).removeItem(clefClient);
   }
 
   async ouvrirBd<T extends Store>({
