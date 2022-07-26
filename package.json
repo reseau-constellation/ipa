@@ -23,7 +23,7 @@
     "compiler:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts' --out-dir 'lib/cjs' --source-maps",
     "compiler:bundles": "cross-env BABEL_ENV=esmBundled rollup -c",
     "déclarations": "ttsc -p tsconfig.json",
-    "compiler": "yarn nettoyer && yarn compiler:esm && yarn compiler:cjs && yarn déclarations",
+    "compiler": "yarn versioner && yarn nettoyer && yarn compiler:esm && yarn compiler:cjs && yarn déclarations",
     "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' yarn ts-mocha \"tests/**/*.test.ts\" --exit --require mocha-steps -r tsconfig-paths/register",
     "test:tous": "env TOUS=true yarn test",
     "test:navigateur": "karma start",
@@ -32,7 +32,8 @@
     "formatter": "yarn prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && yarn eslint --ext .js,.ts src",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "publier": "yarn compiler && yarn publish --access public"
+    "publier": "yarn compiler && yarn publish --access public",
+    "versioner": "yarn genversion  --es6 --semi src/version.ts"
   },
   "husky": {
     "hooks": {
@@ -136,6 +137,7 @@
     "deep-equal": "^2.0.5",
     "deepmerge": "^4.2.2",
     "file-saver": "^2.0.5",
+    "genversion": "^3.1.1",
     "geojson-validation": "^1.0.2",
     "ipfs": "^0.62.1",
     "ipfs-core": "^0.14.1",

@@ -33,6 +33,8 @@
     // "noEmit": true,
 
     // Mes configurations
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
     "downlevelIteration": true,
     "emitDeclarationOnly": true,
     "declarationMap": true,
