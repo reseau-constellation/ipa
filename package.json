@@ -1,6 +1,6 @@
 {
   "version": "0.4.4",
-  "license": "MIT",
+  "license": "apgl-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Malard-Adam",
   "main": "lib/cjs/index.js",
@@ -139,6 +139,7 @@
     "file-saver": "^2.0.5",
     "genversion": "^3.1.1",
     "geojson-validation": "^1.0.2",
+    "idb": "^7.0.2",
     "ipfs": "^0.62.1",
     "ipfs-core": "^0.14.1",
     "is-node": "^1.0.2",
