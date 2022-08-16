@@ -581,7 +581,6 @@ export default class BDs {
     idUniqueTableau: string,
     vals: T
   }): Promise<string> {
-    console.log("ajouterÉlémentÀTableauUnique", vals)
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreTableauUniqueDeBdUnique({
@@ -589,14 +588,13 @@ export default class BDs {
           motClefUnique,
           idUniqueTableau,
           f: (id?: string) => {
-            console.log({id})
             if (id) fSuivi(id);
           },
         });
       },
       true
     );
-    console.log({idTableau})
+
     return await this.client.tableaux!.ajouterÉlément({
       idTableau: idTableau,
       vals,
