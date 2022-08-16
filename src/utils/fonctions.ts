@@ -21,9 +21,7 @@ class ÉmetteurUneFois<T> extends EventEmitter {
 
   async initialiser() {
     const fSuivre = async (résultat: T) => {
-      console.log({résultat, doitExister: this.doitExister});
       if (!this.doitExister || résultat) {
-        console.log("uneFois ici")
         this.résultat = résultat;
         this.résultatPrêt = true;
         if (this.fOublier) this.lorsquePrêt();
@@ -48,7 +46,6 @@ export const uneFois = async function <T>(
   f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>,
   doitExister = false
 ): Promise<T> {
-  console.log("uneFois")
   const émetteur = new ÉmetteurUneFois(f, doitExister);
   const résultat = (await once(émetteur, "fini")) as [T];
   return résultat[0];
