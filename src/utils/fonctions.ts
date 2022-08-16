@@ -2,15 +2,18 @@ import { EventEmitter, once } from "events";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "./types";
 
 class ÉmetteurUneFois<T> extends EventEmitter {
+  doitExister: boolean
   résultatPrêt: boolean;
   fOublier?: schémaFonctionOublier;
   résultat?: T;
   f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>;
 
   constructor(
-    f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>
+    f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>,
+    doitExister: boolean
   ) {
     super();
+    this.doitExister = doitExister;
     this.résultatPrêt = false;
     this.f = f;
     this.initialiser();
@@ -18,9 +21,14 @@ class ÉmetteurUneFois<T> extends EventEmitter {
 
   async initialiser() {
     const fSuivre = async (résultat: T) => {
-      this.résultat = résultat;
-      this.résultatPrêt = true;
-      if (this.fOublier) this.lorsquePrêt();
+      console.log({résultat, doitExister: this.doitExister});
+      if (!this.doitExister || résultat) {
+        console.log("uneFois ici")
+        this.résultat = résultat;
+        this.résultatPrêt = true;
+        if (this.fOublier) this.lorsquePrêt();
+      }
+
     };
 
     this.fOublier = await this.f(fSuivre);
@@ -37,9 +45,11 @@ class ÉmetteurUneFois<T> extends EventEmitter {
 }
 
 export const uneFois = async function <T>(
-  f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>
+  f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>,
+  doitExister = false
 ): Promise<T> {
-  const émetteur = new ÉmetteurUneFois(f);
+  console.log("uneFois")
+  const émetteur = new ÉmetteurUneFois(f, doitExister);
   const résultat = (await once(émetteur, "fini")) as [T];
   return résultat[0];
 };

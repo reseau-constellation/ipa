@@ -521,6 +521,119 @@ export default class BDs {
     });
   }
 
+  async suivreDonnéesDeTableauUnique<T extends élémentBdListeDonnées>({
+    schémaBd,
+    motClefUnique,
+    idUniqueTableau,
+    f
+  }: {
+    schémaBd: schémaSpécificationBd,
+    motClefUnique: string,
+    idUniqueTableau: string,
+    f: schémaFonctionSuivi<élémentDonnées<T>[]>
+  }): Promise<schémaFonctionOublier> {
+
+    const fFinale = (données?: élémentDonnées<T>[]) => {
+      return f(données || [])
+    };
+
+    const fSuivreDonnéesDeTableau = async ({id, fSuivreBd}: {
+      id: string,
+      fSuivreBd: schémaFonctionSuivi<élémentDonnées<T>[]>
+    }): Promise<schémaFonctionOublier> => {
+      return await this.client.tableaux!.suivreDonnées({
+        idTableau: id,
+        f: fSuivreBd,
+      })
+    }
+
+    const fSuivreTableau = async ({
+      fSuivreRacine
+    }: {
+      fSuivreRacine: schémaFonctionSuivi<string>
+    }): Promise<schémaFonctionOublier> => {
+      return await this.suivreTableauUniqueDeBdUnique({
+        schémaBd,
+        motClefUnique,
+        idUniqueTableau,
+        f: (idTableau?: string) => {
+          if (idTableau) fSuivreRacine(idTableau);
+        },
+      });
+    }
+
+    return await this.client.suivreBdDeFonction({
+      fRacine: fSuivreTableau,
+      f: fFinale,
+      fSuivre: fSuivreDonnéesDeTableau,
+    });
+
+  }
+
+  async ajouterÉlémentÀTableauUnique<T extends élémentBdListeDonnées>({
+    schémaBd,
+    motClefUnique,
+    idUniqueTableau,
+    vals
+  }: {
+    schémaBd: schémaSpécificationBd,
+    motClefUnique: string,
+    idUniqueTableau: string,
+    vals: T
+  }): Promise<string> {
+    console.log("ajouterÉlémentÀTableauUnique", vals)
+    const idTableau = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<string>) => {
+        return await this.suivreTableauUniqueDeBdUnique({
+          schémaBd,
+          motClefUnique,
+          idUniqueTableau,
+          f: (id?: string) => {
+            console.log({id})
+            if (id) fSuivi(id);
+          },
+        });
+      },
+      true
+    );
+    console.log({idTableau})
+    return await this.client.tableaux!.ajouterÉlément({
+      idTableau: idTableau,
+      vals,
+    });
+  }
+
+  async effacerÉlémentDeTableauUnique({
+    schémaBd,
+    motClefUnique,
+    idUniqueTableau,
+    empreinte
+  }: {
+    schémaBd: schémaSpécificationBd,
+    motClefUnique: string,
+    idUniqueTableau: string,
+    empreinte: string,
+  }): Promise<void> {
+    const idTableau = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<string>) => {
+        return await this.suivreTableauUniqueDeBdUnique({
+          schémaBd,
+          motClefUnique,
+          idUniqueTableau,
+          f: (id?: string) => {
+            if (id) fSuivi(id);
+          },
+        });
+      },
+      true
+    );
+
+    return await this.client.tableaux!.effacerÉlément({
+      idTableau: idTableau,
+      empreinteÉlément: empreinte,
+    });
+  }
+
   async ajouterNomsBd({
     id,
     noms,
