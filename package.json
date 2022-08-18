@@ -155,5 +155,15 @@
     "ssim": "^0.0.0",
     "uuid": "^8.3.2",
     "xlsx": "^0.18.3"
+  },
+  "overrides": {
+    "orbit-db": {
+      "orbit-db-io": "1.0.3",
+      "orbit-db-store": {
+        "ipfs-log": {
+          "orbit-db-io": "1.0.3"
+        }
+      }
+    }
   }
 }
