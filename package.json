@@ -1,5 +1,5 @@
 {
-  "version": "0.4.7",
+  "version": "0.4.8",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Malard-Adam",
@@ -156,14 +156,7 @@
     "uuid": "^8.3.2",
     "xlsx": "^0.18.3"
   },
-  "overrides": {
-    "orbit-db": {
-      "orbit-db-io": "1.0.3",
-      "orbit-db-store": {
-        "ipfs-log": {
-          "orbit-db-io": "1.0.3"
-        }
-      }
-    }
+  "resolutions": {
+    "orbit-db-io": "1.0.2"
   }
 }
