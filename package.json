@@ -1,5 +1,5 @@
 {
-  "version": "0.4.8",
+  "version": "0.4.9",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Malard-Adam",
@@ -157,6 +157,6 @@
     "xlsx": "^0.18.3"
   },
   "resolutions": {
-    "orbit-db-io": "1.0.2"
+    "**/orbit-db-io": "1.0.2"
   }
 }
