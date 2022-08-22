@@ -1,10 +1,9 @@
-import { step } from "mocha-steps";
-
 import XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
 import rmrf from "rimraf";
 import AdmZip from "adm-zip";
+import isArray from "lodash/isArray";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
@@ -43,7 +42,7 @@ typesClients.forEach((type) => {
         if (fOublierClients) await fOublierClients();
       });
 
-      step("Création", async () => {
+      test("Création", async () => {
         idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
         expect(adresseOrbiteValide(idBd)).toBe(true);
       });
@@ -61,12 +60,12 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           if (fOublier) fOublier();
         });
-        step("La BD déjà créée est présente", async () => {
+        test("La BD déjà créée est présente", async () => {
           expect(isArray(bds)).toBe(true);
           expect(bds).toHaveLength(1);
           expect(bds[0]).toEqual(idBd);
         });
-        step("On crée une autre BD sans l'ajouter", async () => {
+        test("On crée une autre BD sans l'ajouter", async () => {
           idNouvelleBd = await client.bds!.créerBd({
             licence: "ODbl-1_0",
             ajouter: false,
@@ -75,13 +74,13 @@ typesClients.forEach((type) => {
           expect(bds).toHaveLength(1);
           expect(bds[0]).toEqual(idBd);
         });
-        step("On peut l'ajouter ensuite à mes bds", async () => {
+        test("On peut l'ajouter ensuite à mes bds", async () => {
           await client.bds!.ajouterÀMesBds({ id: idNouvelleBd });
           expect(isArray(bds)).toBe(true);
           expect(bds).toHaveLength(2);
-          expect(bds).to.include.members([idNouvelleBd, idBd]);
+          expect(bds).toContain([idNouvelleBd, idBd]);
         });
-        step("On peut aussi l'effacer", async () => {
+        test("On peut aussi l'effacer", async () => {
           await client.bds!.effacerBd({ id: idNouvelleBd });
           expect(isArray(bds)).toBe(true);
           expect(bds).toHaveLength(1);
@@ -104,11 +103,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de noms pour commencer", async () => {
+        test("Pas de noms pour commencer", async () => {
           expect(noms).toHaveLength(0);
         });
 
-        step("Ajouter un nom", async () => {
+        test("Ajouter un nom", async () => {
           await client.bds!.sauvegarderNomBd({
             id: idBd,
             langue: "fr",
@@ -117,7 +116,7 @@ typesClients.forEach((type) => {
           expect(noms.fr).toEqual("Alphabets");
         });
 
-        step("Ajouter des noms", async () => {
+        test("Ajouter des noms", async () => {
           await client.bds!.ajouterNomsBd({
             id: idBd,
             noms: {
@@ -132,7 +131,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Changer un nom", async () => {
+        test("Changer un nom", async () => {
           await client.bds!.sauvegarderNomBd({
             id: idBd,
             langue: "fr",
@@ -141,7 +140,7 @@ typesClients.forEach((type) => {
           expect(noms?.fr).toEqual("Systèmes d'écriture");
         });
 
-        step("Effacer un nom", async () => {
+        test("Effacer un nom", async () => {
           await client.bds!.effacerNomBd({ id: idBd, langue: "fr" });
           expect(noms).toEqual({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
@@ -162,11 +161,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Aucune description pour commencer", async () => {
+        test("Aucune description pour commencer", async () => {
           expect(descrs).toHaveLength(0);
         });
 
-        step("Ajouter une description", async () => {
+        test("Ajouter une description", async () => {
           await client.bds!.sauvegarderDescrBd({
             id: idBd,
             langue: "fr",
@@ -175,7 +174,7 @@ typesClients.forEach((type) => {
           expect(descrs.fr).toEqual("Alphabets");
         });
 
-        step("Ajouter des descriptions", async () => {
+        test("Ajouter des descriptions", async () => {
           await client.bds!.ajouterDescriptionsBd({
             id: idBd,
             descriptions: {
@@ -190,7 +189,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Changer une description", async () => {
+        test("Changer une description", async () => {
           await client.bds!.sauvegarderDescrBd({
             id: idBd,
             langue: "fr",
@@ -199,7 +198,7 @@ typesClients.forEach((type) => {
           expect(descrs?.fr).toEqual("Systèmes d'écriture");
         });
 
-        step("Effacer une description", async () => {
+        test("Effacer une description", async () => {
           await client.bds!.effacerDescrBd({ id: idBd, langue: "fr" });
           expect(descrs).toEqual({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
@@ -220,19 +219,20 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           if (fOublier) fOublier();
         });
-        step("Pas de mots-clefs pour commencer", async () => {
+        test("Pas de mots-clefs pour commencer", async () => {
           expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(0);
         });
-        step("Ajout d'un mot-clef", async () => {
+        test("Ajout d'un mot-clef", async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
           await client.bds!.ajouterMotsClefsBd({
             idBd,
             idsMotsClefs: idMotClef,
           });
-          expect(isArray(motsClefs)).toBe(true).of.length(1);
+          expect(isArray(motsClefs)).toBe(true);
+          expect(motsClefs).toHaveLength(1);
         });
-        step("Effacer un mot-clef", async () => {
+        test("Effacer un mot-clef", async () => {
           await client.bds!.effacerMotClefBd({ idBd, idMotClef });
           expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(0);
@@ -256,18 +256,18 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Licence originale présente", async () => {
+        test("Licence originale présente", async () => {
           expect(licence).toEqual("ODbl-1_0");
         });
 
-        step("Changement de licence", async () => {
+        test("Changement de licence", async () => {
           await client.bds!.changerLicenceBd({ idBd, licence: "ODC-BY-1_0" });
           expect(licence).toEqual("ODC-BY-1_0");
         });
       });
 
       describe("Statut BD", function () {
-        step("À faire");
+        test("À faire");
       });
 
       describe("Tableaux", function () {
@@ -286,22 +286,23 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de tableaux pour commencer", async () => {
-          expect(isArray(motsClefs)).toBe(true);
-          expect(motsClefs).toHaveLength(0);
+        test("Pas de tableaux pour commencer", async () => {
+          expect(isArray(tableaux)).toBe(true);
+          expect(tableaux).toHaveLength(0);
         });
 
-        step("Ajout d'un tableau", async () => {
+        test("Ajout d'un tableau", async () => {
           idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
           expect(adresseOrbiteValide(idTableau)).toBe(true);
-          expect(isArray(motsClefs)).toBe(true).of.length(1);
+          expect(isArray(tableaux)).toBe(true)
+          expect(tableaux).toHaveLength(1);
           expect(tableaux[0]).toEqual(idTableau);
         });
 
-        step("Effacer un tableau", async () => {
+        test("Effacer un tableau", async () => {
           await client.bds!.effacerTableauBd({ id: idBd, idTableau });
-          expect(isArray(motsClefs)).toBe(true);
-          expect(motsClefs).toHaveLength(0);
+          expect(isArray(tableaux)).toBe(true);
+          expect(tableaux).toHaveLength(0);
         });
       });
 
@@ -322,11 +323,11 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           if (fOublier) fOublier();
         });
-        step("Pas de variables pour commencer", async () => {
-          expect(isArray(motsClefs)).toBe(true);
-          expect(motsClefs).toHaveLength(0);
+        test("Pas de variables pour commencer", async () => {
+          expect(isArray(variables)).toBe(true);
+          expect(variables).toHaveLength(0);
         });
-        step("Ajout d'un tableau et d'une variable", async () => {
+        test("Ajout d'un tableau et d'une variable", async () => {
           idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
           idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
@@ -337,16 +338,17 @@ typesClients.forEach((type) => {
             idVariable,
           });
 
-          expect(isArray(motsClefs)).toBe(true).of.length(1);
+          expect(isArray(variables)).toBe(true)
+          expect(variables).toHaveLength(1);
           expect(variables[0]).toEqual(idVariable);
         });
-        step("Effacer une variable", async () => {
+        test("Effacer une variable", async () => {
           await client.tableaux!.effacerColonneTableau({
             idTableau,
             idColonne,
           });
-          expect(isArray(motsClefs)).toBe(true);
-          expect(motsClefs).toHaveLength(0);
+          expect(isArray(variables)).toBe(true);
+          expect(variables).toHaveLength(0);
         });
       });
 
@@ -456,13 +458,14 @@ typesClients.forEach((type) => {
           expect(licence).toEqual(réfLicence);
         });
         it("Les mots-clefs sont copiés", async () => {
-          expect(motsClefs).to.have.members([idMotClef]);
+          expect(motsClefs).toContain([idMotClef]);
         });
         it("Les tableaux sont copiés", async () => {
-          expect(isArray(motsClefs)).toBe(true).of.length(1);
+          expect(isArray(tableaux)).toBe(true)
+          expect(tableaux).toHaveLength(1);
         });
         it("Les variables sont copiées", async () => {
-          expect(variables).to.have.members([idVariable]);
+          expect(variables).toContain([idVariable]);
         });
       });
 
@@ -600,7 +603,7 @@ typesClients.forEach((type) => {
 
           expect(donnéesSansId)
             .toHaveLength(3)
-            .and.deep.members([
+          expect(donnéesSansId).toContain([
               { [idVarClef]: "fr", [idVarTrad]: "Constellation" },
               { [idVarClef]: "kaq", [idVarTrad]: "Ch'umil" },
               { [idVarClef]: "हिं", [idVarTrad]: "तारामंडल" },
@@ -686,12 +689,12 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Les tableaux sont créés", async () => {
+        test("Les tableaux sont créés", async () => {
           expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(2);
         });
 
-        step("Colonnes", async () => {
+        test("Colonnes", async () => {
           const colonnes = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>
@@ -710,7 +713,7 @@ typesClients.forEach((type) => {
           expect(idsColonnes).toEqual(expect.arrayContaining(["clef", "trad"]));
         });
 
-        step("Mots clefs", async () => {
+        test("Mots clefs", async () => {
           const motsClefs = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<string[]>
@@ -727,7 +730,7 @@ typesClients.forEach((type) => {
           expect(motsClefs).toEqual(expect.arrayContaining([idMotClef]));
         });
 
-        step("Index colonne", async () => {
+        test("Index colonne", async () => {
           const indexes = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<string[]>
@@ -743,7 +746,7 @@ typesClients.forEach((type) => {
           expect(indexes).toHaveLength(1).and.members(["clef"]);
         });
 
-        step("Tableaux unique détectable", async () => {
+        test("Tableaux unique détectable", async () => {
           expect(adresseOrbiteValide(tableauUnique)).toBe(true);
         });
       });
@@ -949,15 +952,15 @@ typesClients.forEach((type) => {
         });
 
         describe("Score accessibilité", function () {
-          step("À faire");
+          test("À faire");
         });
 
         describe("Score couverture tests", function () {
-          step("`undefined` lorsque aucune colonne", async () => {
+          test("`undefined` lorsque aucune colonne", async () => {
             expect(score.couverture).toBeUndefined;
           });
 
-          step("Ajout de colonnes", async () => {
+          test("Ajout de colonnes", async () => {
             idColNumérique = await client.tableaux!.ajouterColonneTableau({
               idTableau,
               idVariable: idVarNumérique,
@@ -973,7 +976,7 @@ typesClients.forEach((type) => {
             expect(score.couverture).toEqual(0);
           });
 
-          step("Ajout de règles", async () => {
+          test("Ajout de règles", async () => {
             const règleNumérique: règleBornes = {
               typeRègle: "bornes",
               détails: { val: 0, op: ">=" },
@@ -997,11 +1000,11 @@ typesClients.forEach((type) => {
         describe("Score validité", function () {
           let empreinteÉlément: string;
 
-          step("`undefined` pour commencer", async () => {
+          test("`undefined` pour commencer", async () => {
             expect(score.valide).toBeUndefined;
           });
 
-          step("Ajout d'éléments", async () => {
+          test("Ajout d'éléments", async () => {
             empreinteÉlément = await client.tableaux!.ajouterÉlément({
               idTableau,
               vals: {
@@ -1019,7 +1022,7 @@ typesClients.forEach((type) => {
             expect(score.valide).toEqual(2 / 3);
           });
 
-          step("Correction des éléments", async () => {
+          test("Correction des éléments", async () => {
             await client.tableaux!.modifierÉlément({
               idTableau,
               vals: { [idColNumérique]: 12 },
@@ -1030,7 +1033,7 @@ typesClients.forEach((type) => {
         });
 
         describe("Score total", function () {
-          step("Calcul du score total", async () => {
+          test("Calcul du score total", async () => {
             const total =
               ((score.accès || 0) +
                 (score.couverture || 0) +
@@ -1108,12 +1111,12 @@ typesClients.forEach((type) => {
           rmrf.sync(path.resolve(path.dirname(""), "tests/_ressources/_temp"));
         });
 
-        step("Doc créé avec tous les tableaux", () => {
+        test("Doc créé avec tous les tableaux", () => {
           expect(doc.SheetNames)
             .to.be.an("array")
             .with.members([nomTableau1, nomTableau2]);
         });
-        step("Fichiers SFIP retrouvés de tous les tableaux", () => {
+        test("Fichiers SFIP retrouvés de tous les tableaux", () => {
           expect(fichiersSFIP.size).equal(1);
           expect(fichiersSFIP).to.have.deep.keys([{ cid, ext: "svg" }]);
         });
@@ -1140,7 +1143,7 @@ typesClients.forEach((type) => {
             });
           });
 
-          step("Le fichier zip existe", () => {
+          test("Le fichier zip existe", () => {
             const nomZip = path.join(dirZip, nomFichier + ".zip");
             expect(fs.existsSync(nomZip)).toBe(true);
             const zip = new AdmZip(nomZip);
@@ -1148,17 +1151,17 @@ typesClients.forEach((type) => {
             expect(fs.existsSync(fichierExtrait)).toBe(true);
           });
 
-          step("Les données sont exportées", () => {
+          test("Les données sont exportées", () => {
             expect(
               fs.existsSync(path.join(fichierExtrait, nomFichier + ".ods"))
             ).toBe(true);
           });
 
-          step("Le dossier pour les données SFIP existe", () => {
+          test("Le dossier pour les données SFIP existe", () => {
             expect(fs.existsSync(path.join(fichierExtrait, "sfip"))).to.be.true;
           });
 
-          step("Les fichiers SFIP existent", () => {
+          test("Les fichiers SFIP existent", () => {
             expect(
               fs.existsSync(path.join(fichierExtrait, "sfip", cid + ".svg"))
             ).toBe(true);
@@ -1189,12 +1192,12 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de résultats pour commencer", async () => {
+        test("Pas de résultats pour commencer", async () => {
           expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(0);
         });
 
-        step("Ajout d'un mot-clef détecté", async () => {
+        test("Ajout d'un mot-clef détecté", async () => {
           await client.bds!.ajouterMotsClefsBd({
             idBd: idBdRechercheMotsClefs,
             idsMotsClefs: [idMotClef],

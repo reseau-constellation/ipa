@@ -1,4 +1,3 @@
-import { step } from "mocha-steps";
 import { jest } from "@jest/globals";
 
 import isSet from "lodash/isSet";
@@ -42,20 +41,21 @@ typesClients.forEach((type) => {
           await client.épingles!.toutDésépingler();
         });
 
-        step("Pas d'épingles pour commencer", async () => {
+        test("Pas d'épingles pour commencer", async () => {
           const épingles = client.épingles!.épingles();
           expect(isSet(épingles)).toBe(true);
           expect(épingles).toHaveLength(0);
         });
-        step("Ajouter une épingle", async () => {
+        test("Ajouter une épingle", async () => {
           await client.épingles!.épinglerBd({ id: idBd });
 
           const épingles = client.épingles!.épingles();
           expect(isSet(épingles)).toBe(true);
 
-          expect(épingles).toHaveLength(1).that.contains(idBd);
+          expect(épingles).toHaveLength(1)
+          expect(épingles).toContain(idBd);
         });
-        step("Enlever une épingle", async () => {
+        test("Enlever une épingle", async () => {
           await client.épingles!.désépinglerBd({ id: idBd });
 
           const épingles = client.épingles!.épingles();
@@ -80,7 +80,7 @@ typesClients.forEach((type) => {
           idBdAutre = await client!.créerBdIndépendante({ type: "kvstore" });
         });
 
-        step("Épingler liste récursive", async () => {
+        test("Épingler liste récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe });
 
           const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
@@ -91,19 +91,18 @@ typesClients.forEach((type) => {
 
           const épingles = client.épingles!.épingles();
 
-          expect([...épingles])
-            .toHaveLength(2)
-            .with.members([idBdListe, idBdAutre]);
+          expect([...épingles]).toHaveLength(2)
+          expect([...épingles]).toEqual(expect.arrayContaining([idBdListe, idBdAutre]));
         });
 
-        step("Désépingler liste récursive", async () => {
+        test("Désépingler liste récursive", async () => {
           await client.épingles!.désépinglerBd({ id: idBdListe });
           const épingles = client.épingles!.épingles();
           expect(isSet(épingles)).toBe(true);
           expect(épingles).toHaveLength(0);
         });
 
-        step("Épingler dic récursif", async () => {
+        test("Épingler dic récursif", async () => {
           await client.épingles!.épinglerBd({ id: idBdDic });
 
           const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
@@ -120,22 +119,23 @@ typesClients.forEach((type) => {
 
           const épingles = client.épingles!.épingles();
 
-          expect([...épingles]).to.include.members([idBdDic2, idBdAutre]);
+          expect([...épingles]).toEqual(expect.arrayContaining([idBdDic2, idBdAutre]));
         });
 
-        step("Désépingler dic récursif", async () => {
+        test("Désépingler dic récursif", async () => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
           const épingles = client.épingles!.épingles();
           expect(épingles).toHaveLength(0);
         });
 
-        step("BD ajoutée individuellement est toujours là", async () => {
+        test("BD ajoutée individuellement est toujours là", async () => {
           await client.épingles!.épinglerBd({ id: idBdDic });
           await client.épingles!.épinglerBd({ id: idBdAutre });
           await client.épingles!.désépinglerBd({ id: idBdDic });
 
           const épingles = client.épingles!.épingles();
-          expect(épingles).toHaveLength(1).and.to.include(idBdAutre);
+          expect(épingles).toHaveLength(1)
+          expect(épingles).toContain(idBdAutre);
         });
       });
 
@@ -155,11 +155,11 @@ typesClients.forEach((type) => {
           idBdListe = await client.créerBdIndépendante({ type: "feed" });
         });
 
-        step("Fichier non épinglé", async () => {
+        test("Fichier non épinglé", async () => {
           expect(client.épingles!.épinglée({ id: idc })).toBe(false);
         });
 
-        step("Fichier épinglé", async () => {
+        test("Fichier épinglé", async () => {
           const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
             { id: idBd }
           );
@@ -180,13 +180,13 @@ typesClients.forEach((type) => {
           expect(client.épingles!.épinglée({ id: idc2 }));
         });
 
-        step("Fichier désépinglé", async () => {
+        test("Fichier désépinglé", async () => {
           await client.épingles!.désépinglerBd({ id: idBd });
 
           expect(client.épingles!.épinglée({ id: idc })).toBe(false);
         });
 
-        step(
+        test(
           "Fichier toujours épinglé si présent dans une autre BD",
           async () => {
             expect(client.épingles!.épinglée({ id: idc2 }));
@@ -197,7 +197,7 @@ typesClients.forEach((type) => {
           }
         );
 
-        step("Fichier épinglé dans BD récursive", async () => {
+        test("Fichier épinglé dans BD récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe });
 
           const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
@@ -210,7 +210,7 @@ typesClients.forEach((type) => {
           expect(client.épingles!.épinglée({ id: idc }));
         });
 
-        step("Fichier désépinglé dans BD récursive", async () => {
+        test("Fichier désépinglé dans BD récursive", async () => {
           await client.épingles!.désépinglerBd({ id: idBdListe });
 
           expect(client.épingles!.épinglée({ id: idc })).toBe(false);

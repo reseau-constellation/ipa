@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 
 import fs from "fs";
 import path from "path";
@@ -9,27 +9,27 @@ import { cidValide, traduire, zipper } from "@/utils";
 
 describe("Utils", function () {
   describe("cidValide", function () {
-    step("valide", () => {
+    test("valide", () => {
       const valide = cidValide(
         "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ"
       );
       expect(valide).toBe(true);
     });
-    step("non valide", () => {
+    test("non valide", () => {
       const valide = cidValide("Bonjour, je ne suis pas un IDC.");
       expect(valide).toBe(false);
     });
   });
   describe("traduire", function () {
-    step("premier choix", () => {
+    test("premier choix", () => {
       const trad = traduire({ fr: "français", த: "தமிழ்" }, ["த", "fr"]);
       expect(trad).toEqual("தமிழ்");
     });
-    step("deuxième choix", () => {
+    test("deuxième choix", () => {
       const trad = traduire({ fr: "français" }, ["த", "fr"]);
       expect(trad).toEqual("français");
     });
-    step("non disponible", () => {
+    test("non disponible", () => {
       const trad = traduire({ fr: "français" }, ["kaq"]);
       expect(trad).toBeUndefined;
     });
@@ -68,14 +68,14 @@ describe("Utils", function () {
     afterAll(() => {
       rmrf.sync(path.resolve(path.dirname(""), "tests/_temp"));
     });
-    step("Le fichier zip est créé", async () => {
+    test("Le fichier zip est créé", async () => {
       expect(fs.existsSync(nomFichier)).toBe(true);
       const zip = new AdmZip(nomFichier);
       zip.extractAllTo(/* target path */ fichierExtrait, /* overwrite */ true);
 
       expect(fs.existsSync(fichierExtrait)).toBe(true);
     });
-    step("Les documents de base existent", () => {
+    test("Les documents de base existent", () => {
       const adresseFichier1 = path.join(fichierExtrait, "fichier1.txt");
       expect(fs.existsSync(adresseFichier1)).toBe(true);
       const contenu = new TextDecoder().decode(
@@ -83,7 +83,7 @@ describe("Utils", function () {
       );
       expect(contenu).toEqual("Je ne suis que du texte.");
     });
-    step("Les fichiers SFIP sont inclus", () => {
+    test("Les fichiers SFIP sont inclus", () => {
       const adresseFichiersSFIP = path.join(fichierExtrait, "sfip");
       expect(fs.existsSync(adresseFichiersSFIP)).toBe(true);
 

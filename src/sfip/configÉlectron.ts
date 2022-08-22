@@ -1,8 +1,8 @@
 import { WebRTCStar } from "@libp2p/webrtc-star";
 import { WebSockets } from "@libp2p/websockets";
-import WebRTCDirect from "@libp2p/webrtc-direct";
-import MulticastDNS from "@libp2p/mdns";
-import KadDHT from "@libp2p/kad-dht";
+import { WebRTCDirect } from "@libp2p/webrtc-direct";
+import { MulticastDNS } from "@libp2p/mdns";
+import { KadDHT } from "@libp2p/kad-dht";
 import { Noise } from "@chainsafe/libp2p-noise";
 import TCP from "libp2p-tcp";
 

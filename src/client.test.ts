@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { step } from "mocha-steps";
+
 import isArray from "lodash/isArray";
 
 import all from "it-all";
@@ -127,7 +127,7 @@ describe("Client Constellation", function () {
       if (fOublierDispositifs) fOublierDispositifs();
       if (fOublierIdBdCompte) fOublierIdBdCompte();
     });
-    step("Mon dispositif est présent", async () => {
+    test("Mon dispositif est présent", async () => {
       expect(isArray(mesDispositifs)).toBe(true);
       expect(mesDispositifs).toHaveLength(1);
       expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite1]));
@@ -447,13 +447,13 @@ describe("Client Constellation", function () {
     afterAll(async () => {
       fsOublier.forEach((f) => f());
     });
-    step("`[]` est retourné si la clef n'existe pas", async () => {
+    test("`[]` est retourné si la clef n'existe pas", async () => {
       expect(isArray(donnéesValeur)).toBe(true);
       expect(donnéesValeur).toHaveLength(0);
       expect(isArray(données)).toBe(true);
       expect(données).toHaveLength(0);
     });
-    step("Avec renvoyer valeur", async () => {
+    test("Avec renvoyer valeur", async () => {
       const { bd: bdBase, fOublier: fOublierBase } = await client.ouvrirBd<
         KeyValueStore<string>
       >({ id: idBdBase });
@@ -471,7 +471,7 @@ describe("Client Constellation", function () {
       await bd.add(2);
       expect(donnéesValeur).toEqual(expect.arrayContaining([1, 2]));
     });
-    step("Sans renvoyer valeur", async () => {
+    test("Sans renvoyer valeur", async () => {
       expect(données).toHaveLength(2);
       expect(données.map((d) => d.payload.value)).toEqual(
         expect.arrayContaining([1, 2])
@@ -555,7 +555,7 @@ describe("Client Constellation", function () {
       if (fOublier) fOublier();
     });
 
-    step("Ajout idBd", async () => {
+    test("Ajout idBd", async () => {
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
       });
@@ -566,7 +566,7 @@ describe("Client Constellation", function () {
       expect(rés.ultat).toEqual(expect.arrayContaining([idBd, idBd2]));
     });
 
-    step("Enlever idBd", async () => {
+    test("Enlever idBd", async () => {
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
       });
@@ -577,7 +577,7 @@ describe("Client Constellation", function () {
       expect(rés.ultat).toEqual(expect.arrayContaining([idBd]));
     });
 
-    step("Ajout récursif", async () => {
+    test("Ajout récursif", async () => {
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
       });
@@ -596,7 +596,7 @@ describe("Client Constellation", function () {
       );
     });
 
-    step("Enlever récursif", async () => {
+    test("Enlever récursif", async () => {
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
         FeedStore<string>
       >({ id: idBdListe });
@@ -631,7 +631,7 @@ describe("Client Constellation", function () {
       if (fOublier) fOublier();
     });
 
-    step("Ajout élément", async () => {
+    test("Ajout élément", async () => {
       const empreinteAvant = rés.ultat;
 
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
@@ -643,7 +643,7 @@ describe("Client Constellation", function () {
       await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
     });
 
-    step("Enlever élément", async () => {
+    test("Enlever élément", async () => {
       const empreinteAvant = rés.ultat;
 
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
@@ -655,7 +655,7 @@ describe("Client Constellation", function () {
       await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
     });
 
-    step("Ajout récursif", async () => {
+    test("Ajout récursif", async () => {
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
       });
@@ -683,7 +683,7 @@ describe("Client Constellation", function () {
       await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
     });
 
-    step("Enlever récursif", async () => {
+    test("Enlever récursif", async () => {
       const empreinteAvant = rés.ultat;
 
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
@@ -1060,15 +1060,15 @@ describe("Client Constellation", function () {
   describe("Opérations SFIP", function () {
     let cid: string;
     const texte = "வணக்கம்";
-    step("On ajoute un fichier au SFIP", async () => {
+    test("On ajoute un fichier au SFIP", async () => {
       cid = await client.ajouterÀSFIP({ fichier: texte });
     });
-    step("On télécharge le fichier du SFIP", async () => {
+    test("On télécharge le fichier du SFIP", async () => {
       const données = await client.obtFichierSFIP({ id: cid });
       expect(données).toBeNull();
       expect(new TextDecoder().decode(données!)).toEqual(texte);
     });
-    step("On télécharge le fichier en tant qu'itérable", async () => {
+    test("On télécharge le fichier en tant qu'itérable", async () => {
       const flux = client.obtItérableAsyncSFIP({ id: cid });
       const données = await toBuffer(flux);
       expect(données).toBeNull();
@@ -1551,17 +1551,17 @@ describe("Client Constellation", function () {
       fsOublier.forEach((f) => f());
     });
 
-    step("On n'a pas d'accès avant", async () => {
+    test("On n'a pas d'accès avant", async () => {
       expect(rés.ultat).toBeUndefined();
     });
 
-    step("On détecte l'ajout d'une permission membre", async () => {
+    test("On détecte l'ajout d'une permission membre", async () => {
       await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
       await attendreRésultat(rés, "ultat");
       expect(rés.ultat).toEqual(MEMBRE);
     });
 
-    step("Le nouveau membre peut modifier la BD", async () => {
+    test("Le nouveau membre peut modifier la BD", async () => {
       const { bd, fOublier } = await client2.ouvrirBd<KeyValueStore<number>>({
         id: idBd,
       });
@@ -1572,7 +1572,7 @@ describe("Client Constellation", function () {
       expect(permission).toBe(true);
     });
 
-    step("On détecte l'ajout d'une permission modératrice", async () => {
+    test("On détecte l'ajout d'une permission modératrice", async () => {
       await client.donnerAccès({
         idBd,
         identité: idbdCompte2,
@@ -1629,7 +1629,7 @@ describe("Client Constellation", function () {
       if (fOublierÉcrire) fOublierÉcrire();
       if (fOublierPermission) fOublierPermission();
     });
-    step("On détecte l'ajout d'une permission membre", async () => {
+    test("On détecte l'ajout d'une permission membre", async () => {
       await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
       await attendreRésultat(résultatPermission, "permission", MEMBRE);
 
@@ -1637,12 +1637,12 @@ describe("Client Constellation", function () {
       expect(infoInvité?.rôle).toEqual(MEMBRE);
     });
 
-    step("L'invité détecte l'ajout de sa permission membre", async () => {
+    test("L'invité détecte l'ajout de sa permission membre", async () => {
       expect(permissionÉcrire).toBe(true);
       expect(résultatPermission.permission).toEqual(MEMBRE);
     });
 
-    step("On détecte l'ajout d'une permission modératrice", async () => {
+    test("On détecte l'ajout d'une permission modératrice", async () => {
       await client.donnerAccès({
         idBd,
         identité: idbdCompte2,
@@ -1654,7 +1654,7 @@ describe("Client Constellation", function () {
       expect(infoInvité?.rôle).toEqual(MODÉRATEUR);
     });
 
-    step("L'invité détecte l'ajout de sa permission modératrice", async () => {
+    test("L'invité détecte l'ajout de sa permission modératrice", async () => {
       expect(permissionÉcrire).toBe(true);
       expect(résultatPermission.permission).toEqual(MODÉRATEUR);
     });
@@ -1699,16 +1699,16 @@ describe("Client Constellation", function () {
       fsOublier.forEach((f) => f());
     });
 
-    step("La BD est épinglée", async () => {
+    test("La BD est épinglée", async () => {
       expect(client._bds[idBdKv]).toBeTruthy();
     });
-    step("Récursion KVStore", async () => {
+    test("Récursion KVStore", async () => {
       expect(client._bds[idBdListe]).toBeTruthy();
     });
-    step("Récursion FeedStore", async () => {
+    test("Récursion FeedStore", async () => {
       expect(client._bds[idBdKv2]).toBeTruthy();
     });
-    step("Les fichiers SFIP sont également épinglés", async () => {
+    test("Les fichiers SFIP sont également épinglés", async () => {
       let fichierEstÉpinglé = false;
       await new Promise<void>((résoudre) => {
         const interval = setInterval(async () => {

@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 import isArray from "lodash/isArray";
 
 import XLSX from "xlsx";
@@ -36,7 +36,7 @@ typesClients.forEach((type) => {
         if (fOublierClients) await fOublierClients();
       });
 
-      step("Création", async () => {
+      test("Création", async () => {
         idProjet = await client.projets!.créerProjet();
         expect(adresseOrbiteValide(idProjet)).toBe(true);
       });
@@ -57,21 +57,21 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Le projet est déjà ajouté", async () => {
+        test("Le projet est déjà ajouté", async () => {
           expect(mesProjets).toEqual(expect.arrayContaining([idNouveauProjet]));
         });
 
-        step("Enlever de mes projets", async () => {
+        test("Enlever de mes projets", async () => {
           await client.projets!.enleverDeMesProjets(idNouveauProjet);
           expect(mesProjets).not.toContain([idNouveauProjet]);
         });
 
-        step("Ajouter à mes projets", async () => {
+        test("Ajouter à mes projets", async () => {
           await client.projets!.ajouterÀMesProjets(idNouveauProjet);
           expect(mesProjets).toEqual(expect.arrayContaining([idNouveauProjet]));
         });
 
-        step("On peut aussi l'effacer", async () => {
+        test("On peut aussi l'effacer", async () => {
           await client.projets!.effacerProjet({ id: idNouveauProjet });
           expect(mesProjets).not.toContain([idNouveauProjet]);
         });
@@ -92,11 +92,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de noms pour commencer", async () => {
+        test("Pas de noms pour commencer", async () => {
           expect(noms).toHaveLength(0);
         });
 
-        step("Ajouter un nom", async () => {
+        test("Ajouter un nom", async () => {
           await client.projets!.sauvegarderNomProjet({
             id: idProjet,
             langue: "fr",
@@ -105,7 +105,7 @@ typesClients.forEach((type) => {
           expect(noms.fr).toEqual("Alphabets");
         });
 
-        step("Ajouter des noms", async () => {
+        test("Ajouter des noms", async () => {
           await client.projets!.ajouterNomsProjet({
             id: idProjet,
             noms: {
@@ -120,7 +120,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Changer un nom", async () => {
+        test("Changer un nom", async () => {
           await client.projets!.sauvegarderNomProjet({
             id: idProjet,
             langue: "fr",
@@ -129,7 +129,7 @@ typesClients.forEach((type) => {
           expect(noms?.fr).toEqual("Systèmes d'écriture");
         });
 
-        step("Effacer un nom", async () => {
+        test("Effacer un nom", async () => {
           await client.projets!.effacerNomProjet({
             id: idProjet,
             langue: "fr",
@@ -153,11 +153,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Aucune description pour commencer", async () => {
+        test("Aucune description pour commencer", async () => {
           expect(descrs).toHaveLength(0);
         });
 
-        step("Ajouter une description", async () => {
+        test("Ajouter une description", async () => {
           await client.projets!.sauvegarderDescrProjet({
             id: idProjet,
             langue: "fr",
@@ -166,7 +166,7 @@ typesClients.forEach((type) => {
           expect(descrs.fr).toEqual("Alphabets");
         });
 
-        step("Ajouter des descriptions", async () => {
+        test("Ajouter des descriptions", async () => {
           await client.projets!.ajouterDescriptionsProjet({
             id: idProjet,
             descriptions: {
@@ -181,7 +181,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Changer une description", async () => {
+        test("Changer une description", async () => {
           await client.projets!.sauvegarderDescrProjet({
             id: idProjet,
             langue: "fr",
@@ -190,7 +190,7 @@ typesClients.forEach((type) => {
           expect(descrs?.fr).toEqual("Systèmes d'écriture");
         });
 
-        step("Effacer une description", async () => {
+        test("Effacer une description", async () => {
           await client.projets!.effacerDescrProjet({
             id: idProjet,
             langue: "fr",
@@ -214,11 +214,11 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           if (fOublier) fOublier();
         });
-        step("Pas de mots-clefs pour commencer", async () => {
+        test("Pas de mots-clefs pour commencer", async () => {
           expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(0);
         });
-        step("Ajout d'un mot-clef", async () => {
+        test("Ajout d'un mot-clef", async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
           await client.projets!.ajouterMotsClefsProjet({
             idProjet,
@@ -226,7 +226,7 @@ typesClients.forEach((type) => {
           });
           expect(isArray(motsClefs)).toBe(true).of.length(1);
         });
-        step("Effacer un mot-clef", async () => {
+        test("Effacer un mot-clef", async () => {
           await client.projets!.effacerMotClefProjet({ idProjet, idMotClef });
           expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(0);
@@ -272,12 +272,12 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Pas de BDs pour commencer", async () => {
+        test("Pas de BDs pour commencer", async () => {
           expect(isArray(bds)).toBe(true);
           expect(bds).toHaveLength(0);
         });
 
-        step("Ajout d'une BD", async () => {
+        test("Ajout d'une BD", async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
           expect(isArray(bds)).toBe(true).of.length(1);
@@ -494,7 +494,7 @@ typesClients.forEach((type) => {
           rmrf.sync(path.resolve(path.dirname(""), "tests/_temp"));
         });
 
-        step("Doc créé avec toutes les bds", () => {
+        test("Doc créé avec toutes les bds", () => {
           expect(isArray(docs)).toBe(true);
           expect(XYZ).toHaveLength(1);
           expect(docs[0].doc.SheetNames)
@@ -503,7 +503,7 @@ typesClients.forEach((type) => {
           expect(docs[0].nom).toEqual("Ma BD");
         });
 
-        step("Fichiers SFIP retrouvés de tous les tableaux", () => {
+        test("Fichiers SFIP retrouvés de tous les tableaux", () => {
           expect(fichiersSFIP.size).equal(1);
           expect(fichiersSFIP).to.have.deep.keys([{ cid, ext: "svg" }]);
         });
@@ -530,7 +530,7 @@ typesClients.forEach((type) => {
             nomZip = path.join(dirZip, nomFichier + ".zip");
           });
 
-          step("Le fichier zip existe", () => {
+          test("Le fichier zip existe", () => {
             expect(fs.existsSync(nomZip)).toBe(true);
             const zip = new AdmZip(nomZip);
             zip.extractAllTo(fichierExtrait, true);
@@ -542,11 +542,11 @@ typesClients.forEach((type) => {
               .true;
           });
 
-          step("Le dossier pour les données SFIP existe", () => {
+          test("Le dossier pour les données SFIP existe", () => {
             expect(fs.existsSync(path.join(fichierExtrait, "sfip"))).to.be.true;
           });
 
-          step("Les fichiers SFIP existent", () => {
+          test("Les fichiers SFIP existent", () => {
             expect(
               fs.existsSync(path.join(fichierExtrait, "sfip", cid + ".svg"))
             ).toBe(true);

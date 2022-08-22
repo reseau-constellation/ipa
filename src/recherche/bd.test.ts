@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 import { jest } from "@jest/globals";
 
 import { enregistrerContrôleurs } from "@/accès";
@@ -63,11 +63,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de résultat quand la bd n'a pas de nom", async () => {
+        test("Pas de résultat quand la bd n'a pas de nom", async () => {
           expect(résultat).toBeUndefined;
         });
 
-        step("Ajout nom détecté", async () => {
+        test("Ajout nom détecté", async () => {
           await client.bds!.ajouterNomsBd({
             id: idBd,
             noms: {
@@ -106,11 +106,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de résultat quand la bd n'a pas de description", async () => {
+        test("Pas de résultat quand la bd n'a pas de description", async () => {
           expect(résultat).toBeUndefined;
         });
 
-        step("Ajout description détecté", async () => {
+        test("Ajout description détecté", async () => {
           await client.bds!.ajouterDescriptionsBd({
             id: idBd,
             descriptions: {
@@ -174,13 +174,13 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Pas de résultat quand la bd n'a pas de mot-clef", async () => {
+        test("Pas de résultat quand la bd n'a pas de mot-clef", async () => {
           expect(résultatId).toBeUndefined;
           expect(résultatNom).toBeUndefined;
           expect(résultatTous).toBeUndefined;
         });
 
-        step("Ajout mot-clef détecté", async () => {
+        test("Ajout mot-clef détecté", async () => {
           await client.bds!.ajouterMotsClefsBd({
             idBd,
             idsMotsClefs: idMotClef,
@@ -208,7 +208,7 @@ typesClients.forEach((type) => {
           expect(résultatId).toEqual(réfRésId);
         });
 
-        step("Ajout nom mot-clef détecté", async () => {
+        test("Ajout nom mot-clef détecté", async () => {
           await client.motsClefs!.ajouterNomsMotClef({
             id: idMotClef,
             noms: {
@@ -284,13 +284,13 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Pas de résultat quand la bd n'a pas de variable", async () => {
+        test("Pas de résultat quand la bd n'a pas de variable", async () => {
           expect(résultatId).toBeUndefined;
           expect(résultatNom).toBeUndefined;
           expect(résultatTous).toBeUndefined;
         });
 
-        step("Ajout variable détecté", async () => {
+        test("Ajout variable détecté", async () => {
           const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
           await client.tableaux!.ajouterColonneTableau({
             idTableau,
@@ -319,7 +319,7 @@ typesClients.forEach((type) => {
           expect(résultatId).toEqual(réfRésId);
         });
 
-        step("Ajout nom variable détecté", async () => {
+        test("Ajout nom variable détecté", async () => {
           await client.variables!.ajouterNomsVariable({
             id: idVariable,
             noms: {
@@ -423,7 +423,7 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Résultat id détecté", async () => {
+        test("Résultat id détecté", async () => {
           expect(résultatId).toEqual({
             type: "résultat",
             de: "id",
@@ -437,7 +437,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Résultat nom détecté", async () => {
+        test("Résultat nom détecté", async () => {
           await client.bds!.ajouterNomsBd({
             id: idBd,
             noms: { fr: "Hydrologie" },
@@ -457,7 +457,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Résultat descr détecté", async () => {
+        test("Résultat descr détecté", async () => {
           await client.bds!.ajouterDescriptionsBd({
             id: idBd,
             descriptions: {
@@ -478,7 +478,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Résultat variable détecté", async () => {
+        test("Résultat variable détecté", async () => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -513,7 +513,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Résultat mot-clef détecté", async () => {
+        test("Résultat mot-clef détecté", async () => {
           const idMotClef = await client.motsClefs!.créerMotClef();
           await client.bds!.ajouterMotsClefsBd({
             idBd,

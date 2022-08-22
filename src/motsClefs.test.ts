@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 import { jest } from "@jest/globals";
 import isArray from "lodash/isArray";
 
@@ -45,16 +45,16 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           if (fOublier) fOublier();
         });
-        step("Pas de mots-clefs pour commencer", async () => {
+        test("Pas de mots-clefs pour commencer", async () => {
           expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(0);
         });
-        step("Créer des mots-clefs", async () => {
+        test("Créer des mots-clefs", async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
           expect(isArray(motsClefs)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(motsClefs).toHaveLength(1);
         });
-        step("Effacer un mot-clef", async () => {
+        test("Effacer un mot-clef", async () => {
           await client.motsClefs!.effacerMotClef({ id: idMotClef });
           expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(0);
@@ -77,18 +77,18 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Le mot-clef est déjà ajouté", async () => {
-          expect(mesMotsClefs).to.include(idMotClef);
+        test("Le mot-clef est déjà ajouté", async () => {
+          expect(mesMotsClefs).toContain(idMotClef);
         });
 
-        step("Enlever de mes mots-clefs", async () => {
+        test("Enlever de mes mots-clefs", async () => {
           await client.motsClefs!.enleverDeMesMotsClefs({ id: idMotClef });
-          expect(mesMotsClefs).to.not.include(idMotClef);
+          expect(mesMotsClefs).not.toContain(idMotClef);
         });
 
-        step("Ajouter à mes mots-clefs", async () => {
+        test("Ajouter à mes mots-clefs", async () => {
           await client.motsClefs!.ajouterÀMesMotsClefs({ id: idMotClef });
-          expect(mesMotsClefs).to.include(idMotClef);
+          expect(mesMotsClefs).toContain(idMotClef);
         });
       });
 
@@ -112,12 +112,12 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de noms pour commencer", async () => {
+        test("Pas de noms pour commencer", async () => {
           await attendreRésultat(rés, "ultat");
           expect(rés.ultat).toHaveLength(0);
         });
 
-        step("Ajouter un nom", async () => {
+        test("Ajouter un nom", async () => {
           await client.motsClefs!.sauvegarderNomMotClef({
             id: idMotClef,
             langue: "fr",
@@ -126,7 +126,7 @@ typesClients.forEach((type) => {
           expect(rés.ultat?.fr).toEqual("Hydrologie");
         });
 
-        step("Ajouter des noms", async () => {
+        test("Ajouter des noms", async () => {
           await client.motsClefs!.ajouterNomsMotClef({
             id: idMotClef,
             noms: {
@@ -141,7 +141,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Changer un nom", async () => {
+        test("Changer un nom", async () => {
           await client.motsClefs!.sauvegarderNomMotClef({
             id: idMotClef,
             langue: "fr",
@@ -150,7 +150,7 @@ typesClients.forEach((type) => {
           expect(rés.ultat?.fr).toEqual("hydrologie");
         });
 
-        step("Effacer un nom", async () => {
+        test("Effacer un nom", async () => {
           await client.motsClefs!.effacerNomMotClef({
             id: idMotClef,
             langue: "fr",
@@ -199,7 +199,8 @@ typesClients.forEach((type) => {
         });
 
         it("Le mot-clef est copié", async () => {
-          expect(isArray(motsClefs)).toBe(true).that.contains(idMotClef2);
+          expect(isArray(motsClefs)).toBe(true)
+          expect(motsClefs).toContain(idMotClef2);
         });
 
         it("Les noms sont copiés", async () => {

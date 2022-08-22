@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
@@ -22,7 +22,7 @@ import {
   rechercherProjetSelonTexte,
 } from "@/recherche/projet";
 
-import { générerClients, typesClients } from "../utils";
+import { générerClients, typesClients } from "@/utilsTests";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -60,11 +60,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de résultat quand le projet n'a pas de nom", async () => {
+        test("Pas de résultat quand le projet n'a pas de nom", async () => {
           expect(résultat).toBeUndefined;
         });
 
-        step("Ajout nom détecté", async () => {
+        test("Ajout nom détecté", async () => {
           await client.projets!.ajouterNomsProjet({
             id: idProjet,
             noms: {
@@ -103,14 +103,14 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step(
+        test(
           "Pas de résultat quand le projet n'a pas de description",
           async () => {
             expect(résultat).toBeUndefined;
           }
         );
 
-        step("Ajout description détecté", async () => {
+        test("Ajout description détecté", async () => {
           await client.projets!.ajouterDescriptionsProjet({
             id: idProjet,
             descriptions: {
@@ -174,7 +174,7 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step(
+        test(
           "Pas de résultat quand le projet n'a pas de mot-clef",
           async () => {
             expect(résultatId).toBeUndefined;
@@ -183,7 +183,7 @@ typesClients.forEach((type) => {
           }
         );
 
-        step("Ajout mot-clef détecté", async () => {
+        test("Ajout mot-clef détecté", async () => {
           await client.projets!.ajouterMotsClefsProjet({
             idProjet,
             idsMotsClefs: idMotClef,
@@ -211,7 +211,7 @@ typesClients.forEach((type) => {
           expect(résultatId).toEqual(réfRésId);
         });
 
-        step("Ajout nom mot-clef détecté", async () => {
+        test("Ajout nom mot-clef détecté", async () => {
           await client.motsClefs!.ajouterNomsMotClef({
             id: idMotClef,
             noms: {
@@ -287,13 +287,13 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Pas de résultat quand la bd n'a pas de variable", async () => {
+        test("Pas de résultat quand la bd n'a pas de variable", async () => {
           expect(résultatId).toBeUndefined;
           expect(résultatNom).toBeUndefined;
           expect(résultatTous).toBeUndefined;
         });
 
-        step("Ajout variable détecté", async () => {
+        test("Ajout variable détecté", async () => {
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
 
@@ -325,7 +325,7 @@ typesClients.forEach((type) => {
           expect(résultatId).toEqual(réfRésId);
         });
 
-        step("Ajout nom variable détecté", async () => {
+        test("Ajout nom variable détecté", async () => {
           await client.variables!.ajouterNomsVariable({
             id: idVariable,
             noms: {
@@ -446,7 +446,7 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Résultat id détecté", async () => {
+        test("Résultat id détecté", async () => {
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
 
           const réfRés: résultatObjectifRecherche<
@@ -468,10 +468,10 @@ typesClients.forEach((type) => {
             score: 1,
           };
 
-          expect(résultatId).to.be.deep.equal(réfRés);
+          expect(résultatId).toEqual(réfRés);
         });
 
-        step("Résultat nom détecté", async () => {
+        test("Résultat nom détecté", async () => {
           await client.bds!.ajouterNomsBd({
             id: idBd,
             noms: { fr: "Hydrologie" },
@@ -500,7 +500,7 @@ typesClients.forEach((type) => {
           expect(résultatNom).toEqual(réfRés);
         });
 
-        step("Résultat descr détecté", async () => {
+        test("Résultat descr détecté", async () => {
           await client.bds!.ajouterDescriptionsBd({
             id: idBd,
             descriptions: {
@@ -529,7 +529,7 @@ typesClients.forEach((type) => {
           expect(résultatDescr).toEqual(réfRés);
         });
 
-        step("Résultat variable détecté", async () => {
+        test("Résultat variable détecté", async () => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -573,7 +573,7 @@ typesClients.forEach((type) => {
           expect(résultatVariable).toEqual(réfRés);
         });
 
-        step("Résultat mot-clef détecté", async () => {
+        test("Résultat mot-clef détecté", async () => {
           const idMotClef = await client.motsClefs!.créerMotClef();
           await client.bds!.ajouterMotsClefsBd({
             idBd,
@@ -718,8 +718,8 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Résultat id détecté", async () => {
-          expect(résultatId).to.be.deep.equal({
+        test("Résultat id détecté", async () => {
+          expect(résultatId).toEqual({
             type: "résultat",
             de: "id",
             info: {
@@ -732,7 +732,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Résultat nom détecté", async () => {
+        test("Résultat nom détecté", async () => {
           await client.projets!.ajouterNomsProjet({
             id: idProjet,
             noms: {
@@ -754,7 +754,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Résultat descr détecté", async () => {
+        test("Résultat descr détecté", async () => {
           await client.projets!.ajouterDescriptionsProjet({
             id: idProjet,
             descriptions: {
@@ -775,7 +775,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Résultat bd détecté", async () => {
+        test("Résultat bd détecté", async () => {
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
 
           expect(résultatBd).toEqual({
@@ -796,7 +796,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Résultat variable détecté", async () => {
+        test("Résultat variable détecté", async () => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -835,7 +835,7 @@ typesClients.forEach((type) => {
           expect(résultatVariable).toEqual(résRéf);
         });
 
-        step("Résultat mot-clef détecté", async () => {
+        test("Résultat mot-clef détecté", async () => {
           const idMotClef = await client.motsClefs!.créerMotClef();
           await client.motsClefs!.ajouterNomsMotClef({
             id: idMotClef,

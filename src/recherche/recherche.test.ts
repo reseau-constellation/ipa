@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
@@ -129,7 +129,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step(
+          test(
             "Moins de résultats que demandé s'il n'y a vraiment rien",
             async () => {
               await client2.profil!.sauvegarderNom({
@@ -142,7 +142,7 @@ typesClients.forEach((type) => {
             }
           );
 
-          step("On suit les changements", async () => {
+          test("On suit les changements", async () => {
             await client3.profil!.sauvegarderNom({
               langue: "es",
               nom: "Julián",
@@ -152,14 +152,14 @@ typesClients.forEach((type) => {
             vérifierRecherche(rés.ultat!, [réfClient2, réfClient3]);
           });
 
-          step("Diminuer N désiré", async () => {
+          test("Diminuer N désiré", async () => {
             fChangerN(1);
 
             await attendreRésultat(rés, "ultat", (x) => x && x.length === 1);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
 
-          step("Augmenter N désiré", async () => {
+          test("Augmenter N désiré", async () => {
             fChangerN(2);
 
             await attendreRésultat(rés, "ultat", (x) => x && x.length > 1);
@@ -199,7 +199,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Rien pour commencer détecté", async () => {
+          test("Rien pour commencer détecté", async () => {
             await client2.profil!.sauvegarderCourriel({
               courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
             });
@@ -209,7 +209,7 @@ typesClients.forEach((type) => {
             expect(rés.ultat).toHaveLength(0);
           });
 
-          step("Ajout détecté", async () => {
+          test("Ajout détecté", async () => {
             await client2.profil!.sauvegarderCourriel({
               courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
             });
@@ -218,7 +218,7 @@ typesClients.forEach((type) => {
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
 
-          step("Changements détectés", async () => {
+          test("Changements détectés", async () => {
             await client2.profil!.sauvegarderCourriel({
               courriel: "julien.malard@mail.mcgill.ca",
             });
@@ -260,7 +260,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Membre détecté", async () => {
+          test("Membre détecté", async () => {
             await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
@@ -301,7 +301,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Mot-clef détecté", async () => {
+          test("Mot-clef détecté", async () => {
             await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
@@ -323,12 +323,12 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Rien pour commencer", async () => {
+          test("Rien pour commencer", async () => {
             await attendreRésultat(rés, "ultat");
             expect(rés.ultat).toHaveLength(0);
           });
 
-          step("Nouveau mot-clef détecté", async () => {
+          test("Nouveau mot-clef détecté", async () => {
             const idMotClef = await client2.motsClefs!.créerMotClef();
             const réf: résultatRecherche<infoRésultatTexte> = {
               id: idMotClef,
@@ -373,7 +373,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Mots-clefs détectés", async () => {
+          test("Mots-clefs détectés", async () => {
             await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
           });
         });
@@ -415,7 +415,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Variable détecté", async () => {
+          test("Variable détecté", async () => {
             await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
@@ -437,12 +437,12 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Rien pour commencer", async () => {
+          test("Rien pour commencer", async () => {
             await attendreRésultat(rés, "ultat");
             expect(rés.ultat).toHaveLength(0);
           });
 
-          step("Nouvelle variable détectée", async () => {
+          test("Nouvelle variable détectée", async () => {
             const idVariable = await client2.variables!.créerVariable({
               catégorie: "numérique",
             });
@@ -491,12 +491,12 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Rien pour commencer", async () => {
+          test("Rien pour commencer", async () => {
             await attendreRésultat(rés, "ultat");
             expect(rés.ultat).toHaveLength(0);
           });
 
-          step("Nouvelle variable détectée", async () => {
+          test("Nouvelle variable détectée", async () => {
             const idVariable = await client2.variables!.créerVariable({
               catégorie: "numérique",
             });
@@ -543,7 +543,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Variables détectées", async () => {
+          test("Variables détectées", async () => {
             await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
           });
         });
@@ -570,7 +570,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Bd détectée", async () => {
+          test("Bd détectée", async () => {
             const réf: résultatRecherche<infoRésultatTexte> = {
               id: idBd,
               résultatObjectif: {
@@ -605,7 +605,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Bd détectée", async () => {
+          test("Bd détectée", async () => {
             const réf: résultatRecherche<infoRésultatTexte> = {
               id: idBd,
               résultatObjectif: {
@@ -646,7 +646,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Bd détectée", async () => {
+          test("Bd détectée", async () => {
             const réf: résultatRecherche<infoRésultatTexte> = {
               id: idBd,
               résultatObjectif: {
@@ -693,7 +693,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Nouvelle variable détectée", async () => {
+          test("Nouvelle variable détectée", async () => {
             const idVariable = await client2.variables!.créerVariable({
               catégorie: "numérique",
             });
@@ -757,7 +757,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Nouveau mot-clef détecté", async () => {
+          test("Nouveau mot-clef détecté", async () => {
             const idMotClef = await client2.motsClefs!.créerMotClef();
             await client2.bds!.ajouterMotsClefsBd({
               idBd,
@@ -813,7 +813,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Bd détectée", async () => {
+          test("Bd détectée", async () => {
             const réf: résultatRecherche<infoRésultatVide> = {
               id: idBd,
               résultatObjectif: {
@@ -859,7 +859,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Projet détecté", async () => {
+          test("Projet détecté", async () => {
             const réf: résultatRecherche<infoRésultatTexte> = {
               id: idProjet,
               résultatObjectif: {
@@ -895,7 +895,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Projet détecté", async () => {
+          test("Projet détecté", async () => {
             const réf: résultatRecherche<infoRésultatTexte> = {
               id: idProjet,
               résultatObjectif: {
@@ -938,7 +938,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Projet détecté", async () => {
+          test("Projet détecté", async () => {
             const réf: résultatRecherche<infoRésultatTexte> = {
               id: idProjet,
               résultatObjectif: {
@@ -990,7 +990,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Nouvelle variable détectée", async () => {
+          test("Nouvelle variable détectée", async () => {
             const idVariable = await client2.variables!.créerVariable({
               catégorie: "numérique",
             });
@@ -1058,7 +1058,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Nouveau mot-clef sur la bd détecté", async () => {
+          test("Nouveau mot-clef sur la bd détecté", async () => {
             const idMotClef = await client2.motsClefs!.créerMotClef();
             await client2.bds!.ajouterMotsClefsBd({
               idBd,
@@ -1121,7 +1121,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Changement nom bd détecté", async () => {
+          test("Changement nom bd détecté", async () => {
             const réf: résultatRecherche<
               infoRésultatRecherche<infoRésultatTexte>
             > = {
@@ -1169,7 +1169,7 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          step("Projet détecté", async () => {
+          test("Projet détecté", async () => {
             const réf: résultatRecherche<infoRésultatVide> = {
               id: idProjet,
               résultatObjectif: {
@@ -1271,7 +1271,7 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Mes objets sont détectés", async () => {
+        test("Mes objets sont détectés", async () => {
           const idMotClef = motsClefs[client.idBdCompte!];
           const réf: résultatRecherche<infoRésultatTexte>[] = [
             {
@@ -1302,7 +1302,7 @@ typesClients.forEach((type) => {
           vérifierRecherche(rés.motsClefs!, réf);
         });
 
-        step("Objet devient intéressant", async () => {
+        test("Objet devient intéressant", async () => {
           const réf: résultatRecherche<infoRésultatTexte>[] = [];
 
           for (const c of clients) {
@@ -1336,7 +1336,7 @@ typesClients.forEach((type) => {
           vérifierRecherche(rés.motsClefs!, réf);
         });
 
-        step("Objet ne correspond plus", async () => {
+        test("Objet ne correspond plus", async () => {
           const idMotClef = motsClefs[clients[4].idBdCompte!];
           await clients[4].motsClefs!.effacerNomMotClef({
             id: idMotClef,
@@ -1368,7 +1368,7 @@ typesClients.forEach((type) => {
           vérifierRecherche(rés.motsClefs!, réf);
         });
 
-        step("Diminuer N", async () => {
+        test("Diminuer N", async () => {
           fChangerN(3);
 
           const réf: résultatRecherche<infoRésultatTexte>[] = [];
@@ -1397,7 +1397,7 @@ typesClients.forEach((type) => {
 
         test.todo("Objet correspond mieux");
 
-        step("Augmenter N", async () => {
+        test("Augmenter N", async () => {
           fChangerN(10);
 
           const réf: résultatRecherche<infoRésultatTexte>[] = [];

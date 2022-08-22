@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 import fs from "fs";
 import path from "path";
 
@@ -18,7 +18,7 @@ import {
 } from "@/recherche/profil";
 
 
-import { générerClients, typesClients } from "@/utilsTests";
+import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -63,7 +63,7 @@ typesClients.forEach((type) => {
           await client.profil!.effacerCourriel();
         });
 
-        step("Score 0 pour commencer", async () => {
+        test("Score 0 pour commencer", async () => {
           expect(rés.ultat).toEqual({
             type: "résultat",
             score: 0,
@@ -72,20 +72,20 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("On améliore le score en ajoutant notre nom", async () => {
+        test("On améliore le score en ajoutant notre nom", async () => {
           await client.profil!.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
           await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 0);
           expect(rés.ultat?.score).toEqual(1 / 3);
         });
 
-        step("Encore mieux avec un courriel", async () => {
+        test("Encore mieux avec un courriel", async () => {
           await client.profil!.sauvegarderCourriel({
             courriel: "julien.malard@mail.mcgill.ca",
           });
           await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 1 / 3);
           expect(rés.ultat?.score).toEqual(2 / 3);
         });
-        step("C'est parfait avec un photo !", async () => {
+        test("C'est parfait avec un photo !", async () => {
           const IMAGE = fs.readFileSync(
             path.resolve(path.dirname(""), "tests/_ressources/logo.png")
           );
@@ -124,11 +124,11 @@ typesClients.forEach((type) => {
           await client.profil!.effacerNom({ langue: "fr" });
         });
 
-        step("Rien pour commencer", async () => {
+        test("Rien pour commencer", async () => {
           expect(rés.ultat).toBeUndefined;
         });
 
-        step("Ajout nom détecté", async () => {
+        test("Ajout nom détecté", async () => {
           await client.profil!.sauvegarderNom({ langue: "es", nom: "Julián" });
           await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 0);
 
@@ -141,7 +141,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Meilleur nom détecté", async () => {
+        test("Meilleur nom détecté", async () => {
           await client.profil!.sauvegarderNom({ langue: "fr", nom: "Julien" });
           await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 0.5);
 
@@ -176,11 +176,11 @@ typesClients.forEach((type) => {
           await client.profil!.effacerCourriel();
         });
 
-        step("Rien pour commencer", async () => {
+        test("Rien pour commencer", async () => {
           expect(rés.ultat).toBeUndefined;
         });
 
-        step("Ajout courriel détecté", async () => {
+        test("Ajout courriel détecté", async () => {
           await client.profil!.sauvegarderCourriel({
             courriel: "julien.malard@mail.mcgill.ca",
           });
@@ -235,11 +235,11 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Rien pour commencer", async () => {
+        test("Rien pour commencer", async () => {
           expect(résultatNom).toBeUndefined;
         });
 
-        step("Ajout nom détecté", async () => {
+        test("Ajout nom détecté", async () => {
           await client.profil!.sauvegarderNom({
             langue: "fr",
             nom: "Julien Malard-Adam",

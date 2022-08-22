@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+import isArray from "lodash/isArray";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
@@ -6,7 +6,7 @@ import { catégorieVariables } from "@/variables";
 import { schémaFonctionOublier } from "@/utils";
 import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid";
 
-import { générerClients, typesClients } from "./utils";
+import { générerClients, typesClients } from "@/utilsTests";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -43,19 +43,20 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           if (fOublier) fOublier();
         });
-        step("Pas de variables pour commencer", async () => {
+        test("Pas de variables pour commencer", async () => {
           expect(isArray(variables)).toBe(true);
           expect(variables).toHaveLength(0);
         });
-        step("Créer des variables", async () => {
+        test("Créer des variables", async () => {
           idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
           expect(isArray(variables)).toBe(true);
 
-          expect(XYZ).toHaveLength(1).that.contains(idVariable);
+          expect(variables).toHaveLength(1)
+          expect(variables).toContain(idVariable);
         });
-        step("Effacer un mot-clef", async () => {
+        test("Effacer un mot-clef", async () => {
           await client.variables!.effacerVariable({ id: idVariable });
           expect(isArray(variables)).toBe(true);
           expect(variables).toHaveLength(0);
@@ -80,18 +81,18 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("La variable est déjà ajoutée", async () => {
-          expect(mesVariables).to.include(idVariable);
+        test("La variable est déjà ajoutée", async () => {
+          expect(mesVariables).toContain(idVariable);
         });
 
-        step("Enlever de mes variables", async () => {
+        test("Enlever de mes variables", async () => {
           await client.variables!.enleverDeMesVariables({ id: idVariable });
-          expect(mesVariables).to.not.include(idVariable);
+          expect(mesVariables).not.toContain(idVariable);
         });
 
-        step("Ajouter à mes variables", async () => {
+        test("Ajouter à mes variables", async () => {
           await client.variables!.ajouterÀMesVariables({ id: idVariable });
-          expect(mesVariables).to.include(idVariable);
+          expect(mesVariables).toContain(idVariable);
         });
       });
 
@@ -110,11 +111,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de noms pour commencer", async () => {
+        test("Pas de noms pour commencer", async () => {
           expect(noms).toHaveLength(0);
         });
 
-        step("Ajouter un nom", async () => {
+        test("Ajouter un nom", async () => {
           await client.variables!.sauvegarderNomVariable({
             id: idVariable,
             langue: "fr",
@@ -123,7 +124,7 @@ typesClients.forEach((type) => {
           expect(noms.fr).toEqual("Précipitation");
         });
 
-        step("Ajouter des noms", async () => {
+        test("Ajouter des noms", async () => {
           await client.variables!.ajouterNomsVariable({
             id: idVariable,
             noms: {
@@ -138,7 +139,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Changer un nom", async () => {
+        test("Changer un nom", async () => {
           await client.variables!.sauvegarderNomVariable({
             id: idVariable,
             langue: "fr",
@@ -147,7 +148,7 @@ typesClients.forEach((type) => {
           expect(noms?.fr).toEqual("précipitation");
         });
 
-        step("Effacer un nom", async () => {
+        test("Effacer un nom", async () => {
           await client.variables!.effacerNomVariable({
             id: idVariable,
             langue: "fr",
@@ -171,11 +172,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de descriptions pour commencer", async () => {
+        test("Pas de descriptions pour commencer", async () => {
           expect(descrs).toHaveLength(0);
         });
 
-        step("Ajouter une description", async () => {
+        test("Ajouter une description", async () => {
           await client.variables!.sauvegarderDescrVariable({
             id: idVariable,
             langue: "fr",
@@ -184,7 +185,7 @@ typesClients.forEach((type) => {
           expect(descrs.fr).toEqual("la quantité de précipitation quotidienne");
         });
 
-        step("Ajouter des descriptions", async () => {
+        test("Ajouter des descriptions", async () => {
           await client.variables!.ajouterDescriptionsVariable({
             id: idVariable,
             descriptions: {
@@ -199,7 +200,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Changer une description", async () => {
+        test("Changer une description", async () => {
           await client.variables!.sauvegarderDescrVariable({
             id: idVariable,
             langue: "fr",
@@ -210,7 +211,7 @@ typesClients.forEach((type) => {
           );
         });
 
-        step("Effacer une description", async () => {
+        test("Effacer une description", async () => {
           await client.variables!.effacerDescrVariable({
             id: idVariable,
             langue: "fr",
@@ -241,7 +242,7 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Changer la catégorie", async () => {
+        test("Changer la catégorie", async () => {
           await client.variables!.sauvegarderCatégorieVariable({
             idVariable,
             catégorie: "chaîne",
@@ -269,11 +270,11 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Aucune unité pour commencer", async () => {
-          expect(unités).to.undefined;
+        test("Aucune unité pour commencer", async () => {
+          expect(unités).toBeUndefined();
         });
 
-        step("Changer les unités", async () => {
+        test("Changer les unités", async () => {
           await client.variables!.sauvegarderUnitésVariable({
             idVariable,
             idUnité: "mm",
@@ -302,13 +303,13 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Règle générique de catégorie pour commencer", async () => {
+        test("Règle générique de catégorie pour commencer", async () => {
           expect(isArray(règles)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(règles).toHaveLength(1);
           expect(règles[0].règle.typeRègle).toEqual("catégorie");
         });
 
-        step("Ajouter une règle", async () => {
+        test("Ajouter une règle", async () => {
           const règle: règleBornes = {
             typeRègle: "bornes",
             détails: {
@@ -324,12 +325,12 @@ typesClients.forEach((type) => {
           expect(règles.filter((r) => r.id === idRègle)).toHaveLength(1);
         });
 
-        step("Effacer une règle", async () => {
+        test("Effacer une règle", async () => {
           await client.variables!.effacerRègleVariable({ idVariable, idRègle });
           expect(règles).toHaveLength(1);
         });
 
-        step("On ne peut pas effacer une règle générique de base", async () => {
+        test("On ne peut pas effacer une règle générique de base", async () => {
           const règleDeBase = règles[0];
           await client.variables!.effacerRègleVariable({
             idVariable,
@@ -338,7 +339,7 @@ typesClients.forEach((type) => {
           expect(règles[0].id).toEqual(règleDeBase.id);
         });
 
-        step("On détecte le changement de catégorie", async () => {
+        test("On détecte le changement de catégorie", async () => {
           await client.variables!.sauvegarderCatégorieVariable({
             idVariable,
             catégorie: "horoDatage",
@@ -441,7 +442,8 @@ typesClients.forEach((type) => {
         });
 
         it("La variable est copiée", async () => {
-          expect(isArray(variables)).toBe(true).that.contains(idVariable2);
+          expect(isArray(variables)).toBe(true);
+          expect(variables).toContain(idVariable2);
         });
 
         it("Les noms sont copiés", async () => {

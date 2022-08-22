@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 import isArray from "lodash/isArray";
 
 import fs from "fs";
@@ -42,7 +42,7 @@ describe("JSON", function () {
   });
 
   describe("Aplatire données", function () {
-    step("Aplatire objet", () => {
+    test("Aplatire objet", () => {
       const données = { a: [{ b: 2 }, { b: 3 }, { b: 4 }], c: 1 };
 
       const aplaties = aplatirDonnées(données, ["a"]);
@@ -52,7 +52,7 @@ describe("JSON", function () {
         { c: 1, a: { b: 4 } },
       ]);
     });
-    step("Aplatire liste", () => {
+    test("Aplatire liste", () => {
       const données = [[{ b: 2 }, { b: 3 }, { b: 4 }], { c: 1 }];
 
       const aplaties = aplatirDonnées(données, [0]);
@@ -62,19 +62,19 @@ describe("JSON", function () {
         [{ b: 4 }, { c: 1 }],
       ]);
     });
-    step("Aplatire début liste", () => {
+    test("Aplatire début liste", () => {
       const données = [{ b: 2 }, { b: 3 }, { b: 4 }];
 
       const aplaties = aplatirDonnées(données);
       expect(aplaties).toEqual([{ b: 2 }, { b: 3 }, { b: 4 }]);
     });
-    step("Aplatire début dict", () => {
+    test("Aplatire début dict", () => {
       const données = { a: { b: 2 }, b: { b: 3 }, c: { b: 4 } };
 
       const aplaties = aplatirDonnées(données);
       expect(aplaties).toEqual([{ b: 2 }, { b: 3 }, { b: 4 }]);
     });
-    step("Aplatire dict imbriqué", () => {
+    test("Aplatire dict imbriqué", () => {
       const données = {
         AFG: {
           location: "Afghanistan",
@@ -172,14 +172,15 @@ describe("JSON", function () {
       );
     });
 
-    step("Données importées", async () => {
-      expect(isArray(données)).toBe(true).that.is.not.empty;
-      expect(données[0]).to.have.keys([
+    test("Données importées", async () => {
+      expect(isArray(données)).toBe(true);
+      expect(données.length).toBeGreaterThan(0);
+      expect(Object.keys(données[0])).toEqual(expect.arrayContaining([
         "région",
         "date",
         "nouveauxCas",
         "totalCas",
-      ]);
+      ]));
     });
   });
 });

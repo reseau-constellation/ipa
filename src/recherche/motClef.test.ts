@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 import { jest } from "@jest/globals";
 
 import { enregistrerContrôleurs } from "@/accès";
@@ -56,7 +56,7 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
+        test("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
           expect(résultat).toBeUndefined;
         });
         it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
@@ -149,7 +149,7 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        step("Résultat nom détecté", async () => {
+        test("Résultat nom détecté", async () => {
           expect(résultatNom).toEqual({
             type: "résultat",
             clef: "fr",

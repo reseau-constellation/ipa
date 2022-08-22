@@ -1,4 +1,4 @@
-import WebRTCStar from "@libp2p/webrtc-star";
+import { WebRTCStar } from "@libp2p/webrtc-star";
 import { WebSockets } from "@libp2p/websockets";
 import { WebRTCDirect } from "@libp2p/webrtc-direct";
 

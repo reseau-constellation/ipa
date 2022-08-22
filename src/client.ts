@@ -15,8 +15,6 @@ import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import initOrbite from "@/orbite";
-import initSFIP from "@/sfip";
 import Épingles from "@/epingles";
 import Profil from "@/profil";
 import BDs from "@/bds";
@@ -168,6 +166,7 @@ export default class ClientConstellation extends EventEmitter {
       if (opts?.sfip) {
         return opts.sfip;
       } else {
+        const initSFIP = (await import("@/sfip")).default;
         return await initSFIP(opts?.dossier);
       }
     };
@@ -177,11 +176,13 @@ export default class ClientConstellation extends EventEmitter {
         sfipFinale = orbite._ipfs;
         orbiteFinale = orbite;
       } else {
+        const initOrbite = (await import("@/orbite")).default;
         sfipFinale = await _générerSFIP(orbite.sfip);
         orbiteFinale = await initOrbite(sfipFinale, orbite.dossier);
       }
     } else {
       sfipFinale = await _générerSFIP();
+      const initOrbite = (await import("@/orbite")).default;
       orbiteFinale = await initOrbite(sfipFinale);
     }
 

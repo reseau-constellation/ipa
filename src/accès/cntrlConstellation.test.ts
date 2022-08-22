@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from "uuid";
-import { step } from "mocha-steps";
 import { jest } from "@jest/globals";
 import assert from "assert";
 
@@ -87,7 +86,7 @@ describe("Contrôleur Constellation", function () {
       let bd: KeyValueStore<number>;
       let bdOrbite2: KeyValueStore<number>;
 
-      beforeAll(async () => {
+      beforeEach(async () => {
         bdRacine = await orbitdb1.kvstore(uuidv4(), {
           accessController: {
             type: "controlleur-constellation",
@@ -116,12 +115,12 @@ describe("Contrôleur Constellation", function () {
         await bd.load();
       });
 
-      step("Le premier mod peut écrire à la BD", async () => {
+      test("Le premier mod peut écrire à la BD", async () => {
         const autorisé = await peutÉcrire(bd);
         expect(autorisé).toBe(true);
       });
 
-      step("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
+      test("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
         bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<number>;
         await bdOrbite2.load();
         attendreSync(bdOrbite2);
@@ -130,7 +129,7 @@ describe("Contrôleur Constellation", function () {
         expect(autorisé).toBe(false);
       });
 
-      step("...mais on peut toujours l'inviter !", async () => {
+      test("...mais on peut toujours l'inviter !", async () => {
         await bd.access.grant(MEMBRE, bdRacine2.id);
 
         const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
@@ -138,13 +137,13 @@ describe("Contrôleur Constellation", function () {
         expect(autorisé).toBe(true);
       });
 
-      step("Un membre ne peut pas inviter d'autres personnes", async () => {
+      test("Un membre ne peut pas inviter d'autres personnes", async () => {
         await assert.rejects(
           bdOrbite2.access.grant(MEMBRE, orbitdb3.identity.id)
         );
       });
 
-      step("Mais un membre peut s'inviter lui-même", async () => {
+      test("Mais un membre peut s'inviter lui-même", async () => {
         await bdRacine2.access.grant(MODÉRATEUR, orbitdb3.identity.id);
 
         const bdOrbite3 = (await orbitdb3.open(bd.id)) as KeyValueStore<number>;
@@ -155,14 +154,14 @@ describe("Contrôleur Constellation", function () {
         await bdOrbite3.close();
         expect(autorisé).toBe(true);
       });
-      step("On peut inviter un modérateur", async () => {
+      test("On peut inviter un modérateur", async () => {
         const accès = bd.access as unknown as ContrôleurConstellation;
         await accès.grant(MODÉRATEUR, bdRacine2.id);
         const estUnMod = await accès.estUnModérateur(orbitdb2.identity.id);
         expect(estUnMod).toBe(true);
       });
 
-      step("Un modérateur peut inviter d'autres membres", async () => {
+      test("Un modérateur peut inviter d'autres membres", async () => {
         const accès = bdOrbite2.access as unknown as ContrôleurConstellation;
         await accès.grant(MEMBRE, orbitdb4.identity.id);
 
@@ -175,7 +174,7 @@ describe("Contrôleur Constellation", function () {
         expect(autorisé).toBe(true);
       });
 
-      step("Un modérateur peut inviter d'autres modérateurs", async () => {
+      test("Un modérateur peut inviter d'autres modérateurs", async () => {
         const accès = bdOrbite2.access as unknown as ContrôleurConstellation;
         await accès.grant(MODÉRATEUR, orbitdb4.identity.id);
 
@@ -183,7 +182,7 @@ describe("Contrôleur Constellation", function () {
         expect(estUnMod).toBe(true);
       });
 
-      step("Invitations transitives lors de bd.load()", async () => {
+      test("Invitations transitives lors de bd.load()", async () => {
         await bd.close();
         bd = (await orbitdb1.open(bd.id)) as KeyValueStore<number>;
         await bd.load();
@@ -195,7 +194,7 @@ describe("Contrôleur Constellation", function () {
         }
       });
 
-      afterAll(async () => {
+      afterEach(async () => {
         await bd.close();
         if (bdOrbite2) await bdOrbite2.close();
       });

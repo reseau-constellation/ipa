@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 import { jest } from "@jest/globals";
 
 import fs from "fs";
@@ -47,16 +47,16 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Pas de courriel pour commencer", async () => {
+        test("Pas de courriel pour commencer", async () => {
           expect(courriel).toBeNull;
         });
 
-        step("Ajouter un courriel", async () => {
+        test("Ajouter un courriel", async () => {
           await client.profil!.sauvegarderCourriel({ courriel: COURRIEL });
           expect(courriel).toEqual(COURRIEL);
         });
 
-        step("Effacer le courriel", async () => {
+        test("Effacer le courriel", async () => {
           await client.profil!.effacerCourriel();
           expect(courriel).toBeNull;
         });
@@ -82,12 +82,12 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        step("Pas de noms pour commencer", async () => {
+        test("Pas de noms pour commencer", async () => {
           await attendreRésultat(rés, "ultat");
           expect(rés.ultat).toHaveLength(0);
         });
 
-        step("Ajouter un nom", async () => {
+        test("Ajouter un nom", async () => {
           await client.profil!.sauvegarderNom({
             langue: "fr",
             nom: "Julien Malard-Adam",
@@ -101,7 +101,7 @@ typesClients.forEach((type) => {
           expect(rés.ultat?.த).toEqual("ஜூலீஎன்");
         });
 
-        step("Changer un nom", async () => {
+        test("Changer un nom", async () => {
           await client.profil!.sauvegarderNom({
             langue: "த",
             nom: "ம.-ஆதான் ஜூலீஎன்",
@@ -109,7 +109,7 @@ typesClients.forEach((type) => {
           expect(rés.ultat?.த).toEqual("ம.-ஆதான் ஜூலீஎன்");
         });
 
-        step("Effacer un nom", async () => {
+        test("Effacer un nom", async () => {
           await client.profil!.effacerNom({ langue: "fr" });
           expect(rés.ultat).toEqual({ த: "ம.-ஆதான் ஜூலீஎன்" });
         });
@@ -131,22 +131,22 @@ typesClients.forEach((type) => {
           });
         });
 
-        step("Pas d'image pour commencer", async () => {
+        test("Pas d'image pour commencer", async () => {
           expect(rés.ultat).toBeNull;
         });
 
-        step("Ajouter une image", async () => {
+        test("Ajouter une image", async () => {
           await client.profil!.sauvegarderImage({ image: IMAGE });
           await attendreRésultat(rés, "ultat", (v: unknown) => Boolean(v));
           expect(rés.ultat).toEqual(new Uint8Array(IMAGE));
         });
 
-        step("Effacer l'image", async () => {
+        test("Effacer l'image", async () => {
           await client.profil!.effacerImage();
           expect(rés.ultat).toBeNull;
         });
 
-        step("Ajouter une image trop grande", async () => {
+        test("Ajouter une image trop grande", async () => {
           expect(()=>
             client.profil!.sauvegarderImage({
               image: Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 }),

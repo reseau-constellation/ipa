@@ -1,4 +1,4 @@
-import { step } from "mocha-steps";
+
 import fs from "fs";
 import path from "path";
 import FeedStore from "orbit-db-feedstore";
@@ -193,7 +193,7 @@ describe("Utils recherche", function () {
 
     it("Images similaires", () => {
       const résultat = similImages(IMAGE, IMAGE2);
-      expect(résultat).to.be.greaterThan(0.5);
+      expect(résultat).toBeGreaterThan(0.5);
     });
   });
 
@@ -305,11 +305,11 @@ describe("Utils recherche", function () {
     });
     afterAll(() => fsOublier.forEach((f) => f()));
 
-    step("Rien pour commencer", () => {
+    test("Rien pour commencer", () => {
       expect(résultat).toBeUndefined;
     });
 
-    step("Ajout variable détecté", async () => {
+    test("Ajout variable détecté", async () => {
       const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
         id: idBd,
       });
@@ -338,7 +338,7 @@ describe("Utils recherche", function () {
       expect(résultat).toEqual(réfRés);
     });
 
-    step("Ajout meilleure variable détecté", async () => {
+    test("Ajout meilleure variable détecté", async () => {
       const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
         id: idBd,
       });
