@@ -46,13 +46,15 @@
     },
     "types": [
       // "webpack-env",
-      "mocha",
-      "chai"
+      "jest"
     ],
     "plugins": [
       {
         "transform": "@zerollup/ts-transform-paths"
       }
     ]
+  },
+  "ts-node": {
+    "files": true
   }
 }

@@ -1,5 +1,4 @@
-import { keyPair, encrypt, decrypt } from "asymmetric-crypto";
-import { generateEntropy } from "@it-tools/bip39";
+import { randomKey, asymmetric } from "@herbcaudill/crypto";
 
 export interface Encryption {
   clefs: { publique: string; secrète: string };
@@ -29,7 +28,7 @@ export class EncryptionParDéfaut implements Encryption {
   nom = "défaut";
 
   constructor() {
-    const { publicKey, secretKey } = keyPair();
+    const { publicKey, secretKey } = asymmetric.keyPair();
     this.clefs = { publique: publicKey, secrète: secretKey };
   }
 
@@ -40,11 +39,13 @@ export class EncryptionParDéfaut implements Encryption {
     message: string;
     clefPubliqueDestinataire: string;
   }): string {
-    return encrypt(
-      message,
-      clefPubliqueDestinataire,
-      this.clefs.secrète
-    ).toString();
+    return asymmetric
+      .encrypt({
+        secret: message,
+        recipientPublicKey: clefPubliqueDestinataire,
+        senderSecretKey: this.clefs.secrète,
+      })
+      .toString();
   }
 
   décrypter({
@@ -54,11 +55,15 @@ export class EncryptionParDéfaut implements Encryption {
     message: string;
     clefPubliqueExpéditeur: string;
   }): string {
-    const { data, nonce } = JSON.parse(message);
-    return decrypt(data, nonce, clefPubliqueExpéditeur, this.clefs.secrète);
+    const { data } = JSON.parse(message);
+    return asymmetric.decrypt({
+      cipher: data,
+      recipientSecretKey: this.clefs.secrète,
+      senderPublicKey: clefPubliqueExpéditeur,
+    });
   }
 
   clefAléatoire(): string {
-    return generateEntropy();
+    return randomKey();
   }
 }

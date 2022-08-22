@@ -372,11 +372,11 @@ export default class Variables {
   async ajouterRègleVariable({
     idVariable,
     règle,
-    idRègle
+    idRègle,
   }: {
     idVariable: string;
     règle: règleVariable;
-    idRègle?: string
+    idRègle?: string;
   }): Promise<string> {
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
@@ -432,14 +432,18 @@ export default class Variables {
   async modifierRègleVariable({
     idVariable,
     règleModifiée,
-    idRègle
+    idRègle,
   }: {
-    idVariable: string,
-    règleModifiée: règleVariable,
-    idRègle: string,
+    idVariable: string;
+    règleModifiée: règleVariable;
+    idRègle: string;
   }): Promise<void> {
-    await this.effacerRègleVariable({ idVariable, idRègle })
-    await this.ajouterRègleVariable({ idVariable, règle: règleModifiée, idRègle })
+    await this.effacerRègleVariable({ idVariable, idRègle });
+    await this.ajouterRègleVariable({
+      idVariable,
+      règle: règleModifiée,
+      idRègle,
+    });
   }
 
   async suivreNomsVariable({

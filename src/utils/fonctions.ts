@@ -2,7 +2,7 @@ import { EventEmitter, once } from "events";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "./types";
 
 class ÉmetteurUneFois<T> extends EventEmitter {
-  doitExister: boolean
+  doitExister: boolean;
   résultatPrêt: boolean;
   fOublier?: schémaFonctionOublier;
   résultat?: T;
@@ -26,7 +26,6 @@ class ÉmetteurUneFois<T> extends EventEmitter {
         this.résultatPrêt = true;
         if (this.fOublier) this.lorsquePrêt();
       }
-
     };
 
     this.fOublier = await this.f(fSuivre);

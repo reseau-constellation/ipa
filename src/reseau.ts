@@ -4,9 +4,8 @@ import OrbitDB from "orbit-db";
 import { PeersResult } from "ipfs-core-types/src/swarm";
 import { Message as MessagePubSub } from "ipfs-core-types/src/pubsub";
 import { EventEmitter } from "events";
-import { sum } from "lodash";
+import sum from "lodash/sum";
 import Semaphore from "@chriscdn/promise-semaphore";
-
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation, { Signature, infoAccès } from "@/client";
@@ -702,6 +701,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoConfiance[]>;
     idBdCompte?: string;
   }): Promise<schémaFonctionOublier> {
+    console.log("suivreRelationsImmédiates", { f, idBdCompte });
     idBdCompte = idBdCompte ? idBdCompte : this.client.idBdCompte!;
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -894,6 +894,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
+    console.log("suivreRelationsConfiance", { f, idCompteDébut });
     idCompteDébut = idCompteDébut || this.client.idBdCompte;
 
     const dicRelations: { [key: string]: infoRelation[] } = {};
@@ -1043,6 +1044,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
+    console.log("suivreComptesRéseau", { f, idCompteDébut });
     const fSuivi = (relations: infoRelation[]) => {
       // Ajouter soi-même
       relations.push({
@@ -1124,6 +1126,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
+    console.log("suivreComptesRéseauEtEnLigne", { f, idCompteDébut });
     const dicComptes: {
       réseau: infoMembreRéseau[];
       enLigne: infoMembreRéseau[];
@@ -1188,6 +1191,11 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idBdCompteRéférence?: string;
   }): Promise<schémaRetourFonctionRecherche> {
+    console.log("suivreConfianceMonRéseauPourMembre", {
+      idBdCompte,
+      idBdCompteRéférence,
+    });
+
     idBdCompteRéférence = idBdCompteRéférence || this.client.idBdCompte!;
 
     const fFinale = (membres: infoMembreRéseau[]) => {
@@ -1393,6 +1401,7 @@ export default class Réseau extends EventEmitter {
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     fScore?: (r: résultatRechercheSansScore<T>) => number;
   }): Promise<réponseSuivreRecherche> {
+    console.log("rechercher");
     if (!fScore) {
       fScore = (x: résultatRechercheSansScore<T>): number => {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
@@ -1588,7 +1597,7 @@ export default class Réseau extends EventEmitter {
       fFinale();
     };
 
-    const verrou = new Semaphore()
+    const verrou = new Semaphore();
 
     const fSuivreComptes = async (
       comptes: infoMembreRéseau[]
@@ -1615,7 +1624,7 @@ export default class Réseau extends EventEmitter {
 
       clefsObsolètes.forEach((o) => oublierRésultatsMembre(o));
 
-      verrou.release("rechercher")
+      verrou.release("rechercher");
     };
 
     const { fChangerProfondeur, fOublier: fOublierSuivreComptes } =
@@ -1633,8 +1642,8 @@ export default class Réseau extends EventEmitter {
 
     const fOublier = () => {
       fOublierSuivreComptes();
-      Object.values(résultatsParMembre).forEach(r=>r.fOublierRecherche())
-    }
+      Object.values(résultatsParMembre).forEach((r) => r.fOublierRecherche());
+    };
 
     return { fChangerN, fOublier };
   }
@@ -1648,6 +1657,7 @@ export default class Réseau extends EventEmitter {
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
   }): Promise<réponseSuivreRecherche> {
+    console.log("rechercherMembres");
     const fConfiance = async (
       idCompte: string,
       fSuivi: schémaFonctionSuivi<number>
@@ -1703,6 +1713,7 @@ export default class Réseau extends EventEmitter {
     clef: string;
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
+    console.log("suivreConfianceAuteurs", { idItem, clef });
     const fListe = async (
       fSuivreRacine: (auteurs: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
@@ -2198,6 +2209,7 @@ export default class Réseau extends EventEmitter {
     >;
     profondeur?: number;
   }): Promise<schémaRetourFonctionRecherche> {
+    console.log("suivreFavorisObjet", { idObjet, f });
     const fFinale = (
       favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
     ) => {
@@ -2295,11 +2307,11 @@ export default class Réseau extends EventEmitter {
                   idDispositif: d,
                   bd: await this.client.favoris!.estÉpingléSurDispositif({
                     dispositifs: favoris.dispositifs,
-                    idOrbite: d
+                    idOrbite: d,
                   }),
                   fichiers: await this.client.favoris!.estÉpingléSurDispositif({
                     dispositifs: favoris.dispositifsFichiers,
-                    idOrbite: d
+                    idOrbite: d,
                   }),
                   récursif: favoris.récursif,
                   vuÀ,

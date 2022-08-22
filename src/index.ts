@@ -2,7 +2,7 @@ import client from "@/client";
 
 export default client;
 
-export { version } from '@/version';
+export { version } from "@/version";
 
 export * as accès from "@/accès";
 export * as importateur from "@/importateur";

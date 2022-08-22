@@ -671,6 +671,13 @@ export default class ClientConstellation extends EventEmitter {
     const fFinale = () => f(bd);
     for (const é of événements) {
       bd.events.on(é, fFinale);
+      if (
+        é === "write" &&
+        bd.events.listenerCount("write") > bd.events.getMaxListeners()
+      ) {
+        // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
+        // console.log({f})
+      }
     }
 
     fFinale();
@@ -1009,27 +1016,38 @@ export default class ClientConstellation extends EventEmitter {
     if (retrouvé) await bd.remove(retrouvé.hash);
   }
 
-  async suivreTypeObjet({ idObjet, f }: {
-    idObjet: string,
-    f: schémaFonctionSuivi<"motClef" | "variable" | "bd" | "projet" | undefined>
+  async suivreTypeObjet({
+    idObjet,
+    f,
+  }: {
+    idObjet: string;
+    f: schémaFonctionSuivi<
+      "motClef" | "variable" | "bd" | "projet" | undefined
+    >;
   }): Promise<schémaFonctionOublier> {
+    const fFinale = (vals: { [key: string]: string }): void => {
+      let typeFinal = undefined as
+        | "motClef"
+        | "variable"
+        | "bd"
+        | "projet"
+        | undefined;
 
-    const fFinale = (vals: {[key: string]: string}): void => {
-      let typeFinal = undefined as "motClef" | "variable" | "bd" | "projet" | undefined
-
-      const { type } = vals
+      const { type } = vals;
       if (type) {
-        typeFinal = ["motClef", "variable", "bd", "projet"].includes(type) ? type as "motClef" | "variable" | "bd" | "projet" : undefined
+        typeFinal = ["motClef", "variable", "bd", "projet"].includes(type)
+          ? (type as "motClef" | "variable" | "bd" | "projet")
+          : undefined;
       } else {
         if (vals.bds) typeFinal = "projet";
         else if (vals.tableaux) typeFinal = "bd";
         else if (vals.catégorie) typeFinal = "variable";
-        else if (vals.nom) typeFinal = "motClef"
+        else if (vals.nom) typeFinal = "motClef";
       }
       f(typeFinal);
-    }
+    };
 
-    const fOublier = await this.suivreBdDic({ id: idObjet, f: fFinale});
+    const fOublier = await this.suivreBdDic({ id: idObjet, f: fFinale });
     return fOublier;
   }
 
@@ -1365,7 +1383,9 @@ export default class ClientConstellation extends EventEmitter {
       this.idBdCompte!.length - 23,
       this.idBdCompte!.length - 8
     )} : ${clef}`;
-    return (await obtStockageLocal(this._opts.dossierStockageLocal)).getItem(clefClient);
+    return (await obtStockageLocal(this._opts.dossierStockageLocal)).getItem(
+      clefClient
+    );
   }
 
   async sauvegarderAuStockageLocal({
@@ -1379,7 +1399,10 @@ export default class ClientConstellation extends EventEmitter {
       this.idBdCompte!.length - 23,
       this.idBdCompte!.length - 8
     )} : ${clef}`;
-    return (await obtStockageLocal(this._opts.dossierStockageLocal)).setItem(clefClient, val);
+    return (await obtStockageLocal(this._opts.dossierStockageLocal)).setItem(
+      clefClient,
+      val
+    );
   }
 
   async effacerDeStockageLocal({ clef }: { clef: string }): Promise<void> {
@@ -1387,7 +1410,9 @@ export default class ClientConstellation extends EventEmitter {
       this.idBdCompte!.length - 23,
       this.idBdCompte!.length - 8
     )} : ${clef}`;
-    return (await obtStockageLocal(this._opts.dossierStockageLocal)).removeItem(clefClient);
+    return (await obtStockageLocal(this._opts.dossierStockageLocal)).removeItem(
+      clefClient
+    );
   }
 
   async ouvrirBd<T extends Store>({

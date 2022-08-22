@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import FeedStore from "orbit-db-feedstore";
-import { BookType, readFile } from "xlsx";
+import xlsx, { BookType } from "xlsx";
 import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 import isNode from "is-node";
@@ -198,7 +198,7 @@ const obtDonnéesImportation = async <
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source
             .info as unknown as infoImporterFeuilleCalcul;
-          const docXLSX = readFile(adresseFichier);
+          const docXLSX = xlsx.readFile(adresseFichier);
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
           return importateur.obtDonnées(nomTableau, cols);
         }
@@ -278,7 +278,10 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
       return async () => {
         const spécImp = spéc as unknown as SpécificationImporter<R>;
         const données = await obtDonnéesImportation(spécImp);
-        await client.tableaux!.importerDonnées({idTableau: spécImp.idTableau, données});
+        await client.tableaux!.importerDonnées({
+          idTableau: spécImp.idTableau,
+          données,
+        });
       };
     }
 

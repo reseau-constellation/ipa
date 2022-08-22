@@ -525,32 +525,34 @@ export default class BDs {
     schémaBd,
     motClefUnique,
     idUniqueTableau,
-    f
+    f,
   }: {
-    schémaBd: schémaSpécificationBd,
-    motClefUnique: string,
-    idUniqueTableau: string,
-    f: schémaFonctionSuivi<élémentDonnées<T>[]>
+    schémaBd: schémaSpécificationBd;
+    motClefUnique: string;
+    idUniqueTableau: string;
+    f: schémaFonctionSuivi<élémentDonnées<T>[]>;
   }): Promise<schémaFonctionOublier> {
-
     const fFinale = (données?: élémentDonnées<T>[]) => {
-      return f(données || [])
+      return f(données || []);
     };
 
-    const fSuivreDonnéesDeTableau = async ({id, fSuivreBd}: {
-      id: string,
-      fSuivreBd: schémaFonctionSuivi<élémentDonnées<T>[]>
+    const fSuivreDonnéesDeTableau = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<élémentDonnées<T>[]>;
     }): Promise<schémaFonctionOublier> => {
       return await this.client.tableaux!.suivreDonnées({
         idTableau: id,
         f: fSuivreBd,
-      })
-    }
+      });
+    };
 
     const fSuivreTableau = async ({
-      fSuivreRacine
+      fSuivreRacine,
     }: {
-      fSuivreRacine: schémaFonctionSuivi<string>
+      fSuivreRacine: schémaFonctionSuivi<string>;
     }): Promise<schémaFonctionOublier> => {
       return await this.suivreTableauUniqueDeBdUnique({
         schémaBd,
@@ -560,26 +562,25 @@ export default class BDs {
           if (idTableau) fSuivreRacine(idTableau);
         },
       });
-    }
+    };
 
     return await this.client.suivreBdDeFonction({
       fRacine: fSuivreTableau,
       f: fFinale,
       fSuivre: fSuivreDonnéesDeTableau,
     });
-
   }
 
   async ajouterÉlémentÀTableauUnique<T extends élémentBdListeDonnées>({
     schémaBd,
     motClefUnique,
     idUniqueTableau,
-    vals
+    vals,
   }: {
-    schémaBd: schémaSpécificationBd,
-    motClefUnique: string,
-    idUniqueTableau: string,
-    vals: T
+    schémaBd: schémaSpécificationBd;
+    motClefUnique: string;
+    idUniqueTableau: string;
+    vals: T;
   }): Promise<string> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
@@ -605,12 +606,12 @@ export default class BDs {
     schémaBd,
     motClefUnique,
     idUniqueTableau,
-    empreinte
+    empreinte,
   }: {
-    schémaBd: schémaSpécificationBd,
-    motClefUnique: string,
-    idUniqueTableau: string,
-    empreinte: string,
+    schémaBd: schémaSpécificationBd;
+    motClefUnique: string;
+    idUniqueTableau: string;
+    empreinte: string;
   }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
@@ -1431,7 +1432,10 @@ export default class BDs {
     const bookType: BookType = conversionsTypes[formatDoc] || formatDoc;
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
-    if (!(oùSommesNous.isBrowser || oùSommesNous.isWebWorker) && !fs.existsSync(dir)) {
+    if (
+      !(oùSommesNous.isBrowser || oùSommesNous.isWebWorker) &&
+      !fs.existsSync(dir)
+    ) {
       // Mais juste si on n'est pas dans le navigateur ! Dans le navigateur, ça télécharge sans problème.
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -1441,16 +1445,16 @@ export default class BDs {
         octets: writeXLSX(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
       };
-      const fichiersDeSFIP = await Promise.all([...fichiersSFIP].map(
-        async fichier => {
+      const fichiersDeSFIP = await Promise.all(
+        [...fichiersSFIP].map(async (fichier) => {
           return {
             nom: `${fichier.cid}.${fichier.ext}`,
             octets: await toBuffer(
               this.client.obtItérableAsyncSFIP({ id: fichier.cid })
             ),
-          }
-        }
-      ));
+          };
+        })
+      );
       await zipper([fichierDoc], fichiersDeSFIP, path.join(dir, nomFichier));
     } else {
       writeFile(doc, path.join(dir, `${nomFichier}.${formatDoc}`), {

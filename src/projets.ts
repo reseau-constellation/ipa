@@ -202,7 +202,11 @@ export default class Projets {
     idBdCompteAuteur: string;
     rôle: keyof objRôles;
   }): Promise<void> {
-    await this.client.donnerAccès({ idBd: idProjet, identité: idBdCompteAuteur, rôle });
+    await this.client.donnerAccès({
+      idBd: idProjet,
+      identité: idBdCompteAuteur,
+      rôle,
+    });
   }
 
   async _obtBdNoms({
@@ -761,16 +765,18 @@ export default class Projets {
         octets: writeXLSX(d.doc, { bookType, type: "buffer" }),
       };
     });
-    const fichiersDeSFIP = inclureFichiersSFIP ? await Promise.all([...fichiersSFIP].map(
-      async fichier => {
-        return {
-          nom: `${fichier.cid}.${fichier.ext}`,
-          octets: await toBuffer(
-            this.client.obtItérableAsyncSFIP({ id: fichier.cid })
-          ),
-        }
-      }
-    )) : [];
+    const fichiersDeSFIP = inclureFichiersSFIP
+      ? await Promise.all(
+          [...fichiersSFIP].map(async (fichier) => {
+            return {
+              nom: `${fichier.cid}.${fichier.ext}`,
+              octets: await toBuffer(
+                this.client.obtItérableAsyncSFIP({ id: fichier.cid })
+              ),
+            };
+          })
+        )
+      : [];
     await zipper(fichiersDocs, fichiersDeSFIP, path.join(dir, nomFichier));
   }
 
