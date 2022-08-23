@@ -1,11 +1,11 @@
-
-
 import fs from "fs";
 import path from "path";
 import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
 import { cidValide, traduire, zipper } from "@/utils";
+
+import { obtDirTempoPourTest } from "@/utilsTests";
 
 describe("Utils", function () {
   describe("cidValide", function () {
@@ -35,14 +35,9 @@ describe("Utils", function () {
     });
   });
   describe("zipper", function () {
-    const nomFichier = path.resolve(
-      path.dirname(""),
-      "tests/_temp/testZip.zip"
-    );
-    const fichierExtrait = path.resolve(
-      path.dirname(""),
-      "tests/_temp/testZipExtrait"
-    );
+    const dirTempoTest = obtDirTempoPourTest()
+    const nomFichier = path.join(dirTempoTest, "testZip.zip");
+    const fichierExtrait = path.join(dirTempoTest, "testZipExtrait");
 
     beforeAll(async () => {
       const fichiersDocs = [
@@ -66,8 +61,9 @@ describe("Utils", function () {
     });
 
     afterAll(() => {
-      rmrf.sync(path.resolve(path.dirname(""), "tests/_temp"));
+      rmrf.sync(dirTempoTest);
     });
+
     test("Le fichier zip est créé", async () => {
       expect(fs.existsSync(nomFichier)).toBe(true);
       const zip = new AdmZip(nomFichier);
