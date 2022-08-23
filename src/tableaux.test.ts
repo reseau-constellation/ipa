@@ -1,4 +1,5 @@
-
+import isArray from "lodash/isArray";
+import { jest } from "@jest/globals";
 
 import XLSX from "xlsx";
 import { enregistrerContrôleurs } from "@/accès";
@@ -22,11 +23,14 @@ import {
   élémentDonnées,
 } from "@/valid";
 
-import { générerClients, attendreRésultat, typesClients } from "./utils";
+import { générerClients, attendreRésultat, typesClients } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Tableaux", function () {
+      jest.setTimeout(config.timeout)
+
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -68,7 +72,7 @@ typesClients.forEach((type) => {
         });
 
         test("Pas de noms pour commencer", async () => {
-          expect(noms).toHaveLength(0);
+          expect(Object.keys(noms)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -184,11 +188,14 @@ typesClients.forEach((type) => {
         });
 
         test("Tout est vide pour commencer", async () => {
-          expect(variables, "variables")
-            .toBeTruthy()
-            .and.to.be.an.empty("array");
-          expect(colonnes, "colonnes").toBeTruthy().and.to.be.an.empty("array");
-          expect(données, "données").toBeTruthy().and.to.be.an.empty("array");
+          expect(isArray(variables)).toBe(true);
+          expect(variables).toHaveLength(0)
+
+          expect(isArray(colonnes)).toBe(true);
+          expect(colonnes).toHaveLength(0)
+
+          expect(isArray(données)).toBe(true);
+          expect(données).toHaveLength(0)
         });
 
         test("Ajouter colonnes", async () => {
@@ -216,12 +223,12 @@ typesClients.forEach((type) => {
           };
           await client.tableaux!.ajouterÉlément({ idTableau, vals: élément });
           expect(isArray(données)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(données).toHaveLength(1);
 
           const élémentDonnées = données[0];
-          expect(élémentDonnées.empreinte).to.be.a("string");
+          expect(typeof élémentDonnées.empreinte).toEqual("string");
           for (const [cl, v] of Object.entries(élément)) {
-            expect(élémentDonnées.données[cl]).toBeTruthy().and.toEqual(v);
+            expect(élémentDonnées.données[cl]).toEqual(v);
           }
         });
 
@@ -234,7 +241,7 @@ typesClients.forEach((type) => {
             empreintePrécédente: élémentDonnées.empreinte,
           });
           expect(isArray(données)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(données).toHaveLength(1);
 
           const nouvelÉlémentDonnées = données[0];
           expect(nouvelÉlémentDonnées.données[idsColonnes[0]]).toEqual(-123);
@@ -250,7 +257,7 @@ typesClients.forEach((type) => {
           });
 
           const nouvelÉlémentDonnées = données[0];
-          expect(nouvelÉlémentDonnées.données).to.not.have.key(idsColonnes[0]);
+          expect(Object.keys(nouvelÉlémentDonnées.données)).not.toContain(idsColonnes[0]);
         });
 
         test("Modifier un élément - ajouter une clef", async () => {
@@ -282,9 +289,9 @@ typesClients.forEach((type) => {
             idTableau,
             idColonne: idsColonnes[0],
           });
-          expect(colonnes.map((c) => c.variable))
-            .have.lengthOf(1)
-            .and.to.have.members([idsVariables[1]]);
+          const variablesDesColonnes = colonnes.map((c) => c.variable)
+          expect(variablesDesColonnes).toHaveLength(1)
+          expect(variablesDesColonnes).toEqual(expect.arrayContaining([idsVariables[1]]));
         });
       });
 
@@ -314,7 +321,8 @@ typesClients.forEach((type) => {
             idColonne: colonnes[0].id,
             val: true,
           });
-          expect(indexes).toHaveLength(1).and.to.have.members([colonnes[0].id]);
+          expect(indexes).toHaveLength(1)
+          expect(indexes).toEqual(expect.arrayContaining([colonnes[0].id]));
         });
 
         test("Effacer l'index", async () => {
@@ -384,14 +392,15 @@ typesClients.forEach((type) => {
           await attendreRésultat(résultats, "règles", (r) => r.length === 2);
 
           expect(isArray(résultats.règles)).toBe(true);
-          expect(XYZ).toHaveLength(2);
+          expect(résultats.règles).toHaveLength(2);
           for (const r of résultats.règles) {
             expect(r.règle.règle.typeRègle).toEqual("catégorie");
           }
         });
 
         test("Aucune erreur pour commencer", async () => {
-          expect(résultats.erreurs).to.be.an.empty("array");
+          expect(isArray(résultats.erreurs)).toBe(true)
+          expect(résultats.règles).toHaveLength(0);
         });
 
         test("Ajouter des données valides", async () => {
@@ -402,7 +411,8 @@ typesClients.forEach((type) => {
               [idColonneNumérique]: 123,
             },
           });
-          expect(résultats.erreurs).to.be.an.empty("array");
+          expect(isArray(résultats.erreurs)).toBe(true)
+          expect(résultats.règles).toHaveLength(0);
         });
 
         test("Ajouter des données de catégorie invalide", async () => {
@@ -413,9 +423,9 @@ typesClients.forEach((type) => {
             },
           });
 
-          expect(empreinte).to.be.a.string;
+          expect(typeof empreinte).toEqual("string");
           expect(isArray(résultats.erreurs)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(résultats.erreurs).toHaveLength(1);
           expect(
             résultats.erreurs[0].erreur.règle.règle.règle.typeRègle
           ).toEqual("catégorie");
@@ -653,7 +663,8 @@ typesClients.forEach((type) => {
             idColonne: idColonneTempMin,
             règle,
           });
-          expect(isArray(err.eurs)).toBe(true).of.length(2);
+          expect(isArray(err.eurs)).toBe(true)
+          expect(err.eurs).toHaveLength(2);
         });
 
         test("Ajout colonne réf détectée", async () => {
@@ -944,17 +955,16 @@ typesClients.forEach((type) => {
         test("Suivre variables", () => {
           expect(isArray(variables)).toBe(true);
 
-          expect(XYZ).toHaveLength(1).and.members([idVarChaîne]);
+          expect(variables).toHaveLength(1)
+          expect(variables).toEqual(expect.arrayContaining([idVarChaîne]));
         });
         test("Suivre colonnes", () => {
           expect(colonnes).toBeUndefined;
         });
         test("Suivre colonnes sans catégorie", () => {
           expect(isArray(colonnesSansCatégorie)).toBe(true);
-
-          expect(XYZ)
-            .toHaveLength(1)
-            .and.deep.members([{ id: idColonne, variable: idVarChaîne }]);
+          expect(colonnesSansCatégorie).toHaveLength(1)
+          expect(colonnesSansCatégorie).toEqual(expect.arrayContaining([{ id: idColonne, variable: idVarChaîne }]));
         });
         test("Ajouter données", async () => {
           await client.tableaux!.ajouterÉlément({
@@ -964,7 +974,7 @@ typesClients.forEach((type) => {
             },
           });
           expect(isArray(données)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(données).toHaveLength(1);
           expect(données[0].données[idColonne]).toEqual("Bonjour !");
         });
       });
@@ -1087,13 +1097,13 @@ typesClients.forEach((type) => {
 
         it("Les colonnes sont copiées", async () => {
           expect(isArray(colonnes)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(colonnes).toHaveLength(1);
           expect(colonnes[0].variable).toEqual(idVariable);
         });
 
         it("Les indexes sont copiés", async () => {
           expect(isArray(colsIndexe)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(colsIndexe).toHaveLength(1);
           expect(colsIndexe[0]).toEqual(idColonne);
         });
 
@@ -1106,13 +1116,13 @@ typesClients.forEach((type) => {
 
         it("Les variables sont copiés", async () => {
           expect(isArray(variables)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(variables).toHaveLength(1);
           expect(variables[0]).toEqual(idVariable);
         });
 
         it("Les données sont copiés", async () => {
           expect(isArray(données)).toBe(true);
-          expect(XYZ).toHaveLength(1);
+          expect(données).toHaveLength(1);
           expect(données[0].données[colonnes[0].id]).toEqual(123);
         });
       });
@@ -1242,7 +1252,7 @@ typesClients.forEach((type) => {
 
         test("Données manquantes ajoutées", async () => {
           expect(isArray(données)).toBe(true);
-          expect(XYZ).toHaveLength(4);
+          expect(données).toHaveLength(4);
           expect(
             données
               .map((d) => d.données)
@@ -1250,7 +1260,7 @@ typesClients.forEach((type) => {
                 delete d.id;
                 return d;
               })
-          ).toEqual([
+          ).toEqual(expect.arrayContaining([
             {
               [idsCols[idVarEndroit]]: "ici",
               [idsCols[idVarDate]]: "2021-01-01",
@@ -1272,7 +1282,7 @@ typesClients.forEach((type) => {
               [idsCols[idVarDate]]: "2021-01-02",
               [idsCols[idVarTempMin]]: 27,
             },
-          ]);
+          ]));
         });
       });
 
@@ -1368,7 +1378,7 @@ typesClients.forEach((type) => {
 
         it("Données importées correctement", async () => {
           expect(isArray(données)).toBe(true);
-          expect(XYZ).toHaveLength(2);
+          expect(données).toHaveLength(2);
           expect(
             données
               .map((d) => d.données)
@@ -1535,13 +1545,13 @@ typesClients.forEach((type) => {
         });
 
         it("Les fichiers SFIP sont détectés", async () => {
-          expect(fichiersSFIP.size).equal(1);
-          expect(fichiersSFIP).to.have.deep.keys([
+          expect(fichiersSFIP.size).toEqual(1);
+          expect(fichiersSFIP).toEqual(new Set([
             {
               cid: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ",
               ext: "mp4",
             },
-          ]);
+          ]));
         });
 
         it("Exporter avec ids des colonnes et du tableau", async () => {
