@@ -9,11 +9,11 @@ import ClientConstellation from "@/client";
 import { MAX_TAILLE_IMAGE } from "@/profil";
 import { schémaFonctionOublier } from "@/utils";
 
-import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
+import { générerClients, typesClients, attendreRésultat, dirRessourcesTests } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("Profil", function () {
       jest.setTimeout(config.timeout);
 
@@ -84,7 +84,7 @@ typesClients.forEach((type) => {
 
         test("Pas de noms pour commencer", async () => {
           await attendreRésultat(rés, "ultat");
-          expect(rés.ultat).toHaveLength(0);
+          expect(Object.keys(rés.ultat!)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -122,7 +122,7 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
 
         const IMAGE = fs.readFileSync(
-          path.resolve(path.dirname(""), "tests/_ressources/logo.svg")
+          path.join(dirRessourcesTests(), "logo.svg")
         );
 
         beforeAll(async () => {
@@ -138,7 +138,7 @@ typesClients.forEach((type) => {
         test("Ajouter une image", async () => {
           await client.profil!.sauvegarderImage({ image: IMAGE });
           await attendreRésultat(rés, "ultat", (v: unknown) => Boolean(v));
-          expect(rés.ultat).toEqual(new Uint8Array(IMAGE));
+          expect(rés.ultat).toEqual(IMAGE);
         });
 
         test("Effacer l'image", async () => {
@@ -147,11 +147,11 @@ typesClients.forEach((type) => {
         });
 
         test("Ajouter une image trop grande", async () => {
-          expect(()=>
+          await expect(()=>
             client.profil!.sauvegarderImage({
               image: Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 }),
             })
-          ).toThrow();
+          ).rejects.toThrow();
         });
 
         afterAll(async () => {
