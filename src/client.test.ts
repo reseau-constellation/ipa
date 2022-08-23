@@ -396,7 +396,7 @@ describe("Client Constellation", function () {
     });
 
     it("`{}` est retourné si la clef n'existe pas", async () => {
-      expect(données).toHaveLength(0);
+      expect(Object.keys(données)).toHaveLength(0);
     });
 
     it("Les données sont retournés en format objet", async () => {
@@ -405,7 +405,7 @@ describe("Client Constellation", function () {
       >({ id: idBdBase });
       fsOublier.push(fOublierBase);
       await bdBase.put(CLEF, idBd);
-      expect(données).toHaveLength(0);
+      expect(Object.keys(données)).toHaveLength(0);
 
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<number>>({
         id: idBd,
@@ -992,7 +992,7 @@ describe("Client Constellation", function () {
       });
 
       it("Ajout d'une branche ou deux", async () => {
-        expect(() => fSuivre([{ nom: "abc" }])).toThrow();
+        await expect(() => fSuivre([{ nom: "abc" }])).rejects.toThrow();
       });
     });
   });
@@ -1066,13 +1066,11 @@ describe("Client Constellation", function () {
     });
     test("On télécharge le fichier du SFIP", async () => {
       const données = await client.obtFichierSFIP({ id: cid });
-      expect(données).toBeNull();
       expect(new TextDecoder().decode(données!)).toEqual(texte);
     });
     test("On télécharge le fichier en tant qu'itérable", async () => {
       const flux = client.obtItérableAsyncSFIP({ id: cid });
       const données = await toBuffer(flux);
-      expect(données).toBeNull();
       expect(new TextDecoder().decode(données!)).toEqual(texte);
     });
   });
