@@ -12,7 +12,7 @@ import { peutÉcrire, attendreSync, générerOrbites } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 describe("Contrôleur Constellation", function () {
-  jest.setTimeout(config.timeout);
+  jest.setTimeout(config.timeout * 2);
 
   let fOublierOrbites: () => Promise<void>;
   let orbites: OrbitDB[];
