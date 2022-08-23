@@ -1,3 +1,5 @@
+import { jest } from "@jest/globals";
+import { config } from "@/utilsTests/sfipTest";
 
 
 import { enregistrerContrôleurs } from "@/accès";
@@ -20,6 +22,8 @@ import { générerClients, typesClients } from "@/utilsTests";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Rechercher variables", function () {
+      jest.setTimeout(config.timeout);
+
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -182,7 +186,7 @@ typesClients.forEach((type) => {
           expect(résultat).toEqual({
             type: "résultat",
             clef: "fr",
-            de: "nom",
+            de: "descr",
             info: {
               type: "texte",
               début: 0,
