@@ -187,6 +187,7 @@
     "testMatch": [
       "**/*.test.ts"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globalTeardown": "<rootDir>/src/utilsTests/nettoyerTests.ts"
   }
 }
