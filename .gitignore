@@ -7,7 +7,7 @@ node_modules
 /.nyc_output
 /.vscode
 /_stockageTemp
-/tests/_temp
+/src/utilsTests/_tempo
 
 .yarn/*
 !.yarn/cache
