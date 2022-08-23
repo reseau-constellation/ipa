@@ -2,7 +2,7 @@ import Ctl from "ipfsd-ctl";
 import { NodeType } from "ipfsd-ctl/dist/src/types";
 
 export const config = {
-  timeout: 30000
+  timeout: 45000
 };
 
 export const startIpfs = async (dossier = "") => {
@@ -13,22 +13,23 @@ export const startIpfs = async (dossier = "") => {
     ipfsModule: await import("ipfs"),
     ipfsOptions: {
       repo: dossier,
-        // @ts-ignore
+      config: {
         Addresses: {
-          API: "/ip4/127.0.0.1/tcp/0",
-          Swarm: ["/ip4/0.0.0.0/tcp/0"],
-          Gateway: "/ip4/0.0.0.0/tcp/0",
+          API: '/ip4/127.0.0.1/tcp/0',
+          Swarm: ['/ip4/0.0.0.0/tcp/0'],
+          Gateway: '/ip4/0.0.0.0/tcp/0'
         },
         Bootstrap: [],
         Discovery: {
           MDNS: {
             Enabled: true,
-            Interval: 0,
+            Interval: 0
           },
           webRTCStar: {
-            Enabled: false,
-          },
-      },
+            Enabled: false
+          }
+        }
+      }
     },
   };
 
