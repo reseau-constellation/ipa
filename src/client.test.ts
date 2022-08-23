@@ -38,7 +38,7 @@ describe("adresseOrbiteValide", function () {
 });
 
 describe("Client Constellation", function () {
-  jest.setTimeout(config.timeout);
+  jest.setTimeout(config.timeout * 2);
 
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
@@ -77,6 +77,7 @@ describe("Client Constellation", function () {
     idOrbite1 = await client.obtIdOrbite();
     idOrbite3 = await client3.obtIdOrbite();
     idOrbite4 = await client3.obtIdOrbite();
+
   });
 
   afterAll(async () => {
