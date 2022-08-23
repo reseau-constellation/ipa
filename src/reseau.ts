@@ -1046,7 +1046,7 @@ export default class Réseau extends EventEmitter {
   }): Promise<schémaRetourFonctionRecherche> {
     // console.log("suivreComptesRéseau", { f, idCompteDébut });
     const fSuivi = (relations: infoRelation[]) => {
-      // Ajouter soi-même
+      // S'ajouter soi-même
       relations.push({
         de: this.client!.idBdCompte!,
         pour: this.client!.idBdCompte!,
