@@ -155,7 +155,7 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>({
           const idsColonnes = Object.values(varsÀColonnes);
 
           if (règle.source === "tableau" && !idsColonnes.includes(val)) {
-            fComp = (_: élémentDonnées<T>) => false;
+            fComp = (_: élémentDonnées<T>) => true;
           } else {
             fComp = (v: élémentDonnées<T>) =>
               fOp(
