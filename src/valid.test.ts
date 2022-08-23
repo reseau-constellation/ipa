@@ -11,6 +11,7 @@ import {
   typeOp,
 } from "@/valid";
 import { catégorieVariables } from "@/variables";
+import isArray from "lodash/isArray";
 
 const catégories: {
   [key in catégorieVariables]: {
@@ -188,7 +189,7 @@ describe("Validation", function () {
           },
         ]);
         expect(isArray(erreurs)).toBe(true);
-        expect(XYZ).toHaveLength(1);
+        expect(erreurs).toHaveLength(1);
         expect(erreurs[0].empreinte).toEqual(empreinte);
         expect(erreurs[0].erreur.règle).toEqual(règle);
       });
@@ -228,9 +229,8 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(XYZ).toHaveLength(1);
         expect(isArray(erreurs)).toBe(true);
-        expect(XYZ).toHaveLength(1);
+        expect(erreurs).toHaveLength(1);
         expect(erreurs[0].empreinte).toEqual(empreinte);
         expect(erreurs[0].erreur.règle).toEqual(règle);
       });
@@ -304,10 +304,9 @@ describe("Validation", function () {
                   données: { "col numérique": v },
                   empreinte,
                 },
-                expect(XYZ).toHaveLength(1),
               ]);
-              expect(XYZ).toHaveLength(1);
-              expect(isArray(erreurs)).toBe(true).with.lengthOf(1);
+              expect(isArray(erreurs)).toBe(true);
+              expect(erreurs).toHaveLength(1);
               expect(erreurs[0].empreinte).toEqual(empreinte);
               expect(erreurs[0].erreur.règle).toEqual(règle);
             });
@@ -317,7 +316,7 @@ describe("Validation", function () {
 
       describe("Bornes selon une autre variable", () => {
         const règle: règleColonne<règleBornes> = {
-          source: "tableau",
+          source: "variable",
           colonne: "temp max",
           règle: {
             id: uuidv4(),
@@ -336,7 +335,8 @@ describe("Validation", function () {
             "var temp min": "temp min",
           },
         });
-        const empreinte = uuidv4();
+        const empreinte = uuidv4();  // Pas important
+
         it("Pas d'erreur si la colonne n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp min": 1 }, empreinte }]);
           expect(isArray(erreurs)).toBe(true);
@@ -399,12 +399,12 @@ describe("Validation", function () {
         expect(isArray(erreurs)).toBe(true);
         expect(erreurs).toHaveLength(0);
       });
-      expect(XYZ).toHaveLength(1);
+
       it("Erreur si non valide", () => {
-        expect(XYZ).toHaveLength(1);
         const erreurs = fonc([{ données: { "col chaîne": "d" }, empreinte }]);
 
-        expect(isArray(erreurs)).toBe(true).with.lengthOf(1);
+        expect(isArray(erreurs)).toBe(true);
+        expect(erreurs).toHaveLength(1);
         expect(erreurs[0].empreinte).toEqual(empreinte);
         expect(erreurs[0].erreur.règle).toEqual(règle);
       });
