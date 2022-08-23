@@ -1,4 +1,4 @@
-
+import { jest } from "@jest/globals";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
@@ -23,10 +23,14 @@ import {
 } from "@/recherche/projet";
 
 import { générerClients, typesClients } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest"
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
+    jest.setTimeout(config.timeout)
+
     describe("Rechercher projets", function () {
+
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
