@@ -55,9 +55,8 @@ export class EncryptionParDéfaut implements Encryption {
     message: string;
     clefPubliqueExpéditeur: string;
   }): string {
-    const { data } = JSON.parse(message);
     return asymmetric.decrypt({
-      cipher: data,
+      cipher: message,
       recipientSecretKey: this.clefs.secrète,
       senderPublicKey: clefPubliqueExpéditeur,
     });
