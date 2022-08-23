@@ -1,7 +1,8 @@
-
 import fs from "fs";
 import path from "path";
 import FeedStore from "orbit-db-feedstore";
+import { jest } from "@jest/globals";
+import { config } from "@/utilsTests/sfipTest";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
@@ -23,9 +24,11 @@ import {
 } from "@/recherche/utils";
 
 
-import { générerClients } from "@/utilsTests";
+import { générerClients, dirRessourcesTests } from "@/utilsTests";
 
 describe("Utils recherche", function () {
+  jest.setTimeout(config.timeout);
+  
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation;
@@ -173,12 +176,12 @@ describe("Utils recherche", function () {
     });
   });
 
-  describe.skip("Simil image", async function () {
+  describe.skip("Simil image", function () {
     const IMAGE = fs.readFileSync(
-      path.resolve(path.dirname(""), "tests/_ressources/logo.png")
+      path.join(dirRessourcesTests(), "logo.png")
     );
     const IMAGE2 = fs.readFileSync(
-      path.resolve(path.dirname(""), "tests/_ressources/logo2.png")
+      path.join(dirRessourcesTests(), "logo2.png")
     );
 
     it("Pas d'image réf", () => {
