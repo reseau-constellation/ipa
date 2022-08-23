@@ -84,17 +84,17 @@ typesClients.forEach((type) => {
       describe("Épingler BDs", function () {
         let idBd: string;
 
-        let favoris: ÉlémentFavorisAvecObjet[];
+        const favo: {ris?: ÉlémentFavorisAvecObjet[]} = {};
         let épingleBd: épingleDispositif;
 
         const fsOublier: schémaFonctionOublier[] = [];
 
-        beforeEach(async () => {
+        beforeAll(async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
           fsOublier.push(
             await client.favoris!.suivreFavoris({
-              f: (favs) => (favoris = favs),
+              f: (favs) => (favo.ris = favs),
             })
           );
           fsOublier.push(
@@ -105,13 +105,13 @@ typesClients.forEach((type) => {
           );
         });
 
-        afterEach(() => {
+        afterAll(() => {
           fsOublier.forEach((f) => f());
         });
 
         test("Pas de favori pour commencer", async () => {
-          expect(isArray(favoris)).toBe(true);
-          expect(favoris).toHaveLength(0);
+          expect(isArray(favo.ris)).toBe(true);
+          expect(favo.ris).toHaveLength(0);
         });
 
         test("Ajouter un favori", async () => {
@@ -119,11 +119,11 @@ typesClients.forEach((type) => {
             id: idBd,
             dispositifs: "TOUS",
           });
-          expect(isArray(favoris)).toBe(true);
+          expect(isArray(favo.ris)).toBe(true);
 
-          expect(favoris)
+          expect(favo.ris)
             .toHaveLength(1)
-          expect(favoris).toEqual([
+          expect(favo.ris).toEqual([
               {
                 récursif: true,
                 dispositifs: "TOUS",
@@ -141,7 +141,9 @@ typesClients.forEach((type) => {
 
         test("Enlever un favori", async () => {
           await client.favoris!.désépinglerFavori({ id: idBd });
-          expect(favoris).toHaveLength(0);
+          // await attendreRésultat(favo, "ris", x=>x.length===0);
+
+          expect(favo.ris).toHaveLength(0);
           expect(épingleBd).toEqual({
             idObjet: idBd,
             bd: false,
