@@ -4,6 +4,7 @@ import { startIpfs, stopIpfs, config } from "./sfipTest";
 import { jest } from "@jest/globals";
 
 import { once } from "events";
+import path from "path";
 import rmrf from "rimraf";
 import { v4 as uuidv4 } from "uuid";
 import OrbitDB from "orbit-db";
@@ -14,9 +15,20 @@ import fs from "fs";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation from "@/client";
-import { schémaFonctionOublier } from "@/utils";
 import générerProxyProc from "@/proxy/ipaProc";
 import générerProxyTravailleur from "@/proxy/ipaTravailleur";
+
+export const dirRessourcesTests = (): string => {
+  return path.resolve(path.dirname(""), "src", "utilsTests", "ressources");
+}
+
+export const dirTempoTests = (): string => {
+  return path.resolve(path.dirname(""), "src", "utilsTests", "_tempo");
+}
+
+export const obtDirTempoPourTest = (nom?: string): string => {
+  return path.resolve(dirTempoTests(), (nom || "") + uuidv4())
+}
 
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   new Promise<void>((resolve) => {
@@ -141,13 +153,13 @@ export const générerOrbites = async (
   const sfips: Controller["api"][] = [];
   const orbites: OrbitDB[] = [];
 
-  const racineDossierOrbite = "./tests/_temp/" + uuidv4();
+  const racineDossierOrbite = obtDirTempoPourTest("orbite");
 
   rmrf.sync(racineDossierOrbite);
 
   for (const i in [...Array(n).keys()]) {
     const racineDossier = `${racineDossierOrbite}/sfip_${i}`;
-    const dsfip = await startIpfs(config.daemon1);
+    const dsfip = await startIpfs(racineDossier);
     const sfip = dsfip.api;
     const orbite = await OrbitDB.createInstance(sfip, {
       directory: racineDossier,
@@ -189,7 +201,7 @@ export const générerClients = async (
   jest.setTimeout(config.timeout);
 
   const clients: ClientConstellation[] = [];
-  const fsOublier: schémaFonctionOublier[] = [];
+  const fsOublier: (()=>Promise<void>)[] = [];
 
   if (type === "directe" || type == "proc") {
     const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n);
@@ -230,11 +242,11 @@ export const générerClients = async (
 
   const fOublier = async () => {
     await Promise.all(
-      clients.map(async (client) => {
-        await client.fermer();
-      })
+      clients.map(client => client.fermer())
     );
-    fsOublier.forEach((f) => f());
+    await Promise.all(
+      fsOublier.map(f => f())
+    );
   };
   return { fOublier, clients };
 };
