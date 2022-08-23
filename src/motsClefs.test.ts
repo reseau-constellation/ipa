@@ -114,7 +114,7 @@ typesClients.forEach((type) => {
 
         test("Pas de noms pour commencer", async () => {
           await attendreRésultat(rés, "ultat");
-          expect(rés.ultat).toHaveLength(0);
+          expect(Object.keys(rés.ultat!)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
