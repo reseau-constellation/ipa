@@ -1067,8 +1067,8 @@ export default class ClientConstellation extends EventEmitter {
     idBd: string;
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
-    const obtTêteBd = (bd: Store): string => {
-      const tête = bd._oplog.heads[bd._oplog.heads.length - 1].hash;
+    const obtTêteBd = (bd: Store): string | undefined => {
+      const tête = bd._oplog.heads[bd._oplog.heads.length - 1]?.hash;
       return tête;
     };
     const calculerEmpreinte = (texte: string) =>
@@ -1093,7 +1093,10 @@ export default class ClientConstellation extends EventEmitter {
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBd({
         id,
-        f: (bd) => fSuivreBranche(obtTêteBd(bd)),
+        f: (bd) => {
+          const tête = obtTêteBd(bd)
+          if (tête) fSuivreBranche(tête)
+        },
       });
     };
 
