@@ -44,7 +44,7 @@ typesClients.forEach((type) => {
         test("Pas d'épingles pour commencer", async () => {
           const épingles = client.épingles!.épingles();
           expect(isSet(épingles)).toBe(true);
-          expect(épingles).toHaveLength(0);
+          expect(épingles.size).toEqual(0);
         });
         test("Ajouter une épingle", async () => {
           await client.épingles!.épinglerBd({ id: idBd });
@@ -52,7 +52,7 @@ typesClients.forEach((type) => {
           const épingles = client.épingles!.épingles();
           expect(isSet(épingles)).toBe(true);
 
-          expect(épingles).toHaveLength(1)
+          expect(épingles.size).toEqual(1)
           expect(épingles).toContain(idBd);
         });
         test("Enlever une épingle", async () => {
@@ -60,7 +60,7 @@ typesClients.forEach((type) => {
 
           const épingles = client.épingles!.épingles();
           expect(isSet(épingles)).toBe(true);
-          expect(épingles).toHaveLength(0);
+          expect(épingles.size).toEqual(0);
         });
       });
 
@@ -91,15 +91,15 @@ typesClients.forEach((type) => {
 
           const épingles = client.épingles!.épingles();
 
-          expect([...épingles]).toHaveLength(2)
-          expect([...épingles]).toEqual(expect.arrayContaining([idBdListe, idBdAutre]));
+          expect(épingles.size).toEqual(2);
+          expect(épingles).toEqual(new Set([idBdListe, idBdAutre]));
         });
 
         test("Désépingler liste récursive", async () => {
           await client.épingles!.désépinglerBd({ id: idBdListe });
           const épingles = client.épingles!.épingles();
           expect(isSet(épingles)).toBe(true);
-          expect(épingles).toHaveLength(0);
+          expect(épingles.size).toEqual(0);
         });
 
         test("Épingler dic récursif", async () => {
@@ -125,7 +125,7 @@ typesClients.forEach((type) => {
         test("Désépingler dic récursif", async () => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
           const épingles = client.épingles!.épingles();
-          expect(épingles).toHaveLength(0);
+          expect(épingles.size).toEqual(0);
         });
 
         test("BD ajoutée individuellement est toujours là", async () => {
@@ -134,7 +134,7 @@ typesClients.forEach((type) => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
 
           const épingles = client.épingles!.épingles();
-          expect(épingles).toHaveLength(1)
+          expect(épingles.size).toEqual(1)
           expect(épingles).toContain(idBdAutre);
         });
       });
