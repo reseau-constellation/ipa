@@ -5,6 +5,9 @@ import path from "path";
 
 import ImportateurFeuilleCalcul from "@/importateur/xlsx";
 
+import { dirRessourcesTests } from "@/utilsTests";
+
+
 describe("XLSX", function () {
   describe("Importateur XLSX", function () {
     let importateur: ImportateurFeuilleCalcul;
@@ -12,7 +15,7 @@ describe("XLSX", function () {
     beforeAll(async () => {
       // Données de https://covid.ourworldindata.org/data/owid-covid-data.json
       const doc = XLSX.readFile(
-        path.resolve(path.dirname(""), "tests/_ressources/donnéesTest.json")
+        path.join(dirRessourcesTests(), "donnéesTest.ods")
       );
       importateur = new ImportateurFeuilleCalcul(doc);
     });

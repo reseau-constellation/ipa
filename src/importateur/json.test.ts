@@ -1,4 +1,3 @@
-
 import isArray from "lodash/isArray";
 
 import fs from "fs";
@@ -9,6 +8,8 @@ import ImportateurDonnéesJSON, {
   aplatirDonnées,
   élément,
 } from "@/importateur/json";
+
+import { dirRessourcesTests } from "@/utilsTests";
 
 describe("JSON", function () {
   describe("Extraire données", function () {
@@ -152,7 +153,7 @@ describe("JSON", function () {
       const donnéesJSON = JSON.parse(
         (
           await fs.promises.readFile(
-            path.resolve(path.dirname(""), "tests/_ressources/donnéesTest.json")
+            path.join(dirRessourcesTests(), "donnéesTest.json")
           )
         ).toString()
       );
