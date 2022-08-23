@@ -205,11 +205,12 @@ export const générerClients = async (
 
   if (type === "directe" || type == "proc") {
     const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n);
+    fsOublier.push(fOublierOrbites);
+
     for (const i in [...Array(n).keys()]) {
       let client: ClientConstellation;
       switch (type) {
         case "directe": {
-          fsOublier.push(fOublierOrbites);
           client = await ClientConstellation.créer({
             orbite: orbites[i],
           });
@@ -217,7 +218,6 @@ export const générerClients = async (
         }
 
         case "proc": {
-          fsOublier.push(fOublierOrbites);
           client = générerProxyProc({ orbite: orbites[i] }, true);
           break;
         }
