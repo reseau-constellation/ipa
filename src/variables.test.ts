@@ -1,16 +1,19 @@
 import isArray from "lodash/isArray";
+import { jest } from "@jest/globals";
 
-import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import { catégorieVariables } from "@/variables";
 import { schémaFonctionOublier } from "@/utils";
 import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid";
 
 import { générerClients, typesClients } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Variables", function () {
+      jest.setTimeout(config.timeout);
+
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -18,7 +21,6 @@ typesClients.forEach((type) => {
       let idVariable: string;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type
@@ -112,7 +114,7 @@ typesClients.forEach((type) => {
         });
 
         test("Pas de noms pour commencer", async () => {
-          expect(noms).toHaveLength(0);
+          expect(Object.keys(noms)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -173,7 +175,7 @@ typesClients.forEach((type) => {
         });
 
         test("Pas de descriptions pour commencer", async () => {
-          expect(descrs).toHaveLength(0);
+          expect(Object.keys(descrs)).toHaveLength(0);
         });
 
         test("Ajouter une description", async () => {
@@ -464,10 +466,10 @@ typesClients.forEach((type) => {
               catégorie: "numérique",
             },
           };
-          expect(règles.map((r) => r.règle)).toEqual([
+          expect(règles.map((r) => r.règle)).toEqual(expect.arrayContaining([
             règle,
             règleCatégorie,
-          ]);
+          ]));
         });
 
         it("Les unités sont copiés", async () => {
