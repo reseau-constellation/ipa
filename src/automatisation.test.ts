@@ -1,12 +1,12 @@
+import { jest } from "@jest/globals";
+
 import fs from "fs";
 import path from "path";
 import XLSX, { WorkBook } from "xlsx";
 import AdmZip from "adm-zip";
 import tmp from "tmp";
 import rmrf from "rimraf";
-import { v4 as uuid } from "uuid";
 
-import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx";
 import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
@@ -30,8 +30,9 @@ import {
   attendreFichierExiste,
   attendreFichierModifié,
   attendreRésultat,
-} from "./utilsTests";
-
+  obtDirTempoPourTest,
+} from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 const vérifierDonnéesTableau = (
   doc: string | WorkBook,
@@ -116,12 +117,13 @@ const comparerDonnéesTableau = (
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Automatisation", function () {
+      jest.setTimeout(config.timeout);
+
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type
@@ -131,27 +133,19 @@ typesClients.forEach((type) => {
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
-        rmrf.sync(path.resolve(path.dirname(""), "tests", "_temp"));
       });
 
       describe("Importation", function () {
+
         let idTableau: string;
         let idCol1: string;
         let idCol2: string;
-        let dir: string;
 
+        const dirTempo = obtDirTempoPourTest("testImporterBd")
         const rés: { ultat?: élémentDonnées<élémentBdListeDonnées>[] } = {};
         const fsOublier: schémaFonctionOublier[] = [];
 
-        beforeEach(async () => {
-          dir = path.resolve(
-            path.dirname(""),
-            "tests",
-            "_temp",
-            "testImporterBd",
-            uuid()
-          );
-          fs.mkdirSync(dir, { recursive: true });
+        beforeAll(async () => {
 
           idTableau = await client.tableaux!.créerTableau();
           const idVar1 = await client.variables!.créerVariable({
@@ -178,14 +172,14 @@ typesClients.forEach((type) => {
           );
         });
 
-        afterEach(async () => {
+        afterAll(async () => {
           fsOublier.forEach((f) => f());
-          rmrf.sync(dir);
+          rmrf.sync(dirTempo);
           delete rés["ultat"];
         });
 
         it("Importer de fichier JSON", async () => {
-          const fichierJSON = path.join(dir, "données.json");
+          const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -225,7 +219,7 @@ typesClients.forEach((type) => {
         });
 
         it("Importer de fichier tableau", async () => {
-          const fichierFeuilleCalcul = path.join(dir, "données.ods");
+          const fichierFeuilleCalcul = path.join(dirTempo, "données.ods");
 
           const données = XLSX.utils.book_new();
           const tableau = XLSX.utils.json_to_sheet([
@@ -350,7 +344,7 @@ typesClients.forEach((type) => {
         });
 
         it("Importation selon changements", async () => {
-          const fichierJSON = path.join(dir, "données.json");
+          const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -394,7 +388,7 @@ typesClients.forEach((type) => {
         });
 
         it("Importation selon fréquence", async () => {
-          const fichierJSON = path.join(dir, "données.json");
+          const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -454,12 +448,7 @@ typesClients.forEach((type) => {
         let idBd: string;
         let idProjet: string;
 
-        const dir = path.resolve(
-          path.dirname(""),
-          "tests",
-          "_temp",
-          "testExporterBd"
-        );
+        const dir = obtDirTempoPourTest("testExporterBd");
 
         beforeAll(async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
@@ -521,6 +510,7 @@ typesClients.forEach((type) => {
                 })
             )
           );
+          rmrf.sync(dir);
         });
 
         test("Exportation tableau", async () => {
@@ -646,13 +636,9 @@ typesClients.forEach((type) => {
           autos?: SpécificationAutomatisation[];
         } = {};
         const fsOublier: schémaFonctionOublier[] = [];
-        const dir = path.resolve(
-          path.dirname(""),
-          "tests",
-          "_temp/testExporterBd"
-        );
+        const dir = obtDirTempoPourTest("testExporterBd");
 
-        beforeEach(async () => {
+        beforeAll(async () => {
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
               f: (états) => (rés.états = états),
@@ -699,7 +685,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        afterEach(async () => {
+        afterAll(async () => {
           fsOublier.forEach((f) => f());
           const automatisations = await uneFois(
             async (
@@ -829,7 +815,7 @@ typesClients.forEach((type) => {
         } = {};
         const fsOublier: schémaFonctionOublier[] = [];
 
-        beforeEach(async () => {
+        beforeAll(async () => {
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
               f: (états) => (rés.états = états),
@@ -841,13 +827,7 @@ typesClients.forEach((type) => {
             })
           );
 
-          dir = path.resolve(
-            path.dirname(""),
-            "tests",
-            "_temp",
-            "testExporterBd",
-            uuid()
-          );
+          dir = path.join(obtDirTempoPourTest("testExporterBd"));
 
           fs.mkdirSync(dir, { recursive: true });
 
@@ -869,7 +849,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        afterEach(async () => {
+        afterAll(async () => {
           fsOublier.forEach((f) => f());
           rmrf.sync(dir);
           delete rés["états"];

@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from "uuid";
 import { jest } from "@jest/globals";
 import assert from "assert";
 
-import { enregistrerContrôleurs } from "@/accès";
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
 
@@ -25,7 +24,6 @@ describe("Contrôleur Constellation", function () {
   beforeAll(async () => {
     ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(4));
     [orbitdb1, orbitdb2, orbitdb3, orbitdb4] = orbites;
-    enregistrerContrôleurs();
   });
 
   afterAll(async () => {
@@ -86,7 +84,7 @@ describe("Contrôleur Constellation", function () {
       let bd: KeyValueStore<number>;
       let bdOrbite2: KeyValueStore<number>;
 
-      beforeEach(async () => {
+      beforeAll(async () => {
         bdRacine = await orbitdb1.kvstore(uuidv4(), {
           accessController: {
             type: "controlleur-constellation",
@@ -194,7 +192,7 @@ describe("Contrôleur Constellation", function () {
         }
       });
 
-      afterEach(async () => {
+      afterAll(async () => {
         await bd.close();
         if (bdOrbite2) await bdOrbite2.close();
       });
