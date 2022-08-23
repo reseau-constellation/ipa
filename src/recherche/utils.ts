@@ -121,12 +121,14 @@ export const sousRecherche = async <T extends infoRésultat>(
 ): Promise<schémaFonctionOublier> => {
   const fBranche = async (
     idBd: string,
-    f: (x: { id: string; résultat?: résultatObjectifRecherche<T> }) => void
+    f: (x: { id: string; résultat: résultatObjectifRecherche<T> }) => void
   ): Promise<schémaFonctionOublier> => {
     return await fRechercher(
       client,
       idBd,
-      (résultat?: résultatObjectifRecherche<T>) => f({ id: idBd, résultat })
+      (résultat?: résultatObjectifRecherche<T>) => {
+        if (résultat) f({ id: idBd, résultat })
+      }
     );
   };
   const fFinale = (
