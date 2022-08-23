@@ -137,21 +137,23 @@ export const sousRecherche = async <T extends infoRésultat>(
   ) => {
     const meilleur = meilleurRésultat<T>(résultats);
 
-    const résultat: résultatObjectifRecherche<infoRésultatRecherche<T>> = {
-      type: "résultat",
-      de,
-      clef: meilleur.id,
-      score: meilleur.résultat.score,
-      info: {
+    if (meilleur){
+      const résultat: résultatObjectifRecherche<infoRésultatRecherche<T>> = {
         type: "résultat",
-        de: meilleur.résultat.de,
-        info: meilleur.résultat.info,
-      },
-    };
-    if (meilleur.résultat.clef) {
-      résultat.info.clef = meilleur.résultat.clef;
+        de,
+        clef: meilleur.id,
+        score: meilleur.résultat.score,
+        info: {
+          type: "résultat",
+          de: meilleur.résultat.de,
+          info: meilleur.résultat.info,
+        },
+      };
+      if (meilleur.résultat.clef) {
+        résultat.info.clef = meilleur.résultat.clef;
+      }
+      fSuivreRecherche(résultat);
     }
-    fSuivreRecherche(résultat);
   };
 
   const fOublier = await client.suivreBdsDeFonctionListe({
@@ -192,11 +194,10 @@ const aMieuxQueB = <T extends infoRésultat>(
 
 const meilleurRésultat = <T extends infoRésultat>(
   résultats: { id: string; résultat: résultatObjectifRecherche<T> }[]
-): { id: string; résultat: résultatObjectifRecherche<T> } => {
+): { id: string; résultat: résultatObjectifRecherche<T> } | undefined => {
   const meilleur = Object.values(résultats)
     .filter((x) => x)
     .sort((a, b) => (aMieuxQueB(a.résultat, b.résultat) ? -1 : 1))[0];
-
   return meilleur;
 };
 
