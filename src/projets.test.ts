@@ -1,6 +1,8 @@
 
 import isArray from "lodash/isArray";
 
+import { jest } from "@jest/globals";
+
 import XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
@@ -11,12 +13,15 @@ import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils";
 
-import { générerClients, attendreRésultat, typesClients } from "@/utilsTests";
+import { dirRessourcesTests, obtDirTempoPourTest, générerClients, attendreRésultat, typesClients } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Projets", function () {
+      jest.setTimeout(config.timeout)
+
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -63,7 +68,7 @@ typesClients.forEach((type) => {
 
         test("Enlever de mes projets", async () => {
           await client.projets!.enleverDeMesProjets(idNouveauProjet);
-          expect(mesProjets).not.toContain([idNouveauProjet]);
+          expect(mesProjets).not.toEqual(expect.arrayContaining([idNouveauProjet]));
         });
 
         test("Ajouter à mes projets", async () => {
@@ -73,7 +78,7 @@ typesClients.forEach((type) => {
 
         test("On peut aussi l'effacer", async () => {
           await client.projets!.effacerProjet({ id: idNouveauProjet });
-          expect(mesProjets).not.toContain([idNouveauProjet]);
+          expect(mesProjets).not.toEqual(expect.arrayContaining([idNouveauProjet]));
         });
       });
 
@@ -93,7 +98,7 @@ typesClients.forEach((type) => {
         });
 
         test("Pas de noms pour commencer", async () => {
-          expect(noms).toHaveLength(0);
+          expect(Object.keys(noms)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -154,7 +159,7 @@ typesClients.forEach((type) => {
         });
 
         test("Aucune description pour commencer", async () => {
-          expect(descrs).toHaveLength(0);
+          expect(Object.keys(descrs)).toHaveLength(0);
         });
 
         test("Ajouter une description", async () => {
@@ -224,7 +229,8 @@ typesClients.forEach((type) => {
             idProjet,
             idsMotsClefs: idMotClef,
           });
-          expect(isArray(motsClefs)).toBe(true).of.length(1);
+          expect(isArray(motsClefs)).toBe(true)
+          expect(motsClefs).toHaveLength(1);
         });
         test("Effacer un mot-clef", async () => {
           await client.projets!.effacerMotClefProjet({ idProjet, idMotClef });
@@ -280,7 +286,8 @@ typesClients.forEach((type) => {
         test("Ajout d'une BD", async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
-          expect(isArray(bds)).toBe(true).of.length(1);
+          expect(isArray(bds)).toBe(true)
+          expect(bds).toHaveLength(1);
           expect(bds[0]).toEqual(idBd);
         });
 
@@ -293,7 +300,8 @@ typesClients.forEach((type) => {
 
           await attendreRésultat(rés, "motsClefs", (x) => x && x.length > 0);
 
-          expect(isArray(rés.motsClefs)).toBe(true).of.length(1);
+          expect(isArray(rés.motsClefs)).toBe(true)
+          expect(rés.motsClefs).toHaveLength(1);
           expect(rés.motsClefs![0]).toEqual(idMotClef);
         });
 
@@ -310,7 +318,8 @@ typesClients.forEach((type) => {
             idTableau,
             idVariable,
           });
-          expect(isArray(variables)).toBe(true).of.length(1);
+          expect(isArray(variables)).toBe(true)
+          expect(variables).toHaveLength(1);
           expect(variables[0]).toEqual(idVariable);
         });
 
@@ -410,10 +419,11 @@ typesClients.forEach((type) => {
           expect(descrs).toEqual(réfDescrs);
         });
         it("Les mots-clefs sont copiés", async () => {
-          expect(motsClefs).to.have.members([idMotClef]);
+          expect(motsClefs).toEqual(expect.arrayContaining([idMotClef]));
         });
         it("Les BDs sont copiées", async () => {
-          expect(isArray(bds)).toBe(true).of.length(1);
+          expect(isArray(bds)).toBe(true)
+          expect(bds).toHaveLength(1);
         });
       });
 
@@ -456,7 +466,7 @@ typesClients.forEach((type) => {
           });
 
           const OCTETS = fs.readFileSync(
-            path.resolve(path.dirname(""), "tests/_ressources/logo.svg")
+            path.join(dirRessourcesTests(), "logo.svg")
           );
           cid = await client.ajouterÀSFIP({ fichier: OCTETS });
 
@@ -490,37 +500,28 @@ typesClients.forEach((type) => {
             }));
         });
 
-        afterAll(() => {
-          rmrf.sync(path.resolve(path.dirname(""), "tests/_temp"));
-        });
-
         test("Doc créé avec toutes les bds", () => {
           expect(isArray(docs)).toBe(true);
-          expect(XYZ).toHaveLength(1);
-          expect(docs[0].doc.SheetNames)
-            .to.be.an("array")
-            .with.members([nomTableau1, nomTableau2]);
+          expect(docs).toHaveLength(1);
+          expect(isArray(docs[0].doc.SheetNames)).toBe(true);
+          expect(docs[0].doc.SheetNames).toEqual(expect.arrayContaining([nomTableau1, nomTableau2]));
           expect(docs[0].nom).toEqual("Ma BD");
         });
 
         test("Fichiers SFIP retrouvés de tous les tableaux", () => {
-          expect(fichiersSFIP.size).equal(1);
-          expect(fichiersSFIP).to.have.deep.keys([{ cid, ext: "svg" }]);
+          expect(fichiersSFIP.size).toEqual(1);
+          expect(fichiersSFIP).toContainEqual({ cid, ext: "svg" });
         });
 
         describe("Exporter document projet", function () {
-          const dirZip = path.resolve(
-            path.dirname(""),
-            "tests/_temp/testExporterProjet"
-          );
-          const fichierExtrait = path.resolve(
-            path.dirname(""),
-            "tests/_temp/testExporterProjetExtrait"
-          );
-
+          let dirZip: string;
+          let dirFichierExtrait: string;
           let nomZip: string;
 
           beforeAll(async () => {
+            dirZip = obtDirTempoPourTest("testExporterProjet")
+            dirFichierExtrait = obtDirTempoPourTest("testExporterProjetExtrait")
+
             await client.projets!.exporterDocumentDonnées({
               données: { docs, fichiersSFIP, nomFichier },
               formatDoc: "ods",
@@ -530,25 +531,29 @@ typesClients.forEach((type) => {
             nomZip = path.join(dirZip, nomFichier + ".zip");
           });
 
+          afterAll(() => {
+            rmrf.sync(dirZip);
+            rmrf.sync(dirFichierExtrait);
+          });
+
           test("Le fichier zip existe", () => {
             expect(fs.existsSync(nomZip)).toBe(true);
             const zip = new AdmZip(nomZip);
-            zip.extractAllTo(fichierExtrait, true);
-            expect(fs.existsSync(fichierExtrait)).toBe(true);
+            zip.extractAllTo(dirFichierExtrait, true);
+            expect(fs.existsSync(dirFichierExtrait)).toBe(true);
           });
 
           it("Les données sont exportées", () => {
-            expect(fs.existsSync(path.join(fichierExtrait, "Ma BD.ods"))).to.be
-              .true;
+            expect(fs.existsSync(path.join(dirFichierExtrait, "Ma BD.ods"))).toBe(true);
           });
 
           test("Le dossier pour les données SFIP existe", () => {
-            expect(fs.existsSync(path.join(fichierExtrait, "sfip"))).to.be.true;
+            expect(fs.existsSync(path.join(dirFichierExtrait, "sfip"))).toBe(true);
           });
 
           test("Les fichiers SFIP existent", () => {
             expect(
-              fs.existsSync(path.join(fichierExtrait, "sfip", cid + ".svg"))
+              fs.existsSync(path.join(dirFichierExtrait, "sfip", cid + ".svg"))
             ).toBe(true);
           });
         });
