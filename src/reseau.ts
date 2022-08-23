@@ -332,7 +332,7 @@ export default class Réseau extends EventEmitter {
     await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
   }
 
-  async demanderRejoindreCompte({
+  async envoyerDemandeRejoindreCompte({
     idCompte,
     codeSecret,
   }: {
@@ -701,7 +701,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoConfiance[]>;
     idBdCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    console.log("suivreRelationsImmédiates", { f, idBdCompte });
+    // console.log("suivreRelationsImmédiates", { f, idBdCompte });
     idBdCompte = idBdCompte ? idBdCompte : this.client.idBdCompte!;
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -894,7 +894,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreRelationsConfiance", { f, idCompteDébut });
+    // console.log("suivreRelationsConfiance", { f, idCompteDébut });
     idCompteDébut = idCompteDébut || this.client.idBdCompte;
 
     const dicRelations: { [key: string]: infoRelation[] } = {};
@@ -1044,7 +1044,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreComptesRéseau", { f, idCompteDébut });
+    // console.log("suivreComptesRéseau", { f, idCompteDébut });
     const fSuivi = (relations: infoRelation[]) => {
       // Ajouter soi-même
       relations.push({
@@ -1126,7 +1126,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreComptesRéseauEtEnLigne", { f, idCompteDébut });
+    // console.log("suivreComptesRéseauEtEnLigne", { f, idCompteDébut });
     const dicComptes: {
       réseau: infoMembreRéseau[];
       enLigne: infoMembreRéseau[];
@@ -1191,10 +1191,10 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idBdCompteRéférence?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreConfianceMonRéseauPourMembre", {
+    /* console.log("suivreConfianceMonRéseauPourMembre", {
       idBdCompte,
       idBdCompteRéférence,
-    });
+    });*/
 
     idBdCompteRéférence = idBdCompteRéférence || this.client.idBdCompte!;
 
@@ -1401,7 +1401,7 @@ export default class Réseau extends EventEmitter {
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     fScore?: (r: résultatRechercheSansScore<T>) => number;
   }): Promise<réponseSuivreRecherche> {
-    console.log("rechercher");
+    // console.log("rechercher");
     if (!fScore) {
       fScore = (x: résultatRechercheSansScore<T>): number => {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
@@ -1657,7 +1657,7 @@ export default class Réseau extends EventEmitter {
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
   }): Promise<réponseSuivreRecherche> {
-    console.log("rechercherMembres");
+    // console.log("rechercherMembres");
     const fConfiance = async (
       idCompte: string,
       fSuivi: schémaFonctionSuivi<number>
@@ -1713,7 +1713,7 @@ export default class Réseau extends EventEmitter {
     clef: string;
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
-    console.log("suivreConfianceAuteurs", { idItem, clef });
+    // console.log("suivreConfianceAuteurs", { idItem, clef });
     const fListe = async (
       fSuivreRacine: (auteurs: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
@@ -2209,7 +2209,7 @@ export default class Réseau extends EventEmitter {
     >;
     profondeur?: number;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreFavorisObjet", { idObjet, f });
+    // console.log("suivreFavorisObjet", { idObjet, f });
     const fFinale = (
       favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
     ) => {
