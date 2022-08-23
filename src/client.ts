@@ -108,6 +108,9 @@ export default class ClientConstellation extends EventEmitter {
   automatisations?: Automatisations;
   _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
 
+  _orbiteExterne: boolean;
+  _sfipExterne: boolean;
+
   prêt: boolean;
   idBdCompte?: string;
   encryption: Encryption;
@@ -122,6 +125,8 @@ export default class ClientConstellation extends EventEmitter {
     this.prêt = false;
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
+
+    this._orbiteExterne = this._sfipExterne = false;
 
     this.encryption = new EncryptionParDéfaut();
   }
@@ -164,6 +169,7 @@ export default class ClientConstellation extends EventEmitter {
 
     const _générerSFIP = async (opts?: optsInitSFIP): Promise<SFIP> => {
       if (opts?.sfip) {
+        this._sfipExterne = true;
         return opts.sfip;
       } else {
         const initSFIP = (await import("@/sfip")).default;
@@ -173,9 +179,11 @@ export default class ClientConstellation extends EventEmitter {
 
     if (orbite) {
       if (orbite instanceof OrbitDB) {
+        this._sfipExterne = this._orbiteExterne = true;
         sfipFinale = orbite._ipfs;
         orbiteFinale = orbite;
       } else {
+        // Éviter d'importer la configuration BD Orbite si pas nécessaire
         const initOrbite = (await import("@/orbite")).default;
         sfipFinale = await _générerSFIP(orbite.sfip);
         orbiteFinale = await initOrbite(sfipFinale, orbite.dossier);
@@ -1765,8 +1773,8 @@ export default class ClientConstellation extends EventEmitter {
     if (this.réseau) await this.réseau.fermer();
     if (this.automatisations) await this.automatisations.fermer();
     if (this.épingles) await this.épingles.fermer();
-    if (this.orbite) await this.orbite.stop();
-    if (this.sfip) await this.sfip.stop();
+    if (this.orbite && !this._orbiteExterne) await this.orbite.stop();
+    if (this.sfip && !this._sfipExterne) await this.sfip.stop();
   }
 
   static async créer(
