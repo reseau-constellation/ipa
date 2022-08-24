@@ -13,30 +13,30 @@ import { dirRessourcesTests } from "@/utilsTests";
 
 describe("JSON", function () {
   describe("Extraire données", function () {
-    it("Extraire d'objet", () => {
+    test("Extraire d'objet", () => {
       const donnéesJSON = { a: 1 };
       const données = extraireDonnées(donnéesJSON, ["a"]);
       expect(données).toEqual(1);
     });
-    it("Extraire de liste", () => {
+    test("Extraire de liste", () => {
       const donnéesJSON = [1, 2, 3];
       const données = extraireDonnées(donnéesJSON, [0]);
       expect(données).toEqual(1);
     });
-    it("Extraire récursif", () => {
+    test("Extraire récursif", () => {
       const donnéesJSON = [{ a: 1 }, 2, 3];
       const données = extraireDonnées(donnéesJSON, [0, "a"]);
       expect(données).toEqual(1);
     });
-    it("Erreur indexe chaîne pour liste", () => {
+    test("Erreur indexe chaîne pour liste", () => {
       const donnéesJSON = [1, 2, 3];
       expect(() => extraireDonnées(donnéesJSON, ["0"])).toThrow();
     });
-    it("Erreur indexe numérique pour objet", () => {
+    test("Erreur indexe numérique pour objet", () => {
       const donnéesJSON = [1, 2, 3];
       expect(() => extraireDonnées(donnéesJSON, ["0"])).toThrow();
     });
-    it("Erreur indexer non-élément", () => {
+    test("Erreur indexer non-élément", () => {
       const donnéesJSON = { a: 1 };
       expect(() => extraireDonnées(donnéesJSON, [0])).toThrow();
     });
