@@ -1,4 +1,3 @@
-import { jest } from "@jest/globals";
 import isArray from "lodash/isArray";
 
 import oùSommesNous from "wherearewe";
@@ -15,8 +14,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Favoris", function () {
-      jest.setTimeout(config.timeout);
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -28,26 +25,26 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
       });
 
       describe("estÉpingléSurDispositif", function () {
-        it("undefined", async () => {
+        test("undefined", async () => {
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: undefined,
           });
           expect(épinglé).toBe(false);
         });
-        it("tous", async () => {
+        test("tous", async () => {
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: "TOUS",
           });
           expect(épinglé).toBe(true);
         });
-        it("installé", async () => {
+        test("installé", async () => {
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: "INSTALLÉ",
           });
@@ -57,7 +54,7 @@ typesClients.forEach((type) => {
             expect(épinglé).toBe(false);
           }
         });
-        it("installé, pour un autre dispositif", async () => {
+        test("installé, pour un autre dispositif", async () => {
           const idOrbiteAutre = "abc";
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: "INSTALLÉ",
@@ -65,14 +62,14 @@ typesClients.forEach((type) => {
           });
           expect(épinglé).toBe(false);
         });
-        it("idOrbite", async () => {
+        test("idOrbite", async () => {
           const idOrbite = await client.obtIdOrbite();
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: idOrbite,
           });
           expect(épinglé).toBe(true);
         });
-        it("listeIdOrbite", async () => {
+        test("listeIdOrbite", async () => {
           const idOrbite = await client.obtIdOrbite();
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: [idOrbite],
