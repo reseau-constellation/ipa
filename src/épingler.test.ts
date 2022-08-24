@@ -1,5 +1,3 @@
-import { jest } from "@jest/globals";
-
 import isSet from "lodash/isSet";
 
 import KeyValueStore from "orbit-db-kvstore";
@@ -14,7 +12,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Épingles", function () {
-      jest.setTimeout(config.timeout);
 
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -27,7 +24,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
