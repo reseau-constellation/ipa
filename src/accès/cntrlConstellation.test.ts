@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from "uuid";
-import { jest } from "@jest/globals";
 import assert from "assert";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
@@ -12,7 +11,6 @@ import { peutÉcrire, attendreSync, générerOrbites } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 describe("Contrôleur Constellation", function () {
-  jest.setTimeout(config.timeout * 2);
 
   let fOublierOrbites: () => Promise<void>;
   let orbites: OrbitDB[];
@@ -24,7 +22,8 @@ describe("Contrôleur Constellation", function () {
   beforeAll(async () => {
     ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(4));
     [orbitdb1, orbitdb2, orbitdb3, orbitdb4] = orbites;
-  });
+  },
+config.patienceInit);
 
   afterAll(async () => {
     if (fOublierOrbites) await fOublierOrbites();
@@ -43,14 +42,15 @@ describe("Contrôleur Constellation", function () {
           },
         });
         await bd.load();
-      });
+      },
+    config.timeout);
 
-      it("Le premier mod peut écrire à la BD", async () => {
+      test("Le premier mod peut écrire à la BD", async () => {
         const autorisé = await peutÉcrire(bd);
         expect(autorisé).toBe(true);
       });
 
-      it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
+      test("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
         const bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<number>;
         await bdOrbite2.load();
         await attendreSync(bdOrbite2);
@@ -61,7 +61,7 @@ describe("Contrôleur Constellation", function () {
         expect(autorisé).toBe(false);
       });
 
-      it("...mais on peut l'inviter !", async () => {
+      test("...mais on peut l'inviter !", async () => {
         await bd.access.grant(MEMBRE, orbitdb2.identity.id);
 
         const bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<number>;
@@ -111,7 +111,7 @@ describe("Contrôleur Constellation", function () {
           },
         });
         await bd.load();
-      });
+      }, config.timeout);
 
       test("Le premier mod peut écrire à la BD", async () => {
         const autorisé = await peutÉcrire(bd);
