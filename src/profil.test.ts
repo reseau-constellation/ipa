@@ -1,6 +1,3 @@
-
-import { jest } from "@jest/globals";
-
 import fs from "fs";
 import path from "path";
 
@@ -15,8 +12,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Profil", function () {
-      jest.setTimeout(config.timeout);
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -29,7 +24,7 @@ typesClients.forEach((type) => {
         [client] = clients;
 
         enregistrerContrôleurs();
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
