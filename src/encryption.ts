@@ -23,7 +23,7 @@ export interface Encryption {
   clefAléatoire(): string;
 }
 
-export class EncryptionParDéfaut implements Encryption {
+export class EncryptionLocalFirst implements Encryption {
   clefs: { publique: string; secrète: string };
   nom = "défaut";
 

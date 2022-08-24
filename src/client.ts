@@ -21,7 +21,7 @@ import BDs from "@/bds";
 import Tableaux from "@/tableaux";
 import Variables from "@/variables";
 import Réseau from "@/reseau";
-import { Encryption, EncryptionParDéfaut } from "@/encryption";
+import { Encryption, EncryptionLocalFirst } from "@/encryption";
 import Favoris from "@/favoris";
 import Projets from "@/projets";
 import MotsClefs from "@/motsClefs";
@@ -65,7 +65,6 @@ export interface optsConstellation {
   compte?: string;
   sujetRéseau?: string;
   orbite?: optsOrbite;
-  encryption?: Encryption | boolean;
   dossierStockageLocal?: string;
 }
 
@@ -128,7 +127,7 @@ export default class ClientConstellation extends EventEmitter {
 
     this._orbiteExterne = this._sfipExterne = false;
 
-    this.encryption = new EncryptionParDéfaut();
+    this.encryption = new EncryptionLocalFirst();
   }
 
   async initialiser(): Promise<void> {
@@ -366,8 +365,6 @@ export default class ClientConstellation extends EventEmitter {
     idCompte: string;
     codeSecret: string;
   }> {
-    if (!this.encryption)
-      throw "On doit spécifier un module d'encryption au moment de l'initialisation du client afin d'automatiser les invitations.";
     const idCompte = await this.obtIdCompte();
     const codeSecret = this.encryption.clefAléatoire();
     this.motsDePasseRejoindreCompte[codeSecret] = Date.now();
