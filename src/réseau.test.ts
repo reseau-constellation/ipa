@@ -1,5 +1,3 @@
-import { jest } from "@jest/globals";
-
 import isArray from "lodash/isArray";
 import fs from "fs";
 import path from "path";
@@ -35,8 +33,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Réseau", function () {
-      jest.setTimeout(config.timeout * 2);
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation,
@@ -92,7 +88,7 @@ typesClients.forEach((type) => {
         );
 
         // console.log({ idBdCompte1, idBdCompte2, idBdCompte3 });
-      });
+      }, config.patienceInit * 3);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
