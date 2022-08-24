@@ -1,5 +1,3 @@
-import { jest } from "@jest/globals";
-
 import fs from "fs";
 import path from "path";
 import XLSX, { WorkBook } from "xlsx";
@@ -117,8 +115,6 @@ const comparerDonnéesTableau = (
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Automatisation", function () {
-      jest.setTimeout(config.timeout);
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -129,7 +125,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
@@ -140,12 +136,14 @@ typesClients.forEach((type) => {
         let idTableau: string;
         let idCol1: string;
         let idCol2: string;
+        let dirTempo: string;
 
-        const dirTempo = obtDirTempoPourTest("testImporterBd")
         const rés: { ultat?: élémentDonnées<élémentBdListeDonnées>[] } = {};
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
+          dirTempo = obtDirTempoPourTest("testImporterBd");
+          fs.mkdirSync(dirTempo);
 
           idTableau = await client.tableaux!.créerTableau();
           const idVar1 = await client.variables!.créerVariable({
@@ -170,7 +168,8 @@ typesClients.forEach((type) => {
               f: (données) => (rés.ultat = données),
             })
           );
-        });
+        },
+      config.timeout);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -178,7 +177,7 @@ typesClients.forEach((type) => {
           delete rés["ultat"];
         });
 
-        it("Importer de fichier JSON", async () => {
+        test("Importer de fichier JSON", async () => {
           const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
@@ -218,7 +217,7 @@ typesClients.forEach((type) => {
           ]);
         });
 
-        it("Importer de fichier tableau", async () => {
+        test("Importer de fichier tableau", async () => {
           const fichierFeuilleCalcul = path.join(dirTempo, "données.ods");
 
           const données = XLSX.utils.book_new();
@@ -261,7 +260,7 @@ typesClients.forEach((type) => {
           ]);
         });
 
-        it("Importer d'un URL (feuille calcul)", async () => {
+        test("Importer d'un URL (feuille calcul)", async () => {
           const source: SourceDonnéesImportationURL<infoImporterFeuilleCalcul> =
             {
               typeSource: "url",
@@ -301,7 +300,7 @@ typesClients.forEach((type) => {
           ]);
         });
 
-        it("Importer d'un URL (json)", async () => {
+        test("Importer d'un URL (json)", async () => {
           const source: SourceDonnéesImportationURL<infoImporterJSON> = {
             typeSource: "url",
             url: "https://coordinates.native-land.ca/indigenousLanguages.json",
@@ -343,7 +342,7 @@ typesClients.forEach((type) => {
           );
         });
 
-        it("Importation selon changements", async () => {
+        test("Importation selon changements", async () => {
           const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
@@ -387,7 +386,7 @@ typesClients.forEach((type) => {
           ]);
         });
 
-        it("Importation selon fréquence", async () => {
+        test("Importation selon fréquence", async () => {
           const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
@@ -447,10 +446,11 @@ typesClients.forEach((type) => {
         let idTableau: string;
         let idBd: string;
         let idProjet: string;
-
-        const dir = obtDirTempoPourTest("testExporterBd");
+        let dir: string;
 
         beforeAll(async () => {
+          dir = obtDirTempoPourTest("testExporterBd")
+
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.bds!.ajouterNomsBd({
             id: idBd,
@@ -630,15 +630,17 @@ typesClients.forEach((type) => {
         let idCol: string;
         let idTableau: string;
         let idBd: string;
+        let dir: string ;
 
         const rés: {
           états?: { [key: string]: ÉtatAutomatisation };
           autos?: SpécificationAutomatisation[];
         } = {};
         const fsOublier: schémaFonctionOublier[] = [];
-        const dir = obtDirTempoPourTest("testExporterBd");
 
         beforeAll(async () => {
+          dir = obtDirTempoPourTest("testExporterBd")
+
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
               f: (états) => (rés.états = états),
@@ -683,7 +685,7 @@ typesClients.forEach((type) => {
               [idCol]: 3,
             },
           });
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -704,7 +706,7 @@ typesClients.forEach((type) => {
           rmrf.sync(dir);
         });
 
-        it("sync et écoute", async () => {
+        test("sync et écoute", async () => {
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
@@ -740,7 +742,7 @@ typesClients.forEach((type) => {
           expect(depuis).toBeGreaterThanOrEqual(avantAjout);
         });
 
-        it("programmée", async () => {
+        test("programmée", async () => {
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
@@ -767,7 +769,7 @@ typesClients.forEach((type) => {
           expect(état.à).toBeLessThanOrEqual(maintenant + 1000 * 60 * 60);
         });
 
-        it("erreur", async () => {
+        test("erreur", async () => {
           const avant = Date.now();
 
           const idAuto =
@@ -847,7 +849,7 @@ typesClients.forEach((type) => {
             idTableau,
             idVariable: idVar2,
           });
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -856,7 +858,7 @@ typesClients.forEach((type) => {
           delete rés["autos"];
         });
 
-        it("sync et écoute", async () => {
+        test("sync et écoute", async () => {
           const fichierJSON = path.join(dir, "données.json");
           const données = {
             données: [
@@ -914,9 +916,9 @@ typesClients.forEach((type) => {
           expect(rés.états![idAuto].type).toEqual("sync");
           const étatSync = rés.états![idAuto] as ÉtatEnSync;
           expect(étatSync.depuis).toBeGreaterThanOrEqual(avantAjout);
-        });
+        }, config.timeout);
 
-        it("programmée", async () => {
+        test("programmée", async () => {
           const fichierJSON = path.join(dir, "données.json");
           const données = {
             données: [
@@ -967,7 +969,7 @@ typesClients.forEach((type) => {
           expect(état.à).toBeLessThanOrEqual(maintenant + 1000 * 60 * 3);
         });
 
-        it("erreur", async () => {
+        test("erreur", async () => {
           const avant = Date.now();
 
           const fichierJSON = path.join(dir, "données.json");
