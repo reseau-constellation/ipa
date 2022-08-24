@@ -1,5 +1,4 @@
 import isArray from "lodash/isArray";
-import { jest } from "@jest/globals";
 
 import ClientConstellation from "@/client";
 import { catégorieVariables } from "@/variables";
@@ -12,7 +11,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Variables", function () {
-      jest.setTimeout(config.timeout);
 
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -26,7 +24,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
@@ -57,7 +55,8 @@ typesClients.forEach((type) => {
 
           expect(variables).toHaveLength(1)
           expect(variables).toContain(idVariable);
-        });
+        }, config.timeout);
+
         test("Effacer un mot-clef", async () => {
           await client.variables!.effacerVariable({ id: idVariable });
           expect(isArray(variables)).toBe(true);
@@ -77,7 +76,7 @@ typesClients.forEach((type) => {
           fOublier = await client.variables!.suivreVariables({
             f: (vs) => (mesVariables = vs),
           });
-        });
+        }, config.timeout);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -238,7 +237,7 @@ typesClients.forEach((type) => {
             id: idVariable,
             f: (c) => (catégorie = c),
           });
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -266,7 +265,7 @@ typesClients.forEach((type) => {
             id: idVariable,
             f: (u) => (unités = u),
           });
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -299,7 +298,7 @@ typesClients.forEach((type) => {
             id: idVariable,
             f: (r) => (règles = r),
           });
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -437,29 +436,29 @@ typesClients.forEach((type) => {
               f: (u) => (unités = u),
             })
           );
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
         });
 
-        it("La variable est copiée", async () => {
+        test("La variable est copiée", async () => {
           expect(isArray(variables)).toBe(true);
           expect(variables).toContain(idVariable2);
         });
 
-        it("Les noms sont copiés", async () => {
+        test("Les noms sont copiés", async () => {
           expect(noms).toEqual({ த: "மழை", हिं: "बारिश" });
         });
 
-        it("Les descriptions sont copiés", async () => {
+        test("Les descriptions sont copiés", async () => {
           expect(descrs).toEqual({
             த: "தினசரி மழை",
             हिं: "दैनिक बारिश",
           });
         });
 
-        it("Les règles sont copiés", async () => {
+        test("Les règles sont copiés", async () => {
           const règleCatégorie: règleCatégorie = {
             typeRègle: "catégorie",
             détails: {
@@ -472,11 +471,11 @@ typesClients.forEach((type) => {
           ]));
         });
 
-        it("Les unités sont copiés", async () => {
+        test("Les unités sont copiés", async () => {
           expect(unités).toEqual("mm");
         });
 
-        it("La catégorie est copiés", async () => {
+        test("La catégorie est copiés", async () => {
           expect(catégorie).toEqual("numérique");
         });
       });
