@@ -1218,7 +1218,7 @@ typesClients.forEach((type) => {
             });
           }
         }
-      });
+      }, config.patienceInit * 5);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
