@@ -265,15 +265,8 @@ export default class Réseau extends EventEmitter {
       dispositifsMembre.map(async (d) => {
         const { idSFIP, encryption } = d.infoDispositif;
         if (encrypté) {
-          // Erreur si on n'a pas d'encryption
-          if (!this.client.encryption)
-            throw "ClientConstellation n'a pas été initialisé avec un module d'encryption.";
-
-          // Arrêter si le dispositif n'a pas d'encryption
-          if (!encryption) return;
-
           // Arrêter si le dispositif n'a pas la même encryption que nous
-          if (encryption.type !== this.client.encryption.nom) return;
+          if (encryption?.type !== this.client.encryption.nom) return;
 
           const msgEncrypté = this.client.encryption.encrypter({
             message: JSON.stringify(msg),
@@ -349,12 +342,12 @@ export default class Réseau extends EventEmitter {
     const signature = await this.client.signer({
       message: JSON.stringify(valeur),
     });
-    const données: DonnéesMessage = {
+    const msg: DonnéesMessage = {
       signature,
       valeur,
     };
 
-    await this.envoyerMessageAuMembre({ msg: données, idCompte });
+    await this.envoyerMessageAuMembre({ msg, idCompte });
   }
 
   async messageReçu({
@@ -364,7 +357,6 @@ export default class Réseau extends EventEmitter {
     msg: MessagePubSub;
     personnel: boolean;
   }): Promise<void> {
-    if (!this.client.encryption) return;
     const messageJSON: Message = JSON.parse(msg.data.toString());
 
     const { encrypté } = messageJSON;
@@ -396,14 +388,13 @@ export default class Réseau extends EventEmitter {
     if (!signatureValide) return;
 
     const contenu = valeur.contenu as ContenuMessage;
-    const { clefPublique } = contenu;
-
-    // S'assurer que idOrbite est la même que celle sur la signature
-    if (clefPublique !== signature.clefPublique) return;
-
     switch (valeur.type) {
       case "Salut !": {
         const contenuSalut = contenu as ContenuMessageSalut;
+        const { clefPublique } = contenuSalut;
+
+        // S'assurer que idOrbite est la même que celle sur la signature
+        if (clefPublique !== signature.clefPublique) return;
 
         this.recevoirSalut({ message: contenuSalut });
 

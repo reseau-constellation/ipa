@@ -382,10 +382,27 @@ export default class ClientConstellation extends EventEmitter {
     const requèteValide =
       (this.motsDePasseRejoindreCompte[codeSecret] || -Infinity) - maintenant <
       DÉLAI_EXPIRATION_INVITATIONS;
+
     if (requèteValide) {
       delete this.motsDePasseRejoindreCompte[codeSecret];
       await this.ajouterDispositif({ idOrbite });
     }
+  }
+
+  async demanderEtPuisRejoindreCompte({
+    idCompte,
+    codeSecret,
+  }: {
+    idCompte: string;
+    codeSecret: string;
+  }): Promise<void> {
+
+    await this.réseau!.envoyerDemandeRejoindreCompte({
+      idCompte, codeSecret
+    });
+    await this.rejoindreCompte({
+      idBdCompte: idCompte
+    })
   }
 
   async ajouterDispositif({ idOrbite }: { idOrbite: string }): Promise<void> {
