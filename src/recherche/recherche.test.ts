@@ -1,4 +1,4 @@
-
+import { config } from "@/utilsTests/sfipTest";
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
@@ -71,7 +71,7 @@ typesClients.forEach((type) => {
           type
         ));
         [client, client2, client3] = clients;
-      });
+      }, config.patienceInit * 3);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
