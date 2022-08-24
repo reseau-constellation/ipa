@@ -141,7 +141,7 @@ typesClients.forEach((type) => {
         const rés: { ultat?: élémentDonnées<élémentBdListeDonnées>[] } = {};
         const fsOublier: schémaFonctionOublier[] = [];
 
-        beforeAll(async () => {
+        beforeEach(async () => {
           dirTempo = obtDirTempoPourTest("testImporterBd");
           fs.mkdirSync(dirTempo);
 
@@ -171,7 +171,7 @@ typesClients.forEach((type) => {
         },
       config.timeout);
 
-        afterAll(async () => {
+        afterEach(async () => {
           fsOublier.forEach((f) => f());
           rmrf.sync(dirTempo);
           delete rés["ultat"];
@@ -330,16 +330,16 @@ typesClients.forEach((type) => {
           // Nom de la langue
           expect(
             rés
-              .ultat!.map((r) => r.données[idCol1])
+              .ultat!.map((r) => r.données[idCol2])
               .every((n) => typeof n === "string")
-          );
+          ).toBe(true);
 
           // Longitude
           expect(
             rés
-              .ultat!.map((r) => r.données[idCol2])
+              .ultat!.map((r) => r.données[idCol1])
               .every((n) => -180 <= n && n <= 180)
-          );
+          ).toBe(true);
         });
 
         test("Importation selon changements", async () => {
@@ -384,7 +384,7 @@ typesClients.forEach((type) => {
             { [idCol1]: 3, [idCol2]: "a" },
             { [idCol1]: 4, [idCol2]: "子" },
           ]);
-        });
+        }, config.timeout);
 
         test("Importation selon fréquence", async () => {
           const fichierJSON = path.join(dirTempo, "données.json");
