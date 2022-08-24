@@ -1,5 +1,3 @@
-
-import { jest } from "@jest/globals";
 import isArray from "lodash/isArray";
 
 import { enregistrerContrôleurs } from "@/accès";
@@ -12,8 +10,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Mots-clefs", function () {
-      jest.setTimeout(config.timeout);
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -25,7 +21,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
@@ -198,12 +194,12 @@ typesClients.forEach((type) => {
           if (fOublier2) fOublier2();
         });
 
-        it("Le mot-clef est copié", async () => {
+        test("Le mot-clef est copié", async () => {
           expect(isArray(motsClefs)).toBe(true)
           expect(motsClefs).toContain(idMotClef2);
         });
 
-        it("Les noms sont copiés", async () => {
+        test("Les noms sont copiés", async () => {
           expect(noms).toEqual({ த: "நீரியல்", हिं: "जल विज्ञान" });
         });
       });
