@@ -1,8 +1,11 @@
 import Ctl from "ipfsd-ctl";
 import { NodeType } from "ipfsd-ctl/dist/src/types";
 
+const FACTEUR = 2
+
 export const config = {
-  timeout: 45000
+  timeout: 30 * 1000 * FACTEUR,
+  patienceInit: 3 * 60 * 1000 * FACTEUR
 };
 
 export const startIpfs = async (dossier = "") => {
