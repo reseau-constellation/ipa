@@ -1,5 +1,3 @@
-import { jest } from "@jest/globals";
-
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import {
@@ -20,8 +18,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Rechercher mots clefs", function () {
-      jest.setTimeout(config.timeout);
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -33,7 +29,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
@@ -58,7 +54,7 @@ typesClients.forEach((type) => {
         test("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
           expect(résultat).toBeUndefined;
         });
-        it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
+        test("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
           await client.motsClefs!.ajouterNomsMotClef({
             id: idMotClef,
             noms: {
@@ -67,7 +63,7 @@ typesClients.forEach((type) => {
           });
           expect(résultat).toBeUndefined;
         });
-        it("Résultat si le mot-clef est presque exacte", async () => {
+        test("Résultat si le mot-clef est presque exacte", async () => {
           await client.motsClefs!.ajouterNomsMotClef({
             id: idMotClef,
             noms: {
@@ -88,7 +84,7 @@ typesClients.forEach((type) => {
             score: 0.5,
           });
         });
-        it("Résultat si le mot-clef est exacte", async () => {
+        test("Résultat si le mot-clef est exacte", async () => {
           await client.motsClefs!.ajouterNomsMotClef({
             id: idMotClef,
             noms: {
@@ -162,7 +158,7 @@ typesClients.forEach((type) => {
             score: 1,
           });
         });
-        it("Résultat id détecté", async () => {
+        test("Résultat id détecté", async () => {
           expect(résultatId).toEqual({
             type: "résultat",
             de: "id",
