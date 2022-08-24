@@ -1,6 +1,4 @@
-import { jest } from "@jest/globals";
 import { config } from "@/utilsTests/sfipTest";
-
 
 import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
@@ -22,7 +20,6 @@ import { générerClients, typesClients } from "@/utilsTests";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Rechercher variables", function () {
-      jest.setTimeout(config.timeout);
 
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -35,7 +32,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
@@ -66,7 +63,7 @@ typesClients.forEach((type) => {
         test("Pas de résultat quand la variable n'a pas de nom", async () => {
           expect(résultat).toBeUndefined;
         });
-        it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
+        test("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
           await client.variables!.ajouterNomsVariable({
             id: idVariable,
             noms: {
@@ -75,7 +72,7 @@ typesClients.forEach((type) => {
           });
           expect(résultat).toBeUndefined;
         });
-        it("Résultat si la variable est presque exacte", async () => {
+        test("Résultat si la variable est presque exacte", async () => {
           await client.variables!.ajouterNomsVariable({
             id: idVariable,
             noms: {
@@ -96,7 +93,7 @@ typesClients.forEach((type) => {
             score: 0.2,
           });
         });
-        it("Résultat si le mot-clef est exacte", async () => {
+        test("Résultat si le mot-clef est exacte", async () => {
           await client.variables!.ajouterNomsVariable({
             id: idVariable,
             noms: {
@@ -146,7 +143,7 @@ typesClients.forEach((type) => {
             expect(résultat).toBeUndefined;
           }
         );
-        it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
+        test("Pas de résultat si la description n'a vraiment rien à voir", async () => {
           await client.variables!.ajouterDescriptionsVariable({
             id: idVariable,
             descriptions: {
@@ -155,7 +152,7 @@ typesClients.forEach((type) => {
           });
           expect(résultat).toBeUndefined;
         });
-        it("Résultat si la variable est presque exacte", async () => {
+        test("Résultat si la variable est presque exacte", async () => {
           await client.variables!.ajouterDescriptionsVariable({
             id: idVariable,
             descriptions: {
@@ -176,7 +173,7 @@ typesClients.forEach((type) => {
             score: 0.2,
           });
         });
-        it("Résultat si la description est exacte", async () => {
+        test("Résultat si la description est exacte", async () => {
           await client.variables!.ajouterDescriptionsVariable({
             id: idVariable,
             descriptions: {
@@ -253,7 +250,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        it("Résultat id détecté", async () => {
+        test("Résultat id détecté", async () => {
           expect(résultatId).toEqual({
             type: "résultat",
             de: "id",
