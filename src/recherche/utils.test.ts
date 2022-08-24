@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import FeedStore from "orbit-db-feedstore";
-import { jest } from "@jest/globals";
 import { config } from "@/utilsTests/sfipTest";
 
 import { enregistrerContrôleurs } from "@/accès";
@@ -27,8 +26,6 @@ import {
 import { générerClients, dirRessourcesTests } from "@/utilsTests";
 
 describe("Utils recherche", function () {
-  jest.setTimeout(config.timeout);
-  
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation;
@@ -37,14 +34,14 @@ describe("Utils recherche", function () {
     enregistrerContrôleurs();
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
-  });
+  }, config.patienceInit);
 
   afterAll(async () => {
     if (fOublierClients) await fOublierClients();
   });
 
   describe("Rechercher dans texte", function () {
-    it("Recherche exacte", () => {
+    test("Recherche exacte", () => {
       const résultat = rechercherDansTexte(
         "வணக்கம்",
         "வணக்கம், சாப்பிட்டீர்களா?"
@@ -57,7 +54,7 @@ describe("Utils recherche", function () {
       });
     });
 
-    it("Recherche approximative", () => {
+    test("Recherche approximative", () => {
       const résultat = rechercherDansTexte(
         "வணக்கம்",
         "வணககம், சாப்பிட்டீர்களா?"
@@ -70,7 +67,7 @@ describe("Utils recherche", function () {
       });
     });
 
-    it("Recherche retourne meilleure", () => {
+    test("Recherche retourne meilleure", () => {
       const résultat = rechercherDansTexte("வணக்கம்", "வணககம், வணக்கம்");
       expect(résultat).toEqual({
         type: "texte",
@@ -80,14 +77,14 @@ describe("Utils recherche", function () {
       });
     });
 
-    it("Recherche vraiment pas possible", () => {
+    test("Recherche vraiment pas possible", () => {
       const résultat = rechercherDansTexte("வணக்கம்", "សួស្តី");
       expect(résultat).toBeUndefined;
     });
   });
 
   describe("Simil texte", function () {
-    it("exacte", () => {
+    test("exacte", () => {
       const textes = {
         fr: "hydrologie",
         es: "hidrología",
@@ -107,7 +104,7 @@ describe("Utils recherche", function () {
         score: 1,
       });
     });
-    it("approx", () => {
+    test("approx", () => {
       const textes = {
         es: "hidrología",
         த: "நீரியல்",
@@ -126,7 +123,7 @@ describe("Utils recherche", function () {
         score: 0.25,
       });
     });
-    it("meilleure", () => {
+    test("meilleure", () => {
       const textes = {
         fr: "hydrologie",
         es: "hidrología",
@@ -146,7 +143,7 @@ describe("Utils recherche", function () {
         score: 1,
       });
     });
-    it("aucune", () => {
+    test("aucune", () => {
       const textes = {
         fr: "hydrologie",
         es: "hidrología",
@@ -157,7 +154,7 @@ describe("Utils recherche", function () {
       expect(résultat).toBeUndefined;
     });
 
-    it("simil texte liste", () => {
+    test("simil texte liste", () => {
       const résultat = similTexte("entomologie", [
         "entomología",
         "entomologie",
@@ -184,17 +181,17 @@ describe("Utils recherche", function () {
       path.join(dirRessourcesTests(), "logo2.png")
     );
 
-    it("Pas d'image réf", () => {
+    test("Pas d'image réf", () => {
       const résultat = similImages(IMAGE, null);
       expect(résultat).toEqual(0);
     });
 
-    it("Images identiques", () => {
+    test("Images identiques", () => {
       const résultat = similImages(IMAGE, IMAGE);
       expect(résultat).toEqual(1);
     });
 
-    it("Images similaires", () => {
+    test("Images similaires", () => {
       const résultat = similImages(IMAGE, IMAGE2);
       expect(résultat).toBeGreaterThan(0.5);
     });
@@ -216,7 +213,7 @@ describe("Utils recherche", function () {
     afterAll(() => {
       if (fOublier) fOublier();
     });
-    it("Résultat détecté", () => {
+    test("Résultat détecté", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
         type: "résultat",
         de: "id",
@@ -254,7 +251,7 @@ describe("Utils recherche", function () {
     afterAll(() => {
       if (fOublier) fOublier();
     });
-    it("Résultat détecté", () => {
+    test("Résultat détecté", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
         type: "résultat",
         de: "id",
@@ -382,7 +379,7 @@ describe("Utils recherche", function () {
     afterAll(() => {
       if (fOublier) fOublier();
     });
-    it("Tous ont le même score", () => {
+    test("Tous ont le même score", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatVide> = {
         type: "résultat",
         score: 1,
