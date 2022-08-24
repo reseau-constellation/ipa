@@ -215,7 +215,7 @@ typesClients.forEach((type) => {
             { [idCol1]: 2, [idCol2]: "அ" },
             { [idCol1]: 3, [idCol2]: "a" },
           ]);
-        });
+        }, config.timeout);
 
         test("Importer de fichier tableau", async () => {
           const fichierFeuilleCalcul = path.join(dirTempo, "données.ods");
@@ -376,7 +376,7 @@ typesClients.forEach((type) => {
           données.données.push({ "col 1": 4, "col 2": "子" });
           fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-          await attendreRésultat(rés, "ultat", (x) => x.length === 4);
+          await attendreRésultat(rés, "ultat", (x) => x?.length === 4);
 
           comparerDonnéesTableau(rés.ultat!, [
             { [idCol1]: 1, [idCol2]: "អ" },
@@ -425,7 +425,7 @@ typesClients.forEach((type) => {
           données.données.push({ "col 1": 4, "col 2": "子" });
           fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-          await attendreRésultat(rés, "ultat", (x) => x.length === 4);
+          await attendreRésultat(rés, "ultat", (x) => x?.length === 4);
 
           const après = Date.now();
           expect(après - maintenant).toBeGreaterThanOrEqual(0.3 * 1000);
@@ -436,7 +436,7 @@ typesClients.forEach((type) => {
             { [idCol1]: 3, [idCol2]: "a" },
             { [idCol1]: 4, [idCol2]: "子" },
           ]);
-        });
+        }, config.timeout);
         test.todo("Effacer automatisation");
       });
 
@@ -493,7 +493,7 @@ typesClients.forEach((type) => {
               fr: "Mon projet",
             },
           });
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           const automatisations = await uneFois(
