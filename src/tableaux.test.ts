@@ -1,5 +1,4 @@
 import isArray from "lodash/isArray";
-import { jest } from "@jest/globals";
 
 import XLSX from "xlsx";
 import { enregistrerContrôleurs } from "@/accès";
@@ -29,8 +28,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Tableaux", function () {
-      jest.setTimeout(config.timeout)
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -45,7 +42,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
@@ -54,7 +51,7 @@ typesClients.forEach((type) => {
       test("Création", async () => {
         idTableau = await client.tableaux!.créerTableau();
         expect(adresseOrbiteValide(idTableau)).toBe(true);
-      });
+      }, config.timeout);
 
       describe("Noms", function () {
         let noms: { [key: string]: string };
@@ -181,7 +178,7 @@ typesClients.forEach((type) => {
             catégorie: "chaîne",
           });
           idsVariables = [idVariable1, idVariable2];
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -382,7 +379,7 @@ typesClients.forEach((type) => {
             idTableau: idTableauRègles,
             idVariable: idVariableChaîne,
           });
-        });
+        }, config.timeout);
 
         afterEach(async () => {
           fsOublier.forEach((f) => f());
@@ -644,7 +641,7 @@ typesClients.forEach((type) => {
               })
             );
           }
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -766,7 +763,7 @@ typesClients.forEach((type) => {
               idColonne,
               règle: règleCatégorique,
             });
-          });
+          }, config.timeout);
           afterAll(() => fsOublier.forEach((f) => f()));
 
           test("Ajout éléments valides", async () => {
@@ -840,7 +837,7 @@ typesClients.forEach((type) => {
               idColonne: idColonneÀTester,
               règle: règleCatégorique,
             });
-          });
+          }, config.timeout * 2);
 
           afterAll(() => fsOublier.forEach((f) => f()));
 
@@ -860,7 +857,7 @@ typesClients.forEach((type) => {
             expect(err.eurs).toHaveLength(0);
           });
 
-          it("Ajout éléments colonne réf détecté", async () => {
+          test("Ajout éléments colonne réf détecté", async () => {
             await client.tableaux!.ajouterÉlément({
               idTableau: idTableauÀTester,
               vals: {
@@ -880,7 +877,7 @@ typesClients.forEach((type) => {
 
             expect(err.eurs).toHaveLength(0);
           });
-          it("Ajout éléments valides", async () => {
+          test("Ajout éléments valides", async () => {
             await client.tableaux!.ajouterÉlément({
               idTableau: idTableauÀTester,
               vals: {
@@ -889,7 +886,7 @@ typesClients.forEach((type) => {
             });
             expect(err.eurs).toHaveLength(0);
           });
-          it("Ajout éléments invalides", async () => {
+          test("Ajout éléments invalides", async () => {
             await client.tableaux!.ajouterÉlément({
               idTableau: idTableauÀTester,
               vals: {
@@ -944,7 +941,7 @@ typesClients.forEach((type) => {
               f: (d) => (données = d),
             })
           );
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
@@ -1081,46 +1078,46 @@ typesClients.forEach((type) => {
               f: (x) => (règles = x),
             })
           );
-        });
+        }, config.timeout * 2);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
         });
 
-        it("Le tableau est copié", async () => {
+        test("Le tableau est copié", async () => {
           expect(adresseOrbiteValide(idTableauCopie)).toBe(true);
         });
 
-        it("Les noms sont copiés", async () => {
+        test("Les noms sont copiés", async () => {
           expect(noms).toEqual(réfNoms);
         });
 
-        it("Les colonnes sont copiées", async () => {
+        test("Les colonnes sont copiées", async () => {
           expect(isArray(colonnes)).toBe(true);
           expect(colonnes).toHaveLength(1);
           expect(colonnes[0].variable).toEqual(idVariable);
         });
 
-        it("Les indexes sont copiés", async () => {
+        test("Les indexes sont copiés", async () => {
           expect(isArray(colsIndexe)).toBe(true);
           expect(colsIndexe).toHaveLength(1);
           expect(colsIndexe[0]).toEqual(idColonne);
         });
 
-        it("Les règles sont copiés", async () => {
+        test("Les règles sont copiés", async () => {
           const règleRecherchée = règles.find((r) => r.règle.id === idRègle);
           expect(règleRecherchée).toBeTruthy();
           expect(règleRecherchée?.colonne).toEqual(colonnes[0].id);
           expect(règleRecherchée?.règle.règle).toEqual(règle);
         });
 
-        it("Les variables sont copiés", async () => {
+        test("Les variables sont copiés", async () => {
           expect(isArray(variables)).toBe(true);
           expect(variables).toHaveLength(1);
           expect(variables[0]).toEqual(idVariable);
         });
 
-        it("Les données sont copiés", async () => {
+        test("Les données sont copiés", async () => {
           expect(isArray(données)).toBe(true);
           expect(données).toHaveLength(1);
           expect(données[0].données[colonnes[0].id]).toEqual(123);
@@ -1244,7 +1241,7 @@ typesClients.forEach((type) => {
           }
 
           await client.tableaux!.combinerDonnées({ idTableauBase, idTableau2 });
-        });
+        }, config.timeout * 2);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -1370,13 +1367,13 @@ typesClients.forEach((type) => {
             idTableau,
             données: nouvellesDonnées,
           });
-        });
+        }, config.timeout * 2);
 
         afterAll(async () => {
           if (fOublier) fOublier();
         });
 
-        it("Données importées correctement", async () => {
+        test("Données importées correctement", async () => {
           expect(isArray(données)).toBe(true);
           expect(données).toHaveLength(2);
           expect(
@@ -1496,17 +1493,17 @@ typesClients.forEach((type) => {
             idTableau,
             langues: ["த", "fr"],
           }));
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           if (fOublier) fOublier();
         });
 
-        it("Langue appropriée pour le nom du tableau", () => {
+        test("Langue appropriée pour le nom du tableau", () => {
           expect(doc.SheetNames[0]).toEqual(nomTableauFr);
         });
 
-        it("Langue appropriée pour les noms des colonnes", () => {
+        test("Langue appropriée pour les noms des colonnes", () => {
           for (const { cellule, val } of [
             { cellule: "A1", val: "Numérique" },
             { cellule: "B1", val: "இது உரை ஆகும்" },
@@ -1519,7 +1516,7 @@ typesClients.forEach((type) => {
           }
         });
 
-        it("Données numériques exportées", async () => {
+        test("Données numériques exportées", async () => {
           const val = doc.Sheets[nomTableauFr].A2.v;
           expect(val).toEqual(123);
 
@@ -1527,24 +1524,24 @@ typesClients.forEach((type) => {
           expect(val2).toEqual(456);
         });
 
-        it("Données chaîne exportées", async () => {
+        test("Données chaîne exportées", async () => {
           const val = doc.Sheets[nomTableauFr].B2.v;
           expect(val).toEqual("வணக்கம்");
         });
 
-        it("Données booléennes exportées", async () => {
+        test("Données booléennes exportées", async () => {
           const val = doc.Sheets[nomTableauFr].C2.v;
           expect(val).toEqual("true");
         });
 
-        it("Données fichier exportées", async () => {
+        test("Données fichier exportées", async () => {
           const val = doc.Sheets[nomTableauFr].D2.v;
           expect(val).toEqual(
             "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4"
           );
         });
 
-        it("Les fichiers SFIP sont détectés", async () => {
+        test("Les fichiers SFIP sont détectés", async () => {
           expect(fichiersSFIP.size).toEqual(1);
           expect(fichiersSFIP).toEqual(new Set([
             {
@@ -1554,7 +1551,7 @@ typesClients.forEach((type) => {
           ]));
         });
 
-        it("Exporter avec ids des colonnes et du tableau", async () => {
+        test("Exporter avec ids des colonnes et du tableau", async () => {
           ({ doc } = await client.tableaux!.exporterDonnées({ idTableau }));
           const idTableauCourt = idTableau.split("/").pop()!.slice(0, 30);
           expect(doc.SheetNames[0]).toEqual(idTableauCourt);
