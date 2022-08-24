@@ -1,7 +1,4 @@
-
 import isArray from "lodash/isArray";
-
-import { jest } from "@jest/globals";
 
 import XLSX from "xlsx";
 import fs from "fs";
@@ -20,8 +17,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Projets", function () {
-      jest.setTimeout(config.timeout)
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -35,7 +30,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
@@ -291,7 +286,7 @@ typesClients.forEach((type) => {
           expect(bds[0]).toEqual(idBd);
         });
 
-        it("Mots-clefs BD détectés", async () => {
+        test("Mots-clefs BD détectés", async () => {
           const idMotClef = await client.motsClefs!.créerMotClef();
           await client.bds!.ajouterMotsClefsBd({
             idBd,
@@ -305,7 +300,7 @@ typesClients.forEach((type) => {
           expect(rés.motsClefs![0]).toEqual(idMotClef);
         });
 
-        it("Variables BD détectées", async () => {
+        test("Variables BD détectées", async () => {
           expect(isArray(variables)).toBe(true);
           expect(variables).toHaveLength(0);
 
@@ -323,7 +318,7 @@ typesClients.forEach((type) => {
           expect(variables[0]).toEqual(idVariable);
         });
 
-        it("Effacer une BD", async () => {
+        test("Effacer une BD", async () => {
           await client.projets!.effacerBdProjet({ idProjet, idBd });
           expect(isArray(bds)).toBe(true);
           expect(bds).toHaveLength(0);
@@ -412,16 +407,16 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        it("Les noms sont copiés", async () => {
+        test("Les noms sont copiés", async () => {
           expect(noms).toEqual(réfNoms);
         });
-        it("Les descriptions sont copiées", async () => {
+        test("Les descriptions sont copiées", async () => {
           expect(descrs).toEqual(réfDescrs);
         });
-        it("Les mots-clefs sont copiés", async () => {
+        test("Les mots-clefs sont copiés", async () => {
           expect(motsClefs).toEqual(expect.arrayContaining([idMotClef]));
         });
-        it("Les BDs sont copiées", async () => {
+        test("Les BDs sont copiées", async () => {
           expect(isArray(bds)).toBe(true)
           expect(bds).toHaveLength(1);
         });
@@ -543,7 +538,7 @@ typesClients.forEach((type) => {
             expect(fs.existsSync(dirFichierExtrait)).toBe(true);
           });
 
-          it("Les données sont exportées", () => {
+          test("Les données sont exportées", () => {
             expect(fs.existsSync(path.join(dirFichierExtrait, "Ma BD.ods"))).toBe(true);
           });
 
