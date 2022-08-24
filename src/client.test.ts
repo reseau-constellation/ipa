@@ -1,5 +1,3 @@
-import { jest } from "@jest/globals";
-
 import isArray from "lodash/isArray";
 
 import all from "it-all";
@@ -23,13 +21,13 @@ import { générerClients, peutÉcrire, attendreRésultat } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 describe("adresseOrbiteValide", function () {
-  it("adresse orbite est valide", () => {
+  test("adresse orbite est valide", () => {
     const valide = adresseOrbiteValide(
       "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e"
     );
     expect(valide).toBe(true);
   });
-  it("CID SFIP n'est pas valide", () => {
+  test("CID SFIP n'est pas valide", () => {
     const valide = adresseOrbiteValide(
       "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ"
     );
@@ -38,8 +36,6 @@ describe("adresseOrbiteValide", function () {
 });
 
 describe("Client Constellation", function () {
-  jest.setTimeout(config.timeout * 2);
-
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation,
@@ -78,24 +74,24 @@ describe("Client Constellation", function () {
     idOrbite3 = await client3.obtIdOrbite();
     idOrbite4 = await client3.obtIdOrbite();
 
-  });
+  }, config.patienceInit * 4);
 
   afterAll(async () => {
     if (fOublierClients) await fOublierClients();
   });
 
-  it("Le client devrait être initialisé", async () => {
+  test("Le client devrait être initialisé", async () => {
     expect(client.prêt).toBe(true);
   });
 
   describe("Signer", function () {
-    it("La signature devrait être valide", async () => {
+    test("La signature devrait être valide", async () => {
       const message = "Je suis un message";
       const signature = await client.signer({ message });
       const valide = await client.vérifierSignature({ signature, message });
       expect(valide).toBe(true);
     });
-    it("La signature ne devrait pas être valide pour un autre message", async () => {
+    test("La signature ne devrait pas être valide pour un autre message", async () => {
       const message = "Je suis un message";
       const autreMessage = "Je suis un message!";
       const signature = await client.signer({ message });
@@ -134,7 +130,7 @@ describe("Client Constellation", function () {
       expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite1]));
     });
 
-    describe("Ajouter dispositif", function () {
+    describe("Ajouter dispositif manuellement", function () {
       let idBd: string;
 
       beforeAll(async () => {
@@ -142,22 +138,22 @@ describe("Client Constellation", function () {
         await client3.rejoindreCompte({ idBdCompte: idbdCompte1 });
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
         idOrbiteClient3Après = await client3.obtIdOrbite();
-      });
+      }, config.timeout);
 
-      it("Mes dispositifs sont mis à jour", async () => {
+      test("Mes dispositifs sont mis à jour", async () => {
         expect(mesDispositifs).toHaveLength(2);
         expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite3]));
       });
 
-      it("Le nouveau dispositif a rejoint notre compte", () => {
+      test("Le nouveau dispositif a rejoint notre compte", () => {
         expect(idBdCompte3EnDirecte).toEqual(idbdCompte1);
       });
 
-      it("idOrbite ne change pas", async () => {
+      test("idOrbite ne change pas", async () => {
         expect(idOrbiteClient3Après).toEqual(idOrbite3);
       });
 
-      it("Le nouveau dispositif peut modifier mes BDs", async () => {
+      test("Le nouveau dispositif peut modifier mes BDs", async () => {
         const { bd: bd_orbite3, fOublier } = await client3.ouvrirBd<
           KeyValueStore<number>
         >({ id: idBd });
@@ -168,19 +164,31 @@ describe("Client Constellation", function () {
     });
 
     describe("Automatiser ajout dispositif", function () {
-      beforeAll(async () => {
-        const invitation = await client.générerInvitationRejoindreCompte();
-        await client4.réseau!.demanderRejoindreCompte(invitation);
-      });
+      let idBd: string;
 
-      it("Nouveau dispositif ajouté au compte", async () => {
+      beforeAll(async () => {
+        idBd = await client.créerBdIndépendante({ type: "kvstore" });
+        const invitation = await client.générerInvitationRejoindreCompte();
+        await client4.demanderEtPuisRejoindreCompte(invitation);
+      }, config.timeout);
+
+      test("Nouveau dispositif ajouté au compte", async () => {
         expect(mesDispositifs).toEqual(
           expect.arrayContaining([idOrbite1, idOrbite3, idOrbite4])
         );
       });
 
-      it("Nouveau dispositif indique le nouveau compte", async () => {
+      test("Nouveau dispositif indique le nouveau compte", async () => {
         expect(client4.idBdCompte).toEqual(client.idBdCompte);
+      });
+
+      test("Le nouveau dispositif peut modifier mes BDs", async () => {
+        const { bd: bd_orbite4, fOublier } = await client4.ouvrirBd<
+          KeyValueStore<number>
+        >({ id: idBd });
+        const autorisé = await peutÉcrire(bd_orbite4, client4.orbite);
+        fOublier();
+        expect(autorisé).toBe(true);
       });
     });
   });
@@ -207,17 +215,17 @@ describe("Client Constellation", function () {
         fOublierBd();
         fOublierSuivre();
       };
-    });
+    }, config.timeout);
 
     afterAll(async () => {
       fOublier();
     });
 
-    it("Les données initiales sont détectées", async () => {
+    test("Les données initiales sont détectées", async () => {
       expect(données.a).toEqual(1);
     });
 
-    it("Les changements sont détectés", async () => {
+    test("Les changements sont détectés", async () => {
       await bd.put("b", 2);
       expect(données.b).toEqual(2);
     });
@@ -274,22 +282,22 @@ describe("Client Constellation", function () {
         fOublierBd();
         fOublierBd2();
       };
-    });
+    }, config.timeout);
     afterAll(async () => {
       if (bd) await bd.close();
       if (bd2) await bd2.close();
       if (fOublier) fOublier();
     });
-    it("`undefined` est retourné si la fonction ne renvoie pas de BD", async () => {
+    test("`undefined` est retourné si la fonction ne renvoie pas de BD", async () => {
       expect(données).toBeUndefined();
     });
-    it("Les changements à la BD suivie sont détectés", async () => {
+    test("Les changements à la BD suivie sont détectés", async () => {
       await changerBd(idBd);
       await bd.put("a", 1);
       expect(données).not.toBeUndefined();
       expect(données!.a).toEqual(1);
     });
-    it("Les changements à l'id de la BD suivie sont détectés", async () => {
+    test("Les changements à l'id de la BD suivie sont détectés", async () => {
       await bd2.put("a", 2);
       await changerBd(idBd2);
       expect(données).not.toBeUndefined();
@@ -330,17 +338,17 @@ describe("Client Constellation", function () {
       fsOublier.push(
         await client.suivreBdDeClef({ id: idBdBase, clef: CLEF, f, fSuivre })
       );
-    });
+    }, config.timeout);
 
     afterAll(async () => {
       fsOublier.forEach((f) => f());
     });
 
-    it("`undefined` est retourné si la clef n'existe pas", async () => {
+    test("`undefined` est retourné si la clef n'existe pas", async () => {
       expect(données).toBeUndefined();
     });
 
-    it("Les changements à la BD suivie sont détectés", async () => {
+    test("Les changements à la BD suivie sont détectés", async () => {
       idBd = await client.obtIdBd({
         nom: CLEF,
         racine: idBdBase,
@@ -356,7 +364,7 @@ describe("Client Constellation", function () {
       expect(données!.a).toEqual(1);
     });
 
-    it("Les changements à la clef sont détectés", async () => {
+    test("Les changements à la clef sont détectés", async () => {
       const idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<number>>({
         id: idBd2,
@@ -389,17 +397,17 @@ describe("Client Constellation", function () {
         clef: CLEF,
         f: fSuivre,
       });
-    });
+    }, config.timeout);
 
     afterAll(async () => {
       fsOublier.forEach((f) => f());
     });
 
-    it("`{}` est retourné si la clef n'existe pas", async () => {
+    test("`{}` est retourné si la clef n'existe pas", async () => {
       expect(Object.keys(données)).toHaveLength(0);
     });
 
-    it("Les données sont retournés en format objet", async () => {
+    test("Les données sont retournés en format objet", async () => {
       const { bd: bdBase, fOublier: fOublierBase } = await client.ouvrirBd<
         KeyValueStore<string>
       >({ id: idBdBase });
@@ -444,7 +452,7 @@ describe("Client Constellation", function () {
         f: fSuivre,
         renvoyerValeur: false,
       });
-    });
+    }, config.timeout);
     afterAll(async () => {
       fsOublier.forEach((f) => f());
     });
@@ -506,13 +514,13 @@ describe("Client Constellation", function () {
           renvoyerValeur: false,
         })
       );
-    });
+    }, config.timeout);
 
     afterAll(async () => {
       fsOublier.forEach((f) => f());
     });
 
-    it("Avec renvoyer valeur", async () => {
+    test("Avec renvoyer valeur", async () => {
       expect(donnéesValeur).toHaveLength(0);
 
       const { bd, fOublier } = await client.ouvrirBd<FeedStore<number>>({
@@ -525,7 +533,7 @@ describe("Client Constellation", function () {
       expect(donnéesValeur).toEqual(expect.arrayContaining([1, 2]));
     });
 
-    it("Sans renvoyer valeur", async () => {
+    test("Sans renvoyer valeur", async () => {
       expect(données).toHaveLength(2);
       expect(données.map((d) => d.payload.value)).toEqual(
         expect.arrayContaining([1, 2])
@@ -550,7 +558,7 @@ describe("Client Constellation", function () {
         idBd,
         f: (ids_) => (rés.ultat = ids_),
       });
-    });
+    }, config.timeout);
 
     afterAll(() => {
       if (fOublier) fOublier();
@@ -626,7 +634,7 @@ describe("Client Constellation", function () {
         idBd,
         f: (empr) => (rés.ultat = empr),
       });
-    });
+    }, config.timeout);
 
     afterAll(() => {
       if (fOublier) fOublier();
@@ -713,7 +721,7 @@ describe("Client Constellation", function () {
       if (fOublier) fOublier();
     });
 
-    it("On retrouve le bon élément", async () => {
+    test("On retrouve le bon élément", async () => {
       const fRecherche = (e: LogEntry<string>): boolean => {
         return e.payload.value === "abc";
       };
@@ -724,7 +732,7 @@ describe("Client Constellation", function () {
       expect(résultat?.payload.value).toEqual("abc");
     });
 
-    it("`undefined` est retourné si l'empreinte n'existe pas", async () => {
+    test("`undefined` est retourné si l'empreinte n'existe pas", async () => {
       const fRecherche = (e: LogEntry<string>): boolean => {
         return e.payload.value === "def";
       };
@@ -785,11 +793,11 @@ describe("Client Constellation", function () {
 
       await bdListe.add(idBd1);
       await bdListe.add(idBd2);
-    });
+    }, config.timeout);
     afterAll(() => {
       fsOublier.forEach((f) => f());
     });
-    it("Les éléments sont retournés", async () => {
+    test("Les éléments sont retournés", async () => {
       expect(isArray(données)).toBe(true);
       expect(données).toEqual([{ a: 1 }, { b: 2 }]);
     });
@@ -846,21 +854,21 @@ describe("Client Constellation", function () {
         fsOublier.push(
           await client.suivreBdsDeFonctionListe({ fListe, f, fBranche })
         );
-      });
+      }, config.timeout);
       afterAll(() => {
         fsOublier.forEach((f) => f());
       });
 
-      it("Sans branches", async () => {
+      test("Sans branches", async () => {
         expect(résultats).toBeUndefined();
       });
-      it("Ajout d'une branche ou deux", async () => {
+      test("Ajout d'une branche ou deux", async () => {
         await changerBds([idBd1, idBd2]);
         expect(isArray(résultats)).toBe(true);
         expect(résultats).toHaveLength(3);
         expect(résultats).toEqual(expect.arrayContaining([1, 2, 3]));
       });
-      it("Enlever une branche", async () => {
+      test("Enlever une branche", async () => {
         await changerBds([idBd1]);
         expect(isArray(résultats)).toBe(true);
         expect(résultats).toHaveLength(2);
@@ -939,18 +947,18 @@ describe("Client Constellation", function () {
           })
         );
         await changerBds([idBd1, idBd2]);
-      });
+      }, config.timeout);
       afterAll(() => {
         fsOublier.forEach((f) => f());
       });
 
-      it("Ajout d'une branche ou deux", async () => {
+      test("Ajout d'une branche ou deux", async () => {
         expect(isArray(résultats)).toEqual(true);
         expect(résultats).toHaveLength(3);
         expect(résultats).toEqual(expect.arrayContaining([1, 2, 3]));
       });
 
-      it("Avec fRéduction complèxe", async () => {
+      test("Avec fRéduction complèxe", async () => {
         const fRéduction = (branches: number[][]) => [
           ...branches.map((b) => b[0]),
         ];
@@ -974,12 +982,14 @@ describe("Client Constellation", function () {
       };
       let fSuivre: (ids: branche[]) => Promise<void>;
       let fOublier: schémaFonctionOublier;
+
       const fListe = async (
         fSuivreRacine: (éléments: branche[]) => Promise<void>
       ): Promise<schémaFonctionOublier> => {
         fSuivre = fSuivreRacine;
         return faisRien;
       };
+
       beforeAll(async () => {
         fOublier = await client.suivreBdsDeFonctionListe({
           fListe,
@@ -991,7 +1001,7 @@ describe("Client Constellation", function () {
         if (fOublier) fOublier();
       });
 
-      it("Ajout d'une branche ou deux", async () => {
+      test("Ajout d'une branche ou deux", async () => {
         await expect(() => fSuivre([{ nom: "abc" }])).rejects.toThrow();
       });
     });
@@ -1029,11 +1039,11 @@ describe("Client Constellation", function () {
           f: (idsBds) => (sélectionnées = idsBds),
         })
       );
-    });
+    }, config.timeout);
     afterAll(() => {
       fsOublier.forEach((f) => f());
     });
-    it("Seules les bonnes BDs sont retournées", async () => {
+    test("Seules les bonnes BDs sont retournées", async () => {
       expect(isArray(sélectionnées));
       expect(sélectionnées).toHaveLength(0);
 
@@ -1047,7 +1057,7 @@ describe("Client Constellation", function () {
       expect(sélectionnées).toHaveLength(1);
       expect(sélectionnées).toEqual(expect.arrayContaining([idBd1]));
     });
-    it("Les changements aux conditions sont détectés", async () => {
+    test("Les changements aux conditions sont détectés", async () => {
       const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<
         KeyValueStore<number>
       >({ id: idBd2 });
@@ -1063,7 +1073,7 @@ describe("Client Constellation", function () {
     const texte = "வணக்கம்";
     test("On ajoute un fichier au SFIP", async () => {
       cid = await client.ajouterÀSFIP({ fichier: texte });
-    });
+    }, config.timeout);
     test("On télécharge le fichier du SFIP", async () => {
       const données = await client.obtFichierSFIP({ id: cid });
       expect(new TextDecoder().decode(données!)).toEqual(texte);
@@ -1087,12 +1097,12 @@ describe("Client Constellation", function () {
       fsOublier.forEach((f) => f());
     });
 
-    it("On obtient la BD", async () => {
+    test("On obtient la BD", async () => {
       const { bd, fOublier } = await client.ouvrirBd({ id: idBd });
       fsOublier.push(fOublier);
       expect(adresseOrbiteValide(bd.address.toString())).toBe(true);
     });
-    it("On évite la concurrence", async () => {
+    test("On évite la concurrence", async () => {
       const bds = await Promise.all(
         [1, 2].map(async () => {
           const { bd, fOublier } = await client.ouvrirBd({ id: idBd });
@@ -1121,13 +1131,13 @@ describe("Client Constellation", function () {
 
       idBd = await client.créerBdIndépendante({ type: "feed" });
       await bdRacine.put("clef", idBd);
-    });
+    }, config.timeout);
 
     afterAll(() => {
       fsOublier.forEach((f) => f());
     });
 
-    it("Avec racine chaîne", async () => {
+    test("Avec racine chaîne", async () => {
       const idBdRetrouvée = await client.obtIdBd({
         nom: "clef",
         racine: idRacine,
@@ -1135,7 +1145,7 @@ describe("Client Constellation", function () {
       expect(idBdRetrouvée).toEqual(idBd);
     });
 
-    it("Avec racine BD", async () => {
+    test("Avec racine BD", async () => {
       const idBdRetrouvée = await client.obtIdBd({
         nom: "clef",
         racine: bdRacine,
@@ -1143,7 +1153,7 @@ describe("Client Constellation", function () {
       expect(idBdRetrouvée).toEqual(idBd);
     });
 
-    it("Avec mauvais type spécifié", async () => {
+    test("Avec mauvais type spécifié", async () => {
       const idBdRetrouvée = await client.obtIdBd({
         nom: "clef",
         racine: bdRacine,
@@ -1152,7 +1162,7 @@ describe("Client Constellation", function () {
       expect(idBdRetrouvée).toBeUndefined();
     });
 
-    it("On crée la BD si elle n'existait pas", async () => {
+    test("On crée la BD si elle n'existait pas", async () => {
       const idBdRetrouvée = await client.obtIdBd({
         nom: "je n'existe pas encore",
         racine: bdRacine,
@@ -1161,7 +1171,7 @@ describe("Client Constellation", function () {
       expect(adresseOrbiteValide(idBdRetrouvée)).toBe(true);
     });
 
-    it("Mais on ne crée pas la BD on n'a pas la permission sur la BD racine", async () => {
+    test("Mais on ne crée pas la BD on n'a pas la permission sur la BD racine", async () => {
       const idBdRetrouvée = await client2.obtIdBd({
         nom: "et moi je n'existerai jamais",
         racine: bdRacine,
@@ -1170,7 +1180,7 @@ describe("Client Constellation", function () {
       expect(idBdRetrouvée).toBeUndefined();
     });
 
-    it("On ne perd pas les données en cas de concurrence entre dispositifs", async () => {
+    test("On ne perd pas les données en cas de concurrence entre dispositifs", async () => {
       // Créons une nouvelle BD avec des données
       const NOUVELLE_CLEF = "nouvelle clef";
       const idNouvelleBd = await client.obtIdBd({
@@ -1215,7 +1225,7 @@ describe("Client Constellation", function () {
       expect(éléments).toEqual(
         expect.arrayContaining(["Salut !", "வணக்கம்!", "કેમ છો"])
       );
-    });
+    }, config.timeout * 2);
   });
 
   describe("Créer BD indépendante", function () {
@@ -1225,11 +1235,11 @@ describe("Client Constellation", function () {
       fsOublier.forEach((f) => f());
     });
 
-    it("La BD est crée", async () => {
+    test("La BD est crée", async () => {
       const idBd = await client.créerBdIndépendante({ type: "kvstore" });
       expect(adresseOrbiteValide(idBd)).toBe(true);
-    });
-    it("Avec sa propre bd accès l'utilisateur", async () => {
+    }, config.timeout);
+    test("Avec sa propre bd accès l'utilisateur", async () => {
       const optionsAccès = {
         adresseBd: undefined,
         premierMod: client.bdCompte!.id,
@@ -1246,8 +1256,8 @@ describe("Client Constellation", function () {
 
       const autorisé = await peutÉcrire(bd, client.orbite);
       expect(autorisé).toBe(true);
-    });
-    it("Avec accès personalisé", async () => {
+    }, config.timeout);
+    test("Avec accès personalisé", async () => {
       const optionsAccès = { premierMod: client2.orbite!.identity.id };
       const idBd = await client.créerBdIndépendante({
         type: "kvstore",
@@ -1262,7 +1272,7 @@ describe("Client Constellation", function () {
       const autorisé = await peutÉcrire(bd_orbite2, client2.orbite);
 
       expect(autorisé).toBe(true);
-    });
+    }, config.timeout);
   });
 
   describe("Combiner BDs", function () {
@@ -1272,7 +1282,7 @@ describe("Client Constellation", function () {
       fsOublier.forEach((f) => f());
     });
 
-    it("Combiner BD dic", async () => {
+    test("Combiner BD dic", async () => {
       const idBdDic1 = await client.créerBdIndépendante({ type: "kvstore" });
       const idBdDic2 = await client.créerBdIndépendante({ type: "kvstore" });
 
@@ -1299,9 +1309,9 @@ describe("Client Constellation", function () {
         "clef 2": 2,
         "clef 3": 3,
       });
-    });
+    }, config.timeout);
 
-    it("Combiner BD liste", async () => {
+    test("Combiner BD liste", async () => {
       const idBdListe1 = await client.créerBdIndépendante({ type: "feed" });
       const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
@@ -1328,9 +1338,9 @@ describe("Client Constellation", function () {
       expect(isArray(données)).toBe(true);
       expect(données).toHaveLength(3);
       expect(données).toEqual(expect.arrayContaining([1, 2, 3]));
-    });
+    }, config.timeout);
 
-    it("Combiner BD liste avec indexe", async () => {
+    test("Combiner BD liste avec indexe", async () => {
       const idBdListe1 = await client.créerBdIndépendante({ type: "feed" });
       const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
@@ -1371,9 +1381,9 @@ describe("Client Constellation", function () {
           { temps: 3, val: 3 },
         ])
       );
-    });
+    }, config.timeout);
 
-    it("Combiner BD dic récursif", async () => {
+    test("Combiner BD dic récursif", async () => {
       const idBdDic1 = await client.créerBdIndépendante({ type: "kvstore" });
       const idBdDic2 = await client.créerBdIndépendante({ type: "kvstore" });
 
@@ -1422,9 +1432,9 @@ describe("Client Constellation", function () {
       expect(isArray(données)).toBe(true);
       expect(données).toHaveLength(2);
       expect(données).toEqual(expect.arrayContaining([1, 2]));
-    });
+    }, config.timeout * 2);
 
-    it("Combiner BD liste récursif", async () => {
+    test("Combiner BD liste récursif", async () => {
       const idBdListe1 = await client.créerBdIndépendante({ type: "feed" });
       const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
@@ -1501,13 +1511,13 @@ describe("Client Constellation", function () {
 
       await bd.put("test", 123);
       await bd.close();
-    });
+    }, config.timeout);
 
     afterAll(() => {
       fsOublier.forEach((f) => f());
     });
 
-    it("Les données n'existent plus", async () => {
+    test("Les données n'existent plus", async () => {
       await client.effacerBd({ id: idBd });
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
@@ -1622,7 +1632,7 @@ describe("Client Constellation", function () {
         idObjet: idBd,
         f: fPermission,
       });
-    });
+    }, config.timeout);
     afterAll(async () => {
       if (fOublier) fOublier();
       if (fOublierÉcrire) fOublierÉcrire();
