@@ -135,7 +135,7 @@ typesClients.forEach((type) => {
                 nom: "Julien",
               });
 
-              await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
               vérifierRecherche(rés.ultat!, [réfClient2]);
             }
           );
@@ -146,21 +146,21 @@ typesClients.forEach((type) => {
               nom: "Julián",
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && x.length > 1);
+            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
             vérifierRecherche(rés.ultat!, [réfClient2, réfClient3]);
           });
 
           test("Diminuer N désiré", async () => {
             fChangerN(1);
 
-            await attendreRésultat(rés, "ultat", (x) => x && x.length === 1);
+            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
 
           test("Augmenter N désiré", async () => {
             fChangerN(2);
 
-            await attendreRésultat(rés, "ultat", (x) => x && x.length > 1);
+            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
             vérifierRecherche(rés.ultat!, [réfClient2, réfClient3]);
           });
         });
@@ -212,7 +212,7 @@ typesClients.forEach((type) => {
               courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
 
@@ -221,7 +221,7 @@ typesClients.forEach((type) => {
               courriel: "julien.malard@mail.mcgill.ca",
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !x.length);
             expect(rés.ultat).toHaveLength(0);
           });
         });
@@ -259,7 +259,7 @@ typesClients.forEach((type) => {
           });
 
           test("Membre détecté", async () => {
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
         });
@@ -300,7 +300,7 @@ typesClients.forEach((type) => {
           });
 
           test("Mot-clef détecté", async () => {
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
         });
@@ -351,7 +351,7 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -372,7 +372,7 @@ typesClients.forEach((type) => {
           });
 
           test("Mots-clefs détectés", async () => {
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
           });
         });
       });
@@ -414,7 +414,7 @@ typesClients.forEach((type) => {
           });
 
           test("Variable détecté", async () => {
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réfClient2]);
           });
         });
@@ -467,7 +467,7 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -521,7 +521,7 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -542,7 +542,7 @@ typesClients.forEach((type) => {
           });
 
           test("Variables détectées", async () => {
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
           });
         });
       });
@@ -583,7 +583,7 @@ typesClients.forEach((type) => {
                 },
               },
             };
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -623,7 +623,7 @@ typesClients.forEach((type) => {
               id: idBd,
               noms: { fr: "météorologie" },
             });
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -666,7 +666,7 @@ typesClients.forEach((type) => {
                 fr: "Météorologie de la région de Montpellier.",
               },
             });
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -730,7 +730,7 @@ typesClients.forEach((type) => {
               },
             };
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -791,7 +791,7 @@ typesClients.forEach((type) => {
               },
             };
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -829,7 +829,7 @@ typesClients.forEach((type) => {
                 fr: "Météorologie de la région de Montpellier.",
               },
             });
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -872,7 +872,7 @@ typesClients.forEach((type) => {
                 },
               },
             };
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -916,7 +916,7 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -959,7 +959,7 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -1027,7 +1027,7 @@ typesClients.forEach((type) => {
               },
             };
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -1092,7 +1092,7 @@ typesClients.forEach((type) => {
               },
             };
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -1147,7 +1147,7 @@ typesClients.forEach((type) => {
               noms: { es: "Meteorología" },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -1186,7 +1186,7 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => x && !!x.length);
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
@@ -1241,7 +1241,7 @@ typesClients.forEach((type) => {
           await attendreRésultat(
             rés,
             "membresEnLigne",
-            (x) => x && x.length === 5
+            (x) => !!x && x.length === 5
           );
 
           for (const c of clients) {
@@ -1253,7 +1253,7 @@ typesClients.forEach((type) => {
             c.réseau!.emit("membreVu");
           }
 
-          await attendreRésultat(rés, "membresEnLigne", (x) => x && !x.length);
+          await attendreRésultat(rés, "membresEnLigne", (x) => !!x && !x.length);
 
           ({ fOublier: fOublierRecherche, fChangerN } =
             await client.recherche!.rechercherMotClefSelonNom({
@@ -1295,7 +1295,7 @@ typesClients.forEach((type) => {
             },
           });
 
-          await attendreRésultat(rés, "motsClefs", (x) => x && !!x.length);
+          await attendreRésultat(rés, "motsClefs", (x) => !!x && !!x.length);
           vérifierRecherche(rés.motsClefs!, réf);
         });
 
@@ -1329,7 +1329,7 @@ typesClients.forEach((type) => {
             });
           }
 
-          await attendreRésultat(rés, "motsClefs", (x) => x && x.length >= 5);
+          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length >= 5);
           vérifierRecherche(rés.motsClefs!, réf);
         });
 
@@ -1361,7 +1361,7 @@ typesClients.forEach((type) => {
             });
           }
 
-          await attendreRésultat(rés, "motsClefs", (x) => x && x.length <= 4);
+          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length <= 4);
           vérifierRecherche(rés.motsClefs!, réf);
         });
 
@@ -1388,7 +1388,7 @@ typesClients.forEach((type) => {
             });
           }
 
-          await attendreRésultat(rés, "motsClefs", (x) => x && x.length <= 3);
+          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length <= 3);
           vérifierRecherche(rés.motsClefs!, réf);
         });
 
@@ -1417,7 +1417,7 @@ typesClients.forEach((type) => {
             });
           }
 
-          await attendreRésultat(rés, "motsClefs", (x) => x && x.length >= 4);
+          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length >= 4);
           vérifierRecherche(rés.motsClefs!, réf);
         });
       });
