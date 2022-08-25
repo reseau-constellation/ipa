@@ -15,6 +15,7 @@ import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 
+import { enregistrerContrôleurs } from "@/accès";
 import Épingles from "@/epingles";
 import Profil from "@/profil";
 import BDs from "@/bds";
@@ -118,6 +119,7 @@ export default class ClientConstellation extends EventEmitter {
 
   constructor(opts: optsConstellation = {}) {
     super();
+    enregistrerContrôleurs();
     this._opts = opts;
 
     this._bds = {};
@@ -1696,6 +1698,7 @@ export default class ClientConstellation extends EventEmitter {
     const enleverRequètesDe = (de: string) => {
       delete dicBds[de];
       Object.keys(dicBds).forEach((id) => {
+        if (!dicBds[id]) return
         dicBds[id].requètes.delete(de);
         if (!dicBds[id].requètes.size) {
           dicBds[id].fOublier();
@@ -1781,15 +1784,14 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-    await Promise.all(
-      Object.values(this._bds).map(async (bd) => await bd.bd.close())
-    );
 
     if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
+
     if (this.favoris) await this.favoris.fermer();
     if (this.réseau) await this.réseau.fermer();
     if (this.automatisations) await this.automatisations.fermer();
     if (this.épingles) await this.épingles.fermer();
+
     if (this.orbite && !this._orbiteExterne) await this.orbite.stop();
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
   }
