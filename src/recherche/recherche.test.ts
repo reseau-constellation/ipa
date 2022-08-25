@@ -1,6 +1,5 @@
 import { config } from "@/utilsTests/sfipTest";
 
-import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import { statutMembre } from "@/reseau";
 import {
@@ -65,7 +64,6 @@ typesClients.forEach((type) => {
       let client3: ClientConstellation;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
         ({ fOublier: fOublierClients, clients } = await générerClients(
           3,
           type
@@ -1205,7 +1203,6 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
         ({ fOublier: fOublierClients, clients } = await générerClients(
           5,
           type
