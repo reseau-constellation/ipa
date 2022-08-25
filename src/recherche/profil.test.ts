@@ -1,8 +1,6 @@
-
 import fs from "fs";
 import path from "path";
 
-import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
@@ -18,7 +16,8 @@ import {
 } from "@/recherche/profil";
 
 
-import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
+import { générerClients, typesClients, attendreRésultat, dirRessourcesTests } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -28,13 +27,12 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type
         ));
         client = clients[0];
-      });
+      }, config.patienceInit);
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
@@ -51,7 +49,7 @@ typesClients.forEach((type) => {
           const fRecherche = rechercherProfilSelonActivité();
           fOublier = await fRecherche(
             client,
-            client.profil!.idBd,
+            client.idBdCompte!,
             (r) => (rés.ultat = r)
           );
         });
@@ -85,9 +83,10 @@ typesClients.forEach((type) => {
           await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 1 / 3);
           expect(rés.ultat?.score).toEqual(2 / 3);
         });
+
         test("C'est parfait avec un photo !", async () => {
           const IMAGE = fs.readFileSync(
-            path.resolve(path.dirname(""), "tests/_ressources/logo.png")
+            path.join(dirRessourcesTests(), "logo.png")
           );
 
           await client.profil!.sauvegarderImage({ image: IMAGE });
@@ -113,7 +112,7 @@ typesClients.forEach((type) => {
           const fRecherche = rechercherProfilSelonNom("Julien");
           fOublier = await fRecherche(
             client,
-            client.profil!.idBd,
+            client.idBdCompte!,
             (r) => (rés.ultat = r)
           );
         });
@@ -166,7 +165,7 @@ typesClients.forEach((type) => {
           const fRecherche = rechercherProfilSelonCourriel("julien");
           fOublier = await fRecherche(
             client,
-            client.profil!.idBd,
+            client.idBdCompte!,
             (r) => (rés.ultat = r)
           );
         });
@@ -202,22 +201,19 @@ typesClients.forEach((type) => {
       });
 
       describe("Selon texte", function () {
-        let résultatCourriel:
-          | résultatObjectifRecherche<infoRésultatTexte>
-          | undefined;
-        let résultatNom:
-          | résultatObjectifRecherche<infoRésultatTexte>
-          | undefined;
-
         const fsOublier: schémaFonctionOublier[] = [];
+        const résultat: {
+          nom?: résultatObjectifRecherche<infoRésultatTexte>,
+          courriel?: résultatObjectifRecherche<infoRésultatTexte>
+        } = {}
 
         beforeAll(async () => {
           const fRechercheNom = rechercherProfilSelonTexte("Julien Malard");
           fsOublier.push(
             await fRechercheNom(
               client,
-              client.profil!.idBd,
-              (r) => (résultatNom = r)
+              client.idBdCompte!,
+              (r) => (résultat.nom = r)
             )
           );
 
@@ -225,8 +221,8 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await fRechercherCourriel(
               client,
-              client.profil!.idBd,
-              (r) => (résultatCourriel = r)
+              client.idBdCompte!,
+              (r) => (résultat.courriel = r)
             )
           );
         });
@@ -236,7 +232,8 @@ typesClients.forEach((type) => {
         });
 
         test("Rien pour commencer", async () => {
-          expect(résultatNom).toBeUndefined;
+          expect(résultat.nom).toBeUndefined;
+          expect(résultat.courriel).toBeUndefined;
         });
 
         test("Ajout nom détecté", async () => {
@@ -244,7 +241,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Julien Malard-Adam",
           });
-          expect(résultatNom).toEqual({
+          await attendreRésultat(résultat, "nom");
+          expect(résultat.nom).toEqual({
             type: "résultat",
             clef: "fr",
             de: "nom",
@@ -256,7 +254,9 @@ typesClients.forEach((type) => {
             },
             score: 1,
           });
-          expect(résultatCourriel).toEqual({
+
+          await attendreRésultat(résultat, "courriel");
+          expect(résultat.courriel).toEqual({
             type: "résultat",
             clef: "fr",
             de: "nom",
@@ -270,11 +270,13 @@ typesClients.forEach((type) => {
           });
         });
 
-        it("Ajout courriel détecté", async () => {
+        test("Ajout courriel détecté", async () => {
           await client.profil!.sauvegarderCourriel({
             courriel: "julien.malard@mail.mcgill.ca",
           });
-          expect(résultatCourriel).toEqual({
+
+          await attendreRésultat(résultat, "courriel", x => x && x.score>1/3);
+          expect(résultat.courriel).toEqual({
             type: "résultat",
             de: "courriel",
             info: {
