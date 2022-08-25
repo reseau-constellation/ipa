@@ -6,7 +6,6 @@ import AdmZip from "adm-zip";
 import isArray from "lodash/isArray";
 import isSet from "lodash/isSet";
 
-import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import {
   schémaFonctionSuivi,
@@ -34,7 +33,6 @@ typesClients.forEach((type) => {
       let idBd: string;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type
