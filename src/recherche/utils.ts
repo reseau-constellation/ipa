@@ -1,5 +1,5 @@
 import ssim from "ssim";
-import correspTexte from "@/_internalisés/approx-string-match";
+import correspTexte from "approx-string-match";
 
 import ClientConstellation from "@/client";
 import {
