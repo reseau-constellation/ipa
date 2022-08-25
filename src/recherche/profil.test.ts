@@ -275,7 +275,7 @@ typesClients.forEach((type) => {
             courriel: "julien.malard@mail.mcgill.ca",
           });
 
-          await attendreRésultat(résultat, "courriel", x => x && x.score>1/3);
+          await attendreRésultat(résultat, "courriel", x => Boolean(x && x.score>1/3));
           expect(résultat.courriel).toEqual({
             type: "résultat",
             de: "courriel",
