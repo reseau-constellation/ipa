@@ -97,7 +97,7 @@ typesClients.forEach((type) => {
 
           const fRecherche = rechercherProjetSelonDescr("Météo");
           fOublier = await fRecherche(client, idProjet, (r) => (résultat = r));
-        });
+        }, config.timeout);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -168,7 +168,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await fRechercheTous(client, idProjet, (r) => (résultatTous = r))
           );
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
@@ -281,7 +281,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await fRechercheTous(client, idProjet, (r) => (résultatTous = r))
           );
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
@@ -440,7 +440,7 @@ typesClients.forEach((type) => {
               (r) => (résultatMotsClef = r)
             )
           );
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
@@ -712,7 +712,7 @@ typesClients.forEach((type) => {
               (r) => (résultatMotsClef = r)
             )
           );
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());

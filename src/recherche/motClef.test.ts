@@ -45,7 +45,7 @@ typesClients.forEach((type) => {
 
           const fRecherche = rechercherMotClefSelonNom("hydrologie");
           fOublier = await fRecherche(client, idMotClef, (r) => (résultat = r));
-        });
+        }, config.timeout);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -138,7 +138,7 @@ typesClients.forEach((type) => {
               fr: "hydrologie",
             },
           });
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());

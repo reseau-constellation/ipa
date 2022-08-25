@@ -302,7 +302,7 @@ describe("Utils recherche", function () {
           fSuivreRecherche
         )
       );
-    });
+    }, config.timeout);
     afterAll(() => fsOublier.forEach((f) => f()));
 
     test("Rien pour commencer", () => {

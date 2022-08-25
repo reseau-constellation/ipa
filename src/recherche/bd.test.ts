@@ -52,7 +52,7 @@ typesClients.forEach((type) => {
 
           const fRecherche = rechercherBdSelonNom("Météo");
           fOublier = await fRecherche(client, idBd, (r) => (résultat = r));
-        });
+        }, config.timeout);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -95,7 +95,7 @@ typesClients.forEach((type) => {
 
           const fRecherche = rechercherBdSelonDescr("Météo");
           fOublier = await fRecherche(client, idBd, (r) => (résultat = r));
-        });
+        }, config.timeout);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -163,7 +163,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await fRechercheTous(client, idBd, (r) => (résultatTous = r))
           );
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
@@ -273,7 +273,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await fRechercheTous(client, idBd, (r) => (résultatTous = r))
           );
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
@@ -412,7 +412,7 @@ typesClients.forEach((type) => {
               (r) => (résultatMotsClef = r)
             )
           );
-        });
+        }, config.timeout);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
