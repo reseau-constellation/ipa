@@ -1531,6 +1531,8 @@ export default class Réseau extends EventEmitter {
               },
             };
             fSuivreBranche(résultatFinalBranche);
+          } else {
+            fSuivreBranche(undefined);
           }
         };
 
