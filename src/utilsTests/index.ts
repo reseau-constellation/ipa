@@ -48,13 +48,13 @@ export const attendreSync = async (bd: Store): Promise<void> => {
   await once(accès.bd!.events, "peer.exchanged");
 };
 
-export const attendreRésultat = async <T>(
-  dic: { [key: string]: T },
-  clef: keyof typeof dic,
-  valDésirée?: ((x: typeof dic[typeof clef]) => boolean) | T
+export const attendreRésultat = async <T extends Record<string, unknown>, K extends string>(
+  dic: T,
+  clef: K,
+  valDésirée?: ((x?: T[K]) => boolean) | T[K]
 ): Promise<void> => {
   if (valDésirée === undefined) {
-    valDésirée = (x: T) => x !== undefined;
+    valDésirée = (x?: T[K]) => x !== undefined;
   }
   return new Promise((résoudre) => {
     const vérifierPrêt = () => {
