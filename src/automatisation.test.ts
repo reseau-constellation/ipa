@@ -758,7 +758,6 @@ typesClients.forEach((type) => {
             });
 
           await attendreFichierExiste(path.join(dir, "Ma bd.ods"));
-          const maintenant = Date.now();
 
           // @ts-ignore
           await attendreRésultat(rés, "états", (x) => x[idAuto]);
@@ -766,7 +765,9 @@ typesClients.forEach((type) => {
           const état = rés.états![idAuto] as ÉtatProgrammée;
 
           expect(état.type).toEqual("programmée");
-          expect(état.à).toBeLessThanOrEqual(maintenant + 1000 * 60 * 60);
+
+          const maintenant = Date.now();
+          expect(état.à - maintenant).toBeLessThanOrEqual(1000 * 60 * 60);
         });
 
         test("erreur", async () => {
