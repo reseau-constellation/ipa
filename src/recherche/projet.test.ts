@@ -21,12 +21,11 @@ import {
 } from "@/recherche/projet";
 
 import { générerClients, typesClients } from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest"
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Rechercher projets", function () {
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -103,12 +102,9 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
 
-        test(
-          "Pas de résultat quand le projet n'a pas de description",
-          async () => {
-            expect(résultat).toBeUndefined;
-          }
-        );
+        test("Pas de résultat quand le projet n'a pas de description", async () => {
+          expect(résultat).toBeUndefined;
+        });
 
         test("Ajout description détecté", async () => {
           await client.projets!.ajouterDescriptionsProjet({
@@ -174,14 +170,11 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        test(
-          "Pas de résultat quand le projet n'a pas de mot-clef",
-          async () => {
-            expect(résultatId).toBeUndefined;
-            expect(résultatNom).toBeUndefined;
-            expect(résultatTous).toBeUndefined;
-          }
-        );
+        test("Pas de résultat quand le projet n'a pas de mot-clef", async () => {
+          expect(résultatId).toBeUndefined;
+          expect(résultatNom).toBeUndefined;
+          expect(résultatTous).toBeUndefined;
+        });
 
         test("Ajout mot-clef détecté", async () => {
           await client.projets!.ajouterMotsClefsProjet({

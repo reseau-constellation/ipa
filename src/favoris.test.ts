@@ -81,7 +81,7 @@ typesClients.forEach((type) => {
       describe("Épingler BDs", function () {
         let idBd: string;
 
-        const favo: {ris?: ÉlémentFavorisAvecObjet[]} = {};
+        const favo: { ris?: ÉlémentFavorisAvecObjet[] } = {};
         let épingleBd: épingleDispositif;
 
         const fsOublier: schémaFonctionOublier[] = [];
@@ -118,16 +118,15 @@ typesClients.forEach((type) => {
           });
           expect(isArray(favo.ris)).toBe(true);
 
-          expect(favo.ris)
-            .toHaveLength(1)
+          expect(favo.ris).toHaveLength(1);
           expect(favo.ris).toEqual([
-              {
-                récursif: true,
-                dispositifs: "TOUS",
-                dispositifsFichiers: "INSTALLÉ",
-                idObjet: idBd,
-              },
-            ]);
+            {
+              récursif: true,
+              dispositifs: "TOUS",
+              dispositifsFichiers: "INSTALLÉ",
+              idObjet: idBd,
+            },
+          ]);
           expect(épingleBd).toEqual({
             idObjet: idBd,
             bd: true,

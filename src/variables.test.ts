@@ -11,7 +11,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Variables", function () {
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -47,15 +46,19 @@ typesClients.forEach((type) => {
           expect(isArray(variables)).toBe(true);
           expect(variables).toHaveLength(0);
         });
-        test("Créer des variables", async () => {
-          idVariable = await client.variables!.créerVariable({
-            catégorie: "numérique",
-          });
-          expect(isArray(variables)).toBe(true);
+        test(
+          "Créer des variables",
+          async () => {
+            idVariable = await client.variables!.créerVariable({
+              catégorie: "numérique",
+            });
+            expect(isArray(variables)).toBe(true);
 
-          expect(variables).toHaveLength(1)
-          expect(variables).toContain(idVariable);
-        }, config.timeout);
+            expect(variables).toHaveLength(1);
+            expect(variables).toContain(idVariable);
+          },
+          config.timeout
+        );
 
         test("Effacer un mot-clef", async () => {
           await client.variables!.effacerVariable({ id: idVariable });
@@ -465,10 +468,9 @@ typesClients.forEach((type) => {
               catégorie: "numérique",
             },
           };
-          expect(règles.map((r) => r.règle)).toEqual(expect.arrayContaining([
-            règle,
-            règleCatégorie,
-          ]));
+          expect(règles.map((r) => r.règle)).toEqual(
+            expect.arrayContaining([règle, règleCatégorie])
+          );
         });
 
         test("Les unités sont copiés", async () => {

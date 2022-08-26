@@ -17,35 +17,34 @@ typesClients.forEach((type) => {
       }, config.patienceInit);
 
       test("Encrypter et décrypter", async () => {
-        const messageSecret = "போய்து வறேன்"
+        const messageSecret = "போய்து வறேன்";
         const messageEncrypté = encrypteur1.encrypter({
           message: messageSecret,
-          clefPubliqueDestinataire: encrypteur2.clefs.publique
-        })
+          clefPubliqueDestinataire: encrypteur2.clefs.publique,
+        });
 
         const messageDécrypté = encrypteur2.décrypter({
           message: messageEncrypté,
-          clefPubliqueExpéditeur: encrypteur1.clefs.publique
-        })
+          clefPubliqueExpéditeur: encrypteur1.clefs.publique,
+        });
 
-        expect(messageDécrypté).toEqual(messageSecret)
+        expect(messageDécrypté).toEqual(messageSecret);
       });
 
       test("Quelqu'un d'autre ne peut pas décrypter", async () => {
-        const messageSecret = "போய்து வறேன்"
+        const messageSecret = "போய்து வறேன்";
         const messageEncrypté = encrypteur1.encrypter({
           message: messageSecret,
-          clefPubliqueDestinataire: encrypteur2.clefs.publique
-        })
+          clefPubliqueDestinataire: encrypteur2.clefs.publique,
+        });
 
-        expect(() => encrypteur3.décrypter({
-          message: messageEncrypté,
-          clefPubliqueExpéditeur: encrypteur1.clefs.publique
-        })).toThrow()
-
+        expect(() =>
+          encrypteur3.décrypter({
+            message: messageEncrypté,
+            clefPubliqueExpéditeur: encrypteur1.clefs.publique,
+          })
+        ).toThrow();
       });
-
-
     });
   });
 });

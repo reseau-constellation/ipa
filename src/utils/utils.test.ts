@@ -35,7 +35,7 @@ describe("Utils", function () {
     });
   });
   describe("zipper", function () {
-    const dirTempoTest = obtDirTempoPourTest()
+    const dirTempoTest = obtDirTempoPourTest();
     const nomFichier = path.join(dirTempoTest, "testZip.zip");
     const fichierExtrait = path.join(dirTempoTest, "testZipExtrait");
 

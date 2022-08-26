@@ -15,8 +15,12 @@ import {
   rechercherProfilSelonCourriel,
 } from "@/recherche/profil";
 
-
-import { générerClients, typesClients, attendreRésultat, dirRessourcesTests } from "@/utilsTests";
+import {
+  générerClients,
+  typesClients,
+  attendreRésultat,
+  dirRessourcesTests,
+} from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -203,9 +207,9 @@ typesClients.forEach((type) => {
       describe("Selon texte", function () {
         const fsOublier: schémaFonctionOublier[] = [];
         const résultat: {
-          nom?: résultatObjectifRecherche<infoRésultatTexte>,
-          courriel?: résultatObjectifRecherche<infoRésultatTexte>
-        } = {}
+          nom?: résultatObjectifRecherche<infoRésultatTexte>;
+          courriel?: résultatObjectifRecherche<infoRésultatTexte>;
+        } = {};
 
         beforeAll(async () => {
           const fRechercheNom = rechercherProfilSelonTexte("Julien Malard");
@@ -275,7 +279,9 @@ typesClients.forEach((type) => {
             courriel: "julien.malard@mail.mcgill.ca",
           });
 
-          await attendreRésultat(résultat, "courriel", x => Boolean(x && x.score>1/3));
+          await attendreRésultat(résultat, "courriel", (x) =>
+            Boolean(x && x.score > 1 / 3)
+          );
           expect(résultat.courriel).toEqual({
             type: "résultat",
             de: "courriel",

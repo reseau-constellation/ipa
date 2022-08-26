@@ -1405,10 +1405,12 @@ export default class Réseau extends EventEmitter {
       [key: string]: {
         résultats: résultatRecherche<T>[];
         membre: infoMembreRéseau;
-        fOublierRecherche: schémaFonctionOublier;
         mettreÀJour: (membre: infoMembreRéseau) => void;
       };
     } = {};
+
+    const fsOublierRechercheMembres: { [key: string]: schémaFonctionOublier } =
+      {};
 
     const DÉLAI_REBOURS = 3000;
     let annulerRebours: NodeJS.Timeout;
@@ -1567,6 +1569,14 @@ export default class Réseau extends EventEmitter {
         return fOublierBranche;
       };
 
+      résultatsParMembre[idBdCompte] = {
+        résultats: [] as résultatRecherche<T>[],
+        membre,
+        mettreÀJour: () => {
+          fFinale();
+        },
+      };
+
       const fOublierRechercheMembre =
         await this.client.suivreBdsDeFonctionListe({
           fListe,
@@ -1574,19 +1584,18 @@ export default class Réseau extends EventEmitter {
           fBranche,
         });
 
-      résultatsParMembre[idBdCompte] = {
-        résultats: [] as résultatRecherche<T>[],
-        membre,
-        fOublierRecherche: fOublierRechercheMembre,
-        mettreÀJour: () => {
-          fFinale();
-        },
-      };
+      fsOublierRechercheMembres[idBdCompte] = fOublierRechercheMembre;
     };
 
     const oublierRésultatsMembre = (compte: string) => {
-      résultatsParMembre[compte]?.fOublierRecherche();
+      fsOublierRechercheMembres[compte]?.();
+      console.log(
+        "On oublie le compte: ",
+        compte,
+        fsOublierRechercheMembres[compte]
+      );
       delete résultatsParMembre[compte];
+      delete fsOublierRechercheMembres[compte];
       fFinale();
     };
 
@@ -1596,6 +1605,7 @@ export default class Réseau extends EventEmitter {
       comptes: infoMembreRéseau[]
     ): Promise<void> => {
       await verrou.acquire("rechercher");
+      console.log("verrou aquis");
 
       comptes = comptes.filter((c) => c.confiance >= 0); // Enlever les membres bloqués
 
@@ -1612,11 +1622,14 @@ export default class Réseau extends EventEmitter {
         );
       });
 
+      console.log({ nouveaux, changés, clefsObsolètes });
+
       await Promise.all(nouveaux.map(suivreRésultatsMembre));
       changés.forEach((c) => résultatsParMembre[c.idBdCompte].mettreÀJour(c));
 
       clefsObsolètes.forEach((o) => oublierRésultatsMembre(o));
 
+      console.log("verrou relâché");
       verrou.release("rechercher");
     };
 
@@ -1635,7 +1648,7 @@ export default class Réseau extends EventEmitter {
 
     const fOublier = () => {
       fOublierSuivreComptes();
-      Object.values(résultatsParMembre).forEach((r) => r.fOublierRecherche());
+      Object.values(fsOublierRechercheMembres).forEach((f) => f());
     };
 
     return { fChangerN, fOublier };

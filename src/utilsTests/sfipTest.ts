@@ -1,11 +1,11 @@
 import Ctl from "ipfsd-ctl";
 import { NodeType } from "ipfsd-ctl/dist/src/types";
 
-const FACTEUR = 2
+const FACTEUR = 2;
 
 export const config = {
   timeout: 30 * 1000 * FACTEUR,
-  patienceInit: 3 * 60 * 1000 * FACTEUR
+  patienceInit: 3 * 60 * 1000 * FACTEUR,
 };
 
 export const startIpfs = async (dossier = "") => {
@@ -18,21 +18,21 @@ export const startIpfs = async (dossier = "") => {
       repo: dossier,
       config: {
         Addresses: {
-          API: '/ip4/127.0.0.1/tcp/0',
-          Swarm: ['/ip4/0.0.0.0/tcp/0'],
-          Gateway: '/ip4/0.0.0.0/tcp/0'
+          API: "/ip4/127.0.0.1/tcp/0",
+          Swarm: ["/ip4/0.0.0.0/tcp/0"],
+          Gateway: "/ip4/0.0.0.0/tcp/0",
         },
         Bootstrap: [],
         Discovery: {
           MDNS: {
             Enabled: true,
-            Interval: 0
+            Interval: 0,
           },
           webRTCStar: {
-            Enabled: false
-          }
-        }
-      }
+            Enabled: false,
+          },
+        },
+      },
     },
   };
 

@@ -6,7 +6,12 @@ import ClientConstellation from "@/client";
 import { MAX_TAILLE_IMAGE } from "@/profil";
 import { schémaFonctionOublier } from "@/utils";
 
-import { générerClients, typesClients, attendreRésultat, dirRessourcesTests } from "@/utilsTests";
+import {
+  générerClients,
+  typesClients,
+  attendreRésultat,
+  dirRessourcesTests,
+} from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -142,7 +147,7 @@ typesClients.forEach((type) => {
         });
 
         test("Ajouter une image trop grande", async () => {
-          await expect(()=>
+          await expect(() =>
             client.profil!.sauvegarderImage({
               image: Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 }),
             })

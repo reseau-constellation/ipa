@@ -20,15 +20,15 @@ import générerProxyTravailleur from "@/proxy/ipaTravailleur";
 
 export const dirRessourcesTests = (): string => {
   return path.resolve(path.dirname(""), "src", "utilsTests", "ressources");
-}
+};
 
 export const dirTempoTests = (): string => {
   return path.resolve(path.dirname(""), "src", "utilsTests", "_tempo");
-}
+};
 
 export const obtDirTempoPourTest = (nom?: string): string => {
-  return path.resolve(dirTempoTests(), (nom || "") + uuidv4())
-}
+  return path.resolve(dirTempoTests(), (nom || "") + uuidv4());
+};
 
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   new Promise<void>((resolve) => {
@@ -48,7 +48,10 @@ export const attendreSync = async (bd: Store): Promise<void> => {
   await once(accès.bd!.events, "peer.exchanged");
 };
 
-export const attendreRésultat = async <T extends Record<string, unknown>, K extends string>(
+export const attendreRésultat = async <
+  T extends Record<string, unknown>,
+  K extends keyof T
+>(
   dic: T,
   clef: K,
   valDésirée?: ((x?: T[K]) => boolean) | T[K]
@@ -61,7 +64,7 @@ export const attendreRésultat = async <T extends Record<string, unknown>, K ext
       const val = dic[clef];
       let prêt = false;
       if (typeof valDésirée === "function") {
-        prêt = (valDésirée as Function)(val);
+        prêt = (valDésirée as (x?: T[K]) => boolean)(val);
       } else {
         prêt = val === valDésirée;
       }
@@ -201,7 +204,7 @@ export const générerClients = async (
   jest.setTimeout(config.timeout);
 
   const clients: ClientConstellation[] = [];
-  const fsOublier: (()=>Promise<void>)[] = [];
+  const fsOublier: (() => Promise<void>)[] = [];
 
   if (type === "directe" || type == "proc") {
     const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n);
@@ -241,12 +244,8 @@ export const générerClients = async (
   }
 
   const fOublier = async () => {
-    await Promise.all(
-      clients.map(client => client.fermer())
-    );
-    await Promise.all(
-      fsOublier.map(f => f())
-    );
+    await Promise.all(clients.map((client) => client.fermer()));
+    await Promise.all(fsOublier.map((f) => f()));
   };
   return { fOublier, clients };
 };

@@ -7,7 +7,6 @@ import ImportateurFeuilleCalcul from "@/importateur/xlsx";
 
 import { dirRessourcesTests } from "@/utilsTests";
 
-
 describe("XLSX", function () {
   describe("Importateur XLSX", function () {
     let importateur: ImportateurFeuilleCalcul;
@@ -22,15 +21,17 @@ describe("XLSX", function () {
 
     test("Noms tableaux", async () => {
       const noms = importateur.obtNomsTableaux();
-      expect(isArray(noms)).toBe(true)
-      expect(noms).toHaveLength(1)
+      expect(isArray(noms)).toBe(true);
+      expect(noms).toHaveLength(1);
       expect(noms).toEqual(expect.arrayContaining(["Feuille1"]));
     });
     test("Noms colonnes", async () => {
       const cols = importateur.obtColsTableau("Feuille1");
-      expect(isArray(cols))
-      expect(cols).toHaveLength(2)
-      expect(cols).toEqual(expect.arrayContaining(["Numérique", "இது உரை ஆகும்"]));
+      expect(isArray(cols));
+      expect(cols).toHaveLength(2);
+      expect(cols).toEqual(
+        expect.arrayContaining(["Numérique", "இது உரை ஆகும்"])
+      );
     });
     test("Données importées", async () => {
       const données = importateur.obtDonnées("Feuille1", {

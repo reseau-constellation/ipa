@@ -22,7 +22,6 @@ import {
   rechercherTous,
 } from "@/recherche/utils";
 
-
 import { générerClients, dirRessourcesTests } from "@/utilsTests";
 
 describe("Utils recherche", function () {
@@ -174,9 +173,7 @@ describe("Utils recherche", function () {
   });
 
   describe.skip("Simil image", function () {
-    const IMAGE = fs.readFileSync(
-      path.join(dirRessourcesTests(), "logo.png")
-    );
+    const IMAGE = fs.readFileSync(path.join(dirRessourcesTests(), "logo.png"));
     const IMAGE2 = fs.readFileSync(
       path.join(dirRessourcesTests(), "logo2.png")
     );

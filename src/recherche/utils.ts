@@ -127,7 +127,7 @@ export const sousRecherche = async <T extends infoRésultat>(
       client,
       idBd,
       (résultat?: résultatObjectifRecherche<T>) => {
-        if (résultat) f({ id: idBd, résultat })
+        if (résultat) f({ id: idBd, résultat });
       }
     );
   };
@@ -139,7 +139,7 @@ export const sousRecherche = async <T extends infoRésultat>(
   ) => {
     const meilleur = meilleurRésultat<T>(résultats);
 
-    if (meilleur){
+    if (meilleur) {
       const résultat: résultatObjectifRecherche<infoRésultatRecherche<T>> = {
         type: "résultat",
         de,

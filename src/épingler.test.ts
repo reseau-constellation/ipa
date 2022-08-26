@@ -12,7 +12,6 @@ import { config } from "@/utilsTests/sfipTest";
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Épingles", function () {
-
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -49,7 +48,7 @@ typesClients.forEach((type) => {
           const épingles = client.épingles!.épingles();
           expect(isSet(épingles)).toBe(true);
 
-          expect(épingles.size).toEqual(1)
+          expect(épingles.size).toEqual(1);
           expect(épingles).toContain(idBd);
         });
         test("Enlever une épingle", async () => {
@@ -116,7 +115,9 @@ typesClients.forEach((type) => {
 
           const épingles = client.épingles!.épingles();
 
-          expect([...épingles]).toEqual(expect.arrayContaining([idBdDic2, idBdAutre]));
+          expect([...épingles]).toEqual(
+            expect.arrayContaining([idBdDic2, idBdAutre])
+          );
         });
 
         test("Désépingler dic récursif", async () => {
@@ -131,7 +132,7 @@ typesClients.forEach((type) => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
 
           const épingles = client.épingles!.épingles();
-          expect(épingles.size).toEqual(1)
+          expect(épingles.size).toEqual(1);
           expect(épingles).toContain(idBdAutre);
         });
       });
@@ -183,16 +184,13 @@ typesClients.forEach((type) => {
           expect(client.épingles!.épinglée({ id: idc })).toBe(false);
         });
 
-        test(
-          "Fichier toujours épinglé si présent dans une autre BD",
-          async () => {
-            expect(client.épingles!.épinglée({ id: idc2 }));
+        test("Fichier toujours épinglé si présent dans une autre BD", async () => {
+          expect(client.épingles!.épinglée({ id: idc2 }));
 
-            await client.épingles!.désépinglerBd({ id: idBd2 });
+          await client.épingles!.désépinglerBd({ id: idBd2 });
 
-            expect(client.épingles!.épinglée({ id: idc2 })).toBe(false);
-          }
-        );
+          expect(client.épingles!.épinglée({ id: idc2 })).toBe(false);
+        });
 
         test("Fichier épinglé dans BD récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe });

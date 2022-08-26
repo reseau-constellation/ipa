@@ -11,7 +11,6 @@ import { peutÉcrire, attendreSync, générerOrbites } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 describe("Contrôleur Constellation", function () {
-
   let fOublierOrbites: () => Promise<void>;
   let orbites: OrbitDB[];
   let orbitdb1: OrbitDB,
@@ -22,8 +21,7 @@ describe("Contrôleur Constellation", function () {
   beforeAll(async () => {
     ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(4));
     [orbitdb1, orbitdb2, orbitdb3, orbitdb4] = orbites;
-  },
-config.patienceInit);
+  }, config.patienceInit);
 
   afterAll(async () => {
     if (fOublierOrbites) await fOublierOrbites();
@@ -42,8 +40,7 @@ config.patienceInit);
           },
         });
         await bd.load();
-      },
-    config.timeout);
+      }, config.timeout);
 
       test("Le premier mod peut écrire à la BD", async () => {
         const autorisé = await peutÉcrire(bd);

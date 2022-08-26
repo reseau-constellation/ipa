@@ -10,9 +10,14 @@ import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils";
 
-import { dirRessourcesTests, obtDirTempoPourTest, générerClients, attendreRésultat, typesClients } from "@/utilsTests";
+import {
+  dirRessourcesTests,
+  obtDirTempoPourTest,
+  générerClients,
+  attendreRésultat,
+  typesClients,
+} from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
-
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -63,7 +68,9 @@ typesClients.forEach((type) => {
 
         test("Enlever de mes projets", async () => {
           await client.projets!.enleverDeMesProjets(idNouveauProjet);
-          expect(mesProjets).not.toEqual(expect.arrayContaining([idNouveauProjet]));
+          expect(mesProjets).not.toEqual(
+            expect.arrayContaining([idNouveauProjet])
+          );
         });
 
         test("Ajouter à mes projets", async () => {
@@ -73,7 +80,9 @@ typesClients.forEach((type) => {
 
         test("On peut aussi l'effacer", async () => {
           await client.projets!.effacerProjet({ id: idNouveauProjet });
-          expect(mesProjets).not.toEqual(expect.arrayContaining([idNouveauProjet]));
+          expect(mesProjets).not.toEqual(
+            expect.arrayContaining([idNouveauProjet])
+          );
         });
       });
 
@@ -224,7 +233,7 @@ typesClients.forEach((type) => {
             idProjet,
             idsMotsClefs: idMotClef,
           });
-          expect(isArray(motsClefs)).toBe(true)
+          expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toHaveLength(1);
         });
         test("Effacer un mot-clef", async () => {
@@ -281,7 +290,7 @@ typesClients.forEach((type) => {
         test("Ajout d'une BD", async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
-          expect(isArray(bds)).toBe(true)
+          expect(isArray(bds)).toBe(true);
           expect(bds).toHaveLength(1);
           expect(bds[0]).toEqual(idBd);
         });
@@ -295,7 +304,7 @@ typesClients.forEach((type) => {
 
           await attendreRésultat(rés, "motsClefs", (x) => x && x.length > 0);
 
-          expect(isArray(rés.motsClefs)).toBe(true)
+          expect(isArray(rés.motsClefs)).toBe(true);
           expect(rés.motsClefs).toHaveLength(1);
           expect(rés.motsClefs![0]).toEqual(idMotClef);
         });
@@ -313,7 +322,7 @@ typesClients.forEach((type) => {
             idTableau,
             idVariable,
           });
-          expect(isArray(variables)).toBe(true)
+          expect(isArray(variables)).toBe(true);
           expect(variables).toHaveLength(1);
           expect(variables[0]).toEqual(idVariable);
         });
@@ -417,7 +426,7 @@ typesClients.forEach((type) => {
           expect(motsClefs).toEqual(expect.arrayContaining([idMotClef]));
         });
         test("Les BDs sont copiées", async () => {
-          expect(isArray(bds)).toBe(true)
+          expect(isArray(bds)).toBe(true);
           expect(bds).toHaveLength(1);
         });
       });
@@ -499,7 +508,9 @@ typesClients.forEach((type) => {
           expect(isArray(docs)).toBe(true);
           expect(docs).toHaveLength(1);
           expect(isArray(docs[0].doc.SheetNames)).toBe(true);
-          expect(docs[0].doc.SheetNames).toEqual(expect.arrayContaining([nomTableau1, nomTableau2]));
+          expect(docs[0].doc.SheetNames).toEqual(
+            expect.arrayContaining([nomTableau1, nomTableau2])
+          );
           expect(docs[0].nom).toEqual("Ma BD");
         });
 
@@ -514,8 +525,10 @@ typesClients.forEach((type) => {
           let nomZip: string;
 
           beforeAll(async () => {
-            dirZip = obtDirTempoPourTest("testExporterProjet")
-            dirFichierExtrait = obtDirTempoPourTest("testExporterProjetExtrait")
+            dirZip = obtDirTempoPourTest("testExporterProjet");
+            dirFichierExtrait = obtDirTempoPourTest(
+              "testExporterProjetExtrait"
+            );
 
             await client.projets!.exporterDocumentDonnées({
               données: { docs, fichiersSFIP, nomFichier },
@@ -539,11 +552,15 @@ typesClients.forEach((type) => {
           });
 
           test("Les données sont exportées", () => {
-            expect(fs.existsSync(path.join(dirFichierExtrait, "Ma BD.ods"))).toBe(true);
+            expect(
+              fs.existsSync(path.join(dirFichierExtrait, "Ma BD.ods"))
+            ).toBe(true);
           });
 
           test("Le dossier pour les données SFIP existe", () => {
-            expect(fs.existsSync(path.join(dirFichierExtrait, "sfip"))).toBe(true);
+            expect(fs.existsSync(path.join(dirFichierExtrait, "sfip"))).toBe(
+              true
+            );
           });
 
           test("Les fichiers SFIP existent", () => {

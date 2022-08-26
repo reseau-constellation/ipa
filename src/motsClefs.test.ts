@@ -4,7 +4,7 @@ import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client";
 import { schémaFonctionOublier } from "@/utils";
 
-import {attendreRésultat, générerClients, typesClients } from "@/utilsTests";
+import { attendreRésultat, générerClients, typesClients } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -195,7 +195,7 @@ typesClients.forEach((type) => {
         });
 
         test("Le mot-clef est copié", async () => {
-          expect(isArray(motsClefs)).toBe(true)
+          expect(isArray(motsClefs)).toBe(true);
           expect(motsClefs).toContain(idMotClef2);
         });
 

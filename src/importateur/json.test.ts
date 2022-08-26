@@ -176,12 +176,9 @@ describe("JSON", function () {
     test("Données importées", async () => {
       expect(isArray(données)).toBe(true);
       expect(données.length).toBeGreaterThan(0);
-      expect(Object.keys(données[0])).toEqual(expect.arrayContaining([
-        "région",
-        "date",
-        "nouveauxCas",
-        "totalCas",
-      ]));
+      expect(Object.keys(données[0])).toEqual(
+        expect.arrayContaining(["région", "date", "nouveauxCas", "totalCas"])
+      );
     });
   });
 });

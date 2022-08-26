@@ -14,7 +14,6 @@ import { générerClients, typesClients } from "@/utilsTests";
 
 import { config } from "@/utilsTests/sfipTest";
 
-
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Rechercher mots clefs", function () {

@@ -398,13 +398,13 @@ export default class ClientConstellation extends EventEmitter {
     idCompte: string;
     codeSecret: string;
   }): Promise<void> {
-
     await this.réseau!.envoyerDemandeRejoindreCompte({
-      idCompte, codeSecret
+      idCompte,
+      codeSecret,
     });
     await this.rejoindreCompte({
-      idBdCompte: idCompte
-    })
+      idBdCompte: idCompte,
+    });
   }
 
   async ajouterDispositif({ idOrbite }: { idOrbite: string }): Promise<void> {
@@ -1110,8 +1110,8 @@ export default class ClientConstellation extends EventEmitter {
       return await this.suivreBd({
         id,
         f: (bd) => {
-          const tête = obtTêteBd(bd)
-          if (tête) fSuivreBranche(tête)
+          const tête = obtTêteBd(bd);
+          if (tête) fSuivreBranche(tête);
         },
       });
     };
@@ -1698,7 +1698,7 @@ export default class ClientConstellation extends EventEmitter {
     const enleverRequètesDe = (de: string) => {
       delete dicBds[de];
       Object.keys(dicBds).forEach((id) => {
-        if (!dicBds[id]) return
+        if (!dicBds[id]) return;
         dicBds[id].requètes.delete(de);
         if (!dicBds[id].requètes.size) {
           dicBds[id].fOublier();
@@ -1784,7 +1784,6 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-
     if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
 
     if (this.favoris) await this.favoris.fermer();

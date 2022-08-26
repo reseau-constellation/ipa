@@ -11,9 +11,7 @@ import {
   infoRésultatVide,
 } from "@/utils";
 
-
 import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
-
 
 const vérifierRecherche = (
   résultats: résultatRecherche<infoRésultat>[],
@@ -47,8 +45,8 @@ const vérifierRecherche = (
     (
       scores[clef] ||
       ((x: number) => {
-        expect(x).toBeGreaterThan(0)
-        expect(x).toBeLessThanOrEqual(1)
+        expect(x).toBeGreaterThan(0);
+        expect(x).toBeLessThanOrEqual(1);
       })
     )(rés);
   }
@@ -127,18 +125,15 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          test(
-            "Moins de résultats que demandé s'il n'y a vraiment rien",
-            async () => {
-              await client2.profil!.sauvegarderNom({
-                langue: "fr",
-                nom: "Julien",
-              });
+          test("Moins de résultats que demandé s'il n'y a vraiment rien", async () => {
+            await client2.profil!.sauvegarderNom({
+              langue: "fr",
+              nom: "Julien",
+            });
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réfClient2]);
-            }
-          );
+            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+            vérifierRecherche(rés.ultat!, [réfClient2]);
+          });
 
           test("On suit les changements", async () => {
             await client3.profil!.sauvegarderNom({
@@ -164,6 +159,7 @@ typesClients.forEach((type) => {
             vérifierRecherche(rés.ultat!, [réfClient2, réfClient3]);
           });
         });
+
         describe("selon courriel", function () {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
@@ -174,7 +170,10 @@ typesClients.forEach((type) => {
             ({ fOublier } =
               await client.recherche!.rechercherProfilSelonCourriel({
                 courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-                f: (membres) => (rés.ultat = membres),
+                f: (membres) => {
+                  console.log(membres);
+                  rés.ultat = membres;
+                },
                 nRésultatsDésirés: 2,
               }));
             réfClient2 = {
@@ -198,10 +197,6 @@ typesClients.forEach((type) => {
           });
 
           test("Rien pour commencer détecté", async () => {
-            await client2.profil!.sauvegarderCourriel({
-              courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-            });
-
             await attendreRésultat(rés, "ultat");
             expect(rés.ultat).toBeTruthy();
             expect(rés.ultat).toHaveLength(0);
@@ -293,7 +288,7 @@ typesClients.forEach((type) => {
                 },
               },
             };
-          });
+          }, config.timeout);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -326,34 +321,38 @@ typesClients.forEach((type) => {
             expect(rés.ultat).toHaveLength(0);
           });
 
-          test("Nouveau mot-clef détecté", async () => {
-            const idMotClef = await client2.motsClefs!.créerMotClef();
-            const réf: résultatRecherche<infoRésultatTexte> = {
-              id: idMotClef,
-              résultatObjectif: {
-                score: 0.5,
-                type: "résultat",
-                de: "nom",
-                clef: "fr",
-                info: {
-                  type: "texte",
-                  texte: "hydrologie",
-                  début: 0,
-                  fin: 5,
+          test(
+            "Nouveau mot-clef détecté",
+            async () => {
+              const idMotClef = await client2.motsClefs!.créerMotClef();
+              const réf: résultatRecherche<infoRésultatTexte> = {
+                id: idMotClef,
+                résultatObjectif: {
+                  score: 0.5,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "fr",
+                  info: {
+                    type: "texte",
+                    texte: "hydrologie",
+                    début: 0,
+                    fin: 5,
+                  },
                 },
-              },
-            };
+              };
 
-            await client2.motsClefs!.ajouterNomsMotClef({
-              id: idMotClef,
-              noms: {
-                fr: "hydrologie",
-              },
-            });
+              await client2.motsClefs!.ajouterNomsMotClef({
+                id: idMotClef,
+                noms: {
+                  fr: "hydrologie",
+                },
+              });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réf]);
+            },
+            config.timeout
+          );
         });
 
         describe("tous", () => {
@@ -407,7 +406,7 @@ typesClients.forEach((type) => {
                 },
               },
             };
-          });
+          }, config.timeout);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -440,36 +439,40 @@ typesClients.forEach((type) => {
             expect(rés.ultat).toHaveLength(0);
           });
 
-          test("Nouvelle variable détectée", async () => {
-            const idVariable = await client2.variables!.créerVariable({
-              catégorie: "numérique",
-            });
-            const réf: résultatRecherche<infoRésultatTexte> = {
-              id: idVariable,
-              résultatObjectif: {
-                score: 0.5,
-                type: "résultat",
-                de: "nom",
-                clef: "fr",
-                info: {
-                  type: "texte",
-                  texte: "précipitation",
-                  début: 0,
-                  fin: 6,
+          test(
+            "Nouvelle variable détectée",
+            async () => {
+              const idVariable = await client2.variables!.créerVariable({
+                catégorie: "numérique",
+              });
+              const réf: résultatRecherche<infoRésultatTexte> = {
+                id: idVariable,
+                résultatObjectif: {
+                  score: 0.5,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "fr",
+                  info: {
+                    type: "texte",
+                    texte: "précipitation",
+                    début: 0,
+                    fin: 6,
+                  },
                 },
-              },
-            };
+              };
 
-            await client2.variables!.ajouterNomsVariable({
-              id: idVariable,
-              noms: {
-                fr: "précipitation",
-              },
-            });
+              await client2.variables!.ajouterNomsVariable({
+                id: idVariable,
+                noms: {
+                  fr: "précipitation",
+                },
+              });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réf]);
+            },
+            config.timeout
+          );
         });
 
         describe("selon descr", () => {
@@ -494,36 +497,40 @@ typesClients.forEach((type) => {
             expect(rés.ultat).toHaveLength(0);
           });
 
-          test("Nouvelle variable détectée", async () => {
-            const idVariable = await client2.variables!.créerVariable({
-              catégorie: "numérique",
-            });
-            const réf: résultatRecherche<infoRésultatTexte> = {
-              id: idVariable,
-              résultatObjectif: {
-                score: 0.5,
-                type: "résultat",
-                de: "descr",
-                clef: "fr",
-                info: {
-                  type: "texte",
-                  texte: "précipitation",
-                  début: 0,
-                  fin: 6,
+          test(
+            "Nouvelle variable détectée",
+            async () => {
+              const idVariable = await client2.variables!.créerVariable({
+                catégorie: "numérique",
+              });
+              const réf: résultatRecherche<infoRésultatTexte> = {
+                id: idVariable,
+                résultatObjectif: {
+                  score: 0.5,
+                  type: "résultat",
+                  de: "descr",
+                  clef: "fr",
+                  info: {
+                    type: "texte",
+                    texte: "précipitation",
+                    début: 0,
+                    fin: 6,
+                  },
                 },
-              },
-            };
+              };
 
-            await client2.variables!.ajouterDescriptionsVariable({
-              id: idVariable,
-              descriptions: {
-                fr: "précipitation",
-              },
-            });
+              await client2.variables!.ajouterDescriptionsVariable({
+                id: idVariable,
+                descriptions: {
+                  fr: "précipitation",
+                },
+              });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réf]);
+            },
+            config.timeout
+          );
         });
 
         describe("tous", () => {
@@ -562,7 +569,7 @@ typesClients.forEach((type) => {
               f: (bds) => (rés.ultat = bds),
               nRésultatsDésirés: 2,
             }));
-          });
+          }, config.timeout);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -691,48 +698,54 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          test("Nouvelle variable détectée", async () => {
-            const idVariable = await client2.variables!.créerVariable({
-              catégorie: "numérique",
-            });
-            const idTableau = await client2.bds!.ajouterTableauBd({ id: idBd });
-            await client2.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable,
-            });
-            await client2.variables!.ajouterNomsVariable({
-              id: idVariable,
-              noms: {
-                fr: "Précipitation",
-              },
-            });
+          test(
+            "Nouvelle variable détectée",
+            async () => {
+              const idVariable = await client2.variables!.créerVariable({
+                catégorie: "numérique",
+              });
+              const idTableau = await client2.bds!.ajouterTableauBd({
+                id: idBd,
+              });
+              await client2.tableaux!.ajouterColonneTableau({
+                idTableau,
+                idVariable,
+              });
+              await client2.variables!.ajouterNomsVariable({
+                id: idVariable,
+                noms: {
+                  fr: "Précipitation",
+                },
+              });
 
-            const réf: résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            > = {
-              id: idBd,
-              résultatObjectif: {
-                score: 0,
-                type: "résultat",
-                de: "variable",
-                clef: idVariable,
-                info: {
+              const réf: résultatRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              > = {
+                id: idBd,
+                résultatObjectif: {
+                  score: 0,
                   type: "résultat",
-                  de: "nom",
-                  clef: "fr",
+                  de: "variable",
+                  clef: idVariable,
                   info: {
-                    type: "texte",
-                    texte: "Précipitation",
-                    début: 0,
-                    fin: 13,
+                    type: "résultat",
+                    de: "nom",
+                    clef: "fr",
+                    info: {
+                      type: "texte",
+                      texte: "Précipitation",
+                      début: 0,
+                      fin: 13,
+                    },
                   },
                 },
-              },
-            };
+              };
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réf]);
+            },
+            config.timeout
+          );
         });
 
         describe("selon mots-clefs", () => {
@@ -755,45 +768,49 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          test("Nouveau mot-clef détecté", async () => {
-            const idMotClef = await client2.motsClefs!.créerMotClef();
-            await client2.bds!.ajouterMotsClefsBd({
-              idBd,
-              idsMotsClefs: idMotClef,
-            });
-            await client2.motsClefs!.ajouterNomsMotClef({
-              id: idMotClef,
-              noms: {
-                es: "Meteorología",
-              },
-            });
+          test(
+            "Nouveau mot-clef détecté",
+            async () => {
+              const idMotClef = await client2.motsClefs!.créerMotClef();
+              await client2.bds!.ajouterMotsClefsBd({
+                idBd,
+                idsMotsClefs: idMotClef,
+              });
+              await client2.motsClefs!.ajouterNomsMotClef({
+                id: idMotClef,
+                noms: {
+                  es: "Meteorología",
+                },
+              });
 
-            const réf: résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            > = {
-              id: idBd,
-              résultatObjectif: {
-                score: 0,
-                type: "résultat",
-                de: "motClef",
-                clef: idMotClef,
-                info: {
+              const réf: résultatRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              > = {
+                id: idBd,
+                résultatObjectif: {
+                  score: 0,
                   type: "résultat",
-                  de: "nom",
-                  clef: "es",
+                  de: "motClef",
+                  clef: idMotClef,
                   info: {
-                    type: "texte",
-                    texte: "Meteorología",
-                    début: 0,
-                    fin: 12,
+                    type: "résultat",
+                    de: "nom",
+                    clef: "es",
+                    info: {
+                      type: "texte",
+                      texte: "Meteorología",
+                      début: 0,
+                      fin: 12,
+                    },
                   },
                 },
-              },
-            };
+              };
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réf]);
+            },
+            config.timeout
+          );
         });
 
         describe("tous", () => {
@@ -851,7 +868,7 @@ typesClients.forEach((type) => {
               f: (bds) => (rés.ultat = bds),
               nRésultatsDésirés: 2,
             }));
-          });
+          }, config.timeout);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -982,54 +999,60 @@ typesClients.forEach((type) => {
                 f: (bds) => (rés.ultat = bds),
                 nRésultatsDésirés: 2,
               }));
-          });
+          }, config.timeout);
 
           afterAll(() => {
             if (fOublier) fOublier();
           });
 
-          test("Nouvelle variable détectée", async () => {
-            const idVariable = await client2.variables!.créerVariable({
-              catégorie: "numérique",
-            });
-            const idTableau = await client2.bds!.ajouterTableauBd({ id: idBd });
-            await client2.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable,
-            });
-            await client2.variables!.ajouterNomsVariable({
-              id: idVariable,
-              noms: {
-                fr: "Précipitation",
-              },
-            });
+          test(
+            "Nouvelle variable détectée",
+            async () => {
+              const idVariable = await client2.variables!.créerVariable({
+                catégorie: "numérique",
+              });
+              const idTableau = await client2.bds!.ajouterTableauBd({
+                id: idBd,
+              });
+              await client2.tableaux!.ajouterColonneTableau({
+                idTableau,
+                idVariable,
+              });
+              await client2.variables!.ajouterNomsVariable({
+                id: idVariable,
+                noms: {
+                  fr: "Précipitation",
+                },
+              });
 
-            const réf: résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            > = {
-              id: idProjet,
-              résultatObjectif: {
-                score: 0,
-                type: "résultat",
-                de: "variable",
-                clef: idVariable,
-                info: {
+              const réf: résultatRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              > = {
+                id: idProjet,
+                résultatObjectif: {
+                  score: 0,
                   type: "résultat",
-                  de: "nom",
-                  clef: "fr",
+                  de: "variable",
+                  clef: idVariable,
                   info: {
-                    type: "texte",
-                    texte: "Précipitation",
-                    début: 0,
-                    fin: 6,
+                    type: "résultat",
+                    de: "nom",
+                    clef: "fr",
+                    info: {
+                      type: "texte",
+                      texte: "Précipitation",
+                      début: 0,
+                      fin: 6,
+                    },
                   },
                 },
-              },
-            };
+              };
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réf]);
+            },
+            config.timeout
+          );
         });
 
         describe("selon mots-clefs", () => {
@@ -1050,55 +1073,61 @@ typesClients.forEach((type) => {
                 f: (bds) => (rés.ultat = bds),
                 nRésultatsDésirés: 2,
               }));
-          });
+          }, config.timeout);
 
           afterAll(() => {
             if (fOublier) fOublier();
           });
 
-          test("Nouveau mot-clef sur la bd détecté", async () => {
-            const idMotClef = await client2.motsClefs!.créerMotClef();
-            await client2.bds!.ajouterMotsClefsBd({
-              idBd,
-              idsMotsClefs: idMotClef,
-            });
-            await client2.motsClefs!.ajouterNomsMotClef({
-              id: idMotClef,
-              noms: {
-                es: "Meteorología",
-              },
-            });
+          test(
+            "Nouveau mot-clef sur la bd détecté",
+            async () => {
+              const idMotClef = await client2.motsClefs!.créerMotClef();
+              await client2.bds!.ajouterMotsClefsBd({
+                idBd,
+                idsMotsClefs: idMotClef,
+              });
+              await client2.motsClefs!.ajouterNomsMotClef({
+                id: idMotClef,
+                noms: {
+                  es: "Meteorología",
+                },
+              });
 
-            const réf: résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            > = {
-              id: idBd,
-              résultatObjectif: {
-                score: 0,
-                type: "résultat",
-                de: "motClef",
-                clef: idMotClef,
-                info: {
+              const réf: résultatRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              > = {
+                id: idBd,
+                résultatObjectif: {
+                  score: 0,
                   type: "résultat",
-                  de: "nom",
-                  clef: "es",
+                  de: "motClef",
+                  clef: idMotClef,
                   info: {
-                    type: "texte",
-                    texte: "Meteorología",
-                    début: 0,
-                    fin: 12,
+                    type: "résultat",
+                    de: "nom",
+                    clef: "es",
+                    info: {
+                      type: "texte",
+                      texte: "Meteorología",
+                      début: 0,
+                      fin: 12,
+                    },
                   },
                 },
-              },
-            };
+              };
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réf]);
+            },
+            config.timeout
+          );
         });
 
         describe("selon bd", () => {
           let fOublier: schémaFonctionOublier;
+
+          const nouveauNom = "Mi base de datos meteorológicos";
           const rés: {
             ultat?: résultatRecherche<
               infoRésultatRecherche<
@@ -1109,7 +1138,7 @@ typesClients.forEach((type) => {
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjetSelonBd({
-              texte: "meteorología",
+              texte: nouveauNom,
               f: (projets) => (rés.ultat = projets),
               nRésultatsDésirés: 2,
             }));
@@ -1135,16 +1164,16 @@ typesClients.forEach((type) => {
                   clef: "es",
                   info: {
                     type: "texte",
-                    texte: "Meteorología",
+                    texte: nouveauNom,
                     début: 0,
-                    fin: 12,
+                    fin: nouveauNom.length,
                   },
                 },
               },
             };
             await client2.bds!.ajouterNomsBd({
               id: idBd,
-              noms: { es: "Meteorología" },
+              noms: { es: "Mi base de datos meteorológicos" },
             });
 
             await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
@@ -1196,7 +1225,7 @@ typesClients.forEach((type) => {
 });
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.skip("Client " + type, function () {
     describe("Test fonctionnalités recherche", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -1253,7 +1282,11 @@ typesClients.forEach((type) => {
             c.réseau!.emit("membreVu");
           }
 
-          await attendreRésultat(rés, "membresEnLigne", (x) => !!x && !x.length);
+          await attendreRésultat(
+            rés,
+            "membresEnLigne",
+            (x) => !!x && !x.length
+          );
 
           ({ fOublier: fOublierRecherche, fChangerN } =
             await client.recherche!.rechercherMotClefSelonNom({
@@ -1262,7 +1295,7 @@ typesClients.forEach((type) => {
               nRésultatsDésirés: 5,
             }));
           fsOublier.push(fOublierRecherche);
-        });
+        }, config.timeout);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -1299,39 +1332,47 @@ typesClients.forEach((type) => {
           vérifierRecherche(rés.motsClefs!, réf);
         });
 
-        test("Objet devient intéressant", async () => {
-          const réf: résultatRecherche<infoRésultatTexte>[] = [];
+        test(
+          "Objet devient intéressant",
+          async () => {
+            const réf: résultatRecherche<infoRésultatTexte>[] = [];
 
-          for (const c of clients) {
-            const idMotClef = motsClefs[c.idBdCompte!];
-            réf.push({
-              id: idMotClef,
-              résultatObjectif: {
-                score: 1,
-                type: "résultat",
-                de: "nom",
-                clef: "ខ្មែរ",
-                info: {
-                  type: "texte",
-                  texte: "ភ្លៀង",
-                  début: 0,
-                  fin: 5,
+            for (const c of clients) {
+              const idMotClef = motsClefs[c.idBdCompte!];
+              réf.push({
+                id: idMotClef,
+                résultatObjectif: {
+                  score: 1,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "ខ្មែរ",
+                  info: {
+                    type: "texte",
+                    texte: "ភ្លៀង",
+                    début: 0,
+                    fin: 5,
+                  },
                 },
-              },
-            });
-            if (c === client) continue;
+              });
+              if (c === client) continue;
 
-            await c.motsClefs!.ajouterNomsMotClef({
-              id: idMotClef,
-              noms: {
-                ខ្មែរ: "ភ្លៀង",
-              },
-            });
-          }
+              await c.motsClefs!.ajouterNomsMotClef({
+                id: idMotClef,
+                noms: {
+                  ខ្មែរ: "ភ្លៀង",
+                },
+              });
+            }
 
-          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length >= 5);
-          vérifierRecherche(rés.motsClefs!, réf);
-        });
+            await attendreRésultat(
+              rés,
+              "motsClefs",
+              (x) => !!x && x.length >= 5
+            );
+            vérifierRecherche(rés.motsClefs!, réf);
+          },
+          config.timeout
+        );
 
         test("Objet ne correspond plus", async () => {
           const idMotClef = motsClefs[clients[4].idBdCompte!];
@@ -1361,7 +1402,11 @@ typesClients.forEach((type) => {
             });
           }
 
-          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length <= 4);
+          await attendreRésultat(
+            rés,
+            "motsClefs",
+            (x) => !!x && !!x.length && x.length <= 4
+          );
           vérifierRecherche(rés.motsClefs!, réf);
         });
 

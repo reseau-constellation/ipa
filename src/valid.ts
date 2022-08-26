@@ -152,20 +152,14 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>({
 
       switch (typeof val) {
         case "string": {
-          const idsColonnes = Object.values(varsÀColonnes);
-
-          if (règle.source === "tableau" && !idsColonnes.includes(val)) {
-            fComp = (_: élémentDonnées<T>) => true;
-          } else {
-            fComp = (v: élémentDonnées<T>) =>
-              fOp(
-                v.données[colonne] as number,
-                // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
-                (règle.source === "variable"
-                  ? v.données[varsÀColonnes[val]]
-                  : v.données[val]) as number
-              );
-          }
+          fComp = (v: élémentDonnées<T>) =>
+            fOp(
+              v.données[colonne] as number,
+              // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
+              (règle.source === "variable"
+                ? v.données[varsÀColonnes[val]]
+                : v.données[val]) as number
+            );
           break;
         }
         case "number":

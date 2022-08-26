@@ -133,7 +133,7 @@ describe("Validation", function () {
     Object.keys(catégories).forEach((cat: string) => {
       describe(cat + " valides", function () {
         catégories[cat as catégorieVariables].valides.forEach((val) => {
-          it(`${val}`, () => {
+          test(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
               catégorie: cat as catégorieVariables,
@@ -144,7 +144,7 @@ describe("Validation", function () {
       });
       describe(cat + " non valides", function () {
         catégories[cat as catégorieVariables].invalides.forEach((val) => {
-          it(`${val}`, () => {
+          test(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
               catégorie: cat as catégorieVariables,
@@ -171,7 +171,7 @@ describe("Validation", function () {
       const fonc = générerFonctionRègle({ règle, varsÀColonnes: {} });
       const empreinte = uuidv4();
 
-      it("Valeure existante", () => {
+      test("Valeure existante", () => {
         const erreurs = fonc([
           {
             données: { "col numérique": 123 },
@@ -181,7 +181,7 @@ describe("Validation", function () {
         expect(isArray(erreurs)).toBe(true);
         expect(erreurs).toHaveLength(0);
       });
-      it("Valeure manquante", () => {
+      test("Valeure manquante", () => {
         const erreurs = fonc([
           {
             données: { "une autre colonne": "abc" },
@@ -212,7 +212,7 @@ describe("Validation", function () {
       const fonc = générerFonctionRègle({ règle, varsÀColonnes: {} });
       const empreinte = uuidv4();
 
-      it("Catérogie valide", () => {
+      test("Catérogie valide", () => {
         const erreurs = fonc([
           {
             données: { "col numérique": 123 },
@@ -222,7 +222,7 @@ describe("Validation", function () {
         expect(isArray(erreurs)).toBe(true);
         expect(erreurs).toHaveLength(0);
       });
-      it("Catérogie invalide", () => {
+      test("Catérogie invalide", () => {
         const erreurs = fonc([
           {
             données: { "col numérique": "abc" },
@@ -236,7 +236,7 @@ describe("Validation", function () {
       });
     });
     describe("Règles bornes", function () {
-      it("Pas d'erreure si la colonne n'existe pas", () => {
+      test("Pas d'erreure si la colonne n'existe pas", () => {
         const règle: règleColonne<règleBornes> = {
           source: "tableau",
           colonne: "col numérique",
@@ -286,7 +286,7 @@ describe("Validation", function () {
           const empreinte = uuidv4();
 
           op.valides.forEach((v) => {
-            it(`${v}`, () => {
+            test(`${v}`, () => {
               const erreurs = fonc([
                 {
                   données: { "col numérique": v },
@@ -298,7 +298,7 @@ describe("Validation", function () {
             });
           });
           op.invalides.forEach((v) => {
-            it(`${v}`, () => {
+            test(`${v}`, () => {
               const erreurs = fonc([
                 {
                   données: { "col numérique": v },
@@ -335,26 +335,26 @@ describe("Validation", function () {
             "var temp min": "temp min",
           },
         });
-        const empreinte = uuidv4();  // Pas important
+        const empreinte = uuidv4(); // Pas important
 
-        it("Pas d'erreur si la colonne n'existe pas", () => {
+        test("Pas d'erreur si la colonne n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp min": 1 }, empreinte }]);
           expect(isArray(erreurs)).toBe(true);
           expect(erreurs).toHaveLength(0);
         });
-        it("Pas d'erreur si tout est valide", () => {
+        test("Pas d'erreur si tout est valide", () => {
           const erreurs = fonc([
             { données: { "temp min": 10, "temp max": 20 }, empreinte },
           ]);
           expect(isArray(erreurs)).toBe(true);
           expect(erreurs).toHaveLength(0);
         });
-        it("Pas d'erreur si la colonne référence n'existe pas", () => {
+        test("Pas d'erreur si la colonne référence n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp max": 20 }, empreinte }]);
           expect(isArray(erreurs)).toBe(true);
           expect(erreurs).toHaveLength(0);
         });
-        it("Erreur si non valide", () => {
+        test("Erreur si non valide", () => {
           const erreurs = fonc([
             { données: { "temp max": 20, "temp min": 25 }, empreinte },
           ]);
@@ -387,20 +387,20 @@ describe("Validation", function () {
       });
       const empreinte = uuidv4();
 
-      it("Pas d'erreur si la colonne n'existe pas", () => {
+      test("Pas d'erreur si la colonne n'existe pas", () => {
         const erreurs = fonc([
           { données: { "une autre colonne": 2 }, empreinte },
         ]);
         expect(isArray(erreurs)).toBe(true);
         expect(erreurs).toHaveLength(0);
       });
-      it("Pas d'erreur si tout valide", () => {
+      test("Pas d'erreur si tout valide", () => {
         const erreurs = fonc([{ données: { "col chaîne": "a" }, empreinte }]);
         expect(isArray(erreurs)).toBe(true);
         expect(erreurs).toHaveLength(0);
       });
 
-      it("Erreur si non valide", () => {
+      test("Erreur si non valide", () => {
         const erreurs = fonc([{ données: { "col chaîne": "d" }, empreinte }]);
 
         expect(isArray(erreurs)).toBe(true);
