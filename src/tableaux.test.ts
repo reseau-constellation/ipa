@@ -392,7 +392,7 @@ typesClients.forEach((type) => {
         });
 
         test("Règles génériques de catégorie pour commencer", async () => {
-          await attendreRésultat(résultats, "règles", (r) => r.length === 2);
+          await attendreRésultat(résultats, "règles", (r) => !!r && r.length === 2);
 
           expect(isArray(résultats.règles)).toBe(true);
           expect(résultats.règles).toHaveLength(2);
@@ -673,7 +673,7 @@ typesClients.forEach((type) => {
             idVariable: idVariableTempMax,
             idColonne: idColonneTempMax,
           });
-          await attendreRésultat(err, "eurs", (x) => x.length === 0);
+          await attendreRésultat(err, "eurs", (x) => !!x && x.length === 0);
           expect(err.eurs).toHaveLength(0);
         });
 
@@ -785,7 +785,7 @@ typesClients.forEach((type) => {
                 [idColonne]: "សូស្ដី",
               },
             });
-            await attendreRésultat(err, "eurs", (x) => x.length > 0);
+            await attendreRésultat(err, "eurs", (x) => !!x && x.length > 0);
             expect(err.eurs).toHaveLength(1);
           });
         });

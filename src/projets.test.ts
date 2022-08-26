@@ -302,7 +302,7 @@ typesClients.forEach((type) => {
             idsMotsClefs: idMotClef,
           });
 
-          await attendreRésultat(rés, "motsClefs", (x) => x && x.length > 0);
+          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length > 0);
 
           expect(isArray(rés.motsClefs)).toBe(true);
           expect(rés.motsClefs).toHaveLength(1);
