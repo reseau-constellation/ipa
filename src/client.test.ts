@@ -571,7 +571,7 @@ describe("Client Constellation", function () {
       await bd.set("clef", idBd2);
       fOublier();
 
-      await attendreRésultat(rés, "ultat", (x: string[]) => x.length > 1);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
       expect(rés.ultat).toEqual(expect.arrayContaining([idBd, idBd2]));
     });
 
@@ -582,7 +582,7 @@ describe("Client Constellation", function () {
       await bd.del("clef");
       fOublier();
 
-      await attendreRésultat(rés, "ultat", (x: string[]) => x.length === 1);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
       expect(rés.ultat).toEqual(expect.arrayContaining([idBd]));
     });
 
@@ -599,7 +599,7 @@ describe("Client Constellation", function () {
       await bdListe.add(idBd2);
       fOublierBdListe();
 
-      await attendreRésultat(rés, "ultat", (x: string[]) => x.length === 3);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
       expect(rés.ultat).toEqual(
         expect.arrayContaining([idBd, idBdListe, idBd2])
       );
@@ -612,7 +612,7 @@ describe("Client Constellation", function () {
       await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: idBd2 });
       fOublierBdListe();
 
-      await attendreRésultat(rés, "ultat", (x: string[]) => x.length === 2);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
       expect(rés.ultat).toEqual(expect.arrayContaining([idBd, idBdListe]));
     });
   });
@@ -649,7 +649,7 @@ describe("Client Constellation", function () {
       await bd.set("clef", idBd2);
       fOublier();
 
-      await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteAvant);
     });
 
     test("Enlever élément", async () => {
@@ -661,7 +661,7 @@ describe("Client Constellation", function () {
       await bd.del("clef");
       fOublier();
 
-      await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteAvant);
     });
 
     test("Ajout récursif", async () => {
@@ -679,7 +679,7 @@ describe("Client Constellation", function () {
       await bdListe.add(idBd2);
       fOublierBdListe();
 
-      await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteDébut);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteDébut);
 
       const empreinteAvant = rés.ultat;
 
@@ -689,7 +689,7 @@ describe("Client Constellation", function () {
       await bd2.add("abc");
       fOublierBd2();
 
-      await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteAvant);
     });
 
     test("Enlever récursif", async () => {
@@ -701,7 +701,7 @@ describe("Client Constellation", function () {
       await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: idBd2 });
       fOublierBdListe();
 
-      await attendreRésultat(rés, "ultat", (x: string) => x !== empreinteAvant);
+      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteAvant);
     });
   });
 
