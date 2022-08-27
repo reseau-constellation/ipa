@@ -12,9 +12,11 @@ export type règleVariableAvecId<T extends règleVariable = règleVariable> = {
   règle: T;
 };
 
-export type règleVariable = {
+export type règleVariable = règleExiste | règleBornes | règleValeurCatégorique | règleCatégorie;
+
+export type schémaRègleVariable<T extends détailsRègleVariable>  = {
   typeRègle: typeRègle;
-  détails: { [key: string]: élémentsBd };
+  détails: T;
 };
 
 export type règleColonne<T extends règleVariable = règleVariable> = {
@@ -23,54 +25,97 @@ export type règleColonne<T extends règleVariable = règleVariable> = {
   colonne: string;
 };
 
+export type détailsRègleVariable = détailsRègleExiste | détailsRègleBornes | détailsRègleValeurCatégorique | détailsRègleCatégorie;
+
 export type typeOp = ">" | "<" | ">=" | "<=";
 
-export interface règleExiste extends règleVariable {
+export type règleExiste = schémaRègleVariable<détailsRègleExiste> & {
   typeRègle: "existe";
-  détails: Record<string, never>;
 }
 
-export interface règleBornes extends règleVariable {
+export type détailsRègleExiste = Record<string, never>
+
+export type règleBornes = schémaRègleVariable<détailsRègleBornes> & {
   typeRègle: "bornes";
-  détails: {
-    val: number | string; // Peut être numérique ou bien le nom d'une autre variable
-    op: typeOp;
-  };
 }
 
-export interface règleValeurCatégorique extends règleVariable {
+// Peut être numérique ou bien l'id d'une autre variable ou l'id d'une colonne sur la même BD
+export type détailsRègleBornes = détailsRègleBornesFixe | détailsRègleBornesDynamiqueColonne | détailsRègleBornesDynamiqueVariable
+
+export type détailsRègleBornesFixe = {
+  type: "fixe";
+  val: number;
+  op: typeOp;
+}
+
+export type détailsRègleBornesDynamiqueColonne = {
+  type: "dynamiqueColonne";
+  val: string;
+  op: typeOp;
+}
+
+export type détailsRègleBornesDynamiqueVariable = {
+  type: "dynamiqueVariable";
+  val: string;
+  op: typeOp;
+}
+
+export type règleValeurCatégorique<T extends détailsRègleValeurCatégorique = détailsRègleValeurCatégorique> = schémaRègleVariable<T> & {
   typeRègle: "valeurCatégorique";
-  détails:
-    | {
-        type: "fixe";
-        options: élémentsBd[];
-      }
-    | {
-        type: "dynamique";
-        tableau: string;
-        colonne: string;
-      };
 }
 
-export interface règleCatégorie extends règleVariable {
+
+export type détailsRègleValeurCatégorique = détailsRègleValeurCatégoriqueFixe | détailsRègleValeurCatégoriqueDynamique;
+
+export type détailsRègleValeurCatégoriqueFixe = {
+  type: "fixe";
+  options: élémentsBd[];
+}
+
+export type détailsRègleValeurCatégoriqueDynamique = {
+  type: "dynamique";
+  tableau: string;
+  colonne: string;
+}
+
+export type règleCatégorie = schémaRègleVariable<détailsRègleCatégorie> & {
   typeRègle: "catégorie";
-  détails: {
-    catégorie: catégorieVariables;
-  };
 }
 
-export interface Erreur {
-  règle: règleColonne;
+export type détailsRègleCatégorie = {
+  catégorie: catégorieVariables;
 }
 
-export interface erreurValidation {
+export type Erreur<T extends règleVariable = règleVariable> = {
+  règle: règleColonne<T>;
+}
+
+export type erreurValidation<T extends règleVariable = règleVariable> = {
   empreinte: string;
-  erreur: Erreur;
+  erreur: Erreur<T>;
 }
 
-export type schémaFonctionValidation<T extends élémentBdListeDonnées> = (
+export type erreurRègle<T extends règleVariable = règleVariable> = {
+  règle: règleColonne<T>;
+  détails: string;
+}
+
+export type erreurRègleCatégoriqueColonneInexistante = erreurRègle<règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>> & {
+  détails: "colonneCatégInexistante";
+}
+
+export type erreurRègleBornesColonneInexistante = erreurRègle<règleBornes> & {
+  détails: "colonneBornesInexistante";
+}
+
+
+export type erreurRègleBornesVariableNonPrésente = erreurRègle<règleBornes> & {
+  détails: "variableBornesNonPrésente";
+}
+
+export type schémaFonctionValidation<T extends élémentBdListeDonnées, R extends règleVariable = règleVariable> = (
   valeurs: élémentDonnées<T>[]
-) => erreurValidation[];
+) => erreurValidation<R>[];
 
 export interface élémentDonnées<
   T extends élémentBdListeDonnées = élémentBdListeDonnées
@@ -79,22 +124,22 @@ export interface élémentDonnées<
   empreinte: string;
 }
 
-export function générerFonctionRègle<T extends élémentBdListeDonnées>({
+export function générerFonctionRègle<T extends élémentBdListeDonnées, R extends règleVariable>({
   règle,
   varsÀColonnes,
   donnéesCatégorie,
 }: {
-  règle: règleColonne;
+  règle: règleColonne<R>;
   varsÀColonnes: { [key: string]: string };
   donnéesCatégorie?: élémentsBd[];
-}): schémaFonctionValidation<T> {
-  const règleVariable = règle.règle;
+}): schémaFonctionValidation<T, R> {
+  const règleDeLaVariable = règle.règle;
   const { colonne } = règle;
-  const { typeRègle } = règleVariable.règle;
+  const { typeRègle } = règleDeLaVariable.règle;
 
   switch (typeRègle) {
     case "existe": {
-      return (vals: élémentDonnées<T>[]) => {
+      return (vals: élémentDonnées<T>[]) : erreurValidation<R>[] => {
         const nonValides = vals.filter((v) => v.données[colonne] === undefined);
         return nonValides.map((v: élémentDonnées<T>) => {
           const { empreinte } = v;
@@ -109,7 +154,7 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>({
 
     case "catégorie": {
       return (vals: élémentDonnées<T>[]) => {
-        const catégorie = (règleVariable.règle as règleCatégorie).détails
+        const catégorie = (règleDeLaVariable.règle as règleCatégorie).détails
           .catégorie;
         const nonValides = vals.filter(
           (v) => !validerCatégorieVal({ val: v.données[colonne], catégorie })
@@ -126,10 +171,12 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>({
     }
 
     case "bornes": {
+      const règleTypeBornes = règleDeLaVariable as règleVariableAvecId<règleBornes>
+
       let fComp: (v: élémentDonnées<T>) => boolean;
       let fOp: (v1: number, v2: number) => boolean;
 
-      const { val, op } = (règleVariable.règle as règleBornes).détails;
+      const { val, op, type: typeBornes } = règleTypeBornes.règle.détails;
 
       const manquantes = (v1?: number, v2?: number): boolean => {
         return v1 === undefined || v2 === undefined;
@@ -150,24 +197,18 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>({
           break;
       }
 
-      switch (typeof val) {
-        case "string": {
-          fComp = (v: élémentDonnées<T>) =>
-            fOp(
-              v.données[colonne] as number,
-              // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
-              (règle.source === "variable"
-                ? v.données[varsÀColonnes[val]]
-                : v.données[val]) as number
-            );
-          break;
-        }
-        case "number":
-          fComp = (v: élémentDonnées<T>) =>
-            fOp(v.données[colonne] as number, val as number);
-          break;
-        default:
-          throw Error(`Borne de type ${typeof val} non reconnue.`);
+      if(typeBornes === "fixe") {
+        fComp = (v: élémentDonnées<T>) =>
+          fOp(v.données[colonne] as number, val as number);
+      } else {
+        fComp = (v: élémentDonnées<T>) =>
+          fOp(
+            v.données[colonne] as number,
+            // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
+            (typeBornes === "dynamiqueVariable"
+              ? v.données[varsÀColonnes[val]]
+              : v.données[val]) as number
+          );
       }
 
       return (vals: élémentDonnées<T>[]) => {
@@ -184,11 +225,11 @@ export function générerFonctionRègle<T extends élémentBdListeDonnées>({
     }
 
     case "valeurCatégorique": {
-      const règleCatégorique = règleVariable.règle as règleValeurCatégorique;
+      const règleTypeCatégorique = règleDeLaVariable.règle as règleValeurCatégorique;
 
       const options =
-        règleCatégorique.détails.type === "fixe"
-          ? règleCatégorique.détails.options
+        règleTypeCatégorique.détails.type === "fixe"
+          ? règleTypeCatégorique.détails.options
           : donnéesCatégorie;
 
       if (!options) throw "Options non spécifiées";

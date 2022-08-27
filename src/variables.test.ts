@@ -317,6 +317,7 @@ typesClients.forEach((type) => {
           const règle: règleBornes = {
             typeRègle: "bornes",
             détails: {
+              type: "fixe",
               val: 0,
               op: ">",
             },
@@ -350,7 +351,7 @@ typesClients.forEach((type) => {
           });
           const règleCatégorie = règles.find(
             (r) => r.règle.typeRègle === "catégorie"
-          );
+          ) as règleVariableAvecId<règleCatégorie> |undefined ;
           expect(règleCatégorie).toBeTruthy();
           expect(règleCatégorie?.règle.détails.catégorie).toEqual("horoDatage");
         });
@@ -370,6 +371,7 @@ typesClients.forEach((type) => {
         const règle: règleBornes = {
           typeRègle: "bornes",
           détails: {
+            type: "fixe",
             val: 0,
             op: ">",
           },

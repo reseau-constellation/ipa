@@ -15,12 +15,19 @@ import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import { donnéesBdExportées } from "@/bds";
 import {
   erreurValidation,
+  erreurRègle,
   règleVariable,
   règleVariableAvecId,
   règleColonne,
+  règleBornes,
+  règleValeurCatégorique,
+  détailsRègleValeurCatégoriqueDynamique,
   générerFonctionRègle,
   schémaFonctionValidation,
   élémentDonnées,
+  erreurRègleBornesColonneInexistante,
+  erreurRègleBornesVariableNonPrésente,
+  erreurRègleCatégoriqueColonneInexistante,
 } from "@/valid";
 import { catégorieVariables } from "@/variables";
 import { traduire, élémentsBd } from "@/utils";
@@ -962,14 +969,14 @@ export default class Tableaux {
     });
   }
 
-  async ajouterRègleTableau({
+  async ajouterRègleTableau<R extends règleVariable = règleVariable>({
     idTableau,
     idColonne,
     règle,
   }: {
     idTableau: string;
     idColonne: string;
-    règle: règleVariable;
+    règle: R;
   }): Promise<string> {
     const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdRègles = await this.client.obtIdBd({
@@ -987,7 +994,7 @@ export default class Tableaux {
     >({ id: idBdRègles });
 
     const id = uuidv4();
-    const règleAvecId: règleVariableAvecId = {
+    const règleAvecId: règleVariableAvecId<R> = {
       id,
       règle,
     };
@@ -1079,7 +1086,7 @@ export default class Tableaux {
       fSuivreBranche: schémaFonctionSuivi<règleColonne[]>,
       branche: InfoCol
     ) => {
-      const fFinaleSuivreBranche = (règles: règleVariableAvecId[]) => {
+      const fFinaleSuivreBranche = (règles: règleVariableAvecId<règleVariable>[]) => {
         const règlesColonnes: règleColonne[] = règles.map((r) => {
           return {
             règle: r,
@@ -1182,7 +1189,7 @@ export default class Tableaux {
     ): Promise<schémaFonctionOublier> => {
       if (
         règle.règle.règle.typeRègle === "valeurCatégorique" &&
-        règle.règle.règle.détails.tableau
+        règle.règle.règle.détails.type === "dynamique"
       ) {
         const { tableau, colonne } = règle.règle.règle.détails;
         return await this.suivreDonnées({
@@ -1220,6 +1227,144 @@ export default class Tableaux {
       fOublierRègles();
       fOublierDonnées();
       fOublierVarsÀColonnes();
+    };
+    return fOublier;
+  }
+
+  async suivreValidRègles({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<erreurRègle[]>;
+  }): Promise<schémaFonctionOublier> {
+    const info: {
+      règles?: { règle: règleColonne<règleVariable>; colsTableauRéf?: InfoColAvecCatégorie[] }[];
+      colonnes?: InfoColAvecCatégorie[];
+    } = {};
+
+    const fFinale = () => {
+      if (!info.colonnes || !info.règles) return;
+
+      const erreurs: erreurRègle[] = []
+
+      const règlesBornes = info.règles.map(r=>r.règle).filter(
+        r=>r.règle.règle.typeRègle === "bornes"
+      ) as règleColonne<règleBornes>[];
+
+      const règlesBornesColonnes = règlesBornes.filter(
+        r=>r.règle.règle.détails.type === "dynamiqueColonne"
+      )
+
+      const règlesBornesVariables = règlesBornes.filter(
+        r=>r.règle.règle.détails.type === "dynamiqueVariable"
+      )
+
+      const règlesCatégoriquesDynamiques = info.règles.map(r=>r.règle).filter(
+        r=>r.règle.règle.typeRègle === "valeurCatégorique" && r.règle.règle.détails.type === "dynamique"
+      ) as règleColonne<règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>>[]
+
+      for (const r of règlesBornesColonnes) {
+        const colRéfRègle = info.colonnes.find(c=>c.id === r.règle.règle.détails.val);
+        if (!colRéfRègle) {
+          const erreur: erreurRègleBornesColonneInexistante = {
+            règle: r,
+            détails: "colonneBornesInexistante"
+          }
+          erreurs.push(erreur)
+        }
+      }
+
+      for (const r of règlesBornesVariables) {
+        const varRéfRègle = info.colonnes.find(c=>c.variable === r.règle.règle.détails.val);
+        if (!varRéfRègle) {
+          const erreur: erreurRègleBornesVariableNonPrésente = {
+            règle: r,
+            détails: "variableBornesNonPrésente"
+          }
+          erreurs.push(erreur)
+        }
+      }
+
+      for (const r of règlesCatégoriquesDynamiques) {
+        const colRéfRègle = info.règles.find(
+          r=>r.règle.règle.id === r.règle.règle.id
+        )?.colsTableauRéf?.find(
+          c=>c.id === r.règle.règle.détails.colonne
+        );
+        if (!colRéfRègle) {
+          const erreur: erreurRègleCatégoriqueColonneInexistante = {
+            règle: r,
+            détails: "colonneCatégInexistante"
+          }
+          erreurs.push(erreur)
+        }
+      };
+      f(erreurs);
+    };
+
+    const fFinaleRègles = (
+      règles: { règle: règleColonne<règleVariable>; colsTableauRéf?: InfoColAvecCatégorie[] }[]
+    ) => {
+      info.règles = règles
+      fFinale();
+    };
+
+    const fOublierColonnes = await this.suivreColonnes({
+      idTableau,
+      f: (cols) => {
+        info.colonnes = cols;
+        fFinale();
+      },
+    });
+
+    const fListeRègles = async (
+      fSuivreRacine: (règles: règleColonne<règleVariable>[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.suivreRègles({ idTableau, f: fSuivreRacine });
+    };
+
+    const fBrancheRègles = async (
+      _id: string,
+      fSuivreBranche: schémaFonctionSuivi<{
+        règle: règleColonne<règleVariable>;
+        colsTableauRéf?: InfoCol[];
+      }>,
+      règle: règleColonne<règleVariable>
+    ): Promise<schémaFonctionOublier> => {
+      if (
+        règle.règle.règle.typeRègle === "valeurCatégorique" &&
+        règle.règle.règle.détails.type === "dynamique"
+      ) {
+        const { tableau } = règle.règle.règle.détails;
+        return await this.suivreColonnes({
+          idTableau: tableau as string,
+          f: (cols) =>
+            fSuivreBranche({
+              règle,
+              colsTableauRéf: cols,
+            }),
+        });
+      } else {
+        fSuivreBranche({ règle });
+        return faisRien;
+      }
+    };
+
+    const fIdDeBranche = (b: règleColonne<règleVariable>) => b.règle.id;
+    const fCode = (b: règleColonne<règleVariable>) => b.règle.id;
+
+    const fOublierRègles = await this.client.suivreBdsDeFonctionListe({
+      fListe: fListeRègles,
+      f: fFinaleRègles,
+      fBranche: fBrancheRègles,
+      fIdBdDeBranche: fIdDeBranche,
+      fCode,
+    });
+
+    const fOublier = () => {
+      fOublierRègles();
+      fOublierColonnes();
     };
     return fOublier;
   }
