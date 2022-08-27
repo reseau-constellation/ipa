@@ -1086,7 +1086,9 @@ export default class Tableaux {
       fSuivreBranche: schémaFonctionSuivi<règleColonne[]>,
       branche: InfoCol
     ) => {
-      const fFinaleSuivreBranche = (règles: règleVariableAvecId<règleVariable>[]) => {
+      const fFinaleSuivreBranche = (
+        règles: règleVariableAvecId<règleVariable>[]
+      ) => {
         const règlesColonnes: règleColonne[] = règles.map((r) => {
           return {
             règle: r,
@@ -1239,74 +1241,90 @@ export default class Tableaux {
     f: schémaFonctionSuivi<erreurRègle[]>;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      règles?: { règle: règleColonne<règleVariable>; colsTableauRéf?: InfoColAvecCatégorie[] }[];
+      règles?: {
+        règle: règleColonne<règleVariable>;
+        colsTableauRéf?: InfoColAvecCatégorie[];
+      }[];
       colonnes?: InfoColAvecCatégorie[];
     } = {};
 
     const fFinale = () => {
       if (!info.colonnes || !info.règles) return;
 
-      const erreurs: erreurRègle[] = []
+      const erreurs: erreurRègle[] = [];
 
-      const règlesBornes = info.règles.map(r=>r.règle).filter(
-        r=>r.règle.règle.typeRègle === "bornes"
-      ) as règleColonne<règleBornes>[];
+      const règlesBornes = info.règles
+        .map((r) => r.règle)
+        .filter(
+          (r) => r.règle.règle.typeRègle === "bornes"
+        ) as règleColonne<règleBornes>[];
 
       const règlesBornesColonnes = règlesBornes.filter(
-        r=>r.règle.règle.détails.type === "dynamiqueColonne"
-      )
+        (r) => r.règle.règle.détails.type === "dynamiqueColonne"
+      );
 
       const règlesBornesVariables = règlesBornes.filter(
-        r=>r.règle.règle.détails.type === "dynamiqueVariable"
-      )
+        (r) => r.règle.règle.détails.type === "dynamiqueVariable"
+      );
 
-      const règlesCatégoriquesDynamiques = info.règles.map(r=>r.règle).filter(
-        r=>r.règle.règle.typeRègle === "valeurCatégorique" && r.règle.règle.détails.type === "dynamique"
-      ) as règleColonne<règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>>[]
+      const règlesCatégoriquesDynamiques = info.règles
+        .map((r) => r.règle)
+        .filter(
+          (r) =>
+            r.règle.règle.typeRègle === "valeurCatégorique" &&
+            r.règle.règle.détails.type === "dynamique"
+        ) as règleColonne<
+        règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>
+      >[];
 
       for (const r of règlesBornesColonnes) {
-        const colRéfRègle = info.colonnes.find(c=>c.id === r.règle.règle.détails.val);
+        const colRéfRègle = info.colonnes.find(
+          (c) => c.id === r.règle.règle.détails.val
+        );
         if (!colRéfRègle) {
           const erreur: erreurRègleBornesColonneInexistante = {
             règle: r,
-            détails: "colonneBornesInexistante"
-          }
-          erreurs.push(erreur)
+            détails: "colonneBornesInexistante",
+          };
+          erreurs.push(erreur);
         }
       }
 
       for (const r of règlesBornesVariables) {
-        const varRéfRègle = info.colonnes.find(c=>c.variable === r.règle.règle.détails.val);
+        const varRéfRègle = info.colonnes.find(
+          (c) => c.variable === r.règle.règle.détails.val
+        );
         if (!varRéfRègle) {
           const erreur: erreurRègleBornesVariableNonPrésente = {
             règle: r,
-            détails: "variableBornesNonPrésente"
-          }
-          erreurs.push(erreur)
+            détails: "variableBornesNonPrésente",
+          };
+          erreurs.push(erreur);
         }
       }
 
       for (const r of règlesCatégoriquesDynamiques) {
-        const colRéfRègle = info.règles.find(
-          r=>r.règle.règle.id === r.règle.règle.id
-        )?.colsTableauRéf?.find(
-          c=>c.id === r.règle.règle.détails.colonne
-        );
+        const colRéfRègle = info.règles
+          .find((r) => r.règle.règle.id === r.règle.règle.id)
+          ?.colsTableauRéf?.find((c) => c.id === r.règle.règle.détails.colonne);
         if (!colRéfRègle) {
           const erreur: erreurRègleCatégoriqueColonneInexistante = {
             règle: r,
-            détails: "colonneCatégInexistante"
-          }
-          erreurs.push(erreur)
+            détails: "colonneCatégInexistante",
+          };
+          erreurs.push(erreur);
         }
-      };
+      }
       f(erreurs);
     };
 
     const fFinaleRègles = (
-      règles: { règle: règleColonne<règleVariable>; colsTableauRéf?: InfoColAvecCatégorie[] }[]
+      règles: {
+        règle: règleColonne<règleVariable>;
+        colsTableauRéf?: InfoColAvecCatégorie[];
+      }[]
     ) => {
-      info.règles = règles
+      info.règles = règles;
       fFinale();
     };
 

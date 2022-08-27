@@ -351,7 +351,7 @@ typesClients.forEach((type) => {
           });
           const règleCatégorie = règles.find(
             (r) => r.règle.typeRègle === "catégorie"
-          ) as règleVariableAvecId<règleCatégorie> |undefined ;
+          ) as règleVariableAvecId<règleCatégorie> | undefined;
           expect(règleCatégorie).toBeTruthy();
           expect(règleCatégorie?.règle.détails.catégorie).toEqual("horoDatage");
         });

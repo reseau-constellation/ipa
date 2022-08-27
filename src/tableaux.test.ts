@@ -396,7 +396,11 @@ typesClients.forEach((type) => {
         });
 
         test("Règles génériques de catégorie pour commencer", async () => {
-          await attendreRésultat(résultats, "règles", (r) => !!r && r.length === 2);
+          await attendreRésultat(
+            résultats,
+            "règles",
+            (r) => !!r && r.length === 2
+          );
 
           expect(isArray(résultats.règles)).toBe(true);
           expect(résultats.règles).toHaveLength(2);
@@ -620,7 +624,8 @@ typesClients.forEach((type) => {
         let idVariableTempMax: string;
 
         const erreurs: {
-          valid: erreurValidation[], règles: erreurRègle[]
+          valid: erreurValidation[];
+          règles: erreurRègle[];
         } = { valid: [], règles: [] };
         const idColonneTempMax = "col temp max";
         const empreintesDonnées: string[] = [];
@@ -686,17 +691,19 @@ typesClients.forEach((type) => {
             règle,
           });
 
-          const réf: erreurRègleBornesColonneInexistante[] = [{
-            règle: {
-              source: "tableau",
-              colonne: idColonneTempMin,
+          const réf: erreurRègleBornesColonneInexistante[] = [
+            {
               règle: {
-                id: idRègle,
-                règle
-              }
+                source: "tableau",
+                colonne: idColonneTempMin,
+                règle: {
+                  id: idRègle,
+                  règle,
+                },
+              },
+              détails: "colonneBornesInexistante",
             },
-            détails: "colonneBornesInexistante"
-          }]
+          ];
 
           expect(isArray(erreurs.valid)).toBe(true);
           expect(erreurs.valid).toHaveLength(0);
@@ -712,7 +719,11 @@ typesClients.forEach((type) => {
             idVariable: idVariableTempMax,
             idColonne: idColonneTempMax,
           });
-          await attendreRésultat(erreurs, "règles", (x) => !!x && x.length === 0);
+          await attendreRésultat(
+            erreurs,
+            "règles",
+            (x) => !!x && x.length === 0
+          );
           expect(erreurs.règles).toHaveLength(0);
         });
 
@@ -723,7 +734,9 @@ typesClients.forEach((type) => {
             empreintePrécédente: empreintesDonnées[0],
           });
           expect(erreurs.valid).toHaveLength(1);
-          expect(erreurs.valid[0].erreur.règle.colonne).toEqual(idColonneTempMin);
+          expect(erreurs.valid[0].erreur.règle.colonne).toEqual(
+            idColonneTempMin
+          );
 
           await client.tableaux!.modifierÉlément({
             idTableau: idTableauRègles,
@@ -760,7 +773,11 @@ typesClients.forEach((type) => {
             idVariable: idVariableTempMax,
             règle: {
               typeRègle: "bornes",
-              détails: { type: "dynamiqueVariable", val: idVariableTempMin, op: ">=" },
+              détails: {
+                type: "dynamiqueVariable",
+                val: idVariableTempMin,
+                op: ">=",
+              },
             },
           });
           expect(erreurs.valid).toHaveLength(2);
@@ -841,7 +858,10 @@ typesClients.forEach((type) => {
 
           const idColonneCatégories = "id colonne catégories";
 
-          const erreurs: { valid? : erreurValidation[], règles?: erreurRègle[] } = { };
+          const erreurs: {
+            valid?: erreurValidation[];
+            règles?: erreurRègle[];
+          } = {};
           const fsOublier: schémaFonctionOublier[] = [];
 
           beforeAll(async () => {
@@ -901,14 +921,14 @@ typesClients.forEach((type) => {
               règle: {
                 règle: {
                   id: idRègle,
-                  règle: règleCatégorique
+                  règle: règleCatégorique,
                 },
                 source: "tableau",
-                colonne: idColonneÀTester
+                colonne: idColonneÀTester,
               },
-              détails: "colonneCatégInexistante"
-            }
-            await attendreRésultat(erreurs, "règles", x=>!!x?.length)
+              détails: "colonneCatégInexistante",
+            };
+            await attendreRésultat(erreurs, "règles", (x) => !!x?.length);
             expect(erreurs.règles).toHaveLength(1);
             expect(erreurs.règles).toEqual(expect.arrayContaining([réf]));
           });
@@ -919,7 +939,7 @@ typesClients.forEach((type) => {
               idVariable: idVariableRéf,
               idColonne: idColonneCatégories,
             });
-            await attendreRésultat(erreurs, "règles", x=>x?.length===0)
+            await attendreRésultat(erreurs, "règles", (x) => x?.length === 0);
             expect(erreurs.règles).toHaveLength(0);
           });
 
