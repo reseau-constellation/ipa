@@ -1,5 +1,4 @@
 import Ctl from "ipfsd-ctl";
-import { NodeType } from "ipfsd-ctl/dist/src/types";
 
 const FACTEUR = 2;
 
@@ -10,7 +9,7 @@ export const config = {
 
 export const startIpfs = async (dossier = "") => {
   const controllerConfig: Ctl.ControllerOptions = {
-    type: "proc" as NodeType,
+    type: "proc",
     test: true,
     disposable: true,
     ipfsModule: await import("ipfs"),
