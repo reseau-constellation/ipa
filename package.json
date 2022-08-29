@@ -7,7 +7,7 @@
   "types": "./dist/index.d.ts",
   "exports": "./dist/index.js",
   "engines": {
-    "node": ">=18"
+    "node": ">=16"
   },
   "scripts": {
     "watch": "npm-watch",
