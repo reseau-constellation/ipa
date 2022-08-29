@@ -4,35 +4,23 @@
   "name": "@constl/ipa",
   "author": "Julien Malard-Adam",
   "type": "module",
-  "main": "lib/cjs/index.js",
-  "module": "lib/esm/index.js",
-  "types": "lib/types/index.d.ts",
-  "exports": {
-    "require": "./lib/cjs/index.js",
-    "import": "./lib/esm/index.js"
-  },
-  "files": [
-    "lib",
-    "src"
-  ],
+  "types": "./dist/index.d.ts",
+  "exports": "./dist/index.js",
   "engines": {
     "node": ">=16"
   },
   "scripts": {
     "watch": "npm-watch",
-    "build": "tsc -p tsconfig.build.json",
-    "postbuild": "tscpaths -p tsconfig.build.json -s src -o dist",
-    "nettoyer": "rimraf lib",
-    "compiler:esm": "cross-env BABEL_ENV=esmUnbundled babel src --extensions '.ts' --out-dir 'lib/esm' --source-maps",
-    "compiler:cjs": "cross-env BABEL_ENV=cjs babel src --extensions '.ts' --out-dir 'lib/cjs' --source-maps",
-    "compiler:bundles": "cross-env BABEL_ENV=esmBundled rollup -c",
-    "déclarations": "ttsc -p tsconfig.build.json",
-    "compiler": "yarn versioner && yarn nettoyer && yarn compiler:esm && yarn compiler:cjs && yarn déclarations",
+    "nettoyer": "rimraf dist",
+    "compiler:esm": "tsc -p tsconfig.build.json && tscpaths -p tsconfig.build.json -s src -o dist",
+    "compiler": "yarn versioner && yarn nettoyer && yarn compiler:esm",
+
     "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js  --runInBand",
     "test:tous": "env TOUS=true yarn test",
     "test:navigateur": "karma start",
-    "couverture": "nyc yarn test",
-    "couverture:tous": "nyc yarn test:tous",
+    "couverture": "yarn test --coverage",
+    "couverture:tous": "yarn test:tous --coverage",
+
     "formatter": "yarn prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && yarn eslint --ext .js,.ts src",
     "size": "size-limit",
     "analyze": "size-limit --why",
@@ -51,10 +39,6 @@
     "postbuild": "./dist/**/*"
   },
   "size-limit": [
-    {
-      "path": "lib/cjs/index.js",
-      "limit": "10 KB"
-    },
     {
       "path": "dist/ipa.esm.js",
       "limit": "10 KB"
@@ -129,6 +113,7 @@
     "ts-mocha": "10",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.0",
+    "tscpaths": "^0.0.9",
     "ttypescript": "^1.5.12",
     "typescript": "^4.6.2",
     "why-is-node-running": "^2.2.2"

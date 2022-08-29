@@ -31,7 +31,7 @@ export const rechercherDansTexte = (
     const score = 1 / (meilleure.errors + 1);
     return { type: "texte", score, début: meilleure.start, fin: meilleure.end };
   }
-  return;
+  return undefined;
 };
 
 export const similTexte = (
@@ -57,7 +57,7 @@ export const similTexte = (
         info: { type: "texte"; texte: string; début: number; fin: number };
       };
     }
-    return;
+    return undefined;
   });
 
   const meilleure = similairités

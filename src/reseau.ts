@@ -2255,7 +2255,7 @@ export default class Réseau extends EventEmitter {
               ? favoris.map((fav) => {
                   return { idBdCompte, ...fav };
                 })
-              : favoris
+              : undefined
           ),
       });
     };

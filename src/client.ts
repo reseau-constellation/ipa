@@ -908,7 +908,7 @@ export default class ClientConstellation extends EventEmitter {
         id: string;
         fSuivreBd: schémaFonctionSuivi<LogEntry<T>[]>;
       }) => {
-        return await this.suivreBdListe({ id, f: fSuivreBd, renvoyerValeur });
+        return await this.suivreBdListe({ id, f: fSuivreBd, renvoyerValeur: false });
       };
 
       return await this.suivreBdDeClef({

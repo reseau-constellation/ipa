@@ -172,7 +172,7 @@ export default class GestionnaireClient {
           fonctionIPA = fonctionIPA[attr].bind(fonctionIPA);
         } else {
           this.fErreur(erreur, idMessage);
-          return;
+          return undefined;
         }
       } else {
         if (
@@ -183,18 +183,18 @@ export default class GestionnaireClient {
           fonctionIPA = fonctionIPA[attr as keyof typeof fonctionIPA];
         } else {
           this.fErreur(erreur, idMessage);
-          return;
+          return undefined;
         }
       }
 
       if (!fonctionIPA) {
         this.fErreur(erreur, idMessage);
-        return;
+        return undefined;
       }
     }
     if (typeof fonctionIPA !== "function") {
       this.fErreur(erreur, idMessage);
-      return;
+      return undefined;
     }
     return fonctionIPA;
   }
