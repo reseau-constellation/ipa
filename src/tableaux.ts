@@ -22,6 +22,7 @@ import {
   règleBornes,
   règleValeurCatégorique,
   détailsRègleValeurCatégoriqueDynamique,
+  détailsRègleBornesDynamiqueVariable,
   générerFonctionRègle,
   schémaFonctionValidation,
   élémentDonnées,
@@ -1253,29 +1254,30 @@ export default class Tableaux {
 
       const erreurs: erreurRègle[] = [];
 
-      const règlesBornes = info.règles
+      const règlesTypeBornes = info.règles
         .map((r) => r.règle)
         .filter(
           (r) => r.règle.règle.typeRègle === "bornes"
         ) as règleColonne<règleBornes>[];
 
-      const règlesBornesColonnes = règlesBornes.filter(
+      const règlesBornesColonnes = règlesTypeBornes.filter(
         (r) => r.règle.règle.détails.type === "dynamiqueColonne"
       );
 
-      const règlesBornesVariables = règlesBornes.filter(
+      const règlesBornesVariables = règlesTypeBornes.filter(
         (r) => r.règle.règle.détails.type === "dynamiqueVariable"
-      );
+      ) as règleColonne<règleBornes<détailsRègleBornesDynamiqueVariable>>[];
 
-      const règlesCatégoriquesDynamiques = info.règles
-        .map((r) => r.règle)
-        .filter(
-          (r) =>
-            r.règle.règle.typeRègle === "valeurCatégorique" &&
-            r.règle.règle.détails.type === "dynamique"
-        ) as règleColonne<
-        règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>
-      >[];
+      const règlesCatégoriquesDynamiques = info.règles.filter(
+        (r) =>
+          r.règle.règle.règle.typeRègle === "valeurCatégorique" &&
+          r.règle.règle.règle.détails.type === "dynamique"
+      ) as {
+        règle: règleColonne<
+          règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>
+        >;
+        colsTableauRéf?: InfoColAvecCatégorie[];
+      }[];
 
       for (const r of règlesBornesColonnes) {
         const colRéfRègle = info.colonnes.find(
@@ -1304,12 +1306,12 @@ export default class Tableaux {
       }
 
       for (const r of règlesCatégoriquesDynamiques) {
-        const colRéfRègle = info.règles
-          .find((r) => r.règle.règle.id === r.règle.règle.id)
-          ?.colsTableauRéf?.find((c) => c.id === r.règle.règle.détails.colonne);
+        const colRéfRègle = r.colsTableauRéf?.find(
+          (c) => c.id === r.règle.règle.règle.détails.colonne
+        );
         if (!colRéfRègle) {
           const erreur: erreurRègleCatégoriqueColonneInexistante = {
-            règle: r,
+            règle: r.règle,
             détails: "colonneCatégInexistante",
           };
           erreurs.push(erreur);
@@ -1356,7 +1358,7 @@ export default class Tableaux {
       ) {
         const { tableau } = règle.règle.règle.détails;
         return await this.suivreColonnes({
-          idTableau: tableau as string,
+          idTableau: tableau,
           f: (cols) =>
             fSuivreBranche({
               règle,

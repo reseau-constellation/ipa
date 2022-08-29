@@ -23,6 +23,7 @@ import {
   erreurRègle,
   erreurRègleBornesColonneInexistante,
   erreurRègleCatégoriqueColonneInexistante,
+  erreurRègleBornesVariableNonPrésente,
   élémentDonnées,
 } from "@/valid";
 
@@ -622,6 +623,13 @@ typesClients.forEach((type) => {
         let idVariableTempMin: string;
         let idColonneTempMin: string;
         let idVariableTempMax: string;
+        let idVariableTempMoyenne: string;
+        let règle1: règleBornes;
+        let règle2: règleBornes;
+        let idRègle1: string;
+        let idRègle2: string;
+        let idRègle3: string;
+        let empreinte2: string;
 
         const erreurs: {
           valid: erreurValidation[];
@@ -655,6 +663,10 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
 
+          idVariableTempMoyenne = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+
           idColonneTempMin = await client.tableaux!.ajouterColonneTableau({
             idTableau: idTableauRègles,
             idVariable: idVariableTempMin,
@@ -676,7 +688,7 @@ typesClients.forEach((type) => {
         });
 
         test("Erreur règle si la colonne n'existe pas", async () => {
-          const règle: règleBornes = {
+          règle1 = {
             typeRègle: "bornes",
             détails: {
               type: "dynamiqueColonne",
@@ -685,10 +697,10 @@ typesClients.forEach((type) => {
             },
           };
 
-          const idRègle = await client.tableaux!.ajouterRègleTableau({
+          idRègle1 = await client.tableaux!.ajouterRègleTableau({
             idTableau: idTableauRègles,
             idColonne: idColonneTempMin,
-            règle,
+            règle: règle1,
           });
 
           const réf: erreurRègleBornesColonneInexistante[] = [
@@ -697,8 +709,8 @@ typesClients.forEach((type) => {
                 source: "tableau",
                 colonne: idColonneTempMin,
                 règle: {
-                  id: idRègle,
-                  règle,
+                  id: idRègle1,
+                  règle: règle1,
                 },
               },
               détails: "colonneBornesInexistante",
@@ -733,10 +745,22 @@ typesClients.forEach((type) => {
             vals: { [idColonneTempMax]: -1 },
             empreintePrécédente: empreintesDonnées[0],
           });
+
+          const réf: erreurValidation = {
+            empreinte: empreintesDonnées[0],
+            erreur: {
+              règle: {
+                source: "tableau",
+                colonne: idColonneTempMin,
+                règle: {
+                  id: idRègle1,
+                  règle: règle1,
+                },
+              },
+            },
+          };
           expect(erreurs.valid).toHaveLength(1);
-          expect(erreurs.valid[0].erreur.règle.colonne).toEqual(
-            idColonneTempMin
-          );
+          expect(erreurs.valid).toEqual(expect.arrayContaining([réf]));
 
           await client.tableaux!.modifierÉlément({
             idTableau: idTableauRègles,
@@ -758,29 +782,123 @@ typesClients.forEach((type) => {
         });
 
         test("Ajout éléments invalides", async () => {
-          await client.tableaux!.ajouterÉlément({
+          empreinte2 = await client.tableaux!.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneTempMin]: -15,
               [idColonneTempMax]: -25,
             },
           });
+
+          const réf: erreurValidation = {
+            empreinte: empreinte2,
+            erreur: {
+              règle: {
+                source: "tableau",
+                colonne: idColonneTempMin,
+                règle: {
+                  id: idRègle1,
+                  règle: règle1,
+                },
+              },
+            },
+          };
+
           expect(erreurs.valid).toHaveLength(1);
+          expect(erreurs.valid).toEqual(expect.arrayContaining([réf]));
         });
 
         test("Règle bornes relatives variable", async () => {
-          await client.variables!.ajouterRègleVariable({
-            idVariable: idVariableTempMax,
-            règle: {
-              typeRègle: "bornes",
-              détails: {
-                type: "dynamiqueVariable",
-                val: idVariableTempMin,
-                op: ">=",
+          (règle2 = {
+            typeRègle: "bornes",
+            détails: {
+              type: "dynamiqueVariable",
+              val: idVariableTempMin,
+              op: ">=",
+            },
+          }),
+            (idRègle2 = await client.variables!.ajouterRègleVariable({
+              idVariable: idVariableTempMax,
+              règle: règle2,
+            }));
+
+          const réf: erreurValidation[] = [
+            {
+              empreinte: empreinte2,
+              erreur: {
+                règle: {
+                  source: "tableau",
+                  colonne: idColonneTempMin,
+                  règle: {
+                    id: idRègle1,
+                    règle: règle1,
+                  },
+                },
               },
             },
-          });
+            {
+              empreinte: empreinte2,
+              erreur: {
+                règle: {
+                  source: "variable",
+                  colonne: idColonneTempMax,
+                  règle: {
+                    id: idRègle2,
+                    règle: règle2,
+                  },
+                },
+              },
+            },
+          ];
+
           expect(erreurs.valid).toHaveLength(2);
+          expect(erreurs.valid).toEqual(expect.arrayContaining(réf));
+        });
+
+        test("Erreur règle variable introuvable", async () => {
+          const règle: règleBornes = {
+            typeRègle: "bornes",
+            détails: {
+              type: "dynamiqueVariable",
+              val: idVariableTempMoyenne,
+              op: "<=",
+            },
+          };
+
+          idRègle3 = await client.tableaux!.ajouterRègleTableau({
+            idTableau: idTableauRègles,
+            idColonne: idColonneTempMin,
+            règle,
+          });
+
+          const réf: [erreurRègleBornesVariableNonPrésente] = [
+            {
+              détails: "variableBornesNonPrésente",
+              règle: {
+                source: "tableau",
+                colonne: idColonneTempMin,
+                règle: {
+                  id: idRègle3,
+                  règle,
+                },
+              },
+            },
+          ];
+
+          await attendreRésultat(erreurs, "règles", (x) => !!x && x.length > 0);
+          expect(erreurs.règles).toHaveLength(1);
+          expect(erreurs.règles).toEqual(expect.arrayContaining(réf));
+
+          await client.tableaux!.ajouterColonneTableau({
+            idTableau: idTableauRègles,
+            idVariable: idVariableTempMoyenne,
+          });
+          await attendreRésultat(
+            erreurs,
+            "règles",
+            (x) => !!x && x.length === 0
+          );
+          expect(erreurs.règles).toHaveLength(0);
         });
       });
 

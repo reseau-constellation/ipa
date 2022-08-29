@@ -43,9 +43,10 @@ export type règleExiste = schémaRègleVariable<détailsRègleExiste> & {
 
 export type détailsRègleExiste = Record<string, never>;
 
-export type règleBornes = schémaRègleVariable<détailsRègleBornes> & {
-  typeRègle: "bornes";
-};
+export type règleBornes<T extends détailsRègleBornes = détailsRègleBornes> =
+  schémaRègleVariable<T> & {
+    typeRègle: "bornes";
+  };
 
 // Peut être numérique ou bien l'id d'une autre variable ou l'id d'une colonne sur la même BD
 export type détailsRègleBornes =
@@ -162,11 +163,11 @@ export function générerFonctionRègle<
         const nonValides = vals.filter((v) => v.données[colonne] === undefined);
         return nonValides.map((v: élémentDonnées<T>) => {
           const { empreinte } = v;
-          return {
+          const erreur: erreurValidation<R> = {
             empreinte,
-            colonne,
             erreur: { règle },
           };
+          return erreur;
         });
       };
     }
@@ -180,11 +181,11 @@ export function générerFonctionRègle<
         );
         return nonValides.map((v: élémentDonnées<T>) => {
           const { empreinte } = v;
-          return {
+          const erreur: erreurValidation<R> = {
             empreinte,
-            colonne,
             erreur: { règle },
           };
+          return erreur;
         });
       };
     }
@@ -235,11 +236,11 @@ export function générerFonctionRègle<
         const nonValides = vals.filter((v) => !fComp(v));
         return nonValides.map((v: élémentDonnées<T>) => {
           const { empreinte } = v;
-          return {
+          const erreur: erreurValidation<R> = {
             empreinte,
-            colonne,
             erreur: { règle },
           };
+          return erreur;
         });
       };
     }
