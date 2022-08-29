@@ -1,4 +1,4 @@
-import Ctl from "ipfsd-ctl";
+import { createController, ControllerOptions } from "ipfsd-ctl";
 
 const FACTEUR = 2;
 
@@ -8,7 +8,7 @@ export const config = {
 };
 
 export const startIpfs = async (dossier = "") => {
-  const controllerConfig: Ctl.ControllerOptions = {
+  const controllerConfig: ControllerOptions = {
     type: "proc",
     test: true,
     disposable: true,
@@ -36,7 +36,7 @@ export const startIpfs = async (dossier = "") => {
   };
 
   // Spawn an IPFS daemon (type defined in)
-  const ipfsd = Ctl.createController(controllerConfig);
+  const ipfsd = createController(controllerConfig);
   return ipfsd;
 };
 

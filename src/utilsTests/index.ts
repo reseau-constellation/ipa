@@ -1,5 +1,5 @@
-import { Controller } from "ipfsd-ctl/src/types";
-import { connectPeers } from "orbit-db-test-utils";
+import { Controller } from "ipfsd-ctl";
+import { connectPeers } from "./orbit-db-test-utils";
 import { startIpfs, stopIpfs, config } from "./sfipTest";
 import { jest } from "@jest/globals";
 
