@@ -23,3 +23,5 @@ export * as tableaux from "@/tableaux";
 export * as utils from "@/utils";
 export * as valid from "@/valid";
 export * as variables from "@/variables";
+
+export * as utilsTests from "@/utilsTests";
