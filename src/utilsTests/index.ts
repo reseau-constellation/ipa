@@ -1,6 +1,6 @@
 import { Controller } from "ipfsd-ctl";
 import { connectPeers } from "./orbit-db-test-utils";
-import { startIpfs, stopIpfs, config } from "./sfipTest";
+import { initierSFIP, arrêterSFIP, config } from "./sfipTest";
 import { jest } from "@jest/globals";
 
 import { once } from "events";
@@ -17,6 +17,8 @@ import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import ClientConstellation from "@/client";
 import générerProxyProc from "@/proxy/ipaProc";
 import générerProxyTravailleur from "@/proxy/ipaTravailleur";
+
+export * from "./sfipTest";
 
 export const dirRessourcesTests = (): string => {
   return path.resolve(path.dirname(""), "src", "utilsTests", "ressources");
@@ -162,7 +164,7 @@ export const générerOrbites = async (
 
   for (const i in [...Array(n).keys()]) {
     const racineDossier = `${racineDossierOrbite}/sfip_${i}`;
-    const dsfip = await startIpfs(racineDossier);
+    const dsfip = await initierSFIP(racineDossier);
     const sfip = dsfip.api;
     const orbite = await OrbitDB.createInstance(sfip, {
       directory: racineDossier,
@@ -183,8 +185,8 @@ export const générerOrbites = async (
       })
     );
     await Promise.all(
-      dssfip.map(async (dssfip) => {
-        await stopIpfs(dssfip);
+      dssfip.map(async (d) => {
+        await arrêterSFIP(d);
       })
     );
     rmrf.sync(racineDossierOrbite);
@@ -221,7 +223,7 @@ export const générerClients = async (
         }
 
         case "proc": {
-          client = générerProxyProc({ orbite: orbites[i] }, true);
+          client = générerProxyProc({ orbite: orbites[i] });
           break;
         }
 
@@ -235,7 +237,6 @@ export const générerClients = async (
     for (const i in [...Array(n).keys()]) {
       client = générerProxyTravailleur(
         { orbite: { dossier: String(i) } },
-        true
       );
       clients.push(client);
     }

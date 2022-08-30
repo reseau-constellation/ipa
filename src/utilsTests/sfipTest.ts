@@ -1,4 +1,4 @@
-import { createController, ControllerOptions } from "ipfsd-ctl";
+import { createController, ControllerOptions, Controller } from "ipfsd-ctl";
 
 const FACTEUR = 2;
 
@@ -7,7 +7,7 @@ export const config = {
   patienceInit: 3 * 60 * 1000 * FACTEUR,
 };
 
-export const startIpfs = async (dossier = "") => {
+export const initierSFIP = async (dossier = ""): Promise<Controller> => {
   const controllerConfig: ControllerOptions = {
     type: "proc",
     test: true,
@@ -40,6 +40,6 @@ export const startIpfs = async (dossier = "") => {
   return ipfsd;
 };
 
-export const stopIpfs = async (ipfsd: any) => {
+export const arrêterSFIP = async (ipfsd: Controller) => {
   await ipfsd.stop();
 };
