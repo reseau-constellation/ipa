@@ -1020,7 +1020,7 @@ typesClients.forEach((type) => {
             async () => {
               const règleNumérique: règleBornes = {
                 typeRègle: "bornes",
-                détails: { val: 0, op: ">=" },
+                détails: { type: "fixe", val: 0, op: ">=" },
               };
               await client.tableaux!.ajouterRègleTableau({
                 idTableau,

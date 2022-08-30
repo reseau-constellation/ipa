@@ -247,8 +247,8 @@ describe("Client Constellation", function () {
     beforeAll(async () => {
       idBd = await client.créerBdIndépendante({ type: "kvstore" });
       idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
-      ({ bd, fOublier: fOublierBd } = await client.ouvrirBd({ id: idBd }));
-      ({ bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd({
+      ({ bd, fOublier: fOublierBd } = await client.ouvrirBd<KeyValueStore<number>>({ id: idBd }));
+      ({ bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd<KeyValueStore<number>>({
         id: idBd2,
       }));
       const fRacine = async ({
@@ -1253,7 +1253,7 @@ describe("Client Constellation", function () {
     test(
       "Avec sa propre bd accès l'utilisateur",
       async () => {
-        const optionsAccès = {
+        const optionsAccès: OptionsContrôleurConstellation = {
           adresseBd: undefined,
           premierMod: client.bdCompte!.id,
         };
