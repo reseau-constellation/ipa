@@ -47,49 +47,47 @@ class Callable extends Function {
 export abstract class ClientProxifiable extends Callable {
   événements: EventEmitter;
   tâches: { [key: string]: Tâche };
-  erreurs: { erreur: Error; id?: string }[];
-  souleverErreurs: boolean;
+  erreurs: { erreur: string; id?: string }[];
 
-  constructor(souleverErreurs: boolean) {
+  constructor() {
     super();
 
     this.événements = new EventEmitter();
-    this.souleverErreurs = souleverErreurs;
 
     this.tâches = {};
     this.erreurs = [];
 
     this.événements.on("message", (m: MessageDeTravailleur) => {
-      try {
-        const { type } = m;
-        switch (type) {
-          case "suivre": {
-            const { id, données } = m as MessageSuivreDeTravailleur;
-            const { fSuivre } = this.tâches[id];
-            fSuivre(données);
-            break;
-          }
-          case "suivrePrêt": {
-            const { id, fonctions } = m as MessageSuivrePrêtDeTravailleur;
-            this.événements.emit(id, fonctions);
-            break;
-          }
-          case "action": {
-            const { id, résultat } = m as MessageActionDeTravailleur;
-            this.événements.emit(id, résultat);
-            break;
-          }
-          case "erreur": {
-            const { erreur, id } = m as MessageErreurDeTravailleur;
-            this.erreur(erreur, id);
-            break;
-          }
-          default: {
-            this.erreur(new Error(`Type inconnu ${type} dans message ${m}.`));
-          }
+      const { type } = m;
+      switch (type) {
+        case "suivre": {
+          const { id, données } = m as MessageSuivreDeTravailleur;
+          const { fSuivre } = this.tâches[id];
+          fSuivre(données);
+          break;
         }
-      } catch (err) {
-        this.erreur(err as Error);
+        case "suivrePrêt": {
+          const { id, fonctions } = m as MessageSuivrePrêtDeTravailleur;
+          this.événements.emit(id, { fonctions });
+          break;
+        }
+        case "action": {
+          const { id, résultat } = m as MessageActionDeTravailleur;
+          this.événements.emit(id, { résultat });
+          break;
+        }
+        case "erreur": {
+          const { erreur, id } = m as MessageErreurDeTravailleur;
+          console.log("message erreur");
+          if (id)
+            this.événements.emit(id, { erreur })
+          else
+            this.erreur({erreur, id});
+          break;
+        }
+        default: {
+          this.erreur({erreur: `Type inconnu ${type} dans message ${m}.`, id: m.id});
+        }
       }
     });
   }
@@ -127,12 +125,10 @@ export abstract class ClientProxifiable extends Callable {
       Object.entries(args).filter((x) => typeof x[1] !== "function")
     );
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
-      this.erreur(
-        new Error(
-          "Plus d'un argument est une fonction : " + JSON.stringify(args)
-        ),
+      this.erreur({
+        erreur: "Plus d'un argument est une fonction : " + JSON.stringify(args),
         id
-      );
+      });
       return new Promise((_resolve, reject) => reject());
     }
 
@@ -167,7 +163,16 @@ export abstract class ClientProxifiable extends Callable {
 
     this.envoyerMessage(message);
 
-    const fonctions = (await once(this.événements, id)) as string[] | undefined;
+    const x = (await once(this.événements, id))[0] as {fonctions?: string[], erreur?: string } | undefined;
+    const {fonctions, erreur} = x
+    console.log({fonctions, erreur})
+    if (erreur) {
+      console.log("ici")
+      this.erreur({ erreur, id })
+      console.log("là")
+      throw erreur
+    }
+
     if (fonctions && fonctions[0]) {
       const retour: { [key: string]: (...args: unknown[]) => void } = {
         fOublier: fOublierTâche,
@@ -183,7 +188,7 @@ export abstract class ClientProxifiable extends Callable {
     }
   }
 
-  async appelerFonctionAction<T = unknown>(
+  async appelerFonctionAction<T extends unknown>(
     id: string,
     fonction: string[],
     args: { [key: string]: unknown }
@@ -195,27 +200,28 @@ export abstract class ClientProxifiable extends Callable {
       args: args,
     };
 
-    const promesse = new Promise<T>(async (résoudre) => {
-      const résultat = (await once(this.événements, id))[0];
-      résoudre(résultat);
+    const promesse = new Promise<T>(async (résoudre, rejeter) => {
+      const {résultat, erreur} = (await once(this.événements, id))[0];
+      console.log({résultat, erreur})
+      if (erreur)
+        rejeter(new Error(erreur));
+      else
+        résoudre(résultat);
     });
 
     this.envoyerMessage(message);
 
-    return await promesse;
+    return promesse;
   }
 
-  erreur(erreur: Error, id?: string): void {
+  erreur({ erreur, id }: {erreur: string, id?: string}): void {
     const infoErreur = { erreur, id };
-    this.erreurs.unshift(infoErreur);
-    if (this.souleverErreurs) {
-      throw infoErreur;
-    } else {
-      this.événements.emit("erreur", {
-        nouvelle: infoErreur,
-        toutes: this.erreurs,
-      });
-    }
+    console.log({infoErreur})
+    this.événements.emit("erreur", {
+      nouvelle: infoErreur,
+      toutes: this.erreurs,
+    });
+    throw new Error(infoErreur.toString());
   }
 
   oublierTâche(id: string): void {

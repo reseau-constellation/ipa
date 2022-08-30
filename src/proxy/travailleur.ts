@@ -3,7 +3,7 @@ import { MessageDeTravailleur, MessageErreurDeTravailleur } from "./messages";
 
 const fMessage = (message: MessageDeTravailleur) => postMessage(message);
 
-const fErreur = (erreur: Error, id?: string) => {
+const fErreur = (erreur: string, id?: string) => {
   const messageErreur: MessageErreurDeTravailleur = {
     type: "erreur",
     id,

@@ -15,20 +15,22 @@ import GestionnaireClient from "./gestionnaireClient";
 export class ProxyClientProc extends ClientProxifiable {
   client: GestionnaireClient;
 
-  constructor(opts: optsConstellation = {}, souleverErreurs = false) {
-    super(souleverErreurs);
+  constructor(opts: optsConstellation = {}) {
+    super();
 
     this.client = new GestionnaireClient(
-      (e: MessageDeTravailleur) => {
-        this.événements.emit("message", e);
+      (m: MessageDeTravailleur) => {
+        console.log({m})
+        this.événements.emit("message", m);
       },
-      (erreur: Error, id?: string) => {
+      (erreur: string, id?: string) => {
         const messageErreur: MessageErreurDeTravailleur = {
           type: "erreur",
           id,
           erreur,
         };
-        this.événements.emit("erreur", messageErreur);
+        console.log({messageErreur})
+        this.événements.emit("message", messageErreur);
       },
       opts
     );
@@ -41,9 +43,8 @@ export class ProxyClientProc extends ClientProxifiable {
 
 export const générerProxyProc = (
   opts: optsConstellation = {},
-  souleverErreurs = false
 ): ProxyClientConstellation => {
-  return générerProxy(new ProxyClientProc(opts, souleverErreurs));
+  return générerProxy(new ProxyClientProc(opts));
 };
 
 export default générerProxyProc;

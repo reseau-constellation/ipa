@@ -11,12 +11,12 @@ import { MessageDeTravailleur, MessagePourTravailleur } from "./messages";
 export class ProxyClientTravailleur extends ClientProxifiable {
   travailleur: Worker;
 
-  constructor(opts: optsIpaTravailleur, souleverErreurs = false) {
-    super(souleverErreurs);
+  constructor(opts: optsIpaTravailleur) {
+    super();
 
     this.travailleur = new Worker(new URL("./travailleur.js"));
     this.travailleur.onerror = (e: ErrorEvent) => {
-      this.événements.emit("erreur", e.error);
+      this.événements.emit("erreur", {erreur: e.error});
     };
     this.travailleur.onmessage = (e: MessageEvent<MessageDeTravailleur>) => {
       this.événements.emit("message", e.data);
@@ -43,7 +43,6 @@ export interface optsIpaTravailleur extends optsConstellation {
 
 export default (
   opts: optsIpaTravailleur = {},
-  souleverErreurs = false
 ): ProxyClientConstellation => {
-  return générerProxy(new ProxyClientTravailleur(opts, souleverErreurs));
+  return générerProxy(new ProxyClientTravailleur(opts));
 };

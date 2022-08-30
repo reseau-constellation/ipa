@@ -24,7 +24,7 @@ export interface MessageActionDeTravailleur extends MessageDeTravailleur {
 export interface MessageErreurDeTravailleur extends MessageDeTravailleur {
   type: "erreur";
   id?: string;
-  erreur: Error;
+  erreur: string;
 }
 
 export interface MessagePourTravailleur {

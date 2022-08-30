@@ -25,13 +25,13 @@ export default class GestionnaireClient {
   opts: optsConstellation;
 
   fMessage: (m: MessageDeTravailleur) => void;
-  fErreur: (e: Error, idRequète?: string) => void;
+  fErreur: (e: string, idRequète?: string) => void;
 
   _verrou: Semaphore;
 
   constructor(
     fMessage: (m: MessageDeTravailleur) => void,
-    fErreur: (e: Error, idRequète?: string) => void,
+    fErreur: (e: string, idRequète?: string) => void,
     opts: optsConstellation = {}
   ) {
     this.fMessage = fMessage;
@@ -73,7 +73,7 @@ export default class GestionnaireClient {
     switch (type) {
       case "suivre": {
         const { id } = message as MessageSuivrePourTravailleur;
-        if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
+        if (!this.ipa) this.fErreur("IPA non initialisé", id);
 
         const { fonction, args, nomArgFonction } =
           message as MessageSuivrePourTravailleur;
@@ -111,7 +111,7 @@ export default class GestionnaireClient {
       }
       case "action": {
         const { id } = message as MessageActionPourTravailleur;
-        if (!this.ipa) this.fErreur(new Error("IPA non initialisé"), id);
+        if (!this.ipa) this.fErreur("IPA non initialisé", id);
 
         const { fonction, args } = message as MessageActionPourTravailleur;
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
@@ -135,9 +135,7 @@ export default class GestionnaireClient {
       }
       default: {
         this.fErreur(
-          new Error(
-            `Type de requète ${type} non reconnu dans message ${message}`
-          ),
+          `Type de requète ${type} non reconnu dans message ${message}`,
           message.id
         );
         break;
@@ -149,11 +147,9 @@ export default class GestionnaireClient {
     adresseFonction: string[],
     idMessage: string
   ): ((...args: any[]) => any) | undefined {
-    const erreur = new Error(
-      `Fonction ClientConstellation.${adresseFonction.join(
+    const erreur = `Fonction ClientConstellation.${adresseFonction.join(
         "."
-      )} n'existe pas ou n'est pas une fonction.`
-    );
+      )} n'existe pas ou n'est pas une fonction.`;
 
     let fonctionIPA:
       | ClientConstellation
