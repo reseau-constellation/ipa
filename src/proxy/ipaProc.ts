@@ -20,7 +20,6 @@ export class ProxyClientProc extends ClientProxifiable {
 
     this.client = new GestionnaireClient(
       (m: MessageDeTravailleur) => {
-        console.log({m})
         this.événements.emit("message", m);
       },
       (erreur: string, id?: string) => {
@@ -29,7 +28,6 @@ export class ProxyClientProc extends ClientProxifiable {
           id,
           erreur,
         };
-        console.log({messageErreur})
         this.événements.emit("message", messageErreur);
       },
       opts

@@ -78,7 +78,6 @@ export abstract class ClientProxifiable extends Callable {
         }
         case "erreur": {
           const { erreur, id } = m as MessageErreurDeTravailleur;
-          console.log("message erreur");
           if (id)
             this.événements.emit(id, { erreur })
           else
@@ -163,13 +162,9 @@ export abstract class ClientProxifiable extends Callable {
 
     this.envoyerMessage(message);
 
-    const x = (await once(this.événements, id))[0] as {fonctions?: string[], erreur?: string } | undefined;
-    const {fonctions, erreur} = x
-    console.log({fonctions, erreur})
+    const {fonctions, erreur} = (await once(this.événements, id))[0] as {fonctions?: string[], erreur?: string } | undefined;
     if (erreur) {
-      console.log("ici")
       this.erreur({ erreur, id })
-      console.log("là")
       throw erreur
     }
 
@@ -202,7 +197,6 @@ export abstract class ClientProxifiable extends Callable {
 
     const promesse = new Promise<T>(async (résoudre, rejeter) => {
       const {résultat, erreur} = (await once(this.événements, id))[0];
-      console.log({résultat, erreur})
       if (erreur)
         rejeter(new Error(erreur));
       else
@@ -216,7 +210,6 @@ export abstract class ClientProxifiable extends Callable {
 
   erreur({ erreur, id }: {erreur: string, id?: string}): void {
     const infoErreur = { erreur, id };
-    console.log({infoErreur})
     this.événements.emit("erreur", {
       nouvelle: infoErreur,
       toutes: this.erreurs,
