@@ -1,27 +1,27 @@
 import fs from "fs";
 import path from "path";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils";
+} from "@/utils/index.js";
 import {
   rechercherProfilSelonNom,
   rechercherProfilSelonTexte,
   rechercherProfilSelonActivité,
   rechercherProfilSelonCourriel,
-} from "@/recherche/profil";
+} from "@/recherche/profil.js";
 
 import {
   générerClients,
   typesClients,
   attendreRésultat,
   dirRessourcesTests,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

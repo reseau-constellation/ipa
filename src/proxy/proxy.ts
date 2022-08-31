@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { EventEmitter, once } from "events";
 
-import ClientConstellation from "@/client";
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import ClientConstellation from "@/client.js";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 import {
   MessagePourTravailleur,
   MessageSuivrePourTravailleur,
@@ -13,7 +13,7 @@ import {
   MessageActionDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
   MessageErreurDeTravailleur,
-} from "./messages";
+} from "./messages.js";
 
 interface Tâche {
   id: string;

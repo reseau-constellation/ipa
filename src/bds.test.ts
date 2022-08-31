@@ -6,17 +6,17 @@ import AdmZip from "adm-zip";
 import isArray from "lodash/isArray";
 import isSet from "lodash/isSet";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   adresseOrbiteValide,
   uneFois,
-} from "@/utils";
-import { InfoColAvecCatégorie } from "@/tableaux";
-import { infoScore, schémaSpécificationBd } from "@/bds";
-import { élémentBdListeDonnées } from "@/tableaux";
-import { élémentDonnées, règleBornes } from "@/valid";
+} from "@/utils/index.js";
+import { InfoColAvecCatégorie } from "@/tableaux.js";
+import { infoScore, schémaSpécificationBd } from "@/bds.js";
+import { élémentBdListeDonnées } from "@/tableaux.js";
+import { élémentDonnées, règleBornes } from "@/valid.js";
 
 import {
   générerClients,
@@ -24,9 +24,9 @@ import {
   typesClients,
   dirRessourcesTests,
   obtDirTempoPourTest,
-} from "@/utilsTests";
+} from "@/utilsTests/index.js";
 
-import { config } from "@/utilsTests/sfipTest";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

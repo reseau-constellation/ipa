@@ -7,9 +7,9 @@ import ImportateurDonnéesJSON, {
   extraireDonnées,
   aplatirDonnées,
   élément,
-} from "@/importateur/json";
+} from "@/importateur/json.js";
 
-import { dirRessourcesTests } from "@/utilsTests";
+import { dirRessourcesTests } from "@/utilsTests/index.js";
 
 describe("JSON", function () {
   describe("Extraire données", function () {

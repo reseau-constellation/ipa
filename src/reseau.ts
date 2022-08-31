@@ -4,11 +4,11 @@ import OrbitDB from "orbit-db";
 import { PeersResult } from "ipfs-core-types/src/swarm";
 import { Message as MessagePubSub } from "ipfs-core-types/src/pubsub";
 import { EventEmitter } from "events";
-import sum from "lodash/sum";
+import sum from "lodash/sum.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation";
-import ClientConstellation, { Signature, infoAccès } from "@/client";
+import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import ClientConstellation, { Signature, infoAccès } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -23,17 +23,17 @@ import {
   résultatObjectifRecherche,
   résultatRecherche,
   faisRien,
-} from "@/utils";
-import { infoScore } from "@/bds";
-import { élémentBdListeDonnées } from "@/tableaux";
+} from "@/utils/index.js";
+import { infoScore } from "@/bds.js";
+import { élémentBdListeDonnées } from "@/tableaux.js";
 import {
   ÉlémentFavoris,
   ÉlémentFavorisAvecObjet,
   épingleDispositif,
-} from "@/favoris";
-import { élémentDonnées } from "@/valid";
-import { rechercherProfilSelonActivité } from "@/recherche/profil";
-import { rechercherTous } from "@/recherche/utils";
+} from "@/favoris.js";
+import { élémentDonnées } from "@/valid.js";
+import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
+import { rechercherTous } from "@/recherche/utils.js";
 
 export interface infoDispositif {
   idSFIP: string;

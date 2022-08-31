@@ -15,20 +15,20 @@ import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import { enregistrerContrôleurs } from "@/accès";
-import Épingles from "@/epingles";
-import Profil from "@/profil";
-import BDs from "@/bds";
-import Tableaux from "@/tableaux";
-import Variables from "@/variables";
-import Réseau from "@/reseau";
-import { Encryption, EncryptionLocalFirst } from "@/encryption";
-import Favoris from "@/favoris";
-import Projets from "@/projets";
-import MotsClefs from "@/motsClefs";
-import Recherche from "@/recherche";
-import { ContenuMessageRejoindreCompte } from "@/reseau";
-import Automatisations from "@/automatisation";
+import { enregistrerContrôleurs } from "@/accès/index.js";
+import Épingles from "@/epingles.js";
+import Profil from "@/profil.js";
+import BDs from "@/bds.js";
+import Tableaux from "@/tableaux.js";
+import Variables from "@/variables.js";
+import Réseau from "@/reseau.js";
+import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
+import Favoris from "@/favoris.js";
+import Projets from "@/projets.js";
+import MotsClefs from "@/motsClefs.js";
+import Recherche from "@/recherche/index.js";
+import { ContenuMessageRejoindreCompte } from "@/reseau.js";
+import Automatisations from "@/automatisation.js";
 
 import {
   adresseOrbiteValide,
@@ -39,14 +39,14 @@ import {
   uneFois,
   élémentsBd,
   toBuffer,
-} from "@/utils";
-import obtStockageLocal from "@/stockageLocal";
+} from "@/utils/index.js";
+import obtStockageLocal from "@/stockageLocal.js";
 import ContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
-} from "@/accès/cntrlConstellation";
-import { objRôles, infoUtilisateur } from "@/accès/types";
-import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts";
+} from "@/accès/cntrlConstellation.js";
+import { objRôles, infoUtilisateur } from "@/accès/types.js";
+import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -427,7 +427,7 @@ export default class ClientConstellation extends EventEmitter {
     // Attendre de recevoir la permission d'écrire à idBdCompte
     let autorisé: boolean;
     const { bd, fOublier } = await this.ouvrirBd({ id: idBdCompte });
-    const accès = bd.access as ContrôleurConstellation;
+    const accès = bd.access as unknown as ContrôleurConstellation;
     const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
       (autorisés: string[]) =>
         (autorisé = autorisés.includes(this.orbite!.identity.id))
@@ -1523,7 +1523,7 @@ export default class ClientConstellation extends EventEmitter {
     }
 
     if (!idBd && type) {
-      const accès = bdRacine.access as ContrôleurConstellation;
+      const accès = bdRacine.access as unknown as ContrôleurConstellation;
       const permission = await uneFois((f: schémaFonctionSuivi<boolean>) =>
         accès.suivreIdsOrbiteAutoriséesÉcriture((autorisés: string[]) =>
           f(autorisés.includes(this.orbite!.identity.id))
@@ -1579,7 +1579,7 @@ export default class ClientConstellation extends EventEmitter {
     idBd: string;
   }): Promise<OptionsContrôleurConstellation> {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
-    const accès = bd.access as ContrôleurConstellation;
+    const accès = bd.access as unknown as ContrôleurConstellation;
 
     fOublier();
     return {
@@ -1618,7 +1618,7 @@ export default class ClientConstellation extends EventEmitter {
         f(rôlePlusPuissant);
       };
       const fOublierSuivreAccès = await (
-        accès as ContrôleurConstellation
+        accès as unknown as ContrôleurConstellation
       ).suivreUtilisateursAutorisés(fFinale);
       return () => {
         fOublierSuivreAccès();
@@ -1665,7 +1665,7 @@ export default class ClientConstellation extends EventEmitter {
       f(listeAccès);
     } else if (typeAccès === nomTypeContrôleurConstellation) {
       const fOublierAutorisés = await (
-        accès as ContrôleurConstellation
+        accès as unknown as ContrôleurConstellation
       ).suivreUtilisateursAutorisés(f);
       fOublier();
       return fOublierAutorisés;

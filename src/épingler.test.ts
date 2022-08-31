@@ -3,11 +3,11 @@ import isSet from "lodash/isSet";
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 
-import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
+import { enregistrerContrôleurs } from "@/accès/index.js";
+import ClientConstellation from "@/client.js";
 
-import { générerClients, typesClients } from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+import { générerClients, typesClients } from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

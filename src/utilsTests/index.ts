@@ -1,7 +1,6 @@
 import { Controller } from "ipfsd-ctl";
-import { connectPeers } from "./orbit-db-test-utils";
-import { initierSFIP, arrêterSFIP, config } from "./sfipTest";
-import { jest } from "@jest/globals";
+import { connectPeers } from "@/utilsTests/orbitDbTestUtils.js";
+import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfipTest.js";
 
 import { once } from "events";
 import path from "path";
@@ -13,12 +12,12 @@ import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 import fs from "fs";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation";
-import ClientConstellation from "@/client";
-import générerProxyProc from "@/proxy/ipaProc";
-import générerProxyTravailleur from "@/proxy/ipaTravailleur";
+import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import ClientConstellation from "@/client.js";
+import générerProxyProc from "@/proxy/ipaProc.js";
+import générerProxyTravailleur from "@/proxy/ipaTravailleur.js";
 
-export * from "./sfipTest";
+export * from "@/utilsTests/sfipTest.js";
 
 export const dirRessourcesTests = (): string => {
   return path.resolve(path.dirname(""), "src", "utilsTests", "ressources");
@@ -35,7 +34,7 @@ export const obtDirTempoPourTest = (nom?: string): string => {
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   new Promise<void>((resolve) => {
     const interval = setInterval(async () => {
-      const autorisé = await (bd.access as ContrôleurConstellation).estAutorisé(
+      const autorisé = await (bd.access as unknown as ContrôleurConstellation).estAutorisé(
         idInvité
       );
       if (autorisé) {
@@ -46,7 +45,7 @@ const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   });
 
 export const attendreSync = async (bd: Store): Promise<void> => {
-  const accès = bd.access as ContrôleurConstellation;
+  const accès = bd.access as unknown as ContrôleurConstellation;
   await once(accès.bd!.events, "peer.exchanged");
 };
 
@@ -203,7 +202,6 @@ export const générerClients = async (
   clients: ClientConstellation[];
   fOublier: () => Promise<void>;
 }> => {
-  jest.setTimeout(config.timeout);
 
   const clients: ClientConstellation[] = [];
   const fsOublier: (() => Promise<void>)[] = [];

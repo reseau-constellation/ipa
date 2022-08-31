@@ -2,7 +2,7 @@
   "version": "0.4.14",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
-  "author": "Julien Malard-Adam",
+  "author": "Julien Jean Malard-Adam",
   "type": "module",
   "types": "./dist/index.d.ts",
   "exports": "./dist/index.js",
@@ -12,7 +12,7 @@
   "scripts": {
     "watch": "npm-watch",
     "nettoyer": "rimraf dist",
-    "compiler:esm": "tsc -p tsconfig.build.json && tscpaths -p tsconfig.build.json -s src -o dist",
+    "compiler:esm": "ttsc -p tsconfig.build.json",
     "compiler": "yarn versioner && yarn nettoyer && yarn compiler:esm",
     "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js  --runInBand",
     "test:tous": "env TOUS=true yarn test",
@@ -40,9 +40,9 @@
     "@types/crypto-js": "^4.1.1",
     "@types/deep-equal": "^1.0.1",
     "@types/file-saver": "^2.0.3",
-    "@types/jest": "^28.1.7",
+    "@types/jest": "^29.0.0",
     "@types/lodash": "^4.14.179",
-    "@types/node": "^18.7.13",
+    "@types/node": "^18.7.14",
     "@types/node-localstorage": "^1.3.0",
     "@types/rimraf": "^3.0.2",
     "@types/tmp": "^0.2.3",
@@ -71,10 +71,12 @@
     "rimraf": "^3.0.2",
     "source-map-support": "^0.5.21",
     "tmp": "^0.2.1",
+    "ts-jest": "^28.0.8",
     "tsconfig-paths": "^4.1.0",
     "tscpaths": "^0.0.9",
-    "ts-jest": "^28.0.8",
+    "ttypescript": "^1.5.13",
     "typescript": "^4.6.2",
+    "typescript-transform-paths": "^3.3.1",
     "why-is-node-running": "^2.2.2"
   },
   "dependencies": {
@@ -82,7 +84,7 @@
     "@herbcaudill/crypto": "^3.0.2",
     "@libp2p/kad-dht": "^3.0.4",
     "@libp2p/mdns": "^3.0.0",
-    "@libp2p/tcp": "^3.0.3",
+    "@libp2p/tcp": "^3.0.4",
     "@libp2p/webrtc-direct": "^2.0.2",
     "@libp2p/webrtc-star": "^3.0.1",
     "@libp2p/websockets": "^3.0.2",
@@ -117,6 +119,7 @@
       }
     },
     "moduleNameMapper": {
+      "^@/(.*).js$": "<rootDir>/src/$1",
       "^@/(.*)$": "<rootDir>/src/$1"
     },
     "testMatch": [

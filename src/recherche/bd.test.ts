@@ -1,11 +1,11 @@
-import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
+import { enregistrerContrôleurs } from "@/accès/index.js";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatRecherche,
-} from "@/utils";
+} from "@/utils/index.js";
 import {
   rechercherBdSelonNom,
   rechercherBdSelonDescr,
@@ -16,11 +16,11 @@ import {
   rechercherBdSelonIdVariable,
   rechercherBdSelonNomMotClef,
   rechercherBdSelonNomVariable,
-} from "@/recherche/bd";
+} from "@/recherche/bd.js";
 
-import { générerClients, typesClients } from "@/utilsTests";
+import { générerClients, typesClients } from "@/utilsTests/index.js";
 
-import { config } from "@/utilsTests/sfipTest";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

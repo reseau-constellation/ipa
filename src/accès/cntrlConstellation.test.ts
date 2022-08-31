@@ -1,14 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
 import assert from "assert";
 
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
-import ContrôleurConstellation from "@/accès/cntrlConstellation";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
+import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 import OrbitDB from "orbit-db";
 import KeyValueStore from "orbit-db-kvstore";
 
-import { peutÉcrire, attendreSync, générerOrbites } from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+import { peutÉcrire, attendreSync, générerOrbites } from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 describe("Contrôleur Constellation", function () {
   let fOublierOrbites: () => Promise<void>;

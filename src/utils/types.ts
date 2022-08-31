@@ -1,5 +1,5 @@
-import { objRôles } from "@/accès/types";
-import ClientConstellation from "@/client";
+import { objRôles } from "@/accès/types.js";
+import ClientConstellation from "@/client.js";
 
 export interface infoAuteur {
   idBdCompte: string;

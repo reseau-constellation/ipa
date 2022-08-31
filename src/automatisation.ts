@@ -7,11 +7,11 @@ import isNode from "is-node";
 import isElectron from "is-electron";
 import { v4 as uuidv4 } from "uuid";
 
-import ClientConstellation from "@/client";
-import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils";
-import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur";
-import ImportateurFeuilleCalcul from "@/importateur/xlsx";
-import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json";
+import ClientConstellation from "@/client.js";
+import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils/index.js";
+import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur/index.js";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
+import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
 
 export type formatTélécharger = BookType | "xls";
 

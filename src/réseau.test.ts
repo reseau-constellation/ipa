@@ -4,17 +4,17 @@ import isArray from "lodash/isArray";
 import fs from "fs";
 import path from "path";
 
-import { enregistrerContrôleurs } from "@/accès";
-import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
-import ClientConstellation from "@/client";
+import { enregistrerContrôleurs } from "@/accès/index.js";
+import { MODÉRATEUR, MEMBRE } from "@/accès/consts.js";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaRetourFonctionRecherche,
   schémaFonctionOublier,
   uneFois,
   infoAuteur,
-} from "@/utils";
-import { ÉlémentFavorisAvecObjet } from "@/favoris";
+} from "@/utils/index.js";
+import { ÉlémentFavorisAvecObjet } from "@/favoris.js";
 import {
   élémentDeMembre,
   statutDispositif,
@@ -25,17 +25,17 @@ import {
   infoRelation,
   infoMembreRéseau,
   infoRéplications,
-} from "@/reseau";
-import { schémaSpécificationBd } from "@/bds";
-import { élémentBdListeDonnées } from "@/tableaux";
+} from "@/reseau.js";
+import { schémaSpécificationBd } from "@/bds.js";
+import { élémentBdListeDonnées } from "@/tableaux.js";
 
 import {
   attendreRésultat,
   générerClients,
   typesClients,
   dirRessourcesTests,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

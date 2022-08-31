@@ -2,8 +2,8 @@ import KeyValueStore from "orbit-db-kvstore";
 import estNode from "is-node";
 import estÉlectron from "is-electron";
 
-import ClientConstellation from "@/client";
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import ClientConstellation from "@/client.js";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 
 export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
 

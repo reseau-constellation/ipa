@@ -1,16 +1,16 @@
-import { optsConstellation } from "@/client";
+import { optsConstellation } from "@/client.js";
 
 import {
   générerProxy,
   ClientProxifiable,
   ProxyClientConstellation,
-} from "./proxy";
+} from "./proxy.js";
 import {
   MessageDeTravailleur,
   MessagePourTravailleur,
   MessageErreurDeTravailleur,
-} from "./messages";
-import GestionnaireClient from "./gestionnaireClient";
+} from "./messages.js";
+import GestionnaireClient from "./gestionnaireClient.js";
 
 export class ProxyClientProc extends ClientProxifiable {
   client: GestionnaireClient;

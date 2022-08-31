@@ -1,10 +1,10 @@
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   élémentsBd,
   adresseOrbiteValide,
   cidValide,
-} from "@/utils";
+} from "@/utils/index.js";
 
 interface RequèteÉpingle {
   id: string;

@@ -5,9 +5,9 @@ import AdmZip from "adm-zip";
 import tmp from "tmp";
 import rmrf from "rimraf";
 
-import ClientConstellation from "@/client";
-import ImportateurFeuilleCalcul from "@/importateur/xlsx";
-import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import ClientConstellation from "@/client.js";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
+import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 import {
   SpécificationAutomatisation,
   SourceDonnéesImportationURL,
@@ -18,9 +18,9 @@ import {
   ÉtatErreur,
   ÉtatProgrammée,
   ÉtatEnSync,
-} from "@/automatisation";
-import { élémentDonnées } from "@/valid";
-import { élémentBdListeDonnées } from "@/tableaux";
+} from "@/automatisation.js";
+import { élémentDonnées } from "@/valid.js";
+import { élémentBdListeDonnées } from "@/tableaux.js";
 
 import {
   générerClients,
@@ -29,8 +29,8 @@ import {
   attendreFichierModifié,
   attendreRésultat,
   obtDirTempoPourTest,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 const vérifierDonnéesTableau = (
   doc: string | WorkBook,

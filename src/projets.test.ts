@@ -6,9 +6,9 @@ import path from "path";
 import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
-import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
-import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils";
+import { enregistrerContrôleurs } from "@/accès/index.js";
+import ClientConstellation from "@/client.js";
+import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
 import {
   dirRessourcesTests,
@@ -16,8 +16,8 @@ import {
   générerClients,
   attendreRésultat,
   typesClients,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
