@@ -1,19 +1,19 @@
 import isArray from "lodash/isArray";
 
 import XLSX from "xlsx";
-import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
+import { enregistrerContrôleurs } from "@/accès";
+import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
   adresseOrbiteValide,
   élémentsBd,
-} from "@/utils/index.js";
+} from "@/utils";
 
 import {
   InfoCol,
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
-} from "@/tableaux.js";
+} from "@/tableaux";
 import {
   règleBornes,
   règleColonne,
@@ -25,10 +25,10 @@ import {
   erreurRègleCatégoriqueColonneInexistante,
   erreurRègleBornesVariableNonPrésente,
   élémentDonnées,
-} from "@/valid.js";
+} from "@/valid";
 
-import { générerClients, attendreRésultat, typesClients } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { générerClients, attendreRésultat, typesClients } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

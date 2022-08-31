@@ -1,20 +1,24 @@
 import oùSommesNous from "wherearewe";
 import { create } from "ipfs";
+import { Multiaddr } from '@multiformats/multiaddr'
 import { IPFS } from "ipfs-core-types";
 import wrtc from "wrtc";
 import { Noise } from "@chainsafe/libp2p-noise";
 
-const configNavigateur = import("./configNavigateur.js");
+const configNavigateur = import("./configNavigateur");
 const configÉlectron = import("./configÉlectron");
-const configNode = import("./configNode.js");
+const configNode = import("./configNode");
 
 const obtConfigPlateforme = async () => {
   if (oùSommesNous.isBrowser || oùSommesNous.isElectronRenderer) {
     return (await configNavigateur).default;
   } else if (oùSommesNous.isElectronMain) {
-    return (await configÉlectron).default;
-  } else {
-    return (await configNode).default;
+    return await (await configÉlectron).default();
+  } else if (oùSommesNous.isNode){
+    return await (await configNode).default();
+  }
+  else {
+    throw new Error("Environnement non supporté :" + oùSommesNous.toString());
   }
 };
 
@@ -68,7 +72,7 @@ export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
 
   // https://github.com/LucaPanofsky/ipfs-wss-heroku-node
   sfip.swarm.connect(
-    "/dns4/p2p-circuit-constellation.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB"
+    new Multiaddr("/dns4/p2p-circuit-constellation.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB")
   );
 
   return sfip;

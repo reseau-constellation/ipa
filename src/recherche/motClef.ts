@@ -1,12 +1,12 @@
-import ClientConstellation from "@/client.js";
+import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
   infoRésultatTexte,
-} from "@/utils/index.js";
+} from "@/utils";
 
-import { similTexte, combinerRecherches, rechercherSelonId } from "./utils.js";
+import { similTexte, combinerRecherches, rechercherSelonId } from "./utils";
 
 export const rechercherMotClefSelonNom = (
   nomMotClef: string

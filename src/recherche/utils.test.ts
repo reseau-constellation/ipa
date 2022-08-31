@@ -1,17 +1,17 @@
 import fs from "fs";
 import path from "path";
 import FeedStore from "orbit-db-feedstore";
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfipTest";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
+import { enregistrerContrôleurs } from "@/accès";
+import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils/index.js";
+} from "@/utils";
 import {
   rechercherDansTexte,
   similTexte,
@@ -20,9 +20,9 @@ import {
   combinerRecherches,
   sousRecherche,
   rechercherTous,
-} from "@/recherche/utils.js";
+} from "@/recherche/utils";
 
-import { générerClients, dirRessourcesTests } from "@/utilsTests/index.js";
+import { générerClients, dirRessourcesTests } from "@/utilsTests";
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;

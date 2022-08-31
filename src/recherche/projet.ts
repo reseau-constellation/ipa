@@ -1,27 +1,27 @@
-import ClientConstellation from "@/client.js";
+import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
-} from "@/utils/index.js";
+} from "@/utils";
 
-import { rechercherBdSelonTexte } from "@/recherche/bd.js";
+import { rechercherBdSelonTexte } from "@/recherche/bd";
 import {
   rechercherVariableSelonTexte,
   rechercherVariableSelonNom,
-} from "@/recherche/variable.js";
+} from "@/recherche/variable";
 import {
   rechercherMotClefSelonTexte,
   rechercherMotClefSelonNom,
-} from "@/recherche/motClef.js";
+} from "@/recherche/motClef";
 import {
   similTexte,
   combinerRecherches,
   sousRecherche,
   rechercherSelonId,
-} from "@/recherche/utils.js";
+} from "@/recherche/utils";
 
 export const rechercherProjetSelonNom = (
   nomProjet: string

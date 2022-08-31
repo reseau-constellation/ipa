@@ -1,4 +1,4 @@
-import { rôles } from "@/accès/consts.js";
+import { rôles } from "@/accès/consts";
 
 export type élémentBdAccès = {
   rôle: typeof rôles[number];

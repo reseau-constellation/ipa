@@ -1,8 +1,8 @@
 import gjv from "geojson-validation";
 
-import { cidValide, élémentsBd } from "@/utils/index.js";
-import { catégorieVariables } from "@/variables.js";
-import { élémentBdListeDonnées } from "@/tableaux.js";
+import { cidValide, élémentsBd } from "@/utils";
+import { catégorieVariables } from "@/variables";
+import { élémentBdListeDonnées } from "@/tableaux";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle = "variable" | "tableau";

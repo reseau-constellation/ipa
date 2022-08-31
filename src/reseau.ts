@@ -2,13 +2,13 @@ import KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
 import { PeersResult } from "ipfs-core-types/src/swarm";
-import { Message as MessagePubSub } from "ipfs-core-types/src/pubsub";
+import { Message as MessagePubSub } from "@libp2p/interfaces/pubsub";
 import { EventEmitter } from "events";
-import sum from "lodash/sum.js";
+import sum from "lodash/sum";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import ClientConstellation, { Signature, infoAccès } from "@/client.js";
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
+import ClientConstellation, { Signature, infoAccès } from "@/client";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -23,17 +23,17 @@ import {
   résultatObjectifRecherche,
   résultatRecherche,
   faisRien,
-} from "@/utils/index.js";
-import { infoScore } from "@/bds.js";
-import { élémentBdListeDonnées } from "@/tableaux.js";
+} from "@/utils";
+import { infoScore } from "@/bds";
+import { élémentBdListeDonnées } from "@/tableaux";
 import {
   ÉlémentFavoris,
   ÉlémentFavorisAvecObjet,
   épingleDispositif,
-} from "@/favoris.js";
-import { élémentDonnées } from "@/valid.js";
-import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
-import { rechercherTous } from "@/recherche/utils.js";
+} from "@/favoris";
+import { élémentDonnées } from "@/valid";
+import { rechercherProfilSelonActivité } from "@/recherche/profil";
+import { rechercherTous } from "@/recherche/utils";
 
 export interface infoDispositif {
   idSFIP: string;
@@ -299,7 +299,7 @@ export default class Réseau extends EventEmitter {
     const valeur: ValeurMessageSalut = {
       type: "Salut !",
       contenu: {
-        idSFIP: this.client.idNodeSFIP!.id,
+        idSFIP: this.client.idNodeSFIP!.id.toCID().toString(),
         idOrbite: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
@@ -1214,8 +1214,8 @@ export default class Réseau extends EventEmitter {
 
       // Enlever les doublons
       for (const c of connexions) {
-        if (!adrDéjàVues.includes(c.peer)) {
-          adrDéjàVues.push(c.peer);
+        if (!adrDéjàVues.includes(c.peer.toCID().toString())) {
+          adrDéjàVues.push(c.peer.toCID().toString());
           dédupliquées.push(c);
         }
       }

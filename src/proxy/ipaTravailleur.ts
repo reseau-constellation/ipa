@@ -1,12 +1,12 @@
-import { optsConstellation } from "@/client.js";
+import { optsConstellation } from "@/client";
 
 import {
   générerProxy,
   ClientProxifiable,
   ProxyClientConstellation,
-} from "@/proxy/proxy.js";
+} from "@/proxy/proxy";
 
-import { MessageDeTravailleur, MessagePourTravailleur } from "@/proxy/messages.js";
+import { MessageDeTravailleur, MessagePourTravailleur } from "@/proxy/messages";
 
 export class ProxyClientTravailleur extends ClientProxifiable {
   travailleur: Worker;
@@ -14,7 +14,7 @@ export class ProxyClientTravailleur extends ClientProxifiable {
   constructor(opts: optsIpaTravailleur) {
     super();
 
-    this.travailleur = new Worker(new URL("./travailleur.js"));
+    this.travailleur = new Worker(new URL("./travailleur"));
     this.travailleur.onerror = (e: ErrorEvent) => {
       this.événements.emit("erreur", {erreur: e.error});
     };

@@ -1,19 +1,19 @@
-import * as bd from "@/recherche/bd.js";
-import * as motClef from "@/recherche/motClef.js";
-import * as profil from "@/recherche/profil.js";
-import * as projet from "@/recherche/projet.js";
-import * as variable from "@/recherche/variable.js";
-import * as utils from "@/recherche/utils.js";
+import * as bd from "@/recherche/bd";
+import * as motClef from "@/recherche/motClef";
+import * as profil from "@/recherche/profil";
+import * as projet from "@/recherche/projet";
+import * as variable from "@/recherche/variable";
+import * as utils from "@/recherche/utils";
 
-import ClientConstellation from "@/client.js";
-import { réponseSuivreRecherche } from "@/reseau.js";
+import ClientConstellation from "@/client";
+import { réponseSuivreRecherche } from "@/reseau";
 import {
   schémaFonctionSuivi,
   résultatRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils/index.js";
+} from "@/utils";
 
 export class Recherche {
   client: ClientConstellation;

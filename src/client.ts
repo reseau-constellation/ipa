@@ -15,20 +15,20 @@ import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
-import Épingles from "@/epingles.js";
-import Profil from "@/profil.js";
-import BDs from "@/bds.js";
-import Tableaux from "@/tableaux.js";
-import Variables from "@/variables.js";
-import Réseau from "@/reseau.js";
-import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
-import Favoris from "@/favoris.js";
-import Projets from "@/projets.js";
-import MotsClefs from "@/motsClefs.js";
-import Recherche from "@/recherche/index.js";
-import { ContenuMessageRejoindreCompte } from "@/reseau.js";
-import Automatisations from "@/automatisation.js";
+import { enregistrerContrôleurs } from "@/accès";
+import Épingles from "@/epingles";
+import Profil from "@/profil";
+import BDs from "@/bds";
+import Tableaux from "@/tableaux";
+import Variables from "@/variables";
+import Réseau from "@/reseau";
+import { Encryption, EncryptionLocalFirst } from "@/encryption";
+import Favoris from "@/favoris";
+import Projets from "@/projets";
+import MotsClefs from "@/motsClefs";
+import Recherche from "@/recherche";
+import { ContenuMessageRejoindreCompte } from "@/reseau";
+import Automatisations from "@/automatisation";
 
 import {
   adresseOrbiteValide,
@@ -39,14 +39,14 @@ import {
   uneFois,
   élémentsBd,
   toBuffer,
-} from "@/utils/index.js";
-import obtStockageLocal from "@/stockageLocal.js";
+} from "@/utils";
+import obtStockageLocal from "@/stockageLocal";
 import ContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
-} from "@/accès/cntrlConstellation.js";
-import { objRôles, infoUtilisateur } from "@/accès/types.js";
-import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
+} from "@/accès/cntrlConstellation";
+import { objRôles, infoUtilisateur } from "@/accès/types";
+import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 

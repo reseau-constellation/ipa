@@ -1,5 +1,5 @@
-export * as ipa from "@/proxy/ipaProc.js";
-export * as ipaTravailleur from "@/proxy/ipaTravailleur.js";
-export * as proxy from "@/proxy/proxy.js";
-export * as gestionnaireClient from "@/proxy/gestionnaireClient.js";
-export * as messages from "@/proxy/messages.js";
+export * as ipa from "./ipaProc";
+export * as ipaTravailleur from "./ipaTravailleur";
+export * as proxy from "./proxy";
+export * as gestionnaireClient from "./gestionnaireClient";
+export * as messages from "./messages";

@@ -1,7 +1,7 @@
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfipTest";
 
-import ClientConstellation from "@/client.js";
-import { statutMembre } from "@/reseau.js";
+import ClientConstellation from "@/client";
+import { statutMembre } from "@/reseau";
 import {
   schémaFonctionOublier,
   résultatRecherche,
@@ -9,9 +9,9 @@ import {
   infoRésultatTexte,
   infoRésultatRecherche,
   infoRésultatVide,
-} from "@/utils/index.js";
+} from "@/utils";
 
-import { générerClients, typesClients, attendreRésultat } from "@/utilsTests/index.js";
+import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
 
 const vérifierRecherche = (
   résultats: résultatRecherche<infoRésultat>[],

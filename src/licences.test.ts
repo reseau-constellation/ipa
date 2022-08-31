@@ -1,6 +1,6 @@
 import isArray from "lodash/isArray";
 
-import { licences, infoLicences } from "@/licences.js";
+import { licences, infoLicences } from "@/licences";
 
 describe("Licences", function () {
   test("licences", () => {

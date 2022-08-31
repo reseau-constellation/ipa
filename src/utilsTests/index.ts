@@ -1,6 +1,6 @@
 import { Controller } from "ipfsd-ctl";
-import { connectPeers } from "@/utilsTests/orbitDbTestUtils.js";
-import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfipTest.js";
+import { connectPeers } from "@/utilsTests/orbitDbTestUtils";
+import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfipTest";
 
 import { once } from "events";
 import path from "path";
@@ -12,12 +12,12 @@ import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 import fs from "fs";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import ClientConstellation from "@/client.js";
-import générerProxyProc from "@/proxy/ipaProc.js";
-import générerProxyTravailleur from "@/proxy/ipaTravailleur.js";
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
+import ClientConstellation from "@/client";
+import générerProxyProc from "@/proxy/ipaProc";
+import générerProxyTravailleur from "@/proxy/ipaTravailleur";
 
-export * from "@/utilsTests/sfipTest.js";
+export * from "@/utilsTests/sfipTest";
 
 export const dirRessourcesTests = (): string => {
   return path.resolve(path.dirname(""), "src", "utilsTests", "ressources");

@@ -1,5 +1,5 @@
 import { EventEmitter, once } from "events";
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/types.js";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/types";
 
 class ÉmetteurUneFois<T> extends EventEmitter {
   doitExister: boolean;

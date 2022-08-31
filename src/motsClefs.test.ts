@@ -1,11 +1,11 @@
 import isArray from "lodash/isArray";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
-import { schémaFonctionOublier } from "@/utils/index.js";
+import { enregistrerContrôleurs } from "@/accès";
+import ClientConstellation from "@/client";
+import { schémaFonctionOublier } from "@/utils";
 
-import { attendreRésultat, générerClients, typesClients } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { attendreRésultat, générerClients, typesClients } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

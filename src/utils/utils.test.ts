@@ -3,9 +3,9 @@ import path from "path";
 import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
-import { cidValide, traduire, zipper } from "@/utils/index.js";
+import { cidValide, traduire, zipper } from "@/utils";
 
-import { obtDirTempoPourTest } from "@/utilsTests/index.js";
+import { obtDirTempoPourTest } from "@/utilsTests";
 
 describe("Utils", function () {
   describe("cidValide", function () {

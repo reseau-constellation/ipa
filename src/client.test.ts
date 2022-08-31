@@ -3,22 +3,22 @@ import isArray from "lodash/isArray";
 import all from "it-all";
 import toBuffer from "it-to-buffer";
 
-import ClientConstellation, { infoAccès } from "@/client.js";
+import ClientConstellation, { infoAccès } from "@/client";
 import {
   adresseOrbiteValide,
   schémaFonctionSuivi,
   schémaFonctionOublier,
   faisRien,
   uneFois,
-} from "@/utils/index.js";
+} from "@/utils";
 
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
 
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 
-import { générerClients, peutÉcrire, attendreRésultat } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { générerClients, peutÉcrire, attendreRésultat } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 describe("adresseOrbiteValide", function () {
   test("adresse orbite est valide", () => {

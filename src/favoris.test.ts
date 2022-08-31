@@ -3,13 +3,13 @@ import isArray from "lodash/isArray";
 import oùSommesNous from "wherearewe";
 import estNode from "is-node";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
-import { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
-import { schémaFonctionOublier } from "@/utils/index.js";
+import { enregistrerContrôleurs } from "@/accès";
+import ClientConstellation from "@/client";
+import { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris";
+import { schémaFonctionOublier } from "@/utils";
 
-import { générerClients, typesClients } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { générerClients, typesClients } from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

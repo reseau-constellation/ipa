@@ -6,9 +6,9 @@ import { WorkBook, BookType, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import ClientConstellation from "@/client.js";
-import { objRôles } from "@/accès/types.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import ClientConstellation from "@/client";
+import { objRôles } from "@/accès/types";
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
 import {
   traduire,
   zipper,
@@ -17,7 +17,7 @@ import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   uneFois,
-} from "@/utils/index.js";
+} from "@/utils";
 
 export interface donnéesProjetExportées {
   docs: { doc: WorkBook; nom: string }[];

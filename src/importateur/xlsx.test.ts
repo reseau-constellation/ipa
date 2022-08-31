@@ -3,16 +3,16 @@ import isArray from "lodash/isArray";
 import XLSX from "xlsx";
 import path from "path";
 
-import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx";
 
-import { dirRessourcesTests } from "@/utilsTests/index.js";
+import { dirRessourcesTests } from "@/utilsTests";
 
 describe("XLSX", function () {
   describe("Importateur XLSX", function () {
     let importateur: ImportateurFeuilleCalcul;
 
     beforeAll(async () => {
-      // Données de https://covid.ourworldindata.org/data/owid-covid-data.json
+      // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
       const doc = XLSX.readFile(
         path.join(dirRessourcesTests(), "donnéesTest.ods")
       );

@@ -2,19 +2,19 @@ import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 import { v4 as uuidv4 } from "uuid";
 
-import ClientConstellation from "./client.js";
-import ContrôleurConstellation from "./accès/cntrlConstellation.js";
-import { règleVariableAvecId, règleVariable, règleCatégorie } from "./valid.js";
+import ClientConstellation from "./client";
+import ContrôleurConstellation from "./accès/cntrlConstellation";
+import { règleVariableAvecId, règleVariable, règleCatégorie } from "./valid";
 
-import { objRôles } from "@/accès/types.js";
-import { dicTrads } from "@/utils/types.js";
+import { objRôles } from "@/accès/types";
+import { dicTrads } from "@/utils/types";
 
 import {
   TYPES_STATUT,
   schémaFonctionSuivi,
   schémaFonctionOublier,
   schémaStatut,
-} from "@/utils/index.js";
+} from "@/utils";
 
 export type catégorieVariables =
   | "numérique"

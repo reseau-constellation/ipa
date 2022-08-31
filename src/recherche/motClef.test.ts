@@ -1,18 +1,18 @@
-import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
+import { enregistrerContrôleurs } from "@/accès";
+import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
-} from "@/utils/index.js";
+} from "@/utils";
 import {
   rechercherMotClefSelonNom,
   rechercherMotClefSelonTexte,
-} from "@/recherche/motClef.js";
+} from "@/recherche/motClef";
 
-import { générerClients, typesClients } from "@/utilsTests/index.js";
+import { générerClients, typesClients } from "@/utilsTests";
 
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

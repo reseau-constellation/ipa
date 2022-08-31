@@ -7,9 +7,9 @@ import ImportateurDonnéesJSON, {
   extraireDonnées,
   aplatirDonnées,
   élément,
-} from "@/importateur/json.js";
+} from "@/importateur/json";
 
-import { dirRessourcesTests } from "@/utilsTests/index.js";
+import { dirRessourcesTests } from "@/utilsTests";
 
 describe("JSON", function () {
   describe("Extraire données", function () {
@@ -149,11 +149,11 @@ describe("JSON", function () {
     let données: élément[];
 
     beforeAll(async () => {
-      // Données de https://covid.ourworldindata.org/data/owid-covid-data.json
+      // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
       const donnéesJSON = JSON.parse(
         (
           await fs.promises.readFile(
-            path.join(dirRessourcesTests(), "donnéesTest.json")
+            path.join(dirRessourcesTests(), "donnéesTeston")
           )
         ).toString()
       );

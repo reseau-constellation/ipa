@@ -1,27 +1,27 @@
-import client from "@/client.js";
+import client from "@/client";
 
 export default client;
 
-export { version } from "@/version.js";
+export { version } from "@/version";
 
-export * as accès from "@/accès/index.js";
-export * as importateur from "@/importateur/index.js";
-export * as proxy from "@/proxy/index.js";
+export * as accès from "@/accès";
+export * as importateur from "@/importateur";
+export * as proxy from "@/proxy";
 
-export * as automatisation from "@/automatisation.js";
-export * as bds from "@/bds.js";
-export * as client from "@/client.js";
-export * as épingles from "@/epingles.js";
-export * as profil from "@/profil.js";
-export * as encryption from "@/encryption.js";
-export * as favoris from "@/favoris.js";
-export * as licences from "@/licences.js";
-export * as motsClefs from "@/motsClefs.js";
-export * as projets from "@/projets.js";
-export * as réseau from "@/reseau.js";
-export * as tableaux from "@/tableaux.js";
-export * as utils from "@/utils/index.js";
-export * as valid from "@/valid.js";
-export * as variables from "@/variables.js";
+export * as automatisation from "@/automatisation";
+export * as bds from "@/bds";
+export * as client from "@/client";
+export * as épingles from "@/epingles";
+export * as profil from "@/profil";
+export * as encryption from "@/encryption";
+export * as favoris from "@/favoris";
+export * as licences from "@/licences";
+export * as motsClefs from "@/motsClefs";
+export * as projets from "@/projets";
+export * as réseau from "@/reseau";
+export * as tableaux from "@/tableaux";
+export * as utils from "@/utils";
+export * as valid from "@/valid";
+export * as variables from "@/variables";
 
-export * as utilsTests from "@/utilsTests/index.js";
+export * as utilsTests from "@/utilsTests";

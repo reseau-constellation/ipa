@@ -4,15 +4,15 @@ import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
-import ClientConstellation from "@/client.js";
+import ClientConstellation from "@/client";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   uneFois,
   faisRien,
-} from "@/utils/index.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import { donnéesBdExportées } from "@/bds.js";
+} from "@/utils";
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
+import { donnéesBdExportées } from "@/bds";
 import {
   erreurValidation,
   erreurRègle,
@@ -29,9 +29,9 @@ import {
   erreurRègleBornesColonneInexistante,
   erreurRègleBornesVariableNonPrésente,
   erreurRègleCatégoriqueColonneInexistante,
-} from "@/valid.js";
-import { catégorieVariables } from "@/variables.js";
-import { traduire, élémentsBd } from "@/utils/index.js";
+} from "@/valid";
+import { catégorieVariables } from "@/variables";
+import { traduire, élémentsBd } from "@/utils";
 
 export type élémentBdListeDonnées = {
   [key: string]: élémentsBd;

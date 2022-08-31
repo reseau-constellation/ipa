@@ -1,17 +1,20 @@
 import { EventEmitter } from "events";
 import FeedStore from "orbit-db-feedstore";
-import xlsx, { BookType } from "xlsx";
+import { BookType } from "xlsx";
 import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 import isNode from "is-node";
 import isElectron from "is-electron";
 import { v4 as uuidv4 } from "uuid";
 
-import ClientConstellation from "@/client.js";
-import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils/index.js";
-import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur/index.js";
-import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
-import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
+import xlsx from "xlsx";
+const { readFile } = xlsx;
+
+import ClientConstellation from "@/client";
+import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils";
+import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx";
+import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json";
 
 export type formatTélécharger = BookType | "xls";
 
@@ -198,7 +201,7 @@ const obtDonnéesImportation = async <
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source
             .info as unknown as infoImporterFeuilleCalcul;
-          const docXLSX = xlsx.readFile(adresseFichier);
+          const docXLSX = readFile(adresseFichier);
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
           return importateur.obtDonnées(nomTableau, cols);
         }

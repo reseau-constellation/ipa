@@ -5,9 +5,9 @@ import AdmZip from "adm-zip";
 import tmp from "tmp";
 import rmrf from "rimraf";
 
-import ClientConstellation from "@/client.js";
-import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
-import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
+import ClientConstellation from "@/client";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx";
+import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
 import {
   SpécificationAutomatisation,
   SourceDonnéesImportationURL,
@@ -18,9 +18,9 @@ import {
   ÉtatErreur,
   ÉtatProgrammée,
   ÉtatEnSync,
-} from "@/automatisation.js";
-import { élémentDonnées } from "@/valid.js";
-import { élémentBdListeDonnées } from "@/tableaux.js";
+} from "@/automatisation";
+import { élémentDonnées } from "@/valid";
+import { élémentBdListeDonnées } from "@/tableaux";
 
 import {
   générerClients,
@@ -29,8 +29,8 @@ import {
   attendreFichierModifié,
   attendreRésultat,
   obtDirTempoPourTest,
-} from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+} from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 const vérifierDonnéesTableau = (
   doc: string | WorkBook,
@@ -180,7 +180,7 @@ typesClients.forEach((type) => {
         test(
           "Importer de fichier JSON",
           async () => {
-            const fichierJSON = path.join(dirTempo, "données.json");
+            const fichierJSON = path.join(dirTempo, "donnéeson");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -311,7 +311,7 @@ typesClients.forEach((type) => {
         test("Importer d'un URL (json)", async () => {
           const source: SourceDonnéesImportationURL<infoImporterJSON> = {
             typeSource: "url",
-            url: "https://coordinates.native-land.ca/indigenousLanguages.json",
+            url: "https://coordinates.native-land.ca/indigenousLanguageson",
             info: {
               formatDonnées: "json",
               clefsRacine: ["features"],
@@ -353,7 +353,7 @@ typesClients.forEach((type) => {
         test(
           "Importation selon changements",
           async () => {
-            const fichierJSON = path.join(dirTempo, "données.json");
+            const fichierJSON = path.join(dirTempo, "donnéeson");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -401,7 +401,7 @@ typesClients.forEach((type) => {
         test(
           "Importation selon fréquence",
           async () => {
-            const fichierJSON = path.join(dirTempo, "données.json");
+            const fichierJSON = path.join(dirTempo, "donnéeson");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -876,7 +876,7 @@ typesClients.forEach((type) => {
         test(
           "sync et écoute",
           async () => {
-            const fichierJSON = path.join(dir, "données.json");
+            const fichierJSON = path.join(dir, "donnéeson");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -936,7 +936,7 @@ typesClients.forEach((type) => {
         );
 
         test("programmée", async () => {
-          const fichierJSON = path.join(dir, "données.json");
+          const fichierJSON = path.join(dir, "donnéeson");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -988,7 +988,7 @@ typesClients.forEach((type) => {
         test("erreur", async () => {
           const avant = Date.now();
 
-          const fichierJSON = path.join(dir, "données.json");
+          const fichierJSON = path.join(dir, "donnéeson");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },

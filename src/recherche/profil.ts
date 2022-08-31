@@ -1,4 +1,4 @@
-import ClientConstellation from "@/client.js";
+import ClientConstellation from "@/client";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
@@ -6,7 +6,7 @@ import {
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils/index.js";
+} from "@/utils";
 
 import {
   similImages,
@@ -14,7 +14,7 @@ import {
   rechercherDansTexte,
   combinerRecherches,
   rechercherSelonId,
-} from "./utils.js";
+} from "./utils";
 
 export const rechercherProfilSelonActivité =
   (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {

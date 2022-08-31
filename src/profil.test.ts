@@ -1,18 +1,18 @@
 import fs from "fs";
 import path from "path";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
-import { MAX_TAILLE_IMAGE } from "@/profil.js";
-import { schémaFonctionOublier } from "@/utils/index.js";
+import { enregistrerContrôleurs } from "@/accès";
+import ClientConstellation from "@/client";
+import { MAX_TAILLE_IMAGE } from "@/profil";
+import { schémaFonctionOublier } from "@/utils";
 
 import {
   générerClients,
   typesClients,
   attendreRésultat,
   dirRessourcesTests,
-} from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+} from "@/utilsTests";
+import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

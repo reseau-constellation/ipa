@@ -8,12 +8,12 @@ import fs from "fs";
 import path from "path";
 import oùSommesNous from "wherearewe";
 
-import { InfoColAvecCatégorie, typeÉlémentsBdTableaux } from "@/tableaux.js";
-import { schémaStatut, TYPES_STATUT } from "@/utils/types.js";
+import { InfoColAvecCatégorie, typeÉlémentsBdTableaux } from "@/tableaux";
+import { schémaStatut, TYPES_STATUT } from "@/utils/types";
 
-import { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
-import { élémentBdListeDonnées } from "@/tableaux.js";
-import ClientConstellation from "@/client.js";
+import { règleColonne, élémentDonnées, erreurValidation } from "@/valid";
+import { élémentBdListeDonnées } from "@/tableaux";
+import ClientConstellation from "@/client";
 import {
   traduire,
   zipper,
@@ -21,9 +21,9 @@ import {
   schémaFonctionOublier,
   uneFois,
   faisRien,
-} from "@/utils/index.js";
-import { objRôles } from "@/accès/types.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+} from "@/utils";
+import { objRôles } from "@/accès/types";
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
 
 export interface schémaSpécificationBd {
   licence: string;
