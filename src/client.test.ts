@@ -19,6 +19,7 @@ import KeyValueStore from "orbit-db-kvstore";
 
 import { générerClients, peutÉcrire, attendreRésultat } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
+import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation";
 
 describe("adresseOrbiteValide", function () {
   test("adresse orbite est valide", () => {

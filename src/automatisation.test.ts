@@ -180,7 +180,7 @@ typesClients.forEach((type) => {
         test(
           "Importer de fichier JSON",
           async () => {
-            const fichierJSON = path.join(dirTempo, "donnéeson");
+            const fichierJSON = path.join(dirTempo, "données.json");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -353,7 +353,7 @@ typesClients.forEach((type) => {
         test(
           "Importation selon changements",
           async () => {
-            const fichierJSON = path.join(dirTempo, "donnéeson");
+            const fichierJSON = path.join(dirTempo, "données.json");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -401,7 +401,7 @@ typesClients.forEach((type) => {
         test(
           "Importation selon fréquence",
           async () => {
-            const fichierJSON = path.join(dirTempo, "donnéeson");
+            const fichierJSON = path.join(dirTempo, "données.json");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -876,7 +876,7 @@ typesClients.forEach((type) => {
         test(
           "sync et écoute",
           async () => {
-            const fichierJSON = path.join(dir, "donnéeson");
+            const fichierJSON = path.join(dir, "données.json");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -936,7 +936,7 @@ typesClients.forEach((type) => {
         );
 
         test("programmée", async () => {
-          const fichierJSON = path.join(dir, "donnéeson");
+          const fichierJSON = path.join(dir, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -988,7 +988,7 @@ typesClients.forEach((type) => {
         test("erreur", async () => {
           const avant = Date.now();
 
-          const fichierJSON = path.join(dir, "donnéeson");
+          const fichierJSON = path.join(dir, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },

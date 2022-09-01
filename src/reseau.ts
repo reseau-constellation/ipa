@@ -2,7 +2,9 @@ import KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
 import { PeersResult } from "ipfs-core-types/src/swarm";
-import { Message as MessagePubSub } from "@libp2p/interfaces/pubsub";
+import type { Message as MessagePubSub } from "@libp2p/interfaces/pubsub";
+import type { Libp2p } from 'libp2p';
+import type { ConnectionManagerEvents } from "@libp2p/interface-connection-manager"
 import { EventEmitter } from "events";
 import sum from "lodash/sum";
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -217,12 +219,21 @@ export default class Réseau extends EventEmitter {
       (msg: MessagePubSub) => this.messageReçu({ msg, personnel: false })
     );
 
-    for (const é of ["peer:connect", "peer:disconnect"]) {
-      // @ts-ignore
-      this.client.sfip!.libp2p.connectionManager.on(é, () => {
-        this.emit("changementConnexions");
-      });
+    // @ts-ignore
+    const libp2p: Libp2p = this.client.sfip!.libp2p
+
+    const fSuivreConnections = () => {
+      this.emit("changementConnexions");
     }
+
+    const événements: (keyof ConnectionManagerEvents)[] = ["peer:connect", "peer:disconnect"]
+    for (const é  of événements) {
+      libp2p.connectionManager.addEventListener(é, fSuivreConnections);
+    }
+    this.fsOublier.push(...événements.map(é=>{
+      return () => libp2p.connectionManager.removeEventListener(é, fSuivreConnections)
+    }))
+
 
     const x = setInterval(() => {
       this.direSalut({});

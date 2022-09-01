@@ -153,7 +153,7 @@ describe("JSON", function () {
       const donnéesJSON = JSON.parse(
         (
           await fs.promises.readFile(
-            path.join(dirRessourcesTests(), "donnéesTeston")
+            path.join(dirRessourcesTests(), "donnéesTest.json")
           )
         ).toString()
       );
