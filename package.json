@@ -16,7 +16,6 @@
     "compiler": "yarn versioner && yarn nettoyer && yarn compiler:esm",
     "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js  --runInBand",
     "test:tous": "env TOUS=true yarn test",
-    "test:navigateur": "karma start",
     "couverture": "yarn test --coverage",
     "couverture:tous": "yarn test:tous --coverage",
     "formatter": "yarn prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && yarn eslint --ext .js,.ts src",
