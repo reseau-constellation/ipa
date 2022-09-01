@@ -1,5 +1,5 @@
 {
-  "version": "0.4.14",
+  "version": "0.4.15",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -19,7 +19,7 @@
     "couverture": "yarn test --coverage",
     "couverture:tous": "yarn test:tous --coverage",
     "formatter": "yarn prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && yarn eslint --ext .js,.ts src",
-    "publier": "yarn test && yarn compiler && yarn version",
+    "publier": "yarn compiler && yarn version",
     "postversion": "yarn versioner && git push --tags && yarn publish --tag $npm_package_version --new-version $npm_package_version --access public && git push && echo \"On a publié version $npm_package_version!\"",
     "versioner": "yarn genversion  --es6 --semi src/version.ts"
   },
