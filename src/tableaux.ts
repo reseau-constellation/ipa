@@ -76,20 +76,25 @@ export default class Tableaux {
     this.client = client;
   }
 
-  async créerTableau(): Promise<string> {
+  async créerTableau({
+    idBd
+  }: {
+    idBd: string
+  }): Promise<string> {
+    const { bd: bdBd, fOublier: fOublierBd } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdTableaux>
+    >({ id: idBd });
+    const accès = bdBd.access as unknown as ContrôleurConstellation;
+    const optionsAccès = { adresseBd: accès.adresseBd };
+    fOublierBd();
+
     const idBdTableau = await this.client.créerBdIndépendante({
       type: "kvstore",
-      optionsAccès: {
-        adresseBd: undefined,
-        premierMod: this.client.bdCompte!.id,
-      },
+      optionsAccès
     });
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
     >({ id: idBdTableau });
-
-    const accès = bdTableaux.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.adresseBd };
 
     const idBdNoms = await this.client.créerBdIndépendante({
       type: "kvstore",
@@ -122,15 +127,17 @@ export default class Tableaux {
 
   async copierTableau({
     id,
+    idBd,
     copierDonnées = true,
   }: {
     id: string;
+    idBd: string;
     copierDonnées?: boolean;
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
     >({ id });
-    const idNouveauTableau = await this.créerTableau();
+    const idNouveauTableau = await this.créerTableau({idBd});
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
       await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdTableaux>>({
         id: idNouveauTableau,
