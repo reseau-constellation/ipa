@@ -12,7 +12,7 @@ import {
   faisRien,
 } from "@/utils";
 import ContrôleurConstellation from "@/accès/cntrlConstellation";
-import { donnéesBdExportées } from "@/bds";
+import { donnéesBdExportées, schémaCopiéDe } from "@/bds";
 import {
   erreurValidation,
   erreurRègle,
@@ -67,7 +67,7 @@ export function indexÉlémentsÉgaux(
   return true;
 }
 
-export type typeÉlémentsBdTableaux = string;
+export type typeÉlémentsBdTableaux = string | schémaCopiéDe;
 
 export default class Tableaux {
   client: ClientConstellation;
@@ -129,10 +129,12 @@ export default class Tableaux {
     id,
     idBd,
     copierDonnées = true,
+    lier = false,
   }: {
     id: string;
     idBd: string;
     copierDonnées?: boolean;
+    lier?: boolean;
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
@@ -143,17 +145,17 @@ export default class Tableaux {
         id: idNouveauTableau,
       });
 
-    // Copier l'id unique s'il y a lieu
-    const idUnique = bdBase.get("idUnique");
-    if (idUnique) await nouvelleBd.put("idUnique", idUnique);
+    if (!lier) {
+      // Copier les noms si on ne lie pas les tableaux
+      const idBdNoms = bdBase.get("noms") as string;
+      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd<
+        KeyValueStore<string>
+      >({ id: idBdNoms });
+      const noms = bdNoms.all;
+      await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
 
-    // Copier les noms
-    const idBdNoms = bdBase.get("noms");
-    const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
-    const noms = bdNoms.all;
-    await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
+      fOublierNoms();
+    };
 
     // Copier les colonnes
     await this.client.copierContenuBdListe({
@@ -178,40 +180,14 @@ export default class Tableaux {
       });
     }
 
+    await nouvelleBd.set("copiéDe", { id, lier });
+
     fOublier();
     fOublierNouvelle();
-    fOublierNoms();
 
     return idNouveauTableau;
   }
 
-  async spécifierIdUniqueTableau({
-    idTableau,
-    idUnique,
-  }: {
-    idTableau: string;
-    idUnique: string;
-  }): Promise<void> {
-    const { bd: bdTableau, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idTableau });
-    await bdTableau.put("idUnique", idUnique);
-    fOublier();
-  }
-
-  async suivreIdUnique({
-    idTableau,
-    f,
-  }: {
-    idTableau: string;
-    f: schémaFonctionSuivi<string | undefined>;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: KeyValueStore<typeÉlémentsBdTableaux>) => {
-      const idUnique = bd.get("idUnique");
-      f(idUnique);
-    };
-    return await this.client.suivreBd({ id: idTableau, f: fFinale });
-  }
 
   async changerColIndex({
     idTableau,
