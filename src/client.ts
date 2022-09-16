@@ -1706,6 +1706,9 @@ export default class ClientConstellation extends EventEmitter {
       });
     };
 
+    // On ne suit pas automatiquement les BDs ou tableaux dont celui d'intérêt a été copié...ça pourait être très volumineu
+    const clefsÀExclure = ["copiéDe"]
+
     const _suivreBdsRécursives = async (
       id: string,
       de: string
@@ -1715,9 +1718,9 @@ export default class ClientConstellation extends EventEmitter {
         // (à un niveau de profondeur) qui représentent une adresse de BD Orbit.
         let l_vals: string[] = [];
         if (typeof vals === "object") {
-          l_vals = Object.values(vals).filter(
-            (v) => typeof v === "string"
-          ) as string[];
+          l_vals = Object.entries(vals).filter(
+            ([c, v]) => !clefsÀExclure.includes(c) && typeof v === "string"
+          ).map(x=>x[1]) as string[];
         } else if (Array.isArray(vals)) {
           l_vals = vals;
         } else if (typeof vals === "string") {
