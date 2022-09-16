@@ -37,6 +37,7 @@ typesClients.forEach((type) => {
       let clients: ClientConstellation[];
       let client: ClientConstellation;
 
+      let idBd: string;
       let idTableau: string;
       let colonnes: InfoColAvecCatégorie[];
 
@@ -47,6 +48,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
+        idBd = await client.bds!.créerBd({licence: "ODbl-1_0"})
       }, config.patienceInit);
 
       afterAll(async () => {
@@ -56,7 +58,7 @@ typesClients.forEach((type) => {
       test(
         "Création",
         async () => {
-          idTableau = await client.tableaux!.créerTableau();
+          idTableau = await client.tableaux!.créerTableau({idBd});
           expect(adresseOrbiteValide(idTableau)).toBe(true);
         },
         config.timeout
@@ -123,34 +125,6 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Ids uniques", function () {
-        let idUnique: string | undefined;
-        let fOublier: schémaFonctionOublier;
-
-        beforeAll(async () => {
-          fOublier = await client.tableaux!.suivreIdUnique({
-            idTableau,
-            f: (id) => (idUnique = id),
-          });
-        });
-
-        afterAll(async () => {
-          if (fOublier) fOublier();
-        });
-
-        test("Pas de noms pour commencer", async () => {
-          expect(idUnique).toBeUndefined;
-        });
-
-        test("Ajouter une id unique", async () => {
-          await client.tableaux!.spécifierIdUniqueTableau({
-            idTableau,
-            idUnique: "quelque chose d'unique",
-          });
-          expect(idUnique).toEqual("quelque chose d'unique");
-        });
-      });
-
       describe("Données", function () {
         let variables: string[];
         let données: élémentDonnées<élémentBdListeDonnées>[];
@@ -160,7 +134,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau();
+          idTableau = await client.tableaux!.créerTableau({idBd});
           fsOublier.push(
             await client.tableaux!.suivreColonnes({
               idTableau,
@@ -361,7 +335,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeEach(async () => {
-          idTableauRègles = await client.tableaux!.créerTableau();
+          idTableauRègles = await client.tableaux!.créerTableau({idBd});
           fsOublier.push(
             await client.tableaux!.suivreRègles({
               idTableau: idTableauRègles,
@@ -640,7 +614,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          idTableauRègles = await client.tableaux!.créerTableau();
+          idTableauRègles = await client.tableaux!.créerTableau({idBd});
 
           fsOublier.push(
             await client.tableaux!.suivreValidDonnées({
@@ -913,7 +887,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           beforeAll(async () => {
-            idTableauRègles = await client.tableaux!.créerTableau();
+            idTableauRègles = await client.tableaux!.créerTableau({idBd});
 
             fsOublier.push(
               await client.tableaux!.suivreValidDonnées({
@@ -983,7 +957,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           beforeAll(async () => {
-            idTableauÀTester = await client.tableaux!.créerTableau();
+            idTableauÀTester = await client.tableaux!.créerTableau({idBd});
 
             fsOublier.push(
               await client.tableaux!.suivreValidDonnées({
@@ -1010,7 +984,7 @@ typesClients.forEach((type) => {
               idVariable,
             });
 
-            idTableauCatégories = await client.tableaux!.créerTableau();
+            idTableauCatégories = await client.tableaux!.créerTableau({idBd});
 
             règleCatégorique = {
               typeRègle: "valeurCatégorique",
@@ -1115,7 +1089,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau();
+          idTableau = await client.tableaux!.créerTableau({idBd});
           idColonne = await client.tableaux!.ajouterColonneTableau({
             idTableau,
             idVariable: idVarChaîne,
@@ -1213,7 +1187,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau();
+          idTableau = await client.tableaux!.créerTableau({idBd});
           await client.tableaux!.ajouterNomsTableau({
             idTableau,
             noms: réfNoms,
@@ -1247,6 +1221,7 @@ typesClients.forEach((type) => {
 
           idTableauCopie = await client.tableaux!.copierTableau({
             id: idTableau,
+            idBd
           });
 
           fsOublier.push(
@@ -1346,8 +1321,8 @@ typesClients.forEach((type) => {
         const idsCols: { [key: string]: string } = {};
 
         beforeAll(async () => {
-          idTableauBase = await client.tableaux!.créerTableau();
-          idTableau2 = await client.tableaux!.créerTableau();
+          idTableauBase = await client.tableaux!.créerTableau({idBd});
+          idTableau2 = await client.tableaux!.créerTableau({idBd});
 
           idVarDate = await client.variables!.créerVariable({
             catégorie: "horoDatage",
@@ -1506,7 +1481,7 @@ typesClients.forEach((type) => {
         const idsCols: { [key: string]: string } = {};
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau();
+          idTableau = await client.tableaux!.créerTableau({idBd});
 
           idVarDate = await client.variables!.créerVariable({
             catégorie: "horoDatage",
@@ -1627,7 +1602,7 @@ typesClients.forEach((type) => {
         const nomTableauFr = "Tableau test";
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau();
+          idTableau = await client.tableaux!.créerTableau({idBd});
           idVarNumérique = await client.variables!.créerVariable({
             catégorie: "numérique",
           });

@@ -6,9 +6,10 @@ import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import fs from "fs";
 import path from "path";
-import oùSommesNous from "wherearewe";
+import { isBrowser, isWebWorker } from "wherearewe";
+import { v4 as uuidv4 } from "uuid";
 
-import { InfoColAvecCatégorie, typeÉlémentsBdTableaux } from "@/tableaux";
+import { InfoColAvecCatégorie } from "@/tableaux";
 import { schémaStatut, TYPES_STATUT } from "@/utils/types";
 
 import { règleColonne, élémentDonnées, erreurValidation } from "@/valid";
@@ -34,7 +35,7 @@ export interface schémaSpécificationBd {
       idColonne: string;
       index?: boolean;
     }[];
-    idUnique?: string;
+    clef: string;
   }[];
 }
 
@@ -51,7 +52,17 @@ export interface donnéesBdExportées {
   nomFichier: string;
 }
 
-export type typeÉlémentsBdBD = string | schémaStatut;
+export type schémaCopiéDe = {
+  id: string,
+  lier: boolean,
+}
+
+export type typeÉlémentsBdBD = string | schémaStatut | schémaCopiéDe;
+export type infoTableau = {
+  clef: string
+  position: number
+}
+export type infoTableauAvecId = infoTableau & { id: string };
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
@@ -113,7 +124,7 @@ export default class BDs {
     await bdBD.set("descriptions", idBdDescr);
 
     const idBdTableaux = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "kvstore",
       optionsAccès,
     });
     await bdBD.set("tableaux", idBdTableaux);
@@ -158,10 +169,12 @@ export default class BDs {
     id,
     ajouterÀMesBds = true,
     copierDonnées = true,
+    lier = false
   }: {
     id: string;
     ajouterÀMesBds?: boolean;
     copierDonnées?: boolean;
+    lier?: boolean;
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdBD>
@@ -176,24 +189,29 @@ export default class BDs {
         id: idNouvelleBd,
       });
 
-    const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
-    const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
-      [key: string]: string;
-    };
-    await this.ajouterNomsBd({ id: idNouvelleBd, noms });
+    if (!lier) {
+      const idBdNoms = bdBase.get("noms") as string;
+      const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd<
+        KeyValueStore<string>
+      >({ id: idBdNoms });
+      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
+        [key: string]: string;
+      };
+      await this.ajouterNomsBd({ id: idNouvelleBd, noms });
 
-    const idBdDescr = bdBase.get("descriptions") as string;
-    const { bd: bdDescr, fOublier: fOublierBdDescr } =
-      await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdDescr });
-    const descriptions = ClientConstellation.obtObjetdeBdDic({
-      bd: bdDescr,
-    }) as {
-      [key: string]: string;
-    };
-    await this.ajouterDescriptionsBd({ id: idNouvelleBd, descriptions });
+      const idBdDescr = bdBase.get("descriptions") as string;
+      const { bd: bdDescr, fOublier: fOublierBdDescr } =
+        await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdDescr });
+      const descriptions = ClientConstellation.obtObjetdeBdDic({
+        bd: bdDescr,
+      }) as {
+        [key: string]: string;
+      };
+      await this.ajouterDescriptionsBd({ id: idNouvelleBd, descriptions });
+
+      fOublierBdNoms();
+      fOublierBdDescr();
+    }
 
     const idBdMotsClefs = bdBase.get("motsClefs") as string;
     const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
@@ -210,21 +228,21 @@ export default class BDs {
     const idNouvelleBdTableaux = nouvelleBd.get("tableaux") as string;
 
     const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
-      await this.client.ouvrirBd<FeedStore<typeÉlémentsBdTableaux>>({
+      await this.client.ouvrirBd<KeyValueStore<infoTableau>>({
         id: idNouvelleBdTableaux,
       });
     const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
-      await this.client.ouvrirBd<FeedStore<typeÉlémentsBdTableaux>>({
+      await this.client.ouvrirBd<KeyValueStore<infoTableau>>({
         id: idBdTableaux,
       });
-    const tableaux = ClientConstellation.obtÉlémentsDeBdListe({
+    const tableaux = ClientConstellation.obtObjetdeBdDic({
       bd: bdTableaux,
     });
 
-    for (const idT of tableaux) {
+    for (const idTableau of Object.keys(tableaux)) {
       const idNouveauTableau: string =
-        await this.client.tableaux!.copierTableau({ id: idT, copierDonnées });
-      await nouvelleBdTableaux.add(idNouveauTableau);
+        await this.client.tableaux!.copierTableau({ id: idTableau, idBd: idNouvelleBd, copierDonnées, lier });
+      await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
     }
 
     const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
@@ -233,12 +251,11 @@ export default class BDs {
     const image = bdBase.get("image");
     if (image) await nouvelleBd.set("image", image);
 
-    await nouvelleBd.set("copiéDe", id);
+    await nouvelleBd.set("copiéDe", { id, lier });
 
     fOublier();
     fOublierNouvelleTableaux();
-    fOublierBdNoms();
-    fOublierBdDescr();
+
     fOublierNouvelle();
     fOublierBdTableaux();
     fOublierBdMotsClefs();
@@ -262,14 +279,8 @@ export default class BDs {
     }
 
     for (const tb of tableaux) {
-      const { cols, idUnique } = tb;
-      const idTableau = await this.ajouterTableauBd({ id: idBd });
-      if (idUnique) {
-        await this.client.tableaux!.spécifierIdUniqueTableau({
-          idTableau,
-          idUnique,
-        });
-      }
+      const { cols, clef: clefTableau } = tb;
+      const idTableau = await this.ajouterTableauBd({ idBd, clefTableau });
 
       for (const c of cols) {
         const { idColonne, idVariable, index } = c;
@@ -329,81 +340,52 @@ export default class BDs {
     idBdBase: string;
     idBd2: string;
   }): Promise<void> {
-    const obtTableauxEtIdsUniques = async (
+    const obtTableaux = async (
       idBd: string
-    ): Promise<{ idTableau: string; idUnique: string }[]> => {
-      const tableaux = await uneFois(
+    ): Promise<infoTableauAvecId[]> => {
+      return await uneFois(
         async (
-          fSuivi: schémaFonctionSuivi<string[]>
+          fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
         ): Promise<schémaFonctionOublier> => {
           return await this.suivreTableauxBd({ id: idBd, f: fSuivi });
         }
       );
-      const idsUniques = [];
-      for (const idTableau of tableaux) {
-        const idUnique = await uneFois(
-          async (
-            fSuivi: schémaFonctionSuivi<string | undefined>
-          ): Promise<schémaFonctionOublier> => {
-            return await this.client.tableaux!.suivreIdUnique({
-              idTableau,
-              f: fSuivi,
-            });
-          }
-        );
-        if (idUnique) idsUniques.push({ idTableau, idUnique });
-      }
-      return idsUniques;
     };
 
-    const tableauxBase = await obtTableauxEtIdsUniques(idBdBase);
-    const tableauxBd2 = await obtTableauxEtIdsUniques(idBd2);
+    const tableauxBase = await obtTableaux(idBdBase);
+    const tableauxBd2 = await obtTableaux(idBd2);
 
     for (const info of tableauxBd2) {
-      const { idTableau, idUnique } = info;
-      const idTableauBaseCorresp = tableauxBase.find(
-        (t) => t.idUnique === idUnique
-      )?.idTableau;
+      const { id: idTableau, clef } = info;
+      if (clef) {
+        const idTableauBaseCorresp = tableauxBase.find(
+          (t) => t.clef === clef
+        )?.id;
 
-      if (idTableauBaseCorresp) {
-        await this.client.tableaux!.combinerDonnées({
-          idTableauBase: idTableauBaseCorresp,
-          idTableau2: idTableau,
-        });
+        if (idTableauBaseCorresp) {
+          await this.client.tableaux!.combinerDonnées({
+            idTableauBase: idTableauBaseCorresp,
+            idTableau2: idTableau,
+          });
+        }
       }
     }
   }
 
-  async suivreTableauParIdUnique({
+  async suivreIdTableauParClef({
     idBd,
-    idUniqueTableau,
+    clef,
     f,
   }: {
     idBd: string;
-    idUniqueTableau: string;
+    clef: string;
     f: schémaFonctionSuivi<string | undefined>;
   }): Promise<schémaFonctionOublier> {
-    const fListe = async (
-      fSuivreRacine: (ids: string[]) => Promise<void>
-    ): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauxBd({ id: idBd, f: fSuivreRacine });
-    };
-
-    const fCondition = async (
-      id: string,
-      fSuivreCondition: (état: boolean) => void
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.tableaux!.suivreIdUnique({
-        idTableau: id,
-        f: (id) => fSuivreCondition(id === idUniqueTableau),
-      });
-    };
-
-    return await this.client.suivreBdsSelonCondition({
-      fListe,
-      fCondition,
-      f: (ids) => f(ids.length ? ids[0] : undefined),
-    });
+    const fFinale = (tableaux: infoTableauAvecId[]) => {
+      const infoTableau = tableaux.find(t=>t.clef === clef)
+      f(infoTableau?.id)
+    }
+    return await this.suivreTableauxBd({ id: idBd, f: fFinale });
   }
 
   async suivreBdUnique({
@@ -478,15 +460,15 @@ export default class BDs {
     return fOublier;
   }
 
-  async suivreTableauUniqueDeBdUnique({
+  async suivreIdTableauParClefDeBdUnique({
     schémaBd,
     motClefUnique,
-    idUniqueTableau,
+    clefTableau,
     f,
   }: {
     schémaBd: schémaSpécificationBd;
     motClefUnique: string;
-    idUniqueTableau: string;
+    clefTableau: string;
     f: schémaFonctionSuivi<string | undefined>;
   }): Promise<schémaFonctionOublier> {
     const fRacine = async ({
@@ -508,9 +490,9 @@ export default class BDs {
       id: string;
       fSuivreBd: schémaFonctionSuivi<string | undefined>;
     }): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauParIdUnique({
+      return await this.suivreIdTableauParClef({
         idBd: id,
-        idUniqueTableau,
+        clef: clefTableau,
         f: fSuivreBd,
       });
     };
@@ -524,12 +506,12 @@ export default class BDs {
   async suivreDonnéesDeTableauUnique<T extends élémentBdListeDonnées>({
     schémaBd,
     motClefUnique,
-    idUniqueTableau,
+    clefTableau,
     f,
   }: {
     schémaBd: schémaSpécificationBd;
     motClefUnique: string;
-    idUniqueTableau: string;
+    clefTableau: string;
     f: schémaFonctionSuivi<élémentDonnées<T>[]>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = (données?: élémentDonnées<T>[]) => {
@@ -554,10 +536,10 @@ export default class BDs {
     }: {
       fSuivreRacine: schémaFonctionSuivi<string>;
     }): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauUniqueDeBdUnique({
+      return await this.suivreIdTableauParClefDeBdUnique({
         schémaBd,
         motClefUnique,
-        idUniqueTableau,
+        clefTableau,
         f: (idTableau?: string) => {
           if (idTableau) fSuivreRacine(idTableau);
         },
@@ -574,20 +556,20 @@ export default class BDs {
   async ajouterÉlémentÀTableauUnique<T extends élémentBdListeDonnées>({
     schémaBd,
     motClefUnique,
-    idUniqueTableau,
+    clefTableau,
     vals,
   }: {
     schémaBd: schémaSpécificationBd;
     motClefUnique: string;
-    idUniqueTableau: string;
+    clefTableau: string;
     vals: T;
   }): Promise<string> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
-        return await this.suivreTableauUniqueDeBdUnique({
+        return await this.suivreIdTableauParClefDeBdUnique({
           schémaBd,
           motClefUnique,
-          idUniqueTableau,
+          clefTableau,
           f: (id?: string) => {
             if (id) fSuivi(id);
           },
@@ -605,20 +587,20 @@ export default class BDs {
   async effacerÉlémentDeTableauUnique({
     schémaBd,
     motClefUnique,
-    idUniqueTableau,
+    clefTableau,
     empreinte,
   }: {
     schémaBd: schémaSpécificationBd;
     motClefUnique: string;
-    idUniqueTableau: string;
+    clefTableau: string;
     empreinte: string;
   }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
-        return await this.suivreTableauUniqueDeBdUnique({
+        return await this.suivreIdTableauParClefDeBdUnique({
           schémaBd,
           motClefUnique,
-          idUniqueTableau,
+          clefTableau,
           f: (id?: string) => {
             if (id) fSuivi(id);
           },
@@ -855,23 +837,37 @@ export default class BDs {
     fOublier();
   }
 
-  async ajouterTableauBd({ id }: { id: string }): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
+  async ajouterTableauBd({
+    idBd,
+    clefTableau
+  }: {
+    idBd: string,
+    clefTableau?: string
+  }): Promise<string> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd });
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
-      racine: id,
-      type: "feed",
+      racine: idBd,
+      type: "kvstore",
       optionsAccès,
     });
     if (!idBdTableaux) {
-      throw `Permission de modification refusée pour BD ${id}.`;
+      throw `Permission de modification refusée pour BD ${idBd}.`;
     }
 
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
+      KeyValueStore<infoTableau>
     >({ id: idBdTableaux });
-    const idTableau = await this.client.tableaux!.créerTableau();
-    await bdTableaux.add(idTableau);
+
+    clefTableau = clefTableau || uuidv4();
+    const idTableau = await this.client.tableaux!.créerTableau({idBd});
+    await bdTableaux.set(
+      idTableau,
+      {
+        position: Object.keys(bdTableaux.all).length,
+        clef: clefTableau,
+      }
+    );
 
     fOublier();
     return idTableau;
@@ -889,7 +885,7 @@ export default class BDs {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: id,
-      type: "feed",
+      type: "kvstore",
       optionsAccès,
     });
     if (!idBdTableaux) {
@@ -897,16 +893,32 @@ export default class BDs {
     }
 
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
+      KeyValueStore<string>
     >({ id: idBdTableaux });
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdTableaux,
-      élément: idTableau,
-    });
+    await bdTableaux.del(idTableau);
     fOublier();
 
     // Enfin, effacer les données et le tableau lui-même
     await this.client.tableaux!.effacerTableau({ idTableau });
+  }
+
+  async spécifierClefTableau({
+    idBd,
+    idTableau,
+    clef,
+  }:{
+    idBd: string;
+    idTableau: string;
+    clef: string;
+  }): Promise<void> {
+    const idBdTableaux = await this.client.obtIdBd({ nom: "tableaux", racine: idBd, type: "kvstore" });
+    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<KeyValueStore<infoTableau>>({id: idBdTableaux});
+
+    const infoExistante = bdTableaux.get(idTableau) as infoTableau;
+    infoExistante.clef = clef;
+    bdTableaux.set(idTableau, infoExistante);
+
+    fOublier();
   }
 
   async marquerObsolète({
@@ -1066,9 +1078,17 @@ export default class BDs {
     f,
   }: {
     id: string;
-    f: schémaFonctionSuivi<string[]>;
+    f: schémaFonctionSuivi<infoTableauAvecId[]>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdListeDeClef({ id, clef: "tableaux", f });
+    const fFinale = (infos: {[clef: string]: infoTableau}) => {
+      const tableaux: infoTableauAvecId[] = Object.entries(infos).map(([id, info]) =>{
+        return {
+          id, ...info
+        }
+      })
+      f(tableaux)
+    }
+    return await this.client.suivreBdDicDeClef({ id, clef: "tableaux", f: fFinale });
   }
 
   async suivreScoreAccèsBd({
@@ -1155,7 +1175,7 @@ export default class BDs {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauxBd({ id, f: fSuivreRacine });
+      return await this.suivreTableauxBd({ id, f: (tableaux) => fSuivreRacine(tableaux.map(x=>x.id)) });
     };
 
     return await this.client.suivreBdsDeFonctionListe({
@@ -1276,7 +1296,7 @@ export default class BDs {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauxBd({ id, f: fSuivreRacine });
+      return await this.suivreTableauxBd({ id, f: (tableaux) => fSuivreRacine(tableaux.map(t=>t.id)) });
     };
 
     return await this.client.suivreBdsDeFonctionListe({
@@ -1341,35 +1361,32 @@ export default class BDs {
     id: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
+
     const fFinale = (variables?: string[]) => {
       return f(variables || []);
     };
+
     const fBranche = async (
       id: string,
       f: schémaFonctionSuivi<string[]>
     ): Promise<schémaFonctionOublier> => {
       return await this.client.tableaux!.suivreVariables({ idTableau: id, f });
     };
-    const fSuivreTableaux = async ({
-      id,
-      fSuivreBd,
-    }: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<string[]>;
-    }) => {
-      return await this.client.suivreBdsDeBdListe({
-        id,
-        f: fSuivreBd,
-        fBranche,
-      });
-    };
 
-    return await this.client.suivreBdDeClef({
-      id,
-      clef: "tableaux",
+    const fListe = async (
+      fSuivreRacine: (éléments: string[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.suivreTableauxBd({
+        id,
+        f: (x) => fSuivreRacine(x.map(x=>x.id))
+      })
+    }
+
+    return await this.client.suivreBdsDeFonctionListe({
+      fListe,
       f: fFinale,
-      fSuivre: fSuivreTableaux,
-    });
+      fBranche
+    })
   }
 
   async exporterDonnées({
@@ -1384,11 +1401,12 @@ export default class BDs {
     const doc = utils.book_new();
     const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
 
-    const idsTableaux = await uneFois((f: schémaFonctionSuivi<string[]>) =>
+    const infosTableaux = await uneFois((f: schémaFonctionSuivi<infoTableauAvecId[]>) =>
       this.suivreTableauxBd({ id, f })
     );
 
-    for (const idTableau of idsTableaux) {
+    for (const tableau of infosTableaux) {
+      const { id: idTableau } = tableau;
       const { fichiersSFIP: fichiersSFIPTableau } =
         await this.client.tableaux!.exporterDonnées({
           idTableau,
@@ -1433,7 +1451,7 @@ export default class BDs {
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
     if (
-      !(oùSommesNous.isBrowser || oùSommesNous.isWebWorker) &&
+      !(isBrowser || isWebWorker) &&
       !fs.existsSync(dir)
     ) {
       // Mais juste si on n'est pas dans le navigateur ! Dans le navigateur, ça télécharge sans problème.
@@ -1484,16 +1502,13 @@ export default class BDs {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: id,
-      type: "feed",
+      type: "kvstore",
       optionsAccès,
     });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =
-        await this.client.ouvrirBd<FeedStore<string>>({ id: idBdTableaux });
-      const tableaux: string[] = bdTableaux
-        .iterator({ limit: -1 })
-        .collect()
-        .map((e: LogEntry<string>) => e.payload.value);
+        await this.client.ouvrirBd<KeyValueStore<infoTableau>>({ id: idBdTableaux });
+      const tableaux: string[] = Object.keys(bdTableaux.all);
       for (const t of tableaux) {
         await this.client.tableaux!.effacerTableau({ idTableau: t });
       }
