@@ -1,6 +1,6 @@
 import isArray from "lodash/isArray";
 
-import oùSommesNous from "wherearewe";
+import { isElectronMain } from "wherearewe";
 import estNode from "is-node";
 
 import { enregistrerContrôleurs } from "@/accès";
@@ -48,7 +48,7 @@ typesClients.forEach((type) => {
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: "INSTALLÉ",
           });
-          if (estNode || oùSommesNous.isElectronMain) {
+          if (estNode || isElectronMain) {
             expect(épinglé).toBe(true);
           } else {
             expect(épinglé).toBe(false);
@@ -151,7 +151,7 @@ typesClients.forEach((type) => {
         test("Ajouter un favori avec fichiers", async () => {
           const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ";
 
-          const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
           const idVarPhoto = await client.variables!.créerVariable({
             catégorie: "photo",
           });
