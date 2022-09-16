@@ -2476,12 +2476,12 @@ export default class Réseau extends EventEmitter {
 
   async suivreÉlémentsDeTableauxUniques<T extends élémentBdListeDonnées>({
     motClefUnique,
-    idUniqueTableau,
+    clef,
     f,
     nBds = 100,
   }: {
     motClefUnique: string;
-    idUniqueTableau: string;
+    clef: string;
     f: schémaFonctionSuivi<élémentDeMembre<T>[]>;
     nBds?: number;
   }): Promise<schémaRetourFonctionRecherche> {
@@ -2535,9 +2535,9 @@ export default class Réseau extends EventEmitter {
       }: {
         fSuivreRacine: (nouvelIdBdCible: string) => Promise<void>;
       }): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreTableauParIdUnique({
+        return await this.client.bds!.suivreIdTableauParClef({
           idBd,
-          idUniqueTableau,
+          clef,
           f: (idTableau?: string) => {
             if (idTableau) fSuivreRacine(idTableau);
           },
