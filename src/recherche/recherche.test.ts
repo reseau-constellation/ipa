@@ -705,7 +705,7 @@ typesClients.forEach((type) => {
                 catégorie: "numérique",
               });
               const idTableau = await client2.bds!.ajouterTableauBd({
-                id: idBd,
+                idBd,
               });
               await client2.tableaux!.ajouterColonneTableau({
                 idTableau,
@@ -1012,7 +1012,7 @@ typesClients.forEach((type) => {
                 catégorie: "numérique",
               });
               const idTableau = await client2.bds!.ajouterTableauBd({
-                id: idBd,
+                idBd,
               });
               await client2.tableaux!.ajouterColonneTableau({
                 idTableau,

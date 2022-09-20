@@ -2,9 +2,9 @@ import KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
 import { PeersResult } from "ipfs-core-types/src/swarm";
-import type { Message as MessagePubSub } from "@libp2p/interfaces/pubsub";
-import type { Libp2p } from 'libp2p';
-import type { ConnectionManagerEvents } from "@libp2p/interface-connection-manager"
+import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";
+import type { Libp2p } from "libp2p";
+import type { ConnectionManagerEvents } from "@libp2p/interface-connection-manager";
 import { EventEmitter } from "events";
 import sum from "lodash/sum";
 import Semaphore from "@chriscdn/promise-semaphore";

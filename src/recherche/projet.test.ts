@@ -20,7 +20,7 @@ import {
   rechercherProjetSelonTexte,
 } from "@/recherche/projet";
 
-import { générerClients, typesClients } from "@/utilsTests";
+import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -290,7 +290,7 @@ typesClients.forEach((type) => {
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
 
-          const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
           await client.tableaux!.ajouterColonneTableau({
             idTableau,
             idVariable,
@@ -526,7 +526,7 @@ typesClients.forEach((type) => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
           await client.tableaux!.ajouterColonneTableau({
             idTableau,
             idVariable,
@@ -608,7 +608,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Selon texte", function () {
+      describe("Selon texte", function () {
         let idProjet: string;
         let idBd: string;
         let résultatId:
@@ -651,14 +651,14 @@ typesClients.forEach((type) => {
                 >
             >
           | undefined;
-        let résultatMotsClef:
+
+        const résultat: {MotClef?:
           | résultatObjectifRecherche<
               | infoRésultatTexte
               | infoRésultatRecherche<
                   infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
                 >
-            >
-          | undefined;
+            >} = {};
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -702,7 +702,7 @@ typesClients.forEach((type) => {
             await fRechercheMotsClef(
               client,
               idProjet,
-              (r) => (résultatMotsClef = r)
+              (r) => (résultat.MotClef = r)
             )
           );
         }, config.timeout);
@@ -793,7 +793,7 @@ typesClients.forEach((type) => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
           await client.tableaux!.ajouterColonneTableau({
             idTableau,
             idVariable,
@@ -806,20 +806,25 @@ typesClients.forEach((type) => {
           });
 
           const résRéf: résultatObjectifRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
+            infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>
           > = {
             type: "résultat",
-            clef: idVariable,
-            de: "variable",
-            info: {
+            de: "bd",
+            clef: idBd,
+            info:  {
               type: "résultat",
-              de: "nom",
-              clef: "fr",
+              clef: idVariable,
+              de: "variable",
               info: {
-                type: "texte",
-                début: 0,
-                fin: 11,
-                texte: "Température maximale",
+                type: "résultat",
+                de: "nom",
+                clef: "fr",
+                info: {
+                  type: "texte",
+                  début: 0,
+                  fin: 11,
+                  texte: "Température maximale",
+                },
               },
             },
             score: 1,
@@ -842,26 +847,32 @@ typesClients.forEach((type) => {
           });
 
           const résRéf: résultatObjectifRecherche<
-            infoRésultatRecherche<infoRésultatTexte>
+            infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>
           > = {
             type: "résultat",
-            clef: idMotClef,
-            de: "motClef",
+            de: "bd",
+            clef: idBd,
             info: {
               type: "résultat",
-              de: "nom",
-              clef: "fr",
+              clef: idMotClef,
+              de: "motClef",
               info: {
-                type: "texte",
-                début: 0,
-                fin: 5,
-                texte: "Météorologie",
+                type: "résultat",
+                de: "nom",
+                clef: "fr",
+                info: {
+                  type: "texte",
+                  début: 0,
+                  fin: 5,
+                  texte: "Météorologie",
+                },
               },
             },
             score: 1,
           };
 
-          expect(résultatMotsClef).toEqual(résRéf);
+          await attendreRésultat(résultat, "MotClef");
+          expect(résultat.MotClef).toEqual(résRéf);
         });
       });
     });

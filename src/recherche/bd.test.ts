@@ -286,7 +286,7 @@ typesClients.forEach((type) => {
         });
 
         test("Ajout variable détecté", async () => {
-          const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
           await client.tableaux!.ajouterColonneTableau({
             idTableau,
             idVariable,
@@ -347,7 +347,8 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Selon texte", function () {
+      describe("Selon texte", function () {
+        // node --experimental-specifier-resolution=node --inspect dist/recherche/bd.test.js
         let idBd: string;
         let résultatId:
           | résultatObjectifRecherche<
@@ -477,7 +478,7 @@ typesClients.forEach((type) => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
           await client.tableaux!.ajouterColonneTableau({
             idTableau,
             idVariable,
