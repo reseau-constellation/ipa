@@ -26,7 +26,7 @@ import {
   infoMembreRéseau,
   infoRéplications,
 } from "@/reseau";
-import { schémaSpécificationBd } from "@/bds";
+import { schémaSpécificationBd, infoTableauAvecId } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
 
 import {
@@ -61,23 +61,23 @@ typesClients.forEach((type) => {
 
         enregistrerContrôleurs();
 
-        idNodeSFIP1 = (await client.obtIdSFIP()).id;
-        idNodeSFIP2 = (await client2.obtIdSFIP()).id;
-        idNodeSFIP3 = (await client3.obtIdSFIP()).id;
-        // console.log({ idNodeSFIP1, idNodeSFIP2, idNodeSFIP3 });
+        idNodeSFIP1 = (await client.obtIdSFIP()).id.toString();
+        idNodeSFIP2 = (await client2.obtIdSFIP()).id.toString();
+        idNodeSFIP3 = (await client3.obtIdSFIP()).id.toString();
+        console.log({ idNodeSFIP1, idNodeSFIP2, idNodeSFIP3 });
 
         idOrbite1 = await client.obtIdOrbite();
         idOrbite2 = await client2.obtIdOrbite();
         idOrbite3 = await client3.obtIdOrbite();
-        // console.log({ idOrbite1, idOrbite2, idOrbite3 });
+        console.log({ idOrbite1, idOrbite2, idOrbite3 });
 
-        idBdCompte1 = client.idBdCompte!;
-        idBdCompte2 = client2.idBdCompte!;
-        idBdCompte3 = client3.idBdCompte!;
-        // console.log({ idBdCompte1, idBdCompte2, idBdCompte3 });
+        idBdCompte1 = await client.obtIdCompte();
+        idBdCompte2 = await client2.obtIdCompte();
+        idBdCompte3 = await client3.obtIdCompte();
+        console.log({ idBdCompte1, idBdCompte2, idBdCompte3 });
 
         moiMême = {
-          idBdCompte: client.idBdCompte!,
+          idBdCompte: idBdCompte1,
           confiance: 1,
           profondeur: 0,
         };
@@ -716,7 +716,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Suivre relations confiance", function () {
+      describe.skip("Suivre relations confiance", function () {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
         const rés: { ultat?: infoRelation[] } = {};
@@ -732,24 +732,24 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           if (fOublier) fOublier();
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await client2.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
         });
 
         test("Relations immédiates", async () => {
           const réf: infoRelation[] = [
             {
-              de: client.idBdCompte!,
-              pour: client2.idBdCompte!,
+              de: idBdCompte1,
+              pour: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
@@ -758,33 +758,34 @@ typesClients.forEach((type) => {
         test("Relations indirectes", async () => {
           const réf: infoRelation[] = [
             {
-              de: client.idBdCompte!,
-              pour: client2.idBdCompte!,
+              de: idBdCompte1,
+              pour: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              de: client2.idBdCompte!,
-              pour: client3.idBdCompte!,
+              de: idBdCompte2,
+              pour: idBdCompte3,
               confiance: 1,
               profondeur: 1,
             },
           ];
           await client2.réseau!.faireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
+          await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
           expect(rés.ultat).toEqual(réf);
-        });
+        },
+        config.patience);
 
         test(
           "Diminuer profondeur",
           async () => {
             const réf: infoRelation[] = [
               {
-                de: client.idBdCompte!,
-                pour: client2.idBdCompte!,
+                de: idBdCompte1,
+                pour: idBdCompte2,
                 confiance: 1,
                 profondeur: 0,
               },
@@ -793,20 +794,20 @@ typesClients.forEach((type) => {
             await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
             expect(rés.ultat).toEqual(réf);
           },
-          config.timeout
+          config.patience
         );
 
         test("Augmenter profondeur", async () => {
           const réf: infoRelation[] = [
             {
-              de: client.idBdCompte!,
-              pour: client2.idBdCompte!,
+              de: idBdCompte1,
+              pour: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              de: client2.idBdCompte!,
-              pour: client3.idBdCompte!,
+              de: idBdCompte2,
+              pour: idBdCompte3,
               confiance: 1,
               profondeur: 1,
             },
@@ -819,7 +820,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre comptes réseau", function () {
+      describe("Suivre comptes réseau", function () {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
@@ -837,19 +838,19 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
 
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
           await client2.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
           await client2.réseau!.débloquerMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
           await client.réseau!.débloquerMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
         });
 
@@ -857,13 +858,13 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
@@ -873,39 +874,39 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: 0.8,
               profondeur: 1,
             },
           ];
           await client2.réseau!.faireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 2);
           expect(rés.ultat).toEqual(expect.arrayContaining(réf));
-        });
+        }, config.patience);
         test("Relations confiance directes et indirectes", async () => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: 1,
               profondeur: 0,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
 
           await attendreRésultat(
@@ -920,18 +921,18 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: 0.8,
               profondeur: 1,
             },
           ];
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
 
           await attendreRésultat(
@@ -946,13 +947,13 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
           ];
           await client2.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
@@ -962,7 +963,7 @@ typesClients.forEach((type) => {
           const réf = [moiMême];
 
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
@@ -972,13 +973,13 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: -1,
               profondeur: 0,
             },
           ];
           await client.réseau!.bloquerMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
@@ -988,7 +989,7 @@ typesClients.forEach((type) => {
           const réf = [moiMême];
 
           await client.réseau!.débloquerMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
@@ -998,21 +999,21 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: -0.9,
               profondeur: 1,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await client2.réseau!.bloquerMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
@@ -1022,18 +1023,18 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: 1,
               profondeur: 0,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
 
           await attendreRésultat(
@@ -1047,13 +1048,13 @@ typesClients.forEach((type) => {
           expect(rés.ultat).toEqual(expect.arrayContaining(réf));
 
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await client2.réseau!.débloquerMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
         });
         test(
@@ -1062,16 +1063,16 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 confiance: 1,
                 profondeur: 0,
               },
             ];
             await client.réseau!.faireConfianceAuMembre({
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
             });
             await client2.réseau!.faireConfianceAuMembre({
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
             });
             await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
 
@@ -1079,18 +1080,18 @@ typesClients.forEach((type) => {
             await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
             expect(rés.ultat).toEqual(expect.arrayContaining(réf));
           },
-          config.timeout
+          config.patience
         );
         test("Augmenter profondeur", async () => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: 0.8,
               profondeur: 1,
             },
@@ -1121,10 +1122,10 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
 
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await client2.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
         });
 
@@ -1132,12 +1133,12 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 0,
               profondeur: -1,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: 0,
               profondeur: -1,
             },
@@ -1151,19 +1152,19 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: 0,
               profondeur: -1,
             },
           ];
 
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await attendreRésultat(
             rés,
@@ -1179,7 +1180,7 @@ typesClients.forEach((type) => {
 
         test("Changer profondeur", async () => {
           await client2.réseau!.faireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
           await attendreRésultat(
             rés,
@@ -1193,12 +1194,12 @@ typesClients.forEach((type) => {
           const réf: infoMembreRéseau[] = [
             moiMême,
             {
-              idBdCompte: client2.idBdCompte!,
+              idBdCompte: idBdCompte2,
               confiance: 1,
               profondeur: 0,
             },
             {
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               confiance: 0,
               profondeur: -1,
             },
@@ -1226,7 +1227,7 @@ typesClients.forEach((type) => {
         beforeAll(async () => {
           ({ fOublier, fChangerProfondeur } =
             await client.réseau!.suivreConfianceMonRéseauPourMembre({
-              idBdCompte: client3.idBdCompte!,
+              idBdCompte: idBdCompte3,
               f: (confiance) => (rés.ultat = confiance),
             }));
         });
@@ -1234,10 +1235,10 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           if (fOublier) fOublier();
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await client2.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
         });
 
@@ -1247,10 +1248,10 @@ typesClients.forEach((type) => {
 
         test("Faire confiance au membre", async () => {
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await client2.réseau!.faireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x > 0);
@@ -1285,10 +1286,10 @@ typesClients.forEach((type) => {
             await client2.motsClefs!.effacerMotClef({ id: idMotClef });
 
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
           await client.réseau!.nePlusFaireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
         });
 
@@ -1298,7 +1299,7 @@ typesClients.forEach((type) => {
 
         test("Ajout auteur au réseau", async () => {
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client2.idBdCompte!,
+            idBdCompte: idBdCompte2,
           });
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x > 0);
@@ -1308,7 +1309,7 @@ typesClients.forEach((type) => {
         test("Ajout coauteur au réseau", async () => {
           await client2.motsClefs!.inviterAuteur({
             idMotClef,
-            idBdCompteAuteur: client3.idBdCompte!,
+            idBdCompteAuteur: idBdCompte3,
             rôle: MEMBRE,
           });
           await client3.motsClefs!.ajouterÀMesMotsClefs({ id: idMotClef });
@@ -1319,7 +1320,7 @@ typesClients.forEach((type) => {
 
           const avant = rés.ultat!;
           await client.réseau!.faireConfianceAuMembre({
-            idBdCompte: client3.idBdCompte!,
+            idBdCompte: idBdCompte3,
           });
           await attendreRésultat(rés, "ultat", (x) => !!x && x > avant);
 
@@ -1360,19 +1361,19 @@ typesClients.forEach((type) => {
           test("Inviter auteur", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: false,
                 rôle: MEMBRE,
               },
             ];
             await client.motsClefs!.inviterAuteur({
               idMotClef,
-              idBdCompteAuteur: client2.idBdCompte!,
+              idBdCompteAuteur: idBdCompte2,
               rôle: MEMBRE,
             });
 
@@ -1382,12 +1383,12 @@ typesClients.forEach((type) => {
           test("Accepter invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: true,
                 rôle: MEMBRE,
               },
@@ -1406,12 +1407,12 @@ typesClients.forEach((type) => {
           test("Refuser invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1471,19 +1472,19 @@ typesClients.forEach((type) => {
           test("Inviter auteur", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: false,
                 rôle: MEMBRE,
               },
             ];
             await client.variables!.inviterAuteur({
               idVariable,
-              idBdCompteAuteur: client2.idBdCompte!,
+              idBdCompteAuteur: idBdCompte2,
               rôle: MEMBRE,
             });
 
@@ -1493,12 +1494,12 @@ typesClients.forEach((type) => {
           test("Accepter invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: true,
                 rôle: MEMBRE,
               },
@@ -1517,12 +1518,12 @@ typesClients.forEach((type) => {
           test("Refuser invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1579,12 +1580,12 @@ typesClients.forEach((type) => {
           test("Inviter auteur", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1602,12 +1603,12 @@ typesClients.forEach((type) => {
           test("Accepter invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: true,
                 rôle: MEMBRE,
               },
@@ -1627,12 +1628,12 @@ typesClients.forEach((type) => {
           test("Refuser invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1690,19 +1691,19 @@ typesClients.forEach((type) => {
           test("Inviter auteur", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: false,
                 rôle: MEMBRE,
               },
             ];
             await client.projets!.inviterAuteur({
               idProjet,
-              idBdCompteAuteur: client2.idBdCompte!,
+              idBdCompteAuteur: idBdCompte2,
               rôle: MEMBRE,
             });
 
@@ -1713,12 +1714,12 @@ typesClients.forEach((type) => {
           test("Accepter invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: true,
                 rôle: MEMBRE,
               },
@@ -1737,12 +1738,12 @@ typesClients.forEach((type) => {
           test("Refuser invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: client.idBdCompte!,
+                idBdCompte: idBdCompte1,
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: client2.idBdCompte!,
+                idBdCompte: idBdCompte2,
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -2251,7 +2252,7 @@ typesClients.forEach((type) => {
         let empreinte2: string;
         let empreinte3: string;
 
-        const idUniqueTableau = "tableau trads";
+        const clefTableau = "tableau trads";
         const données1 = {
           clef: "titre",
           langue: "fr",
@@ -2298,7 +2299,7 @@ typesClients.forEach((type) => {
                     idColonne: "trad",
                   },
                 ],
-                idUnique: idUniqueTableau,
+                clef: clefTableau,
               },
             ],
           };
@@ -2309,7 +2310,7 @@ typesClients.forEach((type) => {
           idTableau1 = (
             await uneFois(
               async (
-                fSuivi: schémaFonctionSuivi<string[]>
+                fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
               ): Promise<schémaFonctionOublier> => {
                 return await client.bds!.suivreTableauxBd({
                   id: idBd1,
@@ -2317,12 +2318,12 @@ typesClients.forEach((type) => {
                 });
               }
             )
-          )[0];
+          )[0].id
 
           idTableau2 = (
             await uneFois(
               async (
-                fSuivi: schémaFonctionSuivi<string[]>
+                fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
               ): Promise<schémaFonctionOublier> => {
                 return await client2.bds!.suivreTableauxBd({
                   id: idBd2,
@@ -2330,7 +2331,7 @@ typesClients.forEach((type) => {
                 });
               }
             )
-          )[0];
+          )[0].id;
 
           fsOublier.push(
             (
@@ -2345,7 +2346,7 @@ typesClients.forEach((type) => {
             (
               await client.réseau!.suivreÉlémentsDeTableauxUniques({
                 motClefUnique: motClef,
-                idUniqueTableau,
+                clef: clefTableau,
                 f: (éléments) => (rés.ultat2 = éléments),
               })
             ).fOublier
