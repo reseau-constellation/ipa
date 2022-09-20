@@ -31,4 +31,4 @@ Si cela s'applique, incluez des prises d'écran du problème.
  - Version [p. ex. 22]
 
 **Contexte additionnel**
-Add any other context about the problem here.
+Inclure toute autre information utile.
