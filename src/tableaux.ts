@@ -67,6 +67,28 @@ export function indexÉlémentsÉgaux(
   return true;
 }
 
+export type différenceTableaux =
+  | différenceVariableColonne
+  | différenceIndexColonne
+  | différenceColonneManquante
+  | différenceColonneExtra;
+
+export type différenceVariableColonne = {
+  idCol: string;
+  varColTableau: string;
+  varColTableauLiée: string;
+};
+export type différenceIndexColonne = {
+  idCol: string;
+  colTableauIndexée: boolean;
+};
+export type différenceColonneManquante = {
+  idManquante: string;
+};
+export type différenceColonneExtra = {
+  idExtra: string;
+};
+
 export type typeÉlémentsBdTableaux = string | schémaCopiéDe;
 
 export default class Tableaux {
@@ -76,11 +98,7 @@ export default class Tableaux {
     this.client = client;
   }
 
-  async créerTableau({
-    idBd
-  }: {
-    idBd: string
-  }): Promise<string> {
+  async créerTableau({ idBd }: { idBd: string }): Promise<string> {
     const { bd: bdBd, fOublier: fOublierBd } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
     >({ id: idBd });
@@ -90,7 +108,7 @@ export default class Tableaux {
 
     const idBdTableau = await this.client.créerBdIndépendante({
       type: "kvstore",
-      optionsAccès
+      optionsAccès,
     });
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
@@ -139,7 +157,7 @@ export default class Tableaux {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
     >({ id });
-    const idNouveauTableau = await this.créerTableau({idBd});
+    const idNouveauTableau = await this.créerTableau({ idBd });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
       await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdTableaux>>({
         id: idNouveauTableau,
@@ -155,7 +173,7 @@ export default class Tableaux {
       await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
 
       fOublierNoms();
-    };
+    }
 
     // Copier les colonnes
     await this.client.copierContenuBdListe({
@@ -188,6 +206,121 @@ export default class Tableaux {
     return idNouveauTableau;
   }
 
+  async suivreParent({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<{ id: string; lier: boolean } | undefined>;
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = (bd: KeyValueStore<typeÉlémentsBdTableaux>) => {
+      const copiéDe = bd.get("copiéDe");
+      f(copiéDe as { id: string; lier: boolean });
+    };
+    return await this.client.suivreBd({
+      id: idTableau,
+      f: fFinale,
+    });
+  }
+
+  async suivreDifférencesAvecTableauLié({
+    id,
+    f,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<différenceTableaux[]>;
+  }): Promise<schémaFonctionOublier> {
+    const info: {
+      colonnesTableau?: InfoCol[];
+      colonnesTableauLié?: InfoCol[];
+    } = {};
+
+    const fRacine = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.suivreParent({
+        idTableau: id,
+        f: (x) => fSuivreRacine(x?.lier ? x.id : undefined),
+      });
+    };
+
+    const fSuivre = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<InfoCol[]>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.suivreColonnes({
+        idTableau: id,
+        f: fSuivreBd,
+        catégories: false,
+      });
+    };
+
+    const fFinale = () => {
+      if (!info.colonnesTableau || !info.colonnesTableauLié) return;
+
+      const différences: différenceTableaux[] = [];
+
+      for (const cLiée of info.colonnesTableauLié) {
+        const cCorresp = info.colonnesTableau.find((c) => c.id === cLiée.id);
+        if (cCorresp) {
+          if (cCorresp.variable !== cLiée.variable) {
+            const dif: différenceVariableColonne = {
+              idCol: cCorresp.id,
+              varColTableau: cCorresp.variable,
+              varColTableauLiée: cLiée.variable,
+            };
+            différences.push(dif);
+          }
+          if (cCorresp.index !== cLiée.index) {
+            const dif: différenceIndexColonne = {
+              idCol: cCorresp.id,
+              colTableauIndexée: cCorresp.index,
+            };
+            différences.push(dif);
+          }
+        } else {
+          const dif: différenceColonneManquante = {
+            idManquante: cLiée.id,
+          };
+          différences.push(dif);
+        }
+      }
+
+      for (const cTableau of info.colonnesTableau) {
+        const cLiée = info.colonnesTableauLié.find((c) => c.id === cTableau.id);
+        if (!cLiée) {
+          const dif: différenceColonneExtra = {
+            idExtra: cTableau.id,
+          };
+          différences.push(dif);
+        }
+      }
+
+      f(différences);
+    };
+
+    const fOublierColonnesTableau = await this.suivreColonnes({
+      idTableau: id,
+      f: (x) => (info.colonnesTableau = x),
+      catégories: false,
+    });
+
+    const fOublierLié = await this.client.suivreBdDeFonction({
+      fRacine,
+      f: fFinale,
+      fSuivre,
+    });
+
+    return () => {
+      fOublierColonnesTableau();
+      fOublierLié();
+    };
+  }
 
   async changerColIndex({
     idTableau,
