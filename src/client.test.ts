@@ -248,8 +248,12 @@ describe("Client Constellation", function () {
     beforeAll(async () => {
       idBd = await client.créerBdIndépendante({ type: "kvstore" });
       idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
-      ({ bd, fOublier: fOublierBd } = await client.ouvrirBd<KeyValueStore<number>>({ id: idBd }));
-      ({ bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd<KeyValueStore<number>>({
+      ({ bd, fOublier: fOublierBd } = await client.ouvrirBd<
+        KeyValueStore<number>
+      >({ id: idBd }));
+      ({ bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd<
+        KeyValueStore<number>
+      >({
         id: idBd2,
       }));
       const fRacine = async ({

@@ -7,7 +7,9 @@ import AccessController from "orbit-db-access-controllers/src/access-controller-
 import { v4 as uuidv4 } from "uuid";
 
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
-import GestionnaireAccès, { suivreBdAccès } from "@/accès/gestionnaireUtilisateurs";
+import GestionnaireAccès, {
+  suivreBdAccès,
+} from "@/accès/gestionnaireUtilisateurs";
 import accesseurBdOrbite from "@/accès/accesseurBdOrbite";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts";
 import { élémentBdAccès, infoUtilisateur } from "@/accès/types";
