@@ -172,7 +172,7 @@ const aMieuxQueB = <T extends infoRésultat>(
 ): boolean => {
   const xPlusLongQueY = (x: infoRésultat, y: infoRésultat): boolean => {
     while (x.type === "résultat") x = x.info;
-    while (y.type === "résultat") x = y.info;
+    while (y.type === "résultat") y = y.info;
 
     switch (x.type) {
       case "texte":
