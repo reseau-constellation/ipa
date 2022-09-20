@@ -1,4 +1,4 @@
-import oùSommesNous from "wherearewe";
+import { isElectronMain } from "wherearewe";
 import path from "path";
 
 let _localStorage: Storage;
@@ -9,7 +9,7 @@ export default async (dossier?: string): Promise<Storage> => {
 
     let DOSSIER_STOCKAGE_LOCAL: string;
 
-    if (oùSommesNous.isElectronMain) {
+    if (isElectronMain) {
       const electron = await import("electron");
       DOSSIER_STOCKAGE_LOCAL =
         dossier ||
