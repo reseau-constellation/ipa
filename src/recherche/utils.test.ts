@@ -299,7 +299,7 @@ describe("Utils recherche", function () {
           fSuivreRecherche
         )
       );
-    }, config.timeout);
+    }, config.patience);
     afterAll(() => fsOublier.forEach((f) => f()));
 
     test("Rien pour commencer", () => {

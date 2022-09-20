@@ -169,7 +169,7 @@ typesClients.forEach((type) => {
               f: (données) => (rés.ultat = données),
             })
           );
-        }, config.timeout);
+        }, config.patience);
 
         afterEach(async () => {
           fsOublier.forEach((f) => f());
@@ -222,7 +222,7 @@ typesClients.forEach((type) => {
               { [idCol1]: 3, [idCol2]: "a" },
             ]);
           },
-          config.timeout
+          config.patience
         );
 
         test("Importer de fichier tableau", async () => {
@@ -395,7 +395,7 @@ typesClients.forEach((type) => {
               { [idCol1]: 4, [idCol2]: "子" },
             ]);
           },
-          config.timeout
+          config.patience
         );
 
         test(
@@ -451,7 +451,7 @@ typesClients.forEach((type) => {
               { [idCol1]: 4, [idCol2]: "子" },
             ]);
           },
-          config.timeout
+          config.patience
         );
         test.todo("Effacer automatisation");
       });
@@ -509,7 +509,7 @@ typesClients.forEach((type) => {
               fr: "Mon projet",
             },
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           const automatisations = await uneFois(
@@ -703,7 +703,7 @@ typesClients.forEach((type) => {
               [idCol]: 3,
             },
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -864,7 +864,7 @@ typesClients.forEach((type) => {
             idTableau,
             idVariable: idVar2,
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -932,7 +932,7 @@ typesClients.forEach((type) => {
             const étatSync = rés.états![idAuto] as ÉtatEnSync;
             expect(étatSync.depuis).toBeGreaterThanOrEqual(avantAjout);
           },
-          config.timeout
+          config.patience
         );
 
         test("programmée", async () => {

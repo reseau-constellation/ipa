@@ -138,7 +138,7 @@ describe("Client Constellation", function () {
         await client3.rejoindreCompte({ idBdCompte: idbdCompte1 });
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
         idOrbiteClient3Après = await client3.obtIdOrbite();
-      }, config.timeout);
+      }, config.patience);
 
       test("Mes dispositifs sont mis à jour", async () => {
         expect(mesDispositifs).toHaveLength(2);
@@ -170,7 +170,7 @@ describe("Client Constellation", function () {
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
         const invitation = await client.générerInvitationRejoindreCompte();
         await client4.demanderEtPuisRejoindreCompte(invitation);
-      }, config.timeout);
+      }, config.patience);
 
       test("Nouveau dispositif ajouté au compte", async () => {
         expect(mesDispositifs).toEqual(
@@ -215,7 +215,7 @@ describe("Client Constellation", function () {
         fOublierBd();
         fOublierSuivre();
       };
-    }, config.timeout);
+    }, config.patience);
 
     afterAll(async () => {
       fOublier();
@@ -286,7 +286,7 @@ describe("Client Constellation", function () {
         fOublierBd();
         fOublierBd2();
       };
-    }, config.timeout);
+    }, config.patience);
     afterAll(async () => {
       if (bd) await bd.close();
       if (bd2) await bd2.close();
@@ -342,7 +342,7 @@ describe("Client Constellation", function () {
       fsOublier.push(
         await client.suivreBdDeClef({ id: idBdBase, clef: CLEF, f, fSuivre })
       );
-    }, config.timeout);
+    }, config.patience);
 
     afterAll(async () => {
       fsOublier.forEach((f) => f());
@@ -401,7 +401,7 @@ describe("Client Constellation", function () {
         clef: CLEF,
         f: fSuivre,
       });
-    }, config.timeout);
+    }, config.patience);
 
     afterAll(async () => {
       fsOublier.forEach((f) => f());
@@ -456,7 +456,7 @@ describe("Client Constellation", function () {
         f: fSuivre,
         renvoyerValeur: false,
       });
-    }, config.timeout);
+    }, config.patience);
     afterAll(async () => {
       fsOublier.forEach((f) => f());
     });
@@ -518,7 +518,7 @@ describe("Client Constellation", function () {
           renvoyerValeur: false,
         })
       );
-    }, config.timeout);
+    }, config.patience);
 
     afterAll(async () => {
       fsOublier.forEach((f) => f());
@@ -562,7 +562,7 @@ describe("Client Constellation", function () {
         idBd,
         f: (ids_) => (rés.ultat = ids_),
       });
-    }, config.timeout);
+    }, config.patience);
 
     afterAll(() => {
       if (fOublier) fOublier();
@@ -638,7 +638,7 @@ describe("Client Constellation", function () {
         idBd,
         f: (empr) => (rés.ultat = empr),
       });
-    }, config.timeout);
+    }, config.patience);
 
     afterAll(() => {
       if (fOublier) fOublier();
@@ -797,7 +797,7 @@ describe("Client Constellation", function () {
 
       await bdListe.add(idBd1);
       await bdListe.add(idBd2);
-    }, config.timeout);
+    }, config.patience);
     afterAll(() => {
       fsOublier.forEach((f) => f());
     });
@@ -858,7 +858,7 @@ describe("Client Constellation", function () {
         fsOublier.push(
           await client.suivreBdsDeFonctionListe({ fListe, f, fBranche })
         );
-      }, config.timeout);
+      }, config.patience);
       afterAll(() => {
         fsOublier.forEach((f) => f());
       });
@@ -951,7 +951,7 @@ describe("Client Constellation", function () {
           })
         );
         await changerBds([idBd1, idBd2]);
-      }, config.timeout);
+      }, config.patience);
       afterAll(() => {
         fsOublier.forEach((f) => f());
       });
@@ -1043,7 +1043,7 @@ describe("Client Constellation", function () {
           f: (idsBds) => (sélectionnées = idsBds),
         })
       );
-    }, config.timeout);
+    }, config.patience);
     afterAll(() => {
       fsOublier.forEach((f) => f());
     });
@@ -1080,7 +1080,7 @@ describe("Client Constellation", function () {
       async () => {
         cid = await client.ajouterÀSFIP({ fichier: texte });
       },
-      config.timeout
+      config.patience
     );
     test("On télécharge le fichier du SFIP", async () => {
       const données = await client.obtFichierSFIP({ id: cid });
@@ -1139,7 +1139,7 @@ describe("Client Constellation", function () {
 
       idBd = await client.créerBdIndépendante({ type: "feed" });
       await bdRacine.put("clef", idBd);
-    }, config.timeout);
+    }, config.patience);
 
     afterAll(() => {
       fsOublier.forEach((f) => f());
@@ -1236,7 +1236,7 @@ describe("Client Constellation", function () {
           expect.arrayContaining(["Salut !", "வணக்கம்!", "કેમ છો"])
         );
       },
-      config.timeout * 2
+      config.patience * 2
     );
   });
 
@@ -1253,7 +1253,7 @@ describe("Client Constellation", function () {
         const idBd = await client.créerBdIndépendante({ type: "kvstore" });
         expect(adresseOrbiteValide(idBd)).toBe(true);
       },
-      config.timeout
+      config.patience
     );
     test(
       "Avec sa propre bd accès l'utilisateur",
@@ -1275,7 +1275,7 @@ describe("Client Constellation", function () {
         const autorisé = await peutÉcrire(bd, client.orbite);
         expect(autorisé).toBe(true);
       },
-      config.timeout
+      config.patience
     );
     test(
       "Avec accès personalisé",
@@ -1295,7 +1295,7 @@ describe("Client Constellation", function () {
 
         expect(autorisé).toBe(true);
       },
-      config.timeout
+      config.patience
     );
   });
 
@@ -1336,7 +1336,7 @@ describe("Client Constellation", function () {
           "clef 3": 3,
         });
       },
-      config.timeout
+      config.patience
     );
 
     test(
@@ -1367,7 +1367,7 @@ describe("Client Constellation", function () {
         expect(données).toHaveLength(3);
         expect(données).toEqual(expect.arrayContaining([1, 2, 3]));
       },
-      config.timeout
+      config.patience
     );
 
     test(
@@ -1412,7 +1412,7 @@ describe("Client Constellation", function () {
           ])
         );
       },
-      config.timeout
+      config.patience
     );
 
     test(
@@ -1465,7 +1465,7 @@ describe("Client Constellation", function () {
         expect(données).toHaveLength(2);
         expect(données).toEqual(expect.arrayContaining([1, 2]));
       },
-      config.timeout * 2
+      config.patience * 2
     );
 
     test("Combiner BD liste récursif", async () => {
@@ -1545,7 +1545,7 @@ describe("Client Constellation", function () {
 
       await bd.put("test", 123);
       await bd.close();
-    }, config.timeout);
+    }, config.patience);
 
     afterAll(() => {
       fsOublier.forEach((f) => f());
@@ -1666,7 +1666,7 @@ describe("Client Constellation", function () {
         idObjet: idBd,
         f: fPermission,
       });
-    }, config.timeout);
+    }, config.patience);
     afterAll(async () => {
       if (fOublier) fOublier();
       if (fOublierÉcrire) fOublierÉcrire();

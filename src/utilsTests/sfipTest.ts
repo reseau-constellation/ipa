@@ -3,7 +3,7 @@ import { createController, ControllerOptions, Controller } from "ipfsd-ctl";
 const FACTEUR = 2;
 
 export const config = {
-  timeout: 30 * 1000 * FACTEUR,
+  patience: 30 * 1000 * FACTEUR,
   patienceInit: 3 * 60 * 1000 * FACTEUR,
 };
 

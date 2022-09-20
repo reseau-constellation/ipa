@@ -40,7 +40,7 @@ describe("Contrôleur Constellation", function () {
           },
         });
         await bd.load();
-      }, config.timeout);
+      }, config.patience);
 
       test("Le premier mod peut écrire à la BD", async () => {
         const autorisé = await peutÉcrire(bd);
@@ -108,7 +108,7 @@ describe("Contrôleur Constellation", function () {
           },
         });
         await bd.load();
-      }, config.timeout);
+      }, config.patience);
 
       test("Le premier mod peut écrire à la BD", async () => {
         const autorisé = await peutÉcrire(bd);

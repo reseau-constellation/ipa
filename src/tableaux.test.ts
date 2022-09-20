@@ -61,7 +61,7 @@ typesClients.forEach((type) => {
           idTableau = await client.tableaux!.créerTableau({ idBd });
           expect(adresseOrbiteValide(idTableau)).toBe(true);
         },
-        config.timeout
+        config.patience
       );
 
       describe("Noms", function () {
@@ -161,7 +161,7 @@ typesClients.forEach((type) => {
             catégorie: "chaîne",
           });
           idsVariables = [idVariable1, idVariable2];
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -364,7 +364,7 @@ typesClients.forEach((type) => {
             idTableau: idTableauRègles,
             idVariable: idVariableChaîne,
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterEach(async () => {
           fsOublier.forEach((f) => f());
@@ -655,7 +655,7 @@ typesClients.forEach((type) => {
               })
             );
           }
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -914,7 +914,7 @@ typesClients.forEach((type) => {
               idColonne,
               règle: règleCatégorique,
             });
-          }, config.timeout);
+          }, config.patience);
           afterAll(() => fsOublier.forEach((f) => f()));
 
           test("Ajout éléments valides", async () => {
@@ -1000,7 +1000,7 @@ typesClients.forEach((type) => {
               idColonne: idColonneÀTester,
               règle: règleCatégorique,
             });
-          }, config.timeout * 2);
+          }, config.patience * 2);
 
           afterAll(() => fsOublier.forEach((f) => f()));
 
@@ -1119,7 +1119,7 @@ typesClients.forEach((type) => {
               f: (d) => (données = d),
             })
           );
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
@@ -1260,7 +1260,7 @@ typesClients.forEach((type) => {
               f: (x) => (règles = x),
             })
           );
-        }, config.timeout * 2);
+        }, config.patience * 2);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -1427,7 +1427,7 @@ typesClients.forEach((type) => {
           }
 
           await client.tableaux!.combinerDonnées({ idTableauBase, idTableau2 });
-        }, config.timeout * 2);
+        }, config.patience * 2);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -1555,7 +1555,7 @@ typesClients.forEach((type) => {
             idTableau,
             données: nouvellesDonnées,
           });
-        }, config.timeout * 2);
+        }, config.patience * 2);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -1681,7 +1681,7 @@ typesClients.forEach((type) => {
             idTableau,
             langues: ["த", "fr"],
           }));
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           if (fOublier) fOublier();

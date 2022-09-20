@@ -51,7 +51,7 @@ typesClients.forEach((type) => {
             idVariable,
             (r) => (résultat = r)
           );
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -128,7 +128,7 @@ typesClients.forEach((type) => {
             idVariable,
             (r) => (résultat = r)
           );
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -223,7 +223,7 @@ typesClients.forEach((type) => {
               fr: "précipitation",
             },
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());

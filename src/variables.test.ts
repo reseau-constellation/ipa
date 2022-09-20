@@ -57,7 +57,7 @@ typesClients.forEach((type) => {
             expect(variables).toHaveLength(1);
             expect(variables).toContain(idVariable);
           },
-          config.timeout
+          config.patience
         );
 
         test("Effacer un mot-clef", async () => {
@@ -79,7 +79,7 @@ typesClients.forEach((type) => {
           fOublier = await client.variables!.suivreVariables({
             f: (vs) => (mesVariables = vs),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -240,7 +240,7 @@ typesClients.forEach((type) => {
             id: idVariable,
             f: (c) => (catégorie = c),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -268,7 +268,7 @@ typesClients.forEach((type) => {
             id: idVariable,
             f: (u) => (unités = u),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -301,7 +301,7 @@ typesClients.forEach((type) => {
             id: idVariable,
             f: (r) => (règles = r),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -441,7 +441,7 @@ typesClients.forEach((type) => {
               f: (u) => (unités = u),
             })
           );
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());

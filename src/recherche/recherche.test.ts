@@ -288,7 +288,7 @@ typesClients.forEach((type) => {
                 },
               },
             };
-          }, config.timeout);
+          }, config.patience);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -351,7 +351,7 @@ typesClients.forEach((type) => {
               await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
               vérifierRecherche(rés.ultat!, [réf]);
             },
-            config.timeout
+            config.patience
           );
         });
 
@@ -406,7 +406,7 @@ typesClients.forEach((type) => {
                 },
               },
             };
-          }, config.timeout);
+          }, config.patience);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -471,7 +471,7 @@ typesClients.forEach((type) => {
               await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
               vérifierRecherche(rés.ultat!, [réf]);
             },
-            config.timeout
+            config.patience
           );
         });
 
@@ -529,7 +529,7 @@ typesClients.forEach((type) => {
               await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
               vérifierRecherche(rés.ultat!, [réf]);
             },
-            config.timeout
+            config.patience
           );
         });
 
@@ -569,7 +569,7 @@ typesClients.forEach((type) => {
               f: (bds) => (rés.ultat = bds),
               nRésultatsDésirés: 2,
             }));
-          }, config.timeout);
+          }, config.patience);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -744,7 +744,7 @@ typesClients.forEach((type) => {
               await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
               vérifierRecherche(rés.ultat!, [réf]);
             },
-            config.timeout
+            config.patience
           );
         });
 
@@ -809,7 +809,7 @@ typesClients.forEach((type) => {
               await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
               vérifierRecherche(rés.ultat!, [réf]);
             },
-            config.timeout
+            config.patience
           );
         });
 
@@ -868,7 +868,7 @@ typesClients.forEach((type) => {
               f: (bds) => (rés.ultat = bds),
               nRésultatsDésirés: 2,
             }));
-          }, config.timeout);
+          }, config.patience);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -999,7 +999,7 @@ typesClients.forEach((type) => {
                 f: (bds) => (rés.ultat = bds),
                 nRésultatsDésirés: 2,
               }));
-          }, config.timeout);
+          }, config.patience);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -1051,7 +1051,7 @@ typesClients.forEach((type) => {
               await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
               vérifierRecherche(rés.ultat!, [réf]);
             },
-            config.timeout
+            config.patience
           );
         });
 
@@ -1073,7 +1073,7 @@ typesClients.forEach((type) => {
                 f: (bds) => (rés.ultat = bds),
                 nRésultatsDésirés: 2,
               }));
-          }, config.timeout);
+          }, config.patience);
 
           afterAll(() => {
             if (fOublier) fOublier();
@@ -1120,7 +1120,7 @@ typesClients.forEach((type) => {
               await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
               vérifierRecherche(rés.ultat!, [réf]);
             },
-            config.timeout
+            config.patience
           );
         });
 
@@ -1295,7 +1295,7 @@ typesClients.forEach((type) => {
               nRésultatsDésirés: 5,
             }));
           fsOublier.push(fOublierRecherche);
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -1371,7 +1371,7 @@ typesClients.forEach((type) => {
             );
             vérifierRecherche(rés.motsClefs!, réf);
           },
-          config.timeout
+          config.patience
         );
 
         test("Objet ne correspond plus", async () => {

@@ -55,7 +55,7 @@ typesClients.forEach((type) => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           expect(adresseOrbiteValide(idBd)).toBe(true);
         },
-        config.timeout
+        config.patience
       );
 
       describe("Mes BDs", () => {
@@ -87,7 +87,7 @@ typesClients.forEach((type) => {
             expect(bds).toHaveLength(1);
             expect(bds[0]).toEqual(idBd);
           },
-          config.timeout
+          config.patience
         );
         test("On peut l'ajouter ensuite à mes bds", async () => {
           await client.bds!.ajouterÀMesBds({ id: idNouvelleBd });
@@ -265,7 +265,7 @@ typesClients.forEach((type) => {
             id: idBd,
             f: (l) => (licence = l),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -332,7 +332,7 @@ typesClients.forEach((type) => {
             expect(isArray(tableaux)).toBe(true);
             expect(tableaux).toHaveLength(0);
           },
-          config.timeout
+          config.patience
         );
       });
 
@@ -374,7 +374,7 @@ typesClients.forEach((type) => {
             expect(variables).toHaveLength(1);
             expect(variables[0]).toEqual(idVariable);
           },
-          config.timeout
+          config.patience
         );
         test("Effacer une variable", async () => {
           await client.tableaux!.effacerColonneTableau({
@@ -496,7 +496,7 @@ typesClients.forEach((type) => {
               f: (x) => (descrsLiées = x),
             })
           );
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -691,7 +691,7 @@ typesClients.forEach((type) => {
           );
 
           await client.bds!.combinerBds({ idBdBase: idBd1, idBd2 });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -788,7 +788,7 @@ typesClients.forEach((type) => {
               f: (t) => (tableauUnique = t),
             })
           );
-        }, config.timeout * 2);
+        }, config.patience * 2);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -915,7 +915,7 @@ typesClients.forEach((type) => {
             motClefUnique,
             f: (id) => (rés.ultat = id),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -926,7 +926,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(rés, "ultat");
             expect(adresseOrbiteValide(rés.ultat)).toBe(true);
           },
-          config.timeout
+          config.patience
         );
         test.todo("Gestion de la concurrence entre dispositifs");
         test.todo("Gestion de concurrence entre 2+ BDs");
@@ -950,7 +950,7 @@ typesClients.forEach((type) => {
             clef: "clefUnique",
             f: (id) => (rés.ultat = id),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -1014,7 +1014,7 @@ typesClients.forEach((type) => {
             clefTableau: "id tableau unique",
             f: (id) => (rés.ultat = id),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -1026,7 +1026,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(rés, "ultat");
             expect(adresseOrbiteValide(rés.ultat)).toBe(true);
           },
-          config.timeout
+          config.patience
         );
       });
 
@@ -1062,7 +1062,7 @@ typesClients.forEach((type) => {
             id: idBd,
             f: (s) => (score = s),
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           if (fOublier) fOublier();
@@ -1094,7 +1094,7 @@ typesClients.forEach((type) => {
               });
               expect(score.couverture).toEqual(0);
             },
-            config.timeout
+            config.patience
           );
 
           test(
@@ -1118,7 +1118,7 @@ typesClients.forEach((type) => {
               });
               expect(score.couverture).toEqual(1);
             },
-            config.timeout
+            config.patience
           );
         });
 
@@ -1230,7 +1230,7 @@ typesClients.forEach((type) => {
 
           ({ doc, fichiersSFIP, nomFichier } =
             await client.bds!.exporterDonnées({ id: idBd, langues: ["fr"] }));
-        }, config.timeout);
+        }, config.patience);
 
         test("Doc créé avec tous les tableaux", () => {
           expect(isArray(doc.SheetNames));
@@ -1256,7 +1256,7 @@ typesClients.forEach((type) => {
               dir: dirZip,
               inclureFichiersSFIP: true,
             });
-          }, config.timeout);
+          }, config.patience);
 
           afterAll(() => {
             rmrf.sync(dirTempo);
@@ -1307,7 +1307,7 @@ typesClients.forEach((type) => {
           idBdRechercheMotsClefs = await client.bds!.créerBd({
             licence: "ODbl-1_0",
           });
-        }, config.timeout);
+        }, config.patience);
 
         afterAll(async () => {
           if (fOublier) fOublier();
