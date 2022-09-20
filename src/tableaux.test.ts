@@ -48,7 +48,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-        idBd = await client.bds!.créerBd({licence: "ODbl-1_0"})
+        idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
       }, config.patienceInit);
 
       afterAll(async () => {
@@ -58,7 +58,7 @@ typesClients.forEach((type) => {
       test(
         "Création",
         async () => {
-          idTableau = await client.tableaux!.créerTableau({idBd});
+          idTableau = await client.tableaux!.créerTableau({ idBd });
           expect(adresseOrbiteValide(idTableau)).toBe(true);
         },
         config.timeout
@@ -134,7 +134,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau({idBd});
+          idTableau = await client.tableaux!.créerTableau({ idBd });
           fsOublier.push(
             await client.tableaux!.suivreColonnes({
               idTableau,
@@ -335,7 +335,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeEach(async () => {
-          idTableauRègles = await client.tableaux!.créerTableau({idBd});
+          idTableauRègles = await client.tableaux!.créerTableau({ idBd });
           fsOublier.push(
             await client.tableaux!.suivreRègles({
               idTableau: idTableauRègles,
@@ -614,7 +614,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          idTableauRègles = await client.tableaux!.créerTableau({idBd});
+          idTableauRègles = await client.tableaux!.créerTableau({ idBd });
 
           fsOublier.push(
             await client.tableaux!.suivreValidDonnées({
@@ -887,7 +887,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           beforeAll(async () => {
-            idTableauRègles = await client.tableaux!.créerTableau({idBd});
+            idTableauRègles = await client.tableaux!.créerTableau({ idBd });
 
             fsOublier.push(
               await client.tableaux!.suivreValidDonnées({
@@ -957,7 +957,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           beforeAll(async () => {
-            idTableauÀTester = await client.tableaux!.créerTableau({idBd});
+            idTableauÀTester = await client.tableaux!.créerTableau({ idBd });
 
             fsOublier.push(
               await client.tableaux!.suivreValidDonnées({
@@ -984,7 +984,7 @@ typesClients.forEach((type) => {
               idVariable,
             });
 
-            idTableauCatégories = await client.tableaux!.créerTableau({idBd});
+            idTableauCatégories = await client.tableaux!.créerTableau({ idBd });
 
             règleCatégorique = {
               typeRègle: "valeurCatégorique",
@@ -1089,7 +1089,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau({idBd});
+          idTableau = await client.tableaux!.créerTableau({ idBd });
           idColonne = await client.tableaux!.ajouterColonneTableau({
             idTableau,
             idVariable: idVarChaîne,
@@ -1187,7 +1187,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau({idBd});
+          idTableau = await client.tableaux!.créerTableau({ idBd });
           await client.tableaux!.ajouterNomsTableau({
             idTableau,
             noms: réfNoms,
@@ -1221,7 +1221,7 @@ typesClients.forEach((type) => {
 
           idTableauCopie = await client.tableaux!.copierTableau({
             id: idTableau,
-            idBd
+            idBd,
           });
 
           fsOublier.push(
@@ -1304,6 +1304,10 @@ typesClients.forEach((type) => {
           expect(données).toHaveLength(1);
           expect(données[0].données[colonnes[0].id]).toEqual(123);
         });
+
+        test("Les noms des tableaux sont liées", async () => {
+          expect(nomsTableauxLiés).toEqual(réfNomsTableauxLiés);
+        });
       });
 
       describe("Combiner données tableaux", function () {
@@ -1321,8 +1325,8 @@ typesClients.forEach((type) => {
         const idsCols: { [key: string]: string } = {};
 
         beforeAll(async () => {
-          idTableauBase = await client.tableaux!.créerTableau({idBd});
-          idTableau2 = await client.tableaux!.créerTableau({idBd});
+          idTableauBase = await client.tableaux!.créerTableau({ idBd });
+          idTableau2 = await client.tableaux!.créerTableau({ idBd });
 
           idVarDate = await client.variables!.créerVariable({
             catégorie: "horoDatage",
@@ -1481,7 +1485,7 @@ typesClients.forEach((type) => {
         const idsCols: { [key: string]: string } = {};
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau({idBd});
+          idTableau = await client.tableaux!.créerTableau({ idBd });
 
           idVarDate = await client.variables!.créerVariable({
             catégorie: "horoDatage",
@@ -1602,7 +1606,7 @@ typesClients.forEach((type) => {
         const nomTableauFr = "Tableau test";
 
         beforeAll(async () => {
-          idTableau = await client.tableaux!.créerTableau({idBd});
+          idTableau = await client.tableaux!.créerTableau({ idBd });
           idVarNumérique = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
