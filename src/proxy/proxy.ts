@@ -78,14 +78,15 @@ export abstract class ClientProxifiable extends Callable {
         }
         case "erreur": {
           const { erreur, id } = m as MessageErreurDeTravailleur;
-          if (id)
-            this.événements.emit(id, { erreur })
-          else
-            this.erreur({erreur, id});
+          if (id) this.événements.emit(id, { erreur });
+          else this.erreur({ erreur, id });
           break;
         }
         default: {
-          this.erreur({erreur: `Type inconnu ${type} dans message ${m}.`, id: m.id});
+          this.erreur({
+            erreur: `Type inconnu ${type} dans message ${m}.`,
+            id: m.id,
+          });
         }
       }
     });
@@ -126,7 +127,7 @@ export abstract class ClientProxifiable extends Callable {
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
       this.erreur({
         erreur: "Plus d'un argument est une fonction : " + JSON.stringify(args),
-        id
+        id,
       });
       return new Promise((_resolve, reject) => reject());
     }
@@ -162,10 +163,12 @@ export abstract class ClientProxifiable extends Callable {
 
     this.envoyerMessage(message);
 
-    const {fonctions, erreur} = (await once(this.événements, id))[0] as {fonctions?: string[], erreur?: string } | undefined;
+    const { fonctions, erreur } = (await once(this.événements, id))[0] as
+      | { fonctions?: string[]; erreur?: string }
+      | undefined;
     if (erreur) {
-      this.erreur({ erreur, id })
-      throw erreur
+      this.erreur({ erreur, id });
+      throw erreur;
     }
 
     if (fonctions && fonctions[0]) {
@@ -196,11 +199,9 @@ export abstract class ClientProxifiable extends Callable {
     };
 
     const promesse = new Promise<T>(async (résoudre, rejeter) => {
-      const {résultat, erreur} = (await once(this.événements, id))[0];
-      if (erreur)
-        rejeter(new Error(erreur));
-      else
-        résoudre(résultat);
+      const { résultat, erreur } = (await once(this.événements, id))[0];
+      if (erreur) rejeter(new Error(erreur));
+      else résoudre(résultat);
     });
 
     this.envoyerMessage(message);
@@ -208,7 +209,7 @@ export abstract class ClientProxifiable extends Callable {
     return promesse;
   }
 
-  erreur({ erreur, id }: {erreur: string, id?: string}): void {
+  erreur({ erreur, id }: { erreur: string; id?: string }): void {
     const infoErreur = { erreur, id };
     this.événements.emit("erreur", {
       nouvelle: infoErreur,
