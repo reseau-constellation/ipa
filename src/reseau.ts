@@ -368,7 +368,7 @@ export default class Réseau extends EventEmitter {
     msg: MessagePubSub;
     personnel: boolean;
   }): Promise<void> {
-    const messageJSON: Message = JSON.parse(msg.data.toString());
+    const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
 
     const { encrypté } = messageJSON;
     const données: DonnéesMessage = encrypté
