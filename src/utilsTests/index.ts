@@ -34,9 +34,9 @@ export const obtDirTempoPourTest = (nom?: string): string => {
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   new Promise<void>((resolve) => {
     const interval = setInterval(async () => {
-      const autorisé = await (bd.access as unknown as ContrôleurConstellation).estAutorisé(
-        idInvité
-      );
+      const autorisé = await (
+        bd.access as unknown as ContrôleurConstellation
+      ).estAutorisé(idInvité);
       if (autorisé) {
         clearInterval(interval);
         resolve();
@@ -202,7 +202,6 @@ export const générerClients = async (
   clients: ClientConstellation[];
   fOublier: () => Promise<void>;
 }> => {
-
   const clients: ClientConstellation[] = [];
   const fsOublier: (() => Promise<void>)[] = [];
 
@@ -233,9 +232,7 @@ export const générerClients = async (
   } else if (type === "travailleur") {
     let client: ClientConstellation;
     for (const i in [...Array(n).keys()]) {
-      client = générerProxyTravailleur(
-        { orbite: { dossier: String(i) } },
-      );
+      client = générerProxyTravailleur({ orbite: { dossier: String(i) } });
       clients.push(client);
     }
   } else {
