@@ -691,26 +691,30 @@ export default class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<T>;
     événements?: string[];
   }): Promise<schémaFonctionOublier> {
-    const { bd, fOublier } = await this.ouvrirBd<T>({ id });
+    const fsOublier: schémaFonctionOublier[] = [];
 
-    const fFinale = () => f(bd);
-    for (const é of événements) {
-      bd.events.on(é, fFinale);
-      if (
-        é === "write" &&
-        bd.events.listenerCount("write") > bd.events.getMaxListeners()
-      ) {
-        // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
-        // console.log({f})
+    this.ouvrirBd<T>({ id }).then(({ bd, fOublier })=>{
+      fsOublier.push(fOublier);
+
+      const fFinale = () => f(bd);
+      for (const é of événements) {
+        bd.events.on(é, fFinale);
+        fsOublier.push(() => bd.events.off(é, fFinale));
+
+        if (
+          é === "write" &&
+          bd.events.listenerCount("write") > bd.events.getMaxListeners()
+        ) {
+          // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
+          // console.log({f})
+        }
       }
-    }
 
-    fFinale();
+      fFinale();
+    });
+
     const oublier = () => {
-      événements.forEach((é) => {
-        bd.events.off(é, fFinale);
-      });
-      fOublier();
+      fsOublier.forEach(f => f());
     };
     return oublier;
   }
