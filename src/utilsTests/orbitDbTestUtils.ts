@@ -22,19 +22,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-import {IPFS} from "ipfs";
+import { IPFS } from "ipfs-core";
 
-const defaultFilter = () => true
+const defaultFilter = () => true;
 
-export const connectPeers = async (ipfs1: IPFS, ipfs2: IPFS, options = {
-  filter: defaultFilter
-}) => {
-  const id1 = await ipfs1.id()
-  const id2 = await ipfs2.id()
+export const connectPeers = async (
+  ipfs1: IPFS,
+  ipfs2: IPFS,
+  options = {
+    filter: defaultFilter,
+  }
+) => {
+  const id1 = await ipfs1.id();
+  const id2 = await ipfs2.id();
 
-  const addresses1 = id1.addresses.filter(options.filter)
-  const addresses2 = id2.addresses.filter(options.filter)
+  const addresses1 = id1.addresses.filter(options.filter);
+  const addresses2 = id2.addresses.filter(options.filter);
 
-  await ipfs1.swarm.connect(addresses2[0])
-  await ipfs2.swarm.connect(addresses1[0])
-}
+  await ipfs1.swarm.connect(addresses2[0]);
+  await ipfs2.swarm.connect(addresses1[0]);
+};

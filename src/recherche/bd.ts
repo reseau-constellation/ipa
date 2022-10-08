@@ -1,11 +1,11 @@
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
   infoRésultatTexte,
   infoRésultatRecherche,
-} from "@/utils";
+} from "@/utils/index.js";
 
 import { rechercherVariableSelonNom } from "./variable";
 import { rechercherMotClefSelonNom } from "./motClef";

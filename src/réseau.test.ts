@@ -6,14 +6,14 @@ import path from "path";
 
 import { enregistrerContrôleurs } from "@/accès";
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaRetourFonctionRecherche,
   schémaFonctionOublier,
   uneFois,
   infoAuteur,
-} from "@/utils";
+} from "@/utils/index.js";
 import { ÉlémentFavorisAvecObjet } from "@/favoris";
 import {
   élémentDeMembre,

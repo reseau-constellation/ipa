@@ -1,13 +1,13 @@
 import fs from "fs";
 import path from "path";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils";
+} from "@/utils/index.js";
 import {
   rechercherProfilSelonNom,
   rechercherProfilSelonTexte,

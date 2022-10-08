@@ -1,6 +1,6 @@
 import { Controller } from "ipfsd-ctl";
-import { connectPeers } from "@/utilsTests/orbitDbTestUtils";
-import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfipTest";
+import { connectPeers } from "@/utilsTests/orbitDbTestUtils.js";
+import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfipTest.js";
 
 import { once } from "events";
 import path from "path";
@@ -12,12 +12,12 @@ import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 import fs from "fs";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation";
-import ClientConstellation from "@/client";
-import générerProxyProc from "@/proxy/ipaProc";
-import générerProxyTravailleur from "@/proxy/ipaTravailleur";
+import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import ClientConstellation from "@/client.js";
+import générerProxyProc from "@/proxy/ipaProc.js";
+import générerProxyTravailleur from "@/proxy/ipaTravailleur.js";
 
-export * from "@/utilsTests/sfipTest";
+export * from "@/utilsTests/sfipTest.js";
 
 export const dirRessourcesTests = (): string => {
   return path.resolve(path.dirname(""), "src", "utilsTests", "ressources");
@@ -48,6 +48,21 @@ export const attendreSync = async (bd: Store): Promise<void> => {
   const accès = bd.access as unknown as ContrôleurConstellation;
   await once(accès.bd!.events, "peer.exchanged");
 };
+
+export const attendreQue = async (
+  f: () => boolean
+): Promise<void> => {
+  return new Promise((résoudre) => {
+    const vérifierPrêt = () => {
+      if (f()) {
+        clearInterval(interval);
+        résoudre();
+      }
+    };
+    const interval = setInterval(vérifierPrêt, 10);
+    vérifierPrêt();
+  });
+}
 
 export const attendreRésultat = async <
   T extends Record<string, unknown>,

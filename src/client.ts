@@ -1,4 +1,4 @@
-import { IPFS as SFIP } from "ipfs";
+import { IPFS as SFIP } from "ipfs-core";
 import { IDResult } from "ipfs-core-types/src/root";
 import { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
@@ -9,26 +9,26 @@ import Store from "orbit-db-store";
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 
-import AccessController from "orbit-db-access-controllers/src/access-controller-interface";
-import IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller";
+import AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
+import IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import { enregistrerContrôleurs } from "@/accès";
-import Épingles from "@/epingles";
-import Profil from "@/profil";
-import BDs from "@/bds";
-import Tableaux from "@/tableaux";
-import Variables from "@/variables";
-import Réseau from "@/reseau";
-import { Encryption, EncryptionLocalFirst } from "@/encryption";
-import Favoris from "@/favoris";
-import Projets from "@/projets";
-import MotsClefs from "@/motsClefs";
-import Recherche from "@/recherche";
-import { ContenuMessageRejoindreCompte } from "@/reseau";
-import Automatisations from "@/automatisation";
+import { enregistrerContrôleurs } from "@/accès/index.js";
+import Épingles from "@/epingles.js";
+import Profil from "@/profil.js";
+import BDs from "@/bds.js";
+import Tableaux from "@/tableaux.js";
+import Variables from "@/variables.js";
+import Réseau from "@/reseau.js";
+import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
+import Favoris from "@/favoris.js";
+import Projets from "@/projets.js";
+import MotsClefs from "@/motsClefs.js";
+import Recherche from "@/recherche/index.js";
+import { ContenuMessageRejoindreCompte } from "@/reseau.js";
+import Automatisations from "@/automatisation.js";
 
 import {
   adresseOrbiteValide,
@@ -39,14 +39,14 @@ import {
   uneFois,
   élémentsBd,
   toBuffer,
-} from "@/utils";
-import obtStockageLocal from "@/stockageLocal";
+} from "@/utils/index.js";
+import obtStockageLocal from "@/stockageLocal.js";
 import ContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
-} from "@/accès/cntrlConstellation";
-import { objRôles, infoUtilisateur } from "@/accès/types";
-import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts";
+} from "@/accès/cntrlConstellation.js";
+import type { objRôles, infoUtilisateur } from "@/accès/types";
+import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -508,8 +508,8 @@ export default class ClientConstellation extends EventEmitter {
     nouvelleBd,
     clef,
   }: {
-    bdBase: KeyValueStore<string>;
-    nouvelleBd: KeyValueStore<string>;
+    bdBase: KeyValueStore<élémentsBd>;
+    nouvelleBd: KeyValueStore<élémentsBd>;
     clef: string;
   }): Promise<void> {
     const idBdListeInit = bdBase.get(clef);
@@ -520,7 +520,9 @@ export default class ClientConstellation extends EventEmitter {
     >({ id: idBdListeInit });
 
     const idNouvelleBdListe = nouvelleBd.get(clef);
-    if (!idNouvelleBdListe) throw "La nouvelle BD n'existait pas";
+    if (!idNouvelleBdListe) throw "La nouvelle BD n'existait pas.";
+    if (typeof idNouvelleBdListe !== "string")
+      throw `${idNouvelleBdListe} n'est pas une adresse Orbite.`;
 
     const { bd: nouvelleBdListe, fOublier: fOublierNouvelle } =
       await this.ouvrirBd<FeedStore<T>>({ id: idNouvelleBdListe });
@@ -912,7 +914,11 @@ export default class ClientConstellation extends EventEmitter {
         id: string;
         fSuivreBd: schémaFonctionSuivi<LogEntry<T>[]>;
       }) => {
-        return await this.suivreBdListe({ id, f: fSuivreBd, renvoyerValeur: false });
+        return await this.suivreBdListe({
+          id,
+          f: fSuivreBd,
+          renvoyerValeur: false,
+        });
       };
 
       return await this.suivreBdDeClef({
@@ -1711,7 +1717,7 @@ export default class ClientConstellation extends EventEmitter {
     };
 
     // On ne suit pas automatiquement les BDs ou tableaux dont celui d'intérêt a été copié...ça pourait être très volumineu
-    const clefsÀExclure = ["copiéDe"]
+    const clefsÀExclure = ["copiéDe"];
 
     const _suivreBdsRécursives = async (
       id: string,
@@ -1722,9 +1728,11 @@ export default class ClientConstellation extends EventEmitter {
         // (à un niveau de profondeur) qui représentent une adresse de BD Orbit.
         let l_vals: string[] = [];
         if (typeof vals === "object") {
-          l_vals = Object.entries(vals).filter(
-            ([c, v]) => !clefsÀExclure.includes(c) && typeof v === "string"
-          ).map(x=>x[1]) as string[];
+          l_vals = Object.entries(vals)
+            .filter(
+              ([c, v]) => !clefsÀExclure.includes(c) && typeof v === "string"
+            )
+            .map((x) => x[1]) as string[];
         } else if (Array.isArray(vals)) {
           l_vals = vals;
         } else if (typeof vals === "string") {

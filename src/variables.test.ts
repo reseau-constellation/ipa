@@ -1,11 +1,11 @@
 import isArray from "lodash/isArray";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import { catégorieVariables } from "@/variables";
-import { schémaFonctionOublier } from "@/utils";
+import { schémaFonctionOublier } from "@/utils/index.js";
 import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid";
 
-import { générerClients, typesClients } from "@/utilsTests";
+import { générerClients, typesClients, attendreQue } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -116,6 +116,7 @@ typesClients.forEach((type) => {
         });
 
         test("Pas de noms pour commencer", async () => {
+          await attendreQue(() => !!noms)
           expect(Object.keys(noms)).toHaveLength(0);
         });
 

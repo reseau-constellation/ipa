@@ -1,3 +1,5 @@
+// https://github.com/github/choosealicense.com
+
 enum conditions {
   ATTR = "attribution",
   ÉGAL = "partageÉgal",

@@ -1,31 +1,38 @@
-import oùSommesNous from "wherearewe";
-import { create } from "ipfs";
-import { Multiaddr } from '@multiformats/multiaddr'
+import {
+  isBrowser,
+  isElectronRenderer,
+  isElectronMain,
+  isNode,
+} from "wherearewe";
+import { createController, ControllerOptions } from "ipfsd-ctl";
+
 import { IPFS } from "ipfs-core-types";
 import wrtc from "wrtc";
 import { Noise } from "@chainsafe/libp2p-noise";
 
 const configNavigateur = import("./configNavigateur");
-const configÉlectron = import("./configÉlectron");
+// const configÉlectron = import("./configÉlectron");
 const configNode = import("./configNode");
 
 const obtConfigPlateforme = async () => {
-  if (oùSommesNous.isBrowser || oùSommesNous.isElectronRenderer) {
+  if (isBrowser || isElectronRenderer) {
     return (await configNavigateur).default;
-  } else if (oùSommesNous.isElectronMain) {
-    return await (await configÉlectron).default();
-  } else if (oùSommesNous.isNode){
-    return await (await configNode).default();
-  }
-  else {
-    throw new Error("Environnement non supporté :" + oùSommesNous.toString());
+  } else if (isElectronMain) {
+    return {}; // await (await configÉlectron).default();
+  } else if (isNode) {
+    return (await configNode).default();
+  } else {
+    throw new Error("Environnement non supporté");
   }
 };
-
+// https://github.com/libp2p/js-libp2p-webrtc-direct/issues/98
 const obtConfigCommun = (): { [key: string]: any } => {
   return {
     libp2p: {
       modules: {},
+      connectionManager: {
+        autoDial: false
+      },
       config: {
         peerDiscovery: {
           webRTCStar: {
@@ -49,31 +56,33 @@ const obtConfigCommun = (): { [key: string]: any } => {
         Swarm: [
           // https://suda.pl/free-webrtc-star-heroku/
           "/dns4/arcane-springs-02799.herokuapp.com/tcp/443/wss/p2p-webrtc-star/",
+          // https://github.com/LucaPanofsky/ipfs-wss-heroku-node
+          "/dns4/p2p-circuit-constellation.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB",
         ],
-      },
-      Swarm: {
-        ConnMgr: {
-          LowWater: 100,
-          HighWater: 200,
-        },
       },
     },
   };
 };
 
 export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
+  const controllerConfig: ControllerOptions = {
+    type: "proc",
+    disposable: false,
+    test: false,
+    ipfsModule: await import("ipfs"),
+  };
+
   const config = obtConfigCommun();
   const configPlateforme = await obtConfigPlateforme();
 
   config.libp2p.modules = configPlateforme;
   config.repo = dir;
 
-  const sfip: IPFS = await create(config);
+  controllerConfig.ipfsOptions = config;
+  // Spawn an IPFS daemon (type defined in)
+  const ipfsd = await createController(controllerConfig);
+  await ipfsd.init();
+  await ipfsd.start();
 
-  // https://github.com/LucaPanofsky/ipfs-wss-heroku-node
-  sfip.swarm.connect(
-    new Multiaddr("/dns4/p2p-circuit-constellation.herokuapp.com/tcp/443/wss/p2p/QmY8XpuX6VnaUVDz4uA14vpjv3CZYLif3wLPqCkgU2KLSB")
-  );
-
-  return sfip;
+  return ipfsd.api;
 }

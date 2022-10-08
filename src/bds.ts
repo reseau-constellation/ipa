@@ -9,12 +9,12 @@ import path from "path";
 import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 
-import { InfoColAvecCatégorie } from "@/tableaux";
-import { schémaStatut, TYPES_STATUT } from "@/utils/types";
+import type { InfoColAvecCatégorie } from "@/tableaux";
+import { schémaStatut, TYPES_STATUT } from "@/utils/types.js";
 
-import { règleColonne, élémentDonnées, erreurValidation } from "@/valid";
-import { élémentBdListeDonnées, différenceTableaux } from "@/tableaux";
-import ClientConstellation from "@/client";
+import { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
+import { élémentBdListeDonnées, différenceTableaux } from "@/tableaux.js";
+import ClientConstellation from "@/client.js";
 import {
   traduire,
   zipper,
@@ -22,9 +22,9 @@ import {
   schémaFonctionOublier,
   uneFois,
   faisRien,
-} from "@/utils";
-import { objRôles } from "@/accès/types";
-import ContrôleurConstellation from "@/accès/cntrlConstellation";
+} from "@/utils/index.js";
+import { objRôles } from "@/accès/types.js";
+import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 export interface schémaSpécificationBd {
   licence: string;

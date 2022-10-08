@@ -1,11 +1,11 @@
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatRecherche,
-} from "@/utils";
+} from "@/utils/index.js";
 import {
   rechercherBdSelonNom,
   rechercherBdSelonDescr,

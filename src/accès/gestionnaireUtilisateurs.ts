@@ -4,7 +4,7 @@ import FeedStore from "orbit-db-feedstore";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 
 import accesseurBdOrbite from "@/accès/accesseurBdOrbite";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts";

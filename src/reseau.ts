@@ -6,11 +6,11 @@ import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";
 import type { Libp2p } from "libp2p";
 import type { ConnectionManagerEvents } from "@libp2p/interface-connection-manager";
 import { EventEmitter } from "events";
-import sum from "lodash/sum";
+import sum from "lodash/sum.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation";
-import ClientConstellation, { Signature, infoAccès } from "@/client";
+import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import ClientConstellation, { Signature, infoAccès } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -25,17 +25,17 @@ import {
   résultatObjectifRecherche,
   résultatRecherche,
   faisRien,
-} from "@/utils";
-import { infoScore } from "@/bds";
-import { élémentBdListeDonnées } from "@/tableaux";
+} from "@/utils/index.js";
+import { infoScore } from "@/bds.js";
+import { élémentBdListeDonnées } from "@/tableaux.js";
 import {
   ÉlémentFavoris,
   ÉlémentFavorisAvecObjet,
   épingleDispositif,
-} from "@/favoris";
-import { élémentDonnées } from "@/valid";
-import { rechercherProfilSelonActivité } from "@/recherche/profil";
-import { rechercherTous } from "@/recherche/utils";
+} from "@/favoris.js";
+import { élémentDonnées } from "@/valid.js";
+import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
+import { rechercherTous } from "@/recherche/utils.js";
 
 export interface infoDispositif {
   idSFIP: string;
@@ -220,20 +220,25 @@ export default class Réseau extends EventEmitter {
     );
 
     // @ts-ignore
-    const libp2p: Libp2p = this.client.sfip!.libp2p
+    const libp2p: Libp2p = this.client.sfip!.libp2p;
 
-    const fSuivreConnections = () => {
+    const fSuivreConnexions = () => {
       this.emit("changementConnexions");
-    }
+    };
 
-    const événements: (keyof ConnectionManagerEvents)[] = ["peer:connect", "peer:disconnect"]
-    for (const é  of événements) {
-      libp2p.connectionManager.addEventListener(é, fSuivreConnections);
+    const événements: (keyof ConnectionManagerEvents)[] = [
+      "peer:connect",
+      "peer:disconnect",
+    ];
+    for (const é of événements) {
+      libp2p.connectionManager.addEventListener(é, fSuivreConnexions);
     }
-    this.fsOublier.push(...événements.map(é=>{
-      return () => libp2p.connectionManager.removeEventListener(é, fSuivreConnections)
-    }))
-
+    this.fsOublier.push(
+      ...événements.map((é) => {
+        return () =>
+          libp2p.connectionManager.removeEventListener(é, fSuivreConnexions);
+      })
+    );
 
     const x = setInterval(() => {
       this.direSalut({});
@@ -703,7 +708,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoConfiance[]>;
     idBdCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    // console.log("suivreRelationsImmédiates", { f, idBdCompte });
+    console.log("suivreRelationsImmédiates", { f, idBdCompte });
     idBdCompte = idBdCompte ? idBdCompte : this.client.idBdCompte!;
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -896,7 +901,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    // console.log("suivreRelationsConfiance", { f, idCompteDébut });
+    console.log("suivreRelationsConfiance", { f, idCompteDébut });
     idCompteDébut = idCompteDébut || this.client.idBdCompte;
 
     const dicRelations: { [key: string]: infoRelation[] } = {};
@@ -1046,7 +1051,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    // console.log("suivreComptesRéseau", { f, idCompteDébut });
+    console.log("suivreComptesRéseau", { f, idCompteDébut });
     const fSuivi = (relations: infoRelation[]) => {
       // S'ajouter soi-même
       relations.push({
@@ -1128,7 +1133,7 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    // console.log("suivreComptesRéseauEtEnLigne", { f, idCompteDébut });
+    console.log("suivreComptesRéseauEtEnLigne", { f, idCompteDébut });
     const dicComptes: {
       réseau: infoMembreRéseau[];
       enLigne: infoMembreRéseau[];
@@ -1403,7 +1408,7 @@ export default class Réseau extends EventEmitter {
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     fScore?: (r: résultatRechercheSansScore<T>) => number;
   }): Promise<réponseSuivreRecherche> {
-    // console.log("rechercher");
+    console.log("rechercher");
     if (!fScore) {
       fScore = (x: résultatRechercheSansScore<T>): number => {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
@@ -1674,7 +1679,7 @@ export default class Réseau extends EventEmitter {
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
   }): Promise<réponseSuivreRecherche> {
-    // console.log("rechercherMembres");
+    console.log("rechercherMembres");
     const fConfiance = async (
       idCompte: string,
       fSuivi: schémaFonctionSuivi<number>
@@ -1730,7 +1735,7 @@ export default class Réseau extends EventEmitter {
     clef: string;
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
-    // console.log("suivreConfianceAuteurs", { idItem, clef });
+    console.log("suivreConfianceAuteurs", { idItem, clef });
     const fListe = async (
       fSuivreRacine: (auteurs: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
@@ -2226,7 +2231,7 @@ export default class Réseau extends EventEmitter {
     >;
     profondeur?: number;
   }): Promise<schémaRetourFonctionRecherche> {
-    // console.log("suivreFavorisObjet", { idObjet, f });
+    console.log("suivreFavorisObjet", { idObjet, f });
     const fFinale = (
       favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
     ) => {

@@ -1,4 +1,4 @@
-import { randomKey, asymmetric } from "@herbcaudill/crypto";
+import { asymmetric } from "@localfirst/auth"
 
 export interface Encryption {
   clefs: { publique: string; secrète: string };
@@ -63,6 +63,6 @@ export class EncryptionLocalFirst implements Encryption {
   }
 
   clefAléatoire(): string {
-    return randomKey();
+    return Math.random().toString(); //randomKey();
   }
 }

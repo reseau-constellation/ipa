@@ -1,11 +1,11 @@
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
-} from "@/utils";
+} from "@/utils/index.js";
 
 import { rechercherBdSelonTexte } from "@/recherche/bd";
 import {

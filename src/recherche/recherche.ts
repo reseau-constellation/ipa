@@ -5,7 +5,7 @@ import * as projet from "@/recherche/projet";
 import * as variable from "@/recherche/variable";
 import * as utils from "@/recherche/utils";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import { réponseSuivreRecherche } from "@/reseau";
 import {
   schémaFonctionSuivi,
@@ -13,7 +13,7 @@ import {
   infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils";
+} from "@/utils/index.js";
 
 export class Recherche {
   client: ClientConstellation;

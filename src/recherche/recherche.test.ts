@@ -1,6 +1,6 @@
 import { config } from "@/utilsTests/sfipTest";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import { statutMembre } from "@/reseau";
 import {
   schémaFonctionOublier,
@@ -9,7 +9,7 @@ import {
   infoRésultatTexte,
   infoRésultatRecherche,
   infoRésultatVide,
-} from "@/utils";
+} from "@/utils/index.js";
 
 import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
 

@@ -1,4 +1,4 @@
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
@@ -6,7 +6,7 @@ import {
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils";
+} from "@/utils/index.js";
 
 import {
   similImages,

@@ -6,13 +6,13 @@ import AdmZip from "adm-zip";
 import isArray from "lodash/isArray";
 import isSet from "lodash/isSet";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   adresseOrbiteValide,
   uneFois,
-} from "@/utils";
+} from "@/utils/index.js";
 import { InfoColAvecCatégorie } from "@/tableaux";
 import { infoScore, schémaSpécificationBd, infoTableauAvecId } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";

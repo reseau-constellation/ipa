@@ -1,22 +1,22 @@
 import { EventEmitter } from "events";
 import FeedStore from "orbit-db-feedstore";
-import { BookType } from "xlsx";
+import * as XLSX from "xlsx";
 import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
-import isNode from "is-node";
-import isElectron from "is-electron";
+import { isNode, isElectronMain} from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 
-import xlsx from "xlsx";
-const { readFile } = xlsx;
+import ClientConstellation from "@/client.js";
+import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils/index.js";
+import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur/index.js";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
+import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
 
-import ClientConstellation from "@/client";
-import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils";
-import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur";
-import ImportateurFeuilleCalcul from "@/importateur/xlsx";
-import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json";
+import { Readable } from 'stream';
+XLSX.set_fs(fs);
+XLSX.stream.set_readable(Readable);
 
-export type formatTélécharger = BookType | "xls";
+export type formatTélécharger = XLSX.BookType | "xls";
 
 export type fréquence = {
   unités:
@@ -201,7 +201,7 @@ const obtDonnéesImportation = async <
         case "feuilleCalcul": {
           const { nomTableau, cols } = spéc.source
             .info as unknown as infoImporterFeuilleCalcul;
-          const docXLSX = readFile(adresseFichier);
+          const docXLSX = XLSX.readFile(adresseFichier);
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
           return importateur.obtDonnées(nomTableau, cols);
         }
@@ -422,7 +422,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
 
         switch (spécImp.source.typeSource) {
           case "fichier": {
-            if (!isNode && !isElectron()) {
+            if (!isNode && !isElectronMain) {
               throw new Error(
                 "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation."
               );

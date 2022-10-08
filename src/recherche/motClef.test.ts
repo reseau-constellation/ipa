@@ -1,10 +1,10 @@
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
-} from "@/utils";
+} from "@/utils/index.js";
 import {
   rechercherMotClefSelonNom,
   rechercherMotClefSelonTexte,

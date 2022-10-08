@@ -1,8 +1,8 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import ClientConstellation, { optsConstellation } from "@/client";
-import { schémaFonctionOublier } from "@/utils";
-import {
+import ClientConstellation, { optsConstellation } from "@/client.js";
+import type { schémaFonctionOublier } from "@/utils/index.js";
+import type {
   MessagePourTravailleur,
   MessageDeTravailleur,
   MessageActionPourTravailleur,
@@ -148,8 +148,8 @@ export default class GestionnaireClient {
     idMessage: string
   ): ((...args: any[]) => any) | undefined {
     const erreur = `Fonction ClientConstellation.${adresseFonction.join(
-        "."
-      )} n'existe pas ou n'est pas une fonction.`;
+      "."
+    )} n'existe pas ou n'est pas une fonction.`;
 
     let fonctionIPA:
       | ClientConstellation

@@ -5,9 +5,9 @@ import AdmZip from "adm-zip";
 import tmp from "tmp";
 import rmrf from "rimraf";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx";
-import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 import {
   SpécificationAutomatisation,
   SourceDonnéesImportationURL,
@@ -146,7 +146,8 @@ typesClients.forEach((type) => {
           dirTempo = obtDirTempoPourTest("testImporterBd");
           fs.mkdirSync(dirTempo);
 
-          idTableau = await client.tableaux!.créerTableau();
+          const idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
+          idTableau = await client.tableaux!.créerTableau({idBd: idBd});
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -311,7 +312,7 @@ typesClients.forEach((type) => {
         test("Importer d'un URL (json)", async () => {
           const source: SourceDonnéesImportationURL<infoImporterJSON> = {
             typeSource: "url",
-            url: "https://coordinates.native-land.ca/indigenousLanguageson",
+            url: "https://coordinates.native-land.ca/indigenousLanguages.json",
             info: {
               formatDonnées: "json",
               clefsRacine: ["features"],
@@ -473,7 +474,7 @@ typesClients.forEach((type) => {
             noms: { fr: "Ma bd", es: "Mi bd" },
           });
 
-          idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          idTableau = await client.bds!.ajouterTableauBd({ idBd });
           await client.tableaux!.ajouterNomsTableau({
             idTableau,
             noms: {
@@ -676,7 +677,7 @@ typesClients.forEach((type) => {
             noms: { fr: "Ma bd", es: "Mi bd" },
           });
 
-          idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          idTableau = await client.bds!.ajouterTableauBd({ idBd });
           await client.tableaux!.ajouterNomsTableau({
             idTableau,
             noms: {
@@ -848,7 +849,8 @@ typesClients.forEach((type) => {
 
           fs.mkdirSync(dir, { recursive: true });
 
-          idTableau = await client.tableaux!.créerTableau();
+          const idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
+          idTableau = await client.tableaux!.créerTableau({idBd});
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });

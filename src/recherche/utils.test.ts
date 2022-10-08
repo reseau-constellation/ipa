@@ -4,14 +4,14 @@ import FeedStore from "orbit-db-feedstore";
 import { config } from "@/utilsTests/sfipTest";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils";
+} from "@/utils/index.js";
 import {
   rechercherDansTexte,
   similTexte,

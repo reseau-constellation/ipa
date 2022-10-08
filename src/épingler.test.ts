@@ -4,7 +4,7 @@ import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 
 import { générerClients, typesClients } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";

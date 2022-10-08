@@ -1,7 +1,7 @@
 import ssim from "ssim";
 import correspTexte from "approx-string-match";
 
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
@@ -12,7 +12,7 @@ import {
   infoRésultatVide,
   infoRésultatRecherche,
   infoRésultat,
-} from "@/utils";
+} from "@/utils/index.js";
 
 export const rechercherDansTexte = (
   schéma: string,

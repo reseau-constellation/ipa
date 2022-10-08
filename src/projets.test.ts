@@ -7,8 +7,8 @@ import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
-import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils";
+import ClientConstellation from "@/client.js";
+import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
 import {
   dirRessourcesTests,
@@ -56,7 +56,7 @@ typesClients.forEach((type) => {
           fOublier = await client.projets!.suivreProjets({
             f: (ps) => (mesProjets = ps),
           });
-        });
+        }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
@@ -316,7 +316,7 @@ typesClients.forEach((type) => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          const idTableau = await client.bds!.ajouterTableauBd({ id: idBd });
+          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
 
           await client.tableaux!.ajouterColonneTableau({
             idTableau,
@@ -410,7 +410,7 @@ typesClients.forEach((type) => {
               f: (x) => (bds = x),
             })
           );
-        });
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
@@ -451,8 +451,8 @@ typesClients.forEach((type) => {
           });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
 
-          const idTableau1 = await client.bds!.ajouterTableauBd({ id: idBd });
-          const idTableau2 = await client.bds!.ajouterTableauBd({ id: idBd });
+          const idTableau1 = await client.bds!.ajouterTableauBd({ idBd });
+          const idTableau2 = await client.bds!.ajouterTableauBd({ idBd });
 
           const idVarNum = await client.variables!.créerVariable({
             catégorie: "numérique",
@@ -502,7 +502,7 @@ typesClients.forEach((type) => {
               id: idProjet,
               langues: ["fr"],
             }));
-        });
+        }, config.patience);
 
         test("Doc créé avec toutes les bds", () => {
           expect(isArray(docs)).toBe(true);
@@ -537,7 +537,7 @@ typesClients.forEach((type) => {
               inclureFichiersSFIP: true,
             });
             nomZip = path.join(dirZip, nomFichier + ".zip");
-          });
+          }, config.patience);
 
           afterAll(() => {
             rmrf.sync(dirZip);

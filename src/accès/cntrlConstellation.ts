@@ -1,18 +1,18 @@
-import ensureAddress from "orbit-db-access-controllers/src/utils/ensure-ac-address";
+import ensureAddress from "orbit-db-access-controllers/src/utils/ensure-ac-address.js";
 
 import OrbitDB from "orbit-db";
 import FeedStore from "orbit-db-feedstore";
 import { IdentityProvider } from "orbit-db-identity-provider";
-import AccessController from "orbit-db-access-controllers/src/access-controller-interface";
+import AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
 import { v4 as uuidv4 } from "uuid";
 
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 import GestionnaireAccès, {
   suivreBdAccès,
-} from "@/accès/gestionnaireUtilisateurs";
-import accesseurBdOrbite from "@/accès/accesseurBdOrbite";
-import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts";
-import { élémentBdAccès, infoUtilisateur } from "@/accès/types";
+} from "@/accès/gestionnaireUtilisateurs.js";
+import accesseurBdOrbite from "@/accès/accesseurBdOrbite.js";
+import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
+import type { élémentBdAccès, infoUtilisateur } from "@/accès/types";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License

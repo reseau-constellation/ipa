@@ -1,5 +1,5 @@
 {
-  "version": "0.4.16",
+  "version": "0.4.15",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -13,15 +13,15 @@
     "watch": "npm-watch",
     "nettoyer": "rimraf dist",
     "compiler:esm": "ttsc -p tsconfig.build.json",
-    "compiler": "yarn versioner && yarn nettoyer && yarn compiler:esm",
+    "compiler": "pnpm versioner && pnpm nettoyer && pnpm compiler:esm",
     "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js  --runInBand",
-    "test:tous": "env TOUS=true yarn test",
-    "couverture": "yarn test --coverage",
-    "couverture:tous": "yarn test:tous --coverage",
-    "formatter": "yarn prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && yarn eslint --ext .js,.ts src",
-    "publier": "yarn compiler && yarn versioner",
-    "postversion": "yarn versioner && git push --tags && yarn publish --tag $npm_package_version --new-version $npm_package_version --access public && git push && echo \"On a publié version $npm_package_version!\"",
-    "versioner": "yarn genversion  --es6 --semi src/version.ts && yarn version"
+    "test:tous": "env TOUS=true pnpm test",
+    "couverture": "pnpm test --coverage",
+    "couverture:tous": "pnpm test:tous --coverage",
+    "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint --ext .js,.ts src",
+    "publier": "pnpm compiler && pnpm version",
+    "postversion": "pnpm versioner && git push --tags && pnpm publish --tag $npm_package_version --new-version $npm_package_version --access public && git push && echo \"On a publié version $npm_package_version!\"",
+    "versioner": "pnpm genversion  --es6 --semi src/version.ts"
   },
   "watch": {
     "build": {
@@ -34,7 +34,9 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/orbit-db-types": "^1.0.4",
+    "@constl/orbit-db-types": "^1.0.5",
+    "@libp2p/interface-connection-manager": "^1.1.1",
+    "@libp2p/interface-pubsub": "^2.1.0",
     "@types/adm-zip": "^0.5.0",
     "@types/crypto-js": "^4.1.1",
     "@types/deep-equal": "^1.0.1",
@@ -60,24 +62,29 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.1",
     "image-type": "^5.0.0",
+    "ipfs-core-types": "^0.12.1",
+    "it-all": "^1.0.6",
     "jest": "^29.0.1",
     "karma": "^6.3.18",
     "karma-chrome-launcher": "^3.1.1",
     "karma-typescript": "^5.5.3",
+    "libp2p": "^0.39.2",
     "prettier": "^2.5.1",
     "require-json5": "^1.1.0",
     "rimraf": "^3.0.2",
     "source-map-support": "^0.5.21",
     "tmp": "^0.2.1",
-    "ts-jest": "28",
+    "ts-jest": "^29.0.3",
     "tsconfig-paths": "^4.1.0",
     "tscpaths": "^0.0.9",
+    "tslib": "^2.4.0",
     "ttypescript": "^1.5.13",
     "typescript": "^4.6.2",
     "typescript-transform-paths": "^3.3.1",
     "why-is-node-running": "^2.2.2"
   },
   "dependencies": {
+    "@chainsafe/libp2p-noise": "^8.0.1",
     "@chriscdn/promise-semaphore": "^1.0.6",
     "@herbcaudill/crypto": "^3.0.2",
     "@libp2p/kad-dht": "^3.0.4",
@@ -90,6 +97,7 @@
     "adm-zip": "^0.5.9",
     "approx-string-match": "^2.0.0",
     "axios": "^0.27.2",
+    "chokidar": "^3.5.3",
     "crypto-js": "^4.1.1",
     "deep-equal": "^2.0.5",
     "deepmerge": "^4.2.2",
@@ -101,16 +109,19 @@
     "ipfs": "^0.64.0",
     "ipfs-core": "^0.16.0",
     "ipfsd-ctl": "^12.0.2",
-    "is-node": "^1.0.2",
     "iso-constants": "git+https://github.com/inverted-capital/iso-constants.git",
+    "it-to-buffer": "^2.0.2",
     "jszip": "^3.7.1",
     "lodash": "^4.17.21",
+    "multiformats": "^9.9.0",
     "node-localstorage": "^2.2.1",
     "orbit-db": "^0.28.3",
     "orbit-db-access-controllers": "^0.3.2",
     "ssim": "^0.0.0",
+    "uint8arrays": "^3.1.0",
     "uuid": "^9.0.0",
-    "xlsx": "^0.18.3"
+    "wherearewe": "^2.0.1",
+    "xlsx": "file:src/tiers/xlsx-0.18.12.tgz"
   },
   "resolutions": {
     "iso-constants": "git+https://github.com/inverted-capital/iso-constants.git#patch-1"
@@ -121,13 +132,15 @@
     }
   },
   "jest": {
-    "transform": {},
-    "preset": "ts-jest/presets/default-esm",
-    "globals": {
-      "ts-jest": {
-        "useESM": true
-      }
+    "transform": {
+      "(.*).ts$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
     },
+    "preset": "ts-jest/presets/default-esm",
     "moduleNameMapper": {
       "^@/(.*).js$": "<rootDir>/src/$1",
       "^@/(.*)$": "<rootDir>/src/$1"

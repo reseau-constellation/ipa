@@ -1,12 +1,11 @@
 import isArray from "lodash/isArray";
 
-import { isElectronMain } from "wherearewe";
-import estNode from "is-node";
+import { isElectronMain, isNode } from "wherearewe";
 
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris";
-import { schémaFonctionOublier } from "@/utils";
+import { schémaFonctionOublier } from "@/utils/index.js";
 
 import { générerClients, typesClients } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
@@ -48,7 +47,7 @@ typesClients.forEach((type) => {
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: "INSTALLÉ",
           });
-          if (estNode || isElectronMain) {
+          if (isNode || isElectronMain) {
             expect(épinglé).toBe(true);
           } else {
             expect(épinglé).toBe(false);
@@ -100,7 +99,7 @@ typesClients.forEach((type) => {
               f: (épingle) => (épingleBd = épingle),
             })
           );
-        });
+        }, config.patience);
 
         afterAll(() => {
           fsOublier.forEach((f) => f());
@@ -167,7 +166,7 @@ typesClients.forEach((type) => {
           });
 
           expect(client.épingles!.épinglée({ id: idc }));
-        });
+        }, config.patience);
       });
     });
   });

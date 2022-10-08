@@ -1,9 +1,8 @@
 import KeyValueStore from "orbit-db-kvstore";
-import estNode from "is-node";
-import estÉlectron from "is-electron";
+import { isNode, isElectron } from "wherearewe";
 
-import ClientConstellation from "@/client";
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils";
+import ClientConstellation from "@/client.js";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 
 export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
 
@@ -190,7 +189,7 @@ export default class Favoris {
       return true;
     } else if (dispositifs === "INSTALLÉ") {
       if (idOrbite === (await this.client.obtIdOrbite())) {
-        return estNode || estÉlectron();
+        return isNode || isElectron;
       } else {
         return false; // En réalité, inconnu. Mais on ne peut pas magiquement deviner la plateforme d'un autre paire.
       }

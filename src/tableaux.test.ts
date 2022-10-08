@@ -2,12 +2,12 @@ import isArray from "lodash/isArray";
 
 import XLSX from "xlsx";
 import { enregistrerContrôleurs } from "@/accès";
-import ClientConstellation from "@/client";
+import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   adresseOrbiteValide,
   élémentsBd,
-} from "@/utils";
+} from "@/utils/index.js";
 
 import {
   InfoCol,
@@ -1169,6 +1169,12 @@ typesClients.forEach((type) => {
         let colonnes: InfoColAvecCatégorie[];
         let règles: règleColonne[];
 
+        let idTableauCopie: string;
+
+        let idTableauCopieLié: string;
+        let nomsTableauLié: { [key: string]: string };
+        let règlesTableauLié: règleColonne[];
+
         const réfNoms = {
           த: "மழை",
           हिं: "बारिश",
@@ -1181,8 +1187,6 @@ typesClients.forEach((type) => {
             op: ">",
           },
         };
-
-        let idTableauCopie: string;
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1223,6 +1227,10 @@ typesClients.forEach((type) => {
             id: idTableau,
             idBd,
           });
+          idTableauCopieLié = await client.bds!.copierBd({
+            id: idTableau,
+            lier: true,
+          });
 
           fsOublier.push(
             await client.tableaux!.suivreVariables({
@@ -1260,6 +1268,20 @@ typesClients.forEach((type) => {
               f: (x) => (règles = x),
             })
           );
+
+          fsOublier.push(
+            await client.tableaux!.suivreNomsTableau({
+              idTableau: idTableauCopieLié,
+              f: (x) => (nomsTableauLié = x)
+            })
+          )
+          fsOublier.push(
+            await client.tableaux!.suivreRègles({
+              idTableau: idTableauCopieLié,
+              f: (x) => règlesTableauLié = x
+            })
+          )
+
         }, config.patience * 2);
 
         afterAll(async () => {
@@ -1306,7 +1328,30 @@ typesClients.forEach((type) => {
         });
 
         test("Les noms des tableaux sont liées", async () => {
-          expect(nomsTableauxLiés).toEqual(réfNomsTableauxLiés);
+          const réfNomsTableauLié: { [key: string]: string } = Object.assign(
+            {},
+            réfNoms,
+            { த: "பொழிவு" }
+          );
+          await client.tableaux!.sauvegarderNomTableau({
+            idTableau: idTableauCopieLié,
+            langue: "த",
+            nom: "பொழிவு",
+          });
+
+          expect(nomsTableauLié).toEqual(réfNomsTableauLié);
+          await client.bds!.sauvegarderNomBd({
+            id: idTableau,
+            langue: "fr",
+            nom: "précipitation",
+          });
+
+          réfNomsTableauLié["fr"] = "précipitation";
+          expect(nomsTableauLié).toEqual(réfNomsTableauLié);
+        });
+
+        test("Les règles des tableaux sont liées", async () => {
+          expect(règlesTableauLié).toEqual(réfRèglesTableauLié);
         });
       });
 

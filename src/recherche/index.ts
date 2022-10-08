@@ -1,3 +1,3 @@
-import { Recherche } from "./recherche";
+import { Recherche } from "@/recherche/recherche.js";
 
 export default Recherche;
