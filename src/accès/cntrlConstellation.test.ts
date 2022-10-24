@@ -85,11 +85,6 @@ describe("Contrôleur Constellation", function () {
         ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(4));
         [orbitdb1, orbitdb2, orbitdb3, orbitdb4] = orbites;
 
-        console.log({
-          orbitdb1: orbitdb1.identity.id,
-        orbitdb2: orbitdb2.identity.id,
-        })
-
         bdRacine = await orbitdb1.kvstore(uuidv4(), {
           accessController: {
             type: "controlleur-constellation",
@@ -107,8 +102,6 @@ describe("Contrôleur Constellation", function () {
           },
         });
         await bdRacine2.load();
-
-        console.log({bdRacine: bdRacine.id, bdRacine2: bdRacine2.id})
 
         bd = await orbitdb1.kvstore(uuidv4(), {
           accessController: {
@@ -156,9 +149,7 @@ describe("Contrôleur Constellation", function () {
       });
 
       test("Mais un membre peut s'inviter lui-même", async () => {
-        console.log("Ça commence")
         await bdRacine2.access.grant(MODÉRATEUR, orbitdb3.identity.id);
-        console.log("local", await bdOrbite2.access.estAutorisé(orbitdb3.identity.id));
 
         const bdOrbite3 = (await orbitdb3.open(bd.id)) as KeyValueStore<number>;
         await bdOrbite3.load();
