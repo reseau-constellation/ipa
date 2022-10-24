@@ -55,14 +55,34 @@ typesClients.forEach((type) => {
         if (fOublierClients) await fOublierClients();
       });
 
-      test(
-        "Création",
-        async () => {
-          idTableau = await client.tableaux!.créerTableau({ idBd });
+      describe("Création", () => {
+        let accès: boolean
+
+        const fsOublier: schémaFonctionOublier[] = [];
+
+        beforeAll(
+          async () => {
+            idTableau = await client.tableaux!.créerTableau({ idBd });
+            fsOublier.push(
+              await client.suivrePermissionÉcrire({
+                id: idTableau,
+                f: x => accès = x
+              })
+            )
+          },
+          config.patience
+        );
+        afterAll(()=>{
+          fsOublier.forEach(f=>f());
+        })
+        test("Créé", () => {
           expect(adresseOrbiteValide(idTableau)).toBe(true);
-        },
-        config.patience
-      );
+        })
+        test("Accès", async () => {
+          expect(accès).toBe(true);
+        }
+      )
+      });
 
       describe("Noms", function () {
         let noms: { [key: string]: string };
@@ -1351,7 +1371,24 @@ typesClients.forEach((type) => {
         });
 
         test("Les règles des tableaux sont liées", async () => {
-          expect(règlesTableauLié).toEqual(réfRèglesTableauLié);
+          const nouvelleRègle: règleBornes = {
+            typeRègle: "bornes",
+            détails: {
+              type: "fixe",
+              val: 100,
+              op: "<",
+            }
+          }
+          const réfRèglesTableauLié: règleBornes[] = [
+            règle,
+            nouvelleRègle
+          ];
+          await client.tableaux!.ajouterRègleTableau({
+            idTableau,
+            idColonne,
+            règle: nouvelleRègle,
+          });
+          expect(règlesTableauLié.map(r=>r.règle.règle)).toEqual(expect.arrayContaining(réfRèglesTableauLié));
         });
       });
 

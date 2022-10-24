@@ -497,14 +497,22 @@ export default class Réseau extends EventEmitter {
     });
 
     if (!OrbitDB.isValidAddress(idCompte)) return false;
-    const { bd: bdCompte, fOublier } = await this.client.ouvrirBd({
-      id: idCompte,
-    });
-    if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
-    const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
+    try {
+      const { bd: bdCompte, fOublier } = await this.client.ouvrirBd({
+        id: idCompte,
+      });
 
-    fOublier();
-    return sigIdValide && sigClefPubliqueValide && bdCompteValide;
+      if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
+      const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
+
+      fOublier();
+      return sigIdValide && sigClefPubliqueValide && bdCompteValide;
+    } catch (e) {
+      console.log({idCompte})
+      throw e
+    }
+
+
   }
 
   async faireConfianceAuMembre({

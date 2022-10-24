@@ -1617,6 +1617,7 @@ export default class ClientConstellation extends EventEmitter {
       return faisRien;
     } else if (typeAccès === nomTypeContrôleurConstellation) {
       const fFinale = (utilisateurs: infoUtilisateur[]) => {
+        console.log({utilisateurs})
         const mesRôles = utilisateurs
           .filter((u) => u.idBdCompte === this.idBdCompte)
           .map((u) => u.rôle);

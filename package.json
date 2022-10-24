@@ -1,5 +1,5 @@
 {
-  "version": "0.4.15",
+  "version": "0.4.17",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -20,7 +20,7 @@
     "couverture:tous": "pnpm test:tous --coverage",
     "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint --ext .js,.ts src",
     "publier": "pnpm compiler && pnpm version",
-    "postversion": "pnpm versioner && git push --tags && pnpm publish --tag $npm_package_version --new-version $npm_package_version --access public && git push && echo \"On a publié version $npm_package_version!\"",
+    "postversion": "pnpm versioner && git push --tags && pnpm publish --new-version $npm_package_version --access public && git push && echo \"On a publié version $npm_package_version!\"",
     "versioner": "pnpm genversion  --es6 --semi src/version.ts"
   },
   "watch": {
@@ -86,7 +86,6 @@
   "dependencies": {
     "@chainsafe/libp2p-noise": "^8.0.1",
     "@chriscdn/promise-semaphore": "^1.0.6",
-    "@herbcaudill/crypto": "^3.0.2",
     "@libp2p/kad-dht": "^3.0.4",
     "@libp2p/mdns": "^3.0.0",
     "@libp2p/tcp": "^3.0.4",
@@ -124,11 +123,15 @@
     "xlsx": "file:src/tiers/xlsx-0.18.12.tgz"
   },
   "resolutions": {
-    "iso-constants": "git+https://github.com/inverted-capital/iso-constants.git#patch-1"
+    "iso-constants": "git+https://github.com/inverted-capital/iso-constants.git#patch-1",
+    "ipfs-pubsub-1on1": "git+https://github.com/ipfs-shipyard/ipfs-pubsub-1on1.git"
   },
   "overrides": {
     "iso-constants": {
       ".": "git+https://github.com/inverted-capital/iso-constants.git#patch-1"
+    },
+    "ipfs-pubsub-1on1": {
+      ".": "git+https://github.com/ipfs-shipyard/ipfs-pubsub-1on1.git"
     }
   },
   "jest": {

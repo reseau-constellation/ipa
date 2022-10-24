@@ -57,7 +57,7 @@ export default class ContrôleurConstellation extends AccessController {
   nom: string;
   _orbitdb: OrbitDB;
   _premierMod: string;
-  adresseBd?: string;
+  _adresseBd?: string;
   idRequète: string;
   gestRôles: GestionnaireAccès;
 
@@ -65,7 +65,7 @@ export default class ContrôleurConstellation extends AccessController {
     super();
     this._orbitdb = orbitdb;
     this._premierMod = options.premierMod;
-    this.adresseBd = options.adresseBd;
+    this._adresseBd = options.adresseBd;
     this.nom = options.nom;
 
     this.idRequète = uuidv4();
@@ -151,6 +151,7 @@ export default class ContrôleurConstellation extends AccessController {
       await identityProvider.verifyIdentity(entry.identity);
 
     const estAutorisé = await this.estAutorisé(entry.identity.id);
+    console.log({canAppend: estAutorisé, id: entry.identity.id, val: entry.payload, vraiSiSigValide})
 
     if (estAutorisé) {
       return await vraiSiSigValide();
@@ -164,6 +165,7 @@ export default class ContrôleurConstellation extends AccessController {
       .map((x: LogEntry<élémentBdAccès>) => x.payload.value);
 
     éléments = [{ rôle: MODÉRATEUR, id: this._premierMod }, ...éléments];
+    console.log("_miseÀJourBdAccès dans cntrlConstl", éléments)
 
     await this.gestRôles.ajouterÉléments(éléments);
   }
@@ -199,7 +201,7 @@ export default class ContrôleurConstellation extends AccessController {
       this.idRequète
     )) as FeedStore<élémentBdAccès>;
 
-    suivreBdAccès(this.bd, () => this._miseÀJourBdAccès());
+    suivreBdAccès(this.bd, () => this._miseÀJourBdAccès(), this._orbitdb.identity.id);
   }
 
   _createOrbitOpts(loadByAddress = false): {
@@ -215,7 +217,7 @@ export default class ContrôleurConstellation extends AccessController {
 
   async save(): Promise<{ [key: string]: string }> {
     const adresse =
-      this.adresseBd ||
+      this._adresseBd ||
       (await this._orbitdb.determineAddress(
         `${this.nom}/_access`,
         "feed",
@@ -241,7 +243,6 @@ export default class ContrôleurConstellation extends AccessController {
       const entry: élémentBdAccès = { rôle, id };
 
       await this.bd!.add(entry);
-      await this._miseÀJourBdAccès();
     } catch (_e) {
       const e = _e as Error;
       if (e.toString().includes("not append entry")) {
@@ -265,7 +266,6 @@ export default class ContrôleurConstellation extends AccessController {
     }
     const empreinte = élément.hash;
     await this.bd!.remove(empreinte);
-    await this._miseÀJourBdAccès();
   }
 
   /* Factory */

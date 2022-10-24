@@ -19,8 +19,7 @@ export class AccesseurBdOrbite {
     idBd: string,
     idRequète: string
   ): Promise<Store> {
-    const idOrbite = orbite.identity.id;
-    const idBdEtOrbite = idBd + idOrbite;
+    const idBdEtOrbite = this._obtClef(orbite, idBd);
 
     verrouOuvertureBd.acquire(idBdEtOrbite);
 
@@ -45,9 +44,8 @@ export class AccesseurBdOrbite {
     idBd: string,
     idRequète: string
   ): Promise<void> {
-    const idOrbite = orbite.identity.id;
-    const idBdEtOrbite = idBd + idOrbite;
 
+    const idBdEtOrbite = this._obtClef(orbite, idBd);
     verrouOuvertureBd.acquire(idBdEtOrbite);
 
     this.requètes[idBdEtOrbite].delete(idRequète);
@@ -58,6 +56,12 @@ export class AccesseurBdOrbite {
       delete this.requètes[idBdEtOrbite];
     }
     verrouOuvertureBd.release(idBdEtOrbite);
+  }
+
+  _obtClef(orbite: OrbitDB, idBd: string): string {
+    const idOrbite = orbite.identity.id;
+    const idBdEtOrbite = idBd + idOrbite;
+    return idBdEtOrbite
   }
 }
 

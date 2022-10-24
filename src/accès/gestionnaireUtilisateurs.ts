@@ -16,8 +16,13 @@ const événementsSuiviBd = ["ready", "write", "replicated"];
 
 export const suivreBdAccès = async (
   bd: FeedStore<élémentBdAccès>,
-  f: schémaFonctionSuivi<élémentBdAccès[]>
+  f: schémaFonctionSuivi<élémentBdAccès[]>,
+  idOrbite?: string
 ): Promise<schémaFonctionOublier> => {
+  console.log(
+    `Orbite id ${idOrbite} suit bd ${bd.id}`
+  )
+  if (bd.id === undefined) throw "Erreur !" + idOrbite
   const fFinale = () => {
     const éléments: élémentBdAccès[] = bd
       .iterator({ limit: -1 })
@@ -182,8 +187,7 @@ export default class GestionnaireAccès extends EventEmitter {
           if (!listeRôle.includes(id)) listeRôle.push(id);
         });
       });
-    }
-
+    };
     this._rôles = _rôles;
   }
 

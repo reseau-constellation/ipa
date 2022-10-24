@@ -46,7 +46,7 @@ export default class MotsClefs {
       });
 
     const accès = bdMotClef.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.adresseBd };
+    const optionsAccès = { adresseBd: accès.address };
 
     await bdMotClef.set("type", "motClef");
 

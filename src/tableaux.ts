@@ -105,7 +105,8 @@ export default class Tableaux {
       KeyValueStore<typeÉlémentsBdTableaux>
     >({ id: idBd });
     const accès = bdBd.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.adresseBd };
+    const optionsAccès = { adresseBd: accès.address };
+    console.log({optionsAccès})
     fOublierBd();
 
     const idBdTableau = await this.client.créerBdIndépendante({

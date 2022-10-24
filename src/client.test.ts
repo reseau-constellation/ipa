@@ -9,7 +9,6 @@ import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   faisRien,
-  uneFois,
 } from "@/utils/index.js";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
@@ -21,7 +20,7 @@ import { générerClients, peutÉcrire, attendreRésultat } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation";
 
-describe("adresseOrbiteValide", function () {
+describe.skip("adresseOrbiteValide", function () {
   test("adresse orbite est valide", () => {
     const valide = adresseOrbiteValide(
       "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e"
@@ -55,25 +54,18 @@ describe("Client Constellation", function () {
     ({ fOublier: fOublierClients, clients } = await générerClients(4));
     [client, client2, client3, client4] = clients;
 
-    idbdCompte1 = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<string>
-      ): Promise<schémaFonctionOublier> => {
-        return await client.suivreIdBdCompte({ f: fSuivi });
-      }
-    );
-
-    idbdCompte2 = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<string>
-      ): Promise<schémaFonctionOublier> => {
-        return await client2.suivreIdBdCompte({ f: fSuivi });
-      }
-    );
+    idbdCompte1 = await client.obtIdCompte();
+    idbdCompte2 = await client2.obtIdCompte();
+    const idBdCompte3 = await client3.obtIdCompte();
+    const idBdCompte4 = await client4.obtIdCompte();
 
     idOrbite1 = await client.obtIdOrbite();
+    const idOrbite2 = await client2.obtIdOrbite();
     idOrbite3 = await client3.obtIdOrbite();
     idOrbite4 = await client4.obtIdOrbite();
+
+    console.log({idOrbite1, idOrbite2, idOrbite3, idOrbite4})
+    console.log({idbdCompte1, idbdCompte2, idBdCompte3, idBdCompte4})
   }, config.patienceInit * 4);
 
   afterAll(async () => {
@@ -84,7 +76,7 @@ describe("Client Constellation", function () {
     expect(client.prêt).toBe(true);
   });
 
-  describe("Signer", function () {
+  describe.skip("Signer", function () {
     test("La signature devrait être valide", async () => {
       const message = "Je suis un message";
       const signature = await client.signer({ message });
@@ -103,14 +95,12 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe.skip("Contrôle dispositifs", function () {
+  describe("Contrôle dispositifs", function () {
     let fOublierDispositifs: schémaFonctionOublier;
     let fOublierIdBdCompte: schémaFonctionOublier;
 
     let mesDispositifs: string[];
     let idBdCompte3EnDirecte: string | undefined;
-
-    let idOrbiteClient3Après: string;
 
     beforeAll(async () => {
       fOublierDispositifs = await client.suivreDispositifs({
@@ -130,14 +120,18 @@ describe("Client Constellation", function () {
       expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite1]));
     });
 
-    describe.skip("Ajouter dispositif manuellement", function () {
+    describe("Ajouter dispositif manuellement", function () {
       let idBd: string;
 
       beforeAll(async () => {
+        console.log("ici 0")
         await client.ajouterDispositif({ idOrbite: idOrbite3 });
+        console.log("ici 1")
         await client3.rejoindreCompte({ idBdCompte: idbdCompte1 });
+        console.log("ici 2")
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
-        idOrbiteClient3Après = await client3.obtIdOrbite();
+        console.log("ici 3")
+
       }, config.patience);
 
       test("Mes dispositifs sont mis à jour", async () => {
@@ -150,6 +144,7 @@ describe("Client Constellation", function () {
       });
 
       test("idOrbite ne change pas", async () => {
+        const idOrbiteClient3Après = await client3.obtIdOrbite();
         expect(idOrbiteClient3Après).toEqual(idOrbite3);
       });
 
@@ -193,7 +188,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD", function () {
+  describe.skip("Suivre BD", function () {
     let idBd: string;
     let fOublier: schémaFonctionOublier;
     let bd: KeyValueStore<number>;
@@ -231,7 +226,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD de fonction", function () {
+  describe.skip("Suivre BD de fonction", function () {
     let idBd: string;
     let idBd2: string;
     let bd: KeyValueStore<number>;
@@ -309,7 +304,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD de clef", function () {
+  describe.skip("Suivre BD de clef", function () {
     let idBdBase: string;
     let bdBase: KeyValueStore<string>;
     let idBd: string | undefined;
@@ -382,7 +377,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD dic de clef", function () {
+  describe.skip("Suivre BD dic de clef", function () {
     let idBdBase: string;
     let idBd: string;
     let données: { [key: string]: number };
@@ -428,7 +423,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD liste de clef", function () {
+  describe.skip("Suivre BD liste de clef", function () {
     let idBdBase: string;
     let idBd: string;
     let donnéesValeur: number[];
@@ -492,7 +487,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD liste", function () {
+  describe.skip("Suivre BD liste", function () {
     let idBd: string;
     let donnéesValeur: number[];
     let données: LogEntry<number>[];
@@ -545,7 +540,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BDs récursives", function () {
+  describe.skip("Suivre BDs récursives", function () {
     let idBd: string;
     let idBdListe: string;
     let idBd2: string;
@@ -621,7 +616,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre empreinte têtes", function () {
+  describe.skip("Suivre empreinte têtes", function () {
     let idBd: string;
     let idBdListe: string;
     let idBd2: string;
@@ -709,7 +704,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Rechercher élément BD liste selon empreinte", function () {
+  describe.skip("Rechercher élément BD liste selon empreinte", function () {
     let idBd: string;
     let bd: FeedStore<string>;
     let fOublier: schémaFonctionOublier;
@@ -748,7 +743,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BDs de BD liste", function () {
+  describe.skip("Suivre BDs de BD liste", function () {
     let idBdListe: string;
     let idBd1: string;
     let idBd2: string;
@@ -807,7 +802,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BDs de fonction", function () {
+  describe.skip("Suivre BDs de fonction", function () {
     describe.skip("De liste ids BDs", function () {
       let fSuivre: (ids: string[]) => Promise<void>;
       let résultats: number[];
@@ -1011,7 +1006,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BDs selon condition", function () {
+  describe.skip("Suivre BDs selon condition", function () {
     let idBd1: string;
     let idBd2: string;
 
@@ -1072,7 +1067,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Opérations SFIP", function () {
+  describe.skip("Opérations SFIP", function () {
     let cid: string;
     const texte = "வணக்கம்";
     test(
@@ -1093,7 +1088,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Ouvrir BD", function () {
+  describe.skip("Ouvrir BD", function () {
     let idBd: string;
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1122,7 +1117,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Obtenir ID BD", function () {
+  describe.skip("Obtenir ID BD", function () {
     let idRacine: string;
     let idBd: string;
 
@@ -1240,7 +1235,7 @@ describe("Client Constellation", function () {
     );
   });
 
-  describe("Créer BD indépendante", function () {
+  describe.skip("Créer BD indépendante", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     afterAll(() => {
@@ -1256,7 +1251,7 @@ describe("Client Constellation", function () {
       config.patience
     );
     test(
-      "Avec sa propre bd accès l'utilisateur",
+      "Avec sa propre bd accès utilisateur",
       async () => {
         const optionsAccès: OptionsContrôleurConstellation = {
           adresseBd: undefined,
@@ -1299,7 +1294,7 @@ describe("Client Constellation", function () {
     );
   });
 
-  describe("Combiner BDs", function () {
+  describe.skip("Combiner BDs", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     afterAll(() => {
@@ -1532,7 +1527,7 @@ describe("Client Constellation", function () {
     }, config.patience);
   });
 
-  describe("Effacer BD", function () {
+  describe.skip("Effacer BD", function () {
     let idBd: string;
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1565,7 +1560,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre mes permissions", function () {
+  describe.skip("Suivre mes permissions", function () {
     const rés = { ultat: undefined as string | undefined };
     let idBd: string;
 
@@ -1588,7 +1583,7 @@ describe("Client Constellation", function () {
           },
         })
       );
-    });
+    }, config.patience);
 
     afterAll(() => {
       fsOublier.forEach((f) => f());
@@ -1736,7 +1731,7 @@ describe("Client Constellation", function () {
       await bdListe.add(cidTexte);
 
       await client.épingles!.épinglerBd({ id: idBdKv });
-    });
+    }, config.patience);
 
     afterAll(() => {
       fsOublier.forEach((f) => f());

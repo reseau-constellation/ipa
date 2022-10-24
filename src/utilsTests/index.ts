@@ -33,7 +33,7 @@ export const obtDirTempoPourTest = (nom?: string): string => {
 
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   new Promise<void>((resolve) => {
-    const interval = setInterval(async () => {
+    const testAutorisé = async () => {
       const autorisé = await (
         bd.access as unknown as ContrôleurConstellation
       ).estAutorisé(idInvité);
@@ -41,7 +41,9 @@ const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
         clearInterval(interval);
         resolve();
       }
-    }, 100);
+    }
+    const interval = setInterval(testAutorisé, 100);
+    testAutorisé();
   });
 
 export const attendreSync = async (bd: Store): Promise<void> => {

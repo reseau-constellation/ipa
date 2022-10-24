@@ -14,7 +14,7 @@ import {
   rechercherDansTexte,
   combinerRecherches,
   rechercherSelonId,
-} from "./utils";
+} from "@/recherche/utils.js";
 
 export const rechercherProfilSelonActivité =
   (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {

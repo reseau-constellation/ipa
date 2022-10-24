@@ -71,7 +71,7 @@ export default class Variables {
       });
 
     const accès = bdVariable.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.adresseBd };
+    const optionsAccès = { adresseBd: accès.address };
 
     await bdVariable.set("type", "variable");
 
