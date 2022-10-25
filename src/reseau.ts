@@ -186,7 +186,7 @@ const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
 const obtChaîneIdSFIPClient = (client: ClientConstellation): string => {
-  return client.idNodeSFIP!.id.toCID.toString();
+  return client.idNodeSFIP!.id.toCID().toString();
 }
 
 export default class Réseau extends EventEmitter {
@@ -213,15 +213,9 @@ export default class Réseau extends EventEmitter {
   }
 
   async initialiser(): Promise<void> {
-    const idSFIP = obtChaîneIdSFIPClient(this.client);
-    await this.client.sfip!.pubsub.subscribe(
-      `${this.client.sujet_réseau}-${idSFIP}`,
-      (msg: MessagePubSub) => this.messageReçu({ msg, personnel: true })
-    );
-
     await this.client.sfip!.pubsub.subscribe(
       this.client.sujet_réseau,
-      (msg: MessagePubSub) => this.messageReçu({ msg, personnel: false })
+      (msg: MessagePubSub) => this.messageReçu({ msg })
     );
 
     // @ts-ignore
@@ -260,10 +254,13 @@ export default class Réseau extends EventEmitter {
     msg: Message;
     idSFIP?: string;
   }): Promise<void> {
-    const sujet = idSFIP
-      ? `${this.client.sujet_réseau}-${idSFIP}`
-      : this.client.sujet_réseau;
+    if (idSFIP) {
+      msg.destinataire = idSFIP;
+    }
+    const sujet = this.client.sujet_réseau;
+
     const msgBinaire = Buffer.from(JSON.stringify(msg));
+    console.log("envoyerMessageAuDispositif", {msg})
     await this.client.sfip!.pubsub.publish(sujet, msgBinaire);
   }
 
@@ -277,11 +274,7 @@ export default class Réseau extends EventEmitter {
     encrypté?: boolean;
   }): Promise<void> {
     const maintenant = Date.now();
-    console.log({
-      moi: await this.client.obtIdOrbite(),
-      voyons: Object.values(this.dispositifsEnLigne).map(d=>d.infoDispositif),
-      dispositifsEnLigne: this.dispositifsEnLigne
-    })
+
     const dispositifsMembre = Object.values(this.dispositifsEnLigne)
       .filter((d) => d.infoDispositif.idCompte === idCompte)
       .filter((d) => d.vuÀ && maintenant - d.vuÀ < INTERVALE_SALUT + 1000 * 30);
@@ -303,7 +296,6 @@ export default class Réseau extends EventEmitter {
             clefPubliqueExpéditeur: this.client.encryption.clefs.publique,
             données: msgEncrypté,
           };
-          console.log("Message encrypté à envoyer", idSFIP, msgPourDispositif)
           await this.envoyerMessageAuDispositif({
             msg: msgPourDispositif,
             idSFIP,
@@ -379,15 +371,18 @@ export default class Réseau extends EventEmitter {
 
   async messageReçu({
     msg,
-    personnel,
   }: {
     msg: MessagePubSub;
-    personnel: boolean;
   }): Promise<void> {
-    console.log({personnel})
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
 
     const { encrypté, destinataire } = messageJSON;
+    if (destinataire) {
+      console.log({
+        destinataire,
+        moi: obtChaîneIdSFIPClient(this.client)
+      })
+    }
     if (destinataire && destinataire !== obtChaîneIdSFIPClient(this.client)) return
 
     const données: DonnéesMessage = encrypté
@@ -401,7 +396,13 @@ export default class Réseau extends EventEmitter {
       : messageJSON.données;
 
     const { valeur, signature } = données;
-    if (valeur.type !== "Salut !") console.log({valeur})
+    if (destinataire) {
+      console.log({
+        destinataire,
+        moi: obtChaîneIdSFIPClient(this.client),
+        valeur
+      })
+    }
 
     // Ignorer la plupart des messages de nous-mêmes
     if (
@@ -419,7 +420,7 @@ export default class Réseau extends EventEmitter {
     if (!signatureValide) return;
 
     const contenu = valeur.contenu as ContenuMessage;
-    if (valeur.type !== "Salut !") console.log({contenu})
+
     switch (valeur.type) {
       case "Salut !": {
         const contenuSalut = contenu as ContenuMessageSalut;
@@ -430,10 +431,11 @@ export default class Réseau extends EventEmitter {
 
         this.recevoirSalut({ message: contenuSalut });
 
-        if (!personnel) this.direSalut({ à: contenuSalut.idSFIP }); // Renvoyer le message, si ce n'était pas déjà fait
+        if (!destinataire) this.direSalut({ à: contenuSalut.idSFIP }); // Renvoyer le message, si ce n'était pas déjà fait
         break;
       }
       case "Je veux rejoindre ce compte": {
+        console.log("requète rejoindre compte", contenu)
         const contenuMessage = contenu as ContenuMessageRejoindreCompte;
 
         this.client.considérerRequèteRejoindreCompte({

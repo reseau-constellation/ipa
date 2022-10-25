@@ -11,6 +11,7 @@ import Store from "orbit-db-store";
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 import fs from "fs";
+import Semaphore from "@chriscdn/promise-semaphore";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import ClientConstellation from "@/client.js";
@@ -48,18 +49,23 @@ const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
   });
 
 export const clientConnectéÀ = (client1: ClientConstellation, client2: ClientConstellation): Promise<void> => {
-
+  const verrou = new Semaphore()
   return new Promise( async résoudre => {
     const fFinale = async (dispositifs: statutDispositif[]) => {
-      console.log({moi: await client1.obtIdOrbite(), dispositifs: dispositifs.map(d=>[d.infoDispositif.idCompte, d.infoDispositif.idOrbite])})
       const connecté = !!dispositifs.find(d=>d.infoDispositif.idCompte === client2.idBdCompte);
       if (connecté) {
         console.log(`Client ${client1.idBdCompte} est connecté à ${client2.idBdCompte}`)
+        console.log("On attend le verrou")
+        await verrou.acquire("suivreConnexions");
+        console.log("Verrou obtenu")
         fOublier();
         résoudre();
       }
     }
+    await verrou.acquire("suivreConnexions");
     const fOublier = await client1.réseau!.suivreConnexionsDispositifs({ f: fFinale });
+    verrou.release("suivreConnexions")
+    console.log("verrou relâché")
 
   })
 }

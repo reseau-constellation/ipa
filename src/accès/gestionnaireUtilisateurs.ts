@@ -22,7 +22,7 @@ export const suivreBdAccès = async (
   console.log(
     `Orbite id ${idOrbite} suit bd ${bd.id}`
   )
-  if (bd.id === undefined) throw "Erreur !" + idOrbite
+  if (idOrbite === undefined) throw "Erreur !" + idOrbite
   const fFinale = () => {
     const éléments: élémentBdAccès[] = bd
       .iterator({ limit: -1 })
@@ -79,7 +79,7 @@ class AccèsUtilisateur extends EventEmitter {
 
     this.oublierSuivi = await suivreBdAccès(this.bdAccès, async (éléments) => {
       await this._miseÀJour(éléments);
-    });
+    }, this.orbite.identity.id);
     this.prêt = true;
   }
 

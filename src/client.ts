@@ -378,6 +378,7 @@ export default class ClientConstellation extends EventEmitter {
   }: {
     requète: ContenuMessageRejoindreCompte;
   }): Promise<void> {
+    console.log("considérerRequèteRejoindreCompte", {requète})
     const { idOrbite, codeSecret } = requète;
     const maintenant = Date.now();
 
@@ -385,6 +386,7 @@ export default class ClientConstellation extends EventEmitter {
       (this.motsDePasseRejoindreCompte[codeSecret] || -Infinity) - maintenant <
       DÉLAI_EXPIRATION_INVITATIONS;
 
+    console.log({requèteValide})
     if (requèteValide) {
       delete this.motsDePasseRejoindreCompte[codeSecret];
       await this.ajouterDispositif({ idOrbite });
@@ -402,6 +404,7 @@ export default class ClientConstellation extends EventEmitter {
       idCompte,
       codeSecret,
     });
+    console.log("Demande envoyée")
     await this.rejoindreCompte({
       idBdCompte: idCompte,
     });
@@ -430,7 +433,10 @@ export default class ClientConstellation extends EventEmitter {
     const accès = bd.access as unknown as ContrôleurConstellation;
     const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
       (autorisés: string[]) =>
-        (autorisé = autorisés.includes(this.orbite!.identity.id))
+        {
+          console.log({autorisés});
+          (autorisé = autorisés.includes(this.orbite!.identity.id))
+        }
     );
     await new Promise<void>((résoudre) => {
       const vérifierSiAutorisé = () => {
