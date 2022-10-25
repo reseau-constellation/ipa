@@ -114,6 +114,7 @@ export type bdDeMembre = {
 interface Message {
   encrypté: boolean;
   données: string | DonnéesMessage;
+  destinataire?: string;
 }
 
 export interface MessageEncrypté extends Message {
@@ -184,6 +185,10 @@ const CONFIANCE_DE_FAVORIS = 0.7;
 const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
+const obtChaîneIdSFIPClient = (client: ClientConstellation): string => {
+  return client.idNodeSFIP!.id.toCID.toString();
+}
+
 export default class Réseau extends EventEmitter {
   client: ClientConstellation;
   idBd: string;
@@ -208,7 +213,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async initialiser(): Promise<void> {
-    const idSFIP = this.client.idNodeSFIP!.id;
+    const idSFIP = obtChaîneIdSFIPClient(this.client);
     await this.client.sfip!.pubsub.subscribe(
       `${this.client.sujet_réseau}-${idSFIP}`,
       (msg: MessagePubSub) => this.messageReçu({ msg, personnel: true })
@@ -272,6 +277,11 @@ export default class Réseau extends EventEmitter {
     encrypté?: boolean;
   }): Promise<void> {
     const maintenant = Date.now();
+    console.log({
+      moi: await this.client.obtIdOrbite(),
+      voyons: Object.values(this.dispositifsEnLigne).map(d=>d.infoDispositif),
+      dispositifsEnLigne: this.dispositifsEnLigne
+    })
     const dispositifsMembre = Object.values(this.dispositifsEnLigne)
       .filter((d) => d.infoDispositif.idCompte === idCompte)
       .filter((d) => d.vuÀ && maintenant - d.vuÀ < INTERVALE_SALUT + 1000 * 30);
@@ -293,6 +303,7 @@ export default class Réseau extends EventEmitter {
             clefPubliqueExpéditeur: this.client.encryption.clefs.publique,
             données: msgEncrypté,
           };
+          console.log("Message encrypté à envoyer", idSFIP, msgPourDispositif)
           await this.envoyerMessageAuDispositif({
             msg: msgPourDispositif,
             idSFIP,
@@ -315,7 +326,7 @@ export default class Réseau extends EventEmitter {
     const valeur: ValeurMessageSalut = {
       type: "Salut !",
       contenu: {
-        idSFIP: this.client.idNodeSFIP!.id.toCID().toString(),
+        idSFIP: obtChaîneIdSFIPClient(this.client),
         idOrbite: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
@@ -373,9 +384,12 @@ export default class Réseau extends EventEmitter {
     msg: MessagePubSub;
     personnel: boolean;
   }): Promise<void> {
+    console.log({personnel})
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
 
-    const { encrypté } = messageJSON;
+    const { encrypté, destinataire } = messageJSON;
+    if (destinataire && destinataire !== obtChaîneIdSFIPClient(this.client)) return
+
     const données: DonnéesMessage = encrypté
       ? JSON.parse(
           this.client.encryption.décrypter({
@@ -387,6 +401,7 @@ export default class Réseau extends EventEmitter {
       : messageJSON.données;
 
     const { valeur, signature } = données;
+    if (valeur.type !== "Salut !") console.log({valeur})
 
     // Ignorer la plupart des messages de nous-mêmes
     if (
@@ -404,6 +419,7 @@ export default class Réseau extends EventEmitter {
     if (!signatureValide) return;
 
     const contenu = valeur.contenu as ContenuMessage;
+    if (valeur.type !== "Salut !") console.log({contenu})
     switch (valeur.type) {
       case "Salut !": {
         const contenuSalut = contenu as ContenuMessageSalut;

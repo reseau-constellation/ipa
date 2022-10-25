@@ -16,7 +16,7 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 
-import { générerClients, peutÉcrire, attendreRésultat } from "@/utilsTests";
+import { générerClients, peutÉcrire, attendreRésultat, clientsConnectés, clientConnectéÀ } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation";
 
@@ -76,7 +76,7 @@ describe("Client Constellation", function () {
     expect(client.prêt).toBe(true);
   });
 
-  describe.skip("Signer", function () {
+  describe("Signer", function () {
     test("La signature devrait être valide", async () => {
       const message = "Je suis un message";
       const signature = await client.signer({ message });
@@ -132,7 +132,7 @@ describe("Client Constellation", function () {
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
         console.log("ici 3")
 
-      }, config.patience);
+      }, config.patienceInit);
 
       test("Mes dispositifs sont mis à jour", async () => {
         expect(mesDispositifs).toHaveLength(2);
@@ -158,14 +158,20 @@ describe("Client Constellation", function () {
       });
     });
 
-    describe.skip("Automatiser ajout dispositif", function () {
+    describe("Automatiser ajout dispositif", function () {
       let idBd: string;
 
       beforeAll(async () => {
+        console.log("On commence")
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
+        console.log("Bd indépendante créée")
+        await clientsConnectés(client4, client);
+        console.log("Clients connectés")
         const invitation = await client.générerInvitationRejoindreCompte();
+        console.log("Invitation générée", { invitation })
         await client4.demanderEtPuisRejoindreCompte(invitation);
-      }, config.patience);
+        console.log("Invitation utilisée !")
+      }, config.patienceInit);
 
       test("Nouveau dispositif ajouté au compte", async () => {
         expect(mesDispositifs).toEqual(

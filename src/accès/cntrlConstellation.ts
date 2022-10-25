@@ -151,7 +151,6 @@ export default class ContrôleurConstellation extends AccessController {
       await identityProvider.verifyIdentity(entry.identity);
 
     const estAutorisé = await this.estAutorisé(entry.identity.id);
-    console.log({canAppend: estAutorisé, id: entry.identity.id, val: entry.payload, vraiSiSigValide})
 
     if (estAutorisé) {
       return await vraiSiSigValide();
@@ -165,7 +164,6 @@ export default class ContrôleurConstellation extends AccessController {
       .map((x: LogEntry<élémentBdAccès>) => x.payload.value);
 
     éléments = [{ rôle: MODÉRATEUR, id: this._premierMod }, ...éléments];
-    console.log("_miseÀJourBdAccès dans cntrlConstl", éléments)
 
     await this.gestRôles.ajouterÉléments(éléments);
   }

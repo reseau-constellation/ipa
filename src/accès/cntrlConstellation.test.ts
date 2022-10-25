@@ -146,7 +146,7 @@ describe("Contrôleur Constellation", function () {
         await assert.rejects(
           bdOrbite2.access.grant(MEMBRE, orbitdb3.identity.id)
         );
-      });
+      }, config.patience);
 
       test("Mais un membre peut s'inviter lui-même", async () => {
         await bdRacine2.access.grant(MODÉRATEUR, orbitdb3.identity.id);
