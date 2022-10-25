@@ -16,6 +16,7 @@ import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import ClientConstellation from "@/client.js";
 import générerProxyProc from "@/proxy/ipaProc.js";
 import générerProxyTravailleur from "@/proxy/ipaTravailleur.js";
+import { statutDispositif } from "@/reseau.js"
 
 export * from "@/utilsTests/sfipTest.js";
 
@@ -45,6 +46,30 @@ const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
     const interval = setInterval(testAutorisé, 100);
     testAutorisé();
   });
+
+export const clientConnectéÀ = (client1: ClientConstellation, client2: ClientConstellation): Promise<void> => {
+
+  return new Promise( async résoudre => {
+    const fFinale = async (dispositifs: statutDispositif[]) => {
+      console.log({moi: await client1.obtIdOrbite(), dispositifs: dispositifs.map(d=>[d.infoDispositif.idCompte, d.infoDispositif.idOrbite])})
+      const connecté = !!dispositifs.find(d=>d.infoDispositif.idCompte === client2.idBdCompte);
+      if (connecté) {
+        console.log(`Client ${client1.idBdCompte} est connecté à ${client2.idBdCompte}`)
+        fOublier();
+        résoudre();
+      }
+    }
+    const fOublier = await client1.réseau!.suivreConnexionsDispositifs({ f: fFinale });
+
+  })
+}
+
+export const clientsConnectés = async (client1: ClientConstellation, client2: ClientConstellation): Promise<void> => {
+  const client1ConnectéÀ2 = clientConnectéÀ(client1, client2);
+  const client2ConnectéÀ1 = clientConnectéÀ(client2, client1);
+  await Promise.all([client1ConnectéÀ2, client2ConnectéÀ1])
+  return
+}
 
 export const attendreSync = async (bd: Store): Promise<void> => {
   const accès = bd.access as unknown as ContrôleurConstellation;
