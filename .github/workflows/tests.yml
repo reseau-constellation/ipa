@@ -16,11 +16,14 @@ jobs:
       - name: Ouvrir la branche
         uses: actions/checkout@v3
 
+      - name: Installer pnpm
+        run: npm install -g pnpm
+
       - name: Nétoyer les dépendances d'installation
-        run: yarn install --frozen-lockfile
+        run: pnpm install
 
       - name: Vérifier les tests
-        run: yarn couverture:tous
+        run: pnpm couverture:tous
 
       - name: Envoyer couverure à Codecov
         uses: codecov/codecov-action@v2
