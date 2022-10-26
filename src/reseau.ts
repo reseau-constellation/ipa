@@ -260,7 +260,6 @@ export default class Réseau extends EventEmitter {
     const sujet = this.client.sujet_réseau;
 
     const msgBinaire = Buffer.from(JSON.stringify(msg));
-    console.log("envoyerMessageAuDispositif", {msg})
     await this.client.sfip!.pubsub.publish(sujet, msgBinaire);
   }
 
@@ -377,12 +376,7 @@ export default class Réseau extends EventEmitter {
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
 
     const { encrypté, destinataire } = messageJSON;
-    if (destinataire) {
-      console.log({
-        destinataire,
-        moi: obtChaîneIdSFIPClient(this.client)
-      })
-    }
+
     if (destinataire && destinataire !== obtChaîneIdSFIPClient(this.client)) return
 
     const données: DonnéesMessage = encrypté
@@ -396,13 +390,6 @@ export default class Réseau extends EventEmitter {
       : messageJSON.données;
 
     const { valeur, signature } = données;
-    if (destinataire) {
-      console.log({
-        destinataire,
-        moi: obtChaîneIdSFIPClient(this.client),
-        valeur
-      })
-    }
 
     // Ignorer la plupart des messages de nous-mêmes
     if (
@@ -435,7 +422,6 @@ export default class Réseau extends EventEmitter {
         break;
       }
       case "Je veux rejoindre ce compte": {
-        console.log("requète rejoindre compte", contenu)
         const contenuMessage = contenu as ContenuMessageRejoindreCompte;
 
         this.client.considérerRequèteRejoindreCompte({
@@ -515,22 +501,15 @@ export default class Réseau extends EventEmitter {
     });
 
     if (!OrbitDB.isValidAddress(idCompte)) return false;
-    try {
-      const { bd: bdCompte, fOublier } = await this.client.ouvrirBd({
-        id: idCompte,
-      });
+    const { bd: bdCompte, fOublier } = await this.client.ouvrirBd({
+      id: idCompte,
+    });
 
-      if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
-      const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
+    if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
+    const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
 
-      fOublier();
-      return sigIdValide && sigClefPubliqueValide && bdCompteValide;
-    } catch (e) {
-      console.log({idCompte})
-      throw e
-    }
-
-
+    fOublier();
+    return sigIdValide && sigClefPubliqueValide && bdCompteValide;
   }
 
   async faireConfianceAuMembre({

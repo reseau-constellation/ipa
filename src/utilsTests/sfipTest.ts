@@ -15,6 +15,14 @@ export const initierSFIP = async (dossier = ""): Promise<Controller> => {
     ipfsModule: await import("ipfs"),
     ipfsOptions: {
       repo: dossier,
+      libp2p: {
+        modules: {
+          mdns: null
+        },
+        connectionManager: {
+          autoDial: false
+        }
+      },
       config: {
         Addresses: {
           API: "/ip4/127.0.0.1/tcp/0",
@@ -24,7 +32,7 @@ export const initierSFIP = async (dossier = ""): Promise<Controller> => {
         Bootstrap: [],
         Discovery: {
           MDNS: {
-            Enabled: true,
+            Enabled: false,
             Interval: 0,
           },
           webRTCStar: {

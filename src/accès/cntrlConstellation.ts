@@ -199,7 +199,7 @@ export default class ContrôleurConstellation extends AccessController {
       this.idRequète
     )) as FeedStore<élémentBdAccès>;
 
-    suivreBdAccès(this.bd, () => this._miseÀJourBdAccès(), this._orbitdb.identity.id);
+    suivreBdAccès(this.bd, () => this._miseÀJourBdAccès());
   }
 
   _createOrbitOpts(loadByAddress = false): {

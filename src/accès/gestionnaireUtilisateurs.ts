@@ -17,12 +17,7 @@ const événementsSuiviBd = ["ready", "write", "replicated"];
 export const suivreBdAccès = async (
   bd: FeedStore<élémentBdAccès>,
   f: schémaFonctionSuivi<élémentBdAccès[]>,
-  idOrbite?: string
 ): Promise<schémaFonctionOublier> => {
-  console.log(
-    `Orbite id ${idOrbite} suit bd ${bd.id}`
-  )
-  if (idOrbite === undefined) throw "Erreur !" + idOrbite
   const fFinale = () => {
     const éléments: élémentBdAccès[] = bd
       .iterator({ limit: -1 })
@@ -79,7 +74,7 @@ class AccèsUtilisateur extends EventEmitter {
 
     this.oublierSuivi = await suivreBdAccès(this.bdAccès, async (éléments) => {
       await this._miseÀJour(éléments);
-    }, this.orbite.identity.id);
+    });
     this.prêt = true;
   }
 
