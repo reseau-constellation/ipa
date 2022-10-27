@@ -1040,6 +1040,7 @@ export default class Réseau extends EventEmitter {
     };
 
     const fChangerProfondeur = (p: number) => {
+      console.log("fChangerProfondeur", p)
       profondeur = p;
       événementsChangementProfondeur.emit("changé");
     };
@@ -1413,7 +1414,6 @@ export default class Réseau extends EventEmitter {
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     fScore?: (r: résultatRechercheSansScore<T>) => number;
   }): Promise<réponseSuivreRecherche> {
-    console.log("rechercher");
     if (!fScore) {
       fScore = (x: résultatRechercheSansScore<T>): number => {
         return (x.confiance + x.qualité + x.objectif.score) / 3;

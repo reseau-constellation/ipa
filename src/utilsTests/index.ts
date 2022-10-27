@@ -54,19 +54,14 @@ export const clientConnectéÀ = (client1: ClientConstellation, client2: ClientC
     const fFinale = async (dispositifs: statutDispositif[]) => {
       const connecté = !!dispositifs.find(d=>d.infoDispositif.idCompte === client2.idBdCompte);
       if (connecté) {
-        console.log(`Client ${client1.idBdCompte} est connecté à ${client2.idBdCompte}`)
-        console.log("On attend le verrou")
         await verrou.acquire("suivreConnexions");
-        console.log("Verrou obtenu")
         fOublier();
         résoudre();
       }
     }
     await verrou.acquire("suivreConnexions");
     const fOublier = await client1.réseau!.suivreConnexionsDispositifs({ f: fFinale });
-    verrou.release("suivreConnexions")
-    console.log("verrou relâché")
-
+    verrou.release("suivreConnexions");
   })
 }
 

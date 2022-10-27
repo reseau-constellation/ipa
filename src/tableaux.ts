@@ -106,7 +106,6 @@ export default class Tableaux {
     >({ id: idBd });
     const accès = bdBd.access as unknown as ContrôleurConstellation;
     const optionsAccès = { adresseBd: accès.address };
-    console.log({optionsAccès})
     fOublierBd();
 
     const idBdTableau = await this.client.créerBdIndépendante({

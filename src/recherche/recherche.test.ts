@@ -170,10 +170,7 @@ typesClients.forEach((type) => {
             ({ fOublier } =
               await client.recherche!.rechercherProfilSelonCourriel({
                 courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-                f: (membres) => {
-                  console.log(membres);
-                  rés.ultat = membres;
-                },
+                f: (membres) => rés.ultat = membres,
                 nRésultatsDésirés: 2,
               }));
             réfClient2 = {
