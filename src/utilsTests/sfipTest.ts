@@ -15,31 +15,6 @@ export const initierSFIP = async (dossier = ""): Promise<Controller> => {
     ipfsModule: await import("ipfs"),
     ipfsOptions: {
       repo: dossier,
-      libp2p: {
-        modules: {
-          mdns: null
-        },
-        connectionManager: {
-          autoDial: false
-        }
-      },
-      config: {
-        Addresses: {
-          API: "/ip4/127.0.0.1/tcp/0",
-          Swarm: ["/ip4/0.0.0.0/tcp/0"],
-          Gateway: "/ip4/0.0.0.0/tcp/0",
-        },
-        Bootstrap: [],
-        Discovery: {
-          MDNS: {
-            Enabled: false,
-            Interval: 0,
-          },
-          webRTCStar: {
-            Enabled: false,
-          },
-        },
-      },
     },
   };
 
