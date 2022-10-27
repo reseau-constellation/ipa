@@ -5,6 +5,7 @@ overrides:
   ipfs-pubsub-1on1: git+https://github.com/ipfs-shipyard/ipfs-pubsub-1on1.git
 
 specifiers:
+  '@chainsafe/libp2p-noise': ^10.0.0
   '@chriscdn/promise-semaphore': ^1.0.9
   '@constl/orbit-db-types': ^1.0.5
   '@libp2p/interface-connection-manager': ^1.3.0
@@ -89,6 +90,7 @@ specifiers:
   xlsx: file:src/tiers/xlsx-0.18.12.tgz
 
 dependencies:
+  '@chainsafe/libp2p-noise': 10.0.0
   '@chriscdn/promise-semaphore': 1.0.9
   '@libp2p/tcp': 5.0.1
   '@libp2p/webrtc-direct': 4.0.1
@@ -561,7 +563,7 @@ packages:
     engines: {npm: '>=8.7.0'}
     dependencies:
       '@libp2p/components': 2.1.1
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-connection': 3.0.2
       '@libp2p/interface-keys': 1.0.3
       '@libp2p/interface-peer-id': 1.0.5
@@ -592,7 +594,7 @@ packages:
     resolution: {integrity: sha512-eqfjPQdoLxu8aCsiEBNCozRjtkAamlq2+tohDw2QU4YxQHz/gS1UAvowgPt7K5mxrHRE6AqB9jS/CqMaNdu2iA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-connection-encrypter': 3.0.1
       '@libp2p/interface-keys': 1.0.3
       '@libp2p/interface-peer-id': 1.0.5
@@ -607,7 +609,7 @@ packages:
       it-pb-stream: 2.0.2
       it-pipe: 2.0.4
       it-stream-types: 1.0.4
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
+      protons-runtime: 4.0.1
       uint8arraylist: 2.3.3
       uint8arrays: 4.0.2
     transitivePeerDependencies:
@@ -1646,24 +1648,6 @@ packages:
       node-forge: 1.3.1
       protons-runtime: 4.0.1
       uint8arrays: 4.0.2
-    transitivePeerDependencies:
-      - uint8arraylist
-    dev: false
-
-  /@libp2p/crypto/1.0.7_uint8arraylist@2.3.3:
-    resolution: {integrity: sha512-rJdM0cfoN+DYurcCjiz4LnOkH1fbMHXlC/UggRYvRlQP6c6U/Pd0qbtpZ1blrjQ3lmDnXeh9AM+4Ys0DMU88cw==}
-    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
-    dependencies:
-      '@libp2p/interface-keys': 1.0.3
-      '@noble/ed25519': 1.7.1
-      '@noble/secp256k1': 1.7.0
-      err-code: 3.0.1
-      multiformats: 10.0.2
-      node-forge: 1.3.1
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
-      uint8arrays: 4.0.2
-    transitivePeerDependencies:
-      - uint8arraylist
 
   /@libp2p/delegated-content-routing/3.0.0:
     resolution: {integrity: sha512-/JNhUwIrZYPtxn5d3PbjIiFY7AlQl0TOMfBxhg79wrJxuIeuUou7krkIKWZCjIqc+28J5N4ydzIZxhU62S1bKQ==}
@@ -1713,7 +1697,7 @@ packages:
       '@libp2p/interface-pubsub': 3.0.0
       '@libp2p/logger': 2.0.2
       '@libp2p/pubsub': 5.0.0
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
+      protons-runtime: 4.0.1
       uint8arraylist: 2.3.3
       uint8arrays: 4.0.2
     transitivePeerDependencies:
@@ -2042,7 +2026,7 @@ packages:
     resolution: {integrity: sha512-j9+tzVQEniP+RdDYBjD949lyqJNlZeHMGQr5Vn+o9/yBQBj5Ro2XTcWLbXz/4GrqXevr1ZDfQLQ+LJkHJEizaA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-address-manager': 2.0.0
       '@libp2p/interface-connection': 3.0.2
       '@libp2p/interface-connection-manager': 1.3.0
@@ -2082,7 +2066,7 @@ packages:
       p-defer: 4.0.0
       p-queue: 7.3.0
       private-ip: 2.3.4
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
+      protons-runtime: 4.0.1
       timeout-abort-controller: 3.0.0
       uint8arraylist: 2.3.3
       uint8arrays: 4.0.2
@@ -2178,12 +2162,12 @@ packages:
     resolution: {integrity: sha512-L38Ee6r32A+AlfnEd9mO+OZgVamN7oQXS7DQ3GudY0twXBf5QslggJo2jRFZ0hoo2FiT+SUXhiOnqItrTLoD4g==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-keys': 1.0.3
       '@libp2p/interface-peer-id': 1.0.5
       '@libp2p/peer-id': 1.1.16
       multiformats: 10.0.2
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
+      protons-runtime: 4.0.1
       uint8arraylist: 2.3.3
       uint8arrays: 4.0.2
 
@@ -2200,7 +2184,7 @@ packages:
     resolution: {integrity: sha512-HV4cp8vQHt06gmhoXHf1aVbwE/145DCqRmtURkd+C75t3y+RNxDf/tlxMo/bwse3HxWNpjN8uUYP48Z++GWmqA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-peer-id': 1.0.5
       '@libp2p/interface-record': 2.0.1
       '@libp2p/logger': 2.0.2
@@ -2215,7 +2199,7 @@ packages:
       it-map: 1.0.6
       it-pipe: 2.0.4
       multiformats: 10.0.2
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
+      protons-runtime: 4.0.1
       uint8-varint: 1.0.4
       uint8arraylist: 2.3.3
       uint8arrays: 4.0.2
@@ -2277,7 +2261,7 @@ packages:
       it-pipe: 2.0.4
       mortice: 3.0.1
       multiformats: 10.0.2
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
+      protons-runtime: 4.0.1
       uint8arraylist: 2.3.3
       uint8arrays: 4.0.2
     transitivePeerDependencies:
@@ -2290,7 +2274,7 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       '@libp2p/components': 2.1.1
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-connection': 3.0.2
       '@libp2p/interface-peer-id': 1.0.5
       '@libp2p/interface-pubsub': 2.1.0
@@ -2319,7 +2303,7 @@ packages:
     resolution: {integrity: sha512-E391cFkWDFG7SnE4aoG5y8eRr5OkUWEarWbWkGjnzt2IYSO5wj3K9XKn9U8DDg4Fskl1KQAQDZayS8crMxyHAA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-connection': 3.0.2
       '@libp2p/interface-peer-id': 1.0.5
       '@libp2p/interface-pubsub': 3.0.0
@@ -2351,7 +2335,7 @@ packages:
       '@libp2p/interface-dht': 1.0.2
       err-code: 3.0.1
       multiformats: 10.0.2
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
+      protons-runtime: 4.0.1
       uint8arraylist: 2.3.3
       uint8arrays: 4.0.2
     transitivePeerDependencies:
@@ -7072,7 +7056,6 @@ packages:
       - bufferutil
       - encoding
       - supports-color
-      - uint8arraylist
       - undici
       - utf-8-validate
     dev: false
@@ -7235,7 +7218,6 @@ packages:
       - bufferutil
       - encoding
       - supports-color
-      - uint8arraylist
       - undici
       - utf-8-validate
     dev: false
@@ -7262,7 +7244,6 @@ packages:
       - bufferutil
       - encoding
       - supports-color
-      - uint8arraylist
       - undici
       - utf-8-validate
     dev: false
@@ -7583,7 +7564,6 @@ packages:
       - bufferutil
       - encoding
       - supports-color
-      - uint8arraylist
       - undici
       - utf-8-validate
     dev: false
@@ -7629,7 +7609,6 @@ packages:
       uint8arrays: 4.0.2
     transitivePeerDependencies:
       - supports-color
-      - uint8arraylist
       - undici
     dev: false
 
@@ -9317,7 +9296,7 @@ packages:
       '@achingbrain/nat-port-mapper': 1.0.7
       '@libp2p/components': 2.1.1
       '@libp2p/connection': 4.0.2
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-address-manager': 1.0.3
       '@libp2p/interface-connection': 3.0.2
       '@libp2p/interface-connection-encrypter': 2.0.2
@@ -9394,7 +9373,7 @@ packages:
     dependencies:
       '@achingbrain/nat-port-mapper': 1.0.7
       '@libp2p/connection': 4.0.2
-      '@libp2p/crypto': 1.0.7_uint8arraylist@2.3.3
+      '@libp2p/crypto': 1.0.7
       '@libp2p/interface-address-manager': 2.0.0
       '@libp2p/interface-connection': 3.0.2
       '@libp2p/interface-connection-encrypter': 3.0.1
@@ -9451,7 +9430,7 @@ packages:
       p-retry: 5.1.1
       p-settle: 5.1.0
       private-ip: 2.3.4
-      protons-runtime: 4.0.1_uint8arraylist@2.3.3
+      protons-runtime: 4.0.1
       rate-limiter-flexible: 2.4.1
       retimer: 3.0.0
       sanitize-filename: 1.6.3
@@ -11158,17 +11137,6 @@ packages:
   /protons-runtime/4.0.1:
     resolution: {integrity: sha512-SPeV+8TzJAp5UJYPV7vJkLRi08CP0DksxpKK60rcNaZSPkMBQwc0jQrmkHqwc5P0cYbZzKsdYrUBwRrDLrzTfQ==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
-    peerDependencies:
-      uint8arraylist: ^2.3.2
-    dependencies:
-      protobufjs: 7.1.2
-    dev: false
-
-  /protons-runtime/4.0.1_uint8arraylist@2.3.3:
-    resolution: {integrity: sha512-SPeV+8TzJAp5UJYPV7vJkLRi08CP0DksxpKK60rcNaZSPkMBQwc0jQrmkHqwc5P0cYbZzKsdYrUBwRrDLrzTfQ==}
-    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
-    peerDependencies:
-      uint8arraylist: ^2.3.2
     dependencies:
       protobufjs: 7.1.2
       uint8arraylist: 2.3.3

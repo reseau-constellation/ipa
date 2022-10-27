@@ -84,6 +84,7 @@
     "why-is-node-running": "^2.2.2"
   },
   "dependencies": {
+    "@chainsafe/libp2p-noise": "^10.0.0",
     "@chriscdn/promise-semaphore": "^1.0.9",
     "@libp2p/tcp": "^5.0.1",
     "@libp2p/webrtc-direct": "^4.0.1",
