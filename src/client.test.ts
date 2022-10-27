@@ -706,7 +706,7 @@ describe("Client Constellation", function () {
         id: idBd,
       }));
       await bd.add("abc");
-    });
+    }, config.patience);
     afterAll(async () => {
       if (fOublier) fOublier();
     });

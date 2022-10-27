@@ -1079,8 +1079,7 @@ typesClients.forEach((type) => {
             fChangerProfondeur(0);
             await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
             expect(rés.ultat).toEqual(expect.arrayContaining(réf));
-          },
-          config.patience
+          }
         );
         test("Augmenter profondeur", async () => {
           const réf: infoMembreRéseau[] = [
