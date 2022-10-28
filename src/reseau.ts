@@ -713,7 +713,6 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoConfiance[]>;
     idBdCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    console.log("suivreRelationsImmédiates", { f, idBdCompte });
     idBdCompte = idBdCompte ? idBdCompte : this.client.idBdCompte!;
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -906,7 +905,6 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreRelationsConfiance", { f, idCompteDébut });
     idCompteDébut = idCompteDébut || this.client.idBdCompte;
 
     const dicRelations: { [key: string]: infoRelation[] } = {};
@@ -1040,7 +1038,6 @@ export default class Réseau extends EventEmitter {
     };
 
     const fChangerProfondeur = (p: number) => {
-      console.log("fChangerProfondeur", p)
       profondeur = p;
       événementsChangementProfondeur.emit("changé");
     };
@@ -1057,7 +1054,6 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreComptesRéseau", { f, idCompteDébut });
     const fSuivi = (relations: infoRelation[]) => {
       // S'ajouter soi-même
       relations.push({
@@ -1139,7 +1135,6 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreComptesRéseauEtEnLigne", { f, idCompteDébut });
     const dicComptes: {
       réseau: infoMembreRéseau[];
       enLigne: infoMembreRéseau[];
@@ -1204,10 +1199,6 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idBdCompteRéférence?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-    /* console.log("suivreConfianceMonRéseauPourMembre", {
-      idBdCompte,
-      idBdCompteRéférence,
-    });*/
 
     idBdCompteRéférence = idBdCompteRéférence || this.client.idBdCompte!;
 
@@ -1626,7 +1617,6 @@ export default class Réseau extends EventEmitter {
       comptes: infoMembreRéseau[]
     ): Promise<void> => {
       await verrou.acquire("rechercher");
-      console.log("verrou aquis");
 
       comptes = comptes.filter((c) => c.confiance >= 0); // Enlever les membres bloqués
 
@@ -1643,14 +1633,11 @@ export default class Réseau extends EventEmitter {
         );
       });
 
-      console.log({ nouveaux, changés, clefsObsolètes });
-
       await Promise.all(nouveaux.map(suivreRésultatsMembre));
       changés.forEach((c) => résultatsParMembre[c.idBdCompte].mettreÀJour(c));
 
       clefsObsolètes.forEach((o) => oublierRésultatsMembre(o));
 
-      console.log("verrou relâché");
       verrou.release("rechercher");
     };
 
@@ -1684,7 +1671,6 @@ export default class Réseau extends EventEmitter {
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
   }): Promise<réponseSuivreRecherche> {
-    console.log("rechercherMembres");
     const fConfiance = async (
       idCompte: string,
       fSuivi: schémaFonctionSuivi<number>
@@ -1740,7 +1726,6 @@ export default class Réseau extends EventEmitter {
     clef: string;
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
-    console.log("suivreConfianceAuteurs", { idItem, clef });
     const fListe = async (
       fSuivreRacine: (auteurs: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
@@ -2236,7 +2221,6 @@ export default class Réseau extends EventEmitter {
     >;
     profondeur?: number;
   }): Promise<schémaRetourFonctionRecherche> {
-    console.log("suivreFavorisObjet", { idObjet, f });
     const fFinale = (
       favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
     ) => {
