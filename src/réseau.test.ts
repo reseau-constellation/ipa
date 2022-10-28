@@ -1074,10 +1074,10 @@ typesClients.forEach((type) => {
             await client2.réseau!.faireConfianceAuMembre({
               idBdCompte: idBdCompte3,
             });
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
+            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
 
             fChangerProfondeur(0);
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
+            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
             expect(rés.ultat).toEqual(expect.arrayContaining(réf));
           }
         );
