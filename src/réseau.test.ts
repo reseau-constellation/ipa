@@ -830,7 +830,7 @@ typesClients.forEach((type) => {
           ({ fOublier, fChangerProfondeur } =
             await client.réseau!.suivreComptesRéseau({
               f: (c) => (rés.ultat = c),
-              profondeur: 1,
+              profondeur: 2,
             }));
         });
 
@@ -860,7 +860,7 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
@@ -876,12 +876,12 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: 0.8,
-              profondeur: 1,
+              profondeur: 2,
             },
           ];
           await client2.réseau!.faireConfianceAuMembre({
@@ -897,12 +897,12 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
@@ -923,12 +923,12 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: 0.8,
-              profondeur: 1,
+              profondeur: 2,
             },
           ];
           await client.réseau!.nePlusFaireConfianceAuMembre({
@@ -949,7 +949,7 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
           ];
           await client2.réseau!.nePlusFaireConfianceAuMembre({
@@ -975,7 +975,7 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: -1,
-              profondeur: 0,
+              profondeur: 1,
             },
           ];
           await client.réseau!.bloquerMembre({
@@ -1001,12 +1001,12 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: -0.9,
-              profondeur: 1,
+              profondeur: 2,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
@@ -1025,12 +1025,12 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
@@ -1065,7 +1065,7 @@ typesClients.forEach((type) => {
               {
                 idBdCompte: idBdCompte2,
                 confiance: 1,
-                profondeur: 0,
+                profondeur: 1,
               },
             ];
             await client.réseau!.faireConfianceAuMembre({
@@ -1076,7 +1076,7 @@ typesClients.forEach((type) => {
             });
             await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
 
-            fChangerProfondeur(0);
+            fChangerProfondeur(1);
             await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
             expect(rés.ultat).toEqual(expect.arrayContaining(réf));
           }
@@ -1087,16 +1087,16 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: 0.8,
-              profondeur: 1,
+              profondeur: 2,
             },
           ];
 
-          fChangerProfondeur(1);
+          fChangerProfondeur(2);
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
           expect(rés.ultat).toEqual(expect.arrayContaining(réf));
