@@ -1122,7 +1122,7 @@ export default class Réseau extends EventEmitter {
           .map((m) => {
             return {
               idBdCompte: m.infoMembre.idBdCompte,
-              profondeur: -1,
+              profondeur: Infinity,
               confiance: 0,
             };
           });
