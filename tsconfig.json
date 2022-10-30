@@ -26,6 +26,7 @@
     "useUnknownInCatchVariables": false,
 
     "skipLibCheck": true,
+    "experimentalDecorators": true,
 
     "plugins": [
       { "transform": "typescript-transform-paths" },
