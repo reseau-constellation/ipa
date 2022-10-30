@@ -776,8 +776,7 @@ typesClients.forEach((type) => {
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
           expect(rés.ultat).toEqual(réf);
-        },
-        config.patience);
+        });
 
         test(
           "Diminuer profondeur",
@@ -793,8 +792,7 @@ typesClients.forEach((type) => {
             fChangerProfondeur(0);
             await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
             expect(rés.ultat).toEqual(réf);
-          },
-          config.patience
+          }
         );
 
         test("Augmenter profondeur", async () => {
@@ -890,7 +888,7 @@ typesClients.forEach((type) => {
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 2);
           expect(rés.ultat).toEqual(expect.arrayContaining(réf));
-        }, config.patience);
+        });
         test("Relations confiance directes et indirectes", async () => {
           const réf: infoMembreRéseau[] = [
             moiMême,

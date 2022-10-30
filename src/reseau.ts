@@ -982,9 +982,9 @@ export default class Réseau extends EventEmitter {
     const fMiseÀJour = async () => {
       await verrou.acquire("modification");
 
-      const àOublier: string[] = Object.keys(dicRelations).filter(r=>calcProfondeurCompte(r) > profondeur);
+      const àOublier: string[] = Object.keys(dicRelations).filter(r=>calcProfondeurCompte(r) >= profondeur);
       const àSuivre: string[] = [...new Set(Object.entries(dicRelations).filter(
-        ([de, _]) => calcProfondeurCompte(de) < profondeur
+        ([de, _]) => calcProfondeurCompte(de) + 1 < profondeur
       ).map(([_, info])=> info.relations.map(r=>r.idBdCompte)).flat())].filter(
         id=>!Object.keys(dicRelations).includes(id)
       );
