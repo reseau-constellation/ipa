@@ -904,7 +904,7 @@ export default class Réseau extends EventEmitter {
 
   async suivreRelationsConfiance({
     f,
-    profondeur = 0,
+    profondeur = 1,
     idCompteDébut,
   }: {
     f: schémaFonctionSuivi<infoRelation[]>;
