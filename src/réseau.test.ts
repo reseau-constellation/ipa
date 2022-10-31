@@ -1,5 +1,3 @@
-// import log from 'why-is-node-running';
-
 import isArray from "lodash/isArray";
 import fs from "fs";
 import path from "path";
@@ -64,17 +62,14 @@ typesClients.forEach((type) => {
         idNodeSFIP1 = (await client.obtIdSFIP()).id.toCID().toString();
         idNodeSFIP2 = (await client2.obtIdSFIP()).id.toCID().toString();
         idNodeSFIP3 = (await client3.obtIdSFIP()).id.toCID().toString();
-        console.log({ idNodeSFIP1, idNodeSFIP2, idNodeSFIP3 });
 
         idOrbite1 = await client.obtIdOrbite();
         idOrbite2 = await client2.obtIdOrbite();
         idOrbite3 = await client3.obtIdOrbite();
-        console.log({ idOrbite1, idOrbite2, idOrbite3 });
 
         idBdCompte1 = await client.obtIdCompte();
         idBdCompte2 = await client2.obtIdCompte();
         idBdCompte3 = await client3.obtIdCompte();
-        console.log({ idBdCompte1, idBdCompte2, idBdCompte3 });
 
         moiMême = {
           idBdCompte: idBdCompte1,
@@ -85,10 +80,6 @@ typesClients.forEach((type) => {
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
-
-        /* setTimeout(function () {
-          log() // logs out active handles that are keeping node running
-        }, 1000) */
       });
 
       describe("Suivre postes", function () {
@@ -2386,10 +2377,10 @@ typesClients.forEach((type) => {
             "ultat",
             (x?: string[]) => x && x.length === 2
           );
-          expect(isArray(rés.ultat)).toBe(true);
           expect(rés.ultat).toHaveLength(2);
           expect(rés.ultat).toEqual(expect.arrayContaining([idBd1, idBd2]));
-        });
+        }, config.patience);
+
         test("Suivre éléments des BDs", async () => {
           await attendreRésultat(
             rés,
@@ -2428,7 +2419,7 @@ typesClients.forEach((type) => {
           expect(élémentsSansId).toEqual(
             expect.arrayContaining(réf)
           );
-        });
+        }, config.patience);
       });
     });
   });
