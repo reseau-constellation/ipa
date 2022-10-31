@@ -8,7 +8,7 @@ import { createController, ControllerOptions } from "ipfsd-ctl";
 
 import { IPFS } from "ipfs-core-types";
 import wrtc from "wrtc";
-import { Noise } from "@chainsafe/libp2p-noise";
+import { noise } from "@chainsafe/libp2p-noise";
 
 const configNavigateur = import("./configNavigateur");
 // const configÉlectron = import("./configÉlectron");
@@ -44,7 +44,7 @@ const obtConfigCommun = (): { [key: string]: any } => {
           WebRTCStar: {
             // <- note the upper-case w- see https://github.com/libp2p/js-libp2p/issues/576
             wrtc,
-            connEncryption: [Noise],
+            connEncryption: [noise],
           },
         },
       },
