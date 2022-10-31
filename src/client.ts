@@ -81,7 +81,7 @@ type optsInitSFIP = {
   dossier?: string;
 };
 
-type bdOuverte<T extends Store> = { bd: T; idsRequètes: string[] };
+type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string> };
 
 type typeÉlémentsBdCompteClient = string;
 
@@ -203,7 +203,7 @@ export default class ClientConstellation extends EventEmitter {
       await Promise.all(
         Object.keys(this._bds).map(async (id) => {
           const { bd, idsRequètes } = this._bds[id];
-          if (!idsRequètes.length) {
+          if (!idsRequètes.size) {
             delete this._bds[id];
             await bd.close();
           }
@@ -1464,21 +1464,23 @@ export default class ClientConstellation extends EventEmitter {
     const existante = this._bds[id] as bdOuverte<T> | undefined;
 
     const idRequète = uuidv4();
+
     const fOublier = () => {
-      const { idsRequètes } = this._bds[id];
-      this._bds[id].idsRequètes = idsRequètes.filter(
-        (id_) => id_ !== idRequète
-      );
+      // Si la BD a été effacée entre-temps par `client.effacerBd`,
+      // elle ne sera plus disponible ici
+      if (!this._bds[id]) return;
+
+      this._bds[id].idsRequètes.delete(idRequète);
     };
 
     if (existante) {
-      this._bds[id].idsRequètes.push(idRequète);
+      this._bds[id].idsRequètes.add(idRequète);
       verrouOuvertureBd.release(id);
       return { bd: existante.bd, fOublier };
     }
     const bd = (await this.orbite!.open(id)) as T;
     await bd.load();
-    this._bds[id] = { bd, idsRequètes: [idRequète] };
+    this._bds[id] = { bd, idsRequètes: new Set([idRequète]) };
 
     // Maintenant que la BD a été créée, on peut relâcher le verrou
     verrouOuvertureBd.release(id);
@@ -1571,7 +1573,7 @@ export default class ClientConstellation extends EventEmitter {
     );
     await bd.load();
     const { id } = bd;
-    this._bds[id] = { bd, idsRequètes: [] };
+    this._bds[id] = { bd, idsRequètes: new Set() };
 
     return id;
   }
