@@ -916,6 +916,7 @@ export default class Réseau extends EventEmitter {
     const dicRelations: { [clef: string]: { relations: infoConfiance[] } }  = {};
     const dicOublierRelations: {[clef: string]: schémaFonctionOublier} = {};
     const verrou = new Semaphore()
+    let fermer = false;
 
     const connectéPar = (id: string): string[] => {
       return Object.entries(dicRelations).filter(
@@ -980,6 +981,7 @@ export default class Réseau extends EventEmitter {
     }
 
     const fMiseÀJour = async () => {
+      if (fermer) return;
       await verrou.acquire("modification");
 
       const àOublier: string[] = Object.keys(dicRelations).filter(r=>calcProfondeurCompte(r) >= profondeur);
@@ -1002,6 +1004,7 @@ export default class Réseau extends EventEmitter {
     };
 
     const fOublier = () => {
+      fermer = true;
       Object.values(dicOublierRelations).forEach(f=>f());
     }
 
@@ -1206,7 +1209,7 @@ export default class Réseau extends EventEmitter {
       const connexionsUniques = dédédoublerConnexions(connexions);
       f(
         connexionsUniques.map((c) => {
-          return { addr: c.addr.toString(), peer: c.peer.toString() };
+          return { addr: c.addr.toString(), peer: c.peer.toCID().toString() };
         })
       );
     };
