@@ -8,6 +8,7 @@ import { règleVariableAvecId, règleVariable, règleCatégorie } from "@/valid.
 
 import type { objRôles } from "@/accès/types.js";
 import type { dicTrads } from "@/utils/types";
+import { cache } from "@/décorateursCache.js";
 
 import {
   TYPES_STATUT,
@@ -40,6 +41,7 @@ export default class Variables {
     this.idBd = id;
   }
 
+  @cache
   async suivreVariables({
     f,
     idBdVariables,
@@ -446,6 +448,7 @@ export default class Variables {
     });
   }
 
+  @cache
   async suivreNomsVariable({
     id,
     f,
@@ -456,6 +459,7 @@ export default class Variables {
     return await this.client.suivreBdDicDeClef({ id, clef: "noms", f });
   }
 
+  @cache
   async suivreDescrVariable({
     id,
     f,
@@ -466,6 +470,7 @@ export default class Variables {
     return await this.client.suivreBdDicDeClef({ id, clef: "descriptions", f });
   }
 
+  @cache
   async suivreCatégorieVariable({
     id,
     f,
@@ -482,6 +487,7 @@ export default class Variables {
     });
   }
 
+  @cache
   async suivreUnitésVariable({
     id,
     f,
@@ -498,6 +504,7 @@ export default class Variables {
     });
   }
 
+  @cache
   async suivreRèglesVariable({
     id,
     f,
@@ -550,6 +557,7 @@ export default class Variables {
     return fOublier;
   }
 
+  @cache
   async suivreQualitéVariable({
     id,
     f,
