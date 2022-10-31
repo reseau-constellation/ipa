@@ -61,9 +61,9 @@ typesClients.forEach((type) => {
 
         enregistrerContrôleurs();
 
-        idNodeSFIP1 = (await client.obtIdSFIP()).id.toString();
-        idNodeSFIP2 = (await client2.obtIdSFIP()).id.toString();
-        idNodeSFIP3 = (await client3.obtIdSFIP()).id.toString();
+        idNodeSFIP1 = (await client.obtIdSFIP()).id.toCID().toString();
+        idNodeSFIP2 = (await client2.obtIdSFIP()).id.toCID().toString();
+        idNodeSFIP3 = (await client3.obtIdSFIP()).id.toCID().toString();
         console.log({ idNodeSFIP1, idNodeSFIP2, idNodeSFIP3 });
 
         idOrbite1 = await client.obtIdOrbite();
@@ -91,7 +91,7 @@ typesClients.forEach((type) => {
         }, 1000) */
       });
 
-      describe.skip("Suivre postes", function () {
+      describe("Suivre postes", function () {
         const rés: { ultat: { addr: string; peer: string }[] | undefined } = {
           ultat: undefined,
         };
@@ -114,7 +114,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre dispositifs en ligne", function () {
+      describe("Suivre dispositifs en ligne", function () {
         const dis: { positifs?: statutDispositif[] } = {};
         let fOublier: schémaFonctionOublier;
 
@@ -140,7 +140,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre membres en ligne", function () {
+      describe("Suivre membres en ligne", function () {
         const rés: { ultat?: statutMembre[] } = {};
         let fOublier: schémaFonctionOublier;
 
@@ -211,7 +211,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Membres fiables", function () {
+      describe("Membres fiables", function () {
         const fiables: { propres?: string[]; autre?: string[] } = {};
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -272,7 +272,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Membres bloqués", function () {
+      describe("Membres bloqués", function () {
         const bloqués: {
           tous?: infoBloqué[];
           publiques?: string[];
@@ -400,7 +400,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre relations immédiates", function () {
+      describe("Suivre relations immédiates", function () {
         let idMotClef1: string;
         let idMotClef2: string;
         let idBd: string;
@@ -716,7 +716,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre relations confiance", function () {
+      describe("Suivre relations confiance", function () {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
         const rés: { ultat?: infoRelation[] } = {};
@@ -725,7 +725,7 @@ typesClients.forEach((type) => {
           ({ fOublier, fChangerProfondeur } =
             await client.réseau!.suivreRelationsConfiance({
               f: (r) => (rés.ultat = r),
-              profondeur: 1,
+              profondeur: 2,
             }));
         });
 
@@ -745,7 +745,7 @@ typesClients.forEach((type) => {
               de: idBdCompte1,
               pour: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
           ];
           await client.réseau!.faireConfianceAuMembre({
@@ -761,13 +761,13 @@ typesClients.forEach((type) => {
               de: idBdCompte1,
               pour: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               de: idBdCompte2,
               pour: idBdCompte3,
               confiance: 1,
-              profondeur: 1,
+              profondeur: 2,
             },
           ];
           await client2.réseau!.faireConfianceAuMembre({
@@ -786,10 +786,10 @@ typesClients.forEach((type) => {
                 de: idBdCompte1,
                 pour: idBdCompte2,
                 confiance: 1,
-                profondeur: 0,
+                profondeur: 1,
               },
             ];
-            fChangerProfondeur(0);
+            fChangerProfondeur(1);
             await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
             expect(rés.ultat).toEqual(réf);
           }
@@ -801,17 +801,17 @@ typesClients.forEach((type) => {
               de: idBdCompte1,
               pour: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               de: idBdCompte2,
               pour: idBdCompte3,
               confiance: 1,
-              profondeur: 1,
+              profondeur: 2,
             },
           ];
 
-          fChangerProfondeur(1);
+          fChangerProfondeur(2);
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
           expect(rés.ultat).toEqual(réf);
@@ -850,7 +850,7 @@ typesClients.forEach((type) => {
           await client.réseau!.débloquerMembre({
             idBdCompte: idBdCompte2,
           });
-        });
+        }, config.patience);
 
         test("Relations confiance immédiates", async () => {
           const réf: infoMembreRéseau[] = [
@@ -888,7 +888,7 @@ typesClients.forEach((type) => {
 
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 2);
           expect(rés.ultat).toEqual(expect.arrayContaining(réf));
-        });
+        }, config.patience);
         test("Relations confiance directes et indirectes", async () => {
           const réf: infoMembreRéseau[] = [
             moiMême,
@@ -1101,7 +1101,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre comptes réseau et en ligne", function () {
+      describe("Suivre comptes réseau et en ligne", function () {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
@@ -1111,8 +1111,19 @@ typesClients.forEach((type) => {
           ({ fOublier, fChangerProfondeur } =
             await client.réseau!.suivreComptesRéseauEtEnLigne({
               f: (c) => (rés.ultat = c),
-              profondeur: 1,
+              profondeur: 2,
             }));
+
+          await attendreRésultat(
+            rés,
+            "ultat",
+            (x) =>
+              !!x &&
+              x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
+                0 &&
+              x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
+                0
+          );
         });
 
         afterAll(async () => {
@@ -1132,12 +1143,12 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 0,
-              profondeur: -1,
+              profondeur: Infinity,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: 0,
-              profondeur: -1,
+              profondeur: Infinity,
             },
           ];
 
@@ -1151,12 +1162,12 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: 0,
-              profondeur: -1,
+              profondeur: Infinity,
             },
           ];
 
@@ -1169,7 +1180,9 @@ typesClients.forEach((type) => {
             (x) =>
               !!x &&
               x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
-                1
+                1 &&
+                x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
+                  0
           );
 
           expect(rés.ultat).toEqual(expect.arrayContaining(réf));
@@ -1193,15 +1206,15 @@ typesClients.forEach((type) => {
             {
               idBdCompte: idBdCompte2,
               confiance: 1,
-              profondeur: 0,
+              profondeur: 1,
             },
             {
               idBdCompte: idBdCompte3,
               confiance: 0,
-              profondeur: -1,
+              profondeur: Infinity,
             },
           ];
-          fChangerProfondeur(0);
+          fChangerProfondeur(1);
           await attendreRésultat(
             rés,
             "ultat",
@@ -1215,7 +1228,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre confiance mon réseau pour membre", function () {
+      describe("Suivre confiance mon réseau pour membre", function () {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
@@ -1256,12 +1269,12 @@ typesClients.forEach((type) => {
         });
 
         test("Changer profondeur", async () => {
-          fChangerProfondeur(0);
+          fChangerProfondeur(1);
           await attendreRésultat(rés, "ultat", (x) => x === 0);
         });
       });
 
-      describe.skip("Suivre confiance auteurs", function () {
+      describe("Suivre confiance auteurs", function () {
         let fOublier: schémaFonctionOublier;
         let idMotClef: string;
 
@@ -1332,8 +1345,8 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Auteurs", function () {
-        describe.skip("Mots-clefs", function () {
+      describe("Auteurs", function () {
+        describe("Mots-clefs", function () {
           let idMotClef: string;
           let fOublier: schémaFonctionOublier;
 
@@ -1444,7 +1457,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.skip("Variables", function () {
+        describe("Variables", function () {
           let idVariable: string;
           let fOublier: schémaFonctionOublier;
 
@@ -1555,7 +1568,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.skip("Bds", function () {
+        describe("Bds", function () {
           let idBd: string;
           let fOublier: schémaFonctionOublier;
 
@@ -1666,7 +1679,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.skip("Projets", function () {
+        describe("Projets", function () {
           let idProjet: string;
           let fOublier: schémaFonctionOublier;
 
@@ -1776,7 +1789,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre noms membre", function () {
+      describe("Suivre noms membre", function () {
         const rés: { ultat: { [key: string]: string } | undefined } = {
           ultat: undefined,
         };
@@ -1800,7 +1813,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre courriel membre", function () {
+      describe("Suivre courriel membre", function () {
         const rés: { ultat: string | null | undefined } = {
           ultat: undefined,
         };
@@ -1828,7 +1841,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre image membre", function () {
+      describe("Suivre image membre", function () {
         const rés: { ultat: Uint8Array | undefined | null } = {
           ultat: undefined,
         };
@@ -1860,7 +1873,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre mots-clefs", function () {
+      describe("Suivre mots-clefs", function () {
         let idMotClef1: string;
         let idMotClef2: string;
 
@@ -1904,7 +1917,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre variables", function () {
+      describe("Suivre variables", function () {
         let idVariable1: string;
         let idVariable2: string;
 
@@ -1952,7 +1965,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre BDs", function () {
+      describe("Suivre BDs", function () {
         const rés: { propres?: string[]; autres?: string[] } = {};
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1989,7 +2002,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre projets", function () {
+      describe("Suivre projets", function () {
         const rés: { propres?: string[]; autres?: string[] } = {};
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -2026,7 +2039,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre favoris", function () {
+      describe("Suivre favoris", function () {
         let idMotClef: string;
 
         const rés: {
@@ -2095,7 +2108,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre favoris objet", function () {
+      describe("Suivre favoris objet", function () {
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
 
@@ -2169,7 +2182,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre réplications", function () {
+      describe("Suivre réplications", function () {
         let idBd: string;
 
         const rés: { ultat?: infoRéplications } = {
@@ -2238,7 +2251,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre BD par mot-clef unique", function () {
+      describe("Suivre BD par mot-clef unique", function () {
         let motClef: string;
         let idBd1: string;
         let idBd2: string;
@@ -2361,58 +2374,59 @@ typesClients.forEach((type) => {
             idTableau: idTableau2,
             vals: données3,
           });
-        });
+        }, config.patience);
 
         afterAll(async () => {
           fsOublier.forEach((f) => f());
         });
 
         test("Suivre BDs du réseau", async () => {
-          /*await attendreRésultat(
+          await attendreRésultat(
             rés,
             "ultat",
             (x?: string[]) => x && x.length === 2
-          );*/
+          );
           expect(isArray(rés.ultat)).toBe(true);
           expect(rés.ultat).toHaveLength(2);
           expect(rés.ultat).toEqual(expect.arrayContaining([idBd1, idBd2]));
         });
         test("Suivre éléments des BDs", async () => {
-          /*await attendreRésultat(
+          await attendreRésultat(
             rés,
             "ultat2",
-            (x?: string[]) => x && x.length === 3
-          );*/
+            (x?: élémentDeMembre<élémentBdListeDonnées>[]) => x && x.length === 3
+          );
           const élémentsSansId = rés.ultat2!.map((r) => {
             delete r.élément.données.id;
             return r;
           });
-          expect(isArray(élémentsSansId)).toBe(true);
-          expect(élémentsSansId).toHaveLength(3);
+
+          const réf: élémentDeMembre<élémentBdListeDonnées>[] = [
+            {
+              idBdCompte: idBdCompte1,
+              élément: {
+                empreinte: empreinte1,
+                données: données1,
+              },
+            },
+            {
+              idBdCompte: idBdCompte1,
+              élément: {
+                empreinte: empreinte2,
+                données: données2,
+              },
+            },
+            {
+              idBdCompte: idBdCompte2,
+              élément: {
+                empreinte: empreinte3,
+                données: données3,
+              },
+            },
+          ]
+
           expect(élémentsSansId).toEqual(
-            expect.arrayContaining([
-              {
-                idBdAuteur: idBdCompte1,
-                élément: {
-                  empreinte: empreinte1,
-                  données: données1,
-                },
-              },
-              {
-                idBdAuteur: idBdCompte1,
-                élément: {
-                  empreinte: empreinte2,
-                  données: données2,
-                },
-              },
-              {
-                idBdAuteur: idBdCompte2,
-                élément: {
-                  empreinte: empreinte3,
-                  données: données3,
-                },
-              },
-            ])
+            expect.arrayContaining(réf)
           );
         });
       });
