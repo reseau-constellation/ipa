@@ -108,8 +108,8 @@ export default class Épingles {
           );
 
           cids.forEach((id_) => {
-            // pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
-            // (sinon ça bloquerait tout le programme en attendant de trouver le contenu sur le réseau SFIP !)
+            // Pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
+            // (Sinon ça bloquerait tout le programme en attendant de trouver le contenu sur le réseau SFIP !)
             this.client.sfip!.pin.add(id_);
 
             const fOublier_ = async () => {
@@ -117,7 +117,7 @@ export default class Épingles {
               try {
                 await this.client.sfip!.pin.rm(id_);
               } catch {
-                // ignorer erreur si id_ n'était pas épinglé sur SFIP
+                // Ignorer erreur si id_ n'était pas épinglé sur SFIP
               }
             };
             this.requètes.push({ id: id_, parent: id, fOublier: fOublier_ });
@@ -151,6 +151,6 @@ export default class Épingles {
   }
 
   async fermer(): Promise<void> {
-    Object.values(this.fsOublier).map(async (f) => f());
+    Object.values(this.fsOublier).forEach(f => f());
   }
 }
