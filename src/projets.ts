@@ -177,19 +177,19 @@ export default class Projets {
     return idNouveauProjet;
   }
 
-  async ajouterÀMesProjets(id: string): Promise<void> {
+  async ajouterÀMesProjets({idProjet}: {idProjet: string}): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
     >({ id: this.idBd });
-    await bdRacine.add(id);
+    await bdRacine.add(idProjet);
     fOublier();
   }
 
-  async enleverDeMesProjets(id: string): Promise<void> {
+  async enleverDeMesProjets({idProjet}: {idProjet: string}): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
     >({ id: this.idBd });
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
+    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idProjet });
     fOublier();
   }
 

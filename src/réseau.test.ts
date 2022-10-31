@@ -1726,7 +1726,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await client2.projets!.ajouterÀMesProjets(idProjet);
+            await client2.projets!.ajouterÀMesProjets({idProjet});
             await attendreRésultat(rés, "ultat", (x) =>
               Boolean(
                 !!x &&
@@ -1750,7 +1750,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await client2.projets!.enleverDeMesProjets(idProjet);
+            await client2.projets!.enleverDeMesProjets({idProjet});
             await attendreRésultat(
               rés,
               "ultat",
