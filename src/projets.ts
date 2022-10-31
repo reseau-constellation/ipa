@@ -782,7 +782,7 @@ export default class Projets {
 
   async effacerProjet({ id }: { id: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de projets
-    await this.enleverDeMesProjets(id);
+    await this.enleverDeMesProjets({ idProjet: id });
 
     // Et puis maintenant aussi effacer les données et le projet lui-même
     const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
