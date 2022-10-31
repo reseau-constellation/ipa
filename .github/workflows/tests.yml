@@ -20,7 +20,7 @@ jobs:
         run: npm install -g pnpm
 
       - name: Nétoyer les dépendances d'installation
-        run: pnpm install
+        run: pnpm install --lockfile=false
 
       - name: Vérifier les tests
         run: pnpm couverture:tous
