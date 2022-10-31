@@ -6,7 +6,10 @@ import { IdentityProvider } from "orbit-db-identity-provider";
 import AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
 import { v4 as uuidv4 } from "uuid";
 
-import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
+import type {
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
+} from "@/utils/index.js";
 import GestionnaireAccès, {
   suivreBdAccès,
 } from "@/accès/gestionnaireUtilisateurs.js";

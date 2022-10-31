@@ -151,6 +151,6 @@ export default class Épingles {
   }
 
   async fermer(): Promise<void> {
-    Object.values(this.fsOublier).forEach(f => f());
+    Object.values(this.fsOublier).forEach((f) => f());
   }
 }

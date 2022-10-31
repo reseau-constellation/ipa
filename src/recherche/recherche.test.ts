@@ -125,15 +125,19 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          test("Moins de résultats que demandé s'il n'y a vraiment rien", async () => {
-            await client2.profil!.sauvegarderNom({
-              langue: "fr",
-              nom: "Julien",
-            });
+          test(
+            "Moins de résultats que demandé s'il n'y a vraiment rien",
+            async () => {
+              await client2.profil!.sauvegarderNom({
+                langue: "fr",
+                nom: "Julien",
+              });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réfClient2]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réfClient2]);
+            },
+            config.patience
+          );
 
           test("On suit les changements", async () => {
             await client3.profil!.sauvegarderNom({
@@ -170,7 +174,7 @@ typesClients.forEach((type) => {
             ({ fOublier } =
               await client.recherche!.rechercherProfilSelonCourriel({
                 courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-                f: (membres) => rés.ultat = membres,
+                f: (membres) => (rés.ultat = membres),
                 nRésultatsDésirés: 2,
               }));
             réfClient2 = {
@@ -1145,37 +1149,41 @@ typesClients.forEach((type) => {
             if (fOublier) fOublier();
           });
 
-          test("Changement nom bd détecté", async () => {
-            const réf: résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            > = {
-              id: idProjet,
-              résultatObjectif: {
-                score: 0,
-                type: "résultat",
-                de: "bd",
-                clef: idBd,
-                info: {
+          test(
+            "Changement nom bd détecté",
+            async () => {
+              const réf: résultatRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              > = {
+                id: idProjet,
+                résultatObjectif: {
+                  score: 0,
                   type: "résultat",
-                  de: "nom",
-                  clef: "es",
+                  de: "bd",
+                  clef: idBd,
                   info: {
-                    type: "texte",
-                    texte: nouveauNom,
-                    début: 0,
-                    fin: nouveauNom.length,
+                    type: "résultat",
+                    de: "nom",
+                    clef: "es",
+                    info: {
+                      type: "texte",
+                      texte: nouveauNom,
+                      début: 0,
+                      fin: nouveauNom.length,
+                    },
                   },
                 },
-              },
-            };
-            await client2.bds!.ajouterNomsBd({
-              id: idBd,
-              noms: { es: "Mi base de datos meteorológicos" },
-            });
+              };
+              await client2.bds!.ajouterNomsBd({
+                id: idBd,
+                noms: { es: "Mi base de datos meteorológicos" },
+              });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
-          });
+              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+              vérifierRecherche(rés.ultat!, [réf]);
+            },
+            config.patience
+          );
         });
 
         describe("tous", () => {
@@ -1222,7 +1230,7 @@ typesClients.forEach((type) => {
 });
 
 typesClients.forEach((type) => {
-  describe.skip("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("Test fonctionnalités recherche", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];

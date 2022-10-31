@@ -652,13 +652,14 @@ typesClients.forEach((type) => {
             >
           | undefined;
 
-        const résultat: {MotClef?:
-          | résultatObjectifRecherche<
-              | infoRésultatTexte
-              | infoRésultatRecherche<
-                  infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-                >
-            >} = {};
+        const résultat: {
+          MotClef?: résultatObjectifRecherche<
+            | infoRésultatTexte
+            | infoRésultatRecherche<
+                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+              >
+          >;
+        } = {};
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -811,7 +812,7 @@ typesClients.forEach((type) => {
             type: "résultat",
             de: "bd",
             clef: idBd,
-            info:  {
+            info: {
               type: "résultat",
               clef: idVariable,
               de: "variable",

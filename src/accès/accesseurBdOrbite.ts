@@ -44,7 +44,6 @@ export class AccesseurBdOrbite {
     idBd: string,
     idRequète: string
   ): Promise<void> {
-
     const idBdEtOrbite = this._obtClef(orbite, idBd);
     verrouOuvertureBd.acquire(idBdEtOrbite);
 
@@ -61,7 +60,7 @@ export class AccesseurBdOrbite {
   _obtClef(orbite: OrbitDB, idBd: string): string {
     const idOrbite = orbite.identity.id;
     const idBdEtOrbite = idBd + idOrbite;
-    return idBdEtOrbite
+    return idBdEtOrbite;
   }
 }
 

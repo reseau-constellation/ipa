@@ -429,7 +429,8 @@ export default class ClientConstellation extends EventEmitter {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBdCompte });
     const accès = bd.access as unknown as ContrôleurConstellation;
     const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
-      (autorisés: string[]) =>  (autorisé = autorisés.includes(this.orbite!.identity.id))
+      (autorisés: string[]) =>
+        (autorisé = autorisés.includes(this.orbite!.identity.id))
     );
     await new Promise<void>((résoudre) => {
       const vérifierSiAutorisé = () => {
@@ -694,7 +695,7 @@ export default class ClientConstellation extends EventEmitter {
   }): Promise<schémaFonctionOublier> {
     const fsOublier: schémaFonctionOublier[] = [];
 
-    this.ouvrirBd<T>({ id }).then(({ bd, fOublier })=>{
+    this.ouvrirBd<T>({ id }).then(({ bd, fOublier }) => {
       fsOublier.push(fOublier);
 
       const fFinale = () => f(bd);
@@ -715,7 +716,7 @@ export default class ClientConstellation extends EventEmitter {
     });
 
     const oublier = () => {
-      fsOublier.forEach(f => f());
+      fsOublier.forEach((f) => f());
     };
     return oublier;
   }

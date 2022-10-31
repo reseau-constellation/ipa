@@ -6,7 +6,10 @@ import {
   ProxyClientConstellation,
 } from "@/proxy/proxy.js";
 
-import { MessageDeTravailleur, MessagePourTravailleur } from "@/proxy/messages.js";
+import {
+  MessageDeTravailleur,
+  MessagePourTravailleur,
+} from "@/proxy/messages.js";
 
 export class ProxyClientTravailleur extends ClientProxifiable {
   travailleur: Worker;

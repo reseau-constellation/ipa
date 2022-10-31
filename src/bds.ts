@@ -63,7 +63,10 @@ export type infoTableau = {
   position: number;
 };
 
-export type différenceBds = différenceBDTableauExtra | différenceBDTableauManquant | différenceTableauxBds;
+export type différenceBds =
+  | différenceBDTableauExtra
+  | différenceBDTableauManquant
+  | différenceTableauxBds;
 
 export type différenceBDTableauManquant = {
   clefManquante: string;

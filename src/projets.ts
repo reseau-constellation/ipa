@@ -177,7 +177,7 @@ export default class Projets {
     return idNouveauProjet;
   }
 
-  async ajouterÀMesProjets({idProjet}: {idProjet: string}): Promise<void> {
+  async ajouterÀMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
     >({ id: this.idBd });
@@ -185,11 +185,14 @@ export default class Projets {
     fOublier();
   }
 
-  async enleverDeMesProjets({idProjet}: {idProjet: string}): Promise<void> {
+  async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
     >({ id: this.idBd });
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idProjet });
+    await this.client.effacerÉlémentDeBdListe({
+      bd: bdRacine,
+      élément: idProjet,
+    });
     fOublier();
   }
 

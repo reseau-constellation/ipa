@@ -147,26 +147,30 @@ typesClients.forEach((type) => {
           });
         });
 
-        test("Ajouter un favori avec fichiers", async () => {
-          const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ";
+        test(
+          "Ajouter un favori avec fichiers",
+          async () => {
+            const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ";
 
-          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
-          const idVarPhoto = await client.variables!.créerVariable({
-            catégorie: "photo",
-          });
-          const idColPhoto = await client.tableaux!.ajouterColonneTableau({
-            idTableau,
-            idVariable: idVarPhoto,
-          });
-          await client.tableaux!.ajouterÉlément({
-            idTableau,
-            vals: {
-              [idColPhoto]: idc,
-            },
-          });
+            const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+            const idVarPhoto = await client.variables!.créerVariable({
+              catégorie: "photo",
+            });
+            const idColPhoto = await client.tableaux!.ajouterColonneTableau({
+              idTableau,
+              idVariable: idVarPhoto,
+            });
+            await client.tableaux!.ajouterÉlément({
+              idTableau,
+              vals: {
+                [idColPhoto]: idc,
+              },
+            });
 
-          expect(client.épingles!.épinglée({ id: idc }));
-        }, config.patience);
+            expect(client.épingles!.épinglée({ id: idc }));
+          },
+          config.patience
+        );
       });
     });
   });

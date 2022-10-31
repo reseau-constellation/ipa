@@ -56,32 +56,28 @@ typesClients.forEach((type) => {
       });
 
       describe("Création", () => {
-        let accès: boolean
+        let accès: boolean;
 
         const fsOublier: schémaFonctionOublier[] = [];
 
-        beforeAll(
-          async () => {
-            idTableau = await client.tableaux!.créerTableau({ idBd });
-            fsOublier.push(
-              await client.suivrePermissionÉcrire({
-                id: idTableau,
-                f: x => accès = x
-              })
-            )
-          },
-          config.patience
-        );
-        afterAll(()=>{
-          fsOublier.forEach(f=>f());
-        })
+        beforeAll(async () => {
+          idTableau = await client.tableaux!.créerTableau({ idBd });
+          fsOublier.push(
+            await client.suivrePermissionÉcrire({
+              id: idTableau,
+              f: (x) => (accès = x),
+            })
+          );
+        }, config.patience);
+        afterAll(() => {
+          fsOublier.forEach((f) => f());
+        });
         test("Créé", () => {
           expect(adresseOrbiteValide(idTableau)).toBe(true);
-        })
+        });
         test("Accès", async () => {
           expect(accès).toBe(true);
-        }
-      )
+        });
       });
 
       describe("Noms", function () {
@@ -1292,16 +1288,15 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreNomsTableau({
               idTableau: idTableauCopieLié,
-              f: (x) => (nomsTableauLié = x)
+              f: (x) => (nomsTableauLié = x),
             })
-          )
+          );
           fsOublier.push(
             await client.tableaux!.suivreRègles({
               idTableau: idTableauCopieLié,
-              f: (x) => règlesTableauLié = x
+              f: (x) => (règlesTableauLié = x),
             })
-          )
-
+          );
         }, config.patience * 2);
 
         afterAll(async () => {
@@ -1377,18 +1372,17 @@ typesClients.forEach((type) => {
               type: "fixe",
               val: 100,
               op: "<",
-            }
-          }
-          const réfRèglesTableauLié: règleBornes[] = [
-            règle,
-            nouvelleRègle
-          ];
+            },
+          };
+          const réfRèglesTableauLié: règleBornes[] = [règle, nouvelleRègle];
           await client.tableaux!.ajouterRègleTableau({
             idTableau,
             idColonne,
             règle: nouvelleRègle,
           });
-          expect(règlesTableauLié.map(r=>r.règle.règle)).toEqual(expect.arrayContaining(réfRèglesTableauLié));
+          expect(règlesTableauLié.map((r) => r.règle.règle)).toEqual(
+            expect.arrayContaining(réfRèglesTableauLié)
+          );
         });
       });
 

@@ -16,7 +16,12 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 
-import { générerClients, peutÉcrire, attendreRésultat, clientsConnectés } from "@/utilsTests";
+import {
+  générerClients,
+  peutÉcrire,
+  attendreRésultat,
+  clientsConnectés,
+} from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation";
 
@@ -121,7 +126,6 @@ describe("Client Constellation", function () {
         await client.ajouterDispositif({ idOrbite: idOrbite3 });
         await client3.rejoindreCompte({ idBdCompte: idbdCompte1 });
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
-
       }, config.patienceInit);
 
       test("Mes dispositifs sont mis à jour", async () => {
@@ -1454,68 +1458,72 @@ describe("Client Constellation", function () {
       config.patience * 2
     );
 
-    test("Combiner BD liste récursif", async () => {
-      const idBdListe1 = await client.créerBdIndépendante({ type: "feed" });
-      const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
+    test(
+      "Combiner BD liste récursif",
+      async () => {
+        const idBdListe1 = await client.créerBdIndépendante({ type: "feed" });
+        const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
-      const { bd: bdListe1, fOublier: fOublierBdListe1 } =
-        await client.ouvrirBd<FeedStore<{ indexe: number; idBd: string }>>({
-          id: idBdListe1,
+        const { bd: bdListe1, fOublier: fOublierBdListe1 } =
+          await client.ouvrirBd<FeedStore<{ indexe: number; idBd: string }>>({
+            id: idBdListe1,
+          });
+        const { bd: bdListe2, fOublier: fOublierBdListe2 } =
+          await client.ouvrirBd<FeedStore<{ indexe: number; idBd: string }>>({
+            id: idBdListe2,
+          });
+
+        fsOublier.push(fOublierBdListe1);
+        fsOublier.push(fOublierBdListe2);
+
+        const idSubBd1 = await client.créerBdIndépendante({ type: "feed" });
+        const idSubBd2 = await client.créerBdIndépendante({ type: "feed" });
+
+        const { bd: subBd1, fOublier: fOublierSubBd1 } = await client.ouvrirBd<
+          FeedStore<number>
+        >({ id: idSubBd1 });
+        const { bd: subBd2, fOublier: fOublierSubBd2 } = await client.ouvrirBd<
+          FeedStore<number>
+        >({ id: idSubBd2 });
+
+        fsOublier.push(fOublierSubBd1);
+        fsOublier.push(fOublierSubBd2);
+
+        await subBd1.add(1);
+        await subBd2.add(1);
+        await subBd2.add(2);
+
+        type élément = { indexe: number; idBd: string };
+        await bdListe1.add({ indexe: 1, idBd: idSubBd1 });
+        await bdListe2.add({ indexe: 1, idBd: idSubBd2 });
+
+        await client.combinerBdsListe({
+          bdBase: bdListe1,
+          bd2: bdListe2,
+          index: ["indexe"],
         });
-      const { bd: bdListe2, fOublier: fOublierBdListe2 } =
-        await client.ouvrirBd<FeedStore<{ indexe: number; idBd: string }>>({
-          id: idBdListe2,
+
+        const donnéesBdListe: élément[] =
+          ClientConstellation.obtÉlémentsDeBdListe({ bd: bdListe1 });
+        expect(isArray(donnéesBdListe)).toBe(true);
+        expect(donnéesBdListe).toHaveLength(1);
+
+        const idBdListeFinale = donnéesBdListe[0]!.idBd;
+        const { bd: subBdFinale, fOublier: fOublierSubBdFinale } =
+          await client.ouvrirBd<FeedStore<number>>({ id: idBdListeFinale });
+
+        fsOublier.push(fOublierSubBdFinale);
+
+        const données = ClientConstellation.obtÉlémentsDeBdListe({
+          bd: subBdFinale,
         });
 
-      fsOublier.push(fOublierBdListe1);
-      fsOublier.push(fOublierBdListe2);
-
-      const idSubBd1 = await client.créerBdIndépendante({ type: "feed" });
-      const idSubBd2 = await client.créerBdIndépendante({ type: "feed" });
-
-      const { bd: subBd1, fOublier: fOublierSubBd1 } = await client.ouvrirBd<
-        FeedStore<number>
-      >({ id: idSubBd1 });
-      const { bd: subBd2, fOublier: fOublierSubBd2 } = await client.ouvrirBd<
-        FeedStore<number>
-      >({ id: idSubBd2 });
-
-      fsOublier.push(fOublierSubBd1);
-      fsOublier.push(fOublierSubBd2);
-
-      await subBd1.add(1);
-      await subBd2.add(1);
-      await subBd2.add(2);
-
-      type élément = { indexe: number; idBd: string };
-      await bdListe1.add({ indexe: 1, idBd: idSubBd1 });
-      await bdListe2.add({ indexe: 1, idBd: idSubBd2 });
-
-      await client.combinerBdsListe({
-        bdBase: bdListe1,
-        bd2: bdListe2,
-        index: ["indexe"],
-      });
-
-      const donnéesBdListe: élément[] =
-        ClientConstellation.obtÉlémentsDeBdListe({ bd: bdListe1 });
-      expect(isArray(donnéesBdListe)).toBe(true);
-      expect(donnéesBdListe).toHaveLength(1);
-
-      const idBdListeFinale = donnéesBdListe[0]!.idBd;
-      const { bd: subBdFinale, fOublier: fOublierSubBdFinale } =
-        await client.ouvrirBd<FeedStore<number>>({ id: idBdListeFinale });
-
-      fsOublier.push(fOublierSubBdFinale);
-
-      const données = ClientConstellation.obtÉlémentsDeBdListe({
-        bd: subBdFinale,
-      });
-
-      expect(isArray(données)).toBe(true);
-      expect(données).toHaveLength(2);
-      expect(données).toEqual(expect.arrayContaining([1, 2]));
-    }, config.patience);
+        expect(isArray(données)).toBe(true);
+        expect(données).toHaveLength(2);
+        expect(données).toEqual(expect.arrayContaining([1, 2]));
+      },
+      config.patience
+    );
   });
 
   describe("Effacer BD", function () {
@@ -1584,11 +1592,15 @@ describe("Client Constellation", function () {
       expect(rés.ultat).toBeUndefined();
     });
 
-    test("On détecte l'ajout d'une permission membre", async () => {
-      await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
-      await attendreRésultat(rés, "ultat");
-      expect(rés.ultat).toEqual(MEMBRE);
-    }, config.patience);
+    test(
+      "On détecte l'ajout d'une permission membre",
+      async () => {
+        await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
+        await attendreRésultat(rés, "ultat");
+        expect(rés.ultat).toEqual(MEMBRE);
+      },
+      config.patience
+    );
 
     test("Le nouveau membre peut modifier la BD", async () => {
       const { bd, fOublier } = await client2.ouvrirBd<KeyValueStore<number>>({
@@ -1601,15 +1613,19 @@ describe("Client Constellation", function () {
       expect(permission).toBe(true);
     });
 
-    test("On détecte l'ajout d'une permission modératrice", async () => {
-      await client.donnerAccès({
-        idBd,
-        identité: idbdCompte2,
-        rôle: MODÉRATEUR,
-      });
-      await attendreRésultat(rés, "ultat", MODÉRATEUR);
-      expect(rés.ultat).toEqual(MODÉRATEUR);
-    }, config.patience);
+    test(
+      "On détecte l'ajout d'une permission modératrice",
+      async () => {
+        await client.donnerAccès({
+          idBd,
+          identité: idbdCompte2,
+          rôle: MODÉRATEUR,
+        });
+        await attendreRésultat(rés, "ultat", MODÉRATEUR);
+        expect(rés.ultat).toEqual(MODÉRATEUR);
+      },
+      config.patience
+    );
   });
 
   describe("Suivre accès et permissions BD", function () {
@@ -1658,30 +1674,38 @@ describe("Client Constellation", function () {
       if (fOublierÉcrire) fOublierÉcrire();
       if (fOublierPermission) fOublierPermission();
     });
-    test("On détecte l'ajout d'une permission membre", async () => {
-      await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
-      await attendreRésultat(résultatPermission, "permission", MEMBRE);
+    test(
+      "On détecte l'ajout d'une permission membre",
+      async () => {
+        await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
+        await attendreRésultat(résultatPermission, "permission", MEMBRE);
 
-      const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
-      expect(infoInvité?.rôle).toEqual(MEMBRE);
-    }, config.patience);
+        const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
+        expect(infoInvité?.rôle).toEqual(MEMBRE);
+      },
+      config.patience
+    );
 
     test("L'invité détecte l'ajout de sa permission membre", async () => {
       expect(permissionÉcrire).toBe(true);
       expect(résultatPermission.permission).toEqual(MEMBRE);
     });
 
-    test("On détecte l'ajout d'une permission modératrice", async () => {
-      await client.donnerAccès({
-        idBd,
-        identité: idbdCompte2,
-        rôle: MODÉRATEUR,
-      });
-      await attendreRésultat(résultatPermission, "permission", MODÉRATEUR);
+    test(
+      "On détecte l'ajout d'une permission modératrice",
+      async () => {
+        await client.donnerAccès({
+          idBd,
+          identité: idbdCompte2,
+          rôle: MODÉRATEUR,
+        });
+        await attendreRésultat(résultatPermission, "permission", MODÉRATEUR);
 
-      const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
-      expect(infoInvité?.rôle).toEqual(MODÉRATEUR);
-    }, config.patience);
+        const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
+        expect(infoInvité?.rôle).toEqual(MODÉRATEUR);
+      },
+      config.patience
+    );
 
     test("L'invité détecte l'ajout de sa permission modératrice", async () => {
       expect(permissionÉcrire).toBe(true);

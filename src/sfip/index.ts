@@ -31,7 +31,7 @@ const obtConfigCommun = (): { [key: string]: any } => {
     libp2p: {
       modules: {},
       connectionManager: {
-        autoDial: false
+        autoDial: false,
       },
       config: {
         peerDiscovery: {

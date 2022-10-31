@@ -1,5 +1,8 @@
 import GestionnaireClient from "./gestionnaireClient.js";
-import type { MessageDeTravailleur, MessageErreurDeTravailleur } from "./messages";
+import type {
+  MessageDeTravailleur,
+  MessageErreurDeTravailleur,
+} from "./messages";
 
 const fMessage = (message: MessageDeTravailleur) => postMessage(message);
 

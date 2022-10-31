@@ -3,16 +3,23 @@ import FeedStore from "orbit-db-feedstore";
 import * as XLSX from "xlsx";
 import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
-import { isNode, isElectronMain} from "wherearewe";
+import { isNode, isElectronMain } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 
 import ClientConstellation from "@/client.js";
-import { schémaFonctionSuivi, schémaFonctionOublier, faisRien } from "@/utils/index.js";
-import { importerFeuilleCalculDURL, importerJSONdURL } from "@/importateur/index.js";
+import {
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
+  faisRien,
+} from "@/utils/index.js";
+import {
+  importerFeuilleCalculDURL,
+  importerJSONdURL,
+} from "@/importateur/index.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
 
-import { Readable } from 'stream';
+import { Readable } from "stream";
 XLSX.set_fs(fs);
 XLSX.stream.set_readable(Readable);
 

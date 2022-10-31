@@ -7,7 +7,11 @@ import rmrf from "rimraf";
 
 import ClientConstellation from "@/client.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx";
-import { uneFois, schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
+import {
+  uneFois,
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
+} from "@/utils/index.js";
 import {
   SpécificationAutomatisation,
   SourceDonnéesImportationURL,
@@ -146,8 +150,8 @@ typesClients.forEach((type) => {
           dirTempo = obtDirTempoPourTest("testImporterBd");
           fs.mkdirSync(dirTempo);
 
-          const idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
-          idTableau = await client.tableaux!.créerTableau({idBd: idBd});
+          const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+          idTableau = await client.tableaux!.créerTableau({ idBd: idBd });
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -849,8 +853,8 @@ typesClients.forEach((type) => {
 
           fs.mkdirSync(dir, { recursive: true });
 
-          const idBd = await client.bds!.créerBd({licence: "ODbl-1_0"});
-          idTableau = await client.tableaux!.créerTableau({idBd});
+          const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+          idTableau = await client.tableaux!.créerTableau({ idBd });
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });

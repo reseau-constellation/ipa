@@ -116,7 +116,7 @@ typesClients.forEach((type) => {
         });
 
         test("Pas de noms pour commencer", async () => {
-          await attendreQue(() => !!noms)
+          await attendreQue(() => !!noms);
           expect(Object.keys(noms)).toHaveLength(0);
         });
 

@@ -17,7 +17,7 @@ import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import ClientConstellation from "@/client.js";
 import générerProxyProc from "@/proxy/ipaProc.js";
 import générerProxyTravailleur from "@/proxy/ipaTravailleur.js";
-import { statutDispositif } from "@/reseau.js"
+import { statutDispositif } from "@/reseau.js";
 
 export * from "@/utilsTests/sfipTest.js";
 
@@ -43,43 +43,51 @@ const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
         clearInterval(interval);
         resolve();
       }
-    }
+    };
     const interval = setInterval(testAutorisé, 100);
     testAutorisé();
   });
 
-export const clientConnectéÀ = (client1: ClientConstellation, client2: ClientConstellation): Promise<void> => {
-  const verrou = new Semaphore()
-  return new Promise( async résoudre => {
+export const clientConnectéÀ = (
+  client1: ClientConstellation,
+  client2: ClientConstellation
+): Promise<void> => {
+  const verrou = new Semaphore();
+  return new Promise(async (résoudre) => {
     const fFinale = async (dispositifs: statutDispositif[]) => {
-      const connecté = !!dispositifs.find(d=>d.infoDispositif.idCompte === client2.idBdCompte);
+      const connecté = !!dispositifs.find(
+        (d) => d.infoDispositif.idCompte === client2.idBdCompte
+      );
       if (connecté) {
         await verrou.acquire("suivreConnexions");
         fOublier();
         résoudre();
       }
-    }
+    };
     await verrou.acquire("suivreConnexions");
-    const fOublier = await client1.réseau!.suivreConnexionsDispositifs({ f: fFinale });
+    const fOublier = await client1.réseau!.suivreConnexionsDispositifs({
+      f: fFinale,
+    });
     verrou.release("suivreConnexions");
-  })
-}
+  });
+};
 
-export const clientsConnectés = async (client1: ClientConstellation, client2: ClientConstellation): Promise<void> => {
+export const clientsConnectés = async (
+  client1: ClientConstellation,
+  client2: ClientConstellation
+): Promise<void> => {
   const client1ConnectéÀ2 = clientConnectéÀ(client1, client2);
   const client2ConnectéÀ1 = clientConnectéÀ(client2, client1);
-  await Promise.all([client1ConnectéÀ2, client2ConnectéÀ1])
-  return
-}
+  await Promise.all([client1ConnectéÀ2, client2ConnectéÀ1]);
+  return;
+};
 
 export const attendreSync = async (bd: Store): Promise<void> => {
   const accès = bd.access as unknown as ContrôleurConstellation;
   await once(accès.bd!.events, "peer.exchanged");
 };
 
-export const attendreQue = async (
-  f: () => boolean
-): Promise<void> => {
+export const attendreQue = async (f: () => boolean): Promise<void> => {
   return new Promise((résoudre) => {
     const vérifierPrêt = () => {
       if (f()) {
@@ -90,7 +98,7 @@ export const attendreQue = async (
     const interval = setInterval(vérifierPrêt, 10);
     vérifierPrêt();
   });
-}
+};
 
 export const attendreRésultat = async <
   T extends Record<string, unknown>,

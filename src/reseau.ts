@@ -187,7 +187,7 @@ const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
 const obtChaîneIdSFIPClient = (client: ClientConstellation): string => {
   return client.idNodeSFIP!.id.toCID().toString();
-}
+};
 
 export default class Réseau extends EventEmitter {
   client: ClientConstellation;
@@ -368,16 +368,13 @@ export default class Réseau extends EventEmitter {
     await this.envoyerMessageAuMembre({ msg, idCompte });
   }
 
-  async messageReçu({
-    msg,
-  }: {
-    msg: MessagePubSub;
-  }): Promise<void> {
+  async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
 
     const { encrypté, destinataire } = messageJSON;
 
-    if (destinataire && destinataire !== obtChaîneIdSFIPClient(this.client)) return
+    if (destinataire && destinataire !== obtChaîneIdSFIPClient(this.client))
+      return;
 
     const données: DonnéesMessage = encrypté
       ? JSON.parse(
@@ -907,39 +904,51 @@ export default class Réseau extends EventEmitter {
   }): Promise<schémaRetourFonctionRecherche> {
     idCompteDébut = idCompteDébut || this.client.idBdCompte;
 
-    const dicRelations: { [clef: string]: { relations: infoConfiance[] } }  = {};
-    const dicOublierRelations: {[clef: string]: schémaFonctionOublier} = {};
-    const verrou = new Semaphore()
+    const dicRelations: { [clef: string]: { relations: infoConfiance[] } } = {};
+    const dicOublierRelations: { [clef: string]: schémaFonctionOublier } = {};
+    const verrou = new Semaphore();
     let fermer = false;
 
     const connectéPar = (id: string): string[] => {
-      return Object.entries(dicRelations).filter(
-        ([_, info]) => info.relations.map(r=>r.idBdCompte).includes(id)
-      ).map(([de, _]) => de)
+      return Object.entries(dicRelations)
+        .filter(([_, info]) =>
+          info.relations.map((r) => r.idBdCompte).includes(id)
+        )
+        .map(([de, _]) => de);
     };
 
     const calcProfondeurCompte = (id: string): number => {
       if (id === idCompteDébut) return 0;
-      const rechercherP = ({ids, p = 1, déjàVues = new Set()}: { ids: string[], p?: number, déjàVues?: Set<string> }): number => {
-        const connexions: string[] = ids.map(id_=>connectéPar(id_).filter(x=>!déjàVues.has(x))).flat();
+      const rechercherP = ({
+        ids,
+        p = 1,
+        déjàVues = new Set(),
+      }: {
+        ids: string[];
+        p?: number;
+        déjàVues?: Set<string>;
+      }): number => {
+        const connexions: string[] = ids
+          .map((id_) => connectéPar(id_).filter((x) => !déjàVues.has(x)))
+          .flat();
         if (connexions.includes(idCompteDébut)) {
-          return p
+          return p;
         } else if (connexions.length) {
-          déjàVues = new Set(...déjàVues, ...connexions)
+          déjàVues = new Set(...déjàVues, ...connexions);
           return rechercherP({
             ids: connexions,
             p: p + 1,
-            déjàVues
-          })
+            déjàVues,
+          });
         } else {
-          return Infinity  // Indique compte qui n'est plus connecté à `idCompteDébut`
+          return Infinity; // Indique compte qui n'est plus connecté à `idCompteDébut`
         }
-      }
-      return rechercherP({ids: [id]})
-    }
+      };
+      return rechercherP({ ids: [id] });
+    };
 
     const fFinale = () => {
-      const relationsFinales: infoRelation[] = []
+      const relationsFinales: infoRelation[] = [];
       for (const [de, info] of Object.entries(dicRelations)) {
         for (const r of info.relations) {
           const p = calcProfondeurCompte(de) + 1;
@@ -947,48 +956,55 @@ export default class Réseau extends EventEmitter {
             de,
             pour: r.idBdCompte,
             confiance: r.confiance,
-            profondeur: p
-          })
+            profondeur: p,
+          });
         }
       }
-      f(relationsFinales)
-    }
+      f(relationsFinales);
+    };
 
-    const suivreRelationsImmédiates = async (idCompte: string): Promise<void> => {
-      dicRelations[idCompte] = {relations: []}
+    const suivreRelationsImmédiates = async (
+      idCompte: string
+    ): Promise<void> => {
+      dicRelations[idCompte] = { relations: [] };
       const fOublierRelationsImmédiates = await this.suivreRelationsImmédiates({
-        f: relations => {
+        f: (relations) => {
           if (dicRelations[idCompte]) {
             dicRelations[idCompte].relations = relations;
             fMiseÀJour();
           }
         },
-        idBdCompte: idCompte
-      })
-      dicOublierRelations[idCompte] = fOublierRelationsImmédiates
-    }
+        idBdCompte: idCompte,
+      });
+      dicOublierRelations[idCompte] = fOublierRelationsImmédiates;
+    };
 
     const oublierRelationsImmédiates = (idCompte: string): void => {
       dicOublierRelations[idCompte]();
       delete dicOublierRelations[idCompte];
       delete dicRelations[idCompte];
-    }
+    };
 
     const fMiseÀJour = async () => {
       if (fermer) return;
       await verrou.acquire("modification");
 
-      const àOublier: string[] = Object.keys(dicRelations).filter(r=>calcProfondeurCompte(r) >= profondeur);
-      const àSuivre: string[] = [...new Set(Object.entries(dicRelations).filter(
-        ([de, _]) => calcProfondeurCompte(de) + 1 < profondeur
-      ).map(([_, info])=> info.relations.map(r=>r.idBdCompte)).flat())].filter(
-        id=>!Object.keys(dicRelations).includes(id)
+      const àOublier: string[] = Object.keys(dicRelations).filter(
+        (r) => calcProfondeurCompte(r) >= profondeur
       );
-      àOublier.forEach(id=>oublierRelationsImmédiates(id));
-      await Promise.all(àSuivre.map(id=>suivreRelationsImmédiates(id)));
+      const àSuivre: string[] = [
+        ...new Set(
+          Object.entries(dicRelations)
+            .filter(([de, _]) => calcProfondeurCompte(de) + 1 < profondeur)
+            .map(([_, info]) => info.relations.map((r) => r.idBdCompte))
+            .flat()
+        ),
+      ].filter((id) => !Object.keys(dicRelations).includes(id));
+      àOublier.forEach((id) => oublierRelationsImmédiates(id));
+      await Promise.all(àSuivre.map((id) => suivreRelationsImmédiates(id)));
       fFinale();
-      verrou.release("modification")
-    }
+      verrou.release("modification");
+    };
 
     await suivreRelationsImmédiates(idCompteDébut);
 
@@ -999,8 +1015,8 @@ export default class Réseau extends EventEmitter {
 
     const fOublier = () => {
       fermer = true;
-      Object.values(dicOublierRelations).forEach(f=>f());
-    }
+      Object.values(dicOublierRelations).forEach((f) => f());
+    };
 
     return { fOublier, fChangerProfondeur };
   }
@@ -1159,7 +1175,6 @@ export default class Réseau extends EventEmitter {
     profondeur?: number;
     idBdCompteRéférence?: string;
   }): Promise<schémaRetourFonctionRecherche> {
-
     idBdCompteRéférence = idBdCompteRéférence || this.client.idBdCompte!;
 
     const fFinale = (membres: infoMembreRéseau[]) => {

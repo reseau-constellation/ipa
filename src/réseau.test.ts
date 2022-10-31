@@ -769,22 +769,19 @@ typesClients.forEach((type) => {
           expect(rés.ultat).toEqual(réf);
         });
 
-        test(
-          "Diminuer profondeur",
-          async () => {
-            const réf: infoRelation[] = [
-              {
-                de: idBdCompte1,
-                pour: idBdCompte2,
-                confiance: 1,
-                profondeur: 1,
-              },
-            ];
-            fChangerProfondeur(1);
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
-            expect(rés.ultat).toEqual(réf);
-          }
-        );
+        test("Diminuer profondeur", async () => {
+          const réf: infoRelation[] = [
+            {
+              de: idBdCompte1,
+              pour: idBdCompte2,
+              confiance: 1,
+              profondeur: 1,
+            },
+          ];
+          fChangerProfondeur(1);
+          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
+          expect(rés.ultat).toEqual(réf);
+        });
 
         test("Augmenter profondeur", async () => {
           const réf: infoRelation[] = [
@@ -859,27 +856,31 @@ typesClients.forEach((type) => {
           await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
           expect(rés.ultat).toEqual(expect.arrayContaining(réf));
         });
-        test("Relations confiance indirectes", async () => {
-          const réf: infoMembreRéseau[] = [
-            moiMême,
-            {
-              idBdCompte: idBdCompte2,
-              confiance: 1,
-              profondeur: 1,
-            },
-            {
+        test(
+          "Relations confiance indirectes",
+          async () => {
+            const réf: infoMembreRéseau[] = [
+              moiMême,
+              {
+                idBdCompte: idBdCompte2,
+                confiance: 1,
+                profondeur: 1,
+              },
+              {
+                idBdCompte: idBdCompte3,
+                confiance: 0.8,
+                profondeur: 2,
+              },
+            ];
+            await client2.réseau!.faireConfianceAuMembre({
               idBdCompte: idBdCompte3,
-              confiance: 0.8,
-              profondeur: 2,
-            },
-          ];
-          await client2.réseau!.faireConfianceAuMembre({
-            idBdCompte: idBdCompte3,
-          });
+            });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 2);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
-        }, config.patience);
+            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 2);
+            expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          },
+          config.patience
+        );
         test("Relations confiance directes et indirectes", async () => {
           const réf: infoMembreRéseau[] = [
             moiMême,
@@ -1046,30 +1047,27 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
         });
-        test(
-          "Diminuer profondeur",
-          async () => {
-            const réf: infoMembreRéseau[] = [
-              moiMême,
-              {
-                idBdCompte: idBdCompte2,
-                confiance: 1,
-                profondeur: 1,
-              },
-            ];
-            await client.réseau!.faireConfianceAuMembre({
+        test("Diminuer profondeur", async () => {
+          const réf: infoMembreRéseau[] = [
+            moiMême,
+            {
               idBdCompte: idBdCompte2,
-            });
-            await client2.réseau!.faireConfianceAuMembre({
-              idBdCompte: idBdCompte3,
-            });
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
+              confiance: 1,
+              profondeur: 1,
+            },
+          ];
+          await client.réseau!.faireConfianceAuMembre({
+            idBdCompte: idBdCompte2,
+          });
+          await client2.réseau!.faireConfianceAuMembre({
+            idBdCompte: idBdCompte3,
+          });
+          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
 
-            fChangerProfondeur(1);
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
-            expect(rés.ultat).toEqual(expect.arrayContaining(réf));
-          }
-        );
+          fChangerProfondeur(1);
+          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
+          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+        });
         test("Augmenter profondeur", async () => {
           const réf: infoMembreRéseau[] = [
             moiMême,
@@ -1172,8 +1170,8 @@ typesClients.forEach((type) => {
               !!x &&
               x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
                 1 &&
-                x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
-                  0
+              x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
+                0
           );
 
           expect(rés.ultat).toEqual(expect.arrayContaining(réf));
@@ -1726,7 +1724,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await client2.projets!.ajouterÀMesProjets({idProjet});
+            await client2.projets!.ajouterÀMesProjets({ idProjet });
             await attendreRésultat(rés, "ultat", (x) =>
               Boolean(
                 !!x &&
@@ -1750,7 +1748,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await client2.projets!.enleverDeMesProjets({idProjet});
+            await client2.projets!.enleverDeMesProjets({ idProjet });
             await attendreRésultat(
               rés,
               "ultat",
@@ -2319,7 +2317,7 @@ typesClients.forEach((type) => {
                 });
               }
             )
-          )[0].id
+          )[0].id;
 
           idTableau2 = (
             await uneFois(
@@ -2371,55 +2369,62 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        test("Suivre BDs du réseau", async () => {
-          await attendreRésultat(
-            rés,
-            "ultat",
-            (x?: string[]) => x && x.length === 2
-          );
-          expect(rés.ultat).toHaveLength(2);
-          expect(rés.ultat).toEqual(expect.arrayContaining([idBd1, idBd2]));
-        }, config.patience);
+        test(
+          "Suivre BDs du réseau",
+          async () => {
+            await attendreRésultat(
+              rés,
+              "ultat",
+              (x?: string[]) => x && x.length === 2
+            );
+            expect(rés.ultat).toHaveLength(2);
+            expect(rés.ultat).toEqual(expect.arrayContaining([idBd1, idBd2]));
+          },
+          config.patience
+        );
 
-        test("Suivre éléments des BDs", async () => {
-          await attendreRésultat(
-            rés,
-            "ultat2",
-            (x?: élémentDeMembre<élémentBdListeDonnées>[]) => x && x.length === 3
-          );
-          const élémentsSansId = rés.ultat2!.map((r) => {
-            delete r.élément.données.id;
-            return r;
-          });
+        test(
+          "Suivre éléments des BDs",
+          async () => {
+            await attendreRésultat(
+              rés,
+              "ultat2",
+              (x?: élémentDeMembre<élémentBdListeDonnées>[]) =>
+                x && x.length === 3
+            );
+            const élémentsSansId = rés.ultat2!.map((r) => {
+              delete r.élément.données.id;
+              return r;
+            });
 
-          const réf: élémentDeMembre<élémentBdListeDonnées>[] = [
-            {
-              idBdCompte: idBdCompte1,
-              élément: {
-                empreinte: empreinte1,
-                données: données1,
+            const réf: élémentDeMembre<élémentBdListeDonnées>[] = [
+              {
+                idBdCompte: idBdCompte1,
+                élément: {
+                  empreinte: empreinte1,
+                  données: données1,
+                },
               },
-            },
-            {
-              idBdCompte: idBdCompte1,
-              élément: {
-                empreinte: empreinte2,
-                données: données2,
+              {
+                idBdCompte: idBdCompte1,
+                élément: {
+                  empreinte: empreinte2,
+                  données: données2,
+                },
               },
-            },
-            {
-              idBdCompte: idBdCompte2,
-              élément: {
-                empreinte: empreinte3,
-                données: données3,
+              {
+                idBdCompte: idBdCompte2,
+                élément: {
+                  empreinte: empreinte3,
+                  données: données3,
+                },
               },
-            },
-          ]
+            ];
 
-          expect(élémentsSansId).toEqual(
-            expect.arrayContaining(réf)
-          );
-        }, config.patience);
+            expect(élémentsSansId).toEqual(expect.arrayContaining(réf));
+          },
+          config.patience
+        );
       });
     });
   });

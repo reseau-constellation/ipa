@@ -1,4 +1,4 @@
-import { asymmetric } from "@localfirst/auth"
+import { asymmetric } from "@localfirst/auth";
 
 export interface Encryption {
   clefs: { publique: string; secrète: string };

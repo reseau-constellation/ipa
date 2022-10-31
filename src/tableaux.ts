@@ -11,7 +11,7 @@ import {
   uneFois,
   faisRien,
   traduire,
-  élémentsBd
+  élémentsBd,
 } from "@/utils/index.js";
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { donnéesBdExportées, schémaCopiéDe } from "@/bds.js";
@@ -33,7 +33,6 @@ import {
   erreurRègleCatégoriqueColonneInexistante,
 } from "@/valid.js";
 import { catégorieVariables } from "@/variables.js";
-
 
 export type élémentBdListeDonnées = {
   [key: string]: élémentsBd;

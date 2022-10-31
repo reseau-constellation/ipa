@@ -1,5 +1,5 @@
 import KeyValueStore from "orbit-db-kvstore";
-import { isNode, isElectron } from "wherearewe";
+import { isNode, isElectron } from "wherearewe";
 
 import ClientConstellation from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";

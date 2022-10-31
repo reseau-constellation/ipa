@@ -16,7 +16,7 @@ const événementsSuiviBd = ["ready", "write", "replicated"];
 
 export const suivreBdAccès = async (
   bd: FeedStore<élémentBdAccès>,
-  f: schémaFonctionSuivi<élémentBdAccès[]>,
+  f: schémaFonctionSuivi<élémentBdAccès[]>
 ): Promise<schémaFonctionOublier> => {
   const fFinale = () => {
     const éléments: élémentBdAccès[] = bd
@@ -182,7 +182,7 @@ export default class GestionnaireAccès extends EventEmitter {
           if (!listeRôle.includes(id)) listeRôle.push(id);
         });
       });
-    };
+    }
     this._rôles = _rôles;
   }
 

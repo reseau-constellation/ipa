@@ -1,7 +1,10 @@
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
 
-import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
+import type {
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
+} from "@/utils/index.js";
 import { objRôles } from "@/accès/types.js";
 
 import ClientConstellation from "@/client.js";
