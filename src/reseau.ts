@@ -37,12 +37,6 @@ import { élémentDonnées } from "@/valid.js";
 import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
 
-function enveloppeTest(target:any, name:any, descriptor:any) {
-  console.log(target)
-  console.log(name)
-  console.log(descriptor)
-}
-
 export interface infoDispositif {
   idSFIP: string;
   idOrbite: string;
@@ -1154,7 +1148,6 @@ export default class Réseau extends EventEmitter {
     return { fOublier, fChangerProfondeur };
   }
 
-  @enveloppeTest
   async suivreConfianceMonRéseauPourMembre({
     idBdCompte,
     f,
