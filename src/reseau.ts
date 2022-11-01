@@ -56,6 +56,10 @@ export interface élémentBdMembres {
   dispositifs: [];
 }
 
+export type itemRechercheProfondeur = {
+  profondeur: number;
+} & { [key: string]: unknown }
+
 export interface infoMembreRéseau {
   idBdCompte: string;
   profondeur: number;
