@@ -230,7 +230,7 @@ typesClients.forEach((type) => {
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProfilSelonId({
-              idCompte: client2.idBdCompte!,
+              idCompte: await client2.obtIdCompte(),
               f: (membres) => (rés.ultat = membres),
               nRésultatsDésirés: 2,
             }));
