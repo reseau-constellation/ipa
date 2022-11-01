@@ -1230,7 +1230,7 @@ typesClients.forEach((type) => {
 });
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.skip("Client " + type, function () {
     describe("Test fonctionnalités recherche", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
