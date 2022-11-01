@@ -73,6 +73,7 @@ export class CacheSuivi {
         requètes: { [idRequète]: f },
       };
       const fFinale = (x: unknown) => {
+        if (!this._cacheSuivi[codeCache]) return  // Si on a déjà annulé la requète
         this._cacheSuivi[codeCache].val = x;
         const fsSuivis = Object.values(this._cacheSuivi[codeCache].requètes);
         fsSuivis.forEach((f_) => f_(x));
