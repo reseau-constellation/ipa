@@ -498,6 +498,11 @@ export default class ClientConstellation extends EventEmitter {
     return this.orbite!.identity.id;
   }
 
+  async obtIdentitéOrbite(): Promise<OrbitDB["identity"]> {
+    if (!this.orbite) await once(this, "prêt");
+    return this.orbite!.identity;
+  }
+
   async obtIdCompte(): Promise<string> {
     if (!this.idBdCompte) await once(this, "prêt");
     return this.idBdCompte!;

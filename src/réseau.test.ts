@@ -146,6 +146,10 @@ typesClients.forEach((type) => {
         });
 
         test("Autres membres détectés", async () => {
+          const identitéOrbite1 = await client.obtIdentitéOrbite();
+          const identitéOrbite2 = await client2.obtIdentitéOrbite();
+          const identitéOrbite3 = await client3.obtIdentitéOrbite();
+
           const réfRés: infoMembre[] = [
             {
               idBdCompte: idBdCompte1,
@@ -154,12 +158,12 @@ typesClients.forEach((type) => {
                   idSFIP: idNodeSFIP1,
                   idOrbite: idOrbite1,
                   idCompte: idBdCompte1,
-                  clefPublique: client.orbite!.identity.publicKey,
+                  clefPublique: identitéOrbite1.publicKey,
                   encryption: {
-                    type: client.encryption.nom,
-                    clefPublique: client.encryption.clefs.publique,
+                    type: await client.encryption.obtNom(),
+                    clefPublique: (await client.encryption.obtClefs()).publique,
                   },
-                  signatures: client.orbite!.identity.signatures,
+                  signatures: identitéOrbite1.signatures,
                 },
               ],
             },
@@ -170,12 +174,12 @@ typesClients.forEach((type) => {
                   idSFIP: idNodeSFIP2,
                   idOrbite: idOrbite2,
                   idCompte: idBdCompte2,
-                  clefPublique: client2.orbite!.identity.publicKey,
+                  clefPublique: identitéOrbite2.publicKey,
                   encryption: {
-                    type: client2.encryption.nom,
-                    clefPublique: client2.encryption.clefs.publique,
+                    type: await client2.encryption.obtNom(),
+                    clefPublique: (await client2.encryption.obtClefs()).publique,
                   },
-                  signatures: client2.orbite!.identity.signatures,
+                  signatures: identitéOrbite2.signatures,
                 },
               ],
             },
@@ -186,12 +190,12 @@ typesClients.forEach((type) => {
                   idSFIP: idNodeSFIP3,
                   idOrbite: idOrbite3,
                   idCompte: idBdCompte3,
-                  clefPublique: client3.orbite!.identity.publicKey,
+                  clefPublique: identitéOrbite3.publicKey,
                   encryption: {
-                    type: client3.encryption.nom,
-                    clefPublique: client3.encryption.clefs.publique,
+                    type: await client3.encryption.obtNom(),
+                    clefPublique: (await client3.encryption.obtClefs()).publique,
                   },
-                  signatures: client3.orbite!.identity.signatures,
+                  signatures: identitéOrbite3.signatures,
                 },
               ],
             },
