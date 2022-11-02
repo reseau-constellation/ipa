@@ -132,7 +132,7 @@ export abstract class ClientProxifiable extends Callable {
         erreur: "Plus d'un argument est une fonction : " + JSON.stringify(args),
         id,
       });
-      return new Promise((_resolve, reject) => reject());
+      return new Promise((_résoudre, rejeter) => rejeter());
     }
 
     const message: MessageSuivrePourTravailleur = {
