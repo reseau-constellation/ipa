@@ -21,7 +21,7 @@ export default class ContrôleurAccès extends EventEmitter {
   _premierMod: string;
   orbitdb: OrbitDB;
   gestAccès: GestionnaireAccès;
-  dernierAppel?: number;
+  dernierAppel: number;
 
   constructor(
     orbitdb: OrbitDB,
@@ -32,6 +32,7 @@ export default class ContrôleurAccès extends EventEmitter {
     this._premierMod = options.premierMod;
 
     this.gestAccès = new GestionnaireAccès(this.orbitdb);
+    this.dernierAppel = Date.now();
   }
 
   static get type(): string {
@@ -39,25 +40,27 @@ export default class ContrôleurAccès extends EventEmitter {
   }
 
   async estUnModérateurPatient(id: string): Promise<boolean> {
-    this.dernierAppel = Date.now();
     const PATIENCE = 1000;
 
     if (await this.gestAccès.estUnModérateur(id)) return true;
 
     return new Promise((résoudre) => {
-      const interval = setInterval(async () => {
-        const estAutorisé = await this.gestAccès.estUnModérateur(id);
-        if (estAutorisé) {
-          clearInterval(interval);
-          résoudre(true);
-        } else {
-          const maintenant = Date.now();
-          if (maintenant - this.dernierAppel! > PATIENCE) {
-            clearInterval(interval);
-            résoudre(false);
+      const partirCrono = () => {
+        setTimeout(async () => {
+          const estAutorisé = await this.gestAccès.estUnModérateur(id);
+          if (estAutorisé) {
+            résoudre(true);
+          } else {
+            const maintenant = Date.now();
+            if ((maintenant - this.dernierAppel) > PATIENCE) {
+              résoudre(false);
+            } else {
+              partirCrono()
+            }
           }
-        }
-      }, 10);
+        }, 100)
+      };
+      partirCrono();
     });
   }
 
@@ -82,6 +85,7 @@ export default class ContrôleurAccès extends EventEmitter {
         await this.gestAccès.ajouterÉléments([
           { id: idAjout, rôle: MODÉRATEUR },
         ]);
+        this.dernierAppel = Date.now();
       }
       return true;
     }

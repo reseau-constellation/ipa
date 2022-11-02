@@ -242,7 +242,6 @@ export default class ContrôleurConstellation extends AccessController {
     }
     try {
       const entry: élémentBdAccès = { rôle, id };
-
       await this.bd!.add(entry);
     } catch (_e) {
       const e = _e as Error;

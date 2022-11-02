@@ -42,3 +42,15 @@ export const connectPeers = async (
   await ipfs1.swarm.connect(addresses2[0]);
   await ipfs2.swarm.connect(addresses1[0]);
 };
+
+export const tousConnecter = async (
+  sfips: IPFS[]
+) => {
+  const connectés: IPFS[] = []
+  for (const sfip of sfips) {
+    for (const autre of connectés) {
+      await connectPeers(sfip, autre)
+    }
+    connectés.push(sfip)
+  }
+}

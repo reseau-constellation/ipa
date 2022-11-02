@@ -1,5 +1,4 @@
 import { v4 as uuidv4 } from "uuid";
-import assert from "assert";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
@@ -112,6 +111,7 @@ describe("Contrôleur Constellation", function () {
           },
         });
         await bd.load();
+
       }, config.patienceInit);
 
       afterAll(async () => {
@@ -153,9 +153,9 @@ describe("Contrôleur Constellation", function () {
       test(
         "Un membre ne peut pas inviter d'autres personnes",
         async () => {
-          await assert.rejects(
-            bdOrbite2.access.grant(MEMBRE, orbitdb3.identity.id)
-          );
+          await expect(
+            () => bdOrbite2.access.grant(MEMBRE, orbitdb3.identity.id)
+          ).rejects.toThrow();
         },
         config.patience
       );
@@ -163,6 +163,7 @@ describe("Contrôleur Constellation", function () {
       test(
         "Mais un membre peut s'inviter lui-même",
         async () => {
+          // await tousConnecter([orbitdb1._ipfs, orbitdb2._ipfs, orbitdb3._ipfs, orbitdb4._ipfs])
           await bdRacine2.access.grant(MODÉRATEUR, orbitdb3.identity.id);
 
           const bdOrbite3 = (await orbitdb3.open(
