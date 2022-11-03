@@ -221,6 +221,9 @@ export default class Réseau extends EventEmitter {
       this.client.sujet_réseau,
       (msg: MessagePubSub) => this.messageReçu({ msg })
     );
+    this.fsOublier.push(async () => {
+      await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau)
+    })
 
     // @ts-ignore
     const libp2p: Libp2p = this.client.sfip!.libp2p;

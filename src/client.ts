@@ -156,7 +156,7 @@ export default class ClientConstellation extends EventEmitter {
     this.épingles = new Épingles({ client: this });
     this._oublierNettoyageBdsOuvertes = this._lancerNettoyageBdsOuvertes();
 
-    await this.initialiserBds();
+    await this.initialiserCompte();
 
     this.prêt = true;
     this.emit("prêt");
@@ -214,7 +214,7 @@ export default class ClientConstellation extends EventEmitter {
     return () => clearInterval(i);
   }
 
-  async initialiserBds(): Promise<void> {
+  async initialiserCompte(): Promise<void> {
     const { bd } = await this.ouvrirBd<
       KeyValueStore<typeÉlémentsBdCompteClient>
     >({ id: this.idBdCompte! });
@@ -449,7 +449,8 @@ export default class ClientConstellation extends EventEmitter {
 
     // Là on peut y aller
     this.idBdCompte = idBdCompte;
-    await this.initialiserBds();
+    await this.fermerCompte();
+    await this.initialiserCompte();
     this.emit("compteChangé");
   }
 
@@ -1805,12 +1806,16 @@ export default class ClientConstellation extends EventEmitter {
     return fOublier;
   }
 
-  async fermer(): Promise<void> {
-    if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
-
+  async fermerCompte(): Promise<void> {
     if (this.favoris) await this.favoris.fermer();
     if (this.réseau) await this.réseau.fermer();
     if (this.automatisations) await this.automatisations.fermer();
+  }
+
+  async fermer(): Promise<void> {
+    if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
+
+    await this.fermerCompte();
     if (this.épingles) await this.épingles.fermer();
 
     if (this.orbite && !this._orbiteExterne) await this.orbite.stop();
