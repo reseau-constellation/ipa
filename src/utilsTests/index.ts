@@ -149,13 +149,19 @@ export const attendreFichierModifié = async (
 ): Promise<void> => {
   await attendreFichierExiste(fichier);
 
-  return new Promise((résoudre) => {
+  return new Promise((résoudre, rejeter) => {
     const interval = setInterval(() => {
-      const { mtime } = fs.statSync(fichier);
-      const prêt = mtime.getTime() > tempsAvant;
-      if (prêt) {
-        clearInterval(interval);
-        résoudre();
+      try {
+        const { mtime } = fs.statSync(fichier);
+        const prêt = mtime.getTime() > tempsAvant;
+        if (prêt) {
+          clearInterval(interval);
+          résoudre();
+        }
+      } catch (e) {
+        // Le fichier a été effacé
+        clearInterval(interval)
+        rejeter(e)
       }
     }, 10);
   });
