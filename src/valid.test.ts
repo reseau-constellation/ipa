@@ -245,6 +245,7 @@ describe("Validation", function () {
             règle: {
               typeRègle: "bornes",
               détails: {
+                type: "fixe",
                 val: 0,
                 op: ">=",
               },
@@ -276,6 +277,7 @@ describe("Validation", function () {
               règle: {
                 typeRègle: "bornes",
                 détails: {
+                  type: "fixe",
                   val: ref,
                   op: op.op,
                 },
@@ -323,6 +325,7 @@ describe("Validation", function () {
             règle: {
               typeRègle: "bornes",
               détails: {
+                type: "dynamiqueVariable",
                 val: "var temp min",
                 op: ">=",
               },
