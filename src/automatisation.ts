@@ -305,12 +305,17 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
   }
 };
 
-const lancerAutomatisation = async <T extends SpécificationAutomatisation>(
+const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
+  spéc,
+  idSpéc,
+  client,
+  fÉtat
+}: {
   spéc: T,
   idSpéc: string,
   client: ClientConstellation,
   fÉtat: (état: ÉtatAutomatisation) => void
-): Promise<schémaFonctionOublier> => {
+}): Promise<schémaFonctionOublier> => {
   const fAuto = générerFAuto(spéc, client);
   const clefStockageDernièreFois = `auto: ${idSpéc}`;
 
@@ -496,15 +501,16 @@ class AutomatisationActive extends EventEmitter {
     super();
 
     this.client = client;
-    lancerAutomatisation(
+    lancerAutomatisation({
       spéc,
       idSpéc,
-      this.client,
-      (état: ÉtatAutomatisation) => {
+      client: this.client,
+      fÉtat: (état: ÉtatAutomatisation) => {
+        console.log({état, spéc})
         this.état = état;
         this.emit("misÀJour");
       }
-    ).then((fOublier) => {
+    }).then((fOublier) => {
       this.fOublier = fOublier;
       this.emit("prêt");
     });
@@ -581,20 +587,20 @@ export default class Automatisations extends EventEmitter {
         hash,
         payload: { value },
       } = a;
+      await verrou.acquire(hash);
       if (activePourCeDispositif(value, this.client.orbite!.identity.id)) {
-        await verrou.acquire(hash);
         if (!Object.keys(this.automatisations).includes(hash)) {
           const auto = new AutomatisationActive(value, hash, this.client);
           auto.on("misÀJour", () => this.emit("misÀJour"));
           this.automatisations[hash] = auto;
         }
-        verrou.release(hash);
       } else {
         const autoActif = this.automatisations[hash];
         if (autoActif) {
-          this.fermerAuto(hash);
+          await this.fermerAuto(hash);
         }
       }
+      verrou.release(hash);
     }
   }
 
@@ -731,15 +737,15 @@ export default class Automatisations extends EventEmitter {
     };
   }
 
-  fermerAuto(empreinte: string): void {
-    this.automatisations[empreinte].fermer();
+  async fermerAuto(empreinte: string): Promise<void> {
+    await this.automatisations[empreinte].fermer();
     delete this.automatisations[empreinte];
   }
 
   async fermer(): Promise<void> {
-    Object.keys(this.automatisations).forEach((a) => {
+    await Promise.all(Object.keys(this.automatisations).map((a) => {
       this.fermerAuto(a);
-    });
+    }));
     if (this.fOublier) this.fOublier();
   }
 }

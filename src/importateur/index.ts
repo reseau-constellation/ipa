@@ -5,7 +5,8 @@ import { DonnéesJSON } from "./json";
 
 export async function importerJSONdURL(url: string): Promise<DonnéesJSON> {
   const réponse = await axios.get(url);
-  return (await réponse.data) as DonnéesJSON;
+  const données = await réponse.data
+  return données as DonnéesJSON;
 }
 
 export async function importerFeuilleCalculDURL(

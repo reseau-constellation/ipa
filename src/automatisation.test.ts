@@ -4,6 +4,9 @@ import XLSX, { WorkBook } from "xlsx";
 import AdmZip from "adm-zip";
 import tmp from "tmp";
 import rmrf from "rimraf";
+//@ts-ignore
+import {jest} from '@jest/globals'
+import url from "url";
 
 import ClientConstellation from "@/client.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx";
@@ -35,6 +38,8 @@ import {
   obtDirTempoPourTest,
 } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
+import axios from 'axios';
+
 
 const vérifierDonnéesTableau = (
   doc: string | WorkBook,
@@ -126,6 +131,8 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       beforeAll(async () => {
+        jest.mock('axios');
+
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type
@@ -142,6 +149,7 @@ typesClients.forEach((type) => {
         let idCol1: string;
         let idCol2: string;
         let dirTempo: string;
+        let fOublierAuto: () => Promise<void>;
 
         const rés: { ultat?: élémentDonnées<élémentBdListeDonnées>[] } = {};
         const fsOublier: schémaFonctionOublier[] = [];
@@ -178,6 +186,7 @@ typesClients.forEach((type) => {
 
         afterEach(async () => {
           fsOublier.forEach((f) => f());
+          if (fOublierAuto) await fOublierAuto()
           rmrf.sync(dirTempo);
           delete rés["ultat"];
         });
@@ -210,10 +219,11 @@ typesClients.forEach((type) => {
               },
             };
 
-            await client.automatisations!.ajouterAutomatisationImporter({
+            const idAuto = await client.automatisations!.ajouterAutomatisationImporter({
               idTableau,
               source,
             });
+            fOublierAuto = async ()=> await client.automatisations!.annulerAutomatisation({id: idAuto});
 
             await attendreRésultat(
               rés,
@@ -259,10 +269,11 @@ typesClients.forEach((type) => {
               },
             };
 
-          await client.automatisations!.ajouterAutomatisationImporter({
+          const idAuto = await client.automatisations!.ajouterAutomatisationImporter({
             idTableau,
             source,
           });
+          fOublierAuto = async ()=> await client.automatisations!.annulerAutomatisation({id: idAuto});
 
           await attendreRésultat(rés, "ultat", (x) => !!(x && x.length === 3));
 
@@ -288,7 +299,9 @@ typesClients.forEach((type) => {
               },
             };
 
-          await client.automatisations!.ajouterAutomatisationImporter({
+          axios.get = jest.fn().mockResolvedValueOnce({ data: fs.readFileSync(path.join(url.fileURLToPath(new URL('.', import.meta.url)), "utilsTests", "ressources", "cases.csv")) });
+
+          const idAuto = await client.automatisations!.ajouterAutomatisationImporter({
             idTableau,
             source,
             fréquence: {
@@ -296,6 +309,7 @@ typesClients.forEach((type) => {
               n: 1,
             },
           });
+          fOublierAuto = async ()=> await client.automatisations!.annulerAutomatisation({id: idAuto});
 
           await attendreRésultat(rés, "ultat", (x) => !!(x && x.length >= 10));
 
@@ -327,8 +341,9 @@ typesClients.forEach((type) => {
               },
             },
           };
+          axios.get = jest.fn().mockResolvedValueOnce({ data: JSON.parse(fs.readFileSync(path.join(url.fileURLToPath(new URL('.', import.meta.url)), "utilsTests", "ressources", "indigenousLanguages.json")).toString()) });
 
-          await client.automatisations!.ajouterAutomatisationImporter({
+          const idAuto = await client.automatisations!.ajouterAutomatisationImporter({
             idTableau,
             source,
             fréquence: {
@@ -336,8 +351,9 @@ typesClients.forEach((type) => {
               n: 1,
             },
           });
+          fOublierAuto = async ()=> await client.automatisations!.annulerAutomatisation({id: idAuto});
 
-          await attendreRésultat(rés, "ultat", (x) => !!(x && x.length >= 10));
+          await attendreRésultat(rés, "ultat", (x) => !!(x && x.length >= 8));
 
           // Les résultats peuvent varier avec le temps !
           // Nom de la langue
@@ -383,10 +399,11 @@ typesClients.forEach((type) => {
               },
             };
 
-            await client.automatisations!.ajouterAutomatisationImporter({
+            const idAuto = await client.automatisations!.ajouterAutomatisationImporter({
               idTableau,
               source,
             });
+            fOublierAuto = async ()=> await client.automatisations!.annulerAutomatisation({id: idAuto});
 
             données.données.push({ "col 1": 4, "col 2": "子" });
             fs.writeFileSync(fichierJSON, JSON.stringify(données));
@@ -431,7 +448,7 @@ typesClients.forEach((type) => {
               },
             };
 
-            await client.automatisations!.ajouterAutomatisationImporter({
+            const idAuto = await client.automatisations!.ajouterAutomatisationImporter({
               idTableau,
               source,
               fréquence: {
@@ -439,6 +456,7 @@ typesClients.forEach((type) => {
                 n: 300,
               },
             });
+            fOublierAuto = async ()=> await client.automatisations!.annulerAutomatisation({id: idAuto});
 
             const maintenant = Date.now();
             données.données.push({ "col 1": 4, "col 2": "子" });
