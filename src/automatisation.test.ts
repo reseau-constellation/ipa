@@ -617,6 +617,7 @@ typesClients.forEach((type) => {
               langues: ["fr"],
             });
           const fichier = path.join(dir, "Ma bd.ods");
+          await attendreFichierExiste(fichier);
 
           const avant = Date.now();
           await client.tableaux!.ajouterÉlément({
