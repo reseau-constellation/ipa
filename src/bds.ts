@@ -1630,7 +1630,7 @@ export default class BDs {
     formatDoc: BookType | "xls";
     dir?: string;
     inclureFichiersSFIP?: boolean;
-  }): Promise<void> {
+  }): Promise<string> {
     const { doc, fichiersSFIP, nomFichier } = données;
 
     const conversionsTypes: { [key: string]: BookType } = {
@@ -1660,10 +1660,12 @@ export default class BDs {
         })
       );
       await zipper([fichierDoc], fichiersDeSFIP, path.join(dir, nomFichier));
+      return path.join(dir, `${nomFichier}.zip`)
     } else {
       writeFile(doc, path.join(dir, `${nomFichier}.${formatDoc}`), {
         bookType,
       });
+      return path.join(dir, `${nomFichier}.${formatDoc}`)
     }
   }
 
