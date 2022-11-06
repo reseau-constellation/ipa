@@ -457,6 +457,7 @@ typesClients.forEach((type) => {
               },
             });
             fOublierAuto = async ()=> await client.automatisations!.annulerAutomatisation({id: idAuto});
+            await attendreRésultat(rés, "ultat", (x) => x?.length === 3);
 
             const maintenant = Date.now();
             données.données.push({ "col 1": 4, "col 2": "子" });
@@ -465,7 +466,7 @@ typesClients.forEach((type) => {
             await attendreRésultat(rés, "ultat", (x) => x?.length === 4);
 
             const après = Date.now();
-            expect(après - maintenant).toBeGreaterThanOrEqual(0.3 * 1000);
+            expect(après - maintenant).toBeGreaterThanOrEqual(300);
 
             comparerDonnéesTableau(rés.ultat!, [
               { [idCol1]: 1, [idCol2]: "អ" },
@@ -571,7 +572,7 @@ typesClients.forEach((type) => {
 
         test("Exportation BD", async () => {
           const fichier = path.join(dir, "Ma bd.ods");
-          await client.automatisations!.ajouterAutomatisationExporter({
+          const idAuto = await client.automatisations!.ajouterAutomatisationExporter({
             id: idBd,
             typeObjet: "bd",
             formatDoc: "ods",
@@ -581,6 +582,7 @@ typesClients.forEach((type) => {
           });
           await attendreFichierExiste(fichier);
           vérifierDonnéesBd(fichier, { météo: [{ précipitation: 3 }] });
+          await client.automatisations!.annulerAutomatisation({ id: idAuto });
         });
 
         test("Exportation projet", async () => {
@@ -605,6 +607,15 @@ typesClients.forEach((type) => {
         });
 
         test("Exportation selon changements", async () => {
+          const idAuto =
+            await client.automatisations!.ajouterAutomatisationExporter({
+              id: idBd,
+              typeObjet: "bd",
+              formatDoc: "ods",
+              inclureFichiersSFIP: false,
+              dir,
+              langues: ["fr"],
+            });
           const fichier = path.join(dir, "Ma bd.ods");
 
           const avant = Date.now();
@@ -618,6 +629,7 @@ typesClients.forEach((type) => {
           vérifierDonnéesBd(fichier, {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
           });
+          await client.automatisations!.annulerAutomatisation({ id: idAuto });
         });
 
         test("Exportation selon fréquence", async () => {
@@ -635,9 +647,9 @@ typesClients.forEach((type) => {
               n: 0.3,
             },
           });
+          const maintenant = Date.now();
           await attendreFichierExiste(fichier);
 
-          const maintenant = Date.now();
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 7 },
@@ -649,7 +661,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Exportation nuée bds", function () {
+      describe("Exportation nuée bds", function () {
         test.todo(
           "Exportation selon changements"
           /*async () => {
@@ -935,6 +947,7 @@ typesClients.forEach((type) => {
                 idTableau,
                 source,
               });
+
 
             await attendreRésultat(
               rés,

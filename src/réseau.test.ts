@@ -36,7 +36,7 @@ import {
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.skip("Client " + type, function () {
     describe("Réseau", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];

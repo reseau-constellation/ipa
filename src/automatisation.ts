@@ -489,6 +489,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 
 class AutomatisationActive extends EventEmitter {
   client: ClientConstellation;
+  idSpéc: string;
 
   état?: ÉtatAutomatisation;
   fOublier?: schémaFonctionOublier;
@@ -506,7 +507,6 @@ class AutomatisationActive extends EventEmitter {
       idSpéc,
       client: this.client,
       fÉtat: (état: ÉtatAutomatisation) => {
-        console.log({état, spéc})
         this.état = état;
         this.emit("misÀJour");
       }
@@ -582,26 +582,33 @@ export default class Automatisations extends EventEmitter {
   async mettreAutosÀJour(
     autos: LogEntry<SpécificationAutomatisation>[]
   ): Promise<void> {
+    await verrou.acquire("miseÀJour")
+    const automatisationsDavant = Object.keys(this.automatisations);
+
+    for (const id of automatisationsDavant) {
+      if (!autos.find(a=>a.payload.value.id === id)) await this.fermerAuto(id)
+    }
+
     for (const a of autos) {
       const {
-        hash,
         payload: { value },
       } = a;
-      await verrou.acquire(hash);
+
       if (activePourCeDispositif(value, this.client.orbite!.identity.id)) {
-        if (!Object.keys(this.automatisations).includes(hash)) {
-          const auto = new AutomatisationActive(value, hash, this.client);
+        if (!Object.keys(this.automatisations).includes(value.id)) {
+          const auto = new AutomatisationActive(value, value.id, this.client);
           auto.on("misÀJour", () => this.emit("misÀJour"));
-          this.automatisations[hash] = auto;
+          this.automatisations[value.id] = auto;
         }
       } else {
-        const autoActif = this.automatisations[hash];
+        const autoActif = this.automatisations[value.id];
         if (autoActif) {
-          await this.fermerAuto(hash);
+          await this.fermerAuto(value.id);
         }
       }
-      verrou.release(hash);
     }
+
+    verrou.release("miseÀJour");
   }
 
   async ajouterAutomatisationExporter({
@@ -698,6 +705,7 @@ export default class Automatisations extends EventEmitter {
   }
 
   async annulerAutomatisation({ id }: { id: string }): Promise<void> {
+
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
     >({ id: this.idBd });
