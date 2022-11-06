@@ -624,9 +624,10 @@ export default class Automatisations extends EventEmitter {
     dispositifs?: string[];
   }): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
+    const idAuto = uuidv4();
     const élément: SpécificationExporter = {
       type: "exportation",
-      id: uuidv4(),
+      id: idAuto,
       idObjet: id,
       typeObjet,
       dispositifs,
@@ -646,11 +647,11 @@ export default class Automatisations extends EventEmitter {
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
     >({ id: this.idBd });
-    const idÉlément = await bd.add(élément);
+    await bd.add(élément);
 
     fOublier();
 
-    return idÉlément;
+    return idAuto;
   }
 
   async ajouterAutomatisationImporter<
@@ -671,10 +672,11 @@ export default class Automatisations extends EventEmitter {
     >({ id: this.idBd });
 
     dispositif = dispositif || this.client.orbite!.identity.id;
+    const id = uuidv4()
 
     const élément: SpécificationImporter<T> = {
       type: "importation",
-      id: uuidv4(),
+      id,
       idTableau,
       dispositif,
       fréquence,
@@ -688,11 +690,11 @@ export default class Automatisations extends EventEmitter {
       }
     });
 
-    const idÉlément = await bd.add(élément);
+    await bd.add(élément);
 
     fOublier();
 
-    return idÉlément;
+    return id;
   }
 
   async annulerAutomatisation({ id }: { id: string }): Promise<void> {
