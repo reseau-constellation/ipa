@@ -675,8 +675,9 @@ typesClients.forEach((type) => {
 
         const rés: {
           états?: { [key: string]: ÉtatAutomatisation };
+          aSyncronisé: { [key: string]: ÉtatAutomatisation };
           autos?: SpécificationAutomatisation[];
-        } = {};
+        } = { aSyncronisé: { } };
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
@@ -684,7 +685,12 @@ typesClients.forEach((type) => {
 
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
-              f: (états) => (rés.états = états),
+              f: (états) => {
+                rés.états = états;
+                for (const [id, état] of Object.entries(états)) {
+                  if (état.type === "sync") rés.aSyncronisé[id] = état;
+                }
+              },
             })
           );
           fsOublier.push(
@@ -768,15 +774,14 @@ typesClients.forEach((type) => {
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 4 },
-          });
-
+          })
           await attendreRésultat(
             rés,
-            "états",
-            (x) => !!(x && x[idAuto].type === "sync")
+            "aSyncronisé",
+            (x) => !!(x && x[idAuto])
           );
 
-          const { type, depuis } = rés.états![idAuto] as ÉtatEnSync;
+          const { type, depuis } = rés.aSyncronisé![idAuto] as ÉtatEnSync;
           expect(type).toEqual("sync");
           expect(depuis).toBeGreaterThanOrEqual(avantAjout);
         });
