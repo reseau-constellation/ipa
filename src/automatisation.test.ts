@@ -647,17 +647,18 @@ typesClients.forEach((type) => {
               n: 0.3,
             },
           });
-          const maintenant = Date.now();
+          const avantAttente = Date.now();
           await attendreFichierExiste(fichier);
+          const avantAjout = Date.now();
 
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 7 },
           });
-          await attendreFichierModifié(fichier, maintenant);
+          await attendreFichierModifié(fichier, avantAjout);
 
           const après = Date.now();
-          expect(après - maintenant).toBeGreaterThanOrEqual(0.3 * 1000);
+          expect(après - avantAttente).toBeGreaterThanOrEqual(0.3 * 1000);
         });
       });
 
