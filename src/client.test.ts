@@ -40,7 +40,7 @@ describe("adresseOrbiteValide", function () {
   });
 });
 
-describe("Client Constellation", function () {
+describe.skip("Client Constellation", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation,
@@ -1719,6 +1719,7 @@ describe("Client Constellation", function () {
     let idBdKv2: string;
 
     let cidTexte: string;
+    let interval: NodeJS.Timer | undefined = undefined;
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1749,6 +1750,7 @@ describe("Client Constellation", function () {
     }, config.patience);
 
     afterAll(() => {
+      if (interval) clearInterval(interval)
       fsOublier.forEach((f) => f());
     });
 
@@ -1764,7 +1766,7 @@ describe("Client Constellation", function () {
     test("Les fichiers SFIP sont également épinglés", async () => {
       let fichierEstÉpinglé = false;
       await new Promise<void>((résoudre) => {
-        const interval = setInterval(async () => {
+        interval = setInterval(async () => {
           const épinglés = await all(client.sfip!.pin.ls());
           fichierEstÉpinglé = épinglés
             .map((x) => x.cid.toString())
