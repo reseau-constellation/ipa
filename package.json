@@ -14,7 +14,7 @@
     "nettoyer": "rimraf dist",
     "compiler:esm": "ttsc -p tsconfig.build.json",
     "compiler": "pnpm versioner && pnpm nettoyer && pnpm compiler:esm",
-    "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand --bail",
+    "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
     "test:tous": "env TOUS=true pnpm test",
     "couverture": "pnpm test -- --coverage",
     "couverture:tous": "pnpm test:tous -- --coverage",
