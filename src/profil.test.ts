@@ -121,9 +121,9 @@ typesClients.forEach((type) => {
         } = { ultat: undefined };
         let fOublier: schémaFonctionOublier;
 
-        const IMAGE = fs.readFileSync(
+        const IMAGE = new Uint8Array(fs.readFileSync(
           path.join(dirRessourcesTests(), "logo.svg")
-        );
+        ).buffer);
 
         beforeAll(async () => {
           fOublier = await client.profil!.suivreImage({
@@ -137,7 +137,7 @@ typesClients.forEach((type) => {
 
         test("Ajouter une image", async () => {
           await client.profil!.sauvegarderImage({ image: IMAGE });
-          await attendreRésultat(rés, "ultat", (v: unknown) => Boolean(v));
+          await attendreRésultat(rés, "ultat", v => Boolean(v));
           expect(rés.ultat).toEqual(IMAGE);
         });
 
