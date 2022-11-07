@@ -568,6 +568,7 @@ typesClients.forEach((type) => {
           vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
 
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          rmrf.sync(fichier)
         });
 
         test("Exportation BD", async () => {
@@ -583,6 +584,7 @@ typesClients.forEach((type) => {
           await attendreFichierExiste(fichier);
           vérifierDonnéesBd(fichier, { météo: [{ précipitation: 3 }] });
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          rmrf.sync(fichier)
         });
 
         test("Exportation projet", async () => {
@@ -604,6 +606,7 @@ typesClients.forEach((type) => {
           });
 
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          rmrf.sync(fichier)
         });
 
         test("Exportation selon changements", async () => {
@@ -631,12 +634,13 @@ typesClients.forEach((type) => {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
           });
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          rmrf.sync(fichier)
         });
 
         test("Exportation selon fréquence", async () => {
           const fichier = path.join(dir, "Mi bd.ods");
 
-          await client.automatisations!.ajouterAutomatisationExporter({
+          const idAuto = await client.automatisations!.ajouterAutomatisationExporter({
             id: idBd,
             typeObjet: "bd",
             formatDoc: "ods",
@@ -660,6 +664,9 @@ typesClients.forEach((type) => {
 
           const après = Date.now();
           expect(après - avantAttente).toBeGreaterThanOrEqual(0.3 * 1000);
+
+          await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          rmrf.sync(fichier)
         });
       });
 
