@@ -216,6 +216,7 @@ export class CacheSuivi {
     idRequète: string;
   }) {
     await this.verrou.acquire(codeCache);
+    if (this._cacheSuivi[codeCache] === undefined) return
     const { requètes, fOublier } = this._cacheSuivi[codeCache];
     delete requètes[idRequète];
 
