@@ -45,7 +45,7 @@ export const nomType = "controlleur-constellation";
 
 export interface OptionsContrôleurConstellation {
   premierMod?: string;
-  adresseBd?: string;
+  address?: string;
   nom?: string;
 }
 
@@ -68,7 +68,7 @@ export default class ContrôleurConstellation extends AccessController {
     super();
     this._orbitdb = orbitdb;
     this._premierMod = options.premierMod;
-    this._adresseBd = options.adresseBd;
+    this._adresseBd = options.address;
     this.nom = options.nom;
 
     this.idRequète = uuidv4();
@@ -180,16 +180,16 @@ export default class ContrôleurConstellation extends AccessController {
     await this.gestRôles.fermer();
   }
 
-  async load(address: string): Promise<void> {
-    const addresseValide = OrbitDB.isValidAddress(address);
+  async load(adresse: string): Promise<void> {
+    const addresseValide = OrbitDB.isValidAddress(adresse);
 
     let adresseFinale: string;
     if (addresseValide) {
-      adresseFinale = address;
+      adresseFinale = adresse;
     } else {
       adresseFinale = (
         await this._orbitdb.determineAddress(
-          ensureAddress(address),
+          ensureAddress(adresse),
           "feed",
           this._createOrbitOpts(addresseValide)
         )
