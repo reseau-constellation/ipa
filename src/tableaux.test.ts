@@ -1243,8 +1243,9 @@ typesClients.forEach((type) => {
             id: idTableau,
             idBd,
           });
-          idTableauCopieLié = await client.bds!.copierBd({
+          idTableauCopieLié = await client.tableaux!.copierTableau({
             id: idTableau,
+            idBd,
             lier: true,
           });
 
