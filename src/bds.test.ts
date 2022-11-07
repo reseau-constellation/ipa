@@ -36,6 +36,9 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       let idBd: string;
+      let accèsBd: boolean;
+
+      const fsOublier: schémaFonctionOublier[] = []
 
       beforeAll(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients(
@@ -47,6 +50,7 @@ typesClients.forEach((type) => {
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
+        fsOublier.forEach(f=>f());
       });
 
       test(
@@ -54,6 +58,19 @@ typesClients.forEach((type) => {
         async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           expect(adresseOrbiteValide(idBd)).toBe(true);
+        },
+        config.patience
+      );
+      test(
+        "Accès",
+        async () => {
+          fsOublier.push(
+            await client.suivrePermissionÉcrire({
+              id: idBd,
+              f: (x) => (accèsBd = x),
+            })
+          );
+          expect(accèsBd).toBe(true);
         },
         config.patience
       );
@@ -287,18 +304,20 @@ typesClients.forEach((type) => {
 
       describe("Tableaux", function () {
         let tableaux: infoTableauAvecId[];
-        let fOublier: schémaFonctionOublier;
         let idTableau: string;
+        let accèsTableau: boolean;
+
+        const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          fOublier = await client.bds!.suivreTableauxBd({
+          fsOublier.push(await client.bds!.suivreTableauxBd({
             id: idBd,
             f: (t) => (tableaux = t),
-          });
+          }));
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          fsOublier.forEach(f=>f())
         });
 
         test("Pas de tableaux pour commencer", async () => {
@@ -324,6 +343,14 @@ typesClients.forEach((type) => {
             ])
           );
         });
+
+        test("Accès au tableau", async () => {
+          fsOublier.push(await client.suivrePermissionÉcrire({
+            id: idTableau,
+            f: (x) => (accèsTableau = x),
+          }))
+          expect(accèsTableau).toBe(true);
+        })
 
         test(
           "Effacer un tableau",

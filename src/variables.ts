@@ -61,7 +61,7 @@ export default class Variables {
     const idBdVariable = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès: {
-        adresseBd: undefined,
+        address: undefined,
         premierMod: this.client.bdCompte!.id,
       },
     });
@@ -73,7 +73,7 @@ export default class Variables {
       });
 
     const accès = bdVariable.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.address };
+    const optionsAccès = { address: accès.address };
 
     await bdVariable.set("type", "variable");
 

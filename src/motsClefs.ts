@@ -36,7 +36,7 @@ export default class MotsClefs {
     const idBdMotClef = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès: {
-        adresseBd: undefined,
+        address: undefined,
         premierMod: this.client.bdCompte!.id,
       },
     });
@@ -49,7 +49,7 @@ export default class MotsClefs {
       });
 
     const accès = bdMotClef.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.address };
+    const optionsAccès = { address: accès.address };
 
     await bdMotClef.set("type", "motClef");
 

@@ -223,7 +223,7 @@ export default class ClientConstellation extends EventEmitter {
     const accès = this.bdCompte.access as unknown as ContrôleurConstellation;
     this.optionsAccès = {
       type: "controlleur-constellation",
-      adresseBd: accès.bd!.id,
+      address: accès.bd!.id,
     };
 
     const idBdProfil = await this.obtIdBd({
@@ -1601,7 +1601,8 @@ export default class ClientConstellation extends EventEmitter {
 
     fOublier();
     return {
-      adresseBd: accès.bd!.id,
+      address: accès.bd!.id,
+      premierMod: accès._premierMod
     };
   }
 

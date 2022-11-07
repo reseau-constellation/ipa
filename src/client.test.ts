@@ -1249,7 +1249,7 @@ describe.skip("Client Constellation", function () {
       "Avec sa propre bd accès utilisateur",
       async () => {
         const optionsAccès: OptionsContrôleurConstellation = {
-          adresseBd: undefined,
+          address: undefined,
           premierMod: client.bdCompte!.id,
         };
         const idBd = await client.créerBdIndépendante({
@@ -1569,7 +1569,7 @@ describe.skip("Client Constellation", function () {
       idBd = await client.créerBdIndépendante({
         type: "kvstore",
         optionsAccès: {
-          adresseBd: undefined,
+          address: undefined,
           premierMod: client.bdCompte!.id,
         },
       });
@@ -1644,7 +1644,7 @@ describe.skip("Client Constellation", function () {
       idBd = await client.créerBdIndépendante({
         type: "kvstore",
         optionsAccès: {
-          adresseBd: undefined,
+          address: undefined,
           premierMod: client.bdCompte!.id,
         },
       });

@@ -56,7 +56,7 @@ export default class Projets {
     const idBdProjet = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès: {
-        adresseBd: undefined,
+        address: undefined,
         premierMod: this.client.bdCompte!.id,
       },
     });
@@ -67,7 +67,7 @@ export default class Projets {
       });
 
     const accès = bdProjet.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.address };
+    const optionsAccès = { address: accès.address };
 
     await bdProjet.set("type", "projet");
 

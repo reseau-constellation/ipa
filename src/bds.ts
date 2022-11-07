@@ -118,7 +118,7 @@ export default class BDs {
     const idBdBd = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès: {
-        adresseBd: undefined,
+        address: undefined,
         premierMod: this.client.bdCompte!.id,
       },
     });
@@ -130,7 +130,7 @@ export default class BDs {
     await bdBD.set("licence", licence);
 
     const accès = bdBD.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.address };
+    const optionsAccès = { address: accès.address };
 
     const idBdNoms = await this.client.créerBdIndépendante({
       type: "kvstore",

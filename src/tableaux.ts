@@ -100,12 +100,7 @@ export default class Tableaux {
   }
 
   async créerTableau({ idBd }: { idBd: string }): Promise<string> {
-    const { bd: bdBd, fOublier: fOublierBd } = await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdTableaux>
-    >({ id: idBd });
-    const accès = bdBd.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { adresseBd: accès.address };
-    fOublierBd();
+    const optionsAccès = await this.client.obtOpsAccès({idBd});
 
     const idBdTableau = await this.client.créerBdIndépendante({
       type: "kvstore",
