@@ -1,5 +1,5 @@
 {
-  "version": "0.4.17",
+  "version": "0.4.18",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -19,8 +19,7 @@
     "couverture": "pnpm test -- --coverage",
     "couverture:tous": "pnpm test:tous -- --coverage --bail",
     "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint --ext .js,.ts src",
-    "publier": "pnpm compiler && pnpm version",
-    "postversion": "pnpm versioner && git push --tags && pnpm publish --new-version $npm_package_version --access public && git push && echo \"On a publié version $npm_package_version!\"",
+    "publier": "pnpm versioner && pnpm compiler && git commit src/version.ts -m 'version' && pnpm publish",
     "versioner": "pnpm genversion  --es6 --semi src/version.ts"
   },
   "watch": {
