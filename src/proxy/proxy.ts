@@ -65,6 +65,7 @@ export abstract class ClientProxifiable extends Callable {
       switch (type) {
         case "suivre": {
           const { id, données } = m as MessageSuivreDeTravailleur;
+          if (!this.tâches[id]) return;
           const { fSuivre } = this.tâches[id];
           fSuivre(données);
           break;

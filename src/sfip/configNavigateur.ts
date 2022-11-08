@@ -1,9 +1,9 @@
-import { WebRTCStar } from "@libp2p/webrtc-star";
-import { WebSockets } from "@libp2p/websockets";
-import { WebRTCDirect } from "@libp2p/webrtc-direct";
+import { webRTCStar } from "@libp2p/webrtc-star";
+import { webSockets } from "@libp2p/websockets";
+import { webRTCDirect } from "@libp2p/webrtc-direct";
 
 export default {
   modules: {
-    transport: [WebRTCStar, WebSockets, WebRTCDirect],
+    transport: [webRTCStar, webSockets, webRTCDirect],
   },
 };

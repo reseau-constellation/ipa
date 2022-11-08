@@ -938,6 +938,7 @@ typesClients.forEach((type) => {
             vérifierRecherche(rés.ultat!, [réf]);
           });
         });
+
         describe("selon descr", () => {
           let fOublier: schémaFonctionOublier;
           const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};

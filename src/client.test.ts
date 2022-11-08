@@ -40,7 +40,7 @@ describe("adresseOrbiteValide", function () {
   });
 });
 
-describe.skip("Client Constellation", function () {
+describe("Client Constellation", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation,

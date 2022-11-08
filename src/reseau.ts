@@ -36,6 +36,7 @@ import {
 import { élémentDonnées } from "@/valid.js";
 import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
+import { cacheRechercheParNRésultats, cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js"
 
 export interface infoDispositif {
   idSFIP: string;
@@ -547,6 +548,7 @@ export default class Réseau extends EventEmitter {
     fOublier();
   }
 
+  @cacheSuivi
   async suivreFiables({
     f,
     idBdCompte,
@@ -635,6 +637,7 @@ export default class Réseau extends EventEmitter {
     this.emit("changementMembresBloqués");
   }
 
+  @cacheSuivi
   async suivreBloquésPubliques({
     f,
     idBdCompte,
@@ -660,6 +663,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreBloqués({
     f,
     idBdCompte,
@@ -710,6 +714,7 @@ export default class Réseau extends EventEmitter {
     };
   }
 
+  @cacheSuivi
   async suivreRelationsImmédiates({
     f,
     idBdCompte,
@@ -900,6 +905,7 @@ export default class Réseau extends EventEmitter {
     };
   }
 
+  @cacheRechercheParProfondeur
   async suivreRelationsConfiance({
     f,
     profondeur = 1,
@@ -1028,6 +1034,7 @@ export default class Réseau extends EventEmitter {
     return { fOublier, fChangerProfondeur };
   }
 
+  @cacheRechercheParProfondeur
   async suivreComptesRéseau({
     f,
     profondeur = 1,
@@ -1109,6 +1116,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheRechercheParProfondeur
   async suivreComptesRéseauEtEnLigne({
     f,
     profondeur = 0,
@@ -1171,6 +1179,7 @@ export default class Réseau extends EventEmitter {
     return { fOublier, fChangerProfondeur };
   }
 
+  @cacheRechercheParProfondeur
   async suivreConfianceMonRéseauPourMembre({
     idBdCompte,
     f,
@@ -1196,6 +1205,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreConnexionsPostesSFIP({
     f,
   }: {
@@ -1238,6 +1248,7 @@ export default class Réseau extends EventEmitter {
     return oublier;
   }
 
+  @cacheSuivi
   async suivreConnexionsDispositifs({
     f,
   }: {
@@ -1256,6 +1267,7 @@ export default class Réseau extends EventEmitter {
     return oublier;
   }
 
+  @cacheSuivi
   async suivreConnexionsMembres({
     f,
   }: {
@@ -1288,6 +1300,7 @@ export default class Réseau extends EventEmitter {
     return await this.suivreConnexionsDispositifs({ f: fFinale });
   }
 
+  @cacheSuivi
   async suivreNomsMembre({
     idCompte,
     f,
@@ -1312,6 +1325,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreCourrielMembre({
     idCompte,
     f,
@@ -1337,6 +1351,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreImageMembre({
     idCompte,
     f,
@@ -1639,6 +1654,7 @@ export default class Réseau extends EventEmitter {
     return { fChangerN, fOublier };
   }
 
+  @cacheRechercheParNRésultats
   async rechercherMembres<T extends infoRésultat>({
     f,
     nRésultatsDésirés,
@@ -1693,6 +1709,7 @@ export default class Réseau extends EventEmitter {
       fObjectif,
     });
   }
+
 
   async suivreConfianceAuteurs({
     idItem,

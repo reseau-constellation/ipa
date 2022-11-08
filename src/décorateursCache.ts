@@ -184,7 +184,12 @@ export class CacheSuivi {
     };
 
     const fChangerTailleRequète = (taille: number) => {
+      const tailleAvant = this._cacheRecherche[codeCache].requètes[idRequète].taille;
+      if (taille === tailleAvant) return
       this._cacheRecherche[codeCache].requètes[idRequète].taille = taille;
+
+      fFinale(this._cacheRecherche[codeCache].val);
+
       const maxTaille = Math.max(...Object.values(this._cacheRecherche[codeCache].requètes).map(r=>r.taille))
       const { taillePrésente } = this._cacheRecherche[codeCache]
       const { fChangerTaille } = this._cacheRecherche[codeCache].fs;
@@ -235,6 +240,7 @@ export class CacheSuivi {
     idRequète: string;
   }) {
     await this.verrou.acquire(codeCache);
+    if (this._cacheRecherche[codeCache] === undefined) return
     const { requètes, fs } = this._cacheRecherche[codeCache];
     delete requètes[idRequète];
 
