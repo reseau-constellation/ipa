@@ -29,7 +29,12 @@ import {
   élémentDonnées,
 } from "@/valid";
 
-import { générerClients, attendreRésultat, attendreQue, typesClients } from "@/utilsTests";
+import {
+  générerClients,
+  attendreRésultat,
+  attendreQue,
+  typesClients,
+} from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -1345,7 +1350,8 @@ typesClients.forEach((type) => {
           expect(données[0].données[colonnes[0].id]).toEqual(123);
         });
 
-        test.todo("Les noms des tableaux sont liées", /*async () => {
+        test.todo(
+          "Les noms des tableaux sont liées" /*async () => {
           const réfNomsTableauLié: { [key: string]: string } = Object.assign(
             {},
             réfNoms,
@@ -1366,9 +1372,11 @@ typesClients.forEach((type) => {
 
           réfNomsTableauLié["fr"] = "précipitation";
           expect(nomsTableauLié).toEqual(réfNomsTableauLié);
-        }*/);
+        }*/
+        );
 
-        test.todo("Les règles des tableaux sont liées", /*async () => {
+        test.todo(
+          "Les règles des tableaux sont liées" /*async () => {
           const nouvelleRègle: règleBornes = {
             typeRègle: "bornes",
             détails: {
@@ -1392,7 +1400,8 @@ typesClients.forEach((type) => {
           expect(règlesTableauLié.map((r) => r.règle.règle)).toEqual(
             expect.arrayContaining(réfRèglesTableauLié)
           );
-        }*/);
+        }*/
+        );
       });
 
       describe("Combiner données tableaux", function () {

@@ -100,7 +100,7 @@ export default class Tableaux {
   }
 
   async créerTableau({ idBd }: { idBd: string }): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès({idBd});
+    const optionsAccès = await this.client.obtOpsAccès({ idBd });
 
     const idBdTableau = await this.client.créerBdIndépendante({
       type: "kvstore",

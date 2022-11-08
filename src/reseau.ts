@@ -36,7 +36,11 @@ import {
 import { élémentDonnées } from "@/valid.js";
 import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
-import { cacheRechercheParNRésultats, cacheRechercheParProfondeur, cacheSuivi } from "@/décorateursCache.js"
+import {
+  cacheRechercheParNRésultats,
+  cacheRechercheParProfondeur,
+  cacheSuivi,
+} from "@/décorateursCache.js";
 
 export interface infoDispositif {
   idSFIP: string;
@@ -59,7 +63,7 @@ export interface élémentBdMembres {
 
 export type itemRechercheProfondeur = {
   profondeur: number;
-} & { [key: string]: unknown }
+} & { [key: string]: unknown };
 
 export interface infoMembreRéseau {
   idBdCompte: string;
@@ -223,8 +227,8 @@ export default class Réseau extends EventEmitter {
       (msg: MessagePubSub) => this.messageReçu({ msg })
     );
     this.fsOublier.push(async () => {
-      await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau)
-    })
+      await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau);
+    });
 
     // @ts-ignore
     const libp2p: Libp2p = this.client.sfip!.libp2p;
@@ -1709,7 +1713,6 @@ export default class Réseau extends EventEmitter {
       fObjectif,
     });
   }
-
 
   async suivreConfianceAuteurs({
     idItem,

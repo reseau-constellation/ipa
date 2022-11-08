@@ -38,7 +38,7 @@ typesClients.forEach((type) => {
       let idBd: string;
       let accèsBd: boolean;
 
-      const fsOublier: schémaFonctionOublier[] = []
+      const fsOublier: schémaFonctionOublier[] = [];
 
       beforeAll(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients(
@@ -50,7 +50,7 @@ typesClients.forEach((type) => {
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
-        fsOublier.forEach(f=>f());
+        fsOublier.forEach((f) => f());
       });
 
       test(
@@ -310,14 +310,16 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          fsOublier.push(await client.bds!.suivreTableauxBd({
-            id: idBd,
-            f: (t) => (tableaux = t),
-          }));
+          fsOublier.push(
+            await client.bds!.suivreTableauxBd({
+              id: idBd,
+              f: (t) => (tableaux = t),
+            })
+          );
         });
 
         afterAll(async () => {
-          fsOublier.forEach(f=>f())
+          fsOublier.forEach((f) => f());
         });
 
         test("Pas de tableaux pour commencer", async () => {
@@ -345,12 +347,14 @@ typesClients.forEach((type) => {
         });
 
         test("Accès au tableau", async () => {
-          fsOublier.push(await client.suivrePermissionÉcrire({
-            id: idTableau,
-            f: (x) => (accèsTableau = x),
-          }))
+          fsOublier.push(
+            await client.suivrePermissionÉcrire({
+              id: idTableau,
+              f: (x) => (accèsTableau = x),
+            })
+          );
           expect(accèsTableau).toBe(true);
-        })
+        });
 
         test(
           "Effacer un tableau",

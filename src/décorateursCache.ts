@@ -2,8 +2,12 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
-import { réponseSuivreRecherche, itemRechercheProfondeur } from "@/reseau.js"
-import { schémaFonctionOublier, schémaFonctionSuivi, schémaRetourFonctionRecherche } from "@/utils/index.js";
+import { réponseSuivreRecherche, itemRechercheProfondeur } from "@/reseau.js";
+import {
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaRetourFonctionRecherche,
+} from "@/utils/index.js";
 
 export class CacheSuivi {
   verrou: Semaphore;
@@ -18,10 +22,12 @@ export class CacheSuivi {
     [clef: string]: {
       val?: unknown[];
       taillePrésente: number;
-      requètes: { [clef: string]: { f: schémaFonctionSuivi<unknown>, taille: number } };
+      requètes: {
+        [clef: string]: { f: schémaFonctionSuivi<unknown>; taille: number };
+      };
       fs?: {
         fChangerTaille: (n: number) => void;
-        fOublier: schémaFonctionOublier
+        fOublier: schémaFonctionOublier;
       };
     };
   };
@@ -73,7 +79,7 @@ export class CacheSuivi {
         requètes: { [idRequète]: f },
       };
       const fFinale = (x: unknown) => {
-        if (!this._cacheSuivi[codeCache]) return  // Si on a déjà annulé la requète
+        if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requète
         this._cacheSuivi[codeCache].val = x;
         const fsSuivis = Object.values(this._cacheSuivi[codeCache].requètes);
         fsSuivis.forEach((f_) => f_(x));
@@ -104,7 +110,7 @@ export class CacheSuivi {
     fOriginale,
     args,
     ceciOriginal,
-    par
+    par,
   }: {
     adresseFonction: string;
     nomArgTaille: string;
@@ -112,8 +118,8 @@ export class CacheSuivi {
     fOriginale: T;
     args: { [clef: string]: unknown };
     ceciOriginal: U;
-    par: "profondeur" | "nRésultats"
-  }): Promise<schémaRetourFonctionRecherche|réponseSuivreRecherche> {
+    par: "profondeur" | "nRésultats";
+  }): Promise<schémaRetourFonctionRecherche | réponseSuivreRecherche> {
     // Extraire la fonction de suivi
     const nomArgFonction = Object.entries(args).find(
       (x) => typeof x[1] === "function"
@@ -130,8 +136,10 @@ export class CacheSuivi {
     );
 
     const taille = args[nomArgTaille];
-    if (taille === undefined) throw `Aucun argument de nom ${nomArgTaille} n'a été passé à la fonction ${adresseFonction}.`
-    if (typeof taille !== "number") throw `Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`
+    if (taille === undefined)
+      throw `Aucun argument de nom ${nomArgTaille} n'a été passé à la fonction ${adresseFonction}.`;
+    if (typeof taille !== "number")
+      throw `Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`;
 
     const codeCache = this.générerCodeCache({
       adresseFonction,
@@ -144,9 +152,17 @@ export class CacheSuivi {
 
     const fFinale = (val: unknown[]) => {
       this._cacheRecherche[codeCache].val = val;
-      const infoRequètes = Object.values(this._cacheRecherche[codeCache].requètes);
+      const infoRequètes = Object.values(
+        this._cacheRecherche[codeCache].requètes
+      );
       if (par === "profondeur") {
-        infoRequètes.forEach((info) => info.f((val as itemRechercheProfondeur[]).filter(x=>x.profondeur <= info.taille)));
+        infoRequètes.forEach((info) =>
+          info.f(
+            (val as itemRechercheProfondeur[]).filter(
+              (x) => x.profondeur <= info.taille
+            )
+          )
+        );
       } else {
         infoRequètes.forEach((info) => info.f(val.slice(0, info.taille)));
       }
@@ -154,23 +170,36 @@ export class CacheSuivi {
 
     // Vérifier si déjà en cache
     if (!this._cacheRecherche[codeCache]) {
-
       // Si pas en cache, générer
       this._cacheRecherche[codeCache] = {
         requètes: { [idRequète]: { f, taille } },
-        taillePrésente: taille
+        taillePrésente: taille,
       };
 
-      const argsComplets = { ...argsSansFOuTaille, [nomArgFonction]: fFinale, [nomArgTaille]: taille };
+      const argsComplets = {
+        ...argsSansFOuTaille,
+        [nomArgFonction]: fFinale,
+        [nomArgTaille]: taille,
+      };
 
       if (par === "profondeur") {
-        const { fOublier, fChangerProfondeur } = await fOriginale.apply(ceciOriginal, [argsComplets]);
-        this._cacheRecherche[codeCache].fs = { fOublier, fChangerTaille: fChangerProfondeur };
+        const { fOublier, fChangerProfondeur } = await fOriginale.apply(
+          ceciOriginal,
+          [argsComplets]
+        );
+        this._cacheRecherche[codeCache].fs = {
+          fOublier,
+          fChangerTaille: fChangerProfondeur,
+        };
       } else {
-        const { fOublier, fChangerN } = await fOriginale.apply(ceciOriginal, [argsComplets]);
-        this._cacheRecherche[codeCache].fs = { fOublier, fChangerTaille: fChangerN };
+        const { fOublier, fChangerN } = await fOriginale.apply(ceciOriginal, [
+          argsComplets,
+        ]);
+        this._cacheRecherche[codeCache].fs = {
+          fOublier,
+          fChangerTaille: fChangerN,
+        };
       }
-
     } else {
       // Sinon, ajouter f à la liste de fonctions de rappel
       this._cacheRecherche[codeCache].requètes[idRequète] = { f, taille };
@@ -184,33 +213,37 @@ export class CacheSuivi {
     };
 
     const fChangerTailleRequète = (taille: number) => {
-      const tailleAvant = this._cacheRecherche[codeCache].requètes[idRequète].taille;
-      if (taille === tailleAvant) return
+      const tailleAvant =
+        this._cacheRecherche[codeCache].requètes[idRequète].taille;
+      if (taille === tailleAvant) return;
       this._cacheRecherche[codeCache].requètes[idRequète].taille = taille;
 
       fFinale(this._cacheRecherche[codeCache].val);
 
-      const maxTaille = Math.max(...Object.values(this._cacheRecherche[codeCache].requètes).map(r=>r.taille))
-      const { taillePrésente } = this._cacheRecherche[codeCache]
+      const maxTaille = Math.max(
+        ...Object.values(this._cacheRecherche[codeCache].requètes).map(
+          (r) => r.taille
+        )
+      );
+      const { taillePrésente } = this._cacheRecherche[codeCache];
       const { fChangerTaille } = this._cacheRecherche[codeCache].fs;
-      if ( maxTaille !== taillePrésente) {
-        fChangerTaille(taillePrésente)
+      if (maxTaille !== taillePrésente) {
+        fChangerTaille(taillePrésente);
       }
-    }
+    };
     this.verrou.release(codeCache);
 
     if (par === "profondeur") {
       return {
         fOublier: fOublierRequète,
-        fChangerProfondeur: fChangerTailleRequète
+        fChangerProfondeur: fChangerTailleRequète,
       };
     } else {
       return {
         fOublier: fOublierRequète,
-        fChangerN: fChangerTailleRequète
+        fChangerN: fChangerTailleRequète,
       };
     }
-
   }
 
   async oublierSuivi({
@@ -221,7 +254,7 @@ export class CacheSuivi {
     idRequète: string;
   }) {
     await this.verrou.acquire(codeCache);
-    if (this._cacheSuivi[codeCache] === undefined) return
+    if (this._cacheSuivi[codeCache] === undefined) return;
     const { requètes, fOublier } = this._cacheSuivi[codeCache];
     delete requètes[idRequète];
 
@@ -240,7 +273,7 @@ export class CacheSuivi {
     idRequète: string;
   }) {
     await this.verrou.acquire(codeCache);
-    if (this._cacheRecherche[codeCache] === undefined) return
+    if (this._cacheRecherche[codeCache] === undefined) return;
     const { requètes, fs } = this._cacheRecherche[codeCache];
     delete requètes[idRequète];
 
@@ -260,29 +293,43 @@ export class CacheSuivi {
     idClient: string;
     argsClefs: { [clef: string]: unknown };
   }): string {
-    const texte = adresseFonction + "-" + idClient + "-" + JSON.stringify(argsClefs);
+    const texte =
+      adresseFonction + "-" + idClient + "-" + JSON.stringify(argsClefs);
     return crypto.createHash("md5").update(texte).digest("hex");
   }
 }
 
 export const cacheSuivi = (_cible: any, nom: any, descripteur: any) => {
-  return envelopper({nom, descripteur});
-}
-
-export const cacheRechercheParNRésultats = (_cible: any, nom: any, descripteur: any) => {
-  return envelopper({nom, descripteur, recherche: "nRésultats"});
+  return envelopper({ nom, descripteur });
 };
 
-export const cacheRechercheParProfondeur = (_cible: any, nom: any, descripteur: any) => {
-  return envelopper({nom, descripteur, recherche: "profondeur"});
+export const cacheRechercheParNRésultats = (
+  _cible: any,
+  nom: any,
+  descripteur: any
+) => {
+  return envelopper({ nom, descripteur, recherche: "nRésultats" });
+};
+
+export const cacheRechercheParProfondeur = (
+  _cible: any,
+  nom: any,
+  descripteur: any
+) => {
+  return envelopper({ nom, descripteur, recherche: "profondeur" });
 };
 
 export const envelopper = ({
   nom,
   descripteur,
   recherche,
-  nomArgTaille
-}: {nom: any, descripteur: any, recherche?: "profondeur" | "nRésultats", nomArgTaille?: string}) => {
+  nomArgTaille,
+}: {
+  nom: any;
+  descripteur: any;
+  recherche?: "profondeur" | "nRésultats";
+  nomArgTaille?: string;
+}) => {
   const original = descripteur.value;
 
   if (typeof original === "function") {
@@ -291,9 +338,11 @@ export const envelopper = ({
 
       try {
         if (recherche) {
-          nomArgTaille = nomArgTaille ? nomArgTaille : (
-            recherche === "profondeur" ? "profondeur" : "nRésultatsDésirés"
-          )
+          nomArgTaille = nomArgTaille
+            ? nomArgTaille
+            : recherche === "profondeur"
+            ? "profondeur"
+            : "nRésultatsDésirés";
           return cache.suivreRecherche({
             adresseFonction: this.constructor.name + "." + nom,
             idClient: this.client.idBdCompte,
@@ -301,7 +350,7 @@ export const envelopper = ({
             args: args[0],
             ceciOriginal: this,
             par: recherche,
-            nomArgTaille
+            nomArgTaille,
           });
         } else {
           return cache.suivre({
@@ -311,16 +360,16 @@ export const envelopper = ({
             args: args[0],
             ceciOriginal: this,
           });
-        };
+        }
       } catch (e) {
         console.error(`Erreur: ${e}`);
         throw e;
       }
     };
   } else {
-    throw "L'objet décoré n'est pas une fonction"
+    throw "L'objet décoré n'est pas une fonction";
   }
   return descripteur;
-}
+};
 
 export const cache = new CacheSuivi();

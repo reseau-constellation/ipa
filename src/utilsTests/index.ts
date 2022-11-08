@@ -160,8 +160,8 @@ export const attendreFichierModifié = async (
         }
       } catch (e) {
         // Le fichier a été effacé
-        clearInterval(interval)
-        rejeter(e)
+        clearInterval(interval);
+        rejeter(e);
       }
     }, 10);
   });

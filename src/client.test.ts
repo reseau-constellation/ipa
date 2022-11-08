@@ -1750,7 +1750,7 @@ describe("Client Constellation", function () {
     }, config.patience);
 
     afterAll(() => {
-      if (interval) clearInterval(interval)
+      if (interval) clearInterval(interval);
       fsOublier.forEach((f) => f());
     });
 

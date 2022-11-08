@@ -1602,7 +1602,7 @@ export default class ClientConstellation extends EventEmitter {
     fOublier();
     return {
       address: accès.bd!.id,
-      premierMod: accès._premierMod
+      premierMod: accès._premierMod,
     };
   }
 

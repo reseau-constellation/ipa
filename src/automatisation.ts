@@ -309,12 +309,12 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   spéc,
   idSpéc,
   client,
-  fÉtat
+  fÉtat,
 }: {
-  spéc: T,
-  idSpéc: string,
-  client: ClientConstellation,
-  fÉtat: (état: ÉtatAutomatisation) => void
+  spéc: T;
+  idSpéc: string;
+  client: ClientConstellation;
+  fÉtat: (état: ÉtatAutomatisation) => void;
 }): Promise<schémaFonctionOublier> => {
   const fAuto = générerFAuto(spéc, client);
   const clefStockageDernièreFois = `auto: ${idSpéc}`;
@@ -509,7 +509,7 @@ class AutomatisationActive extends EventEmitter {
       fÉtat: (état: ÉtatAutomatisation) => {
         this.état = état;
         this.emit("misÀJour");
-      }
+      },
     }).then((fOublier) => {
       this.fOublier = fOublier;
       this.emit("prêt");
@@ -582,11 +582,12 @@ export default class Automatisations extends EventEmitter {
   async mettreAutosÀJour(
     autos: LogEntry<SpécificationAutomatisation>[]
   ): Promise<void> {
-    await verrou.acquire("miseÀJour")
+    await verrou.acquire("miseÀJour");
     const automatisationsDavant = Object.keys(this.automatisations);
 
     for (const id of automatisationsDavant) {
-      if (!autos.find(a=>a.payload.value.id === id)) await this.fermerAuto(id)
+      if (!autos.find((a) => a.payload.value.id === id))
+        await this.fermerAuto(id);
     }
 
     for (const a of autos) {
@@ -679,7 +680,7 @@ export default class Automatisations extends EventEmitter {
     >({ id: this.idBd });
 
     dispositif = dispositif || this.client.orbite!.identity.id;
-    const id = uuidv4()
+    const id = uuidv4();
 
     const élément: SpécificationImporter<T> = {
       type: "importation",
@@ -705,7 +706,6 @@ export default class Automatisations extends EventEmitter {
   }
 
   async annulerAutomatisation({ id }: { id: string }): Promise<void> {
-
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
     >({ id: this.idBd });
@@ -753,9 +753,11 @@ export default class Automatisations extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-    await Promise.all(Object.keys(this.automatisations).map((a) => {
-      this.fermerAuto(a);
-    }));
+    await Promise.all(
+      Object.keys(this.automatisations).map((a) => {
+        this.fermerAuto(a);
+      })
+    );
     if (this.fOublier) this.fOublier();
   }
 }

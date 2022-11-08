@@ -177,7 +177,8 @@ typesClients.forEach((type) => {
                   clefPublique: identitéOrbite2.publicKey,
                   encryption: {
                     type: await client2.encryption.obtNom(),
-                    clefPublique: (await client2.encryption.obtClefs()).publique,
+                    clefPublique: (await client2.encryption.obtClefs())
+                      .publique,
                   },
                   signatures: identitéOrbite2.signatures,
                 },
@@ -193,7 +194,8 @@ typesClients.forEach((type) => {
                   clefPublique: identitéOrbite3.publicKey,
                   encryption: {
                     type: await client3.encryption.obtNom(),
-                    clefPublique: (await client3.encryption.obtClefs()).publique,
+                    clefPublique: (await client3.encryption.obtClefs())
+                      .publique,
                   },
                   signatures: identitéOrbite3.signatures,
                 },

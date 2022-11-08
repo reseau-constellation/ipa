@@ -67,14 +67,18 @@ typesClients.forEach((type) => {
         });
 
         test("Enlever de mes projets", async () => {
-          await client.projets!.enleverDeMesProjets({idProjet: idNouveauProjet});
+          await client.projets!.enleverDeMesProjets({
+            idProjet: idNouveauProjet,
+          });
           expect(mesProjets).not.toEqual(
             expect.arrayContaining([idNouveauProjet])
           );
         });
 
         test("Ajouter à mes projets", async () => {
-          await client.projets!.ajouterÀMesProjets({ idProjet: idNouveauProjet});
+          await client.projets!.ajouterÀMesProjets({
+            idProjet: idNouveauProjet,
+          });
           expect(mesProjets).toEqual(expect.arrayContaining([idNouveauProjet]));
         });
 

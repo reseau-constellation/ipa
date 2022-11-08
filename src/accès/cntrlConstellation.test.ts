@@ -111,7 +111,6 @@ describe("Contrôleur Constellation", function () {
           },
         });
         await bd.load();
-
       }, config.patienceInit);
 
       afterAll(async () => {
@@ -153,8 +152,8 @@ describe("Contrôleur Constellation", function () {
       test(
         "Un membre ne peut pas inviter d'autres personnes",
         async () => {
-          await expect(
-            () => bdOrbite2.access.grant(MEMBRE, orbitdb3.identity.id)
+          await expect(() =>
+            bdOrbite2.access.grant(MEMBRE, orbitdb3.identity.id)
           ).rejects.toThrow();
         },
         config.patience

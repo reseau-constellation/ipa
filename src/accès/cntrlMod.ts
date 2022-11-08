@@ -52,13 +52,13 @@ export default class ContrôleurAccès extends EventEmitter {
             résoudre(true);
           } else {
             const maintenant = Date.now();
-            if ((maintenant - this.dernierAppel) > PATIENCE) {
+            if (maintenant - this.dernierAppel > PATIENCE) {
               résoudre(false);
             } else {
-              partirCrono()
+              partirCrono();
             }
           }
-        }, 100)
+        }, 100);
       };
       partirCrono();
     });

@@ -23,8 +23,8 @@ export interface Encryption {
   clefAléatoire(): string;
 
   // Nécessaire pour le proxy
-  obtNom(): Promise<string>
-  obtClefs(): Promise<Encryption["clefs"]>
+  obtNom(): Promise<string>;
+  obtClefs(): Promise<Encryption["clefs"]>;
 }
 
 export class EncryptionLocalFirst implements Encryption {
@@ -71,10 +71,10 @@ export class EncryptionLocalFirst implements Encryption {
   }
 
   async obtNom(): Promise<string> {
-    return this.nom
+    return this.nom;
   }
 
   async obtClefs(): Promise<Encryption["clefs"]> {
-    return this.clefs
+    return this.clefs;
   }
 }
