@@ -23,7 +23,7 @@ jobs:
         run: pnpm install --lockfile=false
 
       - name: Vérifier les tests
-        run: pnpm couverture:tous --bail
+        run: pnpm couverture:tous
 
       - name: Envoyer couverure à Codecov
         uses: codecov/codecov-action@v2
