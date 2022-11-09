@@ -335,6 +335,7 @@ export const envelopper = ({
   if (typeof original === "function") {
     descripteur.value = function (...args: any[]) {
       if (args.length > 1) throw "Args trop longs";
+      const client = this.client ? this.client : this;
 
       try {
         if (recherche) {
@@ -345,7 +346,7 @@ export const envelopper = ({
             : "nRésultatsDésirés";
           return cache.suivreRecherche({
             adresseFonction: this.constructor.name + "." + nom,
-            idClient: this.client.idBdCompte,
+            idClient: client.idBdCompte,
             fOriginale: original,
             args: args[0],
             ceciOriginal: this,
@@ -355,7 +356,7 @@ export const envelopper = ({
         } else {
           return cache.suivre({
             adresseFonction: this.constructor.name + "." + nom,
-            idClient: this.client.idBdCompte,
+            idClient: client.idBdCompte,
             fOriginale: original,
             args: args[0],
             ceciOriginal: this,
