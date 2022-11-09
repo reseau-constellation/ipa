@@ -127,9 +127,6 @@ export default class ClientConstellation extends EventEmitter {
     super();
     enregistrerContrôleurs();
     this._opts = opts;
-    if (!this._opts.dossierStockageLocal && (! (this._opts.orbite instanceof(OrbitDB)))) {
-      this._opts.dossierStockageLocal = this._opts.orbite.dossier
-    }
 
     this._bds = {};
     this.prêt = false;
@@ -1437,7 +1434,8 @@ export default class ClientConstellation extends EventEmitter {
       this.idBdCompte!.length - 23,
       this.idBdCompte!.length - 8
     )} : ${clef}`;
-    return (await obtStockageLocal(this._opts.dossierStockageLocal)).getItem(
+
+    return (await obtStockageLocal(this._opts.dossierStockageLocal || this.orbite.directory)).getItem(
       clefClient
     );
   }
