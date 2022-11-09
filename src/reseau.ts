@@ -224,7 +224,7 @@ export default class Réseau extends EventEmitter {
   async initialiser(): Promise<void> {
     await this.client.sfip!.pubsub.subscribe(
       this.client.sujet_réseau,
-      (msg: MessagePubSub) => this.messageReçu({ msg })
+      async (msg: MessagePubSub) => await this.messageReçu({ msg })
     );
     this.fsOublier.push(async () => {
       await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau);
