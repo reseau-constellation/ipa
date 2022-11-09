@@ -47,9 +47,10 @@ export default class GestionnaireClient {
   }
 
   async init(): Promise<void> {
-    this._verrou.acquire("init");
+    await this._verrou.acquire("init");
 
     if (this.ipa) {
+      this._verrou.release("init");
       return;
     } // Nécessaire si on a plus qu'un proxy client connecté au même client Constellation
 
@@ -196,8 +197,8 @@ export default class GestionnaireClient {
   }
 
   async fermer(): Promise<void> {
-    if (this.ipa) {
-      await this.ipa.fermer();
-    }
+    // Avant de fermer, il faut être sûr qu'on a bien initialisé !
+    await this.init();
+    await this.ipa.fermer();
   }
 }
