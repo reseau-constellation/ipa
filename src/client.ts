@@ -31,6 +31,12 @@ import { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import Automatisations from "@/automatisation.js";
 
 import {
+  cacheRechercheParNRésultats,
+  cacheRechercheParProfondeur,
+  cacheSuivi,
+} from "@/décorateursCache.js";
+
+import {
   adresseOrbiteValide,
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -329,6 +335,7 @@ export default class ClientConstellation extends EventEmitter {
     );
   }
 
+  @cacheSuivi
   async suivreDispositifs({
     f,
     idBdCompte,
@@ -476,6 +483,7 @@ export default class ClientConstellation extends EventEmitter {
     fOublier();
   }
 
+  @cacheSuivi
   async suivreIdBdCompte({
     f,
   }: {
@@ -1092,6 +1100,7 @@ export default class ClientConstellation extends EventEmitter {
     return fOublier;
   }
 
+  @cacheSuivi
   async suivreEmpreinteTêtesBdRécursive({
     idBd,
     f,
@@ -1604,6 +1613,7 @@ export default class ClientConstellation extends EventEmitter {
     };
   }
 
+  @cacheSuivi
   async suivrePermission({
     idObjet,
     f,
@@ -1646,6 +1656,7 @@ export default class ClientConstellation extends EventEmitter {
     }
   }
 
+  @cacheSuivi
   async suivrePermissionÉcrire({
     id,
     f,
@@ -1659,6 +1670,7 @@ export default class ClientConstellation extends EventEmitter {
     return await this.suivrePermission({ idObjet: id, f: fFinale });
   }
 
+  @cacheSuivi
   async suivreAccèsBd({
     id,
     f,
@@ -1691,6 +1703,7 @@ export default class ClientConstellation extends EventEmitter {
     return faisRien;
   }
 
+  @cacheSuivi
   async suivreBdsRécursives({
     idBd,
     f,
