@@ -246,7 +246,7 @@ export default class Réseau extends EventEmitter {
     }
     this.fsOublier.push(
       ...événements.map((é) => {
-        return () =>
+        return async () =>
           libp2p.connectionManager.removeEventListener(é, fSuivreConnexions);
       })
     );
@@ -254,7 +254,7 @@ export default class Réseau extends EventEmitter {
     const x = setInterval(() => {
       this.direSalut({});
     }, INTERVALE_SALUT);
-    this.fsOublier.push(() => clearInterval(x));
+    this.fsOublier.push(async () => clearInterval(x));
 
     this.direSalut({});
   }
@@ -709,12 +709,12 @@ export default class Réseau extends EventEmitter {
     if (idBdCompte === this.client.idBdCompte) {
       await this._initaliserBloquésPrivés();
       this.on("changementMembresBloqués", fFinale);
-      fsOublier.push(() => this.off("changementMembresBloqués", fFinale));
+      fsOublier.push(async () => { this.off("changementMembresBloqués", fFinale) });
       fFinale();
     }
 
-    return () => {
-      fsOublier.forEach((f) => f());
+    return async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     };
   }
 
@@ -904,8 +904,8 @@ export default class Réseau extends EventEmitter {
       CONFIANCE_DE_COAUTEUR
     );
 
-    return () => {
-      fsOublier.forEach((f) => f());
+    return async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     };
   }
 
@@ -1030,9 +1030,9 @@ export default class Réseau extends EventEmitter {
       fMiseÀJour();
     };
 
-    const fOublier = () => {
+    const fOublier = async () => {
       fermer = true;
-      Object.values(dicOublierRelations).forEach((f) => f());
+      await Promise.all(Object.values(dicOublierRelations).map((f) => f()));
     };
 
     return { fOublier, fChangerProfondeur };
@@ -1175,9 +1175,9 @@ export default class Réseau extends EventEmitter {
         idCompteDébut,
       });
 
-    const fOublier = () => {
-      fOublierComptesEnLigne();
-      fOublierComptesRéseau();
+    const fOublier = async () => {
+      await fOublierComptesEnLigne();
+      await fOublierComptesRéseau();
     };
 
     return { fOublier, fChangerProfondeur };
@@ -1246,7 +1246,7 @@ export default class Réseau extends EventEmitter {
     this.on("changementConnexions", fFinale);
     fFinale();
 
-    const oublier = () => {
+    const oublier = async () => {
       this.off("changementConnexions", fFinale);
     };
     return oublier;
@@ -1265,7 +1265,7 @@ export default class Réseau extends EventEmitter {
     this.on("membreVu", fFinale);
     fFinale();
 
-    const oublier = () => {
+    const oublier = async () => {
       this.off("membreVu", fFinale);
     };
     return oublier;
@@ -1573,10 +1573,10 @@ export default class Réseau extends EventEmitter {
         };
         const fOublierQualité = await fQualité(id, fSuivreQualité);
 
-        const fOublierBranche = () => {
-          fOublierObjectif();
-          fOublierConfiance();
-          fOublierQualité();
+        const fOublierBranche = async () => {
+          await fOublierObjectif();
+          await fOublierConfiance();
+          await fOublierQualité();
         };
 
         return fOublierBranche;
@@ -1650,9 +1650,9 @@ export default class Réseau extends EventEmitter {
       débuterReboursAjusterProfondeur(0);
     };
 
-    const fOublier = () => {
-      fOublierSuivreComptes();
-      Object.values(fsOublierRechercheMembres).forEach((f) => f());
+    const fOublier = async () => {
+      await fOublierSuivreComptes();
+      await Promise.all(Object.values(fsOublierRechercheMembres).map((f) => f()));
     };
 
     return { fChangerN, fOublier };
@@ -1815,9 +1815,9 @@ export default class Réseau extends EventEmitter {
         },
       });
 
-      return () => {
-        fOublierPropres();
-        fOublierFavoris();
+      return async () => {
+        await fOublierPropres();
+        await fOublierFavoris();
       };
     };
 
@@ -2391,8 +2391,8 @@ export default class Réseau extends EventEmitter {
         idBdCompte: id,
       });
 
-      return () => {
-        fOublierDispositifsMembre();
+      return async () => {
+        await fOublierDispositifsMembre();
       };
     };
 
@@ -2412,10 +2412,10 @@ export default class Réseau extends EventEmitter {
         fCode,
       });
 
-    const fOublier = () => {
-      fOublierFavoris();
-      fOublierConnexionsMembres();
-      fOublierConnexionsDispositifs();
+    const fOublier = async () => {
+      await fOublierFavoris();
+      await fOublierConnexionsMembres();
+      await fOublierConnexionsDispositifs();
     };
     return { fOublier, fChangerProfondeur };
   }
@@ -2581,6 +2581,6 @@ export default class Réseau extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-    this.fsOublier.forEach((f) => f());
+    this.fsOublier.forEach(async (f) => await f());
   }
 }

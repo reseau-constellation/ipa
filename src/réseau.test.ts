@@ -227,7 +227,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Personne pour commencer", async () => {
@@ -296,7 +296,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           await client.réseau!.débloquerMembre({ idBdCompte: idBdCompte2 });
           await client.réseau!.débloquerMembre({ idBdCompte: idBdCompte3 });
         });
@@ -425,7 +425,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           if (idMotClef1)
             await client2.motsClefs!.effacerMotClef({ id: idMotClef1 });
           if (idMotClef2)
@@ -1891,7 +1891,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           if (idMotClef1)
             await client.motsClefs!.effacerMotClef({ id: idMotClef1 });
           if (idMotClef2)
@@ -1935,7 +1935,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           if (idVariable1)
             await client.variables!.effacerVariable({ id: idVariable1 });
           if (idVariable2)
@@ -1980,7 +1980,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Mes BDs détectées", async () => {
@@ -2017,7 +2017,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Mes projets détectés", async () => {
@@ -2061,7 +2061,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           if (idMotClef)
             await client.motsClefs!.effacerMotClef({ id: idMotClef });
         });
@@ -2198,7 +2198,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           if (idBd) {
             await client.bds!.effacerBd({ id: idBd });
             await client2.favoris!.désépinglerFavori({ id: idBd });
@@ -2372,7 +2372,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test(

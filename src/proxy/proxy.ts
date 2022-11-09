@@ -21,7 +21,7 @@ import {
 interface Tâche {
   id: string;
   fSuivre: schémaFonctionSuivi<unknown>;
-  fRetour: (fonction: string, args?: unknown[]) => void;
+  fRetour: (fonction: string, args?: unknown[]) => Promise<void>;
 }
 
 class Callable extends Function {
@@ -144,7 +144,7 @@ export abstract class ClientProxifiable extends Callable {
       nomArgFonction,
     };
 
-    const fRetour = (fonction: string, args?: unknown[]) => {
+    const fRetour = async (fonction: string, args?: unknown[]) => {
       const messageRetour: MessageRetourPourTravailleur = {
         type: "retour",
         id,
@@ -161,8 +161,8 @@ export abstract class ClientProxifiable extends Callable {
     };
     this.tâches[id] = tâche;
 
-    const fOublierTâche = () => {
-      this.oublierTâche(id);
+    const fOublierTâche = async () => {
+      await this.oublierTâche(id);
     };
 
     this.envoyerMessage(message);
@@ -176,12 +176,12 @@ export abstract class ClientProxifiable extends Callable {
     }
 
     if (fonctions && fonctions[0]) {
-      const retour: { [key: string]: (...args: unknown[]) => void } = {
+      const retour: { [key: string]: (...args: unknown[]) => Promise<void> } = {
         fOublier: fOublierTâche,
       };
       for (const f of fonctions) {
-        retour[f] = (...args: unknown[]) => {
-          this.tâches[id]?.fRetour(f, args);
+        retour[f] = async (...args: unknown[]) => {
+          await this.tâches[id]?.fRetour(f, args);
         };
       }
       return retour;
@@ -222,9 +222,9 @@ export abstract class ClientProxifiable extends Callable {
     throw new Error(infoErreur.toString());
   }
 
-  oublierTâche(id: string): void {
+  async oublierTâche(id: string): Promise<void> {
     const tâche = this.tâches[id];
-    if (tâche) tâche.fRetour("fOublier");
+    if (tâche) await tâche.fRetour("fOublier");
     delete this.tâches[id];
   }
 

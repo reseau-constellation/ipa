@@ -595,9 +595,9 @@ export default class Projets {
       fBranche,
     });
 
-    return () => {
-      fOublierMotsClefsPropres();
-      fOublierMotsClefsBds();
+    return async () => {
+      await fOublierMotsClefsPropres();
+      await fOublierMotsClefsBds();
     };
   }
 

@@ -473,10 +473,10 @@ export default class BDs {
       fSuivre: fSuivreBdLiée,
     });
 
-    return () => {
-      fOublierTableauxBd();
-      fOublierTableauxBdLiée();
-      fOublierDifférencesTableaux();
+    return async () => {
+      await fOublierTableauxBd();
+      await fOublierTableauxBdLiée();
+      await fOublierDifférencesTableaux();
     };
   }
 
@@ -1349,9 +1349,9 @@ export default class BDs {
         },
       });
 
-      return () => {
-        fOublierCols();
-        fOublierRègles();
+      return async () => {
+        await fOublierCols();
+        await fOublierRègles();
       };
     };
 
@@ -1472,10 +1472,10 @@ export default class BDs {
         },
       });
 
-      return () => {
-        fOublierDonnées();
-        fOublierErreurs();
-        fOublierColonnes();
+      return async () => {
+        await fOublierDonnées();
+        await fOublierErreurs();
+        await fOublierColonnes();
       };
     };
 
@@ -1536,10 +1536,10 @@ export default class BDs {
         fFinale();
       },
     });
-    return () => {
-      oublierAccès();
-      oublierCouverture();
-      oublierValide();
+    return async () => {
+      await oublierAccès();
+      await oublierCouverture();
+      await oublierValide();
     };
   }
 

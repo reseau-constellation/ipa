@@ -40,7 +40,7 @@ describe("adresseOrbiteValide", function () {
   });
 });
 
-describe("Client Constellation", function () {
+describe("Fonctionalités client", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation,
@@ -94,7 +94,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Contrôle dispositifs", function () {
+  describe.skip("Contrôle dispositifs", function () {
     let fOublierDispositifs: schémaFonctionOublier;
     let fOublierIdBdCompte: schémaFonctionOublier;
 
@@ -119,7 +119,7 @@ describe("Client Constellation", function () {
       expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite1]));
     });
 
-    describe("Ajouter dispositif manuellement", function () {
+    describe.skip("Ajouter dispositif manuellement", function () {
       let idBd: string;
 
       beforeAll(async () => {
@@ -152,7 +152,7 @@ describe("Client Constellation", function () {
       });
     });
 
-    describe("Automatiser ajout dispositif", function () {
+    describe.skip("Automatiser ajout dispositif", function () {
       let idBd: string;
 
       beforeAll(async () => {
@@ -183,7 +183,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD", function () {
+  describe.skip("Suivre BD", function () {
     let idBd: string;
     let fOublier: schémaFonctionOublier;
     let bd: KeyValueStore<number>;
@@ -201,14 +201,14 @@ describe("Client Constellation", function () {
         données = d;
       };
       const fOublierSuivre = await client.suivreBd({ id: idBd, f: fSuivre });
-      fOublier = () => {
-        fOublierBd();
-        fOublierSuivre();
+      fOublier = async () => {
+        await fOublierBd();
+        await fOublierSuivre();
       };
     }, config.patience);
 
     afterAll(async () => {
-      fOublier();
+      await fOublier();
     });
 
     test("Les données initiales sont détectées", async () => {
@@ -221,7 +221,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD de fonction", function () {
+  describe.skip("Suivre BD de fonction", function () {
     let idBd: string;
     let idBd2: string;
     let bd: KeyValueStore<number>;
@@ -271,10 +271,10 @@ describe("Client Constellation", function () {
         f,
         fSuivre: fSuivre_,
       });
-      fOublier = () => {
-        fOublierSuivre();
-        fOublierBd();
-        fOublierBd2();
+      fOublier = async () => {
+        await fOublierSuivre();
+        await fOublierBd();
+        await fOublierBd2();
       };
     }, config.patience);
     afterAll(async () => {
@@ -299,7 +299,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD de clef", function () {
+  describe.skip("Suivre BD de clef", function () {
     let idBdBase: string;
     let bdBase: KeyValueStore<string>;
     let idBd: string | undefined;
@@ -335,7 +335,7 @@ describe("Client Constellation", function () {
     }, config.patience);
 
     afterAll(async () => {
-      fsOublier.forEach((f) => f());
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test("`undefined` est retourné si la clef n'existe pas", async () => {
@@ -372,7 +372,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD dic de clef", function () {
+  describe.skip("Suivre BD dic de clef", function () {
     let idBdBase: string;
     let idBd: string;
     let données: { [key: string]: number };
@@ -394,7 +394,7 @@ describe("Client Constellation", function () {
     }, config.patience);
 
     afterAll(async () => {
-      fsOublier.forEach((f) => f());
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test("`{}` est retourné si la clef n'existe pas", async () => {
@@ -418,7 +418,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD liste de clef", function () {
+  describe.skip("Suivre BD liste de clef", function () {
     let idBdBase: string;
     let idBd: string;
     let donnéesValeur: number[];
@@ -448,7 +448,7 @@ describe("Client Constellation", function () {
       });
     }, config.patience);
     afterAll(async () => {
-      fsOublier.forEach((f) => f());
+      await Promise.all(fsOublier.map((f) => f()));
     });
     test("`[]` est retourné si la clef n'existe pas", async () => {
       expect(isArray(donnéesValeur)).toBe(true);
@@ -482,7 +482,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BD liste", function () {
+  describe.skip("Suivre BD liste", function () {
     let idBd: string;
     let donnéesValeur: number[];
     let données: LogEntry<number>[];
@@ -511,7 +511,7 @@ describe("Client Constellation", function () {
     }, config.patience);
 
     afterAll(async () => {
-      fsOublier.forEach((f) => f());
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test("Avec renvoyer valeur", async () => {
@@ -535,7 +535,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BDs récursives", function () {
+  describe.skip("Suivre BDs récursives", function () {
     let idBd: string;
     let idBdListe: string;
     let idBd2: string;
@@ -611,7 +611,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre empreinte têtes", function () {
+  describe.skip("Suivre empreinte têtes", function () {
     let idBd: string;
     let idBdListe: string;
     let idBd2: string;
@@ -699,7 +699,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Rechercher élément BD liste selon empreinte", function () {
+  describe.skip("Rechercher élément BD liste selon empreinte", function () {
     let idBd: string;
     let bd: FeedStore<string>;
     let fOublier: schémaFonctionOublier;
@@ -738,7 +738,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BDs de BD liste", function () {
+  describe.skip("Suivre BDs de BD liste", function () {
     let idBdListe: string;
     let idBd1: string;
     let idBd2: string;
@@ -788,8 +788,8 @@ describe("Client Constellation", function () {
       await bdListe.add(idBd1);
       await bdListe.add(idBd2);
     }, config.patience);
-    afterAll(() => {
-      fsOublier.forEach((f) => f());
+    afterAll(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     });
     test("Les éléments sont retournés", async () => {
       expect(isArray(données)).toBe(true);
@@ -797,8 +797,8 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BDs de fonction", function () {
-    describe("De liste ids BDs", function () {
+  describe.skip("Suivre BDs de fonction", function () {
+    describe.skip("De liste ids BDs", function () {
       let fSuivre: (ids: string[]) => Promise<void>;
       let résultats: number[];
       let idBd1: string;
@@ -849,8 +849,8 @@ describe("Client Constellation", function () {
           await client.suivreBdsDeFonctionListe({ fListe, f, fBranche })
         );
       }, config.patience);
-      afterAll(() => {
-        fsOublier.forEach((f) => f());
+      afterAll(async () => {
+        await Promise.all(fsOublier.map((f) => f()));
       });
 
       test("Sans branches", async () => {
@@ -870,7 +870,7 @@ describe("Client Constellation", function () {
       });
     });
 
-    describe("Avec branches complexes", function () {
+    describe.skip("Avec branches complexes", function () {
       type branche = {
         nom: string;
         id: string;
@@ -942,8 +942,8 @@ describe("Client Constellation", function () {
         );
         await changerBds([idBd1, idBd2]);
       }, config.patience);
-      afterAll(() => {
-        fsOublier.forEach((f) => f());
+      afterAll(async () => {
+        await Promise.all(fsOublier.map((f) => f()));
       });
 
       test("Ajout d'une branche ou deux", async () => {
@@ -970,7 +970,7 @@ describe("Client Constellation", function () {
       });
     });
 
-    describe("Avec branches complexes sans fCode", function () {
+    describe.skip("Avec branches complexes sans fCode", function () {
       type branche = {
         nom: string;
       };
@@ -1001,7 +1001,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre BDs selon condition", function () {
+  describe.skip("Suivre BDs selon condition", function () {
     let idBd1: string;
     let idBd2: string;
 
@@ -1034,8 +1034,8 @@ describe("Client Constellation", function () {
         })
       );
     }, config.patience);
-    afterAll(() => {
-      fsOublier.forEach((f) => f());
+    afterAll(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     });
     test("Seules les bonnes BDs sont retournées", async () => {
       expect(isArray(sélectionnées));
@@ -1062,7 +1062,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Opérations SFIP", function () {
+  describe.skip("Opérations SFIP", function () {
     let cid: string;
     const texte = "வணக்கம்";
     test(
@@ -1083,7 +1083,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Ouvrir BD", function () {
+  describe.skip("Ouvrir BD", function () {
     let idBd: string;
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1091,8 +1091,8 @@ describe("Client Constellation", function () {
       idBd = await client.créerBdIndépendante({ type: "kvstore" });
     });
 
-    afterAll(() => {
-      fsOublier.forEach((f) => f());
+    afterAll(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test("On obtient la BD", async () => {
@@ -1112,7 +1112,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Obtenir ID BD", function () {
+  describe.skip("Obtenir ID BD", function () {
     let idRacine: string;
     let idBd: string;
 
@@ -1131,8 +1131,8 @@ describe("Client Constellation", function () {
       await bdRacine.put("clef", idBd);
     }, config.patience);
 
-    afterAll(() => {
-      fsOublier.forEach((f) => f());
+    afterAll(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test("Avec racine chaîne", async () => {
@@ -1230,11 +1230,11 @@ describe("Client Constellation", function () {
     );
   });
 
-  describe("Créer BD indépendante", function () {
+  describe.skip("Créer BD indépendante", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
-    afterAll(() => {
-      fsOublier.forEach((f) => f());
+    afterAll(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test(
@@ -1289,11 +1289,11 @@ describe("Client Constellation", function () {
     );
   });
 
-  describe("Combiner BDs", function () {
+  describe.skip("Combiner BDs", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
-    afterAll(() => {
-      fsOublier.forEach((f) => f());
+    afterAll(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test(
@@ -1526,7 +1526,7 @@ describe("Client Constellation", function () {
     );
   });
 
-  describe("Effacer BD", function () {
+  describe.skip("Effacer BD", function () {
     let idBd: string;
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1541,8 +1541,8 @@ describe("Client Constellation", function () {
       await bd.close();
     }, config.patience);
 
-    afterAll(() => {
-      fsOublier.forEach((f) => f());
+    afterAll(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test("Les données n'existent plus", async () => {
@@ -1559,7 +1559,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Suivre mes permissions", function () {
+  describe.skip("Suivre mes permissions", function () {
     const rés = { ultat: undefined as string | undefined };
     let idBd: string;
 
@@ -1584,8 +1584,8 @@ describe("Client Constellation", function () {
       );
     }, config.patience);
 
-    afterAll(() => {
-      fsOublier.forEach((f) => f());
+    afterAll(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test("On n'a pas d'accès avant", async () => {
@@ -1628,7 +1628,7 @@ describe("Client Constellation", function () {
     );
   });
 
-  describe("Suivre accès et permissions BD", function () {
+  describe.skip("Suivre accès et permissions BD", function () {
     let fOublier: schémaFonctionOublier;
     let fOublierÉcrire: schémaFonctionOublier;
     let fOublierPermission: schémaFonctionOublier;
@@ -1713,7 +1713,7 @@ describe("Client Constellation", function () {
     });
   });
 
-  describe("Épingler BD", function () {
+  describe.skip("Épingler BD", function () {
     let idBdKv: string;
     let idBdListe: string;
     let idBdKv2: string;
@@ -1749,9 +1749,9 @@ describe("Client Constellation", function () {
       await client.épingles!.épinglerBd({ id: idBdKv });
     }, config.patience);
 
-    afterAll(() => {
+    afterAll(async () => {
       if (interval) clearInterval(interval);
-      fsOublier.forEach((f) => f());
+      await Promise.all(fsOublier.map((f) => f()));
     });
 
     test("La BD est épinglée", async () => {

@@ -1304,7 +1304,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Mes objets sont détectés", async () => {

@@ -13,7 +13,7 @@ import {
   traduire,
   élémentsBd,
 } from "@/utils/index.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+
 import { donnéesBdExportées, schémaCopiéDe } from "@/bds.js";
 import {
   erreurValidation,
@@ -312,9 +312,9 @@ export default class Tableaux {
       fSuivre,
     });
 
-    return () => {
-      fOublierColonnesTableau();
-      fOublierLié();
+    return async () => {
+      await fOublierColonnesTableau();
+      await fOublierLié();
     };
   }
 
@@ -434,9 +434,9 @@ export default class Tableaux {
       renvoyerValeur: false,
     });
 
-    return () => {
-      oublierDonnées();
-      oublierColonnes();
+    return async () => {
+      await oublierDonnées();
+      await oublierColonnes();
     };
   }
 
@@ -1229,9 +1229,9 @@ export default class Tableaux {
     });
 
     // Tout oublier
-    const fOublier = () => {
-      oublierRèglesTableau();
-      oublierRèglesVariable();
+    const fOublier = async () => {
+      await oublierRèglesTableau();
+      await oublierRèglesVariable();
     };
 
     return fOublier;
@@ -1338,10 +1338,10 @@ export default class Tableaux {
       idTableau,
       f: fFinaleDonnées,
     });
-    const fOublier = () => {
-      fOublierRègles();
-      fOublierDonnées();
-      fOublierVarsÀColonnes();
+    const fOublier = async () => {
+      await fOublierRègles();
+      await fOublierDonnées();
+      await fOublierVarsÀColonnes();
     };
     return fOublier;
   }
@@ -1494,9 +1494,9 @@ export default class Tableaux {
       fCode,
     });
 
-    const fOublier = () => {
-      fOublierRègles();
-      fOublierColonnes();
+    const fOublier = async () => {
+      await fOublierRègles();
+      await fOublierColonnes();
     };
     return fOublier;
   }

@@ -77,7 +77,7 @@ typesClients.forEach((type) => {
           );
         }, config.patience);
         afterAll(() => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
         test("Créé", () => {
           expect(adresseOrbiteValide(idTableau)).toBe(true);
@@ -187,7 +187,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Tout est vide pour commencer", async () => {
@@ -390,7 +390,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterEach(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Règles génériques de catégorie pour commencer", async () => {
@@ -681,7 +681,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Erreur règle si la colonne n'existe pas", async () => {
@@ -1145,7 +1145,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
         test("Tableau créé", () => {
           expect(adresseOrbiteValide(idTableau)).toBe(true);
@@ -1308,7 +1308,7 @@ typesClients.forEach((type) => {
         }, config.patience * 2);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Le tableau est copié", async () => {

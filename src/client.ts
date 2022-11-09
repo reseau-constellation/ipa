@@ -211,7 +211,7 @@ export default class ClientConstellation extends EventEmitter {
       );
     };
     const i = setInterval(fNettoyer, 1000 * 60 * 5);
-    return () => clearInterval(i);
+    return async () => clearInterval(i);
   }
 
   async initialiserCompte(): Promise<void> {
@@ -353,9 +353,9 @@ export default class ClientConstellation extends EventEmitter {
       };
       accès.on("misÀJour", fFinale);
       fFinale();
-      return () => {
+      return async () => {
         accès.off("misÀJour", fFinale);
-        fOublier();
+        await fOublier();
       };
     } else {
       fOublier();
@@ -486,7 +486,7 @@ export default class ClientConstellation extends EventEmitter {
     };
     this.on("compteChangé", fFinale);
     fFinale();
-    return () => this.off("compteChangé", fFinale);
+    return async () => {this.off("compteChangé", fFinale)};
   }
 
   async obtIdSFIP(): Promise<IDResult> {
@@ -707,7 +707,7 @@ export default class ClientConstellation extends EventEmitter {
       const fFinale = () => f(bd);
       for (const é of événements) {
         bd.events.on(é, fFinale);
-        fsOublier.push(() => bd.events.off(é, fFinale));
+        fsOublier.push(async () =>{ bd.events.off(é, fFinale)});
 
         if (
           é === "write" &&
@@ -721,8 +721,8 @@ export default class ClientConstellation extends EventEmitter {
       fFinale();
     });
 
-    const oublier = () => {
-      fsOublier.forEach((f) => f());
+    const oublier = async () => {
+      await Promise.all(fsOublier.map((f) => f()));
     };
     return oublier;
   }
@@ -764,9 +764,9 @@ export default class ClientConstellation extends EventEmitter {
         }
       },
     });
-    return () => {
-      oublierRacine();
-      if (oublierFSuivre) oublierFSuivre();
+    return async () => {
+      await oublierRacine();
+      if (oublierFSuivre) await oublierFSuivre();
     };
   }
 
@@ -1280,11 +1280,9 @@ export default class ClientConstellation extends EventEmitter {
 
     const oublierBdRacine = await fListe(fSuivreRacine);
 
-    const oublier = () => {
-      oublierBdRacine();
-      Object.values(arbre).map((x) => {
-        if (x.fOublier) x.fOublier();
-      });
+    const oublier = async () => {
+      await oublierBdRacine();
+      await Promise.all(Object.values(arbre).filter((x) => x.fOublier).map(x => x.fOublier()));
     };
     return oublier;
   }
@@ -1472,7 +1470,7 @@ export default class ClientConstellation extends EventEmitter {
 
     const idRequète = uuidv4();
 
-    const fOublier = () => {
+    const fOublier = async () => {
       // Si la BD a été effacée entre-temps par `client.effacerBd`,
       // elle ne sera plus disponible ici
       if (!this._bds[id]) return;
@@ -1639,9 +1637,9 @@ export default class ClientConstellation extends EventEmitter {
       const fOublierSuivreAccès = await (
         accès as unknown as ContrôleurConstellation
       ).suivreUtilisateursAutorisés(fFinale);
-      return () => {
-        fOublierSuivreAccès();
-        fOublier();
+      return async () => {
+        await fOublierSuivreAccès();
+        await fOublier();
       };
     } else {
       throw new Error(typeAccès);
@@ -1780,8 +1778,8 @@ export default class ClientConstellation extends EventEmitter {
       dicBds[id] = {
         requètes: new Set([de]),
         sousBds: [],
-        fOublier: () => {
-          fOublierSuiviBd();
+        fOublier: async () => {
+          await fOublierSuiviBd();
           enleverRequètesDe(id);
         },
       };
@@ -1801,8 +1799,8 @@ export default class ClientConstellation extends EventEmitter {
 
     await _suivreBdsRécursives(idBd, "");
 
-    const fOublier = () => {
-      Object.values(dicBds).forEach((v) => v.fOublier());
+    const fOublier = async () => {
+      await Promise.all(Object.values(dicBds).map((v) => v.fOublier()));
     };
     return fOublier;
   }

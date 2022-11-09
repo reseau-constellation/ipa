@@ -166,8 +166,8 @@ typesClients.forEach((type) => {
           );
         }, config.patience);
 
-        afterAll(() => {
-          fsOublier.forEach((f) => f());
+        afterAll(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Pas de résultat quand le projet n'a pas de mot-clef", async () => {
@@ -276,8 +276,8 @@ typesClients.forEach((type) => {
           );
         }, config.patience);
 
-        afterAll(() => {
-          fsOublier.forEach((f) => f());
+        afterAll(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Pas de résultat quand la bd n'a pas de variable", async () => {
@@ -435,8 +435,8 @@ typesClients.forEach((type) => {
           );
         }, config.patience);
 
-        afterAll(() => {
-          fsOublier.forEach((f) => f());
+        afterAll(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Résultat id détecté", async () => {
@@ -708,8 +708,8 @@ typesClients.forEach((type) => {
           );
         }, config.patience);
 
-        afterAll(() => {
-          fsOublier.forEach((f) => f());
+        afterAll(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Résultat id détecté", async () => {

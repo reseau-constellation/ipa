@@ -550,9 +550,9 @@ export default class Variables {
         f: fSuivreRèglesPropres,
       });
 
-    const fOublier = () => {
-      fOublierCatégorie();
-      fOublierRèglesPropres();
+    const fOublier = async () => {
+      await fOublierCatégorie();
+      await fOublierRèglesPropres();
     };
     return fOublier;
   }
@@ -630,12 +630,12 @@ export default class Variables {
       },
     });
 
-    const fOublier = () => {
-      oublierNoms();
-      oublierDescr();
-      oublierUnités();
-      oublierCatégorie();
-      oublierRègles();
+    const fOublier = async () => {
+      await oublierNoms();
+      await oublierDescr();
+      await oublierUnités();
+      await oublierCatégorie();
+      await oublierRègles();
     };
 
     return fOublier;

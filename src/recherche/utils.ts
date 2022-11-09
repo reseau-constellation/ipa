@@ -105,8 +105,8 @@ export const combinerRecherches = async <T extends infoRésultat>(
     })
   );
 
-  return () => {
-    fsOublier.forEach((f) => f());
+  return async () => {
+    await Promise.all(fsOublier.map((f) => f()));
   };
 };
 

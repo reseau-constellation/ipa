@@ -31,7 +31,7 @@ export const suivreBdAccès = async (
     bd.events.on(é, fFinale);
   }
   fFinale();
-  const oublier = () => {
+  const oublier = async () => {
     événementsSuiviBd.forEach((é) => {
       bd.events.off(é, fFinale);
     });

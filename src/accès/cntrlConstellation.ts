@@ -126,7 +126,7 @@ export default class ContrôleurConstellation extends AccessController {
     };
     this.gestRôles.on("misÀJour", fFinale);
     fFinale();
-    const fOublier = () => {
+    const fOublier = async () => {
       this.gestRôles.off("misÀJour", fFinale);
     };
     return fOublier;
@@ -140,7 +140,7 @@ export default class ContrôleurConstellation extends AccessController {
     };
     this.gestRôles.on("misÀJour", fFinale);
     fFinale();
-    const fOublier = () => {
+    const fOublier = async () => {
       this.gestRôles.off("misÀJour", fFinale);
     };
     return fOublier;

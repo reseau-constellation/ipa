@@ -30,7 +30,7 @@ export type dicTrads = { [key: string]: string };
 
 export type schémaFonctionSuivi<T> = (x: T) => void;
 
-export type schémaFonctionOublier = () => void;
+export type schémaFonctionOublier = () => Promise<void>;
 
 export type schémaRetourFonctionRecherche = {
   fOublier: schémaFonctionOublier;

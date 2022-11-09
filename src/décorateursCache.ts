@@ -95,8 +95,8 @@ export class CacheSuivi {
         f(this._cacheSuivi[codeCache].val);
     }
 
-    const fOublierRequète = () => {
-      this.oublierSuivi({ codeCache, idRequète });
+    const fOublierRequète = async () => {
+      await this.oublierSuivi({ codeCache, idRequète });
     };
     this.verrou.release(codeCache);
 
@@ -208,8 +208,8 @@ export class CacheSuivi {
       }
     }
 
-    const fOublierRequète = () => {
-      this.oublierRecherche({ codeCache, idRequète });
+    const fOublierRequète = async () => {
+      await this.oublierRecherche({ codeCache, idRequète });
     };
 
     const fChangerTailleRequète = (taille: number) => {

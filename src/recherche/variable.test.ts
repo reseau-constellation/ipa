@@ -225,8 +225,8 @@ typesClients.forEach((type) => {
           });
         }, config.patience);
 
-        afterAll(() => {
-          fsOublier.forEach((f) => f());
+        afterAll(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Résultat nom détecté", async () => {

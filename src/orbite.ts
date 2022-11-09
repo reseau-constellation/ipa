@@ -1,5 +1,5 @@
 import OrbitDB from "orbit-db";
-import AccessControllers from "./accès/index.js";
+import AccessControllers from "@/accès/index.js";
 import { IPFS } from "ipfs-core";
 
 export default async function initOrbite(

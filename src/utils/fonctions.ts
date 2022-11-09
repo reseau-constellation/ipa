@@ -50,6 +50,6 @@ export const uneFois = async function <T>(
   return résultat[0];
 };
 
-export const faisRien = (): void => {
+export const faisRien = async (): Promise<void> => {
   // Rien à faire
 };

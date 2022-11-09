@@ -184,7 +184,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterEach(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           if (fOublierAuto) await fOublierAuto();
           rmrf.sync(dirTempo);
           delete rés["ultat"];
@@ -801,7 +801,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           const automatisations = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>
@@ -958,7 +958,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
           rmrf.sync(dir);
           delete rés["états"];
           delete rés["autos"];

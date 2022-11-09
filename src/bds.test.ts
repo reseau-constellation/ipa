@@ -50,7 +50,7 @@ typesClients.forEach((type) => {
 
       afterAll(async () => {
         if (fOublierClients) await fOublierClients();
-        fsOublier.forEach((f) => f());
+        await Promise.all(fsOublier.map((f) => f()));
       });
 
       test(
@@ -319,7 +319,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Pas de tableaux pour commencer", async () => {
@@ -530,7 +530,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Les noms sont copiés", async () => {
@@ -725,7 +725,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Les données sont copiées", async () => {
@@ -822,7 +822,7 @@ typesClients.forEach((type) => {
         }, config.patience * 2);
 
         afterAll(async () => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Les tableaux sont créés", async () => {

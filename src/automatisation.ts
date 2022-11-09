@@ -391,7 +391,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       await fAutoAvecÉtats(maintenant.toString());
 
       const crono = setTimeout(fAutoAvecÉtatsRécursif, tempsInterval);
-      dicFOublierIntervale.f = () => clearTimeout(crono);
+      dicFOublierIntervale.f = async () => clearTimeout(crono);
     };
 
     const maintenant = new Date().getTime();
@@ -406,10 +406,10 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       fAutoAvecÉtatsRécursif,
       Math.max(tempsInterval! - tempsDepuisDernièreFois, 0)
     );
-    dicFOublierIntervale.f = () => clearTimeout(crono);
+    dicFOublierIntervale.f = async () => clearTimeout(crono);
 
-    const fOublier = () => {
-      if (dicFOublierIntervale.f) dicFOublierIntervale.f();
+    const fOublier = async () => {
+      if (dicFOublierIntervale.f) await dicFOublierIntervale.f();
     };
     return fOublier;
   } else {
@@ -742,7 +742,7 @@ export default class Automatisations extends EventEmitter {
       f(étatsAuto);
     };
     this.on("misÀJour", fFinale);
-    return () => {
+    return async () => {
       this.off("misÀJour", fFinale);
     };
   }

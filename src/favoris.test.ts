@@ -102,7 +102,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Pas de favori pour commencer", async () => {

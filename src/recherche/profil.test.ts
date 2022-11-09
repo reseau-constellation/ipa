@@ -232,7 +232,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(() => {
-          fsOublier.forEach((f) => f());
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         test("Rien pour commencer", async () => {

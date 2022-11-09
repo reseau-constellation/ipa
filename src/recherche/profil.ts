@@ -73,10 +73,10 @@ export const rechercherProfilSelonActivité =
         f: fSuivreCourriel,
       });
 
-      const fOublier = () => {
-        fOublierNoms();
-        fOublierImage();
-        fOublierCourriel();
+      const fOublier = async () => {
+        await fOublierNoms();
+        await fOublierImage();
+        await fOublierCourriel();
       };
 
       return fOublier;
