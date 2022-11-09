@@ -127,6 +127,9 @@ export default class ClientConstellation extends EventEmitter {
     super();
     enregistrerContrôleurs();
     this._opts = opts;
+    if (!this._opts.dossierStockageLocal && (! (this._opts.orbite instanceof(OrbitDB)))) {
+      this._opts.dossierStockageLocal = this._opts.orbite.dossier
+    }
 
     this._bds = {};
     this.prêt = false;
