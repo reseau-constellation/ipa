@@ -40,32 +40,131 @@ describe("adresseOrbiteValide", function () {
   });
 });
 
-describe("Fonctionalités client", function () {
+describe("Contrôle dispositifs", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation,
     client2: ClientConstellation,
-    client3: ClientConstellation,
-    client4: ClientConstellation;
+    client3: ClientConstellation;
+
+  let fOublierDispositifs: schémaFonctionOublier;
+  let fOublierIdBdCompte: schémaFonctionOublier;
 
   let idOrbite1: string;
+  let idOrbite2: string;
   let idOrbite3: string;
-  let idOrbite4: string;
 
-  let idbdCompte1: string;
+  let idBdCompte1: string
+
+  let mesDispositifs: string[];
+  let idBdCompte2EnDirecte: string | undefined;
+
+  beforeAll(async () => {
+    ({ fOublier: fOublierClients, clients } = await générerClients(3));
+    [client, client2, client3] = clients
+
+    idBdCompte1 = await client.obtIdCompte();
+
+    idOrbite1 = await client.obtIdOrbite();
+    idOrbite2 = await client2.obtIdOrbite();
+    idOrbite3 = await client3.obtIdOrbite();
+    fOublierDispositifs = await client.suivreDispositifs({
+      f: (dispositifs) => (mesDispositifs = dispositifs),
+    });
+    fOublierIdBdCompte = await client2.suivreIdBdCompte({
+      f: (id) => (idBdCompte2EnDirecte = id),
+    });
+  }, config.patienceInit * 3);
+  afterAll(async () => {
+    if (fOublierDispositifs) fOublierDispositifs();
+    if (fOublierIdBdCompte) fOublierIdBdCompte();
+    if (fOublierClients) fOublierClients();
+  });
+  test("Mon dispositif est présent", async () => {
+    expect(isArray(mesDispositifs)).toBe(true);
+    expect(mesDispositifs).toHaveLength(1);
+    expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite1]));
+  });
+
+  describe("Ajouter dispositif manuellement", function () {
+    let idBd: string;
+
+    beforeAll(async () => {
+      await client.ajouterDispositif({ idOrbite: idOrbite2 });
+      await client2.rejoindreCompte({ idBdCompte: idBdCompte1 });
+      idBd = await client.créerBdIndépendante({ type: "kvstore" });
+    }, config.patienceInit);
+
+    test("Mes dispositifs sont mis à jour", async () => {
+      expect(mesDispositifs).toHaveLength(2);
+      expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite2]));
+    });
+
+    test("Le nouveau dispositif a rejoint notre compte", () => {
+      expect(idBdCompte2EnDirecte).toEqual(idBdCompte1);
+    });
+
+    test("idOrbite ne change pas", async () => {
+      const idOrbiteClient2Après = await client2.obtIdOrbite();
+      expect(idOrbiteClient2Après).toEqual(idOrbite2);
+    });
+
+    test("Le nouveau dispositif peut modifier mes BDs", async () => {
+      const { bd: bd_orbite2, fOublier } = await client2.ouvrirBd<
+        KeyValueStore<number>
+      >({ id: idBd });
+      const autorisé = await peutÉcrire(bd_orbite2, client2.orbite);
+      fOublier();
+      expect(autorisé).toBe(true);
+    });
+  });
+
+  describe("Automatiser ajout dispositif", function () {
+    let idBd: string;
+
+    beforeAll(async () => {
+      idBd = await client.créerBdIndépendante({ type: "kvstore" });
+      await clientsConnectés(client3, client);
+      const invitation = await client.générerInvitationRejoindreCompte();
+      await client3.demanderEtPuisRejoindreCompte(invitation);
+    }, config.patienceInit);
+
+    test("Nouveau dispositif ajouté au compte", async () => {
+      expect(mesDispositifs).toEqual(
+        expect.arrayContaining([idOrbite1, idOrbite2, idOrbite3])
+      );
+    });
+
+    test("Nouveau dispositif indique le nouveau compte", async () => {
+      expect(client3.idBdCompte).toEqual(client.idBdCompte);
+    });
+
+    test("Le nouveau dispositif peut modifier mes BDs", async () => {
+      const { bd: bd_orbite3, fOublier } = await client3.ouvrirBd<
+        KeyValueStore<number>
+      >({ id: idBd });
+      const autorisé = await peutÉcrire(bd_orbite3, client3.orbite);
+      fOublier();
+      expect(autorisé).toBe(true);
+    });
+  });
+});
+
+describe("Fonctionalités client", function () {
+  let fOublierClients: () => Promise<void>;
+  let clients: ClientConstellation[];
+  let client: ClientConstellation,
+    client2: ClientConstellation;
+
   let idbdCompte2: string;
 
   beforeAll(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClients(4));
-    [client, client2, client3, client4] = clients;
+    ({ fOublier: fOublierClients, clients } = await générerClients(2));
+    [client, client2] = clients;
 
-    idbdCompte1 = await client.obtIdCompte();
     idbdCompte2 = await client2.obtIdCompte();
 
-    idOrbite1 = await client.obtIdOrbite();
-    idOrbite3 = await client3.obtIdOrbite();
-    idOrbite4 = await client4.obtIdOrbite();
-  }, config.patienceInit * 4);
+  }, config.patienceInit * 2);
 
   afterAll(async () => {
     if (fOublierClients) await fOublierClients();
@@ -94,96 +193,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Contrôle dispositifs", function () {
-    let fOublierDispositifs: schémaFonctionOublier;
-    let fOublierIdBdCompte: schémaFonctionOublier;
-
-    let mesDispositifs: string[];
-    let idBdCompte3EnDirecte: string | undefined;
-
-    beforeAll(async () => {
-      fOublierDispositifs = await client.suivreDispositifs({
-        f: (dispositifs) => (mesDispositifs = dispositifs),
-      });
-      fOublierIdBdCompte = await client3.suivreIdBdCompte({
-        f: (id) => (idBdCompte3EnDirecte = id),
-      });
-    });
-    afterAll(async () => {
-      if (fOublierDispositifs) fOublierDispositifs();
-      if (fOublierIdBdCompte) fOublierIdBdCompte();
-    });
-    test("Mon dispositif est présent", async () => {
-      expect(isArray(mesDispositifs)).toBe(true);
-      expect(mesDispositifs).toHaveLength(1);
-      expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite1]));
-    });
-
-    describe.skip("Ajouter dispositif manuellement", function () {
-      let idBd: string;
-
-      beforeAll(async () => {
-        await client.ajouterDispositif({ idOrbite: idOrbite3 });
-        await client3.rejoindreCompte({ idBdCompte: idbdCompte1 });
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
-      }, config.patienceInit);
-
-      test("Mes dispositifs sont mis à jour", async () => {
-        expect(mesDispositifs).toHaveLength(2);
-        expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite3]));
-      });
-
-      test("Le nouveau dispositif a rejoint notre compte", () => {
-        expect(idBdCompte3EnDirecte).toEqual(idbdCompte1);
-      });
-
-      test("idOrbite ne change pas", async () => {
-        const idOrbiteClient3Après = await client3.obtIdOrbite();
-        expect(idOrbiteClient3Après).toEqual(idOrbite3);
-      });
-
-      test("Le nouveau dispositif peut modifier mes BDs", async () => {
-        const { bd: bd_orbite3, fOublier } = await client3.ouvrirBd<
-          KeyValueStore<number>
-        >({ id: idBd });
-        const autorisé = await peutÉcrire(bd_orbite3, client3.orbite);
-        fOublier();
-        expect(autorisé).toBe(true);
-      });
-    });
-
-    describe.skip("Automatiser ajout dispositif", function () {
-      let idBd: string;
-
-      beforeAll(async () => {
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
-        await clientsConnectés(client4, client);
-        const invitation = await client.générerInvitationRejoindreCompte();
-        await client4.demanderEtPuisRejoindreCompte(invitation);
-      }, config.patienceInit);
-
-      test("Nouveau dispositif ajouté au compte", async () => {
-        expect(mesDispositifs).toEqual(
-          expect.arrayContaining([idOrbite1, idOrbite3, idOrbite4])
-        );
-      });
-
-      test("Nouveau dispositif indique le nouveau compte", async () => {
-        expect(client4.idBdCompte).toEqual(client.idBdCompte);
-      });
-
-      test("Le nouveau dispositif peut modifier mes BDs", async () => {
-        const { bd: bd_orbite4, fOublier } = await client4.ouvrirBd<
-          KeyValueStore<number>
-        >({ id: idBd });
-        const autorisé = await peutÉcrire(bd_orbite4, client4.orbite);
-        fOublier();
-        expect(autorisé).toBe(true);
-      });
-    });
-  });
-
-  describe.skip("Suivre BD", function () {
+  describe("Suivre BD", function () {
     let idBd: string;
     let fOublier: schémaFonctionOublier;
     let bd: KeyValueStore<number>;
@@ -221,7 +231,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BD de fonction", function () {
+  describe("Suivre BD de fonction", function () {
     let idBd: string;
     let idBd2: string;
     let bd: KeyValueStore<number>;
@@ -299,7 +309,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BD de clef", function () {
+  describe("Suivre BD de clef", function () {
     let idBdBase: string;
     let bdBase: KeyValueStore<string>;
     let idBd: string | undefined;
@@ -372,7 +382,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BD dic de clef", function () {
+  describe("Suivre BD dic de clef", function () {
     let idBdBase: string;
     let idBd: string;
     let données: { [key: string]: number };
@@ -418,7 +428,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BD liste de clef", function () {
+  describe("Suivre BD liste de clef", function () {
     let idBdBase: string;
     let idBd: string;
     let donnéesValeur: number[];
@@ -482,7 +492,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BD liste", function () {
+  describe("Suivre BD liste", function () {
     let idBd: string;
     let donnéesValeur: number[];
     let données: LogEntry<number>[];
@@ -535,7 +545,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BDs récursives", function () {
+  describe("Suivre BDs récursives", function () {
     let idBd: string;
     let idBdListe: string;
     let idBd2: string;
@@ -611,7 +621,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre empreinte têtes", function () {
+  describe("Suivre empreinte têtes", function () {
     let idBd: string;
     let idBdListe: string;
     let idBd2: string;
@@ -699,7 +709,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Rechercher élément BD liste selon empreinte", function () {
+  describe("Rechercher élément BD liste selon empreinte", function () {
     let idBd: string;
     let bd: FeedStore<string>;
     let fOublier: schémaFonctionOublier;
@@ -738,7 +748,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BDs de BD liste", function () {
+  describe("Suivre BDs de BD liste", function () {
     let idBdListe: string;
     let idBd1: string;
     let idBd2: string;
@@ -797,8 +807,8 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BDs de fonction", function () {
-    describe.skip("De liste ids BDs", function () {
+  describe("Suivre BDs de fonction", function () {
+    describe("De liste ids BDs", function () {
       let fSuivre: (ids: string[]) => Promise<void>;
       let résultats: number[];
       let idBd1: string;
@@ -870,7 +880,7 @@ describe("Fonctionalités client", function () {
       });
     });
 
-    describe.skip("Avec branches complexes", function () {
+    describe("Avec branches complexes", function () {
       type branche = {
         nom: string;
         id: string;
@@ -970,7 +980,7 @@ describe("Fonctionalités client", function () {
       });
     });
 
-    describe.skip("Avec branches complexes sans fCode", function () {
+    describe("Avec branches complexes sans fCode", function () {
       type branche = {
         nom: string;
       };
@@ -1001,7 +1011,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre BDs selon condition", function () {
+  describe("Suivre BDs selon condition", function () {
     let idBd1: string;
     let idBd2: string;
 
@@ -1062,7 +1072,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Opérations SFIP", function () {
+  describe("Opérations SFIP", function () {
     let cid: string;
     const texte = "வணக்கம்";
     test(
@@ -1083,7 +1093,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Ouvrir BD", function () {
+  describe("Ouvrir BD", function () {
     let idBd: string;
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1112,7 +1122,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Obtenir ID BD", function () {
+  describe("Obtenir ID BD", function () {
     let idRacine: string;
     let idBd: string;
 
@@ -1230,7 +1240,7 @@ describe("Fonctionalités client", function () {
     );
   });
 
-  describe.skip("Créer BD indépendante", function () {
+  describe("Créer BD indépendante", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     afterAll(async () => {
@@ -1289,7 +1299,7 @@ describe("Fonctionalités client", function () {
     );
   });
 
-  describe.skip("Combiner BDs", function () {
+  describe("Combiner BDs", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     afterAll(async () => {
@@ -1526,7 +1536,7 @@ describe("Fonctionalités client", function () {
     );
   });
 
-  describe.skip("Effacer BD", function () {
+  describe("Effacer BD", function () {
     let idBd: string;
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1559,7 +1569,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Suivre mes permissions", function () {
+  describe("Suivre mes permissions", function () {
     const rés = { ultat: undefined as string | undefined };
     let idBd: string;
 
@@ -1628,7 +1638,7 @@ describe("Fonctionalités client", function () {
     );
   });
 
-  describe.skip("Suivre accès et permissions BD", function () {
+  describe("Suivre accès et permissions BD", function () {
     let fOublier: schémaFonctionOublier;
     let fOublierÉcrire: schémaFonctionOublier;
     let fOublierPermission: schémaFonctionOublier;
@@ -1713,7 +1723,7 @@ describe("Fonctionalités client", function () {
     });
   });
 
-  describe.skip("Épingler BD", function () {
+  describe("Épingler BD", function () {
     let idBdKv: string;
     let idBdListe: string;
     let idBdKv2: string;
