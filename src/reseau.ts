@@ -912,11 +912,11 @@ export default class Réseau extends EventEmitter {
   @cacheRechercheParProfondeur
   async suivreRelationsConfiance({
     f,
-    profondeur = 1,
+    profondeur,
     idCompteDébut,
   }: {
     f: schémaFonctionSuivi<infoRelation[]>;
-    profondeur?: number;
+    profondeur: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
     idCompteDébut = idCompteDébut || this.client.idBdCompte;
@@ -1041,11 +1041,11 @@ export default class Réseau extends EventEmitter {
   @cacheRechercheParProfondeur
   async suivreComptesRéseau({
     f,
-    profondeur = 1,
+    profondeur,
     idCompteDébut,
   }: {
     f: schémaFonctionSuivi<infoMembreRéseau[]>;
-    profondeur?: number;
+    profondeur: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
     const fSuivi = (relations: infoRelation[]) => {
@@ -1123,11 +1123,11 @@ export default class Réseau extends EventEmitter {
   @cacheRechercheParProfondeur
   async suivreComptesRéseauEtEnLigne({
     f,
-    profondeur = 0,
+    profondeur,
     idCompteDébut,
   }: {
     f: schémaFonctionSuivi<infoMembreRéseau[]>;
-    profondeur?: number;
+    profondeur: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
     const dicComptes: {
@@ -1183,18 +1183,22 @@ export default class Réseau extends EventEmitter {
     return { fOublier, fChangerProfondeur };
   }
 
-  @cacheRechercheParProfondeur
   async suivreConfianceMonRéseauPourMembre({
     idBdCompte,
     f,
-    profondeur = 4,
+    profondeur,
     idBdCompteRéférence,
   }: {
     idBdCompte: string;
     f: schémaFonctionSuivi<number>;
-    profondeur?: number;
+    profondeur: number;
     idBdCompteRéférence?: string;
   }): Promise<schémaRetourFonctionRecherche> {
+    /*
+    Note : Ne PAS envelopper cette fonction avec un `@cacheRechercheParProfondeur` !
+    Elle retourne un nombre, pas une liste de résultat, et ça va bien sûr planter
+    si on essaie de l'envelopper.
+    */
     idBdCompteRéférence = idBdCompteRéférence || this.client.idBdCompte!;
 
     const fFinale = (membres: infoMembreRéseau[]) => {
@@ -1675,6 +1679,7 @@ export default class Réseau extends EventEmitter {
       const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
         idBdCompte: idCompte,
         f: fSuivi,
+        profondeur: 4,
       });
       return fOublier;
     };
@@ -1745,6 +1750,7 @@ export default class Réseau extends EventEmitter {
       const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
         idBdCompte: idAuteur,
         f: fSuivreBranche,
+        profondeur: 4,
       });
       return fOublier;
     };
@@ -2210,13 +2216,13 @@ export default class Réseau extends EventEmitter {
   async suivreFavorisObjet({
     idObjet,
     f,
-    profondeur = 5,
+    profondeur,
   }: {
     idObjet: string;
     f: schémaFonctionSuivi<
       (ÉlémentFavorisAvecObjet & { idBdCompte: string })[]
     >;
-    profondeur?: number;
+    profondeur: number;
   }): Promise<schémaRetourFonctionRecherche> {
     const fFinale = (
       favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
@@ -2272,11 +2278,11 @@ export default class Réseau extends EventEmitter {
   async suivreRéplications({
     idObjet,
     f,
-    profondeur = 5,
+    profondeur,
   }: {
     idObjet: string;
     f: schémaFonctionSuivi<infoRéplications>;
-    profondeur?: number;
+    profondeur: number;
   }): Promise<schémaRetourFonctionRecherche> {
     const résultats: {
       connexionsMembres: statutMembre[];
