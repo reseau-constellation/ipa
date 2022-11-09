@@ -1712,15 +1712,15 @@ export default class ClientConstellation extends EventEmitter {
 
     const verrou = new Semaphore();
 
-    const enleverRequètesDe = (de: string) => {
+    const enleverRequètesDe = async (de: string) => {
       delete dicBds[de];
-      Object.keys(dicBds).forEach((id) => {
+      await Promise.all(Object.keys(dicBds).map(async (id) => {
         if (!dicBds[id]) return;
         dicBds[id].requètes.delete(de);
         if (!dicBds[id].requètes.size) {
-          dicBds[id].fOublier();
+          await dicBds[id].fOublier();
         }
-      });
+      }));
     };
 
     // On ne suit pas automatiquement les BDs ou tableaux dont celui d'intérêt a été copié...ça pourait être très volumineu
@@ -1780,7 +1780,7 @@ export default class ClientConstellation extends EventEmitter {
         sousBds: [],
         fOublier: async () => {
           await fOublierSuiviBd();
-          enleverRequètesDe(id);
+          await enleverRequètesDe(id);
         },
       };
 
