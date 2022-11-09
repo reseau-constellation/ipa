@@ -1755,10 +1755,10 @@ export default class ClientConstellation extends EventEmitter {
 
         dicBds[id].sousBds = idsOrbite;
 
-        obsolètes.forEach((o) => {
+        await Promise.all(obsolètes.map(async (o) => {
           dicBds[o].requètes.delete(id);
-          if (!dicBds[o].requètes.size) dicBds[o].fOublier();
-        });
+          if (!dicBds[o].requètes.size) await dicBds[o].fOublier();
+        }));
         await Promise.all(
           nouvelles.map(async (id_) => await _suivreBdsRécursives(id_, id))
         );
