@@ -1,9 +1,41 @@
 import { isElectronMain } from "wherearewe";
 import path from "path";
+import { readFileSync, writeFile } from "fs";
 
-let _localStorage: Storage;
+let _localStorage: LocalStorage;
 
-export default async (dossier?: string): Promise<Storage> => {
+class LocalStorage {
+  fichier: string;
+  _données: {[clef: string]: string};
+
+  constructor(dossier: string) {
+    this.fichier = path.join(dossier, "données.json");
+    try {
+      this._données = JSON.parse(readFileSync(this.fichier).toString())
+    } catch {
+      this._données = {}
+    }
+
+  }
+  getItem(clef: string): string {
+    return this._données[clef]
+  }
+  setItem(clef: string, val: string) {
+    this._données[clef] = val;
+    this.sauvegarder();
+  }
+  removeItem(clef: string): void {
+    delete this._données[clef];
+    this.sauvegarder();
+  }
+  async sauvegarder(): Promise<void> {
+    return new Promise(résoudre => {
+      writeFile(this.fichier, JSON.stringify(this._données), () => résoudre())
+    })
+  }
+}
+
+export default async (dossier?: string): Promise<Storage | LocalStorage> => {
   if (typeof localStorage === "undefined" || localStorage === null) {
     if (_localStorage) return _localStorage;
 
@@ -18,8 +50,6 @@ export default async (dossier?: string): Promise<Storage> => {
       const nomDossier = dossier || path.join(".", "_stockageTemp");
       DOSSIER_STOCKAGE_LOCAL = nomDossier;
     }
-
-    const LocalStorage = (await import("node-localstorage")).LocalStorage;
 
     _localStorage = new LocalStorage(DOSSIER_STOCKAGE_LOCAL);
     return _localStorage;
