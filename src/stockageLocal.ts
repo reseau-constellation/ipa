@@ -1,6 +1,7 @@
 import { isElectronMain } from "wherearewe";
 import path from "path";
-import { readFileSync, writeFile } from "fs";
+import { readFileSync } from "fs";
+import { writeFile } from 'fs/promises';
 
 let _localStorage: LocalStorage;
 
@@ -29,9 +30,7 @@ class LocalStorage {
     this.sauvegarder();
   }
   async sauvegarder(): Promise<void> {
-    return new Promise(résoudre => {
-      writeFile(this.fichier, JSON.stringify(this._données), () => résoudre())
-    })
+    await writeFile(this.fichier, JSON.stringify(this._données));
   }
 }
 
