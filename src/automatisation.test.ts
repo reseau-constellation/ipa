@@ -32,9 +32,9 @@ import { élémentBdListeDonnées } from "@/tableaux";
 import {
   générerClients,
   typesClients,
-  attendreFichierExiste,
-  attendreFichierModifié,
-  attendreRésultat,
+  AttendreFichierExiste,
+  AttendreFichierModifié,
+  AttendreRésultat,
   obtDirTempoPourTest,
 } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
@@ -150,10 +150,11 @@ typesClients.forEach((type) => {
         let dirTempo: string;
         let fOublierAuto: () => Promise<void>;
 
-        const rés: { ultat?: élémentDonnées<élémentBdListeDonnées>[] } = {};
+        let rés: AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>;
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeEach(async () => {
+          rés = new AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
           dirTempo = obtDirTempoPourTest("testImporterBd");
           fs.mkdirSync(dirTempo);
 
@@ -178,7 +179,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreDonnées({
               idTableau,
-              f: (données) => (rés.ultat = données),
+              f: (données) => (rés.mettreÀJour(données)),
             })
           );
         }, config.patience);
@@ -187,7 +188,7 @@ typesClients.forEach((type) => {
           await Promise.all(fsOublier.map((f) => f()));
           if (fOublierAuto) await fOublierAuto();
           rmrf.sync(dirTempo);
-          delete rés["ultat"];
+          rés.toutAnnuler()
         });
 
         test(
@@ -228,13 +229,11 @@ typesClients.forEach((type) => {
                 id: idAuto,
               });
 
-            await attendreRésultat(
-              rés,
-              "ultat",
+            await rés.attendreQue(
               (x) => !!(x && x.length === 3)
             );
 
-            comparerDonnéesTableau(rés.ultat!, [
+            comparerDonnéesTableau(rés.val, [
               { [idCol1]: 1, [idCol2]: "អ" },
               { [idCol1]: 2, [idCol2]: "அ" },
               { [idCol1]: 3, [idCol2]: "a" },
@@ -280,9 +279,9 @@ typesClients.forEach((type) => {
           fOublierAuto = async () =>
             await client.automatisations!.annulerAutomatisation({ id: idAuto });
 
-          await attendreRésultat(rés, "ultat", (x) => !!(x && x.length === 3));
+          await rés.attendreQue((x) => !!(x && x.length === 3));
 
-          comparerDonnéesTableau(rés.ultat!, [
+          comparerDonnéesTableau(rés.val, [
             { [idCol1]: 4, [idCol2]: "អ" },
             { [idCol1]: 5, [idCol2]: "அ" },
             { [idCol1]: 6, [idCol2]: "a" },
@@ -329,9 +328,9 @@ typesClients.forEach((type) => {
           fOublierAuto = async () =>
             await client.automatisations!.annulerAutomatisation({ id: idAuto });
 
-          await attendreRésultat(rés, "ultat", (x) => !!(x && x.length >= 10));
+          await rés.attendreQue((x) => !!(x && x.length >= 10));
 
-          comparerDonnéesTableau(rés.ultat!, [
+          comparerDonnéesTableau(rés.val, [
             { [idCol1]: 24846678, [idCol2]: "United States" },
             { [idCol1]: 10639684, [idCol2]: "India" },
             { [idCol1]: 8753920, [idCol2]: "Brazil" },
@@ -388,20 +387,20 @@ typesClients.forEach((type) => {
           fOublierAuto = async () =>
             await client.automatisations!.annulerAutomatisation({ id: idAuto });
 
-          await attendreRésultat(rés, "ultat", (x) => !!(x && x.length >= 8));
+          await rés.attendreQue((x) => !!(x && x.length >= 8));
 
           // Les résultats peuvent varier avec le temps !
           // Nom de la langue
           expect(
             rés
-              .ultat!.map((r) => r.données[idCol2])
+              .val.map((r) => r.données[idCol2])
               .every((n) => typeof n === "string")
           ).toBe(true);
 
           // Longitude
           expect(
             rés
-              .ultat!.map((r) => r.données[idCol1])
+              .val.map((r) => r.données[idCol1])
               .every((n) => -180 <= n && n <= 180)
           ).toBe(true);
         });
@@ -447,9 +446,9 @@ typesClients.forEach((type) => {
             données.données.push({ "col 1": 4, "col 2": "子" });
             fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            await attendreRésultat(rés, "ultat", (x) => x?.length === 4);
+            await rés.attendreQue((x) => x?.length === 4);
 
-            comparerDonnéesTableau(rés.ultat!, [
+            comparerDonnéesTableau(rés.val, [
               { [idCol1]: 1, [idCol2]: "អ" },
               { [idCol1]: 2, [idCol2]: "அ" },
               { [idCol1]: 3, [idCol2]: "a" },
@@ -500,18 +499,18 @@ typesClients.forEach((type) => {
               await client.automatisations!.annulerAutomatisation({
                 id: idAuto,
               });
-            await attendreRésultat(rés, "ultat", (x) => x?.length === 3);
+            await rés.attendreQue((x) => x?.length === 3);
 
             const maintenant = Date.now();
             données.données.push({ "col 1": 4, "col 2": "子" });
             fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            await attendreRésultat(rés, "ultat", (x) => x?.length === 4);
+            await rés.attendreQue((x) => x?.length === 4);
 
             const après = Date.now();
             expect(après - maintenant).toBeGreaterThanOrEqual(300);
 
-            comparerDonnéesTableau(rés.ultat!, [
+            comparerDonnéesTableau(rés.val, [
               { [idCol1]: 1, [idCol2]: "អ" },
               { [idCol1]: 2, [idCol2]: "அ" },
               { [idCol1]: 3, [idCol2]: "a" },
@@ -530,6 +529,8 @@ typesClients.forEach((type) => {
         let idBd: string;
         let idProjet: string;
         let dir: string;
+
+        const fsOublier: (()=>void)[] = []
 
         beforeAll(async () => {
           dir = obtDirTempoPourTest("testExporterBd");
@@ -593,10 +594,16 @@ typesClients.forEach((type) => {
                 })
             )
           );
+          fsOublier.forEach(f=>f())
           rmrf.sync(dir);
         });
 
         test("Exportation tableau", async () => {
+          const fichier = path.join(dir, "météo.ods");
+          const attente = new AttendreFichierExiste(fichier)
+          const attendreExiste = attente.attendre()
+          fsOublier.push(() => attente.annuler())
+
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idTableau,
@@ -606,8 +613,8 @@ typesClients.forEach((type) => {
               dir,
               langues: ["fr"],
             });
-          const fichier = path.join(dir, "météo.ods");
-          await attendreFichierExiste(fichier);
+
+          await attendreExiste;
           vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
 
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
@@ -616,6 +623,10 @@ typesClients.forEach((type) => {
 
         test("Exportation BD", async () => {
           const fichier = path.join(dir, "Ma bd.ods");
+          const attente = new AttendreFichierExiste(fichier)
+          const attendreExiste = attente.attendre()
+          fsOublier.push(() => attente.annuler())
+
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
@@ -625,7 +636,8 @@ typesClients.forEach((type) => {
               dir,
               langues: ["fr"],
             });
-          await attendreFichierExiste(fichier);
+
+          await attendreExiste;
           vérifierDonnéesBd(fichier, { météo: [{ précipitation: 3 }] });
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
           rmrf.sync(fichier);
@@ -633,6 +645,10 @@ typesClients.forEach((type) => {
 
         test("Exportation projet", async () => {
           const fichier = path.join(dir, "Mon projet.zip");
+          const attente = new AttendreFichierExiste(fichier)
+          const attendreExiste = attente.attendre()
+          fsOublier.push(() => attente.annuler())
+
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idProjet,
@@ -642,7 +658,7 @@ typesClients.forEach((type) => {
               dir,
               langues: ["fr"],
             });
-          await attendreFichierExiste(fichier);
+          await attendreExiste;
           await vérifierDonnéesProjet(fichier, {
             "Ma bd.ods": {
               météo: [{ précipitation: 3 }],
@@ -654,6 +670,12 @@ typesClients.forEach((type) => {
         });
 
         test("Exportation selon changements", async () => {
+          const fichier = path.join(dir, "Ma bd.ods");
+
+          const attente = new AttendreFichierExiste(fichier)
+          const attendreExiste = attente.attendre()
+          fsOublier.push(() => attente.annuler())
+
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
@@ -663,8 +685,8 @@ typesClients.forEach((type) => {
               dir,
               langues: ["fr"],
             });
-          const fichier = path.join(dir, "Ma bd.ods");
-          await attendreFichierExiste(fichier);
+
+          await attendreExiste;
 
           const avant = Date.now();
           await client.tableaux!.ajouterÉlément({
@@ -672,7 +694,10 @@ typesClients.forEach((type) => {
             vals: { [idCol]: 5 },
           });
 
-          await attendreFichierModifié(fichier, avant);
+          const attenteModifié = new AttendreFichierModifié(fichier)
+          fsOublier.push(()=>attenteModifié.annuler());
+
+          await attenteModifié.attendre(avant);
 
           vérifierDonnéesBd(fichier, {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
@@ -683,6 +708,9 @@ typesClients.forEach((type) => {
 
         test("Exportation selon fréquence", async () => {
           const fichier = path.join(dir, "Mi bd.ods");
+          const attente = new AttendreFichierExiste(fichier)
+          const attendreExiste = attente.attendre()
+          fsOublier.push(() => attente.annuler())
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -698,14 +726,19 @@ typesClients.forEach((type) => {
               },
             });
           const avantAttente = Date.now();
-          await attendreFichierExiste(fichier);
+          await attendreExiste;
           const avantAjout = Date.now();
+
+          const attenteModifié = new AttendreFichierModifié(fichier)
+          fsOublier.push(() => attenteModifié.annuler())
+          const modifié = attenteModifié.attendre(avantAjout)
 
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 7 },
           });
-          await attendreFichierModifié(fichier, avantAjout);
+
+          await modifié
 
           const après = Date.now();
           expect(après - avantAttente).toBeGreaterThanOrEqual(0.3 * 1000);
@@ -739,12 +772,10 @@ typesClients.forEach((type) => {
         let idBd: string;
         let dir: string;
 
-        const rés: {
-          états?: { [key: string]: ÉtatAutomatisation };
-          aSyncronisé: { [key: string]: ÉtatAutomatisation };
-          autos?: SpécificationAutomatisation[];
-        } = { aSyncronisé: {} };
-        const fsOublier: schémaFonctionOublier[] = [];
+        const résÉtats = new AttendreRésultat<{ [key: string]: ÉtatAutomatisation }>()
+        const résAutos = new AttendreRésultat<SpécificationAutomatisation[]>()
+
+        const fsOublier: (schémaFonctionOublier|(()=>void))[] = [];
 
         beforeAll(async () => {
           dir = obtDirTempoPourTest("testExporterBd");
@@ -752,16 +783,13 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
               f: (états) => {
-                rés.états = états;
-                for (const [id, état] of Object.entries(états)) {
-                  if (état.type === "sync") rés.aSyncronisé[id] = état;
-                }
+                résÉtats.mettreÀJour(états);
               },
             })
           );
           fsOublier.push(
             await client.automatisations!.suivreAutomatisations({
-              f: (autos) => (rés.autos = autos),
+              f: (autos) => (résAutos.mettreÀJour(autos)),
             })
           );
 
@@ -801,6 +829,9 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
+          résÉtats.toutAnnuler()
+          résAutos.toutAnnuler()
+
           await Promise.all(fsOublier.map((f) => f()));
           const automatisations = await uneFois(
             async (
@@ -820,6 +851,9 @@ typesClients.forEach((type) => {
         });
 
         test("sync et écoute", async () => {
+          const attendreFichierExiste = new AttendreFichierExiste(path.join(dir, "Ma bd.ods"));
+          fsOublier.push(()=>attendreFichierExiste.annuler())
+
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
@@ -829,26 +863,29 @@ typesClients.forEach((type) => {
               dir,
               langues: ["fr"],
             });
-          await attendreFichierExiste(path.join(dir, "Ma bd.ods"));
-          await attendreRésultat(rés, "états", (x) => !!(x && x[idAuto]));
+          await attendreFichierExiste.attendre();
+          await résÉtats.attendreQue((x) => !!(x && x[idAuto]));
 
-          expect(rés.états![idAuto]).toEqual({
+          expect(résÉtats.val![idAuto]).toEqual({
             type: "écoute",
           });
 
           const avantAjout = Date.now();
+          const attendre = résÉtats.attendreQue((x) => !!(x && x[idAuto] && x[idAuto].type === "sync"))
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 4 },
           });
-          await attendreRésultat(rés, "aSyncronisé", (x) => !!(x && x[idAuto]));
 
-          const { type, depuis } = rés.aSyncronisé![idAuto] as ÉtatEnSync;
+          const { type, depuis } = (await attendre)[idAuto] as ÉtatEnSync;
           expect(type).toEqual("sync");
           expect(depuis).toBeGreaterThanOrEqual(avantAjout);
         });
 
         test("programmée", async () => {
+          const attendreFichierExiste = new AttendreFichierExiste(path.join(dir, "Ma bd.ods"));
+          fsOublier.push(()=>attendreFichierExiste.annuler())
+
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
@@ -863,11 +900,11 @@ typesClients.forEach((type) => {
               },
             });
 
-          await attendreFichierExiste(path.join(dir, "Ma bd.ods"));
+          await attendreFichierExiste.attendre();
 
-          await attendreRésultat(rés, "états", (x) => !!(x && x[idAuto]));
+          await résÉtats.attendreQue((x) => !!(x && x[idAuto]));
 
-          const état = rés.états![idAuto] as ÉtatProgrammée;
+          const état = résÉtats.val[idAuto] as ÉtatProgrammée;
 
           expect(état.type).toEqual("programmée");
 
@@ -893,12 +930,12 @@ typesClients.forEach((type) => {
               },
             });
 
-          await attendreRésultat(rés, "états", (x) => !!(x && x[idAuto]));
+          await résÉtats.attendreQue((x) => !!(x && x[idAuto]));
 
           const après = Date.now();
 
-          expect(rés.états![idAuto].type).toEqual("erreur");
-          const état = rés.états![idAuto] as ÉtatErreur;
+          expect(résÉtats.val[idAuto].type).toEqual("erreur");
+          const état = résÉtats.val[idAuto] as ÉtatErreur;
 
           expect(état.erreur).toEqual("Error: Unrecognized bookType |ods!|");
           expect(état.prochaineProgramméeÀ).toBeLessThanOrEqual(
@@ -916,21 +953,19 @@ typesClients.forEach((type) => {
         let idCol2: string;
         let dir: string;
 
-        const rés: {
-          états?: { [key: string]: ÉtatAutomatisation };
-          autos?: SpécificationAutomatisation[];
-        } = {};
+        const résÉtats = new AttendreRésultat<{ [key: string]: ÉtatAutomatisation }>()
+        const résAutos = new AttendreRésultat<SpécificationAutomatisation[]>();
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
-              f: (états) => (rés.états = états),
+              f: (états) => (résÉtats.mettreÀJour(états)),
             })
           );
           fsOublier.push(
             await client.automatisations!.suivreAutomatisations({
-              f: (autos) => (rés.autos = autos),
+              f: (autos) => (résAutos.mettreÀJour(autos)),
             })
           );
 
@@ -960,8 +995,8 @@ typesClients.forEach((type) => {
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
           rmrf.sync(dir);
-          delete rés["états"];
-          delete rés["autos"];
+          résÉtats.toutAnnuler();
+          résAutos.toutAnnuler();
         });
 
         test(
@@ -998,29 +1033,25 @@ typesClients.forEach((type) => {
                 source,
               });
 
-            await attendreRésultat(
-              rés,
-              "états",
+            await résÉtats.attendreQue(
               (x) => !!(x && x[idAuto]?.type === "écoute")
             );
 
-            expect(rés.états![idAuto]).toEqual({
+            expect(résÉtats.val[idAuto]).toEqual({
               type: "écoute",
             });
 
             données.données.push({ "col 1": 4, "col 2": "子" });
 
             const avantAjout = Date.now();
-            fs.writeFileSync(fichierJSON, JSON.stringify(données));
-
-            await attendreRésultat(
-              rés,
-              "états",
+            const attendre = résÉtats.attendreQue(
               (x) => !!(x && x[idAuto]?.type === "sync")
             );
+            fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            expect(rés.états![idAuto].type).toEqual("sync");
-            const étatSync = rés.états![idAuto] as ÉtatEnSync;
+            const états = await attendre;
+            expect(états![idAuto].type).toEqual("sync");
+            const étatSync = états![idAuto] as ÉtatEnSync;
             expect(étatSync.depuis).toBeGreaterThanOrEqual(avantAjout);
           },
           config.patience
@@ -1062,17 +1093,15 @@ typesClients.forEach((type) => {
               },
             });
 
-          await attendreRésultat(
-            rés,
-            "états",
+          await résÉtats.attendreQue(
             (x) => !!(x && x[idAuto]?.type === "programmée")
           );
 
           const maintenant = Date.now();
 
-          expect(rés.états![idAuto].type).toEqual("programmée");
+          expect(résÉtats.val[idAuto].type).toEqual("programmée");
 
-          const état = rés.états![idAuto] as ÉtatProgrammée;
+          const état = résÉtats.val[idAuto] as ÉtatProgrammée;
           expect(état.à).toBeLessThanOrEqual(maintenant + 1000 * 60 * 3);
         });
 
@@ -1114,16 +1143,14 @@ typesClients.forEach((type) => {
               },
             });
 
-          await attendreRésultat(
-            rés,
-            "états",
+          await résÉtats.attendreQue(
             (x) => !!(x && x[idAuto]?.type === "erreur")
           );
 
           const après = Date.now();
 
-          expect(rés.états![idAuto].type).toEqual("erreur");
-          const état = rés.états![idAuto] as ÉtatErreur;
+          expect(résÉtats.val![idAuto].type).toEqual("erreur");
+          const état = résÉtats.val![idAuto] as ÉtatErreur;
 
           expect(état.erreur).toContain(
             "Error: ENOENT: no such file or directory, open "

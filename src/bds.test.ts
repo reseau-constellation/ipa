@@ -950,6 +950,7 @@ typesClients.forEach((type) => {
 
         afterAll(() => {
           if (fOublier) fOublier();
+          rés.toutAnnuler()
         });
         test(
           "La BD est créée lorsqu'elle n'existe pas",
@@ -985,6 +986,7 @@ typesClients.forEach((type) => {
 
         afterAll(() => {
           if (fOublier) fOublier();
+          rés.toutAnnuler()
         });
         test("Rien pour commencer", async () => {
           expect(rés.val).toBeUndefined;
@@ -1049,6 +1051,7 @@ typesClients.forEach((type) => {
 
         afterAll(() => {
           if (fOublier) fOublier();
+          rés.toutAnnuler()
         });
 
         test(

@@ -103,15 +103,15 @@ export class AttendreRésultat<T> extends EventEmitter {
     this.emit("changé")
   }
 
-  async attendreQue(f: (x: T)=>boolean): Promise<void> {
-    if (this.val) return
+  async attendreQue(f: (x: T)=>boolean): Promise<T> {
+    if (f(this.val)) return this.val
     const id = uuidv4()
 
     return new Promise(résoudre => {
       const fLorsqueChangé = () => {
         if (f(this.val)) {
           this.oublier(id)
-          résoudre()
+          résoudre(this.val)
         }
       }
       this.on("changé", fLorsqueChangé)
@@ -119,13 +119,13 @@ export class AttendreRésultat<T> extends EventEmitter {
     })
   }
 
-  async attendreExiste(): Promise<void> {
+  async attendreExiste(): Promise<T> {
     return await this.attendreQue(x=>!!x)
   }
 
   oublier(id: string) {
     this.fsOublier[id]()
-    delete this.fsOublier
+    delete this.fsOublier[id]
   }
 
   toutAnnuler() {
@@ -133,42 +133,74 @@ export class AttendreRésultat<T> extends EventEmitter {
   }
 }
 
-export const attendreFichierExiste = async (fichier: string): Promise<void> => {
-  return new Promise((résoudre) => {
-    const interval = setInterval(() => {
-      const prêt = fs.existsSync(fichier);
-      if (prêt) {
-        clearInterval(interval);
-        résoudre();
-      }
-    }, 10);
-    if (fs.existsSync(fichier)) résoudre();
-  });
-};
+export class AttendreFichierExiste extends EventEmitter {
+  fOublier: () => void
+  fichier: string
 
-export const attendreFichierModifié = async (
-  fichier: string,
-  tempsAvant: number
-): Promise<void> => {
-  await attendreFichierExiste(fichier);
+  constructor(fichier: string) {
+    super()
+    this.fichier = fichier
+  }
 
-  return new Promise((résoudre, rejeter) => {
-    const interval = setInterval(() => {
-      try {
-        const { mtime } = fs.statSync(fichier);
-        const prêt = mtime.getTime() > tempsAvant;
+  attendre(): Promise<void> {
+    return new Promise((résoudre) => {
+      if (fs.existsSync(this.fichier)) résoudre();
+
+      const interval = setInterval(() => {
+        const prêt = fs.existsSync(this.fichier);
         if (prêt) {
           clearInterval(interval);
           résoudre();
         }
-      } catch (e) {
-        // Le fichier a été effacé
-        clearInterval(interval);
-        rejeter(e);
-      }
-    }, 10);
-  });
-};
+      }, 10);
+
+      this.fOublier = () => clearInterval(interval)
+    });
+  }
+
+  annuler() {
+    this.fOublier()
+  }
+}
+
+export class AttendreFichierModifié extends EventEmitter {
+  fOublier: () => void
+  fichier: string
+  attendreExiste: AttendreFichierExiste
+
+  constructor(fichier: string) {
+    super()
+    this.fichier = fichier
+    this.attendreExiste = new AttendreFichierExiste(fichier);
+  }
+
+  async attendre(tempsAvant: number): Promise<void> {
+    await this.attendreExiste.attendre()
+
+    return new Promise((résoudre, rejeter) => {
+      const interval = setInterval(() => {
+        try {
+          const { mtime } = fs.statSync(this.fichier);
+          const prêt = mtime.getTime() > tempsAvant;
+          if (prêt) {
+            clearInterval(interval);
+            résoudre();
+          }
+        } catch (e) {
+          // Le fichier a été effacé
+          clearInterval(interval);
+          rejeter(e);
+        }
+      }, 10);
+
+      this.fOublier = () => clearInterval(interval)
+    });
+  }
+
+  annuler() {
+    this.fOublier()
+  }
+}
 
 export const peutÉcrire = async (
   bd: KeyValueStore<number> | FeedStore<string>,
