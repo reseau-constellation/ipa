@@ -4,7 +4,7 @@ import { enregistrerContrôleurs } from "@/accès";
 import ClientConstellation from "@/client.js";
 import { schémaFonctionOublier } from "@/utils/index.js";
 
-import { attendreRésultat, générerClients, typesClients } from "@/utilsTests";
+import { AttendreRésultat, générerClients, typesClients } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -89,10 +89,7 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
-        const rés: {
-          ultat: { [key: string]: string } | undefined;
-          ultat2: { [key: string]: string } | undefined;
-        } = { ultat: undefined, ultat2: undefined };
+        const rés = new AttendreRésultat<{ [key: string]: string }>()
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
 
@@ -100,17 +97,18 @@ typesClients.forEach((type) => {
           idMotClef = await client.motsClefs!.créerMotClef();
           fOublier = await client.motsClefs!.suivreNomsMotClef({
             id: idMotClef,
-            f: (n) => (rés.ultat = n),
+            f: (n) => rés.mettreÀJour(n),
           });
         });
 
         afterAll(async () => {
           if (fOublier) fOublier();
+          rés.toutAnnuler()
         });
 
         test("Pas de noms pour commencer", async () => {
-          await attendreRésultat(rés, "ultat");
-          expect(Object.keys(rés.ultat!)).toHaveLength(0);
+          await rés.attendreExiste();
+          expect(Object.keys(rés.val)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -119,7 +117,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Hydrologie",
           });
-          expect(rés.ultat?.fr).toEqual("Hydrologie");
+          await rés.attendreQue(x=>Object.keys(x).length > 0);
+          expect(rés.val.fr).toEqual("Hydrologie");
         });
 
         test("Ajouter des noms", async () => {
@@ -130,7 +129,8 @@ typesClients.forEach((type) => {
               हिं: "जल विज्ञान",
             },
           });
-          expect(rés.ultat).toEqual({
+          await rés.attendreQue(x=>Object.keys(x).length >= 3);
+          expect(rés.val).toEqual({
             த: "நீரியல்",
             हिं: "जल विज्ञान",
             fr: "Hydrologie",
@@ -143,7 +143,9 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "hydrologie",
           });
-          expect(rés.ultat?.fr).toEqual("hydrologie");
+
+          await rés.attendreQue(x=>x["fr"] == "hydrologie");
+          expect(rés.val?.fr).toEqual("hydrologie");
         });
 
         test("Effacer un nom", async () => {
@@ -151,7 +153,8 @@ typesClients.forEach((type) => {
             id: idMotClef,
             langue: "fr",
           });
-          expect(rés.ultat).toEqual({
+          await rés.attendreQue(x=>!Object.keys(x).includes("fr"));
+          expect(rés.val).toEqual({
             த: "நீரியல்",
             हिं: "जल विज्ञान",
           });

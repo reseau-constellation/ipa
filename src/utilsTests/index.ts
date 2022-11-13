@@ -1,6 +1,7 @@
 import { Controller } from "ipfsd-ctl";
 import { connectPeers } from "@/utilsTests/orbitDbTestUtils.js";
 import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfipTest.js";
+import { EventEmitter } from "events";
 
 import { once } from "events";
 import path from "path";
@@ -87,48 +88,50 @@ export const attendreSync = async (bd: Store): Promise<void> => {
   await once(accès.bd!.events, "peer.exchanged");
 };
 
-export const attendreQue = async (f: () => boolean): Promise<void> => {
-  return new Promise((résoudre) => {
-    const vérifierPrêt = () => {
-      if (f()) {
-        clearInterval(interval);
-        résoudre();
-      }
-    };
-    const interval = setInterval(vérifierPrêt, 10);
-    vérifierPrêt();
-  });
-};
+export class AttendreRésultat<T> extends EventEmitter {
+  val?: T
+  fsOublier: {[clef: string]: ()=>void}
 
-export const attendreRésultat = async <
-  T extends Record<string, unknown>,
-  K extends keyof T
->(
-  dic: T,
-  clef: K,
-  valDésirée?: ((x?: T[K]) => boolean) | T[K]
-): Promise<void> => {
-  if (valDésirée === undefined) {
-    valDésirée = (x?: T[K]) => x !== undefined;
+  constructor() {
+    super()
+    this.val = undefined
+    this.fsOublier = {}
   }
-  return new Promise((résoudre) => {
-    const vérifierPrêt = () => {
-      const val = dic[clef];
-      let prêt = false;
-      if (typeof valDésirée === "function") {
-        prêt = (valDésirée as (x?: T[K]) => boolean)(val);
-      } else {
-        prêt = val === valDésirée;
+
+  mettreÀJour(x: T) {
+    this.val = x
+    this.emit("changé")
+  }
+
+  async attendreQue(f: (x: T)=>boolean): Promise<void> {
+    if (this.val) return
+    const id = uuidv4()
+
+    return new Promise(résoudre => {
+      const fLorsqueChangé = () => {
+        if (f(this.val)) {
+          this.oublier(id)
+          résoudre()
+        }
       }
-      if (prêt) {
-        clearInterval(interval);
-        résoudre();
-      }
-    };
-    const interval = setInterval(vérifierPrêt, 10);
-    vérifierPrêt();
-  });
-};
+      this.on("changé", fLorsqueChangé)
+      this.fsOublier[id] = ()=>this.off("changé", fLorsqueChangé)
+    })
+  }
+
+  async attendreExiste(): Promise<void> {
+    return await this.attendreQue(x=>!!x)
+  }
+
+  oublier(id: string) {
+    this.fsOublier[id]()
+    delete this.fsOublier
+  }
+
+  toutAnnuler() {
+    Object.keys(this.fsOublier).forEach(id=>this.oublier(id))
+  }
+}
 
 export const attendreFichierExiste = async (fichier: string): Promise<void> => {
   return new Promise((résoudre) => {
