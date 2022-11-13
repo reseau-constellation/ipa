@@ -20,7 +20,7 @@ import { élémentDonnées, règleBornes } from "@/valid";
 
 import {
   générerClients,
-  attendreRésultat,
+  AttendreRésultat,
   typesClients,
   dirRessourcesTests,
   obtDirTempoPourTest,
@@ -895,7 +895,7 @@ typesClients.forEach((type) => {
 
         let fOublier: schémaFonctionOublier;
 
-        const rés: { ultat?: string } = {};
+        const rés = new AttendreRésultat<string>();
 
         beforeAll(async () => {
           idVarClef = await client.variables!.créerVariable({
@@ -944,7 +944,7 @@ typesClients.forEach((type) => {
           fOublier = await client.bds!.suivreBdUnique({
             schéma,
             motClefUnique,
-            f: (id) => (rés.ultat = id),
+            f: (id) => (rés.mettreÀJour(id)),
           });
         }, config.patience);
 
@@ -954,8 +954,8 @@ typesClients.forEach((type) => {
         test(
           "La BD est créée lorsqu'elle n'existe pas",
           async () => {
-            await attendreRésultat(rés, "ultat");
-            expect(adresseOrbiteValide(rés.ultat)).toBe(true);
+            await rés.attendreExiste();
+            expect(adresseOrbiteValide(rés.val)).toBe(true);
           },
           config.patience
         );
@@ -969,7 +969,7 @@ typesClients.forEach((type) => {
 
         let fOublier: schémaFonctionOublier;
 
-        const rés: { ultat?: string } = {};
+        const rés = new AttendreRésultat<string>();
 
         beforeAll(async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
@@ -979,7 +979,7 @@ typesClients.forEach((type) => {
           fOublier = await client.bds!.suivreIdTableauParClef({
             idBd: idBd,
             clef: "clefUnique",
-            f: (id) => (rés.ultat = id),
+            f: (id) => (rés.mettreÀJour(id)),
           });
         }, config.patience);
 
@@ -987,7 +987,7 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
         });
         test("Rien pour commencer", async () => {
-          expect(rés.ultat).toBeUndefined;
+          expect(rés.val).toBeUndefined;
         });
         test("Ajout de clef détecté", async () => {
           await client.bds!.spécifierClefTableau({
@@ -995,8 +995,8 @@ typesClients.forEach((type) => {
             idTableau,
             clef: "clefUnique",
           });
-          await attendreRésultat(rés, "ultat");
-          expect(rés.ultat).toEqual(idTableau);
+          await rés.attendreExiste();
+          expect(rés.val).toEqual(idTableau);
         });
       });
 
@@ -1006,7 +1006,7 @@ typesClients.forEach((type) => {
 
         let fOublier: schémaFonctionOublier;
 
-        const rés: { ultat?: string } = {};
+        const rés = new AttendreRésultat<string>();
 
         beforeAll(async () => {
           idVarClef = await client.variables!.créerVariable({
@@ -1043,7 +1043,7 @@ typesClients.forEach((type) => {
             schémaBd: schéma,
             motClefUnique,
             clefTableau: "id tableau unique",
-            f: (id) => (rés.ultat = id),
+            f: (id) => (rés.mettreÀJour(id)),
           });
         }, config.patience);
 
@@ -1054,8 +1054,8 @@ typesClients.forEach((type) => {
         test(
           "Tableau unique détecté",
           async () => {
-            await attendreRésultat(rés, "ultat");
-            expect(adresseOrbiteValide(rés.ultat)).toBe(true);
+            await rés.attendreExiste();
+            expect(adresseOrbiteValide(rés.val)).toBe(true);
           },
           config.patience
         );
