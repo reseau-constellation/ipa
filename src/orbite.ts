@@ -4,7 +4,7 @@ import { IPFS } from "ipfs-core";
 
 export default async function initOrbite(
   sfip: IPFS,
-  dossierOrbite = "./orbite-cnstl"
+  dossierOrbite = "./constl/orbite"
 ): Promise<OrbitDB> {
   return await OrbitDB.createInstance(sfip, {
     directory: dossierOrbite,
