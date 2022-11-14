@@ -1970,6 +1970,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreAuteursObjet({
     idObjet,
     clef,
@@ -2112,6 +2113,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreBdsMembre({
     idCompte,
     f,
@@ -2128,6 +2130,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreProjetsMembre({
     idCompte,
     f,
@@ -2147,6 +2150,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreFavorisMembre({
     idCompte,
     f,
@@ -2175,6 +2179,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreVariablesMembre({
     idCompte,
     f,
@@ -2194,6 +2199,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
   async suivreMotsClefsMembre({
     idCompte,
     f,
@@ -2426,6 +2432,7 @@ export default class Réseau extends EventEmitter {
     return { fOublier, fChangerProfondeur };
   }
 
+  @cacheRechercheParNRésultats
   async suivreBdsDeMotClef({
     motClefUnique,
     f,

@@ -28,7 +28,7 @@ import { schémaSpécificationBd, infoTableauAvecId } from "@/bds";
 import { élémentBdListeDonnées } from "@/tableaux";
 
 import {
-  attendreRésultat,
+  AttendreRésultat,
   générerClients,
   typesClients,
   dirRessourcesTests,
@@ -83,66 +83,65 @@ typesClients.forEach((type) => {
       });
 
       describe("Suivre postes", function () {
-        const rés: { ultat: { addr: string; peer: string }[] | undefined } = {
-          ultat: undefined,
-        };
+        const rés = new AttendreRésultat<{ addr: string; peer: string }[]>();
         let fOublier: schémaFonctionOublier;
 
         beforeAll(async () => {
           fOublier = await client.réseau!.suivreConnexionsPostesSFIP({
-            f: (c) => (rés.ultat = c),
+            f: (c) => (rés.mettreÀJour(c)),
           });
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
+          rés.toutAnnuler();
         });
 
         test("Autres postes détectés", async () => {
-          expect(rés.ultat!.map((r) => r.peer)).toEqual(
+          expect(rés.val.map((r) => r.peer)).toEqual(
             expect.arrayContaining([idNodeSFIP2, idNodeSFIP3])
           );
         });
       });
 
       describe("Suivre dispositifs en ligne", function () {
-        const dis: { positifs?: statutDispositif[] } = {};
+        const dispositifs = new AttendreRésultat<statutDispositif[]>();
         let fOublier: schémaFonctionOublier;
 
         beforeAll(async () => {
           fOublier = await client.réseau!.suivreConnexionsDispositifs({
-            f: (d) => (dis.positifs = d),
+            f: (d) => dispositifs.mettreÀJour(d),
           });
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
+          dispositifs.toutAnnuler();
         });
 
         test("Autres dispositifs détectés", async () => {
-          await attendreRésultat(
-            dis,
-            "positifs",
+          const val = await dispositifs.attendreQue(
             (x?: statutDispositif[]) => !!x && x.length === 3
           );
-          expect(dis.positifs!.map((d) => d.infoDispositif.idOrbite)).toEqual(
+          expect(val.map((d) => d.infoDispositif.idOrbite)).toEqual(
             expect.arrayContaining([idOrbite1, idOrbite2, idOrbite3])
           );
         });
       });
 
       describe("Suivre membres en ligne", function () {
-        const rés: { ultat?: statutMembre[] } = {};
+        const rés = new AttendreRésultat<statutMembre[]>();
         let fOublier: schémaFonctionOublier;
 
         beforeAll(async () => {
           fOublier = await client.réseau!.suivreConnexionsMembres({
-            f: (c) => (rés.ultat = c),
+            f: (c) => (rés.mettreÀJour(c)),
           });
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
+          rés.toutAnnuler()
         });
 
         test("Autres membres détectés", async () => {
@@ -202,25 +201,28 @@ typesClients.forEach((type) => {
               ],
             },
           ];
-          expect(rés.ultat!.map((r) => r.infoMembre)).toEqual(
+          const val = await rés.attendreQue(x=>x.length >= 3)
+          expect(val.map((r) => r.infoMembre)).toEqual(
             expect.arrayContaining(réfRés)
           );
         });
       });
 
       describe("Membres fiables", function () {
-        const fiables: { propres?: string[]; autre?: string[] } = {};
+        const fiablesPropres = new AttendreRésultat<string[]>();
+        const fiablesAutres = new AttendreRésultat<string[]>();
+
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client.réseau!.suivreFiables({
-              f: (m) => (fiables.propres = m),
+              f: (m) => (fiablesPropres.mettreÀJour(m)),
             })
           );
           fsOublier.push(
             await client2.réseau!.suivreFiables({
-              f: (m) => (fiables.autre = m),
+              f: (m) => (fiablesAutres.mettreÀJour(m)),
               idBdCompte: idBdCompte1,
             })
           );
@@ -228,35 +230,37 @@ typesClients.forEach((type) => {
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          fiablesPropres.toutAnnuler();
+          fiablesAutres.toutAnnuler();
         });
 
         test("Personne pour commencer", async () => {
-          expect(fiables.propres).toHaveLength(0);
+          expect(fiablesPropres.val).toHaveLength(0);
         });
 
         test("Faire confiance", async () => {
           await client.réseau!.faireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
-          expect(isArray(fiables.propres)).toBe(true);
-          expect(fiables.propres).toHaveLength(1);
-          expect(fiables.propres).toEqual(
+          expect(isArray(fiablesPropres.val)).toBe(true);
+          expect(fiablesPropres.val).toHaveLength(1);
+          expect(fiablesPropres.val).toEqual(
             expect.arrayContaining([idBdCompte2])
           );
         });
 
         test("Détecter confiance d'autre membre", async () => {
-          await attendreRésultat(fiables, "autre", (x) => !!x && x.length > 0);
-          expect(isArray(fiables.autre)).toBe(true);
-          expect(fiables.autre).toHaveLength(1);
-          expect(fiables.autre).toEqual(expect.arrayContaining([idBdCompte2]));
+          const val = await fiablesAutres.attendreQue((x) => !!x && x.length > 0);
+          expect(isArray(val)).toBe(true);
+          expect(val).toHaveLength(1);
+          expect(val).toEqual(expect.arrayContaining([idBdCompte2]));
         });
 
         test("Un débloquage accidental ne fait rien", async () => {
           await client.réseau!.débloquerMembre({ idBdCompte: idBdCompte2 });
-          expect(isArray(fiables.propres)).toBe(true);
-          expect(fiables.propres).toHaveLength(1);
-          expect(fiables.propres).toEqual(
+          expect(isArray(fiablesPropres.val)).toBe(true);
+          expect(fiablesPropres.val).toHaveLength(1);
+          expect(fiablesPropres.val).toEqual(
             expect.arrayContaining([idBdCompte2])
           );
         });
@@ -265,31 +269,29 @@ typesClients.forEach((type) => {
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
-          expect(fiables.propres).toHaveLength(0);
+          expect(fiablesPropres.val).toHaveLength(0);
         });
       });
 
       describe("Membres bloqués", function () {
-        const bloqués: {
-          tous?: infoBloqué[];
-          publiques?: string[];
-          autreMembre?: infoBloqué[];
-        } = {};
+        const bloquésTous = new AttendreRésultat<infoBloqué[]>();
+        const bloquésPubliques = new AttendreRésultat<string[]>();
+        const bloquésAutreMembre = new AttendreRésultat<infoBloqué[]>();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
-            await client.réseau!.suivreBloqués({ f: (m) => (bloqués.tous = m) })
+            await client.réseau!.suivreBloqués({ f: (m) => (bloquésTous.mettreÀJour(m)) })
           );
           fsOublier.push(
             await client.réseau!.suivreBloquésPubliques({
-              f: (m) => (bloqués.publiques = m),
+              f: (m) => (bloquésPubliques.mettreÀJour(m)),
             })
           );
           fsOublier.push(
             await client2.réseau!.suivreBloqués({
-              f: (m) => (bloqués.autreMembre = m),
+              f: (m) => (bloquésAutreMembre.mettreÀJour(m)),
               idBdCompte: idBdCompte1,
             })
           );
@@ -299,17 +301,21 @@ typesClients.forEach((type) => {
           await Promise.all(fsOublier.map((f) => f()));
           await client.réseau!.débloquerMembre({ idBdCompte: idBdCompte2 });
           await client.réseau!.débloquerMembre({ idBdCompte: idBdCompte3 });
+
+          bloquésTous.toutAnnuler()
+          bloquésPubliques.toutAnnuler()
+          bloquésAutreMembre.toutAnnuler()
         });
 
         test("Personne pour commencer", async () => {
-          expect(bloqués.publiques).toHaveLength(0);
+          expect(bloquésPubliques.val).toHaveLength(0);
         });
 
         test("Bloquer quelqu'un", async () => {
           await client.réseau!.bloquerMembre({ idBdCompte: idBdCompte2 });
-          expect(isArray(bloqués.tous));
-          expect(bloqués.tous).toHaveLength(1);
-          expect(bloqués.tous).toEqual(
+          expect(isArray(bloquésTous.val));
+          expect(bloquésTous.val).toHaveLength(1);
+          expect(bloquésTous.val).toEqual(
             expect.arrayContaining([
               {
                 idBdCompte: idBdCompte2,
@@ -317,9 +323,7 @@ typesClients.forEach((type) => {
               },
             ])
           );
-          expect(isArray(bloqués.publiques));
-          expect(bloqués.publiques).toHaveLength(1);
-          expect(bloqués.publiques).toEqual(
+          expect(bloquésPubliques.val).toEqual(
             expect.arrayContaining([idBdCompte2])
           );
         });
@@ -328,9 +332,8 @@ typesClients.forEach((type) => {
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
-          expect(isArray(bloqués.tous)).toBe(true);
-          expect(bloqués.tous).toHaveLength(1);
-          expect(bloqués.tous).toEqual(
+
+          expect(bloquésTous.val).toEqual(
             expect.arrayContaining([
               {
                 idBdCompte: idBdCompte2,
@@ -345,9 +348,7 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
             privé: true,
           });
-          expect(isArray(bloqués.tous)).toBe(true);
-          expect(bloqués.tous).toHaveLength(2);
-          expect(bloqués.tous).toEqual(
+          expect(bloquésTous.val).toEqual(
             expect.arrayContaining([
               {
                 idBdCompte: idBdCompte2,
@@ -362,14 +363,10 @@ typesClients.forEach((type) => {
         });
 
         test("On détecte bloqué publique d'un autre membre", async () => {
-          await attendreRésultat(
-            bloqués,
-            "autreMembre",
+          const val = await bloquésAutreMembre.attendreQue(
             (x) => !!x && x.length > 0
           );
-          expect(isArray(bloqués.autreMembre)).toBe(true);
-          expect(bloqués.autreMembre).toHaveLength(1);
-          expect(bloqués.autreMembre).toEqual(
+          expect(val).toEqual(
             expect.arrayContaining([
               {
                 idBdCompte: idBdCompte2,
@@ -380,20 +377,19 @@ typesClients.forEach((type) => {
         });
 
         test("On ne détecte pas le bloqué privé d'un autre membre", async () => {
-          expect(isArray(bloqués.autreMembre)).toBe(true);
-          expect(bloqués.autreMembre!.map((b) => b.idBdCompte)).not.toContain(
+          expect(bloquésAutreMembre.val.map((b) => b.idBdCompte)).not.toContain(
             idBdCompte3
           );
         });
 
         test("Débloquer publique", async () => {
           await client.réseau!.débloquerMembre({ idBdCompte: idBdCompte2 });
-          expect(bloqués.publiques).toHaveLength(0);
+          expect(bloquésPubliques.val).toHaveLength(0);
         });
 
         test("Débloquer privé", async () => {
           await client.réseau!.débloquerMembre({ idBdCompte: idBdCompte3 });
-          expect(bloqués.tous).toHaveLength(0);
+          expect(bloquésTous.val).toHaveLength(0);
         });
       });
 
@@ -404,21 +400,20 @@ typesClients.forEach((type) => {
         let idVariable: string;
         let idProjet: string;
 
-        const relations: {
-          propres?: infoConfiance[];
-          autre?: infoConfiance[];
-        } = {};
+        const relationsPropres = new AttendreRésultat<infoConfiance[]>();
+        const relationsAutres = new AttendreRésultat<infoConfiance[]>();
+
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client.réseau!.suivreRelationsImmédiates({
-              f: (c) => (relations.propres = c),
+              f: (c) => (relationsPropres.mettreÀJour(c)),
             })
           );
           fsOublier.push(
             await client2.réseau!.suivreRelationsImmédiates({
-              f: (c) => (relations.autre = c),
+              f: (c) => (relationsAutres.mettreÀJour(c)),
               idBdCompte: idBdCompte1,
             })
           );
@@ -432,63 +427,57 @@ typesClients.forEach((type) => {
             await client2.motsClefs!.effacerMotClef({ id: idMotClef2 });
           if (idBd) await client.bds!.effacerBd({ id: idBd });
           if (idProjet) await client.projets!.effacerProjet({ id: idProjet });
+
+          relationsPropres.toutAnnuler()
+          relationsAutres.toutAnnuler()
         });
 
         test("Personne pour commencer", async () => {
-          await attendreRésultat(relations, "propres", (x) => x?.length === 0);
-          await attendreRésultat(relations, "autre", (x) => x?.length === 0);
+          const propres = await relationsPropres.attendreQue((x) => x?.length === 0);
+          const autres = await relationsAutres.attendreQue((x) => x?.length === 0);
 
-          expect(isArray(relations.propres)).toBe(true);
-          expect(relations.propres).toHaveLength(0);
+          expect(isArray(propres)).toBe(true);
+          expect(propres).toHaveLength(0);
 
-          expect(isArray(relations.autre)).toBe(true);
-          expect(relations.autre).toHaveLength(0);
+          expect(isArray(autres)).toBe(true);
+          expect(autres).toHaveLength(0);
         });
 
         test("Ajout membre de confiance détecté", async () => {
           await client.réseau!.faireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
-          await attendreRésultat(
-            relations,
-            "propres",
+          const val = await relationsPropres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.propres!.map((r) => r.idBdCompte)).toEqual(
+          expect(val.map((r) => r.idBdCompte)).toEqual(
             expect.arrayContaining([idBdCompte2])
           );
         });
 
         test("Bloquer membre détecté", async () => {
           await client.réseau!.bloquerMembre({ idBdCompte: idBdCompte3 });
-          await attendreRésultat(
-            relations,
-            "propres",
+          const val = await relationsPropres.attendreQue(
             (x) => !!x && x.length === 2
           );
-          expect(relations.propres!.map((r) => r.idBdCompte)).toEqual(
+          expect(val.map((r) => r.idBdCompte)).toEqual(
             expect.arrayContaining([idBdCompte3])
           );
         });
 
         test("Débloquer membre détecté", async () => {
           await client.réseau!.débloquerMembre({ idBdCompte: idBdCompte3 });
-          await attendreRésultat(
-            relations,
-            "propres",
+          await relationsPropres.attendreQue(
             (x) => !!x && x.length === 1
           );
         });
 
         test("Ajout membres au réseau d'un autre membre détecté", async () => {
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x?: infoConfiance[]) => x?.length === 1
           );
-          expect(isArray(relations.autre));
-          expect(relations.autre).toHaveLength(1);
-          expect(relations.autre!.map((r) => r.idBdCompte)).toEqual(
+
+          expect(val.map((r) => r.idBdCompte)).toEqual(
             expect.arrayContaining([idBdCompte2])
           );
         });
@@ -497,7 +486,7 @@ typesClients.forEach((type) => {
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
-          expect(relations.propres).toHaveLength(0);
+          expect(relationsPropres.val).toHaveLength(0);
         });
 
         test("Ajout aux favoris détecté", async () => {
@@ -507,37 +496,31 @@ typesClients.forEach((type) => {
             dispositifs: "TOUS",
           });
 
-          await attendreRésultat(
-            relations,
-            "propres",
+          const val = await relationsPropres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.propres!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
 
         test("Ajout aux favoris d'un tiers détecté", async () => {
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.autre!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
 
         test("Enlever favori détecté", async () => {
           await client.favoris!.désépinglerFavori({ id: idMotClef2 });
-          expect(relations.propres).toHaveLength(0);
+          expect(relationsPropres.val).toHaveLength(0);
 
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x?: infoConfiance[]) => !!x && !x.length
           );
-          expect(relations.autre).toHaveLength(0);
+          expect(val).toHaveLength(0);
         });
 
         test("Ajout coauteur BD détecté", async () => {
@@ -548,24 +531,20 @@ typesClients.forEach((type) => {
             rôle: MEMBRE,
           });
 
-          await attendreRésultat(
-            relations,
-            "propres",
+          const val = await relationsPropres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
 
-          expect(relations.propres!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
 
         test("Ajout coauteur BD d'un tiers détecté", async () => {
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.autre!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
@@ -573,14 +552,12 @@ typesClients.forEach((type) => {
         test("Enlever bd détecté", async () => {
           await client.bds!.effacerBd({ id: idBd });
 
-          expect(relations.propres).toHaveLength(0);
+          expect(relationsPropres.val).toHaveLength(0);
 
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x?: infoConfiance[]) => !!x && !x.length
           );
-          expect(relations.autre).toHaveLength(0);
+          expect(val).toHaveLength(0);
         });
 
         test("Ajout coauteur projet détecté", async () => {
@@ -591,23 +568,19 @@ typesClients.forEach((type) => {
             rôle: MEMBRE,
           });
 
-          await attendreRésultat(
-            relations,
-            "propres",
+          const val = await relationsPropres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.propres!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
 
         test("Ajout coauteur projet d'un tiers détecté", async () => {
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.autre!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
@@ -615,14 +588,12 @@ typesClients.forEach((type) => {
         test("Enlever projet détecté", async () => {
           await client.projets!.effacerProjet({ id: idProjet });
 
-          expect(relations.propres).toHaveLength(0);
+          expect(relationsPropres.val).toHaveLength(0);
 
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x?: infoConfiance[]) => !!x && !x.length
           );
-          expect(relations.autre).toHaveLength(0);
+          expect(val).toHaveLength(0);
         });
 
         test("Ajout coauteur variable détecté", async () => {
@@ -635,24 +606,20 @@ typesClients.forEach((type) => {
             rôle: MEMBRE,
           });
 
-          await attendreRésultat(
-            relations,
-            "propres",
+          const val = await relationsPropres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
 
-          expect(relations.propres!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
 
         test("Ajout coauteur variable d'un tiers détecté", async () => {
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.autre!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
@@ -660,14 +627,12 @@ typesClients.forEach((type) => {
         test("Enlever variable détecté", async () => {
           await client.variables!.effacerVariable({ id: idVariable });
 
-          expect(relations.propres).toHaveLength(0);
+          expect(relationsPropres.val).toHaveLength(0);
 
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x?: infoConfiance[]) => !!x && !x.length
           );
-          expect(relations.autre).toHaveLength(0);
+          expect(val).toHaveLength(0);
         });
 
         test("Ajout coauteur mot-clef détecté", async () => {
@@ -678,23 +643,19 @@ typesClients.forEach((type) => {
             rôle: MEMBRE,
           });
 
-          await attendreRésultat(
-            relations,
-            "propres",
+          const val = await relationsPropres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.propres!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
 
         test("Ajout coauteur mot-clef d'un tiers détecté", async () => {
-          await attendreRésultat(
-            relations,
-            "autre",
+          const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length)
           );
-          expect(relations.autre!.map((r) => r.idBdCompte)).toContain(
+          expect(val.map((r) => r.idBdCompte)).toContain(
             idBdCompte2
           );
         });
@@ -702,38 +663,37 @@ typesClients.forEach((type) => {
         test("Enlever mot-clef détecté", async () => {
           await client.motsClefs!.effacerMotClef({ id: idMotClef1 });
 
-          expect(relations.propres).toHaveLength(0);
+          expect(relationsPropres.val).toHaveLength(0);
 
-          await attendreRésultat(
-            relations,
-            "autre",
+          await relationsAutres.attendreQue(
             (x?: infoConfiance[]) => !!x && !x.length
           );
-          expect(relations.autre).toHaveLength(0);
+          expect(relationsAutres.val).toHaveLength(0);
         });
       });
 
       describe("Suivre relations confiance", function () {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
-        const rés: { ultat?: infoRelation[] } = {};
+        const rés = new AttendreRésultat<infoRelation[]>;
 
         beforeAll(async () => {
           ({ fOublier, fChangerProfondeur } =
             await client.réseau!.suivreRelationsConfiance({
-              f: (r) => (rés.ultat = r),
+              f: (r) => (rés.mettreÀJour(r)),
               profondeur: 2,
             }));
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
           await client2.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte3,
           });
+          rés.toutAnnuler();
         });
 
         test("Relations immédiates", async () => {
@@ -749,8 +709,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte2,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-          expect(rés.ultat).toEqual(réf);
+          const val = await rés.attendreQue((x) => !!x && !!x.length);
+          expect(val).toEqual(réf);
         });
         test("Relations indirectes", async () => {
           const réf: infoRelation[] = [
@@ -771,8 +731,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-          expect(rés.ultat).toEqual(réf);
+          const val = await rés.attendreQue((x) => !!x && x.length > 1);
+          expect(val).toEqual(réf);
         });
 
         test("Diminuer profondeur", async () => {
@@ -785,8 +745,8 @@ typesClients.forEach((type) => {
             },
           ];
           fChangerProfondeur(1);
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
-          expect(rés.ultat).toEqual(réf);
+          const val = await rés.attendreQue((x) => !!x && x.length === 1);
+          expect(val).toEqual(réf);
         });
 
         test("Augmenter profondeur", async () => {
@@ -807,8 +767,8 @@ typesClients.forEach((type) => {
 
           fChangerProfondeur(2);
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
-          expect(rés.ultat).toEqual(réf);
+          const val = await rés.attendreQue((x) => !!x && x.length === 2);
+          expect(val).toEqual(réf);
         });
       });
 
@@ -816,18 +776,18 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
-        const rés: { ultat?: infoMembreRéseau[] } = {};
+        const rés = new AttendreRésultat<infoMembreRéseau[]>();
 
         beforeAll(async () => {
           ({ fOublier, fChangerProfondeur } =
             await client.réseau!.suivreComptesRéseau({
-              f: (c) => (rés.ultat = c),
+              f: (c) => (rés.mettreÀJour(c)),
               profondeur: 2,
             }));
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
 
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte2,
@@ -844,6 +804,7 @@ typesClients.forEach((type) => {
           await client.réseau!.débloquerMembre({
             idBdCompte: idBdCompte2,
           });
+          rés.toutAnnuler();
         }, config.patience);
 
         test("Relations confiance immédiates", async () => {
@@ -859,8 +820,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte2,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length > 1);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test(
           "Relations confiance indirectes",
@@ -882,8 +843,8 @@ typesClients.forEach((type) => {
               idBdCompte: idBdCompte3,
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 2);
-            expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+            await rés.attendreQue((x) => !!x && x.length > 2);
+            expect(rés.val).toEqual(expect.arrayContaining(réf));
           },
           config.patience
         );
@@ -905,13 +866,11 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
 
-          await attendreRésultat(
-            rés,
-            "ultat",
+          const val = await rés.attendreQue(
             (x) =>
               !!x && x.map((y) => y.confiance).reduce((i, j) => i * j, 1) === 1
           );
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Enlever relation confiance directe (en double)", async () => {
           const réf: infoMembreRéseau[] = [
@@ -931,13 +890,11 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
 
-          await attendreRésultat(
-            rés,
-            "ultat",
+          const val = await rés.attendreQue(
             (x) =>
               !!x && x.map((y) => y.confiance).reduce((i, j) => i * j, 1) < 1
           );
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Enlever relation confiance indirecte", async () => {
           const réf: infoMembreRéseau[] = [
@@ -952,8 +909,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length === 2);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Enlever relation confiance directe", async () => {
           const réf = [moiMême];
@@ -962,8 +919,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte2,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length === 1);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Membre bloqué directement", async () => {
           const réf: infoMembreRéseau[] = [
@@ -978,8 +935,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte2,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length > 1);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Membre débloqué directement", async () => {
           const réf = [moiMême];
@@ -988,8 +945,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte2,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length === 1);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Membre bloqué indirectement", async () => {
           const réf: infoMembreRéseau[] = [
@@ -1012,8 +969,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length === 3);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Précédence confiance propre", async () => {
           const réf: infoMembreRéseau[] = [
@@ -1033,15 +990,13 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
 
-          await attendreRésultat(
-            rés,
-            "ultat",
+          const val = await rés.attendreQue(
             (x) =>
               !!x &&
               x.find((y) => y.idBdCompte === client3.idBdCompte)?.confiance ===
                 1
           );
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          expect(val).toEqual(expect.arrayContaining(réf));
 
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte3,
@@ -1068,11 +1023,11 @@ typesClients.forEach((type) => {
           await client2.réseau!.faireConfianceAuMembre({
             idBdCompte: idBdCompte3,
           });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
+          rés.attendreQue((x) => !!x && x.length === 3);
 
           fChangerProfondeur(1);
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length === 2);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Augmenter profondeur", async () => {
           const réf: infoMembreRéseau[] = [
@@ -1091,8 +1046,8 @@ typesClients.forEach((type) => {
 
           fChangerProfondeur(2);
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length === 3);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
       });
 
@@ -1100,18 +1055,16 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
-        const rés: { ultat?: infoMembreRéseau[] } = {};
+        const rés = new AttendreRésultat<infoMembreRéseau[]>();
 
         beforeAll(async () => {
           ({ fOublier, fChangerProfondeur } =
             await client.réseau!.suivreComptesRéseauEtEnLigne({
-              f: (c) => (rés.ultat = c),
+              f: (c) => (rés.mettreÀJour(c)),
               profondeur: 2,
             }));
 
-          await attendreRésultat(
-            rés,
-            "ultat",
+          await rés.attendreQue(
             (x) =>
               !!x &&
               x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
@@ -1122,7 +1075,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
 
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte2,
@@ -1130,6 +1083,7 @@ typesClients.forEach((type) => {
           await client2.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte3,
           });
+          rés.toutAnnuler();
         });
 
         test("Comptes en ligne détectés", async () => {
@@ -1147,8 +1101,8 @@ typesClients.forEach((type) => {
             },
           ];
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          const val = await rés.attendreQue((x) => !!x && x.length === 3);
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
 
         test("Comptes réseau détectés", async () => {
@@ -1169,9 +1123,7 @@ typesClients.forEach((type) => {
           await client.réseau!.faireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
-          await attendreRésultat(
-            rés,
-            "ultat",
+          const val = await rés.attendreQue(
             (x) =>
               !!x &&
               x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
@@ -1180,16 +1132,14 @@ typesClients.forEach((type) => {
                 0
           );
 
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
 
         test("Changer profondeur", async () => {
           await client2.réseau!.faireConfianceAuMembre({
             idBdCompte: idBdCompte3,
           });
-          await attendreRésultat(
-            rés,
-            "ultat",
+          await rés.attendreQue(
             (x) =>
               !!x &&
               (x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ||
@@ -1210,16 +1160,13 @@ typesClients.forEach((type) => {
             },
           ];
           fChangerProfondeur(1);
-          await attendreRésultat(
-            rés,
-            "ultat",
-            (x) =>
+          const val = await rés.attendreQue((x) =>
               !!x &&
               x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
                 0
           );
 
-          expect(rés.ultat).toEqual(expect.arrayContaining(réf));
+          expect(val).toEqual(expect.arrayContaining(réf));
         });
       });
 
@@ -1227,28 +1174,30 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
         let fChangerProfondeur: schémaRetourFonctionRecherche["fChangerProfondeur"];
 
-        const rés: { ultat?: number } = {};
+        const rés = new AttendreRésultat<number>();
 
         beforeAll(async () => {
           ({ fOublier, fChangerProfondeur } =
             await client.réseau!.suivreConfianceMonRéseauPourMembre({
               idBdCompte: idBdCompte3,
-              f: (confiance) => (rés.ultat = confiance),
+              f: (confiance) => (rés.mettreÀJour(confiance)),
+              profondeur: 4
             }));
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
           await client2.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte3,
           });
+          rés.toutAnnuler();
         });
 
         test("Confiance initiale 0", async () => {
-          await attendreRésultat(rés, "ultat", (x) => x === 0);
+          rés.attendreQue((x) => x === 0);
         });
 
         test("Faire confiance au membre", async () => {
@@ -1259,13 +1208,13 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x > 0);
-          expect(rés.ultat).toEqual(0.8);
+          const val = await rés.attendreQue((x) => !!x && x > 0);
+          expect(val).toEqual(0.8);
         });
 
         test("Changer profondeur", async () => {
           fChangerProfondeur(1);
-          await attendreRésultat(rés, "ultat", (x) => x === 0);
+          rés.attendreQue((x) => x === 0);
         });
       });
 
@@ -1273,7 +1222,7 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
         let idMotClef: string;
 
-        const rés: { ultat?: number } = {};
+        const rés = new AttendreRésultat<number>();
 
         beforeAll(async () => {
           idMotClef = await client2.motsClefs!.créerMotClef();
@@ -1281,12 +1230,12 @@ typesClients.forEach((type) => {
           fOublier = await client.réseau!.suivreConfianceAuteurs({
             idItem: idMotClef,
             clef: "motsClefs",
-            f: (confiance) => (rés.ultat = confiance),
+            f: (confiance) => (rés.mettreÀJour(confiance)),
           });
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           if (idMotClef)
             await client2.motsClefs!.effacerMotClef({ id: idMotClef });
 
@@ -1296,10 +1245,11 @@ typesClients.forEach((type) => {
           await client.réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idBdCompte3,
           });
+          rés.toutAnnuler();
         });
 
         test("Confiance 0 pour commencer", async () => {
-          await attendreRésultat(rés, "ultat", (x) => x === 0);
+          rés.attendreQue((x) => x === 0);
         });
 
         test("Ajout auteur au réseau", async () => {
@@ -1307,8 +1257,8 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte2,
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x > 0);
-          expect(rés.ultat).toEqual(1);
+          const val = await rés.attendreQue((x) => !!x && x > 0);
+          expect(val).toEqual(1);
         });
 
         test("Ajout coauteur au réseau", async () => {
@@ -1318,25 +1268,24 @@ typesClients.forEach((type) => {
             rôle: MEMBRE,
           });
           await client3.motsClefs!.ajouterÀMesMotsClefs({ id: idMotClef });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x > 1);
+          const valAvant = await rés.attendreQue((x) => !!x && x > 1);
 
-          expect(rés.ultat).toBeGreaterThan(1);
-          expect(rés.ultat).toBeLessThan(2);
+          expect(valAvant).toBeGreaterThan(1);
+          expect(valAvant).toBeLessThan(2);
 
-          const avant = rés.ultat!;
           await client.réseau!.faireConfianceAuMembre({
             idBdCompte: idBdCompte3,
           });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x > avant);
+          const val = await rés.attendreQue((x) => !!x && x > valAvant);
 
-          expect(rés.ultat).toEqual(2);
+          expect(val).toEqual(2);
         });
 
         test("Coauteur se retire", async () => {
           await client3.motsClefs!.enleverDeMesMotsClefs({ id: idMotClef });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x < 2);
+          const val = await rés.attendreQue((x) => !!x && x < 2);
 
-          expect(rés.ultat).toEqual(1);
+          expect(val).toEqual(1);
         });
       });
 
@@ -1345,22 +1294,23 @@ typesClients.forEach((type) => {
           let idMotClef: string;
           let fOublier: schémaFonctionOublier;
 
-          const rés: { ultat?: infoAuteur[] } = {};
+          const rés = new AttendreRésultat<infoAuteur[]>();
 
           beforeAll(async () => {
             idMotClef = await client.motsClefs!.créerMotClef();
             fOublier = await client.réseau!.suivreAuteursMotClef({
               idMotClef,
-              f: (auteurs) => (rés.ultat = auteurs),
+              f: (auteurs) => (rés.mettreÀJour(auteurs)),
             });
           });
 
           afterAll(async () => {
-            if (fOublier) fOublier();
+            if (fOublier) await fOublier();
             if (idMotClef) {
               await client.motsClefs!.effacerMotClef({ id: idMotClef });
               await client2.motsClefs!.enleverDeMesMotsClefs({ id: idMotClef });
             }
+            rés.toutAnnuler();
           });
 
           test("Inviter auteur", async () => {
@@ -1382,8 +1332,8 @@ typesClients.forEach((type) => {
               rôle: MEMBRE,
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-            expect(rés.ultat).toEqual(réf);
+            const val = await rés.attendreQue((x) => !!x && x.length > 1);
+            expect(val).toEqual(réf);
           });
           test("Accepter invitation", async () => {
             const réf: infoAuteur[] = [
@@ -1400,14 +1350,14 @@ typesClients.forEach((type) => {
             ];
 
             await client2.motsClefs!.ajouterÀMesMotsClefs({ id: idMotClef });
-            await attendreRésultat(rés, "ultat", (x) =>
+            const val = await rés.attendreQue((x) =>
               Boolean(
                 !!x &&
                   x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
               )
             );
 
-            expect(rés.ultat).toEqual(réf);
+            expect(val).toEqual(réf);
           });
           test("Refuser invitation", async () => {
             const réf: infoAuteur[] = [
@@ -1424,15 +1374,13 @@ typesClients.forEach((type) => {
             ];
 
             await client2.motsClefs!.enleverDeMesMotsClefs({ id: idMotClef });
-            await attendreRésultat(
-              rés,
-              "ultat",
+            const val = await rés.attendreQue(
               (x) =>
                 !!x &&
                 !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
             );
 
-            expect(rés.ultat).toEqual(réf);
+            expect(val).toEqual(réf);
           });
           test("Promotion à modérateur", async () => {
             await client.motsClefs!.inviterAuteur({
@@ -1441,9 +1389,7 @@ typesClients.forEach((type) => {
               rôle: MODÉRATEUR,
             });
 
-            await attendreRésultat(
-              rés,
-              "ultat",
+            await rés.attendreQue(
               (auteurs) =>
                 !!auteurs &&
                 auteurs.find((a) => a.idBdCompte === idBdCompte2)?.rôle ===
@@ -1456,7 +1402,7 @@ typesClients.forEach((type) => {
           let idVariable: string;
           let fOublier: schémaFonctionOublier;
 
-          const rés: { ultat?: infoAuteur[] } = {};
+          const rés = new AttendreRésultat<infoAuteur[]>();
 
           beforeAll(async () => {
             idVariable = await client.variables!.créerVariable({
@@ -1464,14 +1410,15 @@ typesClients.forEach((type) => {
             });
             fOublier = await client.réseau!.suivreAuteursVariable({
               idVariable,
-              f: (auteurs) => (rés.ultat = auteurs),
+              f: (auteurs) => (rés.mettreÀJour(auteurs)),
             });
           });
 
           afterAll(async () => {
-            if (fOublier) fOublier();
+            if (fOublier) await fOublier();
             if (idVariable)
               await client.variables!.effacerVariable({ id: idVariable });
+            rés.toutAnnuler()
           });
 
           test("Inviter auteur", async () => {
@@ -1493,8 +1440,8 @@ typesClients.forEach((type) => {
               rôle: MEMBRE,
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-            expect(rés.ultat).toEqual(réf);
+            const val = await rés.attendreQue((x) => !!x && x.length > 1);
+            expect(val).toEqual(réf);
           });
           test("Accepter invitation", async () => {
             const réf: infoAuteur[] = [
@@ -1511,14 +1458,14 @@ typesClients.forEach((type) => {
             ];
 
             await client2.variables!.ajouterÀMesVariables({ id: idVariable });
-            await attendreRésultat(rés, "ultat", (x) =>
+            const val = await rés.attendreQue((x) =>
               Boolean(
                 !!x &&
                   x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
               )
             );
 
-            expect(rés.ultat).toEqual(réf);
+            expect(val).toEqual(réf);
           });
           test("Refuser invitation", async () => {
             const réf: infoAuteur[] = [
@@ -1535,15 +1482,13 @@ typesClients.forEach((type) => {
             ];
 
             await client2.variables!.enleverDeMesVariables({ id: idVariable });
-            await attendreRésultat(
-              rés,
-              "ultat",
+            const val = await rés.attendreQue(
               (x) =>
                 !!x &&
                 !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
             );
 
-            expect(rés.ultat).toEqual(réf);
+            expect(val).toEqual(réf);
           });
           test("Promotion à modérateur", async () => {
             await client.variables!.inviterAuteur({
@@ -1552,9 +1497,7 @@ typesClients.forEach((type) => {
               rôle: MODÉRATEUR,
             });
 
-            await attendreRésultat(
-              rés,
-              "ultat",
+            await rés.attendreQue(
               (auteurs) =>
                 !!auteurs &&
                 auteurs.find((a) => a.idBdCompte === idBdCompte2)?.rôle ===
@@ -1567,19 +1510,20 @@ typesClients.forEach((type) => {
           let idBd: string;
           let fOublier: schémaFonctionOublier;
 
-          const rés: { ultat?: infoAuteur[] } = {};
+          const rés = new AttendreRésultat<infoAuteur[]>();
 
           beforeAll(async () => {
             idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
             fOublier = await client.réseau!.suivreAuteursBd({
               idBd,
-              f: (auteurs) => (rés.ultat = auteurs),
+              f: (auteurs) => (rés.mettreÀJour(auteurs)),
             });
           });
 
           afterAll(async () => {
-            if (fOublier) fOublier();
+            if (fOublier) await fOublier();
             if (idBd) await client.bds!.effacerBd({ id: idBd });
+            rés.toutAnnuler();
           });
 
           test("Inviter auteur", async () => {
@@ -1601,8 +1545,8 @@ typesClients.forEach((type) => {
               rôle: MEMBRE,
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-            expect(rés.ultat).toEqual(réf);
+            const val = await rés.attendreQue((x) => !!x && x.length > 1);
+            expect(val).toEqual(réf);
           });
 
           test("Accepter invitation", async () => {
@@ -1620,14 +1564,14 @@ typesClients.forEach((type) => {
             ];
 
             await client2.bds!.ajouterÀMesBds({ id: idBd });
-            await attendreRésultat(rés, "ultat", (x) =>
+            const val = await rés.attendreQue((x) =>
               Boolean(
                 !!x &&
                   x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
               )
             );
 
-            expect(rés.ultat).toEqual(réf);
+            expect(val).toEqual(réf);
           });
 
           test("Refuser invitation", async () => {
@@ -1645,15 +1589,13 @@ typesClients.forEach((type) => {
             ];
 
             await client2.bds!.enleverDeMesBds({ id: idBd });
-            await attendreRésultat(
-              rés,
-              "ultat",
+            const val = await rés.attendreQue(
               (x) =>
                 !!x &&
                 !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
             );
 
-            expect(rés.ultat).toEqual(réf);
+            expect(val).toEqual(réf);
           });
 
           test("Promotion à modérateur", async () => {
@@ -1663,9 +1605,7 @@ typesClients.forEach((type) => {
               rôle: MODÉRATEUR,
             });
 
-            await attendreRésultat(
-              rés,
-              "ultat",
+            await rés.attendreQue(
               (auteurs) =>
                 !!auteurs &&
                 auteurs.find((a) => a.idBdCompte === idBdCompte2)?.rôle ===
@@ -1678,18 +1618,18 @@ typesClients.forEach((type) => {
           let idProjet: string;
           let fOublier: schémaFonctionOublier;
 
-          const rés: { ultat?: infoAuteur[] } = {};
+          const rés = new AttendreRésultat<infoAuteur[]>();
 
           beforeAll(async () => {
             idProjet = await client.projets!.créerProjet();
             fOublier = await client.réseau!.suivreAuteursProjet({
               idProjet,
-              f: (auteurs) => (rés.ultat = auteurs),
+              f: (auteurs) => (rés.mettreÀJour(auteurs)),
             });
           });
 
           afterAll(async () => {
-            if (fOublier) fOublier();
+            if (fOublier) await fOublier();
             if (idProjet) await client.projets!.effacerProjet({ id: idProjet });
           });
 
@@ -1712,8 +1652,8 @@ typesClients.forEach((type) => {
               rôle: MEMBRE,
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-            expect(rés.ultat).toEqual(réf);
+            const val = await rés.attendreQue((x) => !!x && x.length > 1);
+            expect(val).toEqual(réf);
           });
 
           test("Accepter invitation", async () => {
@@ -1731,14 +1671,14 @@ typesClients.forEach((type) => {
             ];
 
             await client2.projets!.ajouterÀMesProjets({ idProjet });
-            await attendreRésultat(rés, "ultat", (x) =>
+            const val = await rés.attendreQue((x) =>
               Boolean(
                 !!x &&
                   x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
               )
             );
 
-            expect(rés.ultat).toEqual(réf);
+            expect(val).toEqual(réf);
           });
           test("Refuser invitation", async () => {
             const réf: infoAuteur[] = [
@@ -1755,15 +1695,13 @@ typesClients.forEach((type) => {
             ];
 
             await client2.projets!.enleverDeMesProjets({ idProjet });
-            await attendreRésultat(
-              rés,
-              "ultat",
+            const val = await rés.attendreQue(
               (x) =>
                 !!x &&
                 !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
             );
 
-            expect(rés.ultat).toEqual(réf);
+            expect(val).toEqual(réf);
           });
           test("Promotion à modérateur", async () => {
             await client.projets!.inviterAuteur({
@@ -1772,9 +1710,7 @@ typesClients.forEach((type) => {
               rôle: MODÉRATEUR,
             });
 
-            await attendreRésultat(
-              rés,
-              "ultat",
+            await rés.attendreQue(
               (auteurs) =>
                 !!auteurs &&
                 auteurs.find((a) => a.idBdCompte === idBdCompte2)?.rôle ===
@@ -1785,33 +1721,30 @@ typesClients.forEach((type) => {
       });
 
       describe("Suivre noms membre", function () {
-        const rés: { ultat: { [key: string]: string } | undefined } = {
-          ultat: undefined,
-        };
+        const rés = new AttendreRésultat<{ [key: string]: string }>();
         let fOublier: schémaFonctionOublier;
 
         beforeAll(async () => {
           await client.profil!.sauvegarderNom({ langue: "fr", nom: "Julien" });
           fOublier = await client2.réseau!.suivreNomsMembre({
             idCompte: idBdCompte1,
-            f: (n) => (rés.ultat = n),
+            f: (n) => (rés.mettreÀJour(n)),
           });
+          rés.toutAnnuler();
         });
 
         test("Noms détectés", async () => {
-          await attendreRésultat(rés, "ultat", (x) => !!x && Boolean(x.fr));
-          expect(rés.ultat?.fr).toEqual("Julien");
+          const val = await rés.attendreQue((x) => !!x && Boolean(x.fr));
+          expect(val.fr).toEqual("Julien");
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
       });
 
       describe("Suivre courriel membre", function () {
-        const rés: { ultat: string | null | undefined } = {
-          ultat: undefined,
-        };
+        const rés = new AttendreRésultat<string | null>();
         let fOublier: schémaFonctionOublier;
 
         beforeAll(async () => {
@@ -1820,26 +1753,26 @@ typesClients.forEach((type) => {
           });
           fOublier = await client2.réseau!.suivreCourrielMembre({
             idCompte: idBdCompte1,
-            f: (c) => (rés.ultat = c),
+            f: (c) => (rés.mettreÀJour(c)),
           });
+        });
+        afterAll(async () => {
+          if (fOublier) await fOublier();
+          rés.toutAnnuler();
         });
 
         test("Courriel détecté", async () => {
-          await attendreRésultat(rés, "ultat", (x: string | null | undefined) =>
+          const val = await rés.attendreQue((x: string | null | undefined) =>
             Boolean(x)
           );
-          expect(rés.ultat).toEqual("தொடர்பு@லஸ்ஸி.இந்தியா");
+          expect(val).toEqual("தொடர்பு@லஸ்ஸி.இந்தியா");
         });
 
-        afterAll(async () => {
-          if (fOublier) fOublier();
-        });
+
       });
 
       describe("Suivre image membre", function () {
-        const rés: { ultat: Uint8Array | undefined | null } = {
-          ultat: undefined,
-        };
+        const rés = new AttendreRésultat<Uint8Array | null>();
         let fOublier: schémaFonctionOublier;
 
         const IMAGE = fs.readFileSync(
@@ -1850,21 +1783,18 @@ typesClients.forEach((type) => {
           await client.profil!.sauvegarderImage({ image: IMAGE });
           fOublier = await client2.réseau!.suivreImageMembre({
             idCompte: idBdCompte1,
-            f: (i) => (rés.ultat = i),
+            f: (i) => rés.mettreÀJour(i),
           });
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
+          rés.toutAnnuler();
         });
 
         test("Image détectée", async () => {
-          await attendreRésultat(
-            rés,
-            "ultat",
-            (x: Uint8Array | undefined | null) => Boolean(x)
-          );
-          expect(rés.ultat).toEqual(new Uint8Array(IMAGE));
+          const val = await rés.attendreExiste();
+          expect(val).toEqual(new Uint8Array(IMAGE));
         });
       });
 
@@ -1872,20 +1802,22 @@ typesClients.forEach((type) => {
         let idMotClef1: string;
         let idMotClef2: string;
 
-        const rés: { propre?: string[]; autre?: string[] } = {};
+        const résPropres = new AttendreRésultat<string[]>();
+        const résAutres = new AttendreRésultat<string[]>();
+
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client2.réseau!.suivreMotsClefsMembre({
               idCompte: idBdCompte1,
-              f: (motsClefs) => (rés.autre = motsClefs),
+              f: (motsClefs) => (résAutres.mettreÀJour(motsClefs)),
             })
           );
           fsOublier.push(
             await client2.réseau!.suivreMotsClefsMembre({
               idCompte: idBdCompte2,
-              f: (motsClefs) => (rés.propre = motsClefs),
+              f: (motsClefs) => (résPropres.mettreÀJour(motsClefs)),
             })
           );
         });
@@ -1896,19 +1828,22 @@ typesClients.forEach((type) => {
             await client.motsClefs!.effacerMotClef({ id: idMotClef1 });
           if (idMotClef2)
             await client.motsClefs!.effacerMotClef({ id: idMotClef2 });
+
+          résPropres.toutAnnuler();
+          résAutres.toutAnnuler();
         });
 
         test("Mes propres mots-clefs détectés", async () => {
           idMotClef2 = await client2.motsClefs!.créerMotClef();
 
-          await attendreRésultat(rés, "propre", (x) => !!x && !!x.length);
-          expect(rés.propre).toContain(idMotClef2);
+          const val = await résPropres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toContain(idMotClef2);
         });
 
         test("Mot-clef d'un autre membre détecté", async () => {
           idMotClef1 = await client.motsClefs!.créerMotClef();
-          await attendreRésultat(rés, "autre", (x) => !!x && !!x.length);
-          expect(rés.autre).toContain(idMotClef1);
+          const val = await résAutres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toContain(idMotClef1);
         });
       });
 
@@ -1916,20 +1851,23 @@ typesClients.forEach((type) => {
         let idVariable1: string;
         let idVariable2: string;
 
-        const rés: { propres?: string[]; autres?: string[] } = {};
+
+        const résPropres = new AttendreRésultat<string[]>();
+        const résAutres = new AttendreRésultat<string[]>();
+
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client2.réseau!.suivreVariablesMembre({
               idCompte: idBdCompte1,
-              f: (variables) => (rés.autres = variables),
+              f: (variables) => (résAutres.mettreÀJour(variables)),
             })
           );
           fsOublier.push(
             await client2.réseau!.suivreVariablesMembre({
               idCompte: idBdCompte2,
-              f: (variables) => (rés.propres = variables),
+              f: (variables) => (résPropres.mettreÀJour(variables)),
             })
           );
         });
@@ -1940,6 +1878,9 @@ typesClients.forEach((type) => {
             await client.variables!.effacerVariable({ id: idVariable1 });
           if (idVariable2)
             await client2.variables!.effacerVariable({ id: idVariable2 });
+
+          résPropres.toutAnnuler();
+          résAutres.toutAnnuler();
         });
 
         test("Mes variables détectées", async () => {
@@ -1947,113 +1888,121 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
 
-          await attendreRésultat(rés, "propres", (x) => !!x && !!x.length);
-          expect(rés.propres).toContain(idVariable2);
+          const val = await résPropres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toContain(idVariable2);
         });
 
         test("Variable d'un autre membre détectée", async () => {
           idVariable1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          await attendreRésultat(rés, "autres", (x) => Boolean(x?.length));
-          expect(rés.autres).toContain(idVariable1);
+          const val = await résAutres.attendreQue((x) => Boolean(x?.length));
+          expect(val).toContain(idVariable1);
         });
       });
 
       describe("Suivre BDs", function () {
-        const rés: { propres?: string[]; autres?: string[] } = {};
+        const résPropres = new AttendreRésultat<string[]>();
+        const résAutres = new AttendreRésultat<string[]>();
+
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client2.réseau!.suivreBdsMembre({
               idCompte: idBdCompte1,
-              f: (bds) => (rés.autres = bds),
+              f: (bds) => (résAutres.mettreÀJour(bds)),
             })
           );
           fsOublier.push(
             await client2.réseau!.suivreBdsMembre({
               idCompte: idBdCompte2,
-              f: (bds) => (rés.propres = bds),
+              f: (bds) => (résPropres.mettreÀJour(bds)),
             })
           );
         });
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          résPropres.toutAnnuler()
+          résAutres.toutAnnuler()
         });
 
         test("Mes BDs détectées", async () => {
           const idBd = await client2.bds!.créerBd({ licence: "ODbl-1_0" });
 
-          await attendreRésultat(rés, "propres", (x) => !!x && !!x.length);
-          expect(rés.propres).toContain(idBd);
+          const val = await résPropres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toContain(idBd);
         });
 
         test("BD d'un autre membre détectée", async () => {
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          await attendreRésultat(rés, "autres", (x) => !!x && !!x.length);
-          expect(rés.autres).toContain(idBd);
+          const val = await résAutres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toContain(idBd);
         });
       });
 
       describe("Suivre projets", function () {
-        const rés: { propres?: string[]; autres?: string[] } = {};
+
+        const résPropres = new AttendreRésultat<string[]>();
+        const résAutres = new AttendreRésultat<string[]>();
+
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client2.réseau!.suivreProjetsMembre({
               idCompte: idBdCompte1,
-              f: (projets) => (rés.autres = projets),
+              f: (projets) => (résAutres.mettreÀJour(projets)),
             })
           );
           fsOublier.push(
             await client2.réseau!.suivreProjetsMembre({
               idCompte: idBdCompte2,
-              f: (projets) => (rés.propres = projets),
+              f: (projets) => (résPropres.mettreÀJour(projets)),
             })
           );
         });
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          résPropres.toutAnnuler()
+          résAutres.toutAnnuler()
         });
 
         test("Mes projets détectés", async () => {
           const idProjet = await client2.projets!.créerProjet();
 
-          await attendreRésultat(rés, "propres", (x) => !!x && !!x.length);
-          expect(rés.propres).toContain(idProjet);
+          const val = await résPropres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toContain(idProjet);
         });
 
         test("Projet d'un autre membre détecté", async () => {
           const idProjet = await client.projets!.créerProjet();
-          await attendreRésultat(rés, "autres", (x) => !!x && !!x.length);
-          expect(rés.autres).toContain(idProjet);
+          const val = await résAutres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toContain(idProjet);
         });
       });
 
       describe("Suivre favoris", function () {
         let idMotClef: string;
 
-        const rés: {
-          propres?: ÉlémentFavorisAvecObjet[];
-          autres?: ÉlémentFavorisAvecObjet[];
-        } = {};
+        const résPropres = new AttendreRésultat<ÉlémentFavorisAvecObjet[]>();
+        const résAutres = new AttendreRésultat<ÉlémentFavorisAvecObjet[]>();
+
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client2.réseau!.suivreFavorisMembre({
               idCompte: idBdCompte1,
-              f: (favoris) => (rés.autres = favoris),
+              f: (favoris) => (résAutres.mettreÀJour(favoris)),
             })
           );
           fsOublier.push(
             await client2.réseau!.suivreFavorisMembre({
               idCompte: idBdCompte2,
-              f: (favoris) => (rés.propres = favoris),
+              f: (favoris) => (résPropres.mettreÀJour(favoris)),
             })
           );
 
@@ -2064,6 +2013,7 @@ typesClients.forEach((type) => {
           await Promise.all(fsOublier.map((f) => f()));
           if (idMotClef)
             await client.motsClefs!.effacerMotClef({ id: idMotClef });
+          résPropres.toutAnnuler();
         });
 
         test("Mes favoris détectés", async () => {
@@ -2080,8 +2030,8 @@ typesClients.forEach((type) => {
             id: idMotClef,
             dispositifs: "TOUS",
           });
-          await attendreRésultat(rés, "propres", (x) => !!x && !!x.length);
-          expect(rés.propres).toEqual(réf);
+          const val = await résPropres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toEqual(réf);
         });
 
         test("Favoris d'un autre membre détectés", async () => {
@@ -2098,8 +2048,8 @@ typesClients.forEach((type) => {
             id: idMotClef,
             dispositifs: "TOUS",
           });
-          await attendreRésultat(rés, "autres", (x) => !!x && !!x.length);
-          expect(rés.autres).toEqual(réf);
+          const val = await résAutres.attendreQue((x) => !!x && !!x.length);
+          expect(val).toEqual(réf);
         });
       });
 
@@ -2107,28 +2057,28 @@ typesClients.forEach((type) => {
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
 
-        const rés: {
-          ultat?: (ÉlémentFavorisAvecObjet & { idBdCompte: string })[];
-        } = {};
+        const rés = new AttendreRésultat<(ÉlémentFavorisAvecObjet & { idBdCompte: string })[]>();
 
         beforeAll(async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
 
           ({ fOublier } = await client.réseau!.suivreFavorisObjet({
             idObjet: idMotClef,
-            f: (favoris) => (rés.ultat = favoris),
+            f: (favoris) => (rés.mettreÀJour(favoris)),
+            profondeur: 4
           }));
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           if (idMotClef)
             await client.motsClefs!.effacerMotClef({ id: idMotClef });
+          rés.toutAnnuler();
         });
 
         test("Aucun favoris pour commencer", async () => {
-          await attendreRésultat(rés, "ultat");
-          expect(rés.ultat).toHaveLength(0);
+          const val = await rés.attendreExiste();
+          expect(val).toHaveLength(0);
         });
 
         test("Ajout à mes favoris détecté", async () => {
@@ -2145,9 +2095,9 @@ typesClients.forEach((type) => {
             id: idMotClef,
             dispositifs: "TOUS",
           });
-          await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+          const val = await rés.attendreQue((x) => !!x && !!x.length);
 
-          expect(rés.ultat).toEqual(réf);
+          expect(val).toEqual(réf);
         });
 
         test("Ajout aux favoris d'un autre membre détecté", async () => {
@@ -2171,18 +2121,16 @@ typesClients.forEach((type) => {
             id: idMotClef,
             dispositifs: "TOUS",
           });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
+          const val = await rés.attendreQue((x) => !!x && x.length === 2);
 
-          expect(rés.ultat).toEqual(réf);
+          expect(val).toEqual(réf);
         });
       });
 
       describe("Suivre réplications", function () {
         let idBd: string;
 
-        const rés: { ultat?: infoRéplications } = {
-          ultat: undefined,
-        };
+        const rés = new AttendreRésultat<infoRéplications>();
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
@@ -2191,7 +2139,8 @@ typesClients.forEach((type) => {
             (
               await client.réseau!.suivreRéplications({
                 idObjet: idBd,
-                f: (bds) => (rés.ultat = bds),
+                f: (bds) => (rés.mettreÀJour(bds)),
+                profondeur: 4
               })
             ).fOublier
           );
@@ -2203,6 +2152,7 @@ typesClients.forEach((type) => {
             await client.bds!.effacerBd({ id: idBd });
             await client2.favoris!.désépinglerFavori({ id: idBd });
           }
+          rés.toutAnnuler();
         });
 
         test("Auteur de la BD pour commencer", async () => {
@@ -2211,16 +2161,14 @@ typesClients.forEach((type) => {
             dispositifs: "TOUS",
           });
 
-          await attendreRésultat(
-            rés,
-            "ultat",
+          const val = await rés.attendreQue(
             (x) => !!x && x.membres.length > 0
           );
 
           expect(
-            rés.ultat!.membres.map((m) => m.infoMembre.idBdCompte)
+            val.membres.map((m) => m.infoMembre.idBdCompte)
           ).toContain(idBdCompte1);
-          expect(rés.ultat!.dispositifs.map((d) => d.idDispositif)).toContain(
+          expect(val.dispositifs.map((d) => d.idDispositif)).toContain(
             idOrbite1
           );
         });
@@ -2231,16 +2179,14 @@ typesClients.forEach((type) => {
             dispositifs: "TOUS",
           });
 
-          await attendreRésultat(
-            rés,
-            "ultat",
+          const val = await rés.attendreQue(
             (x) => !!x && x.membres.length > 1
           );
 
           expect(
-            rés.ultat!.membres.map((m) => m.infoMembre.idBdCompte)
+            val.membres.map((m) => m.infoMembre.idBdCompte)
           ).toEqual(expect.arrayContaining([idBdCompte1, idBdCompte2]));
-          expect(rés.ultat!.dispositifs.map((d) => d.idDispositif)).toEqual(
+          expect(val.dispositifs.map((d) => d.idDispositif)).toEqual(
             expect.arrayContaining([idOrbite1, idOrbite2])
           );
         });
@@ -2266,10 +2212,9 @@ typesClients.forEach((type) => {
         const données2 = { clef: "titre", langue: "हिं", trad: "तारामंडल" };
         const données3 = { clef: "titre", langue: "kaq", trad: "Ch'umil" };
 
-        const rés: {
-          ultat?: string[];
-          ultat2?: élémentDeMembre<élémentBdListeDonnées>[];
-        } = { ultat: undefined, ultat2: undefined };
+        const résBds = new AttendreRésultat<string[]>;
+        const résÉléments = new AttendreRésultat<élémentDeMembre<élémentBdListeDonnées>[]>;
+
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
@@ -2342,7 +2287,7 @@ typesClients.forEach((type) => {
             (
               await client.réseau!.suivreBdsDeMotClef({
                 motClefUnique: motClef,
-                f: (bds) => (rés.ultat = bds),
+                f: (bds) => résBds.mettreÀJour(bds),
                 nRésultatsDésirés: 100,
               })
             ).fOublier
@@ -2352,7 +2297,7 @@ typesClients.forEach((type) => {
               await client.réseau!.suivreÉlémentsDeTableauxUniques({
                 motClefUnique: motClef,
                 clef: clefTableau,
-                f: (éléments) => (rés.ultat2 = éléments),
+                f: (éléments) => résÉléments.mettreÀJour(éléments),
               })
             ).fOublier
           );
@@ -2373,18 +2318,18 @@ typesClients.forEach((type) => {
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          résBds.toutAnnuler();
+          résÉléments.toutAnnuler();
         });
 
         test(
           "Suivre BDs du réseau",
           async () => {
-            await attendreRésultat(
-              rés,
-              "ultat",
+            const val = await résBds.attendreQue(
               (x?: string[]) => x && x.length === 2
             );
-            expect(rés.ultat).toHaveLength(2);
-            expect(rés.ultat).toEqual(expect.arrayContaining([idBd1, idBd2]));
+            expect(val).toHaveLength(2);
+            expect(val).toEqual(expect.arrayContaining([idBd1, idBd2]));
           },
           config.patience
         );
@@ -2392,13 +2337,11 @@ typesClients.forEach((type) => {
         test(
           "Suivre éléments des BDs",
           async () => {
-            await attendreRésultat(
-              rés,
-              "ultat2",
-              (x?: élémentDeMembre<élémentBdListeDonnées>[]) =>
+            const val = await résÉléments.attendreQue(
+              (x) =>
                 x && x.length === 3
             );
-            const élémentsSansId = rés.ultat2!.map((r) => {
+            const élémentsSansId = val.map((r) => {
               delete r.élément.données.id;
               return r;
             });

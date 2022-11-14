@@ -14,7 +14,7 @@ import {
   dirRessourcesTests,
   obtDirTempoPourTest,
   générerClients,
-  attendreRésultat,
+  AttendreRésultat,
   typesClients,
 } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
@@ -257,7 +257,7 @@ typesClients.forEach((type) => {
         let bds: string[];
         let variables: string[];
 
-        const rés: { motsClefs?: string[] } = {};
+        const rés = new AttendreRésultat<string[]>();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -271,7 +271,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.projets!.suivreMotsClefsProjet({
               idProjet,
-              f: (m) => (rés.motsClefs = m),
+              f: (m) => rés.mettreÀJour(m),
             })
           );
           fsOublier.push(
@@ -284,6 +284,7 @@ typesClients.forEach((type) => {
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          rés.toutAnnuler();
         });
 
         test("Pas de BDs pour commencer", async () => {
@@ -306,11 +307,8 @@ typesClients.forEach((type) => {
             idsMotsClefs: idMotClef,
           });
 
-          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length > 0);
-
-          expect(isArray(rés.motsClefs)).toBe(true);
-          expect(rés.motsClefs).toHaveLength(1);
-          expect(rés.motsClefs![0]).toEqual(idMotClef);
+          const val = await rés.attendreQue((x) => !!x && x.length > 0);
+          expect(val).toEqual(expect.arrayContaining([idMotClef]));
         });
 
         test("Variables BD détectées", async () => {

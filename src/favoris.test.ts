@@ -101,7 +101,7 @@ typesClients.forEach((type) => {
           );
         }, config.patience);
 
-        afterAll(() => {
+        afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
         });
 

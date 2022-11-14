@@ -902,9 +902,9 @@ typesClients.forEach((type) => {
 
           await attendreFichierExiste.attendre();
 
-          await résÉtats.attendreQue((x) => !!(x && x[idAuto]));
+          const val = await résÉtats.attendreQue((x) => !!(x && x[idAuto]?.type === "programmée"));
 
-          const état = résÉtats.val[idAuto] as ÉtatProgrammée;
+          const état = val[idAuto] as ÉtatProgrammée;
 
           expect(état.type).toEqual("programmée");
 
@@ -930,12 +930,12 @@ typesClients.forEach((type) => {
               },
             });
 
-          await résÉtats.attendreQue((x) => !!(x && x[idAuto]));
+          const val = await résÉtats.attendreQue((x) => !!(x && x[idAuto]?.type === "erreur"));
 
           const après = Date.now();
 
-          expect(résÉtats.val[idAuto].type).toEqual("erreur");
-          const état = résÉtats.val[idAuto] as ÉtatErreur;
+          expect(val[idAuto].type).toEqual("erreur");
+          const état = val[idAuto] as ÉtatErreur;
 
           expect(état.erreur).toEqual("Error: Unrecognized bookType |ods!|");
           expect(état.prochaineProgramméeÀ).toBeLessThanOrEqual(

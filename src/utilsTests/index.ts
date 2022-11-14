@@ -88,19 +88,20 @@ export const attendreSync = async (bd: Store): Promise<void> => {
   await once(accès.bd!.events, "peer.exchanged");
 };
 
-export class AttendreRésultat<T> extends EventEmitter {
+export class AttendreRésultat<T> {
   val?: T
   fsOublier: {[clef: string]: ()=>void}
+  événements: EventEmitter
 
   constructor() {
-    super()
+    this.événements = new EventEmitter();
     this.val = undefined
     this.fsOublier = {}
   }
 
   mettreÀJour(x: T) {
     this.val = x
-    this.emit("changé")
+    this.événements.emit("changé")
   }
 
   async attendreQue(f: (x: T)=>boolean): Promise<T> {
@@ -114,8 +115,8 @@ export class AttendreRésultat<T> extends EventEmitter {
           résoudre(this.val)
         }
       }
-      this.on("changé", fLorsqueChangé)
-      this.fsOublier[id] = ()=>this.off("changé", fLorsqueChangé)
+      this.événements.on("changé", fLorsqueChangé)
+      this.fsOublier[id] = ()=>this.événements.off("changé", fLorsqueChangé)
     })
   }
 

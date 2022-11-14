@@ -18,7 +18,7 @@ import {
 import {
   générerClients,
   typesClients,
-  attendreRésultat,
+  AttendreRésultat,
   dirRessourcesTests,
 } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
@@ -45,16 +45,14 @@ typesClients.forEach((type) => {
       describe("Selon activité", function () {
         let fOublier: schémaFonctionOublier;
 
-        const rés: {
-          ultat: résultatObjectifRecherche<infoRésultatVide> | undefined;
-        } = { ultat: undefined };
+        const rés = new AttendreRésultat<résultatObjectifRecherche<infoRésultatVide>>();
 
         beforeAll(async () => {
           const fRecherche = rechercherProfilSelonActivité();
           fOublier = await fRecherche(
             client,
             client.idBdCompte!,
-            (r) => (rés.ultat = r)
+            (r) => (rés.mettreÀJour(r))
           );
         });
 
@@ -63,10 +61,12 @@ typesClients.forEach((type) => {
           await client.profil!.effacerNom({ langue: "த" });
           await client.profil!.effacerImage();
           await client.profil!.effacerCourriel();
+          rés.toutAnnuler();
         });
 
         test("Score 0 pour commencer", async () => {
-          expect(rés.ultat).toEqual({
+          await rés.attendreExiste();
+          expect(rés.val).toEqual({
             type: "résultat",
             score: 0,
             de: "activité",
@@ -76,16 +76,16 @@ typesClients.forEach((type) => {
 
         test("On améliore le score en ajoutant notre nom", async () => {
           await client.profil!.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 0);
-          expect(rés.ultat?.score).toEqual(1 / 3);
+          const val = await rés.attendreQue((x) => !!x && x.score > 0);
+          expect(val.score).toEqual(1 / 3);
         });
 
         test("Encore mieux avec un courriel", async () => {
           await client.profil!.sauvegarderCourriel({
             courriel: "julien.malard@mail.mcgill.ca",
           });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 1 / 3);
-          expect(rés.ultat?.score).toEqual(2 / 3);
+          const val = await rés.attendreQue((x) => !!x && x.score > 1 / 3);
+          expect(val.score).toEqual(2 / 3);
         });
 
         test("C'est parfait avec un photo !", async () => {
@@ -94,30 +94,26 @@ typesClients.forEach((type) => {
           );
 
           await client.profil!.sauvegarderImage({ image: IMAGE });
-          await attendreRésultat(
-            rés,
-            "ultat",
+          const val = await rés.attendreQue(
             (x: résultatObjectifRecherche<infoRésultatVide> | undefined) =>
               x?.score === 1
           );
 
-          expect(rés.ultat?.score).toEqual(1);
+          expect(val.score).toEqual(1);
         });
       });
 
       describe("Selon nom", function () {
         let fOublier: schémaFonctionOublier;
 
-        const rés: {
-          ultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
-        } = { ultat: undefined };
+        const rés = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
 
         beforeAll(async () => {
           const fRecherche = rechercherProfilSelonNom("Julien");
           fOublier = await fRecherche(
             client,
             client.idBdCompte!,
-            (r) => (rés.ultat = r)
+            (r) => (rés.mettreÀJour(r))
           );
         });
 
@@ -125,17 +121,18 @@ typesClients.forEach((type) => {
           if (fOublier) fOublier();
           await client.profil!.effacerNom({ langue: "es" });
           await client.profil!.effacerNom({ langue: "fr" });
+          rés.toutAnnuler();
         });
 
         test("Rien pour commencer", async () => {
-          expect(rés.ultat).toBeUndefined;
+          expect(rés.val).toBeUndefined;
         });
 
         test("Ajout nom détecté", async () => {
           await client.profil!.sauvegarderNom({ langue: "es", nom: "Julián" });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 0);
+          await rés.attendreQue((x) => !!x && x.score > 0);
 
-          expect(rés.ultat).toEqual({
+          expect(rés.val).toEqual({
             type: "résultat",
             clef: "es",
             score: 0.5,
@@ -146,9 +143,9 @@ typesClients.forEach((type) => {
 
         test("Meilleur nom détecté", async () => {
           await client.profil!.sauvegarderNom({ langue: "fr", nom: "Julien" });
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 0.5);
+          await rés.attendreQue((x) => !!x && x.score > 0.5);
 
-          expect(rés.ultat).toEqual({
+          expect(rés.val).toEqual({
             type: "résultat",
             clef: "fr",
             score: 1,
@@ -161,26 +158,25 @@ typesClients.forEach((type) => {
       describe("Selon courriel", function () {
         let fOublier: schémaFonctionOublier;
 
-        const rés: {
-          ultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
-        } = { ultat: undefined };
+        const rés = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
 
         beforeAll(async () => {
           const fRecherche = rechercherProfilSelonCourriel("julien");
           fOublier = await fRecherche(
             client,
             client.idBdCompte!,
-            (r) => (rés.ultat = r)
+            (r) => (rés.mettreÀJour(r))
           );
         });
 
         afterAll(async () => {
           if (fOublier) fOublier();
           await client.profil!.effacerCourriel();
+          rés.toutAnnuler();
         });
 
         test("Rien pour commencer", async () => {
-          expect(rés.ultat).toBeUndefined;
+          expect(rés.val).toBeUndefined;
         });
 
         test("Ajout courriel détecté", async () => {
@@ -188,9 +184,9 @@ typesClients.forEach((type) => {
             courriel: "julien.malard@mail.mcgill.ca",
           });
 
-          await attendreRésultat(rés, "ultat", (x) => !!x && x.score > 0);
+          await rés.attendreQue((x) => !!x && x.score > 0);
 
-          expect(rés.ultat).toEqual({
+          expect(rés.val).toEqual({
             type: "résultat",
             score: 1,
             de: "courriel",
@@ -206,10 +202,8 @@ typesClients.forEach((type) => {
 
       describe("Selon texte", function () {
         const fsOublier: schémaFonctionOublier[] = [];
-        const résultat: {
-          nom?: résultatObjectifRecherche<infoRésultatTexte>;
-          courriel?: résultatObjectifRecherche<infoRésultatTexte>;
-        } = {};
+        const résNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+        const résCourriel = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
 
         beforeAll(async () => {
           const fRechercheNom = rechercherProfilSelonTexte("Julien Malard");
@@ -217,7 +211,7 @@ typesClients.forEach((type) => {
             await fRechercheNom(
               client,
               client.idBdCompte!,
-              (r) => (résultat.nom = r)
+              (r) => résNom.mettreÀJour(r)
             )
           );
 
@@ -226,18 +220,20 @@ typesClients.forEach((type) => {
             await fRechercherCourriel(
               client,
               client.idBdCompte!,
-              (r) => (résultat.courriel = r)
+              (r) => résCourriel.mettreÀJour(r)
             )
           );
         });
 
-        afterAll(() => {
+        afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          résNom.toutAnnuler();
+          résCourriel.toutAnnuler();
         });
 
         test("Rien pour commencer", async () => {
-          expect(résultat.nom).toBeUndefined;
-          expect(résultat.courriel).toBeUndefined;
+          expect(résNom.val).toBeUndefined;
+          expect(résCourriel.val).toBeUndefined;
         });
 
         test("Ajout nom détecté", async () => {
@@ -245,8 +241,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Julien Malard-Adam",
           });
-          await attendreRésultat(résultat, "nom");
-          expect(résultat.nom).toEqual({
+          const valNom = await résNom.attendreExiste();
+          expect(valNom).toEqual({
             type: "résultat",
             clef: "fr",
             de: "nom",
@@ -259,8 +255,8 @@ typesClients.forEach((type) => {
             score: 1,
           });
 
-          await attendreRésultat(résultat, "courriel");
-          expect(résultat.courriel).toEqual({
+          const valCourriel = await résCourriel.attendreExiste();
+          expect(valCourriel).toEqual({
             type: "résultat",
             clef: "fr",
             de: "nom",
@@ -279,10 +275,10 @@ typesClients.forEach((type) => {
             courriel: "julien.malard@mail.mcgill.ca",
           });
 
-          await attendreRésultat(résultat, "courriel", (x) =>
+          const val = await résCourriel.attendreQue((x) =>
             Boolean(x && x.score > 1 / 3)
           );
-          expect(résultat.courriel).toEqual({
+          expect(val).toEqual({
             type: "résultat",
             de: "courriel",
             info: {

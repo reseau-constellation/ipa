@@ -9,7 +9,7 @@ import { schémaFonctionOublier } from "@/utils/index.js";
 import {
   générerClients,
   typesClients,
-  attendreRésultat,
+  AttendreRésultat,
   dirRessourcesTests,
 } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
@@ -62,29 +62,28 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
       });
 
       describe("Noms", function () {
-        const rés: {
-          ultat: { [key: string]: string } | undefined;
-        } = { ultat: undefined };
+        const rés = new AttendreRésultat<{ [key: string]: string }>();
         let fOublier: schémaFonctionOublier;
 
         beforeAll(async () => {
           fOublier = await client.profil!.suivreNoms({
-            f: (n) => (rés.ultat = n),
+            f: (n) => rés.mettreÀJour(n),
           });
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
+          rés.toutAnnuler();
         });
 
         test("Pas de noms pour commencer", async () => {
-          await attendreRésultat(rés, "ultat");
-          expect(Object.keys(rés.ultat!)).toHaveLength(0);
+          const val = await rés.attendreExiste();
+          expect(Object.keys(val)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -92,13 +91,15 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Julien Malard-Adam",
           });
-          expect(rés.ultat?.fr).toEqual("Julien Malard-Adam");
+          await rés.attendreQue(x=>Object.keys(x).length > 0)
+          expect(rés.val.fr).toEqual("Julien Malard-Adam");
 
           await client.profil!.sauvegarderNom({
             langue: "த",
             nom: "ஜூலீஎன்",
           });
-          expect(rés.ultat?.த).toEqual("ஜூலீஎன்");
+          await rés.attendreQue(x=>Object.keys(x).length > 1)
+          expect(rés.val.த).toEqual("ஜூலீஎன்");
         });
 
         test("Changer un nom", async () => {
@@ -106,19 +107,20 @@ typesClients.forEach((type) => {
             langue: "த",
             nom: "ம.-ஆதான் ஜூலீஎன்",
           });
-          expect(rés.ultat?.த).toEqual("ம.-ஆதான் ஜூலீஎன்");
+          const val = await rés.attendreQue(x=>x.த !== "ஜூலீஎன்")
+          expect(val.த).toEqual("ம.-ஆதான் ஜூலீஎன்");
         });
 
         test("Effacer un nom", async () => {
           await client.profil!.effacerNom({ langue: "fr" });
-          expect(rés.ultat).toEqual({ த: "ம.-ஆதான் ஜூலீஎன்" });
+          const val = await rés.attendreQue(x=>Object.keys(x).length <= 1)
+          expect(val).toEqual({ த: "ம.-ஆதான் ஜூலீஎன்" });
         });
       });
 
       describe("Images", function () {
-        const rés: {
-          ultat: Uint8Array | undefined | null;
-        } = { ultat: undefined };
+        const rés = new AttendreRésultat<Uint8Array | null>();
+
         let fOublier: schémaFonctionOublier;
 
         const IMAGE = new Uint8Array(
@@ -127,23 +129,30 @@ typesClients.forEach((type) => {
 
         beforeAll(async () => {
           fOublier = await client.profil!.suivreImage({
-            f: (i) => (rés.ultat = i),
+            f: (i) => rés.mettreÀJour(i),
           });
         });
 
+        afterAll(async () => {
+          if (fOublier) await fOublier();
+          rés.toutAnnuler();
+        });
+
         test("Pas d'image pour commencer", async () => {
-          expect(rés.ultat).toBeNull;
+          const val = await rés.attendreQue(x=>x===null)
+          expect(val).toBeNull;
         });
 
         test("Ajouter une image", async () => {
           await client.profil!.sauvegarderImage({ image: IMAGE });
-          await attendreRésultat(rés, "ultat", (v) => Boolean(v));
-          expect(rés.ultat).toEqual(IMAGE);
+          const val = await rés.attendreExiste();
+          expect(val).toEqual(IMAGE);
         });
 
         test("Effacer l'image", async () => {
           await client.profil!.effacerImage();
-          expect(rés.ultat).toBeNull;
+          const val = await rés.attendreQue(x=>x===null)
+          expect(val).toBeNull;
         });
 
         test("Ajouter une image trop grande", async () => {
@@ -154,9 +163,6 @@ typesClients.forEach((type) => {
           ).rejects.toThrow();
         });
 
-        afterAll(async () => {
-          if (fOublier) fOublier();
-        });
       });
     });
   });

@@ -19,7 +19,7 @@ import KeyValueStore from "orbit-db-kvstore";
 import {
   générerClients,
   peutÉcrire,
-  attendreRésultat,
+  AttendreRésultat,
   clientsConnectés,
 } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
@@ -290,7 +290,7 @@ describe("Fonctionalités client", function () {
     afterAll(async () => {
       if (bd) await bd.close();
       if (bd2) await bd2.close();
-      if (fOublier) fOublier();
+      if (fOublier) await fOublier();
     });
     test("`undefined` est retourné si la fonction ne renvoie pas de BD", async () => {
       expect(données).toBeUndefined();
@@ -551,7 +551,7 @@ describe("Fonctionalités client", function () {
     let idBd2: string;
     let fOublier: schémaFonctionOublier;
 
-    const rés: { ultat?: string[] } = {};
+    const rés = new AttendreRésultat<string[]>();
 
     beforeAll(async () => {
       idBd = await client.créerBdIndépendante({ type: "kvstore" });
@@ -560,12 +560,13 @@ describe("Fonctionalités client", function () {
 
       fOublier = await client.suivreBdsRécursives({
         idBd,
-        f: (ids_) => (rés.ultat = ids_),
+        f: (ids_) => rés.mettreÀJour(ids_),
       });
     }, config.patience);
 
-    afterAll(() => {
-      if (fOublier) fOublier();
+    afterAll(async () => {
+      if (fOublier) await fOublier();
+      rés.toutAnnuler();
     });
 
     test("Ajout idBd", async () => {
@@ -575,8 +576,8 @@ describe("Fonctionalités client", function () {
       await bd.set("clef", idBd2);
       fOublier();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-      expect(rés.ultat).toEqual(expect.arrayContaining([idBd, idBd2]));
+      const val = await rés.attendreQue( (x) => !!x && x.length > 1);
+      expect(val).toEqual(expect.arrayContaining([idBd, idBd2]));
     });
 
     test("Enlever idBd", async () => {
@@ -586,8 +587,8 @@ describe("Fonctionalités client", function () {
       await bd.del("clef");
       fOublier();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
-      expect(rés.ultat).toEqual(expect.arrayContaining([idBd]));
+      const val = await rés.attendreQue( (x) => !!x && x.length === 1);
+      expect(val).toEqual(expect.arrayContaining([idBd]));
     });
 
     test("Ajout récursif", async () => {
@@ -603,8 +604,8 @@ describe("Fonctionalités client", function () {
       await bdListe.add(idBd2);
       fOublierBdListe();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 3);
-      expect(rés.ultat).toEqual(
+      const val = await rés.attendreQue( (x) => !!x && x.length === 3);
+      expect(val).toEqual(
         expect.arrayContaining([idBd, idBdListe, idBd2])
       );
     });
@@ -616,8 +617,8 @@ describe("Fonctionalités client", function () {
       await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: idBd2 });
       fOublierBdListe();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 2);
-      expect(rés.ultat).toEqual(expect.arrayContaining([idBd, idBdListe]));
+      const val = await rés.attendreQue( (x) => !!x && x.length === 2);
+      expect(val).toEqual(expect.arrayContaining([idBd, idBdListe]));
     });
   });
 
@@ -627,7 +628,7 @@ describe("Fonctionalités client", function () {
     let idBd2: string;
     let fOublier: schémaFonctionOublier;
 
-    const rés: { ultat?: string } = {};
+    const rés = new AttendreRésultat<string>();
 
     beforeAll(async () => {
       idBd = await client.créerBdIndépendante({ type: "kvstore" });
@@ -636,16 +637,17 @@ describe("Fonctionalités client", function () {
 
       fOublier = await client.suivreEmpreinteTêtesBdRécursive({
         idBd,
-        f: (empr) => (rés.ultat = empr),
+        f: (empr) => rés.mettreÀJour(empr),
       });
     }, config.patience);
 
-    afterAll(() => {
-      if (fOublier) fOublier();
+    afterAll(async () => {
+      if (fOublier) await fOublier();
+      rés.toutAnnuler();
     });
 
     test("Ajout élément", async () => {
-      const empreinteAvant = rés.ultat;
+      const empreinteAvant = await rés.attendreExiste();
 
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
@@ -653,11 +655,11 @@ describe("Fonctionalités client", function () {
       await bd.set("clef", idBd2);
       fOublier();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteAvant);
+      await rés.attendreQue( (x) => !!x && x !== empreinteAvant);
     });
 
     test("Enlever élément", async () => {
-      const empreinteAvant = rés.ultat;
+      const empreinteAvant = await rés.attendreExiste();
 
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
@@ -665,7 +667,7 @@ describe("Fonctionalités client", function () {
       await bd.del("clef");
       fOublier();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteAvant);
+      await rés.attendreQue( (x) => !!x && x !== empreinteAvant);
     });
 
     test("Ajout récursif", async () => {
@@ -675,7 +677,7 @@ describe("Fonctionalités client", function () {
       await bd.set("clef", idBdListe);
       fOublier();
 
-      const empreinteDébut = rés.ultat;
+      const empreinteDébut = await rés.attendreExiste();
 
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
         FeedStore<string>
@@ -683,9 +685,7 @@ describe("Fonctionalités client", function () {
       await bdListe.add(idBd2);
       fOublierBdListe();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteDébut);
-
-      const empreinteAvant = rés.ultat;
+      const empreinteAvant = await rés.attendreQue( (x) => !!x && x !== empreinteDébut);
 
       const { bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd<
         FeedStore<string>
@@ -693,11 +693,11 @@ describe("Fonctionalités client", function () {
       await bd2.add("abc");
       fOublierBd2();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteAvant);
+      await rés.attendreQue( (x) => !!x && x !== empreinteAvant);
     });
 
     test("Enlever récursif", async () => {
-      const empreinteAvant = rés.ultat;
+      const empreinteAvant = await rés.attendreExiste();
 
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
         FeedStore<string>
@@ -705,7 +705,7 @@ describe("Fonctionalités client", function () {
       await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: idBd2 });
       fOublierBdListe();
 
-      await attendreRésultat(rés, "ultat", (x) => !!x && x !== empreinteAvant);
+      await rés.attendreQue( (x) => !!x && x !== empreinteAvant);
     });
   });
 
@@ -721,8 +721,9 @@ describe("Fonctionalités client", function () {
       }));
       await bd.add("abc");
     }, config.patience);
+
     afterAll(async () => {
-      if (fOublier) fOublier();
+      if (fOublier) await fOublier();
     });
 
     test("On retrouve le bon élément", async () => {
@@ -1002,7 +1003,7 @@ describe("Fonctionalités client", function () {
         });
       });
       afterAll(async () => {
-        if (fOublier) fOublier();
+        if (fOublier) await fOublier();
       });
 
       test("Ajout d'une branche ou deux", async () => {
@@ -1570,7 +1571,7 @@ describe("Fonctionalités client", function () {
   });
 
   describe("Suivre mes permissions", function () {
-    const rés = { ultat: undefined as string | undefined };
+    const rés = new AttendreRésultat<string>();
     let idBd: string;
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -1588,7 +1589,7 @@ describe("Fonctionalités client", function () {
         await client2.suivrePermission({
           idObjet: idBd,
           f: (p) => {
-            rés.ultat = p;
+            rés.mettreÀJour(p);
           },
         })
       );
@@ -1596,18 +1597,19 @@ describe("Fonctionalités client", function () {
 
     afterAll(async () => {
       await Promise.all(fsOublier.map((f) => f()));
+      rés.toutAnnuler();
     });
 
     test("On n'a pas d'accès avant", async () => {
-      expect(rés.ultat).toBeUndefined();
+      expect(rés.val).toBeUndefined();
     });
 
     test(
       "On détecte l'ajout d'une permission membre",
       async () => {
         await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
-        await attendreRésultat(rés, "ultat");
-        expect(rés.ultat).toEqual(MEMBRE);
+        const val = await rés.attendreExiste();
+        expect(val).toEqual(MEMBRE);
       },
       config.patience
     );
@@ -1631,8 +1633,7 @@ describe("Fonctionalités client", function () {
           identité: idbdCompte2,
           rôle: MODÉRATEUR,
         });
-        await attendreRésultat(rés, "ultat", MODÉRATEUR);
-        expect(rés.ultat).toEqual(MODÉRATEUR);
+        await rés.attendreQue(x=>x===MODÉRATEUR);
       },
       config.patience
     );
@@ -1645,9 +1646,8 @@ describe("Fonctionalités client", function () {
 
     let lAccès: infoAccès[];
     let idBd: string;
-    const résultatPermission = {
-      permission: undefined as typeof MODÉRATEUR | typeof MEMBRE | undefined,
-    };
+    const résultatPermission = new AttendreRésultat<typeof MODÉRATEUR | typeof MEMBRE>();
+
     let permissionÉcrire = false;
 
     beforeAll(async () => {
@@ -1672,7 +1672,7 @@ describe("Fonctionalités client", function () {
       });
 
       const fPermission = (accès?: typeof MODÉRATEUR | typeof MEMBRE) => {
-        résultatPermission.permission = accès;
+        résultatPermission.mettreÀJour(accès);
       };
       fOublierPermission = await client2.suivrePermission({
         idObjet: idBd,
@@ -1680,15 +1680,17 @@ describe("Fonctionalités client", function () {
       });
     }, config.patience);
     afterAll(async () => {
-      if (fOublier) fOublier();
+      if (fOublier) await fOublier();
       if (fOublierÉcrire) fOublierÉcrire();
       if (fOublierPermission) fOublierPermission();
+
+      résultatPermission.toutAnnuler();
     });
     test(
       "On détecte l'ajout d'une permission membre",
       async () => {
         await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
-        await attendreRésultat(résultatPermission, "permission", MEMBRE);
+        await résultatPermission.attendreQue(x=>x===MEMBRE);
 
         const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
         expect(infoInvité?.rôle).toEqual(MEMBRE);
@@ -1698,7 +1700,7 @@ describe("Fonctionalités client", function () {
 
     test("L'invité détecte l'ajout de sa permission membre", async () => {
       expect(permissionÉcrire).toBe(true);
-      expect(résultatPermission.permission).toEqual(MEMBRE);
+      expect(résultatPermission.val).toEqual(MEMBRE);
     });
 
     test(
@@ -1709,7 +1711,7 @@ describe("Fonctionalités client", function () {
           identité: idbdCompte2,
           rôle: MODÉRATEUR,
         });
-        await attendreRésultat(résultatPermission, "permission", MODÉRATEUR);
+        await résultatPermission.attendreQue(x=>x===MODÉRATEUR);
 
         const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
         expect(infoInvité?.rôle).toEqual(MODÉRATEUR);
@@ -1719,7 +1721,7 @@ describe("Fonctionalités client", function () {
 
     test("L'invité détecte l'ajout de sa permission modératrice", async () => {
       expect(permissionÉcrire).toBe(true);
-      expect(résultatPermission.permission).toEqual(MODÉRATEUR);
+      expect(résultatPermission.val).toEqual(MODÉRATEUR);
     });
   });
 

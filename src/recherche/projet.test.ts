@@ -20,7 +20,7 @@ import {
   rechercherProjetSelonTexte,
 } from "@/recherche/projet";
 
-import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
+import { générerClients, typesClients, AttendreRésultat } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -652,14 +652,12 @@ typesClients.forEach((type) => {
             >
           | undefined;
 
-        const résultat: {
-          MotClef?: résultatObjectifRecherche<
-            | infoRésultatTexte
-            | infoRésultatRecherche<
-                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-              >
-          >;
-        } = {};
+        const résultatMotClef = new AttendreRésultat<résultatObjectifRecherche<
+          | infoRésultatTexte
+          | infoRésultatRecherche<
+              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+            >
+        >>();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -703,13 +701,14 @@ typesClients.forEach((type) => {
             await fRechercheMotsClef(
               client,
               idProjet,
-              (r) => (résultat.MotClef = r)
+              (r) => (résultatMotClef.mettreÀJour(r))
             )
           );
         }, config.patience);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          résultatMotClef.toutAnnuler();
         });
 
         test("Résultat id détecté", async () => {
@@ -872,8 +871,8 @@ typesClients.forEach((type) => {
             score: 1,
           };
 
-          await attendreRésultat(résultat, "MotClef");
-          expect(résultat.MotClef).toEqual(résRéf);
+          const val = await résultatMotClef.attendreExiste();
+          expect(val).toEqual(résRéf);
         });
       });
     });

@@ -5,7 +5,7 @@ import { catégorieVariables } from "@/variables";
 import { schémaFonctionOublier } from "@/utils/index.js";
 import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid";
 
-import { générerClients, typesClients, attendreQue } from "@/utilsTests";
+import { générerClients, typesClients, AttendreRésultat } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -101,22 +101,23 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
-        let noms: { [key: string]: string };
         let fOublier: schémaFonctionOublier;
+        const noms = new AttendreRésultat<{[clef: string]: string}>()
 
         beforeAll(async () => {
           fOublier = await client.variables!.suivreNomsVariable({
             id: idVariable,
-            f: (n) => (noms = n),
+            f: (n) => noms.mettreÀJour(n),
           });
         });
 
         afterAll(async () => {
           if (fOublier) fOublier();
+          noms.toutAnnuler();
         });
 
         test("Pas de noms pour commencer", async () => {
-          await attendreQue(() => !!noms);
+          await noms.attendreExiste();
           expect(Object.keys(noms)).toHaveLength(0);
         });
 
@@ -126,7 +127,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Précipitation",
           });
-          expect(noms.fr).toEqual("Précipitation");
+          expect(noms.val.fr).toEqual("Précipitation");
         });
 
         test("Ajouter des noms", async () => {
@@ -150,7 +151,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "précipitation",
           });
-          expect(noms?.fr).toEqual("précipitation");
+          expect(noms.val.fr).toEqual("précipitation");
         });
 
         test("Effacer un nom", async () => {
@@ -158,7 +159,7 @@ typesClients.forEach((type) => {
             id: idVariable,
             langue: "fr",
           });
-          expect(noms).toEqual({ த: "மழை", हिं: "बारिश" });
+          expect(noms.val).toEqual({ த: "மழை", हिं: "बारिश" });
         });
       });
 

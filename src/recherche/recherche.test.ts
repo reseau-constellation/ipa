@@ -11,7 +11,7 @@ import {
   infoRésultatVide,
 } from "@/utils/index.js";
 
-import { générerClients, typesClients, attendreRésultat } from "@/utilsTests";
+import { générerClients, typesClients, AttendreRésultat } from "@/utilsTests";
 
 const vérifierRecherche = (
   résultats: résultatRecherche<infoRésultat>[],
@@ -80,13 +80,13 @@ typesClients.forEach((type) => {
           let réfClient2: résultatRecherche<infoRésultatTexte>;
           let réfClient3: résultatRecherche<infoRésultatTexte>;
 
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();
 
           beforeAll(async () => {
             ({ fOublier, fChangerN } =
               await client.recherche!.rechercherProfilSelonNom({
                 nom: "Julien",
-                f: (membres) => (rés.ultat = membres),
+                f: (membres) => (rés.mettreÀJour(membres)),
                 nRésultatsDésirés: 2,
               }));
             réfClient2 = {
@@ -121,8 +121,9 @@ typesClients.forEach((type) => {
             };
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test(
@@ -133,8 +134,8 @@ typesClients.forEach((type) => {
                 nom: "Julien",
               });
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réfClient2]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réfClient2]);
             },
             config.patience
           );
@@ -145,22 +146,22 @@ typesClients.forEach((type) => {
               nom: "Julián",
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-            vérifierRecherche(rés.ultat!, [réfClient2, réfClient3]);
+            const val = await rés.attendreQue((x) => !!x && x.length > 1);
+            vérifierRecherche(val, [réfClient2, réfClient3]);
           });
 
           test("Diminuer N désiré", async () => {
             fChangerN(1);
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length === 1);
-            vérifierRecherche(rés.ultat!, [réfClient2]);
+            const val = await rés.attendreQue((x) => !!x && x.length === 1);
+            vérifierRecherche(val, [réfClient2]);
           });
 
           test("Augmenter N désiré", async () => {
             fChangerN(2);
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && x.length > 1);
-            vérifierRecherche(rés.ultat!, [réfClient2, réfClient3]);
+            const val = await rés.attendreQue((x) => !!x && x.length > 1);
+            vérifierRecherche(val, [réfClient2, réfClient3]);
           });
         });
 
@@ -168,13 +169,13 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();
 
           beforeAll(async () => {
             ({ fOublier } =
               await client.recherche!.rechercherProfilSelonCourriel({
                 courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-                f: (membres) => (rés.ultat = membres),
+                f: (membres) => rés.mettreÀJour(membres),
                 nRésultatsDésirés: 2,
               }));
             réfClient2 = {
@@ -193,14 +194,15 @@ typesClients.forEach((type) => {
             };
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Rien pour commencer détecté", async () => {
-            await attendreRésultat(rés, "ultat");
-            expect(rés.ultat).toBeTruthy();
-            expect(rés.ultat).toHaveLength(0);
+            const val = await rés.attendreExiste();
+            expect(val).toBeTruthy();
+            expect(val).toHaveLength(0);
           });
 
           test("Ajout détecté", async () => {
@@ -208,8 +210,8 @@ typesClients.forEach((type) => {
               courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réfClient2]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réfClient2]);
           });
 
           test("Changements détectés", async () => {
@@ -217,8 +219,8 @@ typesClients.forEach((type) => {
               courriel: "julien.malard@mail.mcgill.ca",
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !x.length);
-            expect(rés.ultat).toHaveLength(0);
+            const val = await rés.attendreQue((x) => !!x && !x.length);
+            expect(val).toHaveLength(0);
           });
         });
 
@@ -226,12 +228,12 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProfilSelonId({
               idCompte: await client2.obtIdCompte(),
-              f: (membres) => (rés.ultat = membres),
+              f: (membres) => rés.mettreÀJour(membres),
               nRésultatsDésirés: 2,
             }));
             réfClient2 = {
@@ -250,13 +252,14 @@ typesClients.forEach((type) => {
             };
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Membre détecté", async () => {
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réfClient2]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réfClient2]);
           });
         });
       });
@@ -266,13 +269,13 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             const idMotClef = await client2.motsClefs!.créerMotClef();
             ({ fOublier } = await client.recherche!.rechercherMotClefSelonId({
               idMotClef,
-              f: (motsClefs) => (rés.ultat = motsClefs),
+              f: (motsClefs) => rés.mettreÀJour(motsClefs),
               nRésultatsDésirés: 2,
             }));
             réfClient2 = {
@@ -291,35 +294,37 @@ typesClients.forEach((type) => {
             };
           }, config.patience);
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Mot-clef détecté", async () => {
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réfClient2]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réfClient2]);
           });
         });
 
         describe("selon nom", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherMotClefSelonNom({
               nomMotClef: "hydro",
-              f: (motsClefs) => (rés.ultat = motsClefs),
+              f: (motsClefs) => rés.mettreÀJour(motsClefs),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Rien pour commencer", async () => {
-            await attendreRésultat(rés, "ultat");
-            expect(rés.ultat).toHaveLength(0);
+            const val = await rés.attendreExiste();
+            expect(val).toHaveLength(0);
           });
 
           test(
@@ -349,8 +354,8 @@ typesClients.forEach((type) => {
                 },
               });
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réf]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réf]);
             },
             config.patience
           );
@@ -358,21 +363,22 @@ typesClients.forEach((type) => {
 
         describe("tous", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherMotsClefs({
-              f: (motsClefs) => (rés.ultat = motsClefs),
+              f: (motsClefs) => rés.mettreÀJour(motsClefs),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Mots-clefs détectés", async () => {
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+            await rés.attendreQue((x) => !!x && !!x.length);
           });
         });
       });
@@ -382,7 +388,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             const idVariable = await client2.variables!.créerVariable({
@@ -390,7 +396,7 @@ typesClients.forEach((type) => {
             });
             ({ fOublier } = await client.recherche!.rechercherVariableSelonId({
               idVariable,
-              f: (motsClefs) => (rés.ultat = motsClefs),
+              f: (motsClefs) => rés.mettreÀJour(motsClefs),
               nRésultatsDésirés: 2,
             }));
             réfClient2 = {
@@ -409,35 +415,37 @@ typesClients.forEach((type) => {
             };
           }, config.patience);
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Variable détecté", async () => {
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réfClient2]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réfClient2]);
           });
         });
 
         describe("selon nom", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherVariableSelonNom({
               nomVariable: "précip",
-              f: (variables) => (rés.ultat = variables),
+              f: (variables) => rés.mettreÀJour(variables),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Rien pour commencer", async () => {
-            await attendreRésultat(rés, "ultat");
-            expect(rés.ultat).toHaveLength(0);
+            const val = await rés.attendreExiste();
+            expect(val).toHaveLength(0);
           });
 
           test(
@@ -469,8 +477,8 @@ typesClients.forEach((type) => {
                 },
               });
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réf]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réf]);
             },
             config.patience
           );
@@ -478,24 +486,25 @@ typesClients.forEach((type) => {
 
         describe("selon descr", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } =
               await client.recherche!.rechercherVariableSelonDescr({
                 descrVariable: "précip",
-                f: (variables) => (rés.ultat = variables),
+                f: (variables) => rés.mettreÀJour(variables),
                 nRésultatsDésirés: 2,
               }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Rien pour commencer", async () => {
-            await attendreRésultat(rés, "ultat");
-            expect(rés.ultat).toHaveLength(0);
+            const val = await rés.attendreExiste();
+            expect(val).toHaveLength(0);
           });
 
           test(
@@ -527,8 +536,8 @@ typesClients.forEach((type) => {
                 },
               });
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réf]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réf]);
             },
             config.patience
           );
@@ -536,21 +545,22 @@ typesClients.forEach((type) => {
 
         describe("tous", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherVariables({
-              f: (variables) => (rés.ultat = variables),
+              f: (variables) => rés.mettreÀJour(variables),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Variables détectées", async () => {
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
+            await rés.attendreQue((x) => !!x && !!x.length);
           });
         });
       });
@@ -560,20 +570,21 @@ typesClients.forEach((type) => {
 
         describe("selon id", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             idBd = await client2.bds!.créerBd({ licence: "ODbl-1_0" });
 
             ({ fOublier } = await client.recherche!.rechercherBdSelonId({
               idBd,
-              f: (bds) => (rés.ultat = bds),
+              f: (bds) => rés.mettreÀJour(bds),
               nRésultatsDésirés: 2,
             }));
           }, config.patience);
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Bd détectée", async () => {
@@ -591,24 +602,25 @@ typesClients.forEach((type) => {
                 },
               },
             };
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réf]);
           });
         });
         describe("selon nom", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBdSelonNom({
               nomBd: "météo",
-              f: (bds) => (rés.ultat = bds),
+              f: (bds) => rés.mettreÀJour(bds),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Bd détectée", async () => {
@@ -631,25 +643,26 @@ typesClients.forEach((type) => {
               id: idBd,
               noms: { fr: "météorologie" },
             });
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réf]);
           });
         });
 
         describe("selon descr", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBdSelonDescr({
               descrBd: "météo",
-              f: (bds) => (rés.ultat = bds),
+              f: (bds) => rés.mettreÀJour(bds),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Bd détectée", async () => {
@@ -674,29 +687,29 @@ typesClients.forEach((type) => {
                 fr: "Météorologie de la région de Montpellier.",
               },
             });
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réf]);
           });
         });
 
         describe("selon variables", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: {
-            ultat?: résultatRecherche<
+          const rés = new AttendreRésultat<
+          résultatRecherche<
               infoRésultatRecherche<infoRésultatTexte>
-            >[];
-          } = {};
+            >[]>;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBdSelonVariable({
               texte: "précipitation",
-              f: (bds) => (rés.ultat = bds),
+              f: (bds) => rés.mettreÀJour(bds),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test(
@@ -742,8 +755,8 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réf]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réf]);
             },
             config.patience
           );
@@ -751,22 +764,22 @@ typesClients.forEach((type) => {
 
         describe("selon mots-clefs", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: {
-            ultat?: résultatRecherche<
+          const rés = new AttendreRésultat<
+            résultatRecherche<
               infoRésultatRecherche<infoRésultatTexte>
-            >[];
-          } = {};
+            >[]>();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBdSelonMotClef({
               texte: "meteorología",
-              f: (bds) => (rés.ultat = bds),
+              f: (bds) => rés.mettreÀJour(bds),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test(
@@ -807,8 +820,8 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réf]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réf]);
             },
             config.patience
           );
@@ -816,17 +829,18 @@ typesClients.forEach((type) => {
 
         describe("tous", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBds({
-              f: (bds) => (rés.ultat = bds),
+              f: (bds) => rés.mettreÀJour(bds),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Bd détectée", async () => {
@@ -847,8 +861,8 @@ typesClients.forEach((type) => {
                 fr: "Météorologie de la région de Montpellier.",
               },
             });
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réf]);
           });
         });
       });
@@ -859,20 +873,21 @@ typesClients.forEach((type) => {
 
         describe("selon id", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             idProjet = await client2.projets!.créerProjet();
 
             ({ fOublier } = await client.recherche!.rechercherProjetSelonId({
               idProjet,
-              f: (bds) => (rés.ultat = bds),
+              f: (bds) => rés.mettreÀJour(bds),
               nRésultatsDésirés: 2,
             }));
           }, config.patience);
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Projet détecté", async () => {
@@ -890,25 +905,26 @@ typesClients.forEach((type) => {
                 },
               },
             };
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réf]);
           });
         });
 
         describe("selon nom", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjetSelonNom({
               nomProjet: "météo",
-              f: (projets) => (rés.ultat = projets),
+              f: (projets) => rés.mettreÀJour(projets),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Projet détecté", async () => {
@@ -934,25 +950,26 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réf]);
           });
         });
 
         describe("selon descr", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjetSelonDescr({
               descrProjet: "météo",
-              f: (projets) => (rés.ultat = projets),
+              f: (projets) => rés.mettreÀJour(projets),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Projet détecté", async () => {
@@ -978,18 +995,16 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réf]);
           });
         });
 
         describe("selon variables", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: {
-            ultat?: résultatRecherche<
+          const rés = new AttendreRésultat<résultatRecherche<
               infoRésultatRecherche<infoRésultatTexte>
-            >[];
-          } = {};
+            >[]>();
 
           beforeAll(async () => {
             idBd = await client2.bds!.créerBd({ licence: "ODbl-1_0" });
@@ -998,13 +1013,14 @@ typesClients.forEach((type) => {
             ({ fOublier } =
               await client.recherche!.rechercherProjetSelonVariable({
                 texte: "précip",
-                f: (bds) => (rés.ultat = bds),
+                f: (bds) => rés.mettreÀJour(bds),
                 nRésultatsDésirés: 2,
               }));
           }, config.patience);
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test(
@@ -1050,8 +1066,8 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réf]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réf]);
             },
             config.patience
           );
@@ -1059,11 +1075,9 @@ typesClients.forEach((type) => {
 
         describe("selon mots-clefs", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: {
-            ultat?: résultatRecherche<
+          const rés = new AttendreRésultat<résultatRecherche<
               infoRésultatRecherche<infoRésultatTexte>
-            >[];
-          } = {};
+            >[]>();
 
           beforeAll(async () => {
             idBd = await client2.bds!.créerBd({ licence: "ODbl-1_0" });
@@ -1072,13 +1086,14 @@ typesClients.forEach((type) => {
             ({ fOublier } =
               await client.recherche!.rechercherProjetSelonMotClef({
                 texte: "meteorología",
-                f: (bds) => (rés.ultat = bds),
+                f: (bds) => rés.mettreÀJour(bds),
                 nRésultatsDésirés: 2,
               }));
           }, config.patience);
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test(
@@ -1119,8 +1134,8 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réf]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réf]);
             },
             config.patience
           );
@@ -1130,24 +1145,24 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           const nouveauNom = "Mi base de datos meteorológicos";
-          const rés: {
-            ultat?: résultatRecherche<
+          const rés = new AttendreRésultat<
+            résultatRecherche<
               infoRésultatRecherche<
                 infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
               >
-            >[];
-          } = {};
+            >[]>;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjetSelonBd({
               texte: nouveauNom,
-              f: (projets) => (rés.ultat = projets),
+              f: (projets) => rés.mettreÀJour(projets),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test(
@@ -1180,8 +1195,8 @@ typesClients.forEach((type) => {
                 noms: { es: "Mi base de datos meteorológicos" },
               });
 
-              await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-              vérifierRecherche(rés.ultat!, [réf]);
+              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              vérifierRecherche(val, [réf]);
             },
             config.patience
           );
@@ -1189,17 +1204,18 @@ typesClients.forEach((type) => {
 
         describe("tous", () => {
           let fOublier: schémaFonctionOublier;
-          const rés: { ultat?: résultatRecherche<infoRésultatTexte>[] } = {};
+          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjets({
-              f: (projets) => (rés.ultat = projets),
+              f: (projets) => rés.mettreÀJour(projets),
               nRésultatsDésirés: 2,
             }));
           });
 
-          afterAll(() => {
-            if (fOublier) fOublier();
+          afterAll(async () => {
+            if (fOublier) await fOublier();
+            rés.toutAnnuler();
           });
 
           test("Projet détecté", async () => {
@@ -1221,8 +1237,8 @@ typesClients.forEach((type) => {
               },
             });
 
-            await attendreRésultat(rés, "ultat", (x) => !!x && !!x.length);
-            vérifierRecherche(rés.ultat!, [réf]);
+            const val = await rés.attendreQue((x) => !!x && !!x.length);
+            vérifierRecherche(val, [réf]);
           });
         });
       });
@@ -1260,22 +1276,19 @@ typesClients.forEach((type) => {
         let fOublierRecherche: schémaFonctionOublier;
         let fChangerN: (x: number) => void;
 
-        const rés: {
-          membresEnLigne?: statutMembre[];
-          motsClefs?: résultatRecherche<infoRésultatTexte>[];
-        } = {};
+        const résMembresEnLigne = new AttendreRésultat<statutMembre[]>();
+        const résMotsClefs = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>;
+
         const fsOublier: schémaFonctionOublier[] = [];
         const motsClefs: { [key: string]: string } = {};
 
         beforeAll(async () => {
           fsOublier.push(
             await client.réseau!.suivreConnexionsMembres({
-              f: (m) => (rés.membresEnLigne = m),
+              f: (m) => résMembresEnLigne.mettreÀJour(m),
             })
           );
-          await attendreRésultat(
-            rés,
-            "membresEnLigne",
+          await résMembresEnLigne.attendreQue(
             (x) => !!x && x.length === 5
           );
 
@@ -1288,16 +1301,14 @@ typesClients.forEach((type) => {
             c.réseau!.emit("membreVu");
           }
 
-          await attendreRésultat(
-            rés,
-            "membresEnLigne",
+          await résMembresEnLigne.attendreQue(
             (x) => !!x && !x.length
           );
 
           ({ fOublier: fOublierRecherche, fChangerN } =
             await client.recherche!.rechercherMotClefSelonNom({
               nomMotClef: "ភ្លៀង",
-              f: (r) => (rés.motsClefs = r),
+              f: (r) => résMotsClefs.mettreÀJour(r),
               nRésultatsDésirés: 5,
             }));
           fsOublier.push(fOublierRecherche);
@@ -1305,6 +1316,8 @@ typesClients.forEach((type) => {
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          résMembresEnLigne.toutAnnuler()
+          résMotsClefs.toutAnnuler()
         });
 
         test("Mes objets sont détectés", async () => {
@@ -1334,8 +1347,8 @@ typesClients.forEach((type) => {
             },
           });
 
-          await attendreRésultat(rés, "motsClefs", (x) => !!x && !!x.length);
-          vérifierRecherche(rés.motsClefs!, réf);
+          const val = await résMotsClefs.attendreQue((x) => !!x && !!x.length);
+          vérifierRecherche(val, réf);
         });
 
         test(
@@ -1370,12 +1383,10 @@ typesClients.forEach((type) => {
               });
             }
 
-            await attendreRésultat(
-              rés,
-              "motsClefs",
+            const val = await résMotsClefs.attendreQue(
               (x) => !!x && x.length >= 5
             );
-            vérifierRecherche(rés.motsClefs!, réf);
+            vérifierRecherche(val, réf);
           },
           config.patience
         );
@@ -1408,12 +1419,10 @@ typesClients.forEach((type) => {
             });
           }
 
-          await attendreRésultat(
-            rés,
-            "motsClefs",
+          const val = await résMotsClefs.attendreQue(
             (x) => !!x && !!x.length && x.length <= 4
           );
-          vérifierRecherche(rés.motsClefs!, réf);
+          vérifierRecherche(val, réf);
         });
 
         test("Diminuer N", async () => {
@@ -1439,8 +1448,8 @@ typesClients.forEach((type) => {
             });
           }
 
-          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length <= 3);
-          vérifierRecherche(rés.motsClefs!, réf);
+          const val = await résMotsClefs.attendreQue((x) => !!x && x.length <= 3);
+          vérifierRecherche(val, réf);
         });
 
         test.todo("Objet correspond mieux");
@@ -1468,8 +1477,8 @@ typesClients.forEach((type) => {
             });
           }
 
-          await attendreRésultat(rés, "motsClefs", (x) => !!x && x.length >= 4);
-          vérifierRecherche(rés.motsClefs!, réf);
+          const val = await résMotsClefs.attendreQue((x) => !!x && x.length >= 4);
+          vérifierRecherche(val, réf);
         });
       });
     });
