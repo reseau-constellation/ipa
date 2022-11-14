@@ -122,7 +122,7 @@ export default class Favoris {
     if (dispositifsFichiers) élément.dispositifsFichiers = dispositifsFichiers;
     await bd.put(id, élément);
 
-    fOublier();
+    await fOublier();;
   }
 
   async désépinglerFavori({ id }: { id: string }): Promise<void> {
@@ -130,7 +130,7 @@ export default class Favoris {
       KeyValueStore<ÉlémentFavoris>
     >({ id: this.idBd });
     await bd.del(id);
-    fOublier();
+    await fOublier();;
   }
 
   async suivreÉtatFavori({

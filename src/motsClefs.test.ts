@@ -39,7 +39,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
         test("Pas de mots-clefs pour commencer", async () => {
           expect(isArray(motsClefs)).toBe(true);
@@ -70,7 +70,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Le mot-clef est déjà ajouté", async () => {
@@ -102,7 +102,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
 
@@ -193,7 +193,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           if (fOublier2) fOublier2();
         });
 

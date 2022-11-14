@@ -86,7 +86,7 @@ typesClients.forEach((type) => {
           });
         });
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
         test("La BD déjà créée est présente", async () => {
           expect(isArray(bds)).toBe(true);
@@ -132,7 +132,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de noms pour commencer", async () => {
@@ -190,7 +190,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Aucune description pour commencer", async () => {
@@ -249,7 +249,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
         test("Pas de mots-clefs pour commencer", async () => {
           expect(isArray(motsClefs)).toBe(true);
@@ -285,7 +285,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Licence originale présente", async () => {
@@ -382,7 +382,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
         test("Pas de variables pour commencer", async () => {
           expect(isArray(variables)).toBe(true);
@@ -949,7 +949,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
         test(
@@ -985,7 +985,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
         test("Rien pour commencer", async () => {
@@ -1050,7 +1050,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
 
@@ -1099,7 +1099,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         describe("Score accessibilité", function () {
@@ -1344,7 +1344,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de résultats pour commencer", async () => {

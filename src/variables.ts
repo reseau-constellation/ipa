@@ -112,7 +112,7 @@ export default class Variables {
       id: this.idBd,
     });
     await bd.add(id);
-    fOublier();
+    await fOublier();;
   }
 
   async enleverDeMesVariables({ id }: { id: string }): Promise<void> {
@@ -120,7 +120,7 @@ export default class Variables {
       FeedStore<string>
     >({ id: this.idBd });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
-    fOublier();
+    await fOublier();;
   }
 
   async copierVariable({ id }: { id: string }): Promise<string> {
@@ -225,7 +225,7 @@ export default class Variables {
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderNomVariable({
@@ -248,7 +248,7 @@ export default class Variables {
       KeyValueStore<string>
     >({ id: idBdNoms });
     await bdNoms.set(langue, nom);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerNomVariable({
@@ -269,7 +269,7 @@ export default class Variables {
       KeyValueStore<string>
     >({ id: idBdNoms });
     await bdNoms.del(langue);
-    fOublier();
+    await fOublier();;
   }
 
   async ajouterDescriptionsVariable({
@@ -292,7 +292,7 @@ export default class Variables {
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderDescrVariable({
@@ -316,7 +316,7 @@ export default class Variables {
     >({ id: idBdDescr });
     await bdDescr.set(langue, description);
 
-    fOublier();
+    await fOublier();;
   }
 
   async effacerDescrVariable({
@@ -338,7 +338,7 @@ export default class Variables {
     >({ id: idBdDescr });
     await bdDescr.del(langue);
 
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderCatégorieVariable({
@@ -353,7 +353,7 @@ export default class Variables {
     >({ id: idVariable });
     await bdVariable.set("catégorie", catégorie);
 
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderUnitésVariable({
@@ -368,7 +368,7 @@ export default class Variables {
     >({ id: idVariable });
     await bdVariable.set("unités", idUnité);
 
-    fOublier();
+    await fOublier();;
   }
 
   async ajouterRègleVariable({
@@ -399,7 +399,7 @@ export default class Variables {
     >({ id: idBdRègles });
     await bdRègles.add(règleAvecId);
 
-    fOublier();
+    await fOublier();;
 
     return idRègle;
   }
@@ -428,7 +428,7 @@ export default class Variables {
       élément: (é) => é.payload.value.id === idRègle,
     });
 
-    fOublier();
+    await fOublier();;
   }
 
   async modifierRègleVariable({
@@ -652,7 +652,7 @@ export default class Variables {
       KeyValueStore<typeÉlémentsBdVariable>
     >({ id });
     await bd.set("statut", statut);
-    fOublier();
+    await fOublier();;
   }
 
   async marquerObsolète({
@@ -666,7 +666,7 @@ export default class Variables {
       KeyValueStore<typeÉlémentsBdVariable>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
-    fOublier();
+    await fOublier();;
   }
 
   async effacerVariable({ id }: { id: string }): Promise<void> {

@@ -57,7 +57,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           await client.profil!.effacerNom({ langue: "த" });
           await client.profil!.effacerImage();
           await client.profil!.effacerCourriel();
@@ -118,7 +118,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           await client.profil!.effacerNom({ langue: "es" });
           await client.profil!.effacerNom({ langue: "fr" });
           rés.toutAnnuler();
@@ -170,7 +170,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           await client.profil!.effacerCourriel();
           rés.toutAnnuler();
         });

@@ -208,7 +208,7 @@ describe("Utils recherche", function () {
       );
     });
     afterAll(() => {
-      if (fOublier) fOublier();
+      if (fOublier) await fOublier();
     });
     test("Résultat détecté", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
@@ -246,7 +246,7 @@ describe("Utils recherche", function () {
       );
     });
     afterAll(() => {
-      if (fOublier) fOublier();
+      if (fOublier) await fOublier();
     });
     test("Résultat détecté", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
@@ -311,7 +311,7 @@ describe("Utils recherche", function () {
         id: idBd,
       });
       await bd.add("precipitation");
-      fOublier();
+      await fOublier();;
 
       const réfRés: résultatObjectifRecherche<
         infoRésultatRecherche<infoRésultatTexte>
@@ -340,7 +340,7 @@ describe("Utils recherche", function () {
         id: idBd,
       });
       await bd.add("précipitation");
-      fOublier();
+      await fOublier();;
 
       const réfRés: résultatObjectifRecherche<
         infoRésultatRecherche<infoRésultatTexte>
@@ -374,7 +374,7 @@ describe("Utils recherche", function () {
       fOublier = await fRecherche(client, "abc", (rés) => (résultat = rés));
     });
     afterAll(() => {
-      if (fOublier) fOublier();
+      if (fOublier) await fOublier();
     });
     test("Tous ont le même score", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatVide> = {

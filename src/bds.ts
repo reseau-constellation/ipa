@@ -165,7 +165,7 @@ export default class BDs {
       fOublierRacine();
     }
 
-    fOublier();
+    await fOublier();;
 
     return idBdBd;
   }
@@ -175,7 +175,7 @@ export default class BDs {
       id: this.idBd,
     });
     await bd.add(id);
-    fOublier();
+    await fOublier();;
   }
 
   async enleverDeMesBds({ id }: { id: string }): Promise<void> {
@@ -183,7 +183,7 @@ export default class BDs {
       id: this.idBd,
     });
     await this.client.effacerÉlémentDeBdListe({ bd, élément: id });
-    fOublier();
+    await fOublier();;
   }
 
   async copierBd({
@@ -278,7 +278,7 @@ export default class BDs {
 
     await nouvelleBd.set("copiéDe", { id, lier });
 
-    fOublier();
+    await fOublier();;
     fOublierNouvelleTableaux();
 
     fOublierNouvelle();
@@ -811,7 +811,7 @@ export default class BDs {
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderNomBd({
@@ -836,7 +836,7 @@ export default class BDs {
       KeyValueStore<string>
     >({ id: idBdNoms });
     await bdNoms.set(langue, nom);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerNomBd({
@@ -859,7 +859,7 @@ export default class BDs {
       KeyValueStore<string>
     >({ id: idBdNoms });
     await bdNoms.del(langue);
-    fOublier();
+    await fOublier();;
   }
 
   async ajouterDescriptionsBd({
@@ -884,7 +884,7 @@ export default class BDs {
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderDescrBd({
@@ -909,7 +909,7 @@ export default class BDs {
       KeyValueStore<string>
     >({ id: idBdDescr });
     await bdDescr.set(langue, descr);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerDescrBd({
@@ -932,7 +932,7 @@ export default class BDs {
       KeyValueStore<string>
     >({ id: idBdDescr });
     await bdDescr.del(langue);
-    fOublier();
+    await fOublier();;
   }
 
   async changerLicenceBd({
@@ -946,7 +946,7 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id: idBd });
     await bdBd.set("licence", licence);
-    fOublier();
+    await fOublier();;
   }
 
   async ajouterMotsClefsBd({
@@ -977,7 +977,7 @@ export default class BDs {
       });
       if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
     }
-    fOublier();
+    await fOublier();;
   }
 
   async effacerMotClefBd({
@@ -1007,7 +1007,7 @@ export default class BDs {
       élément: idMotClef,
     });
 
-    fOublier();
+    await fOublier();;
   }
 
   async ajouterTableauBd({
@@ -1039,7 +1039,7 @@ export default class BDs {
       clef: clefTableau,
     });
 
-    fOublier();
+    await fOublier();;
     return idTableau;
   }
 
@@ -1066,7 +1066,7 @@ export default class BDs {
       KeyValueStore<string>
     >({ id: idBdTableaux });
     await bdTableaux.del(idTableau);
-    fOublier();
+    await fOublier();;
 
     // Enfin, effacer les données et le tableau lui-même
     await this.client.tableaux!.effacerTableau({ idTableau });
@@ -1094,7 +1094,7 @@ export default class BDs {
     infoExistante.clef = clef;
     bdTableaux.set(idTableau, infoExistante);
 
-    fOublier();
+    await fOublier();;
   }
 
   async marquerObsolète({
@@ -1108,7 +1108,7 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
-    fOublier();
+    await fOublier();;
   }
 
   async marquerActive({ id }: { id: string }): Promise<void> {
@@ -1116,7 +1116,7 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.ACTIVE });
-    fOublier();
+    await fOublier();;
   }
 
   async marquerBêta({ id }: { id: string }): Promise<void> {
@@ -1124,7 +1124,7 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.BÊTA });
-    fOublier();
+    await fOublier();;
   }
 
   async marquerInterne({ id }: { id: string }): Promise<void> {
@@ -1132,7 +1132,7 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.INTERNE });
-    fOublier();
+    await fOublier();;
   }
 
   async suivreLicence({
@@ -1187,7 +1187,7 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id: idBd });
     await bd.set("image", idImage);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerImage({ idBd }: { idBd: string }): Promise<void> {
@@ -1195,7 +1195,7 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id: idBd });
     await bd.del("image");
-    fOublier();
+    await fOublier();;
   }
 
   async suivreImage({
@@ -1675,7 +1675,7 @@ export default class BDs {
       FeedStore<string>
     >({ id: this.idBd });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
-    fOublier();
+    await fOublier();;
 
     // Et puis maintenant aussi effacer les données et la BD elle-même
     const optionsAccès = await this.client.obtOpsAccès({ idBd: id });

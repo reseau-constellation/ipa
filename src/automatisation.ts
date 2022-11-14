@@ -657,7 +657,7 @@ export default class Automatisations extends EventEmitter {
     >({ id: this.idBd });
     await bd.add(élément);
 
-    fOublier();
+    await fOublier();;
 
     return idAuto;
   }
@@ -700,7 +700,7 @@ export default class Automatisations extends EventEmitter {
 
     await bd.add(élément);
 
-    fOublier();
+    await fOublier();;
 
     return id;
   }
@@ -713,7 +713,7 @@ export default class Automatisations extends EventEmitter {
       bd,
       élément: (é) => é.payload.value.id === id,
     });
-    fOublier();
+    await fOublier();;
   }
 
   async suivreAutomatisations({

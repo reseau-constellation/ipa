@@ -56,7 +56,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de résultat quand le projet n'a pas de nom", async () => {
@@ -99,7 +99,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de résultat quand le projet n'a pas de description", async () => {

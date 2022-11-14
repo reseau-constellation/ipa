@@ -59,7 +59,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Le projet est déjà ajouté", async () => {
@@ -102,7 +102,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de noms pour commencer", async () => {
@@ -163,7 +163,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Aucune description pour commencer", async () => {
@@ -225,7 +225,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
         test("Pas de mots-clefs pour commencer", async () => {
           expect(isArray(motsClefs)).toBe(true);

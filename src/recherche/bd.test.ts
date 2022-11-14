@@ -55,7 +55,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de résultat quand la bd n'a pas de nom", async () => {
@@ -98,7 +98,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de résultat quand la bd n'a pas de description", async () => {

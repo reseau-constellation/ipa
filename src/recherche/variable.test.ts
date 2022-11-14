@@ -54,7 +54,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de résultat quand la variable n'a pas de nom", async () => {
@@ -131,7 +131,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de résultat quand la variable n'a pas de description", async () => {

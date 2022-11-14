@@ -46,8 +46,8 @@ typesClients.forEach((type) => {
           fOublier = await fRecherche(client, idMotClef, (r) => (résultat = r));
         }, config.patience);
 
-        afterAll(() => {
-          if (fOublier) fOublier();
+        afterAll(async () => {
+          if (fOublier) await fOublier();
         });
 
         test("Pas de résultat quand le mot-clef n'a pas de nom", async () => {

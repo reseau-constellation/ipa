@@ -40,7 +40,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
         test("Pas de variables pour commencer", async () => {
           expect(isArray(variables)).toBe(true);
@@ -82,7 +82,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(() => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("La variable est déjà ajoutée", async () => {
@@ -112,7 +112,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
           noms.toutAnnuler();
         });
 
@@ -175,7 +175,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de descriptions pour commencer", async () => {
@@ -245,7 +245,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Changer la catégorie", async () => {
@@ -273,7 +273,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Aucune unité pour commencer", async () => {
@@ -306,7 +306,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Règle générique de catégorie pour commencer", async () => {

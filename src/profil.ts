@@ -40,7 +40,7 @@ export default class Profil {
       KeyValueStore<typeÉlémentsBdProfil>
     >({ id: this.idBd });
     await bd.set("courriel", courriel);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerCourriel(): Promise<void> {
@@ -48,7 +48,7 @@ export default class Profil {
       KeyValueStore<typeÉlémentsBdProfil>
     >({ id: this.idBd });
     await bd.del("courriel");
-    fOublier();
+    await fOublier();;
   }
 
   async suivreNoms({
@@ -86,7 +86,7 @@ export default class Profil {
       id: idBdNoms,
     });
     await bd.set(langue, nom);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerNom({ langue }: { langue: string }): Promise<void> {
@@ -103,7 +103,7 @@ export default class Profil {
       id: idBdNoms,
     });
     await bd.del(langue);
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderImage({ image }: { image: ImportCandidate }): Promise<void> {
@@ -122,7 +122,7 @@ export default class Profil {
       KeyValueStore<typeÉlémentsBdProfil>
     >({ id: this.idBd });
     await bd.set("image", idImage);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerImage(): Promise<void> {
@@ -130,7 +130,7 @@ export default class Profil {
       KeyValueStore<typeÉlémentsBdProfil>
     >({ id: this.idBd });
     await bd.del("image");
-    fOublier();
+    await fOublier();;
   }
 
   async suivreImage({

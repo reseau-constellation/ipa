@@ -765,7 +765,7 @@ export default class ClientConstellation extends EventEmitter {
         }
         if (nouvelIdBdCible !== idBdCible) {
           idBdCible = nouvelIdBdCible;
-          if (oublierFSuivre) oublierFSuivre();
+          if (oublierFSuivre) await oublierFSuivre();
 
           if (idBdCible) {
             oublierFSuivre = await fSuivre({ id: idBdCible, fSuivreBd: f });

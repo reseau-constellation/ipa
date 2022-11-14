@@ -68,7 +68,7 @@ export default class MotsClefs {
       id: this.idBd,
     });
     await bd.add(id);
-    fOublier();
+    await fOublier();;
   }
 
   async enleverDeMesMotsClefs({ id }: { id: string }): Promise<void> {
@@ -76,7 +76,7 @@ export default class MotsClefs {
       FeedStore<string>
     >({ id: this.idBd });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
-    fOublier();
+    await fOublier();;
   }
 
   async copierMotClef({ id }: { id: string }): Promise<string> {
@@ -138,7 +138,7 @@ export default class MotsClefs {
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderNomMotClef({
@@ -163,7 +163,7 @@ export default class MotsClefs {
       KeyValueStore<string>
     >({ id: idBdNoms });
     await bdNoms.set(langue, nom);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerNomMotClef({
@@ -186,7 +186,7 @@ export default class MotsClefs {
       KeyValueStore<string>
     >({ id: idBdNoms });
     await bdNoms.del(langue);
-    fOublier();
+    await fOublier();;
   }
 
   async suivreNomsMotClef({

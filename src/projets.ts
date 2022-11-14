@@ -182,7 +182,7 @@ export default class Projets {
       FeedStore<string>
     >({ id: this.idBd });
     await bdRacine.add(idProjet);
-    fOublier();
+    await fOublier();;
   }
 
   async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
@@ -193,7 +193,7 @@ export default class Projets {
       bd: bdRacine,
       élément: idProjet,
     });
-    fOublier();
+    await fOublier();;
   }
 
   async inviterAuteur({
@@ -242,7 +242,7 @@ export default class Projets {
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderNomProjet({
@@ -256,7 +256,7 @@ export default class Projets {
   }): Promise<void> {
     const { bd: bdNoms, fOublier } = await this._obtBdNoms({ id });
     await bdNoms.set(langue, nom);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerNomProjet({
@@ -268,7 +268,7 @@ export default class Projets {
   }): Promise<void> {
     const { bd: bdNoms, fOublier } = await this._obtBdNoms({ id });
     await bdNoms.del(langue);
-    fOublier();
+    await fOublier();;
   }
 
   async _obtBdDescr({
@@ -301,7 +301,7 @@ export default class Projets {
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderDescrProjet({
@@ -315,7 +315,7 @@ export default class Projets {
   }): Promise<void> {
     const { bd: bdDescr, fOublier } = await this._obtBdDescr({ id });
     await bdDescr.set(langue, nom);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerDescrProjet({
@@ -327,7 +327,7 @@ export default class Projets {
   }): Promise<void> {
     const { bd: bdDescr, fOublier } = await this._obtBdDescr({ id });
     await bdDescr.del(langue);
-    fOublier();
+    await fOublier();;
   }
 
   async _obtBdMotsClefs({
@@ -368,7 +368,7 @@ export default class Projets {
         if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
       })
     );
-    fOublier();
+    await fOublier();;
   }
 
   async effacerMotClefProjet({
@@ -385,7 +385,7 @@ export default class Projets {
       bd: bdMotsClefs,
       élément: idMotClef,
     });
-    fOublier();
+    await fOublier();;
   }
 
   async _obtBdBds({
@@ -414,7 +414,7 @@ export default class Projets {
   }): Promise<void> {
     const { bd: bdBds, fOublier } = await this._obtBdBds({ id: idProjet });
     await bdBds.add(idBd);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerBdProjet({
@@ -428,7 +428,7 @@ export default class Projets {
 
     // Effacer l'entrée dans notre liste de bds (n'efface pas la BD elle-même)
     await this.client.effacerÉlémentDeBdListe({ bd: bdBds, élément: idBd });
-    fOublier();
+    await fOublier();;
   }
 
   async marquerObsolète({
@@ -442,7 +442,7 @@ export default class Projets {
       KeyValueStore<typeÉlémentsBdProjet>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
-    fOublier();
+    await fOublier();;
   }
 
   async marquerActive({ id }: { id: string }): Promise<void> {
@@ -450,7 +450,7 @@ export default class Projets {
       KeyValueStore<typeÉlémentsBdProjet>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.ACTIVE });
-    fOublier();
+    await fOublier();;
   }
 
   async marquerBêta({ id }: { id: string }): Promise<void> {
@@ -458,7 +458,7 @@ export default class Projets {
       KeyValueStore<typeÉlémentsBdProjet>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.BÊTA });
-    fOublier();
+    await fOublier();;
   }
 
   async marquerInterne({ id }: { id: string }): Promise<void> {
@@ -466,7 +466,7 @@ export default class Projets {
       KeyValueStore<typeÉlémentsBdProjet>
     >({ id });
     bd.set("statut", { statut: TYPES_STATUT.INTERNE });
-    fOublier();
+    await fOublier();;
   }
 
   async sauvegarderImage({
@@ -491,7 +491,7 @@ export default class Projets {
       KeyValueStore<typeÉlémentsBdProjet>
     >({ id: idProjet });
     await bd.set("image", idImage);
-    fOublier();
+    await fOublier();;
   }
 
   async effacerImage({ idProjet }: { idProjet: string }): Promise<void> {
@@ -499,7 +499,7 @@ export default class Projets {
       KeyValueStore<typeÉlémentsBdProjet>
     >({ id: idProjet });
     await bd.del("image");
-    fOublier();
+    await fOublier();;
   }
 
   async suivreImage({

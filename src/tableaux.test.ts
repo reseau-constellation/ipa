@@ -94,7 +94,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas de noms pour commencer", async () => {
@@ -307,7 +307,7 @@ typesClients.forEach((type) => {
         });
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Pas d'index pour commencer", async () => {
@@ -1513,7 +1513,7 @@ typesClients.forEach((type) => {
         }, config.patience * 2);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Données manquantes ajoutées", async () => {
@@ -1641,7 +1641,7 @@ typesClients.forEach((type) => {
         }, config.patience * 2);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Données importées correctement", async () => {
@@ -1767,7 +1767,7 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();
         });
 
         test("Langue appropriée pour le nom du tableau", () => {

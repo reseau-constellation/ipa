@@ -517,7 +517,7 @@ export default class Réseau extends EventEmitter {
     if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
     const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
 
-    fOublier();
+    await fOublier();;
     return sigIdValide && sigClefPubliqueValide && bdCompteValide;
   }
 
@@ -530,7 +530,7 @@ export default class Réseau extends EventEmitter {
       KeyValueStore<statutConfianceMembre>
     >({ id: this.idBd });
     await bd.set(idBdCompte, "FIABLE");
-    fOublier();
+    await fOublier();;
   }
 
   async nePlusFaireConfianceAuMembre({
@@ -549,7 +549,7 @@ export default class Réseau extends EventEmitter {
     ) {
       await bd.del(idBdCompte);
     }
-    fOublier();
+    await fOublier();;
   }
 
   @cacheSuivi
@@ -615,7 +615,7 @@ export default class Réseau extends EventEmitter {
         KeyValueStore<statutConfianceMembre>
       >({ id: this.idBd });
       await bd.set(idBdCompte, "BLOQUÉ");
-      fOublier();
+      await fOublier();;
     }
     this.emit("changementMembresBloqués");
   }
@@ -632,7 +632,7 @@ export default class Réseau extends EventEmitter {
     ) {
       await bd.del(idBdCompte);
     }
-    fOublier();
+    await fOublier();;
 
     if (this.bloquésPrivés.has(idBdCompte)) {
       this.bloquésPrivés.delete(idBdCompte);

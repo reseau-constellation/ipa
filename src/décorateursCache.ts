@@ -259,7 +259,7 @@ export class CacheSuivi {
     delete requètes[idRequète];
 
     if (!Object.keys(requètes).length) {
-      fOublier();
+      await fOublier();;
       delete this._cacheSuivi[codeCache];
     }
     this.verrou.release(codeCache);
