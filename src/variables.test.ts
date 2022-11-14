@@ -118,7 +118,7 @@ typesClients.forEach((type) => {
 
         test("Pas de noms pour commencer", async () => {
           await noms.attendreExiste();
-          expect(Object.keys(noms)).toHaveLength(0);
+          expect(Object.keys(noms.val)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -138,7 +138,7 @@ typesClients.forEach((type) => {
               हिं: "बारिश",
             },
           });
-          expect(noms).toEqual({
+          expect(noms.val).toEqual({
             த: "மழை",
             हिं: "बारिश",
             fr: "Précipitation",
