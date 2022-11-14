@@ -75,14 +75,14 @@ describe("Contrôle dispositifs", function () {
       f: (id) => (idBdCompte2EnDirecte = id),
     });
   }, config.patienceInit * 3);
+
   afterAll(async () => {
-    if (fOublierDispositifs) fOublierDispositifs();
-    if (fOublierIdBdCompte) fOublierIdBdCompte();
-    if (fOublierClients) fOublierClients();
+    if (fOublierDispositifs) await fOublierDispositifs();
+    if (fOublierIdBdCompte) await fOublierIdBdCompte();
+    if (fOublierClients) await fOublierClients();
   });
+
   test("Mon dispositif est présent", async () => {
-    expect(isArray(mesDispositifs)).toBe(true);
-    expect(mesDispositifs).toHaveLength(1);
     expect(mesDispositifs).toEqual(expect.arrayContaining([idOrbite1]));
   });
 
@@ -114,7 +114,7 @@ describe("Contrôle dispositifs", function () {
         KeyValueStore<number>
       >({ id: idBd });
       const autorisé = await peutÉcrire(bd_orbite2, client2.orbite);
-      fOublier();
+      await fOublier();;
       expect(autorisé).toBe(true);
     });
   });
@@ -144,7 +144,7 @@ describe("Contrôle dispositifs", function () {
         KeyValueStore<number>
       >({ id: idBd });
       const autorisé = await peutÉcrire(bd_orbite3, client3.orbite);
-      fOublier();
+      await fOublier();;
       expect(autorisé).toBe(true);
     });
   });
@@ -572,7 +572,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set("clef", idBd2);
-      fOublier();
+      await fOublier();;
 
       const val = await rés.attendreQue((x) => !!x && x.length > 1);
       expect(val).toEqual(expect.arrayContaining([idBd, idBd2]));
@@ -583,7 +583,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.del("clef");
-      fOublier();
+      await fOublier();;
 
       const val = await rés.attendreQue((x) => !!x && x.length === 1);
       expect(val).toEqual(expect.arrayContaining([idBd]));
@@ -594,7 +594,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set("clef", idBdListe);
-      fOublier();
+      await fOublier();;
 
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
         FeedStore<string>
@@ -649,7 +649,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set("clef", idBd2);
-      fOublier();
+      await fOublier();;
 
       await rés.attendreQue((x) => !!x && x !== empreinteAvant);
     });
@@ -661,7 +661,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.del("clef");
-      fOublier();
+      await fOublier();;
 
       await rés.attendreQue((x) => !!x && x !== empreinteAvant);
     });
@@ -671,7 +671,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set("clef", idBdListe);
-      fOublier();
+      await fOublier();;
 
       const empreinteDébut = await rés.attendreExiste();
 
@@ -1001,7 +1001,7 @@ describe("Fonctionalités client", function () {
         });
       });
       afterAll(async () => {
-        if (fOublier) await fOublier();
+        if (fOublier) await fOublier();;
       });
 
       test("Ajout d'une branche ou deux", async () => {
@@ -1681,8 +1681,8 @@ describe("Fonctionalités client", function () {
     }, config.patience);
     afterAll(async () => {
       if (fOublier) await fOublier();
-      if (fOublierÉcrire) fOublierÉcrire();
-      if (fOublierPermission) fOublierPermission();
+      if (fOublierÉcrire) await fOublierÉcrire();
+      if (fOublierPermission) await fOublierPermission();
 
       résultatPermission.toutAnnuler();
     });

@@ -758,6 +758,6 @@ export default class Automatisations extends EventEmitter {
         this.fermerAuto(a);
       })
     );
-    if (this.fOublier) this.fOublier();
+    if (this.fOublier) await this.fOublier();
   }
 }

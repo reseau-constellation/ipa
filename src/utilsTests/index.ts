@@ -61,7 +61,7 @@ export const clientConnectéÀ = (
       );
       if (connecté) {
         await verrou.acquire("suivreConnexions");
-        fOublier();
+        await fOublier();
         résoudre();
       }
     };

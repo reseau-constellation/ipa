@@ -350,7 +350,7 @@ export default class ClientConstellation extends EventEmitter {
     const typeAccès = (accès.constructor as unknown as AccessController).type;
     if (typeAccès === "ipfs") {
       f((accès as IPFSAccessController).write);
-      fOublier();
+      await fOublier();
       return faisRien;
     } else if (typeAccès === "controlleur-constellation") {
       const fFinale = () => {
@@ -365,7 +365,7 @@ export default class ClientConstellation extends EventEmitter {
         await fOublier();
       };
     } else {
-      fOublier();
+      await fOublier();;
       return faisRien;
     }
   }
@@ -440,11 +440,11 @@ export default class ClientConstellation extends EventEmitter {
         (autorisé = autorisés.includes(this.orbite!.identity.id))
     );
     await new Promise<void>((résoudre) => {
-      const vérifierSiAutorisé = () => {
+      const vérifierSiAutorisé = async () => {
         if (autorisé) {
-          oublierPermission();
           clearInterval(x);
-          fOublier();
+          await oublierPermission();
+          await fOublier();;
           résoudre();
         }
       };
@@ -480,7 +480,7 @@ export default class ClientConstellation extends EventEmitter {
     if (typeAccès === nomTypeContrôleurConstellation) {
       (accès as unknown as ContrôleurConstellation).grant(rôle, identité);
     }
-    fOublier();
+    await fOublier();;
   }
 
   @cacheSuivi
@@ -1259,14 +1259,14 @@ export default class ClientConstellation extends EventEmitter {
       for (const c of changés) {
         if (arbre[c]) {
           const fOublier = arbre[c].fOublier;
-          if (fOublier) fOublier();
+          if (fOublier) await fOublier();;
           delete arbre[c];
         }
       }
 
       for (const d of disparus) {
         const fOublier = arbre[d].fOublier;
-        if (fOublier) fOublier();
+        if (fOublier) await fOublier();;
         delete arbre[d];
         fFinale();
       }
@@ -1410,7 +1410,7 @@ export default class ClientConstellation extends EventEmitter {
       .collect()
       .find((e: LogEntry<T>) => f(e));
 
-    fOublier();
+    await fOublier();;
     return élément;
   }
 
@@ -1575,7 +1575,7 @@ export default class ClientConstellation extends EventEmitter {
     if (idBd)
       await this.sauvegarderAuStockageLocal({ clef: clefLocale, val: idBd });
 
-    if (fOublier) fOublier();
+    if (fOublier) await fOublier();;
     return idBd;
   }
 
@@ -1617,7 +1617,7 @@ export default class ClientConstellation extends EventEmitter {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
     const accès = bd.access as unknown as ContrôleurConstellation;
 
-    fOublier();
+    await fOublier();;
     return {
       address: accès.bd!.id,
       premierMod: accès._premierMod,
@@ -1641,7 +1641,7 @@ export default class ClientConstellation extends EventEmitter {
       f(
         (accès as IPFSAccessController).write.includes(moi) ? MEMBRE : undefined
       );
-      fOublier();
+      await fOublier();;
       return faisRien;
     } else if (typeAccès === nomTypeContrôleurConstellation) {
       const fFinale = (utilisateurs: infoUtilisateur[]) => {
@@ -1707,10 +1707,10 @@ export default class ClientConstellation extends EventEmitter {
       const fOublierAutorisés = await (
         accès as unknown as ContrôleurConstellation
       ).suivreUtilisateursAutorisés(f);
-      fOublier();
+      await fOublier();;
       return fOublierAutorisés;
     }
-    fOublier();
+    await fOublier();;
     return faisRien;
   }
 
@@ -1801,7 +1801,7 @@ export default class ClientConstellation extends EventEmitter {
 
       const { bd, fOublier } = await this.ouvrirBd({ id });
       const { type } = bd;
-      fOublier();
+      await fOublier();;
 
       dicBds[id] = {
         requètes: new Set([de]),

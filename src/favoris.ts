@@ -201,6 +201,6 @@ export default class Favoris {
   }
 
   async fermer(): Promise<void> {
-    if (this.oublierÉpingler) this.oublierÉpingler();
+    if (this.oublierÉpingler) await this.oublierÉpingler();
   }
 }
