@@ -944,13 +944,13 @@ typesClients.forEach((type) => {
           fOublier = await client.bds!.suivreBdUnique({
             schéma,
             motClefUnique,
-            f: (id) => (rés.mettreÀJour(id)),
+            f: (id) => rés.mettreÀJour(id),
           });
         }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
-          rés.toutAnnuler()
+          rés.toutAnnuler();
         });
         test(
           "La BD est créée lorsqu'elle n'existe pas",
@@ -980,13 +980,13 @@ typesClients.forEach((type) => {
           fOublier = await client.bds!.suivreIdTableauParClef({
             idBd: idBd,
             clef: "clefUnique",
-            f: (id) => (rés.mettreÀJour(id)),
+            f: (id) => rés.mettreÀJour(id),
           });
         }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
-          rés.toutAnnuler()
+          rés.toutAnnuler();
         });
         test("Rien pour commencer", async () => {
           expect(rés.val).toBeUndefined;
@@ -1045,13 +1045,13 @@ typesClients.forEach((type) => {
             schémaBd: schéma,
             motClefUnique,
             clefTableau: "id tableau unique",
-            f: (id) => (rés.mettreÀJour(id)),
+            f: (id) => rés.mettreÀJour(id),
           });
         }, config.patience);
 
         afterAll(() => {
           if (fOublier) fOublier();
-          rés.toutAnnuler()
+          rés.toutAnnuler();
         });
 
         test(

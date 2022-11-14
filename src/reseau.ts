@@ -709,7 +709,9 @@ export default class Réseau extends EventEmitter {
     if (idBdCompte === this.client.idBdCompte) {
       await this._initaliserBloquésPrivés();
       this.on("changementMembresBloqués", fFinale);
-      fsOublier.push(async () => { this.off("changementMembresBloqués", fFinale) });
+      fsOublier.push(async () => {
+        this.off("changementMembresBloqués", fFinale);
+      });
       fFinale();
     }
 
@@ -1656,7 +1658,9 @@ export default class Réseau extends EventEmitter {
 
     const fOublier = async () => {
       await fOublierSuivreComptes();
-      await Promise.all(Object.values(fsOublierRechercheMembres).map((f) => f()));
+      await Promise.all(
+        Object.values(fsOublierRechercheMembres).map((f) => f())
+      );
     };
 
     return { fChangerN, fOublier };

@@ -45,14 +45,14 @@ typesClients.forEach((type) => {
       describe("Selon activité", function () {
         let fOublier: schémaFonctionOublier;
 
-        const rés = new AttendreRésultat<résultatObjectifRecherche<infoRésultatVide>>();
+        const rés = new AttendreRésultat<
+          résultatObjectifRecherche<infoRésultatVide>
+        >();
 
         beforeAll(async () => {
           const fRecherche = rechercherProfilSelonActivité();
-          fOublier = await fRecherche(
-            client,
-            client.idBdCompte!,
-            (r) => (rés.mettreÀJour(r))
+          fOublier = await fRecherche(client, client.idBdCompte!, (r) =>
+            rés.mettreÀJour(r)
           );
         });
 
@@ -106,14 +106,14 @@ typesClients.forEach((type) => {
       describe("Selon nom", function () {
         let fOublier: schémaFonctionOublier;
 
-        const rés = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+        const rés = new AttendreRésultat<
+          résultatObjectifRecherche<infoRésultatTexte>
+        >();
 
         beforeAll(async () => {
           const fRecherche = rechercherProfilSelonNom("Julien");
-          fOublier = await fRecherche(
-            client,
-            client.idBdCompte!,
-            (r) => (rés.mettreÀJour(r))
+          fOublier = await fRecherche(client, client.idBdCompte!, (r) =>
+            rés.mettreÀJour(r)
           );
         });
 
@@ -158,14 +158,14 @@ typesClients.forEach((type) => {
       describe("Selon courriel", function () {
         let fOublier: schémaFonctionOublier;
 
-        const rés = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+        const rés = new AttendreRésultat<
+          résultatObjectifRecherche<infoRésultatTexte>
+        >();
 
         beforeAll(async () => {
           const fRecherche = rechercherProfilSelonCourriel("julien");
-          fOublier = await fRecherche(
-            client,
-            client.idBdCompte!,
-            (r) => (rés.mettreÀJour(r))
+          fOublier = await fRecherche(client, client.idBdCompte!, (r) =>
+            rés.mettreÀJour(r)
           );
         });
 
@@ -202,25 +202,25 @@ typesClients.forEach((type) => {
 
       describe("Selon texte", function () {
         const fsOublier: schémaFonctionOublier[] = [];
-        const résNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
-        const résCourriel = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+        const résNom = new AttendreRésultat<
+          résultatObjectifRecherche<infoRésultatTexte>
+        >();
+        const résCourriel = new AttendreRésultat<
+          résultatObjectifRecherche<infoRésultatTexte>
+        >();
 
         beforeAll(async () => {
           const fRechercheNom = rechercherProfilSelonTexte("Julien Malard");
           fsOublier.push(
-            await fRechercheNom(
-              client,
-              client.idBdCompte!,
-              (r) => résNom.mettreÀJour(r)
+            await fRechercheNom(client, client.idBdCompte!, (r) =>
+              résNom.mettreÀJour(r)
             )
           );
 
           const fRechercherCourriel = rechercherProfilSelonTexte("julien.");
           fsOublier.push(
-            await fRechercherCourriel(
-              client,
-              client.idBdCompte!,
-              (r) => résCourriel.mettreÀJour(r)
+            await fRechercherCourriel(client, client.idBdCompte!, (r) =>
+              résCourriel.mettreÀJour(r)
             )
           );
         });

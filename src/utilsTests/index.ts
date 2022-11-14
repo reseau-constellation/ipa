@@ -89,58 +89,58 @@ export const attendreSync = async (bd: Store): Promise<void> => {
 };
 
 export class AttendreRésultat<T> {
-  val?: T
-  fsOublier: {[clef: string]: ()=>void}
-  événements: EventEmitter
+  val?: T;
+  fsOublier: { [clef: string]: () => void };
+  événements: EventEmitter;
 
   constructor() {
     this.événements = new EventEmitter();
-    this.val = undefined
-    this.fsOublier = {}
+    this.val = undefined;
+    this.fsOublier = {};
   }
 
   mettreÀJour(x: T) {
-    this.val = x
-    this.événements.emit("changé")
+    this.val = x;
+    this.événements.emit("changé");
   }
 
-  async attendreQue(f: (x: T)=>boolean): Promise<T> {
-    if (f(this.val)) return this.val
-    const id = uuidv4()
+  async attendreQue(f: (x: T) => boolean): Promise<T> {
+    if (f(this.val)) return this.val;
+    const id = uuidv4();
 
-    return new Promise(résoudre => {
+    return new Promise((résoudre) => {
       const fLorsqueChangé = () => {
         if (f(this.val)) {
-          this.oublier(id)
-          résoudre(this.val)
+          this.oublier(id);
+          résoudre(this.val);
         }
-      }
-      this.événements.on("changé", fLorsqueChangé)
-      this.fsOublier[id] = ()=>this.événements.off("changé", fLorsqueChangé)
-    })
+      };
+      this.événements.on("changé", fLorsqueChangé);
+      this.fsOublier[id] = () => this.événements.off("changé", fLorsqueChangé);
+    });
   }
 
   async attendreExiste(): Promise<T> {
-    return await this.attendreQue(x=>!!x)
+    return await this.attendreQue((x) => !!x);
   }
 
   oublier(id: string) {
-    this.fsOublier[id]()
-    delete this.fsOublier[id]
+    this.fsOublier[id]();
+    delete this.fsOublier[id];
   }
 
   toutAnnuler() {
-    Object.keys(this.fsOublier).forEach(id=>this.oublier(id))
+    Object.keys(this.fsOublier).forEach((id) => this.oublier(id));
   }
 }
 
 export class AttendreFichierExiste extends EventEmitter {
-  fOublier: () => void
-  fichier: string
+  fOublier: () => void;
+  fichier: string;
 
   constructor(fichier: string) {
-    super()
-    this.fichier = fichier
+    super();
+    this.fichier = fichier;
   }
 
   attendre(): Promise<void> {
@@ -155,28 +155,28 @@ export class AttendreFichierExiste extends EventEmitter {
         }
       }, 10);
 
-      this.fOublier = () => clearInterval(interval)
+      this.fOublier = () => clearInterval(interval);
     });
   }
 
   annuler() {
-    this.fOublier()
+    this.fOublier();
   }
 }
 
 export class AttendreFichierModifié extends EventEmitter {
-  fOublier: () => void
-  fichier: string
-  attendreExiste: AttendreFichierExiste
+  fOublier: () => void;
+  fichier: string;
+  attendreExiste: AttendreFichierExiste;
 
   constructor(fichier: string) {
-    super()
-    this.fichier = fichier
+    super();
+    this.fichier = fichier;
     this.attendreExiste = new AttendreFichierExiste(fichier);
   }
 
   async attendre(tempsAvant: number): Promise<void> {
-    await this.attendreExiste.attendre()
+    await this.attendreExiste.attendre();
 
     return new Promise((résoudre, rejeter) => {
       const interval = setInterval(() => {
@@ -194,12 +194,12 @@ export class AttendreFichierModifié extends EventEmitter {
         }
       }, 10);
 
-      this.fOublier = () => clearInterval(interval)
+      this.fOublier = () => clearInterval(interval);
     });
   }
 
   annuler() {
-    this.fOublier()
+    this.fOublier();
   }
 }
 

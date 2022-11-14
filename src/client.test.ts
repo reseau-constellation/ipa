@@ -54,14 +54,14 @@ describe("Contrôle dispositifs", function () {
   let idOrbite2: string;
   let idOrbite3: string;
 
-  let idBdCompte1: string
+  let idBdCompte1: string;
 
   let mesDispositifs: string[];
   let idBdCompte2EnDirecte: string | undefined;
 
   beforeAll(async () => {
     ({ fOublier: fOublierClients, clients } = await générerClients(3));
-    [client, client2, client3] = clients
+    [client, client2, client3] = clients;
 
     idBdCompte1 = await client.obtIdCompte();
 
@@ -153,8 +153,7 @@ describe("Contrôle dispositifs", function () {
 describe("Fonctionalités client", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
-  let client: ClientConstellation,
-    client2: ClientConstellation;
+  let client: ClientConstellation, client2: ClientConstellation;
 
   let idbdCompte2: string;
 
@@ -163,7 +162,6 @@ describe("Fonctionalités client", function () {
     [client, client2] = clients;
 
     idbdCompte2 = await client2.obtIdCompte();
-
   }, config.patienceInit * 2);
 
   afterAll(async () => {
@@ -576,7 +574,7 @@ describe("Fonctionalités client", function () {
       await bd.set("clef", idBd2);
       fOublier();
 
-      const val = await rés.attendreQue( (x) => !!x && x.length > 1);
+      const val = await rés.attendreQue((x) => !!x && x.length > 1);
       expect(val).toEqual(expect.arrayContaining([idBd, idBd2]));
     });
 
@@ -587,7 +585,7 @@ describe("Fonctionalités client", function () {
       await bd.del("clef");
       fOublier();
 
-      const val = await rés.attendreQue( (x) => !!x && x.length === 1);
+      const val = await rés.attendreQue((x) => !!x && x.length === 1);
       expect(val).toEqual(expect.arrayContaining([idBd]));
     });
 
@@ -604,10 +602,8 @@ describe("Fonctionalités client", function () {
       await bdListe.add(idBd2);
       fOublierBdListe();
 
-      const val = await rés.attendreQue( (x) => !!x && x.length === 3);
-      expect(val).toEqual(
-        expect.arrayContaining([idBd, idBdListe, idBd2])
-      );
+      const val = await rés.attendreQue((x) => !!x && x.length === 3);
+      expect(val).toEqual(expect.arrayContaining([idBd, idBdListe, idBd2]));
     });
 
     test("Enlever récursif", async () => {
@@ -617,7 +613,7 @@ describe("Fonctionalités client", function () {
       await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: idBd2 });
       fOublierBdListe();
 
-      const val = await rés.attendreQue( (x) => !!x && x.length === 2);
+      const val = await rés.attendreQue((x) => !!x && x.length === 2);
       expect(val).toEqual(expect.arrayContaining([idBd, idBdListe]));
     });
   });
@@ -655,7 +651,7 @@ describe("Fonctionalités client", function () {
       await bd.set("clef", idBd2);
       fOublier();
 
-      await rés.attendreQue( (x) => !!x && x !== empreinteAvant);
+      await rés.attendreQue((x) => !!x && x !== empreinteAvant);
     });
 
     test("Enlever élément", async () => {
@@ -667,7 +663,7 @@ describe("Fonctionalités client", function () {
       await bd.del("clef");
       fOublier();
 
-      await rés.attendreQue( (x) => !!x && x !== empreinteAvant);
+      await rés.attendreQue((x) => !!x && x !== empreinteAvant);
     });
 
     test("Ajout récursif", async () => {
@@ -685,7 +681,9 @@ describe("Fonctionalités client", function () {
       await bdListe.add(idBd2);
       fOublierBdListe();
 
-      const empreinteAvant = await rés.attendreQue( (x) => !!x && x !== empreinteDébut);
+      const empreinteAvant = await rés.attendreQue(
+        (x) => !!x && x !== empreinteDébut
+      );
 
       const { bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd<
         FeedStore<string>
@@ -693,7 +691,7 @@ describe("Fonctionalités client", function () {
       await bd2.add("abc");
       fOublierBd2();
 
-      await rés.attendreQue( (x) => !!x && x !== empreinteAvant);
+      await rés.attendreQue((x) => !!x && x !== empreinteAvant);
     });
 
     test("Enlever récursif", async () => {
@@ -705,7 +703,7 @@ describe("Fonctionalités client", function () {
       await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: idBd2 });
       fOublierBdListe();
 
-      await rés.attendreQue( (x) => !!x && x !== empreinteAvant);
+      await rés.attendreQue((x) => !!x && x !== empreinteAvant);
     });
   });
 
@@ -1633,7 +1631,7 @@ describe("Fonctionalités client", function () {
           identité: idbdCompte2,
           rôle: MODÉRATEUR,
         });
-        await rés.attendreQue(x=>x===MODÉRATEUR);
+        await rés.attendreQue((x) => x === MODÉRATEUR);
       },
       config.patience
     );
@@ -1646,7 +1644,9 @@ describe("Fonctionalités client", function () {
 
     let lAccès: infoAccès[];
     let idBd: string;
-    const résultatPermission = new AttendreRésultat<typeof MODÉRATEUR | typeof MEMBRE>();
+    const résultatPermission = new AttendreRésultat<
+      typeof MODÉRATEUR | typeof MEMBRE
+    >();
 
     let permissionÉcrire = false;
 
@@ -1690,7 +1690,7 @@ describe("Fonctionalités client", function () {
       "On détecte l'ajout d'une permission membre",
       async () => {
         await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
-        await résultatPermission.attendreQue(x=>x===MEMBRE);
+        await résultatPermission.attendreQue((x) => x === MEMBRE);
 
         const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
         expect(infoInvité?.rôle).toEqual(MEMBRE);
@@ -1711,7 +1711,7 @@ describe("Fonctionalités client", function () {
           identité: idbdCompte2,
           rôle: MODÉRATEUR,
         });
-        await résultatPermission.attendreQue(x=>x===MODÉRATEUR);
+        await résultatPermission.attendreQue((x) => x === MODÉRATEUR);
 
         const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
         expect(infoInvité?.rôle).toEqual(MODÉRATEUR);

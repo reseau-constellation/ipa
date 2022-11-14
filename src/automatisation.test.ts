@@ -179,7 +179,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreDonnées({
               idTableau,
-              f: (données) => (rés.mettreÀJour(données)),
+              f: (données) => rés.mettreÀJour(données),
             })
           );
         }, config.patience);
@@ -188,7 +188,7 @@ typesClients.forEach((type) => {
           await Promise.all(fsOublier.map((f) => f()));
           if (fOublierAuto) await fOublierAuto();
           rmrf.sync(dirTempo);
-          rés.toutAnnuler()
+          rés.toutAnnuler();
         });
 
         test(
@@ -229,9 +229,7 @@ typesClients.forEach((type) => {
                 id: idAuto,
               });
 
-            await rés.attendreQue(
-              (x) => !!(x && x.length === 3)
-            );
+            await rés.attendreQue((x) => !!(x && x.length === 3));
 
             comparerDonnéesTableau(rés.val, [
               { [idCol1]: 1, [idCol2]: "អ" },
@@ -303,18 +301,16 @@ typesClients.forEach((type) => {
               },
             };
 
-          axios.get = jest
-            .fn()
-            .mockResolvedValueOnce({
-              data: fs.readFileSync(
-                path.join(
-                  url.fileURLToPath(new URL(".", import.meta.url)),
-                  "utilsTests",
-                  "ressources",
-                  "cases.csv"
-                )
-              ),
-            });
+          axios.get = jest.fn().mockResolvedValueOnce({
+            data: fs.readFileSync(
+              path.join(
+                url.fileURLToPath(new URL(".", import.meta.url)),
+                "utilsTests",
+                "ressources",
+                "cases.csv"
+              )
+            ),
+          });
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationImporter({
@@ -358,22 +354,20 @@ typesClients.forEach((type) => {
               },
             },
           };
-          axios.get = jest
-            .fn()
-            .mockResolvedValueOnce({
-              data: JSON.parse(
-                fs
-                  .readFileSync(
-                    path.join(
-                      url.fileURLToPath(new URL(".", import.meta.url)),
-                      "utilsTests",
-                      "ressources",
-                      "indigenousLanguages.json"
-                    )
+          axios.get = jest.fn().mockResolvedValueOnce({
+            data: JSON.parse(
+              fs
+                .readFileSync(
+                  path.join(
+                    url.fileURLToPath(new URL(".", import.meta.url)),
+                    "utilsTests",
+                    "ressources",
+                    "indigenousLanguages.json"
                   )
-                  .toString()
-              ),
-            });
+                )
+                .toString()
+            ),
+          });
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationImporter({
@@ -392,15 +386,15 @@ typesClients.forEach((type) => {
           // Les résultats peuvent varier avec le temps !
           // Nom de la langue
           expect(
-            rés
-              .val.map((r) => r.données[idCol2])
+            rés.val
+              .map((r) => r.données[idCol2])
               .every((n) => typeof n === "string")
           ).toBe(true);
 
           // Longitude
           expect(
-            rés
-              .val.map((r) => r.données[idCol1])
+            rés.val
+              .map((r) => r.données[idCol1])
               .every((n) => -180 <= n && n <= 180)
           ).toBe(true);
         });
@@ -530,7 +524,7 @@ typesClients.forEach((type) => {
         let idProjet: string;
         let dir: string;
 
-        const fsOublier: (()=>void)[] = []
+        const fsOublier: (() => void)[] = [];
 
         beforeAll(async () => {
           dir = obtDirTempoPourTest("testExporterBd");
@@ -594,15 +588,15 @@ typesClients.forEach((type) => {
                 })
             )
           );
-          fsOublier.forEach(f=>f())
+          fsOublier.forEach((f) => f());
           rmrf.sync(dir);
         });
 
         test("Exportation tableau", async () => {
           const fichier = path.join(dir, "météo.ods");
-          const attente = new AttendreFichierExiste(fichier)
-          const attendreExiste = attente.attendre()
-          fsOublier.push(() => attente.annuler())
+          const attente = new AttendreFichierExiste(fichier);
+          const attendreExiste = attente.attendre();
+          fsOublier.push(() => attente.annuler());
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -623,9 +617,9 @@ typesClients.forEach((type) => {
 
         test("Exportation BD", async () => {
           const fichier = path.join(dir, "Ma bd.ods");
-          const attente = new AttendreFichierExiste(fichier)
-          const attendreExiste = attente.attendre()
-          fsOublier.push(() => attente.annuler())
+          const attente = new AttendreFichierExiste(fichier);
+          const attendreExiste = attente.attendre();
+          fsOublier.push(() => attente.annuler());
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -645,9 +639,9 @@ typesClients.forEach((type) => {
 
         test("Exportation projet", async () => {
           const fichier = path.join(dir, "Mon projet.zip");
-          const attente = new AttendreFichierExiste(fichier)
-          const attendreExiste = attente.attendre()
-          fsOublier.push(() => attente.annuler())
+          const attente = new AttendreFichierExiste(fichier);
+          const attendreExiste = attente.attendre();
+          fsOublier.push(() => attente.annuler());
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -672,9 +666,9 @@ typesClients.forEach((type) => {
         test("Exportation selon changements", async () => {
           const fichier = path.join(dir, "Ma bd.ods");
 
-          const attente = new AttendreFichierExiste(fichier)
-          const attendreExiste = attente.attendre()
-          fsOublier.push(() => attente.annuler())
+          const attente = new AttendreFichierExiste(fichier);
+          const attendreExiste = attente.attendre();
+          fsOublier.push(() => attente.annuler());
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -694,8 +688,8 @@ typesClients.forEach((type) => {
             vals: { [idCol]: 5 },
           });
 
-          const attenteModifié = new AttendreFichierModifié(fichier)
-          fsOublier.push(()=>attenteModifié.annuler());
+          const attenteModifié = new AttendreFichierModifié(fichier);
+          fsOublier.push(() => attenteModifié.annuler());
 
           await attenteModifié.attendre(avant);
 
@@ -708,9 +702,9 @@ typesClients.forEach((type) => {
 
         test("Exportation selon fréquence", async () => {
           const fichier = path.join(dir, "Mi bd.ods");
-          const attente = new AttendreFichierExiste(fichier)
-          const attendreExiste = attente.attendre()
-          fsOublier.push(() => attente.annuler())
+          const attente = new AttendreFichierExiste(fichier);
+          const attendreExiste = attente.attendre();
+          fsOublier.push(() => attente.annuler());
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -729,16 +723,16 @@ typesClients.forEach((type) => {
           await attendreExiste;
           const avantAjout = Date.now();
 
-          const attenteModifié = new AttendreFichierModifié(fichier)
-          fsOublier.push(() => attenteModifié.annuler())
-          const modifié = attenteModifié.attendre(avantAjout)
+          const attenteModifié = new AttendreFichierModifié(fichier);
+          fsOublier.push(() => attenteModifié.annuler());
+          const modifié = attenteModifié.attendre(avantAjout);
 
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 7 },
           });
 
-          await modifié
+          await modifié;
 
           const après = Date.now();
           expect(après - avantAttente).toBeGreaterThanOrEqual(0.3 * 1000);
@@ -772,10 +766,12 @@ typesClients.forEach((type) => {
         let idBd: string;
         let dir: string;
 
-        const résÉtats = new AttendreRésultat<{ [key: string]: ÉtatAutomatisation }>()
-        const résAutos = new AttendreRésultat<SpécificationAutomatisation[]>()
+        const résÉtats = new AttendreRésultat<{
+          [key: string]: ÉtatAutomatisation;
+        }>();
+        const résAutos = new AttendreRésultat<SpécificationAutomatisation[]>();
 
-        const fsOublier: (schémaFonctionOublier|(()=>void))[] = [];
+        const fsOublier: (schémaFonctionOublier | (() => void))[] = [];
 
         beforeAll(async () => {
           dir = obtDirTempoPourTest("testExporterBd");
@@ -789,7 +785,7 @@ typesClients.forEach((type) => {
           );
           fsOublier.push(
             await client.automatisations!.suivreAutomatisations({
-              f: (autos) => (résAutos.mettreÀJour(autos)),
+              f: (autos) => résAutos.mettreÀJour(autos),
             })
           );
 
@@ -829,8 +825,8 @@ typesClients.forEach((type) => {
         }, config.patience);
 
         afterAll(async () => {
-          résÉtats.toutAnnuler()
-          résAutos.toutAnnuler()
+          résÉtats.toutAnnuler();
+          résAutos.toutAnnuler();
 
           await Promise.all(fsOublier.map((f) => f()));
           const automatisations = await uneFois(
@@ -851,8 +847,10 @@ typesClients.forEach((type) => {
         });
 
         test("sync et écoute", async () => {
-          const attendreFichierExiste = new AttendreFichierExiste(path.join(dir, "Ma bd.ods"));
-          fsOublier.push(()=>attendreFichierExiste.annuler())
+          const attendreFichierExiste = new AttendreFichierExiste(
+            path.join(dir, "Ma bd.ods")
+          );
+          fsOublier.push(() => attendreFichierExiste.annuler());
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -871,7 +869,9 @@ typesClients.forEach((type) => {
           });
 
           const avantAjout = Date.now();
-          const attendre = résÉtats.attendreQue((x) => !!(x && x[idAuto] && x[idAuto].type === "sync"))
+          const attendre = résÉtats.attendreQue(
+            (x) => !!(x && x[idAuto] && x[idAuto].type === "sync")
+          );
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 4 },
@@ -883,8 +883,10 @@ typesClients.forEach((type) => {
         });
 
         test("programmée", async () => {
-          const attendreFichierExiste = new AttendreFichierExiste(path.join(dir, "Ma bd.ods"));
-          fsOublier.push(()=>attendreFichierExiste.annuler())
+          const attendreFichierExiste = new AttendreFichierExiste(
+            path.join(dir, "Ma bd.ods")
+          );
+          fsOublier.push(() => attendreFichierExiste.annuler());
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -902,7 +904,9 @@ typesClients.forEach((type) => {
 
           await attendreFichierExiste.attendre();
 
-          const val = await résÉtats.attendreQue((x) => !!(x && x[idAuto]?.type === "programmée"));
+          const val = await résÉtats.attendreQue(
+            (x) => !!(x && x[idAuto]?.type === "programmée")
+          );
 
           const état = val[idAuto] as ÉtatProgrammée;
 
@@ -930,7 +934,9 @@ typesClients.forEach((type) => {
               },
             });
 
-          const val = await résÉtats.attendreQue((x) => !!(x && x[idAuto]?.type === "erreur"));
+          const val = await résÉtats.attendreQue(
+            (x) => !!(x && x[idAuto]?.type === "erreur")
+          );
 
           const après = Date.now();
 
@@ -953,19 +959,21 @@ typesClients.forEach((type) => {
         let idCol2: string;
         let dir: string;
 
-        const résÉtats = new AttendreRésultat<{ [key: string]: ÉtatAutomatisation }>()
+        const résÉtats = new AttendreRésultat<{
+          [key: string]: ÉtatAutomatisation;
+        }>();
         const résAutos = new AttendreRésultat<SpécificationAutomatisation[]>();
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
-              f: (états) => (résÉtats.mettreÀJour(états)),
+              f: (états) => résÉtats.mettreÀJour(états),
             })
           );
           fsOublier.push(
             await client.automatisations!.suivreAutomatisations({
-              f: (autos) => (résAutos.mettreÀJour(autos)),
+              f: (autos) => résAutos.mettreÀJour(autos),
             })
           );
 

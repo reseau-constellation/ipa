@@ -652,12 +652,14 @@ typesClients.forEach((type) => {
             >
           | undefined;
 
-        const résultatMotClef = new AttendreRésultat<résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
+        const résultatMotClef = new AttendreRésultat<
+          résultatObjectifRecherche<
+            | infoRésultatTexte
+            | infoRésultatRecherche<
+                infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+              >
+          >
+        >();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -698,10 +700,8 @@ typesClients.forEach((type) => {
 
           const fRechercheMotsClef = rechercherProjetSelonTexte("Météo");
           fsOublier.push(
-            await fRechercheMotsClef(
-              client,
-              idProjet,
-              (r) => (résultatMotClef.mettreÀJour(r))
+            await fRechercheMotsClef(client, idProjet, (r) =>
+              résultatMotClef.mettreÀJour(r)
             )
           );
         }, config.patience);

@@ -1,25 +1,24 @@
 import { isElectronMain } from "wherearewe";
 import path from "path";
 import { readFileSync } from "fs";
-import { writeFile } from 'fs/promises';
+import { writeFile } from "fs/promises";
 
 let _localStorage: LocalStorage;
 
 class LocalStorage {
   fichier: string;
-  _données: {[clef: string]: string};
+  _données: { [clef: string]: string };
 
   constructor(dossier: string) {
     this.fichier = path.join(dossier, "données.json");
     try {
-      this._données = JSON.parse(readFileSync(this.fichier).toString())
+      this._données = JSON.parse(readFileSync(this.fichier).toString());
     } catch {
-      this._données = {}
+      this._données = {};
     }
-
   }
   getItem(clef: string): string {
-    return this._données[clef]
+    return this._données[clef];
   }
   setItem(clef: string, val: string) {
     this._données[clef] = val;

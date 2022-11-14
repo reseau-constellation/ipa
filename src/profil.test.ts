@@ -91,14 +91,14 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Julien Malard-Adam",
           });
-          await rés.attendreQue(x=>Object.keys(x).length > 0)
+          await rés.attendreQue((x) => Object.keys(x).length > 0);
           expect(rés.val.fr).toEqual("Julien Malard-Adam");
 
           await client.profil!.sauvegarderNom({
             langue: "த",
             nom: "ஜூலீஎன்",
           });
-          await rés.attendreQue(x=>Object.keys(x).length > 1)
+          await rés.attendreQue((x) => Object.keys(x).length > 1);
           expect(rés.val.த).toEqual("ஜூலீஎன்");
         });
 
@@ -107,13 +107,13 @@ typesClients.forEach((type) => {
             langue: "த",
             nom: "ம.-ஆதான் ஜூலீஎன்",
           });
-          const val = await rés.attendreQue(x=>x.த !== "ஜூலீஎன்")
+          const val = await rés.attendreQue((x) => x.த !== "ஜூலீஎன்");
           expect(val.த).toEqual("ம.-ஆதான் ஜூலீஎன்");
         });
 
         test("Effacer un nom", async () => {
           await client.profil!.effacerNom({ langue: "fr" });
-          const val = await rés.attendreQue(x=>Object.keys(x).length <= 1)
+          const val = await rés.attendreQue((x) => Object.keys(x).length <= 1);
           expect(val).toEqual({ த: "ம.-ஆதான் ஜூலீஎன்" });
         });
       });
@@ -139,7 +139,7 @@ typesClients.forEach((type) => {
         });
 
         test("Pas d'image pour commencer", async () => {
-          const val = await rés.attendreQue(x=>x===null)
+          const val = await rés.attendreQue((x) => x === null);
           expect(val).toBeNull;
         });
 
@@ -151,7 +151,7 @@ typesClients.forEach((type) => {
 
         test("Effacer l'image", async () => {
           await client.profil!.effacerImage();
-          const val = await rés.attendreQue(x=>x===null)
+          const val = await rés.attendreQue((x) => x === null);
           expect(val).toBeNull;
         });
 
@@ -162,7 +162,6 @@ typesClients.forEach((type) => {
             })
           ).rejects.toThrow();
         });
-
       });
     });
   });

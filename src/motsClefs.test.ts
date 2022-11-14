@@ -89,7 +89,7 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
-        const rés = new AttendreRésultat<{ [key: string]: string }>()
+        const rés = new AttendreRésultat<{ [key: string]: string }>();
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
 
@@ -103,7 +103,7 @@ typesClients.forEach((type) => {
 
         afterAll(async () => {
           if (fOublier) fOublier();
-          rés.toutAnnuler()
+          rés.toutAnnuler();
         });
 
         test("Pas de noms pour commencer", async () => {
@@ -117,7 +117,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Hydrologie",
           });
-          await rés.attendreQue(x=>Object.keys(x).length > 0);
+          await rés.attendreQue((x) => Object.keys(x).length > 0);
           expect(rés.val.fr).toEqual("Hydrologie");
         });
 
@@ -129,7 +129,7 @@ typesClients.forEach((type) => {
               हिं: "जल विज्ञान",
             },
           });
-          await rés.attendreQue(x=>Object.keys(x).length >= 3);
+          await rés.attendreQue((x) => Object.keys(x).length >= 3);
           expect(rés.val).toEqual({
             த: "நீரியல்",
             हिं: "जल विज्ञान",
@@ -144,7 +144,7 @@ typesClients.forEach((type) => {
             nom: "hydrologie",
           });
 
-          await rés.attendreQue(x=>x["fr"] == "hydrologie");
+          await rés.attendreQue((x) => x["fr"] == "hydrologie");
           expect(rés.val?.fr).toEqual("hydrologie");
         });
 
@@ -153,7 +153,7 @@ typesClients.forEach((type) => {
             id: idMotClef,
             langue: "fr",
           });
-          await rés.attendreQue(x=>!Object.keys(x).includes("fr"));
+          await rés.attendreQue((x) => !Object.keys(x).includes("fr"));
           expect(rés.val).toEqual({
             த: "நீரியல்",
             हिं: "जल विज्ञान",

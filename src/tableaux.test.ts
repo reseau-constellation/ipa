@@ -29,11 +29,7 @@ import {
   élémentDonnées,
 } from "@/valid";
 
-import {
-  générerClients,
-  AttendreRésultat,
-  typesClients,
-} from "@/utilsTests";
+import { générerClients, AttendreRésultat, typesClients } from "@/utilsTests";
 import { config } from "@/utilsTests/sfipTest";
 
 typesClients.forEach((type) => {
@@ -394,9 +390,7 @@ typesClients.forEach((type) => {
         });
 
         test("Règles génériques de catégorie pour commencer", async () => {
-          await résRègles.attendreQue(
-            (r) => !!r && r.length === 2
-          );
+          await résRègles.attendreQue((r) => !!r && r.length === 2);
 
           expect(isArray(résRègles.val)).toBe(true);
           expect(résRègles.val).toHaveLength(2);
@@ -433,9 +427,9 @@ typesClients.forEach((type) => {
           expect(typeof empreinte).toEqual("string");
           expect(isArray(résErreurs.val)).toBe(true);
           expect(résErreurs.val).toHaveLength(1);
-          expect(
-            résErreurs.val[0].erreur.règle.règle.règle.typeRègle
-          ).toEqual("catégorie");
+          expect(résErreurs.val[0].erreur.règle.règle.règle.typeRègle).toEqual(
+            "catégorie"
+          );
         });
 
         test("Ajouter une règle au tableau", async () => {
@@ -627,7 +621,7 @@ typesClients.forEach((type) => {
         let empreinte2: string;
 
         const erreursValid = new AttendreRésultat<erreurValidation[]>();
-        const erreursRègles = new AttendreRésultat<erreurRègle[]>;
+        const erreursRègles = new AttendreRésultat<erreurRègle[]>();
 
         const idColonneTempMax = "col temp max";
         const empreintesDonnées: string[] = [];
@@ -639,14 +633,14 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreValidDonnées({
               idTableau: idTableauRègles,
-              f: (e) => (erreursValid.mettreÀJour(e)),
+              f: (e) => erreursValid.mettreÀJour(e),
             })
           );
 
           fsOublier.push(
             await client.tableaux!.suivreValidRègles({
               idTableau: idTableauRègles,
-              f: (e) => (erreursRègles.mettreÀJour(e)),
+              f: (e) => erreursRègles.mettreÀJour(e),
             })
           );
 
@@ -724,9 +718,7 @@ typesClients.forEach((type) => {
             idVariable: idVariableTempMax,
             idColonne: idColonneTempMax,
           });
-          const val = erreursRègles.attendreQue(
-            (x) => !!x && x.length === 0
-          );
+          const val = erreursRègles.attendreQue((x) => !!x && x.length === 0);
           expect(val).toHaveLength(0);
         });
 
@@ -874,7 +866,9 @@ typesClients.forEach((type) => {
             },
           ];
 
-          const val1 = await erreursRègles.attendreQue((x) => !!x && x.length > 0);
+          const val1 = await erreursRègles.attendreQue(
+            (x) => !!x && x.length > 0
+          );
           expect(val1).toEqual(expect.arrayContaining(réf));
 
           await client.tableaux!.ajouterColonneTableau({
@@ -904,7 +898,7 @@ typesClients.forEach((type) => {
             fsOublier.push(
               await client.tableaux!.suivreValidDonnées({
                 idTableau: idTableauRègles,
-                f: (e) => (erreurs.mettreÀJour(e)),
+                f: (e) => erreurs.mettreÀJour(e),
               })
             );
 
@@ -967,7 +961,7 @@ typesClients.forEach((type) => {
           const idColonneCatégories = "id colonne catégories";
 
           const erreursValid = new AttendreRésultat<erreurValidation[]>();
-          const erreursRègles = new AttendreRésultat<erreurRègle[]>;
+          const erreursRègles = new AttendreRésultat<erreurRègle[]>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -977,14 +971,14 @@ typesClients.forEach((type) => {
             fsOublier.push(
               await client.tableaux!.suivreValidDonnées({
                 idTableau: idTableauÀTester,
-                f: (e) => (erreursValid.mettreÀJour(e)),
+                f: (e) => erreursValid.mettreÀJour(e),
               })
             );
 
             fsOublier.push(
               await client.tableaux!.suivreValidRègles({
                 idTableau: idTableauÀTester,
-                f: (e) => (erreursRègles.mettreÀJour(e)),
+                f: (e) => erreursRègles.mettreÀJour(e),
               })
             );
 
@@ -1018,7 +1012,7 @@ typesClients.forEach((type) => {
           }, config.patience * 2);
 
           afterAll(() => {
-            fsOublier.forEach((f) => f())
+            fsOublier.forEach((f) => f());
             erreursValid.toutAnnuler();
             erreursRègles.toutAnnuler();
           });

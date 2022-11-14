@@ -102,7 +102,7 @@ typesClients.forEach((type) => {
 
       describe("Noms", function () {
         let fOublier: schémaFonctionOublier;
-        const noms = new AttendreRésultat<{[clef: string]: string}>()
+        const noms = new AttendreRésultat<{ [clef: string]: string }>();
 
         beforeAll(async () => {
           fOublier = await client.variables!.suivreNomsVariable({

@@ -494,7 +494,9 @@ export default class ClientConstellation extends EventEmitter {
     };
     this.on("compteChangé", fFinale);
     fFinale();
-    return async () => {this.off("compteChangé", fFinale)};
+    return async () => {
+      this.off("compteChangé", fFinale);
+    };
   }
 
   async obtIdSFIP(): Promise<IDResult> {
@@ -715,7 +717,9 @@ export default class ClientConstellation extends EventEmitter {
       const fFinale = () => f(bd);
       for (const é of événements) {
         bd.events.on(é, fFinale);
-        fsOublier.push(async () =>{ bd.events.off(é, fFinale)});
+        fsOublier.push(async () => {
+          bd.events.off(é, fFinale);
+        });
 
         if (
           é === "write" &&
@@ -1291,7 +1295,11 @@ export default class ClientConstellation extends EventEmitter {
 
     const oublier = async () => {
       await oublierBdRacine();
-      await Promise.all(Object.values(arbre).filter((x) => x.fOublier).map(x => x.fOublier()));
+      await Promise.all(
+        Object.values(arbre)
+          .filter((x) => x.fOublier)
+          .map((x) => x.fOublier())
+      );
     };
     return oublier;
   }
@@ -1435,9 +1443,11 @@ export default class ClientConstellation extends EventEmitter {
       this.idBdCompte!.length - 8
     )} : ${clef}`;
 
-    return (await obtStockageLocal(this._opts.dossierStockageLocal || this.orbite.directory)).getItem(
-      clefClient
-    );
+    return (
+      await obtStockageLocal(
+        this._opts.dossierStockageLocal || this.orbite.directory
+      )
+    ).getItem(clefClient);
   }
 
   async sauvegarderAuStockageLocal({
@@ -1728,13 +1738,15 @@ export default class ClientConstellation extends EventEmitter {
 
     const enleverRequètesDe = async (de: string) => {
       delete dicBds[de];
-      await Promise.all(Object.keys(dicBds).map(async (id) => {
-        if (!dicBds[id]) return;
-        dicBds[id].requètes.delete(de);
-        if (!dicBds[id].requètes.size) {
-          await dicBds[id].fOublier();
-        }
-      }));
+      await Promise.all(
+        Object.keys(dicBds).map(async (id) => {
+          if (!dicBds[id]) return;
+          dicBds[id].requètes.delete(de);
+          if (!dicBds[id].requètes.size) {
+            await dicBds[id].fOublier();
+          }
+        })
+      );
     };
 
     // On ne suit pas automatiquement les BDs ou tableaux dont celui d'intérêt a été copié...ça pourait être très volumineu
@@ -1769,10 +1781,12 @@ export default class ClientConstellation extends EventEmitter {
 
         dicBds[id].sousBds = idsOrbite;
 
-        await Promise.all(obsolètes.map(async (o) => {
-          dicBds[o].requètes.delete(id);
-          if (!dicBds[o].requètes.size) await dicBds[o].fOublier();
-        }));
+        await Promise.all(
+          obsolètes.map(async (o) => {
+            dicBds[o].requètes.delete(id);
+            if (!dicBds[o].requètes.size) await dicBds[o].fOublier();
+          })
+        );
         await Promise.all(
           nouvelles.map(async (id_) => await _suivreBdsRécursives(id_, id))
         );

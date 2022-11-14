@@ -80,13 +80,15 @@ typesClients.forEach((type) => {
           let réfClient2: résultatRecherche<infoRésultatTexte>;
           let réfClient3: résultatRecherche<infoRésultatTexte>;
 
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier, fChangerN } =
               await client.recherche!.rechercherProfilSelonNom({
                 nom: "Julien",
-                f: (membres) => (rés.mettreÀJour(membres)),
+                f: (membres) => rés.mettreÀJour(membres),
                 nRésultatsDésirés: 2,
               }));
             réfClient2 = {
@@ -169,7 +171,9 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } =
@@ -228,7 +232,9 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProfilSelonId({
@@ -269,7 +275,9 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             const idMotClef = await client2.motsClefs!.créerMotClef();
@@ -307,7 +315,9 @@ typesClients.forEach((type) => {
 
         describe("selon nom", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherMotClefSelonNom({
@@ -363,7 +373,9 @@ typesClients.forEach((type) => {
 
         describe("tous", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherMotsClefs({
@@ -388,7 +400,9 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             const idVariable = await client2.variables!.créerVariable({
@@ -428,7 +442,9 @@ typesClients.forEach((type) => {
 
         describe("selon nom", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherVariableSelonNom({
@@ -486,7 +502,9 @@ typesClients.forEach((type) => {
 
         describe("selon descr", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } =
@@ -545,7 +563,9 @@ typesClients.forEach((type) => {
 
         describe("tous", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherVariables({
@@ -570,7 +590,9 @@ typesClients.forEach((type) => {
 
         describe("selon id", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             idBd = await client2.bds!.créerBd({ licence: "ODbl-1_0" });
@@ -608,7 +630,9 @@ typesClients.forEach((type) => {
         });
         describe("selon nom", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBdSelonNom({
@@ -650,7 +674,9 @@ typesClients.forEach((type) => {
 
         describe("selon descr", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBdSelonDescr({
@@ -695,9 +721,8 @@ typesClients.forEach((type) => {
         describe("selon variables", () => {
           let fOublier: schémaFonctionOublier;
           const rés = new AttendreRésultat<
-          résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            >[]>;
+            résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBdSelonVariable({
@@ -765,9 +790,8 @@ typesClients.forEach((type) => {
         describe("selon mots-clefs", () => {
           let fOublier: schémaFonctionOublier;
           const rés = new AttendreRésultat<
-            résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            >[]>();
+            résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBdSelonMotClef({
@@ -829,7 +853,9 @@ typesClients.forEach((type) => {
 
         describe("tous", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherBds({
@@ -873,7 +899,9 @@ typesClients.forEach((type) => {
 
         describe("selon id", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             idProjet = await client2.projets!.créerProjet();
@@ -912,7 +940,9 @@ typesClients.forEach((type) => {
 
         describe("selon nom", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjetSelonNom({
@@ -957,7 +987,9 @@ typesClients.forEach((type) => {
 
         describe("selon descr", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjetSelonDescr({
@@ -1002,9 +1034,9 @@ typesClients.forEach((type) => {
 
         describe("selon variables", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            >[]>();
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+          >();
 
           beforeAll(async () => {
             idBd = await client2.bds!.créerBd({ licence: "ODbl-1_0" });
@@ -1075,9 +1107,9 @@ typesClients.forEach((type) => {
 
         describe("selon mots-clefs", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<
-              infoRésultatRecherche<infoRésultatTexte>
-            >[]>();
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+          >();
 
           beforeAll(async () => {
             idBd = await client2.bds!.créerBd({ licence: "ODbl-1_0" });
@@ -1150,7 +1182,8 @@ typesClients.forEach((type) => {
               infoRésultatRecherche<
                 infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
               >
-            >[]>;
+            >[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjetSelonBd({
@@ -1204,7 +1237,9 @@ typesClients.forEach((type) => {
 
         describe("tous", () => {
           let fOublier: schémaFonctionOublier;
-          const rés = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>();;
+          const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
 
           beforeAll(async () => {
             ({ fOublier } = await client.recherche!.rechercherProjets({
@@ -1277,7 +1312,9 @@ typesClients.forEach((type) => {
         let fChangerN: (x: number) => void;
 
         const résMembresEnLigne = new AttendreRésultat<statutMembre[]>();
-        const résMotsClefs = new AttendreRésultat<résultatRecherche<infoRésultatTexte>[]>;
+        const résMotsClefs = new AttendreRésultat<
+          résultatRecherche<infoRésultatTexte>[]
+        >();
 
         const fsOublier: schémaFonctionOublier[] = [];
         const motsClefs: { [key: string]: string } = {};
@@ -1288,9 +1325,7 @@ typesClients.forEach((type) => {
               f: (m) => résMembresEnLigne.mettreÀJour(m),
             })
           );
-          await résMembresEnLigne.attendreQue(
-            (x) => !!x && x.length === 5
-          );
+          await résMembresEnLigne.attendreQue((x) => !!x && x.length === 5);
 
           for (const c of clients) {
             const idMotClef = await c.motsClefs!.créerMotClef();
@@ -1301,9 +1336,7 @@ typesClients.forEach((type) => {
             c.réseau!.emit("membreVu");
           }
 
-          await résMembresEnLigne.attendreQue(
-            (x) => !!x && !x.length
-          );
+          await résMembresEnLigne.attendreQue((x) => !!x && !x.length);
 
           ({ fOublier: fOublierRecherche, fChangerN } =
             await client.recherche!.rechercherMotClefSelonNom({
@@ -1316,8 +1349,8 @@ typesClients.forEach((type) => {
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
-          résMembresEnLigne.toutAnnuler()
-          résMotsClefs.toutAnnuler()
+          résMembresEnLigne.toutAnnuler();
+          résMotsClefs.toutAnnuler();
         });
 
         test("Mes objets sont détectés", async () => {
@@ -1448,7 +1481,9 @@ typesClients.forEach((type) => {
             });
           }
 
-          const val = await résMotsClefs.attendreQue((x) => !!x && x.length <= 3);
+          const val = await résMotsClefs.attendreQue(
+            (x) => !!x && x.length <= 3
+          );
           vérifierRecherche(val, réf);
         });
 
@@ -1477,7 +1512,9 @@ typesClients.forEach((type) => {
             });
           }
 
-          const val = await résMotsClefs.attendreQue((x) => !!x && x.length >= 4);
+          const val = await résMotsClefs.attendreQue(
+            (x) => !!x && x.length >= 4
+          );
           vérifierRecherche(val, réf);
         });
       });
