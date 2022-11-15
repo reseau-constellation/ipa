@@ -236,9 +236,10 @@ describe("Fonctionalités client", function () {
     let bd2: KeyValueStore<number>;
     let fOublierBd: schémaFonctionOublier;
     let fOublierBd2: schémaFonctionOublier;
-    let données: { [key: string]: number } | undefined;
     let fSuivre: (id: string) => Promise<void>;
     let fOublier: schémaFonctionOublier;
+
+    const données = new AttendreRésultat<{ [key: string]: number }>();
 
     const changerBd = async (id: string) => {
       await fSuivre(id);
@@ -263,7 +264,7 @@ describe("Fonctionalités client", function () {
         return faisRien;
       };
       const f = (valeurs?: { [key: string]: number }) => {
-        données = valeurs;
+        données.mettreÀJour(valeurs);
       };
       const fSuivre_ = async ({
         id,
@@ -289,21 +290,24 @@ describe("Fonctionalités client", function () {
       if (bd) await bd.close();
       if (bd2) await bd2.close();
       if (fOublier) await fOublier();
+      données.toutAnnuler();
     });
     test("`undefined` est retourné si la fonction ne renvoie pas de BD", async () => {
-      expect(données).toBeUndefined();
+      expect(données.val).toBeUndefined();
     });
     test("Les changements à la BD suivie sont détectés", async () => {
       await changerBd(idBd);
       await bd.put("a", 1);
-      expect(données).not.toBeUndefined();
-      expect(données!.a).toEqual(1);
+
+      await données.attendreExiste();
+      expect(données.val.a).toEqual(1);
     });
     test("Les changements à l'id de la BD suivie sont détectés", async () => {
       await bd2.put("a", 2);
       await changerBd(idBd2);
-      expect(données).not.toBeUndefined();
-      expect(données!.a).toEqual(2);
+
+      await données.attendreQue(x=>x.a !== 1)
+      expect(données.val.a).toEqual(2);
     });
   });
 
@@ -312,7 +316,7 @@ describe("Fonctionalités client", function () {
     let bdBase: KeyValueStore<string>;
     let idBd: string | undefined;
 
-    let données: { [key: string]: number } | undefined;
+    const données = new AttendreRésultat<{ [key: string]: number }>();
 
     const CLEF = "clef";
     const fsOublier: schémaFonctionOublier[] = [];
@@ -326,7 +330,7 @@ describe("Fonctionalités client", function () {
       fsOublier.push(fOublier);
 
       const f = (valeurs: { [key: string]: number } | undefined) => {
-        données = valeurs;
+        données.mettreÀJour(valeurs);
       };
       const fSuivre = async ({
         id,
@@ -344,10 +348,11 @@ describe("Fonctionalités client", function () {
 
     afterAll(async () => {
       await Promise.all(fsOublier.map((f) => f()));
+      données.toutAnnuler();
     });
 
     test("`undefined` est retourné si la clef n'existe pas", async () => {
-      expect(données).toBeUndefined();
+      expect(données.val).toBeUndefined();
     });
 
     test("Les changements à la BD suivie sont détectés", async () => {
@@ -362,8 +367,8 @@ describe("Fonctionalités client", function () {
       fsOublier.push(fOublier);
 
       await bd.put("a", 1);
-      expect(données).not.toBeUndefined();
-      expect(données!.a).toEqual(1);
+      const val = await données.attendreExiste();
+      expect(val.a).toEqual(1);
     });
 
     test("Les changements à la clef sont détectés", async () => {
@@ -375,8 +380,8 @@ describe("Fonctionalités client", function () {
 
       await bd.put("a", 2);
       await bdBase.put(CLEF, idBd2);
-      expect(données).not.toBeUndefined();
-      expect(données!.a).toEqual(2);
+      const val = await données.attendreQue(x=>x.a!==1)
+      expect(val.a).toEqual(2);
     });
   });
 
