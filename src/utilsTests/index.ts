@@ -253,8 +253,7 @@ export const générerOrbites = async (
   const racineDossierOrbite = obtDirTempoPourTest("orbite");
 
   rmrf.sync(racineDossierOrbite);
-
-  for (const i in [...Array(n).keys()]) {
+  const _générer = async (i: number): Promise<void> => {
     const racineDossier = `${racineDossierOrbite}/sfip_${i}`;
     const dsfip = await initierSFIP(racineDossier);
     const sfip = dsfip.api;
@@ -270,6 +269,9 @@ export const générerOrbites = async (
     sfips.push(sfip);
     orbites.push(orbite);
   }
+
+  await Promise.all([...Array(n).keys()].map(i=>_générer(i)));
+
   const fOublier = async () => {
     await Promise.all(
       orbites.map(async (orbite) => {
