@@ -207,7 +207,7 @@ describe("Utils recherche", function () {
         (rés) => (résultat = rés)
       );
     });
-    afterAll(() => {
+    afterAll(async () => {
       if (fOublier) await fOublier();
     });
     test("Résultat détecté", () => {
@@ -245,7 +245,7 @@ describe("Utils recherche", function () {
         (rés) => (résultat = rés)
       );
     });
-    afterAll(() => {
+    afterAll(async () => {
       if (fOublier) await fOublier();
     });
     test("Résultat détecté", () => {
@@ -373,7 +373,7 @@ describe("Utils recherche", function () {
       const fRecherche = rechercherTous();
       fOublier = await fRecherche(client, "abc", (rés) => (résultat = rés));
     });
-    afterAll(() => {
+    afterAll(async () => {
       if (fOublier) await fOublier();
     });
     test("Tous ont le même score", () => {

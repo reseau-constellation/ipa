@@ -55,7 +55,7 @@ typesClients.forEach((type) => {
           fOublier = await fRecherche(client, idProjet, (r) => (résultat = r));
         });
 
-        afterAll(() => {
+        afterAll(async () => {
           if (fOublier) await fOublier();
         });
 
@@ -98,7 +98,7 @@ typesClients.forEach((type) => {
           fOublier = await fRecherche(client, idProjet, (r) => (résultat = r));
         }, config.patience);
 
-        afterAll(() => {
+        afterAll(async () => {
           if (fOublier) await fOublier();
         });
 

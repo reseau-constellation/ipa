@@ -69,7 +69,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        afterAll(() => {
+        afterAll(async () => {
           if (fOublier) await fOublier();
         });
 

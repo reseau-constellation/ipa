@@ -58,7 +58,7 @@ typesClients.forEach((type) => {
           });
         }, config.patience);
 
-        afterAll(() => {
+        afterAll(async () => {
           if (fOublier) await fOublier();
         });
 

@@ -948,7 +948,7 @@ typesClients.forEach((type) => {
           });
         }, config.patience);
 
-        afterAll(() => {
+        afterAll(async () => {
           if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
@@ -984,7 +984,7 @@ typesClients.forEach((type) => {
           });
         }, config.patience);
 
-        afterAll(() => {
+        afterAll(async () => {
           if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
@@ -1049,7 +1049,7 @@ typesClients.forEach((type) => {
           });
         }, config.patience);
 
-        afterAll(() => {
+        afterAll(async () => {
           if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
