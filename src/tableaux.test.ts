@@ -349,7 +349,7 @@ typesClients.forEach((type) => {
         const résRègles = new AttendreRésultat<règleColonne[]>();
         const résErreurs = new AttendreRésultat<erreurValidation[]>();
 
-        const fsOublier: schémaFonctionOublier[] = [];
+        let fsOublier: schémaFonctionOublier[] = [];
 
         beforeEach(async () => {
           idTableauRègles = await client.tableaux!.créerTableau({ idBd });
@@ -385,6 +385,7 @@ typesClients.forEach((type) => {
 
         afterEach(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          fsOublier = []
           résRègles.toutAnnuler();
           résErreurs.toutAnnuler();
         });
