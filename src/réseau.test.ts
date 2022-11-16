@@ -1050,14 +1050,14 @@ typesClients.forEach((type) => {
               profondeur: 2,
             }));
 
-          await rés.attendreQue(
-            (x) =>
-              !!x &&
-              x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
-                0 &&
-              x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
-                0
-          );
+            await rés.attendreQue(
+              (x) =>
+                !!x &&
+                x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
+                  0 &&
+                x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
+                  0
+            );
         });
 
         afterAll(async () => {
@@ -1445,12 +1445,7 @@ typesClients.forEach((type) => {
             ];
 
             await client2.variables!.ajouterÀMesVariables({ id: idVariable });
-            const val = await rés.attendreQue((x) =>
-              Boolean(
-                !!x &&
-                  x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
-              )
-            );
+            const val = await rés.attendreQue((x) => x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté);
 
             expect(val).toEqual(réf);
           });
