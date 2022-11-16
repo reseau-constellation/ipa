@@ -1122,7 +1122,6 @@ export default class Réseau extends EventEmitter {
     });
   }
 
-  @cacheRechercheParProfondeur
   async suivreComptesRéseauEtEnLigne({
     f,
     profondeur,
@@ -1132,6 +1131,8 @@ export default class Réseau extends EventEmitter {
     profondeur: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRecherche> {
+    // Ne PAS mettre cette fonction en cache ! Ça ne fonctionne pas avec les
+    // tailles=Infinity de suivreConnexionsMembres
     const dicComptes: {
       réseau: infoMembreRéseau[];
       enLigne: infoMembreRéseau[];
@@ -2598,6 +2599,6 @@ export default class Réseau extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-    this.fsOublier.forEach(async (f) => await f());
+    await Promise.all(this.fsOublier.map((f) => f()));
   }
 }
