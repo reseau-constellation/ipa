@@ -31,8 +31,6 @@ import { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import Automatisations from "@/automatisation.js";
 
 import {
-  cacheRechercheParNRésultats,
-  cacheRechercheParProfondeur,
   cacheSuivi,
 } from "@/décorateursCache.js";
 
