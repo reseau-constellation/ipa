@@ -60,7 +60,7 @@ export class CacheSuivi {
       Object.entries(args).filter((x) => typeof x[1] !== "function")
     );
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
-      throw "Plus d'un argument est une fonction : " + JSON.stringify(args);
+      throw "Plus d'un argument pour " + adresseFonction + " est une fonction : " + JSON.stringify(args);
     }
 
     const codeCache = this.générerCodeCache({
@@ -129,7 +129,7 @@ export class CacheSuivi {
       Object.entries(args).filter((x) => typeof x[1] !== "function")
     );
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
-      throw "Plus d'un argument est une fonction : " + JSON.stringify(args);
+      throw "Plus d'un argument pour " + adresseFonction + " est une fonction : " + JSON.stringify(args);
     }
     const argsSansFOuTaille = Object.fromEntries(
       Object.entries(args).filter((x) => x[0] !== nomArgTaille)
@@ -151,6 +151,7 @@ export class CacheSuivi {
     await this.verrou.acquire(codeCache);
 
     const fFinale = (val: unknown[]) => {
+      if (!this._cacheRecherche[codeCache]) return; // Si on a déjà annulé la requète
       this._cacheRecherche[codeCache].val = val;
       const infoRequètes = Object.values(
         this._cacheRecherche[codeCache].requètes
