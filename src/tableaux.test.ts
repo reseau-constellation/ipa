@@ -719,7 +719,7 @@ typesClients.forEach((type) => {
             idVariable: idVariableTempMax,
             idColonne: idColonneTempMax,
           });
-          const val = erreursRègles.attendreQue((x) => !!x && x.length === 0);
+          const val = await erreursRègles.attendreQue((x) => !!x && x.length === 0);
           expect(val).toHaveLength(0);
         });
 
