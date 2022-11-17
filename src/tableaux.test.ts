@@ -1141,17 +1141,12 @@ typesClients.forEach((type) => {
           expect(adresseOrbiteValide(idTableau)).toBe(true);
         });
         test("Suivre variables", () => {
-          expect(isArray(variables)).toBe(true);
-
-          expect(variables).toHaveLength(1);
           expect(variables).toEqual(expect.arrayContaining([idVarChaîne]));
         });
         test("Suivre colonnes", () => {
           expect(colonnes).toBeUndefined;
         });
         test("Suivre colonnes sans catégorie", () => {
-          expect(isArray(colonnesSansCatégorie)).toBe(true);
-          expect(colonnesSansCatégorie).toHaveLength(1);
           expect(colonnesSansCatégorie).toEqual(
             expect.arrayContaining([{ id: idColonne, variable: idVarChaîne }])
           );
@@ -1163,8 +1158,7 @@ typesClients.forEach((type) => {
               [idColonne]: "Bonjour !",
             },
           });
-          expect(isArray(données)).toBe(true);
-          expect(données).toHaveLength(1);
+
           expect(données[0].données[idColonne]).toEqual("Bonjour !");
         });
       });
@@ -1183,10 +1177,6 @@ typesClients.forEach((type) => {
         let règles: règleColonne[];
 
         let idTableauCopie: string;
-
-        let idTableauCopieLié: string;
-        let nomsTableauLié: { [key: string]: string };
-        let règlesTableauLié: règleColonne[];
 
         const réfNoms = {
           த: "மழை",
@@ -1240,11 +1230,6 @@ typesClients.forEach((type) => {
             id: idTableau,
             idBd,
           });
-          idTableauCopieLié = await client.tableaux!.copierTableau({
-            id: idTableau,
-            idBd,
-            lier: true,
-          });
 
           fsOublier.push(
             await client.tableaux!.suivreVariables({
@@ -1283,18 +1268,6 @@ typesClients.forEach((type) => {
             })
           );
 
-          fsOublier.push(
-            await client.tableaux!.suivreNomsTableau({
-              idTableau: idTableauCopieLié,
-              f: (x) => (nomsTableauLié = x),
-            })
-          );
-          fsOublier.push(
-            await client.tableaux!.suivreRègles({
-              idTableau: idTableauCopieLié,
-              f: (x) => (règlesTableauLié = x),
-            })
-          );
         }, config.patience * 2);
 
         afterAll(async () => {
@@ -1340,58 +1313,6 @@ typesClients.forEach((type) => {
           expect(données[0].données[colonnes[0].id]).toEqual(123);
         });
 
-        test.todo(
-          "Les noms des tableaux sont liées" /*async () => {
-          const réfNomsTableauLié: { [key: string]: string } = Object.assign(
-            {},
-            réfNoms,
-            { த: "பொழிவு" }
-          );
-          await client.tableaux!.sauvegarderNomTableau({
-            idTableau: idTableauCopieLié,
-            langue: "த",
-            nom: "பொழிவு",
-          });
-
-          expect(nomsTableauLié).toEqual(réfNomsTableauLié);
-          await client.bds!.sauvegarderNomBd({
-            id: idTableau,
-            langue: "fr",
-            nom: "précipitation",
-          });
-
-          réfNomsTableauLié["fr"] = "précipitation";
-          expect(nomsTableauLié).toEqual(réfNomsTableauLié);
-        }*/
-        );
-
-        test.todo(
-          "Les règles des tableaux sont liées" /*async () => {
-          const nouvelleRègle: règleBornes = {
-            typeRègle: "bornes",
-            détails: {
-              type: "fixe",
-              val: 100,
-              op: "<",
-            },
-          };
-          const règleParDéfaut: règleCatégorie = {
-            typeRègle: "catégorie",
-            détails: {
-              catégorie: "numérique"
-            }
-          }
-          const réfRèglesTableauLié: règleVariable[] = [règle, nouvelleRègle, règleParDéfaut];
-          await client.tableaux!.ajouterRègleTableau({
-            idTableau,
-            idColonne,
-            règle: nouvelleRègle,
-          });
-          expect(règlesTableauLié.map((r) => r.règle.règle)).toEqual(
-            expect.arrayContaining(réfRèglesTableauLié)
-          );
-        }*/
-        );
       });
 
       describe("Combiner données tableaux", function () {
