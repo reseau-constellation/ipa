@@ -168,7 +168,7 @@ export default class Tableaux {
       const noms = bdNoms.all;
       await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
 
-      fOublierNoms();
+      await fOublierNoms();
     }
 
     // Copier les colonnes
