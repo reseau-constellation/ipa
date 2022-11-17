@@ -194,10 +194,10 @@ export default class Tableaux {
       });
     }
 
-    await nouvelleBd.set("copiéDe", { id, lier });
+    await nouvelleBd.set("copiéDe", { id });
 
     await fOublier();;
-    fOublierNouvelle();
+    await fOublierNouvelle();
 
     return idNouveauTableau;
   }

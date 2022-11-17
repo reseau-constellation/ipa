@@ -420,16 +420,13 @@ typesClients.forEach((type) => {
       describe("Copier BD", function () {
         let idBdOrig: string;
         let idBdCopie: string;
-        let idBdCopieLiée: string;
 
         let idMotClef: string;
         let idVariable: string;
         let idTableau: string;
 
         let noms: { [key: string]: string };
-        let nomsLiés: { [key: string]: string };
         let descrs: { [key: string]: string };
-        let descrsLiées: { [key: string]: string };
         let licence: string;
         let motsClefs: string[];
         let variables: string[];
@@ -473,10 +470,6 @@ typesClients.forEach((type) => {
           });
 
           idBdCopie = await client.bds!.copierBd({ id: idBdOrig });
-          idBdCopieLiée = await client.bds!.copierBd({
-            id: idBdOrig,
-            lier: true,
-          });
 
           fsOublier.push(
             await client.bds!.suivreNomsBd({
@@ -515,18 +508,6 @@ typesClients.forEach((type) => {
             })
           );
 
-          fsOublier.push(
-            await client.bds!.suivreNomsBd({
-              id: idBdCopieLiée,
-              f: (x) => (nomsLiés = x),
-            })
-          );
-          fsOublier.push(
-            await client.bds!.suivreDescrBd({
-              id: idBdCopieLiée,
-              f: (x) => (descrsLiées = x),
-            })
-          );
         }, config.patience);
 
         afterAll(async () => {
@@ -552,56 +533,7 @@ typesClients.forEach((type) => {
         test("Les variables sont copiées", async () => {
           expect(variables).toEqual(expect.arrayContaining([idVariable]));
         });
-        test("Les noms sont liés", async () => {
-          const réfNomsLiés: { [key: string]: string } = Object.assign(
-            {},
-            réfNoms,
-            { த: "பொழிவு" }
-          );
-          await client.bds!.sauvegarderNomBd({
-            id: idBdCopieLiée,
-            langue: "த",
-            nom: "பொழிவு",
-          });
 
-          expect(nomsLiés).toEqual(réfNomsLiés);
-          await client.bds!.sauvegarderNomBd({
-            id: idBdOrig,
-            langue: "fr",
-            nom: "précipitation",
-          });
-
-          réfNomsLiés["fr"] = "précipitation";
-          expect(nomsLiés).toEqual(réfNomsLiés);
-        });
-
-        test("Les descriptions sont liées", async () => {
-          const réfDescrsLiées: { [key: string]: string } = Object.assign(
-            {},
-            réfNoms,
-            { த: "தினசரி பொழிவு" }
-          );
-          await client.bds!.sauvegarderDescrBd({
-            id: idBdCopieLiée,
-            langue: "த",
-            descr: "தினசரி பொழிவு",
-          });
-
-          expect(descrsLiées).toEqual(réfDescrsLiées);
-          await client.bds!.sauvegarderDescrBd({
-            id: idBdOrig,
-            langue: "fr",
-            descr: "Précipitation journalière",
-          });
-
-          réfDescrsLiées["fr"] = "précipitation";
-          expect(descrsLiées).toEqual(réfDescrsLiées);
-        });
-
-        test.todo("Changement de tableaux détecté");
-        test.todo("Changement de colonnes tableau détecté");
-        test.todo("Changement propriétés de colonnes tableau détecté");
-        test.todo("Changement de règles détecté");
       });
 
       describe("Combiner BDs", function () {

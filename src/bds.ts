@@ -54,7 +54,6 @@ export interface donnéesBdExportées {
 
 export type schémaCopiéDe = {
   id: string;
-  lier: boolean;
 };
 
 export type typeÉlémentsBdBD = string | schémaStatut | schémaCopiéDe;
@@ -190,12 +189,10 @@ export default class BDs {
     id,
     ajouterÀMesBds = true,
     copierDonnées = true,
-    lier = false,
   }: {
     id: string;
     ajouterÀMesBds?: boolean;
     copierDonnées?: boolean;
-    lier?: boolean;
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdBD>
@@ -210,28 +207,26 @@ export default class BDs {
         id: idNouvelleBd,
       });
 
-    if (!lier) {
-      const idBdNoms = bdBase.get("noms") as string;
-      const { bd: bdNoms, fOublier: fOublierBdNoms } =
-        await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdNoms });
-      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
-        [key: string]: string;
-      };
-      await this.ajouterNomsBd({ id: idNouvelleBd, noms });
+    const idBdNoms = bdBase.get("noms") as string;
+    const { bd: bdNoms, fOublier: fOublierBdNoms } =
+      await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdNoms });
+    const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
+      [key: string]: string;
+    };
+    await this.ajouterNomsBd({ id: idNouvelleBd, noms });
 
-      const idBdDescr = bdBase.get("descriptions") as string;
-      const { bd: bdDescr, fOublier: fOublierBdDescr } =
-        await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdDescr });
-      const descriptions = ClientConstellation.obtObjetdeBdDic({
-        bd: bdDescr,
-      }) as {
-        [key: string]: string;
-      };
-      await this.ajouterDescriptionsBd({ id: idNouvelleBd, descriptions });
+    const idBdDescr = bdBase.get("descriptions") as string;
+    const { bd: bdDescr, fOublier: fOublierBdDescr } =
+      await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdDescr });
+    const descriptions = ClientConstellation.obtObjetdeBdDic({
+      bd: bdDescr,
+    }) as {
+      [key: string]: string;
+    };
+    await this.ajouterDescriptionsBd({ id: idNouvelleBd, descriptions });
 
-      fOublierBdNoms();
-      fOublierBdDescr();
-    }
+    fOublierBdNoms();
+    fOublierBdDescr();
 
     const idBdMotsClefs = bdBase.get("motsClefs") as string;
     const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
@@ -265,7 +260,6 @@ export default class BDs {
           id: idTableau,
           idBd: idNouvelleBd,
           copierDonnées,
-          lier,
         });
       await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
     }
@@ -276,7 +270,7 @@ export default class BDs {
     const image = bdBase.get("image");
     if (image) await nouvelleBd.set("image", image);
 
-    await nouvelleBd.set("copiéDe", { id, lier });
+    await nouvelleBd.set("copiéDe", { id });
 
     await fOublier();;
     fOublierNouvelleTableaux();
@@ -335,11 +329,11 @@ export default class BDs {
     f,
   }: {
     idBd: string;
-    f: schémaFonctionSuivi<{ id: string; lier: boolean } | undefined>;
+    f: schémaFonctionSuivi<{ id: string } | undefined>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = (bd: KeyValueStore<typeÉlémentsBdBD>) => {
       const copiéDe = bd.get("copiéDe");
-      f(copiéDe as { id: string; lier: boolean });
+      f(copiéDe as { id: string });
     };
     return await this.client.suivreBd({
       id: idBd,
@@ -347,7 +341,7 @@ export default class BDs {
     });
   }
 
-  async suivreDifférencesAvecBdLiée({
+  async suivreDifférencesAvecSchémaNuée({
     idBd,
     f,
   }: {
@@ -447,7 +441,7 @@ export default class BDs {
     }): Promise<schémaFonctionOublier> => {
       return await this.suivreParent({
         idBd,
-        f: (x) => fSuivreRacine(x?.lier ? x.id : undefined),
+        f: (x) => faisRien // fSuivreRacine(x?.lier ? x.id : undefined),
       });
     };
 
