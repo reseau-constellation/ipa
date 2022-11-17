@@ -709,32 +709,43 @@ export default class ClientConstellation extends EventEmitter {
   }): Promise<schémaFonctionOublier> {
     const fsOublier: schémaFonctionOublier[] = [];
 
-    this.ouvrirBd<T>({ id }).then(({ bd, fOublier }) => {
-      fsOublier.push(fOublier);
+    let annulé = false;
 
-      const fFinale = () => f(bd);
-      for (const é of événements) {
-        bd.events.on(é, fFinale);
-        fsOublier.push(async () => {
-          bd.events.off(é, fFinale);
-        });
+    const lancerSuivi = () => {
+      this.ouvrirBd<T>({ id }).then(({ bd, fOublier }) => {
+        fsOublier.push(fOublier);
 
-        if (
-          é === "write" &&
-          bd.events.listenerCount("write") > bd.events.getMaxListeners()
-        ) {
-          // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
-          // console.log({f})
+        const fFinale = () => f(bd);
+        for (const é of événements) {
+          bd.events.on(é, fFinale);
+          fsOublier.push(async () => {
+            bd.events.off(é, fFinale);
+          });
+
+          if (
+            é === "write" &&
+            bd.events.listenerCount("write") > bd.events.getMaxListeners()
+          ) {
+            // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
+            // console.log({f})
+          }
         }
-      }
 
-      fFinale();
-    });
+        fFinale();
+      }).catch(
+        ()=>{
+          if (!annulé) lancerSuivi()
+        }
+      );
+    }
 
-    const oublier = async () => {
+    lancerSuivi();
+
+    const fOublier = async () => {
+      annulé = true;
       await Promise.all(fsOublier.map((f) => f()));
     };
-    return oublier;
+    return fOublier;
   }
 
   async suivreBdDeFonction<T>({
@@ -1217,8 +1228,6 @@ export default class ClientConstellation extends EventEmitter {
     let prêt = false; // Afin d'éviter d'appeler fFinale() avant que toutes les branches aient été évaluées 1 fois
 
     const fFinale = () => {
-      // if (!prêt) return;
-
       const listeDonnées = Object.values(arbre)
         .map((x) => x.données)
         .filter((d) => d !== undefined) as U[];
@@ -1226,8 +1235,10 @@ export default class ClientConstellation extends EventEmitter {
       if (!prêt) return;
       f(réduits);
     };
+    const verrou = new Semaphore();
 
     const fSuivreRacine = async (éléments: Array<T>) => {
+      await verrou.acquire("racine")
       if (éléments.some((x) => typeof fCode(x) !== "string")) {
         console.error(
           "Définir fCode si les éléments ne sont pas en format texte (chaînes)."
@@ -1287,11 +1298,13 @@ export default class ClientConstellation extends EventEmitter {
 
       prêt = true;
       fFinale();
+
+      verrou.release("racine");
     };
 
     const oublierBdRacine = await fListe(fSuivreRacine);
 
-    const oublier = async () => {
+    const fOublier = async () => {
       await oublierBdRacine();
       await Promise.all(
         Object.values(arbre)
@@ -1299,7 +1312,7 @@ export default class ClientConstellation extends EventEmitter {
           .map((x) => x.fOublier())
       );
     };
-    return oublier;
+    return fOublier;
   }
 
   async suivreBdsDeFonctionRecherche<T extends élémentsBd, U, V>({
