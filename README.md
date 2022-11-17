@@ -24,7 +24,7 @@ yarn add @constl/ipa
 Si vous développez une application dans un autre langage (p. ex., Python),
 nous vous recommandons d'utiliser le [serveur WS Constellation](https://github.com/reseau-constellation/serveur-ws) ou bien l'un de ses clients pré-fabriqués
 ([Python](https://github.com/reseau-constellation/client-python),
-[R](https://github.com/reseau-constellation/client-r))
+[R](https://github.com/reseau-constellation/client-r), [Julia](https://github.com/reseau-constellation/Constellation.jl))
 selon le langage de votre projet.
 
 ## Utilisation
