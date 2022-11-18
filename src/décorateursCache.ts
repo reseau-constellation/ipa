@@ -234,17 +234,10 @@ export class CacheSuivi {
     };
     this.verrou.release(codeCache);
 
-    if (par === "profondeur") {
-      return {
-        fOublier: fOublierRequète,
-        fChangerProfondeur: fChangerTailleRequète,
-      };
-    } else {
-      return {
-        fOublier: fOublierRequète,
-        fChangerN: fChangerTailleRequète,
-      };
-    }
+    return {
+      fOublier: fOublierRequète,
+      [par === "profondeur" ? "fChangerProfondeur": "fChangerN"]: fChangerTailleRequète,
+    } as (schémaRetourFonctionRecherche | réponseSuivreRecherche);
   }
 
   async oublierSuivi({
@@ -279,7 +272,7 @@ export class CacheSuivi {
     delete requètes[idRequète];
 
     if (!Object.keys(requètes).length) {
-      fs.fOublier();
+      await fs.fOublier();
       delete this._cacheRecherche[codeCache];
     }
     this.verrou.release(codeCache);
