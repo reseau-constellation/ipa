@@ -1418,6 +1418,7 @@ export default class Réseau extends EventEmitter {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
       };
     }
+
     // @ts-ignore
     fObjectif = fObjectif || rechercherTous();
 
@@ -1434,14 +1435,18 @@ export default class Réseau extends EventEmitter {
 
     const DÉLAI_REBOURS = 3000;
     let annulerRebours: NodeJS.Timeout;
-    const profondeur = 3;
+    let profondeur = 3;
+    let annuler = false;
 
     const ajusterProfondeur = (p: number) => {
+      profondeur = p
       fChangerProfondeur(p);
       if (annulerRebours) clearTimeout(annulerRebours);
     };
 
     const débuterReboursAjusterProfondeur = (délai = DÉLAI_REBOURS) => {
+      console.log("débuter rebours")
+      if (annuler) return
       if (annulerRebours) clearTimeout(annulerRebours);
 
       const scores = Object.values(résultatsParMembre)
@@ -1507,6 +1512,7 @@ export default class Réseau extends EventEmitter {
       const résultatsOrdonnés = résultats.sort((a, b) =>
         a.résultatObjectif.score < b.résultatObjectif.score ? 1 : -1
       );
+      console.log("fFinale", résultatsOrdonnés.slice(0, nRésultatsDésirés))
       f(résultatsOrdonnés.slice(0, nRésultatsDésirés));
       débuterReboursAjusterProfondeur();
     };
@@ -1608,7 +1614,7 @@ export default class Réseau extends EventEmitter {
     };
 
     const oublierRésultatsMembre = (compte: string) => {
-      fsOublierRechercheMembres[compte]?.();
+      fsOublierRechercheMembres[compte]();
       delete résultatsParMembre[compte];
       delete fsOublierRechercheMembres[compte];
       fFinale();
@@ -1653,11 +1659,15 @@ export default class Réseau extends EventEmitter {
     const fChangerN = (nouveauN: number) => {
       const nDésirésAvant = nRésultatsDésirés;
       nRésultatsDésirés = nouveauN;
-      if (nouveauN !== nDésirésAvant) fFinale();
-      débuterReboursAjusterProfondeur(0);
+      if (nouveauN !== nDésirésAvant) {
+        fFinale();
+        débuterReboursAjusterProfondeur(0)
+      };
     };
 
     const fOublier = async () => {
+      annuler = true;
+      if (annulerRebours) clearTimeout(annulerRebours);
       await fOublierSuivreComptes();
       await Promise.all(
         Object.values(fsOublierRechercheMembres).map((f) => f())
@@ -1667,7 +1677,6 @@ export default class Réseau extends EventEmitter {
     return { fChangerN, fOublier };
   }
 
-  @cacheRechercheParNRésultats
   async rechercherMembres<T extends infoRésultat>({
     f,
     nRésultatsDésirés,

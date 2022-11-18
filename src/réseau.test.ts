@@ -854,7 +854,7 @@ typesClients.forEach((type) => {
 
           const val = await rés.attendreQue(
             (x) =>
-              !!x && x.map((y) => y.confiance).reduce((i, j) => i * j, 1) === 1
+              x.length > 2 && x.map((y) => y.confiance).reduce((i, j) => i * j, 1) === 1
           );
           expect(val).toEqual(expect.arrayContaining(réf));
         });
@@ -878,7 +878,7 @@ typesClients.forEach((type) => {
 
           const val = await rés.attendreQue(
             (x) =>
-              !!x && x.map((y) => y.confiance).reduce((i, j) => i * j, 1) < 1
+              x.length > 2 && x.map((y) => y.confiance).reduce((i, j) => i * j, 1) < 1
           );
           expect(val).toEqual(expect.arrayContaining(réf));
         });
@@ -895,7 +895,7 @@ typesClients.forEach((type) => {
             idBdCompte: idBdCompte3,
           });
 
-          const val = await rés.attendreQue((x) => !!x && x.length === 2);
+          const val = await rés.attendreQue((x) => x.length === 2);
           expect(val).toEqual(expect.arrayContaining(réf));
         });
         test("Enlever relation confiance directe", async () => {
