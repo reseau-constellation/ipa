@@ -805,7 +805,7 @@ export default class BDs {
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
-    await fOublier();;
+    await fOublier();
   }
 
   async sauvegarderNomBd({
