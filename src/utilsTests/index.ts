@@ -165,7 +165,7 @@ export class AttendreFichierExiste extends EventEmitter {
 }
 
 export class AttendreFichierModifié extends EventEmitter {
-  fOublier: () => void;
+  fsOublier: (() => void)[];
   fichier: string;
   attendreExiste: AttendreFichierExiste;
 
@@ -173,12 +173,16 @@ export class AttendreFichierModifié extends EventEmitter {
     super();
     this.fichier = fichier;
     this.attendreExiste = new AttendreFichierExiste(fichier);
+    this.fsOublier = [];
+    this.fsOublier.push(() => this.attendreExiste.annuler())
   }
 
   async attendre(tempsAvant: number): Promise<void> {
     await this.attendreExiste.attendre();
 
     return new Promise((résoudre, rejeter) => {
+      this.fsOublier.push(() => clearInterval(interval));
+
       const interval = setInterval(() => {
         try {
           const { mtime } = fs.statSync(this.fichier);
@@ -193,13 +197,11 @@ export class AttendreFichierModifié extends EventEmitter {
           rejeter(e);
         }
       }, 10);
-
-      this.fOublier = () => clearInterval(interval);
     });
   }
 
   annuler() {
-    this.fOublier();
+    this.fsOublier.forEach(f=>f());
   }
 }
 

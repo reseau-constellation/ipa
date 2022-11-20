@@ -151,9 +151,10 @@ typesClients.forEach((type) => {
         let fOublierAuto: () => Promise<void>;
 
         let rés: AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>;
-        const fsOublier: schémaFonctionOublier[] = [];
+        let fsOublier: schémaFonctionOublier[] = [];
 
         beforeEach(async () => {
+          fsOublier = [];
           rés = new AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
           dirTempo = obtDirTempoPourTest("testImporterBd");
           fs.mkdirSync(dirTempo);
@@ -682,14 +683,15 @@ typesClients.forEach((type) => {
 
           await attendreExiste;
 
+          const attenteModifié = new AttendreFichierModifié(fichier);
+          fsOublier.push(() => attenteModifié.annuler());
+
           const avant = Date.now();
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 5 },
           });
-
-          const attenteModifié = new AttendreFichierModifié(fichier);
-          fsOublier.push(() => attenteModifié.annuler());
+          await new Promise<void>(résoudre=>{setTimeout(()=>résoudre(), 2000)})
 
           await attenteModifié.attendre(avant);
 

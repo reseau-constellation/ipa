@@ -1445,7 +1445,6 @@ export default class Réseau extends EventEmitter {
     };
 
     const débuterReboursAjusterProfondeur = (délai = DÉLAI_REBOURS) => {
-      console.log("débuter rebours")
       if (annuler) return
       if (annulerRebours) clearTimeout(annulerRebours);
 
@@ -1512,7 +1511,6 @@ export default class Réseau extends EventEmitter {
       const résultatsOrdonnés = résultats.sort((a, b) =>
         a.résultatObjectif.score < b.résultatObjectif.score ? 1 : -1
       );
-      console.log("fFinale", résultatsOrdonnés.slice(0, nRésultatsDésirés))
       f(résultatsOrdonnés.slice(0, nRésultatsDésirés));
       débuterReboursAjusterProfondeur();
     };
