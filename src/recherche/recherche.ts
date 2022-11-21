@@ -1,12 +1,12 @@
-import * as bd from "@/recherche/bd";
-import * as motClef from "@/recherche/motClef";
-import * as profil from "@/recherche/profil";
-import * as projet from "@/recherche/projet";
-import * as variable from "@/recherche/variable";
-import * as utils from "@/recherche/utils";
+import * as bd from "@/recherche/bd.js";
+import * as motClef from "@/recherche/motClef.js";
+import * as profil from "@/recherche/profil.js";
+import * as projet from "@/recherche/projet.js";
+import * as variable from "@/recherche/variable.js";
+import * as utils from "@/recherche/utils.js";
 
 import ClientConstellation from "@/client.js";
-import { réponseSuivreRecherche } from "@/reseau";
+import { réponseSuivreRecherche } from "@/reseau.js";
 import {
   schémaFonctionSuivi,
   résultatRecherche,
