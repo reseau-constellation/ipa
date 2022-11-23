@@ -13,15 +13,15 @@ import {
   rechercherProfilSelonTexte,
   rechercherProfilSelonActivité,
   rechercherProfilSelonCourriel,
-} from "@/recherche/profil";
+} from "@/recherche/profil.js";
 
 import {
   générerClients,
   typesClients,
   AttendreRésultat,
   dirRessourcesTests,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

@@ -1,4 +1,4 @@
-import type { objRôles } from "@/accès/types";
+import type { objRôles } from "@/accès/types.js";
 import ClientConstellation from "@/client.js";
 
 export interface infoAuteur {

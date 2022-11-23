@@ -6,11 +6,11 @@ import { v4 as uuidv4 } from "uuid";
 
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 
-import accesseurBdOrbite from "@/accès/accesseurBdOrbite";
-import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts";
-import { élémentBdAccès, objRôles } from "@/accès/types";
+import accesseurBdOrbite from "@/accès/accesseurBdOrbite.js";
+import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
+import { élémentBdAccès, objRôles } from "@/accès/types.js";
 
-import ContrôleurConstellation from "./cntrlConstellation";
+import ContrôleurConstellation from "./cntrlConstellation.js";
 
 const événementsSuiviBd = ["ready", "write", "replicated"];
 

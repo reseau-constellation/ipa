@@ -9,7 +9,7 @@ import path from "path";
 import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 
-import type { InfoColAvecCatégorie } from "@/tableaux";
+import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import { schémaStatut, TYPES_STATUT } from "@/utils/types.js";
 
 import { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";

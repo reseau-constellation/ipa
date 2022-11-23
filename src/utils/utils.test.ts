@@ -5,7 +5,7 @@ import AdmZip from "adm-zip";
 
 import { cidValide, traduire, zipper } from "@/utils/index.js";
 
-import { obtDirTempoPourTest } from "@/utilsTests";
+import { obtDirTempoPourTest } from "@/utilsTests/index.js";
 
 describe("Utils", function () {
   describe("cidValide", function () {

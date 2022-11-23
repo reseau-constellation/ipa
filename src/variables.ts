@@ -7,7 +7,7 @@ import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { règleVariableAvecId, règleVariable, règleCatégorie } from "@/valid.js";
 
 import type { objRôles } from "@/accès/types.js";
-import type { dicTrads } from "@/utils/types";
+import type { dicTrads } from "@/utils/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import {

@@ -7,21 +7,21 @@ import {
   infoRésultatTexte,
 } from "@/utils/index.js";
 
-import { rechercherBdSelonTexte } from "@/recherche/bd";
+import { rechercherBdSelonTexte } from "@/recherche/bd.js";
 import {
   rechercherVariableSelonTexte,
   rechercherVariableSelonNom,
-} from "@/recherche/variable";
+} from "@/recherche/variable.js";
 import {
   rechercherMotClefSelonTexte,
   rechercherMotClefSelonNom,
-} from "@/recherche/motClef";
+} from "@/recherche/motClef.js";
 import {
   similTexte,
   combinerRecherches,
   sousRecherche,
   rechercherSelonId,
-} from "@/recherche/utils";
+} from "@/recherche/utils.js";
 
 export const rechercherProjetSelonNom = (
   nomProjet: string

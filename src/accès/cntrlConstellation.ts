@@ -15,7 +15,7 @@ import GestionnaireAccès, {
 } from "@/accès/gestionnaireUtilisateurs.js";
 import accesseurBdOrbite from "@/accès/accesseurBdOrbite.js";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
-import type { élémentBdAccès, infoUtilisateur } from "@/accès/types";
+import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License

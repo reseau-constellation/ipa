@@ -2,8 +2,8 @@ import isArray from "lodash/isArray";
 import fs from "fs";
 import path from "path";
 
-import { enregistrerContrôleurs } from "@/accès";
-import { MODÉRATEUR, MEMBRE } from "@/accès/consts";
+import { enregistrerContrôleurs } from "@/accès/index.js";
+import { MODÉRATEUR, MEMBRE } from "@/accès/consts.js";
 import ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
@@ -12,7 +12,7 @@ import {
   uneFois,
   infoAuteur,
 } from "@/utils/index.js";
-import { ÉlémentFavorisAvecObjet } from "@/favoris";
+import { ÉlémentFavorisAvecObjet } from "@/favoris.js";
 import {
   élémentDeMembre,
   statutDispositif,
@@ -23,17 +23,17 @@ import {
   infoRelation,
   infoMembreRéseau,
   infoRéplications,
-} from "@/reseau";
-import { schémaSpécificationBd, infoTableauAvecId } from "@/bds";
-import { élémentBdListeDonnées } from "@/tableaux";
+} from "@/reseau.js";
+import { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
+import { élémentBdListeDonnées } from "@/tableaux.js";
 
 import {
   AttendreRésultat,
   générerClients,
   typesClients,
   dirRessourcesTests,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

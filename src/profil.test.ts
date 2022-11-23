@@ -1,9 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-import { enregistrerContrôleurs } from "@/accès";
+import { enregistrerContrôleurs } from "@/accès/index.js";
 import ClientConstellation from "@/client.js";
-import { MAX_TAILLE_IMAGE } from "@/profil";
+import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import { schémaFonctionOublier } from "@/utils/index.js";
 
 import {
@@ -11,8 +11,8 @@ import {
   typesClients,
   AttendreRésultat,
   dirRessourcesTests,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

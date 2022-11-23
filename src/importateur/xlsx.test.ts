@@ -3,9 +3,9 @@ import isArray from "lodash/isArray";
 import XLSX from "xlsx";
 import path from "path";
 
-import ImportateurFeuilleCalcul from "@/importateur/xlsx";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 
-import { dirRessourcesTests } from "@/utilsTests";
+import { dirRessourcesTests } from "@/utilsTests/index.js";
 
 describe("XLSX", function () {
   describe("Importateur XLSX", function () {

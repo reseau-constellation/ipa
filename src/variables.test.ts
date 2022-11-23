@@ -1,12 +1,12 @@
 import isArray from "lodash/isArray";
 
 import ClientConstellation from "@/client.js";
-import { catégorieVariables } from "@/variables";
+import { catégorieVariables } from "@/variables.js";
 import { schémaFonctionOublier } from "@/utils/index.js";
-import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid";
+import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid.js";
 
-import { générerClients, typesClients, AttendreRésultat } from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+import { générerClients, typesClients, AttendreRésultat } from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

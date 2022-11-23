@@ -11,7 +11,7 @@ import {
   faisRien,
 } from "@/utils/index.js";
 
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
@@ -21,9 +21,9 @@ import {
   peutÉcrire,
   AttendreRésultat,
   clientsConnectés,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
-import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
+import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 describe("adresseOrbiteValide", function () {
   test("adresse orbite est valide", () => {

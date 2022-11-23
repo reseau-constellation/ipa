@@ -2,13 +2,13 @@ import isArray from "lodash/isArray";
 
 import { isElectronMain, isNode } from "wherearewe";
 
-import { enregistrerContrôleurs } from "@/accès";
+import { enregistrerContrôleurs } from "@/accès/index.js";
 import ClientConstellation from "@/client.js";
-import { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris";
+import { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import { schémaFonctionOublier } from "@/utils/index.js";
 
-import { générerClients, typesClients } from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+import { générerClients, typesClients } from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

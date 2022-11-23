@@ -49,7 +49,7 @@ import ContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
-import type { objRôles, infoUtilisateur } from "@/accès/types";
+import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
@@ -177,7 +177,7 @@ export default class ClientConstellation extends EventEmitter {
         this._sfipExterne = true;
         return opts.sfip;
       } else {
-        const initSFIP = (await import("@/sfip")).default;
+        const initSFIP = (await import("@/sfip/index.js")).default;
         return await initSFIP(opts?.dossier);
       }
     };
@@ -189,13 +189,13 @@ export default class ClientConstellation extends EventEmitter {
         orbiteFinale = orbite;
       } else {
         // Éviter d'importer la configuration BD Orbite si pas nécessaire
-        const initOrbite = (await import("@/orbite")).default;
+        const initOrbite = (await import("@/orbite.js")).default;
         sfipFinale = await _générerSFIP(orbite.sfip);
         orbiteFinale = await initOrbite(sfipFinale, orbite.dossier);
       }
     } else {
       sfipFinale = await _générerSFIP();
-      const initOrbite = (await import("@/orbite")).default;
+      const initOrbite = (await import("@/orbite.js")).default;
       orbiteFinale = await initOrbite(sfipFinale);
     }
 

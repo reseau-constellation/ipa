@@ -13,10 +13,10 @@ import {
   adresseOrbiteValide,
   uneFois,
 } from "@/utils/index.js";
-import { InfoColAvecCatégorie } from "@/tableaux";
-import { infoScore, schémaSpécificationBd, infoTableauAvecId } from "@/bds";
-import { élémentBdListeDonnées } from "@/tableaux";
-import { élémentDonnées, règleBornes } from "@/valid";
+import { InfoColAvecCatégorie } from "@/tableaux.js";
+import { infoScore, schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
+import { élémentBdListeDonnées } from "@/tableaux.js";
+import { élémentDonnées, règleBornes } from "@/valid.js";
 
 import {
   générerClients,
@@ -24,9 +24,9 @@ import {
   typesClients,
   dirRessourcesTests,
   obtDirTempoPourTest,
-} from "@/utilsTests";
+} from "@/utilsTests/index.js";
 
-import { config } from "@/utilsTests/sfipTest";
+import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

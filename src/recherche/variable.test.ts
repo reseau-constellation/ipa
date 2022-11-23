@@ -1,6 +1,6 @@
-import { config } from "@/utilsTests/sfipTest";
+import { config } from "@/utilsTests/sfipTest.js";
 
-import { enregistrerContrôleurs } from "@/accès";
+import { enregistrerContrôleurs } from "@/accès/index.js";
 import ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
@@ -11,9 +11,9 @@ import {
   rechercherVariableSelonNom,
   rechercherVariableSelonDescr,
   rechercherVariableSelonTexte,
-} from "@/recherche/variable";
+} from "@/recherche/variable.js";
 
-import { générerClients, typesClients } from "@/utilsTests";
+import { générerClients, typesClients } from "@/utilsTests/index.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

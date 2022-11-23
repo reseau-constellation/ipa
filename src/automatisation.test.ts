@@ -9,7 +9,7 @@ import { jest } from "@jest/globals";
 import url from "url";
 
 import ClientConstellation from "@/client.js";
-import ImportateurFeuilleCalcul from "@/importateur/xlsx";
+import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import {
   uneFois,
   schémaFonctionSuivi,
@@ -25,9 +25,9 @@ import {
   ÉtatErreur,
   ÉtatProgrammée,
   ÉtatEnSync,
-} from "@/automatisation";
-import { élémentDonnées } from "@/valid";
-import { élémentBdListeDonnées } from "@/tableaux";
+} from "@/automatisation.js";
+import { élémentDonnées } from "@/valid.js";
+import { élémentBdListeDonnées } from "@/tableaux.js";
 
 import {
   générerClients,
@@ -36,8 +36,8 @@ import {
   AttendreFichierModifié,
   AttendreRésultat,
   obtDirTempoPourTest,
-} from "@/utilsTests";
-import { config } from "@/utilsTests/sfipTest";
+} from "@/utilsTests/index.js";
+import { config } from "@/utilsTests/sfipTest.js";
 import axios from "axios";
 
 const vérifierDonnéesTableau = (
