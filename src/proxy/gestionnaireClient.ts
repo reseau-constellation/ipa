@@ -11,7 +11,7 @@ import type {
   MessageSuivreDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
   MessageRetourPourTravailleur,
-} from "./messages";
+} from "./messages.js";
 
 export default class GestionnaireClient {
   ipa?: ClientConstellation;

@@ -10,9 +10,9 @@ import { IPFS } from "ipfs-core-types";
 import wrtc from "wrtc";
 import { noise } from "@chainsafe/libp2p-noise";
 
-const configNavigateur = import("./configNavigateur");
-// const configÉlectron = import("./configÉlectron");
-const configNode = import("./configNode");
+const configNavigateur = import("./configNavigateur.js");
+// const configÉlectron = import("./configÉlectron.js");
+const configNode = import("./configNode.js");
 
 const obtConfigPlateforme = async () => {
   if (isBrowser || isElectronRenderer) {

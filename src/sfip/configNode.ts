@@ -1,3 +1,3 @@
-import configÉlectron from "./configÉlectron";
+import configÉlectron from "./configÉlectron.js";
 
 export default configÉlectron;

@@ -6,7 +6,7 @@ import {
   infoRésultatTexte,
 } from "@/utils/index.js";
 
-import { similTexte, combinerRecherches, rechercherSelonId } from "./utils";
+import { similTexte, combinerRecherches, rechercherSelonId } from "./utils.js";
 
 export const rechercherMotClefSelonNom = (
   nomMotClef: string

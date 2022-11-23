@@ -1,7 +1,7 @@
 import { WorkBook, read as readXLSX } from "xlsx";
 import axios from "axios";
 
-import { DonnéesJSON } from "./json";
+import { DonnéesJSON } from "./json.js";
 
 export async function importerJSONdURL(url: string): Promise<DonnéesJSON> {
   const réponse = await axios.get(url);

@@ -7,14 +7,14 @@ import {
   infoRésultatRecherche,
 } from "@/utils/index.js";
 
-import { rechercherVariableSelonNom } from "./variable";
-import { rechercherMotClefSelonNom } from "./motClef";
+import { rechercherVariableSelonNom } from "./variable.js";
+import { rechercherMotClefSelonNom } from "./motClef.js";
 import {
   combinerRecherches,
   sousRecherche,
   rechercherSelonId,
   similTexte,
-} from "./utils";
+} from "./utils.js";
 
 export const rechercherBdSelonNom = (
   nomBd: string

@@ -17,7 +17,7 @@ export class ProxyClientTravailleur extends ClientProxifiable {
   constructor(opts: optsIpaTravailleur) {
     super();
 
-    this.travailleur = new Worker(new URL("./travailleur"));
+    this.travailleur = new Worker(new URL("./travailleur.js"));
     this.travailleur.onerror = (e: ErrorEvent) => {
       this.événements.emit("erreur", { erreur: e.error });
     };
