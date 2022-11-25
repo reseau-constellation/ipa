@@ -1767,22 +1767,33 @@ export default class ClientConstellation extends EventEmitter {
       id: string,
       de: string
     ): Promise<void> => {
+      const extraireÉléments = (l_vals: élémentsBd[]): string[] => {
+        return l_vals.map(
+          (v) => {
+            if (typeof v === "string") return [v]
+            if (Array.isArray(v)) return v
+            if (typeof v === "object") return Object.values(v)
+            return []
+          }
+        ).flat().filter((v) => adresseOrbiteValide(v)) as string[]
+      }
+
       const fSuivreBd = async (vals: élémentsBd) => {
         // Cette fonction détectera les éléments d'une liste ou d'un dictionnaire
         // (à un niveau de profondeur) qui représentent une adresse de BD Orbit.
-        let l_vals: string[] = [];
+        let idsOrbite: string[] = [];
+
         if (typeof vals === "object") {
-          l_vals = Object.entries(vals)
+          idsOrbite = extraireÉléments(Object.entries(vals)
             .filter(
-              ([c, v]) => !clefsÀExclure.includes(c) && typeof v === "string"
-            )
-            .map((x) => x[1]) as string[];
+              ([c, _]) => !clefsÀExclure.includes(c)
+            ).map(x=>x[1]));
+          idsOrbite.push(...extraireÉléments(Object.keys(vals)))
         } else if (Array.isArray(vals)) {
-          l_vals = vals;
+          idsOrbite = extraireÉléments(vals);
         } else if (typeof vals === "string") {
-          l_vals = [vals];
+          idsOrbite = [vals];
         }
-        const idsOrbite = l_vals.filter((v) => adresseOrbiteValide(v));
         const nouvelles = idsOrbite.filter(
           (id_) => !dicBds[id].sousBds.includes(id_)
         );

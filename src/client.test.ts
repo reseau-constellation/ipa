@@ -563,7 +563,7 @@ describe("Fonctionalités client", function () {
 
       fOublier = await client.suivreBdsRécursives({
         idBd,
-        f: (ids_) => rés.mettreÀJour(ids_),
+        f: (ids) => rés.mettreÀJour(ids),
       });
     }, config.patience);
 
@@ -620,6 +620,56 @@ describe("Fonctionalités client", function () {
 
       const val = await rés.attendreQue((x) => !!x && x.length === 2);
       expect(val).toEqual(expect.arrayContaining([idBd, idBdListe]));
+    });
+
+    test("Ajouter dictionnaire", async () => {
+      const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
+        id: idBd,
+      });
+      await bd.set("clef", idBdListe);
+      await fOublier();;
+
+      const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
+        FeedStore<string|{[key: string]: string}>
+      >({ id: idBdListe });
+      await bdListe.add({maBd: idBd2});
+      fOublierBdListe();
+
+      const val = await rés.attendreQue((x) => !!x && x.length === 3);
+      expect(val).toEqual(expect.arrayContaining([idBd, idBdListe, idBd2]));
+    });
+
+    test("Enlever dictionnaire", async () => {
+      const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
+        FeedStore<string|{[key: string]: string}>
+      >({ id: idBdListe });
+      await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: x=>typeof x.payload.value !== "string" && x.payload.value.maBd === idBd2 });
+      fOublierBdListe();
+
+      const val = await rés.attendreQue((x) => !!x && x.length === 2);
+      expect(val).toEqual(expect.arrayContaining([idBd, idBdListe]));
+    });
+
+    test("Ajout clef dictionnaire", async () => {
+      const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
+        id: idBd,
+      });
+      await bd.set(idBdListe, "je suis là !");
+      await fOublier();;
+
+      const val = await rés.attendreQue((x) => !!x && x.length > 2);
+      expect(val).toEqual(expect.arrayContaining([idBd, idBd2, idBdListe]));
+    });
+
+    test("Enlever clef dictionnaire", async () => {
+      const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
+        id: idBd,
+      });
+      await bd.del(idBdListe);
+      await fOublier();;
+
+      const val = await rés.attendreQue((x) => !!x && x.length <= 2);
+      expect(val).toEqual(expect.arrayContaining([idBd, idBd2]));
     });
   });
 
