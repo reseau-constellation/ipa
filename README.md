@@ -34,6 +34,7 @@ projets.
 ```
 import { client } from "@constl/ipa";
 ...
+
 ```
 
 ## Documentation
