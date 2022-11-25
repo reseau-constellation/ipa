@@ -622,13 +622,7 @@ describe("Fonctionalités client", function () {
       expect(val).toEqual(expect.arrayContaining([idBd, idBdListe]));
     });
 
-    test("Ajouter dictionnaire", async () => {
-      const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
-        id: idBd,
-      });
-      await bd.set("clef", idBdListe);
-      await fOublier();;
-
+    test("Ajouter dictionnaire à liste", async () => {
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
         FeedStore<string|{[key: string]: string}>
       >({ id: idBdListe });
@@ -639,7 +633,7 @@ describe("Fonctionalités client", function () {
       expect(val).toEqual(expect.arrayContaining([idBd, idBdListe, idBd2]));
     });
 
-    test("Enlever dictionnaire", async () => {
+    test("Enlever dictionnaire de liste", async () => {
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
         FeedStore<string|{[key: string]: string}>
       >({ id: idBdListe });
@@ -654,7 +648,7 @@ describe("Fonctionalités client", function () {
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
       });
-      await bd.set(idBdListe, "je suis là !");
+      await bd.set(idBd2, "je suis là !");
       await fOublier();;
 
       const val = await rés.attendreQue((x) => !!x && x.length > 2);
@@ -665,11 +659,11 @@ describe("Fonctionalités client", function () {
       const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>({
         id: idBd,
       });
-      await bd.del(idBdListe);
+      await bd.del(idBd2);
       await fOublier();;
 
       const val = await rés.attendreQue((x) => !!x && x.length <= 2);
-      expect(val).toEqual(expect.arrayContaining([idBd, idBd2]));
+      expect(val).toEqual(expect.arrayContaining([idBd, idBdListe]));
     });
   });
 
