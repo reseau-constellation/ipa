@@ -60,7 +60,12 @@ export class CacheSuivi {
       Object.entries(args).filter((x) => typeof x[1] !== "function")
     );
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
-      throw "Plus d'un argument pour " + adresseFonction + " est une fonction : " + JSON.stringify(args);
+      throw (
+        "Plus d'un argument pour " +
+        adresseFonction +
+        " est une fonction : " +
+        JSON.stringify(args)
+      );
     }
 
     const codeCache = this.générerCodeCache({
@@ -129,7 +134,12 @@ export class CacheSuivi {
       Object.entries(args).filter((x) => typeof x[1] !== "function")
     );
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
-      throw "Plus d'un argument pour " + adresseFonction + " est une fonction : " + JSON.stringify(args);
+      throw (
+        "Plus d'un argument pour " +
+        adresseFonction +
+        " est une fonction : " +
+        JSON.stringify(args)
+      );
     }
     const argsSansFOuTaille = Object.fromEntries(
       Object.entries(args).filter((x) => x[0] !== nomArgTaille)
@@ -236,8 +246,9 @@ export class CacheSuivi {
 
     return {
       fOublier: fOublierRequète,
-      [par === "profondeur" ? "fChangerProfondeur": "fChangerN"]: fChangerTailleRequète,
-    } as (schémaRetourFonctionRecherche | réponseSuivreRecherche);
+      [par === "profondeur" ? "fChangerProfondeur" : "fChangerN"]:
+        fChangerTailleRequète,
+    } as schémaRetourFonctionRecherche | réponseSuivreRecherche;
   }
 
   async oublierSuivi({
@@ -253,7 +264,7 @@ export class CacheSuivi {
     delete requètes[idRequète];
 
     if (!Object.keys(requètes).length) {
-      await fOublier();;
+      await fOublier();
       delete this._cacheSuivi[codeCache];
     }
     this.verrou.release(codeCache);

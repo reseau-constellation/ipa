@@ -30,9 +30,7 @@ import Recherche from "@/recherche/index.js";
 import { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import Automatisations from "@/automatisation.js";
 
-import {
-  cacheSuivi,
-} from "@/décorateursCache.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 import {
   adresseOrbiteValide,
@@ -363,7 +361,7 @@ export default class ClientConstellation extends EventEmitter {
         await fOublier();
       };
     } else {
-      await fOublier();;
+      await fOublier();
       return faisRien;
     }
   }
@@ -442,7 +440,7 @@ export default class ClientConstellation extends EventEmitter {
         if (autorisé) {
           clearInterval(x);
           await oublierPermission();
-          await fOublier();;
+          await fOublier();
           résoudre();
         }
       };
@@ -478,7 +476,7 @@ export default class ClientConstellation extends EventEmitter {
     if (typeAccès === nomTypeContrôleurConstellation) {
       (accès as unknown as ContrôleurConstellation).grant(rôle, identité);
     }
-    await fOublier();;
+    await fOublier();
   }
 
   @cacheSuivi
@@ -712,32 +710,32 @@ export default class ClientConstellation extends EventEmitter {
     let annulé = false;
 
     const lancerSuivi = () => {
-      this.ouvrirBd<T>({ id }).then(({ bd, fOublier }) => {
-        fsOublier.push(fOublier);
+      this.ouvrirBd<T>({ id })
+        .then(({ bd, fOublier }) => {
+          fsOublier.push(fOublier);
 
-        const fFinale = () => f(bd);
-        for (const é of événements) {
-          bd.events.on(é, fFinale);
-          fsOublier.push(async () => {
-            bd.events.off(é, fFinale);
-          });
+          const fFinale = () => f(bd);
+          for (const é of événements) {
+            bd.events.on(é, fFinale);
+            fsOublier.push(async () => {
+              bd.events.off(é, fFinale);
+            });
 
-          if (
-            é === "write" &&
-            bd.events.listenerCount("write") > bd.events.getMaxListeners()
-          ) {
-            // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
-            // console.log({f})
+            if (
+              é === "write" &&
+              bd.events.listenerCount("write") > bd.events.getMaxListeners()
+            ) {
+              // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
+              // console.log({f})
+            }
           }
-        }
 
-        fFinale();
-      }).catch(
-        ()=>{
-          if (!annulé) lancerSuivi()
-        }
-      );
-    }
+          fFinale();
+        })
+        .catch(() => {
+          if (!annulé) lancerSuivi();
+        });
+    };
 
     lancerSuivi();
 
@@ -1238,7 +1236,7 @@ export default class ClientConstellation extends EventEmitter {
     const verrou = new Semaphore();
 
     const fSuivreRacine = async (éléments: Array<T>) => {
-      await verrou.acquire("racine")
+      await verrou.acquire("racine");
       if (éléments.some((x) => typeof fCode(x) !== "string")) {
         console.error(
           "Définir fCode si les éléments ne sont pas en format texte (chaînes)."
@@ -1268,14 +1266,14 @@ export default class ClientConstellation extends EventEmitter {
       for (const c of changés) {
         if (arbre[c]) {
           const fOublier = arbre[c].fOublier;
-          if (fOublier) await fOublier();;
+          if (fOublier) await fOublier();
           delete arbre[c];
         }
       }
 
       for (const d of disparus) {
         const fOublier = arbre[d].fOublier;
-        if (fOublier) await fOublier();;
+        if (fOublier) await fOublier();
         delete arbre[d];
         fFinale();
       }
@@ -1421,7 +1419,7 @@ export default class ClientConstellation extends EventEmitter {
       .collect()
       .find((e: LogEntry<T>) => f(e));
 
-    await fOublier();;
+    await fOublier();
     return élément;
   }
 
@@ -1586,7 +1584,7 @@ export default class ClientConstellation extends EventEmitter {
     if (idBd)
       await this.sauvegarderAuStockageLocal({ clef: clefLocale, val: idBd });
 
-    if (fOublier) await fOublier();;
+    if (fOublier) await fOublier();
     return idBd;
   }
 
@@ -1628,7 +1626,7 @@ export default class ClientConstellation extends EventEmitter {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
     const accès = bd.access as unknown as ContrôleurConstellation;
 
-    await fOublier();;
+    await fOublier();
     return {
       address: accès.bd!.id,
       premierMod: accès._premierMod,
@@ -1652,7 +1650,7 @@ export default class ClientConstellation extends EventEmitter {
       f(
         (accès as IPFSAccessController).write.includes(moi) ? MEMBRE : undefined
       );
-      await fOublier();;
+      await fOublier();
       return faisRien;
     } else if (typeAccès === nomTypeContrôleurConstellation) {
       const fFinale = (utilisateurs: infoUtilisateur[]) => {
@@ -1718,10 +1716,10 @@ export default class ClientConstellation extends EventEmitter {
       const fOublierAutorisés = await (
         accès as unknown as ContrôleurConstellation
       ).suivreUtilisateursAutorisés(f);
-      await fOublier();;
+      await fOublier();
       return fOublierAutorisés;
     }
-    await fOublier();;
+    await fOublier();
     return faisRien;
   }
 
@@ -1768,15 +1766,16 @@ export default class ClientConstellation extends EventEmitter {
       de: string
     ): Promise<void> => {
       const extraireÉléments = (l_vals: élémentsBd[]): string[] => {
-        return l_vals.map(
-          (v) => {
-            if (typeof v === "string") return [v]
-            if (Array.isArray(v)) return v
-            if (typeof v === "object") return Object.values(v)
-            return []
-          }
-        ).flat().filter((v) => adresseOrbiteValide(v)) as string[]
-      }
+        return l_vals
+          .map((v) => {
+            if (typeof v === "string") return [v];
+            if (Array.isArray(v)) return v;
+            if (typeof v === "object") return Object.values(v);
+            return [];
+          })
+          .flat()
+          .filter((v) => adresseOrbiteValide(v)) as string[];
+      };
 
       const fSuivreBd = async (vals: élémentsBd) => {
         // Cette fonction détectera les éléments d'une liste ou d'un dictionnaire
@@ -1784,11 +1783,12 @@ export default class ClientConstellation extends EventEmitter {
         let idsOrbite: string[] = [];
 
         if (typeof vals === "object") {
-          idsOrbite = extraireÉléments(Object.entries(vals)
-            .filter(
-              ([c, _]) => !clefsÀExclure.includes(c)
-            ).map(x=>x[1]));
-          idsOrbite.push(...extraireÉléments(Object.keys(vals)))
+          idsOrbite = extraireÉléments(
+            Object.entries(vals)
+              .filter(([c, _]) => !clefsÀExclure.includes(c))
+              .map((x) => x[1])
+          );
+          idsOrbite.push(...extraireÉléments(Object.keys(vals)));
         } else if (Array.isArray(vals)) {
           idsOrbite = extraireÉléments(vals);
         } else if (typeof vals === "string") {
@@ -1823,7 +1823,7 @@ export default class ClientConstellation extends EventEmitter {
 
       const { bd, fOublier } = await this.ouvrirBd({ id });
       const { type } = bd;
-      await fOublier();;
+      await fOublier();
 
       dicBds[id] = {
         requètes: new Set([de]),

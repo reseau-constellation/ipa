@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from "uuid"
-import { EventEmitter } from "events"
+import { v4 as uuidv4 } from "uuid";
+import { EventEmitter } from "events";
 import { isElectronMain } from "wherearewe";
 import path from "path";
 import { readFileSync } from "fs";
@@ -11,27 +11,27 @@ let _localStorage: LocalStorage;
 class LocalStorage {
   fichier: string;
   _données: { [clef: string]: string };
-  _événements: EventEmitter
-  _idRequèteSauvegarde?: string
-  verrou: Semaphore
-  fOublier?: () => void
+  _événements: EventEmitter;
+  _idRequèteSauvegarde?: string;
+  verrou: Semaphore;
+  fOublier?: () => void;
 
   constructor(dossier: string) {
     this.fichier = path.join(dossier, "données.json");
-    this._événements = new EventEmitter()
+    this._événements = new EventEmitter();
     this.verrou = new Semaphore();
     try {
       this._données = JSON.parse(readFileSync(this.fichier).toString());
     } catch {
       this._données = {};
     }
-    const fSuivre = ()=>{
-      const id = uuidv4()
-      this._idRequèteSauvegarde = id
-      this.sauvegarder(id)
-    }
-    this._événements.on("sauvegarder", fSuivre)
-    this.fOublier = () => this._événements.off("sauvegarder", fSuivre)
+    const fSuivre = () => {
+      const id = uuidv4();
+      this._idRequèteSauvegarde = id;
+      this.sauvegarder(id);
+    };
+    this._événements.on("sauvegarder", fSuivre);
+    this.fOublier = () => this._événements.off("sauvegarder", fSuivre);
   }
   getItem(clef: string): string {
     return this._données[clef];
@@ -41,17 +41,17 @@ class LocalStorage {
     this.demanderSauvegarde();
   }
   demanderSauvegarde() {
-    this._événements.emit("sauvegarder")
+    this._événements.emit("sauvegarder");
   }
   removeItem(clef: string): void {
     delete this._données[clef];
     this.demanderSauvegarde();
   }
   async sauvegarder(id: string): Promise<void> {
-    await this.verrou.acquire("sauvegarder")
+    await this.verrou.acquire("sauvegarder");
     if (this._idRequèteSauvegarde !== id) {
-      this.verrou.release("sauvegarder")
-      return
+      this.verrou.release("sauvegarder");
+      return;
     }
     await writeFile(this.fichier, JSON.stringify(this._données));
     this.verrou.release("sauvegarder");

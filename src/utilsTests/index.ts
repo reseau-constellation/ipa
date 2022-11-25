@@ -152,11 +152,11 @@ export class AttendreFichierExiste extends EventEmitter {
       const écouteur = chokidar.watch(dossier);
       this.fOublier = () => écouteur.close();
 
-      écouteur.on("add", async ()=>{
+      écouteur.on("add", async () => {
         if (fs.existsSync(this.fichier)) {
           await écouteur.close();
           résoudre();
-        };
+        }
       });
     });
   }
@@ -176,7 +176,7 @@ export class AttendreFichierModifié extends EventEmitter {
     this.fichier = fichier;
     this.attendreExiste = new AttendreFichierExiste(fichier);
     this.fsOublier = [];
-    this.fsOublier.push(() => this.attendreExiste.annuler())
+    this.fsOublier.push(() => this.attendreExiste.annuler());
   }
 
   async attendre(tempsAvant: number): Promise<void> {
@@ -187,7 +187,7 @@ export class AttendreFichierModifié extends EventEmitter {
       const écouteur = chokidar.watch(this.fichier);
 
       écouteur.on("change", async (adresse) => {
-        if (adresse !== this.fichier) return
+        if (adresse !== this.fichier) return;
         try {
           const { mtime } = fs.statSync(this.fichier);
           const prêt = mtime.getTime() > tempsAvant;
@@ -200,12 +200,12 @@ export class AttendreFichierModifié extends EventEmitter {
           écouteur.close();
           rejeter(e);
         }
-      })
+      });
     });
   }
 
   annuler() {
-    this.fsOublier.forEach(f=>f());
+    this.fsOublier.forEach((f) => f());
   }
 }
 
@@ -274,9 +274,9 @@ export const générerOrbites = async (
     dssfip.push(dsfip);
     sfips.push(sfip);
     orbites.push(orbite);
-  }
+  };
 
-  await Promise.all([...Array(n).keys()].map(i=>_générer(i)));
+  await Promise.all([...Array(n).keys()].map((i) => _générer(i)));
 
   const fOublier = async () => {
     await Promise.all(

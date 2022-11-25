@@ -507,7 +507,6 @@ typesClients.forEach((type) => {
               f: (x) => (tableaux = x),
             })
           );
-
         }, config.patience);
 
         afterAll(async () => {
@@ -533,7 +532,6 @@ typesClients.forEach((type) => {
         test("Les variables sont copiées", async () => {
           expect(variables).toEqual(expect.arrayContaining([idVariable]));
         });
-
       });
 
       describe("Combiner BDs", function () {

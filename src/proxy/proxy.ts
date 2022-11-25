@@ -130,7 +130,11 @@ export abstract class ClientProxifiable extends Callable {
     );
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
       this.erreur({
-        erreur: "Plus d'un argument pour " + fonction + " est une fonction : " + JSON.stringify(args),
+        erreur:
+          "Plus d'un argument pour " +
+          fonction +
+          " est une fonction : " +
+          JSON.stringify(args),
         id,
       });
       return new Promise((_résoudre, rejeter) => rejeter());
@@ -190,7 +194,7 @@ export abstract class ClientProxifiable extends Callable {
     }
   }
 
-  async appelerFonctionAction<T extends unknown>(
+  async appelerFonctionAction<T>(
     id: string,
     fonction: string[],
     args: { [key: string]: unknown }

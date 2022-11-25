@@ -134,7 +134,7 @@ export default class Tableaux {
     });
     await bdTableaux.set("règles", idBdRègles);
 
-    await fOublier();;
+    await fOublier();
 
     return idBdTableau;
   }
@@ -196,7 +196,7 @@ export default class Tableaux {
 
     await nouvelleBd.set("copiéDe", { id });
 
-    await fOublier();;
+    await fOublier();
     await fOublierNouvelle();
 
     return idNouveauTableau;
@@ -355,7 +355,7 @@ export default class Tableaux {
       await bdColonnes.add(nouvelÉlément);
     }
 
-    await fOublier();;
+    await fOublier();
   }
 
   async suivreIndex({
@@ -580,7 +580,7 @@ export default class Tableaux {
     const id = uuidv4();
     const empreinte = await bdDonnées.add({ ...vals, id });
 
-    await fOublier();;
+    await fOublier();
 
     return empreinte;
   }
@@ -626,10 +626,10 @@ export default class Tableaux {
         bdDonnées.remove(empreintePrécédente),
         bdDonnées.add(élément),
       ]);
-      await fOublier();;
+      await fOublier();
       return résultat[1];
     } else {
-      await fOublier();;
+      await fOublier();
       return Promise.resolve(empreintePrécédente);
     }
   }
@@ -664,7 +664,7 @@ export default class Tableaux {
       clefsPermises.includes(x)
     );
 
-    await fOublier();;
+    await fOublier();
 
     return Object.fromEntries(
       clefsFinales.map((x: string) => [x, élément[x]])
@@ -693,7 +693,7 @@ export default class Tableaux {
       FeedStore<InfoCol>
     >({ id: idBdDonnées });
     await bdDonnées.remove(empreinteÉlément);
-    await fOublier();;
+    await fOublier();
   }
 
   async combinerDonnées({
@@ -828,7 +828,7 @@ export default class Tableaux {
       await bdNoms.set(lng, noms[lng]);
     }
 
-    await fOublier();;
+    await fOublier();
   }
 
   async sauvegarderNomTableau({
@@ -855,7 +855,7 @@ export default class Tableaux {
       KeyValueStore<string>
     >({ id: idBdNoms });
     await bdNoms.set(langue, nom);
-    await fOublier();;
+    await fOublier();
   }
 
   async effacerNomTableau({
@@ -881,7 +881,7 @@ export default class Tableaux {
     >({ id: idBdNoms });
     await bdNoms.del(langue);
 
-    await fOublier();;
+    await fOublier();
   }
 
   async suivreNomsTableau({
@@ -927,7 +927,7 @@ export default class Tableaux {
     };
     await bdColonnes.add(entrée);
 
-    await fOublier();;
+    await fOublier();
     return entrée.id;
   }
 
@@ -957,7 +957,7 @@ export default class Tableaux {
       élément: (x) => x.payload.value.id === idColonne,
     });
 
-    await fOublier();;
+    await fOublier();
   }
 
   suivreColonnes({
@@ -1119,7 +1119,7 @@ export default class Tableaux {
     };
     await bdRègles.add(entrée);
 
-    await fOublier();;
+    await fOublier();
 
     return id;
   }
@@ -1152,7 +1152,7 @@ export default class Tableaux {
       élément: (é) => é.payload.value.règle.id === idRègle,
     });
 
-    await fOublier();;
+    await fOublier();
   }
 
   async suivreRègles({

@@ -311,7 +311,7 @@ describe("Utils recherche", function () {
         id: idBd,
       });
       await bd.add("precipitation");
-      await fOublier();;
+      await fOublier();
 
       const réfRés: résultatObjectifRecherche<
         infoRésultatRecherche<infoRésultatTexte>
@@ -340,7 +340,7 @@ describe("Utils recherche", function () {
         id: idBd,
       });
       await bd.add("précipitation");
-      await fOublier();;
+      await fOublier();
 
       const réfRés: résultatObjectifRecherche<
         infoRésultatRecherche<infoRésultatTexte>

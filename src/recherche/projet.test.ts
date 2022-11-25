@@ -20,7 +20,11 @@ import {
   rechercherProjetSelonTexte,
 } from "@/recherche/projet.js";
 
-import { générerClients, typesClients, AttendreRésultat } from "@/utilsTests/index.js";
+import {
+  générerClients,
+  typesClients,
+  AttendreRésultat,
+} from "@/utilsTests/index.js";
 import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {

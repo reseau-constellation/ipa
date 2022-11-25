@@ -29,7 +29,11 @@ import {
   élémentDonnées,
 } from "@/valid.js";
 
-import { générerClients, AttendreRésultat, typesClients } from "@/utilsTests/index.js";
+import {
+  générerClients,
+  AttendreRésultat,
+  typesClients,
+} from "@/utilsTests/index.js";
 import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {
@@ -385,7 +389,7 @@ typesClients.forEach((type) => {
 
         afterEach(async () => {
           await Promise.all(fsOublier.map((f) => f()));
-          fsOublier = []
+          fsOublier = [];
           résRègles.toutAnnuler();
           résErreurs.toutAnnuler();
         });
@@ -719,7 +723,9 @@ typesClients.forEach((type) => {
             idVariable: idVariableTempMax,
             idColonne: idColonneTempMax,
           });
-          const val = await erreursRègles.attendreQue((x) => !!x && x.length === 0);
+          const val = await erreursRègles.attendreQue(
+            (x) => !!x && x.length === 0
+          );
           expect(val).toHaveLength(0);
         });
 
@@ -1267,7 +1273,6 @@ typesClients.forEach((type) => {
               f: (x) => (règles = x),
             })
           );
-
         }, config.patience * 2);
 
         afterAll(async () => {
@@ -1312,7 +1317,6 @@ typesClients.forEach((type) => {
           expect(données).toHaveLength(1);
           expect(données[0].données[colonnes[0].id]).toEqual(123);
         });
-
       });
 
       describe("Combiner données tableaux", function () {

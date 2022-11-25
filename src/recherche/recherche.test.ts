@@ -11,7 +11,11 @@ import {
   infoRésultatVide,
 } from "@/utils/index.js";
 
-import { générerClients, typesClients, AttendreRésultat } from "@/utilsTests/index.js";
+import {
+  générerClients,
+  typesClients,
+  AttendreRésultat,
+} from "@/utilsTests/index.js";
 
 const vérifierRecherche = (
   résultats: résultatRecherche<infoRésultat>[],

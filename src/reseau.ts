@@ -517,7 +517,7 @@ export default class Réseau extends EventEmitter {
     if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
     const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
 
-    await fOublier();;
+    await fOublier();
     return sigIdValide && sigClefPubliqueValide && bdCompteValide;
   }
 
@@ -530,7 +530,7 @@ export default class Réseau extends EventEmitter {
       KeyValueStore<statutConfianceMembre>
     >({ id: this.idBd });
     await bd.set(idBdCompte, "FIABLE");
-    await fOublier();;
+    await fOublier();
   }
 
   async nePlusFaireConfianceAuMembre({
@@ -549,7 +549,7 @@ export default class Réseau extends EventEmitter {
     ) {
       await bd.del(idBdCompte);
     }
-    await fOublier();;
+    await fOublier();
   }
 
   @cacheSuivi
@@ -615,7 +615,7 @@ export default class Réseau extends EventEmitter {
         KeyValueStore<statutConfianceMembre>
       >({ id: this.idBd });
       await bd.set(idBdCompte, "BLOQUÉ");
-      await fOublier();;
+      await fOublier();
     }
     this.emit("changementMembresBloqués");
   }
@@ -632,7 +632,7 @@ export default class Réseau extends EventEmitter {
     ) {
       await bd.del(idBdCompte);
     }
-    await fOublier();;
+    await fOublier();
 
     if (this.bloquésPrivés.has(idBdCompte)) {
       this.bloquésPrivés.delete(idBdCompte);
@@ -1439,13 +1439,13 @@ export default class Réseau extends EventEmitter {
     let annuler = false;
 
     const ajusterProfondeur = (p: number) => {
-      profondeur = p
+      profondeur = p;
       fChangerProfondeur(p);
       if (annulerRebours) clearTimeout(annulerRebours);
     };
 
     const débuterReboursAjusterProfondeur = (délai = DÉLAI_REBOURS) => {
-      if (annuler) return
+      if (annuler) return;
       if (annulerRebours) clearTimeout(annulerRebours);
 
       const scores = Object.values(résultatsParMembre)
@@ -1659,8 +1659,8 @@ export default class Réseau extends EventEmitter {
       nRésultatsDésirés = nouveauN;
       if (nouveauN !== nDésirésAvant) {
         fFinale();
-        débuterReboursAjusterProfondeur(0)
-      };
+        débuterReboursAjusterProfondeur(0);
+      }
     };
 
     const fOublier = async () => {

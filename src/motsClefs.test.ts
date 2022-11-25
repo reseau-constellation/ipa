@@ -4,7 +4,11 @@ import { enregistrerContrôleurs } from "@/accès/index.js";
 import ClientConstellation from "@/client.js";
 import { schémaFonctionOublier } from "@/utils/index.js";
 
-import { AttendreRésultat, générerClients, typesClients } from "@/utilsTests/index.js";
+import {
+  AttendreRésultat,
+  générerClients,
+  typesClients,
+} from "@/utilsTests/index.js";
 import { config } from "@/utilsTests/sfipTest.js";
 
 typesClients.forEach((type) => {

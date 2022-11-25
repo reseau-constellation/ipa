@@ -114,7 +114,7 @@ describe("Contrôle dispositifs", function () {
         KeyValueStore<number>
       >({ id: idBd });
       const autorisé = await peutÉcrire(bd_orbite2, client2.orbite);
-      await fOublier();;
+      await fOublier();
       expect(autorisé).toBe(true);
     });
   });
@@ -144,7 +144,7 @@ describe("Contrôle dispositifs", function () {
         KeyValueStore<number>
       >({ id: idBd });
       const autorisé = await peutÉcrire(bd_orbite3, client3.orbite);
-      await fOublier();;
+      await fOublier();
       expect(autorisé).toBe(true);
     });
   });
@@ -306,7 +306,7 @@ describe("Fonctionalités client", function () {
       await bd2.put("a", 2);
       await changerBd(idBd2);
 
-      await données.attendreQue(x=>x.a !== 1)
+      await données.attendreQue((x) => x.a !== 1);
       expect(données.val.a).toEqual(2);
     });
   });
@@ -380,7 +380,7 @@ describe("Fonctionalités client", function () {
 
       await bd.put("a", 2);
       await bdBase.put(CLEF, idBd2);
-      const val = await données.attendreQue(x=>x.a!==1)
+      const val = await données.attendreQue((x) => x.a !== 1);
       expect(val.a).toEqual(2);
     });
   });
@@ -577,7 +577,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set("clef", idBd2);
-      await fOublier();;
+      await fOublier();
 
       const val = await rés.attendreQue((x) => !!x && x.length > 1);
       expect(val).toEqual(expect.arrayContaining([idBd, idBd2]));
@@ -588,7 +588,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.del("clef");
-      await fOublier();;
+      await fOublier();
 
       const val = await rés.attendreQue((x) => !!x && x.length === 1);
       expect(val).toEqual(expect.arrayContaining([idBd]));
@@ -599,7 +599,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set("clef", idBdListe);
-      await fOublier();;
+      await fOublier();
 
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
         FeedStore<string>
@@ -624,9 +624,9 @@ describe("Fonctionalités client", function () {
 
     test("Ajouter dictionnaire à liste", async () => {
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
-        FeedStore<string|{[key: string]: string}>
+        FeedStore<string | { [key: string]: string }>
       >({ id: idBdListe });
-      await bdListe.add({maBd: idBd2});
+      await bdListe.add({ maBd: idBd2 });
       fOublierBdListe();
 
       const val = await rés.attendreQue((x) => !!x && x.length === 3);
@@ -635,9 +635,13 @@ describe("Fonctionalités client", function () {
 
     test("Enlever dictionnaire de liste", async () => {
       const { bd: bdListe, fOublier: fOublierBdListe } = await client.ouvrirBd<
-        FeedStore<string|{[key: string]: string}>
+        FeedStore<string | { [key: string]: string }>
       >({ id: idBdListe });
-      await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: x=>typeof x.payload.value !== "string" && x.payload.value.maBd === idBd2 });
+      await client.effacerÉlémentDeBdListe({
+        bd: bdListe,
+        élément: (x) =>
+          typeof x.payload.value !== "string" && x.payload.value.maBd === idBd2,
+      });
       fOublierBdListe();
 
       const val = await rés.attendreQue((x) => !!x && x.length === 2);
@@ -649,7 +653,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set(idBd2, "je suis là !");
-      await fOublier();;
+      await fOublier();
 
       const val = await rés.attendreQue((x) => !!x && x.length > 2);
       expect(val).toEqual(expect.arrayContaining([idBd, idBd2, idBdListe]));
@@ -660,7 +664,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.del(idBd2);
-      await fOublier();;
+      await fOublier();
 
       const val = await rés.attendreQue((x) => !!x && x.length <= 2);
       expect(val).toEqual(expect.arrayContaining([idBd, idBdListe]));
@@ -698,7 +702,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set("clef", idBd2);
-      await fOublier();;
+      await fOublier();
 
       await rés.attendreQue((x) => !!x && x !== empreinteAvant);
     });
@@ -710,7 +714,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.del("clef");
-      await fOublier();;
+      await fOublier();
 
       await rés.attendreQue((x) => !!x && x !== empreinteAvant);
     });
@@ -720,7 +724,7 @@ describe("Fonctionalités client", function () {
         id: idBd,
       });
       await bd.set("clef", idBdListe);
-      await fOublier();;
+      await fOublier();
 
       const empreinteDébut = await rés.attendreExiste();
 
@@ -1050,7 +1054,7 @@ describe("Fonctionalités client", function () {
         });
       });
       afterAll(async () => {
-        if (fOublier) await fOublier();;
+        if (fOublier) await fOublier();
       });
 
       test("Ajout d'une branche ou deux", async () => {

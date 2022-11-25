@@ -83,7 +83,7 @@ typesClients.forEach((type) => {
             id: idBdListe,
           });
           await bd.add(idBdAutre);
-          await fOublier();;
+          await fOublier();
 
           const épingles = client.épingles!.épingles();
 
@@ -105,7 +105,7 @@ typesClients.forEach((type) => {
             { id: idBdDic }
           );
           await bd.set("clef", idBdDic2);
-          await fOublier();;
+          await fOublier();
 
           const { bd: bdDic2, fOublier: fOublier2 } = await client.ouvrirBd<
             KeyValueStore<string>
@@ -163,7 +163,7 @@ typesClients.forEach((type) => {
           );
           await bd.set("clef", idc);
           await bd.set("clef2", idc2);
-          await fOublier();;
+          await fOublier();
 
           const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<
             KeyValueStore<string>
@@ -199,7 +199,7 @@ typesClients.forEach((type) => {
             id: idBdListe,
           });
           await bd.add(idBd);
-          await fOublier();;
+          await fOublier();
 
           await new Promise((resolve) => setTimeout(resolve, 100));
           expect(client.épingles!.épinglée({ id: idc }));
