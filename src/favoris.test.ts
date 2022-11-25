@@ -167,7 +167,7 @@ typesClients.forEach((type) => {
               },
             });
 
-            expect(client.épingles!.épinglée({ id: idc }));
+            expect(await client.épingles!.épinglée({ id: idc }));
           },
           config.patience
         );

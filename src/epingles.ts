@@ -32,7 +32,7 @@ export default class Épingles {
     récursif?: boolean;
     fichiers?: boolean;
   }): Promise<void> {
-    if (this.épinglée({ id })) return;
+    if (await this.épinglée({ id })) return;
 
     await this._épingler({ id, récursif, fichiers });
   }
@@ -59,11 +59,11 @@ export default class Épingles {
     );
   }
 
-  épinglée({ id }: { id: string }): boolean {
+  async épinglée({ id }: { id: string }): Promise<boolean> {
     return this.requètes.some((r) => r.id === id);
   }
 
-  épingles(): Set<string> {
+  async épingles(): Promise<Set<string>> {
     return new Set(this.requètes.map((r) => r.id));
   }
 
@@ -78,7 +78,7 @@ export default class Épingles {
     fichiers: boolean;
     parent?: string;
   }): Promise<void> {
-    if (this.épinglée({ id })) return;
+    if (await this.épinglée({ id })) return;
 
     const { bd, fOublier } = await this.client.ouvrirBd({ id });
     this.requètes.push({ id, parent, fOublier });
@@ -144,7 +144,7 @@ export default class Épingles {
 
   async toutDésépingler(): Promise<void> {
     await Promise.all(
-      [...this.épingles()].map(async (id) => {
+      [...await this.épingles()].map(async (id) => {
         await this.désépinglerBd({ id });
       })
     );

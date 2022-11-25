@@ -480,7 +480,7 @@ typesClients.forEach((type) => {
 
         test("Ajout membres au réseau d'un autre membre détecté", async () => {
           const val = await relationsAutres.attendreQue(
-            (x?: infoConfiance[]) => x?.length === 1
+            (x?: infoConfiance[]) => x?.length === 2
           );
 
           expect(val.map((r) => r.idBdCompte)).toEqual(
