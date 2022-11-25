@@ -2,7 +2,7 @@
 [![Tests](https://github.com/reseau-constellation/ipa/actions/workflows/tests.yml/badge.svg)](https://github.com/reseau-constellation/ipa/actions/workflows/tests.yml)
 
 Le logiciel Constellation est divisé en deux parties principales :
-[l'interface](https://github.com/reseau-constellation/constellation/)
+[l'interface graphique](https://github.com/reseau-constellation/constellation/)
 et le code de réseautage (interface de programmation d'applications, ou IPA).
 Cette séparation vous permet de développer vos propres interfaces spécifiques
 à vos projets et besoins, tout en connectant vos applications au réseau
@@ -18,7 +18,7 @@ Vous pouvez ajouter l'IPA Constellation à vos projets JavaScript ou TypeScript
 avec la commande suivante:
 
 ```
-yarn add @constl/ipa
+pnpm install @constl/ipa
 ```
 
 Si vous développez une application dans un autre langage (p. ex., Python),
