@@ -105,7 +105,7 @@ export class AttendreRésultat<T> {
     this.événements.emit("changé");
   }
 
-  async attendreQue(f: (x: T) => boolean): Promise<T> {
+  async attendreQue(f: (x?: T) => boolean): Promise<T> {
     if (f(this.val)) return this.val;
     const id = uuidv4();
 
@@ -187,14 +187,11 @@ export class AttendreFichierModifié extends EventEmitter {
       const écouteur = chokidar.watch(this.fichier);
 
       écouteur.on("change", async (adresse) => {
-        console.log("changé", adresse, this.fichier)
         if (adresse !== this.fichier) return
         try {
           const { mtime } = fs.statSync(this.fichier);
           const prêt = mtime.getTime() > tempsAvant;
-          console.log(mtime.getTime(), tempsAvant, mtime.getTime() > tempsAvant)
           if (prêt) {
-            console.log("C'est prêt !")
             await écouteur.close();
             résoudre();
           }
