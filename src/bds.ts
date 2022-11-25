@@ -1033,7 +1033,7 @@ export default class BDs {
       clef: clefTableau,
     });
 
-    await fOublier();;
+    await fOublier();
     return idTableau;
   }
 
