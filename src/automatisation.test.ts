@@ -160,7 +160,7 @@ typesClients.forEach((type) => {
           fs.mkdirSync(dirTempo);
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          idTableau = await client.tableaux!.créerTableau({ idBd: idBd });
+          idTableau = await client.bds!.ajouterTableauBd({ idBd });
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -668,7 +668,6 @@ typesClients.forEach((type) => {
           const fichier = path.join(dir, "Ma bd.ods");
 
           const attente = new AttendreFichierExiste(fichier);
-          const attendreExiste = attente.attendre();
           fsOublier.push(() => attente.annuler());
 
           const idAuto =
@@ -681,7 +680,7 @@ typesClients.forEach((type) => {
               langues: ["fr"],
             });
 
-          await attendreExiste;
+          await attente.attendre();
 
           const attenteModifié = new AttendreFichierModifié(fichier);
           fsOublier.push(() => attenteModifié.annuler());
@@ -691,7 +690,6 @@ typesClients.forEach((type) => {
             idTableau,
             vals: { [idCol]: 5 },
           });
-          await new Promise<void>(résoudre=>{setTimeout(()=>résoudre(), 2000)})
 
           await attenteModifié.attendre(avant);
 
@@ -744,7 +742,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Exportation nuée bds", function () {
+      describe.skip("Exportation nuée bds", function () {
         test.todo(
           "Exportation selon changements"
           /*async () => {
