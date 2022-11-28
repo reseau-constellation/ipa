@@ -136,7 +136,8 @@ describe("Contrôle dispositifs", function () {
     });
 
     test("Nouveau dispositif indique le nouveau compte", async () => {
-      expect(client3.idBdCompte).toEqual(client.idBdCompte);
+      const idBdCompte3 = await client3.obtIdCompte();
+      expect(idBdCompte3).toEqual(idBdCompte1);
     });
 
     test("Le nouveau dispositif peut modifier mes BDs", async () => {
