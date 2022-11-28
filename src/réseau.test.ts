@@ -235,6 +235,7 @@ typesClients.forEach((type) => {
         });
 
         test("Personne pour commencer", async () => {
+          await fiablesPropres.attendreExiste();
           expect(fiablesPropres.val).toHaveLength(0);
         });
 
@@ -242,7 +243,7 @@ typesClients.forEach((type) => {
           await client.réseau!.faireConfianceAuMembre({
             idBdCompte: idBdCompte2,
           });
-          expect(isArray(fiablesPropres.val)).toBe(true);
+          await fiablesPropres.attendreQue(x=>x!! && x.length > 0);
           expect(fiablesPropres.val).toHaveLength(1);
           expect(fiablesPropres.val).toEqual(
             expect.arrayContaining([idBdCompte2])
@@ -253,7 +254,6 @@ typesClients.forEach((type) => {
           const val = await fiablesAutres.attendreQue(
             (x) => !!x && x.length > 0
           );
-          expect(isArray(val)).toBe(true);
           expect(val).toHaveLength(1);
           expect(val).toEqual(expect.arrayContaining([idBdCompte2]));
         });
