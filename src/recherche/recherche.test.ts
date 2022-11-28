@@ -64,6 +64,8 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
       let client2: ClientConstellation;
       let client3: ClientConstellation;
+      let idCompte2: string;
+      let idCompte3: string;
 
       beforeAll(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients(
@@ -71,6 +73,8 @@ typesClients.forEach((type) => {
           type
         ));
         [client, client2, client3] = clients;
+        idCompte2 = await client2.obtIdCompte();
+        idCompte3 = await client3.obtIdCompte();
       }, config.patienceInit * 3);
 
       afterAll(async () => {
@@ -96,7 +100,7 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 2,
               }));
             réfClient2 = {
-              id: client2.idBdCompte!,
+              id: idCompte2,
               résultatObjectif: {
                 score: 4 / 9,
                 type: "résultat",
@@ -111,7 +115,7 @@ typesClients.forEach((type) => {
               },
             };
             réfClient3 = {
-              id: client3.idBdCompte!,
+              id: idCompte3,
               résultatObjectif: {
                 score: 4 / 9,
                 type: "résultat",
@@ -187,7 +191,7 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 2,
               }));
             réfClient2 = {
-              id: client2.idBdCompte!,
+              id: idCompte2,
               résultatObjectif: {
                 score: 0,
                 type: "résultat",
@@ -247,16 +251,16 @@ typesClients.forEach((type) => {
               nRésultatsDésirés: 2,
             }));
             réfClient2 = {
-              id: client2.idBdCompte!,
+              id: idCompte2,
               résultatObjectif: {
                 score: 0,
                 type: "résultat",
                 de: "id",
                 info: {
                   type: "texte",
-                  texte: client2.idBdCompte!,
+                  texte: idCompte2,
                   début: 0,
-                  fin: client2.idBdCompte!.length,
+                  fin: idCompte2.length,
                 },
               },
             };
@@ -291,7 +295,7 @@ typesClients.forEach((type) => {
               nRésultatsDésirés: 2,
             }));
             réfClient2 = {
-              id: client2.idBdCompte!,
+              id: idCompte2,
               résultatObjectif: {
                 score: 0,
                 type: "résultat",
@@ -1291,6 +1295,7 @@ typesClients.forEach((type) => {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
+      let idsComptes: string[];
 
       beforeAll(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients(
@@ -1299,9 +1304,10 @@ typesClients.forEach((type) => {
         ));
         client = clients[0];
         for (const [i, c] of clients.entries()) {
+          idsComptes.push(await c.obtIdCompte())
           if (i < clients.length - 1) {
             await c.réseau!.faireConfianceAuMembre({
-              idBdCompte: clients[i + 1].idBdCompte!,
+              idBdCompte: await clients[i + 1].obtIdCompte(),
             });
           }
         }
@@ -1333,7 +1339,8 @@ typesClients.forEach((type) => {
 
           for (const c of clients) {
             const idMotClef = await c.motsClefs!.créerMotClef();
-            motsClefs[c.idBdCompte!] = idMotClef;
+            const idCompte = await c.obtIdCompte();
+            motsClefs[idCompte] = idMotClef;
 
             c.réseau!.recevoirSalut = async () => {};
             c.réseau!.dispositifsEnLigne = {};
@@ -1358,7 +1365,7 @@ typesClients.forEach((type) => {
         });
 
         test("Mes objets sont détectés", async () => {
-          const idMotClef = motsClefs[client.idBdCompte!];
+          const idMotClef = motsClefs[idsComptes[0]];
           const réf: résultatRecherche<infoRésultatTexte>[] = [
             {
               id: idMotClef,
@@ -1394,7 +1401,8 @@ typesClients.forEach((type) => {
             const réf: résultatRecherche<infoRésultatTexte>[] = [];
 
             for (const c of clients) {
-              const idMotClef = motsClefs[c.idBdCompte!];
+              const idCompte = await c.obtIdCompte();
+              const idMotClef = motsClefs[idCompte];
               réf.push({
                 id: idMotClef,
                 résultatObjectif: {
@@ -1429,7 +1437,7 @@ typesClients.forEach((type) => {
         );
 
         test("Objet ne correspond plus", async () => {
-          const idMotClef = motsClefs[clients[4].idBdCompte!];
+          const idMotClef = motsClefs[idsComptes[4]];
           await clients[4].motsClefs!.effacerNomMotClef({
             id: idMotClef,
             langue: "ខ្មែរ",
@@ -1437,7 +1445,8 @@ typesClients.forEach((type) => {
 
           const réf: résultatRecherche<infoRésultatTexte>[] = [];
           for (const c of clients) {
-            const idMC = motsClefs[c.idBdCompte!];
+            const idCompte = await c.obtIdCompte();
+            const idMC = motsClefs[idCompte];
             if (idMC === idMotClef) continue;
             réf.push({
               id: idMC,
@@ -1467,7 +1476,8 @@ typesClients.forEach((type) => {
 
           const réf: résultatRecherche<infoRésultatTexte>[] = [];
           for (const c of clients.slice(0, 3)) {
-            const idMC = motsClefs[c.idBdCompte!];
+            const idCompte = await c.obtIdCompte();
+            const idMC = motsClefs[idCompte];
             réf.push({
               id: idMC,
               résultatObjectif: {
@@ -1498,7 +1508,8 @@ typesClients.forEach((type) => {
 
           const réf: résultatRecherche<infoRésultatTexte>[] = [];
           for (const c of clients.slice(0, 4)) {
-            const idMC = motsClefs[c.idBdCompte!];
+            const idCompte = await c.obtIdCompte();
+            const idMC = motsClefs[idCompte];
             réf.push({
               id: idMC,
               résultatObjectif: {
