@@ -116,7 +116,7 @@ typesClients.forEach((type) => {
           const épingles = await client.épingles!.épingles();
 
           expect([...épingles]).toEqual(
-            expect.arrayContaining([idBdDic2, idBdAutre])
+            expect.arrayContaining([idBdDic, idBdDic2, idBdAutre])
           );
         });
 

@@ -32,7 +32,7 @@ export default class Épingles {
     récursif?: boolean;
     fichiers?: boolean;
   }): Promise<void> {
-    if (await this.épinglée({ id })) return;
+    if (await this.directementÉpinglée({ id })) return;
 
     await this._épingler({ id, récursif, fichiers });
   }
@@ -63,6 +63,14 @@ export default class Épingles {
     return this.requètes.some((r) => r.id === id);
   }
 
+  async épingléeParParent({ id, parent }: { id: string, parent?: string }): Promise<boolean> {
+    return this.requètes.some((r) => r.id === id && r.parent === parent);
+  }
+
+  async directementÉpinglée({ id }: { id: string }): Promise<boolean> {
+    return await this.épingléeParParent({ id })
+  }
+
   async épingles(): Promise<Set<string>> {
     return new Set(this.requètes.map((r) => r.id));
   }
@@ -78,7 +86,7 @@ export default class Épingles {
     fichiers: boolean;
     parent?: string;
   }): Promise<void> {
-    if (await this.épinglée({ id })) return;
+    if (await this.épingléeParParent({ id, parent })) return;
 
     const { bd, fOublier } = await this.client.ouvrirBd({ id });
     this.requètes.push({ id, parent, fOublier });
@@ -89,11 +97,12 @@ export default class Épingles {
         // (à un niveau de profondeur) qui représentent une adresse de BD Orbit.
         let l_vals: string[] = [];
         if (typeof vals === "object") {
-          await Promise.all(
-            (l_vals = Object.values(vals).filter(
+          l_vals = Object.values(vals).filter(
               (v) => typeof v === "string"
-            ) as string[])
-          );
+            ) as string[];
+          l_vals.push(...Object.keys(vals).filter(
+              (v) => typeof v === "string"
+            ))
         } else if (Array.isArray(vals)) {
           l_vals = vals;
         } else if (typeof vals === "string") {
@@ -143,8 +152,9 @@ export default class Épingles {
   }
 
   async toutDésépingler(): Promise<void> {
+    const épingles = await this.épingles()
     await Promise.all(
-      [...await this.épingles()].map(async (id) => {
+      [...épingles].map(async (id) => {
         await this.désépinglerBd({ id });
       })
     );
