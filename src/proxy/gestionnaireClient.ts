@@ -11,6 +11,7 @@ import type {
   MessageSuivreDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
   MessageRetourPourTravailleur,
+  MessageErreurDeTravailleur,
 } from "./messages.js";
 
 export default class GestionnaireClient {
@@ -118,13 +119,18 @@ export default class GestionnaireClient {
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
-        const résultat = await fonctionIPA(args);
-        const messageRetour: MessageActionDeTravailleur = {
-          type: "action",
-          id,
-          résultat,
-        };
-        this.fMessage(messageRetour);
+        try {
+          const résultat = await fonctionIPA(args);
+          const messageRetour: MessageActionDeTravailleur = {
+            type: "action",
+            id,
+            résultat,
+          };
+          this.fMessage(messageRetour);
+        } catch (e) {
+          this.fErreur(e, id);
+        }
+
         break;
       }
       case "retour": {
