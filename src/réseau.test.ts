@@ -981,7 +981,7 @@ typesClients.forEach((type) => {
           const val = await rés.attendreQue(
             (x) =>
               !!x &&
-              x.find((y) => y.idBdCompte === client3.idBdCompte)?.confiance ===
+              x.find((y) => y.idBdCompte === idBdCompte3)?.confiance ===
                 1
           );
           expect(val).toEqual(expect.arrayContaining(réf));
@@ -1055,9 +1055,9 @@ typesClients.forEach((type) => {
           await rés.attendreQue(
             (x) =>
               !!x &&
-              x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
+              x.find((x) => x.idBdCompte === idBdCompte2)?.confiance ===
                 0 &&
-              x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
+              x.find((x) => x.idBdCompte === idBdCompte3)?.confiance ===
                 0
           );
         });
@@ -1114,9 +1114,9 @@ typesClients.forEach((type) => {
           const val = await rés.attendreQue(
             (x) =>
               !!x &&
-              x.find((x) => x.idBdCompte === client2.idBdCompte)?.confiance ===
+              x.find((x) => x.idBdCompte === idBdCompte2)?.confiance ===
                 1 &&
-              x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
+              x.find((x) => x.idBdCompte === idBdCompte3)?.confiance ===
                 0
           );
 
@@ -1130,7 +1130,7 @@ typesClients.forEach((type) => {
           await rés.attendreQue(
             (x) =>
               !!x &&
-              (x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ||
+              (x.find((x) => x.idBdCompte === idBdCompte3)?.confiance ||
                 0) > 0
           );
 
@@ -1151,7 +1151,7 @@ typesClients.forEach((type) => {
           const val = await rés.attendreQue(
             (x) =>
               !!x &&
-              x.find((x) => x.idBdCompte === client3.idBdCompte)?.confiance ===
+              x.find((x) => x.idBdCompte === idBdCompte3)?.confiance ===
                 0
           );
 
@@ -1342,7 +1342,7 @@ typesClients.forEach((type) => {
             const val = await rés.attendreQue((x) =>
               Boolean(
                 !!x &&
-                  x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                  x.find((y) => y.idBdCompte === idBdCompte2)?.accepté
               )
             );
 
@@ -1366,7 +1366,7 @@ typesClients.forEach((type) => {
             const val = await rés.attendreQue(
               (x) =>
                 !!x &&
-                !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                !x.find((y) => y.idBdCompte === idBdCompte2)?.accepté
             );
 
             expect(val).toEqual(réf);
@@ -1448,7 +1448,7 @@ typesClients.forEach((type) => {
 
             await client2.variables!.ajouterÀMesVariables({ id: idVariable });
             const val = await rés.attendreQue(
-              (x) => x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+              (x) => x.find((y) => y.idBdCompte === idBdCompte2)?.accepté
             );
 
             expect(val).toEqual(réf);
@@ -1471,7 +1471,7 @@ typesClients.forEach((type) => {
             const val = await rés.attendreQue(
               (x) =>
                 !!x &&
-                !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                !x.find((y) => y.idBdCompte === idBdCompte2)?.accepté
             );
 
             expect(val).toEqual(réf);
@@ -1553,7 +1553,7 @@ typesClients.forEach((type) => {
             const val = await rés.attendreQue((x) =>
               Boolean(
                 !!x &&
-                  x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                  x.find((y) => y.idBdCompte === idBdCompte2)?.accepté
               )
             );
 
@@ -1578,7 +1578,7 @@ typesClients.forEach((type) => {
             const val = await rés.attendreQue(
               (x) =>
                 !!x &&
-                !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                !x.find((y) => y.idBdCompte === idBdCompte2)?.accepté
             );
 
             expect(val).toEqual(réf);
@@ -1660,7 +1660,7 @@ typesClients.forEach((type) => {
             const val = await rés.attendreQue((x) =>
               Boolean(
                 !!x &&
-                  x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                  x.find((y) => y.idBdCompte === idBdCompte2)?.accepté
               )
             );
 
@@ -1684,7 +1684,7 @@ typesClients.forEach((type) => {
             const val = await rés.attendreQue(
               (x) =>
                 !!x &&
-                !x.find((y) => y.idBdCompte === client2.idBdCompte)?.accepté
+                !x.find((y) => y.idBdCompte === idBdCompte2)?.accepté
             );
 
             expect(val).toEqual(réf);

@@ -57,8 +57,9 @@ export const clientConnectéÀ = (
   const verrou = new Semaphore();
   return new Promise(async (résoudre) => {
     const fFinale = async (dispositifs: statutDispositif[]) => {
+      const idBdCompte2 = await client2.obtIdCompte()
       const connecté = !!dispositifs.find(
-        (d) => d.infoDispositif.idCompte === client2.idBdCompte
+        (d) => d.infoDispositif.idCompte === idBdCompte2
       );
       if (connecté) {
         await verrou.acquire("suivreConnexions");
