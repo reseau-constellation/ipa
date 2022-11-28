@@ -128,11 +128,16 @@ export abstract class ClientProxifiable extends Callable {
     const argsSansF = Object.fromEntries(
       Object.entries(args).filter((x) => typeof x[1] !== "function")
     );
+    if (f === undefined) {
+      this.erreur({
+        erreur: "Aucun argument de nom " + nomArgFonction + " n'a été donnée pour " + fonction.join(".")
+      })
+    }
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
       this.erreur({
         erreur:
           "Plus d'un argument pour " +
-          fonction +
+          fonction.join(".") +
           " est une fonction : " +
           JSON.stringify(args),
         id,
@@ -223,7 +228,7 @@ export abstract class ClientProxifiable extends Callable {
       nouvelle: infoErreur,
       toutes: this.erreurs,
     });
-    throw new Error(infoErreur.toString());
+    throw new Error(JSON.stringify(infoErreur));
   }
 
   async oublierTâche(id: string): Promise<void> {
