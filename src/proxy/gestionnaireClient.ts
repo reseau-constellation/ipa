@@ -11,7 +11,6 @@ import type {
   MessageSuivreDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
   MessageRetourPourTravailleur,
-  MessageErreurDeTravailleur,
 } from "./messages.js";
 
 export default class GestionnaireClient {
@@ -92,23 +91,29 @@ export default class GestionnaireClient {
         };
 
         args[nomArgFonction] = fFinale;
-        const retour = (await fonctionIPA(args)) as
-          | schémaFonctionOublier
-          | {
-              fOublier: schémaFonctionOublier;
-              [key: string]: (...args: unknown[]) => void;
-            };
-        const retourFinal =
-          typeof retour === "function" ? { fOublier: retour } : retour;
 
-        this.dicFRetourSuivi[id] = retourFinal;
-        const messageRetour: MessageSuivrePrêtDeTravailleur = {
-          type: "suivrePrêt",
-          id,
-        };
-        if (typeof retour !== "function")
-          messageRetour.fonctions = Object.keys(retour);
-        this.fMessage(messageRetour);
+        try {
+          const retour = (await fonctionIPA(args)) as
+            | schémaFonctionOublier
+            | {
+                fOublier: schémaFonctionOublier;
+                [key: string]: (...args: unknown[]) => void;
+              };
+          const retourFinal =
+            typeof retour === "function" ? { fOublier: retour } : retour;
+
+          this.dicFRetourSuivi[id] = retourFinal;
+          const messageRetour: MessageSuivrePrêtDeTravailleur = {
+            type: "suivrePrêt",
+            id,
+          };
+          if (typeof retour !== "function")
+            messageRetour.fonctions = Object.keys(retour);
+          this.fMessage(messageRetour);
+        } catch (e) {
+          this.fErreur(e, id);
+        }
+
         break;
       }
       case "action": {
