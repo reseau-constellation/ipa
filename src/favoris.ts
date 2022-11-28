@@ -3,6 +3,7 @@ import { isNode, isElectron } from "wherearewe";
 
 import ClientConstellation from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
 
@@ -73,6 +74,7 @@ export default class Favoris {
     this.oublierÉpingler = fOublier;
   }
 
+  @cacheSuivi
   async suivreFavoris({
     f,
     idBdFavoris,
@@ -133,6 +135,7 @@ export default class Favoris {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreÉtatFavori({
     id,
     f,
@@ -146,6 +149,7 @@ export default class Favoris {
     });
   }
 
+  @cacheSuivi
   async suivreEstÉpingléSurDispositif({
     idObjet,
     f,

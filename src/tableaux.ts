@@ -33,6 +33,7 @@ import {
   erreurRègleCatégoriqueColonneInexistante,
 } from "@/valid.js";
 import { catégorieVariables } from "@/variables.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 export type élémentBdListeDonnées = {
   [key: string]: élémentsBd;
@@ -202,6 +203,7 @@ export default class Tableaux {
     return idNouveauTableau;
   }
 
+  @cacheSuivi
   async suivreParent({
     idTableau,
     f,
@@ -219,6 +221,7 @@ export default class Tableaux {
     });
   }
 
+  @cacheSuivi
   async suivreDifférencesAvecTableauLié({
     id,
     f,
@@ -358,6 +361,7 @@ export default class Tableaux {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreIndex({
     idTableau,
     f,
@@ -372,6 +376,7 @@ export default class Tableaux {
     return await this.suivreColonnes({ idTableau, f: fFinale });
   }
 
+  @cacheSuivi
   async suivreDonnées<T extends élémentBdListeDonnées>({
     idTableau,
     f,
@@ -884,6 +889,7 @@ export default class Tableaux {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreNomsTableau({
     idTableau,
     f,
@@ -990,6 +996,7 @@ export default class Tableaux {
     catégories?: boolean;
   }): Promise<schémaFonctionOublier>;
 
+  @cacheSuivi
   async suivreColonnes({
     idTableau,
     f,
@@ -1052,6 +1059,7 @@ export default class Tableaux {
     }
   }
 
+  @cacheSuivi
   async suivreVariables({
     idTableau,
     f,
@@ -1155,6 +1163,7 @@ export default class Tableaux {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreRègles({
     idTableau,
     f,
@@ -1237,6 +1246,7 @@ export default class Tableaux {
     return fOublier;
   }
 
+  @cacheSuivi
   async suivreValidDonnées<T extends élémentBdListeDonnées>({
     idTableau,
     f,
@@ -1346,6 +1356,7 @@ export default class Tableaux {
     return fOublier;
   }
 
+  @cacheSuivi
   async suivreValidRègles({
     idTableau,
     f,

@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import { schémaStatut, TYPES_STATUT } from "@/utils/types.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 import { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
 import { élémentBdListeDonnées, différenceTableaux } from "@/tableaux.js";
@@ -96,6 +97,7 @@ export default class BDs {
     this.idBd = id;
   }
 
+  @cacheSuivi
   async suivreBds({
     f,
     idBdBdsCompte,
@@ -325,6 +327,7 @@ export default class BDs {
     return idBd;
   }
 
+  @cacheSuivi
   async suivreParent({
     idBd,
     f,
@@ -342,6 +345,7 @@ export default class BDs {
     });
   }
 
+  @cacheSuivi
   async suivreDifférencesAvecSchémaNuée({
     idBd,
     f,
@@ -475,6 +479,7 @@ export default class BDs {
     };
   }
 
+  @cacheSuivi
   async rechercherBdsParMotsClefs({
     motsClefs,
     f,
@@ -540,6 +545,7 @@ export default class BDs {
     }
   }
 
+  @cacheSuivi
   async suivreIdTableauParClef({
     idBd,
     clef,
@@ -556,6 +562,7 @@ export default class BDs {
     return await this.suivreTableauxBd({ id: idBd, f: fFinale });
   }
 
+  @cacheSuivi
   async suivreBdUnique({
     schéma,
     motClefUnique,
@@ -628,6 +635,7 @@ export default class BDs {
     return fOublier;
   }
 
+  @cacheSuivi
   async suivreIdTableauParClefDeBdUnique({
     schémaBd,
     motClefUnique,
@@ -671,6 +679,7 @@ export default class BDs {
     });
   }
 
+  @cacheSuivi
   async suivreDonnéesDeTableauUnique<T extends élémentBdListeDonnées>({
     schémaBd,
     motClefUnique,
@@ -1130,6 +1139,7 @@ export default class BDs {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreLicence({
     id,
     f,
@@ -1193,6 +1203,7 @@ export default class BDs {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreImage({
     idBd,
     f,
@@ -1214,6 +1225,7 @@ export default class BDs {
     });
   }
 
+  @cacheSuivi
   async suivreNomsBd({
     id,
     f,
@@ -1224,6 +1236,7 @@ export default class BDs {
     return await this.client.suivreBdDicDeClef({ id, clef: "noms", f });
   }
 
+  @cacheSuivi
   async suivreDescrBd({
     id,
     f,
@@ -1234,6 +1247,7 @@ export default class BDs {
     return await this.client.suivreBdDicDeClef({ id, clef: "descriptions", f });
   }
 
+  @cacheSuivi
   async suivreMotsClefsBd({
     id,
     f,
@@ -1244,6 +1258,7 @@ export default class BDs {
     return await this.client.suivreBdListeDeClef({ id, clef: "motsClefs", f });
   }
 
+  @cacheSuivi
   async suivreTableauxBd({
     id,
     f,
@@ -1269,6 +1284,7 @@ export default class BDs {
     });
   }
 
+  @cacheSuivi
   async suivreScoreAccèsBd({
     id,
     f,
@@ -1281,6 +1297,7 @@ export default class BDs {
     return faisRien;
   }
 
+  @cacheSuivi
   async suivreScoreCouvertureBd({
     id,
     f,
@@ -1366,6 +1383,7 @@ export default class BDs {
     });
   }
 
+  @cacheSuivi
   async suivreScoreValideBd({
     id,
     f,
@@ -1490,6 +1508,7 @@ export default class BDs {
     });
   }
 
+  @cacheSuivi
   async suivreScoreBd({
     id,
     f,
@@ -1538,6 +1557,7 @@ export default class BDs {
     };
   }
 
+  @cacheSuivi
   async suivreVariablesBd({
     id,
     f,

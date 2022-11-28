@@ -9,6 +9,7 @@ import path from "path";
 import ClientConstellation from "@/client.js";
 import { objRôles } from "@/accès/types.js";
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 import {
   traduire,
   zipper,
@@ -39,6 +40,7 @@ export default class Projets {
     this.idBd = id;
   }
 
+  @cacheSuivi
   async suivreProjets({
     f,
     idBdProjets,
@@ -502,6 +504,7 @@ export default class Projets {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreImage({
     idProjet,
     f,
@@ -523,6 +526,7 @@ export default class Projets {
     });
   }
 
+  @cacheSuivi
   async suivreNomsProjet({
     id,
     f,
@@ -533,6 +537,7 @@ export default class Projets {
     return await this.client.suivreBdDicDeClef<string>({ id, clef: "noms", f });
   }
 
+  @cacheSuivi
   async suivreDescrProjet({
     id,
     f,
@@ -547,6 +552,7 @@ export default class Projets {
     });
   }
 
+  @cacheSuivi
   async suivreMotsClefsProjet({
     idProjet,
     f,
@@ -601,6 +607,7 @@ export default class Projets {
     };
   }
 
+  @cacheSuivi
   async suivreBdsProjet({
     id,
     f,
@@ -615,6 +622,7 @@ export default class Projets {
     });
   }
 
+  @cacheSuivi
   async suivreVariablesProjet({
     id,
     f,
@@ -652,6 +660,7 @@ export default class Projets {
     });
   }
 
+  @cacheSuivi
   async suivreQualitéProjet({
     idProjet,
     f,

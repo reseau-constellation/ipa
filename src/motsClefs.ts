@@ -9,6 +9,7 @@ import { objRôles } from "@/accès/types.js";
 
 import ClientConstellation from "@/client.js";
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 type typeÉlémentsBdMotClef = string;
 
@@ -21,6 +22,7 @@ export default class MotsClefs {
     this.idBd = id;
   }
 
+  @cacheSuivi
   async suivreMotsClefs({
     f,
     idBdMotsClefs,
@@ -189,6 +191,7 @@ export default class MotsClefs {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreNomsMotClef({
     id,
     f,
@@ -216,6 +219,7 @@ export default class MotsClefs {
     await this.client.effacerBd({ id });
   }
 
+  @cacheSuivi
   async suivreQualitéMotClef({
     id,
     f,

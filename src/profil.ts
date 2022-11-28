@@ -3,6 +3,7 @@ import { ImportCandidate } from "ipfs-core-types/src/utils";
 
 import ClientConstellation from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
@@ -18,6 +19,7 @@ export default class Profil {
     this.idBd = id;
   }
 
+  @cacheSuivi
   async suivreCourriel({
     f,
     idBdProfil,
@@ -51,6 +53,7 @@ export default class Profil {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreNoms({
     f,
     idBdProfil,
@@ -133,6 +136,7 @@ export default class Profil {
     await fOublier();
   }
 
+  @cacheSuivi
   async suivreImage({
     f,
     idBdProfil,
