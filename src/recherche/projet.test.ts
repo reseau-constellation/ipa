@@ -840,31 +840,26 @@ describe("Rechercher projets", function () {
           fr: "Météorologie",
         },
       });
-      await client.bds!.ajouterMotsClefsBd({
-        idBd,
+      await client.projets!.ajouterMotsClefsProjet({
+        idProjet: idProjet,
         idsMotsClefs: idMotClef,
       });
 
       const résRéf: résultatObjectifRecherche<
-        infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>
+        infoRésultatRecherche<infoRésultatTexte>
       > = {
         type: "résultat",
-        de: "bd",
-        clef: idBd,
+        clef: idMotClef,
+        de: "motClef",
         info: {
           type: "résultat",
-          clef: idMotClef,
-          de: "motClef",
+          de: "nom",
+          clef: "fr",
           info: {
-            type: "résultat",
-            de: "nom",
-            clef: "fr",
-            info: {
-              type: "texte",
-              début: 0,
-              fin: 5,
-              texte: "Météorologie",
-            },
+            type: "texte",
+            début: 0,
+            fin: 5,
+            texte: "Météorologie",
           },
         },
         score: 1,
