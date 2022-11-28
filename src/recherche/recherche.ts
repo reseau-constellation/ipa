@@ -14,6 +14,8 @@ import {
   infoRésultatTexte,
   infoRésultatVide,
 } from "@/utils/index.js";
+import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
+
 
 export class Recherche {
   client: ClientConstellation;
@@ -22,6 +24,7 @@ export class Recherche {
     this.client = client;
   }
 
+  @cacheRechercheParNRésultats
   async rechercherVariables({
     f,
     nRésultatsDésirés,
@@ -35,6 +38,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherVariableSelonId({
     idVariable,
     f,
@@ -52,6 +56,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherVariableSelonNom({
     nomVariable,
     f,
@@ -69,6 +74,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherVariableSelonDescr({
     descrVariable,
     f,
@@ -86,6 +92,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherVariableSelonTexte({
     texte,
     f,
@@ -103,6 +110,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherMotsClefs({
     f,
     nRésultatsDésirés,
@@ -116,6 +124,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherMotClefSelonId({
     idMotClef,
     f,
@@ -133,6 +142,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherMotClefSelonNom({
     nomMotClef,
     f,
@@ -150,6 +160,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherMotClefSelonTexte({
     texte,
     f,
@@ -167,6 +178,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBds({
     f,
     nRésultatsDésirés,
@@ -177,6 +189,7 @@ export class Recherche {
     return await this.client.réseau!.rechercherBds({ f, nRésultatsDésirés });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonId({
     idBd,
     f,
@@ -194,6 +207,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonNom({
     nomBd,
     f,
@@ -211,6 +225,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonDescr({
     descrBd,
     f,
@@ -228,6 +243,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonIdMotClef({
     idMotClef,
     f,
@@ -247,6 +263,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonIdVariable({
     idVariable,
     f,
@@ -266,6 +283,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonNomMotClef({
     nomMotClef,
     f,
@@ -285,6 +303,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonNomVariable({
     nomVariable,
     f,
@@ -304,6 +323,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonMotClef({
     texte,
     f,
@@ -323,6 +343,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonVariable({
     texte,
     f,
@@ -342,6 +363,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherBdSelonTexte({
     texte,
     f,
@@ -363,6 +385,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjets({
     f,
     nRésultatsDésirés,
@@ -376,6 +399,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProfilSelonId({
     idCompte,
     f,
@@ -393,6 +417,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProfilSelonNom({
     nom,
     f,
@@ -410,6 +435,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProfilSelonImage({
     image,
     f,
@@ -427,6 +453,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProfilSelonActivité({
     f,
     nRésultatsDésirés,
@@ -442,6 +469,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProfilSelonCourriel({
     courriel,
     f,
@@ -459,6 +487,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonId({
     idProjet,
     f,
@@ -476,6 +505,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonNom({
     nomProjet,
     f,
@@ -493,6 +523,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonDescr({
     descrProjet,
     f,
@@ -510,6 +541,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonIdVariable({
     idVariable,
     f,
@@ -528,6 +560,8 @@ export class Recherche {
       fObjectif,
     });
   }
+
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonNomVariable({
     nomVariable,
     f,
@@ -547,6 +581,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonVariable({
     texte,
     f,
@@ -566,6 +601,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonIdMotClef({
     idMotClef,
     f,
@@ -585,6 +621,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonNomMotClef({
     nomMotClef,
     f,
@@ -604,6 +641,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonMotClef({
     texte,
     f,
@@ -623,6 +661,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonIdBd({
     idBd,
     f,
@@ -642,6 +681,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonBd({
     texte,
     f,
@@ -665,6 +705,7 @@ export class Recherche {
     });
   }
 
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonTexte({
     texte,
     f,
