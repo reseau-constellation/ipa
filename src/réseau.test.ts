@@ -713,6 +713,11 @@ typesClients.forEach((type) => {
 
         beforeAll(async () => {
           ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
+          moiMême = {
+            idBdCompte: idsBdCompte[0],
+            profondeur: 0,
+            confiance: 1
+          };
           ({ fOublier, fChangerProfondeur } =
             await clients[0].réseau!.suivreComptesRéseau({
               f: (c) => rés.mettreÀJour(c),
@@ -985,6 +990,11 @@ typesClients.forEach((type) => {
 
         beforeAll(async () => {
           ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
+          moiMême = {
+            idBdCompte: idsBdCompte[0],
+            profondeur: 0,
+            confiance: 1
+          };
           ({ fOublier, fChangerProfondeur } =
             await clients[0].réseau!.suivreComptesRéseauEtEnLigne({
               f: (c) => rés.mettreÀJour(c),
