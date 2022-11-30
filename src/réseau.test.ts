@@ -34,6 +34,7 @@ import {
   typeClient
 } from "@/utilsTests/index.js";
 import { config } from "@/utilsTests/sfipTest.js";
+import { RC4 } from "crypto-js";
 
 
 async function toutPréparer(n: number, type: typeClient) {
@@ -59,12 +60,12 @@ typesClients.forEach((type) => {
         let idsBdCompte: string[];
         let idsNodesSFIP: string[];
         let idsOrbite: string[];
-        let fsOublier: schémaFonctionOublier[];
         let clients: ClientConstellation[];
 
         const rés = new AttendreRésultat<{ addr: string; peer: string }[]>();
         const dispositifs = new AttendreRésultat<statutDispositif[]>();
         const membresEnLigne = new AttendreRésultat<statutMembre[]>();
+        const fsOublier: schémaFonctionOublier[] = [];
         
         beforeAll(async () => {
           ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
@@ -147,7 +148,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
           fsOublier.push(
             await clients[0].réseau!.suivreFiables({
               f: (m) => fiablesPropres.mettreÀJour(m),
@@ -159,7 +160,7 @@ typesClients.forEach((type) => {
               idBdCompte: idsBdCompte[0],
             })
           );
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
@@ -213,9 +214,6 @@ typesClients.forEach((type) => {
 
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
 
@@ -226,7 +224,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
           fsOublier.push(
             await clients[0].réseau!.suivreBloqués({
               f: (m) => bloquésTous.mettreÀJour(m),
@@ -243,7 +241,7 @@ typesClients.forEach((type) => {
               idBdCompte: idsBdCompte[0],
             })
           );
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
@@ -343,9 +341,6 @@ typesClients.forEach((type) => {
       describe("Suivre relations immédiates", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let idMotClef1: string;
@@ -360,7 +355,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
           fsOublier.push(
             await clients[0].réseau!.suivreRelationsImmédiates({
               f: (c) => relationsPropres.mettreÀJour(c),
@@ -372,7 +367,7 @@ typesClients.forEach((type) => {
               idBdCompte: idsBdCompte[0],
             })
           );
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
@@ -607,9 +602,6 @@ typesClients.forEach((type) => {
       describe("Suivre relations confiance", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let fOublier: schémaFonctionOublier;
@@ -617,13 +609,13 @@ typesClients.forEach((type) => {
         const rés = new AttendreRésultat<infoRelation[]>();
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
           ({ fOublier, fChangerProfondeur } =
             await clients[0].réseau!.suivreRelationsConfiance({
               f: (r) => rés.mettreÀJour(r),
               profondeur: 2,
             }));
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           if (fOublier) await fOublier();
@@ -711,8 +703,6 @@ typesClients.forEach((type) => {
       describe("Suivre comptes réseau", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
         let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
@@ -722,13 +712,13 @@ typesClients.forEach((type) => {
         const rés = new AttendreRésultat<infoMembreRéseau[]>();
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
           ({ fOublier, fChangerProfondeur } =
             await clients[0].réseau!.suivreComptesRéseau({
               f: (c) => rés.mettreÀJour(c),
               profondeur: 2,
             }));
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           if (fOublier) await fOublier();
@@ -985,8 +975,6 @@ typesClients.forEach((type) => {
       describe("Suivre comptes réseau et en ligne", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
         let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
@@ -996,13 +984,13 @@ typesClients.forEach((type) => {
         const rés = new AttendreRésultat<infoMembreRéseau[]>();
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
           ({ fOublier, fChangerProfondeur } =
             await clients[0].réseau!.suivreComptesRéseauEtEnLigne({
               f: (c) => rés.mettreÀJour(c),
               profondeur: 2,
             }));
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           if (fOublier) await fOublier();
@@ -1098,9 +1086,6 @@ typesClients.forEach((type) => {
       describe("Suivre confiance mon réseau pour membre", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let fOublier: schémaFonctionOublier;
@@ -1109,14 +1094,14 @@ typesClients.forEach((type) => {
         const rés = new AttendreRésultat<number>();
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
           ({ fOublier, fChangerProfondeur } =
             await clients[0].réseau!.suivreConfianceMonRéseauPourMembre({
               idBdCompte: idsBdCompte[2],
               f: (confiance) => rés.mettreÀJour(confiance),
               profondeur: 4,
             }));
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           if (fOublier) await fOublier();
@@ -1149,9 +1134,6 @@ typesClients.forEach((type) => {
       describe("Suivre confiance auteurs", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let fOublier: schémaFonctionOublier;
@@ -1160,7 +1142,7 @@ typesClients.forEach((type) => {
         const rés = new AttendreRésultat<number>();
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3, type));
           idMotClef = await clients[1].motsClefs!.créerMotClef();
 
           fOublier = await clients[0].réseau!.suivreConfianceAuteurs({
@@ -1168,7 +1150,7 @@ typesClients.forEach((type) => {
             clef: "motsClefs",
             f: (confiance) => rés.mettreÀJour(confiance),
           });
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           if (fOublier) await fOublier();
@@ -1218,572 +1200,467 @@ typesClients.forEach((type) => {
       });
 
       describe("Auteurs", function () {
-        describe("Mots-clefs", function () {
-          let fOublierClients: () => Promise<void>;
-          let idsBdCompte: string[];
-          let idsNodesSFIP: string[];
-          let idsOrbite: string[];
-          let moiMême: infoMembreRéseau;
-          let clients: ClientConstellation[];
+        let fOublierClients: () => Promise<void>;
+        let idsBdCompte: string[];
+        let clients: ClientConstellation[];
 
-          let idMotClef: string;
-          let fOublier: schémaFonctionOublier;
+        let idMotClef: string;
+        let idVariable: string;
+        let idBd: string;
+        let idProjet: string;
 
-          const rés = new AttendreRésultat<infoAuteur[]>();
+        const résMotClef = new AttendreRésultat<infoAuteur[]>();
+        const résVariable = new AttendreRésultat<infoAuteur[]>();
+        const résBds = new AttendreRésultat<infoAuteur[]>();
+        const résProjet = new AttendreRésultat<infoAuteur[]>();
 
-          beforeAll(async () => {
-            ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
-            idMotClef = await clients[0].motsClefs!.créerMotClef();
-            fOublier = await clients[0].réseau!.suivreAuteursMotClef({
-              idMotClef,
-              f: (auteurs) => rés.mettreÀJour(auteurs),
-            });
+        const fsOublier: schémaFonctionOublier[] = [];
+
+        beforeAll(async () => {
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
+
+          idMotClef = await clients[0].motsClefs!.créerMotClef();
+          fsOublier.push(await clients[0].réseau!.suivreAuteursMotClef({
+            idMotClef,
+            f: (auteurs) => résMotClef.mettreÀJour(auteurs),
+          }));
+
+          idVariable = await clients[0].variables!.créerVariable({
+            catégorie: "numérique",
           });
+          fsOublier.push(await clients[0].réseau!.suivreAuteursVariable({
+            idVariable,
+            f: (auteurs) => résVariable.mettreÀJour(auteurs),
+          }));
 
-          afterAll(async () => {
-            if (fOublier) await fOublier();
-            if (fOublierClients) await fOublierClients();
-            rés.toutAnnuler();
-          });
+          idBd = await clients[0].bds!.créerBd({ licence: "ODbl-1_0" });
+          fsOublier.push(await clients[0].réseau!.suivreAuteursBd({
+            idBd,
+            f: (auteurs) => résBds.mettreÀJour(auteurs),
+          }));
 
-          test("Inviter auteur", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: false,
-                rôle: MEMBRE,
-              },
-            ];
-            await clients[0].motsClefs!.inviterAuteur({
-              idMotClef,
-              idBdCompteAuteur: idsBdCompte[1],
-              rôle: MEMBRE,
-            });
+          idProjet = await clients[0].projets!.créerProjet();
+          fsOublier.push(await clients[0].réseau!.suivreAuteursProjet({
+            idProjet,
+            f: (auteurs) => résProjet.mettreÀJour(auteurs),
+          }));
 
-            const val = await rés.attendreQue((x) => !!x && x.length > 1);
-            expect(val).toEqual(réf);
-          });
-          test("Accepter invitation", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: true,
-                rôle: MEMBRE,
-              },
-            ];
+        }, config.patienceInit);
 
-            await clients[1].motsClefs!.ajouterÀMesMotsClefs({ id: idMotClef });
-            const val = await rés.attendreQue((x) =>
-              Boolean(
-                !!x &&
-                  x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
-              )
-            );
-
-            expect(val).toEqual(réf);
-          });
-          test("Refuser invitation", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: false,
-                rôle: MEMBRE,
-              },
-            ];
-
-            await clients[1].motsClefs!.enleverDeMesMotsClefs({ id: idMotClef });
-            const val = await rés.attendreQue(
-              (x) =>
-                !!x &&
-                !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
-            );
-
-            expect(val).toEqual(réf);
-          });
-          test("Promotion à modérateur", async () => {
-            await clients[0].motsClefs!.inviterAuteur({
-              idMotClef,
-              idBdCompteAuteur: idsBdCompte[1],
-              rôle: MODÉRATEUR,
-            });
-
-            await rés.attendreQue(
-              (auteurs) =>
-                !!auteurs &&
-                auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
-                  MODÉRATEUR
-            );
-          });
+        afterAll(async () => {
+          await Promise.all(fsOublier.map(f=>f()));
+          if (fOublierClients) await fOublierClients();
+          résMotClef.toutAnnuler();
+          résVariable.toutAnnuler();
         });
 
-        describe("Variables", function () {
-          let fOublierClients: () => Promise<void>;
-          let idsBdCompte: string[];
-          let idsNodesSFIP: string[];
-          let idsOrbite: string[];
-          let moiMême: infoMembreRéseau;
-          let clients: ClientConstellation[];
-
-          let idVariable: string;
-          let fOublier: schémaFonctionOublier;
-
-          const rés = new AttendreRésultat<infoAuteur[]>();
-
-          beforeAll(async () => {
-            ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
-            idVariable = await clients[0].variables!.créerVariable({
-              catégorie: "numérique",
-            });
-            fOublier = await clients[0].réseau!.suivreAuteursVariable({
-              idVariable,
-              f: (auteurs) => rés.mettreÀJour(auteurs),
-            });
-          });
-
-          afterAll(async () => {
-            if (fOublier) await fOublier();
-            if (fOublierClients) await fOublierClients();
-            rés.toutAnnuler();
-          });
-
-          test("Inviter auteur", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: false,
-                rôle: MEMBRE,
-              },
-            ];
-            await clients[0].variables!.inviterAuteur({
-              idVariable,
-              idBdCompteAuteur: idsBdCompte[1],
+        test("Mots-clefs : Inviter auteur", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: false,
               rôle: MEMBRE,
-            });
-
-            const val = await rés.attendreQue((x) => !!x && x.length > 1);
-            expect(val).toEqual(réf);
+            },
+          ];
+          await clients[0].motsClefs!.inviterAuteur({
+            idMotClef,
+            idBdCompteAuteur: idsBdCompte[1],
+            rôle: MEMBRE,
           });
-          test("Accepter invitation", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: true,
-                rôle: MEMBRE,
-              },
-            ];
 
-            await clients[1].variables!.ajouterÀMesVariables({ id: idVariable });
-            const val = await rés.attendreQue(
+          const val = await résMotClef.attendreQue((x) => !!x && x.length > 1);
+          expect(val).toEqual(réf);
+        });
+        test("Mots-clefs : Accepter invitation", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: true,
+              rôle: MEMBRE,
+            },
+          ];
+
+          await clients[1].motsClefs!.ajouterÀMesMotsClefs({ id: idMotClef });
+          const val = await résMotClef.attendreQue((x) =>
+            Boolean(
+              !!x &&
+                x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+            )
+          );
+
+          expect(val).toEqual(réf);
+        });
+        test("Mots-clefs : Refuser invitation", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: false,
+              rôle: MEMBRE,
+            },
+          ];
+
+          await clients[1].motsClefs!.enleverDeMesMotsClefs({ id: idMotClef });
+          const val = await résMotClef.attendreQue(
+            (x) =>
+              !!x &&
+              !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+          );
+
+          expect(val).toEqual(réf);
+        });
+        test("Mots-clefs : Promotion à modérateur", async () => {
+          await clients[0].motsClefs!.inviterAuteur({
+            idMotClef,
+            idBdCompteAuteur: idsBdCompte[1],
+            rôle: MODÉRATEUR,
+          });
+
+          await résMotClef.attendreQue(
+            (auteurs) =>
+              !!auteurs &&
+              auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
+                MODÉRATEUR
+          );
+        });
+
+        test("Variables : Inviter auteur", async () => {
+          
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: false,
+              rôle: MEMBRE,
+            },
+          ];
+          await clients[0].variables!.inviterAuteur({
+            idVariable,
+            idBdCompteAuteur: idsBdCompte[1],
+            rôle: MEMBRE,
+          });
+
+          const val = await résVariable.attendreQue((x) => !!x && x.length > 1);
+          expect(val).toEqual(réf);
+        });
+        test("Variables : Accepter invitation", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: true,
+              rôle: MEMBRE,
+            },
+          ];
+
+          await clients[1].variables!.ajouterÀMesVariables({ id: idVariable });
+          const val = await résVariable.attendreQue(
               (x) => x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
             );
 
             expect(val).toEqual(réf);
           });
-          test("Refuser invitation", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: false,
-                rôle: MEMBRE,
-              },
-            ];
-
-            await clients[1].variables!.enleverDeMesVariables({ id: idVariable });
-            const val = await rés.attendreQue(
-              (x) =>
-                !!x &&
-                !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
-            );
-
-            expect(val).toEqual(réf);
-          });
-          test("Promotion à modérateur", async () => {
-            await clients[0].variables!.inviterAuteur({
-              idVariable,
-              idBdCompteAuteur: idsBdCompte[1],
+        test("Variables : Refuser invitation", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
               rôle: MODÉRATEUR,
-            });
-
-            await rés.attendreQue(
-              (auteurs) =>
-                !!auteurs &&
-                auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
-                  MODÉRATEUR
-            );
-          });
-        });
-
-        describe("Bds", function () {
-          let fOublierClients: () => Promise<void>;
-          let idsBdCompte: string[];
-          let idsNodesSFIP: string[];
-          let idsOrbite: string[];
-          let moiMême: infoMembreRéseau;
-          let clients: ClientConstellation[];
-
-          let idBd: string;
-          let fOublier: schémaFonctionOublier;
-
-          const rés = new AttendreRésultat<infoAuteur[]>();
-
-          beforeAll(async () => {
-            ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
-            idBd = await clients[0].bds!.créerBd({ licence: "ODbl-1_0" });
-            fOublier = await clients[0].réseau!.suivreAuteursBd({
-              idBd,
-              f: (auteurs) => rés.mettreÀJour(auteurs),
-            });
-          });
-
-          afterAll(async () => {
-            if (fOublier) await fOublier();
-            if (fOublierClients) await fOublierClients();
-            rés.toutAnnuler();
-          });
-
-          test("Inviter auteur", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: false,
-                rôle: MEMBRE,
-              },
-            ];
-            await clients[0].bds!.inviterAuteur({
-              idBd,
-              idBdCompteAuteur: idsBdCompte[1],
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: false,
               rôle: MEMBRE,
-            });
+            },
+          ];
 
-            const val = await rés.attendreQue((x) => !!x && x.length > 1);
-            expect(val).toEqual(réf);
-          });
-
-          test("Accepter invitation", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: true,
-                rôle: MEMBRE,
-              },
-            ];
-
-            await clients[1].bds!.ajouterÀMesBds({ id: idBd });
-            const val = await rés.attendreQue((x) =>
-              Boolean(
-                !!x &&
-                  x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
-              )
-            );
-
-            expect(val).toEqual(réf);
-          });
-
-          test("Refuser invitation", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: false,
-                rôle: MEMBRE,
-              },
-            ];
-
-            await clients[1].bds!.enleverDeMesBds({ id: idBd });
-            const val = await rés.attendreQue(
-              (x) =>
-                !!x &&
-                !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
-            );
-
-            expect(val).toEqual(réf);
-          });
-
-          test("Promotion à modérateur", async () => {
-            await clients[0].bds!.inviterAuteur({
-              idBd,
-              idBdCompteAuteur: idsBdCompte[1],
-              rôle: MODÉRATEUR,
-            });
-
-            await rés.attendreQue(
-              (auteurs) =>
-                !!auteurs &&
-                auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
-                  MODÉRATEUR
-            );
-          });
-        });
-
-        describe("Projets", function () {
-          let fOublierClients: () => Promise<void>;
-          let idsBdCompte: string[];
-          let idsNodesSFIP: string[];
-          let idsOrbite: string[];
-          let moiMême: infoMembreRéseau;
-          let clients: ClientConstellation[];
-
-          let idProjet: string;
-          let fOublier: schémaFonctionOublier;
-
-          const rés = new AttendreRésultat<infoAuteur[]>();
-
-          beforeAll(async () => {
-            ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
-            idProjet = await clients[0].projets!.créerProjet();
-            fOublier = await clients[0].réseau!.suivreAuteursProjet({
-              idProjet,
-              f: (auteurs) => rés.mettreÀJour(auteurs),
-            });
-          });
-
-          afterAll(async () => {
-            if (fOublier) await fOublier();
-            if (fOublierClients) await fOublierClients();
-          });
-
-          test("Inviter auteur", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: false,
-                rôle: MEMBRE,
-              },
-            ];
-            await clients[0].projets!.inviterAuteur({
-              idProjet,
-              idBdCompteAuteur: idsBdCompte[1],
-              rôle: MEMBRE,
-            });
-
-            const val = await rés.attendreQue((x) => !!x && x.length > 1);
-            expect(val).toEqual(réf);
-          });
-
-          test("Accepter invitation", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: true,
-                rôle: MEMBRE,
-              },
-            ];
-
-            await clients[1].projets!.ajouterÀMesProjets({ idProjet });
-            const val = await rés.attendreQue((x) =>
-              Boolean(
-                !!x &&
-                  x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
-              )
-            );
-
-            expect(val).toEqual(réf);
-          });
-          test("Refuser invitation", async () => {
-            const réf: infoAuteur[] = [
-              {
-                idBdCompte: idsBdCompte[0],
-                accepté: true,
-                rôle: MODÉRATEUR,
-              },
-              {
-                idBdCompte: idsBdCompte[1],
-                accepté: false,
-                rôle: MEMBRE,
-              },
-            ];
-
-            await clients[1].projets!.enleverDeMesProjets({ idProjet });
-            const val = await rés.attendreQue(
-              (x) =>
-                !!x &&
-                !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
-            );
-
-            expect(val).toEqual(réf);
-          });
-          test("Promotion à modérateur", async () => {
-            await clients[0].projets!.inviterAuteur({
-              idProjet,
-              idBdCompteAuteur: idsBdCompte[1],
-              rôle: MODÉRATEUR,
-            });
-
-            await rés.attendreQue(
-              (auteurs) =>
-                !!auteurs &&
-                auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
-                  MODÉRATEUR
-            );
-          });
-        });
-      });
-
-      describe("Suivre noms membre", function () {
-        let fOublierClients: () => Promise<void>;
-        let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
-        let clients: ClientConstellation[];
-
-        const rés = new AttendreRésultat<{ [key: string]: string }>();
-        let fOublier: schémaFonctionOublier;
-
-        beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
-          await clients[0].profil!.sauvegarderNom({ langue: "fr", nom: "Julien" });
-          fOublier = await clients[1].réseau!.suivreNomsMembre({
-            idCompte: idsBdCompte[0],
-            f: (n) => rés.mettreÀJour(n),
-          });
-          rés.toutAnnuler();
-        });
-
-        afterAll(async () => {
-          if (fOublier) await fOublier();
-          if (fOublierClients) await fOublierClients();
-        });
-
-        test("Noms détectés", async () => {
-          const val = await rés.attendreQue((x) => !!x && Boolean(x.fr));
-          expect(val.fr).toEqual("Julien");
-        });
-
-
-      });
-
-      describe("Suivre courriel membre", function () {
-        let fOublierClients: () => Promise<void>;
-        let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
-        let clients: ClientConstellation[];
-
-        const rés = new AttendreRésultat<string | null>();
-        let fOublier: schémaFonctionOublier;
-
-        beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
-          await clients[0].profil!.sauvegarderCourriel({
-            courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-          });
-          fOublier = await clients[1].réseau!.suivreCourrielMembre({
-            idCompte: idsBdCompte[0],
-            f: (c) => rés.mettreÀJour(c),
-          });
-        });
-        afterAll(async () => {
-          if (fOublier) await fOublier();
-          if (fOublierClients) await fOublierClients();
-          rés.toutAnnuler();
-        });
-
-        test("Courriel détecté", async () => {
-          const val = await rés.attendreQue((x: string | null | undefined) =>
-            Boolean(x)
+          await clients[1].variables!.enleverDeMesVariables({ id: idVariable });
+          const val = await résVariable.attendreQue(
+            (x) =>
+              !!x &&
+              !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
           );
-          expect(val).toEqual("தொடர்பு@லஸ்ஸி.இந்தியா");
+
+          expect(val).toEqual(réf);
+        });
+        test("Variables : Promotion à modérateur", async () => {
+          await clients[0].variables!.inviterAuteur({
+            idVariable,
+            idBdCompteAuteur: idsBdCompte[1],
+            rôle: MODÉRATEUR,
+          });
+
+          await résVariable.attendreQue(
+            (auteurs) =>
+              !!auteurs &&
+              auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
+                MODÉRATEUR
+          );
+        });
+
+        test("Bds : Inviter auteur", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: false,
+              rôle: MEMBRE,
+            },
+          ];
+          await clients[0].bds!.inviterAuteur({
+            idBd,
+            idBdCompteAuteur: idsBdCompte[1],
+            rôle: MEMBRE,
+          });
+
+          const val = await résBds.attendreQue((x) => !!x && x.length > 1);
+          expect(val).toEqual(réf);
+        });
+        test("Bds : Accepter invitation", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: true,
+              rôle: MEMBRE,
+            },
+          ];
+
+          await clients[1].bds!.ajouterÀMesBds({ id: idBd });
+          const val = await résBds.attendreQue((x) =>
+            Boolean(
+              !!x &&
+                x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+            )
+          );
+
+          expect(val).toEqual(réf);
+        });
+        test("Bds : Refuser invitation", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: false,
+              rôle: MEMBRE,
+            },
+          ];
+
+          await clients[1].bds!.enleverDeMesBds({ id: idBd });
+          const val = await résBds.attendreQue(
+            (x) =>
+              !!x &&
+              !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+          );
+
+          expect(val).toEqual(réf);
+        });
+        test("Bds : Promotion à modérateur", async () => {
+          await clients[0].bds!.inviterAuteur({
+            idBd,
+            idBdCompteAuteur: idsBdCompte[1],
+            rôle: MODÉRATEUR,
+          });
+
+          await résBds.attendreQue(
+            (auteurs) =>
+              !!auteurs &&
+              auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
+                MODÉRATEUR
+          );
+        });
+
+        test("Projets : Inviter auteur", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: false,
+              rôle: MEMBRE,
+            },
+          ];
+          await clients[0].projets!.inviterAuteur({
+            idProjet,
+            idBdCompteAuteur: idsBdCompte[1],
+            rôle: MEMBRE,
+          });
+
+          const val = await résProjet.attendreQue((x) => !!x && x.length > 1);
+          expect(val).toEqual(réf);
+        });
+        test("Projets : Accepter invitation", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: true,
+              rôle: MEMBRE,
+            },
+          ];
+
+          await clients[1].projets!.ajouterÀMesProjets({ idProjet });
+          const val = await résProjet.attendreQue((x) =>
+            Boolean(
+              !!x &&
+                x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+            )
+          );
+
+          expect(val).toEqual(réf);
+        });
+        test("Projets : Refuser invitation", async () => {
+          const réf: infoAuteur[] = [
+            {
+              idBdCompte: idsBdCompte[0],
+              accepté: true,
+              rôle: MODÉRATEUR,
+            },
+            {
+              idBdCompte: idsBdCompte[1],
+              accepté: false,
+              rôle: MEMBRE,
+            },
+          ];
+
+          await clients[1].projets!.enleverDeMesProjets({ idProjet });
+          const val = await résProjet.attendreQue(
+            (x) =>
+              !!x &&
+              !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+          );
+
+          expect(val).toEqual(réf);
+        });
+        test("Projets : Promotion à modérateur", async () => {
+          await clients[0].projets!.inviterAuteur({
+            idProjet,
+            idBdCompteAuteur: idsBdCompte[1],
+            rôle: MODÉRATEUR,
+          });
+
+          await résProjet.attendreQue(
+            (auteurs) =>
+              !!auteurs &&
+              auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
+                MODÉRATEUR
+          );
         });
       });
 
-      describe("Suivre image membre", function () {
+      describe("Suivre membre", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
-        const rés = new AttendreRésultat<Uint8Array | null>();
-        let fOublier: schémaFonctionOublier;
+        const résNom = new AttendreRésultat<{ [key: string]: string }>();
+        const résCourriel = new AttendreRésultat<string | null>();
+        const résImage = new AttendreRésultat<Uint8Array | null>();
 
         const IMAGE = fs.readFileSync(
           path.join(dirRessourcesTests(), "logo.svg")
         );
 
+        const fsOublier: schémaFonctionOublier[] = [];
+
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
-          await clients[0].profil!.sauvegarderImage({ image: IMAGE });
-          fOublier = await clients[1].réseau!.suivreImageMembre({
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
+          
+          fsOublier.push(await clients[1].réseau!.suivreNomsMembre({
             idCompte: idsBdCompte[0],
-            f: (i) => rés.mettreÀJour(i),
-          });
+            f: (n) => résNom.mettreÀJour(n),
+          }));
+          fsOublier.push(await clients[1].réseau!.suivreCourrielMembre({
+            idCompte: idsBdCompte[0],
+            f: (c) => résCourriel.mettreÀJour(c),
+          }));
+          fsOublier.push(await clients[1].réseau!.suivreImageMembre({
+            idCompte: idsBdCompte[0],
+            f: (i) => résImage.mettreÀJour(i),
+          }));
+          
         });
 
         afterAll(async () => {
-          if (fOublier) await fOublier();
+          await Promise.all(fsOublier.map(f=>f()));
           if (fOublierClients) await fOublierClients();
-          rés.toutAnnuler();
+          résNom.toutAnnuler();
+          résCourriel.toutAnnuler();
+          résImage.toutAnnuler();
+        });
+
+        test("Nom détecté", async () => {
+          await clients[0].profil!.sauvegarderNom({ langue: "fr", nom: "Julien" });
+
+          const val = await résNom.attendreQue((x) => !!x && Boolean(x.fr));
+          expect(val.fr).toEqual("Julien");
+        });
+
+        test("Courriel détecté", async () => {
+          await clients[0].profil!.sauvegarderCourriel({
+            courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
+          });
+
+          const val = await résCourriel.attendreQue((x: string | null | undefined) =>
+            Boolean(x)
+          );
+          expect(val).toEqual("தொடர்பு@லஸ்ஸி.இந்தியா");
         });
 
         test("Image détectée", async () => {
-          const val = await rés.attendreExiste();
+          await clients[0].profil!.sauvegarderImage({ image: IMAGE });
+
+          const val = await résImage.attendreExiste();
           expect(val).toEqual(new Uint8Array(IMAGE));
         });
+
+
       });
 
       describe("Suivre mots-clefs", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let idMotClef1: string;
@@ -1795,7 +1672,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
           fsOublier.push(
             await clients[1].réseau!.suivreMotsClefsMembre({
               idCompte: idsBdCompte[0],
@@ -1834,9 +1711,6 @@ typesClients.forEach((type) => {
       describe("Suivre variables", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let idVariable1: string;
@@ -1848,7 +1722,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
           fsOublier.push(
             await clients[1].réseau!.suivreVariablesMembre({
               idCompte: idsBdCompte[0],
@@ -1892,9 +1766,6 @@ typesClients.forEach((type) => {
       describe("Suivre BDs", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         const résPropres = new AttendreRésultat<string[]>();
@@ -1903,7 +1774,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
           fsOublier.push(
             await clients[1].réseau!.suivreBdsMembre({
               idCompte: idsBdCompte[0],
@@ -1942,9 +1813,6 @@ typesClients.forEach((type) => {
       describe("Suivre projets", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         const résPropres = new AttendreRésultat<string[]>();
@@ -1953,7 +1821,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
           fsOublier.push(
             await clients[1].réseau!.suivreProjetsMembre({
               idCompte: idsBdCompte[0],
@@ -1992,9 +1860,6 @@ typesClients.forEach((type) => {
       describe("Suivre favoris", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let idMotClef: string;
@@ -2005,7 +1870,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
           fsOublier.push(
             await clients[1].réseau!.suivreFavorisMembre({
               idCompte: idsBdCompte[0],
@@ -2068,9 +1933,6 @@ typesClients.forEach((type) => {
       describe("Suivre favoris objet", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let idMotClef: string;
@@ -2081,7 +1943,7 @@ typesClients.forEach((type) => {
         >();
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
           idMotClef = await clients[0].motsClefs!.créerMotClef();
 
           ({ fOublier } = await clients[0].réseau!.suivreFavorisObjet({
@@ -2151,9 +2013,7 @@ typesClients.forEach((type) => {
       describe("Suivre réplications", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
         let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
 
         let idBd: string;
@@ -2162,7 +2022,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, idsOrbite, clients, fOublierClients } = await toutPréparer(2, type));
           idBd = await clients[0].bds!.créerBd({ licence: "ODbl-1_0" });
           fsOublier.push(
             (
@@ -2217,9 +2077,6 @@ typesClients.forEach((type) => {
       describe("Suivre BD par mot-clef unique", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let idsNodesSFIP: string[];
-        let idsOrbite: string[];
-        let moiMême: infoMembreRéseau;
         let clients: ClientConstellation[];
         
         let motClef: string;
@@ -2249,7 +2106,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
-          ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } = await toutPréparer(3, type));
+          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2, type));
           const idVarClef = await clients[0].variables!.créerVariable({
             catégorie: "chaîne",
           });
