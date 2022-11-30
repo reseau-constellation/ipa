@@ -295,7 +295,7 @@ export const générerOrbites = async (
   return { orbites, fOublier };
 };
 
-type typeClient = "directe" | "proc" | "travailleur";
+export type typeClient = "directe" | "proc" | "travailleur";
 
 export const générerClients = async (
   n = 1,
