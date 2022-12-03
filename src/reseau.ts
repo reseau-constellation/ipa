@@ -41,6 +41,7 @@ import {
   cacheRechercheParProfondeur,
   cacheSuivi,
 } from "@/décorateursCache.js";
+import { v4 as uuidv4 } from "uuid";
 
 export interface infoDispositif {
   idSFIP: string;
@@ -202,6 +203,7 @@ export default class Réseau extends EventEmitter {
   client: ClientConstellation;
   idBd: string;
   bloquésPrivés: Set<string>;
+  _fermé: boolean
 
   dispositifsEnLigne: {
     [key: string]: statutDispositif;
@@ -219,15 +221,31 @@ export default class Réseau extends EventEmitter {
 
     this.dispositifsEnLigne = {};
     this.fsOublier = [];
+    this._fermé = false;
   }
 
   async initialiser(): Promise<void> {
+    const promesses: { [clef: string]: Promise<void> } = {}
     await this.client.sfip!.pubsub.subscribe(
       this.client.sujet_réseau,
-      async (msg: MessagePubSub) => await this.messageReçu({ msg })
+      (msg: MessagePubSub) => {
+        const id = uuidv4()
+        try {
+          const promesse = this.messageReçu({ msg })
+          promesses[id] = promesse
+          promesse.then(() => { delete promesses[id]})
+          console.log("message traité")
+        } catch (e) {
+          console.error(e.toString())
+          console.error(e.stack.toString())
+        }
+      }
     );
     this.fsOublier.push(async () => {
+      console.log("désabonner")
       await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau);
+      await Promise.all(Object.values(promesses))
+      console.log("désabonné")
     });
 
     // @ts-ignore
@@ -256,7 +274,7 @@ export default class Réseau extends EventEmitter {
     }, INTERVALE_SALUT);
     this.fsOublier.push(async () => clearInterval(x));
 
-    this.direSalut({});
+    await this.direSalut({});
   }
 
   async envoyerMessageAuDispositif({
@@ -290,7 +308,7 @@ export default class Réseau extends EventEmitter {
       .filter((d) => d.infoDispositif.idCompte === idCompte)
       .filter((d) => d.vuÀ && maintenant - d.vuÀ < INTERVALE_SALUT + 1000 * 30);
     if (!dispositifsMembre.length)
-      throw `Aucun dispositif présentement en ligne pour membre ${idCompte}`;
+      throw new Error(`Aucun dispositif présentement en ligne pour membre ${idCompte}`);
     await Promise.all(
       dispositifsMembre.map(async (d) => {
         const { idSFIP, encryption } = d.infoDispositif;
@@ -381,6 +399,9 @@ export default class Réseau extends EventEmitter {
   }
 
   async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
+    console.log("messageReçu 1")
+    if (this._fermé) return
+    console.log("messageReçu 2")
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
 
     const { encrypté, destinataire } = messageJSON;
@@ -409,6 +430,7 @@ export default class Réseau extends EventEmitter {
     }
 
     // Assurer que la signature est valide (message envoyé par détenteur de idOrbite)
+    console.log("vérifier signature")
     const signatureValide = await this.client.vérifierSignature({
       signature,
       message: JSON.stringify(valeur),
@@ -419,21 +441,25 @@ export default class Réseau extends EventEmitter {
 
     switch (valeur.type) {
       case "Salut !": {
+        console.log("salut !")
         const contenuSalut = contenu as ContenuMessageSalut;
         const { clefPublique } = contenuSalut;
 
         // S'assurer que idOrbite est la même que celle sur la signature
         if (clefPublique !== signature.clefPublique) return;
 
-        this.recevoirSalut({ message: contenuSalut });
+        console.log("recevoir salut")
+        await this.recevoirSalut({ message: contenuSalut });
+        console.log("salut reçu")
 
-        if (!destinataire) this.direSalut({ à: contenuSalut.idSFIP }); // Renvoyer le message, si ce n'était pas déjà fait
+        if (!destinataire) await this.direSalut({ à: contenuSalut.idSFIP }); // Renvoyer le message, si ce n'était pas déjà fait
+        console.log("resalué !")
         break;
       }
       case "Je veux rejoindre ce compte": {
         const contenuMessage = contenu as ContenuMessageRejoindreCompte;
 
-        this.client.considérerRequèteRejoindreCompte({
+        await this.client.considérerRequèteRejoindreCompte({
           requète: contenuMessage,
         });
 
@@ -442,6 +468,7 @@ export default class Réseau extends EventEmitter {
       default:
         console.error(`Message inconnu: ${valeur.type}`);
     }
+    console.log("messageReçu 3")
   }
 
   async recevoirSalut({
@@ -998,8 +1025,8 @@ export default class Réseau extends EventEmitter {
       dicOublierRelations[idCompte] = fOublierRelationsImmédiates;
     };
 
-    const oublierRelationsImmédiates = (idCompte: string): void => {
-      dicOublierRelations[idCompte]();
+    const oublierRelationsImmédiates = async (idCompte: string): Promise<void> => {
+      await dicOublierRelations[idCompte]();
       delete dicOublierRelations[idCompte];
       delete dicRelations[idCompte];
     };
@@ -1019,7 +1046,7 @@ export default class Réseau extends EventEmitter {
             .flat()
         ),
       ].filter((id) => !Object.keys(dicRelations).includes(id));
-      àOublier.forEach((id) => oublierRelationsImmédiates(id));
+      await Promise.all(àOublier.map((id) => oublierRelationsImmédiates(id)));
       await Promise.all(àSuivre.map((id) => suivreRelationsImmédiates(id)));
       fFinale();
       verrou.release("modification");
@@ -1611,8 +1638,8 @@ export default class Réseau extends EventEmitter {
       fsOublierRechercheMembres[idBdCompte] = fOublierRechercheMembre;
     };
 
-    const oublierRésultatsMembre = (compte: string) => {
-      fsOublierRechercheMembres[compte]();
+    const oublierRésultatsMembre = async (compte: string) => {
+      await fsOublierRechercheMembres[compte]();
       delete résultatsParMembre[compte];
       delete fsOublierRechercheMembres[compte];
       fFinale();
@@ -1643,7 +1670,7 @@ export default class Réseau extends EventEmitter {
       await Promise.all(nouveaux.map(suivreRésultatsMembre));
       changés.forEach((c) => résultatsParMembre[c.idBdCompte].mettreÀJour(c));
 
-      clefsObsolètes.forEach((o) => oublierRésultatsMembre(o));
+      await Promise.all(clefsObsolètes.map((o) => oublierRésultatsMembre(o)));
 
       verrou.release("rechercher");
     };
@@ -2606,6 +2633,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
+    this._fermé = true;
     await Promise.all(this.fsOublier.map((f) => f()));
   }
 }
