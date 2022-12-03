@@ -25,12 +25,13 @@ export type ÉlémentFavorisAvecObjet = ÉlémentFavoris & { idObjet: string };
 export default class Favoris {
   client: ClientConstellation;
   idBd: string;
+  _promesseInit: Promise<void>;
   oublierÉpingler?: schémaFonctionOublier;
 
   constructor({ client, id }: { client: ClientConstellation; id: string }) {
     this.client = client;
     this.idBd = id;
-    this._épinglerFavoris();
+    this._promesseInit = this._épinglerFavoris();
   }
 
   async _épinglerFavoris() {
@@ -205,6 +206,7 @@ export default class Favoris {
   }
 
   async fermer(): Promise<void> {
+    await this._promesseInit
     if (this.oublierÉpingler) await this.oublierÉpingler();
   }
 }

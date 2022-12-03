@@ -398,7 +398,7 @@ typesClients.forEach((type) => {
             idBdCompte: idsBdCompte[1],
           });
           const val = await relationsPropres.attendreQue(
-            (x) => !!x && Boolean(x.length)
+            (x) => !!x && !!x.length
           );
           expect(val.map((r) => r.idBdCompte)).toEqual(
             expect.arrayContaining([idsBdCompte[1]])
@@ -434,7 +434,8 @@ typesClients.forEach((type) => {
           await clients[0].réseau!.nePlusFaireConfianceAuMembre({
             idBdCompte: idsBdCompte[1],
           });
-          expect(relationsPropres.val).toHaveLength(0);
+          const val = await relationsPropres.attendreQue(x=>!!x && x.length == 0)
+          expect(val).toHaveLength(0);
         });
 
         test("Ajout aux favoris détecté", async () => {
@@ -445,7 +446,7 @@ typesClients.forEach((type) => {
           });
 
           const val = await relationsPropres.attendreQue(
-            (x) => !!x && Boolean(x.length)
+            (x) => !!x && x.length > 0
           );
           expect(val.map((r) => r.idBdCompte)).toContain(idsBdCompte[1]);
         });
@@ -1263,6 +1264,8 @@ typesClients.forEach((type) => {
           if (fOublierClients) await fOublierClients();
           résMotClef.toutAnnuler();
           résVariable.toutAnnuler();
+          résBds.toutAnnuler();
+          résProjet.toutAnnuler();
         });
 
         test("Mots-clefs : Inviter auteur", async () => {
@@ -1696,7 +1699,7 @@ typesClients.forEach((type) => {
               f: (motsClefs) => résPropres.mettreÀJour(motsClefs),
             })
           );
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
@@ -1746,14 +1749,14 @@ typesClients.forEach((type) => {
               f: (variables) => résPropres.mettreÀJour(variables),
             })
           );
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
-          if (fOublierClients) await fOublierClients();
-
           résPropres.toutAnnuler();
           résAutres.toutAnnuler();
+
+          await Promise.all(fsOublier.map((f) => f()));
+          if (fOublierClients) await fOublierClients();
         });
 
         test("Mes variables détectées", async () => {
@@ -1798,7 +1801,7 @@ typesClients.forEach((type) => {
               f: (bds) => résPropres.mettreÀJour(bds),
             })
           );
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
@@ -1845,7 +1848,7 @@ typesClients.forEach((type) => {
               f: (projets) => résPropres.mettreÀJour(projets),
             })
           );
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
@@ -1896,12 +1899,13 @@ typesClients.forEach((type) => {
           );
 
           idMotClef = await clients[0].motsClefs!.créerMotClef();
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
           if (fOublierClients) await fOublierClients();
           résPropres.toutAnnuler();
+          résAutres.toutAnnuler();
         });
 
         test("Mes favoris détectés", async () => {
@@ -1936,7 +1940,7 @@ typesClients.forEach((type) => {
             id: idMotClef,
             dispositifs: "TOUS",
           });
-          const val = await résAutres.attendreQue((x) => !!x && !!x.length);
+          const val = await résAutres.attendreQue((x) => !!x && x.length > 0);
           expect(val).toEqual(réf);
         });
       });
@@ -1962,7 +1966,7 @@ typesClients.forEach((type) => {
             f: (favoris) => rés.mettreÀJour(favoris),
             profondeur: 4,
           }));
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           if (fOublier) await fOublier();
@@ -2214,7 +2218,7 @@ typesClients.forEach((type) => {
             idTableau: idTableau2,
             vals: données3,
           });
-        }, config.patience);
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));

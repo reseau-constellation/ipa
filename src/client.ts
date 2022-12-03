@@ -1869,12 +1869,9 @@ export default class ClientConstellation extends EventEmitter {
 
     await this.fermerCompte();
     if (this.épingles) await this.épingles.fermer();
-    console.log("fermer", 3)
 
     if (this.orbite && !this._orbiteExterne) await this.orbite.stop();
-    console.log("fermer", 4)
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
-    console.log("fermer", 5)
   }
 
   static async créer(
