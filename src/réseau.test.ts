@@ -34,6 +34,7 @@ import {
   typeClient
 } from "@/utilsTests/index.js";
 import { config } from "@/utilsTests/sfipTest.js";
+import { connect } from "http2";
 
 
 async function toutPréparer(n: number, type: typeClient) {
@@ -102,7 +103,7 @@ typesClients.forEach((type) => {
           expect(val.map((d) => d.infoDispositif.idOrbite)).toEqual(
             expect.arrayContaining(idsOrbite)
           );
-        });
+        }, config.patience);
           
         test("Autres membres détectés", async () => {
           const réfRés: infoMembre[] = []
@@ -131,7 +132,7 @@ typesClients.forEach((type) => {
           expect(val.map((r) => r.infoMembre)).toEqual(
             expect.arrayContaining(réfRés)
           );
-        });
+        }, config.patience);
 
       });
 
@@ -428,7 +429,7 @@ typesClients.forEach((type) => {
           expect(val.map((r) => r.idBdCompte)).toEqual(
             expect.arrayContaining([idsBdCompte[1]])
           );
-        });
+        }, config.patience);
 
         test("Enlever membre de confiance détecté", async () => {
           await clients[0].réseau!.nePlusFaireConfianceAuMembre({
@@ -1027,7 +1028,7 @@ typesClients.forEach((type) => {
 
           const val = await rés.attendreQue((x) => !!x && x.length === 3);
           expect(val).toEqual(expect.arrayContaining(réf));
-        });
+        }, config.patience);
 
         test("Comptes réseau détectés", async () => {
           const réf: infoMembreRéseau[] = [
@@ -1057,7 +1058,7 @@ typesClients.forEach((type) => {
           );
 
           expect(val).toEqual(expect.arrayContaining(réf));
-        });
+        }, config.patience);
 
         test("Changer profondeur", async () => {
           await clients[1].réseau!.faireConfianceAuMembre({
@@ -1092,7 +1093,7 @@ typesClients.forEach((type) => {
           );
 
           expect(val).toEqual(expect.arrayContaining(réf));
-        });
+        }, config.patience);
       });
 
       describe("Suivre confiance mon réseau pour membre", function () {
@@ -1313,7 +1314,7 @@ typesClients.forEach((type) => {
           );
 
           expect(val).toEqual(réf);
-        });
+        }, config.patience);
         test("Mots-clefs : Refuser invitation", async () => {
           const réf: infoAuteur[] = [
             {
@@ -1395,7 +1396,7 @@ typesClients.forEach((type) => {
             );
 
             expect(val).toEqual(réf);
-          });
+          }, config.patience);
         test("Variables : Refuser invitation", async () => {
           const réf: infoAuteur[] = [
             {
@@ -1479,7 +1480,7 @@ typesClients.forEach((type) => {
           );
 
           expect(val).toEqual(réf);
-        });
+        }, config.patience);
         test("Bds : Refuser invitation", async () => {
           const réf: infoAuteur[] = [
             {
@@ -1563,7 +1564,7 @@ typesClients.forEach((type) => {
           );
 
           expect(val).toEqual(réf);
-        });
+        }, config.patience);
         test("Projets : Refuser invitation", async () => {
           const réf: infoAuteur[] = [
             {
@@ -1649,7 +1650,7 @@ typesClients.forEach((type) => {
 
           const val = await résNom.attendreQue((x) => !!x && Boolean(x.fr));
           expect(val.fr).toEqual("Julien");
-        });
+        }, config.patience);
 
         test("Courriel détecté", async () => {
           await clients[0].profil!.sauvegarderCourriel({
@@ -1942,7 +1943,7 @@ typesClients.forEach((type) => {
           });
           const val = await résAutres.attendreQue((x) => !!x && x.length > 0);
           expect(val).toEqual(réf);
-        });
+        }, config.patience);
       });
 
       describe("Suivre favoris objet", function () {
@@ -2022,7 +2023,7 @@ typesClients.forEach((type) => {
           const val = await rés.attendreQue((x) => !!x && x.length === 2);
 
           expect(val).toEqual(réf);
-        });
+        }, config.patience);
       });
 
       describe("Suivre réplications", function () {
@@ -2086,7 +2087,7 @@ typesClients.forEach((type) => {
           expect(val.dispositifs.map((d) => d.idDispositif)).toEqual(
             expect.arrayContaining([idsOrbite[0], idsOrbite[1]])
           );
-        });
+        }, config.patience);
       });
 
       describe("Suivre BD par mot-clef unique", function () {

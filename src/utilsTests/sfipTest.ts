@@ -1,10 +1,10 @@
 import { createController, ControllerOptions, Controller } from "ipfsd-ctl";
 
-const FACTEUR = 2;
+const FACTEUR = 1;
 
 export const config = {
-  patience: 30 * 1000 * FACTEUR,
-  patienceInit: 3 * 60 * 1000 * FACTEUR,
+  patience: 10 * 1000 * FACTEUR,
+  patienceInit: 60 * 1000 * FACTEUR,
 };
 
 export const initierSFIP = async (dossier = ""): Promise<Controller> => {
