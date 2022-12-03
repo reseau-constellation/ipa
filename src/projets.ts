@@ -227,7 +227,7 @@ export default class Projets {
       optionsAccès,
     });
     if (!idBdNoms) {
-      throw `Permission de modification refusée pour Projet ${id}.`;
+      throw new Error(`Permission de modification refusée pour Projet ${id}.`);
     }
 
     return await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdNoms });
@@ -286,7 +286,7 @@ export default class Projets {
       optionsAccès,
     });
     if (!idBdDescr) {
-      throw `Permission de modification refusée pour Projet ${id}.`;
+      throw new Error(`Permission de modification refusée pour Projet ${id}.`);
     }
 
     return await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdDescr });
@@ -345,7 +345,7 @@ export default class Projets {
       optionsAccès,
     });
     if (!idBdMotsClefs) {
-      throw `Permission de modification refusée pour projet ${id}.`;
+      throw new Error(`Permission de modification refusée pour projet ${id}.`);
     }
 
     return await this.client.ouvrirBd<FeedStore<string>>({ id: idBdMotsClefs });
@@ -402,7 +402,7 @@ export default class Projets {
       type: "feed",
       optionsAccès,
     });
-    if (!idBdBds) throw `Permission de modification refusée pour Projet ${id}.`;
+    if (!idBdBds) throw new Error(`Permission de modification refusée pour Projet ${id}.`);
 
     return await this.client.ouvrirBd<FeedStore<string>>({ id: idBdBds });
   }

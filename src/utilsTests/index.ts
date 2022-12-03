@@ -13,6 +13,7 @@ import Store from "orbit-db-store";
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 import fs from "fs";
+import os from "os";
 import Semaphore from "@chriscdn/promise-semaphore";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
@@ -28,7 +29,7 @@ export const dirRessourcesTests = (): string => {
 };
 
 export const dirTempoTests = (): string => {
-  return path.resolve(path.dirname(""), "src", "utilsTests", "_tempo");
+  return fs.mkdtempSync(path.join(os.tmpdir(), "constl-ipa"));
 };
 
 export const obtDirTempoPourTest = (nom?: string): string => {
@@ -261,11 +262,11 @@ export const générerOrbites = async (
 
   rmrf.sync(racineDossierOrbite);
   const _générer = async (i: number): Promise<void> => {
-    const racineDossier = `${racineDossierOrbite}/sfip_${i}`;
-    const dsfip = await initierSFIP(racineDossier);
+    const racineDossier = `${racineDossierOrbite}/${i}`;
+    const dsfip = await initierSFIP(`${racineDossier}/sfip`);
     const sfip = dsfip.api;
     const orbite = await OrbitDB.createInstance(sfip, {
-      directory: racineDossier,
+      directory: `${racineDossier}/orbite`,
     });
 
     for (const ip of sfips) {
@@ -280,17 +281,22 @@ export const générerOrbites = async (
   await Promise.all([...Array(n).keys()].map((i) => _générer(i)));
 
   const fOublier = async () => {
+    console.log("on oublie orbite")
     await Promise.all(
-      orbites.map(async (orbite) => {
-        await orbite.stop();
+      orbites.map(async orbite => {
+        console.log("oublier orbite", orbite.id)
+        await orbite.stop()
       })
     );
+    console.log("on oublie SFIP")
     await Promise.all(
       dssfip.map(async (d) => {
         await arrêterSFIP(d);
       })
     );
+    console.log("on efface le dossier")
     rmrf.sync(racineDossierOrbite);
+    console.log("on a fini !")
   };
   return { orbites, fOublier };
 };
@@ -342,8 +348,11 @@ export const générerClients = async (
   }
 
   const fOublier = async () => {
+    console.log("oublier clients")
     await Promise.all(clients.map((client) => client.fermer()));
+    console.log("oublier autres")
     await Promise.all(fsOublier.map((f) => f()));
+    console.log("tous oubliés")
   };
   return { fOublier, clients };
 };

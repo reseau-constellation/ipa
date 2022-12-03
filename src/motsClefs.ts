@@ -131,7 +131,7 @@ export default class MotsClefs {
       type: "kvstore",
     });
     if (!idBdNoms) {
-      throw `Permission de modification refusée pour mot clef ${id}.`;
+      throw new Error(`Permission de modification refusée pour mot clef ${id}.`);
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
@@ -158,7 +158,7 @@ export default class MotsClefs {
       type: "kvstore",
     });
     if (!idBdNoms) {
-      throw `Permission de modification refusée pour mot clef ${id}.`;
+      throw new Error(`Permission de modification refusée pour mot clef ${id}.`);
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
@@ -181,7 +181,7 @@ export default class MotsClefs {
       type: "kvstore",
     });
     if (!idBdNoms) {
-      throw `Permission de modification refusée pour mot clef ${id}.`;
+      throw new Error(`Permission de modification refusée pour mot clef ${id}.`);
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<

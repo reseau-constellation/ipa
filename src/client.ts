@@ -532,9 +532,9 @@ export default class ClientConstellation extends EventEmitter {
     >({ id: idBdListeInit });
 
     const idNouvelleBdListe = nouvelleBd.get(clef);
-    if (!idNouvelleBdListe) throw "La nouvelle BD n'existait pas.";
+    if (!idNouvelleBdListe) throw new Error("La nouvelle BD n'existait pas.");
     if (typeof idNouvelleBdListe !== "string")
-      throw `${idNouvelleBdListe} n'est pas une adresse Orbite.`;
+      throw new Error(`${idNouvelleBdListe} n'est pas une adresse Orbite.`);
 
     const { bd: nouvelleBdListe, fOublier: fOublierNouvelle } =
       await this.ouvrirBd<FeedStore<T>>({ id: idNouvelleBdListe });
@@ -1856,8 +1856,9 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async fermerCompte(): Promise<void> {
-    if (this.favoris) await this.favoris.fermer();
     if (this.réseau) await this.réseau.fermer();
+    if (this.favoris) await this.favoris.fermer();
+    
     if (this.automatisations) await this.automatisations.fermer();
   }
 
@@ -1868,9 +1869,12 @@ export default class ClientConstellation extends EventEmitter {
 
     await this.fermerCompte();
     if (this.épingles) await this.épingles.fermer();
+    console.log("fermer", 3)
 
     if (this.orbite && !this._orbiteExterne) await this.orbite.stop();
+    console.log("fermer", 4)
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
+    console.log("fermer", 5)
   }
 
   static async créer(

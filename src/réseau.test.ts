@@ -34,7 +34,6 @@ import {
   typeClient
 } from "@/utilsTests/index.js";
 import { config } from "@/utilsTests/sfipTest.js";
-import { RC4 } from "crypto-js";
 
 
 async function toutPréparer(n: number, type: typeClient) {
@@ -83,8 +82,8 @@ typesClients.forEach((type) => {
         }, config.patienceInit * 3)
 
         afterAll(async () => {
-          if (fOublierClients) await fOublierClients();
           await Promise.all(fsOublier.map(f=>f()));
+          if (fOublierClients) await fOublierClients();
           rés.toutAnnuler();
           dispositifs.toutAnnuler();
           membresEnLigne.toutAnnuler();
@@ -253,12 +252,14 @@ typesClients.forEach((type) => {
         });
 
         test("Personne pour commencer", async () => {
+          await bloquésPubliques.attendreExiste();
           expect(bloquésPubliques.val).toHaveLength(0);
         });
 
         test("Bloquer quelqu'un", async () => {
           await clients[0].réseau!.bloquerMembre({ idBdCompte: idsBdCompte[1] });
-          expect(isArray(bloquésTous.val));
+          await bloquésTous.attendreQue(x=>!!x && x.length > 0)
+
           expect(bloquésTous.val).toHaveLength(1);
           expect(bloquésTous.val).toEqual(
             expect.arrayContaining([
@@ -278,7 +279,9 @@ typesClients.forEach((type) => {
             idBdCompte: idsBdCompte[1],
           });
 
-          expect(bloquésTous.val).toEqual(
+          const bloqués = await bloquésTous.attendreQue(x=>!!x && x.length > 0)
+
+          expect(bloqués).toEqual(
             expect.arrayContaining([
               {
                 idBdCompte: idsBdCompte[1],
@@ -293,7 +296,9 @@ typesClients.forEach((type) => {
             idBdCompte: idsBdCompte[2],
             privé: true,
           });
-          expect(bloquésTous.val).toEqual(
+
+          const bloqués = await bloquésTous.attendreQue(x=>!!x && x.length > 1) 
+          expect(bloqués).toEqual(
             expect.arrayContaining([
               {
                 idBdCompte: idsBdCompte[1],
@@ -378,12 +383,8 @@ typesClients.forEach((type) => {
         });
 
         test("Personne pour commencer", async () => {
-          const propres = await relationsPropres.attendreQue(
-            (x) => x?.length === 0
-          );
-          const autres = await relationsAutres.attendreQue(
-            (x) => x?.length === 0
-          );
+          const propres = await relationsPropres.attendreExiste();
+          const autres = await relationsAutres.attendreExiste();
 
           expect(isArray(propres)).toBe(true);
           expect(propres).toHaveLength(0);
@@ -2043,7 +2044,7 @@ typesClients.forEach((type) => {
               })
             ).fOublier
           );
-        });
+        }, config.patienceInit);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));

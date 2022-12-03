@@ -60,7 +60,7 @@ export class CacheSuivi {
       Object.entries(args).filter((x) => typeof x[1] !== "function")
     );
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
-      throw (
+      throw new Error(
         "Plus d'un argument pour " +
         adresseFonction +
         " est une fonction : " +
@@ -147,9 +147,9 @@ export class CacheSuivi {
 
     const taille = args[nomArgTaille];
     if (taille === undefined)
-      throw `Aucun argument de nom ${nomArgTaille} n'a été passé à la fonction ${adresseFonction}.`;
+      throw new Error(`Aucun argument de nom ${nomArgTaille} n'a été passé à la fonction ${adresseFonction}.`);
     if (typeof taille !== "number")
-      throw `Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`;
+      throw new Error(`Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`);
 
     const codeCache = this.générerCodeCache({
       adresseFonction,
@@ -339,7 +339,7 @@ export const envelopper = ({
 
   if (typeof original === "function") {
     descripteur.value = function (...args: any[]) {
-      if (args.length > 1) throw "Args trop longs";
+      if (args.length > 1) throw new Error("Args trop longs");
       const client = this.client ? this.client : this;
 
       try {
@@ -373,7 +373,7 @@ export const envelopper = ({
       }
     };
   } else {
-    throw "L'objet décoré n'est pas une fonction";
+    throw new Error("L'objet décoré n'est pas une fonction");
   }
   return descripteur;
 };

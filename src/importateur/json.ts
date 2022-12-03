@@ -153,7 +153,7 @@ export const extraireDonnées = (
         throw new Error(`${c} ne peut pas indexer un objet.`);
       }
     } else {
-      throw new Error();
+      throw new Error(`Clef de type non indexable : ${c}`);
     }
   }
   return donnéesFinales;
@@ -176,7 +176,7 @@ export default class ImportateurDonnéesJSON {
 
     let racineDonnéesJSON = extraireDonnées(this.donnéesJSON, clefsRacine);
     if (typeof racineDonnéesJSON !== "object") {
-      throw new Error(racineDonnéesJSON.toString());
+      throw new Error(`Type de données erroné : ${racineDonnéesJSON.toString()}`);
     }
 
     racineDonnéesJSON = aplatirDonnées(
@@ -185,7 +185,7 @@ export default class ImportateurDonnéesJSON {
     );
 
     for (const élémentJSON of racineDonnéesJSON) {
-      if (typeof élémentJSON !== "object") throw new Error();
+      if (typeof élémentJSON !== "object") throw new Error(`Élément de type non supporté : ${élémentJSON}`);
       const élément = Object.fromEntries(
         Object.keys(cols)
           .map((c) => {

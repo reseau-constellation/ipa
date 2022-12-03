@@ -254,7 +254,7 @@ export function générerFonctionRègle<
           ? règleTypeCatégorique.détails.options
           : donnéesCatégorie;
 
-      if (!options) throw "Options non spécifiées";
+      if (!options) throw new Error("Options non spécifiées");
 
       return (vals: élémentDonnées<T>[]) => {
         const nonValides = vals.filter(

@@ -17,7 +17,7 @@ import {
   schémaStatut,
 } from "@/utils/index.js";
 
-export type catégorieVariables =
+export type catégorieBaseVariables =
   | "numérique"
   | "horoDatage"
   | "intervaleTemps"
@@ -30,7 +30,12 @@ export type catégorieVariables =
   | "photo"
   | "fichier";
 
-export type typeÉlémentsBdVariable = string | schémaStatut;
+export type catégorieVariables = catégorieBaseVariables | {
+  catégorie: "liste";
+  catégorieBase: catégorieBaseVariables;
+}
+
+export type typeÉlémentsBdVariable = string | catégorieVariables | schémaStatut;
 
 export default class Variables {
   client: ClientConstellation;
@@ -59,7 +64,7 @@ export default class Variables {
     catégorie: catégorieVariables;
   }): Promise<string> {
     if (typeof catégorie !== "string")
-      throw `catégorie doit être une chaîne, mais ${catégorie} est de type ${typeof catégorie}.`;
+      throw new Error(`catégorie doit être une chaîne, mais ${catégorie} est de type ${typeof catégorie}.`);
 
     const idBdVariable = await this.client.créerBdIndépendante({
       type: "kvstore",
@@ -220,7 +225,7 @@ export default class Variables {
       racine: id,
       type: "kvstore",
     });
-    if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -245,7 +250,7 @@ export default class Variables {
       racine: id,
       type: "kvstore",
     });
-    if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -266,7 +271,7 @@ export default class Variables {
       racine: id,
       type: "kvstore",
     });
-    if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -287,7 +292,7 @@ export default class Variables {
       racine: id,
       type: "kvstore",
     });
-    if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -312,7 +317,7 @@ export default class Variables {
       racine: id,
       type: "kvstore",
     });
-    if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -334,7 +339,7 @@ export default class Variables {
       racine: id,
       type: "kvstore",
     });
-    if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -389,7 +394,7 @@ export default class Variables {
       type: "feed",
     });
     if (!idBdRègles) {
-      throw `Permission de modification refusée pour variable ${idVariable}.`;
+      throw new Error(`Permission de modification refusée pour variable ${idVariable}.`);
     }
 
     idRègle = idRègle || uuidv4();
@@ -420,7 +425,7 @@ export default class Variables {
       type: "feed",
     });
     if (!idBdRègles) {
-      throw `Permission de modification refusée pour variable ${idVariable}.`;
+      throw new Error(`Permission de modification refusée pour variable ${idVariable}.`);
     }
     const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
       FeedStore<règleVariableAvecId>

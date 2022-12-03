@@ -338,7 +338,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdColonnes) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
@@ -497,7 +497,7 @@ export default class Tableaux {
         let val: string | number;
         switch (typeof é[col]) {
           case "object":
-            if (["audio", "photo", "vidéo", "fichier"].includes(catégorie)) {
+            if (typeof catégorie === "string" && ["audio", "photo", "vidéo", "fichier"].includes(catégorie)) {
               const { cid, ext } = é[col] as { cid: string; ext: string };
               if (!cid || !ext) continue;
               val = `${cid}.${ext}`;
@@ -575,7 +575,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdDonnées) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
@@ -607,7 +607,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdDonnées) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
@@ -654,7 +654,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdColonnes) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
@@ -691,7 +691,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdDonnées) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
@@ -823,7 +823,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdNoms) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
@@ -853,7 +853,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdNoms) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
@@ -878,7 +878,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdNoms) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
@@ -921,7 +921,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdColonnes) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
@@ -952,7 +952,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdColonnes) {
-      throw `Permission de modification refusée pour BD ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
@@ -1107,7 +1107,7 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdRègles) {
-      throw `Permission de modification refusée pour tableau ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour tableau ${idTableau}.`);
     }
 
     const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
@@ -1148,7 +1148,7 @@ export default class Tableaux {
     });
 
     if (!idBdRègles) {
-      throw `Permission de modification refusée pour tableau ${idTableau}.`;
+      throw new Error(`Permission de modification refusée pour tableau ${idTableau}.`);
     }
 
     const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<

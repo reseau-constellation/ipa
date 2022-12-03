@@ -10,11 +10,11 @@ import {
   règleValeurCatégorique,
   typeOp,
 } from "@/valid.js";
-import { catégorieVariables } from "@/variables.js";
+import { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
 import isArray from "lodash/isArray";
 
 const catégories: {
-  [key in catégorieVariables]: {
+  [key in catégorieBaseVariables]: {
     valides: élémentsBd[];
     invalides: élémentsBd[];
   };
@@ -130,24 +130,24 @@ const catégories: {
 
 describe("Validation", function () {
   describe("Valider catégories", function () {
-    Object.keys(catégories).forEach((cat: string) => {
+    Object.keys(catégories).forEach((cat) => {
       describe(cat + " valides", function () {
-        catégories[cat as catégorieVariables].valides.forEach((val) => {
+        catégories[cat as catégorieBaseVariables].valides.forEach((val) => {
           test(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
-              catégorie: cat as catégorieVariables,
+              catégorie: cat as catégorieBaseVariables,
             });
             expect(valide).toBe(true);
           });
         });
       });
       describe(cat + " non valides", function () {
-        catégories[cat as catégorieVariables].invalides.forEach((val) => {
+        catégories[cat as catégorieBaseVariables].invalides.forEach((val) => {
           test(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
-              catégorie: cat as catégorieVariables,
+              catégorie: cat as catégorieBaseVariables,
             });
             expect(valide).toBe(false);
           });

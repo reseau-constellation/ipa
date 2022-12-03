@@ -234,7 +234,6 @@ export default class Réseau extends EventEmitter {
           const promesse = this.messageReçu({ msg })
           promesses[id] = promesse
           promesse.then(() => { delete promesses[id]})
-          console.log("message traité")
         } catch (e) {
           console.error(e.toString())
           console.error(e.stack.toString())
@@ -242,10 +241,8 @@ export default class Réseau extends EventEmitter {
       }
     );
     this.fsOublier.push(async () => {
-      console.log("désabonner")
       await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau);
       await Promise.all(Object.values(promesses))
-      console.log("désabonné")
     });
 
     // @ts-ignore
@@ -399,9 +396,8 @@ export default class Réseau extends EventEmitter {
   }
 
   async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
-    console.log("messageReçu 1")
     if (this._fermé) return
-    console.log("messageReçu 2")
+
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
 
     const { encrypté, destinataire } = messageJSON;
@@ -430,7 +426,6 @@ export default class Réseau extends EventEmitter {
     }
 
     // Assurer que la signature est valide (message envoyé par détenteur de idOrbite)
-    console.log("vérifier signature")
     const signatureValide = await this.client.vérifierSignature({
       signature,
       message: JSON.stringify(valeur),
@@ -441,19 +436,15 @@ export default class Réseau extends EventEmitter {
 
     switch (valeur.type) {
       case "Salut !": {
-        console.log("salut !")
         const contenuSalut = contenu as ContenuMessageSalut;
         const { clefPublique } = contenuSalut;
 
         // S'assurer que idOrbite est la même que celle sur la signature
         if (clefPublique !== signature.clefPublique) return;
 
-        console.log("recevoir salut")
         await this.recevoirSalut({ message: contenuSalut });
-        console.log("salut reçu")
 
         if (!destinataire) await this.direSalut({ à: contenuSalut.idSFIP }); // Renvoyer le message, si ce n'était pas déjà fait
-        console.log("resalué !")
         break;
       }
       case "Je veux rejoindre ce compte": {
@@ -468,7 +459,6 @@ export default class Réseau extends EventEmitter {
       default:
         console.error(`Message inconnu: ${valeur.type}`);
     }
-    console.log("messageReçu 3")
   }
 
   async recevoirSalut({

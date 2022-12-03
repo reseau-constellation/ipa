@@ -806,7 +806,7 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -834,7 +834,7 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -857,7 +857,7 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdNoms) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -880,7 +880,7 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -907,7 +907,7 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -930,7 +930,7 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdDescr) throw `Permission de modification refusée pour BD ${id}.`;
+    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -969,7 +969,7 @@ export default class BDs {
       optionsAccès,
     });
     if (!idBdMotsClefs) {
-      throw `Permission de modification refusée pour BD ${idBd}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
     const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<
@@ -999,7 +999,7 @@ export default class BDs {
       optionsAccès,
     });
     if (!idBdMotsClefs) {
-      throw `Permission de modification refusée pour BD ${idBd}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
     const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<
@@ -1029,7 +1029,7 @@ export default class BDs {
       optionsAccès,
     });
     if (!idBdTableaux) {
-      throw `Permission de modification refusée pour BD ${idBd}.`;
+      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
@@ -1063,7 +1063,7 @@ export default class BDs {
       optionsAccès,
     });
     if (!idBdTableaux) {
-      throw `Permission de modification refusée pour BD ${id}.`;
+      throw new Error(`Permission de modification refusée pour BD ${id}.`);
     }
 
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
@@ -1331,7 +1331,7 @@ export default class BDs {
 
         if (cols !== undefined && règles !== undefined) {
           const colsÉligibles = cols.filter((c) =>
-            ["numérique", "catégorique"].includes(c.catégorie)
+            ["numérique", "catégorique"].includes(typeof c.catégorie === "string" ? c.catégorie : c.catégorie.catégorieBase)
           );
 
           const dénominateur = colsÉligibles.length;
@@ -1423,7 +1423,7 @@ export default class BDs {
           cols !== undefined
         ) {
           const colsÉligibles = cols.filter((c) =>
-            ["numérique", "catégorique"].includes(c.catégorie)
+            ["numérique", "catégorique"].includes(typeof c.catégorie === "string" ? c.catégorie : c.catégorie.catégorieBase)
           );
 
           const déjàVus: { empreinte: string; idColonne: string }[] = [];
