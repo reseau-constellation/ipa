@@ -98,7 +98,7 @@ typesClients.forEach((type) => {
 
         test("Autres dispositifs détectés", async () => {
           const val = await dispositifs.attendreQue(
-            (x?: statutDispositif[]) => !!x && x.length === 3
+            (x?: statutDispositif[]) => !!x && x.length >= 3
           );
           expect(val.map((d) => d.infoDispositif.idOrbite)).toEqual(
             expect.arrayContaining(idsOrbite)
@@ -107,7 +107,7 @@ typesClients.forEach((type) => {
           
         test("Autres membres détectés", async () => {
           const réfRés: infoMembre[] = []
-          for (let i = 0; i <= clients.length -1; i++) {
+          for (let i = 0; i <= clients.length - 1; i++) {
             const identitéOrbite = await clients[i].obtIdentitéOrbite();
             réfRés.push(
               {
@@ -395,39 +395,73 @@ typesClients.forEach((type) => {
         });
 
         test("Ajout membre de confiance détecté", async () => {
+          const réf: infoConfiance[] = [
+            {
+              idBdCompte: idsBdCompte[1],
+              confiance: 1
+            }
+          ]
           await clients[0].réseau!.faireConfianceAuMembre({
             idBdCompte: idsBdCompte[1],
           });
           const val = await relationsPropres.attendreQue(
             (x) => !!x && !!x.length
           );
-          expect(val.map((r) => r.idBdCompte)).toEqual(
-            expect.arrayContaining([idsBdCompte[1]])
+
+          expect(val.length).toEqual(réf.length)
+          expect(val).toEqual(
+            expect.arrayContaining(réf)
           );
         });
 
         test("Bloquer membre détecté", async () => {
+          const réf: infoConfiance[] = [
+            {
+              idBdCompte: idsBdCompte[1],
+              confiance: 1
+            },
+            {
+              idBdCompte: idsBdCompte[2],
+              confiance: -1
+            }
+          ]
+
           await clients[0].réseau!.bloquerMembre({ idBdCompte: idsBdCompte[2] });
           const val = await relationsPropres.attendreQue(
             (x) => !!x && x.length === 2
           );
-          expect(val.map((r) => r.idBdCompte)).toEqual(
-            expect.arrayContaining([idsBdCompte[2]])
+          expect(val).toEqual(
+            expect.arrayContaining(réf)
           );
         });
 
         test("Débloquer membre détecté", async () => {
+          const réf: infoConfiance[] = [
+            {
+              idBdCompte: idsBdCompte[1],
+              confiance: 1
+            }
+          ]
           await clients[0].réseau!.débloquerMembre({ idBdCompte: idsBdCompte[2] });
-          await relationsPropres.attendreQue((x) => !!x && x.length === 1);
+          const val = await relationsPropres.attendreQue((x) => !!x && x.length === 1);
+          expect(val).toEqual(
+            expect.arrayContaining(réf)
+          );
         });
 
         test("Ajout membres au réseau d'un autre membre détecté", async () => {
+          const réf: infoConfiance[] = [
+            {
+              idBdCompte: idsBdCompte[1],
+              confiance: 1
+            }
+          ]
           const val = await relationsAutres.attendreQue(
-            (x?: infoConfiance[]) => x?.length === 2
+            (x?: infoConfiance[]) => x?.length > 0 && x.every(x=>x.confiance > 0)
           );
 
-          expect(val.map((r) => r.idBdCompte)).toEqual(
-            expect.arrayContaining([idsBdCompte[1]])
+          expect(val).toEqual(
+            expect.arrayContaining(réf)
           );
         }, config.patience);
 
@@ -1117,9 +1151,10 @@ typesClients.forEach((type) => {
         }, config.patienceInit);
 
         afterAll(async () => {
+          rés.toutAnnuler();
+
           if (fOublier) await fOublier();
           if (fOublierClients) await fOublierClients();
-          rés.toutAnnuler();
         });
 
         test("Confiance initiale 0", async () => {
@@ -1903,10 +1938,11 @@ typesClients.forEach((type) => {
         }, config.patienceInit);
 
         afterAll(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
-          if (fOublierClients) await fOublierClients();
           résPropres.toutAnnuler();
           résAutres.toutAnnuler();
+
+          await Promise.all(fsOublier.map((f) => f()));
+          if (fOublierClients) await fOublierClients();
         });
 
         test("Mes favoris détectés", async () => {
