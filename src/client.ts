@@ -345,14 +345,14 @@ export default class ClientConstellation extends EventEmitter {
 
     const typeAccès = (accès.constructor as unknown as AccessController).type;
     if (typeAccès === "ipfs") {
-      f((accès as IPFSAccessController).write);
+      await f((accès as IPFSAccessController).write);
       await fOublier();
       return faisRien;
     } else if (typeAccès === "controlleur-constellation") {
-      const fFinale = () => {
+      const fFinale = async () => {
         const mods = (accès as unknown as ContrôleurConstellation).gestRôles
           ._rôles[MODÉRATEUR];
-        f(mods);
+        await f(mods);
       };
       accès.on("misÀJour", fFinale);
       fFinale();
@@ -706,6 +706,7 @@ export default class ClientConstellation extends EventEmitter {
     événements?: string[];
   }): Promise<schémaFonctionOublier> {
     const fsOublier: schémaFonctionOublier[] = [];
+    const promesses: { [clef: string]: Promise<void> | void } = {};
 
     let annulé = false;
 
@@ -714,7 +715,19 @@ export default class ClientConstellation extends EventEmitter {
         .then(({ bd, fOublier }) => {
           fsOublier.push(fOublier);
 
-          const fFinale = () => f(bd);
+          const fFinale = () => {
+            const idSuivi = uuidv4();
+            const promesse = f(bd)
+            
+            // @ts-ignore
+            if (promesse.then) {
+              promesses[idSuivi] = promesse;
+              (promesse as Promise<void>).then(()=>{
+                delete promesses[idSuivi]
+              })
+            };
+          };
+
           for (const é of événements) {
             bd.events.on(é, fFinale);
             fsOublier.push(async () => {
@@ -742,6 +755,7 @@ export default class ClientConstellation extends EventEmitter {
     const fOublier = async () => {
       annulé = true;
       await Promise.all(fsOublier.map((f) => f()));
+      await Promise.all(Object.values(promesses))
     };
     return fOublier;
   }
@@ -768,7 +782,7 @@ export default class ClientConstellation extends EventEmitter {
       fSuivreRacine: async (nouvelIdBdCible: string) => {
         if (nouvelIdBdCible === undefined && premièreFois) {
           premièreFois = false;
-          f(undefined);
+          await f(undefined);
         }
         if (nouvelIdBdCible !== idBdCible) {
           idBdCible = nouvelIdBdCible;
@@ -777,7 +791,7 @@ export default class ClientConstellation extends EventEmitter {
           if (idBdCible) {
             oublierFSuivre = await fSuivre({ id: idBdCible, fSuivreBd: f });
           } else {
-            f(undefined);
+            await f(undefined);
             oublierFSuivre = undefined;
           }
         }
@@ -810,7 +824,7 @@ export default class ClientConstellation extends EventEmitter {
     }): Promise<schémaFonctionOublier> => {
       const fSuivreBdRacine = async (bd: KeyValueStore<string>) => {
         const nouvelIdBdCible = bd.get(clef);
-        fSuivreRacine(nouvelIdBdCible);
+        await fSuivreRacine(nouvelIdBdCible);
       };
       return await this.suivreBd({ id, f: fSuivreBdRacine });
     };
@@ -826,7 +840,7 @@ export default class ClientConstellation extends EventEmitter {
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (bd: KeyValueStore<T>) => {
       const valeurs = bd ? ClientConstellation.obtObjetdeBdDic<T>({ bd }) : {};
-      f(valeurs);
+      await f(valeurs);
     };
     return await this.suivreBd({ id, f: fFinale });
   }
@@ -841,7 +855,7 @@ export default class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<{ [key: string]: T }>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (valeurs?: { [key: string]: T }) => {
-      f(valeurs || {});
+      await f(valeurs || {});
     };
     const fSuivre = async ({
       id,
@@ -915,7 +929,7 @@ export default class ClientConstellation extends EventEmitter {
     // À faire : très laid en raison de contraintes Typescript...peut-être existe-il une meilleure façon ?
     if (renvoyerValeur) {
       const fFinale = async (valeurs?: T[]) => {
-        f(valeurs || []);
+        await f(valeurs || []);
       };
       const fSuivre = async ({
         id,
@@ -930,7 +944,7 @@ export default class ClientConstellation extends EventEmitter {
       return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre });
     } else {
       const fFinale = async (valeurs?: LogEntry<T>[]) => {
-        f(valeurs || []);
+        await f(valeurs || []);
       };
       const fSuivre = async ({
         id,
@@ -999,7 +1013,7 @@ export default class ClientConstellation extends EventEmitter {
           bd,
           renvoyerValeur,
         });
-        f(éléments);
+        await f(éléments);
       },
     });
   }
@@ -1085,7 +1099,7 @@ export default class ClientConstellation extends EventEmitter {
       "motClef" | "variable" | "bd" | "projet" | undefined
     >;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (vals: { [key: string]: string }): void => {
+    const fFinale = async (vals: { [key: string]: string }) => {
       let typeFinal = undefined as
         | "motClef"
         | "variable"
@@ -1104,7 +1118,7 @@ export default class ClientConstellation extends EventEmitter {
         else if (vals.catégorie) typeFinal = "variable";
         else if (vals.nom) typeFinal = "motClef";
       }
-      f(typeFinal);
+      await f(typeFinal);
     };
 
     const fOublier = await this.suivreBdDic({ id: idObjet, f: fFinale });
@@ -1126,8 +1140,8 @@ export default class ClientConstellation extends EventEmitter {
     const calculerEmpreinte = (texte: string) =>
       crypto.createHash("md5").update(texte).digest("hex");
 
-    const fFinale = (têtes: string[]) => {
-      f(calculerEmpreinte(têtes.sort().join()));
+    const fFinale = async (têtes: string[]) => {
+      await f(calculerEmpreinte(têtes.sort().join()));
     };
 
     const fListe = async (
@@ -1135,7 +1149,7 @@ export default class ClientConstellation extends EventEmitter {
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBdsRécursives({
         idBd,
-        f: (bds) => fSuivreRacine(bds),
+        f: async (bds) => await fSuivreRacine(bds),
       });
     };
 
@@ -1145,9 +1159,9 @@ export default class ClientConstellation extends EventEmitter {
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBd({
         id,
-        f: (bd) => {
+        f: async (bd) => {
           const tête = obtTêteBd(bd);
-          if (tête) fSuivreBranche(tête);
+          if (tête) await fSuivreBranche(tête);
         },
       });
     };
@@ -1225,13 +1239,13 @@ export default class ClientConstellation extends EventEmitter {
 
     let prêt = false; // Afin d'éviter d'appeler fFinale() avant que toutes les branches aient été évaluées 1 fois
 
-    const fFinale = () => {
+    const fFinale = async () => {
       const listeDonnées = Object.values(arbre)
         .map((x) => x.données)
         .filter((d) => d !== undefined) as U[];
       const réduits = fRéduction(listeDonnées);
       if (!prêt) return;
-      f(réduits);
+      await f(réduits);
     };
     const verrou = new Semaphore();
 
@@ -1382,11 +1396,11 @@ export default class ClientConstellation extends EventEmitter {
       état: boolean;
     }
 
-    const fFinale = (éléments: branche[]) => {
+    const fFinale = async (éléments: branche[]) => {
       const bdsRecherchées = éléments
         .filter((él) => él.état)
         .map((él) => él.id);
-      f(bdsRecherchées);
+      await f(bdsRecherchées);
     };
 
     const fBranche = async (
@@ -1570,8 +1584,8 @@ export default class ClientConstellation extends EventEmitter {
     if (!idBd && type) {
       const accès = bdRacine.access as unknown as ContrôleurConstellation;
       const permission = await uneFois((f: schémaFonctionSuivi<boolean>) =>
-        accès.suivreIdsOrbiteAutoriséesÉcriture((autorisés: string[]) =>
-          f(autorisés.includes(this.orbite!.identity.id))
+        accès.suivreIdsOrbiteAutoriséesÉcriture(async (autorisés: string[]) =>
+          await f(autorisés.includes(this.orbite!.identity.id))
         )
       );
 
@@ -1647,13 +1661,13 @@ export default class ClientConstellation extends EventEmitter {
 
     if (typeAccès === "ipfs") {
       const moi = this.orbite!.identity.id;
-      f(
+      await f(
         (accès as IPFSAccessController).write.includes(moi) ? MEMBRE : undefined
       );
       await fOublier();
       return faisRien;
     } else if (typeAccès === nomTypeContrôleurConstellation) {
-      const fFinale = (utilisateurs: infoUtilisateur[]) => {
+      const fFinale = async (utilisateurs: infoUtilisateur[]) => {
         const mesRôles = utilisateurs
           .filter((u) => u.idBdCompte === this.idBdCompte)
           .map((u) => u.rôle);
@@ -1662,7 +1676,7 @@ export default class ClientConstellation extends EventEmitter {
           : mesRôles.includes(MEMBRE)
           ? MEMBRE
           : undefined;
-        f(rôlePlusPuissant);
+        await f(rôlePlusPuissant);
       };
       const fOublierSuivreAccès = await (
         accès as unknown as ContrôleurConstellation
@@ -1684,8 +1698,8 @@ export default class ClientConstellation extends EventEmitter {
     id: string;
     f: schémaFonctionSuivi<boolean>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (rôle?: typeof rôles[number]) => {
-      f(rôle !== undefined);
+    const fFinale = async (rôle?: typeof rôles[number]) => {
+      await f(rôle !== undefined);
     };
     return await this.suivrePermission({ idObjet: id, f: fFinale });
   }
@@ -1711,7 +1725,7 @@ export default class ClientConstellation extends EventEmitter {
           };
         }
       );
-      f(listeAccès);
+      await f(listeAccès);
     } else if (typeAccès === nomTypeContrôleurConstellation) {
       const fOublierAutorisés = await (
         accès as unknown as ContrôleurConstellation
@@ -1739,8 +1753,8 @@ export default class ClientConstellation extends EventEmitter {
       };
     } = {};
 
-    const fFinale = () => {
-      f(Object.keys(dicBds));
+    const fFinale = async () => {
+      await f(Object.keys(dicBds));
     };
 
     const verrou = new Semaphore();

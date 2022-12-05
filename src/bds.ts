@@ -335,9 +335,9 @@ export default class BDs {
     idBd: string;
     f: schémaFonctionSuivi<{ id: string } | undefined>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (bd: KeyValueStore<typeÉlémentsBdBD>) => {
+    const fFinale = async (bd: KeyValueStore<typeÉlémentsBdBD>) => {
       const copiéDe = bd.get("copiéDe");
-      f(copiéDe as { id: string });
+      await f(copiéDe as { id: string });
     };
     return await this.client.suivreBd({
       id: idBd,
@@ -361,7 +361,7 @@ export default class BDs {
       difsTableaux: [],
     };
 
-    const fFinale = () => {
+    const fFinale = async () => {
       const différences: différenceBds[] = [...info.difsTableaux];
 
       if (info.tableauxBdLiée && info.tableauxBd) {
@@ -389,7 +389,7 @@ export default class BDs {
         }
       }
 
-      f(différences);
+      await f(différences);
     };
 
     const fListe = async (
@@ -1153,7 +1153,7 @@ export default class BDs {
         const licence = (bd as KeyValueStore<typeÉlémentsBdBD>).get(
           "licence"
         ) as string;
-        f(licence);
+        await f(licence);
       },
     });
   }
@@ -1215,12 +1215,12 @@ export default class BDs {
       id: idBd,
       f: async (bd: KeyValueStore<typeÉlémentsBdBD>) => {
         const idImage = bd.get("image");
-        if (!idImage) return f(null);
+        if (!idImage) await f(null);
         const image = await this.client.obtFichierSFIP({
           id: idImage as string,
           max: MAX_TAILLE_IMAGE_VIS,
         });
-        return f(image);
+        await f(image);
       },
     });
   }

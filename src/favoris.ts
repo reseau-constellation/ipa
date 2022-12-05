@@ -64,7 +64,7 @@ export default class Favoris {
 
         await Promise.all(
           àOublier.map(async (id) =>
-            this.client.épingles!.désépinglerBd({ id })
+            await this.client.épingles!.désépinglerBd({ id })
           )
         );
 
@@ -85,7 +85,7 @@ export default class Favoris {
   }): Promise<schémaFonctionOublier> {
     idBdFavoris = idBdFavoris || this.idBd;
 
-    const fFinale = (favoris: { [key: string]: ÉlémentFavoris }): void => {
+    const fFinale = async (favoris: { [key: string]: ÉlémentFavoris }) => {
       const favorisFinaux = Object.entries(favoris).map(
         ([idObjet, élément]) => {
           return {
@@ -94,7 +94,7 @@ export default class Favoris {
           };
         }
       );
-      f(favorisFinaux);
+      await f(favorisFinaux);
     };
 
     return await this.client.suivreBdDic<ÉlémentFavoris>({

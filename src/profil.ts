@@ -32,7 +32,7 @@ export default class Profil {
       id: idBdProfil,
       f: async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
         const courriel = bd.get("courriel");
-        f(courriel || null);
+        await f(courriel || null);
       },
     });
   }
@@ -149,12 +149,15 @@ export default class Profil {
       id: idBdProfil,
       f: async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
         const idImage = bd.get("image");
-        if (!idImage) return f(null);
-        const image = await this.client.obtFichierSFIP({
-          id: idImage,
-          max: MAX_TAILLE_IMAGE_VIS,
-        });
-        return f(image);
+        if (!idImage) {
+          await f(null)
+        } else {
+          const image = await this.client.obtFichierSFIP({
+            id: idImage,
+            max: MAX_TAILLE_IMAGE_VIS,
+          });
+          await f(image)
+        };
       },
     });
   }

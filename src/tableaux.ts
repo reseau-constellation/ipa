@@ -211,9 +211,9 @@ export default class Tableaux {
     idTableau: string;
     f: schémaFonctionSuivi<{ id: string; lier: boolean } | undefined>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (bd: KeyValueStore<typeÉlémentsBdTableaux>) => {
+    const fFinale = async (bd: KeyValueStore<typeÉlémentsBdTableaux>) => {
       const copiéDe = bd.get("copiéDe");
-      f(copiéDe as { id: string; lier: boolean });
+      await f(copiéDe as { id: string; lier: boolean });
     };
     return await this.client.suivreBd({
       id: idTableau,
@@ -1018,9 +1018,9 @@ export default class Tableaux {
 
       return await this.client.variables!.suivreCatégorieVariable({
         id,
-        f: (catégorie) => {
+        f: async (catégorie) => {
           const col = Object.assign({ catégorie }, branche);
-          fSuivi(col);
+          await fSuivi(col);
         },
       });
     };

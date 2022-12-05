@@ -490,7 +490,7 @@ export default class Variables {
       id,
       f: async (bd: KeyValueStore<typeÉlémentsBdVariable>) => {
         const catégorie = bd.get("catégorie") as catégorieVariables;
-        f(catégorie);
+        await f(catégorie);
       },
     });
   }
@@ -507,7 +507,7 @@ export default class Variables {
       id,
       f: async (bd: KeyValueStore<string>) => {
         const unités = bd.get("unités");
-        f(unités);
+        await f(unités);
       },
     });
   }
