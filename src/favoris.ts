@@ -63,8 +63,8 @@ export default class Favoris {
         const àOublier = précédentes.filter((id) => !nouvelles.includes(id));
 
         await Promise.all(
-          àOublier.map(async (id) =>
-            await this.client.épingles!.désépinglerBd({ id })
+          àOublier.map(
+            async (id) => await this.client.épingles!.désépinglerBd({ id })
           )
         );
 
@@ -206,7 +206,7 @@ export default class Favoris {
   }
 
   async fermer(): Promise<void> {
-    await this._promesseInit
+    await this._promesseInit;
     if (this.oublierÉpingler) await this.oublierÉpingler();
   }
 }

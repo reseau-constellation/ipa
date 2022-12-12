@@ -14,7 +14,7 @@ import {
   élémentsBd,
 } from "@/utils/index.js";
 
-import { donnéesBdExportées, schémaCopiéDe } from "@/bds.js";
+import { donnéesBdExportées } from "@/bds.js";
 import {
   erreurValidation,
   erreurRègle,
@@ -73,25 +73,33 @@ export type différenceTableaux =
   | différenceVariableColonne
   | différenceIndexColonne
   | différenceColonneManquante
-  | différenceColonneExtra;
+  | différenceColonneSupplémentaire;
 
 export type différenceVariableColonne = {
+  type: "variableColonne";
+  sévère: true;
   idCol: string;
   varColTableau: string;
   varColTableauLiée: string;
 };
 export type différenceIndexColonne = {
+  type: "indexColonne";
+  sévère: true;
   idCol: string;
   colTableauIndexée: boolean;
 };
 export type différenceColonneManquante = {
+  type: "colonneManquante";
+  sévère: true;
   idManquante: string;
 };
-export type différenceColonneExtra = {
+export type différenceColonneSupplémentaire = {
+  type: "colonneSupplémentaire";
+  sévère: false;
   idExtra: string;
 };
 
-export type typeÉlémentsBdTableaux = string | schémaCopiéDe;
+export type typeÉlémentsBdTableaux = string;
 
 export default class Tableaux {
   client: ClientConstellation;
@@ -195,8 +203,6 @@ export default class Tableaux {
       });
     }
 
-    await nouvelleBd.set("copiéDe", { id });
-
     await fOublier();
     await fOublierNouvelle();
 
@@ -204,79 +210,42 @@ export default class Tableaux {
   }
 
   @cacheSuivi
-  async suivreParent({
+  async suivreDifférencesAvecTableau({
     idTableau,
+    idTableauRéf,
     f,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<{ id: string; lier: boolean } | undefined>;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: KeyValueStore<typeÉlémentsBdTableaux>) => {
-      const copiéDe = bd.get("copiéDe");
-      await f(copiéDe as { id: string; lier: boolean });
-    };
-    return await this.client.suivreBd({
-      id: idTableau,
-      f: fFinale,
-    });
-  }
-
-  @cacheSuivi
-  async suivreDifférencesAvecTableauLié({
-    id,
-    f,
-  }: {
-    id: string;
+    idTableauRéf: string;
     f: schémaFonctionSuivi<différenceTableaux[]>;
   }): Promise<schémaFonctionOublier> {
     const info: {
       colonnesTableau?: InfoCol[];
-      colonnesTableauLié?: InfoCol[];
+      colonnesTableauRéf?: InfoCol[];
     } = {};
 
-    const fRacine = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreParent({
-        idTableau: id,
-        f: (x) => fSuivreRacine(x?.lier ? x.id : undefined),
-      });
-    };
-
-    const fSuivre = async ({
-      id,
-      fSuivreBd,
-    }: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<InfoCol[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreColonnes({
-        idTableau: id,
-        f: fSuivreBd,
-        catégories: false,
-      });
-    };
-
-    const fFinale = () => {
-      if (!info.colonnesTableau || !info.colonnesTableauLié) return;
+    const fFinale = async () => {
+      if (!info.colonnesTableau || !info.colonnesTableauRéf) return;
 
       const différences: différenceTableaux[] = [];
 
-      for (const cLiée of info.colonnesTableauLié) {
-        const cCorresp = info.colonnesTableau.find((c) => c.id === cLiée.id);
+      for (const cRéf of info.colonnesTableauRéf) {
+        const cCorresp = info.colonnesTableau.find((c) => c.id === cRéf.id);
         if (cCorresp) {
-          if (cCorresp.variable !== cLiée.variable) {
+          if (cCorresp.variable !== cRéf.variable) {
             const dif: différenceVariableColonne = {
+              type: "variableColonne",
+              sévère: true,
               idCol: cCorresp.id,
               varColTableau: cCorresp.variable,
-              varColTableauLiée: cLiée.variable,
+              varColTableauLiée: cRéf.variable,
             };
             différences.push(dif);
           }
-          if (cCorresp.index !== cLiée.index) {
+          if (cCorresp.index !== cRéf.index) {
             const dif: différenceIndexColonne = {
+              type: "indexColonne",
+              sévère: true,
               idCol: cCorresp.id,
               colTableauIndexée: cCorresp.index,
             };
@@ -284,40 +253,49 @@ export default class Tableaux {
           }
         } else {
           const dif: différenceColonneManquante = {
-            idManquante: cLiée.id,
+            type: "colonneManquante",
+            sévère: true,
+            idManquante: cRéf.id,
           };
           différences.push(dif);
         }
       }
 
       for (const cTableau of info.colonnesTableau) {
-        const cLiée = info.colonnesTableauLié.find((c) => c.id === cTableau.id);
+        const cLiée = info.colonnesTableauRéf.find((c) => c.id === cTableau.id);
         if (!cLiée) {
-          const dif: différenceColonneExtra = {
+          const dif: différenceColonneSupplémentaire = {
+            type: "colonneSupplémentaire",
+            sévère: false,
             idExtra: cTableau.id,
           };
           différences.push(dif);
         }
       }
 
-      f(différences);
+      await f(différences);
     };
 
     const fOublierColonnesTableau = await this.suivreColonnes({
-      idTableau: id,
-      f: (x) => (info.colonnesTableau = x),
+      idTableau,
+      f: async (x) => {
+        info.colonnesTableau = x;
+        await fFinale();
+      },
       catégories: false,
     });
 
-    const fOublierLié = await this.client.suivreBdDeFonction({
-      fRacine,
-      f: fFinale,
-      fSuivre,
+    const fOublierColonnesRéf = await this.suivreColonnes({
+      idTableau: idTableauRéf,
+      f: async (x) => {
+        info.colonnesTableauRéf = x;
+        await fFinale();
+      },
+      catégories: false,
     });
 
     return async () => {
-      await fOublierColonnesTableau();
-      await fOublierLié();
+      await Promise.all([fOublierColonnesTableau, fOublierColonnesRéf]);
     };
   }
 
@@ -338,7 +316,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdColonnes) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
@@ -497,7 +477,10 @@ export default class Tableaux {
         let val: string | number;
         switch (typeof é[col]) {
           case "object":
-            if (typeof catégorie === "string" && ["audio", "photo", "vidéo", "fichier"].includes(catégorie)) {
+            if (
+              typeof catégorie === "string" &&
+              ["audio", "photo", "vidéo", "fichier"].includes(catégorie)
+            ) {
               const { cid, ext } = é[col] as { cid: string; ext: string };
               if (!cid || !ext) continue;
               val = `${cid}.${ext}`;
@@ -575,7 +558,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdDonnées) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
@@ -607,7 +592,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdDonnées) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
@@ -654,7 +641,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdColonnes) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
@@ -691,7 +680,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdDonnées) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
@@ -823,7 +814,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdNoms) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
@@ -853,7 +846,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdNoms) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
@@ -878,7 +873,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdNoms) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
@@ -921,7 +918,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdColonnes) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
@@ -952,7 +951,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdColonnes) {
-      throw new Error(`Permission de modification refusée pour BD ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${idTableau}.`
+      );
     }
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
@@ -1107,7 +1108,9 @@ export default class Tableaux {
       optionsAccès,
     });
     if (!idBdRègles) {
-      throw new Error(`Permission de modification refusée pour tableau ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour tableau ${idTableau}.`
+      );
     }
 
     const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
@@ -1148,7 +1151,9 @@ export default class Tableaux {
     });
 
     if (!idBdRègles) {
-      throw new Error(`Permission de modification refusée pour tableau ${idTableau}.`);
+      throw new Error(
+        `Permission de modification refusée pour tableau ${idTableau}.`
+      );
     }
 
     const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<

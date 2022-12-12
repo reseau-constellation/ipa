@@ -131,8 +131,12 @@ export abstract class ClientProxifiable extends Callable {
     );
     if (f === undefined) {
       this.erreur({
-        erreur: "Aucun argument de nom " + nomArgFonction + " n'a été donnée pour " + fonction.join(".")
-      })
+        erreur:
+          "Aucun argument de nom " +
+          nomArgFonction +
+          " n'a été donnée pour " +
+          fonction.join("."),
+      });
     }
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
       this.erreur({

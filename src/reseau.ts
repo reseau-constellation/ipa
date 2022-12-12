@@ -33,7 +33,7 @@ import {
   ÉlémentFavorisAvecObjet,
   épingleDispositif,
 } from "@/favoris.js";
-import { élémentDonnées } from "@/valid.js";
+import { erreurValidation, élémentDonnées } from "@/valid.js";
 import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
 import {
@@ -115,6 +115,11 @@ export type élémentDeMembre<T extends élémentBdListeDonnées> = {
   idBdCompte: string;
   élément: élémentDonnées<T>;
 };
+
+export type élémentDeMembreAvecValid<T extends élémentBdListeDonnées> =
+  élémentDeMembre<T> & {
+    valid: erreurValidation[];
+  };
 
 export type bdDeMembre = {
   idBdCompte: string;
@@ -203,7 +208,7 @@ export default class Réseau extends EventEmitter {
   client: ClientConstellation;
   idBd: string;
   bloquésPrivés: Set<string>;
-  _fermé: boolean
+  _fermé: boolean;
 
   dispositifsEnLigne: {
     [key: string]: statutDispositif;
@@ -225,24 +230,26 @@ export default class Réseau extends EventEmitter {
   }
 
   async initialiser(): Promise<void> {
-    const promesses: { [clef: string]: Promise<void> } = {}
+    const promesses: { [clef: string]: Promise<void> } = {};
     await this.client.sfip!.pubsub.subscribe(
       this.client.sujet_réseau,
       (msg: MessagePubSub) => {
-        const id = uuidv4()
+        const id = uuidv4();
         try {
-          const promesse = this.messageReçu({ msg })
-          promesses[id] = promesse
-          promesse.then(() => { delete promesses[id]})
+          const promesse = this.messageReçu({ msg });
+          promesses[id] = promesse;
+          promesse.then(() => {
+            delete promesses[id];
+          });
         } catch (e) {
-          console.error(e.toString())
-          console.error(e.stack.toString())
+          console.error(e.toString());
+          console.error(e.stack.toString());
         }
       }
     );
     this.fsOublier.push(async () => {
       await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau);
-      await Promise.all(Object.values(promesses))
+      await Promise.all(Object.values(promesses));
     });
 
     // @ts-ignore
@@ -305,7 +312,9 @@ export default class Réseau extends EventEmitter {
       .filter((d) => d.infoDispositif.idCompte === idCompte)
       .filter((d) => d.vuÀ && maintenant - d.vuÀ < INTERVALE_SALUT + 1000 * 30);
     if (!dispositifsMembre.length)
-      throw new Error(`Aucun dispositif présentement en ligne pour membre ${idCompte}`);
+      throw new Error(
+        `Aucun dispositif présentement en ligne pour membre ${idCompte}`
+      );
     await Promise.all(
       dispositifsMembre.map(async (d) => {
         const { idSFIP, encryption } = d.infoDispositif;
@@ -396,7 +405,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
-    if (this._fermé) return
+    if (this._fermé) return;
 
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
 
@@ -1015,7 +1024,9 @@ export default class Réseau extends EventEmitter {
       dicOublierRelations[idCompte] = fOublierRelationsImmédiates;
     };
 
-    const oublierRelationsImmédiates = async (idCompte: string): Promise<void> => {
+    const oublierRelationsImmédiates = async (
+      idCompte: string
+    ): Promise<void> => {
       await dicOublierRelations[idCompte]();
       delete dicOublierRelations[idCompte];
       delete dicRelations[idCompte];
@@ -2462,12 +2473,12 @@ export default class Réseau extends EventEmitter {
   }
 
   @cacheRechercheParNRésultats
-  async suivreBdsDeMotClef({
-    motClefUnique,
+  async suivreBdsDeNuée({
+    idNuée,
     f,
     nRésultatsDésirés,
   }: {
-    motClefUnique: string;
+    idNuée: string;
     f: schémaFonctionSuivi<string[]>;
     nRésultatsDésirés: number;
   }): Promise<schémaRetourFonctionRecherche> {

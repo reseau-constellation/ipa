@@ -16,7 +16,6 @@ import {
 } from "@/utils/index.js";
 import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
 
-
 export class Recherche {
   client: ClientConstellation;
 

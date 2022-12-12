@@ -28,7 +28,9 @@ export interface schémaStatut {
 
 export type dicTrads = { [key: string]: string };
 
-export type schémaFonctionSuivi<T> = ((x: T) => void) | ((x: T) => Promise<void>);
+export type schémaFonctionSuivi<T> =
+  | ((x: T) => void)
+  | ((x: T) => Promise<void>);
 
 export type schémaFonctionOublier = () => Promise<void>;
 

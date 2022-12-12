@@ -102,12 +102,8 @@ describe("Rechercher mots clefs", function () {
 
   describe("Selon texte", function () {
     let idMotClef: string;
-    let résultatId:
-      | résultatObjectifRecherche<infoRésultatTexte>
-      | undefined;
-    let résultatNom:
-      | résultatObjectifRecherche<infoRésultatTexte>
-      | undefined;
+    let résultatId: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    let résultatNom: résultatObjectifRecherche<infoRésultatTexte> | undefined;
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -119,9 +115,7 @@ describe("Rechercher mots clefs", function () {
         await fRechercheNom(client, idMotClef, (r) => (résultatNom = r))
       );
 
-      const fRechercheId = rechercherMotClefSelonTexte(
-        idMotClef.slice(0, 15)
-      );
+      const fRechercheId = rechercherMotClefSelonTexte(idMotClef.slice(0, 15));
       fsOublier.push(
         await fRechercheId(client, idMotClef, (r) => (résultatId = r))
       );

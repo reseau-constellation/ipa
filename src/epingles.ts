@@ -63,12 +63,18 @@ export default class Épingles {
     return this.requètes.some((r) => r.id === id);
   }
 
-  async épingléeParParent({ id, parent }: { id: string, parent?: string }): Promise<boolean> {
+  async épingléeParParent({
+    id,
+    parent,
+  }: {
+    id: string;
+    parent?: string;
+  }): Promise<boolean> {
     return this.requètes.some((r) => r.id === id && r.parent === parent);
   }
 
   async directementÉpinglée({ id }: { id: string }): Promise<boolean> {
-    return await this.épingléeParParent({ id })
+    return await this.épingléeParParent({ id });
   }
 
   async épingles(): Promise<Set<string>> {
@@ -98,11 +104,11 @@ export default class Épingles {
         let l_vals: string[] = [];
         if (typeof vals === "object") {
           l_vals = Object.values(vals).filter(
-              (v) => typeof v === "string"
-            ) as string[];
-          l_vals.push(...Object.keys(vals).filter(
-              (v) => typeof v === "string"
-            ))
+            (v) => typeof v === "string"
+          ) as string[];
+          l_vals.push(
+            ...Object.keys(vals).filter((v) => typeof v === "string")
+          );
         } else if (Array.isArray(vals)) {
           l_vals = vals;
         } else if (typeof vals === "string") {
@@ -152,7 +158,7 @@ export default class Épingles {
   }
 
   async toutDésépingler(): Promise<void> {
-    const épingles = await this.épingles()
+    const épingles = await this.épingles();
     await Promise.all(
       [...épingles].map(async (id) => {
         await this.désépinglerBd({ id });

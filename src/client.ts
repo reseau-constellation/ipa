@@ -717,15 +717,15 @@ export default class ClientConstellation extends EventEmitter {
 
           const fFinale = () => {
             const idSuivi = uuidv4();
-            const promesse = f(bd)
-            
+            const promesse = f(bd);
+
             // @ts-ignore
             if (promesse.then) {
               promesses[idSuivi] = promesse;
-              (promesse as Promise<void>).then(()=>{
-                delete promesses[idSuivi]
-              })
-            };
+              (promesse as Promise<void>).then(() => {
+                delete promesses[idSuivi];
+              });
+            }
           };
 
           for (const é of événements) {
@@ -755,7 +755,7 @@ export default class ClientConstellation extends EventEmitter {
     const fOublier = async () => {
       annulé = true;
       await Promise.all(fsOublier.map((f) => f()));
-      await Promise.all(Object.values(promesses))
+      await Promise.all(Object.values(promesses));
     };
     return fOublier;
   }
@@ -766,7 +766,7 @@ export default class ClientConstellation extends EventEmitter {
     fSuivre,
   }: {
     fRacine: (args: {
-      fSuivreRacine: (nouvelIdBdCible: string) => Promise<void>;
+      fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
     }) => Promise<schémaFonctionOublier>;
     f: schémaFonctionSuivi<T | undefined>;
     fSuivre: (args: {
@@ -779,7 +779,7 @@ export default class ClientConstellation extends EventEmitter {
     let premièreFois = true;
 
     const oublierRacine = await fRacine({
-      fSuivreRacine: async (nouvelIdBdCible: string) => {
+      fSuivreRacine: async (nouvelIdBdCible?: string) => {
         if (nouvelIdBdCible === undefined && premièreFois) {
           premièreFois = false;
           await f(undefined);
@@ -1208,7 +1208,14 @@ export default class ClientConstellation extends EventEmitter {
     });
   }
 
-  async suivreBdsDeFonctionListe<T extends élémentsBd, U, V>({
+  async suivreBdsDeFonctionListe<
+    T extends élémentsBd,
+    U,
+    V,
+    W extends
+      | schémaFonctionOublier
+      | ({ fOublier: schémaFonctionOublier } & { [key: string]: any })
+  >({
     fListe,
     f,
     fBranche,
@@ -1217,9 +1224,7 @@ export default class ClientConstellation extends EventEmitter {
       [...new Set(branches.flat())] as unknown as V[],
     fCode = (é) => é as string,
   }: {
-    fListe: (
-      fSuivreRacine: (éléments: T[]) => Promise<void>
-    ) => Promise<schémaFonctionOublier>;
+    fListe: (fSuivreRacine: (éléments: T[]) => Promise<void>) => Promise<W>;
     f: schémaFonctionSuivi<V[]>;
     fBranche: (
       id: string,
@@ -1229,7 +1234,7 @@ export default class ClientConstellation extends EventEmitter {
     fIdBdDeBranche?: (b: T) => string;
     fRéduction?: schémaFonctionRéduction<U[], V[]>;
     fCode?: (é: T) => string;
-  }): Promise<schémaFonctionOublier> {
+  }): Promise<W> {
     interface InterfaceBranches {
       données?: U;
       fOublier?: schémaFonctionOublier;
@@ -1314,7 +1319,9 @@ export default class ClientConstellation extends EventEmitter {
       verrou.release("racine");
     };
 
-    const oublierBdRacine = await fListe(fSuivreRacine);
+    const retourRacine = await fListe(fSuivreRacine);
+
+    let oublierBdRacine: schémaFonctionOublier;
 
     const fOublier = async () => {
       await oublierBdRacine();
@@ -1324,7 +1331,14 @@ export default class ClientConstellation extends EventEmitter {
           .map((x) => x.fOublier())
       );
     };
-    return fOublier;
+    if (typeof retourRacine === "function") {
+      oublierBdRacine = retourRacine;
+      // @ts-ignore
+      return fOublier;
+    } else {
+      oublierBdRacine = retourRacine.fOublier;
+      return Object.assign({}, retourRacine, { fOublier });
+    }
   }
 
   async suivreBdsDeFonctionRecherche<T extends élémentsBd, U, V>({
@@ -1377,20 +1391,54 @@ export default class ClientConstellation extends EventEmitter {
     return { fOublier, fChangerProfondeur };
   }
 
-  async suivreBdsSelonCondition({
+  async suivreBdSelonCondition({
+    fRacine,
+    fCondition,
+    f,
+  }: {
+    fRacine: (
+      fSuivreRacine: (id: string) => Promise<void>
+    ) => Promise<schémaFonctionOublier>;
+    fCondition: (
+      id: string,
+      fSuivreCondition: schémaFonctionSuivi<boolean>
+    ) => Promise<schémaFonctionOublier>;
+    f: schémaFonctionSuivi<string>;
+  }): Promise<schémaFonctionOublier> {
+    const fSuivre = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<string | undefined>;
+    }): Promise<schémaFonctionOublier> => {
+      return await fCondition(id, async (condition) => {
+        fSuivreBd(condition ? id : undefined);
+      });
+    };
+    return await this.suivreBdDeFonction({
+      fRacine: async ({ fSuivreRacine }) => await fRacine(fSuivreRacine),
+      f,
+      fSuivre,
+    });
+  }
+
+  async suivreBdsSelonCondition<
+    T extends
+      | schémaFonctionOublier
+      | ({ fOublier: schémaFonctionOublier } & { [key: string]: any })
+  >({
     fListe,
     fCondition,
     f,
   }: {
-    fListe: (
-      fSuivreRacine: (ids: string[]) => Promise<void>
-    ) => Promise<schémaFonctionOublier>;
+    fListe: (fSuivreRacine: (ids: string[]) => Promise<void>) => Promise<T>;
     fCondition: (
       id: string,
-      fSuivreCondition: (état: boolean) => void
+      fSuivreCondition: schémaFonctionSuivi<boolean>
     ) => Promise<schémaFonctionOublier>;
     f: schémaFonctionSuivi<string[]>;
-  }): Promise<schémaFonctionOublier> {
+  }): Promise<T> {
     interface branche {
       id: string;
       état: boolean;
@@ -1407,8 +1455,8 @@ export default class ClientConstellation extends EventEmitter {
       id: string,
       fSuivreBranche: schémaFonctionSuivi<branche>
     ): Promise<schémaFonctionOublier> => {
-      const fFinaleSuivreBranche = (état: boolean) => {
-        fSuivreBranche({ id, état });
+      const fFinaleSuivreBranche = async (état: boolean) => {
+        await fSuivreBranche({ id, état });
       };
       return await fCondition(id, fFinaleSuivreBranche);
     };
@@ -1584,8 +1632,9 @@ export default class ClientConstellation extends EventEmitter {
     if (!idBd && type) {
       const accès = bdRacine.access as unknown as ContrôleurConstellation;
       const permission = await uneFois((f: schémaFonctionSuivi<boolean>) =>
-        accès.suivreIdsOrbiteAutoriséesÉcriture(async (autorisés: string[]) =>
-          await f(autorisés.includes(this.orbite!.identity.id))
+        accès.suivreIdsOrbiteAutoriséesÉcriture(
+          async (autorisés: string[]) =>
+            await f(autorisés.includes(this.orbite!.identity.id))
         )
       );
 
@@ -1872,7 +1921,7 @@ export default class ClientConstellation extends EventEmitter {
   async fermerCompte(): Promise<void> {
     if (this.réseau) await this.réseau.fermer();
     if (this.favoris) await this.favoris.fermer();
-    
+
     if (this.automatisations) await this.automatisations.fermer();
   }
 

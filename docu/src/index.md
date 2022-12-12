@@ -10,6 +10,6 @@ features:
 - title: Science citoyenne
   details: Lancez un projet de science citoyenne distribué et sans serveur central. Les données demeureront sur les dispositifs de vos utilisatrices et utilisateurs.
 - title: En ligne ou locale
-  details: Constellation peut être utilisé en tant qu'appli en ligne ou bien logiciel installable sur votre ordinateur.
+  details: Constellation peut être utilisé en tant qu'appli en ligne ou bien en tant que logiciel installable sur votre ordinateur.
 footer: "Auteur : Julien Malard-Adam"
 ---

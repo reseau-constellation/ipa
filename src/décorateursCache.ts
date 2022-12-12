@@ -62,9 +62,9 @@ export class CacheSuivi {
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
       throw new Error(
         "Plus d'un argument pour " +
-        adresseFonction +
-        " est une fonction : " +
-        JSON.stringify(args)
+          adresseFonction +
+          " est une fonction : " +
+          JSON.stringify(args)
       );
     }
 
@@ -147,9 +147,13 @@ export class CacheSuivi {
 
     const taille = args[nomArgTaille];
     if (taille === undefined)
-      throw new Error(`Aucun argument de nom ${nomArgTaille} n'a été passé à la fonction ${adresseFonction}.`);
+      throw new Error(
+        `Aucun argument de nom ${nomArgTaille} n'a été passé à la fonction ${adresseFonction}.`
+      );
     if (typeof taille !== "number")
-      throw new Error(`Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`);
+      throw new Error(
+        `Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`
+      );
 
     const codeCache = this.générerCodeCache({
       adresseFonction,

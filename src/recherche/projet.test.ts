@@ -671,9 +671,7 @@ describe("Rechercher projets", function () {
         await fRechercheNom(client, idProjet, (r) => (résultatNom = r))
       );
 
-      const fRechercheId = rechercherProjetSelonTexte(
-        idProjet.slice(0, 15)
-      );
+      const fRechercheId = rechercherProjetSelonTexte(idProjet.slice(0, 15));
       fsOublier.push(
         await fRechercheId(client, idProjet, (r) => (résultatId = r))
       );

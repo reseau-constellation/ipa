@@ -41,11 +41,7 @@ describe("Rechercher variables", function () {
       });
 
       const fRecherche = rechercherVariableSelonNom("Radiation solaire");
-      fOublier = await fRecherche(
-        client,
-        idVariable,
-        (r) => (résultat = r)
-      );
+      fOublier = await fRecherche(client, idVariable, (r) => (résultat = r));
     }, config.patience);
 
     afterAll(async () => {
@@ -118,11 +114,7 @@ describe("Rechercher variables", function () {
       });
 
       const fRecherche = rechercherVariableSelonDescr("Radiation solaire");
-      fOublier = await fRecherche(
-        client,
-        idVariable,
-        (r) => (résultat = r)
-      );
+      fOublier = await fRecherche(client, idVariable, (r) => (résultat = r));
     }, config.patience);
 
     afterAll(async () => {
@@ -186,12 +178,8 @@ describe("Rechercher variables", function () {
 
   describe("Selon texte", function () {
     let idVariable: string;
-    let résultatId:
-      | résultatObjectifRecherche<infoRésultatTexte>
-      | undefined;
-    let résultatNom:
-      | résultatObjectifRecherche<infoRésultatTexte>
-      | undefined;
+    let résultatId: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    let résultatNom: résultatObjectifRecherche<infoRésultatTexte> | undefined;
 
     const fsOublier: schémaFonctionOublier[] = [];
 

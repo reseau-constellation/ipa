@@ -29,9 +29,7 @@ describe("Rechercher bds", function () {
 
   beforeAll(async () => {
     enregistrerContrôleurs();
-    ({ fOublier: fOublierClients, clients } = await générerClients(
-      1,
-    ));
+    ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
   }, config.patienceInit);
 
@@ -149,12 +147,8 @@ describe("Rechercher bds", function () {
         await fRechercheNom(client, idBd, (r) => (résultatNom = r))
       );
 
-      const fRechercheId = rechercherBdSelonIdMotClef(
-        idMotClef.slice(0, 15)
-      );
-      fsOublier.push(
-        await fRechercheId(client, idBd, (r) => (résultatId = r))
-      );
+      const fRechercheId = rechercherBdSelonIdMotClef(idMotClef.slice(0, 15));
+      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
 
       const fRechercheTous = rechercherBdSelonMotClef("Météo");
       fsOublier.push(
@@ -259,12 +253,8 @@ describe("Rechercher bds", function () {
         await fRechercheNom(client, idBd, (r) => (résultatNom = r))
       );
 
-      const fRechercheId = rechercherBdSelonIdVariable(
-        idVariable.slice(0, 15)
-      );
-      fsOublier.push(
-        await fRechercheId(client, idBd, (r) => (résultatId = r))
-      );
+      const fRechercheId = rechercherBdSelonIdVariable(idVariable.slice(0, 15));
+      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
 
       const fRechercheTous = rechercherBdSelonVariable("Précip");
       fsOublier.push(
@@ -384,9 +374,7 @@ describe("Rechercher bds", function () {
       );
 
       const fRechercheId = rechercherBdSelonTexte(idBd.slice(0, 15));
-      fsOublier.push(
-        await fRechercheId(client, idBd, (r) => (résultatId = r))
-      );
+      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
 
       const fRechercheDescr = rechercherBdSelonTexte("Montréal");
       fsOublier.push(
@@ -395,20 +383,12 @@ describe("Rechercher bds", function () {
 
       const fRechercheVariables = rechercherBdSelonTexte("Température");
       fsOublier.push(
-        await fRechercheVariables(
-          client,
-          idBd,
-          (r) => (résultatVariable = r)
-        )
+        await fRechercheVariables(client, idBd, (r) => (résultatVariable = r))
       );
 
       const fRechercheMotsClef = rechercherBdSelonTexte("Météo");
       fsOublier.push(
-        await fRechercheMotsClef(
-          client,
-          idBd,
-          (r) => (résultatMotsClef = r)
-        )
+        await fRechercheMotsClef(client, idBd, (r) => (résultatMotsClef = r))
       );
     }, config.patience);
 

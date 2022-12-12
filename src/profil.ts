@@ -82,7 +82,9 @@ export default class Profil {
       type: "kvstore",
     });
     if (!idBdNoms) {
-      throw new Error(`Permission de modification refusée pour BD ${this.idBd}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${this.idBd}.`
+      );
     }
 
     const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
@@ -99,7 +101,9 @@ export default class Profil {
       type: "kvstore",
     });
     if (!idBdNoms) {
-      throw new Error(`Permission de modification refusée pour BD ${this.idBd}.`);
+      throw new Error(
+        `Permission de modification refusée pour BD ${this.idBd}.`
+      );
     }
 
     const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
@@ -150,14 +154,14 @@ export default class Profil {
       f: async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
         const idImage = bd.get("image");
         if (!idImage) {
-          await f(null)
+          await f(null);
         } else {
           const image = await this.client.obtFichierSFIP({
             id: idImage,
             max: MAX_TAILLE_IMAGE_VIS,
           });
-          await f(image)
-        };
+          await f(image);
+        }
       },
     });
   }

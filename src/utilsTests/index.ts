@@ -58,7 +58,7 @@ export const clientConnectéÀ = (
   const verrou = new Semaphore();
   return new Promise(async (résoudre) => {
     const fFinale = async (dispositifs: statutDispositif[]) => {
-      const idBdCompte2 = await client2.obtIdCompte()
+      const idBdCompte2 = await client2.obtIdCompte();
       const connecté = !!dispositifs.find(
         (d) => d.infoDispositif.idCompte === idBdCompte2
       );
@@ -282,8 +282,8 @@ export const générerOrbites = async (
 
   const fOublier = async () => {
     await Promise.all(
-      orbites.map(async orbite => {
-        await orbite.stop()
+      orbites.map(async (orbite) => {
+        await orbite.stop();
       })
     );
 
@@ -294,7 +294,6 @@ export const générerOrbites = async (
     );
 
     rmrf.sync(racineDossierOrbite);
-
   };
   return { orbites, fOublier };
 };
@@ -352,6 +351,9 @@ export const générerClients = async (
   return { fOublier, clients };
 };
 
-export const typesClients: typeClient[] = process.env.TOUS
-  ? ["directe", "proc"]
-  : ["directe"];
+export const typesClients: typeClient[] =
+  process.env.PROXY === "TOUS"
+    ? ["directe", "proc"]
+    : process.env.PROXY === "PROC"
+    ? ["proc"]
+    : ["directe"];

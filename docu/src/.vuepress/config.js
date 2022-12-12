@@ -54,7 +54,16 @@ module.exports = {
         {
           title: "Guide",
           collapsable: false,
-          children: ["", "installation"],
+          children: ["", "/guide/installation", "paireÀPaire"],
+        },
+        {
+          title: "Exemples",
+          collapsable: false,
+          children: [
+            "/exemples/",
+            "/exemples/scienceCitoyenne",
+            "/exemples/diffusion",
+          ],
         },
       ],
     },

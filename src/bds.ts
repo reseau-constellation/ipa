@@ -64,21 +64,27 @@ export type infoTableau = {
 };
 
 export type différenceBds =
-  | différenceBDTableauExtra
+  | différenceBDTableauSupplémentaire
   | différenceBDTableauManquant
   | différenceTableauxBds;
 
 export type différenceBDTableauManquant = {
+  type: "tableauManquant";
+  sévère: true;
   clefManquante: string;
 };
 
-export type différenceBDTableauExtra = {
+export type différenceBDTableauSupplémentaire = {
+  type: "tableauSupplémentaire";
+  sévère: false;
   clefExtra: string;
 };
 
 export type différenceTableauxBds<
   T extends différenceTableaux = différenceTableaux
 > = {
+  type: "tableau";
+  sévère: T["sévère"];
   idTableau: string;
   différence: T;
 };
@@ -360,7 +366,7 @@ export default class BDs {
     } = {
       difsTableaux: [],
     };
-
+    
     const fFinale = async () => {
       const différences: différenceBds[] = [...info.difsTableaux];
 
@@ -371,6 +377,8 @@ export default class BDs {
           );
           if (!tableau) {
             const dif: différenceBDTableauManquant = {
+              type: "tableauManquant",
+              sévère: true,
               clefManquante: tableauLié.clef,
             };
             différences.push(dif);
@@ -381,7 +389,9 @@ export default class BDs {
             (t) => t.clef === tableau.clef
           );
           if (!tableauLié) {
-            const dif: différenceBDTableauExtra = {
+            const dif: différenceBDTableauSupplémentaire = {
+              type: "tableauSupplémentaire",
+              sévère: false,
               clefExtra: tableau.clef,
             };
             différences.push(dif);
@@ -405,8 +415,8 @@ export default class BDs {
       id: string,
       fSuivreBranche: schémaFonctionSuivi<différenceTableauxBds[]>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.tableaux!.suivreDifférencesAvecTableauLié({
-        id,
+      return await this.client.tableaux.suivreDifférencesAvecTableau({
+        idTableau,
         f: (diffs) =>
           fSuivreBranche(
             diffs.map((d) => {
@@ -431,7 +441,7 @@ export default class BDs {
         fBranche,
       });
 
-    const fOublierTableauxBd = await this.suivreTableauxBd({
+    const fOublierTableauxBd = await this.client.bds.suivreTableauxBd({
       id: idBd,
       f: (tableaux) => {
         info.tableauxBd = tableaux;
@@ -477,6 +487,7 @@ export default class BDs {
       await fOublierTableauxBdLiée();
       await fOublierDifférencesTableaux();
     };
+
   }
 
   @cacheSuivi
@@ -806,7 +817,8 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
+    if (!idBdNoms)
+      throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -834,7 +846,8 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
+    if (!idBdNoms)
+      throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -857,7 +870,8 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdNoms) throw new Error(`Permission de modification refusée pour BD ${id}.`);
+    if (!idBdNoms)
+      throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -880,7 +894,8 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
+    if (!idBdDescr)
+      throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -907,7 +922,8 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
+    if (!idBdDescr)
+      throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -930,7 +946,8 @@ export default class BDs {
       type: "kvstore",
       optionsAccès,
     });
-    if (!idBdDescr) throw new Error(`Permission de modification refusée pour BD ${id}.`);
+    if (!idBdDescr)
+      throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
@@ -1331,7 +1348,11 @@ export default class BDs {
 
         if (cols !== undefined && règles !== undefined) {
           const colsÉligibles = cols.filter((c) =>
-            ["numérique", "catégorique"].includes(typeof c.catégorie === "string" ? c.catégorie : c.catégorie.catégorieBase)
+            ["numérique", "catégorique"].includes(
+              typeof c.catégorie === "string"
+                ? c.catégorie
+                : c.catégorie.catégorieBase
+            )
           );
 
           const dénominateur = colsÉligibles.length;
@@ -1423,7 +1444,11 @@ export default class BDs {
           cols !== undefined
         ) {
           const colsÉligibles = cols.filter((c) =>
-            ["numérique", "catégorique"].includes(typeof c.catégorie === "string" ? c.catégorie : c.catégorie.catégorieBase)
+            ["numérique", "catégorique"].includes(
+              typeof c.catégorie === "string"
+                ? c.catégorie
+                : c.catégorie.catégorieBase
+            )
           );
 
           const déjàVus: { empreinte: string; idColonne: string }[] = [];

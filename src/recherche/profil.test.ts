@@ -31,7 +31,7 @@ describe("Rechercher profil", function () {
   beforeAll(async () => {
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
-    idBdCompte = await client.obtIdCompte()
+    idBdCompte = await client.obtIdCompte();
   }, config.patienceInit);
 
   afterAll(async () => {
@@ -208,9 +208,7 @@ describe("Rechercher profil", function () {
     beforeAll(async () => {
       const fRechercheNom = rechercherProfilSelonTexte("Julien Malard");
       fsOublier.push(
-        await fRechercheNom(client, idBdCompte, (r) =>
-          résNom.mettreÀJour(r)
-        )
+        await fRechercheNom(client, idBdCompte, (r) => résNom.mettreÀJour(r))
       );
 
       const fRechercherCourriel = rechercherProfilSelonTexte("julien.");

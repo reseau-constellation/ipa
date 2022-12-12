@@ -402,7 +402,8 @@ export default class Projets {
       type: "feed",
       optionsAccès,
     });
-    if (!idBdBds) throw new Error(`Permission de modification refusée pour Projet ${id}.`);
+    if (!idBdBds)
+      throw new Error(`Permission de modification refusée pour Projet ${id}.`);
 
     return await this.client.ouvrirBd<FeedStore<string>>({ id: idBdBds });
   }
