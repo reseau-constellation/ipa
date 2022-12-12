@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import { schémaStatut, TYPES_STATUT } from "@/utils/types.js";
-import { cacheSuivi } from "@/décorateursCache.js";
+import { cache, cacheSuivi } from "@/décorateursCache.js";
 
 import { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
 import { élémentBdListeDonnées, différenceTableaux } from "@/tableaux.js";
@@ -352,142 +352,18 @@ export default class BDs {
   }
 
   @cacheSuivi
-  async suivreDifférencesAvecSchémaNuée({
+  async suivreNuéeBd({
     idBd,
-    f,
-  }: {
-    idBd: string;
-    f: schémaFonctionSuivi<différenceBds[]>;
-  }): Promise<schémaFonctionOublier> {
-    const info: {
-      difsTableaux: différenceTableauxBds[];
-      tableauxBd?: infoTableauAvecId[];
-      tableauxBdLiée?: infoTableauAvecId[];
-    } = {
-      difsTableaux: [],
+    f
+  }: { idBd: string, f: schémaFonctionSuivi<string> }): Promise<schémaFonctionOublier> {
+    const fFinale = async (bd: KeyValueStore<typeÉlémentsBdBD>) => {
+      const idNuée = bd.get("nuées");
+      await f(idNuée as string);
     };
-    
-    const fFinale = async () => {
-      const différences: différenceBds[] = [...info.difsTableaux];
-
-      if (info.tableauxBdLiée && info.tableauxBd) {
-        for (const tableauLié of info.tableauxBdLiée) {
-          const tableau = info.tableauxBdLiée.find(
-            (t) => t.clef === tableauLié.clef
-          );
-          if (!tableau) {
-            const dif: différenceBDTableauManquant = {
-              type: "tableauManquant",
-              sévère: true,
-              clefManquante: tableauLié.clef,
-            };
-            différences.push(dif);
-          }
-        }
-        for (const tableau of info.tableauxBd) {
-          const tableauLié = info.tableauxBdLiée.find(
-            (t) => t.clef === tableau.clef
-          );
-          if (!tableauLié) {
-            const dif: différenceBDTableauSupplémentaire = {
-              type: "tableauSupplémentaire",
-              sévère: false,
-              clefExtra: tableau.clef,
-            };
-            différences.push(dif);
-          }
-        }
-      }
-
-      await f(différences);
-    };
-
-    const fListe = async (
-      fSuivreRacine: (tableaux: string[]) => Promise<void>
-    ): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauxBd({
-        id: idBd,
-        f: (x) => fSuivreRacine(x.map((y) => y.id)),
-      });
-    };
-
-    const fBranche = async (
-      id: string,
-      fSuivreBranche: schémaFonctionSuivi<différenceTableauxBds[]>
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.tableaux.suivreDifférencesAvecTableau({
-        idTableau,
-        f: (diffs) =>
-          fSuivreBranche(
-            diffs.map((d) => {
-              return {
-                idTableau: id,
-                différence: d,
-              };
-            })
-          ),
-      });
-    };
-
-    const fFinaleSuivreDiffsTableaux = (diffs: différenceTableauxBds[]) => {
-      info.difsTableaux = diffs;
-      fFinale();
-    };
-
-    const fOublierDifférencesTableaux =
-      await this.client.suivreBdsDeFonctionListe({
-        fListe,
-        f: fFinaleSuivreDiffsTableaux,
-        fBranche,
-      });
-
-    const fOublierTableauxBd = await this.client.bds.suivreTableauxBd({
+    return await this.client.suivreBd({
       id: idBd,
-      f: (tableaux) => {
-        info.tableauxBd = tableaux;
-        fFinale();
-      },
+      f: fFinale,
     });
-
-    const fSuivreRacineBdLiée = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreParent({
-        idBd,
-        f: (x) => faisRien, // fSuivreRacine(x?.lier ? x.id : undefined),
-      });
-    };
-
-    const fSuivreBdLiée = async ({
-      id,
-      fSuivreBd,
-    }: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<infoTableauAvecId[]>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreTableauxBd({
-        id,
-        f: fSuivreBd,
-      });
-    };
-
-    const fOublierTableauxBdLiée = await this.client.suivreBdDeFonction({
-      fRacine: fSuivreRacineBdLiée,
-      f: (tableaux) => {
-        info.tableauxBdLiée = tableaux;
-        fFinale();
-      },
-      fSuivre: fSuivreBdLiée,
-    });
-
-    return async () => {
-      await fOublierTableauxBd();
-      await fOublierTableauxBdLiée();
-      await fOublierDifférencesTableaux();
-    };
-
   }
 
   @cacheSuivi
@@ -515,6 +391,34 @@ export default class BDs {
         fSuivreCondition(état);
       };
       return await this.suivreMotsClefsBd({ id, f: fFinaleSuivreCondition });
+    };
+    return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
+  }
+
+  @cacheSuivi
+  async rechercherBdsParNuée({
+    idNuée,
+    f,
+    idBdBdsCompte,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<string[]>;
+    idBdBdsCompte?: string;
+  }): Promise<schémaFonctionOublier> {
+    const fListe = async (
+      fSuivreRacine: (éléments: string[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.suivreBds({ f: fSuivreRacine, idBdBdsCompte });
+    };
+
+    const fCondition = async (
+      id: string,
+      fSuivreCondition: (état: boolean) => void
+    ): Promise<schémaFonctionOublier> => {
+      const fFinaleSuivreCondition = (nuéeBd?: string) => {
+        fSuivreCondition(nuéeBd === idNuée);
+      };
+      return await this.suivreNuéeBd({ idBd: id, f: fFinaleSuivreCondition });
     };
     return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
   }

@@ -2493,8 +2493,8 @@ export default class Réseau extends EventEmitter {
           f(bds || []);
         },
         fSuivre: async ({ id }: { id: string }) => {
-          return await this.client.bds!.rechercherBdsParMotsClefs({
-            motsClefs: [motClefUnique],
+          return await this.client.bds!.rechercherBdsParNuée({
+            idNuée,
             f,
             idBdBdsCompte: id,
           });
@@ -2519,12 +2519,12 @@ export default class Réseau extends EventEmitter {
   }
 
   async suivreÉlémentsDeTableauxUniques<T extends élémentBdListeDonnées>({
-    motClefUnique,
+    idNuéeUnique,
     clef,
     f,
     nBds = 100,
   }: {
-    motClefUnique: string;
+    idNuéeUnique: string;
     clef: string;
     f: schémaFonctionSuivi<élémentDeMembre<T>[]>;
     nBds?: number;
@@ -2535,8 +2535,8 @@ export default class Réseau extends EventEmitter {
       const fListeListe = async (
         fSuivreRacineListe: (bds: string[]) => Promise<void>
       ): Promise<schémaRetourFonctionRecherche> => {
-        return await this.suivreBdsDeMotClef({
-          motClefUnique,
+        return await this.suivreBdsDeNuée({
+          idNuée: idNuéeUnique,
           f: fSuivreRacineListe,
           nRésultatsDésirés: nBds,
         });
