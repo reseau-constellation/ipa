@@ -9,12 +9,16 @@ import {
   infoAuteur,
   faisRien,
   uneFois,
+  schémaFonctionSuiviRecherche,
+  infoRésultatVide,
+  résultatRecherche,
+  élémentsBd,
 } from "@/utils/index.js";
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
-import { cacheSuivi } from "@/décorateursCache";
+import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache";
 import { objRôles } from "@/accès/types.js";
 import {
   différenceBds,
@@ -31,7 +35,7 @@ import {
   règleVariable,
   règleColonne,
 } from "@/valid";
-import { élémentDeMembre, élémentDeMembreAvecValid } from "@/reseau";
+import { réponseSuivreRecherche, élémentDeMembre, élémentDeMembreAvecValid } from "@/reseau";
 import {
   différenceTableaux,
   InfoCol,
@@ -39,6 +43,7 @@ import {
   élémentBdListeDonnées,
 } from "@/tableaux";
 import { info } from "console";
+import { StringifyOptions } from "querystring";
 
 export type statutMembreNuée = {
   idCompte: string;
@@ -59,9 +64,11 @@ export default class Nuée {
   async créerNuée({
     nuéeParent,
     autorisation,
+    ajouter = true
   }: {
     nuéeParent?: string;
     autorisation?: string;
+    ajouter?: boolean
   }): Promise<string> {
     const idBdNuée = await this.client.créerBdIndépendante({
       type: "kvstore",
@@ -70,8 +77,7 @@ export default class Nuée {
         premierMod: this.client.bdCompte!.id,
       },
     });
-
-    await this.ajouterÀMesNuées({ id: idBdNuée });
+    if (ajouter) await this.ajouterÀMesNuées({ id: idBdNuée });
 
     const { bd: bdNuée, fOublier: fOublierNuée } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdNuée>
@@ -136,7 +142,91 @@ export default class Nuée {
   }: {
     id: string;
     ajouterÀMesNuées?: boolean;
-  }): Promise<string> {}
+  }): Promise<string> {
+    const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdNuée>
+    >({ id });
+    const nuéeParent = bdBase.get("parent") as string;
+    const idNouvelleNuée = await this.créerNuée({ nuéeParent, ajouter: ajouterÀMesNuées });
+    const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
+      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdNuée>>({
+        id: idNouvelleNuée,
+      });
+
+    const idBdNoms = bdBase.get("noms") as string;
+    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >({ id: idBdNoms });
+    const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
+      [key: string]: string;
+    };
+    await this.ajouterNomsNuée({ id: idNouvelleNuée, noms });
+
+    const idBdDescr = bdBase.get("descriptions") as string;
+    const { bd: bdDescr, fOublier: fOublierBdDescr } =
+      await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdDescr });
+    const descriptions = ClientConstellation.obtObjetdeBdDic({
+      bd: bdDescr,
+    }) as {
+      [key: string]: string;
+    };
+    await this.ajouterDescriptionsNuée({ id: idNouvelleNuée, descriptions });
+
+    fOublierBdNoms();
+    fOublierBdDescr();
+
+    const idBdMotsClefs = bdBase.get("motsClefs") as string;
+    const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
+      await this.client.ouvrirBd<FeedStore<string>>({ id: idBdMotsClefs });
+    const motsClefs = ClientConstellation.obtÉlémentsDeBdListe({
+      bd: bdMotsClefs,
+    }) as string[];
+    await this.ajouterMotsClefsNuée({
+      idNuée: idNouvelleNuée,
+      idsMotsClefs: motsClefs,
+    });
+
+    const idBdTableaux = bdBase.get("tableaux") as string;
+    const idNouvelleBdTableaux = nouvelleBd.get("tableaux") as string;
+
+    const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
+      await this.client.ouvrirBd<KeyValueStore<infoTableau>>({
+        id: idNouvelleBdTableaux,
+      });
+    const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
+      await this.client.ouvrirBd<KeyValueStore<infoTableau>>({
+        id: idBdTableaux,
+      });
+    const tableaux = ClientConstellation.obtObjetdeBdDic({
+      bd: bdTableaux,
+    });
+
+    for (const idTableau of Object.keys(tableaux)) {
+      const idNouveauTableau: string =
+        await this.client.tableaux!.copierTableau({
+          id: idTableau,
+          idBd: idNouvelleNuée,
+          copierDonnées: false,
+        });
+      await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
+    }
+
+    const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
+    await nouvelleBd.set("statut", statut);
+
+    const image = bdBase.get("image");
+    if (image) await nouvelleBd.set("image", image);
+
+    await nouvelleBd.set("copiéDe", id);
+
+    await fOublier();
+    fOublierNouvelleTableaux();
+
+    fOublierNouvelle();
+    fOublierBdTableaux();
+    fOublierBdMotsClefs();
+    return idNouvelleNuée;
+  }
 
   async suivreNuées({
     f,
@@ -147,6 +237,29 @@ export default class Nuée {
   }): Promise<schémaFonctionOublier> {
     idBdNuéesCompte = idBdNuéesCompte || this.idBd;
     return await this.client.suivreBdListe({ id: idBdNuéesCompte, f });
+  }
+
+  private async suivreDeParents<T>({
+    idNuée,
+    f,
+    fParents
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<T[]>;
+    fParents: (
+      id: string,
+      fSuivreBranche: schémaFonctionSuivi<T>
+    ) => Promise<schémaFonctionOublier>
+  }): Promise<schémaFonctionOublier> {
+
+    return await this.client.suivreBdsDeFonctionListe({
+      fListe: async (fSuivreRacine: (parents: string[]) => Promise<void>): Promise<schémaFonctionOublier> => {
+        return await this.suivreNuéesParents({ idNuée, f: (parents) => fSuivreRacine([idNuée, ...parents].reverse()) })
+      },
+      f,
+      fBranche: fParents,
+      fRéduction: x => x
+    })
   }
 
   async ajouterNomsNuée({
@@ -201,13 +314,23 @@ export default class Nuée {
   }
 
   async suivreNomsNuée({
-    id,
+    idNuée,
     f,
   }: {
-    id: string;
+    idNuée: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id, clef: "noms", f });
+    const fFinale = async (noms: { [key: string]: string }[]) => {
+      await f(Object.assign({}, ...noms));
+    }
+
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents: async (id: string, fSuivreBranche: schémaFonctionSuivi<{ [key: string]: string }>): Promise<schémaFonctionOublier> => {
+        return await this.client.suivreBdDicDeClef({ id, clef: "noms", f: fSuivreBranche });
+      },
+    })
   }
 
   async ajouterDescriptionsNuée({
@@ -262,13 +385,24 @@ export default class Nuée {
 
   @cacheSuivi
   async suivreDescriptionsNuée({
-    id,
+    idNuée,
     f,
   }: {
-    id: string;
+    idNuée: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id, clef: "descriptions", f });
+    const fFinale = async (noms: { [key: string]: string }[]) => {
+      await f(Object.assign({}, ...noms));
+    }
+
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents: async (id: string, fSuivreBranche: schémaFonctionSuivi<{ [key: string]: string }>): Promise<schémaFonctionOublier> => {
+        return await this.client.suivreBdDicDeClef<string>({ id, clef: "descriptions", f: fSuivreBranche });
+      },
+    })
+    
   }
 
   async ajouterMotsClefsNuée({
@@ -334,13 +468,23 @@ export default class Nuée {
 
   @cacheSuivi
   async suivreMotsClefsNuée({
-    id,
+    idNuée,
     f,
   }: {
-    id: string;
+    idNuée: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdListeDeClef({ id, clef: "motsClefs", f });
+    const fFinale = async (motsClefs: string[][]) => {
+      await f([...new Set(motsClefs.flat())]);
+    }
+
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents: async (id: string, fSuivreBranche: schémaFonctionSuivi<string[]>): Promise<schémaFonctionOublier> => {
+        return await this.client.suivreBdListeDeClef({ id, clef: "motsClefs", f: fSuivreBranche });
+      },
+    })
   }
 
   async inviterAuteur({
@@ -645,22 +789,33 @@ export default class Nuée {
     idNuée: string;
     f: schémaFonctionSuivi<infoTableauAvecId[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (infos: { [clef: string]: infoTableau }) => {
-      const tableaux: infoTableauAvecId[] = Object.entries(infos).map(
-        ([id, info]) => {
-          return {
-            id,
-            ...info,
-          };
-        }
-      );
-      f(tableaux);
-    };
-    return await this.client.suivreBdDicDeClef({
-      id: idNuée,
-      clef: "tableaux",
+    const fFinale = async (tableaux: infoTableauAvecId[][]) => {
+      await f(tableaux.flat())
+    }
+
+    const fParents = async (id: string, fSuivreBranche: schémaFonctionSuivi<infoTableauAvecId[]>) => {
+      const fFinaleTableaux = (infos: { [clef: string]: infoTableau }) => {
+        const tableaux: infoTableauAvecId[] = Object.entries(infos).map(
+          ([idTableau, info]) => {
+            return {
+              id: idTableau,
+              ...info,
+            };
+          }
+        );
+        fSuivreBranche(tableaux);
+      };
+      return await this.client.suivreBdDicDeClef({
+        id,
+        clef: "tableaux",
+        f: fFinaleTableaux,
+      });
+    }
+    return await this.suivreDeParents({
+      idNuée,
       f: fFinale,
-    });
+      fParents
+    })
   }
 
   async ajouterNomsTableauNuée({
@@ -672,6 +827,7 @@ export default class Nuée {
   }): Promise<void> {
     return await this.client.tableaux!.ajouterNomsTableau({ idTableau, noms });
   }
+
   async effacerNomsTableauNuée({
     idTableau,
     langue,
@@ -681,6 +837,7 @@ export default class Nuée {
   }): Promise<void> {
     return await this.client.tableaux!.effacerNomTableau({ idTableau, langue });
   }
+
   @cacheSuivi
   async suivreNomsTableauNuée({
     idNuée,
@@ -690,17 +847,280 @@ export default class Nuée {
     idNuée: string;
     clefTableau: string;
     f: schémaFonctionSuivi<{ [langue: string]: string }>;
-  }): Promise<schémaFonctionOublier> {}
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = async (lNoms: {[key: string]: string}[]) => {
+      await f(Object.assign({}, ...lNoms))
+    }
+    
+    const fParents = async (idNuéeParent: string, fSuivreBranche: schémaFonctionSuivi<{
+      [key: string]: string;
+    }>): Promise<schémaFonctionOublier> => {
+      return await this.client.suivreBdDeFonction({
+        fRacine: async ({ fSuivreRacine }: { fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void> }): Promise<schémaFonctionOublier> => {
+          return await this.client.bds.suivreIdTableauParClef({ idBd: idNuéeParent, clef: clefTableau, f: fSuivreRacine})
+        },
+        f: fSuivreBranche,
+        fSuivre: async ({id: idTableau, fSuivreBd }: {id: string, fSuivreBd: schémaFonctionSuivi<{ [key: string]: string; }>}): Promise<schémaFonctionOublier> => {
+          return await this.client.tableaux.suivreNomsTableau({ idTableau, f: fSuivreBd})
+        }
+      })
+    }
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents
+    })
+  }
 
-  ajouterColonneTableauNuée() {}
-  effacerColonneTableauNuée() {}
-  @cacheSuivi
-  suivreColonnesTableauNuée() {}
+  async ajouterColonneTableauNuée({
+    idTableau,
+    idVariable,
+    idColonne,
+  }: {
+    idTableau: string;
+    idVariable: string;
+    idColonne?: string;
+  }): Promise<string> {
+    return await this.client.tableaux!.ajouterColonneTableau({
+      idTableau, idVariable, idColonne
+    })
+  }
 
-  ajouterRègleTableauNuée() {}
-  effacerRègleTableauNuée() {}
+  async effacerColonneTableauNuée({
+    idTableau,
+    idColonne,
+  }: {
+    idTableau: string;
+    idColonne: string;
+  }): Promise<void> {
+    return await this.client.tableaux.effacerColonneTableau({
+      idTableau, idColonne
+    })
+  }
+
+  async changerColIndexTableauNuée({
+    idTableau,
+    idColonne,
+    val,
+  }: {
+    idTableau: string;
+    idColonne: string;
+    val: boolean;
+  }): Promise<void> {
+    return await this.client.tableaux.changerColIndex({
+      idTableau, idColonne, val
+    })
+  }
+
+  suivreColonnesTableauNuée<T = InfoColAvecCatégorie>({
+    idNuée,
+    clefTableau,
+    f,
+    catégories,
+  }: {
+    idNuée: string;
+    clefTableau: string;
+    f: schémaFonctionSuivi<T[]>;
+    catégories?: true;
+  }): Promise<schémaFonctionOublier>;
+
+  suivreColonnesTableauNuée<T = InfoCol>({
+    idNuée,
+    clefTableau,
+    f,
+    catégories,
+  }: {
+    idNuée: string;
+    clefTableau: string;
+    f: schémaFonctionSuivi<T[]>;
+    catégories: false;
+  }): Promise<schémaFonctionOublier>;
+
+  suivreColonnesTableauNuée<T = InfoCol | InfoColAvecCatégorie>({
+    idNuée,
+    clefTableau,
+    f,
+    catégories,
+  }: {
+    idNuée: string;
+    clefTableau: string;
+    f: schémaFonctionSuivi<T[]>;
+    catégories?: boolean;
+  }): Promise<schémaFonctionOublier>;
+
   @cacheSuivi
-  suivreRèglesColonneTableauNuée() {}
+  async suivreColonnesTableauNuée<T = InfoColAvecCatégorie>({
+    idNuée,
+    clefTableau,
+    f,
+    catégories = true,
+  }: {
+    idNuée: string;
+    clefTableau: string;
+    f: schémaFonctionSuivi<T[]>;
+    catégories?: boolean;
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = async (colonnes: T[][]) => {
+      await f(colonnes.flat())
+    }
+    
+    const fParents = async (idNuéeParent: string, fSuivreBranche: schémaFonctionSuivi<T[]>): Promise<schémaFonctionOublier> => {
+      return await this.client.suivreBdDeFonction({
+        fRacine: async ({ fSuivreRacine }: { fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void> }): Promise<schémaFonctionOublier> => {
+          return await this.client.bds.suivreIdTableauParClef({ idBd: idNuéeParent, clef: clefTableau, f: fSuivreRacine})
+        },
+        f: fSuivreBranche,
+        fSuivre: async ({id: idTableau, fSuivreBd }: {id: string, fSuivreBd: schémaFonctionSuivi<T[]>}): Promise<schémaFonctionOublier> => {
+          return await this.client.tableaux.suivreColonnes<T>({ idTableau, f: fSuivreBd, catégories })
+        }
+      })
+    }
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents
+    });
+  }
+
+  async ajouterRègleTableauNuée<R extends règleVariable = règleVariable>({
+    idTableau,
+    idColonne,
+    règle,
+  }: {
+    idTableau: string;
+    idColonne: string;
+    règle: R;
+  }): Promise<string> {
+    return await this.client.tableaux!.ajouterRègleTableau({
+      idTableau, idColonne, règle
+    })
+  }
+  
+  async effacerRègleTableauNuée({
+    idTableau,
+    idRègle,
+  }: {
+    idTableau: string;
+    idRègle: string;
+  }): Promise<void> {
+    return await this.client.tableaux!.effacerRègleTableau({
+      idTableau, idRègle
+    })
+  }
+
+  @cacheSuivi
+  async TableauNuée({
+    idNuée,
+    clefTableau,
+    f,
+  }: {
+    idNuée: string;
+    clefTableau: string;
+    f: schémaFonctionSuivi<règleColonne[]>;
+    catégories?: boolean;
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = async (colonnes: règleColonne[][]) => {
+      await f(colonnes.flat())
+    }
+    
+    const fParents = async (idNuéeParent: string, fSuivreBranche: schémaFonctionSuivi<règleColonne[]>): Promise<schémaFonctionOublier> => {
+      return await this.client.suivreBdDeFonction({
+        fRacine: async ({ fSuivreRacine }: { fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void> }): Promise<schémaFonctionOublier> => {
+          return await this.client.bds.suivreIdTableauParClef({ idBd: idNuéeParent, clef: clefTableau, f: fSuivreRacine})
+        },
+        f: fSuivreBranche,
+        fSuivre: async ({id: idTableau, fSuivreBd }: {id: string, fSuivreBd: schémaFonctionSuivi<règleColonne[]>}): Promise<schémaFonctionOublier> => {
+          return await this.client.tableaux.suivreRègles({ idTableau, f: fSuivreBd })
+        }
+      })
+    }
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents
+    })}
+
+  async suivreVariablesNuée({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<string[]>
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = (variables?: string[]) => {
+      return f(variables || []);
+    };
+
+    const fBranche = async (
+      id: string,
+      f: schémaFonctionSuivi<string[]>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.client.tableaux!.suivreVariables({ idTableau: id, f });
+    };
+
+    const fListe = async (
+      fSuivreRacine: (éléments: string[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.suivreTableauxNuée({
+        idNuée,
+        f: (x) => fSuivreRacine(x.map((x) => x.id)),
+      });
+    };
+
+    return await this.client.suivreBdsDeFonctionListe({
+      fListe,
+      f: fFinale,
+      fBranche,
+    });
+  }
+
+  @cacheSuivi
+  async suivreQualitéNuée({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<number>;
+  }): Promise<schémaFonctionOublier> {
+    const rés: {
+      noms: { [key: string]: string };
+      descr: { [key: string]: string };
+    } = {
+      noms: {},
+      descr: {},
+    };
+    const fFinale = () => {
+      const scores = [
+        Object.keys(rés.noms).length ? 1 : 0,
+        Object.keys(rés.descr).length ? 1 : 0,
+      ];
+      
+      const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
+      f(qualité);
+    };
+    const oublierNoms = await this.suivreNomsNuée({
+      idNuée,
+      f: (noms) => {
+        rés.noms = noms;
+        fFinale();
+      },
+    });
+
+    const oublierDescr = await this.suivreDescriptionsNuée({
+      idNuée,
+      f: (descr) => {
+        rés.descr = descr;
+        fFinale();
+      },
+    });
+
+    const fOublier = async () => {
+      await oublierNoms();
+      await oublierDescr();
+    };
+
+    return fOublier;
+  }
 
   @cacheSuivi
   async suivreDifférencesNuéeEtTableau({
@@ -918,21 +1338,84 @@ export default class Nuée {
     });
   }
 
-  @cacheSuivi
-  async suivreNuéesSpécialiséesLiées({
+  @cacheRechercheParNRésultats
+  async rechercherNuéesSpécialiséesLiées({
     idNuée,
+    f,
+    nRésultatsDésirés,
   }: {
     idNuée: string;
-  }): Promise<schémaFonctionSuivi<Set<string>>> {}
+    f: schémaFonctionSuivi<string[]>;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fFinale = async (résultats: résultatRecherche<infoRésultatVide>[]) => {
+      f(résultats.map(r=>r.id))
+    }
+    return await this.client.réseau.rechercherNuées({
+      f: fFinale,
+      fObjectif: async (
+        client: ClientConstellation,
+        id: string,
+        f: schémaFonctionSuiviRecherche<infoRésultatVide>
+      ): Promise<schémaFonctionOublier> => {
+        return await client.nuées.suivreNuéesParents({ idNuée: id, f: parents => {
+          f({
+            type: "résultat",
+            score: parents.includes(idNuée) ? 1 : 0,
+            de: "*",
+            info: {
+              type: "vide"
+            }
+          })
+        }})
+      },
+      nRésultatsDésirés
+    })
+  }
 
   @cacheSuivi
   async suivreNuéesParents({
     idNuée,
+    f
   }: {
     idNuée: string;
-  }): Promise<schémaFonctionSuivi<string[]>> {}
+    f: schémaFonctionSuivi<string[]>;
+  }): Promise<schémaFonctionOublier> {
 
-  @cacheSuivi
+    const suivreParent = async ({id, ancêtres = []}: {id: string, ancêtres?: string[] }): Promise<schémaFonctionOublier> => {
+      let fOublierParent: schémaFonctionOublier;
+      let ancienParent: string;
+
+      const fOublier = await this.client.suivreBd<KeyValueStore<typeÉlémentsBdNuée>>({
+        id,
+        f: async (bd) => {
+          const parent = bd.get("parent") as string | undefined;
+          ancêtres = [...ancêtres, parent]
+          await f(ancêtres);
+          if (parent) {
+            if (parent !== ancienParent){
+              if (fOublierParent) await fOublierParent();
+              if (!ancêtres.includes(parent)) {  // Éviter récursion infinie
+                fOublierParent = await suivreParent({id: parent, ancêtres})
+              }
+              ancienParent = parent
+            }
+          } else {
+            if (fOublierParent) await fOublierParent();
+            fOublierParent = undefined
+          }
+        },
+      });
+      return async () => {
+        await fOublier();
+        if (fOublierParent) await fOublierParent();
+      }
+    }
+
+    return await suivreParent({ id: idNuée })
+  }
+
+  @cacheRechercheParNRésultats
   async suivreBdsCorrespondantes({
     idNuée,
     f,
@@ -1369,14 +1852,14 @@ export default class Nuée {
         }
       );
       for (const col of colonnes) {
-        await this.client.tableaux.ajouterColonneTableau({
+        await this.ajouterColonneTableauNuée({
           idTableau: idTableauNuée,
           idVariable: col.variable,
           idColonne: col.id,
         });
 
         // Indexes
-        await this.client.tableaux.changerColIndex({
+        await this.changerColIndexTableauNuée({
           idTableau: idTableauNuée,
           idColonne: col.id,
           val: col.index,
@@ -1395,7 +1878,7 @@ export default class Nuée {
         );
         for (const règle of règles) {
           if (règle.source === "tableau") {
-            await this.client.tableaux.ajouterRègleTableau({
+            await this.ajouterRègleTableauNuée({
               idTableau: idTableauNuée,
               idColonne: col.id,
               règle: règle.règle.règle,

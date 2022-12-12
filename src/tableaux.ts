@@ -152,12 +152,10 @@ export default class Tableaux {
     id,
     idBd,
     copierDonnées = true,
-    lier = false,
   }: {
     id: string;
     idBd: string;
     copierDonnées?: boolean;
-    lier?: boolean;
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdTableaux>
@@ -168,17 +166,15 @@ export default class Tableaux {
         id: idNouveauTableau,
       });
 
-    if (!lier) {
-      // Copier les noms si on ne lie pas les tableaux
-      const idBdNoms = bdBase.get("noms") as string;
-      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd<
-        KeyValueStore<string>
-      >({ id: idBdNoms });
-      const noms = bdNoms.all;
-      await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
+    // Copier les noms
+    const idBdNoms = bdBase.get("noms") as string;
+    const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >({ id: idBdNoms });
+    const noms = bdNoms.all;
+    await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
 
-      await fOublierNoms();
-    }
+    await fOublierNoms();
 
     // Copier les colonnes
     await this.client.copierContenuBdListe({
@@ -967,33 +963,33 @@ export default class Tableaux {
     await fOublier();
   }
 
-  suivreColonnes({
+  suivreColonnes<T = InfoColAvecCatégorie>({
     idTableau,
     f,
     catégories,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
+    f: schémaFonctionSuivi<T[]>;
     catégories?: true;
   }): Promise<schémaFonctionOublier>;
 
-  suivreColonnes({
+  suivreColonnes<T = InfoCol>({
     idTableau,
     f,
     catégories,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<InfoCol[]>;
+    f: schémaFonctionSuivi<T[]>;
     catégories: false;
   }): Promise<schémaFonctionOublier>;
 
-  suivreColonnes({
+  suivreColonnes<T = InfoCol | InfoColAvecCatégorie>({
     idTableau,
     f,
     catégories,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<(InfoCol | InfoColAvecCatégorie)[]>;
+    f: schémaFonctionSuivi<T[]>;
     catégories?: boolean;
   }): Promise<schémaFonctionOublier>;
 

@@ -43,6 +43,8 @@ import {
 } from "@/décorateursCache.js";
 import { v4 as uuidv4 } from "uuid";
 
+type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées"
+
 export interface infoDispositif {
   idSFIP: string;
   idOrbite: string;
@@ -1765,7 +1767,7 @@ export default class Réseau extends EventEmitter {
     f,
   }: {
     idItem: string;
-    clef: string;
+    clef: clefObjet;
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
@@ -1819,7 +1821,7 @@ export default class Réseau extends EventEmitter {
     fObjectif,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    clef: string;
+    clef: clefObjet;
     nRésultatsDésirés: number;
     fRecherche: (args: {
       idCompte: string;
@@ -1879,6 +1881,36 @@ export default class Réseau extends EventEmitter {
       nRésultatsDésirés,
       fRecherche: fRechercheFinale,
       fConfiance,
+      fQualité,
+      fObjectif,
+    });
+  }
+
+  async rechercherNuées<T extends infoRésultat>({
+    f,
+    nRésultatsDésirés,
+    fObjectif,
+  }: {
+    f: schémaFonctionSuivi<résultatRecherche<T>[]>;
+    nRésultatsDésirés: number;
+    fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
+  }): Promise<réponseSuivreRecherche> {
+    const fRecherche = this.suivreBdsMembre.bind(this);
+    const fQualité = async (
+      id: string,
+      fSuivreQualité: schémaFonctionSuivi<number>
+    ) => {
+      return await this.client.nuées!.suivreQualitéNuée({
+        idNuée: id,
+        f: fSuivreQualité,
+      });
+    };
+
+    return await this.rechercherObjets({
+      f,
+      clef: "nuées",
+      nRésultatsDésirés,
+      fRecherche,
       fQualité,
       fObjectif,
     });
@@ -2017,7 +2049,7 @@ export default class Réseau extends EventEmitter {
     f,
   }: {
     idObjet: string;
-    clef: string;
+    clef: clefObjet;
     f: schémaFonctionSuivi<infoAuteur[]>;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (

@@ -26,6 +26,7 @@ import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 import Favoris from "@/favoris.js";
 import Projets from "@/projets.js";
 import MotsClefs from "@/motsClefs.js";
+import Nuées from "@/nuée.js";
 import Recherche from "@/recherche/index.js";
 import { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import Automatisations from "@/automatisation.js";
@@ -108,6 +109,7 @@ export default class ClientConstellation extends EventEmitter {
   recherche?: Recherche;
   motsClefs?: MotsClefs;
   automatisations?: Automatisations;
+  nuées?: Nuées;
   _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
 
   _orbiteExterne: boolean;
@@ -286,6 +288,13 @@ export default class ClientConstellation extends EventEmitter {
       type: "feed",
     });
     this.automatisations = new Automatisations({ client: this, id: idBdAuto! });
+
+    const idBdNuées = await this.obtIdBd({
+      nom: "nuées",
+      racine: this.bdCompte,
+      type: "feed",
+    });
+    this.nuées = new Nuées({ client: this, id: idBdNuées! });
 
     this.recherche = new Recherche({ client: this });
 

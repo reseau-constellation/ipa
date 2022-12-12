@@ -480,14 +480,14 @@ export default class BDs {
   @cacheSuivi
   async suivreBdUnique({
     schéma,
-    motClefUnique,
+    idNuéeUnique,
     f,
   }: {
     schéma: schémaSpécificationBd;
-    motClefUnique: string;
+    idNuéeUnique: string;
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
-    const clefStockageLocal = "bdUnique: " + motClefUnique;
+    const clefStockageLocal = "bdUnique: " + idNuéeUnique;
 
     const déjàCombinées = new Set();
 
@@ -542,8 +542,8 @@ export default class BDs {
       f(idBd);
     };
 
-    const fOublier = await this.rechercherBdsParMotsClefs({
-      motsClefs: [motClefUnique],
+    const fOublier = await this.rechercherBdsParNuée({
+      idNuée: idNuéeUnique,
       f: fFinale,
     });
 
@@ -553,12 +553,12 @@ export default class BDs {
   @cacheSuivi
   async suivreIdTableauParClefDeBdUnique({
     schémaBd,
-    motClefUnique,
+    idNuéeUnique,
     clefTableau,
     f,
   }: {
     schémaBd: schémaSpécificationBd;
-    motClefUnique: string;
+    idNuéeUnique: string;
     clefTableau: string;
     f: schémaFonctionSuivi<string | undefined>;
   }): Promise<schémaFonctionOublier> {
@@ -569,7 +569,7 @@ export default class BDs {
     }): Promise<schémaFonctionOublier> => {
       return await this.suivreBdUnique({
         schéma: schémaBd,
-        motClefUnique,
+        idNuéeUnique,
         f: fSuivreRacine,
       });
     };
@@ -597,12 +597,12 @@ export default class BDs {
   @cacheSuivi
   async suivreDonnéesDeTableauUnique<T extends élémentBdListeDonnées>({
     schémaBd,
-    motClefUnique,
+    idNuéeUnique,
     clefTableau,
     f,
   }: {
     schémaBd: schémaSpécificationBd;
-    motClefUnique: string;
+    idNuéeUnique: string;
     clefTableau: string;
     f: schémaFonctionSuivi<élémentDonnées<T>[]>;
   }): Promise<schémaFonctionOublier> {
@@ -630,7 +630,7 @@ export default class BDs {
     }): Promise<schémaFonctionOublier> => {
       return await this.suivreIdTableauParClefDeBdUnique({
         schémaBd,
-        motClefUnique,
+        idNuéeUnique,
         clefTableau,
         f: (idTableau?: string) => {
           if (idTableau) fSuivreRacine(idTableau);
@@ -647,12 +647,12 @@ export default class BDs {
 
   async ajouterÉlémentÀTableauUnique<T extends élémentBdListeDonnées>({
     schémaBd,
-    motClefUnique,
+    idNuéeUnique,
     clefTableau,
     vals,
   }: {
     schémaBd: schémaSpécificationBd;
-    motClefUnique: string;
+    idNuéeUnique: string;
     clefTableau: string;
     vals: T;
   }): Promise<string> {
@@ -660,7 +660,7 @@ export default class BDs {
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClefDeBdUnique({
           schémaBd,
-          motClefUnique,
+          idNuéeUnique,
           clefTableau,
           f: (id?: string) => {
             if (id) fSuivi(id);
@@ -678,12 +678,12 @@ export default class BDs {
 
   async effacerÉlémentDeTableauUnique({
     schémaBd,
-    motClefUnique,
+    idNuéeUnique,
     clefTableau,
     empreinte,
   }: {
     schémaBd: schémaSpécificationBd;
-    motClefUnique: string;
+    idNuéeUnique: string;
     clefTableau: string;
     empreinte: string;
   }): Promise<void> {
@@ -691,7 +691,7 @@ export default class BDs {
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClefDeBdUnique({
           schémaBd,
-          motClefUnique,
+          idNuéeUnique,
           clefTableau,
           f: (id?: string) => {
             if (id) fSuivi(id);

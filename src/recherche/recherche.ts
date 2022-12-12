@@ -3,6 +3,7 @@ import * as motClef from "@/recherche/motClef.js";
 import * as profil from "@/recherche/profil.js";
 import * as projet from "@/recherche/projet.js";
 import * as variable from "@/recherche/variable.js";
+import * as nuée from "@/recherche/nuée.js";
 import * as utils from "@/recherche/utils.js";
 
 import ClientConstellation from "@/client.js";
@@ -723,6 +724,214 @@ export class Recherche {
   }): Promise<réponseSuivreRecherche> {
     const fObjectif = projet.rechercherProjetSelonTexte(texte);
     return await this.client.réseau!.rechercherProjets({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+
+  @cacheRechercheParNRésultats
+  async rechercherNuées({
+    f,
+    nRésultatsDésirés,
+  }: {
+    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    return await this.client.réseau!.rechercherNuées({ f, nRésultatsDésirés });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonId({
+    idNuée,
+    f,
+    nRésultatsDésirés,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = utils.rechercherSelonId(idNuée);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonNom({
+    nomNuée,
+    f,
+    nRésultatsDésirés,
+  }: {
+    nomNuée: string;
+    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonNom(nomNuée);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonDescr({
+    descrNuée,
+    f,
+    nRésultatsDésirés,
+  }: {
+    descrNuée: string;
+    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonDescr(descrNuée);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonIdMotClef({
+    idMotClef,
+    f,
+    nRésultatsDésirés,
+  }: {
+    idMotClef: string;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonIdMotClef(idMotClef);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonIdVariable({
+    idVariable,
+    f,
+    nRésultatsDésirés,
+  }: {
+    idVariable: string;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonIdVariable(idVariable);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonNomMotClef({
+    nomMotClef,
+    f,
+    nRésultatsDésirés,
+  }: {
+    nomMotClef: string;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonNomMotClef(nomMotClef);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonNomVariable({
+    nomVariable,
+    f,
+    nRésultatsDésirés,
+  }: {
+    nomVariable: string;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonNomVariable(nomVariable);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonMotClef({
+    texte,
+    f,
+    nRésultatsDésirés,
+  }: {
+    texte: string;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonMotClef(texte);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonVariable({
+    texte,
+    f,
+    nRésultatsDésirés,
+  }: {
+    texte: string;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+    >;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonVariable(texte);
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
+  async rechercherNuéeSelonTexte({
+    texte,
+    f,
+    nRésultatsDésirés,
+  }: {
+    texte: string;
+    f: schémaFonctionSuivi<
+      résultatRecherche<
+        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+      >[]
+    >;
+    nRésultatsDésirés: number;
+  }): Promise<réponseSuivreRecherche> {
+    const fObjectif = nuée.rechercherNuéeSelonTexte(texte);
+    return await this.client.réseau!.rechercherNuées({
       f,
       nRésultatsDésirés,
       fObjectif,
