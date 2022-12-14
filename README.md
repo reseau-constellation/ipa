@@ -1,5 +1,6 @@
 # IPA Constellation
 [![Tests](https://github.com/reseau-constellation/ipa/actions/workflows/tests.yml/badge.svg)](https://github.com/reseau-constellation/ipa/actions/workflows/tests.yml)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Freseau-constellation%2Fipa.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Freseau-constellation%2Fipa?ref=badge_shield)
 
 Le logiciel Constellation est divisé en deux parties principales :
 [l'interface graphique](https://github.com/reseau-constellation/constellation/)
@@ -39,3 +40,7 @@ import { client } from "@constl/ipa";
 
 ## Documentation
 Pour la documentation complète de Constellation, rendez-vous au https://docu.réseau-constellation.ca.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Freseau-constellation%2Fipa.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Freseau-constellation%2Fipa?ref=badge_large)
