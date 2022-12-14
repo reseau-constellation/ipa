@@ -34,15 +34,13 @@ import {
   règleVariable,
   règleColonne,
 } from "@/valid";
-import { réponseSuivreRecherche, élémentDeMembre, élémentDeMembreAvecValid } from "@/reseau";
+import { réponseSuivreRecherche, élémentDeMembreAvecValid } from "@/reseau";
 import {
   différenceTableaux,
   InfoCol,
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
 } from "@/tableaux";
-import { info } from "console";
-import { StringifyOptions } from "querystring";
 
 export type statutMembreNuée = {
   idCompte: string;

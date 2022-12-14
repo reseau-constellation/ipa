@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { EventEmitter, once } from "events";
 
-import type ClientConstellation from "@/client.js";
+import ClientConstellation from "@/client.js";
 import type {
   schémaFonctionSuivi,
   schémaFonctionOublier,
