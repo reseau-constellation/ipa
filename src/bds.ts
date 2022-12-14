@@ -44,6 +44,7 @@ export interface infoScore {
   accès?: number;
   couverture?: number;
   valide?: number;
+  licence?: number;
   total: number;
 }
 
@@ -1445,15 +1446,17 @@ export default class BDs {
     id: string;
     f: schémaFonctionSuivi<infoScore>;
   }): Promise<schémaFonctionOublier> {
-    const info: { accès?: number; couverture?: number; valide?: number } = {};
+    const info: { accès?: number; couverture?: number; valide?: number, licence?: number } = {};
 
     const fFinale = () => {
-      const { accès, couverture, valide } = info;
+      const { accès, couverture, valide, licence } = info;
       const score: infoScore = {
-        total: ((accès || 0) + (couverture || 0) + (valide || 0)) / 3,
+        // Score impitoyable de 0 pour BDs sans licence
+        total: licence ? ((accès || 0) + (couverture || 0) + (valide || 0)) / 3 : 0,
         accès,
         couverture,
         valide,
+        licence
       };
       f(score);
     };
@@ -1479,10 +1482,10 @@ export default class BDs {
         fFinale();
       },
     });
+
+    const oublierLicence = await this.suivreLicence({ id, f: licence => info.licence = licence ? 0 : 1})
     return async () => {
-      await oublierAccès();
-      await oublierCouverture();
-      await oublierValide();
+      await Promise.all([oublierAccès, oublierCouverture, oublierValide, oublierLicence]);
     };
   }
 
