@@ -67,7 +67,7 @@ export const rechercherNuéeSelonDescr = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.nuées!.suivreDescriptionsNuée({ id: idNuée, f: fSuivre });
+    const fOublier = await client.nuées!.suivreDescriptionsNuée({ idNuée, f: fSuivre });
     return fOublier;
   };
 };
@@ -178,7 +178,7 @@ export const rechercherNuéeSelonIdMotClef = (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.nuées!.suivreMotsClefsNuée({
-        id: idNuée,
+        idNuée,
         f: fSuivreRacine,
       });
     };
@@ -211,7 +211,7 @@ export const rechercherNuéeSelonNomMotClef = (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.nuées!.suivreMotsClefsNuée({
-        id: idNuée,
+        idNuée,
         f: fSuivreRacine,
       });
     };
