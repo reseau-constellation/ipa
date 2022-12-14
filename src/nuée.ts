@@ -12,13 +12,12 @@ import {
   schémaFonctionSuiviRecherche,
   infoRésultatVide,
   résultatRecherche,
-  élémentsBd,
 } from "@/utils/index.js";
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 import FeedStore from "orbit-db-feedstore";
 import KeyValueStore from "orbit-db-kvstore";
-import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache";
+import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import { objRôles } from "@/accès/types.js";
 import {
   différenceBds,
