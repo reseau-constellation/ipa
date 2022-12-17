@@ -84,7 +84,7 @@ typesClients.forEach((type) => {
       describe("Profil", function () {
         describe("selon nom", function () {
           let fOublier: schémaFonctionOublier;
-          let fChangerN: (n: number) => void;
+          let fChangerN: (n: number) => Promise<void>;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
           let réfClient3: résultatRecherche<infoRésultatTexte>;
 
@@ -161,14 +161,14 @@ typesClients.forEach((type) => {
           });
 
           test("Diminuer N désiré", async () => {
-            fChangerN(1);
+            await fChangerN(1);
 
             const val = await rés.attendreQue((x) => !!x && x.length === 1);
             vérifierRecherche(val, [réfClient2]);
           });
 
           test("Augmenter N désiré", async () => {
-            fChangerN(2);
+            await fChangerN(2);
 
             const val = await rés.attendreQue((x) => !!x && x.length > 1);
             vérifierRecherche(val, [réfClient2, réfClient3]);
@@ -1319,7 +1319,7 @@ typesClients.forEach((type) => {
 
       describe("Rechercher de réseau", () => {
         let fOublierRecherche: schémaFonctionOublier;
-        let fChangerN: (x: number) => void;
+        let fChangerN: (x: number) => Promise<void>;
 
         const résMembresEnLigne = new AttendreRésultat<statutMembre[]>();
         const résMotsClefs = new AttendreRésultat<
@@ -1472,7 +1472,7 @@ typesClients.forEach((type) => {
         });
 
         test("Diminuer N", async () => {
-          fChangerN(3);
+          await fChangerN(3);
 
           const réf: résultatRecherche<infoRésultatTexte>[] = [];
           for (const c of clients.slice(0, 3)) {
@@ -1504,7 +1504,7 @@ typesClients.forEach((type) => {
         test.todo("Objet correspond mieux");
 
         test("Augmenter N", async () => {
-          fChangerN(10);
+          await fChangerN(10);
 
           const réf: résultatRecherche<infoRésultatTexte>[] = [];
           for (const c of clients.slice(0, 4)) {

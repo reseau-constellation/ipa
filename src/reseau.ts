@@ -25,6 +25,7 @@ import {
   résultatObjectifRecherche,
   résultatRecherche,
   faisRien,
+  élémentsBd,
 } from "@/utils/index.js";
 import { infoScore } from "@/bds.js";
 import { élémentBdListeDonnées } from "@/tableaux.js";
@@ -185,7 +186,7 @@ export interface ContenuMessageRejoindreCompte extends ContenuMessage {
 
 export interface réponseSuivreRecherche {
   fOublier: schémaFonctionOublier;
-  fChangerN: (n: number) => void;
+  fChangerN: (n: number) => Promise<void>;
 }
 
 export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
@@ -304,10 +305,19 @@ export default class Réseau extends EventEmitter {
     idCompte,
     encrypté = true,
   }: {
-    msg: DonnéesMessage;
+    msg: ValeurMessage;
     idCompte: string;
     encrypté?: boolean;
   }): Promise<void> {
+    const signature = await this.client.signer({
+      message: JSON.stringify(msg),
+    });
+    
+    const msgSigné: DonnéesMessage = {
+      signature,
+      valeur: msg,
+    };
+
     const maintenant = Date.now();
 
     const dispositifsMembre = Object.values(this.dispositifsEnLigne)
@@ -325,7 +335,7 @@ export default class Réseau extends EventEmitter {
           if (encryption?.type !== this.client.encryption.nom) return;
 
           const msgEncrypté = this.client.encryption.encrypter({
-            message: JSON.stringify(msg),
+            message: JSON.stringify(msgSigné),
             clefPubliqueDestinataire: encryption.clefPublique,
           });
           const msgPourDispositif: MessageEncrypté = {
@@ -340,7 +350,7 @@ export default class Réseau extends EventEmitter {
         } else {
           const msgPourDispositif: MessageNonEncrypté = {
             encrypté: false,
-            données: msg,
+            données: msgSigné,
           };
           await this.envoyerMessageAuDispositif({
             msg: msgPourDispositif,
@@ -388,19 +398,12 @@ export default class Réseau extends EventEmitter {
     idCompte: string;
     codeSecret: string;
   }): Promise<void> {
-    const valeur: ValeurMessageRequèteRejoindreCompte = {
+    const msg: ValeurMessageRequèteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
       contenu: {
         idOrbite: await this.client.obtIdOrbite(),
         codeSecret,
       },
-    };
-    const signature = await this.client.signer({
-      message: JSON.stringify(valeur),
-    });
-    const msg: DonnéesMessage = {
-      signature,
-      valeur,
     };
 
     await this.envoyerMessageAuMembre({ msg, idCompte });
@@ -1456,7 +1459,7 @@ export default class Réseau extends EventEmitter {
       [key: string]: {
         résultats: résultatRecherche<T>[];
         membre: infoMembreRéseau;
-        mettreÀJour: (membre: infoMembreRéseau) => void;
+        mettreÀJour: (membre: infoMembreRéseau) => Promise<void>;
       };
     } = {};
 
@@ -1532,7 +1535,7 @@ export default class Réseau extends EventEmitter {
       }
     };
 
-    const fFinale = () => {
+    const fFinale = async () => {
       const résultats: résultatRecherche<T>[] = Object.values(
         résultatsParMembre
       )
@@ -1541,7 +1544,7 @@ export default class Réseau extends EventEmitter {
       const résultatsOrdonnés = résultats.sort((a, b) =>
         a.résultatObjectif.score < b.résultatObjectif.score ? 1 : -1
       );
-      f(résultatsOrdonnés.slice(0, nRésultatsDésirés));
+      await f(résultatsOrdonnés.slice(0, nRésultatsDésirés));
       débuterReboursAjusterProfondeur();
     };
 
@@ -1559,9 +1562,9 @@ export default class Réseau extends EventEmitter {
         });
       };
 
-      const fSuivi = (résultats: résultatRecherche<T>[]) => {
+      const fSuivi = async (résultats: résultatRecherche<T>[]) => {
         résultatsParMembre[idBdCompte].résultats = résultats;
-        fFinale();
+        await fFinale();
       };
 
       const fBranche = async (
@@ -1626,8 +1629,8 @@ export default class Réseau extends EventEmitter {
       résultatsParMembre[idBdCompte] = {
         résultats: [] as résultatRecherche<T>[],
         membre,
-        mettreÀJour: () => {
-          fFinale();
+        mettreÀJour: async () => {
+          await fFinale();
         },
       };
 
@@ -1645,7 +1648,7 @@ export default class Réseau extends EventEmitter {
       await fsOublierRechercheMembres[compte]();
       delete résultatsParMembre[compte];
       delete fsOublierRechercheMembres[compte];
-      fFinale();
+      await fFinale();
     };
 
     const verrou = new Semaphore();
@@ -1671,7 +1674,7 @@ export default class Réseau extends EventEmitter {
       });
 
       await Promise.all(nouveaux.map(suivreRésultatsMembre));
-      changés.forEach((c) => résultatsParMembre[c.idBdCompte].mettreÀJour(c));
+      await Promise.all(changés.map(async (c) => await résultatsParMembre[c.idBdCompte].mettreÀJour(c)));
 
       await Promise.all(clefsObsolètes.map((o) => oublierRésultatsMembre(o)));
 
@@ -1684,11 +1687,11 @@ export default class Réseau extends EventEmitter {
         profondeur,
       });
 
-    const fChangerN = (nouveauN: number) => {
+    const fChangerN = async (nouveauN: number) => {
       const nDésirésAvant = nRésultatsDésirés;
       nRésultatsDésirés = nouveauN;
       if (nouveauN !== nDésirésAvant) {
-        fFinale();
+        await fFinale();
         débuterReboursAjusterProfondeur(0);
       }
     };

@@ -141,7 +141,7 @@ export default class GestionnaireClient {
       case "retour": {
         const { id, fonction, args } = message as MessageRetourPourTravailleur;
         const retour = this.dicFRetourSuivi[id];
-        if (retour) retour[fonction](args);
+        if (retour) await retour[fonction](args);
         if (fonction === "fOublier") delete this.dicFRetourSuivi[id];
         break;
       }
