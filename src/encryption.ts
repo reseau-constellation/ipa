@@ -22,7 +22,7 @@ export interface Encryption {
 
   clefAléatoire(): string;
 
-  // Nécessaire pour le proxy
+  // Nécessaire pour le mandataire
   obtNom(): Promise<string>;
   obtClefs(): Promise<Encryption["clefs"]>;
 }

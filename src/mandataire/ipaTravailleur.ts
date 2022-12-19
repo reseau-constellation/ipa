@@ -1,17 +1,17 @@
 import { optsConstellation } from "@/client.js";
 
 import {
-  générerProxy,
-  ClientProxifiable,
-  ProxyClientConstellation,
-} from "@/proxy/proxy.js";
+  générerMandataire,
+  ClientMandatairifiable,
+  MandataireClientConstellation,
+} from "@constl/mandataire";
 
 import {
   MessageDeTravailleur,
   MessagePourTravailleur,
-} from "@/proxy/messages.js";
+} from "@/mandataire/messages.js";
 
-export class ProxyClientTravailleur extends ClientProxifiable {
+export class MandataireClientTravailleur extends ClientMandatairifiable {
   travailleur: Worker;
 
   constructor(opts: optsIpaTravailleur) {
@@ -44,6 +44,6 @@ export interface optsIpaTravailleur extends optsConstellation {
   };
 }
 
-export default (opts: optsIpaTravailleur = {}): ProxyClientConstellation => {
-  return générerProxy(new ProxyClientTravailleur(opts));
+export default (opts: optsIpaTravailleur = {}): MandataireClientConstellation => {
+  return générerMandataire(new MandataireClientTravailleur(opts));
 };

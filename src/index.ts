@@ -6,7 +6,7 @@ export { version } from "@/version.js";
 
 export * as accès from "@/accès/index.js";
 export * as importateur from "@/importateur/index.js";
-export * as proxy from "@/proxy/index.js";
+export * as mandataire from "@/mandataire/index.js";
 
 export * as automatisation from "@/automatisation.js";
 export * as bds from "@/bds.js";

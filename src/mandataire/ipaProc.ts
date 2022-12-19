@@ -1,18 +1,18 @@
 import { optsConstellation } from "@/client.js";
 
 import {
-  générerProxy,
-  ClientProxifiable,
-  ProxyClientConstellation,
-} from "@/proxy/proxy.js";
+  générerMandataire,
+  ClientMandatairifiable,
+  MandataireClientConstellation,
+} from "@constl/mandataire";
 import {
   MessageDeTravailleur,
   MessagePourTravailleur,
   MessageErreurDeTravailleur,
-} from "@/proxy/messages.js";
-import GestionnaireClient from "@/proxy/gestionnaireClient.js";
+} from "@/mandataire/messages.js";
+import GestionnaireClient from "@/mandataire/gestionnaireClient.js";
 
-export class ProxyClientProc extends ClientProxifiable {
+export class MandataireClientProc extends ClientMandatairifiable {
   client: GestionnaireClient;
 
   constructor(opts: optsConstellation = {}) {
@@ -39,10 +39,10 @@ export class ProxyClientProc extends ClientProxifiable {
   }
 }
 
-export const générerProxyProc = (
+export const générerMandataireProc = (
   opts: optsConstellation = {}
-): ProxyClientConstellation => {
-  return générerProxy(new ProxyClientProc(opts));
+): MandataireClientConstellation => {
+  return générerMandataire(new MandataireClientProc(opts));
 };
 
-export default générerProxyProc;
+export default générerMandataireProc;

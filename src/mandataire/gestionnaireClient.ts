@@ -52,7 +52,7 @@ export default class GestionnaireClient {
     if (this.ipa) {
       this._verrou.release("init");
       return;
-    } // Nécessaire si on a plus qu'un proxy client connecté au même client Constellation
+    } // Nécessaire si on a plus qu'un mandataire client connecté au même client Constellation
 
     this.ipa = await ClientConstellation.créer(this.opts);
 

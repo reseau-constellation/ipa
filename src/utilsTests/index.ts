@@ -17,8 +17,8 @@ import Semaphore from "@chriscdn/promise-semaphore";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import ClientConstellation from "@/client.js";
-import générerProxyProc from "@/proxy/ipaProc.js";
-import générerProxyTravailleur from "@/proxy/ipaTravailleur.js";
+import générerMandataireProc from "@/mandataire/ipaProc.js";
+import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";
 import { statutDispositif } from "@/reseau.js";
 
 export * from "@/utilsTests/sfipTest.js";
@@ -332,7 +332,7 @@ export const générerClients = async (
         }
 
         case "proc": {
-          client = générerProxyProc({ orbite: orbites[i] });
+          client = générerMandataireProc({ orbite: orbites[i] });
           break;
         }
 
@@ -344,7 +344,7 @@ export const générerClients = async (
   } else if (type === "travailleur") {
     let client: ClientConstellation;
     for (const i in [...Array(n).keys()]) {
-      client = générerProxyTravailleur({ orbite: { dossier: String(i) } });
+      client = générerMandataireTravailleur({ orbite: { dossier: String(i) } });
       clients.push(client);
     }
   } else {
@@ -359,8 +359,8 @@ export const générerClients = async (
 };
 
 export const typesClients: typeClient[] =
-  process.env.PROXY === "TOUS"
+  process.env.MANDATAIRE === "TOUS"
     ? ["directe", "proc"]
-    : process.env.PROXY === "PROC"
+    : process.env.MANDATAIRE === "PROC"
     ? ["proc"]
     : ["directe"];
