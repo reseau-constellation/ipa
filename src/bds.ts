@@ -708,6 +708,79 @@ export default class BDs {
     });
   }
 
+  @cacheSuivi
+  async suivreDonnéesDeTableauParClef<T extends élémentBdListeDonnées>({
+    idBd,
+    clefTableau,
+    f,
+  }: {
+    idBd: string;
+    clefTableau: string;
+    f: schémaFonctionSuivi<élémentDonnées<T>[]>;
+  }): Promise<schémaFonctionOublier> {
+    const idTableau = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<string>) => {
+        return await this.suivreIdTableauParClef({
+          idBd,
+          clef: clefTableau,
+          f: fSuivi
+        })
+      }
+    );
+    return await this.client!.tableaux.suivreDonnées({
+      idTableau,
+      f
+    })
+  }
+
+  async ajouterÉlémentÀTableauParClef<T extends élémentBdListeDonnées>({
+    idBd,
+    clefTableau,
+    vals,
+  }: {
+    idBd: string
+    clefTableau: string
+    vals: T
+  }): Promise<void> {
+    const idTableau = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<string>) => {
+        return await this.suivreIdTableauParClef({
+          idBd,
+          clef: clefTableau,
+          f: fSuivi
+        })
+      }
+    );
+    await this.client.tableaux!.ajouterÉlément({
+      idTableau,
+      vals
+    })
+  }
+
+  async effacerÉlémentDeTableauParClef({
+    idBd,
+    clefTableau,
+    empreinteÉlément,
+  }: {
+    idBd: string
+    clefTableau: string,
+    empreinteÉlément: string
+  }): Promise<void> {
+    const idTableau = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<string>) => {
+        return await this.suivreIdTableauParClef({
+          idBd,
+          clef: clefTableau,
+          f: fSuivi
+        })
+      }
+    );
+    this.client.tableaux!.effacerÉlément({
+      idTableau,
+      empreinteÉlément
+    })
+  }
+
   async ajouterNomsBd({
     id,
     noms,

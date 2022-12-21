@@ -1,5 +1,5 @@
 {
-  "version": "0.5.8",
+  "version": "0.6.0",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -11,8 +11,7 @@
   },
   "scripts": {
     "nettoyer": "rimraf dist",
-    "compiler:esm": "ttsc -p tsconfig.build.json",
-    "compiler": "pnpm versioner && pnpm nettoyer && pnpm compiler:esm",
+    "compiler": "pnpm versioner && pnpm nettoyer && pnpm ttsc -p tsconfig.build.json",
     "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
     "test:proc": "env MANDATAIRE=PROC pnpm test",
     "test:tous": "env MANDATAIRE=TOUS pnpm test",
@@ -76,7 +75,7 @@
     "tsconfig-paths": "^4.1.0",
     "tscpaths": "^0.0.9",
     "ttypescript": "^1.5.13",
-    "typescript": "4.8.4",
+    "typescript": "4.9.4",
     "typescript-transform-paths": "^3.4.4",
     "why-is-node-running": "^2.2.2"
   },
