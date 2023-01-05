@@ -100,7 +100,7 @@ export default class ContrôleurConstellation extends AccessController {
   async suivreUtilisateursAutorisés(
     f: schémaFonctionSuivi<infoUtilisateur[]>
   ): Promise<schémaFonctionOublier> {
-    const fFinale = () => {
+    const fFinale = async () => {
       const mods: infoUtilisateur[] = Object.keys(
         this.gestRôles._rôlesUtilisateurs[MODÉRATEUR]
       ).map((m) => {
@@ -122,10 +122,10 @@ export default class ContrôleurConstellation extends AccessController {
         .filter((m) => !idsMods.includes(m.idBdCompte));
 
       const utilisateurs: infoUtilisateur[] = [...mods, ...membres];
-      f(utilisateurs);
+      await f(utilisateurs);
     };
     this.gestRôles.on("misÀJour", fFinale);
-    fFinale();
+    await fFinale();
     const fOublier = async () => {
       this.gestRôles.off("misÀJour", fFinale);
     };
