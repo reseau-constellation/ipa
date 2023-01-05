@@ -134,7 +134,7 @@ export class CacheSuivi {
       Object.entries(args).filter((x) => typeof x[1] !== "function")
     );
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
-      throw (
+      throw new Error(
         "Plus d'un argument pour " +
         adresseFonction +
         " est une fonction : " +

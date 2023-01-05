@@ -661,7 +661,7 @@ export default class ClientConstellation extends EventEmitter {
       const valBd2 = é.payload.value;
 
       if (index) {
-        if (typeof valBd2 !== "object") throw new Error();
+        if (typeof valBd2 !== "object") throw new Error(`Erreur combinaison listes : ${typeof valBd2}`);
         const existant = contenuBdBase.find(
           (x) =>
             typeof x.payload.value === "object" &&
@@ -1744,7 +1744,7 @@ export default class ClientConstellation extends EventEmitter {
         await fOublier();
       };
     } else {
-      throw new Error(typeAccès);
+      throw new Error(`Type d'accès ${typeAccès} non reconnu.`);
     }
   }
 
