@@ -32,7 +32,9 @@ export const dirTempoTests = (): string => {
 };
 
 export const obtDirTempoPourTest = (nom?: string): string => {
-  return path.resolve(dirTempoTests(), (nom || "") + uuidv4());
+  const dir = path.resolve(dirTempoTests(), (nom || "") + uuidv4());
+  fs.mkdirSync(dir, { recursive: true });
+  return dir
 };
 
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
@@ -160,6 +162,10 @@ export class AttendreFichierExiste extends EventEmitter {
             résoudre();
           }
         });
+        if (fs.existsSync(this.fichier)) {
+          écouteur.close();
+          résoudre();
+        }
       });
       
     });

@@ -157,7 +157,6 @@ typesClients.forEach((type) => {
           fsOublier = [];
           rés = new AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
           dirTempo = obtDirTempoPourTest("testImporterBd");
-          fs.mkdirSync(dirTempo);
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.bds!.ajouterTableauBd({ idBd });
@@ -325,9 +324,9 @@ typesClients.forEach((type) => {
           fOublierAuto = async () =>
             await client.automatisations!.annulerAutomatisation({ id: idAuto });
 
-          await rés.attendreQue((x) => !!(x && x.length >= 10));
+          const val = await rés.attendreQue((x) => !!(x && x.length >= 10));
 
-          comparerDonnéesTableau(rés.val, [
+          comparerDonnéesTableau(val, [
             { [idCol1]: 24846678, [idCol2]: "United States" },
             { [idCol1]: 10639684, [idCol2]: "India" },
             { [idCol1]: 8753920, [idCol2]: "Brazil" },
@@ -596,8 +595,8 @@ typesClients.forEach((type) => {
         test("Exportation tableau", async () => {
           const fichier = path.join(dir, "météo.ods");
           const attente = new AttendreFichierExiste(fichier);
-          const attendreExiste = attente.attendre();
           fsOublier.push(() => attente.annuler());
+          const attendreExiste = attente.attendre();
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
@@ -977,9 +976,7 @@ typesClients.forEach((type) => {
             })
           );
 
-          dir = path.join(obtDirTempoPourTest("testExporterBd"));
-
-          fs.mkdirSync(dir, { recursive: true });
+          dir = obtDirTempoPourTest("testExporterBd");
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.tableaux!.créerTableau({ idBd });
