@@ -947,11 +947,10 @@ typesClients.forEach((type) => {
             catégorie: "chaîne",
           });
 
-          const motClefUnique = await client.motsClefs!.créerMotClef();
+          const idNuée = await client.nuées!.créerNuée({});
 
           const schéma: schémaSpécificationBd = {
             licence: "ODbl-1_0",
-            motsClefs: [motClefUnique],
             tableaux: [
               {
                 cols: [

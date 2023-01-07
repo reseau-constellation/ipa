@@ -1394,7 +1394,7 @@ export default class BDs {
       const info: { cols?: InfoColAvecCatégorie[]; règles?: règleColonne[] } =
         {};
 
-      const fFinaleBranche = () => {
+      const fFinaleBranche = async () => {
         const { cols, règles } = info;
 
         if (cols !== undefined && règles !== undefined) {
@@ -1402,7 +1402,7 @@ export default class BDs {
             ["numérique", "catégorique"].includes(
               typeof c.catégorie === "string"
                 ? c.catégorie
-                : c.catégorie.catégorieBase
+                : c.catégorie?.catégorieBase
             )
           );
 
@@ -1413,23 +1413,23 @@ export default class BDs {
                 r.règle.règle.typeRègle !== "catégorie" && r.colonne === c.id
             )
           ).length;
-          f({ numérateur, dénominateur });
+          await f({ numérateur, dénominateur });
         }
       };
 
       const fOublierCols = await this.client.tableaux!.suivreColonnes({
         idTableau,
-        f: (cols) => {
+        f: async (cols) => {
           info.cols = cols;
-          fFinaleBranche();
+          await fFinaleBranche();
         },
       });
 
       const fOublierRègles = await this.client.tableaux!.suivreRègles({
         idTableau,
-        f: (règles) => {
+        f: async (règles) => {
           info.règles = règles;
-          fFinaleBranche();
+          await fFinaleBranche();
         },
       });
 
@@ -1498,7 +1498,7 @@ export default class BDs {
             ["numérique", "catégorique"].includes(
               typeof c.catégorie === "string"
                 ? c.catégorie
-                : c.catégorie.catégorieBase
+                : c.catégorie?.catégorieBase
             )
           );
 
@@ -1629,7 +1629,7 @@ export default class BDs {
       },
     });
 
-    const oublierLicence = await this.suivreLicence({ id, f: licence => info.licence = licence ? 0 : 1})
+    const oublierLicence = await this.suivreLicence({ id, f: licence => info.licence = licence ? 1 : 0})
     return async () => {
       await Promise.all([oublierAccès, oublierCouverture, oublierValide, oublierLicence]);
     };

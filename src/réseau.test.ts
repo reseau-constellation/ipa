@@ -34,7 +34,6 @@ import {
   typeClient,
 } from "@/utilsTests/index.js";
 import { config } from "@/utilsTests/sfipTest.js";
-import { connect } from "http2";
 
 async function toutPréparer(n: number, type: typeClient) {
   const { fOublier: fOublierClients, clients } = await générerClients(n, type);

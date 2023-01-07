@@ -754,11 +754,13 @@ export default class ClientConstellation extends EventEmitter {
           fFinale();
         })
         .catch((e) => {
-          if (String(e).includes("ipfs unable to find")) {
-            if (!annulé) lancerSuivi();
-          } else {
-            throw new Error(e);
-          }
+          if (!annulé) {
+            if (String(e).includes("ipfs unable to find")) {
+              lancerSuivi();
+            } else {
+              throw new Error(e);
+            }
+          };
         });
     };
 
