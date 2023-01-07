@@ -38,7 +38,7 @@ export class CacheSuivi {
     this._cacheRecherche = {};
   }
 
-  async suivre<T extends Function, U>({
+  async suivre<T extends ((args: {[key: string]: unknown})=>Promise<schémaFonctionOublier>), U>({
     adresseFonction,
     idClient,
     fOriginale,
@@ -51,7 +51,7 @@ export class CacheSuivi {
     args: { [clef: string]: unknown };
     ceciOriginal: U;
   }): Promise<schémaFonctionOublier> {
-    // Extraire la fonction de suivi
+    // Extraire la fonction de suivi
     const nomArgFonction = Object.entries(args).find(
       (x) => typeof x[1] === "function"
     )?.[0];
@@ -108,7 +108,11 @@ export class CacheSuivi {
     return fOublierRequète;
   }
 
-  async suivreRecherche<T extends Function, U>({
+  async suivreRecherche<
+    T extends Function, 
+    U,
+    V extends schémaRetourFonctionRecherche|réponseSuivreRecherche
+  >({
     adresseFonction,
     nomArgTaille,
     idClient,
@@ -124,8 +128,8 @@ export class CacheSuivi {
     args: { [clef: string]: unknown };
     ceciOriginal: U;
     par: "profondeur" | "nRésultats";
-  }): Promise<schémaRetourFonctionRecherche | réponseSuivreRecherche> {
-    // Extraire la fonction de suivi
+  }): Promise<V> {
+    // Extraire la fonction de suivi
     const nomArgFonction = Object.entries(args).find(
       (x) => typeof x[1] === "function"
     )?.[0];
@@ -252,7 +256,7 @@ export class CacheSuivi {
       fOublier: fOublierRequète,
       [par === "profondeur" ? "fChangerProfondeur" : "fChangerN"]:
         fChangerTailleRequète,
-    } as schémaRetourFonctionRecherche | réponseSuivreRecherche;
+    } as V;
   }
 
   async oublierSuivi({
@@ -308,22 +312,22 @@ export class CacheSuivi {
   }
 }
 
-export const cacheSuivi = (_cible: any, nom: any, descripteur: any) => {
+export const cacheSuivi = (_cible: unknown, nom: string, descripteur: unknown) => {
   return envelopper({ nom, descripteur });
 };
 
 export const cacheRechercheParNRésultats = (
-  _cible: any,
-  nom: any,
-  descripteur: any
+  _cible: unknown,
+  nom: string,
+  descripteur: unknown
 ) => {
   return envelopper({ nom, descripteur, recherche: "nRésultats" });
 };
 
 export const cacheRechercheParProfondeur = (
-  _cible: any,
-  nom: any,
-  descripteur: any
+  _cible: unknown,
+  nom: string,
+  descripteur: unknown
 ) => {
   return envelopper({ nom, descripteur, recherche: "profondeur" });
 };
@@ -334,7 +338,7 @@ export const envelopper = ({
   recherche,
   nomArgTaille,
 }: {
-  nom: any;
+  nom: string;
   descripteur: any;
   recherche?: "profondeur" | "nRésultats";
   nomArgTaille?: string;

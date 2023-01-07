@@ -42,6 +42,11 @@ import {
   élémentBdListeDonnées,
 } from "@/tableaux";
 
+export type correspondanceBdEtNuée = {
+  nuée: string, 
+  différences: différenceBds[]
+};
+
 export type statutMembreNuée = {
   idCompte: string;
   statut: "exclus" | "accepté";
@@ -1248,26 +1253,21 @@ export default class Nuée {
     f,
   }: {
     idBd: string;
-    f: schémaFonctionSuivi<différenceBds[]>;
+    f: schémaFonctionSuivi<correspondanceBdEtNuée[]>;
   }): Promise<schémaFonctionOublier> {
 
-    const fSuivreNuéeDeBd = async ({
-      fSuivreRacine
-    }: {
-      fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.bds.suivreNuéeBd({
+    const fSuivreNuéesDeBd = async (
+      fSuivreRacine: (idsNuées?: string[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.client.bds.suivreNuéesBd({
         idBd,
         f: fSuivreRacine
       })
     }
-    const fSuivreNuée = async ({
-      id: idNuée,
-      fSuivreBd,
-    }: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<différenceBds[]>;
-    }): Promise<schémaFonctionOublier> => {
+    const fSuivreNuée = async (
+      idNuée: string,
+      fSuivreBd: schémaFonctionSuivi<différenceBds[]>,
+    ): Promise<schémaFonctionOublier> => {
 
       const info: {
         différencesBds: différenceBds[];
@@ -1328,11 +1328,11 @@ export default class Nuée {
       }
     };
 
-    return await this.client.suivreBdDeFonction({
-      fRacine: fSuivreNuéeDeBd,
+    return await this.client.suivreBdsDeFonctionListe({
+      fListe: fSuivreNuéesDeBd,
       f,
-      fSuivre: fSuivreNuée,
-    });
+      fBranche: fSuivreNuée
+    })
   }
 
   @cacheRechercheParNRésultats

@@ -728,8 +728,7 @@ export default class ClientConstellation extends EventEmitter {
             const idSuivi = uuidv4();
             const promesse = f(bd);
 
-            // @ts-ignore
-            if (promesse.then) {
+            if (promesse && promesse.then) {
               promesses[idSuivi] = promesse;
               (promesse as Promise<void>).then(() => {
                 delete promesses[idSuivi];
@@ -754,8 +753,12 @@ export default class ClientConstellation extends EventEmitter {
 
           fFinale();
         })
-        .catch(() => {
-          if (!annulé) lancerSuivi();
+        .catch((e) => {
+          if (String(e).includes("ipfs unable to find")) {
+            if (!annulé) lancerSuivi();
+          } else {
+            throw new Error(e);
+          }
         });
     };
 
@@ -1223,7 +1226,7 @@ export default class ClientConstellation extends EventEmitter {
     V,
     W extends
       | schémaFonctionOublier
-      | ({ fOublier: schémaFonctionOublier } & { [key: string]: any })
+      | ({ fOublier: schémaFonctionOublier } & { [key: string]: unknown })
   >({
     fListe,
     f,
@@ -1342,8 +1345,7 @@ export default class ClientConstellation extends EventEmitter {
     };
     if (typeof retourRacine === "function") {
       oublierBdRacine = retourRacine;
-      // @ts-ignore
-      return fOublier;
+      return fOublier as W;
     } else {
       oublierBdRacine = retourRacine.fOublier;
       return Object.assign({}, retourRacine, { fOublier });
@@ -1435,7 +1437,7 @@ export default class ClientConstellation extends EventEmitter {
   async suivreBdsSelonCondition<
     T extends
       | schémaFonctionOublier
-      | ({ fOublier: schémaFonctionOublier } & { [key: string]: any })
+      | ({ fOublier: schémaFonctionOublier } & { [key: string]: unknown })
   >({
     fListe,
     fCondition,

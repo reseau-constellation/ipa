@@ -2265,7 +2265,7 @@ typesClients.forEach((type) => {
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
 
-        let motClef: string;
+        let idNuée: string;
         let idBd1: string;
         let idBd2: string;
         let idTableau1: string | undefined;
@@ -2306,11 +2306,10 @@ typesClients.forEach((type) => {
             catégorie: "chaîne",
           });
 
-          motClef = await clients[0].motsClefs!.créerMotClef();
+          idNuée = await clients[0].nuées!.créerNuée({})
 
           const schéma: schémaSpécificationBd = {
             licence: "ODbl-1_0",
-            motsClefs: [motClef],
             tableaux: [
               {
                 cols: [
@@ -2334,6 +2333,9 @@ typesClients.forEach((type) => {
 
           idBd1 = await clients[0].bds!.créerBdDeSchéma({ schéma });
           idBd2 = await clients[1].bds!.créerBdDeSchéma({ schéma });
+
+          await clients[0].bds!.rejoindreNuées({idsNuées: idNuée, idBd: idBd1});
+          await clients[1].bds!.rejoindreNuées({idsNuées: idNuée, idBd: idBd2});
 
           idTableau1 = (
             await uneFois(
@@ -2363,8 +2365,8 @@ typesClients.forEach((type) => {
 
           fsOublier.push(
             (
-              await clients[0].réseau!.suivreBdsDeMotClef({
-                motClefUnique: motClef,
+              await clients[0].réseau!.suivreBdsDeNuée({
+                idNuée,
                 f: (bds) => résBds.mettreÀJour(bds),
                 nRésultatsDésirés: 100,
               })
@@ -2373,7 +2375,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             (
               await clients[0].réseau!.suivreÉlémentsDeTableauxUniques({
-                motClefUnique: motClef,
+                idNuéeUnique: idNuée,
                 clef: clefTableau,
                 f: (éléments) => résÉléments.mettreÀJour(éléments),
               })

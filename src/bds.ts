@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import { schémaStatut, TYPES_STATUT } from "@/utils/types.js";
-import { cache, cacheSuivi } from "@/décorateursCache.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 
 import { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
 import { élémentBdListeDonnées, différenceTableaux } from "@/tableaux.js";
@@ -164,6 +164,12 @@ export default class BDs {
     });
     await bdBD.set("motsClefs", idBdMotsClefs);
 
+    const idBdNuées = await this.client.créerBdIndépendante({
+      type: "feed",
+      optionsAccès,
+    });
+    await bdBD.set("nuées", idBdNuées);
+
     await bdBD.set("statut", { statut: TYPES_STATUT.ACTIVE });
 
     if (ajouter) {
@@ -249,6 +255,17 @@ export default class BDs {
       idsMotsClefs: motsClefs,
     });
 
+    const idBdNuées = bdBase.get("nuées") as string;
+    const { bd: bdNuées, fOublier: fOublierBdNuées } =
+      await this.client.ouvrirBd<FeedStore<string>>({ id: idBdNuées });
+    const nuées = ClientConstellation.obtÉlémentsDeBdListe({
+      bd: bdNuées,
+    }) as string[];
+    await this.rejoindreNuées({
+      idBd: idNouvelleBd,
+      idsNuées: nuées,
+    });
+
     const idBdTableaux = bdBase.get("tableaux") as string;
     const idNouvelleBdTableaux = nouvelleBd.get("tableaux") as string;
 
@@ -288,6 +305,7 @@ export default class BDs {
     fOublierNouvelle();
     fOublierBdTableaux();
     fOublierBdMotsClefs();
+    fOublierBdNuées();
     return idNouvelleBd;
   }
 
@@ -353,18 +371,11 @@ export default class BDs {
   }
 
   @cacheSuivi
-  async suivreNuéeBd({
+  async suivreNuéesBd({
     idBd,
     f
-  }: { idBd: string, f: schémaFonctionSuivi<string> }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: KeyValueStore<typeÉlémentsBdBD>) => {
-      const idNuée = bd.get("nuées");
-      await f(idNuée as string);
-    };
-    return await this.client.suivreBd({
-      id: idBd,
-      f: fFinale,
-    });
+  }: { idBd: string, f: schémaFonctionSuivi<string[]> }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdListeDeClef({ id: idBd, clef: "nuées", f });
   }
 
   @cacheSuivi
@@ -416,10 +427,10 @@ export default class BDs {
       id: string,
       fSuivreCondition: (état: boolean) => void
     ): Promise<schémaFonctionOublier> => {
-      const fFinaleSuivreCondition = (nuéeBd?: string) => {
-        fSuivreCondition(nuéeBd === idNuée);
+      const fFinaleSuivreCondition = (nuéesBd?: string[]) => {
+        fSuivreCondition(nuéesBd.includes(idNuée));
       };
-      return await this.suivreNuéeBd({ idBd: id, f: fFinaleSuivreCondition });
+      return await this.suivreNuéesBd({ idBd: id, f: fFinaleSuivreCondition });
     };
     return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
   }
@@ -504,6 +515,7 @@ export default class BDs {
             idBd = idBdLocale;
           } else {
             idBd = await this.créerBdDeSchéma({ schéma });
+            await this.rejoindreNuées({ idBd, idsNuées: idNuéeUnique });
             await this.client.sauvegarderAuStockageLocal({
               clef: clefStockageLocal,
               val: idBd,
@@ -1004,6 +1016,67 @@ export default class BDs {
     await this.client.effacerÉlémentDeBdListe({
       bd: bdMotsClefs,
       élément: idMotClef,
+    });
+
+    await fOublier();
+  }
+
+  async rejoindreNuées({
+    idBd,
+    idsNuées,
+  }: {
+    idBd: string;
+    idsNuées: string | string[];
+  }): Promise<void> {
+    if (!Array.isArray(idsNuées)) idsNuées = [idsNuées];
+    const optionsAccès = await this.client.obtOpsAccès({ idBd });
+    const idBdNuées = await this.client.obtIdBd({
+      nom: "nuées",
+      racine: idBd,
+      type: "feed",
+      optionsAccès,
+    });
+    if (!idBdNuées) {
+      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
+    }
+
+    const { bd: bdNuées, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >({ id: idBdNuées });
+    for (const id of idsNuées) {
+      const nuéesExistantes = ClientConstellation.obtÉlémentsDeBdListe({
+        bd: bdNuées,
+      });
+      if (!nuéesExistantes.includes(id)) await bdNuées.add(id);
+    }
+    await fOublier();
+  }
+
+  async quitterNuée({
+    idBd,
+    idNuée,
+  }: {
+    idBd: string;
+    idNuée: string;
+  }): Promise<void> {
+    const optionsAccès = await this.client.obtOpsAccès({ idBd });
+    const idBdNuées = await this.client.obtIdBd({
+      nom: "nuée",
+      racine: idBd,
+      type: "feed",
+      optionsAccès,
+    });
+    if (!idBdNuées) {
+      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
+    }
+
+    const { bd: bdNuées, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >({ id: idBdNuées });
+
+    await this.client.effacerÉlémentDeBdListe({
+      bd: bdNuées,
+      élément: idNuée,
     });
 
     await fOublier();

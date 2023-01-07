@@ -838,11 +838,10 @@ typesClients.forEach((type) => {
             catégorie: "chaîne",
           });
 
-          const motClefUnique = await client.motsClefs!.créerMotClef();
+          const idNuée = await client.nuées!.créerNuée({});
 
           const schéma: schémaSpécificationBd = {
             licence: "ODbl-1_0",
-            motsClefs: [motClefUnique],
             tableaux: [
               {
                 cols: [
@@ -873,7 +872,7 @@ typesClients.forEach((type) => {
 
           fOublier = await client.bds!.suivreBdUnique({
             schéma,
-            motClefUnique,
+            idNuéeUnique: idNuée,
             f: (id) => rés.mettreÀJour(id),
           });
         }, config.patience);
@@ -973,7 +972,7 @@ typesClients.forEach((type) => {
 
           fOublier = await client.bds!.suivreIdTableauParClefDeBdUnique({
             schémaBd: schéma,
-            motClefUnique,
+            idNuéeUnique: idNuée,
             clefTableau: "id tableau unique",
             f: (id) => rés.mettreÀJour(id),
           });
