@@ -72,6 +72,7 @@ export interface infoImporterFeuilleCalcul extends infoImporter {
   formatDonnées: "feuilleCalcul";
   nomTableau: string;
   cols: { [key: string]: string };
+  optionsXLSX?: XLSX.ParsingOptions
 }
 
 export interface SourceDonnéesImportation<
@@ -180,8 +181,8 @@ const obtDonnéesImportation = async <
         }
 
         case "feuilleCalcul": {
-          const { nomTableau, cols } = spéc.source.info;
-          const docXLSX = await importerFeuilleCalculDURL(url);
+          const { nomTableau, cols, optionsXLSX } = spéc.source.info;
+          const docXLSX = await importerFeuilleCalculDURL(url, optionsXLSX);
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
           return importateur.obtDonnées(nomTableau, cols);
         }

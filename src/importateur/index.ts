@@ -1,4 +1,4 @@
-import { WorkBook, read as readXLSX } from "xlsx";
+import { WorkBook, read as readXLSX, ParsingOptions } from "xlsx";
 import axios from "axios";
 
 import { DonnéesJSON } from "./json.js";
@@ -11,14 +11,15 @@ export async function importerJSONdURL(url: string): Promise<DonnéesJSON> {
 
 export async function importerFeuilleCalculDURL(
   url: string,
-  modDePasse?: string
+  options?: ParsingOptions
 ): Promise<WorkBook> {
   const réponse = await axios.get<string>(url, { responseType: "arraybuffer" });
   const données = réponse.data;
 
-  return readXLSX(données, {
+  const optionsParDéfault: ParsingOptions = {
     type: "buffer",
     cellDates: true,
-    password: modDePasse,
-  });
+  }
+  const optsXLSX: ParsingOptions = Object.assign(optionsParDéfault, options || {})
+  return readXLSX(données, optsXLSX);
 }

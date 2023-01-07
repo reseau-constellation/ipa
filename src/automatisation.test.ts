@@ -295,9 +295,12 @@ typesClients.forEach((type) => {
                 nomTableau: "Sheet1",
                 formatDonnées: "feuilleCalcul",
                 cols: {
-                  [idCol1]: "1/22/21",
+                  [idCol1]: "2021-01-22",
                   [idCol2]: "Country",
                 },
+                optionsXLSX: {
+                  dateNF: "yyyy-mm-dd"
+                }
               },
             };
 
