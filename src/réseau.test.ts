@@ -196,7 +196,7 @@ typesClients.forEach((type) => {
           await clients[0].réseau!.faireConfianceAuMembre({
             idBdCompte: idsBdCompte[1],
           });
-          await fiablesPropres.attendreQue((x) => x!! && x.length > 0);
+          await fiablesPropres.attendreQue((x) => !!x && x.length > 0);
           expect(fiablesPropres.val).toHaveLength(1);
           expect(fiablesPropres.val).toEqual(
             expect.arrayContaining([idsBdCompte[1]])
