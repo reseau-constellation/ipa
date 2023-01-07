@@ -46,7 +46,7 @@ export type InfoCol = {
 };
 
 export type InfoColAvecCatégorie = InfoCol & {
-  catégorie: catégorieVariables;
+  catégorie?: catégorieVariables;
 };
 
 export function élémentsÉgaux(
