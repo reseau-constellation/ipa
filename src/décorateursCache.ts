@@ -83,11 +83,11 @@ export class CacheSuivi {
       this._cacheSuivi[codeCache] = {
         requètes: { [idRequète]: f },
       };
-      const fFinale = (x: unknown) => {
+      const fFinale = async (x: unknown) => {
         if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requète
         this._cacheSuivi[codeCache].val = x;
         const fsSuivis = Object.values(this._cacheSuivi[codeCache].requètes);
-        fsSuivis.forEach((f_) => f_(x));
+        await Promise.all(fsSuivis.map((f_) => f_(x)));
       };
       const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
 
@@ -97,7 +97,7 @@ export class CacheSuivi {
       // Sinon, ajouter f à la liste de fonctions de rappel
       this._cacheSuivi[codeCache].requètes[idRequète] = f;
       if (Object.keys(this._cacheSuivi[codeCache]).includes("val"))
-        f(this._cacheSuivi[codeCache].val);
+        await f(this._cacheSuivi[codeCache].val);
     }
 
     const fOublierRequète = async () => {

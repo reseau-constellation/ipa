@@ -10,7 +10,7 @@ import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
-import { schémaStatut, TYPES_STATUT } from "@/utils/types.js";
+import { schémaStatut, TYPES_STATUT, élémentsBd } from "@/utils/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
@@ -686,6 +686,40 @@ export default class BDs {
     return await this.client.tableaux!.ajouterÉlément({
       idTableau: idTableau,
       vals,
+    });
+  }
+
+  async modifierÉlémentDeTableauUnique({
+    vals,
+    schémaBd,
+    idNuéeUnique,
+    clefTableau,
+    empreintePrécédente,
+  }: {
+    vals: { [key: string]: élémentsBd | undefined };
+    schémaBd: schémaSpécificationBd;
+    idNuéeUnique: string;
+    clefTableau: string;
+    empreintePrécédente: string;
+  }): Promise<string> {
+    const idTableau = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<string>) => {
+        return await this.suivreIdTableauParClefDeBdUnique({
+          schémaBd,
+          idNuéeUnique,
+          clefTableau,
+          f: (id?: string) => {
+            if (id) fSuivi(id);
+          },
+        });
+      },
+      true
+    );
+
+    return await this.client.tableaux!.modifierÉlément({
+      idTableau: idTableau,
+      vals,
+      empreintePrécédente,
     });
   }
 
