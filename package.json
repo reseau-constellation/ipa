@@ -53,6 +53,7 @@
     "canvas": "^2.10.2",
     "core-js": "^3.26.0",
     "cross-env": "^7.0.3",
+    "electron": "^22.0.0",
     "eslint": "^8.26.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
@@ -82,7 +83,7 @@
   "dependencies": {
     "@chainsafe/libp2p-noise": "^10.0.0",
     "@chriscdn/promise-semaphore": "^1.0.9",
-    "@constl/mandataire": "^0.1.1",
+    "@constl/mandataire": "^0.1.2",
     "@libp2p/tcp": "^5.0.1",
     "@libp2p/webrtc-direct": "^4.0.1",
     "@libp2p/webrtc-star": "^5.0.3",
@@ -95,7 +96,6 @@
     "crypto-js": "^4.1.1",
     "deep-equal": "^2.1.0",
     "deepmerge": "^4.2.2",
-    "electron": "^21.2.0",
     "file-saver": "^2.0.5",
     "genversion": "^3.1.1",
     "geojson-validation": "^1.0.2",
@@ -148,5 +148,8 @@
     ],
     "testEnvironment": "node",
     "globalTeardown": "<rootDir>/src/utilsTests/nettoyerTests.ts"
+  },
+  "peerDependencies": {
+    "electron": "^22.0.0"
   }
 }
