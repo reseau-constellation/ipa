@@ -16,7 +16,7 @@
     "test:proc": "env MANDATAIRE=PROC pnpm test",
     "test:tous": "env MANDATAIRE=TOUS pnpm test",
     "couverture": "pnpm test -- --coverage",
-    "couverture:tous": "pnpm test:tous -- --coverage --bail",
+    "couverture:tous": "pnpm test:tous -- --coverage",
     "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint --ext .js,.ts src",
     "publier": "pnpm versioner && pnpm compiler && git commit -a -m 'version' && pnpm publish",
     "versioner": "pnpm genversion  --es6 --semi src/version.ts"
