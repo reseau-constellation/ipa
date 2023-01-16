@@ -1,3 +1,0 @@
-# Guide d'utilisation
-
-Constellation est un logiciel...

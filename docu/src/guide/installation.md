@@ -1,15 +1,8 @@
 # Installation
+Constellation peut être installé avec ou sans l'interface graphique.
 
 ## Interface graphique
-
-Because VuePress applications are server-rendered in Node.js when generating static builds, any Vue usage must conform to the [universal code requirements](https://ssr.vuejs.org/en/universal.html). In short, make sure to only access Browser / DOM APIs in `beforeMount` or `mounted` hooks.
-
-If you are using or demoing components that are not SSR friendly (for example containing custom directives), you can wrap them inside the built-in `<ClientOnly>` component:
-
-## Ligne de commande
+C'est la façon la plus facile d'installer et d'utiliser Constellation. En plus, on est bien fièrs de notre jolie interface. Vous pouvez télécharger la version la plus récente [ici](https://réseau-constellation.ca/téléchargements).
 
 ## Autres logiciels
-Julia
-Python
-R
-
+Si vous préférez travailler en un langage tel que Python, Julia ou R, il vous est possible d'utiliser Constellation dans ces langages, avec ou sans l'interface graphique ci-dessus. Voir notre [guide avancé](../avancé/autresLangages/introduction.md) pour démarrer.
