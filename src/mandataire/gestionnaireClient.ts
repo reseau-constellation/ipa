@@ -111,7 +111,7 @@ export default class GestionnaireClient {
             messageRetour.fonctions = Object.keys(retour);
           this.fMessage(messageRetour);
         } catch (e) {
-          this.fErreur(e, id);
+          this.fErreur(e.toString(), id);
         }
 
         break;
@@ -133,7 +133,7 @@ export default class GestionnaireClient {
           };
           this.fMessage(messageRetour);
         } catch (e) {
-          this.fErreur(e, id);
+          this.fErreur(e.toString(), id);
         }
 
         break;
