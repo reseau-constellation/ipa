@@ -238,7 +238,6 @@ export class CacheSuivi {
         this._cacheRecherche[codeCache].requètes[idRequète].taille;
       if (taille === tailleAvant) return;
       this._cacheRecherche[codeCache].requètes[idRequète].taille = taille;
-
       fFinale(this._cacheRecherche[codeCache].val);
 
       const maxTaille = Math.max(
@@ -249,7 +248,7 @@ export class CacheSuivi {
       const { taillePrésente } = this._cacheRecherche[codeCache];
       const { fChangerTaille } = this._cacheRecherche[codeCache].fs;
       if (maxTaille !== taillePrésente) {
-        fChangerTaille(taillePrésente);
+        fChangerTaille(maxTaille);
       }
     };
     this.verrou.release(codeCache);
