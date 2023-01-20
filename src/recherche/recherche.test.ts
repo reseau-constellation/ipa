@@ -81,10 +81,17 @@ typesClients.forEach((type) => {
         describe("selon nom", function () {
           let fOublier: schémaFonctionOublier;
           let fChangerN: (n: number) => Promise<void>;
+
+          let fOublier2: schémaFonctionOublier;
+          let fChangerN2: (n: number) => Promise<void>;
+
           let réfClient2: résultatRecherche<infoRésultatTexte>;
           let réfClient3: résultatRecherche<infoRésultatTexte>;
 
           const rés = new AttendreRésultat<
+            résultatRecherche<infoRésultatTexte>[]
+          >();
+          const rés2 = new AttendreRésultat<
             résultatRecherche<infoRésultatTexte>[]
           >();
 
@@ -95,6 +102,14 @@ typesClients.forEach((type) => {
                 f: (membres) => rés.mettreÀJour(membres),
                 nRésultatsDésirés: 2,
               }));
+
+              ({ fOublier: fOublier2, fChangerN: fChangerN2 } =
+                await clients[0].recherche!.rechercherProfilSelonNom({
+                  nom: "Julien",
+                  f: (membres) => rés2.mettreÀJour(membres),
+                  nRésultatsDésirés: 1,
+                }));
+
             réfClient2 = {
               id: idsComptes[1],
               résultatObjectif: {
@@ -129,7 +144,9 @@ typesClients.forEach((type) => {
 
           afterAll(async () => {
             if (fOublier) await fOublier();
+            if (fOublier2) await fOublier2();
             rés.toutAnnuler();
+            rés2.toutAnnuler();
           });
 
           test(
@@ -168,6 +185,20 @@ typesClients.forEach((type) => {
 
             const val = await rés.attendreQue((x) => !!x && x.length > 1);
             vérifierRecherche(val, [réfClient2, réfClient3]);
+          });
+
+          test("Augmenter N désiré d'abord", async () => {
+            await fChangerN2(2);
+
+            const val = await rés2.attendreQue((x) => !!x && x.length > 1);
+            vérifierRecherche(val, [réfClient2, réfClient3]);
+          });
+
+          test("Et ensuite diminuer N désiré", async () => {
+            await fChangerN2(1);
+
+            const val = await rés2.attendreQue((x) => !!x && x.length === 1);
+            vérifierRecherche(val, [réfClient2]);
           });
         });
 

@@ -16,7 +16,7 @@
     "test:proc": "env MANDATAIRE=PROC pnpm test",
     "test:tous": "env MANDATAIRE=TOUS pnpm test",
     "couverture": "pnpm test -- --coverage",
-    "couverture:tous": "pnpm test:tous -- --coverage",
+    "couverture:tous": "pnpm test:tous -- --coverage --bail",
     "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint --ext .js,.ts src",
     "publier": "pnpm versioner && pnpm compiler && git commit -a -m 'version' && pnpm publish",
     "versioner": "pnpm genversion  --es6 --semi src/version.ts"
@@ -32,7 +32,7 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/orbit-db-types": "^1.0.5",
+    "@constl/orbit-db-types": "^1.0.7",
     "@libp2p/interface-connection-manager": "^1.3.0",
     "@libp2p/interface-pubsub": "^3.0.0",
     "@types/adm-zip": "^0.5.0",
@@ -107,8 +107,8 @@
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "multiformats": "9.9.0",
-    "orbit-db": "^0.28.7",
-    "orbit-db-access-controllers": "^0.3.2",
+    "orbit-db": "^0.29.0",
+    "orbit-db-access-controllers": "^0.4.0",
     "ssim": "^0.0.0",
     "tslib": "^2.4.1",
     "uint8arrays": "^4.0.2",

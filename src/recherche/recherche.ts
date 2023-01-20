@@ -7,7 +7,7 @@ import * as nuée from "@/recherche/nuée.js";
 import * as utils from "@/recherche/utils.js";
 
 import ClientConstellation from "@/client.js";
-import { réponseSuivreRecherche } from "@/reseau.js";
+import { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
 import {
   schémaFonctionSuivi,
   résultatRecherche,
@@ -31,7 +31,7 @@ export class Recherche {
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     return await this.client.réseau!.rechercherVariables({
       f,
       nRésultatsDésirés,
@@ -47,7 +47,7 @@ export class Recherche {
     idVariable: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = utils.rechercherSelonId(idVariable);
     return await this.client.réseau!.rechercherVariables({
       f,
@@ -65,7 +65,7 @@ export class Recherche {
     nomVariable: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = variable.rechercherVariableSelonNom(nomVariable);
     return await this.client.réseau!.rechercherVariables({
       f,
@@ -83,7 +83,7 @@ export class Recherche {
     descrVariable: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = variable.rechercherVariableSelonDescr(descrVariable);
     return await this.client.réseau!.rechercherVariables({
       f,
@@ -101,7 +101,7 @@ export class Recherche {
     texte: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = variable.rechercherVariableSelonTexte(texte);
     return await this.client.réseau!.rechercherVariables({
       f,
@@ -117,7 +117,7 @@ export class Recherche {
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     return await this.client.réseau!.rechercherMotsClefs({
       f,
       nRésultatsDésirés,
@@ -133,7 +133,7 @@ export class Recherche {
     idMotClef: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = utils.rechercherSelonId(idMotClef);
     return await this.client.réseau!.rechercherMotsClefs({
       f,
@@ -151,7 +151,7 @@ export class Recherche {
     nomMotClef: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = motClef.rechercherMotClefSelonNom(nomMotClef);
     return await this.client.réseau!.rechercherMotsClefs({
       f,
@@ -169,7 +169,7 @@ export class Recherche {
     texte: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = motClef.rechercherMotClefSelonTexte(texte);
     return await this.client.réseau!.rechercherMotsClefs({
       f,
@@ -185,7 +185,7 @@ export class Recherche {
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     return await this.client.réseau!.rechercherBds({ f, nRésultatsDésirés });
   }
 
@@ -198,7 +198,7 @@ export class Recherche {
     idBd: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = utils.rechercherSelonId(idBd);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -216,7 +216,7 @@ export class Recherche {
     nomBd: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonNom(nomBd);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -234,7 +234,7 @@ export class Recherche {
     descrBd: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonDescr(descrBd);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -254,7 +254,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonIdMotClef(idMotClef);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -274,7 +274,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonIdVariable(idVariable);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -294,7 +294,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonNomMotClef(nomMotClef);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -314,7 +314,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonNomVariable(nomVariable);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -334,7 +334,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonMotClef(texte);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -354,7 +354,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonVariable(texte);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -376,7 +376,7 @@ export class Recherche {
       >[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = bd.rechercherBdSelonTexte(texte);
     return await this.client.réseau!.rechercherBds({
       f,
@@ -392,7 +392,7 @@ export class Recherche {
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     return await this.client.réseau!.rechercherProjets({
       f,
       nRésultatsDésirés,
@@ -408,7 +408,7 @@ export class Recherche {
     idCompte: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = utils.rechercherSelonId(idCompte);
     return await this.client.réseau!.rechercherMembres({
       f,
@@ -426,7 +426,7 @@ export class Recherche {
     nom: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = profil.rechercherProfilSelonNom(nom);
     return await this.client.réseau!.rechercherMembres({
       f,
@@ -444,7 +444,7 @@ export class Recherche {
     image: Uint8Array;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatVide>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = profil.rechercherProfilSelonImage(image);
     return await this.client.réseau!.rechercherMembres({
       f,
@@ -460,7 +460,7 @@ export class Recherche {
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatVide>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = profil.rechercherProfilSelonActivité();
     return await this.client.réseau!.rechercherMembres({
       f,
@@ -478,7 +478,7 @@ export class Recherche {
     courriel: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = profil.rechercherProfilSelonCourriel(courriel);
     return await this.client.réseau!.rechercherMembres({
       f,
@@ -496,7 +496,7 @@ export class Recherche {
     idProjet: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = utils.rechercherSelonId(idProjet);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -514,7 +514,7 @@ export class Recherche {
     nomProjet: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonNom(nomProjet);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -532,7 +532,7 @@ export class Recherche {
     descrProjet: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonDescr(descrProjet);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -552,7 +552,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonIdVariable(idVariable);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -572,7 +572,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonNomVariable(nomVariable);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -592,7 +592,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonVariable(texte);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -612,7 +612,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonIdMotClef(idMotClef);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -632,7 +632,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonNomMotClef(nomMotClef);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -652,7 +652,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonMotClef(texte);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -672,7 +672,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonIdBd(idBd);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -696,7 +696,7 @@ export class Recherche {
       >[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonBd(texte);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -721,7 +721,7 @@ export class Recherche {
       >[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = projet.rechercherProjetSelonTexte(texte);
     return await this.client.réseau!.rechercherProjets({
       f,
@@ -738,7 +738,7 @@ export class Recherche {
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     return await this.client.réseau!.rechercherNuées({ f, nRésultatsDésirés });
   }
 
@@ -751,7 +751,7 @@ export class Recherche {
     idNuée: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = utils.rechercherSelonId(idNuée);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -769,7 +769,7 @@ export class Recherche {
     nomNuée: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonNom(nomNuée);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -787,7 +787,7 @@ export class Recherche {
     descrNuée: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonDescr(descrNuée);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -807,7 +807,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonIdMotClef(idMotClef);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -827,7 +827,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonIdVariable(idVariable);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -847,7 +847,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonNomMotClef(nomMotClef);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -867,7 +867,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonNomVariable(nomVariable);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -887,7 +887,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonMotClef(texte);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -907,7 +907,7 @@ export class Recherche {
       résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonVariable(texte);
     return await this.client.réseau!.rechercherNuées({
       f,
@@ -929,7 +929,7 @@ export class Recherche {
       >[]
     >;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = nuée.rechercherNuéeSelonTexte(texte);
     return await this.client.réseau!.rechercherNuées({
       f,

@@ -37,7 +37,7 @@ import {
   adresseOrbiteValide,
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  schémaRetourFonctionRecherche,
+  schémaRetourFonctionRechercheParProfondeur,
   faisRien,
   uneFois,
   élémentsBd,
@@ -1365,7 +1365,7 @@ export default class ClientConstellation extends EventEmitter {
   }: {
     fListe: (
       fSuivreRacine: (éléments: T[]) => Promise<void>
-    ) => Promise<schémaRetourFonctionRecherche>;
+    ) => Promise<schémaRetourFonctionRechercheParProfondeur>;
     f: schémaFonctionSuivi<V[]>;
     fBranche: (
       id: string,
@@ -1375,13 +1375,10 @@ export default class ClientConstellation extends EventEmitter {
     fIdBdDeBranche?: (b: T) => string;
     fRéduction?: schémaFonctionRéduction<U[], V[]>;
     fCode?: (é: T) => string;
-  }): Promise<{
-    fOublier: schémaFonctionOublier;
-    fChangerProfondeur: (p: number) => void;
-  }> {
-    let _fChangerProfondeur: ((p: number) => void) | undefined = undefined;
-    const fChangerProfondeur = (p: number) => {
-      if (_fChangerProfondeur) _fChangerProfondeur(p);
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
+    let _fChangerProfondeur: ((p: number) => Promise<void>) | undefined = undefined;
+    const fChangerProfondeur = async (p: number) => {
+      if (_fChangerProfondeur) await _fChangerProfondeur(p);
     };
 
     const fListeFinale = async (
@@ -1587,13 +1584,21 @@ export default class ClientConstellation extends EventEmitter {
       verrouOuvertureBd.release(id);
       return { bd: existante.bd, fOublier };
     }
-    const bd = (await this.orbite!.open(id)) as T;
-    await bd.load();
-    this._bds[id] = { bd, idsRequètes: new Set([idRequète]) };
-
-    // Maintenant que la BD a été créée, on peut relâcher le verrou
-    verrouOuvertureBd.release(id);
-    return { bd, fOublier };
+    try {
+      const bd = (await this.orbite!.open(id)) as T;
+      this._bds[id] = { bd, idsRequètes: new Set([idRequète]) };
+      await bd.load();
+          
+      // Maintenant que la BD a été créée, on peut relâcher le verrou
+      verrouOuvertureBd.release(id);
+      return { bd, fOublier };
+    } catch (e) {
+      console.error((e as Error).toString())
+      console.warn(e.stack)
+      console.log(id)
+      throw e
+    }
+    
   }
 
   async obtIdBd({
@@ -1861,7 +1866,7 @@ export default class ClientConstellation extends EventEmitter {
         if (typeof vals === "object") {
           idsOrbite = extraireÉléments(
             Object.entries(vals)
-              .filter(([c, _]) => !clefsÀExclure.includes(c))
+              .filter((x) => !clefsÀExclure.includes(x[0]))
               .map((x) => x[1])
           );
           idsOrbite.push(...extraireÉléments(Object.keys(vals)));

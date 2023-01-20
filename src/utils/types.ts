@@ -34,9 +34,14 @@ export type schémaFonctionSuivi<T> =
 
 export type schémaFonctionOublier = () => Promise<void>;
 
-export type schémaRetourFonctionRecherche = {
+export type schémaRetourFonctionRechercheParProfondeur = {
   fOublier: schémaFonctionOublier;
-  fChangerProfondeur: (p: number) => void;
+  fChangerProfondeur: (p: number) => Promise<void>;
+};
+
+export type schémaRetourFonctionRechercheParN = {
+  fOublier: schémaFonctionOublier;
+  fChangerN: (p: number) => Promise<void>;
 };
 
 export interface infoRésultatTexte {

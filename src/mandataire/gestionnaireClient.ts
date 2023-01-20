@@ -158,7 +158,7 @@ export default class GestionnaireClient {
   extraireFonctionIPA(
     adresseFonction: string[],
     idMessage: string
-  ): ((...args: any[]) => any) | undefined {
+  ): ((...args: any[]) => unknown) | undefined {
     const erreur = `Fonction ClientConstellation.${adresseFonction.join(
       "."
     )} n'existe pas ou n'est pas une fonction.`;

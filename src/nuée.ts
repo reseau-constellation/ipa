@@ -5,7 +5,7 @@ import {
   schémaFonctionOublier,
   schémaStatut,
   TYPES_STATUT,
-  schémaRetourFonctionRecherche,
+  schémaRetourFonctionRechercheParProfondeur,
   infoAuteur,
   faisRien,
   uneFois,
@@ -34,7 +34,8 @@ import {
   règleVariable,
   règleColonne,
 } from "@/valid";
-import { réponseSuivreRecherche, élémentDeMembreAvecValid } from "@/reseau";
+import { élémentDeMembreAvecValid } from "@/reseau";
+import { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
 import {
   différenceTableaux,
   InfoCol,
@@ -1344,7 +1345,7 @@ export default class Nuée {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
     nRésultatsDésirés: number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fFinale = async (résultats: résultatRecherche<infoRésultatVide>[]) => {
       f(résultats.map(r=>r.id))
     }
@@ -1423,7 +1424,7 @@ export default class Nuée {
     f: schémaFonctionSuivi<string[]>;
     vérifierAutorisation?: boolean;
     nRésultatsDésirés?: number;
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     if (vérifierAutorisation) {
       const info: {
         philoAutorisation?: "CJPI" | "IJPC";
@@ -1484,7 +1485,7 @@ export default class Nuée {
 
       const fListe = async (
         fSuivreRacine: (éléments: string[]) => Promise<void>
-      ): Promise<schémaRetourFonctionRecherche> => {
+      ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
         return await this.client.réseau!.suivreBdsDeNuée({
           idNuée,
           f: fSuivreRacine,
@@ -1563,7 +1564,7 @@ export default class Nuée {
     ignorerErreursFormatTableau?: boolean;
     ignorerErreursDonnéesTableau?: boolean;
     licensesPermises?: string[];
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = async (
       donnéesTableaux: élémentDeMembreAvecValid<T>[][]
     ) => {
@@ -1573,7 +1574,7 @@ export default class Nuée {
 
     const fListe = async (
       fSuivreRacine: (bds: string[]) => Promise<void>
-    ): Promise<schémaRetourFonctionRecherche> => {
+    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreBdsCorrespondantes({
         idNuée,
         f: fSuivreRacine,
@@ -1582,7 +1583,7 @@ export default class Nuée {
 
     const fSuivreBdsConformes = async (
       fSuivreRacine: (bds: string[]) => Promise<void>
-    ): Promise<schémaRetourFonctionRecherche> => {
+    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       const fCondition = async (
         idBd: string,
         fSuivreCondition: schémaFonctionSuivi<boolean>

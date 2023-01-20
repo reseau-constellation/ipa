@@ -1,9 +1,8 @@
-import ensureAddress from "orbit-db-access-controllers/src/utils/ensure-ac-address.js";
+import AccessControllers from "orbit-db-access-controllers";
 
 import OrbitDB from "orbit-db";
 import FeedStore from "orbit-db-feedstore";
 import { IdentityProvider } from "orbit-db-identity-provider";
-import AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
 import { v4 as uuidv4 } from "uuid";
 
 import type {
@@ -16,6 +15,7 @@ import GestionnaireAccès, {
 import accesseurBdOrbite from "@/accès/accesseurBdOrbite.js";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
+import path from "path";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License
@@ -41,6 +41,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+const ensureAddress = (address: string) => {
+  const suffix = address.toString().split('/').pop()
+  return suffix === '_access'
+    ? address
+    : path.join(address, '/_access')
+}
+
 export const nomType = "controlleur-constellation";
 
 export interface OptionsContrôleurConstellation {
@@ -55,7 +62,7 @@ interface OptionsInitContrôleurConstellation
   nom: string;
 }
 
-export default class ContrôleurConstellation extends AccessController {
+export default class ContrôleurConstellation extends AccessControllers.AccessController {
   bd?: FeedStore<élémentBdAccès>;
   nom: string;
   _orbitdb: OrbitDB;

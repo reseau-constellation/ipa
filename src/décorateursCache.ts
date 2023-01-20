@@ -2,11 +2,12 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
-import { réponseSuivreRecherche, itemRechercheProfondeur } from "@/reseau.js";
+import { itemRechercheProfondeur } from "@/reseau.js";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivi,
-  schémaRetourFonctionRecherche,
+  schémaRetourFonctionRechercheParN,
+  schémaRetourFonctionRechercheParProfondeur
 } from "@/utils/index.js";
 
 export class CacheSuivi {
@@ -109,9 +110,10 @@ export class CacheSuivi {
   }
 
   async suivreRecherche<
-    T extends Function, 
+    T extends (...args: unknown[])=>Promise<V>, 
     U,
-    V extends schémaRetourFonctionRecherche|réponseSuivreRecherche
+    W extends "profondeur" | "nRésultats",
+    V extends ( W extends "profondeur" ? schémaRetourFonctionRechercheParProfondeur : schémaRetourFonctionRechercheParN),
   >({
     adresseFonction,
     nomArgTaille,
@@ -127,7 +129,7 @@ export class CacheSuivi {
     fOriginale: T;
     args: { [clef: string]: unknown };
     ceciOriginal: U;
-    par: "profondeur" | "nRésultats";
+    par: W;
   }): Promise<V> {
     // Extraire la fonction de suivi
     const nomArgFonction = Object.entries(args).find(
@@ -205,7 +207,7 @@ export class CacheSuivi {
         const { fOublier, fChangerProfondeur } = await fOriginale.apply(
           ceciOriginal,
           [argsComplets]
-        );
+        ) as schémaRetourFonctionRechercheParProfondeur;
         this._cacheRecherche[codeCache].fs = {
           fOublier,
           fChangerTaille: fChangerProfondeur,
@@ -213,7 +215,7 @@ export class CacheSuivi {
       } else {
         const { fOublier, fChangerN } = await fOriginale.apply(ceciOriginal, [
           argsComplets,
-        ]);
+        ]) as schémaRetourFonctionRechercheParN;
         this._cacheRecherche[codeCache].fs = {
           fOublier,
           fChangerTaille: fChangerN,
@@ -346,8 +348,9 @@ export const envelopper = ({
   const original = descripteur.value;
 
   if (typeof original === "function") {
-    descripteur.value = function (...args: any[]) {
+    descripteur.value = function (...args: [{[clef: string]: unknown}]) {
       if (args.length > 1) throw new Error("Args trop longs");
+
       const client = this.client ? this.client : this;
 
       try {

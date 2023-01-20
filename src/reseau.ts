@@ -14,18 +14,17 @@ import ClientConstellation, { Signature, infoAccès } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  schémaRetourFonctionRecherche,
+  schémaRetourFonctionRechercheParN,
+  schémaRetourFonctionRechercheParProfondeur,
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuivreQualitéRecherche,
   schémaFonctionSuivreConfianceRecherche,
   infoRésultatRecherche,
   infoAuteur,
   infoRésultat,
-  infoRésultatVide,
   résultatObjectifRecherche,
   résultatRecherche,
   faisRien,
-  élémentsBd,
 } from "@/utils/index.js";
 import { infoScore } from "@/bds.js";
 import { élémentBdListeDonnées } from "@/tableaux.js";
@@ -184,10 +183,6 @@ export interface ContenuMessageRejoindreCompte extends ContenuMessage {
   codeSecret: string;
 }
 
-export interface réponseSuivreRecherche {
-  fOublier: schémaFonctionOublier;
-  fChangerN: (n: number) => Promise<void>;
-}
 
 export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
 export type typeÉlémentsBdRéseau = {
@@ -951,7 +946,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoRelation[]>;
     profondeur: number;
     idCompteDébut?: string;
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     idCompteDébut = idCompteDébut || this.client.idBdCompte;
 
     const dicRelations: { [clef: string]: { relations: infoConfiance[] } } = {};
@@ -1060,9 +1055,9 @@ export default class Réseau extends EventEmitter {
 
     await suivreRelationsImmédiates(idCompteDébut);
 
-    const fChangerProfondeur = (p: number) => {
+    const fChangerProfondeur = async (p: number) => {
       profondeur = p;
-      fMiseÀJour();
+      await fMiseÀJour();
     };
 
     const fOublier = async () => {
@@ -1082,7 +1077,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoMembreRéseau[]>;
     profondeur: number;
     idCompteDébut?: string;
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fSuivi = (relations: infoRelation[]) => {
       // S'ajouter soi-même
       relations.push({
@@ -1163,8 +1158,8 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<infoMembreRéseau[]>;
     profondeur: number;
     idCompteDébut?: string;
-  }): Promise<schémaRetourFonctionRecherche> {
-    // Ne PAS mettre cette fonction en cache ! Ça ne fonctionne pas avec les
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
+    // Ne PAS mettre cette fonction en cache ! Ça ne fonctionne pas avec les
     // tailles=Infinity de suivreConnexionsMembres
     const dicComptes: {
       réseau: infoMembreRéseau[];
@@ -1229,7 +1224,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<number>;
     profondeur: number;
     idBdCompteRéférence?: string;
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     /*
     Note : Ne PAS envelopper cette fonction avec un `@cacheRechercheParProfondeur` !
     Elle retourne un nombre, pas une liste de résultat, et ça va bien sûr planter
@@ -1426,7 +1421,7 @@ export default class Réseau extends EventEmitter {
     });
   }
 
-  async rechercher<T extends infoRésultat | infoRésultatVide>({
+  async rechercher<T extends infoRésultat>({
     f,
     nRésultatsDésirés,
     fRecherche,
@@ -1445,15 +1440,15 @@ export default class Réseau extends EventEmitter {
     fQualité: schémaFonctionSuivreQualitéRecherche;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     fScore?: (r: résultatRechercheSansScore<T>) => number;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     if (!fScore) {
       fScore = (x: résultatRechercheSansScore<T>): number => {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
       };
     }
 
-    // @ts-ignore
-    fObjectif = fObjectif || rechercherTous();
+    // Il y a probablement une meilleure façon de faire ça, mais pour l'instant ça passe
+    fObjectif = fObjectif || rechercherTous() as schémaFonctionSuivreObjectifRecherche<T>;
 
     const résultatsParMembre: {
       [key: string]: {
@@ -1716,7 +1711,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fConfiance = async (
       idCompte: string,
       fSuivi: schémaFonctionSuivi<number>
@@ -1832,7 +1827,7 @@ export default class Réseau extends EventEmitter {
     }) => Promise<schémaFonctionOublier>;
     fQualité: schémaFonctionSuivreQualitéRecherche;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fRechercheFinale = async ({
       idCompte,
       fSuivi,
@@ -1897,7 +1892,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreBdsMembre.bind(this);
     const fQualité = async (
       id: string,
@@ -1927,7 +1922,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreBdsMembre.bind(this);
     const fQualité = async (
       id: string,
@@ -1960,7 +1955,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreVariablesMembre.bind(this);
 
     const fQualité = async (
@@ -1991,7 +1986,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreMotsClefsMembre.bind(this);
 
     const fQualité = async (
@@ -2022,7 +2017,7 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
-  }): Promise<réponseSuivreRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreProjetsMembre.bind(this);
 
     const fQualité = async (
@@ -2304,7 +2299,7 @@ export default class Réseau extends EventEmitter {
       (ÉlémentFavorisAvecObjet & { idBdCompte: string })[]
     >;
     profondeur: number;
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = (
       favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
     ) => {
@@ -2314,7 +2309,7 @@ export default class Réseau extends EventEmitter {
 
     const fListe = async (
       fSuivreRacine: (membres: string[]) => Promise<void>
-    ): Promise<schémaRetourFonctionRecherche> => {
+    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       const fSuivreComptes = async (infosMembres: infoMembreRéseau[]) => {
         // On s'ajoute à la liste des favoris
         return await fSuivreRacine([
@@ -2364,7 +2359,7 @@ export default class Réseau extends EventEmitter {
     idObjet: string;
     f: schémaFonctionSuivi<infoRéplications>;
     profondeur: number;
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const résultats: {
       connexionsMembres: statutMembre[];
       connexionsDispositifs: statutDispositif[];
@@ -2453,7 +2448,7 @@ export default class Réseau extends EventEmitter {
       fSuivreRacine: (
         favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
       ) => void
-    ): Promise<schémaRetourFonctionRecherche> => {
+    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreFavorisObjet({
         idObjet,
         f: fSuivreRacine,
@@ -2516,7 +2511,7 @@ export default class Réseau extends EventEmitter {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
     nRésultatsDésirés: number;
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fBranche = async (
       idCompte: string,
       f: schémaFonctionSuivi<string[]>
@@ -2539,7 +2534,7 @@ export default class Réseau extends EventEmitter {
 
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
-    ): Promise<schémaRetourFonctionRecherche> => {
+    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreComptesRéseauEtEnLigne({
         f: (résultats) => fSuivreRacine(résultats.map((r) => r.idBdCompte)),
         profondeur: nRésultatsDésirés,
@@ -2563,13 +2558,13 @@ export default class Réseau extends EventEmitter {
     clef: string;
     f: schémaFonctionSuivi<élémentDeMembre<T>[]>;
     nBds?: number;
-  }): Promise<schémaRetourFonctionRecherche> {
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fListe = async (
       fSuivreRacine: (bds: bdDeMembre[]) => Promise<void>
-    ): Promise<schémaRetourFonctionRecherche> => {
+    ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       const fListeListe = async (
         fSuivreRacineListe: (bds: string[]) => Promise<void>
-      ): Promise<schémaRetourFonctionRecherche> => {
+      ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
         return await this.suivreBdsDeNuée({
           idNuée: idNuéeUnique,
           f: fSuivreRacineListe,
