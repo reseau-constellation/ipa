@@ -97,10 +97,11 @@ function générerPaneau () {
     },
     {
       text: "Documentation IPA",
+      collapsible: true,
       items: [
         { text: "Introduction", link: "/ipa/introduction" },
-        { text: "Mandataires", link: "/ipa/profil" },
-        { text: "Mandataires", link: "/ipa/variables" },
+        { text: "Profil", link: "/ipa/profil" },
+        { text: "Variables", link: "/ipa/variables" },
       ],
     },
   ]
