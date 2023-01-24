@@ -1,8 +1,8 @@
 
 # Applis Électron
-Si vous développez une appli Électron, vous pourriez évidemment simplement utiliser Constellation dans le [processus de rendu](https://www.electronjs.org/fr/docs/latest/tutorial/process-model#the-renderer-process) comme s'il s'agissait d'un site web. Les processus rendu, cependant, ont les mêmes limitations que les sites webs - notamment, ils ne peuvent pas accéder au système de fichier de l'ordinateur. Afin d'activer les fonctionnalités plus puissantes de Constellation telles la sauvegarde et l'importation automatisées, vous devriez utiliser Constellation dans le [processus principal](https://www.electronjs.org/fr/docs/latest/tutorial/process-model#the-main-process) d'Électron.
+Si vous développez une appli Électron, vous pourriez évidemment simplement utiliser Constellation dans le [processus de rendu](https://www.electronjs.org/fr/docs/latest/tutorial/process-model#the-renderer-process) comme s'il s'agissait d'un site web. Les processus rendu, cependant, ont les mêmes limitations que les sites webs - notamment, ils ne peuvent pas accéder au système de fichier de l'ordinateur, et sont limités en mémoire. Afin d'activer les fonctionnalités plus puissantes de Constellation telles la sauvegarde et l'importation automatisées, vous devriez utiliser Constellation dans le [processus principal](https://www.electronjs.org/fr/docs/latest/tutorial/process-model#the-main-process) d'Électron.
 
-Vu que c'est un peu compliqué d'accéder aux fonctionnalités du processus principal à partir du processus de rendu d'où vous voudrez utiliser Constellation (ils on rendu ça [bien compliqué](https://www.electronjs.org/fr/docs/latest/tutorial/tutorial-preload), pour des raisons de sécurité), on vous a créé une petite librairie qui s'occupe de tout pour vous !
+Vu que c'est un peu compliqué d'accéder aux fonctionnalités du processus principal à partir du processus de rendu d'où vous voudrez utiliser Constellation (ils on rendu ça [bien compliqué](https://www.electronjs.org/fr/docs/latest/tutorial/tutorial-preload), pour des raisons de sécurité), on vous a créé une petite librairie qui s'occupe de tout ça pour vous !
 
 ## Installation
 D'abord, ajoutez `@constl/mandataire-electron-principal` et `@constl/mandataire-electron-rendu` à votre projet :
@@ -12,6 +12,9 @@ D'abord, ajoutez `@constl/mandataire-electron-principal` et `@constl/mandataire-
 ## Configuration initiale
 On vous recommande d'initialiser votre projet Électron avec ce [gabarit-ci](https://github.com/cawa-93/vite-electron-builder). Ça nous a sauvé beaucoup de maux de tête.
 
+## Comment ça fonctionne
+Le mandataire Électron vous permet de faire rouler Constellation dans le processus principal d'Électron avec tous les avantages (accès aux système de fichiers, plus de mémoire, meilleure connectivité) mais de faire *semblant* qu'il roule dans le processus de rendu Électron. Comme ça, vous pouvez utiliser Constellation dans vos pages de site web (Vue, React, etc.) comme si de rien n'était !
+Comment c'est possible ? En bref, ça fonctionne en créant une seule instance de Constellation dans le processus principal, qu'on attachera à chaque fenêtre ouverte de votre appli. Ensuite, on fait un peu de magie pour permettre au processus de rendu de communiquer avec Constellation dans le processus principal.
 
 ## Utilisation : processus principal
 
@@ -89,13 +92,19 @@ export default {
 
 ```
 
-Vous pouvez maintenant utiliser Constellation directement dans votre application Électron :
+Et voilà, le tour est joué ! Vous pouvez maintenant utiliser Constellation directement dans votre application Électron, directement du processus de rendu :
 
-```TypeScript
-import { inject } from 'vue';
+```Vue
+<script setup lang="ts">
+import { ref, inject } from 'vue';
 
 const constellation = inject('constl');
-const idBd = await constellation.bds.créerBd({ licence: 'ODbl-1_0' });
+const idBd = ref<string>();
+
+const créerBd = async () => {
+  idBd.value = await constellation.bds.créerBd({ licence: 'ODbl-1_0' })
+};
+</script>
 ```
 
 Vous pouvez également activer le serveur WS local, ce qui rendra l'instance de Constellation de votre appli
@@ -103,12 +112,39 @@ Vous pouvez également activer le serveur WS local, ce qui rendra l'instance de 
 de connecter un client [Python](https://github.com/reseau-constellation/client-python) ou 
 [Julia](https://github.com/reseau-constellation/Constellation.js) à l'instance Constellation de votre appli.
 
-```TypeScript
-import { inject } from 'vue';
+```Vue
+<template>
+  <div>
+    <p v-if="port">
+      Serveur actif sur port {{ port }}
+      <v-btn @click="fermerServeurLocal">
+        Fermer le serveur
+      </v-btn>
+    </p>
+    <p v-else>
+      Serveur non initialisé
+      <v-btn @click="initialiserServeurLocal">
+        Initialiser le serveur
+      </v-btn>
+    </p>
+  </div>
+</template>
+
+<script lang="ts">
+import { inject, ref } from 'vue';
 
 const serveur = inject('serveurConstl');
-const port = await serveur.initialiser();  // Ou spécifier le port avec serveur.initialiser(PORT);
-await serveur.fermer()  // Quand on a fini
+const port = ref<number>();
+
+const initialiserServeurLocal = async () => {
+  port.value = await serveur.initialiser();  // Ou spécifier le port avec serveur.initialiser(PORT);
+}
+
+const fermerServeurLocal = async () => {
+  await serveur.fermer()  // Quand on a fini
+  port.value = undefined
+}
+</script>
 ```
 
 
