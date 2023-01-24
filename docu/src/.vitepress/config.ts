@@ -4,8 +4,7 @@ export default defineConfig({
   lang: "fr",
   title: "Constellation",
   description: "Le réseau distribué pour les données scientifiques",
-  //@ts-ignore
-  base: import.meta.env.GITHUB_ACTIONS ? "/ipa/" : undefined,
+  base: "/ipa/",
 
   /**
    * Extra tags to be injected to the page HTML `<head>`
