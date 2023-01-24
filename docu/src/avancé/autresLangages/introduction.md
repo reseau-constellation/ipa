@@ -6,12 +6,16 @@ Les clients [Python](./python.md) et [Julia](./julia.md) sont fonctionnels, et l
 Tous ces clients fonctionnent en ouvrant un serveur WS Constellation local sur votre machine. Le client Python, Julia ou autre communiquera ensuite avec ce serveur local par messages WS et vous permettent d'utiliser Constellation dans le langage de votre choix.
 
 Vous devrez donc toujours installer Constellation sur votre machine avant de pouvoir utiliser les clients d'autres langages.
-La manière la plus facile est d'installer [l'interface graphique](https://réseau-constellation.ca/téléchargements) et puis d'activer le serveur WS sur la page de configuration. Alternativement, vous pouvez installer le serveur WS de Constellation sans interface graphique. Vous aurez besoin de [Node.js](https://nodejs.org/fr/) et de [pnpm](https://pnpm.io).
+La manière la plus facile est d'installer [l'interface graphique](https://réseau-constellation.ca/téléchargements) et puis d'activer le serveur WS sur la page de configuration. Alternativement, vous pouvez installer le serveur WS de Constellation sans interface graphique. Vous aurez besoin de [Node.js](https://nodejs.org/fr/) et de [pnpm](https://pnpm.io/fr/).
 
 Si nécessaire, installer pnpm :
 
-```$ npm add -g pnpm```
+```sh
+$ npm add -g pnpm
+```
 
 Et puis installer Constellation :
 
-```$ pnpm global add -g @constl/ipa @constl/serveur```
+```sh
+$ pnpm global add -g @constl/ipa @constl/serveur
+```

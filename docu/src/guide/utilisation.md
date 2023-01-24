@@ -10,7 +10,4 @@ import { clientTravailleur } from "@constl/ipa"
 import { clientDirecte } from "@constl/ipa"
 ```
 
-## Les actions
-
-## Les suivis
 

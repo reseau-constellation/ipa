@@ -13,6 +13,11 @@ Sauvegarde le nom de l'utilisateur dans une langue donnée.
 ### Exemple
 ```ts
 
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+await client.profil.sauvegarderNom({ langue: "fr", nom: "C'est bien moi !" });
+
 ```
 
 ## `async client.profil.effacerNom({ langue })`
@@ -25,7 +30,10 @@ Efface la traduction du nom de l'utilisateur dans une langue donnée.
 
 ### Exemple
 ```ts
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
 
+await client.profil.effacerNom({ langue: "fr" });
 ```
 
 

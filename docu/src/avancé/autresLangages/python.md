@@ -10,11 +10,15 @@ local, avec lequel elle gère ensuite la communication par websocket.
 
 Vous pouvez installer ConstellationPy avec `poetry` :
 
-`poetry add constellationPy`
+```sh
+$ poetry add constellationPy
+```
 
 ... ou bien avec `pip`
 
-`pip install constellationPy`
+```sh
+$ pip install constellationPy
+```
 
 ::: tip
 Si le serveur Constellation n'est pas déjà installé sur votre machine, ConstellationPy l'installera automatiquement pour

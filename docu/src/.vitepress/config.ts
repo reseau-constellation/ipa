@@ -92,7 +92,8 @@ function générerPaneau () {
       items: [
         { text: "Introduction", link: "/guide/introduction" },
         { text: "Installation", link: "/guide/installation" },
-        { text: "Pair à pair", link: "/guide/pairÀPair" }
+        { text: "Pair à pair", link: "/guide/pairÀPair" },
+        { text: "Concepts", link: "/guide/concepts" },
       ]
     },
     {
