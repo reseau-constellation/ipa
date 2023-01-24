@@ -1,1 +1,0 @@
-import{_ as e,c as a,o as t}from"./app.798628b1.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/variables.md"}'),r={name:"ipa/variables.md"};function s(o,c,n,i,p,_){return t(),a("div")}const m=e(r,[["render",s]]);export{l as __pageData,m as default};
