@@ -1,1 +1,0 @@
-import{_ as e,c as a,o as s,d as t}from"./app.110f9561.js";const h=JSON.parse('{"title":"Systèmes pair à pair","description":"","frontmatter":{},"headers":[],"relativePath":"guide/pairÀPair.md"}'),i={name:"guide/pairÀPair.md"},r=t("",3),n=[r];function p(o,c,d,u,l,_){return s(),a("div",null,n)}const b=e(i,[["render",p]]);export{h as __pageData,b as default};
