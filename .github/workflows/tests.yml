@@ -23,8 +23,8 @@ jobs:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Nétoyer les dépendances d'installation
-        run: pnpm install --lockfile=false
+      - name: Installer
+        run: pnpm install
 
       - name: Vérifier les tests
         run: pnpm couverture:tous
