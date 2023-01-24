@@ -8,18 +8,20 @@ jobs:
     name: On test l'IPA
     runs-on: ubuntu-latest
     steps:
+      
+      - name: Ouvrir la branche
+        uses: actions/checkout@v3
+
+      - name: Installer pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
       - name: Préparation de Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16
-
-      - name: Installer pnpm
-        uses: pnpm/action-setup@v2.2.4
-        with:
-          version: latest
-
-      - name: Ouvrir la branche
-        uses: actions/checkout@v3
+          cache: 'pnpm'
 
       - name: Nétoyer les dépendances d'installation
         run: pnpm install --lockfile=false
