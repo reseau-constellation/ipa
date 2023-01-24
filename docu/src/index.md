@@ -18,13 +18,22 @@ hero:
       link: https://github.com/reseau-constellation/
 
 features:
-  - title: Partage de données
+  - icon: 🛠️
+    title: Partage de données
+    link: exemples/diffusion
+    linkText: En savoir plus
     details: Partagez des données scientifiques existantes sur le réseau Constellation. Vous pouvez automatiser l'importation de LibreOffice, Excel ou autre.
   - title: Science citoyenne
+    link: exemples/scienceCitoyenne
+    linkText: Démarrer votre projet
     details: Lancez un projet de science citoyenne distribué et sans serveur central. Les données demeureront sur les dispositifs de vos utilisatrices et utilisateurs.
   - title: Transparence et souveraineté
+    link: /guide/paireÀPaire
+    linkText: En savoir plus
     details: Constellation intègre des contrôles de qualité des données, tout en gardant une structure distribuée qui protège la souveraineté et l'accès aux données à long terme.
   - title: En ligne ou locale
+    link: guide/installation
+    linkText: Démarrer maintenant
     details: Constellation peut être utilisé en tant qu'appli en ligne ou bien en tant que logiciel installable sur votre ordinateur.
 ---
 

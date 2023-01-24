@@ -1,6 +1,8 @@
 :root {
-    --vp-home-hero-name-color: #1867c0;
-    --vp-c-brand: #1697f6;
-    --vp-c-brand-dark: #1697f6;
-  }
-  
+  --vp-home-hero-name-color: #1867c0;
+  --vp-c-brand: #1697f6;
+  --vp-c-brand-dark: #1689db;
+  --vp-c-brand-darker: #1867c0;
+  --vp-c-brand-light: #7bc6ff;
+  --vp-c-brand-lightest: #aeddff;
+}
