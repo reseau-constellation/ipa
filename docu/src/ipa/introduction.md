@@ -119,4 +119,4 @@ Le [réseau](/ipa/réseau.md) vous permet d'accéder aux informations des autres
 Vous pouvez également [rechercher](/ipa/recherche.md) les données qui vous intéressent.
 
 ### Nuée
-Les [nuées](/ipa/nuée.md) vous permettent de créer des projets de science citoyenne et de collecter toutes les contributions de vos participants à la même place.
+Les [nuées](/ipa/nuées.md) vous permettent de créer des projets de science citoyenne et de collecter toutes les contributions de vos participants à la même place.
