@@ -9,8 +9,8 @@
   },
   "repository": "https://github.com/reseau-constellation/ipa/constellation",
   "scripts": {
-    "dev": "vuepress dev src",
-    "build": "vuepress build src"
+    "dev": "vitepress dev src",
+    "build": "vitepress build src"
   },
   "license": "MIT",
   "devDependencies": {
