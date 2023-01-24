@@ -57,7 +57,7 @@ app.on('will-quit', async () => {
 
 ## Utilisation : Processus de rendu
 Vous pouvez maintenant connecter Constellation à votre processus de rendu. Vous devriez utiliser une seule instance
-de Constellation dans votre application. Voici ci-dessous un exemple avec `Vue.js`.
+de Constellation dans votre application. Voici ci-dessous un exemple avec [Vue.js](https://fr.vuejs.org/) et [vuetify]https://next.vuetifyjs.com/).
 
 ```TypeScript
 // plugins/constellation.ts

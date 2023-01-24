@@ -1,5 +1,7 @@
 # Installation
-Constellation peut être installé sur votre ordinateur ou bien accédé à travers l'[appli Internet](https://réseau-constellation.ca). Si vous l'installez, cela peut être fait avec ou sans l'interface graphique.
+Constellation peut être installé sur votre ordinateur ou bien accédé à travers l'[appli Internet](https://réseau-constellation.ca). Si vous l'installez, cela peut être fait avec ou sans l'interface graphique. 
+
+Il y a plusieurs avantages à installer Constellation sur votre ordinateur plutôt que d'utiliser l'appli en ligne. Premièrement, vous aurez accès à plus de mémoire, l'appli en ligne étant limitée par la mémoire de votre navigateur. En plus, la version installée offre plus de fonctionnalités, tel le partage automatique de vos données à base d'un fichier local et la sauvegarde automatique des données Constellation sur votre ordinateur.
 
 ## Interface graphique
 C'est la façon la plus facile d'installer et d'utiliser Constellation. En plus, on est bien fièrs de notre jolie interface. Vous pouvez télécharger la version la plus récente [ici](https://réseau-constellation.ca/téléchargements).

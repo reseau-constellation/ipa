@@ -10,10 +10,11 @@
   "repository": "https://github.com/reseau-constellation/ipa/constellation",
   "scripts": {
     "dev": "vitepress dev src",
-    "build": "vitepress build src"
+    "build": "vitepress build src",
+    "preview": "vitepress preview src"
   },
   "license": "MIT",
   "devDependencies": {
-    "vitepress": "1.0.0-alpha.36"
+    "vitepress": "1.0.0-alpha.40"
   }
 }

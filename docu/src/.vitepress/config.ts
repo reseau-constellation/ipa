@@ -42,10 +42,33 @@ export default defineConfig({
   },
 
   locales: {
-    '/': {
+    'root': {
       lang: 'fr',
-      title: "Constellation"
-    }
+      label: "français"
+    },
+    த: {
+      lang: 'த',
+      label: 'தமிழ்',
+      title: "வீண்மீன்",
+      themeConfig: {
+        nav: [
+          {
+            text: "வழிகாட்டி",
+            link: "/த/guide/introduction",
+          },
+          {
+            text: "செயலி",
+            link: "https://réseau-constellation.ca/?lg=த",
+          },
+        ]
+      }
+    },
+    es: {
+      lang: 'es',
+      label: 'español',
+      title: "Constelación",
+    },
+
   },
 });
 
@@ -69,7 +92,7 @@ function générerPaneau () {
       items: [
         { text: "Introduction", link: "/guide/introduction" },
         { text: "Installation", link: "/guide/installation" },
-        { text: "Paire à paire", link: "/guide/paireÀPaire" }
+        { text: "Pair à pair", link: "/guide/pairÀPair" }
       ]
     },
     {
