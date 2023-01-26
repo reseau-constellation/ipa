@@ -2,8 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { EventEmitter } from "events";
 import { isElectronMain } from "wherearewe";
 import path from "path";
-import { readFileSync } from "fs";
-import { writeFile } from "fs/promises";
+import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 
 let _localStorage: LocalStorage;
@@ -21,7 +20,7 @@ class LocalStorage {
     this._événements = new EventEmitter();
     this.verrou = new Semaphore();
     try {
-      this._données = JSON.parse(readFileSync(this.fichier).toString());
+      this._données = JSON.parse(fs.readFileSync(this.fichier).toString());
     } catch {
       this._données = {};
     }
@@ -53,7 +52,7 @@ class LocalStorage {
       this.verrou.release("sauvegarder");
       return;
     }
-    await writeFile(this.fichier, JSON.stringify(this._données));
+    await fs.promises.writeFile(this.fichier, JSON.stringify(this._données));
     this.verrou.release("sauvegarder");
   }
 
