@@ -125,8 +125,16 @@ function générerPaneau () {
       collapsible: true,
       items: [
         { text: "Introduction", link: "/ipa/introduction" },
+        { text: "Client", link: "/ipa/client" },
         { text: "Profil", link: "/ipa/profil" },
         { text: "Variables", link: "/ipa/variables" },
+        { text: "Mots-clefs", link: "/ipa/motsClefs" },
+        { text: "Tableaux", link: "/ipa/tableaux" },
+        { text: "Bases de données", link: "/ipa/bds" },
+        { text: "Projets", link: "/ipa/projets" },
+        { text: "Recherche", link: "/ipa/recherche" },
+        { text: "Réseau", link: "/ipa/réseau" },
+        { text: "Nuées", link: "/ipa/nuées" },
       ],
     },
   ]

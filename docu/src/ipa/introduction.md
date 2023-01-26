@@ -94,6 +94,9 @@ onUnmounted(async () => {
 
 ## Composantes de Constellation
 
+### Client
+Le [client](/ipa/client.md) est le point central de Constellation. Chaque compte correspond à un client Constellation.
+
 ### Profil
 Le [profil](/ipa/profil.md) de Constellation organise les information du compte d'utilisateur.
 
@@ -104,7 +107,7 @@ Les [mots-clefs](/ipa/motsClefs.md) servent à indexer les bases de données.
 L'unité centrale de Constellation est la [base de données](/ipa/bds.md).
 
 ### Tableaux
-Chaque base de données à un ou plusieurs [tableaux](/ipa/bds.md).
+Chaque base de données à un ou plusieurs [tableaux](/ipa/tableaux.md).
 
 ### Variables
 Chaque colonne d'un tableau est associée à une [variable](/ipa/variables.md).

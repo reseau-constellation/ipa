@@ -11,6 +11,12 @@ hero:
       text: ஆவணங்களை படி
       link: /த/guide/introduction
     - theme: alt
+      text: செயலிக்கு போ
+      link: https://réseau-constellation.ca/?lg=த
+    - theme: alt
+      text: நிறுவு
+      link: https://réseau-constellation.ca/téléchargements/?lg=த
+    - theme: alt
       text: கிட்ஹபில் பாரு
       link: https://github.com/reseau-constellation/
 
