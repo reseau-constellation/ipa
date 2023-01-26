@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+
 jobs:
   tests-et-couverture:
     name: On test l'IPA
