@@ -433,7 +433,7 @@ export default class ClientConstellation extends EventEmitter {
 
   async rejoindreCompte({ idBdCompte }: { idBdCompte: string }): Promise<void> {
     if (!adresseOrbiteValide(idBdCompte)) {
-      throw new Error(`Adresse compte ${idBdCompte} non valide`);
+      throw new Error(`Adresse compte "${idBdCompte}" non valide`);
     }
 
     // Attendre de recevoir la permission d'écrire à idBdCompte
@@ -476,7 +476,7 @@ export default class ClientConstellation extends EventEmitter {
     rôle: keyof objRôles;
   }): Promise<void> {
     if (!adresseOrbiteValide(identité)) {
-      throw new Error(`Identité ${identité} non valide.`);
+      throw new Error(`Identité "${identité}" non valide.`);
     }
 
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
@@ -1563,7 +1563,7 @@ export default class ClientConstellation extends EventEmitter {
   }: {
     id: string;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
-    if (!adresseOrbiteValide(id)) throw new Error(`Adresse ${id} non valide.`);
+    if (!adresseOrbiteValide(id)) throw new Error(`Adresse "${id}" non valide.`);
 
     // Nous avons besoin d'un verrou afin d'éviter la concurrence
     await verrouOuvertureBd.acquire(id);
