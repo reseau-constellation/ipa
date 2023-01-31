@@ -1,6 +1,6 @@
 # Introduction
 
-Constellation est un logiciel de bases de données scientifiques distribuées. Il vous permet de collecter et de diffuser vos données scientifiques sans serveur dépôt centralisé.
+Constellation est un logiciel de bases de données scientifiques distribuées. Il vous permet de collecter et de diffuser vos données scientifiques sans serveur ou dépôt centralisé.
 
 ## Philosophie générale
 
