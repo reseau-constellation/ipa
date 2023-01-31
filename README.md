@@ -17,8 +17,8 @@ distribué Constellation.
 Vous pouvez ajouter l'IPA Constellation à vos projets JavaScript ou TypeScript
 avec la commande suivante:
 
-```
-pnpm install @constl/ipa
+```sh
+$ pnpm install @constl/ipa
 ```
 
 Si vous développez une application dans un autre langage (p. ex., Python),
@@ -31,7 +31,7 @@ selon le langage de votre projet.
 Une fois l'IPA installé, vous pouvez importer Constellation et l'utiliser dans vos
 projets.
 
-```
+```TypeScript
 import { client } from "@constl/ipa";
 ...
 
