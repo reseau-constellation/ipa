@@ -1418,12 +1418,12 @@ export default class Nuée {
     idNuée,
     f,
     vérifierAutorisation = true,
-    nRésultatsDésirés = 100,
+    nRésultatsDésirés,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
     vérifierAutorisation?: boolean;
-    nRésultatsDésirés?: number;
+    nRésultatsDésirés: number;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     if (vérifierAutorisation) {
       const info: {
@@ -1578,6 +1578,7 @@ export default class Nuée {
       return await this.suivreBdsCorrespondantes({
         idNuée,
         f: fSuivreRacine,
+        nRésultatsDésirés: 100,
       });
     };
 

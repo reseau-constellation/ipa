@@ -1594,8 +1594,6 @@ export default class ClientConstellation extends EventEmitter {
       return { bd, fOublier };
     } catch (e) {
       console.error((e as Error).toString())
-      console.warn(e.stack)
-      console.log(id)
       throw e
     }
     
