@@ -12,7 +12,6 @@ import { noise } from "@chainsafe/libp2p-noise";
 
 const configNavigateur = import("./configNavigateur.js");
 // const configÉlectron = import("./configÉlectron.js");
-const configNode = import("./configNode.js");
 
 const obtConfigPlateforme = async () => {
   if (isBrowser || isElectronRenderer) {
@@ -20,7 +19,8 @@ const obtConfigPlateforme = async () => {
   } else if (isElectronMain) {
     return {}; // await (await configÉlectron).default();
   } else if (isNode) {
-    return (await configNode).default();
+    const configNode = await import("./configNode.js");
+    return configNode.default();
   } else {
     throw new Error("Environnement non supporté");
   }
@@ -31,7 +31,7 @@ const obtConfigCommun = (): { [key: string]: any } => {
     libp2p: {
       modules: {},
       connectionManager: {
-        autoDial: false,
+       // autoDial: false, Essayer sans ça à nouveau
       },
       config: {
         peerDiscovery: {
