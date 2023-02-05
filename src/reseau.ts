@@ -407,11 +407,10 @@ export default class Réseau extends EventEmitter {
   }
 
   async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
-    console.log("reçu", msg)
     if (this._fermé) return;
 
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
-
+    console.log("reçu", messageJSON)
     const { encrypté, destinataire } = messageJSON;
 
     if (destinataire && destinataire !== obtChaîneIdSFIPClient(this.client))
