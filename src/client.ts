@@ -340,6 +340,12 @@ export default class ClientConstellation extends EventEmitter {
     );
   }
 
+  async suivreProtocolesCompte({f, idCompte}: {f: schémaFonctionSuivi<string[]>, idCompte?: string}): Promise<schémaFonctionOublier> {
+    f([])
+    return async () => {//À faire
+    }
+  }
+
   @cacheSuivi
   async suivreDispositifs({
     f,

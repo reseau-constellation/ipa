@@ -192,6 +192,10 @@ describe("Fonctionalités client", function () {
     });
   });
 
+  describe("Suivre protocoles", function () {
+    test.todo("Suivre protocoles compte")
+  })
+
   describe("Suivre BD", function () {
     let idBd: string;
     let fOublier: schémaFonctionOublier;

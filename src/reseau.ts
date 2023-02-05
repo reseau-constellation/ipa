@@ -45,7 +45,7 @@ import { v4 as uuidv4 } from "uuid";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées"
 
-export interface infoDispositif {
+export type infoDispositif = {
   idSFIP: string;
   idOrbite: string;
   idCompte: string;
@@ -54,27 +54,27 @@ export interface infoDispositif {
   encryption?: { type: string; clefPublique: string };
 }
 
-export interface statutDispositif {
+export type statutDispositif  ={
   infoDispositif: infoDispositif;
   vuÀ?: number;
 }
 
-export interface élémentBdMembres {
+export type élémentBdMembres = {
   idBdCompte: string;
-  dispositifs: [];
+  dispositifs: string[];
 }
 
 export type itemRechercheProfondeur = {
   profondeur: number;
 } & { [key: string]: unknown };
 
-export interface infoMembreRéseau {
+export type infoMembreRéseau = {
   idBdCompte: string;
   profondeur: number;
   confiance: number;
 }
 
-export interface infoRelation {
+export type infoRelation = {
   de: string;
   pour: string;
   confiance: number;
@@ -93,6 +93,7 @@ export interface infoBloqué {
 
 export interface infoMembre {
   idBdCompte: string;
+  protocoles: string[];
   dispositifs: infoDispositif[];
 }
 
@@ -250,7 +251,7 @@ export default class Réseau extends EventEmitter {
       await Promise.all(Object.values(promesses));
     });
 
-    // @ts-ignore
+    // @ts-expect-error Pas inclus dans les types de SFIP
     const libp2p: Libp2p = this.client.sfip!.libp2p;
 
     const fSuivreConnexions = () => {
@@ -289,6 +290,7 @@ export default class Réseau extends EventEmitter {
     if (idSFIP) {
       msg.destinataire = idSFIP;
     }
+    console.log("envoyé", msg)
     const sujet = this.client.sujet_réseau;
 
     const msgBinaire = Buffer.from(JSON.stringify(msg));
@@ -405,6 +407,7 @@ export default class Réseau extends EventEmitter {
   }
 
   async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
+    console.log("reçu", msg)
     if (this._fermé) return;
 
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
@@ -465,9 +468,9 @@ export default class Réseau extends EventEmitter {
 
         break;
       }
-      default:
-        console.error(`Message inconnu: ${valeur.type}`);
+      
     }
+    // this.écouteursMessages[valeur.type]?.(contenu);
   }
 
   async recevoirSalut({
@@ -1312,31 +1315,77 @@ export default class Réseau extends EventEmitter {
   }: {
     f: schémaFonctionSuivi<statutMembre[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (dispositifs: statutDispositif[]) => {
-      const membres: { [key: string]: statutMembre } = {};
 
-      for (const d of dispositifs) {
-        const { idCompte } = d.infoDispositif;
-        if (!membres[idCompte]) {
-          membres[idCompte] = {
-            infoMembre: {
-              idBdCompte: idCompte,
-              dispositifs: [],
-            },
-          };
+    type statutMembreSansProtocoles = {
+      infoMembre: {
+        idBdCompte: string;
+        dispositifs: infoDispositif[];
+      };
+      vuÀ?: number
+    }
+    const fListe = async (fSuivreRacine: (éléments: statutMembreSansProtocoles[]) => Promise<void>) => {
+      const fFinaleDispositifs = (dispositifs: statutDispositif[]) => {
+        const membres: { [key: string]: statutMembreSansProtocoles} = {};
+  
+        for (const d of dispositifs) {
+          const { idCompte } = d.infoDispositif;
+          if (!membres[idCompte]) {
+            membres[idCompte] = {
+              infoMembre: {
+                idBdCompte: idCompte,
+                dispositifs: [],
+              },
+            };
+          }
+          const { infoMembre, vuÀ } = membres[idCompte];
+          infoMembre.dispositifs.push(d.infoDispositif);
+          membres[idCompte].vuÀ = vuÀ
+            ? d.vuÀ
+              ? Math.max(vuÀ, d.vuÀ)
+              : vuÀ
+            : d.vuÀ;
         }
-        const { infoMembre, vuÀ } = membres[idCompte];
-        infoMembre.dispositifs.push(d.infoDispositif);
-        membres[idCompte].vuÀ = vuÀ
-          ? d.vuÀ
-            ? Math.max(vuÀ, d.vuÀ)
-            : vuÀ
-          : d.vuÀ;
-      }
-      f(Object.values(membres));
-    };
+        fSuivreRacine(Object.values(membres));
+      };
+      return await this.suivreConnexionsDispositifs({ f: fFinaleDispositifs });
+    }
 
-    return await this.suivreConnexionsDispositifs({ f: fFinale });
+    const fBranche = async (id: string, fSuivreBranche: schémaFonctionSuivi<statutMembre>, branche: statutMembreSansProtocoles): Promise<schémaFonctionOublier> => {
+      return await this.suivreProtocolesMembre({
+        idCompte: id,
+        f: protocoles => {
+          fSuivreBranche({
+            infoMembre: {
+              ...branche.infoMembre,
+              protocoles
+            },
+            vuÀ: branche.vuÀ,
+          })
+        }
+      })
+    }
+
+    return await this.client.suivreBdsDeFonctionListe({
+      fListe,
+      f,
+      fBranche,
+      fIdBdDeBranche: (x: statutMembreSansProtocoles) => x.infoMembre.idBdCompte,
+      fCode: (x: statutMembreSansProtocoles) => x.infoMembre.idBdCompte,
+    })
+  }
+
+  @cacheSuivi
+  async suivreProtocolesMembre({
+    idCompte,
+    f,
+  }: {
+    idCompte: string;
+    f: schémaFonctionSuivi<string[]>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreProtocolesCompte({
+      idCompte,
+      f
+    })
   }
 
   @cacheSuivi
@@ -2464,12 +2513,12 @@ export default class Réseau extends EventEmitter {
       }>,
       branche: ÉlémentFavoris & { idObjet: string; idBdCompte: string }
     ): Promise<schémaFonctionOublier> => {
-      const fSuivreMembre = (dispositifs: string[]) => {
+      const fSuivreDispositifsMembre = (dispositifs: string[]) => {
         fSuivreBranche({ favoris: branche, dispositifs });
       };
 
       const fOublierDispositifsMembre = await this.client.suivreDispositifs({
-        f: fSuivreMembre,
+        f: fSuivreDispositifsMembre,
         idBdCompte: id,
       });
 

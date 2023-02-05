@@ -163,6 +163,8 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
     const estAutorisé = await this.estAutorisé(entry.identity.id);
 
     if (estAutorisé) {
+      // Pour implémenter la révocation des permissions, garder compte ici
+      // des entrées approuvées par utilisatrice
       return await vraiSiSigValide();
     }
     return false;
@@ -262,6 +264,9 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
   }
 
   async revoke(rôle: typeof rôles[number], id: string): Promise<void> {
+    // Pour implémenter la révocation des permissions, ajouter une
+    // mention des modifications déjà autorisées par la personne nouvellement
+    // bloquée
     const élément = this.bd!.iterator({ limit: -1 })
       .collect()
       .find(

@@ -126,6 +126,7 @@ typesClients.forEach((type) => {
               const identitéOrbite = await clients[i].obtIdentitéOrbite();
               réfRés.push({
                 idBdCompte: idsBdCompte[i],
+                protocoles: [],
                 dispositifs: [
                   {
                     idSFIP: idsNodesSFIP[i],
@@ -779,7 +780,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre comptes réseau", function () {
+      describe("Suivre comptes réseau", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let moiMême: infoMembreRéseau;
@@ -1806,6 +1807,8 @@ typesClients.forEach((type) => {
           const val = await résImage.attendreExiste();
           expect(val).toEqual(new Uint8Array(IMAGE));
         });
+
+        test.todo("Protocoles détectés");
       });
 
       describe.skip("Suivre mots-clefs", function () {
