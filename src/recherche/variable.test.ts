@@ -1,7 +1,7 @@
 import { config } from "@/utilsTests/sfipTest.js";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,

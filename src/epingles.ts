@@ -1,4 +1,4 @@
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import {
   schémaFonctionOublier,
   élémentsBd,

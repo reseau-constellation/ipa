@@ -3,7 +3,7 @@ import isArray from "lodash/isArray";
 import { isElectronMain, isNode } from "wherearewe";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 

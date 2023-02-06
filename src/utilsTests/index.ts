@@ -15,7 +15,7 @@ import fs from "fs";
 import os from "os";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import ClientConstellation from "@/client.js";
 import générerMandataireProc from "@/mandataire/ipaProc.js";
 import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";

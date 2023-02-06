@@ -7,7 +7,7 @@ import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
 import {

@@ -1,6 +1,6 @@
 import { config } from "@/utilsTests/sfipTest.js";
 
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import type { statutMembre } from "@/reseau.js";
 import type {
   schémaFonctionOublier,

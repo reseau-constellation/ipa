@@ -13,7 +13,7 @@ import {
   infoRésultatVide,
   résultatRecherche,
 } from "@/utils/index.js";
-import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 import type FeedStore from "orbit-db-feedstore";
 import type KeyValueStore from "orbit-db-kvstore";

@@ -1,5 +1,5 @@
 {
-  "extends": "aegir/src/config/tsconfig.aegir.json",
+  // "extends": "aegir/src/config/tsconfig.aegir.json",
   "compilerOptions": {
     "baseUrl": ".",
     "declaration": true,
@@ -27,6 +27,7 @@
 
     "skipLibCheck": true,
     "experimentalDecorators": true,
+    "importsNotUsedAsValues": "remove",
 
     "plugins": [
       { "transform": "typescript-transform-paths" },

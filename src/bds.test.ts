@@ -6,7 +6,7 @@ import AdmZip from "adm-zip";
 import isArray from "lodash/isArray";
 import isSet from "lodash/isSet";
 
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,

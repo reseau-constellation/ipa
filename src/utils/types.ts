@@ -1,5 +1,5 @@
 import type { objRôles } from "@/accès/types.js";
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 
 export interface infoAuteur {
   idBdCompte: string;

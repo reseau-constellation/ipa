@@ -10,7 +10,7 @@ import accesseurBdOrbite from "@/accès/accesseurBdOrbite.js";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, objRôles } from "@/accès/types.js";
 
-import type ContrôleurConstellation from "./cntrlConstellation.js";
+import type { default as ContrôleurConstellation } from "./cntrlConstellation.js";
 
 const événementsSuiviBd = ["ready", "write", "replicated"];
 

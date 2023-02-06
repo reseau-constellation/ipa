@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts.js";
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,

@@ -1,7 +1,7 @@
 import type KeyValueStore from "orbit-db-kvstore";
 import { isNode, isElectron } from "wherearewe";
 
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 

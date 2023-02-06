@@ -12,7 +12,6 @@ import mergeOptions from 'merge-options'
 import type { IPFS } from "ipfs";
 
 const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
-  console.log({isBrowser, isWebWorker, isElectronRenderer, isElectronMain, isElectron})
   if (isBrowser || isElectronRenderer ) {
     const configNavigateur = await import("@/sfip/configNavigateur.js")
     return configNavigateur.default;

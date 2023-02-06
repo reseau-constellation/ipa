@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 

@@ -8,7 +8,7 @@ import type {
 import type { objRôles } from "@/accès/types.js";
 
 import ClientConstellation from "@/client.js";
-import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 type typeÉlémentsBdMotClef = string;

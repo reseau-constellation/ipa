@@ -25,7 +25,7 @@ import {
   faisRien,
 } from "@/utils/index.js";
 import type { objRôles } from "@/accès/types.js";
-import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type { default as ContrôleurConstellation} from "@/accès/cntrlConstellation.js";
 
 export interface schémaSpécificationBd {
   licence: string;

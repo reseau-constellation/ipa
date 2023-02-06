@@ -6,7 +6,7 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import { isNode, isElectronMain } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 
-import type ClientConstellation from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,

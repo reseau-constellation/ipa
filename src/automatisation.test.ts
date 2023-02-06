@@ -8,7 +8,7 @@ import rmrf from "rimraf";
 import { jest } from "@jest/globals";
 import url from "url";
 
-import type ClientConstellation from "@/client.js";
+import type {default as ClientConstellation} from "@/client.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import {
   uneFois,

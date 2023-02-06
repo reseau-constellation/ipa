@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
-import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 import type OrbitDB from "orbit-db";
 import type KeyValueStore from "orbit-db-kvstore";
