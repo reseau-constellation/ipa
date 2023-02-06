@@ -67,6 +67,7 @@ specifiers:
   keyv: ^4.5.2
   libp2p: ^0.42.2
   lodash: ^4.17.21
+  merge-options: ^3.0.4
   multiformats: 9.9.0
   orbit-db: ^0.29.0
   orbit-db-access-controllers: ^0.4.0
@@ -119,6 +120,7 @@ dependencies:
   it-to-buffer: 3.0.0
   jszip: 3.10.1
   lodash: 4.17.21
+  merge-options: 3.0.4
   multiformats: 9.9.0
   orbit-db: 0.29.0_rkbavwgqlwz6cwyhpfbc5ee27q
   orbit-db-access-controllers: 0.4.0_rkbavwgqlwz6cwyhpfbc5ee27q
@@ -8076,6 +8078,7 @@ packages:
       chalk: 2.4.2
       diff-match-patch: 1.0.5
     dev: false
+    bundledDependencies: []
 
   /jsonfile/2.4.0:
     resolution: {integrity: sha512-PKllAqbgLgxHaj8TElYymKCAgrASebJrWpTnEkOaTowt23VKXXN0sUeriJ+eh7y6ufb/CC5ap11pz71/cM0hUw==}

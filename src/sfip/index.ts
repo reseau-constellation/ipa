@@ -3,17 +3,11 @@ import {
   isElectronRenderer,
   isWebWorker,
 } from "wherearewe";
-import { webRTCStar } from '@libp2p/webrtc-star'
 import { mplex } from '@libp2p/mplex'
 import { create,  } from "ipfs";
-import wrtc from "wrtc";
 import { noise } from "@chainsafe/libp2p-noise";
-import merge from "deepmerge";
+import mergeOptions from 'merge-options'
 import type { IPFS } from "ipfs";
-
-const webRTC = webRTCStar({
-  wrtc
-})
 
 const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
   if (isBrowser || isElectronRenderer || isWebWorker ) {
@@ -29,15 +23,6 @@ const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
 const obtConfigCommun = (): Parameters<typeof create>[0] => {
   return {
     libp2p: {
-      // connectionManager: {
-       // autoDial: false, Essayer sans ça à nouveau
-      // },
-      transports: [
-        webRTC.transport
-      ],
-      peerDiscovery: [
-        webRTC.discovery
-      ],
       streamMuxers: [
         mplex()
       ],
@@ -60,7 +45,7 @@ export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
 
   config.repo = dir;
 
-  const configFinale: Parameters<typeof create>[0] = merge(config, configPlateforme);
+  const configFinale: Parameters<typeof create>[0] = mergeOptions(config, configPlateforme);
 
   return create(configFinale)
 }
