@@ -5,7 +5,7 @@ import { create } from "ipfs";
 const webRTC = webRTCStar()
 const config: Parameters<typeof create>[0] = {
   libp2p: {
-    transports: [webRTC.transport, webSockets(), webRTCDirect()],
+    transports: [webRTC.transport, webRTCDirect()],
     peerDiscovery: [webRTC.discovery]
   }
 };
