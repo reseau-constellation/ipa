@@ -5,7 +5,7 @@ import { create } from "ipfs";
 
 const config: Parameters<typeof create>[0] = {
   libp2p: {
-    transports: [webRTCStar, webSockets, webRTCDirect],
+    transports: [webRTCStar(), webSockets(), webRTCDirect()],
   }
 };
 export default config

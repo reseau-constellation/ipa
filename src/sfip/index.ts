@@ -11,10 +11,10 @@ import type { IPFS } from "ipfs";
 
 const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
   if (isBrowser || isElectronRenderer || isWebWorker ) {
-    const configNavigateur = await import("./configNavigateur.js")
+    const configNavigateur = await import("@/sfip/configNavigateur.js")
     return configNavigateur.default;
   } else {
-    const configNode = await import("./configNode.js");
+    const configNode = await import("@/sfip/configNode.js");
     return configNode.default;
   }
 };
