@@ -99,7 +99,6 @@
     "chokidar": "^3.5.3",
     "crypto-js": "^4.1.1",
     "deep-equal": "^2.2.0",
-    "deepmerge": "^4.3.0",
     "file-saver": "^2.0.5",
     "genversion": "^3.1.1",
     "geojson-validation": "^1.0.2",

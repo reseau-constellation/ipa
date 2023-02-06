@@ -43,7 +43,6 @@ specifiers:
   cross-env: ^7.0.3
   crypto-js: ^4.1.1
   deep-equal: ^2.2.0
-  deepmerge: ^4.3.0
   electron: ^22.2.0
   eslint: ^8.33.0
   eslint-config-airbnb-base: ^15.0.0
@@ -110,7 +109,6 @@ dependencies:
   chokidar: 3.5.3
   crypto-js: 4.1.1
   deep-equal: 2.2.0
-  deepmerge: 4.3.0
   file-saver: 2.0.5
   genversion: 3.1.1
   geojson-validation: 1.0.2
@@ -6598,6 +6596,7 @@ packages:
   /deepmerge/4.3.0:
     resolution: {integrity: sha512-z2wJZXrmeHdvYJp/Ux55wIjqo81G5Bp4c+oELTW+7ar6SogWHajt5a9gO3s3IDaGSAXjDk0vlQKN3rms8ab3og==}
     engines: {node: '>=0.10.0'}
+    dev: true
 
   /default-gateway/6.0.3:
     resolution: {integrity: sha512-fwSOJsbbNzZ/CUFpqFBqYfYNLj1NbMPm8MMCIzHjC83iSJRBEGmDUxU+WP661BaBQImeC2yHwXtz+P/O9o+XEg==}
