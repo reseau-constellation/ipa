@@ -290,7 +290,6 @@ export default class Réseau extends EventEmitter {
     if (idSFIP) {
       msg.destinataire = idSFIP;
     }
-    console.log("envoyé", msg)
     const sujet = this.client.sujet_réseau;
 
     const msgBinaire = Buffer.from(JSON.stringify(msg));
@@ -410,7 +409,6 @@ export default class Réseau extends EventEmitter {
     if (this._fermé) return;
 
     const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
-    console.log("reçu", messageJSON)
     const { encrypté, destinataire } = messageJSON;
 
     if (destinataire && destinataire !== obtChaîneIdSFIPClient(this.client))
