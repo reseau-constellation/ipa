@@ -263,12 +263,12 @@ export default class Réseau extends EventEmitter {
       "peer:disconnect",
     ];
     for (const é of événements) {
-      libp2p.connectionManager.addEventListener(é, fSuivreConnexions);
+      libp2p.addEventListener(é, fSuivreConnexions);
     }
     this.fsOublier.push(
       ...événements.map((é) => {
         return async () =>
-          libp2p.connectionManager.removeEventListener(é, fSuivreConnexions);
+          libp2p.removeEventListener(é, fSuivreConnexions);
       })
     );
 
