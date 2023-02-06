@@ -1,6 +1,8 @@
 import {
   isBrowser,
   isElectronRenderer,
+  isElectronMain,
+  isElectron,
   isWebWorker,
 } from "wherearewe";
 import { mplex } from '@libp2p/mplex'
@@ -10,9 +12,13 @@ import mergeOptions from 'merge-options'
 import type { IPFS } from "ipfs";
 
 const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
-  if (isBrowser || isElectronRenderer || isWebWorker ) {
+  console.log({isBrowser, isWebWorker, isElectronRenderer, isElectronMain, isElectron})
+  if (isBrowser || isElectronRenderer ) {
     const configNavigateur = await import("@/sfip/configNavigateur.js")
     return configNavigateur.default;
+  } else if (isWebWorker) {
+    const configTravailleurWeb = await import("@/sfip/configTravailleur.js");
+    return configTravailleurWeb.default;
   } else {
     const configNode = await import("@/sfip/configNode.js");
     return configNode.default;
@@ -28,10 +34,7 @@ const obtConfigCommun = (): Parameters<typeof create>[0] => {
       ],
       connectionEncryption: [
         noise()
-      ],
-      addresses: {
-        listen: ["/dns4/arcane-springs-02799.herokuapp.com/tcp/443/wss/p2p-webrtc-star/"]
-      },
+      ]
     },
     relay: { enabled: true, hop: { enabled: true, active: true } },
   }

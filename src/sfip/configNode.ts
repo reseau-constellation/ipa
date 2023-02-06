@@ -5,6 +5,7 @@ import wrtc from "wrtc";
 
 import { kadDHT} from "@libp2p/kad-dht"
 import type { create } from "ipfs";
+import { ADRESSES_WEBRTC_STAR } from "./const.js";
 const webRTC = webRTCStar({
     wrtc
   })
@@ -16,6 +17,9 @@ const config: Parameters<typeof create>[0] = {
         transports: [webSockets(), webRTC.transport, webRTCDirect()],
         peerDiscovery: [webRTC.discovery],
         dht: kadDHT(),
+      addresses: {
+        listen: ADRESSES_WEBRTC_STAR
+      },
     }
 };
 
