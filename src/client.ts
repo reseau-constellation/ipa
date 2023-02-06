@@ -50,6 +50,7 @@ import ContrôleurConstellation, {
 } from "@/accès/cntrlConstellation.js";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
+import stockageLocal from "@/stockageLocal.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -149,13 +150,19 @@ export default class ClientConstellation extends EventEmitter {
       nom: "racine",
     };
 
-    this.idBdCompte = this._opts.compte;
+    this.idBdCompte = this._opts.compte || (await obtStockageLocal(this._opts.dossierStockageLocal)).getItem(
+      "idBdCompte"
+    );
     if (!this.idBdCompte) {
       this.idBdCompte = await this.créerBdIndépendante({
         type: "kvstore",
         optionsAccès: optionsAccèsRacine,
         nom: "racine",
       });
+      (await obtStockageLocal(this._opts.dossierStockageLocal)).setItem(
+        "idBdCompte",
+        this.idBdCompte
+      );
     }
     this.épingles = new Épingles({ client: this });
     this._oublierNettoyageBdsOuvertes = this._lancerNettoyageBdsOuvertes();
@@ -400,7 +407,7 @@ export default class ClientConstellation extends EventEmitter {
     const maintenant = Date.now();
 
     const requèteValide =
-      (this.motsDePasseRejoindreCompte[codeSecret] || -Infinity) - maintenant <
+      (maintenant - (this.motsDePasseRejoindreCompte[codeSecret] || -Infinity)) <
       DÉLAI_EXPIRATION_INVITATIONS;
 
     if (requèteValide) {
@@ -467,6 +474,7 @@ export default class ClientConstellation extends EventEmitter {
 
     // Là on peut y aller
     this.idBdCompte = idBdCompte;
+    await this.sauvegarderAuStockageLocal({ clef: "idBdCompte", val: idBdCompte})
     await this.fermerCompte();
     await this.initialiserCompte();
     this.emit("compteChangé");
