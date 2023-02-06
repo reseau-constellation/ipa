@@ -1,14 +1,14 @@
-import KeyValueStore from "orbit-db-kvstore";
-import FeedStore from "orbit-db-feedstore";
-import { ImportCandidate } from "ipfs-core-types/src/utils";
+import type KeyValueStore from "orbit-db-kvstore";
+import type FeedStore from "orbit-db-feedstore";
+import type { ImportCandidate } from "ipfs-core-types/src/utils";
 
 import { WorkBook, BookType, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
 import ClientConstellation from "@/client.js";
-import { objRôles } from "@/accès/types.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type { objRôles } from "@/accès/types.js";
+import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import {
   traduire,

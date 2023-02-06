@@ -1,4 +1,4 @@
-import { optsConstellation } from "@/client.js";
+import type { optsConstellation } from "@/client.js";
 
 import {
   générerMandataire,
@@ -6,7 +6,7 @@ import {
   MandataireClientConstellation,
 } from "@constl/mandataire";
 
-import {
+import type {
   MessageDeTravailleur,
   MessagePourTravailleur,
 } from "@/mandataire/messages.js";

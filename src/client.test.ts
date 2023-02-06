@@ -13,8 +13,8 @@ import {
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
-import FeedStore from "orbit-db-feedstore";
-import KeyValueStore from "orbit-db-kvstore";
+import type FeedStore from "orbit-db-feedstore";
+import type KeyValueStore from "orbit-db-kvstore";
 
 import {
   générerClients,

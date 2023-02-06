@@ -1,6 +1,6 @@
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
-import {
+import type ClientConstellation from "@/client.js";
+import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,

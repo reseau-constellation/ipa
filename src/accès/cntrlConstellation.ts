@@ -1,8 +1,8 @@
 import AccessControllers from "orbit-db-access-controllers";
 
 import OrbitDB from "orbit-db";
-import FeedStore from "orbit-db-feedstore";
-import { IdentityProvider } from "orbit-db-identity-provider";
+import type FeedStore from "orbit-db-feedstore";
+import type { IdentityProvider } from "orbit-db-identity-provider";
 import { v4 as uuidv4 } from "uuid";
 
 import type {

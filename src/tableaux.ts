@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { WorkBook, utils } from "xlsx";
-import FeedStore from "orbit-db-feedstore";
-import KeyValueStore from "orbit-db-kvstore";
+import type FeedStore from "orbit-db-feedstore";
+import type KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
 import ClientConstellation from "@/client.js";
@@ -14,7 +14,7 @@ import {
   élémentsBd,
 } from "@/utils/index.js";
 
-import { donnéesBdExportées } from "@/bds.js";
+import type { donnéesBdExportées } from "@/bds.js";
 import {
   erreurValidation,
   erreurRègle,
@@ -32,7 +32,7 @@ import {
   erreurRègleBornesVariableNonPrésente,
   erreurRègleCatégoriqueColonneInexistante,
 } from "@/valid.js";
-import { catégorieVariables } from "@/variables.js";
+import type { catégorieVariables } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 export type élémentBdListeDonnées = {

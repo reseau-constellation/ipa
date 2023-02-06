@@ -1,10 +1,10 @@
-import FeedStore from "orbit-db-feedstore";
-import KeyValueStore from "orbit-db-kvstore";
+import type FeedStore from "orbit-db-feedstore";
+import type KeyValueStore from "orbit-db-kvstore";
 import { v4 as uuidv4 } from "uuid";
 
 import ClientConstellation from "@/client.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import { règleVariableAvecId, règleVariable, règleCatégorie } from "@/valid.js";
+import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type { règleVariableAvecId, règleVariable, règleCatégorie } from "@/valid.js";
 
 import type { objRôles } from "@/accès/types.js";
 import type { dicTrads } from "@/utils/types.js";

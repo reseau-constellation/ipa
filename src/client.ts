@@ -1,16 +1,16 @@
-import { IPFS as SFIP } from "ipfs-core";
-import { IDResult } from "ipfs-core-types/src/root";
-import { ImportCandidate } from "ipfs-core-types/src/utils";
+import type { IPFS as SFIP } from "ipfs-core";
+import type { IDResult } from "ipfs-core-types/src/root";
+import type { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
 import crypto from "crypto";
 
 import OrbitDB from "orbit-db";
-import Store from "orbit-db-store";
-import FeedStore from "orbit-db-feedstore";
-import KeyValueStore from "orbit-db-kvstore";
+import type Store from "orbit-db-store";
+import type FeedStore from "orbit-db-feedstore";
+import type KeyValueStore from "orbit-db-kvstore";
 
-import AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
-import IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
+import type AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
+import type IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -28,7 +28,7 @@ import Projets from "@/projets.js";
 import MotsClefs from "@/motsClefs.js";
 import Nuées from "@/nuée.js";
 import Recherche from "@/recherche/index.js";
-import { ContenuMessageRejoindreCompte } from "@/reseau.js";
+import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import Automatisations from "@/automatisation.js";
 
 import { cacheSuivi } from "@/décorateursCache.js";

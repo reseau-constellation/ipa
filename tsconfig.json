@@ -1,6 +1,6 @@
 {
+  "extends": "aegir/src/config/tsconfig.aegir.json",
   "compilerOptions": {
-    "allowJs": false,
     "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
@@ -33,5 +33,5 @@
       { "transform": "typescript-transform-paths", "afterDeclarations": true }
     ]
   },
-  "include": ["src", "@types"]
+  "include": ["src", "@types", "test"]
 }

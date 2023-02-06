@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts.js";
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
@@ -11,8 +11,8 @@ import {
   uneFois,
   infoAuteur,
 } from "@/utils/index.js";
-import { ÉlémentFavorisAvecObjet } from "@/favoris.js";
-import {
+import type { ÉlémentFavorisAvecObjet } from "@/favoris.js";
+import type {
   élémentDeMembre,
   statutDispositif,
   infoBloqué,
@@ -23,8 +23,8 @@ import {
   infoMembreRéseau,
   infoRéplications,
 } from "@/reseau.js";
-import { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
-import { élémentBdListeDonnées } from "@/tableaux.js";
+import type { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
+import type { élémentBdListeDonnées } from "@/tableaux.js";
 
 import {
   AttendreRésultat,

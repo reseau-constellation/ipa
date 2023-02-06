@@ -1,13 +1,13 @@
 import isArray from "lodash/isArray";
 
-import XLSX from "xlsx";
+import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
 import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
 import {

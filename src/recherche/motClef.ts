@@ -1,5 +1,5 @@
-import ClientConstellation from "@/client.js";
-import {
+import type ClientConstellation from "@/client.js";
+import type {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,

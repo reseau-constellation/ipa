@@ -1,4 +1,4 @@
-import { Controller } from "ipfsd-ctl";
+import type { Controller } from "ipfsd-ctl";
 import { connectPeers } from "@/utilsTests/orbitDbTestUtils.js";
 import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfipTest.js";
 import { EventEmitter } from "events";
@@ -8,18 +8,18 @@ import path from "path";
 import rmrf from "rimraf";
 import { v4 as uuidv4 } from "uuid";
 import OrbitDB from "orbit-db";
-import Store from "orbit-db-store";
-import KeyValueStore from "orbit-db-kvstore";
-import FeedStore from "orbit-db-feedstore";
+import type Store from "orbit-db-store";
+import type KeyValueStore from "orbit-db-kvstore";
+import type FeedStore from "orbit-db-feedstore";
 import fs from "fs";
 import os from "os";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import ClientConstellation from "@/client.js";
 import générerMandataireProc from "@/mandataire/ipaProc.js";
 import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";
-import { statutDispositif } from "@/reseau.js";
+import type { statutDispositif } from "@/reseau.js";
 
 export * from "@/utilsTests/sfipTest.js";
 

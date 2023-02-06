@@ -1,10 +1,10 @@
 import { EventEmitter } from "events";
-import OrbitDB from "orbit-db";
-import identityProvider from "orbit-db-identity-provider";
+import type OrbitDB from "orbit-db";
+import type identityProvider from "orbit-db-identity-provider";
 
 import GestionnaireAccès from "@/accès/gestionnaireUtilisateurs.js";
 import { MODÉRATEUR, rôles } from "@/accès/consts.js";
-import { élémentBdAccès } from "@/accès/types.js";
+import type { élémentBdAccès } from "@/accès/types.js";
 
 const type = "controlleur-accès-constellation";
 

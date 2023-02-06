@@ -2,8 +2,8 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 import crypto from "crypto";
 
-import { itemRechercheProfondeur } from "@/reseau.js";
-import {
+import type { itemRechercheProfondeur } from "@/reseau.js";
+import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParN,

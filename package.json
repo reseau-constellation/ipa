@@ -4,8 +4,8 @@
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
   "type": "module",
-  "types": "./dist/index.d.ts",
-  "exports": "./dist/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": "./dist/src/index.js",
   "engines": {
     "node": ">=16"
   },
@@ -15,6 +15,7 @@
     "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
     "test:proc": "env MANDATAIRE=PROC pnpm test",
     "test:tous": "env MANDATAIRE=TOUS pnpm test",
+    "test:aegir": "env MANDATAIRE=TOUS pnpm aegir test",
     "couverture": "pnpm test -- --coverage",
     "couverture:tous": "pnpm test:tous -- --coverage --bail",
     "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint --ext .js,.ts src",
@@ -48,6 +49,7 @@
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "^5.50.0",
+    "aegir": "^38.1.0",
     "bmp-js": "^0.1.0",
     "canvas": "^2.11.0",
     "core-js": "^3.27.2",

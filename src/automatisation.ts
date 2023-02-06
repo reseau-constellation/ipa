@@ -1,12 +1,12 @@
 import { EventEmitter } from "events";
-import FeedStore from "orbit-db-feedstore";
+import type FeedStore from "orbit-db-feedstore";
 import * as XLSX from "xlsx";
 import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 import { isNode, isElectronMain } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,

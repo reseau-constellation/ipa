@@ -1,4 +1,4 @@
-import XLSX from "xlsx";
+import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
 import rmrf from "rimraf";
@@ -6,17 +6,17 @@ import AdmZip from "adm-zip";
 import isArray from "lodash/isArray";
 import isSet from "lodash/isSet";
 
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   adresseOrbiteValide,
   uneFois,
 } from "@/utils/index.js";
-import { InfoColAvecCatégorie } from "@/tableaux.js";
-import { infoScore, schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
-import { élémentBdListeDonnées } from "@/tableaux.js";
-import { élémentDonnées, règleBornes } from "@/valid.js";
+import type { InfoColAvecCatégorie } from "@/tableaux.js";
+import type { infoScore, schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
+import type { élémentBdListeDonnées } from "@/tableaux.js";
+import type { élémentDonnées, règleBornes } from "@/valid.js";
 
 import {
   générerClients,

@@ -1,8 +1,8 @@
 import { config } from "@/utilsTests/sfipTest.js";
 
-import ClientConstellation from "@/client.js";
-import { statutMembre } from "@/reseau.js";
-import {
+import type ClientConstellation from "@/client.js";
+import type { statutMembre } from "@/reseau.js";
+import type {
   schémaFonctionOublier,
   résultatRecherche,
   infoRésultat,

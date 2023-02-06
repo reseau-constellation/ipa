@@ -1,7 +1,7 @@
-import KeyValueStore from "orbit-db-kvstore";
+import type KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
-import { PeersResult } from "ipfs-core-types/src/swarm";
+import type { PeersResult } from "ipfs-core-types/src/swarm";
 import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";
 import type { Libp2p } from "libp2p";
 import type { ConnectionManagerEvents } from "@libp2p/interface-connection-manager";
@@ -26,14 +26,14 @@ import {
   résultatRecherche,
   faisRien,
 } from "@/utils/index.js";
-import { infoScore } from "@/bds.js";
-import { élémentBdListeDonnées } from "@/tableaux.js";
-import {
+import type { infoScore } from "@/bds.js";
+import type { élémentBdListeDonnées } from "@/tableaux.js";
+import type {
   ÉlémentFavoris,
   ÉlémentFavorisAvecObjet,
   épingleDispositif,
 } from "@/favoris.js";
-import { erreurValidation, élémentDonnées } from "@/valid.js";
+import type { erreurValidation, élémentDonnées } from "@/valid.js";
 import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
 import {

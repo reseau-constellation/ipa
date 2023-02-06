@@ -8,14 +8,14 @@ import rmrf from "rimraf";
 import { jest } from "@jest/globals";
 import url from "url";
 
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import {
   uneFois,
   schémaFonctionSuivi,
   schémaFonctionOublier,
 } from "@/utils/index.js";
-import {
+import type {
   SpécificationAutomatisation,
   SourceDonnéesImportationURL,
   SourceDonnéesImportationFichier,
@@ -26,8 +26,8 @@ import {
   ÉtatProgrammée,
   ÉtatEnSync,
 } from "@/automatisation.js";
-import { élémentDonnées } from "@/valid.js";
-import { élémentBdListeDonnées } from "@/tableaux.js";
+import type { élémentDonnées } from "@/valid.js";
+import type { élémentBdListeDonnées } from "@/tableaux.js";
 
 import {
   générerClients,

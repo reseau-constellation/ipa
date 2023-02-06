@@ -13,13 +13,13 @@ import {
   infoRésultatVide,
   résultatRecherche,
 } from "@/utils/index.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
-import FeedStore from "orbit-db-feedstore";
-import KeyValueStore from "orbit-db-kvstore";
+import type FeedStore from "orbit-db-feedstore";
+import type KeyValueStore from "orbit-db-kvstore";
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
-import { objRôles } from "@/accès/types.js";
-import {
+import type { objRôles } from "@/accès/types.js";
+import type {
   différenceBds,
   différenceBDTableauManquant,
   différenceBDTableauSupplémentaire,
@@ -28,15 +28,15 @@ import {
   infoTableauAvecId,
 } from "@/bds";
 import { v4 as uuidv4 } from "uuid";
-import {
+import type {
   erreurValidation,
   élémentDonnées,
   règleVariable,
   règleColonne,
 } from "@/valid";
-import { élémentDeMembreAvecValid } from "@/reseau";
-import { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
-import {
+import type { élémentDeMembreAvecValid } from "@/reseau";
+import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
+import type {
   différenceTableaux,
   InfoCol,
   InfoColAvecCatégorie,

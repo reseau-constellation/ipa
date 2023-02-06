@@ -6,9 +6,9 @@ import * as variable from "@/recherche/variable.js";
 import * as nuée from "@/recherche/nuée.js";
 import * as utils from "@/recherche/utils.js";
 
-import ClientConstellation from "@/client.js";
-import { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
-import {
+import type ClientConstellation from "@/client.js";
+import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
+import type {
   schémaFonctionSuivi,
   résultatRecherche,
   infoRésultatRecherche,

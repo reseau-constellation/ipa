@@ -1,14 +1,14 @@
-import FeedStore from "orbit-db-feedstore";
-import KeyValueStore from "orbit-db-kvstore";
+import type FeedStore from "orbit-db-feedstore";
+import type KeyValueStore from "orbit-db-kvstore";
 
 import type {
   schémaFonctionSuivi,
   schémaFonctionOublier,
 } from "@/utils/index.js";
-import { objRôles } from "@/accès/types.js";
+import type { objRôles } from "@/accès/types.js";
 
 import ClientConstellation from "@/client.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 type typeÉlémentsBdMotClef = string;

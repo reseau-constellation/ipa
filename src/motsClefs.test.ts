@@ -1,8 +1,8 @@
 import isArray from "lodash/isArray";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
-import { schémaFonctionOublier } from "@/utils/index.js";
+import type ClientConstellation from "@/client.js";
+import type { schémaFonctionOublier } from "@/utils/index.js";
 
 import {
   AttendreRésultat,

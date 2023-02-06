@@ -3,9 +3,9 @@ import isArray from "lodash/isArray";
 import { isElectronMain, isNode } from "wherearewe";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
-import { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
-import { schémaFonctionOublier } from "@/utils/index.js";
+import type ClientConstellation from "@/client.js";
+import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
+import type { schémaFonctionOublier } from "@/utils/index.js";
 
 import { générerClients, typesClients } from "@/utilsTests/index.js";
 import { config } from "@/utilsTests/sfipTest.js";

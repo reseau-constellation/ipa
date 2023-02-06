@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { élémentsBd } from "@/utils/index.js";
+import type { élémentsBd } from "@/utils/index.js";
 import {
   validerCatégorieVal,
   générerFonctionRègle,
@@ -10,7 +10,7 @@ import {
   règleValeurCatégorique,
   typeOp,
 } from "@/valid.js";
-import { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
+import type { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
 import isArray from "lodash/isArray";
 
 const catégories: {

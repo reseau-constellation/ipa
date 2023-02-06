@@ -4,7 +4,7 @@ import { webRTCDirect } from "@libp2p/webrtc-direct";
 import wrtc from "wrtc";
 
 import { kadDHT} from "@libp2p/kad-dht"
-import { create } from "ipfs";
+import type { create } from "ipfs";
 const webRTC = webRTCStar({
     wrtc
   })

@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-import ClientConstellation from "@/client.js";
-import {
+import type ClientConstellation from "@/client.js";
+import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,

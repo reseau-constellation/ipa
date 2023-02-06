@@ -1,9 +1,9 @@
 import isArray from "lodash/isArray";
 
-import ClientConstellation from "@/client.js";
-import { catégorieVariables } from "@/variables.js";
-import { schémaFonctionOublier } from "@/utils/index.js";
-import { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid.js";
+import type ClientConstellation from "@/client.js";
+import type { catégorieVariables } from "@/variables.js";
+import type { schémaFonctionOublier } from "@/utils/index.js";
+import type { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid.js";
 
 import {
   générerClients,

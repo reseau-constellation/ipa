@@ -1,20 +1,20 @@
 import isArray from "lodash/isArray";
 
-import XLSX from "xlsx";
+import type XLSX from "xlsx";
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 import {
   schémaFonctionOublier,
   adresseOrbiteValide,
   élémentsBd,
 } from "@/utils/index.js";
 
-import {
+import type {
   InfoCol,
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
 } from "@/tableaux.js";
-import {
+import type {
   règleBornes,
   règleColonne,
   règleValeurCatégorique,

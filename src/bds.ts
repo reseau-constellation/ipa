@@ -1,6 +1,6 @@
-import FeedStore from "orbit-db-feedstore";
-import KeyValueStore from "orbit-db-kvstore";
-import { ImportCandidate } from "ipfs-core-types/src/utils";
+import type FeedStore from "orbit-db-feedstore";
+import type KeyValueStore from "orbit-db-kvstore";
+import type { ImportCandidate } from "ipfs-core-types/src/utils";
 
 import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
@@ -13,8 +13,8 @@ import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import { schémaStatut, TYPES_STATUT, élémentsBd } from "@/utils/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
-import { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
-import { élémentBdListeDonnées, différenceTableaux } from "@/tableaux.js";
+import type { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
+import type { élémentBdListeDonnées, différenceTableaux } from "@/tableaux.js";
 import ClientConstellation from "@/client.js";
 import {
   traduire,
@@ -24,8 +24,8 @@ import {
   uneFois,
   faisRien,
 } from "@/utils/index.js";
-import { objRôles } from "@/accès/types.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type { objRôles } from "@/accès/types.js";
+import type ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 export interface schémaSpécificationBd {
   licence: string;

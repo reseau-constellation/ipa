@@ -1,8 +1,8 @@
-import KeyValueStore from "orbit-db-kvstore";
-import { ImportCandidate } from "ipfs-core-types/src/utils";
+import type KeyValueStore from "orbit-db-kvstore";
+import type { ImportCandidate } from "ipfs-core-types/src/utils";
 
-import ClientConstellation from "@/client.js";
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
+import type ClientConstellation from "@/client.js";
+import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
