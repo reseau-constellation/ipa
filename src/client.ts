@@ -70,7 +70,6 @@ export interface optsConstellation {
   compte?: string;
   sujetRéseau?: string;
   orbite?: optsOrbite;
-  dossierStockageLocal?: string;
 }
 
 type optsOrbite = OrbitDB | optsInitOrbite;
@@ -147,7 +146,6 @@ export default class ClientConstellation extends EventEmitter {
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = orbite;
-    if (!this._opts.dossierStockageLocal) this._opts.dossierStockageLocal = this.orbite.directory
 
     this.idNodeSFIP = await this.sfip!.id();
 
@@ -157,19 +155,17 @@ export default class ClientConstellation extends EventEmitter {
       nom: "racine",
     };
 
-    this.idBdCompte = this._opts.compte || (await obtStockageLocal(this._opts.dossierStockageLocal)).getItem(
-      "idBdCompte"
-    ) || undefined;
+    this.idBdCompte = this._opts.compte || await this.obtDeStockageLocal({clef: "idBdCompte", parCompte: false}) || undefined;
     if (!this.idBdCompte) {
       this.idBdCompte = await this.créerBdIndépendante({
         type: "kvstore",
         optionsAccès: optionsAccèsRacine,
         nom: "racine",
       });
-      (await obtStockageLocal(this._opts.dossierStockageLocal)).setItem(
-        "idBdCompte",
-        this.idBdCompte
-      );
+      await this.sauvegarderAuStockageLocal({
+        clef: "idBdCompte",
+        val: this.idBdCompte, parCompte: false,
+      });
     }
     this.épingles = new Épingles({ client: this });
     this._oublierNettoyageBdsOuvertes = this._lancerNettoyageBdsOuvertes();
@@ -205,12 +201,12 @@ export default class ClientConstellation extends EventEmitter {
         // Éviter d'importer la configuration BD Orbite si pas nécessaire
         const initOrbite = (await import("@/orbite.js")).default;
         sfipFinale = await _générerSFIP(orbite.sfip);
-        orbiteFinale = await initOrbite(sfipFinale, orbite.dossier);
+        orbiteFinale = await initOrbite({sfip: sfipFinale, dossierOrbite: orbite.dossier});
       }
     } else {
       sfipFinale = await _générerSFIP();
       const initOrbite = (await import("@/orbite.js")).default;
-      orbiteFinale = await initOrbite(sfipFinale);
+      orbiteFinale = await initOrbite({sfip: sfipFinale});
     }
 
     return { sfip: sfipFinale, orbite: orbiteFinale };
@@ -317,7 +313,6 @@ export default class ClientConstellation extends EventEmitter {
       idBdMotsClefs,
       idBdAuto,
     ]) {
-      console.log({idBd})
       await this.épingles!.épinglerBd({
         id: idBd,
         récursif: false,
@@ -494,7 +489,7 @@ export default class ClientConstellation extends EventEmitter {
 
     // Là on peut y aller
     this.idBdCompte = idBdCompte;
-    await this.sauvegarderAuStockageLocal({ clef: "idBdCompte", val: idBdCompte})
+    await this.sauvegarderAuStockageLocal({ clef: "idBdCompte", val: idBdCompte, parCompte: false})
     await this.fermerCompte();
     await this.initialiserCompte();
     this.emit("compteChangé");
@@ -748,6 +743,7 @@ export default class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<T>;
     événements?: string[];
   }): Promise<schémaFonctionOublier> {
+    if (!adresseOrbiteValide(id)) throw new Error(`Adresse "${id}" non valide.`);
     const fsOublier: schémaFonctionOublier[] = [];
     const promesses: { [clef: string]: Promise<void> | void } = {};
 
@@ -1552,42 +1548,50 @@ export default class ClientConstellation extends EventEmitter {
     return résultat.cid.toString();
   }
 
-  async obtDeStockageLocal({ clef }: { clef: string }): Promise<string | null> {
-    const clefClient = `${this.idBdCompte!.slice(
+  dossierOrbite(): string|undefined {
+    let dossierOrbite: string|undefined;
+    const optsOrbite = this._opts.orbite
+    if (optsOrbite instanceof OrbitDB) {
+      dossierOrbite = optsOrbite.directory;
+    } else {
+      dossierOrbite = optsOrbite?.dossier
+    }
+    return dossierOrbite
+  }
+
+  private obtClefStockageClient({ clef, parCompte=true }: { clef: string, parCompte?: boolean }): string {
+    return parCompte ? `${this.idBdCompte!.slice(
       this.idBdCompte!.length - 23,
       this.idBdCompte!.length - 8
-    )} : ${clef}`;
+    )} : ${clef}` : clef;
+  }
+
+  async obtDeStockageLocal({ clef, parCompte=true }: { clef: string, parCompte?: boolean }): Promise<string | null> {
+    const clefClient = this.obtClefStockageClient({clef, parCompte})
 
     return (
-      await obtStockageLocal(
-        this._opts.dossierStockageLocal
-      )
+      await obtStockageLocal(this.dossierOrbite())
     ).getItem(clefClient);
   }
 
   async sauvegarderAuStockageLocal({
     clef,
-    val,
+    val, parCompte=true,
   }: {
     clef: string;
     val: string;
+    parCompte?: boolean;
   }): Promise<void> {
-    const clefClient = `${this.idBdCompte!.slice(
-      this.idBdCompte!.length - 23,
-      this.idBdCompte!.length - 8
-    )} : ${clef}`;
-    return (await obtStockageLocal(this._opts.dossierStockageLocal)).setItem(
+    const clefClient = this.obtClefStockageClient({clef, parCompte})
+    return (await obtStockageLocal(this.dossierOrbite())).setItem(
       clefClient,
       val
     );
   }
 
-  async effacerDeStockageLocal({ clef }: { clef: string }): Promise<void> {
-    const clefClient = `${this.idBdCompte!.slice(
-      this.idBdCompte!.length - 23,
-      this.idBdCompte!.length - 8
-    )} : ${clef}`;
-    return (await obtStockageLocal(this._opts.dossierStockageLocal)).removeItem(
+  async effacerDeStockageLocal({ clef, parCompte=true}: { clef: string, parCompte: boolean; }): Promise<void> {
+    const clefClient = this.obtClefStockageClient({clef, parCompte});
+    return (await obtStockageLocal(this.dossierOrbite())).removeItem(
       clefClient
     );
   }
@@ -2014,10 +2018,8 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-    await (await obtStockageLocal()).fermer();
-
+    await (await obtStockageLocal(this.dossierOrbite())).fermer();
     if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
-
     await this.fermerCompte();
     if (this.épingles) await this.épingles.fermer();
 

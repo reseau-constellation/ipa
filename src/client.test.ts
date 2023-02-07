@@ -88,12 +88,23 @@ describe("Contrôle dispositifs", function () {
 
   describe("Ajouter dispositif manuellement", function () {
     let idBd: string;
+    const fsOublier: schémaFonctionOublier[] = []
+    const résNom = new AttendreRésultat<{[lng: string]: string}>();
 
     beforeAll(async () => {
+      fsOublier.push(
+        await client2.profil!.suivreNoms({f: noms => résNom.mettreÀJour(noms)})
+      )
+      await client.profil!.sauvegarderNom({nom: "Julien Malard-Adam", langue: "fr"});
       await client.ajouterDispositif({ idOrbite: idOrbite2 });
       await client2.rejoindreCompte({ idBdCompte: idBdCompte1 });
       idBd = await client.créerBdIndépendante({ type: "kvstore" });
     }, config.patienceInit);
+
+    afterAll(async () => {
+      résNom.toutAnnuler();
+      await Promise.all(fsOublier.map(f=>f()));
+    })
 
     test("Mes dispositifs sont mis à jour", async () => {
       expect(mesDispositifs).toHaveLength(2);
@@ -117,6 +128,11 @@ describe("Contrôle dispositifs", function () {
       await fOublier();
       expect(autorisé).toBe(true);
     });
+
+    test("Le nouveau dispositif suit mon profil", async () => {
+      const val = await résNom.attendreQue(x=>Object.keys(x).length > 0);
+      expect(val.fr).toEqual("Julien Malard-Adam")
+    })
   });
 
   describe("Automatiser ajout dispositif", function () {
@@ -124,7 +140,7 @@ describe("Contrôle dispositifs", function () {
 
     beforeAll(async () => {
       idBd = await client.créerBdIndépendante({ type: "kvstore" });
-      await clientsConnectés(client3, client);
+      // await clientsConnectés(client3, client);
       const invitation = await client.générerInvitationRejoindreCompte();
       await client3.demanderEtPuisRejoindreCompte(invitation);
     }, config.patienceInit);
@@ -148,6 +164,8 @@ describe("Contrôle dispositifs", function () {
       await fOublier();
       expect(autorisé).toBe(true);
     });
+
+    test.todo("Mauvais mot de passe")
   });
 });
 
@@ -304,15 +322,15 @@ describe("Fonctionalités client", function () {
       await changerBd(idBd);
       await bd.put("a", 1);
 
-      await données.attendreExiste();
-      expect(données.val.a).toEqual(1);
+      const val = await données.attendreExiste();
+      expect(val.a).toEqual(1);
     });
     test("Les changements à l'id de la BD suivie sont détectés", async () => {
       await bd2.put("a", 2);
       await changerBd(idBd2);
 
-      await données.attendreQue((x) => x.a !== 1);
-      expect(données.val.a).toEqual(2);
+      const val = await données.attendreQue((x) => x.a !== 1);
+      expect(val.a).toEqual(2);
     });
   });
 
@@ -1219,12 +1237,11 @@ describe("Fonctionalités client", function () {
     });
 
     test("Avec mauvais type spécifié", async () => {
-      const idBdRetrouvée = await client.obtIdBd({
+      await expect(() => client.obtIdBd({
         nom: "clef",
         racine: bdRacine,
         type: "kvstore",
-      });
-      expect(idBdRetrouvée).toBeUndefined();
+      })).rejects.toThrow();
     });
 
     test("On crée la BD si elle n'existait pas", async () => {

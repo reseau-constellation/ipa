@@ -121,8 +121,8 @@ typesClients.forEach((type) => {
         });
 
         test("Pas de noms pour commencer", async () => {
-          await noms.attendreExiste();
-          expect(Object.keys(noms.val)).toHaveLength(0);
+          const val = await noms.attendreExiste();
+          expect(Object.keys(val)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -131,7 +131,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Précipitation",
           });
-          expect(noms.val.fr).toEqual("Précipitation");
+          const val = await noms.attendreQue(x=>!!x.fr)
+          expect(val.fr).toEqual("Précipitation");
         });
 
         test("Ajouter des noms", async () => {
@@ -142,7 +143,8 @@ typesClients.forEach((type) => {
               हिं: "बारिश",
             },
           });
-          expect(noms.val).toEqual({
+          const val = await noms.attendreQue(x=>Object.keys(x).length >= 3)
+          expect(val).toEqual({
             த: "மழை",
             हिं: "बारिश",
             fr: "Précipitation",
@@ -155,7 +157,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "précipitation",
           });
-          expect(noms.val.fr).toEqual("précipitation");
+          const val = await noms.attendreQue(x=>x.fr === "précipitation")
+          expect(val.fr).toEqual("précipitation");
         });
 
         test("Effacer un nom", async () => {
@@ -163,7 +166,8 @@ typesClients.forEach((type) => {
             id: idVariable,
             langue: "fr",
           });
-          expect(noms.val).toEqual({ த: "மழை", हिं: "बारिश" });
+          const val = await noms.attendreQue(x=>Object.keys(x).length <= 2)
+          expect(val).toEqual({ த: "மழை", हिं: "बारिश" });
         });
       });
 

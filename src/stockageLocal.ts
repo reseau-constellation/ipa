@@ -1,11 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import { EventEmitter } from "events";
-import { isElectronMain } from "wherearewe";
 import path from "path";
 import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-let _localStorage: LocalStorage;
+const stockagesLocaux: {[dossier: string]: LocalStorage} = {};
 
 class LocalStorage {
   fichier: string;
@@ -19,6 +18,9 @@ class LocalStorage {
     this.fichier = path.join(dossier, "données.json");
     this._événements = new EventEmitter();
     this.verrou = new Semaphore();
+    if (!fs.existsSync(dossier)) {
+      fs.mkdirSync(dossier)
+    }
     try {
       this._données = JSON.parse(fs.readFileSync(this.fichier).toString());
     } catch {
@@ -63,29 +65,16 @@ class LocalStorage {
   }
 }
 
-export default async (dossier?: string): Promise<Storage | LocalStorage> => {
+export default async (dossierOrbite?: string): Promise<Storage | LocalStorage> => {
   if (typeof localStorage === "undefined" || localStorage === null) {
-    if (_localStorage) return _localStorage;
+    if (!dossierOrbite) throw new Error("Orbite n'est pas encore initialisée, et aucun dossier ne fut spécifié dans la configuration d'initialisation de Constellation.")
 
-    let DOSSIER_STOCKAGE_LOCAL: string;
-
-    if (isElectronMain) {
-      const electron = await import("electron");
-      DOSSIER_STOCKAGE_LOCAL =
-        dossier ||
-        path.join(electron.default.app.getPath("userData"), "_stockageTemp");
-    } else {
-      const nomDossier = dossier || path.join(".", "_stockageTemp");
-      DOSSIER_STOCKAGE_LOCAL = nomDossier;
-    }
-
-    _localStorage = new LocalStorage(DOSSIER_STOCKAGE_LOCAL);
-    return _localStorage;
+    const dossierStockageLocal = path.join(dossierOrbite, "_stockageLocal");
+    if (!stockagesLocaux[dossierStockageLocal]) {
+      stockagesLocaux[dossierStockageLocal] = new LocalStorage(dossierStockageLocal);
+    };    
+    return stockagesLocaux[dossierStockageLocal];
   } else {
-    if (dossier)
-      console.warn(
-        "Vous avez spécifié un dossier de stockage local mais votre choix sera ignoré car nous sommes dans le navigateur."
-      );
     return localStorage;
   }
 };
