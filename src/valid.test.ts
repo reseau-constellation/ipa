@@ -10,7 +10,10 @@ import {
   règleValeurCatégorique,
   typeOp,
 } from "@/valid.js";
-import type { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
+import type {
+  catégorieBaseVariables,
+  catégorieVariables,
+} from "@/variables.js";
 import isArray from "lodash/isArray";
 
 const catégories: {

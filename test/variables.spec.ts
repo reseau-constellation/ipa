@@ -1,11 +1,15 @@
-import pkg from 'lodash';
+import pkg from "lodash";
 const { isArray } = pkg;
 
 import type { default as ClientConstellation } from "@/client.js";
 import type { catégorieVariables } from "@/variables.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
-import type { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid.js";
-import {expect} from "aegir/chai";
+import type {
+  règleVariableAvecId,
+  règleBornes,
+  règleCatégorie,
+} from "@/valid.js";
+import { expect } from "aegir/chai";
 
 import {
   générerClients,
@@ -131,7 +135,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Précipitation",
           });
-          const val = await noms.attendreQue(x=>!!x.fr)
+          const val = await noms.attendreQue((x) => !!x.fr);
           expect(val.fr).to.equal("Précipitation");
         });
 
@@ -156,7 +160,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "précipitation",
           });
-          const val = await noms.attendreQue(x=>!!x.fr)
+          const val = await noms.attendreQue((x) => !!x.fr);
           expect(val.fr).to.equal("précipitation");
         });
 
@@ -194,7 +198,9 @@ typesClients.forEach((type) => {
             langue: "fr",
             description: "la quantité de précipitation quotidienne",
           });
-          expect(descrs.fr).to.equal("la quantité de précipitation quotidienne");
+          expect(descrs.fr).to.equal(
+            "la quantité de précipitation quotidienne"
+          );
         });
 
         it("Ajouter des descriptions", async () => {
@@ -361,7 +367,9 @@ typesClients.forEach((type) => {
             (r) => r.règle.typeRègle === "catégorie"
           ) as règleVariableAvecId<règleCatégorie> | undefined;
           expect(règleCatégorie).to.exist();
-          expect(règleCatégorie?.règle.détails.catégorie).to.equal("horoDatage");
+          expect(règleCatégorie?.règle.détails.catégorie).to.equal(
+            "horoDatage"
+          );
         });
       });
 
@@ -478,9 +486,10 @@ typesClients.forEach((type) => {
               catégorie: "numérique",
             },
           };
-          expect(règles.map((r) => r.règle)).to.have.deep.members(
-            [règle, règleCatégorie]
-          );
+          expect(règles.map((r) => r.règle)).to.have.deep.members([
+            règle,
+            règleCatégorie,
+          ]);
         });
 
         it("Les unités sont copiés", async () => {

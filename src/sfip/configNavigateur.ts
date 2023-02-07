@@ -6,8 +6,8 @@ const config: Parameters<typeof create>[0] = {
   libp2p: {
     transports: [webSockets(), webRTCDirect()],
     addresses: {
-      listen: ADRESSES_WEBRTC_STAR
+      listen: ADRESSES_WEBRTC_STAR,
     },
-  }
+  },
 };
-export default config
+export default config;

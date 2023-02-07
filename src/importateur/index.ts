@@ -19,7 +19,10 @@ export async function importerFeuilleCalculDURL(
   const optionsParDéfault: ParsingOptions = {
     type: "buffer",
     cellDates: true,
-  }
-  const optsXLSX: ParsingOptions = Object.assign(optionsParDéfault, options || {})
+  };
+  const optsXLSX: ParsingOptions = Object.assign(
+    optionsParDéfault,
+    options || {}
+  );
   return readXLSX(données, optsXLSX);
 }

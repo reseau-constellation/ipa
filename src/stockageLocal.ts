@@ -4,7 +4,7 @@ import path from "path";
 import fs from "fs";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-const stockagesLocaux: {[dossier: string]: LocalStorage} = {};
+const stockagesLocaux: { [dossier: string]: LocalStorage } = {};
 
 class LocalStorage {
   fichier: string;
@@ -19,7 +19,7 @@ class LocalStorage {
     this._événements = new EventEmitter();
     this.verrou = new Semaphore();
     if (!fs.existsSync(dossier)) {
-      fs.mkdirSync(dossier)
+      fs.mkdirSync(dossier);
     }
     try {
       this._données = JSON.parse(fs.readFileSync(this.fichier).toString());
@@ -65,14 +65,21 @@ class LocalStorage {
   }
 }
 
-export default async (dossierOrbite?: string): Promise<Storage | LocalStorage> => {
+export default async (
+  dossierOrbite?: string
+): Promise<Storage | LocalStorage> => {
   if (typeof localStorage === "undefined" || localStorage === null) {
-    if (!dossierOrbite) throw new Error("Orbite n'est pas encore initialisée, et aucun dossier ne fut spécifié dans la configuration d'initialisation de Constellation.")
+    if (!dossierOrbite)
+      throw new Error(
+        "Orbite n'est pas encore initialisée, et aucun dossier ne fut spécifié dans la configuration d'initialisation de Constellation."
+      );
 
     const dossierStockageLocal = path.join(dossierOrbite, "_stockageLocal");
     if (!stockagesLocaux[dossierStockageLocal]) {
-      stockagesLocaux[dossierStockageLocal] = new LocalStorage(dossierStockageLocal);
-    };    
+      stockagesLocaux[dossierStockageLocal] = new LocalStorage(
+        dossierStockageLocal
+      );
+    }
     return stockagesLocaux[dossierStockageLocal];
   } else {
     return localStorage;

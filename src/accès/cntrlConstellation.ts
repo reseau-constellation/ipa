@@ -42,11 +42,9 @@ SOFTWARE.
 */
 
 const ensureAddress = (address: string) => {
-  const suffix = address.toString().split('/').pop()
-  return suffix === '_access'
-    ? address
-    : path.join(address, '/_access')
-}
+  const suffix = address.toString().split("/").pop();
+  return suffix === "_access" ? address : path.join(address, "/_access");
+};
 
 export const nomType = "controlleur-constellation";
 
@@ -242,7 +240,7 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
     return manifest;
   }
 
-  async grant(rôle: typeof rôles[number], id: string): Promise<void> {
+  async grant(rôle: (typeof rôles)[number], id: string): Promise<void> {
     if (!rôles.includes(rôle)) {
       throw new Error(`Erreur: Le rôle ${rôle} n'existe pas.`);
     }
@@ -263,7 +261,7 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
     }
   }
 
-  async revoke(rôle: typeof rôles[number], id: string): Promise<void> {
+  async revoke(rôle: (typeof rôles)[number], id: string): Promise<void> {
     // Pour implémenter la révocation des permissions, ajouter une
     // mention des modifications déjà autorisées par la personne nouvellement
     // bloquée

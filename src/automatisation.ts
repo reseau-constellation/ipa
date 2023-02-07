@@ -72,7 +72,7 @@ export interface infoImporterFeuilleCalcul extends infoImporter {
   formatDonnées: "feuilleCalcul";
   nomTableau: string;
   cols: { [key: string]: string };
-  optionsXLSX?: XLSX.ParsingOptions
+  optionsXLSX?: XLSX.ParsingOptions;
 }
 
 export interface SourceDonnéesImportation<

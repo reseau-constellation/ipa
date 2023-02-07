@@ -1,5 +1,8 @@
 import { EventEmitter, once } from "events";
-import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/types.js";
+import type {
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
+} from "@/utils/types.js";
 
 class ÉmetteurUneFois<T> extends EventEmitter {
   doitExister: boolean;
@@ -54,10 +57,12 @@ export const faisRien = async (): Promise<void> => {
   // Rien à faire
 };
 
-export const ignorerNonDéfinis = <T>(f: schémaFonctionSuivi<T>): schémaFonctionSuivi<T|undefined> => {
-  return async (x: T|undefined) => {
+export const ignorerNonDéfinis = <T>(
+  f: schémaFonctionSuivi<T>
+): schémaFonctionSuivi<T | undefined> => {
+  return async (x: T | undefined) => {
     if (x !== undefined) {
       return await f(x);
     }
-  }
-}
+  };
+};

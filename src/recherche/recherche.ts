@@ -730,7 +730,6 @@ export class Recherche {
     });
   }
 
-
   @cacheRechercheParNRésultats
   async rechercherNuées({
     f,

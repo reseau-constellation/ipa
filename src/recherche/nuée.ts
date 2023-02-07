@@ -67,7 +67,10 @@ export const rechercherNuéeSelonDescr = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.nuées!.suivreDescriptionsNuée({ idNuée, f: fSuivre });
+    const fOublier = await client.nuées!.suivreDescriptionsNuée({
+      idNuée,
+      f: fSuivre,
+    });
     return fOublier;
   };
 };

@@ -8,7 +8,7 @@ import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParN,
-  schémaRetourFonctionRechercheParProfondeur
+  schémaRetourFonctionRechercheParProfondeur,
 } from "@/utils/index.js";
 
 export class CacheSuivi {
@@ -40,7 +40,12 @@ export class CacheSuivi {
     this._cacheRecherche = {};
   }
 
-  async suivre<T extends ((args: {[key: string]: unknown})=>Promise<schémaFonctionOublier>), U>({
+  async suivre<
+    T extends (args: {
+      [key: string]: unknown;
+    }) => Promise<schémaFonctionOublier>,
+    U
+  >({
     adresseFonction,
     idClient,
     fOriginale,
@@ -57,7 +62,7 @@ export class CacheSuivi {
     const nomArgFonction = Object.entries(args).find(
       (x) => typeof x[1] === "function"
     )?.[0];
-    if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`)
+    if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`);
     const f = args[nomArgFonction] as schémaFonctionSuivi<unknown>;
     const argsSansF = Object.fromEntries(
       Object.entries(args).filter((x) => typeof x[1] !== "function")
@@ -112,10 +117,12 @@ export class CacheSuivi {
   }
 
   async suivreRecherche<
-    T extends (...args: unknown[])=>Promise<V>, 
+    T extends (...args: unknown[]) => Promise<V>,
     U,
     W extends "profondeur" | "nRésultats",
-    V extends ( W extends "profondeur" ? schémaRetourFonctionRechercheParProfondeur : schémaRetourFonctionRechercheParN),
+    V extends W extends "profondeur"
+      ? schémaRetourFonctionRechercheParProfondeur
+      : schémaRetourFonctionRechercheParN
   >({
     adresseFonction,
     nomArgTaille,
@@ -137,7 +144,7 @@ export class CacheSuivi {
     const nomArgFonction = Object.entries(args).find(
       (x) => typeof x[1] === "function"
     )?.[0];
-    if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`)
+    if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`);
     const f = args[nomArgFonction] as schémaFonctionSuivi<unknown>;
     const argsSansF = Object.fromEntries(
       Object.entries(args).filter((x) => typeof x[1] !== "function")
@@ -145,9 +152,9 @@ export class CacheSuivi {
     if (Object.keys(args).length !== Object.keys(argsSansF).length + 1) {
       throw new Error(
         "Plus d'un argument pour " +
-        adresseFonction +
-        " est une fonction : " +
-        JSON.stringify(args)
+          adresseFonction +
+          " est une fonction : " +
+          JSON.stringify(args)
       );
     }
     const argsSansFOuTaille = Object.fromEntries(
@@ -207,18 +214,18 @@ export class CacheSuivi {
       };
 
       if (par === "profondeur") {
-        const { fOublier, fChangerProfondeur } = await fOriginale.apply(
+        const { fOublier, fChangerProfondeur } = (await fOriginale.apply(
           ceciOriginal,
           [argsComplets]
-        ) as schémaRetourFonctionRechercheParProfondeur;
+        )) as schémaRetourFonctionRechercheParProfondeur;
         this._cacheRecherche[codeCache].fs = {
           fOublier,
           fChangerTaille: fChangerProfondeur,
         };
       } else {
-        const { fOublier, fChangerN } = await fOriginale.apply(ceciOriginal, [
+        const { fOublier, fChangerN } = (await fOriginale.apply(ceciOriginal, [
           argsComplets,
-        ]) as schémaRetourFonctionRechercheParN;
+        ])) as schémaRetourFonctionRechercheParN;
         this._cacheRecherche[codeCache].fs = {
           fOublier,
           fChangerTaille: fChangerN,
@@ -228,7 +235,7 @@ export class CacheSuivi {
       // Sinon, ajouter f à la liste de fonctions de rappel
       this._cacheRecherche[codeCache].requètes[idRequète] = { f, taille };
       if (Object.keys(this._cacheRecherche[codeCache]).includes("val")) {
-        const { val } = this._cacheRecherche[codeCache]
+        const { val } = this._cacheRecherche[codeCache];
         if (val) fFinale(val);
       }
     }
@@ -242,7 +249,7 @@ export class CacheSuivi {
         this._cacheRecherche[codeCache].requètes[idRequète].taille;
       if (taille === tailleAvant) return;
       this._cacheRecherche[codeCache].requètes[idRequète].taille = taille;
-      const {val} = this._cacheRecherche[codeCache]
+      const { val } = this._cacheRecherche[codeCache];
       if (val) fFinale(val);
 
       const maxTaille = Math.max(
@@ -278,7 +285,7 @@ export class CacheSuivi {
     delete requètes[idRequète];
 
     if (!Object.keys(requètes).length) {
-      fOublier && await fOublier();
+      fOublier && (await fOublier());
       delete this._cacheSuivi[codeCache];
     }
     this.verrou.release(codeCache);
@@ -297,7 +304,7 @@ export class CacheSuivi {
     delete requètes[idRequète];
 
     if (!Object.keys(requètes).length) {
-      fs && await fs.fOublier();
+      fs && (await fs.fOublier());
       delete this._cacheRecherche[codeCache];
     }
     this.verrou.release(codeCache);
@@ -318,7 +325,11 @@ export class CacheSuivi {
   }
 }
 
-export const cacheSuivi = (_cible: unknown, nom: string, descripteur: unknown) => {
+export const cacheSuivi = (
+  _cible: unknown,
+  nom: string,
+  descripteur: unknown
+) => {
   return envelopper({ nom, descripteur });
 };
 
@@ -352,7 +363,7 @@ export const envelopper = ({
   const original = descripteur.value;
 
   if (typeof original === "function") {
-    descripteur.value = function (...args: [{[clef: string]: unknown}]) {
+    descripteur.value = function (...args: [{ [clef: string]: unknown }]) {
       if (args.length > 1) throw new Error("Args trop longs");
 
       const client = this.client ? this.client : this;

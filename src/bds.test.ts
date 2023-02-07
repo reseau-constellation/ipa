@@ -14,7 +14,11 @@ import {
   uneFois,
 } from "@/utils/index.js";
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
-import type { infoScore, schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
+import type {
+  infoScore,
+  schémaSpécificationBd,
+  infoTableauAvecId,
+} from "@/bds.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 import type { élémentDonnées, règleBornes } from "@/valid.js";
 

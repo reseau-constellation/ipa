@@ -8,7 +8,7 @@ import rmrf from "rimraf";
 import { jest } from "@jest/globals";
 import url from "url";
 
-import type {default as ClientConstellation} from "@/client.js";
+import type { default as ClientConstellation } from "@/client.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import {
   uneFois,
@@ -299,8 +299,8 @@ typesClients.forEach((type) => {
                   [idCol2]: "Country",
                 },
                 optionsXLSX: {
-                  dateNF: "yyyy-mm-dd"
-                }
+                  dateNF: "yyyy-mm-dd",
+                },
               },
             };
 

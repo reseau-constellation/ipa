@@ -2,7 +2,12 @@ import KeyValueStore from "orbit-db-kvstore";
 import type { ImportCandidate } from "ipfs-core-types/src/utils";
 
 import type { default as ClientConstellation } from "@/client.js";
-import { schémaFonctionSuivi, schémaFonctionOublier, faisRien, ignorerNonDéfinis } from "@/utils/index.js";
+import {
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
+  faisRien,
+  ignorerNonDéfinis,
+} from "@/utils/index.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
@@ -17,37 +22,49 @@ export default class Profil {
     this.client = client;
   }
 
-  async obtIdBdProfil(): Promise<string|undefined> {
+  async obtIdBdProfil(): Promise<string | undefined> {
     return await this.client.obtIdBd({
       nom: "compte",
       racine: this.client.bdCompte!,
       type: "kvstore",
-    })
+    });
   }
 
-  async obtBdProfil(): Promise<{bd: KeyValueStore<typeÉlémentsBdProfil>, fOublier: schémaFonctionOublier}> {
+  async obtBdProfil(): Promise<{
+    bd: KeyValueStore<typeÉlémentsBdProfil>;
+    fOublier: schémaFonctionOublier;
+  }> {
     const id = (await this.obtIdBdProfil())!;
-    return await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdProfil>
-    >({ id });
+    return await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdProfil>>({
+      id,
+    });
   }
 
   @cacheSuivi
-  async suivreBdProfil({f, idCompte}: {f: schémaFonctionSuivi<string>, idCompte?: string}): Promise<schémaFonctionOublier> {
+  async suivreBdProfil({
+    f,
+    idCompte,
+  }: {
+    f: schémaFonctionSuivi<string>;
+    idCompte?: string;
+  }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
-      fRacine: async ({fSuivreRacine}) => {
+      fRacine: async ({ fSuivreRacine }) => {
         if (idCompte) {
-          await fSuivreRacine(idCompte)
-          return faisRien
+          await fSuivreRacine(idCompte);
+          return faisRien;
         } else {
-          return await this.client.suivreIdBdCompte({f: fSuivreRacine})
+          return await this.client.suivreIdBdCompte({ f: fSuivreRacine });
         }
       },
-      f: ignorerNonDéfinis(f), 
-      fSuivre: async ({id, fSuivreBd}) => {
-        return await this.client.suivreBd<KeyValueStore<typeÉlémentsBdProfil>>({id, f: bd => fSuivreBd(bd.get("compte"))})
-      }
-    })
+      f: ignorerNonDéfinis(f),
+      fSuivre: async ({ id, fSuivreBd }) => {
+        return await this.client.suivreBd<KeyValueStore<typeÉlémentsBdProfil>>({
+          id,
+          f: (bd) => fSuivreBd(bd.get("compte")),
+        });
+      },
+    });
   }
 
   @cacheSuivi
@@ -58,23 +75,33 @@ export default class Profil {
     f: schémaFonctionSuivi<string | null>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    const fRacine = async ({fSuivreRacine}: { fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>; }): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdProfil({f: fSuivreRacine, idCompte})
-    }
-    const fSuivre = async ({ id, fSuivreBd }: {id: string, fSuivreBd: schémaFonctionSuivi<string|null>}): Promise<schémaFonctionOublier> => {
+    const fRacine = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.suivreBdProfil({ f: fSuivreRacine, idCompte });
+    };
+    const fSuivre = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<string | null>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.client.suivreBd({
         id,
         f: async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
           const courriel = bd.get("courriel");
           await fSuivreBd(courriel || null);
         },
-      })
-    }
+      });
+    };
     return await this.client.suivreBdDeFonction({
       fRacine,
       f: ignorerNonDéfinis(f),
-      fSuivre
-    })
+      fSuivre,
+    });
   }
 
   async sauvegarderCourriel({ courriel }: { courriel: string }): Promise<void> {
@@ -98,19 +125,18 @@ export default class Profil {
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
-      fRacine: async ({fSuivreRacine}) => {
-        return await this.suivreBdProfil({f: fSuivreRacine, idCompte})
+      fRacine: async ({ fSuivreRacine }) => {
+        return await this.suivreBdProfil({ f: fSuivreRacine, idCompte });
       },
       f: ignorerNonDéfinis(f),
-      fSuivre: async ({id, fSuivreBd}) => {
+      fSuivre: async ({ id, fSuivreBd }) => {
         return await this.client.suivreBdDicDeClef<string>({
           id,
           clef: "noms",
           f: fSuivreBd,
         });
-      }
-    })
-    
+      },
+    });
   }
 
   async sauvegarderNom({
@@ -190,13 +216,12 @@ export default class Profil {
     f: schémaFonctionSuivi<Uint8Array | null>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-
     return await this.client.suivreBdDeFonction({
-      fRacine: async ({fSuivreRacine}) => {
-        return await this.suivreBdProfil({f: fSuivreRacine, idCompte})
+      fRacine: async ({ fSuivreRacine }) => {
+        return await this.suivreBdProfil({ f: fSuivreRacine, idCompte });
       },
       f: ignorerNonDéfinis(f),
-      fSuivre: async ({id, fSuivreBd}) => {
+      fSuivre: async ({ id, fSuivreBd }) => {
         return await this.client.suivreBd({
           id,
           f: async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
@@ -212,6 +237,7 @@ export default class Profil {
             }
           },
         });
-      }
-    })
-}};
+      },
+    });
+  }
+}

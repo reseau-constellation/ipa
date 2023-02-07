@@ -292,7 +292,9 @@ typesClients.forEach((type) => {
             idTableau,
             idColonne: idsColonnes[0],
           });
-          await new Promise<void>(résoudre=>setTimeout(()=>résoudre(), 3000))
+          await new Promise<void>((résoudre) =>
+            setTimeout(() => résoudre(), 3000)
+          );
           const variablesDesColonnes = colonnes.map((c) => c.variable);
           expect(variablesDesColonnes).toHaveLength(1);
           expect(variablesDesColonnes).toEqual(

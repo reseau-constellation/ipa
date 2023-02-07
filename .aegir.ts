@@ -1,7 +1,5 @@
-import {PartialOptions} from "aegir"
+import { PartialOptions } from "aegir";
 
-const options: PartialOptions = {
-    
-}
+const options: PartialOptions = {};
 
 export default options;

@@ -43,7 +43,7 @@ import {
 } from "@/décorateursCache.js";
 import { v4 as uuidv4 } from "uuid";
 
-type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées"
+type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
 export type infoDispositif = {
   idSFIP: string;
@@ -52,17 +52,17 @@ export type infoDispositif = {
   clefPublique: string;
   signatures: { id: string; publicKey: string };
   encryption?: { type: string; clefPublique: string };
-}
+};
 
-export type statutDispositif  ={
+export type statutDispositif = {
   infoDispositif: infoDispositif;
   vuÀ?: number;
-}
+};
 
 export type élémentBdMembres = {
   idBdCompte: string;
   dispositifs: string[];
-}
+};
 
 export type itemRechercheProfondeur = {
   profondeur: number;
@@ -72,14 +72,14 @@ export type infoMembreRéseau = {
   idBdCompte: string;
   profondeur: number;
   confiance: number;
-}
+};
 
 export type infoRelation = {
   de: string;
   pour: string;
   confiance: number;
   profondeur: number;
-}
+};
 
 export interface infoConfiance {
   idBdCompte: string;
@@ -184,7 +184,6 @@ export interface ContenuMessageRejoindreCompte extends ContenuMessage {
   empreinteVérification: string;
 }
 
-
 export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
 export type typeÉlémentsBdRéseau = {
   idBdCompte: string;
@@ -267,8 +266,7 @@ export default class Réseau extends EventEmitter {
     }
     this.fsOublier.push(
       ...événements.map((é) => {
-        return async () =>
-          libp2p.removeEventListener(é, fSuivreConnexions);
+        return async () => libp2p.removeEventListener(é, fSuivreConnexions);
       })
     );
 
@@ -308,7 +306,7 @@ export default class Réseau extends EventEmitter {
     const signature = await this.client.signer({
       message: JSON.stringify(msg),
     });
-    
+
     const msgSigné: DonnéesMessage = {
       signature,
       valeur: msg,
@@ -399,13 +397,15 @@ export default class Réseau extends EventEmitter {
       type: "Je veux rejoindre ce compte",
       contenu: {
         idOrbite,
-        empreinteVérification: this.client.empreinteInvitation({idOrbite, codeSecret}),
+        empreinteVérification: this.client.empreinteInvitation({
+          idOrbite,
+          codeSecret,
+        }),
       },
     };
 
     await this.envoyerMessageAuMembre({ msg, idCompte });
   }
-
 
   async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
     if (this._fermé) return;
@@ -467,7 +467,6 @@ export default class Réseau extends EventEmitter {
 
         break;
       }
-      
     }
     // this.écouteursMessages[valeur.type]?.(contenu);
   }
@@ -949,7 +948,8 @@ export default class Réseau extends EventEmitter {
     profondeur: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    const idCompteDébutFinal = idCompteDébut || await this.client.obtIdCompte();
+    const idCompteDébutFinal =
+      idCompteDébut || (await this.client.obtIdCompte());
 
     const dicRelations: { [clef: string]: { relations: infoConfiance[] } } = {};
     const dicOublierRelations: { [clef: string]: schémaFonctionOublier } = {};
@@ -1314,18 +1314,19 @@ export default class Réseau extends EventEmitter {
   }: {
     f: schémaFonctionSuivi<statutMembre[]>;
   }): Promise<schémaFonctionOublier> {
-
     type statutMembreSansProtocoles = {
       infoMembre: {
         idBdCompte: string;
         dispositifs: infoDispositif[];
       };
-      vuÀ?: number
-    }
-    const fListe = async (fSuivreRacine: (éléments: statutMembreSansProtocoles[]) => Promise<void>) => {
+      vuÀ?: number;
+    };
+    const fListe = async (
+      fSuivreRacine: (éléments: statutMembreSansProtocoles[]) => Promise<void>
+    ) => {
       const fFinaleDispositifs = (dispositifs: statutDispositif[]) => {
-        const membres: { [key: string]: statutMembreSansProtocoles} = {};
-  
+        const membres: { [key: string]: statutMembreSansProtocoles } = {};
+
         for (const d of dispositifs) {
           const { idCompte } = d.infoDispositif;
           if (!membres[idCompte]) {
@@ -1347,30 +1348,35 @@ export default class Réseau extends EventEmitter {
         fSuivreRacine(Object.values(membres));
       };
       return await this.suivreConnexionsDispositifs({ f: fFinaleDispositifs });
-    }
+    };
 
-    const fBranche = async (id: string, fSuivreBranche: schémaFonctionSuivi<statutMembre>, branche: statutMembreSansProtocoles): Promise<schémaFonctionOublier> => {
+    const fBranche = async (
+      id: string,
+      fSuivreBranche: schémaFonctionSuivi<statutMembre>,
+      branche: statutMembreSansProtocoles
+    ): Promise<schémaFonctionOublier> => {
       return await this.suivreProtocolesMembre({
         idCompte: id,
-        f: protocoles => {
+        f: (protocoles) => {
           fSuivreBranche({
             infoMembre: {
               ...branche.infoMembre,
-              protocoles
+              protocoles,
             },
             vuÀ: branche.vuÀ,
-          })
-        }
-      })
-    }
+          });
+        },
+      });
+    };
 
     return await this.client.suivreBdsDeFonctionListe({
       fListe,
       f,
       fBranche,
-      fIdBdDeBranche: (x: statutMembreSansProtocoles) => x.infoMembre.idBdCompte,
+      fIdBdDeBranche: (x: statutMembreSansProtocoles) =>
+        x.infoMembre.idBdCompte,
       fCode: (x: statutMembreSansProtocoles) => x.infoMembre.idBdCompte,
-    })
+    });
   }
 
   @cacheSuivi
@@ -1383,8 +1389,8 @@ export default class Réseau extends EventEmitter {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreProtocolesCompte({
       idCompte,
-      f
-    })
+      f,
+    });
   }
 
   async rechercher<T extends infoRésultat>({
@@ -1414,7 +1420,9 @@ export default class Réseau extends EventEmitter {
     }
 
     // Il y a probablement une meilleure façon de faire ça, mais pour l'instant ça passe
-    fObjectif = fObjectif || rechercherTous() as schémaFonctionSuivreObjectifRecherche<T>;
+    fObjectif =
+      fObjectif ||
+      (rechercherTous() as schémaFonctionSuivreObjectifRecherche<T>);
 
     const résultatsParMembre: {
       [key: string]: {
@@ -1635,7 +1643,11 @@ export default class Réseau extends EventEmitter {
       });
 
       await Promise.all(nouveaux.map(suivreRésultatsMembre));
-      await Promise.all(changés.map(async (c) => await résultatsParMembre[c.idBdCompte].mettreÀJour(c)));
+      await Promise.all(
+        changés.map(
+          async (c) => await résultatsParMembre[c.idBdCompte].mettreÀJour(c)
+        )
+      );
 
       await Promise.all(clefsObsolètes.map((o) => oublierRésultatsMembre(o)));
 

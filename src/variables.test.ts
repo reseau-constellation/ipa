@@ -3,7 +3,11 @@ import isArray from "lodash/isArray";
 import type { default as ClientConstellation } from "@/client.js";
 import type { catégorieVariables } from "@/variables.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
-import type { règleVariableAvecId, règleBornes, règleCatégorie } from "@/valid.js";
+import type {
+  règleVariableAvecId,
+  règleBornes,
+  règleCatégorie,
+} from "@/valid.js";
 
 import {
   générerClients,
@@ -131,7 +135,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Précipitation",
           });
-          const val = await noms.attendreQue(x=>!!x.fr)
+          const val = await noms.attendreQue((x) => !!x.fr);
           expect(val.fr).toEqual("Précipitation");
         });
 
@@ -143,7 +147,7 @@ typesClients.forEach((type) => {
               हिं: "बारिश",
             },
           });
-          const val = await noms.attendreQue(x=>Object.keys(x).length >= 3)
+          const val = await noms.attendreQue((x) => Object.keys(x).length >= 3);
           expect(val).toEqual({
             த: "மழை",
             हिं: "बारिश",
@@ -157,7 +161,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "précipitation",
           });
-          const val = await noms.attendreQue(x=>x.fr === "précipitation")
+          const val = await noms.attendreQue((x) => x.fr === "précipitation");
           expect(val.fr).toEqual("précipitation");
         });
 
@@ -166,7 +170,7 @@ typesClients.forEach((type) => {
             id: idVariable,
             langue: "fr",
           });
-          const val = await noms.attendreQue(x=>Object.keys(x).length <= 2)
+          const val = await noms.attendreQue((x) => Object.keys(x).length <= 2);
           expect(val).toEqual({ த: "மழை", हिं: "बारिश" });
         });
       });

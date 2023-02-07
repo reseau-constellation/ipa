@@ -4,7 +4,11 @@ import { v4 as uuidv4 } from "uuid";
 
 import ClientConstellation from "@/client.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import type { règleVariableAvecId, règleVariable, règleCatégorie } from "@/valid.js";
+import type {
+  règleVariableAvecId,
+  règleVariable,
+  règleCatégorie,
+} from "@/valid.js";
 
 import type { objRôles } from "@/accès/types.js";
 import type { dicTrads } from "@/utils/types.js";

@@ -88,14 +88,19 @@ describe("Contrôle dispositifs", function () {
 
   describe("Ajouter dispositif manuellement", function () {
     let idBd: string;
-    const fsOublier: schémaFonctionOublier[] = []
-    const résNom = new AttendreRésultat<{[lng: string]: string}>();
+    const fsOublier: schémaFonctionOublier[] = [];
+    const résNom = new AttendreRésultat<{ [lng: string]: string }>();
 
     beforeAll(async () => {
       fsOublier.push(
-        await client2.profil!.suivreNoms({f: noms => résNom.mettreÀJour(noms)})
-      )
-      await client.profil!.sauvegarderNom({nom: "Julien Malard-Adam", langue: "fr"});
+        await client2.profil!.suivreNoms({
+          f: (noms) => résNom.mettreÀJour(noms),
+        })
+      );
+      await client.profil!.sauvegarderNom({
+        nom: "Julien Malard-Adam",
+        langue: "fr",
+      });
       await client.ajouterDispositif({ idOrbite: idOrbite2 });
       await client2.rejoindreCompte({ idBdCompte: idBdCompte1 });
       idBd = await client.créerBdIndépendante({ type: "kvstore" });
@@ -103,8 +108,8 @@ describe("Contrôle dispositifs", function () {
 
     afterAll(async () => {
       résNom.toutAnnuler();
-      await Promise.all(fsOublier.map(f=>f()));
-    })
+      await Promise.all(fsOublier.map((f) => f()));
+    });
 
     test("Mes dispositifs sont mis à jour", async () => {
       expect(mesDispositifs).toHaveLength(2);
@@ -130,9 +135,9 @@ describe("Contrôle dispositifs", function () {
     });
 
     test("Le nouveau dispositif suit mon profil", async () => {
-      const val = await résNom.attendreQue(x=>Object.keys(x).length > 0);
-      expect(val.fr).toEqual("Julien Malard-Adam")
-    })
+      const val = await résNom.attendreQue((x) => Object.keys(x).length > 0);
+      expect(val.fr).toEqual("Julien Malard-Adam");
+    });
   });
 
   describe("Automatiser ajout dispositif", function () {
@@ -165,7 +170,7 @@ describe("Contrôle dispositifs", function () {
       expect(autorisé).toBe(true);
     });
 
-    test.todo("Mauvais mot de passe")
+    test.todo("Mauvais mot de passe");
   });
 });
 
@@ -211,8 +216,8 @@ describe("Fonctionalités client", function () {
   });
 
   describe("Suivre protocoles", function () {
-    test.todo("Suivre protocoles compte")
-  })
+    test.todo("Suivre protocoles compte");
+  });
 
   describe("Suivre BD", function () {
     let idBd: string;
@@ -1237,11 +1242,13 @@ describe("Fonctionalités client", function () {
     });
 
     test("Avec mauvais type spécifié", async () => {
-      await expect(() => client.obtIdBd({
-        nom: "clef",
-        racine: bdRacine,
-        type: "kvstore",
-      })).rejects.toThrow();
+      await expect(() =>
+        client.obtIdBd({
+          nom: "clef",
+          racine: bdRacine,
+          type: "kvstore",
+        })
+      ).rejects.toThrow();
     });
 
     test("On crée la BD si elle n'existait pas", async () => {

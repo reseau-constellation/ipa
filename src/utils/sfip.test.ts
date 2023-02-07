@@ -13,5 +13,4 @@ describe("Utils", function () {
       expect(valide).toBe(false);
     });
   });
-
 });

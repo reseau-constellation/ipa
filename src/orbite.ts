@@ -3,11 +3,13 @@ import AccessControllers from "@/accès/index.js";
 import type { IPFS } from "ipfs-core";
 import { isElectronMain, isNode } from "wherearewe";
 
-export default async function initOrbite({sfip, dossierOrbite}: {
-  sfip: IPFS,
+export default async function initOrbite({
+  sfip,
+  dossierOrbite,
+}: {
+  sfip: IPFS;
   dossierOrbite?: string;
 }): Promise<OrbitDB> {
-
   let dossierOrbiteFinal: string | undefined = undefined;
   if (isElectronMain) {
     const electron = await import("electron");

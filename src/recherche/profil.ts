@@ -74,7 +74,11 @@ export const rechercherProfilSelonActivité =
       });
 
       const fOublier = async () => {
-        await Promise.all([fOublierNoms(), fOublierImage(), fOublierCourriel()]);
+        await Promise.all([
+          fOublierNoms(),
+          fOublierImage(),
+          fOublierCourriel(),
+        ]);
       };
 
       return fOublier;

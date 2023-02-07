@@ -100,7 +100,7 @@ typesClients.forEach((type) => {
         });
 
         test("Autres postes détectés", async () => {
-          const val = await rés.attendreQue(x=>x.length >= 2)
+          const val = await rés.attendreQue((x) => x.length >= 2);
           expect(val.map((r) => r.peer)).toEqual(
             expect.arrayContaining([idsNodesSFIP[1], idsNodesSFIP[2]])
           );
@@ -358,9 +358,7 @@ typesClients.forEach((type) => {
 
         test("On ne détecte pas le bloqué privé d'un autre membre", async () => {
           const val = await bloquésAutreMembre.attendreExiste();
-          expect(val.map((b) => b.idBdCompte)).not.toContain(
-            idsBdCompte[2]
-          );
+          expect(val.map((b) => b.idBdCompte)).not.toContain(idsBdCompte[2]);
         });
 
         test("Débloquer publique", async () => {
@@ -497,7 +495,7 @@ typesClients.forEach((type) => {
             ];
             const val = await relationsAutres.attendreQue(
               (x?: infoConfiance[]) =>
-                !!x && (x.length > 0 && x.every((x) => x.confiance > 0))
+                !!x && x.length > 0 && x.every((x) => x.confiance > 0)
             );
 
             expect(val).toEqual(expect.arrayContaining(réf));
@@ -2310,7 +2308,7 @@ typesClients.forEach((type) => {
             catégorie: "chaîne",
           });
 
-          idNuée = await clients[0].nuées!.créerNuée({})
+          idNuée = await clients[0].nuées!.créerNuée({});
 
           const schéma: schémaSpécificationBd = {
             licence: "ODbl-1_0",
@@ -2338,8 +2336,14 @@ typesClients.forEach((type) => {
           idBd1 = await clients[0].bds!.créerBdDeSchéma({ schéma });
           idBd2 = await clients[1].bds!.créerBdDeSchéma({ schéma });
 
-          await clients[0].bds!.rejoindreNuées({idsNuées: idNuée, idBd: idBd1});
-          await clients[1].bds!.rejoindreNuées({idsNuées: idNuée, idBd: idBd2});
+          await clients[0].bds!.rejoindreNuées({
+            idsNuées: idNuée,
+            idBd: idBd1,
+          });
+          await clients[1].bds!.rejoindreNuées({
+            idsNuées: idNuée,
+            idBd: idBd2,
+          });
 
           idTableau1 = (
             await uneFois(

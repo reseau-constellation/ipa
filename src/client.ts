@@ -121,8 +121,8 @@ export default class ClientConstellation extends EventEmitter {
   sujet_réseau: string;
   motsDePasseRejoindreCompte: { [key: string]: number };
 
-  verrouOuvertureBd: Semaphore
-  verrouObtIdBd: Semaphore
+  verrouOuvertureBd: Semaphore;
+  verrouObtIdBd: Semaphore;
 
   constructor(opts: optsConstellation = {}) {
     super();
@@ -155,7 +155,13 @@ export default class ClientConstellation extends EventEmitter {
       nom: "racine",
     };
 
-    this.idBdCompte = this._opts.compte || await this.obtDeStockageLocal({clef: "idBdCompte", parCompte: false}) || undefined;
+    this.idBdCompte =
+      this._opts.compte ||
+      (await this.obtDeStockageLocal({
+        clef: "idBdCompte",
+        parCompte: false,
+      })) ||
+      undefined;
     if (!this.idBdCompte) {
       this.idBdCompte = await this.créerBdIndépendante({
         type: "kvstore",
@@ -164,7 +170,8 @@ export default class ClientConstellation extends EventEmitter {
       });
       await this.sauvegarderAuStockageLocal({
         clef: "idBdCompte",
-        val: this.idBdCompte, parCompte: false,
+        val: this.idBdCompte,
+        parCompte: false,
       });
     }
     this.épingles = new Épingles({ client: this });
@@ -201,12 +208,15 @@ export default class ClientConstellation extends EventEmitter {
         // Éviter d'importer la configuration BD Orbite si pas nécessaire
         const initOrbite = (await import("@/orbite.js")).default;
         sfipFinale = await _générerSFIP(orbite.sfip);
-        orbiteFinale = await initOrbite({sfip: sfipFinale, dossierOrbite: orbite.dossier});
+        orbiteFinale = await initOrbite({
+          sfip: sfipFinale,
+          dossierOrbite: orbite.dossier,
+        });
       }
     } else {
       sfipFinale = await _générerSFIP();
       const initOrbite = (await import("@/orbite.js")).default;
-      orbiteFinale = await initOrbite({sfip: sfipFinale});
+      orbiteFinale = await initOrbite({ sfip: sfipFinale });
     }
 
     return { sfip: sfipFinale, orbite: orbiteFinale };
@@ -345,10 +355,17 @@ export default class ClientConstellation extends EventEmitter {
     );
   }
 
-  async suivreProtocolesCompte({f, idCompte}: {f: schémaFonctionSuivi<string[]>, idCompte?: string}): Promise<schémaFonctionOublier> {
-    f([])
-    return async () => {//À faire
-    }
+  async suivreProtocolesCompte({
+    f,
+    idCompte,
+  }: {
+    f: schémaFonctionSuivi<string[]>;
+    idCompte?: string;
+  }): Promise<schémaFonctionOublier> {
+    f([]);
+    return async () => {
+      //À faire
+    };
   }
 
   @cacheSuivi
@@ -406,13 +423,14 @@ export default class ClientConstellation extends EventEmitter {
 
     for (const codeSecret of Object.keys(this.motsDePasseRejoindreCompte)) {
       const dateCodeSecret = this.motsDePasseRejoindreCompte[codeSecret];
-      const dateValide = (
-        (maintenant - dateCodeSecret) < DÉLAI_EXPIRATION_INVITATIONS
-        );
+      const dateValide =
+        maintenant - dateCodeSecret < DÉLAI_EXPIRATION_INVITATIONS;
       if (dateValide) {
-        const empreinteCorrespondante = this.empreinteInvitation({idOrbite, codeSecret});
+        const empreinteCorrespondante = this.empreinteInvitation({
+          idOrbite,
+          codeSecret,
+        });
         if (empreinteCorrespondante === empreinteVérification) {
-          
           // Empreinte code secret validé
           delete this.motsDePasseRejoindreCompte[codeSecret];
           await this.ajouterDispositif({ idOrbite });
@@ -428,7 +446,7 @@ export default class ClientConstellation extends EventEmitter {
     idOrbite: string;
     codeSecret: string;
   }): string {
-    return Base64.stringify(sha256(idOrbite + codeSecret))
+    return Base64.stringify(sha256(idOrbite + codeSecret));
   }
 
   async demanderEtPuisRejoindreCompte({
@@ -489,7 +507,11 @@ export default class ClientConstellation extends EventEmitter {
 
     // Là on peut y aller
     this.idBdCompte = idBdCompte;
-    await this.sauvegarderAuStockageLocal({ clef: "idBdCompte", val: idBdCompte, parCompte: false})
+    await this.sauvegarderAuStockageLocal({
+      clef: "idBdCompte",
+      val: idBdCompte,
+      parCompte: false,
+    });
     await this.fermerCompte();
     await this.initialiserCompte();
     this.emit("compteChangé");
@@ -690,7 +712,8 @@ export default class ClientConstellation extends EventEmitter {
       const valBd2 = é.payload.value;
 
       if (index) {
-        if (typeof valBd2 !== "object") throw new Error(`Erreur combinaison listes : ${typeof valBd2}`);
+        if (typeof valBd2 !== "object")
+          throw new Error(`Erreur combinaison listes : ${typeof valBd2}`);
         const existant = contenuBdBase.find(
           (x) =>
             typeof x.payload.value === "object" &&
@@ -743,7 +766,8 @@ export default class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<T>;
     événements?: string[];
   }): Promise<schémaFonctionOublier> {
-    if (!adresseOrbiteValide(id)) throw new Error(`Adresse "${id}" non valide.`);
+    if (!adresseOrbiteValide(id))
+      throw new Error(`Adresse "${id}" non valide.`);
     const fsOublier: schémaFonctionOublier[] = [];
     const promesses: { [clef: string]: Promise<void> | void } = {};
 
@@ -791,7 +815,7 @@ export default class ClientConstellation extends EventEmitter {
             } else {
               throw new Error(e);
             }
-          };
+          }
         });
     };
 
@@ -1182,8 +1206,7 @@ export default class ClientConstellation extends EventEmitter {
       const tête = bd._oplog.heads[bd._oplog.heads.length - 1]?.hash;
       return tête;
     };
-    const calculerEmpreinte = (texte: string) =>
-      Base64.stringify(md5(texte));
+    const calculerEmpreinte = (texte: string) => Base64.stringify(md5(texte));
 
     const fFinale = async (têtes: string[]) => {
       await f(calculerEmpreinte(têtes.sort().join()));
@@ -1371,8 +1394,7 @@ export default class ClientConstellation extends EventEmitter {
     const fOublier = async () => {
       await oublierBdRacine();
       await Promise.all(
-        Object.values(arbre)
-          .map((x) => x.fOublier && x.fOublier())
+        Object.values(arbre).map((x) => x.fOublier && x.fOublier())
       );
     };
     if (typeof retourRacine === "function") {
@@ -1406,7 +1428,8 @@ export default class ClientConstellation extends EventEmitter {
     fRéduction?: schémaFonctionRéduction<U[], V[]>;
     fCode?: (é: T) => string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    let _fChangerProfondeur: ((p: number) => Promise<void>) | undefined = undefined;
+    let _fChangerProfondeur: ((p: number) => Promise<void>) | undefined =
+      undefined;
     const fChangerProfondeur = async (p: number) => {
       if (_fChangerProfondeur) await _fChangerProfondeur(p);
     };
@@ -1548,49 +1571,68 @@ export default class ClientConstellation extends EventEmitter {
     return résultat.cid.toString();
   }
 
-  dossierOrbite(): string|undefined {
-    let dossierOrbite: string|undefined;
-    const optsOrbite = this._opts.orbite
+  dossierOrbite(): string | undefined {
+    let dossierOrbite: string | undefined;
+    const optsOrbite = this._opts.orbite;
     if (optsOrbite instanceof OrbitDB) {
       dossierOrbite = optsOrbite.directory;
     } else {
-      dossierOrbite = optsOrbite?.dossier
+      dossierOrbite = optsOrbite?.dossier;
     }
-    return dossierOrbite
+    return dossierOrbite;
   }
 
-  private obtClefStockageClient({ clef, parCompte=true }: { clef: string, parCompte?: boolean }): string {
-    return parCompte ? `${this.idBdCompte!.slice(
-      this.idBdCompte!.length - 23,
-      this.idBdCompte!.length - 8
-    )} : ${clef}` : clef;
+  private obtClefStockageClient({
+    clef,
+    parCompte = true,
+  }: {
+    clef: string;
+    parCompte?: boolean;
+  }): string {
+    return parCompte
+      ? `${this.idBdCompte!.slice(
+          this.idBdCompte!.length - 23,
+          this.idBdCompte!.length - 8
+        )} : ${clef}`
+      : clef;
   }
 
-  async obtDeStockageLocal({ clef, parCompte=true }: { clef: string, parCompte?: boolean }): Promise<string | null> {
-    const clefClient = this.obtClefStockageClient({clef, parCompte})
+  async obtDeStockageLocal({
+    clef,
+    parCompte = true,
+  }: {
+    clef: string;
+    parCompte?: boolean;
+  }): Promise<string | null> {
+    const clefClient = this.obtClefStockageClient({ clef, parCompte });
 
-    return (
-      await obtStockageLocal(this.dossierOrbite())
-    ).getItem(clefClient);
+    return (await obtStockageLocal(this.dossierOrbite())).getItem(clefClient);
   }
 
   async sauvegarderAuStockageLocal({
     clef,
-    val, parCompte=true,
+    val,
+    parCompte = true,
   }: {
     clef: string;
     val: string;
     parCompte?: boolean;
   }): Promise<void> {
-    const clefClient = this.obtClefStockageClient({clef, parCompte})
+    const clefClient = this.obtClefStockageClient({ clef, parCompte });
     return (await obtStockageLocal(this.dossierOrbite())).setItem(
       clefClient,
       val
     );
   }
 
-  async effacerDeStockageLocal({ clef, parCompte=true}: { clef: string, parCompte: boolean; }): Promise<void> {
-    const clefClient = this.obtClefStockageClient({clef, parCompte});
+  async effacerDeStockageLocal({
+    clef,
+    parCompte = true,
+  }: {
+    clef: string;
+    parCompte: boolean;
+  }): Promise<void> {
+    const clefClient = this.obtClefStockageClient({ clef, parCompte });
     return (await obtStockageLocal(this.dossierOrbite())).removeItem(
       clefClient
     );
@@ -1601,7 +1643,8 @@ export default class ClientConstellation extends EventEmitter {
   }: {
     id: string;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
-    if (!adresseOrbiteValide(id)) throw new Error(`Adresse "${id}" non valide.`);
+    if (!adresseOrbiteValide(id))
+      throw new Error(`Adresse "${id}" non valide.`);
 
     // Nous avons besoin d'un verrou afin d'éviter la concurrence
     await this.verrouOuvertureBd.acquire(id);
@@ -1626,13 +1669,13 @@ export default class ClientConstellation extends EventEmitter {
       const bd = (await this.orbite!.open(id)) as T;
       this._bds[id] = { bd, idsRequètes: new Set([idRequète]) };
       await bd.load();
-          
+
       // Maintenant que la BD a été créée, on peut relâcher le verrou
       this.verrouOuvertureBd.release(id);
       return { bd, fOublier };
     } catch (e) {
-      console.error((e as Error).toString())
-      throw e
+      console.error((e as Error).toString());
+      throw e;
     }
   }
 
@@ -1648,7 +1691,7 @@ export default class ClientConstellation extends EventEmitter {
     type?: TStoreType;
     optionsAccès?: OptionsContrôleurConstellation;
     doitExister?: false;
-  }): Promise<string|undefined> 
+  }): Promise<string | undefined>;
   async obtIdBd({
     nom,
     racine,
@@ -1661,13 +1704,13 @@ export default class ClientConstellation extends EventEmitter {
     type?: TStoreType;
     optionsAccès?: OptionsContrôleurConstellation;
     doitExister?: true;
-  }): Promise<string> 
+  }): Promise<string>;
   async obtIdBd({
     nom,
     racine,
     type,
     optionsAccès,
-    doitExister=false,
+    doitExister = false,
   }: {
     nom: string;
     racine: string | KeyValueStore<string>;
@@ -1688,7 +1731,7 @@ export default class ClientConstellation extends EventEmitter {
 
     const clefRequète = bdRacine.id + ":" + nom;
     await this.verrouObtIdBd.acquire(clefRequète);
-    
+
     const idBdCompte = bdRacine.id;
 
     let idBd = bdRacine.get(nom);
@@ -1708,14 +1751,12 @@ export default class ClientConstellation extends EventEmitter {
     if (idBd && type) {
       try {
         await this.orbite![type as keyof OrbitDB](idBd);
-        this.verrouObtIdBd.release(clefRequète)
+        this.verrouObtIdBd.release(clefRequète);
         return idBd;
       } catch {
-        this.verrouObtIdBd.release(clefRequète)
-        if (doitExister)
-          return undefined;
-        else
-          throw new Error("Bd n'existe pas :" + nom + " " + idBd)
+        this.verrouObtIdBd.release(clefRequète);
+        if (doitExister) return undefined;
+        else throw new Error("Bd n'existe pas :" + nom + " " + idBd);
       }
     }
 
@@ -1738,7 +1779,7 @@ export default class ClientConstellation extends EventEmitter {
       await this.sauvegarderAuStockageLocal({ clef: clefLocale, val: idBd });
 
     if (fOublier) await fOublier();
-    
+
     this.verrouObtIdBd.release(clefRequète);
     return idBd;
   }
@@ -1794,7 +1835,7 @@ export default class ClientConstellation extends EventEmitter {
     f,
   }: {
     idObjet: string;
-    f: schémaFonctionSuivi<typeof rôles[number] | undefined>;
+    f: schémaFonctionSuivi<(typeof rôles)[number] | undefined>;
   }): Promise<schémaFonctionOublier> {
     const { bd, fOublier } = await this.ouvrirBd({ id: idObjet });
     const accès = bd.access;
@@ -1839,7 +1880,7 @@ export default class ClientConstellation extends EventEmitter {
     id: string;
     f: schémaFonctionSuivi<boolean>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (rôle?: typeof rôles[number]) => {
+    const fFinale = async (rôle?: (typeof rôles)[number]) => {
       await f(rôle !== undefined);
     };
     return await this.suivrePermission({ idObjet: id, f: fFinale });

@@ -44,6 +44,8 @@ export interface optsIpaTravailleur extends optsConstellation {
   };
 }
 
-export default (opts: optsIpaTravailleur = {}): MandataireClientConstellation => {
+export default (
+  opts: optsIpaTravailleur = {}
+): MandataireClientConstellation => {
   return générerMandataire(new MandataireClientTravailleur(opts));
 };

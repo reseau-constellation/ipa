@@ -26,7 +26,6 @@ typesClients.forEach((type) => {
           type
         ));
         [client] = clients;
-
       }, config.patienceInit);
 
       afterAll(async () => {

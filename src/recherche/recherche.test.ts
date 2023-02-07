@@ -59,7 +59,6 @@ const vérifierRecherche = (
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Rechercher dans réseau", function () {
-
       describe("Profil", function () {
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
@@ -70,10 +69,11 @@ typesClients.forEach((type) => {
             3,
             type
           ));
-          idsComptes = await Promise.all(clients.map(async c=>await c.obtIdCompte()));
-          
+          idsComptes = await Promise.all(
+            clients.map(async (c) => await c.obtIdCompte())
+          );
         }, config.patienceInit * 3);
-  
+
         afterAll(async () => {
           if (fOublierClients) await fOublierClients();
         });
@@ -103,12 +103,12 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 2,
               }));
 
-              ({ fOublier: fOublier2, fChangerN: fChangerN2 } =
-                await clients[0].recherche!.rechercherProfilSelonNom({
-                  nom: "Julien",
-                  f: (membres) => rés2.mettreÀJour(membres),
-                  nRésultatsDésirés: 1,
-                }));
+            ({ fOublier: fOublier2, fChangerN: fChangerN2 } =
+              await clients[0].recherche!.rechercherProfilSelonNom({
+                nom: "Julien",
+                f: (membres) => rés2.mettreÀJour(membres),
+                nRésultatsDésirés: 1,
+              }));
 
             réfClient2 = {
               id: idsComptes[1],
@@ -272,11 +272,13 @@ typesClients.forEach((type) => {
           >();
 
           beforeAll(async () => {
-            ({ fOublier } = await clients[0].recherche!.rechercherProfilSelonId({
-              idCompte: await clients[1].obtIdCompte(),
-              f: (membres) => rés.mettreÀJour(membres),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } = await clients[0].recherche!.rechercherProfilSelonId(
+              {
+                idCompte: await clients[1].obtIdCompte(),
+                f: (membres) => rés.mettreÀJour(membres),
+                nRésultatsDésirés: 2,
+              }
+            ));
             réfClient2 = {
               id: idsComptes[1],
               résultatObjectif: {
@@ -315,10 +317,11 @@ typesClients.forEach((type) => {
             2,
             type
           ));
-          idsComptes = await Promise.all(clients.map(async c=>await c.obtIdCompte()));
-          
+          idsComptes = await Promise.all(
+            clients.map(async (c) => await c.obtIdCompte())
+          );
         }, config.patienceInit * 2);
-  
+
         afterAll(async () => {
           if (fOublierClients) await fOublierClients();
         });
@@ -333,11 +336,12 @@ typesClients.forEach((type) => {
 
           beforeAll(async () => {
             const idMotClef = await clients[1].motsClefs!.créerMotClef();
-            ({ fOublier } = await clients[0].recherche!.rechercherMotClefSelonId({
-              idMotClef,
-              f: (motsClefs) => rés.mettreÀJour(motsClefs),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } =
+              await clients[0].recherche!.rechercherMotClefSelonId({
+                idMotClef,
+                f: (motsClefs) => rés.mettreÀJour(motsClefs),
+                nRésultatsDésirés: 2,
+              }));
             réfClient2 = {
               id: idsComptes[1],
               résultatObjectif: {
@@ -372,11 +376,12 @@ typesClients.forEach((type) => {
           >();
 
           beforeAll(async () => {
-            ({ fOublier } = await clients[0].recherche!.rechercherMotClefSelonNom({
-              nomMotClef: "hydro",
-              f: (motsClefs) => rés.mettreÀJour(motsClefs),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } =
+              await clients[0].recherche!.rechercherMotClefSelonNom({
+                nomMotClef: "hydro",
+                f: (motsClefs) => rés.mettreÀJour(motsClefs),
+                nRésultatsDésirés: 2,
+              }));
           });
 
           afterAll(async () => {
@@ -456,13 +461,12 @@ typesClients.forEach((type) => {
             2,
             type
           ));
-          
         }, config.patienceInit * 2);
-  
+
         afterAll(async () => {
           if (fOublierClients) await fOublierClients();
         });
-        
+
         describe("selon id", () => {
           let fOublier: schémaFonctionOublier;
           let réfClient2: résultatRecherche<infoRésultatTexte>;
@@ -475,11 +479,12 @@ typesClients.forEach((type) => {
             const idVariable = await clients[1].variables!.créerVariable({
               catégorie: "numérique",
             });
-            ({ fOublier } = await clients[0].recherche!.rechercherVariableSelonId({
-              idVariable,
-              f: (motsClefs) => rés.mettreÀJour(motsClefs),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } =
+              await clients[0].recherche!.rechercherVariableSelonId({
+                idVariable,
+                f: (motsClefs) => rés.mettreÀJour(motsClefs),
+                nRésultatsDésirés: 2,
+              }));
             réfClient2 = {
               id: idVariable,
               résultatObjectif: {
@@ -514,11 +519,12 @@ typesClients.forEach((type) => {
           >();
 
           beforeAll(async () => {
-            ({ fOublier } = await clients[0].recherche!.rechercherVariableSelonNom({
-              nomVariable: "précip",
-              f: (variables) => rés.mettreÀJour(variables),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } =
+              await clients[0].recherche!.rechercherVariableSelonNom({
+                nomVariable: "précip",
+                f: (variables) => rés.mettreÀJour(variables),
+                nRésultatsDésirés: 2,
+              }));
           });
 
           afterAll(async () => {
@@ -663,9 +669,8 @@ typesClients.forEach((type) => {
             2,
             type
           ));
-          
         }, config.patienceInit * 2);
-  
+
         afterAll(async () => {
           if (fOublierClients) await fOublierClients();
         });
@@ -807,11 +812,12 @@ typesClients.forEach((type) => {
           >();
 
           beforeAll(async () => {
-            ({ fOublier } = await clients[0].recherche!.rechercherBdSelonVariable({
-              texte: "précipitation",
-              f: (bds) => rés.mettreÀJour(bds),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } =
+              await clients[0].recherche!.rechercherBdSelonVariable({
+                texte: "précipitation",
+                f: (bds) => rés.mettreÀJour(bds),
+                nRésultatsDésirés: 2,
+              }));
           });
 
           afterAll(async () => {
@@ -876,11 +882,12 @@ typesClients.forEach((type) => {
           >();
 
           beforeAll(async () => {
-            ({ fOublier } = await clients[0].recherche!.rechercherBdSelonMotClef({
-              texte: "meteorología",
-              f: (bds) => rés.mettreÀJour(bds),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } =
+              await clients[0].recherche!.rechercherBdSelonMotClef({
+                texte: "meteorología",
+                f: (bds) => rés.mettreÀJour(bds),
+                nRésultatsDésirés: 2,
+              }));
           });
 
           afterAll(async () => {
@@ -987,9 +994,8 @@ typesClients.forEach((type) => {
             2,
             type
           ));
-          
         }, config.patienceInit * 2);
-  
+
         afterAll(async () => {
           if (fOublierClients) await fOublierClients();
         });
@@ -1003,11 +1009,13 @@ typesClients.forEach((type) => {
           beforeAll(async () => {
             idProjet = await clients[1].projets!.créerProjet();
 
-            ({ fOublier } = await clients[0].recherche!.rechercherProjetSelonId({
-              idProjet,
-              f: (x) => rés.mettreÀJour(x),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } = await clients[0].recherche!.rechercherProjetSelonId(
+              {
+                idProjet,
+                f: (x) => rés.mettreÀJour(x),
+                nRésultatsDésirés: 2,
+              }
+            ));
           }, config.patience);
 
           afterAll(async () => {
@@ -1042,11 +1050,12 @@ typesClients.forEach((type) => {
           >();
 
           beforeAll(async () => {
-            ({ fOublier } = await clients[0].recherche!.rechercherProjetSelonNom({
-              nomProjet: "météo",
-              f: (projets) => rés.mettreÀJour(projets),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } =
+              await clients[0].recherche!.rechercherProjetSelonNom({
+                nomProjet: "météo",
+                f: (projets) => rés.mettreÀJour(projets),
+                nRésultatsDésirés: 2,
+              }));
           });
 
           afterAll(async () => {
@@ -1089,11 +1098,12 @@ typesClients.forEach((type) => {
           >();
 
           beforeAll(async () => {
-            ({ fOublier } = await clients[0].recherche!.rechercherProjetSelonDescr({
-              descrProjet: "météo",
-              f: (projets) => rés.mettreÀJour(projets),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } =
+              await clients[0].recherche!.rechercherProjetSelonDescr({
+                descrProjet: "météo",
+                f: (projets) => rés.mettreÀJour(projets),
+                nRésultatsDésirés: 2,
+              }));
           });
 
           afterAll(async () => {
@@ -1283,11 +1293,13 @@ typesClients.forEach((type) => {
           >();
 
           beforeAll(async () => {
-            ({ fOublier } = await clients[0].recherche!.rechercherProjetSelonBd({
-              texte: nouveauNom,
-              f: (projets) => rés.mettreÀJour(projets),
-              nRésultatsDésirés: 2,
-            }));
+            ({ fOublier } = await clients[0].recherche!.rechercherProjetSelonBd(
+              {
+                texte: nouveauNom,
+                f: (projets) => rés.mettreÀJour(projets),
+                nRésultatsDésirés: 2,
+              }
+            ));
           });
 
           afterAll(async () => {

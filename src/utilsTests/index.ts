@@ -34,7 +34,7 @@ export const dirTempoTests = (): string => {
 export const obtDirTempoPourTest = (nom?: string): string => {
   const dir = path.resolve(dirTempoTests(), (nom || "") + uuidv4());
   fs.mkdirSync(dir, { recursive: true });
-  return dir
+  return dir;
 };
 
 const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
@@ -125,8 +125,8 @@ export class AttendreRésultat<T> {
   }
 
   async attendreExiste(): Promise<T> {
-    const val = await this.attendreQue((x) => !!x) as T;
-    return val
+    const val = (await this.attendreQue((x) => !!x)) as T;
+    return val;
   }
 
   oublier(id: string) {
@@ -152,9 +152,9 @@ export class AttendreFichierExiste extends EventEmitter {
     return new Promise((résoudre) => {
       if (fs.existsSync(this.fichier)) résoudre();
       const dossier = path.dirname(this.fichier);
-      
+
       const chokidar = import("chokidar");
-      chokidar.then(c=>{
+      chokidar.then((c) => {
         const écouteur = c.watch(dossier);
         this.fOublier = () => écouteur.close();
         écouteur.on("add", async () => {
@@ -168,7 +168,6 @@ export class AttendreFichierExiste extends EventEmitter {
           résoudre();
         }
       });
-      
     });
   }
 
@@ -194,29 +193,26 @@ export class AttendreFichierModifié extends EventEmitter {
     await this.attendreExiste.attendre();
 
     return new Promise((résoudre, rejeter) => {
-      import("chokidar").then(
-        c=>{
-          const écouteur = c.watch(this.fichier);
-          this.fsOublier.push(() => écouteur.close());
+      import("chokidar").then((c) => {
+        const écouteur = c.watch(this.fichier);
+        this.fsOublier.push(() => écouteur.close());
 
-          écouteur.on("change", async (adresse) => {
-            if (adresse !== this.fichier) return;
-            try {
-              const { mtime } = fs.statSync(this.fichier);
-              const prêt = mtime.getTime() > tempsAvant;
-              if (prêt) {
-                await écouteur.close();
-                résoudre();
-              }
-            } catch (e) {
-              // Le fichier a été effacé
-              écouteur.close();
-              rejeter(e);
+        écouteur.on("change", async (adresse) => {
+          if (adresse !== this.fichier) return;
+          try {
+            const { mtime } = fs.statSync(this.fichier);
+            const prêt = mtime.getTime() > tempsAvant;
+            if (prêt) {
+              await écouteur.close();
+              résoudre();
             }
-          });
-        }
-      )
-      
+          } catch (e) {
+            // Le fichier a été effacé
+            écouteur.close();
+            rejeter(e);
+          }
+        });
+      });
     });
   }
 

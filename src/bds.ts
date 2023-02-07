@@ -13,7 +13,11 @@ import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import { schémaStatut, TYPES_STATUT, élémentsBd } from "@/utils/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
-import type { règleColonne, élémentDonnées, erreurValidation } from "@/valid.js";
+import type {
+  règleColonne,
+  élémentDonnées,
+  erreurValidation,
+} from "@/valid.js";
 import type { élémentBdListeDonnées, différenceTableaux } from "@/tableaux.js";
 import ClientConstellation from "@/client.js";
 import {
@@ -26,7 +30,7 @@ import {
   ignorerNonDéfinis,
 } from "@/utils/index.js";
 import type { objRôles } from "@/accès/types.js";
-import type { default as ContrôleurConstellation} from "@/accès/cntrlConstellation.js";
+import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 export interface schémaSpécificationBd {
   licence: string;
@@ -374,9 +378,16 @@ export default class BDs {
   @cacheSuivi
   async suivreNuéesBd({
     idBd,
-    f
-  }: { idBd: string, f: schémaFonctionSuivi<string[]> }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdListeDeClef({ id: idBd, clef: "nuées", f });
+    f,
+  }: {
+    idBd: string;
+    f: schémaFonctionSuivi<string[]>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdListeDeClef({
+      id: idBd,
+      clef: "nuées",
+      f,
+    });
   }
 
   @cacheSuivi
@@ -770,15 +781,15 @@ export default class BDs {
         return await this.suivreIdTableauParClef({
           idBd,
           clef: clefTableau,
-          f: ignorerNonDéfinis(fSuivi)
-        })
+          f: ignorerNonDéfinis(fSuivi),
+        });
       },
       true
     );
     return await this.client!.tableaux!.suivreDonnées({
       idTableau,
-      f
-    })
+      f,
+    });
   }
 
   async ajouterÉlémentÀTableauParClef<T extends élémentBdListeDonnées>({
@@ -786,23 +797,23 @@ export default class BDs {
     clefTableau,
     vals,
   }: {
-    idBd: string
-    clefTableau: string
-    vals: T
+    idBd: string;
+    clefTableau: string;
+    vals: T;
   }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClef({
           idBd,
           clef: clefTableau,
-          f: ignorerNonDéfinis(fSuivi)
-        })
+          f: ignorerNonDéfinis(fSuivi),
+        });
       }
     );
     await this.client.tableaux!.ajouterÉlément({
       idTableau,
-      vals
-    })
+      vals,
+    });
   }
 
   async modifierÉlémentDeTableauParClef({
@@ -811,25 +822,25 @@ export default class BDs {
     empreinteÉlément,
     vals,
   }: {
-    idBd: string
-    clefTableau: string,
-    empreinteÉlément: string,
-    vals: { [key: string]: élémentsBd | undefined }
+    idBd: string;
+    clefTableau: string;
+    empreinteÉlément: string;
+    vals: { [key: string]: élémentsBd | undefined };
   }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClef({
           idBd,
           clef: clefTableau,
-          f: ignorerNonDéfinis( fSuivi)
-        })
+          f: ignorerNonDéfinis(fSuivi),
+        });
       }
     );
     this.client.tableaux!.modifierÉlément({
       idTableau,
       vals,
-      empreintePrécédente: empreinteÉlément
-    })
+      empreintePrécédente: empreinteÉlément,
+    });
   }
 
   async effacerÉlémentDeTableauParClef({
@@ -837,23 +848,23 @@ export default class BDs {
     clefTableau,
     empreinteÉlément,
   }: {
-    idBd: string
-    clefTableau: string,
-    empreinteÉlément: string
+    idBd: string;
+    clefTableau: string;
+    empreinteÉlément: string;
   }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClef({
           idBd,
           clef: clefTableau,
-          f: ignorerNonDéfinis(fSuivi)
-        })
+          f: ignorerNonDéfinis(fSuivi),
+        });
       }
     );
     this.client.tableaux!.effacerÉlément({
       idTableau,
-      empreinteÉlément
-    })
+      empreinteÉlément,
+    });
   }
 
   async ajouterNomsBd({
@@ -1221,7 +1232,7 @@ export default class BDs {
       racine: idBd,
       type: "kvstore",
     });
-    if (!idBdTableaux) throw new Error("Id Bd Tableau non obtenable.")
+    if (!idBdTableaux) throw new Error("Id Bd Tableau non obtenable.");
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<infoTableau>
     >({ id: idBdTableaux });
@@ -1462,12 +1473,14 @@ export default class BDs {
         const { cols, règles } = info;
 
         if (cols !== undefined && règles !== undefined) {
-          const colsÉligibles = cols.filter((c) =>
-            c.catégorie && ["numérique", "catégorique"].includes(
-              typeof c.catégorie === "string"
-                ? c.catégorie
-                : c.catégorie?.catégorieBase
-            )
+          const colsÉligibles = cols.filter(
+            (c) =>
+              c.catégorie &&
+              ["numérique", "catégorique"].includes(
+                typeof c.catégorie === "string"
+                  ? c.catégorie
+                  : c.catégorie?.catégorieBase
+              )
           );
 
           const dénominateur = colsÉligibles.length;
@@ -1558,12 +1571,14 @@ export default class BDs {
           erreurs !== undefined &&
           cols !== undefined
         ) {
-          const colsÉligibles = cols.filter((c) =>
-            c.catégorie && ["numérique", "catégorique"].includes(
-              typeof c.catégorie === "string"
-                ? c.catégorie
-                : c.catégorie?.catégorieBase
-            )
+          const colsÉligibles = cols.filter(
+            (c) =>
+              c.catégorie &&
+              ["numérique", "catégorique"].includes(
+                typeof c.catégorie === "string"
+                  ? c.catégorie
+                  : c.catégorie?.catégorieBase
+              )
           );
 
           const déjàVus: { empreinte: string; idColonne: string }[] = [];
@@ -1656,17 +1671,24 @@ export default class BDs {
     id: string;
     f: schémaFonctionSuivi<infoScore>;
   }): Promise<schémaFonctionOublier> {
-    const info: { accès?: number; couverture?: number; valide?: number, licence?: number } = {};
+    const info: {
+      accès?: number;
+      couverture?: number;
+      valide?: number;
+      licence?: number;
+    } = {};
 
     const fFinale = () => {
       const { accès, couverture, valide, licence } = info;
       const score: infoScore = {
         // Score impitoyable de 0 pour BDs sans licence
-        total: licence ? ((accès || 0) + (couverture || 0) + (valide || 0)) / 3 : 0,
+        total: licence
+          ? ((accès || 0) + (couverture || 0) + (valide || 0)) / 3
+          : 0,
         accès,
         couverture,
         valide,
-        licence
+        licence,
       };
       f(score);
     };
@@ -1693,9 +1715,17 @@ export default class BDs {
       },
     });
 
-    const oublierLicence = await this.suivreLicence({ id, f: licence => info.licence = licence ? 1 : 0})
+    const oublierLicence = await this.suivreLicence({
+      id,
+      f: (licence) => (info.licence = licence ? 1 : 0),
+    });
     return async () => {
-      await Promise.all([oublierAccès, oublierCouverture, oublierValide, oublierLicence]);
+      await Promise.all([
+        oublierAccès,
+        oublierCouverture,
+        oublierValide,
+        oublierLicence,
+      ]);
     };
   }
 

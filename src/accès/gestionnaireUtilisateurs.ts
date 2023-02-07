@@ -4,7 +4,10 @@ import type FeedStore from "orbit-db-feedstore";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 
-import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/utils/index.js";
+import type {
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
+} from "@/utils/index.js";
 
 import accesseurBdOrbite from "@/accès/accesseurBdOrbite.js";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
@@ -106,7 +109,7 @@ export default class GestionnaireAccès extends EventEmitter {
   _rôles: objRôles;
   _rôlesIdOrbite: objRôles;
   _rôlesUtilisateurs: {
-    [key in typeof rôles[number]]: {
+    [key in (typeof rôles)[number]]: {
       [key: string]: AccèsUtilisateur;
     };
   };
