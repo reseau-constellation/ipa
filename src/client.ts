@@ -2,7 +2,6 @@ import type { IPFS as SFIP } from "ipfs-core";
 import type { IDResult } from "ipfs-core-types/src/root";
 import type { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
-import crypto from "crypto";
 
 import OrbitDB from "orbit-db";
 import type Store from "orbit-db-store";
@@ -53,6 +52,7 @@ import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import Base64 from "crypto-js/enc-base64";
 import sha256 from "crypto-js/sha256";
+import md5 from "crypto-js/md5";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -1187,7 +1187,7 @@ export default class ClientConstellation extends EventEmitter {
       return tête;
     };
     const calculerEmpreinte = (texte: string) =>
-      crypto.createHash("md5").update(texte).digest("hex");
+      Base64.stringify(md5(texte));
 
     const fFinale = async (têtes: string[]) => {
       await f(calculerEmpreinte(têtes.sort().join()));
