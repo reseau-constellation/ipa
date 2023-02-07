@@ -1,6 +1,7 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
-import crypto from "crypto";
+import md5 from "crypto-js/md5";
+import Base64 from "crypto-js/enc-base64";
 
 import type { itemRechercheProfondeur } from "@/reseau.js";
 import type {
@@ -313,7 +314,7 @@ export class CacheSuivi {
   }): string {
     const texte =
       adresseFonction + "-" + idClient + "-" + JSON.stringify(argsClefs);
-    return crypto.createHash("md5").update(texte).digest("hex");
+    return Base64.stringify(md5(texte));
   }
 }
 
