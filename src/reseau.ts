@@ -181,7 +181,7 @@ export interface ValeurMessageRequèteRejoindreCompte extends ValeurMessage {
 
 export interface ContenuMessageRejoindreCompte extends ContenuMessage {
   idOrbite: string;
-  codeSecret: string;
+  empreinteVérification: string;
 }
 
 
@@ -394,16 +394,18 @@ export default class Réseau extends EventEmitter {
     idCompte: string;
     codeSecret: string;
   }): Promise<void> {
+    const idOrbite = await this.client.obtIdOrbite();
     const msg: ValeurMessageRequèteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
       contenu: {
-        idOrbite: await this.client.obtIdOrbite(),
-        codeSecret,
+        idOrbite,
+        empreinteVérification: this.client.empreinteInvitation({idOrbite, codeSecret}),
       },
     };
 
     await this.envoyerMessageAuMembre({ msg, idCompte });
   }
+
 
   async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
     if (this._fermé) return;

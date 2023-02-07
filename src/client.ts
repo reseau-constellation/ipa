@@ -51,6 +51,8 @@ import ContrôleurConstellation, {
 } from "@/accès/cntrlConstellation.js";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
+import Base64 from "crypto-js/enc-base64";
+import sha256 from "crypto-js/sha256";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -404,18 +406,34 @@ export default class ClientConstellation extends EventEmitter {
   }: {
     requète: ContenuMessageRejoindreCompte;
   }): Promise<void> {
-    const { idOrbite, codeSecret } = requète;
+    const { idOrbite, empreinteVérification } = requète;
     const maintenant = Date.now();
 
-    const dateCodeSecret = this.motsDePasseRejoindreCompte[codeSecret]
-    const requèteValide =
-      dateCodeSecret && (maintenant - dateCodeSecret) <
-      DÉLAI_EXPIRATION_INVITATIONS;
-
-    if (requèteValide) {
-      delete this.motsDePasseRejoindreCompte[codeSecret];
-      await this.ajouterDispositif({ idOrbite });
+    for (const codeSecret of Object.keys(this.motsDePasseRejoindreCompte)) {
+      const dateCodeSecret = this.motsDePasseRejoindreCompte[codeSecret];
+      const dateValide = (
+        (maintenant - dateCodeSecret) < DÉLAI_EXPIRATION_INVITATIONS
+        );
+      if (dateValide) {
+        const empreinteCorrespondante = this.empreinteInvitation({idOrbite, codeSecret});
+        if (empreinteCorrespondante === empreinteVérification) {
+          
+          // Empreinte code secret validé
+          delete this.motsDePasseRejoindreCompte[codeSecret];
+          await this.ajouterDispositif({ idOrbite });
+        }
+      }
     }
+  }
+
+  empreinteInvitation({
+    idOrbite,
+    codeSecret,
+  }: {
+    idOrbite: string;
+    codeSecret: string;
+  }): string {
+    return Base64.stringify(sha256(idOrbite + codeSecret))
   }
 
   async demanderEtPuisRejoindreCompte({
