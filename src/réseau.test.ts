@@ -100,7 +100,8 @@ typesClients.forEach((type) => {
         });
 
         test("Autres postes détectés", async () => {
-          expect(rés.val.map((r) => r.peer)).toEqual(
+          const val = await rés.attendreQue(x=>x.length >= 2)
+          expect(val.map((r) => r.peer)).toEqual(
             expect.arrayContaining([idsNodesSFIP[1], idsNodesSFIP[2]])
           );
         });
@@ -356,7 +357,8 @@ typesClients.forEach((type) => {
         });
 
         test("On ne détecte pas le bloqué privé d'un autre membre", async () => {
-          expect(bloquésAutreMembre.val.map((b) => b.idBdCompte)).not.toContain(
+          const val = await bloquésAutreMembre.attendreExiste();
+          expect(val.map((b) => b.idBdCompte)).not.toContain(
             idsBdCompte[2]
           );
         });
@@ -495,7 +497,7 @@ typesClients.forEach((type) => {
             ];
             const val = await relationsAutres.attendreQue(
               (x?: infoConfiance[]) =>
-                x?.length > 0 && x.every((x) => x.confiance > 0)
+                !!x && (x.length > 0 && x.every((x) => x.confiance > 0))
             );
 
             expect(val).toEqual(expect.arrayContaining(réf));
@@ -1510,7 +1512,7 @@ typesClients.forEach((type) => {
               id: idVariable,
             });
             const val = await résVariable.attendreQue(
-              (x) => x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+              (x) => !!x?.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
             );
 
             expect(val).toEqual(réf);
@@ -1749,19 +1751,19 @@ typesClients.forEach((type) => {
           ));
 
           fsOublier.push(
-            await clients[1].réseau!.suivreNomsMembre({
+            await clients[1].profil!.suivreNoms({
               idCompte: idsBdCompte[0],
               f: (n) => résNom.mettreÀJour(n),
             })
           );
           fsOublier.push(
-            await clients[1].réseau!.suivreCourrielMembre({
+            await clients[1].profil!.suivreCourriel({
               idCompte: idsBdCompte[0],
               f: (c) => résCourriel.mettreÀJour(c),
             })
           );
           fsOublier.push(
-            await clients[1].réseau!.suivreImageMembre({
+            await clients[1].profil!.suivreImage({
               idCompte: idsBdCompte[0],
               f: (i) => résImage.mettreÀJour(i),
             })
@@ -2409,7 +2411,7 @@ typesClients.forEach((type) => {
           "Suivre BDs du réseau",
           async () => {
             const val = await résBds.attendreQue(
-              (x?: string[]) => x && x.length === 2
+              (x: string[]) => x && x.length === 2
             );
             expect(val).toHaveLength(2);
             expect(val).toEqual(expect.arrayContaining([idBd1, idBd2]));
