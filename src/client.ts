@@ -42,6 +42,7 @@ import {
   uneFois,
   élémentsBd,
   toBuffer,
+  ignorerNonDéfinis,
 } from "@/utils/index.js";
 import obtStockageLocal from "@/stockageLocal.js";
 import ContrôleurConstellation, {
@@ -50,7 +51,6 @@ import ContrôleurConstellation, {
 } from "@/accès/cntrlConstellation.js";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
-import stockageLocal from "@/stockageLocal.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -63,8 +63,6 @@ export interface Signature {
   signature: string;
   clefPublique: string;
 }
-
-const verrouOuvertureBd = new Semaphore();
 
 export interface optsConstellation {
   compte?: string;
@@ -122,6 +120,9 @@ export default class ClientConstellation extends EventEmitter {
   sujet_réseau: string;
   motsDePasseRejoindreCompte: { [key: string]: number };
 
+  verrouOuvertureBd: Semaphore
+  verrouObtIdBd: Semaphore
+
   constructor(opts: optsConstellation = {}) {
     super();
     enregistrerContrôleurs();
@@ -132,6 +133,9 @@ export default class ClientConstellation extends EventEmitter {
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
 
+    this.verrouOuvertureBd = new Semaphore();
+    this.verrouObtIdBd = new Semaphore();
+
     this._orbiteExterne = this._sfipExterne = false;
 
     this.encryption = new EncryptionLocalFirst();
@@ -141,6 +145,7 @@ export default class ClientConstellation extends EventEmitter {
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = orbite;
+    if (!this._opts.dossierStockageLocal) this._opts.dossierStockageLocal = this.orbite.directory
 
     this.idNodeSFIP = await this.sfip!.id();
 
@@ -152,7 +157,7 @@ export default class ClientConstellation extends EventEmitter {
 
     this.idBdCompte = this._opts.compte || (await obtStockageLocal(this._opts.dossierStockageLocal)).getItem(
       "idBdCompte"
-    );
+    ) || undefined;
     if (!this.idBdCompte) {
       this.idBdCompte = await this.créerBdIndépendante({
         type: "kvstore",
@@ -237,12 +242,7 @@ export default class ClientConstellation extends EventEmitter {
       address: accès.bd!.id,
     };
 
-    const idBdProfil = await this.obtIdBd({
-      nom: "compte",
-      racine: this.bdCompte,
-      type: "kvstore",
-    });
-    this.profil = new Profil({ client: this, id: idBdProfil! });
+    this.profil = new Profil({ client: this });
 
     const idBdBDs = await this.obtIdBd({
       nom: "bds",
@@ -305,8 +305,8 @@ export default class ClientConstellation extends EventEmitter {
 
     this.recherche = new Recherche({ client: this });
 
-    this.épingles!.épinglerBd({ id: idBdProfil! }); // Celle-ci doit être récursive et inclure les fichiers
-    for (const idBd of [
+    // this.épingles!.épinglerBd({ id: idBdProfil! }); // Celle-ci doit être récursive et inclure les fichiers
+    /* for (const idBd of [
       idBdBDs,
       idBdVariables,
       idBdRéseau,
@@ -315,12 +315,13 @@ export default class ClientConstellation extends EventEmitter {
       idBdMotsClefs,
       idBdAuto,
     ]) {
-      this.épingles!.épinglerBd({
-        id: idBd!,
+      console.log({idBd})
+      await this.épingles!.épinglerBd({
+        id: idBd,
         récursif: false,
         fichiers: false,
       });
-    }
+    } */
   }
 
   async signer({ message }: { message: string }): Promise<Signature> {
@@ -406,8 +407,9 @@ export default class ClientConstellation extends EventEmitter {
     const { idOrbite, codeSecret } = requète;
     const maintenant = Date.now();
 
+    const dateCodeSecret = this.motsDePasseRejoindreCompte[codeSecret]
     const requèteValide =
-      (maintenant - (this.motsDePasseRejoindreCompte[codeSecret] || -Infinity)) <
+      dateCodeSecret && (maintenant - dateCodeSecret) <
       DÉLAI_EXPIRATION_INVITATIONS;
 
     if (requèteValide) {
@@ -742,6 +744,7 @@ export default class ClientConstellation extends EventEmitter {
             const idSuivi = uuidv4();
             const promesse = f(bd);
 
+            // @ts-ignore
             if (promesse && promesse.then) {
               promesses[idSuivi] = promesse;
               (promesse as Promise<void>).then(() => {
@@ -1355,8 +1358,7 @@ export default class ClientConstellation extends EventEmitter {
       await oublierBdRacine();
       await Promise.all(
         Object.values(arbre)
-          .filter((x) => x.fOublier)
-          .map((x) => x.fOublier())
+          .map((x) => x.fOublier && x.fOublier())
       );
     };
     if (typeof retourRacine === "function") {
@@ -1442,7 +1444,7 @@ export default class ClientConstellation extends EventEmitter {
     };
     return await this.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => await fRacine(fSuivreRacine),
-      f,
+      f: ignorerNonDéfinis(f),
       fSuivre,
     });
   }
@@ -1540,7 +1542,7 @@ export default class ClientConstellation extends EventEmitter {
 
     return (
       await obtStockageLocal(
-        this._opts.dossierStockageLocal || this.orbite.directory
+        this._opts.dossierStockageLocal
       )
     ).getItem(clefClient);
   }
@@ -1580,7 +1582,7 @@ export default class ClientConstellation extends EventEmitter {
     if (!adresseOrbiteValide(id)) throw new Error(`Adresse "${id}" non valide.`);
 
     // Nous avons besoin d'un verrou afin d'éviter la concurrence
-    await verrouOuvertureBd.acquire(id);
+    await this.verrouOuvertureBd.acquire(id);
     const existante = this._bds[id] as bdOuverte<T> | undefined;
 
     const idRequète = uuidv4();
@@ -1595,7 +1597,7 @@ export default class ClientConstellation extends EventEmitter {
 
     if (existante) {
       this._bds[id].idsRequètes.add(idRequète);
-      verrouOuvertureBd.release(id);
+      this.verrouOuvertureBd.release(id);
       return { bd: existante.bd, fOublier };
     }
     try {
@@ -1604,13 +1606,12 @@ export default class ClientConstellation extends EventEmitter {
       await bd.load();
           
       // Maintenant que la BD a été créée, on peut relâcher le verrou
-      verrouOuvertureBd.release(id);
+      this.verrouOuvertureBd.release(id);
       return { bd, fOublier };
     } catch (e) {
       console.error((e as Error).toString())
       throw e
     }
-    
   }
 
   async obtIdBd({
@@ -1618,11 +1619,39 @@ export default class ClientConstellation extends EventEmitter {
     racine,
     type,
     optionsAccès,
+    doitExister,
   }: {
     nom: string;
     racine: string | KeyValueStore<string>;
     type?: TStoreType;
     optionsAccès?: OptionsContrôleurConstellation;
+    doitExister?: false;
+  }): Promise<string|undefined> 
+  async obtIdBd({
+    nom,
+    racine,
+    type,
+    optionsAccès,
+    doitExister,
+  }: {
+    nom: string;
+    racine: string | KeyValueStore<string>;
+    type?: TStoreType;
+    optionsAccès?: OptionsContrôleurConstellation;
+    doitExister?: true;
+  }): Promise<string> 
+  async obtIdBd({
+    nom,
+    racine,
+    type,
+    optionsAccès,
+    doitExister=false,
+  }: {
+    nom: string;
+    racine: string | KeyValueStore<string>;
+    type?: TStoreType;
+    optionsAccès?: OptionsContrôleurConstellation;
+    doitExister?: boolean;
   }): Promise<string | undefined> {
     let bdRacine: KeyValueStore<string>;
     let fOublier: schémaFonctionOublier | undefined;
@@ -1634,6 +1663,10 @@ export default class ClientConstellation extends EventEmitter {
     } else {
       bdRacine = racine;
     }
+
+    const clefRequète = bdRacine.id + ":" + nom;
+    await this.verrouObtIdBd.acquire(clefRequète);
+    
     const idBdCompte = bdRacine.id;
 
     let idBd = bdRacine.get(nom);
@@ -1653,9 +1686,14 @@ export default class ClientConstellation extends EventEmitter {
     if (idBd && type) {
       try {
         await this.orbite![type as keyof OrbitDB](idBd);
+        this.verrouObtIdBd.release(clefRequète)
         return idBd;
       } catch {
-        return undefined;
+        this.verrouObtIdBd.release(clefRequète)
+        if (doitExister)
+          return undefined;
+        else
+          throw new Error("Bd n'existe pas :" + nom + " " + idBd)
       }
     }
 
@@ -1678,6 +1716,8 @@ export default class ClientConstellation extends EventEmitter {
       await this.sauvegarderAuStockageLocal({ clef: clefLocale, val: idBd });
 
     if (fOublier) await fOublier();
+    
+    this.verrouObtIdBd.release(clefRequète);
     return idBd;
   }
 

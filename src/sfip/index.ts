@@ -1,8 +1,6 @@
 import {
   isBrowser,
   isElectronRenderer,
-  isElectronMain,
-  isElectron,
   isWebWorker,
 } from "wherearewe";
 import { mplex } from '@libp2p/mplex'
@@ -10,6 +8,7 @@ import { create,  } from "ipfs";
 import { noise } from "@chainsafe/libp2p-noise";
 import mergeOptions from 'merge-options'
 import type { IPFS } from "ipfs";
+import type { Options } from "ipfs-core";
 
 const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
   if (isBrowser || isElectronRenderer ) {
@@ -25,7 +24,7 @@ const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
 };
 
 // https://github.com/libp2p/js-libp2p-webrtc-direct/issues/98
-const obtConfigCommun = (): Parameters<typeof create>[0] => {
+const obtConfigCommun = (): Options => {
   return {
     libp2p: {
       streamMuxers: [

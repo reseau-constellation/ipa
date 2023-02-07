@@ -23,6 +23,7 @@ import {
   schémaFonctionOublier,
   uneFois,
   faisRien,
+  ignorerNonDéfinis,
 } from "@/utils/index.js";
 import type { objRôles } from "@/accès/types.js";
 import type { default as ContrôleurConstellation} from "@/accès/cntrlConstellation.js";
@@ -428,7 +429,7 @@ export default class BDs {
       fSuivreCondition: (état: boolean) => void
     ): Promise<schémaFonctionOublier> => {
       const fFinaleSuivreCondition = (nuéesBd?: string[]) => {
-        fSuivreCondition(nuéesBd.includes(idNuée));
+        fSuivreCondition(!!nuéesBd && nuéesBd.includes(idNuée));
       };
       return await this.suivreNuéesBd({ idBd: id, f: fFinaleSuivreCondition });
     };
@@ -769,12 +770,12 @@ export default class BDs {
         return await this.suivreIdTableauParClef({
           idBd,
           clef: clefTableau,
-          f: fSuivi
+          f: ignorerNonDéfinis(fSuivi)
         })
       },
       true
     );
-    return await this.client!.tableaux.suivreDonnées({
+    return await this.client!.tableaux!.suivreDonnées({
       idTableau,
       f
     })
@@ -794,7 +795,7 @@ export default class BDs {
         return await this.suivreIdTableauParClef({
           idBd,
           clef: clefTableau,
-          f: fSuivi
+          f: ignorerNonDéfinis(fSuivi)
         })
       }
     );
@@ -820,7 +821,7 @@ export default class BDs {
         return await this.suivreIdTableauParClef({
           idBd,
           clef: clefTableau,
-          f: fSuivi
+          f: ignorerNonDéfinis( fSuivi)
         })
       }
     );
@@ -845,7 +846,7 @@ export default class BDs {
         return await this.suivreIdTableauParClef({
           idBd,
           clef: clefTableau,
-          f: fSuivi
+          f: ignorerNonDéfinis(fSuivi)
         })
       }
     );
@@ -1220,6 +1221,7 @@ export default class BDs {
       racine: idBd,
       type: "kvstore",
     });
+    if (!idBdTableaux) throw new Error("Id Bd Tableau non obtenable.")
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<infoTableau>
     >({ id: idBdTableaux });
@@ -1461,7 +1463,7 @@ export default class BDs {
 
         if (cols !== undefined && règles !== undefined) {
           const colsÉligibles = cols.filter((c) =>
-            ["numérique", "catégorique"].includes(
+            c.catégorie && ["numérique", "catégorique"].includes(
               typeof c.catégorie === "string"
                 ? c.catégorie
                 : c.catégorie?.catégorieBase
@@ -1557,7 +1559,7 @@ export default class BDs {
           cols !== undefined
         ) {
           const colsÉligibles = cols.filter((c) =>
-            ["numérique", "catégorique"].includes(
+            c.catégorie && ["numérique", "catégorique"].includes(
               typeof c.catégorie === "string"
                 ? c.catégorie
                 : c.catégorie?.catégorieBase

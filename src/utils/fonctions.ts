@@ -53,3 +53,11 @@ export const uneFois = async function <T>(
 export const faisRien = async (): Promise<void> => {
   // Rien à faire
 };
+
+export const ignorerNonDéfinis = <T>(f: schémaFonctionSuivi<T>): schémaFonctionSuivi<T|undefined> => {
+  return async (x: T|undefined) => {
+    if (x !== undefined) {
+      return await f(x);
+    }
+  }
+}

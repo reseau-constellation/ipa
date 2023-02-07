@@ -490,7 +490,6 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 
 class AutomatisationActive extends EventEmitter {
   client: ClientConstellation;
-  idSpéc: string;
 
   état?: ÉtatAutomatisation;
   fOublier?: schémaFonctionOublier;

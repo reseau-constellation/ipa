@@ -20,8 +20,8 @@
     "outDir": "./dist",
     "sourceMap": true,
     "strict": true,
-    "strictPropertyInitialization": false,
-    "strictNullChecks": false,
+    "strictPropertyInitialization": true,
+    "strictNullChecks": true,
     "target": "esnext",
     "useUnknownInCatchVariables": false,
 

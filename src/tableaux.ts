@@ -243,7 +243,7 @@ export default class Tableaux {
               type: "indexColonne",
               sévère: true,
               idCol: cCorresp.id,
-              colTableauIndexée: cCorresp.index,
+              colTableauIndexée: !!cCorresp.index,
             };
             différences.push(dif);
           }

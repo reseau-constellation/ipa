@@ -211,6 +211,6 @@ export default class GestionnaireClient {
   async fermer(): Promise<void> {
     // Avant de fermer, il faut être sûr qu'on a bien initialisé !
     await this.init();
-    await this.ipa.fermer();
+    await this.ipa!.fermer();
   }
 }

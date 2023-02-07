@@ -947,7 +947,7 @@ export default class Réseau extends EventEmitter {
     profondeur: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    idCompteDébut = idCompteDébut || this.client.idBdCompte;
+    const idCompteDébutFinal = idCompteDébut || await this.client.obtIdCompte();
 
     const dicRelations: { [clef: string]: { relations: infoConfiance[] } } = {};
     const dicOublierRelations: { [clef: string]: schémaFonctionOublier } = {};
@@ -963,7 +963,7 @@ export default class Réseau extends EventEmitter {
     };
 
     const calcProfondeurCompte = (id: string): number => {
-      if (id === idCompteDébut) return 0;
+      if (id === idCompteDébutFinal) return 0;
       const rechercherP = ({
         ids,
         p = 1,
@@ -976,7 +976,7 @@ export default class Réseau extends EventEmitter {
         const connexions: string[] = ids
           .map((id_) => connectéPar(id_).filter((x) => !déjàVues.has(x)))
           .flat();
-        if (connexions.includes(idCompteDébut)) {
+        if (connexions.includes(idCompteDébutFinal)) {
           return p;
         } else if (connexions.length) {
           déjàVues = new Set(...déjàVues, ...connexions);
@@ -986,7 +986,7 @@ export default class Réseau extends EventEmitter {
             déjàVues,
           });
         } else {
-          return Infinity; // Indique compte qui n'est plus connecté à `idCompteDébut`
+          return Infinity; // Indique compte qui n'est plus connecté à `idCompteDébutFinal`
         }
       };
       return rechercherP({ ids: [id] });
@@ -1053,7 +1053,7 @@ export default class Réseau extends EventEmitter {
       verrou.release("modification");
     };
 
-    await suivreRelationsImmédiates(idCompteDébut);
+    await suivreRelationsImmédiates(idCompteDébutFinal);
 
     const fChangerProfondeur = async (p: number) => {
       profondeur = p;
@@ -1383,88 +1383,6 @@ export default class Réseau extends EventEmitter {
       idCompte,
       f
     })
-  }
-
-  @cacheSuivi
-  async suivreNomsMembre({
-    idCompte,
-    f,
-  }: {
-    idCompte: string;
-    f: schémaFonctionSuivi<{ [key: string]: string }>;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = (noms?: { [key: string]: string }) => {
-      return f(noms || {});
-    };
-    return await this.client.suivreBdDeClef({
-      id: idCompte,
-      clef: "compte",
-      f: fFinale,
-      fSuivre: ({
-        id,
-        fSuivreBd,
-      }: {
-        id: string;
-        fSuivreBd: schémaFonctionSuivi<{ [key: string]: string }>;
-      }) => this.client.profil!.suivreNoms({ f: fSuivreBd, idBdProfil: id }),
-    });
-  }
-
-  @cacheSuivi
-  async suivreCourrielMembre({
-    idCompte,
-    f,
-  }: {
-    idCompte: string;
-    f: schémaFonctionSuivi<string | null | undefined>;
-  }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDeClef({
-      id: idCompte,
-      clef: "compte",
-      f,
-      fSuivre: async ({
-        id,
-        fSuivreBd,
-      }: {
-        id: string;
-        fSuivreBd: schémaFonctionSuivi<string | null>;
-      }) =>
-        await this.client.profil!.suivreCourriel({
-          f: fSuivreBd,
-          idBdProfil: id,
-        }),
-    });
-  }
-
-  @cacheSuivi
-  async suivreImageMembre({
-    idCompte,
-    f,
-  }: {
-    idCompte: string;
-    f: schémaFonctionSuivi<Uint8Array | null>;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (image?: Uint8Array | null) => {
-      return f(image || null);
-    };
-    const fSuivre = async ({
-      id,
-      fSuivreBd,
-    }: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<Uint8Array | null>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.profil!.suivreImage({
-        f: fSuivreBd,
-        idBdProfil: id,
-      });
-    };
-    return await this.client.suivreBdDeClef({
-      id: idCompte,
-      clef: "compte",
-      f: fFinale,
-      fSuivre,
-    });
   }
 
   async rechercher<T extends infoRésultat>({

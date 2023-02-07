@@ -24,18 +24,18 @@ export const rechercherProfilSelonActivité =
       fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
     ): Promise<schémaFonctionOublier> => {
       const infosCompte: {
-        noms: { [key: string]: string };
+        noms?: { [key: string]: string };
         image?: Uint8Array | null;
         courriel?: string | null;
       } = {
-        noms: {},
+        noms: undefined,
         image: undefined,
         courriel: undefined,
       };
       const calculerScore = (): résultatObjectifRecherche<infoRésultatVide> => {
         const score =
           [
-            Object.keys(infosCompte.noms).length > 0,
+            Object.keys(infosCompte.noms || {}).length > 0,
             infosCompte.image,
             infosCompte.courriel,
           ].filter(Boolean).length / 3;
@@ -60,23 +60,21 @@ export const rechercherProfilSelonActivité =
         fSuivreRecherche(calculerScore());
       };
 
-      const fOublierNoms = await client.réseau!.suivreNomsMembre({
+      const fOublierNoms = await client.profil!.suivreNoms({
         idCompte,
         f: fSuivreNoms,
       });
-      const fOublierImage = await client.réseau!.suivreImageMembre({
+      const fOublierImage = await client.profil!.suivreImage({
         idCompte,
         f: fSuivreImage,
       });
-      const fOublierCourriel = await client.réseau!.suivreCourrielMembre({
+      const fOublierCourriel = await client.profil!.suivreCourriel({
         idCompte,
         f: fSuivreCourriel,
       });
 
       const fOublier = async () => {
-        await fOublierNoms();
-        await fOublierImage();
-        await fOublierCourriel();
+        await Promise.all([fOublierNoms(), fOublierImage(), fOublierCourriel()]);
       };
 
       return fOublier;
@@ -106,7 +104,7 @@ export const rechercherProfilSelonNom = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.réseau!.suivreNomsMembre({
+    const fOublier = await client.profil!.suivreNoms({
       idCompte,
       f: fSuivre,
     });
@@ -139,7 +137,7 @@ export const rechercherProfilSelonCourriel = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.réseau!.suivreCourrielMembre({
+    const fOublier = await client.profil!.suivreCourriel({
       idCompte,
       f: fSuivre,
     });
@@ -189,7 +187,7 @@ export const rechercherProfilSelonImage = (
         info: { type: "vide" },
       });
     };
-    const fOublier = await client.réseau!.suivreImageMembre({
+    const fOublier = await client.profil!.suivreImage({
       idCompte,
       f: fSuivre,
     });

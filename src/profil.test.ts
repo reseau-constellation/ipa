@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { default as ClientConstellation } from "@/client.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
@@ -28,7 +27,6 @@ typesClients.forEach((type) => {
         ));
         [client] = clients;
 
-        enregistrerContrôleurs();
       }, config.patienceInit);
 
       afterAll(async () => {
@@ -91,15 +89,15 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Julien Malard-Adam",
           });
-          await rés.attendreQue((x) => Object.keys(x).length > 0);
-          expect(rés.val.fr).toEqual("Julien Malard-Adam");
+          const val = await rés.attendreQue((x) => Object.keys(x).length > 0);
+          expect(val.fr).toEqual("Julien Malard-Adam");
 
           await client.profil!.sauvegarderNom({
             langue: "த",
             nom: "ஜூலீஎன்",
           });
-          await rés.attendreQue((x) => Object.keys(x).length > 1);
-          expect(rés.val.த).toEqual("ஜூலீஎன்");
+          const val2 = await rés.attendreQue((x) => Object.keys(x).length > 1);
+          expect(val2.த).toEqual("ஜூலீஎன்");
         });
 
         test("Changer un nom", async () => {

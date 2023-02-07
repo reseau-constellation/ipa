@@ -56,6 +56,7 @@ export class CacheSuivi {
     const nomArgFonction = Object.entries(args).find(
       (x) => typeof x[1] === "function"
     )?.[0];
+    if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`)
     const f = args[nomArgFonction] as schémaFonctionSuivi<unknown>;
     const argsSansF = Object.fromEntries(
       Object.entries(args).filter((x) => typeof x[1] !== "function")
@@ -135,6 +136,7 @@ export class CacheSuivi {
     const nomArgFonction = Object.entries(args).find(
       (x) => typeof x[1] === "function"
     )?.[0];
+    if (!nomArgFonction) throw new Error(`Aucun argument n'est une fonction.`)
     const f = args[nomArgFonction] as schémaFonctionSuivi<unknown>;
     const argsSansF = Object.fromEntries(
       Object.entries(args).filter((x) => typeof x[1] !== "function")
@@ -225,7 +227,8 @@ export class CacheSuivi {
       // Sinon, ajouter f à la liste de fonctions de rappel
       this._cacheRecherche[codeCache].requètes[idRequète] = { f, taille };
       if (Object.keys(this._cacheRecherche[codeCache]).includes("val")) {
-        fFinale(this._cacheRecherche[codeCache].val);
+        const { val } = this._cacheRecherche[codeCache]
+        if (val) fFinale(val);
       }
     }
 
@@ -238,7 +241,8 @@ export class CacheSuivi {
         this._cacheRecherche[codeCache].requètes[idRequète].taille;
       if (taille === tailleAvant) return;
       this._cacheRecherche[codeCache].requètes[idRequète].taille = taille;
-      fFinale(this._cacheRecherche[codeCache].val);
+      const {val} = this._cacheRecherche[codeCache]
+      if (val) fFinale(val);
 
       const maxTaille = Math.max(
         ...Object.values(this._cacheRecherche[codeCache].requètes).map(
@@ -246,7 +250,7 @@ export class CacheSuivi {
         )
       );
       const { taillePrésente } = this._cacheRecherche[codeCache];
-      const { fChangerTaille } = this._cacheRecherche[codeCache].fs;
+      const { fChangerTaille } = this._cacheRecherche[codeCache].fs!;
       if (maxTaille !== taillePrésente) {
         fChangerTaille(maxTaille);
       }
@@ -273,7 +277,7 @@ export class CacheSuivi {
     delete requètes[idRequète];
 
     if (!Object.keys(requètes).length) {
-      await fOublier();
+      fOublier && await fOublier();
       delete this._cacheSuivi[codeCache];
     }
     this.verrou.release(codeCache);
@@ -292,7 +296,7 @@ export class CacheSuivi {
     delete requètes[idRequète];
 
     if (!Object.keys(requètes).length) {
-      await fs.fOublier();
+      fs && await fs.fOublier();
       delete this._cacheRecherche[codeCache];
     }
     this.verrou.release(codeCache);

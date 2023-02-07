@@ -103,18 +103,18 @@ export class AttendreRésultat<T> {
     this.fsOublier = {};
   }
 
-  mettreÀJour(x: T) {
+  mettreÀJour(x?: T) {
     this.val = x;
     this.événements.emit("changé");
   }
 
-  async attendreQue(f: (x?: T) => boolean): Promise<T> {
-    if (f(this.val)) return this.val;
+  async attendreQue(f: (x: T) => boolean): Promise<T> {
+    if (this.val !== undefined && f(this.val)) return this.val;
     const id = uuidv4();
 
     return new Promise((résoudre) => {
       const fLorsqueChangé = () => {
-        if (f(this.val)) {
+        if (this.val !== undefined && f(this.val)) {
           this.oublier(id);
           résoudre(this.val);
         }
@@ -125,7 +125,8 @@ export class AttendreRésultat<T> {
   }
 
   async attendreExiste(): Promise<T> {
-    return await this.attendreQue((x) => !!x);
+    const val = await this.attendreQue((x) => !!x) as T;
+    return val
   }
 
   oublier(id: string) {
@@ -139,7 +140,7 @@ export class AttendreRésultat<T> {
 }
 
 export class AttendreFichierExiste extends EventEmitter {
-  fOublier: () => void;
+  fOublier?: () => void;
   fichier: string;
 
   constructor(fichier: string) {
@@ -172,7 +173,7 @@ export class AttendreFichierExiste extends EventEmitter {
   }
 
   annuler() {
-    this.fOublier();
+    this.fOublier && this.fOublier();
   }
 }
 
