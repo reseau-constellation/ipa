@@ -4,7 +4,6 @@ import type { ImportCandidate } from "ipfs-core-types/src/utils";
 
 import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
-import fs from "fs";
 import path from "path";
 import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
@@ -1826,9 +1825,12 @@ export default class BDs {
     const bookType: BookType = conversionsTypes[formatDoc] || formatDoc;
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
-    if (!(isBrowser || isWebWorker) && !fs.existsSync(dir)) {
-      // Mais juste si on n'est pas dans le navigateur ! Dans le navigateur, ça télécharge sans problème.
-      fs.mkdirSync(dir, { recursive: true });
+    if (!(isBrowser || isWebWorker)) {
+      const fs = await import("fs")
+      if (!fs.existsSync(dir)) {
+        // Mais juste si on n'est pas dans le navigateur ! Dans le navigateur, ça télécharge sans problème.
+        fs.mkdirSync(dir, { recursive: true });
+      }
     }
 
     if (inclureFichiersSFIP) {

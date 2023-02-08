@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
 import type FeedStore from "orbit-db-feedstore";
 import * as XLSX from "xlsx";
-import fs from "fs";
+
 import Semaphore from "@chriscdn/promise-semaphore";
 import { isNode, isElectronMain } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
@@ -19,9 +19,12 @@ import {
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
 
-import { Readable } from "stream";
-XLSX.set_fs(fs);
-XLSX.stream.set_readable(Readable);
+if (isElectronMain || isNode) {
+  import("fs").then(fs=>XLSX.set_fs(fs));
+  import("stream").then(stream => XLSX.stream.set_readable(stream.Readable))
+}
+
+const MESSAGE_NON_DISPO_NAVIGATEUR = "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation.";
 
 export type formatTélécharger = XLSX.BookType | "xls";
 
@@ -38,7 +41,7 @@ export type fréquence = {
   n: number;
 };
 
-export type typeObjetExportation = "projet" | "bd" | "tableau";
+export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
 export type SpécificationAutomatisation = {
   fréquence?: fréquence;
@@ -192,6 +195,8 @@ const obtDonnéesImportation = async <
       }
     }
     case "fichier": {
+      if (!isElectronMain && !isNode) throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
+      const fs = await import("fs");
       const { adresseFichier } =
         spéc.source as SourceDonnéesImportationFichier<T>;
       switch (formatDonnées) {
@@ -265,6 +270,20 @@ const générerFExportation = (
         });
         await client.projets!.exporterDocumentDonnées({
           données: donnéesExp,
+          formatDoc: spéc.formatDoc,
+          dir: spéc.dir,
+          inclureFichiersSFIP: spéc.inclureFichiersSFIP,
+        });
+        break;
+      }
+
+      case "nuée": {
+        const donnéesNuée = await client.nuées!.exporterDonnéesNuée({
+          idNuée: spéc.idObjet,
+          langues: spéc.langues,
+        });
+        await client.bds!.exporterDocumentDonnées({
+          données: donnéesNuée,
           formatDoc: spéc.formatDoc,
           dir: spéc.dir,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
@@ -422,11 +441,19 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     switch (spéc.type) {
       case "exportation": {
         const spécExp = spéc as unknown as SpécificationExporter;
-        const fOublier = await client.suivreEmpreinteTêtesBdRécursive({
-          idBd: spécExp.idObjet,
-          f: fAutoAvecÉtats,
-        });
-        return fOublier;
+        if (spécExp.typeObjet === "nuée") {
+          const fOublier = await client.nuées!.suivreEmpreinteTêtesBdsNuée({
+            idNuée: spécExp.idObjet,
+            f: fAutoAvecÉtats,
+          });
+          return fOublier;
+        } else {
+          const fOublier = await client.suivreEmpreinteTêtesBdRécursive({
+            idBd: spécExp.idObjet,
+            f: fAutoAvecÉtats,
+          });
+          return fOublier;
+        }
       }
 
       case "importation": {
@@ -437,10 +464,11 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
           case "fichier": {
             if (!isNode && !isElectronMain) {
               throw new Error(
-                "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation."
+                MESSAGE_NON_DISPO_NAVIGATEUR
               );
             }
             const chokidar = await import("chokidar");
+            const fs = await import("fs");
             const source = spécImp.source as SourceDonnéesImportationFichier<R>;
             const écouteur = chokidar.watch(source.adresseFichier);
             écouteur.on("change", async () => {

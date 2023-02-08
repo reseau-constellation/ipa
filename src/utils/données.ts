@@ -1,7 +1,7 @@
 import JSZip from "jszip";
 import saveAs from "file-saver";
-import fs from "fs";
 import path from "path";
+import { isNode, isElectronMain } from "wherearewe";
 
 export function traduire(
   trads: { [key: string]: string },
@@ -29,7 +29,8 @@ export async function zipper(
     dossierFichiersSFIP.file(fichier.nom, fichier.octets);
   }
 
-  if (typeof window === "undefined") {
+  if (isNode || isElectronMain) {
+    const fs = await import("fs");
     const contenu = await fichierZip.generateAsync({ type: "arraybuffer" });
     fs.mkdirSync(path.dirname(nomFichier), { recursive: true });
 

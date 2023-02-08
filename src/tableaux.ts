@@ -69,6 +69,57 @@ export function indexÉlémentsÉgaux(
   return true;
 }
 
+export const formaterÉlément = ({
+  é, colonnes, fichiersSFIP, langues
+}: {
+  é: élémentBdListeDonnées,
+  colonnes: InfoColAvecCatégorie[],
+  fichiersSFIP: Set<{ cid: string; ext: string }>,
+  langues?: string[],
+}): élémentBdListeDonnées => {
+  const élémentFinal: élémentBdListeDonnées = {};
+
+  for (const col of Object.keys(é)) {
+    const colonne = colonnes.find((c) => c.id === col);
+    if (!colonne) continue;
+
+    const { variable, catégorie } = colonne;
+
+    let val: string | number;
+    switch (typeof é[col]) {
+      case "object":
+        if (
+          typeof catégorie === "string" &&
+          ["audio", "photo", "vidéo", "fichier"].includes(catégorie)
+        ) {
+          const { cid, ext } = é[col] as { cid: string; ext: string };
+          if (!cid || !ext) continue;
+          val = `${cid}.${ext}`;
+
+          fichiersSFIP.add({ cid, ext });
+        } else {
+          val = JSON.stringify(é[col]);
+        }
+
+        break;
+      case "boolean":
+        val = (é[col] as boolean).toString();
+        break;
+      case "number":
+        val = é[col] as number;
+        break;
+      case "string":
+        val = é[col] as string;
+        break;
+      default:
+        continue;
+    }
+    if (val !== undefined) élémentFinal[langues ? variable : col] = val;
+  }
+
+  return élémentFinal;
+};
+
 export type différenceTableaux =
   | différenceVariableColonne
   | différenceIndexColonne
@@ -459,53 +510,12 @@ export default class Tableaux {
         this.suivreDonnées({ idTableau, f })
     );
 
-    const formaterÉlément = (
-      é: élémentBdListeDonnées
-    ): élémentBdListeDonnées => {
-      const élémentFinal: élémentBdListeDonnées = {};
-
-      for (const col of Object.keys(é)) {
-        const colonne = colonnes.find((c) => c.id === col);
-        if (!colonne) continue;
-
-        const { variable, catégorie } = colonne;
-
-        let val: string | number;
-        switch (typeof é[col]) {
-          case "object":
-            if (
-              typeof catégorie === "string" &&
-              ["audio", "photo", "vidéo", "fichier"].includes(catégorie)
-            ) {
-              const { cid, ext } = é[col] as { cid: string; ext: string };
-              if (!cid || !ext) continue;
-              val = `${cid}.${ext}`;
-
-              fichiersSFIP.add({ cid, ext });
-            } else {
-              val = JSON.stringify(é[col]);
-            }
-
-            break;
-          case "boolean":
-            val = (é[col] as boolean).toString();
-            break;
-          case "number":
-            val = é[col] as number;
-            break;
-          case "string":
-            val = é[col] as string;
-            break;
-          default:
-            continue;
-        }
-        if (val !== undefined) élémentFinal[langues ? variable : col] = val;
-      }
-
-      return élémentFinal;
-    };
-
-    let donnéesPourXLSX = données.map((d) => formaterÉlément(d.données));
+    let donnéesPourXLSX = données.map((d) => formaterÉlément({
+      é: d.données,
+      fichiersSFIP,
+      colonnes,
+      langues
+    }));
 
     if (langues) {
       const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>

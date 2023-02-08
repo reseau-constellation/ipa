@@ -4,7 +4,7 @@ import XLSX, { WorkBook } from "xlsx";
 import AdmZip from "adm-zip";
 import tmp from "tmp";
 import rmrf from "rimraf";
-//@ts-ignore
+
 import { jest } from "@jest/globals";
 import url from "url";
 
@@ -78,7 +78,7 @@ const vérifierDonnéesProjet = async (
 ): Promise<void> => {
   // Il faut essayer plusieurs fois parce que le fichier ZIP peut
   // être créé avant la fin de l'écriture du fichier (ce qui cause
-  // une erreur de lecture).
+  // une erreur de lecture).
   const zip = await new Promise<AdmZip>((résoudre) => {
     const interval = setInterval(() => {
       let zip: AdmZip;
@@ -229,9 +229,9 @@ typesClients.forEach((type) => {
                 id: idAuto,
               });
 
-            await rés.attendreQue((x) => !!(x && x.length === 3));
+            const val = await rés.attendreQue((x) => !!(x && x.length === 3));
 
-            comparerDonnéesTableau(rés.val, [
+            comparerDonnéesTableau(val, [
               { [idCol1]: 1, [idCol2]: "អ" },
               { [idCol1]: 2, [idCol2]: "அ" },
               { [idCol1]: 3, [idCol2]: "a" },
@@ -277,9 +277,9 @@ typesClients.forEach((type) => {
           fOublierAuto = async () =>
             await client.automatisations!.annulerAutomatisation({ id: idAuto });
 
-          await rés.attendreQue((x) => !!(x && x.length === 3));
+          const val = await rés.attendreQue((x) => !!(x && x.length === 3));
 
-          comparerDonnéesTableau(rés.val, [
+          comparerDonnéesTableau(val, [
             { [idCol1]: 4, [idCol2]: "អ" },
             { [idCol1]: 5, [idCol2]: "அ" },
             { [idCol1]: 6, [idCol2]: "a" },
@@ -303,7 +303,8 @@ typesClients.forEach((type) => {
                 },
               },
             };
-
+          
+          // @ts-expect-error Je ne suis pas trop as sûr pourquoi
           axios.get = jest.fn().mockResolvedValueOnce({
             data: fs.readFileSync(
               path.join(
@@ -357,6 +358,7 @@ typesClients.forEach((type) => {
               },
             },
           };
+          // @ts-expect-error Je ne suis pas trop as sûr pourquoi
           axios.get = jest.fn().mockResolvedValueOnce({
             data: JSON.parse(
               fs
@@ -384,19 +386,18 @@ typesClients.forEach((type) => {
           fOublierAuto = async () =>
             await client.automatisations!.annulerAutomatisation({ id: idAuto });
 
-          await rés.attendreQue((x) => !!(x && x.length >= 8));
+          const val = await rés.attendreQue((x) => !!(x && x.length >= 8));
 
-          // Les résultats peuvent varier avec le temps !
           // Nom de la langue
           expect(
-            rés.val
+            val
               .map((r) => r.données[idCol2])
               .every((n) => typeof n === "string")
           ).toBe(true);
 
           // Longitude
           expect(
-            rés.val
+            val
               .map((r) => r.données[idCol1])
               .every((n) => -180 <= n && n <= 180)
           ).toBe(true);
@@ -443,9 +444,9 @@ typesClients.forEach((type) => {
             données.données.push({ "col 1": 4, "col 2": "子" });
             fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            await rés.attendreQue((x) => x?.length === 4);
+            const val = await rés.attendreQue((x) => x?.length === 4);
 
-            comparerDonnéesTableau(rés.val, [
+            comparerDonnéesTableau(val, [
               { [idCol1]: 1, [idCol2]: "អ" },
               { [idCol1]: 2, [idCol2]: "அ" },
               { [idCol1]: 3, [idCol2]: "a" },
@@ -502,12 +503,12 @@ typesClients.forEach((type) => {
             données.données.push({ "col 1": 4, "col 2": "子" });
             fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            await rés.attendreQue((x) => x?.length === 4);
+            const val = await rés.attendreQue((x) => x?.length === 4);
 
             const après = Date.now();
             expect(après - maintenant).toBeGreaterThanOrEqual(300);
 
-            comparerDonnéesTableau(rés.val, [
+            comparerDonnéesTableau(val, [
               { [idCol1]: 1, [idCol2]: "អ" },
               { [idCol1]: 2, [idCol2]: "அ" },
               { [idCol1]: 3, [idCol2]: "a" },
@@ -925,7 +926,7 @@ typesClients.forEach((type) => {
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
               typeObjet: "bd",
-              // @ts-ignore: on fait une erreur par exprès !  eslint-disable-line @typescript-eslint/ban-ts-comment
+              // @ts-expect-error: on fait une erreur par exprès !
               formatDoc: "ods!",
               inclureFichiersSFIP: false,
               dir,
@@ -1041,11 +1042,11 @@ typesClients.forEach((type) => {
                 source,
               });
 
-            await résÉtats.attendreQue(
+            const val = await résÉtats.attendreQue(
               (x) => !!(x && x[idAuto]?.type === "écoute")
             );
 
-            expect(résÉtats.val[idAuto]).toEqual({
+            expect(val[idAuto]).toEqual({
               type: "écoute",
             });
 
@@ -1101,15 +1102,15 @@ typesClients.forEach((type) => {
               },
             });
 
-          await résÉtats.attendreQue(
+          const val = await résÉtats.attendreQue(
             (x) => !!(x && x[idAuto]?.type === "programmée")
           );
 
           const maintenant = Date.now();
 
-          expect(résÉtats.val[idAuto].type).toEqual("programmée");
+          expect(val[idAuto].type).toEqual("programmée");
 
-          const état = résÉtats.val[idAuto] as ÉtatProgrammée;
+          const état = val[idAuto] as ÉtatProgrammée;
           expect(état.à).toBeLessThanOrEqual(maintenant + 1000 * 60 * 3);
         });
 

@@ -13,6 +13,7 @@ import {
   infoRésultatVide,
   résultatRecherche,
   ignorerNonDéfinis,
+  traduire,
 } from "@/utils/index.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
@@ -25,6 +26,7 @@ import type {
   différenceBDTableauManquant,
   différenceBDTableauSupplémentaire,
   différenceTableauxBds,
+  donnéesBdExportées,
   infoTableau,
   infoTableauAvecId,
 } from "@/bds";
@@ -37,12 +39,16 @@ import type {
 } from "@/valid";
 import type { élémentDeMembreAvecValid } from "@/reseau";
 import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
-import type {
+import {
   différenceTableaux,
+  formaterÉlément,
   InfoCol,
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
 } from "@/tableaux";
+import Base64 from "crypto-js/enc-base64";
+import md5 from "crypto-js/md5";
+import { utils } from "xlsx";
 
 export type correspondanceBdEtNuée = {
   nuée: string;
@@ -1671,6 +1677,26 @@ export default class Nuée {
   }
 
   @cacheSuivi
+  async suivreEmpreinteTêtesBdsNuée({idNuée,
+    f,}: { idNuée: string, f: schémaFonctionSuivi<string>}): Promise<schémaFonctionOublier> {
+      return await this.client.suivreBdsDeFonctionListe({
+        fListe: async (fSuivreRacine: (éléments: string[]) => void) => {
+          const { fOublier } = await this.suivreBdsCorrespondantes({idNuée, f: fSuivreRacine, nRésultatsDésirés: 1000});
+          return fOublier;
+        },
+        f: async (empreintes: string[]) => {
+          const empreinte = Base64.stringify(md5(empreintes.join(":")))
+          return await f(empreinte)
+        },
+        fBranche: async (id: string, fSuivreBranche: schémaFonctionSuivi<string>) => {
+          return await this.client.suivreEmpreinteTêtesBdRécursive({
+            idBd: id, f: fSuivreBranche
+          })
+        }
+      })
+  }
+
+  @cacheSuivi
   async suivreDonnéesTableauNuée<T extends élémentBdListeDonnées>({
     idNuée,
     clefTableau,
@@ -1901,6 +1927,111 @@ export default class Nuée {
       f: fFinale,
       fBranche,
     });
+  }
+
+  async exporterDonnéesNuée({
+    idNuée,
+    langues,
+    nomFichier,
+  }: {
+    idNuée: string;
+    langues?: string[];
+    nomFichier?: string;
+  }): Promise<donnéesBdExportées> {
+    const doc = utils.book_new();
+    const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
+
+    const infosTableaux = await uneFois(
+      (f: schémaFonctionSuivi<infoTableauAvecId[]>) =>
+        this.suivreTableauxNuée({ idNuée, f })
+    );
+
+    for (const tableau of infosTableaux) {
+      const { clef: clefTableau, id: idTableau } = tableau;
+
+      let nomTableau: string;
+      const idCourtTableau = idTableau.split("/").pop()!;
+      if (langues) {
+        const noms = await uneFois(
+          (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
+            this.suivreNomsTableauNuée({ idNuée, clefTableau, f })
+        );
+
+        nomTableau = traduire(noms, langues) || idCourtTableau;
+      } else {
+        nomTableau = idCourtTableau;
+      }
+      
+      const donnéesTableau = await uneFois(async (fSuivi: schémaFonctionSuivi<élémentDeMembreAvecValid<élémentBdListeDonnées>[]>) => {
+        const { fOublier } = await this.suivreDonnéesTableauNuée({
+          idNuée, clefTableau, f: fSuivi
+        })
+        return fOublier
+      });
+      const colonnes = await uneFois(
+        (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
+          this.suivreColonnesTableauNuée({ idNuée, clefTableau, f })
+      );
+      let donnéesPourXLSX = donnéesTableau.map(
+        d => {
+          const élément: élémentBdListeDonnées = {
+            auteur: d.idBdCompte,
+            ...d.élément
+          }
+          return formaterÉlément({
+            é: élément, 
+            colonnes: [
+              ...colonnes, 
+              
+              {id: "auteur", variable: "auteur"}
+            ], 
+            fichiersSFIP, 
+            langues
+          });
+        }
+      )
+
+      if (langues) {
+        const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
+          this.suivreVariablesNuée({ idNuée, f })
+        );
+        const nomsVariables: { [key: string]: string } = {};
+        for (const idVar of variables) {
+          const nomsDisponibles = await uneFois(
+            (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
+              this.client.variables!.suivreNomsVariable({ id: idVar, f })
+          );
+          const idCol = colonnes.find((c) => c.variable === idVar)!.id!;
+          nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
+        }
+        donnéesPourXLSX = donnéesPourXLSX.map((d) =>
+          Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {
+            const nomVar = nomsVariables[elem];
+            acc[nomVar] = d[elem];
+            return acc;
+          }, {})
+        );
+      }
+  
+      /* créer le tableau */
+      const tableauXLSX = utils.json_to_sheet(donnéesPourXLSX);
+  
+      /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
+      utils.book_append_sheet(doc, tableauXLSX, nomTableau.slice(0, 30));
+  
+    }
+
+    if (!nomFichier) {
+      const nomsNuée = await uneFois(
+        (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
+          this.suivreNomsNuée({ idNuée, f })
+      );
+      const idCourt = idNuée.split("/").pop()!;
+
+      nomFichier = langues ? traduire(nomsNuée, langues) || idCourt : idCourt;
+    }
+
+    return { doc, fichiersSFIP, nomFichier };
   }
 
   async générerDeBd({ idBd }: { idBd: string }): Promise<string> {
