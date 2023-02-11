@@ -29,6 +29,7 @@ import type {
   donnéesBdExportées,
   infoTableau,
   infoTableauAvecId,
+  schémaSpécificationBd,
 } from "@/bds";
 import { v4 as uuidv4 } from "uuid";
 import type {
@@ -46,9 +47,10 @@ import {
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
 } from "@/tableaux";
-import Base64 from "crypto-js/enc-base64";
-import md5 from "crypto-js/md5";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
+import { tableaux } from ".";
 
 export type correspondanceBdEtNuée = {
   nuée: string;
@@ -2145,5 +2147,40 @@ export default class Nuée {
     }
 
     return idNuée;
+  }
+
+  async générerSchémaBdNuée({ idNuée, licence }: { idNuée: string, licence: string}): Promise<schémaSpécificationBd> {
+    const tableaux = await uneFois(async (fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>) => {
+      return await this.suivreTableauxNuée({
+        idNuée, f: fSuivi
+      })
+    });
+    const générerCols = async (tableau: infoTableauAvecId) => {
+      return await uneFois(async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
+        return await this.suivreColonnesTableauNuée({
+          idNuée,
+          clefTableau: tableau.clef,
+          f: fSuivi
+        })
+      })
+    }
+    const schéma: schémaSpécificationBd = {
+      licence,
+      tableaux: await Promise.all(tableaux.map(async t=>{
+        const cols = await générerCols(t)
+        return {
+          cols: cols.map(c=>{
+            return {
+              idColonne: c.id,
+              idVariable: c.variable,
+              index: c.index
+            }
+          }),
+          clef: t.clef
+        }
+      }))
+    };
+    
+    return schéma;
   }
 }

@@ -50,9 +50,9 @@ import ContrôleurConstellation, {
 } from "@/accès/cntrlConstellation.js";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
-import Base64 from "crypto-js/enc-base64";
-import sha256 from "crypto-js/sha256";
-import md5 from "crypto-js/md5";
+import Base64 from "crypto-js/enc-base64.js";
+import sha256 from "crypto-js/sha256.js";
+import md5 from "crypto-js/md5.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
