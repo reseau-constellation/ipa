@@ -38,15 +38,15 @@ import type {
   règleVariable,
   règleColonne,
 } from "@/valid";
-import type { élémentDeMembreAvecValid } from "@/reseau";
+import type { élémentDeMembreAvecValid } from "@/reseau.js";
 import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
 import {
-  différenceTableaux,
+  type différenceTableaux,
   formaterÉlément,
-  InfoCol,
-  InfoColAvecCatégorie,
-  élémentBdListeDonnées,
-} from "@/tableaux";
+  type InfoCol,
+  type InfoColAvecCatégorie,
+  type élémentBdListeDonnées,
+} from "@/tableaux.js";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
