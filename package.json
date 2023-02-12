@@ -1,5 +1,5 @@
 {
-  "version": "0.6.29",
+  "version": "0.6.30",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -157,6 +157,6 @@
   },
   "peerDependencies": {
     "@ca9io/electron-webrtc-relay": "^0.2.0",
-    "electron": "^22.0.0"
+    "electron": "^23.0.0"
   }
 }
