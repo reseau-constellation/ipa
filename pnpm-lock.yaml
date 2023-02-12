@@ -5,6 +5,7 @@ overrides:
   ipfs-pubsub-1on1: git+https://github.com/ipfs-shipyard/ipfs-pubsub-1on1.git
 
 specifiers:
+  '@ca9io/electron-webrtc-relay': ^0.2.0
   '@chainsafe/libp2p-gossipsub': ^6.1.0
   '@chainsafe/libp2p-noise': ^11.0.0
   '@chriscdn/promise-semaphore': ^1.0.9
@@ -131,6 +132,7 @@ dependencies:
   xlsx: '@cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz'
 
 devDependencies:
+  '@ca9io/electron-webrtc-relay': 0.2.0
   '@constl/orbit-db-types': 1.0.7
   '@jest/globals': 29.4.2
   '@libp2p/interface-connection-manager': 1.3.7
@@ -1146,6 +1148,16 @@ packages:
 
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
+    dev: true
+
+  /@ca9io/electron-webrtc-relay/0.2.0:
+    resolution: {integrity: sha512-v0XCX5v7lHWg0rqGEGivEon4KwSDoY0oEwrr7oQ61CawdmJ4KQ28amkAEsdWUfY6esIHy/FBi98Pr6CTiyLx1Q==}
+    engines: {node: '>=12'}
+    dependencies:
+      debug: 4.3.4
+      get-browser-rtc: 1.1.0
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /@chainsafe/is-ip/2.0.1:
@@ -7789,6 +7801,10 @@ packages:
     resolution: {integrity: sha512-K5jrJ4wFvORn2pRKeg181LL0QPYuEKn2KHPvfH1m2QtFlAXFLKdseqt0XwBM3ELOY7kNM1fglRQ6ZwUQZ5S00A==}
     hasBin: true
     dev: false
+
+  /get-browser-rtc/1.1.0:
+    resolution: {integrity: sha512-MghbMJ61EJrRsDe7w1Bvqt3ZsBuqhce5nrn/XAwgwOXhcsz53/ltdxOse1h/8eKXj5slzxdsz56g5rzOFSGwfQ==}
+    dev: true
 
   /get-caller-file/2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
