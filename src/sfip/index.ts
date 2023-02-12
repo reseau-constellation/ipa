@@ -1,9 +1,9 @@
 import { isBrowser, isElectronRenderer, isWebWorker } from "wherearewe";
 import { mplex } from "@libp2p/mplex";
-import { create } from "ipfs";
+import { create } from "ipfs-core";
 import { noise } from "@chainsafe/libp2p-noise";
 import mergeOptions from "merge-options";
-import type { IPFS } from "ipfs";
+import type { IPFS } from "ipfs-core";
 import type { Options } from "ipfs-core";
 
 const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {

@@ -1,4 +1,5 @@
-import { createController, ControllerOptions, Controller } from "ipfsd-ctl";
+import { create } from "ipfs-core";
+import type { IPFS } from "ipfs-core";
 
 const FACTEUR = 1;
 
@@ -7,22 +8,15 @@ export const config = {
   patienceInit: 60 * 1000 * FACTEUR,
 };
 
-export const initierSFIP = async (dossier = ""): Promise<Controller> => {
-  const controllerConfig: ControllerOptions = {
-    type: "proc",
-    test: true,
-    disposable: true,
-    ipfsModule: await import("ipfs"),
-    ipfsOptions: {
-      repo: dossier,
-    },
-  };
-
-  // Spawn an IPFS daemon (type defined in)
-  const ipfsd = createController(controllerConfig);
-  return ipfsd;
+export const initierSFIP = async (dossier = ""): Promise<IPFS> => {
+  return create({
+    repo: dossier,
+    init: {
+      profiles: ["test"]
+    }
+  });
 };
 
-export const arrêterSFIP = async (ipfsd: Controller) => {
-  await ipfsd.stop();
+export const arrêterSFIP = async (sfip: IPFS) => {
+  await sfip.stop();
 };

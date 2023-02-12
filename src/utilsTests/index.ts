@@ -1,4 +1,3 @@
-import type { Controller } from "ipfsd-ctl";
 import { connectPeers } from "@/utilsTests/orbitDbTestUtils.js";
 import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfipTest.js";
 import { EventEmitter } from "events";
@@ -20,6 +19,7 @@ import ClientConstellation from "@/client.js";
 import générerMandataireProc from "@/mandataire/ipaProc.js";
 import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";
 import type { statutDispositif } from "@/reseau.js";
+import type { IPFS } from "ipfs-core";
 
 export * from "@/utilsTests/sfipTest.js";
 
@@ -264,8 +264,7 @@ export const peutÉcrire = async (
 export const générerOrbites = async (
   n = 1
 ): Promise<{ orbites: OrbitDB[]; fOublier: () => Promise<void> }> => {
-  const dssfip: Controller[] = [];
-  const sfips: Controller["api"][] = [];
+  const sfips: IPFS[] = [];
   const orbites: OrbitDB[] = [];
 
   const racineDossierOrbite = obtDirTempoPourTest("orbite");
@@ -273,8 +272,7 @@ export const générerOrbites = async (
   rmrf.sync(racineDossierOrbite);
   const _générer = async (i: number): Promise<void> => {
     const racineDossier = `${racineDossierOrbite}/${i}`;
-    const dsfip = await initierSFIP(`${racineDossier}/sfip`);
-    const sfip = dsfip.api;
+    const sfip = await initierSFIP(`${racineDossier}/sfip`);
     const orbite = await OrbitDB.createInstance(sfip, {
       directory: `${racineDossier}/orbite`,
     });
@@ -283,7 +281,6 @@ export const générerOrbites = async (
       await connectPeers(sfip, ip);
     }
 
-    dssfip.push(dsfip);
     sfips.push(sfip);
     orbites.push(orbite);
   };
@@ -298,7 +295,7 @@ export const générerOrbites = async (
     );
 
     await Promise.all(
-      dssfip.map(async (d) => {
+      sfips.map(async (d) => {
         await arrêterSFIP(d);
       })
     );

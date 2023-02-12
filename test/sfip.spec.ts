@@ -1,6 +1,6 @@
 import initSFIP from "../src/sfip/index.js";
 import { expect } from "aegir/chai";
-import type { IPFS } from "ipfs";
+import type { IPFS } from "ipfs-core";
 
 describe("SFIP", function () {
   let sfip: IPFS;
