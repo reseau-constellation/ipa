@@ -3,11 +3,11 @@ import { webRTCDirect } from "@libp2p/webrtc-direct";
 import { webRTCStar } from "@libp2p/webrtc-star";
 import { kadDHT } from "@libp2p/kad-dht";
 import type { create } from "ipfs-core";
-import {wrtc} from "@ca9io/electron-webrtc-relay"
+import wrtc from "@ca9io/electron-webrtc-relay"
 import { ADRESSES_WEBRTC_STAR } from "./const.js";
 
 const webrtc = webRTCStar({
-  wrtc: wrtc
+  wrtc
 });
 
 // https://github.com/libp2p/js-libp2p/blob/master/doc/CONFIGURATION.md#setup-webrtc-transport-and-discovery
