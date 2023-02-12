@@ -1,5 +1,5 @@
 {
-  "version": "0.6.27",
+  "version": "0.6.28",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -33,7 +33,6 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@ca9io/electron-webrtc-relay": "^0.2.0",
     "@constl/orbit-db-types": "^1.0.7",
     "@jest/globals": "^29.4.2",
     "@libp2p/interface-connection-manager": "^1.3.7",
@@ -72,7 +71,6 @@
     "keyv": "^4.5.2",
     "libp2p": "^0.42.2",
     "prettier": "^2.8.3",
-    "prom-client": "^14.1.1",
     "require-json5": "^1.3.0",
     "rimraf": "^3.0.2",
     "source-map-support": "^0.5.21",
