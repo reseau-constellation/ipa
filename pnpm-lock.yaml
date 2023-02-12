@@ -74,6 +74,7 @@ specifiers:
   orbit-db: ^0.29.0
   orbit-db-access-controllers: ^0.4.0
   prettier: ^2.8.3
+  prom-client: ^14.1.1
   require-json5: ^1.3.0
   rimraf: ^3.0.2
   source-map-support: ^0.5.21
@@ -93,6 +94,7 @@ specifiers:
   xlsx: https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz
 
 dependencies:
+  '@ca9io/electron-webrtc-relay': 0.2.0
   '@chainsafe/libp2p-gossipsub': 6.1.0
   '@chainsafe/libp2p-noise': 11.0.0
   '@chriscdn/promise-semaphore': 1.0.9
@@ -114,7 +116,7 @@ dependencies:
   file-saver: 2.0.5
   genversion: 3.1.1
   geojson-validation: 1.0.2
-  ipfs-core: 0.18.0
+  ipfs-core: 0.18.0_prom-client@14.1.1
   iso-constants: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
   it-to-buffer: 3.0.0
   jszip: 3.10.1
@@ -123,6 +125,7 @@ dependencies:
   multiformats: 9.9.0
   orbit-db: 0.29.0
   orbit-db-access-controllers: 0.4.0
+  prom-client: 14.1.1
   ssim: 0.0.0
   tslib: 2.5.0
   uint8arrays: 4.0.3
@@ -131,7 +134,6 @@ dependencies:
   xlsx: '@cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz'
 
 devDependencies:
-  '@ca9io/electron-webrtc-relay': 0.2.0
   '@constl/orbit-db-types': 1.0.7
   '@jest/globals': 29.4.2
   '@libp2p/interface-connection-manager': 1.3.7
@@ -1156,7 +1158,7 @@ packages:
       get-browser-rtc: 1.1.0
     transitivePeerDependencies:
       - supports-color
-    dev: true
+    dev: false
 
   /@chainsafe/is-ip/2.0.1:
     resolution: {integrity: sha512-nqSJ8u2a1Rv9FYbyI8qpDhTYujaKEyLknNrTejLYoSWmdeg+2WB7R6BZqPZYfrJzDxVi3rl6ZQuoaEvpKRZWgQ==}
@@ -2852,7 +2854,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@libp2p/prometheus-metrics/1.1.3:
+  /@libp2p/prometheus-metrics/1.1.3_prom-client@14.1.1:
     resolution: {integrity: sha512-4rpn+ND/w2y5oWdP15KADLpD+SX6hdnEN0eZf+L18p8MaMr5qjpQBsCTe51VitKfVy5kIujNlquSVLhPozWFAA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     peerDependencies:
@@ -2863,6 +2865,7 @@ packages:
       '@libp2p/logger': 2.0.5
       it-foreach: 1.0.0
       it-stream-types: 1.0.5
+      prom-client: 14.1.1
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -5059,6 +5062,10 @@ packages:
   /binary-extensions/2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
+
+  /bintrees/1.0.2:
+    resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
+    dev: false
 
   /bl/4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
@@ -7798,7 +7805,7 @@ packages:
 
   /get-browser-rtc/1.1.0:
     resolution: {integrity: sha512-MghbMJ61EJrRsDe7w1Bvqt3ZsBuqhce5nrn/XAwgwOXhcsz53/ltdxOse1h/8eKXj5slzxdsz56g5rzOFSGwfQ==}
-    dev: true
+    dev: false
 
   /get-caller-file/2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
@@ -8494,7 +8501,7 @@ packages:
       - supports-color
     dev: false
 
-  /ipfs-core-config/0.7.0:
+  /ipfs-core-config/0.7.0_prom-client@14.1.1:
     resolution: {integrity: sha512-sVPH9FsXLMtZE7DYwHM2yH/AJivP31OtW1iwsbsu/c1J3RcFsbICQdfflwnOz1dfOPXNBbdGG+4M0qH1b9nTAw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
@@ -8502,7 +8509,7 @@ packages:
       '@libp2p/floodsub': 6.0.0
       '@libp2p/logger': 2.0.5
       '@libp2p/mdns': 6.0.0
-      '@libp2p/prometheus-metrics': 1.1.3
+      '@libp2p/prometheus-metrics': 1.1.3_prom-client@14.1.1
       '@libp2p/tcp': 6.1.2
       '@libp2p/webrtc-star': 6.0.0
       blockstore-datastore-adapter: 5.0.0
@@ -8574,7 +8581,7 @@ packages:
       - supports-color
     dev: false
 
-  /ipfs-core/0.18.0:
+  /ipfs-core/0.18.0_prom-client@14.1.1:
     resolution: {integrity: sha512-VkBTXT77pRFN0/mQ3OB6PmTlRIA2rKRjRZ4Tgh+pWwzAZiTj6Qz/TLO862vKflncOWG7Znq6oYxW1GQdhx1dbg==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
@@ -8617,7 +8624,7 @@ packages:
       interface-blockstore: 4.0.1
       interface-datastore: 7.0.4
       ipfs-bitswap: 15.0.2
-      ipfs-core-config: 0.7.0
+      ipfs-core-config: 0.7.0_prom-client@14.1.1
       ipfs-core-types: 0.14.0
       ipfs-core-utils: 0.18.0
       ipfs-http-client: 60.0.0
@@ -12951,6 +12958,13 @@ packages:
     engines: {node: '>=0.4.0'}
     dev: true
 
+  /prom-client/14.1.1:
+    resolution: {integrity: sha512-hFU32q7UZQ59bVJQGUtm3I2PrJ3gWvoCkilX9sF165ks1qflhugVCeK+S1JjJYHvyt3o5kj68+q3bchormjnzw==}
+    engines: {node: '>=10'}
+    dependencies:
+      tdigest: 0.1.2
+    dev: false
+
   /prompt/1.3.0:
     resolution: {integrity: sha512-ZkaRWtaLBZl7KKAKndKYUL8WqNT+cQHKRZnT4RYYms48jQkFw3rrBL+/N5K/KtdEveHkxs982MX2BkDKub2ZMg==}
     engines: {node: '>= 6.0.0'}
@@ -14379,6 +14393,12 @@ packages:
       mkdirp: 1.0.4
       yallist: 4.0.0
     dev: true
+
+  /tdigest/0.1.2:
+    resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
+    dependencies:
+      bintrees: 1.0.2
+    dev: false
 
   /temp-dir/2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}

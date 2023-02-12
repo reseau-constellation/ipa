@@ -1,5 +1,5 @@
 {
-  "version": "0.6.28",
+  "version": "0.6.29",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -84,6 +84,7 @@
     "why-is-node-running": "^2.2.2"
   },
   "dependencies": {
+    "@ca9io/electron-webrtc-relay": "^0.2.0",
     "@chainsafe/libp2p-gossipsub": "^6.1.0",
     "@chainsafe/libp2p-noise": "^11.0.0",
     "@chriscdn/promise-semaphore": "^1.0.9",
@@ -114,6 +115,7 @@
     "multiformats": "9.9.0",
     "orbit-db": "^0.29.0",
     "orbit-db-access-controllers": "^0.4.0",
+    "prom-client": "^14.1.1",
     "ssim": "^0.0.0",
     "tslib": "^2.5.0",
     "uint8arrays": "^4.0.3",
