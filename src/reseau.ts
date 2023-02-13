@@ -1250,7 +1250,7 @@ export default class Réseau extends EventEmitter {
   async suivreConnexionsPostesSFIP({
     f,
   }: {
-    f: schémaFonctionSuivi<{ addr: string; peer: string }[]>;
+    f: schémaFonctionSuivi<{ adresse: string; pair: string }[]>;
   }): Promise<schémaFonctionOublier> {
     const dédédoublerConnexions = (
       connexions: PeersResult[]
@@ -1275,7 +1275,7 @@ export default class Réseau extends EventEmitter {
       const connexionsUniques = dédédoublerConnexions(connexions);
       f(
         connexionsUniques.map((c) => {
-          return { addr: c.addr.toString(), peer: c.peer.toCID().toString() };
+          return { adresse: c.addr.toString(), pair: c.peer.toCID().toString() };
         })
       );
     };
