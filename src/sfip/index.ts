@@ -1,4 +1,4 @@
-import { isBrowser, isElectronRenderer, isWebWorker } from "wherearewe";
+import { isBrowser, isElectronMain, isElectronRenderer, isNode, isWebWorker } from "wherearewe";
 import { mplex } from "@libp2p/mplex";
 import { create } from "ipfs-core";
 import { noise } from "@chainsafe/libp2p-noise";
@@ -7,16 +7,20 @@ import type { IPFS } from "ipfs-core";
 import type { Options } from "ipfs-core";
 
 const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
+  let configPlateforme: Parameters<typeof create>[0]
   if (isBrowser || isElectronRenderer) {
-    const configNavigateur = await import("@/sfip/configNavigateur.js");
-    return configNavigateur.default;
+    configPlateforme = (await import("@/sfip/configNavigateur.js")).default;
   } else if (isWebWorker) {
-    const configTravailleurWeb = await import("@/sfip/configTravailleur.js");
-    return configTravailleurWeb.default;
+    configPlateforme = (await import("@/sfip/configTravailleur.js")).default;
+  } else if (isElectronMain) {
+    configPlateforme = (await import("@/sfip/configÉlectronPrincipal.js")).default;
+  } else if (isNode) {
+    configPlateforme = (await import("@/sfip/configNode.js")).default;
   } else {
-    const configNode = await import("@/sfip/configNode.js");
-    return configNode.default;
+    console.warn('Plateforme non reconnue. On utilisera la configuration navigateur.')
+    configPlateforme = (await import("@/sfip/configNavigateur.js")).default;
   }
+  return configPlateforme
 };
 
 // https://github.com/libp2p/js-libp2p-webrtc-direct/issues/98
