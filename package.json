@@ -103,6 +103,7 @@
     "approx-string-match": "^2.0.0",
     "axios": "^1.3.2",
     "chokidar": "^3.5.3",
+    "crypto-js": "^4.1.1",
     "deep-equal": "^2.2.0",
     "events": "^3.3.0",
     "file-saver": "^2.0.5",
