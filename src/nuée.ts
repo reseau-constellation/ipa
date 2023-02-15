@@ -75,10 +75,12 @@ export default class Nuée {
   async créerNuée({
     nuéeParent,
     autorisation,
+    philosophie = "IJPC",
     ajouter = true,
   }: {
     nuéeParent?: string;
     autorisation?: string;
+    philosophie?: "IJPC" | "CJPI";
     ajouter?: boolean;
   }): Promise<string> {
     const idBdNuée = await this.client.créerBdIndépendante({
@@ -103,7 +105,7 @@ export default class Nuée {
 
     await bdNuée.set(
       "autorisation",
-      autorisation || (await this.générerGestionnaireAutorisations({}))
+      autorisation || (await this.générerGestionnaireAutorisations({ philosophie }))
     );
 
     const idBdNoms = await this.client.créerBdIndépendante({
@@ -605,7 +607,7 @@ export default class Nuée {
     });
   }
 
-  async accepterMembre({
+  async accepterMembreAutorisation({
     idAutorisation,
     idCompte,
   }: {
@@ -634,7 +636,17 @@ export default class Nuée {
     fOublier();
   }
 
-  async exclureMembre({
+  async accepterMembreNuée({
+    idNuée,
+    idCompte,
+  }: { idNuée : string, idCompte: string }): Promise<void> {
+    const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({idNuée})
+    return await this.accepterMembreAutorisation({
+      idAutorisation, idCompte
+    })
+  }
+
+  async exclureMembreAutorisation({
     idAutorisation,
     idCompte,
   }: {
@@ -661,6 +673,16 @@ export default class Nuée {
     });
     await bd.set(idCompte, "exclus");
     fOublier();
+  }
+
+  async exclureMembreDeNuée({
+    idNuée,
+    idCompte,
+  }: { idNuée : string, idCompte: string }): Promise<void> {
+    const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({idNuée})
+    return await this.exclureMembreAutorisation({
+      idAutorisation, idCompte
+    })
   }
 
   async suivreGestionnaireAutorisations({
@@ -691,6 +713,16 @@ export default class Nuée {
     await bd.set("autorisation", idAutorisation);
 
     fOublier();
+  }
+
+  async obtGestionnaireAutorisationsDeNuée({
+    idNuée,
+  }: {
+    idNuée: string
+  }): Promise<string> {
+    return await uneFois(async (fSuivi: schémaFonctionSuivi<string>) => {
+      return await this.suivreGestionnaireAutorisations({ idNuée, f: fSuivi })
+    })
   }
 
   async suivreAutorisationsMembresDeGestionnaire({
