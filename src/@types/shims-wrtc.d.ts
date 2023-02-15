@@ -1,2 +1,2 @@
 declare module "wrtc";
-declare module "@ca9io/electron-webrtc-relay";
+declare module "@constl/electron-webrtc-relay";
