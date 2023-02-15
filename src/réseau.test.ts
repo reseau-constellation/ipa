@@ -65,7 +65,7 @@ typesClients.forEach((type) => {
         let idsOrbite: string[];
         let clients: ClientConstellation[];
 
-        const rés = new AttendreRésultat<{ addr: string; peer: string }[]>();
+        const rés = new AttendreRésultat<{ adresse: string; pair: string }[]>();
         const dispositifs = new AttendreRésultat<statutDispositif[]>();
         const membresEnLigne = new AttendreRésultat<statutMembre[]>();
         const fsOublier: schémaFonctionOublier[] = [];
@@ -101,7 +101,7 @@ typesClients.forEach((type) => {
 
         test("Autres postes détectés", async () => {
           const val = await rés.attendreQue((x) => x.length >= 2);
-          expect(val.map((r) => r.peer)).toEqual(
+          expect(val.map((r) => r.pair)).toEqual(
             expect.arrayContaining([idsNodesSFIP[1], idsNodesSFIP[2]])
           );
         });

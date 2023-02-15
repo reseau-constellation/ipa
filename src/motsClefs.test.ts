@@ -111,8 +111,8 @@ typesClients.forEach((type) => {
         });
 
         test("Pas de noms pour commencer", async () => {
-          await rés.attendreExiste();
-          expect(Object.keys(rés.val)).toHaveLength(0);
+          const val = await rés.attendreExiste();
+          expect(Object.keys(val)).toHaveLength(0);
         });
 
         test("Ajouter un nom", async () => {
@@ -121,8 +121,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Hydrologie",
           });
-          await rés.attendreQue((x) => Object.keys(x).length > 0);
-          expect(rés.val.fr).toEqual("Hydrologie");
+          const val = await rés.attendreQue((x) => Object.keys(x).length > 0);
+          expect(val.fr).toEqual("Hydrologie");
         });
 
         test("Ajouter des noms", async () => {
