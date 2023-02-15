@@ -1549,11 +1549,13 @@ export default class Nuée {
     f,
     vérifierAutorisation = true,
     nRésultatsDésirés,
+    toujoursInclureLesMiennes = true,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
     vérifierAutorisation?: boolean;
     nRésultatsDésirés: number;
+    toujoursInclureLesMiennes?: boolean;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     if (vérifierAutorisation) {
       const info: {
@@ -1564,14 +1566,21 @@ export default class Nuée {
 
       const fFinale = async (): Promise<void> => {
         const { philoAutorisation, membres, bds } = info;
-        if (!(philoAutorisation && membres && bds)) return;
+        if (!(membres && bds)) return;
+
+        if (!philoAutorisation) {
+          if (toujoursInclureLesMiennes) {
+            return await f(bds.filter(bd=>bd.auteurs.some(c=>c === this.client.idBdCompte)).map((x) => x.idBd))
+          }
+          return
+        };
 
         const filtrerAutorisation = (
           bds_: { idBd: string; auteurs: string[] }[]
         ): string[] => {
           if (philoAutorisation === "CJPI") {
             const invités = membres
-              .filter((m) => m.statut === "accepté")
+              .filter((m) => m.statut === "accepté" || (toujoursInclureLesMiennes && m.idCompte === this.client.idBdCompte))
               .map((m) => m.idCompte);
             return bds_
               .filter((x) => x.auteurs.some((c) => invités.includes(c)))
@@ -1587,7 +1596,7 @@ export default class Nuée {
             throw new Error(philoAutorisation);
           }
         };
-        await f(filtrerAutorisation(bds));
+        return await f(filtrerAutorisation(bds));
       };
 
       const fOublierSuivrePhilo = await this.suivrePhilosophieAutorisation({
@@ -1706,6 +1715,7 @@ export default class Nuée {
     ignorerErreursFormatTableau = false,
     ignorerErreursDonnéesTableau = true,
     licensesPermises = undefined,
+    toujoursInclureLesMiennes = true,
   }: {
     idNuée: string;
     clefTableau: string;
@@ -1714,6 +1724,7 @@ export default class Nuée {
     ignorerErreursFormatTableau?: boolean;
     ignorerErreursDonnéesTableau?: boolean;
     licensesPermises?: string[];
+    toujoursInclureLesMiennes?: boolean;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = async (
       donnéesTableaux: élémentDeMembreAvecValid<T>[][]
@@ -1729,6 +1740,7 @@ export default class Nuée {
         idNuée,
         f: fSuivreRacine,
         nRésultatsDésirés: 100,
+        toujoursInclureLesMiennes,
       });
     };
 
