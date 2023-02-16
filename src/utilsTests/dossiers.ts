@@ -23,7 +23,7 @@ export const obtDirTempoPourTest = async (nom?: string): Promise<{dossier: strin
   if (isNode || isElectronMain) {
     const fs = await import("fs")
     const path = await import("path");
-    const rimraf = await import("rimraf");
+    const rimraf = (await import("rimraf")).default;
     
     const dossier = path.resolve(await dossierTempoTests(), (nom || "") + uuidv4());
     fs.mkdirSync(dossier, { recursive: true });
