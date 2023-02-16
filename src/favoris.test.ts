@@ -7,7 +7,7 @@ import type { default as ClientConstellation } from "@/client.js";
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
-import { générerClients, typesClients } from "@/utilsTests/index.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {

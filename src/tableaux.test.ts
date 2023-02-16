@@ -31,10 +31,12 @@ import type {
 
 import {
   générerClients,
-  AttendreRésultat,
   typesClients,
-  attendreSync,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/client.js";
+import {
+  AttendreRésultat,
+} from "@/utilsTests/attente.js";
+
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
