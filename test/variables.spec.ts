@@ -14,9 +14,11 @@ import { expect } from "aegir/chai";
 import {
   générerClients,
   typesClients,
+} from "@/utilsTests/client.js";
+import {
   AttendreRésultat,
-} from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+} from "@/utilsTests/attente.js"
+import { config } from "@/utilsTests/index.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

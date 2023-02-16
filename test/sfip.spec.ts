@@ -12,19 +12,21 @@ describe("SFIP", function () {
     expect(id.id.toCID().toString()).to.be.a.string;
   }, 10000);
   it("Connexion à un serveur webrtc-star", async () => {
-    await new Promise<void>(résoudre=>{
+    await new Promise<void>((résoudre) => {
       // @ts-expect-error libp2p n'est pas dans les déclarations de SFIP
-      sfip.libp2p.addEventListener('peer:connect', async ()=>{
+      sfip.libp2p.addEventListener("peer:connect", async () => {
         const pairs = await sfip.swarm.peers();
-        console.log({pairs})
-        const trouvé = pairs.find(p=>p.addr.toString().includes("arcane-springs"))
+        console.log({ pairs });
+        const trouvé = pairs.find((p) =>
+          p.addr.toString().includes("arcane-springs")
+        );
         if (trouvé) {
-          console.log(trouvé.addr.toString())
-          résoudre()
+          console.log(trouvé.addr.toString());
+          résoudre();
         }
-      })
-    })
-  })
+      });
+    });
+  });
   after(async () => {
     await sfip.stop();
   });
