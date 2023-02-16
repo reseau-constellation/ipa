@@ -1,22 +1,23 @@
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 
-import { typesClients } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfip.js";
+import { typesClients } from "@/utilsTests/client.js";
+import { expect } from "aegir/chai";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
+
     describe("Encryption", function () {
       let encrypteur1: Encryption;
       let encrypteur2: Encryption;
       let encrypteur3: Encryption;
 
-      beforeAll(async () => {
+      before(async () => {
         encrypteur1 = new EncryptionLocalFirst();
         encrypteur2 = new EncryptionLocalFirst();
         encrypteur3 = new EncryptionLocalFirst();
-      }, config.patienceInit);
+      });
 
-      test("Encrypter et décrypter", async () => {
+      it("Encrypter et décrypter", async () => {
         const messageSecret = "போய்து வறேன்";
         const messageEncrypté = encrypteur1.encrypter({
           message: messageSecret,
@@ -28,10 +29,10 @@ typesClients.forEach((type) => {
           clefPubliqueExpéditeur: encrypteur1.clefs.publique,
         });
 
-        expect(messageDécrypté).toEqual(messageSecret);
+        expect(messageDécrypté).to.equal(messageSecret);
       });
 
-      test("Quelqu'un d'autre ne peut pas décrypter", async () => {
+      it("Quelqu'un d'autre ne peut pas décrypter", async () => {
         const messageSecret = "போய்து வறேன்";
         const messageEncrypté = encrypteur1.encrypter({
           message: messageSecret,
@@ -43,7 +44,7 @@ typesClients.forEach((type) => {
             message: messageEncrypté,
             clefPubliqueExpéditeur: encrypteur1.clefs.publique,
           })
-        ).toThrow();
+        ).to.throw();
       });
     });
   });

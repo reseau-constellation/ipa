@@ -1,7 +1,6 @@
 import OrbitDB from "orbit-db";
 import { connectPeers } from "@/utilsTests/orbitDbTestUtils.js";
 import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfip.js";
-import rmrf from "rimraf";
 import générerMandataireProc from "@/mandataire/ipaProc.js";
 import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";
 import type { IPFS } from "ipfs-core";

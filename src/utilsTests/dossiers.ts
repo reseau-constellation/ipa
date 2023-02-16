@@ -1,6 +1,5 @@
 import { isNode, isElectronMain } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
-import rimraf from "rimraf";
 
 export const dossierRessourcesTests = async (): Promise<string> => {
   const path = await import("path");
