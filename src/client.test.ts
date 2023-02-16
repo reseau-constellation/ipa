@@ -21,7 +21,7 @@ import {
   peutÉcrire,
   AttendreRésultat,
 } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 describe("adresseOrbiteValide", function () {

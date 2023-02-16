@@ -4,7 +4,7 @@ import { webRTCStar } from "@libp2p/webrtc-star";
 import { webTransport } from "@libp2p/webtransport";
 import { kadDHT } from "@libp2p/kad-dht";
 import type { create } from "ipfs-core";
-import webRTC from "@constl/electron-webrtc-relay"
+import webRTC from "@constl/electron-webrtc-relay";
 
 import { ADRESSES_WEBRTC_STAR } from "./const.js";
 
@@ -12,7 +12,7 @@ const wrtc = webRTC();
 wrtc.init();
 
 const webrtc = webRTCStar({
-  wrtc
+  wrtc,
 });
 
 // https://github.com/libp2p/js-libp2p/blob/master/doc/CONFIGURATION.md#setup-webrtc-transport-and-discovery
@@ -22,9 +22,9 @@ const config: Parameters<typeof create>[0] = {
   libp2p: {
     transports: [
       webTransport(),
-      webSockets(), 
-      webrtc.transport, 
-      webRTCDirect()
+      webSockets(),
+      webrtc.transport,
+      webRTCDirect(),
     ],
     peerDiscovery: [webrtc.discovery],
     dht: kadDHT(),

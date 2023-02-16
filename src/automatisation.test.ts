@@ -303,7 +303,7 @@ typesClients.forEach((type) => {
                 },
               },
             };
-          
+
           // @ts-expect-error Je ne suis pas trop as sûr pourquoi
           axios.get = jest.fn().mockResolvedValueOnce({
             data: fs.readFileSync(

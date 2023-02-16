@@ -20,11 +20,12 @@ import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
 
 if (isElectronMain || isNode) {
-  import("fs").then(fs=>XLSX.set_fs(fs));
-  import("stream").then(stream => XLSX.stream.set_readable(stream.Readable))
+  import("fs").then((fs) => XLSX.set_fs(fs));
+  import("stream").then((stream) => XLSX.stream.set_readable(stream.Readable));
 }
 
-const MESSAGE_NON_DISPO_NAVIGATEUR = "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation.";
+const MESSAGE_NON_DISPO_NAVIGATEUR =
+  "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation.";
 
 export type formatTélécharger = XLSX.BookType | "xls";
 
@@ -195,7 +196,8 @@ const obtDonnéesImportation = async <
       }
     }
     case "fichier": {
-      if (!isElectronMain && !isNode) throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
+      if (!isElectronMain && !isNode)
+        throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
       const fs = await import("fs");
       const { adresseFichier } =
         spéc.source as SourceDonnéesImportationFichier<T>;
@@ -463,9 +465,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
         switch (spécImp.source.typeSource) {
           case "fichier": {
             if (!isNode && !isElectronMain) {
-              throw new Error(
-                MESSAGE_NON_DISPO_NAVIGATEUR
-              );
+              throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
             }
             const chokidar = await import("chokidar");
             const fs = await import("fs");

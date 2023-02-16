@@ -105,7 +105,8 @@ export default class Nuée {
 
     await bdNuée.set(
       "autorisation",
-      autorisation || (await this.générerGestionnaireAutorisations({ philosophie }))
+      autorisation ||
+        (await this.générerGestionnaireAutorisations({ philosophie }))
     );
 
     const idBdNoms = await this.client.créerBdIndépendante({
@@ -639,11 +640,17 @@ export default class Nuée {
   async accepterMembreNuée({
     idNuée,
     idCompte,
-  }: { idNuée : string, idCompte: string }): Promise<void> {
-    const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({idNuée})
+  }: {
+    idNuée: string;
+    idCompte: string;
+  }): Promise<void> {
+    const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({
+      idNuée,
+    });
     return await this.accepterMembreAutorisation({
-      idAutorisation, idCompte
-    })
+      idAutorisation,
+      idCompte,
+    });
   }
 
   async exclureMembreAutorisation({
@@ -678,11 +685,17 @@ export default class Nuée {
   async exclureMembreDeNuée({
     idNuée,
     idCompte,
-  }: { idNuée : string, idCompte: string }): Promise<void> {
-    const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({idNuée})
+  }: {
+    idNuée: string;
+    idCompte: string;
+  }): Promise<void> {
+    const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({
+      idNuée,
+    });
     return await this.exclureMembreAutorisation({
-      idAutorisation, idCompte
-    })
+      idAutorisation,
+      idCompte,
+    });
   }
 
   async suivreGestionnaireAutorisations({
@@ -718,11 +731,11 @@ export default class Nuée {
   async obtGestionnaireAutorisationsDeNuée({
     idNuée,
   }: {
-    idNuée: string
+    idNuée: string;
   }): Promise<string> {
     return await uneFois(async (fSuivi: schémaFonctionSuivi<string>) => {
-      return await this.suivreGestionnaireAutorisations({ idNuée, f: fSuivi })
-    })
+      return await this.suivreGestionnaireAutorisations({ idNuée, f: fSuivi });
+    });
   }
 
   async suivreAutorisationsMembresDeGestionnaire({
@@ -1602,17 +1615,28 @@ export default class Nuée {
 
         if (!philoAutorisation) {
           if (toujoursInclureLesMiennes) {
-            return await f(bds.filter(bd=>bd.auteurs.some(c=>c === this.client.idBdCompte)).map((x) => x.idBd))
+            return await f(
+              bds
+                .filter((bd) =>
+                  bd.auteurs.some((c) => c === this.client.idBdCompte)
+                )
+                .map((x) => x.idBd)
+            );
           }
-          return
-        };
+          return;
+        }
 
         const filtrerAutorisation = (
           bds_: { idBd: string; auteurs: string[] }[]
         ): string[] => {
           if (philoAutorisation === "CJPI") {
             const invités = membres
-              .filter((m) => m.statut === "accepté" || (toujoursInclureLesMiennes && m.idCompte === this.client.idBdCompte))
+              .filter(
+                (m) =>
+                  m.statut === "accepté" ||
+                  (toujoursInclureLesMiennes &&
+                    m.idCompte === this.client.idBdCompte)
+              )
               .map((m) => m.idCompte);
             return bds_
               .filter((x) => x.auteurs.some((c) => invités.includes(c)))
@@ -1719,23 +1743,36 @@ export default class Nuée {
   }
 
   @cacheSuivi
-  async suivreEmpreinteTêtesBdsNuée({idNuée,
-    f,}: { idNuée: string, f: schémaFonctionSuivi<string>}): Promise<schémaFonctionOublier> {
-      return await this.client.suivreBdsDeFonctionListe({
-        fListe: async (fSuivreRacine: (éléments: string[]) => void) => {
-          const { fOublier } = await this.suivreBdsCorrespondantes({idNuée, f: fSuivreRacine, nRésultatsDésirés: 1000});
-          return fOublier;
-        },
-        f: async (empreintes: string[]) => {
-          const empreinte = Base64.stringify(md5(empreintes.join(":")))
-          return await f(empreinte)
-        },
-        fBranche: async (id: string, fSuivreBranche: schémaFonctionSuivi<string>) => {
-          return await this.client.suivreEmpreinteTêtesBdRécursive({
-            idBd: id, f: fSuivreBranche
-          })
-        }
-      })
+  async suivreEmpreinteTêtesBdsNuée({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<string>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdsDeFonctionListe({
+      fListe: async (fSuivreRacine: (éléments: string[]) => void) => {
+        const { fOublier } = await this.suivreBdsCorrespondantes({
+          idNuée,
+          f: fSuivreRacine,
+          nRésultatsDésirés: 1000,
+        });
+        return fOublier;
+      },
+      f: async (empreintes: string[]) => {
+        const empreinte = Base64.stringify(md5(empreintes.join(":")));
+        return await f(empreinte);
+      },
+      fBranche: async (
+        id: string,
+        fSuivreBranche: schémaFonctionSuivi<string>
+      ) => {
+        return await this.client.suivreEmpreinteTêtesBdRécursive({
+          idBd: id,
+          f: fSuivreBranche,
+        });
+      },
+    });
   }
 
   @cacheSuivi
@@ -2006,35 +2043,37 @@ export default class Nuée {
       } else {
         nomTableau = idCourtTableau;
       }
-      
-      const donnéesTableau = await uneFois(async (fSuivi: schémaFonctionSuivi<élémentDeMembreAvecValid<élémentBdListeDonnées>[]>) => {
-        const { fOublier } = await this.suivreDonnéesTableauNuée({
-          idNuée, clefTableau, f: fSuivi
-        })
-        return fOublier
-      });
+
+      const donnéesTableau = await uneFois(
+        async (
+          fSuivi: schémaFonctionSuivi<
+            élémentDeMembreAvecValid<élémentBdListeDonnées>[]
+          >
+        ) => {
+          const { fOublier } = await this.suivreDonnéesTableauNuée({
+            idNuée,
+            clefTableau,
+            f: fSuivi,
+          });
+          return fOublier;
+        }
+      );
       const colonnes = await uneFois(
         (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
           this.suivreColonnesTableauNuée({ idNuée, clefTableau, f })
       );
-      let donnéesPourXLSX = donnéesTableau.map(
-        d => {
-          const élément: élémentBdListeDonnées = {
-            auteur: d.idBdCompte,
-            ...d.élément
-          }
-          return formaterÉlément({
-            é: élément, 
-            colonnes: [
-              ...colonnes, 
-              
-              {id: "auteur", variable: "auteur"}
-            ], 
-            fichiersSFIP, 
-            langues
-          });
-        }
-      )
+      let donnéesPourXLSX = donnéesTableau.map((d) => {
+        const élément: élémentBdListeDonnées = {
+          auteur: d.idBdCompte,
+          ...d.élément,
+        };
+        return formaterÉlément({
+          é: élément,
+          colonnes: [...colonnes, { id: "auteur", variable: "auteur" }],
+          fichiersSFIP,
+          langues,
+        });
+      });
 
       if (langues) {
         const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
@@ -2057,13 +2096,12 @@ export default class Nuée {
           }, {})
         );
       }
-  
+
       /* créer le tableau */
       const tableauXLSX = utils.json_to_sheet(donnéesPourXLSX);
-  
+
       /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
       utils.book_append_sheet(doc, tableauXLSX, nomTableau.slice(0, 30));
-  
     }
 
     if (!nomFichier) {
@@ -2192,38 +2230,51 @@ export default class Nuée {
     return idNuée;
   }
 
-  async générerSchémaBdNuée({ idNuée, licence }: { idNuée: string, licence: string}): Promise<schémaSpécificationBd> {
-    const tableaux = await uneFois(async (fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>) => {
-      return await this.suivreTableauxNuée({
-        idNuée, f: fSuivi
-      })
-    });
-    const générerCols = async (tableau: infoTableauAvecId) => {
-      return await uneFois(async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
-        return await this.suivreColonnesTableauNuée({
+  async générerSchémaBdNuée({
+    idNuée,
+    licence,
+  }: {
+    idNuée: string;
+    licence: string;
+  }): Promise<schémaSpécificationBd> {
+    const tableaux = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>) => {
+        return await this.suivreTableauxNuée({
           idNuée,
-          clefTableau: tableau.clef,
-          f: fSuivi
-        })
-      })
-    }
+          f: fSuivi,
+        });
+      }
+    );
+    const générerCols = async (tableau: infoTableauAvecId) => {
+      return await uneFois(
+        async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
+          return await this.suivreColonnesTableauNuée({
+            idNuée,
+            clefTableau: tableau.clef,
+            f: fSuivi,
+          });
+        }
+      );
+    };
     const schéma: schémaSpécificationBd = {
       licence,
-      tableaux: await Promise.all(tableaux.map(async t=>{
-        const cols = await générerCols(t)
-        return {
-          cols: cols.map(c=>{
-            return {
-              idColonne: c.id,
-              idVariable: c.variable,
-              index: c.index
-            }
-          }),
-          clef: t.clef
-        }
-      }))
+      tableaux: await Promise.all(
+        tableaux.map(async (t) => {
+          const cols = await générerCols(t);
+          return {
+            cols: cols.map((c) => {
+              return {
+                idColonne: c.id,
+                idVariable: c.variable,
+                index: c.index,
+              };
+            }),
+            clef: t.clef,
+          };
+        })
+      ),
     };
-    
+
     return schéma;
   }
 }

@@ -20,7 +20,7 @@ import {
   AttendreRésultat,
   dirRessourcesTests,
 } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 describe("Rechercher profil", function () {
   let fOublierClients: () => Promise<void>;

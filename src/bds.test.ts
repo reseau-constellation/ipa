@@ -30,7 +30,7 @@ import {
   obtDirTempoPourTest,
 } from "@/utilsTests/index.js";
 
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

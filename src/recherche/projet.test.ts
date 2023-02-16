@@ -25,7 +25,7 @@ import {
   typesClients,
   AttendreRésultat,
 } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 describe("Rechercher projets", function () {
   let fOublierClients: () => Promise<void>;

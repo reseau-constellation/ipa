@@ -12,7 +12,7 @@ import {
 
 import { générerClients } from "@/utilsTests/index.js";
 
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 describe("Rechercher mots clefs", function () {
   let fOublierClients: () => Promise<void>;

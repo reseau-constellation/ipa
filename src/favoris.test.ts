@@ -8,7 +8,7 @@ import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
 import { générerClients, typesClients } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

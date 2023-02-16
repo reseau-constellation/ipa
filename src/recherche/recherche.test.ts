@@ -1,4 +1,4 @@
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 import type { default as ClientConstellation } from "@/client.js";
 import type { statutMembre } from "@/reseau.js";

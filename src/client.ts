@@ -2059,7 +2059,7 @@ export default class ClientConstellation extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-    await (await obtStockageLocal(this.dossierOrbite())).fermer();
+    await (await obtStockageLocal(this.dossierOrbite())).fermer?.();
     if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
     await this.fermerCompte();
     if (this.épingles) await this.épingles.fermer();

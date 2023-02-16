@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import type FeedStore from "orbit-db-feedstore";
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { default as ClientConstellation } from "@/client.js";

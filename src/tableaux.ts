@@ -70,12 +70,15 @@ export function indexÉlémentsÉgaux(
 }
 
 export const formaterÉlément = ({
-  é, colonnes, fichiersSFIP, langues
+  é,
+  colonnes,
+  fichiersSFIP,
+  langues,
 }: {
-  é: élémentBdListeDonnées,
-  colonnes: InfoColAvecCatégorie[],
-  fichiersSFIP: Set<{ cid: string; ext: string }>,
-  langues?: string[],
+  é: élémentBdListeDonnées;
+  colonnes: InfoColAvecCatégorie[];
+  fichiersSFIP: Set<{ cid: string; ext: string }>;
+  langues?: string[];
 }): élémentBdListeDonnées => {
   const élémentFinal: élémentBdListeDonnées = {};
 
@@ -510,12 +513,14 @@ export default class Tableaux {
         this.suivreDonnées({ idTableau, f })
     );
 
-    let donnéesPourXLSX = données.map((d) => formaterÉlément({
-      é: d.données,
-      fichiersSFIP,
-      colonnes,
-      langues
-    }));
+    let donnéesPourXLSX = données.map((d) =>
+      formaterÉlément({
+        é: d.données,
+        fichiersSFIP,
+        colonnes,
+        langues,
+      })
+    );
 
     if (langues) {
       const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>

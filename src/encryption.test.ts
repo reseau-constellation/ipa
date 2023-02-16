@@ -1,7 +1,7 @@
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 
 import { typesClients } from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

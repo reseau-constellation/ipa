@@ -20,7 +20,7 @@ import {
 
 import { générerClients, typesClients } from "@/utilsTests/index.js";
 
-import { config } from "@/utilsTests/sfipTest.js";
+import { config } from "@/utilsTests/sfip.js";
 
 describe("Rechercher bds", function () {
   let fOublierClients: () => Promise<void>;
