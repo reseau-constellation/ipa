@@ -42,14 +42,14 @@ await client.profil.effacerNom({ langue: "fr" });
 ```
 
 
-### `client.profil.suivreNoms({ f, idBdProfil? })`
+### `client.profil.suivreNoms({ f, idCompte? })`
 Suit les noms (traduits en différentes langues) de l'utilisatrice.
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `f` | `(noms: { [langue: string]: string }) => void` | Une fonction qui sera appelée avec les noms de l'utilisatrice chaque fois qu'ils changent|
-| `idBdProfil?` | `string \| undefined` | L'addresse orbit-db du profil de l'utilisateur. Par défaut, sera l'utilisateur courrant. Ne pas toucher. |
+| `idCompte?` | `string \| undefined` | L'id du compte de l'utilisateur. Par défaut, sera l'utilisateur courrant. |
 
 #### Retour
 | Type | Description |
@@ -67,5 +67,60 @@ await fOublierNoms();
 ```
 
 ## Image
+
+### `client.profil.sauvegarderImage({ image })`
+Sauvegarde une image de profil.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `image` | `import("ipfs-core-types/src/utils").ImportCandidate` | Le fichier de l'image. |
+
+#### Exemple
+```ts
+
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+const image = fs.readFileSync("mon image locale.jpeg");
+await client.profil.sauvegarderImage({ image });
+
+```
+
+### `client.profil.effacerImage()`
+Efface l'image de profil.
+
+#### Exemple
+```ts
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+await client.profil.effacerImage();
+```
+
+### `client.profil.suivreImage({ f, idCompte? })`
+Suit l'image de profil de l'utilisatrice.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `f` | `(image: Uint8Array) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
+| `idCompte?` | `string \| undefined` | L'id du compte de l'utilisateur. Par défaut, sera l'utilisateur courrant. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi |
+
+#### Exemple
+```ts
+import { ref } from 'vue';
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+const image = ref<Uint8Array>();
+const fOublierImage = await client.profil.suivreImage({ f: x => image.value = x });
+await fOublierImage();
+```
 
 ## Contact

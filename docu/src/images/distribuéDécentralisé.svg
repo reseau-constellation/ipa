@@ -1,0 +1,26 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ viewBox="0 0 100 50">
+ <text x="15" y="45"
+        font-family="Verdana" text-anchor="middle"
+        font-size="4">
+    Centralisé
+  </text>
+    <circle cx="15" cy="22" r="2" style="fill:#1867c0" />
+    <circle cx="20" cy="2" r="1" style="fill:#7bc6ff" />
+    <circle cx="21" cy="5" r="1" style="fill:#7bc6ff" />
+    <circle cx="7" cy="30" r="1" style="fill:#7bc6ff" />
+
+  <text x="48" y="45"
+        font-family="Verdana" text-anchor="middle"
+        font-size="4">
+    Décentralisé
+  </text>
+  <text x="81" y="45"
+        font-family="Verdana" text-anchor="middle"
+        font-size="4">
+    Distribué
+  </text>
+</svg>

@@ -38,7 +38,7 @@ const client = ClientConstellation();
 
 let image: Uint8Array | null;
 
-const oublierImage = await client.réseau.suivreImageMembre({ 
+const oublierImage = await client.profil.suivreImage({ 
     idCompte: "id du compte qui m'intéresse",
     f: x => image.value = x 
 });
@@ -77,7 +77,7 @@ let oublierImage: undefined | () => Promise<void>
 
 onMounted(async () => {
     // Mettre l'image à jour chaque fois qu'elle change
-    oublierImage = await client.réseau.suivreImageMembre({ 
+    oublierImage = await client.profil.suivreImage({ 
         idCompte: "id du compte qui m'intéresse",
         f: x => image.value = x 
     });
