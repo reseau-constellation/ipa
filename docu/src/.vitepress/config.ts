@@ -2,8 +2,11 @@ import { DefaultTheme, defineConfig, LocaleConfig } from "vitepress";
 import { languePrincipale, langues } from "../../scripts/consts.js";
 import { générerPaneau } from "../../scripts/traducsVitePress.js";
 
-
-export default defineConfig({
+export default async () => {
+  const { Nuchabäl } = await import("nuchabal");
+  const nuchabäl = new Nuchabäl({})
+  console.log("nuchabäl")
+  return defineConfig({
   lang: "fr",
   title: "Constellation",
   description: "Le réseau distribué pour les données scientifiques",
@@ -37,23 +40,23 @@ export default defineConfig({
       copyright: "© 2021+ Julien Malard-Adam",
     },
 
-    nav: générerNav(),
+    nav: générerNav(nuchabäl),
     sidebar: générerPaneau(),
   },
 
-  locales: générerLocales(),
-});
+  locales: générerLocales(nuchabäl),
+})};
 
-function générerLocales (): LocaleConfig<DefaultTheme.Config> {
+function générerLocales (nuchabäl): LocaleConfig<DefaultTheme.Config> {
   return  {
     root: {
       lang: languePrincipale,
-      label: languePrincipale,
+      label: nuchabäl?.rubiChabäl({runuk: languePrincipale}) || languePrincipale,
     },
     ...Object.fromEntries(langues.map(lng=>{
       return [lng, {
         lang: lng,
-        label: lng,
+        label: nuchabäl?.rubiChabäl({runuk: lng}) || lng,
         title: "வீண்மீன்",
         themeConfig: {
           nav: [
@@ -74,7 +77,7 @@ function générerLocales (): LocaleConfig<DefaultTheme.Config> {
   }
 }
 
-function générerNav() {
+function générerNav(nuchabäl) {
   return [
     {
       text: "Guide",
