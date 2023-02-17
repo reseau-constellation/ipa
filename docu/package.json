@@ -9,12 +9,14 @@
   },
   "repository": "https://github.com/reseau-constellation/ipa/constellation",
   "scripts": {
-    "dev": "vitepress dev src",
-    "build": "vitepress build src",
-    "preview": "vitepress preview src"
+    "traducs": "node scripts/compilerTraducs.js",
+    "dev": "pnpm traducs && vitepress dev src",
+    "build": "pnpm traducs && vitepress build src",
+    "preview": "pnpm traducs && vitepress preview src"
   },
   "license": "MIT",
   "devDependencies": {
+    "marked": "^4.2.12",
     "vitepress": "1.0.0-alpha.40"
   }
 }

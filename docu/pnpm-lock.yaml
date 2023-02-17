@@ -1,9 +1,11 @@
 lockfileVersion: 5.4
 
 specifiers:
+  marked: ^4.2.12
   vitepress: 1.0.0-alpha.40
 
 devDependencies:
+  marked: 4.2.12
   vitepress: 1.0.0-alpha.40
 
 packages:
@@ -602,6 +604,12 @@ packages:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}
     dependencies:
       sourcemap-codec: 1.4.8
+    dev: true
+
+  /marked/4.2.12:
+    resolution: {integrity: sha512-yr8hSKa3Fv4D3jdZmtMMPghgVt6TWbk86WQaWhDloQjRSQhMMYCAro7jP7VDJrjjdV8pxVxMssXS8B8Y5DZ5aw==}
+    engines: {node: '>= 12'}
+    hasBin: true
     dev: true
 
   /nanoid/3.3.4:
