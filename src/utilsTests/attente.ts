@@ -69,7 +69,10 @@ export class AttendreFichierExiste extends EventEmitter {
       if (!téléchargement) throw new Error("Erreur d'initialisation.");
       const fichier = await téléchargement.path();
       if (fichier === this.fichier) return;
-      else throw new Error(`Fichier téléchargé a le nom ${fichier}, et non pas ${this.fichier}.`);
+      else
+        throw new Error(
+          `Fichier téléchargé a le nom ${fichier}, et non pas ${this.fichier}.`
+        );
     } else {
       const chokidar = await import("chokidar");
       const fs = await import("fs");

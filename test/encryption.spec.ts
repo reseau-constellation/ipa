@@ -5,7 +5,6 @@ import { expect } from "aegir/chai";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
-
     describe("Encryption", function () {
       let encrypteur1: Encryption;
       let encrypteur2: Encryption;

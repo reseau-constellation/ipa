@@ -17,6 +17,7 @@
   "license": "MIT",
   "devDependencies": {
     "marked": "^4.2.12",
+    "nuchabal": "^3.0.1",
     "vitepress": "1.0.0-alpha.40"
   }
 }

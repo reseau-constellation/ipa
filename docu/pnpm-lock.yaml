@@ -2,10 +2,12 @@ lockfileVersion: 5.4
 
 specifiers:
   marked: ^4.2.12
+  nuchabal: ^3.0.1
   vitepress: 1.0.0-alpha.40
 
 devDependencies:
   marked: 4.2.12
+  nuchabal: 3.0.1
   vitepress: 1.0.0-alpha.40
 
 packages:
@@ -383,6 +385,12 @@ packages:
     dev: true
     optional: true
 
+  /@lassi-js/kili/0.0.2:
+    resolution: {integrity: sha512-MechHzaY5rTmUfbFtRmcjhDA2fKR3PgArR9YINAeE61vSOQPpvKpTzykoswMxGHtjxCvb6FhM/tslUAo2XqpEA==}
+    peerDependencies:
+      '@constl/ipa': ^0.6.7
+    dev: true
+
   /@types/web-bluetooth/0.0.16:
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
     dev: true
@@ -537,6 +545,11 @@ packages:
     resolution: {integrity: sha512-Z1PhmomIfypOpoMjRQB70jfvy/wxT50qW08YXO5lMIJkrdq4yOTR+AW7FqutScmB9NkLwxo+jU+kZLbofZZq/w==}
     dev: true
 
+  /deepmerge/4.3.0:
+    resolution: {integrity: sha512-z2wJZXrmeHdvYJp/Ux55wIjqo81G5Bp4c+oELTW+7ar6SogWHajt5a9gO3s3IDaGSAXjDk0vlQKN3rms8ab3og==}
+    engines: {node: '>=0.10.0'}
+    dev: true
+
   /esbuild/0.16.17:
     resolution: {integrity: sha512-G8LEkV0XzDMNwXKgM0Jwu3nY3lSTwSGY6XbxM9cr9+s0T/qSV1q1JVPBGzm3dcjhCic9+emZDmMffkwgPeOeLg==}
     engines: {node: '>=12'}
@@ -569,6 +582,11 @@ packages:
 
   /estree-walker/2.0.2:
     resolution: {integrity: sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w==}
+    dev: true
+
+  /events/3.3.0:
+    resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
+    engines: {node: '>=0.8.x'}
     dev: true
 
   /fsevents/2.3.2:
@@ -616,6 +634,16 @@ packages:
     resolution: {integrity: sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+    dev: true
+
+  /nuchabal/3.0.1:
+    resolution: {integrity: sha512-9JAMz3qwz0doUfK9x9x+8Vo9RwR5kfYayBg4BAXJyRF99OYfZ9wvrlfcuCpkD1Syx5O3p9qe4fo37dOrX7PEHQ==}
+    peerDependencies:
+      '@constl/ipa': ^0.6.7
+    dependencies:
+      '@lassi-js/kili': 0.0.2
+      deepmerge: 4.3.0
+      events: 3.3.0
     dev: true
 
   /path-parse/1.0.7:

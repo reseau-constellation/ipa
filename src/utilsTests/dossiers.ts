@@ -8,34 +8,37 @@ export const dossierRessourcesTests = async (): Promise<string> => {
 
 export const dossierTempoTests = async (): Promise<string> => {
   if (isNode || isElectronMain) {
-    const fs = await import("fs")
+    const fs = await import("fs");
     const path = await import("path");
-    const os = await import("os")
+    const os = await import("os");
     return fs.mkdtempSync(path.join(os.tmpdir(), "constl-ipa"));
   } else {
-    return uuidv4() + "/constl-ipa"
+    return uuidv4() + "/constl-ipa";
   }
-  
 };
 
-export const obtDirTempoPourTest = async (nom?: string): Promise<{dossier: string, fEffacer: ()=>void}> => {
+export const obtDirTempoPourTest = async (
+  nom?: string
+): Promise<{ dossier: string; fEffacer: () => void }> => {
   if (isNode || isElectronMain) {
-    const fs = await import("fs")
+    const fs = await import("fs");
     const path = await import("path");
     const rimraf = (await import("rimraf")).default;
-    
-    const dossier = path.resolve(await dossierTempoTests(), (nom || "") + uuidv4());
+
+    const dossier = path.resolve(
+      await dossierTempoTests(),
+      (nom || "") + uuidv4()
+    );
     fs.mkdirSync(dossier, { recursive: true });
     const fEffacer = () => rimraf.sync(dossier);
-    return {dossier, fEffacer};  
+    return { dossier, fEffacer };
   } else {
-    const dossier = await dossierTempoTests() + "/" + (nom || "") + uuidv4()
+    const dossier = (await dossierTempoTests()) + "/" + (nom || "") + uuidv4();
     return {
       dossier,
-      fEffacer: ()=>{
+      fEffacer: () => {
         // Rien à faire, je crois
-      }
-    }
+      },
+    };
   }
-
 };

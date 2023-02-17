@@ -11,13 +11,8 @@ import type {
 } from "@/valid.js";
 import { expect } from "aegir/chai";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js"
+import { générerClients, typesClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { config } from "@/utilsTests/index.js";
 
 typesClients.forEach((type) => {

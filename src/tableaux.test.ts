@@ -29,13 +29,8 @@ import type {
   élémentDonnées,
 } from "@/valid.js";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 import { config } from "@/utilsTests/sfip.js";
 
@@ -435,7 +430,7 @@ typesClients.forEach((type) => {
             },
           });
           expect(typeof empreinte).toEqual("string");
-          const val = await résErreurs.attendreQue(x=>!!x.length)
+          const val = await résErreurs.attendreQue((x) => !!x.length);
           expect(isArray(val)).toBe(true);
           expect(val).toHaveLength(1);
           expect(val[0].erreur.règle.règle.règle.typeRègle).toEqual(
@@ -457,11 +452,9 @@ typesClients.forEach((type) => {
             idColonne: idColonneNumérique,
             règle,
           });
-          const val = await résRègles.attendreQue(x=>x.length >= 3)
+          const val = await résRègles.attendreQue((x) => x.length >= 3);
           expect(val).toHaveLength(3);
-          const règleAjoutée = val.filter(
-            (r) => r.règle.id === idRègle
-          )[0];
+          const règleAjoutée = val.filter((r) => r.règle.id === idRègle)[0];
           expect(règleAjoutée).toBeTruthy();
           expect(règleAjoutée.source).toEqual("tableau");
         });
@@ -479,11 +472,9 @@ typesClients.forEach((type) => {
             idVariable: idVariableNumérique,
             règle,
           });
-          const val = await résRègles.attendreQue(x=>x.length >= 3)
+          const val = await résRègles.attendreQue((x) => x.length >= 3);
           expect(val).toHaveLength(3);
-          expect(
-            val.filter((r) => r.règle.id === idRègle)
-          ).toHaveLength(1);
+          expect(val.filter((r) => r.règle.id === idRègle)).toHaveLength(1);
         });
 
         test("Ajouter des données invalides (règle tableau)", async () => {
@@ -508,7 +499,7 @@ typesClients.forEach((type) => {
             },
           });
 
-          const val = await résErreurs.attendreQue(x=>!!x.length)
+          const val = await résErreurs.attendreQue((x) => !!x.length);
           expect(val).toHaveLength(1);
           expect(val[0].erreur.règle.règle.id).toEqual(idRègle);
         });
@@ -533,7 +524,7 @@ typesClients.forEach((type) => {
               [idColonneNumérique]: 123,
             },
           });
-          const val = await résErreurs.attendreQue(x=>x.length >= 1)
+          const val = await résErreurs.attendreQue((x) => x.length >= 1);
           expect(val).toHaveLength(1);
           expect(val[0].erreur.règle.règle.id).toEqual(idRègle);
         });
@@ -556,10 +547,8 @@ typesClients.forEach((type) => {
             idRègle,
           });
 
-          const val = await résRègles.attendreExiste();          
-          expect(
-            val.filter((r) => r.règle.id === idRègle)
-          ).toHaveLength(1);
+          const val = await résRègles.attendreExiste();
+          expect(val.filter((r) => r.règle.id === idRègle)).toHaveLength(1);
         });
 
         test("Effacer une règle tableau", async () => {

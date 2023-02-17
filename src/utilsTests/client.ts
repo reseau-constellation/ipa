@@ -13,7 +13,10 @@ export const générerOrbites = async (
   const sfips: IPFS[] = [];
   const orbites: OrbitDB[] = [];
 
-  const {dossier: racineDossierOrbite, fEffacer: fEffacerRacineDossierOrbite} = await obtDirTempoPourTest("orbite");
+  const {
+    dossier: racineDossierOrbite,
+    fEffacer: fEffacerRacineDossierOrbite,
+  } = await obtDirTempoPourTest("orbite");
 
   fEffacerRacineDossierOrbite();
 
