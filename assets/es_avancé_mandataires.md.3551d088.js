@@ -1,0 +1,1 @@
+import{_ as a,c as e,o as t}from"./app.e9f72300.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"es/avancé/mandataires.md"}'),r={name:"es/avancé/mandataires.md"};function s(n,c,o,d,i,m){return t(),e("div")}const f=a(r,[["render",s]]);export{_ as __pageData,f as default};
