@@ -1,1 +1,0 @@
-import{_ as e,c as a,o as t}from"./app.510e1896.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/tableaux.md"}'),r={name:"ipa/tableaux.md"};function o(s,c,n,p,i,_){return t(),a("div")}const m=e(r,[["render",o]]);export{l as __pageData,m as default};
