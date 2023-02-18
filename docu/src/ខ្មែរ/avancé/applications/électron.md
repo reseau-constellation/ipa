@@ -4,6 +4,9 @@ Si vous développez une appli Électron, vous pourriez évidemment simplement ut
 
 Vu que c'est un peu compliqué d'accéder aux fonctionnalités du processus principal à partir du processus de rendu d'où vous voudrez utiliser Constellation (ils on rendu ça [bien compliqué](https://www.electronjs.org/fr/docs/latest/tutorial/tutorial-preload), pour des raisons de sécurité), on vous a créé une petite librairie qui s'occupe de tout ça pour vous !
 
+## Configuration initiale
+On vous recommande d'initialiser votre projet Électron avec ce [gabarit-ci](https://github.com/cawa-93/vite-electron-builder). Ça nous a sauvé beaucoup de maux de tête.
+
 ## Installation
 D'abord, ajoutez `@constl/mandataire-electron-principal` et `@constl/mandataire-electron-rendu` à votre projet :
 
@@ -11,16 +14,13 @@ D'abord, ajoutez `@constl/mandataire-electron-principal` et `@constl/mandataire-
 $ pnpm add @constl/mandataire-electron-rendu @constl/mandataire-electron-principal
 ```
 
-## Configuration initiale
-On vous recommande d'initialiser votre projet Électron avec ce [gabarit-ci](https://github.com/cawa-93/vite-electron-builder). Ça nous a sauvé beaucoup de maux de tête.
-
 ## Comment ça fonctionne
 Le mandataire Électron vous permet de faire rouler Constellation dans le processus principal d'Électron avec tous les avantages (accès aux système de fichiers, plus de mémoire, meilleure connectivité) mais de faire *semblant* qu'il roule dans le processus de rendu Électron. Comme ça, vous pouvez utiliser Constellation dans vos pages de site web (Vue, React, etc.) comme si de rien n'était !
 Comment c'est possible ? En bref, ça fonctionne en créant une seule instance de Constellation dans le processus principal, qu'on attachera à chaque fenêtre ouverte de votre appli. Ensuite, on fait un peu de magie pour permettre au processus de rendu de communiquer avec Constellation dans le processus principal.
 
 ## Utilisation : processus principal
 
-Dans un fichier séparé, initialisez le gestionnaire qui connectra les fenêtres de votre appli Éllectron à Constellation.
+Dans un fichier séparé, initialisez le gestionnaire qui connectra les fenêtres de votre appli Électron à Constellation.
 
 ```TypeScript
 // constellation.ts
@@ -43,6 +43,7 @@ Connecter chaque nouvelle fenêtre de votre appli à Constellation au moment où
 ```TypeScript
 // main.ts
 import {BrowserWindow} from 'electron';
+import { gestionnaireFenêtres } from "./constellation.ts"
 
 fenêtre = new BrowserWindow();
 gestionnaireFenêtres.connecterFenêtreÀConstellation(fenêtre);
@@ -57,9 +58,22 @@ app.on('will-quit', async () => {
 });
 ```
 
+## Utilisation : préchargeur
+Dans votre code préchargeur, vous devez exposer les fonctions suivantes avec `electron.contextBridge.exposeInMainWorld`. Nous recommandons [unplugin-auto-expose](https://www.npmjs.com/package/unplugin-auto-expose), qui simplifie grandement la tâche (si vous avez utilisé le gabarit recommandé [ci-dessus](#configuration-initiale), c'est déjà inclus).
+
+```TypeScript
+// preload.ts
+
+export {
+  envoyerMessageÀConstellation,
+  écouterMessagesDeConstellation,
+  envoyerMessageÀServeurConstellation,  // Uniquement si vous voulez inclure le serveur WS
+  écouterMessagesDeServeurConstellation,  // Uniquement si vous voulez inclure le serveur WS
+} from '@constl/mandataire-electron-principal';
+```
+
 ## Utilisation : Processus de rendu
-Vous pouvez maintenant connecter Constellation à votre processus de rendu. Vous devriez utiliser une seule instance
-de Constellation dans votre application. Voici ci-dessous un exemple avec [Vue.js](https://fr.vuejs.org/) et [vuetify]https://next.vuetifyjs.com/).
+Vous pouvez maintenant connecter Constellation à votre processus de rendu. Vous devriez utiliser une seule instance de Constellation dans votre application. Voici ci-dessous un exemple avec [Vue.js 3](https://fr.vuejs.org/) et [vuetify](https://next.vuetifyjs.com/).
 
 ```TypeScript
 // plugins/constellation.ts
@@ -94,13 +108,14 @@ export default {
 
 ```
 
-Et voilà, le tour est joué ! Vous pouvez maintenant utiliser Constellation directement dans votre application Électron, directement du processus de rendu :
+Et voilà, le tour est joué ! Vous pouvez maintenant utiliser Constellation directement dans votre application Électron, dans le processus de rendu :
 
 ```Vue
 <script setup lang="ts">
 import { ref, inject } from 'vue';
+import type ClientConstellation from "@constl/ipa"
 
-const constellation = inject('constl');
+const constellation = inject<ClientConstellation>('constl');
 const idBd = ref<string>();
 
 const créerBd = async () => {

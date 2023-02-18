@@ -2,8 +2,8 @@ const marked = require("marked");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("node:crypto");
-const générerDicTraducsPaneau =
-  require("./traducsVitePress.js").générerDicTraducsPaneau;
+const {générerDicTraducsPaneau, générerDicTraducsNav, générerDicTraducsTitre, générerDicTraducsPiedDePage, générerDicTraducsLienÉditer, } =
+  require("./traducsVitePress.js");
 
 const {
     languePrincipale, 
@@ -58,6 +58,18 @@ const extraireTraductiblesProjet = () => {
 
   for (const x of générerDicTraducsPaneau()) {
     dicTraducs["panneau" + x.clef] = x.valeur;
+  }
+  for (const x of générerDicTraducsTitre()) {
+    dicTraducs[x.clef] = x.valeur
+  };
+  for (const x of générerDicTraducsNav()) {
+    dicTraducs["nav"+x.clef] = x.valeur
+  }
+  for (const x of générerDicTraducsPiedDePage()) {
+    dicTraducs["pied"+x.clef] = x.valeur
+  }
+  for (const x of générerDicTraducsLienÉditer()) {
+    dicTraducs["liensÉditer"+x.clef] = x.valeur
   }
   mettreFichiersTraducsÀJour(dicTraducs);
 };

@@ -1,14 +1,14 @@
+import type { Nuchabäl } from "nuchabal";
 import { DefaultTheme, defineConfig, LocaleConfig } from "vitepress";
 import { languePrincipale, langues } from "../../scripts/consts.js";
-import { générerPaneau } from "../../scripts/traducsVitePress.js";
+import { générerNav, générerPaneau, générerPiedDePage, générerTitre, générerLienÉditer } from "../../scripts/traducsVitePress.js";
 
 export default async () => {
   const { Nuchabäl } = await import("nuchabal");
   const nuchabäl = new Nuchabäl({})
-  console.log("nuchabäl")
   return defineConfig({
-  lang: "fr",
-  title: "Constellation",
+  lang: languePrincipale,
+  title: générerTitre(languePrincipale),
   description: "Le réseau distribué pour les données scientifiques",
   // base: "/ipa/",  // Uniquement nécessaire sur https://réseau-constellation.github.io/ipa
 
@@ -25,29 +25,22 @@ export default async () => {
    * ref：https://v1.vuepress.vuejs.org/theme/default-theme-config.html
    */
   themeConfig: {
-    editLink: {
-      pattern:
-        "https://github.com/reseau-constellation/ipa/edit/main/docu/src/:path",
-      text: "Éditer sur GitHub",
-    },
+    editLink: générerLienÉditer(),
 
     socialLinks: [
       { icon: "github", link: "https://github.com/reseau-constellation/" },
     ],
 
-    footer: {
-      message: "Disponible sous licence AGPL-3.0",
-      copyright: "© 2021+ Julien Malard-Adam",
-    },
+    footer: générerPiedDePage(),
 
-    nav: générerNav(nuchabäl),
+    nav: générerNav(),
     sidebar: générerPaneau(),
   },
 
   locales: générerLocales(nuchabäl),
 })};
 
-function générerLocales (nuchabäl): LocaleConfig<DefaultTheme.Config> {
+function générerLocales (nuchabäl: Nuchabäl): LocaleConfig<DefaultTheme.Config> {
   return  {
     root: {
       lang: languePrincipale,
@@ -57,19 +50,13 @@ function générerLocales (nuchabäl): LocaleConfig<DefaultTheme.Config> {
       return [lng, {
         lang: lng,
         label: nuchabäl?.rubiChabäl({runuk: lng}) || lng,
-        title: "வீண்மீன்",
+        title: générerTitre(lng),
+
         themeConfig: {
-          nav: [
-            {
-              text: "வழிகாட்டி",
-              link: "/த/guide/introduction",
-            },
-            {
-              text: "செயலி",
-              link: "https://réseau-constellation.ca/?lg=த",
-            },
-          ],
+          nav: générerNav(lng),
           sidebar: générerPaneau(lng),
+          editLink: générerLienÉditer(lng),
+          footer: générerPiedDePage(lng)
         },
       }]
     }))
@@ -77,15 +64,4 @@ function générerLocales (nuchabäl): LocaleConfig<DefaultTheme.Config> {
   }
 }
 
-function générerNav(nuchabäl) {
-  return [
-    {
-      text: "Guide",
-      link: "/guide/introduction",
-    },
-    {
-      text: "Appli",
-      link: "https://réseau-constellation.ca",
-    },
-  ];
-}
+
