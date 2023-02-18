@@ -2,6 +2,7 @@ import type { Nuchabäl } from "nuchabal";
 import { DefaultTheme, defineConfig, LocaleConfig } from "vitepress";
 import { languePrincipale, langues } from "../../scripts/consts.js";
 import { générerNav, générerPaneau, générerPiedDePage, générerTitre, générerLienÉditer } from "../../scripts/traducsVitePress.js";
+import rtl from "postcss-rtl";
 
 export default async () => {
   const { Nuchabäl } = await import("nuchabal");
@@ -38,6 +39,16 @@ export default async () => {
   },
 
   locales: générerLocales(nuchabäl),
+  vite: {
+    css: {
+      postcss: {
+        plugins: [
+          rtl()
+        ]
+      }
+      
+    }
+  }
 })};
 
 function générerLocales (nuchabäl: Nuchabäl): LocaleConfig<DefaultTheme.Config> {
@@ -47,10 +58,12 @@ function générerLocales (nuchabäl: Nuchabäl): LocaleConfig<DefaultTheme.Conf
       label: nuchabäl?.rubiChabäl({runuk: languePrincipale}) || languePrincipale,
     },
     ...Object.fromEntries(langues.map(lng=>{
+      const écriture = nuchabäl?.rutzibChabäl({runuk: lng}) || "";
       return [lng, {
         lang: lng,
         label: nuchabäl?.rubiChabäl({runuk: lng}) || lng,
         title: générerTitre(lng),
+        dir: nuchabäl?.rucholanemTzibanem({runuk: écriture}) === "←↓" ? 'rtl': 'ltr',
 
         themeConfig: {
           nav: générerNav(lng),

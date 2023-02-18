@@ -16,8 +16,10 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "jsdom": "^21.1.0",
     "marked": "^4.2.12",
     "nuchabal": "^3.1.0",
+    "postcss-rtl": "^2.0.0",
     "vitepress": "1.0.0-alpha.40"
   }
 }

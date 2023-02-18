@@ -19,7 +19,7 @@ const ajouterLangueAuxLiens = (lng, schéma, adresse="") => {
   } else if (typeof schéma === "object") {
     return Object.fromEntries(
       Object.entries(schéma).map(([clef, valeur]) => {
-        if (clef === "link" && valeur[0] !== "/") { 
+        if (clef === "link" && valeur[0] === "/") { 
           return [clef, "/" + lng + valeur];
         } else if (clef === "text") {
           const traductions = obtTraductions(lng)
@@ -190,7 +190,7 @@ const schémaPaneau = [
 ];
 const schémaPiedDePage = {
   message: "Disponible sous licence AGPL-3.0",
-  copyright: "© 2021+ contributeurs Constellation",
+  copyright: "© 2021+ Contributeurs Constellation",
 }
 const schémaLienÉditer = {
   pattern:
