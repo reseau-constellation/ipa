@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as a}from"./app.59063d0d.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ગુ/ipa/nuées.md"}'),s={name:"ગુ/ipa/nuées.md"};function n(r,o,c,p,_,i){return a(),t("div")}const f=e(s,[["render",n]]);export{m as __pageData,f as default};
