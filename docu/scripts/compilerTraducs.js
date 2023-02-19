@@ -1,7 +1,10 @@
 const {
   extraireTraductiblesProjet,
   compilerTraductions,
+  ajusterGitIgnore,
 } = require("./compilateurTraducs.js");
 
-extraireTraductiblesProjet();
-compilerTraductions();
+;(async () => {await extraireTraductiblesProjet();
+await compilerTraductions();
+ajusterGitIgnore()
+})();

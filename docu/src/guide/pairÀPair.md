@@ -10,7 +10,7 @@ Au contraire, dans un système distribué, tout les participants sont égaux les
 ::: info
 Constellation n'est **pas** une chaîne de bloques !
 
-Les systèmes pair à pair ont malheureusement une mauvaise réputation, peut-être parce que la majorité des premiers logiciels populaires étaient des platformes de partage de médias qui étaient aussi illégales. Ensuite sont arrivé les cryptomonnaies basées sur les chaînes de bloques, qui ont fréquemment bien mérité leur réputation en tant que [pyramides de Ponzi](https://web3isgoinggreat.com/) et trous noirs énergétiques [notoirement inefficaces](https://www.usenix.org/publications/loginonline/web3-fraud) pour toute application utile.
+Les systèmes pair à pair ont malheureusement une mauvaise réputation, peut-être parce que la majorité des premiers logiciels populaires étaient des platformes de partage de médias piratées. Ensuite sont arrivé les cryptomonnaies basées sur les chaînes de bloques, qui ont fréquemment bien mérité leur réputation en tant que [pyramides de Ponzi](https://web3isgoinggreat.com/) et trous noirs énergétiques [notoirement inefficaces](https://www.usenix.org/publications/loginonline/web3-fraud) pour toute application utile.
 
 Donc nous répétons : Constellation est un système distribué de pair 
  en pair, mais **pas** une chaîne de bloques !
@@ -29,6 +29,7 @@ Lorsque vous sauvegardez des données sur Constellation, celles-ci sont sauvegar
 ::: tip
 Si vous sauvegardez vos données sur un système sur le « nuage » comme les documents Google, vous aurez peut-être remarqué que vos données n'apparaissent plus lorsque vous (ou Google !) est hors ligne. L'avantage d'un système local comme Constellation est que vous êtes toujours garanti d'avoir accès à vos données, parce qu'elles demeurent toujours sur votre dispositif.
 :::
+
 Le logiciel Constellation recherche également d'autres utilisatrices et utilisateurs du réseau et vous permet d'accéder et de visualiser leurs données. La magie d'un système distribué est qu'il permet aux tièrces personnes de partager, **mais pas de modifier**, les données des autres. Si vous vivez au Québec et vous partagez vos données scientifiques et avant fermez votre téléphone pour aller dormir, vos données ne seront plus disponible sur le réseau jusqu'à votre réveil, heure de l'est. Mais, si quelqu'un d'autre, disons au Botswana, les a déjà accédées, elles seront automatiquement repartagées et disponibles sur le réseau à partir du nouveau dispositif, toute prêtes pour le réveil de vos collègues de l'Inde au Japon ! Donc, contrairement à un système centralisé, sur Constellation, **le plus populaires vos données, le plus disponibles elles seront.**
 
 Mais comment empêchons-nous les autres personnes de modifier vos données avant de les partager ? Chaque changement que vous apportez à vos données est accompagné d'une signature que uniquement votre compte peut générer. Si quelqu'un d'autre essaie de modifier vos données, la signature deviendra invalide et les changements frauduleux seront automatiquement rejetés par le réseau.

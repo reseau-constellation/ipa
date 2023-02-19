@@ -5,7 +5,7 @@
  viewBox="0 0 100 50">
  <text x="15" y="45"
         font-family="Verdana" text-anchor="middle"
-        font-size="4">
+        font-size="3">
     Centralisé
   </text>
     <line x1="15" y1="22" x2="20" y2="2" style="stroke:#1867c0;stroke-width:0.2" />
@@ -97,12 +97,12 @@
 
   <text x="48" y="45"
         font-family="Verdana" text-anchor="middle"
-        font-size="4">
+        font-size="3">
     Décentralisé
   </text>
   <text x="81" y="45"
         font-family="Verdana" text-anchor="middle"
-        font-size="4">
+        font-size="3">
     Distribué
   </text>
 </svg>
