@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as s}from"./app.734d9733.js";const f=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"es/ipa/motsClefs.md"}'),a={name:"es/ipa/motsClefs.md"};function o(r,c,n,p,i,m){return s(),t("div")}const d=e(a,[["render",o]]);export{f as __pageData,d as default};

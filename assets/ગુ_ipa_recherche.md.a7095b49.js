@@ -1,1 +1,0 @@
-import{_ as e,c as r,o as t}from"./app.59063d0d.js";const h=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ગુ/ipa/recherche.md"}'),a={name:"ગુ/ipa/recherche.md"};function c(o,s,n,p,i,_){return t(),r("div")}const m=e(a,[["render",c]]);export{h as __pageData,m as default};

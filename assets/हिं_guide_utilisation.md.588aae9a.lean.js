@@ -1,0 +1,1 @@
+import{_ as s,c as a,o as n,d as l}from"./app.734d9733.js";const d=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"हिं/guide/utilisation.md"}'),t={name:"हिं/guide/utilisation.md"},o=l("",3),p=[o];function e(c,r,i,y,D,F){return n(),a("div",null,p)}const A=s(t,[["render",e]]);export{d as __pageData,A as default};
