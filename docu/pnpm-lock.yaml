@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@types/jsdom': ^21.1.0
   '@types/marked': ^4.0.8
+  '@types/xml2js': ^0.4.11
   jsdom: ^21.1.0
   marked: ^4.2.12
   nuchabal: ^3.1.0
@@ -13,6 +14,7 @@ specifiers:
 devDependencies:
   '@types/jsdom': 21.1.0
   '@types/marked': 4.0.8
+  '@types/xml2js': 0.4.11
   jsdom: 21.1.0
   marked: 4.2.12
   nuchabal: 3.1.0
@@ -430,6 +432,12 @@ packages:
 
   /@types/web-bluetooth/0.0.16:
     resolution: {integrity: sha512-oh8q2Zc32S6gd/j50GowEjKLoOVOwHP/bWVjKJInBwQqdOYMdPrf1oVlelTlyfFK3CKxL1uahMDAr+vy8T7yMQ==}
+    dev: true
+
+  /@types/xml2js/0.4.11:
+    resolution: {integrity: sha512-JdigeAKmCyoJUiQljjr7tQG3if9NkqGUgwEUqBvV0N7LM4HyQk7UXCnusRa1lnvXAEYJ8mw8GtZWioagNztOwA==}
+    dependencies:
+      '@types/node': 18.14.0
     dev: true
 
   /@vitejs/plugin-vue/4.0.0_vite@4.1.2+vue@3.2.47:
