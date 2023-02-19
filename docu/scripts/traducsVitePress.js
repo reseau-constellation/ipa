@@ -1,33 +1,35 @@
-const {languePrincipale, dossierTraductions} = require("./consts.js");
+const { languePrincipale, dossierTraductions } = require("./consts.js");
 const path = require("path");
 const fs = require("fs");
 
 const obtTraductions = (lng) => {
-  const fichierTraducsLangue = path.join(
-    dossierTraductions,
-    lng + ".json" 
-  );
+  const fichierTraducsLangue = path.join(dossierTraductions, lng + ".json");
   return fs.existsSync(fichierTraducsLangue)
     ? JSON.parse(fs.readFileSync(fichierTraducsLangue))
-: {};
-
-}
-const ajouterLangueAuxLiens = (lng, schéma, adresse="") => {
+    : {};
+};
+const ajouterLangueAuxLiens = (lng, schéma, adresse = "") => {
   if (Array.isArray(schéma)) {
-    return Object.entries(schéma).map(([i, x]) => {
-      return ajouterLangueAuxLiens(lng, x, adresse+"."+String(i))}).flat();
+    return Object.entries(schéma)
+      .map(([i, x]) => {
+        return ajouterLangueAuxLiens(lng, x, adresse + "." + String(i));
+      })
+      .flat();
   } else if (typeof schéma === "object") {
     return Object.fromEntries(
       Object.entries(schéma).map(([clef, valeur]) => {
-        if (clef === "link" && valeur[0] === "/") { 
+        if (clef === "link" && valeur[0] === "/") {
           return [clef, "/" + lng + valeur];
         } else if (clef === "text") {
-          const traductions = obtTraductions(lng)
+          const traductions = obtTraductions(lng);
           const clefTraduc = "panneau" + adresse + "." + clef;
-          const traduc = traductions[clefTraduc]
+          const traduc = traductions[clefTraduc];
           return [clef, traduc || valeur];
         } else {
-          return [clef, ajouterLangueAuxLiens(lng, valeur, adresse + "." + clef)];
+          return [
+            clef,
+            ajouterLangueAuxLiens(lng, valeur, adresse + "." + clef),
+          ];
         }
       })
     );
@@ -37,10 +39,10 @@ const ajouterLangueAuxLiens = (lng, schéma, adresse="") => {
 };
 const générerPaneau = (lng = languePrincipale) => {
   if (lng === languePrincipale) {
-      return schémaPaneau;
-    } else {
-      const navCôté = ajouterLangueAuxLiens(lng, schémaPaneau);
-      return navCôté
+    return schémaPaneau;
+  } else {
+    const navCôté = ajouterLangueAuxLiens(lng, schémaPaneau);
+    return navCôté;
   }
 };
 
@@ -68,16 +70,16 @@ const générerDicTraducsPaneau = () => {
 
 const générerTitre = (lng) => {
   if (lng === languePrincipale) {
-    return titre
+    return titre;
   } else {
     const traductions = obtTraductions(lng);
-    return traductions["titre"] || titre
+    return traductions["titre"] || titre;
   }
-}
+};
 
 const générerDicTraducsTitre = () => {
   return [{ clef: "titre", valeur: titre }];
-}
+};
 
 const générerDicTraducsNav = () => {
   return extraireTexteDic(schémaNav).filter((x) => !!x);
@@ -88,7 +90,7 @@ function générerNav(lng) {
     return schémaNav;
   } else {
     const navCôté = ajouterLangueAuxLiens(lng, schémaNav);
-    return navCôté
+    return navCôté;
   }
 }
 
@@ -98,11 +100,11 @@ const générerPiedDePage = (lng) => {
   } else {
     return ajouterLangueAuxLiens(lng, schémaPiedDePage);
   }
-}
+};
 
 const générerDicTraducsPiedDePage = () => {
-  return extraireTexteDic(schémaPiedDePage).filter(x=>!!x)
-}
+  return extraireTexteDic(schémaPiedDePage).filter((x) => !!x);
+};
 
 const générerLienÉditer = (lng) => {
   if (lng === languePrincipale) {
@@ -110,11 +112,11 @@ const générerLienÉditer = (lng) => {
   } else {
     return ajouterLangueAuxLiens(lng, schémaLienÉditer);
   }
-}
+};
 
 const générerDicTraducsLienÉditer = () => {
-  return extraireTexteDic(schémaLienÉditer).filter(x=>!!x)
-}
+  return extraireTexteDic(schémaLienÉditer).filter((x) => !!x);
+};
 
 const titre = "Constellation";
 const schémaNav = [
@@ -191,12 +193,12 @@ const schémaPaneau = [
 const schémaPiedDePage = {
   message: "Disponible sous licence AGPL-3.0",
   copyright: "© 2021+ Contributeurs Constellation",
-}
+};
 const schémaLienÉditer = {
   pattern:
     "https://github.com/reseau-constellation/ipa/edit/main/docu/src/:path",
   text: "Éditer sur GitHub",
-}
+};
 
 module.exports = {
   générerPaneau,
@@ -208,5 +210,5 @@ module.exports = {
   générerPiedDePage,
   générerDicTraducsPiedDePage,
   générerLienÉditer,
-  générerDicTraducsLienÉditer
+  générerDicTraducsLienÉditer,
 };

@@ -4,7 +4,8 @@ const {
   ajusterGitIgnore,
 } = require("./compilateurTraducs.js");
 
-;(async () => {await extraireTraductiblesProjet();
-await compilerTraductions();
-ajusterGitIgnore()
+(async () => {
+  await extraireTraductiblesProjet();
+  await compilerTraductions();
+  ajusterGitIgnore();
 })();

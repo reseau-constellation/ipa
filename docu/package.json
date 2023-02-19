@@ -16,6 +16,9 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@types/jsdom": "^21.1.0",
+    "@types/marked": "^4.0.8",
+    "jsdom": "^21.1.0",
     "marked": "^4.2.12",
     "nuchabal": "^3.1.0",
     "postcss-rtl": "^2.0.0",

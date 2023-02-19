@@ -2,16 +2,21 @@ const marked = require("marked");
 const fs = require("fs");
 const path = require("path");
 const crypto = require("node:crypto");
-const {générerDicTraducsPaneau, générerDicTraducsNav, générerDicTraducsTitre, générerDicTraducsPiedDePage, générerDicTraducsLienÉditer, } =
-  require("./traducsVitePress.js");
+const {
+  générerDicTraducsPaneau,
+  générerDicTraducsNav,
+  générerDicTraducsTitre,
+  générerDicTraducsPiedDePage,
+  générerDicTraducsLienÉditer,
+} = require("./traducsVitePress.js");
 const xml2js = require("xml2js");
 
 const {
-    languePrincipale, 
-    langues ,
-    dossierTraductions,
-    racineProjet,
-}= require("./consts.js");
+  languePrincipale,
+  langues,
+  dossierTraductions,
+  racineProjet,
+} = require("./consts.js");
 
 const walk = function* (directoryName, exts) {
   const fichiers = fs.readdirSync(directoryName);
@@ -40,8 +45,8 @@ const extraireTraductiblesDeMd = (md) => {
 
 const extraireTraductiblesDeSvg = async (svg) => {
   const lexé = await xml2js.Parser().parseStringPromise(svg);
-  return lexé.svg.text.map(t=>t._)
-}
+  return lexé.svg.text.map((t) => t._);
+};
 
 const empreinte = (x) => {
   return crypto.createHash("md5").update(x).digest("hex");
@@ -55,7 +60,7 @@ const extraireTraductiblesProjet = async () => {
   const dicTraducs = {};
   for (const fichier of walk(racineProjet, ["md", "svg"])) {
     const ext = fichier.split(".").pop();
-    let traductiblesFichier = []
+    let traductiblesFichier = [];
     switch (ext) {
       case "md":
         traductiblesFichier = extraireTraductiblesDeMd(
@@ -70,7 +75,7 @@ const extraireTraductiblesProjet = async () => {
       default:
         continue;
     }
-    
+
     for (const traductible of traductiblesFichier) {
       const clef = calculerClef(fichier, traductible);
       dicTraducs[clef] = traductible;
@@ -81,16 +86,16 @@ const extraireTraductiblesProjet = async () => {
     dicTraducs["panneau" + x.clef] = x.valeur;
   }
   for (const x of générerDicTraducsTitre()) {
-    dicTraducs[x.clef] = x.valeur
-  };
+    dicTraducs[x.clef] = x.valeur;
+  }
   for (const x of générerDicTraducsNav()) {
-    dicTraducs["nav"+x.clef] = x.valeur
+    dicTraducs["nav" + x.clef] = x.valeur;
   }
   for (const x of générerDicTraducsPiedDePage()) {
-    dicTraducs["pied"+x.clef] = x.valeur
+    dicTraducs["pied" + x.clef] = x.valeur;
   }
   for (const x of générerDicTraducsLienÉditer()) {
-    dicTraducs["liensÉditer"+x.clef] = x.valeur
+    dicTraducs["liensÉditer" + x.clef] = x.valeur;
   }
   mettreFichiersTraducsÀJour(dicTraducs);
 };
@@ -126,7 +131,8 @@ const mettreFichiersTraducsÀJour = (dicTraducs) => {
 const compilerTraductions = async () => {
   for (const langue of langues) {
     const dossierSourcesTraduites = path.join(racineProjet, langue);
-    if (fs.existsSync(dossierSourcesTraduites)) fs.rmdirSync(dossierSourcesTraduites, {recursive: true})
+    if (fs.existsSync(dossierSourcesTraduites))
+      fs.rmdirSync(dossierSourcesTraduites, { recursive: true });
     fs.mkdirSync(dossierSourcesTraduites, { recursive: true });
     const fichierTraducsLangue = path.join(
       dossierTraductions,
@@ -139,7 +145,7 @@ const compilerTraductions = async () => {
     for (const fichier of walk(racineProjet, ["md", "svg"])) {
       const texteFinal = [];
       const texte = fs.readFileSync(fichier).toString();
-      const ext = fichier.split(".").pop()
+      const ext = fichier.split(".").pop();
 
       switch (ext) {
         case "md": {
@@ -155,16 +161,16 @@ const compilerTraductions = async () => {
           const lexé = await xml2js.Parser().parseStringPromise(texte);
           for (const t of lexé.svg.text) {
             const clef = calculerClef(fichier, t._);
-            t._ = traductions[clef] || t._
+            t._ = traductions[clef] || t._;
           }
-          const reconstitué = new xml2js.Builder().buildObject(lexé)
+          const reconstitué = new xml2js.Builder().buildObject(lexé);
           texteFinal.push(reconstitué);
           break;
-        };
+        }
         default:
           throw new Error("Extention non reconnue : " + ext);
       }
-      
+
       const composantesAdresseFichier = fichier.split(path.sep);
       const fichierSourceTraduite = path.join(
         composantesAdresseFichier[0],
@@ -184,22 +190,21 @@ const compilerTraductions = async () => {
 };
 
 const ajusterGitIgnore = () => {
-  const lignes = fs.readFileSync(`.gitignore`, 'utf-8')
-    .split('\n');
-  const déjàLà = []
+  const lignes = fs.readFileSync(`.gitignore`, "utf-8").split("\n");
+  const déjàLà = [];
   for (const l of lignes) {
-    const existe = langues.find(lng=>l === `${racineProjet}/${lng}`)
+    const existe = langues.find((lng) => l === `${racineProjet}/${lng}`);
     if (existe) déjàLà.push(existe);
   }
   let modifié = false;
-  for (const lng of langues.filter(lng=>!déjàLà.includes(lng))) {
-    lignes.push(`${racineProjet}/${lng}`)
-    modifié = true
+  for (const lng of langues.filter((lng) => !déjàLà.includes(lng))) {
+    lignes.push(`${racineProjet}/${lng}`);
+    modifié = true;
   }
   if (modifié) lignes.push("");
 
-  fs.writeFileSync(`.gitignore`, lignes.join("\n"))
-}
+  fs.writeFileSync(`.gitignore`, lignes.join("\n"));
+};
 
 module.exports = {
   languePrincipale,
