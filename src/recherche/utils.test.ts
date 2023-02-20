@@ -177,7 +177,7 @@ describe("Utils recherche", function () {
     let IMAGE: Buffer;
     let IMAGE2: Buffer;
 
-    before(async () => {
+    beforeAll(async () => {
       IMAGE = fs.readFileSync(path.join(await dossierRessourcesTests(), "logo.png"));
       IMAGE2 = fs.readFileSync(
         path.join(await dossierRessourcesTests(), "logo2.png")
