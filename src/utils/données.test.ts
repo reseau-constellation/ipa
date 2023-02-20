@@ -21,7 +21,7 @@ describe("Utils : données", function () {
       expect(trad).toBeUndefined;
     });
   });
-  describe("zipper", async function () {
+  describe("zipper", function () {
     let dossier: string;
     let fEffacer: ()=>void;
     let nomFichier: string
