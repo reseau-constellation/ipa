@@ -22,9 +22,10 @@ import {
 
 import {
   générerClients,
-  typesClients,
+} from "@/utilsTests/client.js";
+import {
   AttendreRésultat,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/attente.js";
 import { config } from "@/utilsTests/sfip.js";
 
 describe("Rechercher projets", function () {

@@ -14,8 +14,10 @@ import type {
 import {
   générerClients,
   typesClients,
+} from "@/utilsTests/client.js";
+import {
   AttendreRésultat,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/attente.js";
 
 const vérifierRecherche = (
   résultats: résultatRecherche<infoRésultat>[],

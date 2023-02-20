@@ -22,7 +22,8 @@ import {
   rechercherTous,
 } from "@/recherche/utils.js";
 
-import { générerClients, dirRessourcesTests } from "@/utilsTests/index.js";
+import { générerClients } from "@/utilsTests/client.js";
+import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;
@@ -173,10 +174,15 @@ describe("Utils recherche", function () {
   });
 
   describe.skip("Simil image", function () {
-    const IMAGE = fs.readFileSync(path.join(dirRessourcesTests(), "logo.png"));
-    const IMAGE2 = fs.readFileSync(
-      path.join(dirRessourcesTests(), "logo2.png")
-    );
+    let IMAGE: Buffer;
+    let IMAGE2: Buffer;
+
+    before(async () => {
+      IMAGE = fs.readFileSync(path.join(await dossierRessourcesTests(), "logo.png"));
+      IMAGE2 = fs.readFileSync(
+        path.join(await dossierRessourcesTests(), "logo2.png")
+      );
+    })
 
     test("Pas d'image réf", () => {
       const résultat = similImages(IMAGE, null);

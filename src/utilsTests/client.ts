@@ -5,7 +5,7 @@ import générerMandataireProc from "@/mandataire/ipaProc.js";
 import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";
 import type { IPFS } from "ipfs-core";
 import ClientConstellation from "@/client.js";
-import { obtDirTempoPourTest } from "./dossiers.js";
+import { obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
 
 export const générerOrbites = async (
   n = 1

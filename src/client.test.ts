@@ -18,11 +18,13 @@ import type KeyValueStore from "orbit-db-kvstore";
 
 import {
   générerClients,
-  peutÉcrire,
+} from "@/utilsTests/client.js";
+import {
   AttendreRésultat,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/attente.js";
 import { config } from "@/utilsTests/sfip.js";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import { peutÉcrire } from "@/utilsTests/index.js";
 
 describe("adresseOrbiteValide", function () {
   test("adresse orbite est valide", () => {

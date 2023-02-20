@@ -8,9 +8,9 @@ import type KeyValueStore from "orbit-db-kvstore";
 
 import {
   peutÉcrire,
-  générerOrbites,
   attendreSync,
 } from "@/utilsTests/index.js";
+import { générerOrbites } from "@/utilsTests/client.js"
 import { config } from "@/utilsTests/sfip.js";
 
 describe("Contrôleur Constellation", function () {

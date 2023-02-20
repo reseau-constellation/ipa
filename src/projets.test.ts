@@ -11,12 +11,16 @@ import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
 import {
-  dirRessourcesTests,
-  obtDirTempoPourTest,
   générerClients,
-  AttendreRésultat,
   typesClients,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/client.js";
+import {
+  AttendreRésultat,
+} from "@/utilsTests/attente.js";
+import {
+  obtDirTempoPourTest,
+  dossierRessourcesTests,
+} from "@/utilsTests/dossiers.js";
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
@@ -472,7 +476,7 @@ typesClients.forEach((type) => {
           });
 
           const OCTETS = fs.readFileSync(
-            path.join(dirRessourcesTests(), "logo.svg")
+            path.join(await dossierRessourcesTests(), "logo.svg")
           );
           cid = await client.ajouterÀSFIP({ fichier: OCTETS });
 
@@ -522,52 +526,56 @@ typesClients.forEach((type) => {
         });
 
         describe("Exporter document projet", function () {
-          let dirZip: string;
-          let dirFichierExtrait: string;
+          let dossierZip: string;
+          let fEffacerDossierZip: ()=>void;
+          let dossierFichierExtrait: string;
+          let fEffacerFichierExtrait: ()=>void;
           let nomZip: string;
 
           beforeAll(async () => {
-            dirZip = obtDirTempoPourTest("testExporterProjet");
-            dirFichierExtrait = obtDirTempoPourTest(
+            ({dossier: dossierZip, fEffacer: fEffacerDossierZip} = await obtDirTempoPourTest("testExporterProjet"));
+            ({dossier: dossierFichierExtrait, fEffacer: fEffacerFichierExtrait} = await obtDirTempoPourTest(
               "testExporterProjetExtrait"
-            );
+            ));
 
             await client.projets!.exporterDocumentDonnées({
               données: { docs, fichiersSFIP, nomFichier },
               formatDoc: "ods",
-              dir: dirZip,
+              dossier: dossierZip,
               inclureFichiersSFIP: true,
             });
-            nomZip = path.join(dirZip, nomFichier + ".zip");
+            nomZip = path.join(dossierZip, nomFichier + ".zip");
           }, config.patience);
 
           afterAll(() => {
-            rmrf.sync(dirZip);
-            rmrf.sync(dirFichierExtrait);
+            if (fEffacerDossierZip) fEffacerDossierZip();
+            if (fEffacerFichierExtrait) fEffacerFichierExtrait();
+            rmrf.sync(dossierZip);
+            rmrf.sync(dossierFichierExtrait);
           });
 
           test("Le fichier zip existe", () => {
             expect(fs.existsSync(nomZip)).toBe(true);
             const zip = new AdmZip(nomZip);
-            zip.extractAllTo(dirFichierExtrait, true);
-            expect(fs.existsSync(dirFichierExtrait)).toBe(true);
+            zip.extractAllTo(dossierFichierExtrait, true);
+            expect(fs.existsSync(dossierFichierExtrait)).toBe(true);
           });
 
           test("Les données sont exportées", () => {
             expect(
-              fs.existsSync(path.join(dirFichierExtrait, "Ma BD.ods"))
+              fs.existsSync(path.join(dossierFichierExtrait, "Ma BD.ods"))
             ).toBe(true);
           });
 
           test("Le dossier pour les données SFIP existe", () => {
-            expect(fs.existsSync(path.join(dirFichierExtrait, "sfip"))).toBe(
+            expect(fs.existsSync(path.join(dossierFichierExtrait, "sfip"))).toBe(
               true
             );
           });
 
           test("Les fichiers SFIP existent", () => {
             expect(
-              fs.existsSync(path.join(dirFichierExtrait, "sfip", cid + ".svg"))
+              fs.existsSync(path.join(dossierFichierExtrait, "sfip", cid + ".svg"))
             ).toBe(true);
           });
         });

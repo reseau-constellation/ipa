@@ -13,7 +13,7 @@ import {
   rechercherVariableSelonTexte,
 } from "@/recherche/variable.js";
 
-import { générerClients } from "@/utilsTests/index.js";
+import { générerClients } from "@/utilsTests/client.js";
 
 describe("Rechercher variables", function () {
   let fOublierClients: () => Promise<void>;

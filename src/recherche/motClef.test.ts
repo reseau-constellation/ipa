@@ -10,7 +10,7 @@ import {
   rechercherMotClefSelonTexte,
 } from "@/recherche/motClef.js";
 
-import { générerClients } from "@/utilsTests/index.js";
+import { générerClients } from "@/utilsTests/client.js";
 
 import { config } from "@/utilsTests/sfip.js";
 

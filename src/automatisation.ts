@@ -55,7 +55,7 @@ export interface SpécificationExporter extends SpécificationAutomatisation {
   idObjet: string;
   typeObjet: typeObjetExportation;
   formatDoc: formatTélécharger;
-  dir: string;
+  dossier: string;
   langues?: string[];
   dispositifs: string[];
   inclureFichiersSFIP: boolean;
@@ -245,7 +245,7 @@ const générerFExportation = (
         await client.bds!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
-          dir: spéc.dir,
+          dossier: spéc.dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
@@ -259,7 +259,7 @@ const générerFExportation = (
         await client.bds!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
-          dir: spéc.dir,
+          dossier: spéc.dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
@@ -273,7 +273,7 @@ const générerFExportation = (
         await client.projets!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
-          dir: spéc.dir,
+          dossier: spéc.dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
@@ -287,7 +287,7 @@ const générerFExportation = (
         await client.bds!.exporterDocumentDonnées({
           données: donnéesNuée,
           formatDoc: spéc.formatDoc,
-          dir: spéc.dir,
+          dossier: spéc.dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
@@ -645,7 +645,7 @@ export default class Automatisations extends EventEmitter {
     typeObjet,
     formatDoc,
     inclureFichiersSFIP,
-    dir,
+    dossier,
     langues,
     fréquence,
     dispositifs,
@@ -654,7 +654,7 @@ export default class Automatisations extends EventEmitter {
     typeObjet: typeObjetExportation;
     formatDoc: formatTélécharger;
     inclureFichiersSFIP: boolean;
-    dir: string;
+    dossier: string;
     langues?: string[];
     fréquence?: fréquence;
     dispositifs?: string[];
@@ -671,7 +671,7 @@ export default class Automatisations extends EventEmitter {
       formatDoc,
       langues,
       inclureFichiersSFIP,
-      dir,
+      dossier,
     };
 
     // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)

@@ -17,9 +17,13 @@ import {
 
 import {
   générerClients,
+} from "@/utilsTests/client.js";
+import {
   AttendreRésultat,
-  dirRessourcesTests,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/attente.js";
+import {
+  dossierRessourcesTests,
+} from "@/utilsTests/dossiers.js";
 import { config } from "@/utilsTests/sfip.js";
 
 describe("Rechercher profil", function () {
@@ -61,8 +65,8 @@ describe("Rechercher profil", function () {
     });
 
     test("Score 0 pour commencer", async () => {
-      await rés.attendreExiste();
-      expect(rés.val).toEqual({
+      const val = await rés.attendreExiste();
+      expect(val).toEqual({
         type: "résultat",
         score: 0,
         de: "activité",
@@ -86,7 +90,7 @@ describe("Rechercher profil", function () {
 
     test("C'est parfait avec un photo !", async () => {
       const IMAGE = fs.readFileSync(
-        path.join(dirRessourcesTests(), "logo.png")
+        path.join(await dossierRessourcesTests(), "logo.png")
       );
 
       await client.profil!.sauvegarderImage({ image: IMAGE });

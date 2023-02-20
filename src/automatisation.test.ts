@@ -32,12 +32,16 @@ import type { élémentBdListeDonnées } from "@/tableaux.js";
 import {
   générerClients,
   typesClients,
+} from "@/utilsTests/client.js";
+import {
   AttendreFichierExiste,
   AttendreFichierModifié,
   AttendreRésultat,
+} from "@/utilsTests/attente.js";
+import {
   obtDirTempoPourTest,
-} from "@/utilsTests/index.js";
-import { config } from "@/utilsTests/sfipTest.js";
+} from "@/utilsTests/dossiers.js";
+import { config } from "@/utilsTests/sfip.js";
 import axios from "axios";
 
 const vérifierDonnéesTableau = (
@@ -148,6 +152,7 @@ typesClients.forEach((type) => {
         let idCol1: string;
         let idCol2: string;
         let dirTempo: string;
+        let fEffacer: ()=>void;
         let fOublierAuto: () => Promise<void>;
 
         let rés: AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>;
@@ -156,7 +161,7 @@ typesClients.forEach((type) => {
         beforeEach(async () => {
           fsOublier = [];
           rés = new AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
-          dirTempo = obtDirTempoPourTest("testImporterBd");
+          ({dossier: dirTempo, fEffacer} = await obtDirTempoPourTest("testImporterBd"));
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.bds!.ajouterTableauBd({ idBd });
@@ -187,6 +192,7 @@ typesClients.forEach((type) => {
         afterEach(async () => {
           await Promise.all(fsOublier.map((f) => f()));
           if (fOublierAuto) await fOublierAuto();
+          if (fEffacer) fEffacer();
           rmrf.sync(dirTempo);
           rés.toutAnnuler();
         });
@@ -526,12 +532,13 @@ typesClients.forEach((type) => {
         let idTableau: string;
         let idBd: string;
         let idProjet: string;
-        let dir: string;
+        let dossier: string;
+        let fEffacer: ()=>void;
 
         const fsOublier: (() => void)[] = [];
 
         beforeAll(async () => {
-          dir = obtDirTempoPourTest("testExporterBd");
+          ({dossier, fEffacer} = await obtDirTempoPourTest("testExporterBd"));
 
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.bds!.ajouterNomsBd({
@@ -593,11 +600,12 @@ typesClients.forEach((type) => {
             )
           );
           fsOublier.forEach((f) => f());
-          rmrf.sync(dir);
+          if (fEffacer) fEffacer();
+          rmrf.sync(dossier);
         });
 
         test("Exportation tableau", async () => {
-          const fichier = path.join(dir, "météo.ods");
+          const fichier = path.join(dossier, "météo.ods");
           const attente = new AttendreFichierExiste(fichier);
           fsOublier.push(() => attente.annuler());
           const attendreExiste = attente.attendre();
@@ -608,7 +616,7 @@ typesClients.forEach((type) => {
               typeObjet: "tableau",
               formatDoc: "ods",
               inclureFichiersSFIP: false,
-              dir,
+              dossier,
               langues: ["fr"],
             });
 
@@ -620,7 +628,7 @@ typesClients.forEach((type) => {
         });
 
         test("Exportation BD", async () => {
-          const fichier = path.join(dir, "Ma bd.ods");
+          const fichier = path.join(dossier, "Ma bd.ods");
           const attente = new AttendreFichierExiste(fichier);
           const attendreExiste = attente.attendre();
           fsOublier.push(() => attente.annuler());
@@ -631,7 +639,7 @@ typesClients.forEach((type) => {
               typeObjet: "bd",
               formatDoc: "ods",
               inclureFichiersSFIP: false,
-              dir,
+              dossier,
               langues: ["fr"],
             });
 
@@ -642,7 +650,7 @@ typesClients.forEach((type) => {
         });
 
         test("Exportation projet", async () => {
-          const fichier = path.join(dir, "Mon projet.zip");
+          const fichier = path.join(dossier, "Mon projet.zip");
           const attente = new AttendreFichierExiste(fichier);
           const attendreExiste = attente.attendre();
           fsOublier.push(() => attente.annuler());
@@ -653,7 +661,7 @@ typesClients.forEach((type) => {
               typeObjet: "projet",
               formatDoc: "ods",
               inclureFichiersSFIP: false,
-              dir,
+              dossier,
               langues: ["fr"],
             });
           await attendreExiste;
@@ -668,7 +676,7 @@ typesClients.forEach((type) => {
         });
 
         test("Exportation selon changements", async () => {
-          const fichier = path.join(dir, "Ma bd.ods");
+          const fichier = path.join(dossier, "Ma bd.ods");
 
           const attente = new AttendreFichierExiste(fichier);
           fsOublier.push(() => attente.annuler());
@@ -679,7 +687,7 @@ typesClients.forEach((type) => {
               typeObjet: "bd",
               formatDoc: "ods",
               inclureFichiersSFIP: false,
-              dir,
+              dossier,
               langues: ["fr"],
             });
 
@@ -704,7 +712,7 @@ typesClients.forEach((type) => {
         });
 
         test("Exportation selon fréquence", async () => {
-          const fichier = path.join(dir, "Mi bd.ods");
+          const fichier = path.join(dossier, "Mi bd.ods");
           const attente = new AttendreFichierExiste(fichier);
           const attendreExiste = attente.attendre();
           fsOublier.push(() => attente.annuler());
@@ -715,7 +723,7 @@ typesClients.forEach((type) => {
               typeObjet: "bd",
               formatDoc: "ods",
               inclureFichiersSFIP: false,
-              dir,
+              dossier,
               langues: ["es"],
               fréquence: {
                 unités: "secondes",
@@ -767,7 +775,8 @@ typesClients.forEach((type) => {
         let idCol: string;
         let idTableau: string;
         let idBd: string;
-        let dir: string;
+        let dossier: string;
+        let fEffacer: ()=>void;
 
         const résÉtats = new AttendreRésultat<{
           [key: string]: ÉtatAutomatisation;
@@ -777,7 +786,7 @@ typesClients.forEach((type) => {
         const fsOublier: (schémaFonctionOublier | (() => void))[] = [];
 
         beforeAll(async () => {
-          dir = obtDirTempoPourTest("testExporterBd");
+          ({dossier, fEffacer} = await obtDirTempoPourTest("testExporterBd"));
 
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
@@ -846,12 +855,13 @@ typesClients.forEach((type) => {
                 })
             )
           );
-          rmrf.sync(dir);
+          if(fEffacer) fEffacer();
+          rmrf.sync(dossier);
         });
 
         test("sync et écoute", async () => {
           const attendreFichierExiste = new AttendreFichierExiste(
-            path.join(dir, "Ma bd.ods")
+            path.join(dossier, "Ma bd.ods")
           );
           fsOublier.push(() => attendreFichierExiste.annuler());
 
@@ -861,7 +871,7 @@ typesClients.forEach((type) => {
               typeObjet: "bd",
               formatDoc: "ods",
               inclureFichiersSFIP: false,
-              dir,
+              dossier,
               langues: ["fr"],
             });
           await attendreFichierExiste.attendre();
@@ -887,7 +897,7 @@ typesClients.forEach((type) => {
 
         test("programmée", async () => {
           const attendreFichierExiste = new AttendreFichierExiste(
-            path.join(dir, "Ma bd.ods")
+            path.join(dossier, "Ma bd.ods")
           );
           fsOublier.push(() => attendreFichierExiste.annuler());
 
@@ -897,7 +907,7 @@ typesClients.forEach((type) => {
               typeObjet: "bd",
               formatDoc: "ods",
               inclureFichiersSFIP: false,
-              dir,
+              dossier,
               langues: ["fr"],
               fréquence: {
                 unités: "heures",
@@ -929,7 +939,7 @@ typesClients.forEach((type) => {
               // @ts-expect-error: on fait une erreur par exprès !
               formatDoc: "ods!",
               inclureFichiersSFIP: false,
-              dir,
+              dossier,
               langues: ["fr"],
               fréquence: {
                 unités: "semaines",
@@ -960,7 +970,8 @@ typesClients.forEach((type) => {
         let idTableau: string;
         let idCol1: string;
         let idCol2: string;
-        let dir: string;
+        let dossier: string;
+        let fEffacer: ()=>void;
 
         const résÉtats = new AttendreRésultat<{
           [key: string]: ÉtatAutomatisation;
@@ -980,7 +991,7 @@ typesClients.forEach((type) => {
             })
           );
 
-          dir = obtDirTempoPourTest("testExporterBd");
+          ({dossier, fEffacer} = await obtDirTempoPourTest("testExporterBd"));
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.tableaux!.créerTableau({ idBd });
@@ -1003,15 +1014,16 @@ typesClients.forEach((type) => {
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
-          rmrf.sync(dir);
+          rmrf.sync(dossier);
           résÉtats.toutAnnuler();
           résAutos.toutAnnuler();
+          if (fEffacer) fEffacer();
         });
 
         test(
           "sync et écoute",
           async () => {
-            const fichierJSON = path.join(dir, "données.json");
+            const fichierJSON = path.join(dossier, "données.json");
             const données = {
               données: [
                 { "col 1": 1, "col 2": "អ" },
@@ -1067,7 +1079,7 @@ typesClients.forEach((type) => {
         );
 
         test("programmée", async () => {
-          const fichierJSON = path.join(dir, "données.json");
+          const fichierJSON = path.join(dossier, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -1117,7 +1129,7 @@ typesClients.forEach((type) => {
         test("erreur", async () => {
           const avant = Date.now();
 
-          const fichierJSON = path.join(dir, "données.json");
+          const fichierJSON = path.join(dossier, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },

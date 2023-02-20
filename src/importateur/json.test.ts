@@ -9,7 +9,7 @@ import ImportateurDonnéesJSON, {
   élément,
 } from "@/importateur/json.js";
 
-import { dirRessourcesTests } from "@/utilsTests/index.js";
+import { dossierRessourcesTests } from "@/utilsTests/dossiers";
 
 describe("JSON", function () {
   describe("Extraire données", function () {
@@ -153,7 +153,7 @@ describe("JSON", function () {
       const donnéesJSON = JSON.parse(
         (
           await fs.promises.readFile(
-            path.join(dirRessourcesTests(), "donnéesTest.json")
+            path.join(await dossierRessourcesTests(), "donnéesTest.json")
           )
         ).toString()
       );

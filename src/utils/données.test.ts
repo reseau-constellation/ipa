@@ -5,7 +5,7 @@ import AdmZip from "adm-zip";
 
 import { traduire, zipper } from "@/utils/index.js";
 
-import { obtDirTempoPourTest } from "@/utilsTests/index.js";
+import { obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
 describe("Utils : données", function () {
   describe("traduire", function () {
     test("premier choix", () => {
@@ -21,12 +21,16 @@ describe("Utils : données", function () {
       expect(trad).toBeUndefined;
     });
   });
-  describe("zipper", function () {
-    const dirTempoTest = obtDirTempoPourTest();
-    const nomFichier = path.join(dirTempoTest, "testZip.zip");
-    const fichierExtrait = path.join(dirTempoTest, "testZipExtrait");
+  describe("zipper", async function () {
+    let dossier: string;
+    let fEffacer: ()=>void;
+    let nomFichier: string
+    let fichierExtrait: string
 
     beforeAll(async () => {
+      ({dossier, fEffacer} = await obtDirTempoPourTest());
+      nomFichier = path.join(dossier, "testZip.zip");
+      fichierExtrait = path.join(dossier, "testZipExtrait");
       const fichiersDocs = [
         {
           nom: "fichier1.txt",
@@ -48,7 +52,8 @@ describe("Utils : données", function () {
     });
 
     afterAll(() => {
-      rmrf.sync(dirTempoTest);
+      if (fEffacer) fEffacer();
+      rmrf.sync(dossier);
     });
 
     test("Le fichier zip est créé", async () => {

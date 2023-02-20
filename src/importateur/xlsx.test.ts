@@ -1,20 +1,21 @@
 import isArray from "lodash/isArray";
 
 import XLSX from "xlsx";
-import path from "path";
 
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 
-import { dirRessourcesTests } from "@/utilsTests/index.js";
+import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
 describe("XLSX", function () {
   describe("Importateur XLSX", function () {
     let importateur: ImportateurFeuilleCalcul;
 
     beforeAll(async () => {
+      const path = await import("path");
+      
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
       const doc = XLSX.readFile(
-        path.join(dirRessourcesTests(), "donnéesTest.ods")
+        path.join(await dossierRessourcesTests(), "donnéesTest.ods")
       );
       importateur = new ImportateurFeuilleCalcul(doc);
     });

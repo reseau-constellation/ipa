@@ -18,7 +18,7 @@ import {
   rechercherBdSelonNomVariable,
 } from "@/recherche/bd.js";
 
-import { générerClients, typesClients } from "@/utilsTests/index.js";
+import { générerClients } from "@/utilsTests/client.js";
 
 import { config } from "@/utilsTests/sfip.js";
 

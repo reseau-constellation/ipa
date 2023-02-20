@@ -1,4 +1,4 @@
-import { typesClients } from "@/utilsTests/index.js";
+import { typesClients } from "@/utilsTests/client.js";
 
 typesClients.forEach((type) => {
   describe.skip("Client " + type, function () {

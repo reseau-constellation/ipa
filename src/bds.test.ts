@@ -24,12 +24,15 @@ import type { élémentDonnées, règleBornes } from "@/valid.js";
 
 import {
   générerClients,
-  AttendreRésultat,
   typesClients,
-  dirRessourcesTests,
+} from "@/utilsTests/client.js";
+import {
+  AttendreRésultat,
+} from "@/utilsTests/attente.js";
+import {
   obtDirTempoPourTest,
-} from "@/utilsTests/index.js";
-
+  dossierRessourcesTests,
+} from "@/utilsTests/dossiers.js";
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
@@ -1167,7 +1170,7 @@ typesClients.forEach((type) => {
           });
 
           const octets = fs.readFileSync(
-            path.join(dirRessourcesTests(), "logo.svg")
+            path.join(await dossierRessourcesTests(), "logo.svg")
           );
           cid = await client.ajouterÀSFIP({ fichier: octets });
 
@@ -1211,21 +1214,26 @@ typesClients.forEach((type) => {
         });
 
         describe("Exporter document données", function () {
-          const dirTempo = obtDirTempoPourTest();
-          const dirZip = path.join(dirTempo, "testExporterBd");
-          const fichierExtrait = path.join(dirTempo, "testExporterBdExtrait");
+          let dossier: string;
+          let fEffacer: ()=>void;
+          let dirZip: string;
+          let fichierExtrait: string;
 
           beforeAll(async () => {
+            ({dossier, fEffacer} = await obtDirTempoPourTest());
+            dirZip = path.join(dossier, "testExporterBd");
+            fichierExtrait = path.join(dossier, "testExporterBdExtrait");
             await client.bds!.exporterDocumentDonnées({
               données: { doc, fichiersSFIP, nomFichier },
               formatDoc: "ods",
-              dir: dirZip,
+              dossier: dirZip,
               inclureFichiersSFIP: true,
             });
           }, config.patience);
 
           afterAll(() => {
-            rmrf.sync(dirTempo);
+            rmrf.sync(dossier);
+            if (fEffacer) fEffacer();
           });
 
           test("Le fichier zip existe", () => {

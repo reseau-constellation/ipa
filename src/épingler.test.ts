@@ -6,7 +6,10 @@ import type FeedStore from "orbit-db-feedstore";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { default as ClientConstellation } from "@/client.js";
 
-import { générerClients, typesClients } from "@/utilsTests/index.js";
+import {
+  générerClients,
+  typesClients,
+} from "@/utilsTests/client.js";
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {

@@ -27,12 +27,16 @@ import type { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
 import {
-  AttendreRésultat,
   générerClients,
   typesClients,
-  dirRessourcesTests,
   typeClient,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/client";
+import {
+  AttendreRésultat,
+} from "@/utilsTests/attente.js"
+import {
+  dossierRessourcesTests,
+} from "@/utilsTests/dossiers.js"
 import { config } from "@/utilsTests/sfip.js";
 
 async function toutPréparer(n: number, type: typeClient) {
@@ -1731,18 +1735,19 @@ typesClients.forEach((type) => {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
+        let IMAGE: Buffer;
 
         const résNom = new AttendreRésultat<{ [key: string]: string }>();
         const résCourriel = new AttendreRésultat<string | null>();
         const résImage = new AttendreRésultat<Uint8Array | null>();
 
-        const IMAGE = fs.readFileSync(
-          path.join(dirRessourcesTests(), "logo.svg")
-        );
-
         const fsOublier: schémaFonctionOublier[] = [];
 
         beforeAll(async () => {
+          IMAGE = fs.readFileSync(
+            path.join(await dossierRessourcesTests(), "logo.svg")
+          );
+  
           ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
             2,
             type

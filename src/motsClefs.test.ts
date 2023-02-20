@@ -5,10 +5,13 @@ import type { default as ClientConstellation } from "@/client.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
 import {
-  AttendreRésultat,
   générerClients,
   typesClients,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/client.js";
+import {
+  AttendreRésultat,
+} from "@/utilsTests/attente.js";
+
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {

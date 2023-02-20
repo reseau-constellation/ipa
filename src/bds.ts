@@ -1809,12 +1809,12 @@ export default class BDs {
   async exporterDocumentDonnées({
     données,
     formatDoc,
-    dir = "",
+    dossier = "",
     inclureFichiersSFIP = true,
   }: {
     données: donnéesBdExportées;
     formatDoc: BookType | "xls";
-    dir?: string;
+    dossier?: string;
     inclureFichiersSFIP?: boolean;
   }): Promise<string> {
     const { doc, fichiersSFIP, nomFichier } = données;
@@ -1827,9 +1827,9 @@ export default class BDs {
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
     if (!(isBrowser || isWebWorker)) {
       const fs = await import("fs");
-      if (!fs.existsSync(dir)) {
+      if (!fs.existsSync(dossier)) {
         // Mais juste si on n'est pas dans le navigateur ! Dans le navigateur, ça télécharge sans problème.
-        fs.mkdirSync(dir, { recursive: true });
+        fs.mkdirSync(dossier, { recursive: true });
       }
     }
 
@@ -1848,13 +1848,13 @@ export default class BDs {
           };
         })
       );
-      await zipper([fichierDoc], fichiersDeSFIP, path.join(dir, nomFichier));
-      return path.join(dir, `${nomFichier}.zip`);
+      await zipper([fichierDoc], fichiersDeSFIP, path.join(dossier, nomFichier));
+      return path.join(dossier, `${nomFichier}.zip`);
     } else {
-      writeFile(doc, path.join(dir, `${nomFichier}.${formatDoc}`), {
+      writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {
         bookType,
       });
-      return path.join(dir, `${nomFichier}.${formatDoc}`);
+      return path.join(dossier, `${nomFichier}.${formatDoc}`);
     }
   }
 

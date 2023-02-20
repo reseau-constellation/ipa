@@ -8,9 +8,13 @@ import type { schémaFonctionOublier } from "@/utils/index.js";
 import {
   générerClients,
   typesClients,
+} from "@/utilsTests/client.js";
+import {
   AttendreRésultat,
-  dirRessourcesTests,
-} from "@/utilsTests/index.js";
+} from "@/utilsTests/attente.js";
+import {
+  dossierRessourcesTests,
+} from "@/utilsTests/dossiers.js";
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
@@ -120,9 +124,13 @@ typesClients.forEach((type) => {
 
         let fOublier: schémaFonctionOublier;
 
-        const IMAGE = new Uint8Array(
-          fs.readFileSync(path.join(dirRessourcesTests(), "logo.svg")).buffer
-        );
+        let IMAGE: Uint8Array;
+
+        beforeAll(async ()=>{
+          IMAGE = new Uint8Array(
+            fs.readFileSync(path.join(await dossierRessourcesTests(), "logo.svg")).buffer
+          );
+        })
 
         beforeAll(async () => {
           fOublier = await client.profil!.suivreImage({

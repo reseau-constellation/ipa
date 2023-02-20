@@ -757,12 +757,12 @@ export default class Projets {
   async exporterDocumentDonnées({
     données,
     formatDoc,
-    dir = "",
+    dossier = "",
     inclureFichiersSFIP = true,
   }: {
     données: donnéesProjetExportées;
     formatDoc: BookType | "xls";
-    dir?: string;
+    dossier?: string;
     inclureFichiersSFIP?: boolean;
   }): Promise<void> {
     const { docs, fichiersSFIP, nomFichier } = données;
@@ -790,7 +790,7 @@ export default class Projets {
           })
         )
       : [];
-    await zipper(fichiersDocs, fichiersDeSFIP, path.join(dir, nomFichier));
+    await zipper(fichiersDocs, fichiersDeSFIP, path.join(dossier, nomFichier));
   }
 
   async effacerProjet({ id }: { id: string }): Promise<void> {
