@@ -61,7 +61,14 @@ export default class Profil {
       fSuivre: async ({ id, fSuivreBd }) => {
         return await this.client.suivreBd<KeyValueStore<typeÉlémentsBdProfil>>({
           id,
-          f: (bd) => fSuivreBd(bd.get("compte")),
+          f: async () => {
+            const idBdProfil = await this.client.obtIdBd({
+              nom: "compte",
+              racine: id,
+              type: "kvstore",
+            });
+            return await fSuivreBd(idBdProfil)
+          },
         });
       },
     });
