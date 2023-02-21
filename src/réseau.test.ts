@@ -680,7 +680,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre relations confiance", function () {
+      describe("Suivre relations confiance", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -1039,7 +1039,7 @@ typesClients.forEach((type) => {
             (x) => !!x && x.length === 3 && x.every((r) => r.confiance > 0)
           );
 
-          fChangerProfondeur(1);
+          await fChangerProfondeur(1);
           const val = await rés.attendreQue((x) => !!x && x.length === 2);
           expect(val).toEqual(expect.arrayContaining(réf));
         });
@@ -1057,8 +1057,7 @@ typesClients.forEach((type) => {
               profondeur: 2,
             },
           ];
-
-          fChangerProfondeur(2);
+          await fChangerProfondeur(2);
 
           const val = await rés.attendreQue(
             (x) => !!x && x.length === 3 && x.every((y) => y.confiance > 0)
@@ -1067,7 +1066,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre comptes réseau et en ligne", function () {
+      describe("Suivre comptes réseau et en ligne", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let moiMême: infoMembreRéseau;
@@ -1196,7 +1195,7 @@ typesClients.forEach((type) => {
         );
       });
 
-      describe.skip("Suivre confiance mon réseau pour membre", function () {
+      describe("Suivre confiance mon réseau pour membre", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
