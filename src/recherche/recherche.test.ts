@@ -9,6 +9,7 @@ import type {
   infoRésultatTexte,
   infoRésultatRecherche,
   infoRésultatVide,
+  résultatObjectifRecherche,
 } from "@/utils/index.js";
 
 import {
@@ -28,21 +29,29 @@ const vérifierRecherche = (
     résultats.map((r) => [r.id, r.résultatObjectif.score])
   );
   const résultatsSansScore = résultats.map((r) => {
-    const sansScore: { [key: string]: unknown } = {
-      ...r,
+    const sansScore: {
+      id: string,
+      résultatObjectif: Omit<résultatObjectifRecherche<infoRésultat>, "score">
+    } = {
+      id: r.id,
+      résultatObjectif: Object.fromEntries(
+        Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score")
+      ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">
     };
-    return (sansScore.résultatObjectif = Object.fromEntries(
-      Object.entries(sansScore.résultatObjectif).filter((x) => x[0] !== "score")
-    ));
+    return sansScore
   });
 
   const réfSansScore = réf.map((r) => {
-    const sansScore: { [key: string]: unknown } = {
-      ...r,
+    const sansScore: {
+      id: string,
+      résultatObjectif: Omit<résultatObjectifRecherche<infoRésultat>, "score">
+    } = {
+      id: r.id,
+      résultatObjectif: Object.fromEntries(
+        Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score")
+      ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">
     };
-    return (sansScore.résultatObjectif = Object.fromEntries(
-      Object.entries(sansScore.résultatObjectif).filter((x) => x[0] !== "score")
-    ));
+    return sansScore
   });
 
   expect(résultatsSansScore).toEqual(réfSansScore);
