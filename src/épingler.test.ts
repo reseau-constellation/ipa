@@ -3,7 +3,7 @@ import isSet from "lodash/isSet";
 import type KeyValueStore from "orbit-db-kvstore";
 import type FeedStore from "orbit-db-feedstore";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
+
 import type { default as ClientConstellation } from "@/client.js";
 
 import {
@@ -20,7 +20,7 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
+        
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type

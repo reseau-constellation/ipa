@@ -6,7 +6,7 @@ import path from "path";
 import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
+
 import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
@@ -33,7 +33,7 @@ typesClients.forEach((type) => {
       let idProjet: string;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
+        
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type

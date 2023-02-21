@@ -1,6 +1,6 @@
 import { config } from "@/utilsTests/sfip.js";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
+
 import type { default as ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
@@ -21,7 +21,7 @@ describe("Rechercher variables", function () {
   let client: ClientConstellation;
 
   beforeAll(async () => {
-    enregistrerContrôleurs();
+    
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
   }, config.patienceInit);

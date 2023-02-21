@@ -2,7 +2,7 @@ import isArray from "lodash/isArray";
 
 import { isElectronMain, isNode } from "wherearewe";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
+
 import type { default as ClientConstellation } from "@/client.js";
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
@@ -18,7 +18,7 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
+        
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type

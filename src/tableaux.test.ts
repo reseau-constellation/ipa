@@ -1,7 +1,7 @@
 import isArray from "lodash/isArray";
 
 import type XLSX from "xlsx";
-import { enregistrerContrôleurs } from "@/accès/index.js";
+
 import type { default as ClientConstellation } from "@/client.js";
 import {
   schémaFonctionOublier,
@@ -46,7 +46,7 @@ typesClients.forEach((type) => {
       let colonnes: InfoColAvecCatégorie[];
 
       beforeAll(async () => {
-        enregistrerContrôleurs();
+        
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type
