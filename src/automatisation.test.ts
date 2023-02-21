@@ -753,7 +753,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Exportation nuée bds", function () {
+      describe("Exportation nuée bds", function () {
         test.todo(
           "Exportation selon changements"
           /*async () => {
