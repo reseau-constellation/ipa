@@ -127,9 +127,7 @@ typesClients.forEach((type) => {
         let IMAGE: Uint8Array;
 
         beforeAll(async ()=>{
-          IMAGE = new Uint8Array(
-            fs.readFileSync(path.join(await dossierRessourcesTests(), "logo.svg")).buffer
-          );
+          IMAGE = fs.readFileSync(path.join(await dossierRessourcesTests(), "logo.svg"))
         })
 
         beforeAll(async () => {
@@ -151,7 +149,7 @@ typesClients.forEach((type) => {
         test("Ajouter une image", async () => {
           await client.profil!.sauvegarderImage({ image: IMAGE });
           const val = await rés.attendreExiste();
-          expect(val).toEqual(IMAGE);
+          expect(val).toEqual(new Uint8Array(IMAGE));
         });
 
         test("Effacer l'image", async () => {
