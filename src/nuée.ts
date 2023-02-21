@@ -1144,7 +1144,7 @@ export default class Nuée {
   }
 
   @cacheSuivi
-  async TableauNuée({
+  async suivreRèglesTableauNuée({
     idNuée,
     clefTableau,
     f,
