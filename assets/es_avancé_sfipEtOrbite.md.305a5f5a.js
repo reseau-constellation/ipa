@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as a}from"./app.03728336.js";const d=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"es/avancé/sfipEtOrbite.md"}'),r={name:"es/avancé/sfipEtOrbite.md"};function s(c,n,o,i,p,_){return a(),t("div")}const m=e(r,[["render",s]]);export{d as __pageData,m as default};
