@@ -259,7 +259,9 @@ export class CacheSuivi {
       );
       const { taillePrésente } = this._cacheRecherche[codeCache];
       const { fChangerTaille } = this._cacheRecherche[codeCache].fs!;
+
       if (maxTaille !== taillePrésente) {
+        this._cacheRecherche[codeCache].taillePrésente = maxTaille;
         fChangerTaille(maxTaille);
       }
     };
