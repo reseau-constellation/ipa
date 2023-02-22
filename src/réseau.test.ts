@@ -1247,7 +1247,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre confiance auteurs", function () {
+      describe("Suivre confiance auteurs", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -1318,7 +1318,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Auteurs", function () {
+      describe("Auteurs", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -1730,7 +1730,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre membre", function () {
+      describe("Suivre membre", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -1815,7 +1815,7 @@ typesClients.forEach((type) => {
         test.todo("Protocoles détectés");
       });
 
-      describe.skip("Suivre mots-clefs", function () {
+      describe("Suivre mots-clefs", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -1868,7 +1868,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre variables", function () {
+      describe("Suivre variables", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -1926,7 +1926,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre BDs", function () {
+      describe("Suivre BDs", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -1976,7 +1976,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre projets", function () {
+      describe("Suivre projets", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -2026,7 +2026,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Suivre favoris", function () {
+      describe("Suivre favoris", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -2108,7 +2108,7 @@ typesClients.forEach((type) => {
         );
       });
 
-      describe.skip("Suivre favoris objet", function () {
+      describe("Suivre favoris objet", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
@@ -2195,7 +2195,7 @@ typesClients.forEach((type) => {
         );
       });
 
-      describe.skip("Suivre réplications", function () {
+      describe("Suivre réplications", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let idsOrbite: string[];
@@ -2266,7 +2266,7 @@ typesClients.forEach((type) => {
         );
       });
 
-      describe.skip("Suivre BD par mot-clef unique", function () {
+      describe("Suivre BD par mot-clef unique", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
         let clients: ClientConstellation[];
