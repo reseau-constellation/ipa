@@ -11,7 +11,7 @@ export type élément = élémentDic | élémentListe;
 export type DonnéesJSON = élément | élément[];
 
 export type clefsExtractionNonNul = (string | number)[];
-export type clefsExtraction = (string | number | null)[];
+export type clefsExtraction = (string | number | -1)[];
 
 const copieProfonde = (données: DonnéesJSON) => {
   return JSON.parse(JSON.stringify(données));
@@ -109,9 +109,9 @@ export const aplatirDonnées = (
   _base?: DonnéesJSON,
   _élémentsFinaux: élément[] = []
 ): élément[] => {
-  if (clefs[clefs.length - 1] !== null) clefs.push(null);
+  if (clefs[clefs.length - 1] !== -1) clefs.push(-1);
 
-  const iNull = clefs.indexOf(null);
+  const iNull = clefs.indexOf(-1);
   const clefsAvant = clefs.slice(0, iNull);
   const clefsAprès = clefs.slice(iNull + 1, clefs.length);
 

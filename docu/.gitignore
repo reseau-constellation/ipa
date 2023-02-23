@@ -11,6 +11,7 @@ dist
 config.local.js
 basement_dist
 cache
+.temp
 
 src/த
 src/es

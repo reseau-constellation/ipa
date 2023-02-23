@@ -45,7 +45,7 @@ const extraireTraductiblesDeMd = (md) => {
 
 const extraireTraductiblesDeSvg = async (svg) => {
   const lexé = await xml2js.Parser().parseStringPromise(svg);
-  return lexé.svg.text.map((t) => t._);
+  return lexé.svg.text?.map((t) => t._) || [];
 };
 
 const empreinte = (x) => {
@@ -159,7 +159,7 @@ const compilerTraductions = async () => {
         }
         case "svg": {
           const lexé = await xml2js.Parser().parseStringPromise(texte);
-          for (const t of lexé.svg.text) {
+          for (const t of lexé.svg?.text || []) {
             const clef = calculerClef(fichier, t._);
             t._ = traductions[clef] || t._;
           }

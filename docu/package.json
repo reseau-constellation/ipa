@@ -12,7 +12,7 @@
     "traducs": "node scripts/compilerTraducs.js",
     "dev": "pnpm traducs && vitepress dev src",
     "build": "pnpm traducs && vitepress build src",
-    "preview": "pnpm traducs && vitepress preview src"
+    "preview": "pnpm build && vitepress preview src"
   },
   "license": "MIT",
   "devDependencies": {

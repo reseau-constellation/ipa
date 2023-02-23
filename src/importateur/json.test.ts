@@ -107,7 +107,7 @@ describe("JSON", function () {
         },
       };
 
-      const aplaties = aplatirDonnées(données, [null, "data"]);
+      const aplaties = aplatirDonnées(données, [-1, "data"]);
       expect(aplaties).toEqual([
         {
           location: "Afghanistan",

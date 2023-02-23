@@ -44,13 +44,15 @@ export type fréquence = {
 
 export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
-export type SpécificationAutomatisation = {
+export type SpécificationAutomatisation = SpécificationExporter | SpécificationImporter
+
+type BaseSpécificationAutomatisation = {
   fréquence?: fréquence;
   type: "importation" | "exportation";
   id: string;
 };
 
-export interface SpécificationExporter extends SpécificationAutomatisation {
+export type SpécificationExporter = BaseSpécificationAutomatisation & {
   type: "exportation";
   idObjet: string;
   typeObjet: typeObjetExportation;
@@ -61,74 +63,205 @@ export interface SpécificationExporter extends SpécificationAutomatisation {
   inclureFichiersSFIP: boolean;
 }
 
-export interface infoImporter {
-  formatDonnées: "json" | "feuilleCalcul";
-}
+export type infoImporter = infoImporterJSON | infoImporterFeuilleCalcul
 
-export interface infoImporterJSON extends infoImporter {
+export type infoImporterJSON = {
   formatDonnées: "json";
   clefsRacine: clefsExtraction;
   clefsÉléments: clefsExtraction;
   cols: { [key: string]: clefsExtraction };
 }
 
-export interface infoImporterFeuilleCalcul extends infoImporter {
+// Il faut copier ça ici parce qu'elles sont exportées de XLSX en 
+// tant qu'interfaces
+export type XLSXCommonOptions = {
+  /**
+   * If true, throw errors when features are not understood
+   * @default false
+   */
+  WTF?: boolean;
+
+  /**
+   * When reading a file with VBA macros, expose CFB blob to `vbaraw` field
+   * When writing BIFF8/XLSB/XLSM, reseat `vbaraw` and export to file
+   * @default false
+   */
+  bookVBA?: boolean;
+
+  /**
+   * When reading a file, store dates as type d (default is n)
+   * When writing XLSX/XLSM file, use native date (default uses date codes)
+   * @default false
+   */
+  cellDates?: boolean;
+
+  /**
+   * Create cell objects for stub cells
+   * @default false
+   */
+  sheetStubs?: boolean;
+
+  /**
+   * When reading a file, save style/theme info to the .s field
+   * When writing a file, export style/theme info
+   * @default false
+   */
+  cellStyles?: boolean;
+
+  /**
+   * If defined and file is encrypted, use password
+   * @default ''
+   */
+  password?: string;
+}
+
+export type XLSXParsingOptions = XLSXCommonOptions & {
+  /** Input data encoding */
+  type?: 'base64' | 'binary' | 'buffer' | 'file' | 'array' | 'string';
+
+  /**
+   * Default codepage for legacy files
+   *
+   * This requires encoding support to be loaded.  It is automatically loaded
+   * in `xlsx.full.min.js` and in CommonJS / Extendscript, but an extra step
+   * is required in React / Angular / Webpack ESM deployments.
+   *
+   * Check the relevant guide https://docs.sheetjs.com/docs/getting-started/
+   */
+  codepage?: number;
+
+  /**
+   * Save formulae to the .f field
+   * @default true
+   */
+  cellFormula?: boolean;
+
+  /**
+   * Parse rich text and save HTML to the .h field
+   * @default true
+   */
+  cellHTML?: boolean;
+
+  /**
+   * Save number format string to the .z field
+   * @default false
+   */
+  cellNF?: boolean;
+
+  /**
+   * Generate formatted text to the .w field
+   * @default true
+   */
+  cellText?: boolean;
+
+  /** Override default date format (code 14) */
+  dateNF?: string;
+
+  /** Field Separator ("Delimiter" override) */
+  FS?: string;
+
+  /**
+   * If >0, read the first sheetRows rows
+   * @default 0
+   */
+  sheetRows?: number;
+
+  /**
+   * If true, parse calculation chains
+   * @default false
+   */
+  bookDeps?: boolean;
+
+  /**
+   * If true, add raw files to book object
+   * @default false
+   */
+  bookFiles?: boolean;
+
+  /**
+   * If true, only parse enough to get book metadata
+   * @default false
+   */
+  bookProps?: boolean;
+
+  /**
+   * If true, only parse enough to get the sheet names
+   * @default false
+   */
+  bookSheets?: boolean;
+
+  /** If specified, only parse the specified sheets or sheet names */
+  sheets?: number | string | Array<number | string>;
+
+  /** If true, plaintext parsing will not parse values */
+  raw?: boolean;
+
+  /** If true, ignore "dimensions" records and guess range using every cell */
+  nodim?: boolean;
+
+  /** If true, preserve _xlfn. prefixes in formula function names */
+  xlfn?: boolean;
+
+  dense?: boolean;
+
+  PRN?: boolean;
+}
+
+export type infoImporterFeuilleCalcul = {
   formatDonnées: "feuilleCalcul";
   nomTableau: string;
   cols: { [key: string]: string };
-  optionsXLSX?: XLSX.ParsingOptions;
+  optionsXLSX?: XLSXParsingOptions;
 }
 
-export interface SourceDonnéesImportation<
-  T extends infoImporterJSON | infoImporterFeuilleCalcul
-> {
+export type SourceDonnéesImportation<
+  T extends infoImporter
+> = {
   typeSource: "url" | "fichier";
   info: T;
 }
 
-export interface SourceDonnéesImportationURL<
-  T extends infoImporterJSON | infoImporterFeuilleCalcul
-> extends SourceDonnéesImportation<T> {
+export type SourceDonnéesImportationURL<
+  T extends infoImporter
+> = SourceDonnéesImportation<T> & {
   typeSource: "url";
   url: string;
 }
 
-export interface SourceDonnéesImportationFichier<
-  T extends infoImporterJSON | infoImporterFeuilleCalcul
-> extends SourceDonnéesImportation<T> {
+export type SourceDonnéesImportationFichier<
+  T extends infoImporter
+> = SourceDonnéesImportation<T> & {
   typeSource: "fichier";
   adresseFichier: string;
 }
 
-export interface SpécificationImporter<
-  T extends infoImporterJSON | infoImporterFeuilleCalcul
-> extends SpécificationAutomatisation {
+export type SpécificationImporter<
+  T extends infoImporter=infoImporter
+> = BaseSpécificationAutomatisation & {
   type: "importation";
   idTableau: string;
   dispositif: string;
   source: SourceDonnéesImportation<T>;
 }
 
-export interface ÉtatAutomatisation {
-  type: "erreur" | "écoute" | "sync" | "programmée";
-}
+export type ÉtatAutomatisation = ÉtatErreur | ÉtatÉcoute | ÉtatEnSync | ÉtatProgrammée
 
-export interface ÉtatErreur extends ÉtatAutomatisation {
+export interface ÉtatErreur {
   type: "erreur";
   erreur: string;
   prochaineProgramméeÀ?: number;
 }
 
-export interface ÉtatÉcoute extends ÉtatAutomatisation {
+export interface ÉtatÉcoute {
   type: "écoute";
 }
 
-export interface ÉtatEnSync extends ÉtatAutomatisation {
+export interface ÉtatEnSync {
   type: "sync";
   depuis: number;
 }
 
-export interface ÉtatProgrammée extends ÉtatAutomatisation {
+export interface ÉtatProgrammée {
   type: "programmée";
   à: number;
 }
@@ -308,7 +441,7 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
   switch (spéc.type) {
     case "importation": {
       return async () => {
-        const spécImp = spéc as unknown as SpécificationImporter<R>;
+        const spécImp = spéc as SpécificationImporter<R>;
         const données = await obtDonnéesImportation(spécImp);
         await client.tableaux!.importerDonnées({
           idTableau: spécImp.idTableau,
@@ -318,12 +451,12 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
     }
 
     case "exportation": {
-      const spécExp = spéc as unknown as SpécificationExporter;
+      const spécExp = spéc as SpécificationExporter;
       return générerFExportation(spécExp, client);
     }
 
     default:
-      throw new Error(spéc.type);
+      throw new Error(spéc);
   }
 };
 
@@ -511,7 +644,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       }
 
       default:
-        throw new Error(spéc.type);
+        throw new Error(spéc);
     }
   }
 };
@@ -564,17 +697,17 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
     case "importation": {
       type R = T extends SpécificationImporter<infer R> ? R : never;
 
-      const spécImp = spéc as unknown as SpécificationImporter<R>;
+      const spécImp = spéc  as SpécificationImporter<R>;
       return spécImp.dispositif === monIdOrbite;
     }
 
     case "exportation": {
-      const spécExp = spéc as unknown as SpécificationExporter;
+      const spécExp = spéc as SpécificationExporter;
       return spécExp.dispositifs.includes(monIdOrbite);
     }
 
     default:
-      throw new Error(spéc.type);
+      throw new Error(spéc);
   }
 };
 

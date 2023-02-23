@@ -1,4 +1,10 @@
 {
+    "src/.vitepress/dist/assets/distribuéDécentralisé.3608dbc1.svg.841ec8dc6975331c9a40d1cde0136f2d": "\n    Centralisé\n  ",
+    "src/.vitepress/dist/assets/distribuéDécentralisé.3608dbc1.svg.d8d956db397c3f51b1fbaaebe3fab689": "\n    Décentralisé\n  ",
+    "src/.vitepress/dist/assets/distribuéDécentralisé.3608dbc1.svg.c201ce3d54275139a41ae346a4cabe16": "\n    Distribué\n  ",
+    "src/.vitepress/dist/assets/distribuéDécentralisé.cf8f89b5.svg.5cd6bf319817bb7eaed31e0fb04d3b72": "\n    மையப்படுத்தப்பட்டது\n  ",
+    "src/.vitepress/dist/assets/distribuéDécentralisé.cf8f89b5.svg.f476a89fdd2b00a3a999558eb3b5bb39": "\n    மையப்படுத்தப்படாது\n  ",
+    "src/.vitepress/dist/assets/distribuéDécentralisé.cf8f89b5.svg.e2ad3a2fbdc4e7d243a495b29c95d447": "\n    விநியோகிக்கப்பட்டது\n  ",
     "src/avancé/applications/internet.md.40530fdb4055dcbb27b80c724b341cb2": "# Applis Internet\n",
     "src/avancé/applications/internet.md.8e26eec108c03a2d0f1e718d2607f2cd": "C'est très facile d'incorporer Constellation à vos applications. Le point important est de créer une seule instance de Constellation qui sera utilisée par toutes les partis de votre appli.",
     "src/avancé/applications/internet.md.47423dbf7019251c3fe0b1ba008b1595": "## Exemple Vue 3\n",
@@ -149,6 +155,7 @@
     "src/guide/installation.md.51042022d1929eac7789a9e8612d4546": "Si vous préférez travailler avec du code, qu'il s'agisse de JavaScript, Python, Julia ou R, il vous est possible d'utiliser Constellation dans ces langages, avec ou sans l'interface graphique ci-dessus. Voir notre [guide avancé](../avancé/autresLangages/introduction.md) pour démarrer.\n",
     "src/guide/introduction.md.62899d6f1488620641bd90ecaf394042": "# Introduction\n\n",
     "src/guide/introduction.md.c7382476a0ca3126a14275ddc8d1db50": "Constellation est un logiciel de bases de données scientifiques distribuées. Il vous permet de collecter et de diffuser vos données scientifiques sans serveur ou dépôt centralisé.",
+    "src/guide/introduction.md.aa70c25516cd01074da0db4da6ae9203": "![systèmeCentralisé](/images/systèmeCentralisé.svg)",
     "src/guide/introduction.md.c21480a2b9a5e864e42a640766fa35bd": "## Philosophie générale\n\n",
     "src/guide/introduction.md.789762f8d2363cb623d5dc9e1c26f048": "**Ouvert** : Les données scientifiques devraient être ouvertes et accessibles. Toutes les données partagées sur Constellation sont publiques. (Si vous travaillez en recherche clinique, ce n'est peut-être pas le logiciel pour vous.)",
     "src/guide/introduction.md.0f35e84c735d830aa08dc76174b428e3": "**Source ouverte** : Tous les logiciels de l'univers Constellation sont distribués sous licence libre.",
