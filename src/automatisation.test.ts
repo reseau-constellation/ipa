@@ -1174,7 +1174,7 @@ typesClients.forEach((type) => {
           const état = résÉtats.val![idAuto] as ÉtatErreur;
 
           expect(état.erreur).toContain(
-            "Error: ENOENT: no such file or directory, open "
+            "introuvable."
           );
           expect(état.prochaineProgramméeÀ).toBeLessThanOrEqual(
             après + 1000 * 60 * 3

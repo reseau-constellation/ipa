@@ -109,6 +109,7 @@
     "chokidar": "^3.5.3",
     "crypto-js": "^4.1.1",
     "deep-equal": "^2.2.0",
+    "deepcopy": "^2.1.0",
     "events": "^3.3.0",
     "file-saver": "^2.0.5",
     "genversion": "^3.1.1",

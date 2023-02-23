@@ -5,6 +5,7 @@ import * as XLSX from "xlsx";
 import Semaphore from "@chriscdn/promise-semaphore";
 import { isNode, isElectronMain } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
+import deepcopy from "deepcopy";
 
 import type { default as ClientConstellation } from "@/client.js";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/importateur/index.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
+import client from ".";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
@@ -44,7 +46,7 @@ export type fréquence = {
 
 export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
-export type SpécificationAutomatisation = SpécificationExporter | SpécificationImporter
+export type SpécificationAutomatisation = SpécificationExporter | SpécificationImporter;
 
 type BaseSpécificationAutomatisation = {
   fréquence?: fréquence;
@@ -57,7 +59,7 @@ export type SpécificationExporter = BaseSpécificationAutomatisation & {
   idObjet: string;
   typeObjet: typeObjetExportation;
   formatDoc: formatTélécharger;
-  dossier: string;
+  dossier?: string;
   langues?: string[];
   dispositifs: string[];
   inclureFichiersSFIP: boolean;
@@ -215,25 +217,32 @@ export type infoImporterFeuilleCalcul = {
 }
 
 export type SourceDonnéesImportation<
-  T extends infoImporter
-> = {
-  typeSource: "url" | "fichier";
-  info: T;
-}
+T extends infoImporter
+> = SourceDonnéesImportationURL<T> | SourceDonnéesImportationFichier<T>
+
+export type SourceDonnéesImportationAdresseOptionel<
+T extends infoImporter
+> = SourceDonnéesImportationURL<T> | SourceDonnéesImportationFichierAdresseOptionel<T>
 
 export type SourceDonnéesImportationURL<
   T extends infoImporter
-> = SourceDonnéesImportation<T> & {
+> = {
   typeSource: "url";
   url: string;
+  info: T;
+}
+
+export type SourceDonnéesImportationFichierAdresseOptionel<
+  T extends infoImporter
+> = {
+  typeSource: "fichier";
+  adresseFichier?: string;
+  info: T;
 }
 
 export type SourceDonnéesImportationFichier<
-  T extends infoImporter
-> = SourceDonnéesImportation<T> & {
-  typeSource: "fichier";
-  adresseFichier: string;
-}
+T extends infoImporter
+> = SourceDonnéesImportationFichierAdresseOptionel<T> & { adresseFichier: string};
 
 export type SpécificationImporter<
   T extends infoImporter=infoImporter
@@ -241,8 +250,12 @@ export type SpécificationImporter<
   type: "importation";
   idTableau: string;
   dispositif: string;
-  source: SourceDonnéesImportation<T>;
+  source: SourceDonnéesImportationAdresseOptionel<T>;
 }
+
+export type SpécificationImporterAvecFichier<
+T extends infoImporter=infoImporter
+> = SpécificationImporter<T> & {source: SourceDonnéesImportation<T>}
 
 export type ÉtatAutomatisation = ÉtatErreur | ÉtatÉcoute | ÉtatEnSync | ÉtatProgrammée
 
@@ -301,7 +314,8 @@ const obtTempsInterval = (fréq: fréquence): number => {
 const obtDonnéesImportation = async <
   T extends infoImporterJSON | infoImporterFeuilleCalcul
 >(
-  spéc: SpécificationImporter<T>
+  spéc: SpécificationImporter<T>,
+  client: ClientConstellation
 ) => {
   const { typeSource } = spéc.source;
   const { formatDonnées } = spéc.source.info;
@@ -332,14 +346,15 @@ const obtDonnéesImportation = async <
       if (!isElectronMain && !isNode)
         throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
       const fs = await import("fs");
-      const { adresseFichier } =
-        spéc.source as SourceDonnéesImportationFichier<T>;
+      const { adresseFichier } = spéc.source;
+      const adresseFichierRésolue = await client.automatisations!.résoudreAdressePrivéeFichier({clef: adresseFichier});
+      if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue)) throw new Error(`Fichier ${adresseFichierRésolue} introuvable.`);
+
       switch (formatDonnées) {
         case "json": {
-          const { clefsRacine, clefsÉléments, cols } = spéc.source
-            .info as unknown as infoImporterJSON;
+          const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
 
-          const contenuFichier = await fs.promises.readFile(adresseFichier);
+          const contenuFichier = await fs.promises.readFile(adresseFichierRésolue);
           const donnéesJson = JSON.parse(contenuFichier.toString());
           const importateur = new ImportateurDonnéesJSON(donnéesJson);
 
@@ -347,9 +362,9 @@ const obtDonnéesImportation = async <
         }
 
         case "feuilleCalcul": {
-          const { nomTableau, cols } = spéc.source
-            .info as unknown as infoImporterFeuilleCalcul;
-          const docXLSX = XLSX.readFile(adresseFichier);
+          const { nomTableau, cols } = spéc.source.info;
+
+          const docXLSX = XLSX.readFile(adresseFichierRésolue);
           const importateur = new ImportateurFeuilleCalcul(docXLSX);
           return importateur.obtDonnées(nomTableau, cols);
         }
@@ -369,7 +384,7 @@ const générerFExportation = (
   client: ClientConstellation
 ): (() => Promise<void>) => {
   return async () => {
-    const dossier = await client.obtDeStockageLocal({clef: "dossier."+spéc.dossier})
+    const dossier = await client.automatisations!.résoudreAdressePrivéeFichier({clef: spéc.dossier});
     if (!dossier) throw new Error("Dossier introuvable");
     switch (spéc.typeObjet) {
       case "tableau": {
@@ -445,7 +460,7 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
     case "importation": {
       return async () => {
         const spécImp = spéc as SpécificationImporter<R>;
-        const données = await obtDonnéesImportation(spécImp);
+        const données = await obtDonnéesImportation(spécImp, client);
         await client.tableaux!.importerDonnées({
           idTableau: spécImp.idTableau,
           données,
@@ -578,16 +593,15 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 
     switch (spéc.type) {
       case "exportation": {
-        const spécExp = spéc as unknown as SpécificationExporter;
-        if (spécExp.typeObjet === "nuée") {
+        if (spéc.typeObjet === "nuée") {
           const fOublier = await client.nuées!.suivreEmpreinteTêtesBdsNuée({
-            idNuée: spécExp.idObjet,
+            idNuée: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
           return fOublier;
         } else {
           const fOublier = await client.suivreEmpreinteTêtesBdRécursive({
-            idBd: spécExp.idObjet,
+            idBd: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
           return fOublier;
@@ -595,25 +609,26 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       }
 
       case "importation": {
-        type R = T extends SpécificationImporter<infer R> ? R : never;
-        const spécImp = spéc as unknown as SpécificationImporter<R>;
-
-        switch (spécImp.source.typeSource) {
+        switch (spéc.source.typeSource) {
           case "fichier": {
             if (!isNode && !isElectronMain) {
               throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
             }
             const chokidar = await import("chokidar");
             const fs = await import("fs");
-            const source = spécImp.source as SourceDonnéesImportationFichier<R>;
-            const écouteur = chokidar.watch(source.adresseFichier);
+            const { adresseFichier } = spéc.source;
+
+            const adresseFichierRésolue = await client.automatisations!.résoudreAdressePrivéeFichier({clef: adresseFichier});
+            if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue)) throw new Error(`Fichier ${adresseFichier} introuvable.`);
+
+            const écouteur = chokidar.watch(adresseFichierRésolue);
             écouteur.on("change", async () => {
               const maintenant = new Date().getTime().toString();
               fAutoAvecÉtats(maintenant);
             });
 
             const dernièreModif = fs
-              .statSync(source.adresseFichier)
+              .statSync(adresseFichierRésolue)
               .mtime.getTime();
             const dernièreImportation = await client.obtDeStockageLocal({
               clef: clefStockageDernièreFois,
@@ -642,7 +657,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
           }
 
           default:
-            throw new Error(spécImp.source.typeSource);
+            throw new Error(spéc.source);
         }
       }
 
@@ -797,8 +812,8 @@ export default class Automatisations extends EventEmitter {
   }): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
     const idAuto = uuidv4();
-    const idDossier = uuidv4();
-    await this.client.sauvegarderAuStockageLocal({clef: "dossier."+idDossier, val: dossier})
+    const idDossier = await this.sauvegarderAdressePrivéeFichier({fichier: dossier})
+
     const élément: SpécificationExporter = {
       type: "exportation",
       id: idAuto,
@@ -848,6 +863,10 @@ export default class Automatisations extends EventEmitter {
     dispositif = dispositif || this.client.orbite!.identity.id;
     const id = uuidv4();
 
+    if (source.typeSource === "fichier") {
+      source.adresseFichier = await this.sauvegarderAdressePrivéeFichier({fichier: source.adresseFichier})
+    }
+
     const élément: SpécificationImporter<T> = {
       type: "importation",
       id,
@@ -882,6 +901,19 @@ export default class Automatisations extends EventEmitter {
     await fOublier();
   }
 
+  async résoudreAdressePrivéeFichier ({clef}:{clef?: string}): Promise<string|null> {
+    const x = clef ? await this.client.obtDeStockageLocal({clef}) : null;
+    console.log({clef, x})
+    return x
+  }
+
+  async sauvegarderAdressePrivéeFichier({fichier}: {fichier: string}): Promise<string> {
+    const clef = "dossier." + uuidv4();
+    await this.client.sauvegarderAuStockageLocal({clef, val: fichier});
+    console.log({clef})
+    return clef
+  }
+
   async suivreAutomatisations({
     f,
     idRacine,
@@ -890,7 +922,37 @@ export default class Automatisations extends EventEmitter {
     idRacine?: string;
   }): Promise<schémaFonctionOublier> {
     idRacine = idRacine || this.idBd;
-    return await this.client.suivreBdListe({ id: idRacine, f });
+    const fFinale = async (autos: SpécificationAutomatisation[]) => {
+      const autosFinales = await Promise.all(autos.map(
+        async a => {
+          const autoFinale = deepcopy(a);
+          if (autoFinale.type === "importation" && autoFinale.source.typeSource === "fichier") {
+            const {adresseFichier} = autoFinale.source
+            if (adresseFichier) {
+              const adresseRésolue = await this.résoudreAdressePrivéeFichier({clef: adresseFichier});
+              if (adresseRésolue) {
+                autoFinale.source.adresseFichier = adresseRésolue;
+              } else {
+                delete autoFinale.source.adresseFichier
+              }
+            }
+          } else if (autoFinale.type === "exportation") {
+            const { dossier } = autoFinale
+            if (dossier) {
+              const dossierRésolu = await this.résoudreAdressePrivéeFichier({clef: dossier});
+              if (dossierRésolu) {
+                autoFinale.dossier = dossierRésolu
+              } else {
+                delete autoFinale.dossier;
+              }
+            }
+          }
+          return autoFinale;
+        }
+      ));
+      await f(autosFinales);
+    }
+    return await this.client.suivreBdListe({ id: idRacine, f: fFinale });
   }
 
   async suivreÉtatAutomatisations({
