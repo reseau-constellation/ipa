@@ -369,16 +369,19 @@ const générerFExportation = (
   client: ClientConstellation
 ): (() => Promise<void>) => {
   return async () => {
+    const dossier = await client.obtDeStockageLocal({clef: "dossier."+spéc.dossier})
+    if (!dossier) throw new Error("Dossier introuvable");
     switch (spéc.typeObjet) {
       case "tableau": {
         const donnéesExp = await client.tableaux!.exporterDonnées({
           idTableau: spéc.idObjet,
           langues: spéc.langues,
         });
+
         await client.bds!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
-          dossier: spéc.dossier,
+          dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
@@ -392,7 +395,7 @@ const générerFExportation = (
         await client.bds!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
-          dossier: spéc.dossier,
+          dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
@@ -406,7 +409,7 @@ const générerFExportation = (
         await client.projets!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
-          dossier: spéc.dossier,
+          dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
@@ -420,7 +423,7 @@ const générerFExportation = (
         await client.bds!.exporterDocumentDonnées({
           données: donnéesNuée,
           formatDoc: spéc.formatDoc,
-          dossier: spéc.dossier,
+          dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
         break;
@@ -794,6 +797,8 @@ export default class Automatisations extends EventEmitter {
   }): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
     const idAuto = uuidv4();
+    const idDossier = uuidv4();
+    await this.client.sauvegarderAuStockageLocal({clef: "dossier."+idDossier, val: dossier})
     const élément: SpécificationExporter = {
       type: "exportation",
       id: idAuto,
@@ -804,7 +809,7 @@ export default class Automatisations extends EventEmitter {
       formatDoc,
       langues,
       inclureFichiersSFIP,
-      dossier,
+      dossier: idDossier,  // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier directement
     };
 
     // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
