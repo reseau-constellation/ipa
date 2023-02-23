@@ -19,7 +19,6 @@ import {
 } from "@/importateur/index.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
-import client from ".";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
@@ -322,7 +321,7 @@ const obtDonnéesImportation = async <
 
   switch (typeSource) {
     case "url": {
-      const { url } = spéc.source as SourceDonnéesImportationURL<T>;
+      const { url } = spéc.source;
       switch (formatDonnées) {
         case "json": {
           const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
@@ -454,23 +453,20 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
   spéc: T,
   client: ClientConstellation
 ): (() => Promise<void>) => {
-  type R = T extends SpécificationImporter<infer R> ? R : never;
 
   switch (spéc.type) {
     case "importation": {
       return async () => {
-        const spécImp = spéc as SpécificationImporter<R>;
-        const données = await obtDonnéesImportation(spécImp, client);
+        const données = await obtDonnéesImportation(spéc, client);
         await client.tableaux!.importerDonnées({
-          idTableau: spécImp.idTableau,
+          idTableau: spéc.idTableau,
           données,
         });
       };
     }
 
     case "exportation": {
-      const spécExp = spéc as SpécificationExporter;
-      return générerFExportation(spécExp, client);
+      return générerFExportation(spéc, client);
     }
 
     default:
@@ -713,15 +709,11 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
 ): boolean => {
   switch (spéc.type) {
     case "importation": {
-      type R = T extends SpécificationImporter<infer R> ? R : never;
-
-      const spécImp = spéc  as SpécificationImporter<R>;
-      return spécImp.dispositif === monIdOrbite;
+      return spéc.dispositif === monIdOrbite;
     }
 
     case "exportation": {
-      const spécExp = spéc as SpécificationExporter;
-      return spécExp.dispositifs.includes(monIdOrbite);
+      return spéc.dispositifs.includes(monIdOrbite);
     }
 
     default:
