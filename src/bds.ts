@@ -16,6 +16,7 @@ import type {
   règleColonne,
   élémentDonnées,
   erreurValidation,
+  règleExiste,
 } from "@/valid.js";
 import type { élémentBdListeDonnées, différenceTableaux } from "@/tableaux.js";
 import ClientConstellation from "@/client.js";
@@ -39,6 +40,7 @@ export interface schémaSpécificationBd {
       idVariable: string;
       idColonne: string;
       index?: boolean;
+      optionnel?: boolean;
     }[];
     clef: string;
   }[];
@@ -334,7 +336,7 @@ export default class BDs {
       const idTableau = await this.ajouterTableauBd({ idBd, clefTableau });
 
       for (const c of cols) {
-        const { idColonne, idVariable, index } = c;
+        const { idColonne, idVariable, index, optionnel } = c;
         await this.client.tableaux!.ajouterColonneTableau({
           idTableau,
           idVariable,
@@ -346,6 +348,17 @@ export default class BDs {
             idColonne,
             val: true,
           });
+        }
+        if (!optionnel) {
+          const règle: règleExiste = {
+            typeRègle: 'existe',
+            détails: {}
+          }
+          await this.client.tableaux!.ajouterRègleTableau({
+            idTableau,
+            idColonne,
+            règle
+          })
         }
       }
     }

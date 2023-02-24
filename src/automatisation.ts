@@ -310,11 +310,11 @@ const obtTempsInterval = (fréq: fréquence): number => {
   }
 };
 
-const obtDonnéesImportation = async <
+export const obtDonnéesImportation = async <
   T extends infoImporterJSON | infoImporterFeuilleCalcul
 >(
   spéc: SpécificationImporter<T>,
-  client: ClientConstellation
+  résoudreAdresse: (x?: string)=>Promise<string|undefined> = async x => x
 ) => {
   const { typeSource } = spéc.source;
   const { formatDonnées } = spéc.source.info;
@@ -346,7 +346,7 @@ const obtDonnéesImportation = async <
         throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
       const fs = await import("fs");
       const { adresseFichier } = spéc.source;
-      const adresseFichierRésolue = await client.automatisations!.résoudreAdressePrivéeFichier({clef: adresseFichier});
+      const adresseFichierRésolue = await résoudreAdresse(adresseFichier);
       if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue)) throw new Error(`Fichier ${adresseFichierRésolue} introuvable.`);
 
       switch (formatDonnées) {
@@ -457,7 +457,10 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
   switch (spéc.type) {
     case "importation": {
       return async () => {
-        const données = await obtDonnéesImportation(spéc, client);
+        const résoudreAdresse = async (adresse?: string): Promise<string|undefined> => {
+          return await client.automatisations!.résoudreAdressePrivéeFichier({clef: adresse}) || undefined
+        }
+        const données = await obtDonnéesImportation(spéc, résoudreAdresse);
         await client.tableaux!.importerDonnées({
           idTableau: spéc.idTableau,
           données,

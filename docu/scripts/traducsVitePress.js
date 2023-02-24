@@ -166,6 +166,7 @@ const schémaPaneau = [
           { text: "Introduction", link: "/avancé/applications/introduction" },
           { text: "Applis Internet", link: "/avancé/applications/internet" },
           { text: "Applis Électron", link: "/avancé/applications/électron" },
+          { text: "Nuées", link: "/avancé/applications/nuées" },
         ],
       },
       { text: "Mandataires", link: "/avancé/mandataires" },
