@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./app.03728336.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"es/ipa/bds.md"}'),s={name:"es/ipa/bds.md"};function r(o,c,n,p,d,i){return a(),t("div")}const f=e(s,[["render",r]]);export{m as __pageData,f as default};

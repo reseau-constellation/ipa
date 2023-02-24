@@ -1,0 +1,1 @@
+import{_ as t,c as e,o as a}from"./app.c9015d2e.js";const d=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"فا/avancé/sfipEtOrbite.md"}'),r={name:"فا/avancé/sfipEtOrbite.md"};function s(c,n,o,i,p,_){return a(),e("div")}const m=t(r,[["render",s]]);export{d as __pageData,m as default};

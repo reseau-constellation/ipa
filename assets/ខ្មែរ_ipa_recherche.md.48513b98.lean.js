@@ -1,0 +1,1 @@
+import{_ as e,c as r,o as t}from"./app.c9015d2e.js";const h=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ខ្មែរ/ipa/recherche.md"}'),a={name:"ខ្មែរ/ipa/recherche.md"};function c(o,s,n,p,i,_){return t(),r("div")}const m=e(a,[["render",c]]);export{h as __pageData,m as default};

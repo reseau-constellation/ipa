@@ -1,1 +1,0 @@
-import{_ as t,c as e,o as a}from"./app.03728336.js";const d=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ગુ/avancé/sfipEtOrbite.md"}'),r={name:"ગુ/avancé/sfipEtOrbite.md"};function s(c,n,o,i,p,_){return a(),e("div")}const m=t(r,[["render",s]]);export{d as __pageData,m as default};
