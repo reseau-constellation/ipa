@@ -61,6 +61,12 @@ export default class MotsClefs {
     });
     await bdMotClef.set("noms", idBdNoms);
 
+    const idBdDescriptions = await this.client.créerBdIndépendante({
+      type: "kvstore",
+      optionsAccès,
+    });
+    await bdMotClef.set("descriptions", idBdDescriptions);
+
     fOublierMotClef();
     return idBdMotClef;
   }
@@ -97,8 +103,18 @@ export default class MotsClefs {
     };
     await this.ajouterNomsMotClef({ id: idNouveauMotClef, noms });
 
-    fOublierBase();
-    fOublierNoms();
+    const idBdDescriptions = bdBase.get("descriptions");
+    const { bd: bdDescriptions, fOublier: fOublierDescriptions } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >({ id: idBdDescriptions });
+    const descriptions = ClientConstellation.obtObjetdeBdDic({ bd: bdDescriptions }) as {
+      [key: string]: string;
+    };
+    await this.ajouterDescriptionsMotClef({ id: idNouveauMotClef, descriptions });
+
+    await fOublierBase();
+    await fOublierNoms();
+    await fOublierDescriptions()
     return idNouveauMotClef;
   }
 
@@ -206,6 +222,96 @@ export default class MotsClefs {
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({ id, clef: "noms", f });
+  }
+
+  async ajouterDescriptionsMotClef({
+    id,
+    descriptions,
+  }: {
+    id: string;
+    descriptions: { [key: string]: string };
+  }): Promise<void> {
+    const idBdDescriptions = await this.client.obtIdBd({
+      nom: "descriptions",
+      racine: id,
+      type: "kvstore",
+    });
+    if (!idBdDescriptions) {
+      throw new Error(
+        `Permission de modification refusée pour mot clef ${id}.`
+      );
+    }
+
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >({ id: idBdDescriptions });
+    for (const lng in descriptions) {
+      await bdDescriptions.set(lng, descriptions[lng]);
+    }
+    await fOublier();
+  }
+
+  async sauvegarderDescriptionMotClef({
+    id,
+    langue,
+    nom,
+  }: {
+    id: string;
+    langue: string;
+    nom: string;
+  }): Promise<void> {
+    const idBdDescriptions = await this.client.obtIdBd({
+      nom: "descriptions",
+      racine: id,
+      type: "kvstore",
+    });
+    if (!idBdDescriptions) {
+      throw new Error(
+        `Permission de modification refusée pour mot clef ${id}.`
+      );
+    }
+
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >({ id: idBdDescriptions });
+    await bdDescriptions.set(langue, nom);
+    await fOublier();
+  }
+
+  async effacerDescriptionMotClef({
+    id,
+    langue,
+  }: {
+    id: string;
+    langue: string;
+  }): Promise<void> {
+    const idBdDescriptions = await this.client.obtIdBd({
+      nom: "descriptions",
+      racine: id,
+      type: "kvstore",
+    });
+    if (!idBdDescriptions) {
+      throw new Error(
+        `Permission de modification refusée pour mot clef ${id}.`
+      );
+    }
+
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<string>
+    >({ id: idBdDescriptions });
+    await bdDescriptions.del(langue);
+    await fOublier();
+  }
+
+  @cacheSuivi
+  async suivreDescriptionsMotClef({
+    id,
+    f,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<{ [key: string]: string }>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDicDeClef({ id, clef: "descriptions", f });
   }
 
   async effacerMotClef({ id }: { id: string }): Promise<void> {
