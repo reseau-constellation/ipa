@@ -1,1 +1,1 @@
-export { Compilateur } from "./compilateur.js"
+export { Compilateur } from "./compilateur.js";

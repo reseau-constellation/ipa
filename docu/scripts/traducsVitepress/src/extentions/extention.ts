@@ -5,7 +5,7 @@ export abstract class Extention {
     texte,
   }: {
     texte: string;
-  }): Promise<{ clef: string, valeur: string }[]>;
+  }): Promise<{ clef: string; valeur: string }[]>;
 
   abstract compiler({
     texte,

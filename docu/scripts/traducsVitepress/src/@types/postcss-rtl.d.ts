@@ -1,1 +1,1 @@
-declare module 'postcss-rtl';
+declare module "postcss-rtl";

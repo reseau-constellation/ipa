@@ -1,13 +1,13 @@
-const {
-  Compilateur
-} = require("./traducsVitepress/dist/index.js");
+const { Compilateur } = require("./traducsVitepress/dist/index.js");
+const { configVitePress } = require("./config.js");
 
 /** @type Compilateur */
 const compilateur = new Compilateur({
   languePrincipale: "fr",
   languesCibles: ["த", "es", "kaq", "ខ្មែរ", "हिं", "فا", "ગુ", "తె"],
   dossierSource: "src",
-  dossierTraductions: "traducs"
+  dossierTraductions: "traducs",
+  configVitePress,
 });
 
 (async () => {

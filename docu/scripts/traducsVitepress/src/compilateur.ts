@@ -3,13 +3,12 @@ import path from "path";
 import rtl from "postcss-rtl";
 
 import { Extention } from "./extentions/extention.js";
-import { empreinte } from "./utils.js"
+import { empreinte } from "./utils.js";
 
 import type { UserConfig, DefaultTheme } from "vitepress";
 import type { Nuchabäl } from "nuchabal";
 import { ExtentionMd } from "./extentions/md.js";
 import { ExtentionSvg } from "./extentions/svg.js";
-
 
 export class Compilateur {
   languePrincipale: string;
@@ -20,17 +19,17 @@ export class Compilateur {
   configVitePress: UserConfig<DefaultTheme.Config>;
   extentions: Extention[];
 
-  nuchabäl?: Nuchabäl
+  nuchabäl?: Nuchabäl;
 
   constructor({
     languePrincipale,
     languesCibles,
     dossierSource,
     dossierTraductions,
-    racineProjet=".",
+    racineProjet = ".",
     configVitePress,
     extentions = [],
-    nuchabäl
+    nuchabäl,
   }: {
     languePrincipale: string;
     languesCibles: string[];
@@ -51,7 +50,7 @@ export class Compilateur {
     this.configVitePress = configVitePress;
     this.extentions = [new ExtentionMd(), new ExtentionSvg(), ...extentions];
 
-    this.nuchabäl = nuchabäl
+    this.nuchabäl = nuchabäl;
   }
 
   obtCompilateur({ ext }: { ext: string }): Extention {
@@ -62,12 +61,15 @@ export class Compilateur {
     return compilateur;
   }
 
-  obtTraductions({langue}: {langue: string}) {
-    const fichierTraducsLangue = path.join(this.dossierTraductions, langue + ".json");
+  obtTraductions({ langue }: { langue: string }) {
+    const fichierTraducsLangue = path.join(
+      this.dossierTraductions,
+      langue + ".json"
+    );
     return fs.existsSync(fichierTraducsLangue)
       ? JSON.parse(fs.readFileSync(fichierTraducsLangue).toString())
       : {};
-  };
+  }
 
   *itérerDossier({
     dossier,
@@ -103,32 +105,38 @@ export class Compilateur {
 
   extraireTexteDict({
     dict = {},
-    racineClef="",
+    racineClef = "",
   }: {
     dict?: DefaultTheme.Config[keyof DefaultTheme.Config];
     racineClef?: string;
   }): { clef: string; valeur: string }[] {
     if (Array.isArray(dict)) {
-        return Object.entries(dict)
-            .map(([i, x]) => this.extraireTexteDict({
-                dict: x, racineClef: racineClef + "." + String(i)
-            }))
+      return Object.entries(dict)
+        .map(([i, x]) =>
+          this.extraireTexteDict({
+            dict: x,
+            racineClef: racineClef + "." + String(i),
+          })
+        )
         .flat();
     } else if (typeof dict === "object") {
-        return Object.entries(dict)
+      return Object.entries(dict)
         .map(([clef, valeur]) => {
-            if (clef === "text" || (clef === "link" && valeur[0] !== "/")) {
+          if (typeof valeur === 'string' && valeur[0] !== "/") {
             return { clef: racineClef + "." + clef, valeur };
-            } else {
+          } else if (typeof valeur === 'object') {
             return this.extraireTexteDict({
-                dict: valeur, racineClef: racineClef + "." + clef
+              dict: valeur,
+              racineClef: racineClef + "." + clef,
             });
-            }
+          } else {
+            return undefined
+          }
         })
-        .flat();
+        .flat().filter(x=>!!x) as {clef: string, valeur: string}[];
     } else {
-        throw new Error(`Oups ! Ça devrait vraiment pas arriver. ${dict}`)
-    };
+      throw new Error(`Oups ! Ça devrait vraiment pas arriver. ${dict}`);
+    }
   }
 
   obtConfigNav(): DefaultTheme.Config["nav"] {
@@ -154,14 +162,12 @@ export class Compilateur {
       const compilateur = this.obtCompilateur({ ext });
       const messagesFichier = await compilateur.extraireMessages({ texte });
 
-      const messagesFichierFinal = Object.entries(messagesFichier).map(
-        ([clef, valeur]) => {
-          return {
-            clef: `${fichier}.${clef}`,
-            valeur,
-          };
-        }
-      );
+      const messagesFichierFinal = messagesFichier.map(({ clef, valeur }) => {
+        return {
+          clef: `${fichier}.${clef}`,
+          valeur,
+        };
+      });
       messages = [...messages, ...messagesFichierFinal];
     }
 
@@ -188,11 +194,11 @@ export class Compilateur {
 
   async mettreFichiersTraducsÀJour(): Promise<void> {
     const messages = await this.extraireMessages();
-    const messagesJSON: {[clef: string]: string} = Object.fromEntries(messages.map(
-      ({clef, valeur})=>{
-        return [clef + "." + empreinte(valeur), valeur]
-      }
-    ))
+    const messagesJSON: { [clef: string]: string } = Object.fromEntries(
+      messages.map(({ clef, valeur }) => {
+        return [clef + "." + empreinte(valeur), valeur];
+      })
+    );
     if (
       !fs.existsSync(this.dossierTraductions) ||
       !fs.statSync(this.dossierTraductions).isDirectory()
@@ -206,7 +212,7 @@ export class Compilateur {
     fs.writeFileSync(fichierTraducs, JSON.stringify(messagesJSON, null, 4));
 
     for (const langue of this.languesCibles) {
-      const traducsLangue = this.obtTraductions({langue})
+      const traducsLangue = this.obtTraductions({ langue });
       const fichierTraducsLangue = path.join(
         this.dossierTraductions,
         langue + ".json"
@@ -225,7 +231,7 @@ export class Compilateur {
         fs.rmdirSync(dossierSourcesTraduites, { recursive: true });
       fs.mkdirSync(dossierSourcesTraduites, { recursive: true });
 
-      const traducs = this.obtTraductions({langue});
+      const traducs = this.obtTraductions({ langue });
 
       for (const { fichier, ext } of this.itérerDossier({
         dossier: this.dossierSource,
@@ -254,45 +260,62 @@ export class Compilateur {
     }
   }
 
-  compilerConfig<T extends Record<string, any>|Array<any>>({langue, config, clefRacine}: {langue: string, config?: T, clefRacine?: string}): any {
-      if (Array.isArray(config)) {
-        return Object.entries(config)
-          .map(([i, x]) => {
-            return this.compilerConfig({langue, config: x, clefRacine: clefRacine + "." + String(i)});
-          })
-          .flat();
-      } else if (typeof config === "object") {
-        return Object.fromEntries(
-          Object.entries(config).map(([clef, valeur]) => {
-            if (clef === "link" && valeur[0] === "/") {
-              return [clef, "/" + langue + valeur];
-            } else if (clef === "text") {
-              const traductions = this.obtTraductions({langue});
-              const clefTraduc = clefRacine + "." + clef;
-              const traduc = traductions[clefTraduc];
-              return [clef, traduc || valeur];
-            } else {
-              return [
-                clef,
-                this.compilerConfig({langue, config: valeur, clefRacine: clefRacine + "." + clef}),
-              ];
-            }
-          })
-        );
-      } else {
-        return config;
-      }
+  compilerConfig<T extends Record<string, any> | Array<any>>({
+    langue,
+    config,
+    clefRacine,
+  }: {
+    langue: string;
+    config?: T;
+    clefRacine?: string;
+  }): any {
+    if (Array.isArray(config)) {
+      return Object.entries(config)
+        .map(([i, x]) => {
+          return this.compilerConfig({
+            langue,
+            config: x,
+            clefRacine: clefRacine + "." + String(i),
+          });
+        })
+        .flat();
+    } else if (typeof config === "object") {
+      return Object.fromEntries(
+        Object.entries(config).map(([clef, valeur]) => {
+          if (clef === "link" && valeur[0] === "/") {
+            return [clef, "/" + langue + valeur];
+          } else if (clef === "text") {
+            const traductions = this.obtTraductions({ langue });
+            const clefTraduc = clefRacine + "." + clef;
+            const traduc = traductions[clefTraduc];
+            return [clef, traduc || valeur];
+          } else {
+            return [
+              clef,
+              this.compilerConfig({
+                langue,
+                config: valeur,
+                clefRacine: clefRacine + "." + clef,
+              }),
+            ];
+          }
+        })
+      );
+    } else {
+      return config;
+    }
   }
 
-  générerTitre({langue}: {langue: string}): string {
-    const traductions = this.obtTraductions({langue});
+  générerTitre({ langue }: { langue: string }): string {
+    const traductions = this.obtTraductions({ langue });
     return traductions["titre"];
   }
 
   async générerConfigVitePress(): Promise<UserConfig<DefaultTheme.Config>> {
     const config = this.configVitePress;
 
-    const nuchabäl = this.nuchabäl || new (await import("nuchabal")).Nuchabäl({});
+    const nuchabäl =
+      this.nuchabäl || new (await import("nuchabal")).Nuchabäl({});
 
     const configNav = this.obtConfigNav();
     const configPiedDePage = this.obtConfigPiedDePage();
@@ -303,7 +326,8 @@ export class Compilateur {
       root: {
         lang: this.languePrincipale,
         label:
-          nuchabäl.rubiChabäl({ runuk: this.languePrincipale }) || this.languePrincipale,
+          nuchabäl.rubiChabäl({ runuk: this.languePrincipale }) ||
+          this.languePrincipale,
       },
       ...Object.fromEntries(
         this.languesCibles.map((langue) => {
@@ -313,17 +337,33 @@ export class Compilateur {
             {
               lang: langue,
               label: nuchabäl.rubiChabäl({ runuk: langue }) || langue,
-              title: this.générerTitre({langue}) || config.title,
+              title: this.générerTitre({ langue }) || config.title,
               dir:
                 nuchabäl.rucholanemTzibanem({ runuk: écriture }) === "←↓"
                   ? "rtl"
                   : "ltr",
-  
+
               themeConfig: {
-                nav: this.compilerConfig({langue, config: configNav, clefRacine: "nav"}),
-                sidebar: this.compilerConfig({langue, config: configPanneau, clefRacine: "panneau"}),
-                editLink: this.compilerConfig({langue, config: configLiensÉditer, clefRacine: "liensÉditer"}),
-                footer: this.compilerConfig({langue, config: configPiedDePage, clefRacine: "piedDePage"}),
+                nav: this.compilerConfig({
+                  langue,
+                  config: configNav,
+                  clefRacine: "nav",
+                }),
+                sidebar: this.compilerConfig({
+                  langue,
+                  config: configPanneau,
+                  clefRacine: "panneau",
+                }),
+                editLink: this.compilerConfig({
+                  langue,
+                  config: configLiensÉditer,
+                  clefRacine: "liensÉditer",
+                }),
+                footer: this.compilerConfig({
+                  langue,
+                  config: configPiedDePage,
+                  clefRacine: "piedDePage",
+                }),
               },
             },
           ];
@@ -338,7 +378,7 @@ export class Compilateur {
         },
       },
     };
-    return config
+    return config;
   }
 
   ajusterGitIgnore() {
