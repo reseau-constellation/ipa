@@ -219,7 +219,7 @@ export class Compilateur {
       );
       fs.writeFileSync(
         fichierTraducsLangue,
-        JSON.stringify(traducsLangue, null, 4)
+        JSON.stringify(traducsLangue, null, 2) + "\n"
       );
     }
   }
@@ -383,7 +383,7 @@ export class Compilateur {
 
   ajusterGitIgnore() {
     const lignes = fs
-      .readFileSync(`${this.racineProjet}.gitignore`, "utf-8")
+      .readFileSync(`${this.racineProjet}/.gitignore`, "utf-8")
       .split("\n");
     const déjàLà: string[] = [];
     for (const l of lignes) {

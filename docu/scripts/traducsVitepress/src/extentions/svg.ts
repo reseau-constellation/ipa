@@ -29,7 +29,7 @@ export class ExtentionSvg extends Extention {
   }): Promise<string> {
     const lexé = await new xml2js.Parser().parseStringPromise(texte);
     const texteFinal: string[] = [];
-    for (const t of lexé.svg.text) {
+    for (const t of lexé.svg.text || []) {
       const clef = fichier + "." + t._;
       t._ = traducs[clef] || t._;
     }
