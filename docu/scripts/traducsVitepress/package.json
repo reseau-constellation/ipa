@@ -1,0 +1,21 @@
+{
+  "name": "kilimukku-vitepress",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "authors": {
+    "name": "Julien Malard-Adam",
+    "email": "julien.malard@mail.mcgill.ca"
+  },
+  "repository": "https://github.com/reseau-constellation/ipa/constellation",
+  "scripts": {
+    "compiler": "pnpm tsc"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "marked": "^4.2.12"
+  }
+}
