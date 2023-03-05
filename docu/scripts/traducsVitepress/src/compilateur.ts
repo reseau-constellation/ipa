@@ -249,11 +249,11 @@ export class Compilateur {
         const compilateur = this.obtCompilateur({ ext });
         const compilé = await compilateur.compiler({ texte, traducs, fichier });
 
-        const composantesAdresseFichier = fichier.split(path.sep);
+        const composantesAdresseFichier = path.relative(this.dossierSource, fichier);
         const fichierSourceTraduite = path.join(
-          composantesAdresseFichier[0],
+          this.dossierSource,
           langue,
-          ...composantesAdresseFichier.slice(1)
+          composantesAdresseFichier
         );
 
         const dossierSourceTraduite = fichierSourceTraduite
