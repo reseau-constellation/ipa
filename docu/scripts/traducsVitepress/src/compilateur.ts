@@ -394,9 +394,10 @@ export class Compilateur {
       .readFileSync(`${this.racineProjet}/.gitignore`, "utf-8")
       .split("\n");
     const déjàLà: string[] = [];
+    const dossierSourceRelatif = path.relative(this.racineProjet, this.dossierSource)
     for (const l of lignes) {
       const existe = this.languesCibles.find(
-        (lng) => l === `${this.dossierSource}/${lng}`
+        (lng) => l === `${dossierSourceRelatif}/${lng}`
       );
       if (existe) déjàLà.push(existe);
     }
@@ -404,7 +405,7 @@ export class Compilateur {
     for (const lng of this.languesCibles.filter(
       (lng) => !déjàLà.includes(lng)
     )) {
-      lignes.push(`${this.dossierSource}/${lng}`);
+      lignes.push(`${dossierSourceRelatif}/${lng}`);
       modifié = true;
     }
     if (modifié) lignes.push("");
