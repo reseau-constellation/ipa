@@ -9,7 +9,7 @@
   },
   "repository": "https://github.com/reseau-constellation/ipa/constellation",
   "scripts": {
-    "traducs": "cd ./scripts/traducsVitepress && pnpm compiler",
+    "traducs": "cd ./scripts/traducsVitepress && pnpm compiler && cd ../.. && node ./scripts/compilerTraducs.js",
     "dev": "pnpm traducs && vitepress dev src",
     "build": "pnpm traducs && vitepress build src",
     "preview": "pnpm build && vitepress preview src"

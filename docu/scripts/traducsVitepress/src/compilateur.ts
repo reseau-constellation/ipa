@@ -7,6 +7,8 @@ import { empreinte } from "./utils.js"
 
 import type { UserConfig, DefaultTheme } from "vitepress";
 import type { Nuchabäl } from "nuchabal";
+import { ExtentionMd } from "./extentions/md.js";
+import { ExtentionSvg } from "./extentions/svg.js";
 
 
 export class Compilateur {
@@ -25,7 +27,7 @@ export class Compilateur {
     languesCibles,
     dossierSource,
     dossierTraductions,
-    racineProjet,
+    racineProjet=".",
     configVitePress,
     extentions = [],
     nuchabäl
@@ -34,7 +36,7 @@ export class Compilateur {
     languesCibles: string[];
     dossierSource: string;
     dossierTraductions: string;
-    racineProjet: string;
+    racineProjet?: string;
     configVitePress: UserConfig<DefaultTheme.Config>;
     extentions?: Extention[];
     nuchabäl?: Nuchabäl;
@@ -47,7 +49,7 @@ export class Compilateur {
     this.dossierTraductions = dossierTraductions;
     this.racineProjet = racineProjet;
     this.configVitePress = configVitePress;
-    this.extentions = extentions;
+    this.extentions = [new ExtentionMd(), new ExtentionSvg(), ...extentions];
 
     this.nuchabäl = nuchabäl
   }

@@ -1,4 +1,4 @@
-import { empreinte } from "@/utils.js";
+import { empreinte } from "../utils.js";
 import { marked } from "marked";
 import { Extention } from "./extention.js";
 
