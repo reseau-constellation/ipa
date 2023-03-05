@@ -47,8 +47,8 @@ export class Compilateur {
       (lng) => lng !== languePrincipale
     ); // Au cas où
     this.racineProjet = path.resolve(racineProjet);
-    this.dossierSource = path.join(racineProjet, dossierSource);
-    this.dossierTraductions = path.join(racineProjet, dossierTraductions);
+    this.dossierSource = path.join(this.racineProjet, dossierSource);
+    this.dossierTraductions = path.join(this.racineProjet, dossierTraductions);
     this.configVitePress = configVitePress;
     this.extentions = [new ExtentionMd(), new ExtentionSvg(), ...extentions];
     
@@ -86,10 +86,12 @@ export class Compilateur {
     const exts = this.extentions.map((x) => x.ext);
 
     for (const fichier of fichiers) {
-      const f = fs.statSync(dossier + path.sep + fichier);
+      const adresseAbsolue = path.join(dossier, fichier)
+      const f = fs.statSync(adresseAbsolue);
       if (f.isDirectory()) {
+        if (this.dossiersIgnorés.includes(adresseAbsolue)) continue
         for (const x of this.itérerDossier({
-          dossier: dossier + path.sep + fichier,
+          dossier: adresseAbsolue,
         })) {
           yield x;
         }
@@ -97,13 +99,13 @@ export class Compilateur {
         const ext = fichier.split(".").pop();
         // Pour éviter d'inclure les fichiers déjà traduits...VitePresse à une drôle de structure de fichiers !
         // Mais je n'y suis pour rien.
-        const dossierDeuxièmeNiveau = dossier.split(path.sep)[1];
+        const premièrePartieDossier = path.relative(this.dossierSource, dossier).split(path.sep)[0];
         if (
           ext &&
           exts.includes(ext) &&
-          !this.languesCibles.includes(dossierDeuxièmeNiveau)
+          !this.languesCibles.includes(premièrePartieDossier)
         ) {
-          yield { ext, fichier: path.join(dossier, fichier) };
+          yield { ext, fichier: adresseAbsolue };
         }
       }
     }
