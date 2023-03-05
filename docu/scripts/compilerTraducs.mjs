@@ -1,4 +1,4 @@
-const { obtCompilateur } = require("./compilateur.js");
+import { obtCompilateur } from "./compilateur.js";
 
 (async () => {
   const compilateur = await obtCompilateur();

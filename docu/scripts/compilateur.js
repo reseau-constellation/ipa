@@ -1,7 +1,7 @@
-const { configVitePress } = require("./config.js");
+import { configVitePress } from "./config.js";
 
 
-module.exports.obtCompilateur = async () => {
+export const obtCompilateur = async () => {
     const { Compilateur } = await import("./traducsVitepress/dist/index.js");
 
     /** @type Compilateur */

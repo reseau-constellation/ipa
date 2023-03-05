@@ -1,7 +1,7 @@
-const { defineConfig } = require("vitepress");
-const rtl = require("postcss-rtl");
+import { defineConfig } from "vitepress";
+import rtl from "postcss-rtl";
 
-module.exports.configVitePress = defineConfig({
+export const configVitePress = defineConfig({
   title: "Constellation",
   description: "Le réseau distribué pour les données scientifiques",
   // base: "/ipa/",  // Uniquement nécessaire sur https://réseau-constellation.github.io/ipa
