@@ -1,7 +1,24 @@
 const { defineConfig } = require("vitepress");
+const rtl = require("postcss-rtl");
 
 module.exports.configVitePress = defineConfig({
   title: "Constellation",
+  description: "Le réseau distribué pour les données scientifiques",
+  // base: "/ipa/",  // Uniquement nécessaire sur https://réseau-constellation.github.io/ipa
+
+
+  /**
+   * Extra tags to be injected to the page HTML `<head>`
+   *
+   * ref：https://v1.vuepress.vuejs.org/config/#head
+   */
+  head: [["meta", { name: "theme-color", content: "#1697f6" }]],
+
+  /**
+   * Theme configuration, here is the default theme configuration for VuePress.
+   *
+   * ref：https://v1.vuepress.vuejs.org/theme/default-theme-config.html
+   */
   themeConfig: {
     nav: [
       {
@@ -95,6 +112,13 @@ module.exports.configVitePress = defineConfig({
       pattern:
         "https://github.com/reseau-constellation/ipa/edit/main/docu/src/:path",
       text: "Éditer sur GitHub",
+    },
+  },
+  vite: {
+    css: {
+      postcss: {
+        plugins: [rtl()],
+      },
     },
   },
 });

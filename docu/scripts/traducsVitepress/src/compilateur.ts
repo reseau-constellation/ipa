@@ -7,6 +7,7 @@ import { empreinte } from "./utils.js";
 
 import type { UserConfig, DefaultTheme } from "vitepress";
 import type { Nuchabäl } from "nuchabal";
+import {defineConfig} from "vitepress";
 import { ExtentionMd } from "./extentions/md.js";
 import { ExtentionSvg } from "./extentions/svg.js";
 
@@ -387,7 +388,7 @@ export class Compilateur {
         },
       },
     };
-    return config;
+    return defineConfig(config);
   }
 
   ajusterGitIgnore() {
