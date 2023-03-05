@@ -165,6 +165,7 @@ export class Compilateur {
     for (const { fichier, ext } of this.itérerDossier({
       dossier: this.dossierSource,
     })) {
+      const fichierRelatif = path.relative(this.dossierSource, fichier);
       const texte = fs.readFileSync(fichier).toString();
 
       const compilateur = this.obtCompilateur({ ext });
@@ -172,7 +173,7 @@ export class Compilateur {
 
       const messagesFichierFinal = messagesFichier.map(({ clef, valeur }) => {
         return {
-          clef: `${fichier}.${clef}`,
+          clef: clef ? `${fichierRelatif}.${clef}` : fichierRelatif,
           valeur,
         };
       });
