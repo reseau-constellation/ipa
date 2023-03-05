@@ -19,6 +19,8 @@ export class Compilateur {
   configVitePress: UserConfig<DefaultTheme.Config>;
   extentions: Extention[];
 
+  dossiersIgnorés: string[];
+
   nuchabäl?: Nuchabäl;
 
   constructor({
@@ -44,11 +46,15 @@ export class Compilateur {
     this.languesCibles = languesCibles.filter(
       (lng) => lng !== languePrincipale
     ); // Au cas où
-    this.dossierSource = dossierSource;
-    this.dossierTraductions = dossierTraductions;
-    this.racineProjet = racineProjet;
+    this.racineProjet = path.resolve(racineProjet);
+    this.dossierSource = path.join(racineProjet, dossierSource);
+    this.dossierTraductions = path.join(racineProjet, dossierTraductions);
     this.configVitePress = configVitePress;
     this.extentions = [new ExtentionMd(), new ExtentionSvg(), ...extentions];
+    
+    this.dossiersIgnorés = [
+      path.join(this.dossierSource, ".vitepress")
+    ]
 
     this.nuchabäl = nuchabäl;
   }
