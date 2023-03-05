@@ -10,9 +10,9 @@ export class ExtentionSvg extends Extention {
     texte,
   }: {
     texte: string;
-  }): Promise<{ [clef: string]: string }> {
+  }): Promise<{ clef: string; valeur: string; }[]> {
     const lexé = await new xml2js.Parser().parseStringPromise(texte);
-    return lexé.svg.text.map((t: {_: string}) => t._);
+    return lexé.svg.text?.map((t: {_: string}) => ({ clef: "", valeur: t._})) || [];
   };
 
   async compiler({ texte, traducs, fichier }: { texte: string; traducs: { [clef: string]: string; }; fichier: string; }): Promise<string> {

@@ -8,9 +8,10 @@ const compilateur = new Compilateur({
   languesCibles: ["த", "es", "kaq", "ខ្មែរ", "हिं", "فا", "ગુ", "తె"],
   dossierSource: "src",
   dossierTraductions: "traducs"
-})
+});
+
 (async () => {
-  await extraireTraductiblesProjet();
-  await compilerTraductions();
-  ajusterGitIgnore();
+  await compilateur.mettreFichiersTraducsÀJour();
+  await compilateur.compiler();
+  compilateur.ajusterGitIgnore();
 })();

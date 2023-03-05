@@ -5,16 +5,14 @@ import { Extention } from "./extention.js";
 export class ExtentionMd extends Extention {
   ext = "md";
 
-  async extraireMessages({texte}: {texte: string}): Promise<{ [clef: string]: string }> {
+  async extraireMessages({texte}: {texte: string}): Promise<{ clef: string, valeur: string }[]> {
     const lexé = marked.lexer(texte);
-    return Object.fromEntries(
-      lexé.filter((l) => l.type !== "space").map((l) => {
-        return [{
+    return lexé.filter((l) => l.type !== "space").map((l) => {
+        return {
           clef: "",
           valeur: l.raw
-        }]
-      })
-    );
+        }
+      });
   }
 
   async compiler({ texte, traducs, fichier }: { texte: string; traducs: { [clef: string]: string; }; fichier: string; }): Promise<string> {
