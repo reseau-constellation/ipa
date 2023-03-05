@@ -4,7 +4,6 @@ import { configVitePress } from "./config.js";
 export const obtCompilateur = async () => {
     const { Compilateur } = await import("./traducsVitepress/dist/index.js");
 
-    /** @type Compilateur */
     const compilateur = new Compilateur({
         languePrincipale: "fr",
         languesCibles: ["த", "es", "kaq", "ខ្មែរ", "हिं", "فا", "ગુ", "తె"],

@@ -246,10 +246,11 @@ export class Compilateur {
       for (const { fichier, ext } of this.itérerDossier({
         dossier: this.dossierSource,
       })) {
+        const fichierRelatif = path.relative(this.dossierSource, fichier);
         const texte = fs.readFileSync(fichier).toString();
 
         const compilateur = this.obtCompilateur({ ext });
-        const compilé = await compilateur.compiler({ texte, traducs, fichier });
+        const compilé = await compilateur.compiler({ texte, traducs, fichier: fichierRelatif });
 
         const composantesAdresseFichier = path.relative(this.dossierSource, fichier);
         const fichierSourceTraduite = path.join(
