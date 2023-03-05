@@ -1,38 +1,30 @@
 import { typesClients, générerClients } from "@/utilsTests/client.js";
 import type { default as ClientConstellation } from "@/client.js";
-import {
-  schémaFonctionOublier,
-
-  adresseOrbiteValide,
-} from "@/utils/index.js";
+import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
-      let client: ClientConstellation;
+    let clients: ClientConstellation[];
+    let client: ClientConstellation;
 
-      const fsOublier: schémaFonctionOublier[] = [];
+    const fsOublier: schémaFonctionOublier[] = [];
 
-      beforeAll(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
-          1,
-          type
-        ));
-        client = clients[0];
-      }, config.patienceInit);
+    beforeAll(async () => {
+      ({ fOublier: fOublierClients, clients } = await générerClients(1, type));
+      client = clients[0];
+    }, config.patienceInit);
 
-      afterAll(async () => {
-        if (fOublierClients) await fOublierClients();
-        await Promise.all(fsOublier.map((f) => f()));
-      });
+    afterAll(async () => {
+      if (fOublierClients) await fOublierClients();
+      await Promise.all(fsOublier.map((f) => f()));
+    });
     describe("Création", function () {
       test("Nuée", async () => {
-          const idNuée = await client.nuées!.créerNuée({});
-          expect(adresseOrbiteValide(idNuée)).toBe(true);
-        }
-      );
+        const idNuée = await client.nuées!.créerNuée({});
+        expect(adresseOrbiteValide(idNuée)).toBe(true);
+      });
     });
     describe("Noms", function () {
       test.todo("Nuée");
@@ -48,50 +40,50 @@ typesClients.forEach((type) => {
     });
     describe("Status nuée", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Création", function () {
       test.todo("Nuée");
     });
     describe("Tableaux", function () {
       describe("Ajouter et enlever", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Colonnes", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Variables", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Règles", function () {
         test.todo("Nuée");
-      })
+      });
     });
     describe("Qualité", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Différences tableau", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Différences bd", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Suivre données", function () {
       describe("Vérifier autorisations", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Erreurs formats bds", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Erreurs formats tableaux", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Erreurs données", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Toujours inclure les miennes", function () {
         test.todo("Nuée");
-      })
-    })
+      });
+    });
     describe("Gestionnaires", function () {
       test.todo("Créer gestionnaire indépendant");
       test.todo("Exclure membre");
@@ -108,39 +100,39 @@ typesClients.forEach((type) => {
     });
     describe("Correspondances bds", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Correspondances tableaux", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Ascendance", function () {
       describe("Héritage noms", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Héritage descriptions", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Héritage règles", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Traçabilité descendants", function () {
         test.todo("Nuée");
-      })
+      });
       describe("Suivi données descendants", function () {
         test.todo("Nuée");
-      })
-    })
+      });
+    });
     describe("Suivre empreinte tête", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Exporter données", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Générer de bd", function () {
       test.todo("Nuée");
-    })
+    });
     describe("Générer schéma", function () {
       test.todo("Nuée");
-    })
+    });
   });
 });
 

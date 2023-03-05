@@ -45,7 +45,9 @@ export type fréquence = {
 
 export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
-export type SpécificationAutomatisation = SpécificationExporter | SpécificationImporter;
+export type SpécificationAutomatisation =
+  | SpécificationExporter
+  | SpécificationImporter;
 
 type BaseSpécificationAutomatisation = {
   fréquence?: fréquence;
@@ -62,18 +64,18 @@ export type SpécificationExporter = BaseSpécificationAutomatisation & {
   langues?: string[];
   dispositifs: string[];
   inclureFichiersSFIP: boolean;
-}
+};
 
-export type infoImporter = infoImporterJSON | infoImporterFeuilleCalcul
+export type infoImporter = infoImporterJSON | infoImporterFeuilleCalcul;
 
 export type infoImporterJSON = {
   formatDonnées: "json";
   clefsRacine: clefsExtraction;
   clefsÉléments: clefsExtraction;
   cols: { [key: string]: clefsExtraction };
-}
+};
 
-// Il faut copier ça ici parce qu'elles sont exportées de XLSX en 
+// Il faut copier ça ici parce qu'elles sont exportées de XLSX en
 // tant qu'interfaces
 export type XLSXCommonOptions = {
   /**
@@ -114,11 +116,11 @@ export type XLSXCommonOptions = {
    * @default ''
    */
   password?: string;
-}
+};
 
 export type XLSXParsingOptions = XLSXCommonOptions & {
   /** Input data encoding */
-  type?: 'base64' | 'binary' | 'buffer' | 'file' | 'array' | 'string';
+  type?: "base64" | "binary" | "buffer" | "file" | "array" | "string";
 
   /**
    * Default codepage for legacy files
@@ -206,30 +208,28 @@ export type XLSXParsingOptions = XLSXCommonOptions & {
   dense?: boolean;
 
   PRN?: boolean;
-}
+};
 
 export type infoImporterFeuilleCalcul = {
   formatDonnées: "feuilleCalcul";
   nomTableau: string;
   cols: { [key: string]: string };
   optionsXLSX?: XLSXParsingOptions;
-}
+};
 
-export type SourceDonnéesImportation<
-T extends infoImporter
-> = SourceDonnéesImportationURL<T> | SourceDonnéesImportationFichier<T>
+export type SourceDonnéesImportation<T extends infoImporter> =
+  | SourceDonnéesImportationURL<T>
+  | SourceDonnéesImportationFichier<T>;
 
-export type SourceDonnéesImportationAdresseOptionel<
-T extends infoImporter
-> = SourceDonnéesImportationURL<T> | SourceDonnéesImportationFichierAdresseOptionel<T>
+export type SourceDonnéesImportationAdresseOptionel<T extends infoImporter> =
+  | SourceDonnéesImportationURL<T>
+  | SourceDonnéesImportationFichierAdresseOptionel<T>;
 
-export type SourceDonnéesImportationURL<
-  T extends infoImporter
-> = {
+export type SourceDonnéesImportationURL<T extends infoImporter> = {
   typeSource: "url";
   url: string;
   info: T;
-}
+};
 
 export type SourceDonnéesImportationFichierAdresseOptionel<
   T extends infoImporter
@@ -237,26 +237,30 @@ export type SourceDonnéesImportationFichierAdresseOptionel<
   typeSource: "fichier";
   adresseFichier?: string;
   info: T;
-}
+};
 
-export type SourceDonnéesImportationFichier<
-T extends infoImporter
-> = SourceDonnéesImportationFichierAdresseOptionel<T> & { adresseFichier: string};
+export type SourceDonnéesImportationFichier<T extends infoImporter> =
+  SourceDonnéesImportationFichierAdresseOptionel<T> & {
+    adresseFichier: string;
+  };
 
-export type SpécificationImporter<
-  T extends infoImporter=infoImporter
-> = BaseSpécificationAutomatisation & {
-  type: "importation";
-  idTableau: string;
-  dispositif: string;
-  source: SourceDonnéesImportationAdresseOptionel<T>;
-}
+export type SpécificationImporter<T extends infoImporter = infoImporter> =
+  BaseSpécificationAutomatisation & {
+    type: "importation";
+    idTableau: string;
+    dispositif: string;
+    source: SourceDonnéesImportationAdresseOptionel<T>;
+  };
 
 export type SpécificationImporterAvecFichier<
-T extends infoImporter=infoImporter
-> = SpécificationImporter<T> & {source: SourceDonnéesImportation<T>}
+  T extends infoImporter = infoImporter
+> = SpécificationImporter<T> & { source: SourceDonnéesImportation<T> };
 
-export type ÉtatAutomatisation = ÉtatErreur | ÉtatÉcoute | ÉtatEnSync | ÉtatProgrammée
+export type ÉtatAutomatisation =
+  | ÉtatErreur
+  | ÉtatÉcoute
+  | ÉtatEnSync
+  | ÉtatProgrammée;
 
 export interface ÉtatErreur {
   type: "erreur";
@@ -314,7 +318,7 @@ export const obtDonnéesImportation = async <
   T extends infoImporterJSON | infoImporterFeuilleCalcul
 >(
   spéc: SpécificationImporter<T>,
-  résoudreAdresse: (x?: string)=>Promise<string|undefined> = async x => x
+  résoudreAdresse: (x?: string) => Promise<string | undefined> = async (x) => x
 ) => {
   const { typeSource } = spéc.source;
   const { formatDonnées } = spéc.source.info;
@@ -347,13 +351,16 @@ export const obtDonnéesImportation = async <
       const fs = await import("fs");
       const { adresseFichier } = spéc.source;
       const adresseFichierRésolue = await résoudreAdresse(adresseFichier);
-      if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue)) throw new Error(`Fichier ${adresseFichierRésolue} introuvable.`);
+      if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue))
+        throw new Error(`Fichier ${adresseFichierRésolue} introuvable.`);
 
       switch (formatDonnées) {
         case "json": {
           const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
 
-          const contenuFichier = await fs.promises.readFile(adresseFichierRésolue);
+          const contenuFichier = await fs.promises.readFile(
+            adresseFichierRésolue
+          );
           const donnéesJson = JSON.parse(contenuFichier.toString());
           const importateur = new ImportateurDonnéesJSON(donnéesJson);
 
@@ -383,7 +390,9 @@ const générerFExportation = (
   client: ClientConstellation
 ): (() => Promise<void>) => {
   return async () => {
-    const dossier = await client.automatisations!.résoudreAdressePrivéeFichier({clef: spéc.dossier});
+    const dossier = await client.automatisations!.résoudreAdressePrivéeFichier({
+      clef: spéc.dossier,
+    });
     if (!dossier) throw new Error("Dossier introuvable");
     switch (spéc.typeObjet) {
       case "tableau": {
@@ -453,13 +462,18 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
   spéc: T,
   client: ClientConstellation
 ): (() => Promise<void>) => {
-
   switch (spéc.type) {
     case "importation": {
       return async () => {
-        const résoudreAdresse = async (adresse?: string): Promise<string|undefined> => {
-          return await client.automatisations!.résoudreAdressePrivéeFichier({clef: adresse}) || undefined
-        }
+        const résoudreAdresse = async (
+          adresse?: string
+        ): Promise<string | undefined> => {
+          return (
+            (await client.automatisations!.résoudreAdressePrivéeFichier({
+              clef: adresse,
+            })) || undefined
+          );
+        };
         const données = await obtDonnéesImportation(spéc, résoudreAdresse);
         await client.tableaux!.importerDonnées({
           idTableau: spéc.idTableau,
@@ -617,8 +631,12 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             const fs = await import("fs");
             const { adresseFichier } = spéc.source;
 
-            const adresseFichierRésolue = await client.automatisations!.résoudreAdressePrivéeFichier({clef: adresseFichier});
-            if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue)) throw new Error(`Fichier ${adresseFichier} introuvable.`);
+            const adresseFichierRésolue =
+              await client.automatisations!.résoudreAdressePrivéeFichier({
+                clef: adresseFichier,
+              });
+            if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue))
+              throw new Error(`Fichier ${adresseFichier} introuvable.`);
 
             const écouteur = chokidar.watch(adresseFichierRésolue);
             écouteur.on("change", async () => {
@@ -807,7 +825,9 @@ export default class Automatisations extends EventEmitter {
   }): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
     const idAuto = uuidv4();
-    const idDossier = await this.sauvegarderAdressePrivéeFichier({fichier: dossier})
+    const idDossier = await this.sauvegarderAdressePrivéeFichier({
+      fichier: dossier,
+    });
 
     const élément: SpécificationExporter = {
       type: "exportation",
@@ -819,7 +839,7 @@ export default class Automatisations extends EventEmitter {
       formatDoc,
       langues,
       inclureFichiersSFIP,
-      dossier: idDossier,  // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier directement
+      dossier: idDossier, // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier directement
     };
 
     // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
@@ -859,7 +879,9 @@ export default class Automatisations extends EventEmitter {
     const id = uuidv4();
 
     if (source.typeSource === "fichier") {
-      source.adresseFichier = await this.sauvegarderAdressePrivéeFichier({fichier: source.adresseFichier})
+      source.adresseFichier = await this.sauvegarderAdressePrivéeFichier({
+        fichier: source.adresseFichier,
+      });
     }
 
     const élément: SpécificationImporter<T> = {
@@ -896,17 +918,25 @@ export default class Automatisations extends EventEmitter {
     await fOublier();
   }
 
-  async résoudreAdressePrivéeFichier ({clef}:{clef?: string}): Promise<string|null> {
-    const x = clef ? await this.client.obtDeStockageLocal({clef}) : null;
-    console.log({clef, x})
-    return x
+  async résoudreAdressePrivéeFichier({
+    clef,
+  }: {
+    clef?: string;
+  }): Promise<string | null> {
+    const x = clef ? await this.client.obtDeStockageLocal({ clef }) : null;
+    console.log({ clef, x });
+    return x;
   }
 
-  async sauvegarderAdressePrivéeFichier({fichier}: {fichier: string}): Promise<string> {
+  async sauvegarderAdressePrivéeFichier({
+    fichier,
+  }: {
+    fichier: string;
+  }): Promise<string> {
     const clef = "dossier." + uuidv4();
-    await this.client.sauvegarderAuStockageLocal({clef, val: fichier});
-    console.log({clef})
-    return clef
+    await this.client.sauvegarderAuStockageLocal({ clef, val: fichier });
+    console.log({ clef });
+    return clef;
   }
 
   async suivreAutomatisations({
@@ -918,35 +948,42 @@ export default class Automatisations extends EventEmitter {
   }): Promise<schémaFonctionOublier> {
     idRacine = idRacine || this.idBd;
     const fFinale = async (autos: SpécificationAutomatisation[]) => {
-      const autosFinales = await Promise.all(autos.map(
-        async a => {
+      const autosFinales = await Promise.all(
+        autos.map(async (a) => {
           const autoFinale = deepcopy(a);
-          if (autoFinale.type === "importation" && autoFinale.source.typeSource === "fichier") {
-            const {adresseFichier} = autoFinale.source
+          if (
+            autoFinale.type === "importation" &&
+            autoFinale.source.typeSource === "fichier"
+          ) {
+            const { adresseFichier } = autoFinale.source;
             if (adresseFichier) {
-              const adresseRésolue = await this.résoudreAdressePrivéeFichier({clef: adresseFichier});
+              const adresseRésolue = await this.résoudreAdressePrivéeFichier({
+                clef: adresseFichier,
+              });
               if (adresseRésolue) {
                 autoFinale.source.adresseFichier = adresseRésolue;
               } else {
-                delete autoFinale.source.adresseFichier
+                delete autoFinale.source.adresseFichier;
               }
             }
           } else if (autoFinale.type === "exportation") {
-            const { dossier } = autoFinale
+            const { dossier } = autoFinale;
             if (dossier) {
-              const dossierRésolu = await this.résoudreAdressePrivéeFichier({clef: dossier});
+              const dossierRésolu = await this.résoudreAdressePrivéeFichier({
+                clef: dossier,
+              });
               if (dossierRésolu) {
-                autoFinale.dossier = dossierRésolu
+                autoFinale.dossier = dossierRésolu;
               } else {
                 delete autoFinale.dossier;
               }
             }
           }
           return autoFinale;
-        }
-      ));
+        })
+      );
       await f(autosFinales);
-    }
+    };
     return await this.client.suivreBdListe({ id: idRacine, f: fFinale });
   }
 

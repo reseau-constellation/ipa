@@ -6,17 +6,11 @@ import path from "path";
 import rmrf from "rimraf";
 import AdmZip from "adm-zip";
 
-
 import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 import {
   obtDirTempoPourTest,
   dossierRessourcesTests,
@@ -33,7 +27,6 @@ typesClients.forEach((type) => {
       let idProjet: string;
 
       beforeAll(async () => {
-        
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type
@@ -527,16 +520,18 @@ typesClients.forEach((type) => {
 
         describe("Exporter document projet", function () {
           let dossierZip: string;
-          let fEffacerDossierZip: ()=>void;
+          let fEffacerDossierZip: () => void;
           let dossierFichierExtrait: string;
-          let fEffacerFichierExtrait: ()=>void;
+          let fEffacerFichierExtrait: () => void;
           let nomZip: string;
 
           beforeAll(async () => {
-            ({dossier: dossierZip, fEffacer: fEffacerDossierZip} = await obtDirTempoPourTest("testExporterProjet"));
-            ({dossier: dossierFichierExtrait, fEffacer: fEffacerFichierExtrait} = await obtDirTempoPourTest(
-              "testExporterProjetExtrait"
-            ));
+            ({ dossier: dossierZip, fEffacer: fEffacerDossierZip } =
+              await obtDirTempoPourTest("testExporterProjet"));
+            ({
+              dossier: dossierFichierExtrait,
+              fEffacer: fEffacerFichierExtrait,
+            } = await obtDirTempoPourTest("testExporterProjetExtrait"));
 
             await client.projets!.exporterDocumentDonnées({
               données: { docs, fichiersSFIP, nomFichier },
@@ -568,14 +563,16 @@ typesClients.forEach((type) => {
           });
 
           test("Le dossier pour les données SFIP existe", () => {
-            expect(fs.existsSync(path.join(dossierFichierExtrait, "sfip"))).toBe(
-              true
-            );
+            expect(
+              fs.existsSync(path.join(dossierFichierExtrait, "sfip"))
+            ).toBe(true);
           });
 
           test("Les fichiers SFIP existent", () => {
             expect(
-              fs.existsSync(path.join(dossierFichierExtrait, "sfip", cid + ".svg"))
+              fs.existsSync(
+                path.join(dossierFichierExtrait, "sfip", cid + ".svg")
+              )
             ).toBe(true);
           });
         });

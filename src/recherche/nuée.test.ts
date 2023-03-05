@@ -145,9 +145,7 @@ describe("Client ", function () {
         await fRechercheNom(client, idNuée, (r) => (résultatNom = r))
       );
 
-      const fRechercheId = rechercherNuéeSelonIdMotClef(
-        idMotClef.slice(0, 15)
-      );
+      const fRechercheId = rechercherNuéeSelonIdMotClef(idMotClef.slice(0, 15));
       fsOublier.push(
         await fRechercheId(client, idNuée, (r) => (résultatId = r))
       );
@@ -406,11 +404,7 @@ describe("Client ", function () {
 
       const fRechercheVariables = rechercherNuéeSelonTexte("Température");
       fsOublier.push(
-        await fRechercheVariables(
-          client,
-          idNuée,
-          (r) => (résultatVariable = r)
-        )
+        await fRechercheVariables(client, idNuée, (r) => (résultatVariable = r))
       );
 
       const fRechercheMotsClef = rechercherNuéeSelonTexte("Météo");

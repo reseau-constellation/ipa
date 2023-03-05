@@ -23,12 +23,12 @@ describe("Utils : données", function () {
   });
   describe("zipper", function () {
     let dossier: string;
-    let fEffacer: ()=>void;
-    let nomFichier: string
-    let fichierExtrait: string
+    let fEffacer: () => void;
+    let nomFichier: string;
+    let fichierExtrait: string;
 
     beforeAll(async () => {
-      ({dossier, fEffacer} = await obtDirTempoPourTest());
+      ({ dossier, fEffacer } = await obtDirTempoPourTest());
       nomFichier = path.join(dossier, "testZip.zip");
       fichierExtrait = path.join(dossier, "testZipExtrait");
       const fichiersDocs = [

@@ -22,13 +22,8 @@ import type {
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 import type { élémentDonnées, règleBornes } from "@/valid.js";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 import {
   obtDirTempoPourTest,
   dossierRessourcesTests,
@@ -1215,12 +1210,12 @@ typesClients.forEach((type) => {
 
         describe("Exporter document données", function () {
           let dossier: string;
-          let fEffacer: ()=>void;
+          let fEffacer: () => void;
           let dirZip: string;
           let fichierExtrait: string;
 
           beforeAll(async () => {
-            ({dossier, fEffacer} = await obtDirTempoPourTest());
+            ({ dossier, fEffacer } = await obtDirTempoPourTest());
             dirZip = path.join(dossier, "testExporterBd");
             fichierExtrait = path.join(dossier, "testExporterBdExtrait");
             await client.bds!.exporterDocumentDonnées({

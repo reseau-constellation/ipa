@@ -46,7 +46,6 @@ typesClients.forEach((type) => {
       let colonnes: InfoColAvecCatégorie[];
 
       beforeAll(async () => {
-        
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type

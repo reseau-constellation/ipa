@@ -15,10 +15,10 @@ describe("XLSX", function () {
       const fs = await import("fs");
 
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
-      const données = fs.readFileSync(path.join(await dossierRessourcesTests(), "donnéesTest.ods"));
-      const doc = XLSX.read(
-        données
+      const données = fs.readFileSync(
+        path.join(await dossierRessourcesTests(), "donnéesTest.ods")
       );
+      const doc = XLSX.read(données);
       importateur = new ImportateurFeuilleCalcul(doc);
     });
 

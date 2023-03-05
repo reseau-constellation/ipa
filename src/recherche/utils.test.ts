@@ -3,7 +3,6 @@ import path from "path";
 import type FeedStore from "orbit-db-feedstore";
 import { config } from "@/utilsTests/sfip.js";
 
-
 import type { default as ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
@@ -31,7 +30,6 @@ describe("Utils recherche", function () {
   let client: ClientConstellation;
 
   beforeAll(async () => {
-    
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
   }, config.patienceInit);
@@ -178,11 +176,13 @@ describe("Utils recherche", function () {
     let IMAGE2: Buffer;
 
     beforeAll(async () => {
-      IMAGE = fs.readFileSync(path.join(await dossierRessourcesTests(), "logo.png"));
+      IMAGE = fs.readFileSync(
+        path.join(await dossierRessourcesTests(), "logo.png")
+      );
       IMAGE2 = fs.readFileSync(
         path.join(await dossierRessourcesTests(), "logo2.png")
       );
-    })
+    });
 
     test("Pas d'image réf", () => {
       const résultat = similImages(IMAGE, null);

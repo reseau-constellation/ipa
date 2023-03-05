@@ -16,12 +16,8 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import type FeedStore from "orbit-db-feedstore";
 import type KeyValueStore from "orbit-db-kvstore";
 
-import {
-  générerClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js";
+import { générerClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { config } from "@/utilsTests/sfip.js";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { peutÉcrire } from "@/utilsTests/index.js";

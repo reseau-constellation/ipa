@@ -1,4 +1,3 @@
-
 import type { default as ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
@@ -28,7 +27,6 @@ describe("Rechercher bds", function () {
   let client: ClientConstellation;
 
   beforeAll(async () => {
-    
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
   }, config.patienceInit);

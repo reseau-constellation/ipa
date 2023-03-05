@@ -68,7 +68,7 @@ export default class Profil {
               racine: id,
               type: "kvstore",
             });
-            return await fSuivreBd(idBdProfil)
+            return await fSuivreBd(idBdProfil);
           },
         });
       },
@@ -76,9 +76,17 @@ export default class Profil {
   }
 
   @cacheSuivi
-  async suivreSousBdDicProfil<T extends élémentsBd>({idCompte, clef, f}: {idCompte?: string, clef: string, f: schémaFonctionSuivi<{
-    [key: string]: T;
-}>}): Promise<schémaFonctionOublier> {
+  async suivreSousBdDicProfil<T extends élémentsBd>({
+    idCompte,
+    clef,
+    f,
+  }: {
+    idCompte?: string;
+    clef: string;
+    f: schémaFonctionSuivi<{
+      [key: string]: T;
+    }>;
+  }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
         return await this.suivreBdProfil({ f: fSuivreRacine, idCompte });
@@ -104,16 +112,16 @@ export default class Profil {
   }): Promise<schémaFonctionOublier> {
     return await this.suivreContacts({
       idCompte,
-      f: async contacts => await f(contacts["courriel"] || null)
+      f: async (contacts) => await f(contacts["courriel"] || null),
     });
   }
 
   async sauvegarderCourriel({ courriel }: { courriel: string }): Promise<void> {
-    await this.sauvegarderContact({type: "courriel", contact: courriel});
+    await this.sauvegarderContact({ type: "courriel", contact: courriel });
   }
 
   async effacerCourriel(): Promise<void> {
-    await this.effacerContact({type: "courriel"});
+    await this.effacerContact({ type: "courriel" });
   }
 
   @cacheSuivi
@@ -121,17 +129,23 @@ export default class Profil {
     f,
     idCompte,
   }: {
-    f: schémaFonctionSuivi<{[type: string]: string}>;
+    f: schémaFonctionSuivi<{ [type: string]: string }>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreSousBdDicProfil<string>({
       idCompte,
-      clef:"contacts",
-      f
+      clef: "contacts",
+      f,
     });
   }
 
-  async sauvegarderContact({type, contact}: { type: string, contact: string}): Promise<void> {
+  async sauvegarderContact({
+    type,
+    contact,
+  }: {
+    type: string;
+    contact: string;
+  }): Promise<void> {
     const idBdProfil = (await this.obtIdBdProfil())!;
     const idBdContacts = await this.client.obtIdBd({
       nom: "contacts",
@@ -151,7 +165,7 @@ export default class Profil {
     await fOublier();
   }
 
-  async effacerContact({type}: {type: string}) :Promise<void>{
+  async effacerContact({ type }: { type: string }): Promise<void> {
     const idBdProfil = (await this.obtIdBdProfil())!;
     const idBdContacts = await this.client.obtIdBd({
       nom: "contacts",
@@ -181,8 +195,8 @@ export default class Profil {
   }): Promise<schémaFonctionOublier> {
     return await this.suivreSousBdDicProfil<string>({
       idCompte,
-      clef:"noms",
-      f
+      clef: "noms",
+      f,
     });
   }
 

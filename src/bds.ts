@@ -351,14 +351,14 @@ export default class BDs {
         }
         if (!optionnel) {
           const règle: règleExiste = {
-            typeRègle: 'existe',
-            détails: {}
-          }
+            typeRègle: "existe",
+            détails: {},
+          };
           await this.client.tableaux!.ajouterRègleTableau({
             idTableau,
             idColonne,
-            règle
-          })
+            règle,
+          });
         }
       }
     }
@@ -1861,7 +1861,11 @@ export default class BDs {
           };
         })
       );
-      await zipper([fichierDoc], fichiersDeSFIP, path.join(dossier, nomFichier));
+      await zipper(
+        [fichierDoc],
+        fichiersDeSFIP,
+        path.join(dossier, nomFichier)
+      );
       return path.join(dossier, `${nomFichier}.zip`);
     } else {
       writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {

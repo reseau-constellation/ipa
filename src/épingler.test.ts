@@ -3,13 +3,9 @@ import isSet from "lodash/isSet";
 import type KeyValueStore from "orbit-db-kvstore";
 import type FeedStore from "orbit-db-feedstore";
 
-
 import type { default as ClientConstellation } from "@/client.js";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
@@ -20,7 +16,6 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       beforeAll(async () => {
-        
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type

@@ -12,13 +12,8 @@ import type {
   résultatObjectifRecherche,
 } from "@/utils/index.js";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 const vérifierRecherche = (
   résultats: résultatRecherche<infoRésultat>[],
@@ -30,28 +25,28 @@ const vérifierRecherche = (
   );
   const résultatsSansScore = résultats.map((r) => {
     const sansScore: {
-      id: string,
-      résultatObjectif: Omit<résultatObjectifRecherche<infoRésultat>, "score">
+      id: string;
+      résultatObjectif: Omit<résultatObjectifRecherche<infoRésultat>, "score">;
     } = {
       id: r.id,
       résultatObjectif: Object.fromEntries(
         Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score")
-      ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">
+      ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">,
     };
-    return sansScore
+    return sansScore;
   });
 
   const réfSansScore = réf.map((r) => {
     const sansScore: {
-      id: string,
-      résultatObjectif: Omit<résultatObjectifRecherche<infoRésultat>, "score">
+      id: string;
+      résultatObjectif: Omit<résultatObjectifRecherche<infoRésultat>, "score">;
     } = {
       id: r.id,
       résultatObjectif: Object.fromEntries(
         Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score")
-      ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">
+      ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">,
     };
-    return sansScore
+    return sansScore;
   });
 
   expect(résultatsSansScore).toEqual(réfSansScore);

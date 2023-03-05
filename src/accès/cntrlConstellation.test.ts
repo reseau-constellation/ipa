@@ -6,11 +6,8 @@ import type { default as ContrôleurConstellation } from "@/accès/cntrlConstell
 import type OrbitDB from "orbit-db";
 import type KeyValueStore from "orbit-db-kvstore";
 
-import {
-  peutÉcrire,
-  attendreSync,
-} from "@/utilsTests/index.js";
-import { générerOrbites } from "@/utilsTests/client.js"
+import { peutÉcrire, attendreSync } from "@/utilsTests/index.js";
+import { générerOrbites } from "@/utilsTests/client.js";
 import { config } from "@/utilsTests/sfip.js";
 
 describe("Contrôleur Constellation", function () {

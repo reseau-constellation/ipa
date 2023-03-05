@@ -1,16 +1,10 @@
 import isArray from "lodash/isArray";
 
-
 import type { default as ClientConstellation } from "@/client.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 import { config } from "@/utilsTests/sfip.js";
 
@@ -22,7 +16,6 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       beforeAll(async () => {
-        
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type

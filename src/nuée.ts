@@ -2245,7 +2245,7 @@ export default class Nuée {
         });
       }
     );
-    const règles: {[clef: string]: règleColonne[]} = {}
+    const règles: { [clef: string]: règleColonne[] } = {};
     for (const t of tableaux) {
       règles[t.clef] = await uneFois(
         async (fSuivi: schémaFonctionSuivi<règleColonne[]>) => {
@@ -2255,7 +2255,7 @@ export default class Nuée {
             f: fSuivi,
           });
         }
-      )
+      );
     }
     const générerCols = async (tableau: infoTableauAvecId) => {
       return await uneFois(
@@ -2275,12 +2275,15 @@ export default class Nuée {
           const cols = await générerCols(t);
           return {
             cols: cols.map((c) => {
-              const obligatoire = règles[t.clef]?.some(r=>r.colonne === c.id && r.règle.règle.typeRègle === 'existe')
+              const obligatoire = règles[t.clef]?.some(
+                (r) =>
+                  r.colonne === c.id && r.règle.règle.typeRègle === "existe"
+              );
               return {
                 idColonne: c.id,
                 idVariable: c.variable,
                 index: c.index,
-                optionnel: !obligatoire
+                optionnel: !obligatoire,
               };
             }),
             clef: t.clef,

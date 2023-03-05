@@ -26,17 +26,9 @@ import type {
 import type { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
-import {
-  générerClients,
-  typesClients,
-  typeClient,
-} from "@/utilsTests/client";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js"
-import {
-  dossierRessourcesTests,
-} from "@/utilsTests/dossiers.js"
+import { générerClients, typesClients, typeClient } from "@/utilsTests/client";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 import { config } from "@/utilsTests/sfip.js";
 
 async function toutPréparer(n: number, type: typeClient) {
@@ -1746,7 +1738,7 @@ typesClients.forEach((type) => {
           IMAGE = fs.readFileSync(
             path.join(await dossierRessourcesTests(), "logo.svg")
           );
-  
+
           ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
             2,
             type

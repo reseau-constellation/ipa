@@ -15,15 +15,9 @@ import {
   rechercherProfilSelonCourriel,
 } from "@/recherche/profil.js";
 
-import {
-  générerClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js";
-import {
-  dossierRessourcesTests,
-} from "@/utilsTests/dossiers.js";
+import { générerClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 import { config } from "@/utilsTests/sfip.js";
 
 describe("Rechercher profil", function () {

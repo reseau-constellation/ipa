@@ -29,18 +29,13 @@ import type {
 import type { élémentDonnées } from "@/valid.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
 import {
   AttendreFichierExiste,
   AttendreFichierModifié,
   AttendreRésultat,
 } from "@/utilsTests/attente.js";
-import {
-  obtDirTempoPourTest,
-} from "@/utilsTests/dossiers.js";
+import { obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
 import { config } from "@/utilsTests/sfip.js";
 import axios from "axios";
 
@@ -152,7 +147,7 @@ typesClients.forEach((type) => {
         let idCol1: string;
         let idCol2: string;
         let dirTempo: string;
-        let fEffacer: ()=>void;
+        let fEffacer: () => void;
         let fOublierAuto: () => Promise<void>;
 
         let rés: AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>;
@@ -161,7 +156,9 @@ typesClients.forEach((type) => {
         beforeEach(async () => {
           fsOublier = [];
           rés = new AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
-          ({dossier: dirTempo, fEffacer} = await obtDirTempoPourTest("testImporterBd"));
+          ({ dossier: dirTempo, fEffacer } = await obtDirTempoPourTest(
+            "testImporterBd"
+          ));
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.bds!.ajouterTableauBd({ idBd });
@@ -533,12 +530,12 @@ typesClients.forEach((type) => {
         let idBd: string;
         let idProjet: string;
         let dossier: string;
-        let fEffacer: ()=>void;
+        let fEffacer: () => void;
 
         const fsOublier: (() => void)[] = [];
 
         beforeAll(async () => {
-          ({dossier, fEffacer} = await obtDirTempoPourTest("testExporterBd"));
+          ({ dossier, fEffacer } = await obtDirTempoPourTest("testExporterBd"));
 
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.bds!.ajouterNomsBd({
@@ -776,7 +773,7 @@ typesClients.forEach((type) => {
         let idTableau: string;
         let idBd: string;
         let dossier: string;
-        let fEffacer: ()=>void;
+        let fEffacer: () => void;
 
         const résÉtats = new AttendreRésultat<{
           [key: string]: ÉtatAutomatisation;
@@ -786,7 +783,7 @@ typesClients.forEach((type) => {
         const fsOublier: (schémaFonctionOublier | (() => void))[] = [];
 
         beforeAll(async () => {
-          ({dossier, fEffacer} = await obtDirTempoPourTest("testExporterBd"));
+          ({ dossier, fEffacer } = await obtDirTempoPourTest("testExporterBd"));
 
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
@@ -855,7 +852,7 @@ typesClients.forEach((type) => {
                 })
             )
           );
-          if(fEffacer) fEffacer();
+          if (fEffacer) fEffacer();
           rmrf.sync(dossier);
         });
 
@@ -971,7 +968,7 @@ typesClients.forEach((type) => {
         let idCol1: string;
         let idCol2: string;
         let dossier: string;
-        let fEffacer: ()=>void;
+        let fEffacer: () => void;
 
         const résÉtats = new AttendreRésultat<{
           [key: string]: ÉtatAutomatisation;
@@ -991,7 +988,7 @@ typesClients.forEach((type) => {
             })
           );
 
-          ({dossier, fEffacer} = await obtDirTempoPourTest("testExporterBd"));
+          ({ dossier, fEffacer } = await obtDirTempoPourTest("testExporterBd"));
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.tableaux!.créerTableau({ idBd });
@@ -1173,9 +1170,7 @@ typesClients.forEach((type) => {
           expect(résÉtats.val![idAuto].type).toEqual("erreur");
           const état = résÉtats.val![idAuto] as ÉtatErreur;
 
-          expect(état.erreur).toContain(
-            "introuvable."
-          );
+          expect(état.erreur).toContain("introuvable.");
           expect(état.prochaineProgramméeÀ).toBeLessThanOrEqual(
             après + 1000 * 60 * 3
           );

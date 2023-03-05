@@ -5,16 +5,9 @@ import type { default as ClientConstellation } from "@/client.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
-import {
-  générerClients,
-  typesClients,
-} from "@/utilsTests/client.js";
-import {
-  AttendreRésultat,
-} from "@/utilsTests/attente.js";
-import {
-  dossierRessourcesTests,
-} from "@/utilsTests/dossiers.js";
+import { générerClients, typesClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 import { config } from "@/utilsTests/sfip.js";
 
 typesClients.forEach((type) => {
@@ -126,9 +119,11 @@ typesClients.forEach((type) => {
 
         let IMAGE: Uint8Array;
 
-        beforeAll(async ()=>{
-          IMAGE = fs.readFileSync(path.join(await dossierRessourcesTests(), "logo.svg"))
-        })
+        beforeAll(async () => {
+          IMAGE = fs.readFileSync(
+            path.join(await dossierRessourcesTests(), "logo.svg")
+          );
+        });
 
         beforeAll(async () => {
           fOublier = await client.profil!.suivreImage({

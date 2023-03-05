@@ -104,17 +104,23 @@ export default class MotsClefs {
     await this.ajouterNomsMotClef({ id: idNouveauMotClef, noms });
 
     const idBdDescriptions = bdBase.get("descriptions");
-    const { bd: bdDescriptions, fOublier: fOublierDescriptions } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdDescriptions });
-    const descriptions = ClientConstellation.obtObjetdeBdDic({ bd: bdDescriptions }) as {
+    const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
+      await this.client.ouvrirBd<KeyValueStore<string>>({
+        id: idBdDescriptions,
+      });
+    const descriptions = ClientConstellation.obtObjetdeBdDic({
+      bd: bdDescriptions,
+    }) as {
       [key: string]: string;
     };
-    await this.ajouterDescriptionsMotClef({ id: idNouveauMotClef, descriptions });
+    await this.ajouterDescriptionsMotClef({
+      id: idNouveauMotClef,
+      descriptions,
+    });
 
     await fOublierBase();
     await fOublierNoms();
-    await fOublierDescriptions()
+    await fOublierDescriptions();
     return idNouveauMotClef;
   }
 

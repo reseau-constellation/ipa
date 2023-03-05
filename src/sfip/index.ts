@@ -11,7 +11,7 @@ import { noise } from "@chainsafe/libp2p-noise";
 import mergeOptions from "merge-options";
 import type { IPFS } from "ipfs-core";
 import type { Options } from "ipfs-core";
-import { FaultTolerance } from "@libp2p/interface-transport"
+import { FaultTolerance } from "@libp2p/interface-transport";
 
 const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
   let configPlateforme: Parameters<typeof create>[0];
@@ -40,8 +40,8 @@ const obtConfigCommun = (): Options => {
       streamMuxers: [mplex()],
       connectionEncryption: [noise()],
       transportManager: {
-        faultTolerance: FaultTolerance.NO_FATAL
-      }
+        faultTolerance: FaultTolerance.NO_FATAL,
+      },
     },
     relay: { enabled: true, hop: { enabled: true, active: true } },
   };
