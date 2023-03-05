@@ -1,1 +1,0 @@
-import{_ as e,c as a,o as t}from"./app.c9015d2e.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"فا/ipa/réseau.md"}'),r={name:"فا/ipa/réseau.md"};function s(o,c,n,p,_,i){return t(),a("div")}const f=e(r,[["render",s]]);export{m as __pageData,f as default};
