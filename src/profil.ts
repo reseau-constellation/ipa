@@ -7,6 +7,7 @@ import {
   schémaFonctionOublier,
   faisRien,
   ignorerNonDéfinis,
+  élémentsBd,
 } from "@/utils/index.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
@@ -75,6 +76,25 @@ export default class Profil {
   }
 
   @cacheSuivi
+  async suivreSousBdDicProfil<T extends élémentsBd>({idCompte, clef, f}: {idCompte?: string, clef: string, f: schémaFonctionSuivi<{
+    [key: string]: T;
+}>}): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDeFonction({
+      fRacine: async ({ fSuivreRacine }) => {
+        return await this.suivreBdProfil({ f: fSuivreRacine, idCompte });
+      },
+      f: ignorerNonDéfinis(f),
+      fSuivre: async ({ id, fSuivreBd }) => {
+        return await this.client.suivreBdDicDeClef({
+          id,
+          clef: clef,
+          f: fSuivreBd,
+        });
+      },
+    });
+  }
+
+  @cacheSuivi
   async suivreCourriel({
     f,
     idCompte,
@@ -82,44 +102,72 @@ export default class Profil {
     f: schémaFonctionSuivi<string | null>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    const fRacine = async ({
-      fSuivreRacine,
-    }: {
-      fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdProfil({ f: fSuivreRacine, idCompte });
-    };
-    const fSuivre = async ({
-      id,
-      fSuivreBd,
-    }: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<string | null>;
-    }): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreBd({
-        id,
-        f: async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
-          const courriel = bd.get("courriel");
-          await fSuivreBd(courriel || null);
-        },
-      });
-    };
-    return await this.client.suivreBdDeFonction({
-      fRacine,
-      f: ignorerNonDéfinis(f),
-      fSuivre,
+    return await this.suivreContacts({
+      idCompte,
+      f: async contacts => await f(contacts["courriel"] || null)
     });
   }
 
   async sauvegarderCourriel({ courriel }: { courriel: string }): Promise<void> {
-    const { bd, fOublier } = await this.obtBdProfil();
-    await bd.set("courriel", courriel);
-    await fOublier();
+    await this.sauvegarderContact({type: "courriel", contact: courriel});
   }
 
   async effacerCourriel(): Promise<void> {
-    const { bd, fOublier } = await this.obtBdProfil();
-    await bd.del("courriel");
+    await this.effacerContact({type: "courriel"});
+  }
+
+  @cacheSuivi
+  async suivreContacts({
+    f,
+    idCompte,
+  }: {
+    f: schémaFonctionSuivi<{[type: string]: string}>;
+    idCompte?: string;
+  }): Promise<schémaFonctionOublier> {
+    return await this.suivreSousBdDicProfil<string>({
+      idCompte,
+      clef:"contacts",
+      f
+    });
+  }
+
+  async sauvegarderContact({type, contact}: { type: string, contact: string}): Promise<void> {
+    const idBdProfil = (await this.obtIdBdProfil())!;
+    const idBdContacts = await this.client.obtIdBd({
+      nom: "contacts",
+      racine: idBdProfil,
+      type: "kvstore",
+    });
+    if (!idBdContacts) {
+      throw new Error(
+        `Permission de modification refusée pour BD ${idBdProfil}.`
+      );
+    }
+
+    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+      id: idBdContacts,
+    });
+    await bd.set(type, contact);
+    await fOublier();
+  }
+
+  async effacerContact({type}: {type: string}) :Promise<void>{
+    const idBdProfil = (await this.obtIdBdProfil())!;
+    const idBdContacts = await this.client.obtIdBd({
+      nom: "contacts",
+      racine: idBdProfil,
+      type: "kvstore",
+    });
+    if (!idBdContacts) {
+      throw new Error(
+        `Permission de modification refusée pour BD ${idBdProfil}.`
+      );
+    }
+
+    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+      id: idBdContacts,
+    });
+    await bd.del(type);
     await fOublier();
   }
 
@@ -131,18 +179,10 @@ export default class Profil {
     f: schémaFonctionSuivi<{ [key: string]: string }>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDeFonction({
-      fRacine: async ({ fSuivreRacine }) => {
-        return await this.suivreBdProfil({ f: fSuivreRacine, idCompte });
-      },
-      f: ignorerNonDéfinis(f),
-      fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdDicDeClef<string>({
-          id,
-          clef: "noms",
-          f: fSuivreBd,
-        });
-      },
+    return await this.suivreSousBdDicProfil<string>({
+      idCompte,
+      clef:"noms",
+      f
     });
   }
 

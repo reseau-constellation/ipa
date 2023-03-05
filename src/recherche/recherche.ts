@@ -488,6 +488,24 @@ export class Recherche {
   }
 
   @cacheRechercheParNRésultats
+  async rechercherProfilSelonTexte({
+    texte,
+    f,
+    nRésultatsDésirés,
+  }: {
+    texte: string;
+    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
+    nRésultatsDésirés: number;
+  }): Promise<schémaRetourFonctionRechercheParN> {
+    const fObjectif = profil.rechercherProfilSelonTexte(texte);
+    return await this.client.réseau!.rechercherMembres({
+      f,
+      nRésultatsDésirés,
+      fObjectif,
+    });
+  }
+
+  @cacheRechercheParNRésultats
   async rechercherProjetSelonId({
     idProjet,
     f,
