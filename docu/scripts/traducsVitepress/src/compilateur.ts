@@ -51,7 +51,7 @@ export class Compilateur {
     this.dossierSource = path.join(this.racineProjet, dossierSource);
     this.dossierTraductions = path.join(this.racineProjet, dossierTraductions);
     this.configVitePress = configVitePress;
-    this.extentions = [new ExtentionMd(), new ExtentionSvg(), ...extentions];
+    this.extentions = [new ExtentionMd({}), new ExtentionSvg(), ...extentions];
     
     this.dossiersIgnorés = [
       path.join(this.dossierSource, ".vitepress")
