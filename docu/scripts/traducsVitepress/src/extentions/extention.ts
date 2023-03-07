@@ -11,9 +11,11 @@ export abstract class Extention {
     texte,
     traducs,
     fichier,
+    langue,
   }: {
     texte: string;
     traducs: { [clef: string]: string };
     fichier: string;
+    langue: string;
   }): Promise<string>;
 }
