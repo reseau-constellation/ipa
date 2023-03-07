@@ -51,6 +51,7 @@ export class ExtentionMd extends Extention {
           .map((f) => f.map((c) => c.tokens.map(j=>this.analyserComposante({composante: j}).flat()).flat()).flat()).flat();
         return [...entête, ...files];
       }
+      case "image":
       case "link": {
         const items = [{ clef: "", valeur: composante.text }];
         if (!composante.href.startsWith("/")) {
@@ -58,6 +59,14 @@ export class ExtentionMd extends Extention {
         }
         return items;
       }
+      case "paragraph":
+        if (composante.tokens.length === 1) return this.analyserComposante({composante: composante.tokens[0]});
+        return [
+          {
+            clef: "",
+            valeur: composante.raw,
+          },
+        ]
       case "text":
       case "codespan":
       default:
@@ -165,9 +174,15 @@ export class ExtentionMd extends Extention {
         return `[${obtTrad(composante.text)}](${traduireLien(
           composante.href
         )})`;
+      case "image":
+        return `![${obtTrad(composante.text)}](${traduireLien(
+          composante.href
+        )})`;
+      case "paragraph":
+        return composante.tokens.map(x=>this.reconstruireComposante({composante: x, fichier, traducs, langue})).join('') ;
       case "text":
       case "codespan":
-        return obtTrad(composante.text);
+        return obtTrad(composante.raw);
       default:
         return obtTrad(composante.raw);
     }
