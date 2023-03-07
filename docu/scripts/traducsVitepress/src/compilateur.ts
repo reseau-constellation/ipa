@@ -7,7 +7,7 @@ import { empreinte } from "./utils.js";
 
 import type { UserConfig, DefaultTheme } from "vitepress";
 import type { Nuchabäl } from "nuchabal";
-import {defineConfig} from "vitepress";
+import { defineConfig } from "vitepress";
 import { ExtentionMd } from "./extentions/md.js";
 import { ExtentionSvg } from "./extentions/svg.js";
 
@@ -52,10 +52,8 @@ export class Compilateur {
     this.dossierTraductions = path.join(this.racineProjet, dossierTraductions);
     this.configVitePress = configVitePress;
     this.extentions = [new ExtentionMd({}), new ExtentionSvg(), ...extentions];
-    
-    this.dossiersIgnorés = [
-      path.join(this.dossierSource, ".vitepress")
-    ]
+
+    this.dossiersIgnorés = [path.join(this.dossierSource, ".vitepress")];
 
     this.nuchabäl = nuchabäl;
   }
@@ -87,10 +85,10 @@ export class Compilateur {
     const exts = this.extentions.map((x) => x.ext);
 
     for (const fichier of fichiers) {
-      const adresseAbsolue = path.join(dossier, fichier)
+      const adresseAbsolue = path.join(dossier, fichier);
       const f = fs.statSync(adresseAbsolue);
       if (f.isDirectory()) {
-        if (this.dossiersIgnorés.includes(adresseAbsolue)) continue
+        if (this.dossiersIgnorés.includes(adresseAbsolue)) continue;
         for (const x of this.itérerDossier({
           dossier: adresseAbsolue,
         })) {
@@ -100,7 +98,9 @@ export class Compilateur {
         const ext = fichier.split(".").pop();
         // Pour éviter d'inclure les fichiers déjà traduits...VitePresse à une drôle de structure de fichiers !
         // Mais je n'y suis pour rien.
-        const premièrePartieDossier = path.relative(this.dossierSource, dossier).split(path.sep)[0];
+        const premièrePartieDossier = path
+          .relative(this.dossierSource, dossier)
+          .split(path.sep)[0];
         if (
           ext &&
           exts.includes(ext) &&
@@ -131,18 +131,19 @@ export class Compilateur {
     } else if (typeof dict === "object") {
       return Object.entries(dict)
         .map(([clef, valeur]) => {
-          if (typeof valeur === 'string' && valeur[0] !== "/") {
+          if (typeof valeur === "string" && valeur[0] !== "/") {
             return { clef: racineClef + "." + clef, valeur };
-          } else if (typeof valeur === 'object') {
+          } else if (typeof valeur === "object") {
             return this.extraireTexteDict({
               dict: valeur,
               racineClef: racineClef + "." + clef,
             });
           } else {
-            return undefined
+            return undefined;
           }
         })
-        .flat().filter(x=>!!x) as {clef: string, valeur: string}[];
+        .flat()
+        .filter((x) => !!x) as { clef: string; valeur: string }[];
     } else {
       throw new Error(`Oups ! Ça devrait vraiment pas arriver. ${dict}`);
     }
@@ -250,9 +251,17 @@ export class Compilateur {
         const texte = fs.readFileSync(fichier).toString();
 
         const compilateur = this.obtCompilateur({ ext });
-        const compilé = await compilateur.compiler({ texte, traducs, fichier: fichierRelatif });
+        const compilé = await compilateur.compiler({
+          texte,
+          traducs,
+          fichier: fichierRelatif,
+          langue,
+        });
 
-        const composantesAdresseFichier = path.relative(this.dossierSource, fichier);
+        const composantesAdresseFichier = path.relative(
+          this.dossierSource,
+          fichier
+        );
         const fichierSourceTraduite = path.join(
           this.dossierSource,
           langue,
@@ -397,7 +406,10 @@ export class Compilateur {
       .readFileSync(`${this.racineProjet}/.gitignore`, "utf-8")
       .split("\n");
     const déjàLà: string[] = [];
-    const dossierSourceRelatif = path.relative(this.racineProjet, this.dossierSource)
+    const dossierSourceRelatif = path.relative(
+      this.racineProjet,
+      this.dossierSource
+    );
     for (const l of lignes) {
       const existe = this.languesCibles.find(
         (lng) => l === `${dossierSourceRelatif}/${lng}`

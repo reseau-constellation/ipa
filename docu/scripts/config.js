@@ -6,7 +6,6 @@ export const configVitePress = defineConfig({
   description: "Le réseau distribué pour les données scientifiques",
   // base: "/ipa/",  // Uniquement nécessaire sur https://réseau-constellation.github.io/ipa
 
-
   /**
    * Extra tags to be injected to the page HTML `<head>`
    *
