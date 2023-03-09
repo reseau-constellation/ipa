@@ -924,7 +924,6 @@ export default class Automatisations extends EventEmitter {
     clef?: string;
   }): Promise<string | null> {
     const x = clef ? await this.client.obtDeStockageLocal({ clef }) : null;
-    console.log({ clef, x });
     return x;
   }
 
