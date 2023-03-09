@@ -31,7 +31,7 @@ export type catégorieBaseVariables =
   | "géojson"
   | "vidéo"
   | "audio"
-  | "photo"
+  | "image"
   | "fichier";
 
 export type catégorieVariables =
