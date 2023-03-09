@@ -10,6 +10,8 @@ import type KeyValueStore from "orbit-db-kvstore";
 
 import type AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
 import type IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
+import type { objRôles, infoUtilisateur } from "@/accès/types.js";
+import { InfoLicence, infoLicences } from "./licences";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -48,7 +50,7 @@ import ContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
-import type { objRôles, infoUtilisateur } from "@/accès/types.js";
+
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import Base64 from "crypto-js/enc-base64.js";
 import sha256 from "crypto-js/sha256.js";
@@ -366,6 +368,16 @@ export default class ClientConstellation extends EventEmitter {
     return async () => {
       //À faire
     };
+  }
+
+  @cacheSuivi
+  async suivreLicences({
+    f
+  }: {
+    f: schémaFonctionSuivi<{[licence: string]: InfoLicence}>
+  }) {
+    await f(infoLicences);
+    return faisRien // Pour l'instant. Plus tard, on pourra le connecter avec une nuée Kili
   }
 
   @cacheSuivi
