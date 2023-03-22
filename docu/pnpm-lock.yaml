@@ -10,6 +10,7 @@ specifiers:
   postcss-rtl: ^2.0.0
   vitepress: 1.0.0-alpha.40
   xml2js: ^0.4.23
+  yaml: ^2.2.1
 
 devDependencies:
   '@types/jsdom': 21.1.0
@@ -21,6 +22,7 @@ devDependencies:
   postcss-rtl: 2.0.0
   vitepress: 1.0.0-alpha.40
   xml2js: 0.4.23
+  yaml: 2.2.1
 
 packages:
 
@@ -1314,4 +1316,9 @@ packages:
 
   /xmlchars/2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
+    dev: true
+
+  /yaml/2.2.1:
+    resolution: {integrity: sha512-e0WHiYql7+9wr4cWMx3TVQrNwejKaEe7/rHNmQmqRjazfOP5W8PB6Jpebb5o6fIapbz9o9+2ipcaTM2ZwDI6lw==}
+    engines: {node: '>= 14'}
     dev: true
