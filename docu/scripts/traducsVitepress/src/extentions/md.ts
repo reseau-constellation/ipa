@@ -1,22 +1,14 @@
 import { empreinte } from "../utils.js";
 import { marked } from "marked";
 import { Extention } from "./extention.js";
+import type { Message } from "@/types.js";
 
-export abstract class AnalyseurComposanteMd {
-  abstract type: string;
-}
-
-export class AnalyseurEntête implements AnalyseurComposanteMd {
-  type = "heading";
-}
 
 export class ExtentionMd extends Extention {
   ext = "md";
-  analyseurs: AnalyseurComposanteMd[];
 
-  constructor({ analyseurs = [] }: { analyseurs?: AnalyseurComposanteMd[] }) {
+  constructor() {
     super();
-    this.analyseurs = [new AnalyseurEntête(), ...analyseurs];
   }
 
   analyserComposante({
@@ -27,7 +19,7 @@ export class ExtentionMd extends Extention {
     switch (composante.type) {
       case "space":
         return [];
-      case "heading":{
+      case "heading": {
         return [
           {
             clef: "",
@@ -48,7 +40,16 @@ export class ExtentionMd extends Extention {
           )
           .flat();
         const files = composante.rows
-          .map((f) => f.map((c) => c.tokens.map(j=>this.analyserComposante({composante: j}).flat()).flat()).flat()).flat();
+          .map((f) =>
+            f
+              .map((c) =>
+                c.tokens
+                  .map((j) => this.analyserComposante({ composante: j }).flat())
+                  .flat()
+              )
+              .flat()
+          )
+          .flat();
         return [...entête, ...files];
       }
       case "image":
@@ -60,13 +61,14 @@ export class ExtentionMd extends Extention {
         return items;
       }
       case "paragraph":
-        if (composante.tokens.length === 1) return this.analyserComposante({composante: composante.tokens[0]});
+        if (composante.tokens.length === 1)
+          return this.analyserComposante({ composante: composante.tokens[0] });
         return [
           {
             clef: "",
             valeur: composante.raw,
           },
-        ]
+        ];
       case "text":
       case "codespan":
       default:
@@ -168,7 +170,7 @@ export class ExtentionMd extends Extention {
                 )
                 .join(" | ")
             )
-            .join("\n")
+            .join("\n") + "\n"
         );
       case "link":
         return `[${obtTrad(composante.text)}](${traduireLien(
@@ -179,7 +181,16 @@ export class ExtentionMd extends Extention {
           composante.href
         )})`;
       case "paragraph":
-        return composante.tokens.map(x=>this.reconstruireComposante({composante: x, fichier, traducs, langue})).join('') ;
+        return composante.tokens
+          .map((x) =>
+            this.reconstruireComposante({
+              composante: x,
+              fichier,
+              traducs,
+              langue,
+            })
+          )
+          .join("");
       case "text":
       case "codespan":
         return obtTrad(composante.raw);
@@ -192,14 +203,14 @@ export class ExtentionMd extends Extention {
     texte,
   }: {
     texte: string;
-  }): Promise<{ clef: string; valeur: string }[]> {
+  }): Promise<Message[]> {
     const lexé = marked.lexer(texte);
     return lexé
       .map((l) => {
         return this.analyserComposante({ composante: l });
       })
       .filter((c) => !!c)
-      .flat() as { clef: string; valeur: string }[];
+      .flat() as Message[];
   }
 
   async compiler({
@@ -220,6 +231,6 @@ export class ExtentionMd extends Extention {
         this.reconstruireComposante({ composante, fichier, traducs, langue })
       );
     }
-    return texteFinal.join("\n");
+    return texteFinal.join("") + "\n";
   }
 }

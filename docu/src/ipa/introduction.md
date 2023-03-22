@@ -12,6 +12,7 @@ $ pnpm add @constl/ipa
 Constellation étant une base de données distribuée **et locale**, les données sont immédiatement disponibles sur le dispositif, mais peuvent changer avec le temps si des nouvelles données sont obtenues du réseau. Cette différence avec les bases de données centralisées mène à quelques différences conceptuelles dans notre façon d'écrire le code.
 
 Pour obtenir des données d'un système centralisé, on écrirait quelque chose du genre :
+
 ```TypeScript
 const BD = ouvrirConnexionÀBaseDeDonnéesÀLautreBoutDuMonde("Mon mot de passe")
 

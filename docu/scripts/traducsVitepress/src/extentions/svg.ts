@@ -1,3 +1,4 @@
+import { Message } from "@/types.js";
 import { JSDOM } from "jsdom";
 import xml2js from "xml2js";
 
@@ -10,7 +11,7 @@ export class ExtentionSvg extends Extention {
     texte,
   }: {
     texte: string;
-  }): Promise<{ clef: string; valeur: string }[]> {
+  }): Promise<Message[]> {
     const lexé = await new xml2js.Parser().parseStringPromise(texte);
     return (
       lexé.svg.text?.map((t: { _: string }) => ({ clef: "", valeur: t._ })) ||

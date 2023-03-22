@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import rtl from "postcss-rtl";
 
-import { Extention } from "./extentions/extention.js";
+import type { Extention } from "./extentions/extention.js";
 import { empreinte } from "./utils.js";
 
 import type { UserConfig, DefaultTheme } from "vitepress";
@@ -10,6 +10,9 @@ import type { Nuchabäl } from "nuchabal";
 import { defineConfig } from "vitepress";
 import { ExtentionMd } from "./extentions/md.js";
 import { ExtentionSvg } from "./extentions/svg.js";
+
+import type { Message } from "./types";
+import { ExtentionYaml } from "./extentions/yaml.js";
 
 export class Compilateur {
   languePrincipale: string;
@@ -51,14 +54,17 @@ export class Compilateur {
     this.dossierSource = path.join(this.racineProjet, dossierSource);
     this.dossierTraductions = path.join(this.racineProjet, dossierTraductions);
     this.configVitePress = configVitePress;
-    this.extentions = [new ExtentionMd({}), new ExtentionSvg(), ...extentions];
+    this.extentions = [new ExtentionMd(), new ExtentionSvg(), ...extentions];
 
     this.dossiersIgnorés = [path.join(this.dossierSource, ".vitepress")];
 
     this.nuchabäl = nuchabäl;
   }
 
-  obtCompilateur({ ext }: { ext: string }): Extention {
+  obtCompilateur({ ext, fichier }: { ext: string, fichier: string }): Extention {
+    if (fichier === "index.md") {
+      return new ExtentionYaml()
+    }
     const compilateur = this.extentions.find((e) => e.ext === ext);
     if (!compilateur)
       throw new Error(`Compilateur introuvable pour fichiers .${ext}.`);
@@ -118,7 +124,7 @@ export class Compilateur {
   }: {
     dict?: DefaultTheme.Config[keyof DefaultTheme.Config];
     racineClef?: string;
-  }): { clef: string; valeur: string }[] {
+  }): Message[] {
     if (Array.isArray(dict)) {
       return Object.entries(dict)
         .map(([i, x]) =>
@@ -143,7 +149,7 @@ export class Compilateur {
           }
         })
         .flat()
-        .filter((x) => !!x) as { clef: string; valeur: string }[];
+        .filter((x) => !!x) as Message[];
     } else {
       throw new Error(`Oups ! Ça devrait vraiment pas arriver. ${dict}`);
     }
@@ -162,15 +168,15 @@ export class Compilateur {
     return this.configVitePress.themeConfig?.socialLinks;
   }
 
-  async extraireMessages(): Promise<{ clef: string; valeur: string }[]> {
-    let messages: { clef: string; valeur: string }[] = [];
+  async extraireMessages(): Promise<Message[]> {
+    let messages: Message[] = [];
     for (const { fichier, ext } of this.itérerDossier({
       dossier: this.dossierSource,
     })) {
       const fichierRelatif = path.relative(this.dossierSource, fichier);
       const texte = fs.readFileSync(fichier).toString();
 
-      const compilateur = this.obtCompilateur({ ext });
+      const compilateur = this.obtCompilateur({ ext, fichier: fichierRelatif });
       const messagesFichier = await compilateur.extraireMessages({ texte });
 
       const messagesFichierFinal = messagesFichier.map(({ clef, valeur }) => {
@@ -250,7 +256,7 @@ export class Compilateur {
         const fichierRelatif = path.relative(this.dossierSource, fichier);
         const texte = fs.readFileSync(fichier).toString();
 
-        const compilateur = this.obtCompilateur({ ext });
+        const compilateur = this.obtCompilateur({ ext, fichier: fichierRelatif });
         const compilé = await compilateur.compiler({
           texte,
           traducs,

@@ -17,6 +17,7 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "marked": "^4.2.12"
+    "marked": "^4.2.12",
+    "yaml": "^2.2.1"
   }
 }
