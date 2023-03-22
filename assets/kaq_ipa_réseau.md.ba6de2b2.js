@@ -1,0 +1,1 @@
+import{_ as e,c as a,o as t}from"./app.d3c21b9b.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"kaq/ipa/réseau.md"}'),r={name:"kaq/ipa/réseau.md"};function s(o,c,n,p,_,i){return t(),a("div")}const f=e(r,[["render",s]]);export{m as __pageData,f as default};
