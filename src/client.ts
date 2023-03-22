@@ -366,18 +366,18 @@ export default class ClientConstellation extends EventEmitter {
   }): Promise<schémaFonctionOublier> {
     f([]);
     return async () => {
-      //À faire
+      // À faire
     };
   }
 
   @cacheSuivi
   async suivreLicences({
-    f
+    f,
   }: {
-    f: schémaFonctionSuivi<{[licence: string]: InfoLicence}>
+    f: schémaFonctionSuivi<{ [licence: string]: InfoLicence }>;
   }) {
     await f(infoLicences);
-    return faisRien // Pour l'instant. Plus tard, on pourra le connecter avec une nuée Kili
+    return faisRien; // Pour l'instant. Plus tard, on pourra le connecter avec une nuée Kili
   }
 
   @cacheSuivi

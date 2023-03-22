@@ -392,10 +392,12 @@ const générerFExportation = (
   return async () => {
     const os = await import("os");
     const path = await import("path");
-    const dossier = spéc.dossier ? await client.automatisations!.résoudreAdressePrivéeFichier({
-      clef: spéc.dossier,
-    }) : path.join(os.homedir(), 'constellation');
-    
+    const dossier = spéc.dossier
+      ? await client.automatisations!.résoudreAdressePrivéeFichier({
+          clef: spéc.dossier,
+        })
+      : path.join(os.homedir(), "constellation");
+
     if (!dossier) throw new Error("Dossier introuvable");
     switch (spéc.typeObjet) {
       case "tableau": {
