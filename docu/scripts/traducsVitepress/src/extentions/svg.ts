@@ -1,4 +1,5 @@
-import { Message } from "@/types.js";
+import type { Message } from "@/types.js";
+import { empreinte } from "../utils.js";
 import { JSDOM } from "jsdom";
 import xml2js from "xml2js";
 
@@ -31,7 +32,7 @@ export class ExtentionSvg extends Extention {
     const lexé = await new xml2js.Parser().parseStringPromise(texte);
     const texteFinal: string[] = [];
     for (const t of lexé.svg.text || []) {
-      const clef = fichier + "." + t._;
+      const clef = fichier + "." + empreinte(t._);
       t._ = traducs[clef] || t._;
     }
     const reconstitué = new xml2js.Builder().buildObject(lexé);
