@@ -1370,12 +1370,15 @@ export default class BDs {
       id: idBd,
       f: async (bd: KeyValueStore<typeÉlémentsBdBD>) => {
         const idImage = bd.get("image");
-        if (!idImage) await f(null);
-        const image = await this.client.obtFichierSFIP({
-          id: idImage as string,
-          max: MAX_TAILLE_IMAGE_VIS,
-        });
-        await f(image);
+        if (!idImage) {
+          await f(null)
+        } else {
+          const image = await this.client.obtFichierSFIP({
+            id: idImage as string,
+            max: MAX_TAILLE_IMAGE_VIS,
+          });
+          await f(image);
+        }
       },
     });
   }
