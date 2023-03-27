@@ -641,6 +641,8 @@ export default class Réseau extends EventEmitter {
       const { bd, fOublier } = await this.client.ouvrirBd<
         KeyValueStore<statutConfianceMembre>
       >({ id: this.idBd });
+      // Enlever du régistre privé s'il y existe
+      await this.débloquerMembre({idBdCompte});
       await bd.set(idBdCompte, "BLOQUÉ");
       await fOublier();
     }
