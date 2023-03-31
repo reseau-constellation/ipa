@@ -8,11 +8,7 @@ import { Extention } from "./extention.js";
 export class ExtentionSvg extends Extention {
   ext = "svg";
 
-  async extraireMessages({
-    texte,
-  }: {
-    texte: string;
-  }): Promise<Message[]> {
+  async extraireMessages({ texte }: { texte: string }): Promise<Message[]> {
     const lexé = await new xml2js.Parser().parseStringPromise(texte);
     return (
       lexé.svg.text?.map((t: { _: string }) => ({ clef: "", valeur: t._ })) ||

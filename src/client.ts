@@ -257,17 +257,23 @@ export default class ClientConstellation extends EventEmitter {
     const idBdProtocoles = await this.obtIdBd({
       nom: "protocoles",
       racine: this.bdCompte,
-      type: "kvstore"
+      type: "kvstore",
     });
-    const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } = await this.ouvrirBd<KeyValueStore<string[]>>({
-      id: idBdProtocoles!
-    })
+    const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } =
+      await this.ouvrirBd<KeyValueStore<string[]>>({
+        id: idBdProtocoles!,
+      });
     const idOrbite = await this.obtIdOrbite();
     const protocolesExistants = bdProtocoles.get(idOrbite);
-    const listesÉgales = (a: Array<string>, b: Array<string>) => a.length === b.length && [...a].every(v => b.includes(v));
-    if (!this._opts.protocoles || !listesÉgales(protocolesExistants, this._opts.protocoles)) {
-      if (this._opts.protocoles) await bdProtocoles.put(idOrbite, this._opts.protocoles);
-      else await bdProtocoles.del(idOrbite)
+    const listesÉgales = (a: Array<string>, b: Array<string>) =>
+      a.length === b.length && [...a].every((v) => b.includes(v));
+    if (
+      !this._opts.protocoles ||
+      !listesÉgales(protocolesExistants, this._opts.protocoles)
+    ) {
+      if (this._opts.protocoles)
+        await bdProtocoles.put(idOrbite, this._opts.protocoles);
+      else await bdProtocoles.del(idOrbite);
     }
     await fOublierBdProtocoles();
 

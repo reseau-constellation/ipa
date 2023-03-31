@@ -1371,7 +1371,7 @@ export default class BDs {
       f: async (bd: KeyValueStore<typeÉlémentsBdBD>) => {
         const idImage = bd.get("image");
         if (!idImage) {
-          await f(null)
+          await f(null);
         } else {
           const image = await this.client.obtFichierSFIP({
             id: idImage as string,

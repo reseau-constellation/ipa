@@ -61,9 +61,15 @@ export class Compilateur {
     this.nuchabäl = nuchabäl;
   }
 
-  obtCompilateur({ ext, fichier }: { ext: string, fichier: string }): Extention {
+  obtCompilateur({
+    ext,
+    fichier,
+  }: {
+    ext: string;
+    fichier: string;
+  }): Extention {
     if (fichier === "index.md") {
-      return new ExtentionYaml()
+      return new ExtentionYaml();
     }
     const compilateur = this.extentions.find((e) => e.ext === ext);
     if (!compilateur)
@@ -256,7 +262,10 @@ export class Compilateur {
         const fichierRelatif = path.relative(this.dossierSource, fichier);
         const texte = fs.readFileSync(fichier).toString();
 
-        const compilateur = this.obtCompilateur({ ext, fichier: fichierRelatif });
+        const compilateur = this.obtCompilateur({
+          ext,
+          fichier: fichierRelatif,
+        });
         const compilé = await compilateur.compiler({
           texte,
           traducs,

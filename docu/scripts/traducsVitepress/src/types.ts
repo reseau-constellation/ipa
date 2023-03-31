@@ -1,2 +1,1 @@
-
-export type Message = { clef: string; valeur: string; };
+export type Message = { clef: string; valeur: string };

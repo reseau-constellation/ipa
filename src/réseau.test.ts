@@ -337,7 +337,6 @@ typesClients.forEach((type) => {
             ])
           );
         });
-        
 
         test("On détecte bloqué publique d'un autre membre", async () => {
           const val = await bloquésAutreMembre.attendreQue(
@@ -372,21 +371,19 @@ typesClients.forEach((type) => {
           expect(bloquésTous.val).toHaveLength(0);
         });
 
-
         test("Passer de bloqué privé à bloqué publique", async () => {
           await clients[0].réseau!.bloquerMembre({
             idBdCompte: idsBdCompte[1],
-            privé: true
+            privé: true,
           });
           expect(bloquésPubliques.val).toHaveLength(0);
           await clients[0].réseau!.bloquerMembre({
             idBdCompte: idsBdCompte[1],
-            privé: false
+            privé: false,
           });
           expect(bloquésPubliques.val).toHaveLength(1);
           expect(bloquésTous.val?.[0].privé).toBe(false);
-          
-        })
+        });
       });
 
       describe("Suivre relations immédiates", function () {

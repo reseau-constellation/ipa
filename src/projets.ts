@@ -518,14 +518,14 @@ export default class Projets {
       f: async (bd: KeyValueStore<typeÉlémentsBdProjet>) => {
         const idImage = bd.get("image");
         if (!idImage) {
-          await f(null)
+          await f(null);
         } else {
           const image = await this.client.obtFichierSFIP({
             id: idImage as string,
             max: MAX_TAILLE_IMAGE_VIS,
           });
           await f(image);
-        };
+        }
       },
     });
   }

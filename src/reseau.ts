@@ -642,7 +642,7 @@ export default class Réseau extends EventEmitter {
         KeyValueStore<statutConfianceMembre>
       >({ id: this.idBd });
       // Enlever du régistre privé s'il y existe
-      await this.débloquerMembre({idBdCompte});
+      await this.débloquerMembre({ idBdCompte });
       await bd.set(idBdCompte, "BLOQUÉ");
       await fOublier();
     }
@@ -1393,10 +1393,10 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef<string[]>({
-      id: idCompte || await this.client.obtIdCompte(), 
+      id: idCompte || (await this.client.obtIdCompte()),
       clef: "protocoles",
-      f: async protocoles => await f(Object.keys(protocoles))
-    })
+      f: async (protocoles) => await f(Object.keys(protocoles)),
+    });
   }
 
   @cacheSuivi
@@ -1407,40 +1407,50 @@ export default class Réseau extends EventEmitter {
     idDispositif: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-
-    const fRacine = async ({fSuivreRacine}: {
+    const fRacine = async ({
+      fSuivreRacine,
+    }: {
       fSuivreRacine: (nouvelIdBdCible?: string | undefined) => Promise<void>;
     }): Promise<schémaFonctionOublier> => {
       return await this.suivreConnexionsDispositifs({
-        f: async dispositifs => {
-          const dispositif = dispositifs.find(d=>d.infoDispositif.idOrbite === idDispositif);
+        f: async (dispositifs) => {
+          const dispositif = dispositifs.find(
+            (d) => d.infoDispositif.idOrbite === idDispositif
+          );
           if (dispositif) {
             const { idCompte } = dispositif.infoDispositif;
             return await fSuivreRacine(idCompte);
           } else {
             await fSuivreRacine(undefined);
-          } 
-        }
-      })
-    };
-
-    const fSuivre = async ({id, fSuivreBd}: { id: string; fSuivreBd: schémaFonctionSuivi<{[key: string]: string[]} | undefined>; }) => {
-      return this.client.suivreBdDicDeClef<string[]>({
-        id, 
-        clef: "protocoles",
-        f: fSuivreBd
+          }
+        },
       });
     };
 
-    const fFinale = async (protocoles?: {[key: string]: string[]}): Promise<void> => {
-      if (protocoles)
-        return await f(protocoles[idDispositif])
+    const fSuivre = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<{ [key: string]: string[] } | undefined>;
+    }) => {
+      return this.client.suivreBdDicDeClef<string[]>({
+        id,
+        clef: "protocoles",
+        f: fSuivreBd,
+      });
+    };
+
+    const fFinale = async (protocoles?: {
+      [key: string]: string[];
+    }): Promise<void> => {
+      if (protocoles) return await f(protocoles[idDispositif]);
     };
 
     return await this.client.suivreBdDeFonction({
       fRacine,
       f: fFinale,
-      fSuivre
+      fSuivre,
     });
   }
 

@@ -3,7 +3,6 @@ import { marked } from "marked";
 import { Extention } from "./extention.js";
 import type { Message } from "@/types.js";
 
-
 export class ExtentionMd extends Extention {
   ext = "md";
 
@@ -170,7 +169,8 @@ export class ExtentionMd extends Extention {
                 )
                 .join(" | ")
             )
-            .join("\n") + "\n"
+            .join("\n") +
+          "\n"
         );
       case "link":
         return `[${obtTrad(composante.text)}](${traduireLien(
@@ -199,11 +199,7 @@ export class ExtentionMd extends Extention {
     }
   }
 
-  async extraireMessages({
-    texte,
-  }: {
-    texte: string;
-  }): Promise<Message[]> {
+  async extraireMessages({ texte }: { texte: string }): Promise<Message[]> {
     const lexé = marked.lexer(texte);
     return lexé
       .map((l) => {
