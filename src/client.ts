@@ -6,7 +6,7 @@ import deepEqual from "deep-equal";
 import OrbitDB from "orbit-db";
 import type Store from "orbit-db-store";
 import type FeedStore from "orbit-db-feedstore";
-import type KeyValueStore from "orbit-db-kvstore";
+import KeyValueStore from "orbit-db-kvstore";
 
 import type AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
 import type IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
@@ -72,6 +72,7 @@ export interface optsConstellation {
   compte?: string;
   sujetRéseau?: string;
   orbite?: optsOrbite;
+  protocoles?: string[];
 }
 
 type optsOrbite = OrbitDB | optsInitOrbite;
@@ -252,6 +253,25 @@ export default class ClientConstellation extends EventEmitter {
       address: accès.bd!.id,
     };
 
+    // Protocoles
+    const idBdProtocoles = await this.obtIdBd({
+      nom: "protocoles",
+      racine: this.bdCompte,
+      type: "kvstore"
+    });
+    const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } = await this.ouvrirBd<KeyValueStore<string[]>>({
+      id: idBdProtocoles!
+    })
+    const idOrbite = await this.obtIdOrbite();
+    const protocolesExistants = bdProtocoles.get(idOrbite);
+    const listesÉgales = (a: Array<string>, b: Array<string>) => a.length === b.length && [...a].every(v => b.includes(v));
+    if (!this._opts.protocoles || !listesÉgales(protocolesExistants, this._opts.protocoles)) {
+      if (this._opts.protocoles) await bdProtocoles.put(idOrbite, this._opts.protocoles);
+      else await bdProtocoles.del(idOrbite)
+    }
+    await fOublierBdProtocoles();
+
+    // Bds orbite internes
     this.profil = new Profil({ client: this });
 
     const idBdBDs = await this.obtIdBd({
@@ -355,19 +375,6 @@ export default class ClientConstellation extends EventEmitter {
       signature.clefPublique,
       message
     );
-  }
-
-  async suivreProtocolesCompte({
-    f,
-    idCompte,
-  }: {
-    f: schémaFonctionSuivi<string[]>;
-    idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    f([]);
-    return async () => {
-      // À faire
-    };
   }
 
   @cacheSuivi
