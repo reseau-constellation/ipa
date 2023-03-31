@@ -2309,13 +2309,13 @@ typesClients.forEach((type) => {
             type
           ));
           const idVarClef = await clients[0].variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           const idVarLangue = await clients[0].variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           const idVarTrad = await clients[0].variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           idNuée = await clients[0].nuées!.créerNuée({});

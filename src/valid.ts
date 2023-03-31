@@ -1,6 +1,6 @@
 import gjv from "geojson-validation";
 
-import { cidValide, élémentsBd } from "@/utils/index.js";
+import { adresseOrbiteValide, cidValide, élémentsBd } from "@/utils/index.js";
 import type { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
@@ -365,6 +365,8 @@ const validerCatégorieBase = ({catégorie, val}: {catégorie: catégorieBaseVar
       if (!Array.isArray(val)) return false;
       return (val as unknown[]).every((d) => estUnHoroDatage(d));
     case "chaîne":
+      return adresseOrbiteValide(val);
+    case "chaîneNonTraductible":
       return typeof val === "string";
     case "catégorique":
       return true;

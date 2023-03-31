@@ -12,7 +12,6 @@ import {
 } from "@/valid.js";
 import type {
   catégorieBaseVariables,
-  catégorieVariables,
 } from "@/variables.js";
 import isArray from "lodash/isArray";
 
@@ -27,6 +26,10 @@ const catégories: {
     invalides: [false, "abc", { a: 2 }],
   },
   chaîne: {
+    valides: ["/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e"],
+    invalides: [123, "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"]
+  },
+  chaîneNonTraductible: {
     valides: ["abc", "வணக்கம்", ""],
     invalides: [123, true, ["abc"]],
   },

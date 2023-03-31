@@ -175,7 +175,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           const idVariable2 = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idsVariables = [idVariable1, idVariable2];
         }, config.patience);
@@ -372,7 +372,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           idVariableChaîne = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           idColonneNumérique = await client.tableaux!.ajouterColonneTableau({
@@ -909,7 +909,7 @@ typesClients.forEach((type) => {
             );
 
             idVariable = await client.variables!.créerVariable({
-              catégorie: "chaîne",
+              catégorie: "chaîneNonTraductible",
             });
             idColonne = await client.tableaux!.ajouterColonneTableau({
               idTableau: idTableauRègles,
@@ -989,10 +989,10 @@ typesClients.forEach((type) => {
             );
 
             idVariable = await client.variables!.créerVariable({
-              catégorie: "chaîne",
+              catégorie: "chaîneNonTraductible",
             });
             idVariableRéf = await client.variables!.créerVariable({
-              catégorie: "chaîne",
+              catégorie: "chaîneNonTraductible",
             });
             idColonneÀTester = await client.tableaux!.ajouterColonneTableau({
               idTableau: idTableauÀTester,
@@ -1340,7 +1340,7 @@ typesClients.forEach((type) => {
             catégorie: "horoDatage",
           });
           idVarEndroit = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarTempMin = await client.variables!.créerVariable({
             catégorie: "numérique",
@@ -1499,7 +1499,7 @@ typesClients.forEach((type) => {
             catégorie: "horoDatage",
           });
           idVarEndroit = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarTempMin = await client.variables!.créerVariable({
             catégorie: "numérique",
@@ -1619,7 +1619,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           idVarChaîne = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarFichier = await client.variables!.créerVariable({
             catégorie: "fichier",

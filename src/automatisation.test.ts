@@ -166,7 +166,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           const idVar2 = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           idCol1 = await client.tableaux!.ajouterColonneTableau({
@@ -996,7 +996,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           const idVar2 = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           idCol1 = await client.tableaux!.ajouterColonneTableau({

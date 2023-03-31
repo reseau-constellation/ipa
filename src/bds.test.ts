@@ -552,10 +552,10 @@ typesClients.forEach((type) => {
 
         beforeAll(async () => {
           idVarClef = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarTrad = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           const schéma: schémaSpécificationBd = {
@@ -695,13 +695,13 @@ typesClients.forEach((type) => {
 
         beforeAll(async () => {
           idVarClef = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarTrad = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarLangue = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           idMotClef = await client.motsClefs!.créerMotClef();
@@ -831,13 +831,13 @@ typesClients.forEach((type) => {
 
         beforeAll(async () => {
           idVarClef = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarTrad = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarLangue = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           const idNuée = await client.nuées!.créerNuée({});
@@ -943,10 +943,10 @@ typesClients.forEach((type) => {
 
         beforeAll(async () => {
           idVarClef = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
           idVarTrad = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           const idNuée = await client.nuées!.créerNuée({});
@@ -1019,7 +1019,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           idVarChaîne = await client.variables!.créerVariable({
-            catégorie: "chaîne",
+            catégorie: "chaîneNonTraductible",
           });
 
           fOublier = await client.bds!.suivreScoreBd({

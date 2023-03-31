@@ -26,6 +26,7 @@ export type catégorieBaseVariables =
   | "horoDatage"
   | "intervaleTemps"
   | "chaîne"
+  | "chaîneNonTraductible"
   | "catégorique"
   | "booléen"
   | "géojson"
