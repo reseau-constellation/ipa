@@ -1492,9 +1492,9 @@ export default class BDs {
             (c) =>
               c.catégorie &&
               ["numérique", "catégorique"].includes(
-                typeof c.catégorie === "string"
-                  ? c.catégorie
-                  : c.catégorie?.catégorieBase
+                c.catégorie.type === "simple"
+                  ? c.catégorie.catégorie
+                  : c.catégorie.catégorieBase
               )
           );
 
@@ -1590,9 +1590,9 @@ export default class BDs {
             (c) =>
               c.catégorie &&
               ["numérique", "catégorique"].includes(
-                typeof c.catégorie === "string"
-                  ? c.catégorie
-                  : c.catégorie?.catégorieBase
+                c.catégorie.type === "simple"
+                  ? c.catégorie.catégorie
+                  : c.catégorie.catégorieBase
               )
           );
 

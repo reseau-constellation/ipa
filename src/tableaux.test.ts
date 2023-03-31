@@ -18,8 +18,6 @@ import type {
   règleBornes,
   règleColonne,
   règleValeurCatégorique,
-  règleCatégorie,
-  règleVariable,
   détailsRègleValeurCatégoriqueDynamique,
   erreurValidation,
   erreurRègle,
@@ -920,7 +918,7 @@ typesClients.forEach((type) => {
 
             const règleCatégorique: règleValeurCatégorique = {
               typeRègle: "valeurCatégorique",
-              détails: { type: "fixe", options: ["வணக்கம்", "សួស្ឌី"] },
+              détails: { type: "fixe", options: ["வணக்கம்", "សួស្តើ"] },
             };
 
             await client.tableaux!.ajouterRègleTableau({

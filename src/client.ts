@@ -807,8 +807,14 @@ export default class ClientConstellation extends EventEmitter {
             const idSuivi = uuidv4();
             const promesse = f(bd);
 
-            // @ts-ignore
-            if (promesse && promesse.then) {
+            const estUnePromesse = (
+              x: any | Promise<void> // eslint-disable-line @typescript-eslint/no-explicit-any
+            ): x is Promise<void> => {
+              return !!x.then;
+            };
+
+            // @ts-igsnore
+            if (estUnePromesse(promesse)) {
               promesses[idSuivi] = promesse;
               (promesse as Promise<void>).then(() => {
                 delete promesses[idSuivi];

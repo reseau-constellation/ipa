@@ -1,7 +1,7 @@
 import gjv from "geojson-validation";
 
 import { cidValide, élémentsBd } from "@/utils/index.js";
-import type { catégorieVariables } from "@/variables.js";
+import type { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
@@ -219,21 +219,27 @@ export function générerFonctionRègle<
       }
 
       if (typeBornes === "fixe") {
-        fComp = (v: élémentDonnées<T>) =>
-          fOp(v.données[colonne] as number, val as number);
+        fComp = (v: élémentDonnées<T>): boolean => {
+          const donnéesCol =  v.données[colonne]
+          return Array.isArray(donnéesCol) ? donnéesCol.every(x=>fOp(x as number, val as number)) : fOp(donnéesCol as number, val as number);
+        }
+        
       } else {
-        fComp = (v: élémentDonnées<T>) =>
-          fOp(
-            v.données[colonne] as number,
-            // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
-            (typeBornes === "dynamiqueVariable"
-              ? v.données[varsÀColonnes[val]]
-              : v.données[val]) as number
-          );
+        fComp = (v: élémentDonnées<T>): boolean =>{
+          const donnéesCol =  v.données[colonne]
+          
+          // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
+          const borne = (typeBornes === "dynamiqueVariable"
+            ? v.données[varsÀColonnes[val]]
+            : v.données[val]) as number
+          return Array.isArray(donnéesCol) ? donnéesCol.every(x=>fOp(x as number, borne)) : fOp(
+            donnéesCol as number,
+            borne
+          );}
       }
 
       return (vals: élémentDonnées<T>[]) => {
-        const nonValides = vals.filter((v) => !fComp(v));
+        const nonValides = vals.filter((v) => !validerBorneVal({val: v, fComp}));
         return nonValides.map((v: élémentDonnées<T>) => {
           const { empreinte } = v;
           const erreur: erreurValidation<R> = {
@@ -315,13 +321,40 @@ export function validerCatégorieVal({
 }): boolean {
   if (val === undefined) return true; // Permettre les valeurs manquantes
 
-  const estUnHoroDatage = (v: unknown): boolean => {
-    if (!["number", "string"].includes(typeof v)) return false;
+  if (catégorie.type === "simple") {
+    return validerCatégorieBase({catégorie: catégorie.catégorie, val})
+  } else {
+    if (Array.isArray(val)) {
+      return val.every(v=>validerCatégorieBase({catégorie: catégorie.catégorieBase, val: v}))
+    } else {
+      return false;
+    }
+  }
 
-    const date = new Date(v as string | number);
-    return !isNaN(date.valueOf());
-  };
+}
 
+const validerBorneVal = ({
+  val,
+  fComp
+}: {
+  val: unknown;
+  fComp:(v: any) => boolean;
+}) => {
+  if (Array.isArray(val)) {
+    return val.every(v=>fComp(v))
+  } else {
+    return fComp(val)
+  }
+}
+
+const estUnHoroDatage = (val: unknown): boolean => {
+  if (!["number", "string"].includes(typeof val)) return false;
+
+  const date = new Date(val as string | number);
+  return !isNaN(date.valueOf());
+};
+
+const validerCatégorieBase = ({catégorie, val}: {catégorie: catégorieBaseVariables, val: unknown}) => {
   switch (catégorie) {
     case "numérique":
       return typeof val === "number";
@@ -344,11 +377,11 @@ export function validerCatégorieVal({
       return validFichier(val, formatsFichiers.vidéo);
     case "audio":
       return validFichier(val, formatsFichiers.audio);
-    case "photo":
+    case "image":
       return validFichier(val, formatsFichiers.images);
     case "fichier":
       return validFichier(val);
     default:
       return false;
   }
-}
+} 

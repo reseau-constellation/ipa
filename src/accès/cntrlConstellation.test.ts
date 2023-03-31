@@ -25,7 +25,7 @@ describe("Contrôleur Constellation", function () {
         bd = await orbitdb1.kvstore(uuidv4(), {
           accessController: {
             type: "controlleur-constellation",
-            //@ts-ignore
+            // @ts-expect-error Contrôleur personalisé
             premierMod: orbitdb1.identity.id,
           },
         });
@@ -85,7 +85,7 @@ describe("Contrôleur Constellation", function () {
         bdRacine = await orbitdb1.kvstore(uuidv4(), {
           accessController: {
             type: "controlleur-constellation",
-            //@ts-ignore
+            // @ts-expect-error Contrôleur personalisé
             premierMod: orbitdb1.identity.id,
           },
         });
@@ -94,7 +94,7 @@ describe("Contrôleur Constellation", function () {
         bdRacine2 = await orbitdb2.kvstore(uuidv4(), {
           accessController: {
             type: "controlleur-constellation",
-            //@ts-ignore
+            // @ts-expect-error Contrôleur personalisé
             premierMod: orbitdb2.identity.id,
           },
         });
@@ -103,7 +103,7 @@ describe("Contrôleur Constellation", function () {
         bd = await orbitdb1.kvstore(uuidv4(), {
           accessController: {
             type: "controlleur-constellation",
-            // @ts-ignore
+            // @ts-expect-error Contrôleur personalisé
             premierMod: bdRacine.id,
           },
         });

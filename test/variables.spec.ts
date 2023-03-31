@@ -480,7 +480,7 @@ typesClients.forEach((type) => {
           const règleCatégorie: règleCatégorie = {
             typeRègle: "catégorie",
             détails: {
-              catégorie: "numérique",
+              catégorie: {type: "simple", catégorie: "numérique"},
             },
           };
           expect(règles.map((r) => r.règle)).to.have.deep.members([

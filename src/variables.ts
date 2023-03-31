@@ -35,9 +35,12 @@ export type catégorieBaseVariables =
   | "fichier";
 
 export type catégorieVariables =
-  | catégorieBaseVariables
   | {
-      catégorie: "liste";
+    type: "simple";
+    catégorie: catégorieBaseVariables;
+  }
+  | {
+      type: "liste";
       catégorieBase: catégorieBaseVariables;
     };
 
@@ -67,7 +70,7 @@ export default class Variables {
   async créerVariable({
     catégorie,
   }: {
-    catégorie: catégorieVariables;
+    catégorie: catégorieVariables | catégorieBaseVariables;
   }): Promise<string> {
     if (typeof catégorie !== "string")
       throw new Error(
@@ -111,7 +114,7 @@ export default class Variables {
     });
     await bdVariable.set("règles", idBdRègles);
 
-    await bdVariable.set("catégorie", catégorie);
+    await bdVariable.set("catégorie", this.standardiserCatégorieVariable(catégorie));
 
     await this.établirStatut({
       id: idBdVariable,
@@ -143,7 +146,7 @@ export default class Variables {
     const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdVariable>
     >({ id });
-    const catégorie = bdBase.get("catégorie") as catégorieVariables;
+    const catégorie = bdBase.get("catégorie") as catégorieVariables | catégorieBaseVariables;
 
     const idNouvelleBd = await this.créerVariable({ catégorie });
     const { bd: bdNouvelle, fOublier: fOublierNouvelle } =
@@ -368,14 +371,18 @@ export default class Variables {
     catégorie,
   }: {
     idVariable: string;
-    catégorie: catégorieVariables;
+    catégorie: catégorieVariables | catégorieBaseVariables;
   }): Promise<void> {
     const { bd: bdVariable, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<typeÉlémentsBdVariable>
     >({ id: idVariable });
-    await bdVariable.set("catégorie", catégorie);
+    await bdVariable.set("catégorie", this.standardiserCatégorieVariable(catégorie));
 
     await fOublier();
+  }
+
+  standardiserCatégorieVariable(catégorie: catégorieBaseVariables | catégorieVariables): catégorieVariables {
+    return typeof catégorie === "string" ? { type: "simple", catégorie } : catégorie
   }
 
   async sauvegarderUnitésVariable({
@@ -508,7 +515,7 @@ export default class Variables {
       id,
       f: async (bd: KeyValueStore<typeÉlémentsBdVariable>) => {
         const catégorie = bd.get("catégorie") as catégorieVariables;
-        await f(catégorie);
+        await f(this.standardiserCatégorieVariable(catégorie));
       },
     });
   }
@@ -607,10 +614,11 @@ export default class Variables {
         Object.keys(rés.noms).length ? 1 : 0,
         Object.keys(rés.descr).length ? 1 : 0,
       ];
-      if (rés.catégorie === "numérique") {
+      const catégorieBase = rés.catégorie?.type === 'simple' ? rés.catégorie.catégorie : rés.catégorie?.catégorieBase
+      if (catégorieBase === "numérique") {
         scores.push(rés.unités ? 1 : 0);
       }
-      if (rés.catégorie === "numérique" || rés.catégorie === "catégorique") {
+      if (catégorieBase === "numérique" || catégorieBase === "catégorique") {
         scores.push(rés.règles.length >= 1 ? 1 : 0);
       }
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;

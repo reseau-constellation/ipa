@@ -121,7 +121,7 @@ const catégories: {
       { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".ts" },
     ],
   },
-  photo: {
+  image: {
     valides: [
       { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".jpg" },
     ],
@@ -139,7 +139,7 @@ describe("Validation", function () {
           test(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
-              catégorie: cat as catégorieBaseVariables,
+              catégorie: {type:"simple", catégorie: cat as catégorieBaseVariables},
             });
             expect(valide).toBe(true);
           });
@@ -150,7 +150,7 @@ describe("Validation", function () {
           test(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
-              catégorie: cat as catégorieBaseVariables,
+              catégorie: {type: "simple", catégorie: cat as catégorieBaseVariables},
             });
             expect(valide).toBe(false);
           });
@@ -207,7 +207,7 @@ describe("Validation", function () {
           règle: {
             typeRègle: "catégorie",
             détails: {
-              catégorie: "numérique",
+              catégorie: {type: "simple", catégorie: "numérique"},
             },
           },
         },
@@ -413,6 +413,84 @@ describe("Validation", function () {
         expect(erreurs).toHaveLength(1);
         expect(erreurs[0].empreinte).toEqual(empreinte);
         expect(erreurs[0].erreur.règle).toEqual(règle);
+      });
+    });
+    describe("Catégories liste", function () {
+      const règleCat: règleColonne<règleCatégorie> = {
+        source: "variable",
+        colonne: "col numérique",
+        règle: {
+          id: uuidv4(),
+          règle: {
+            typeRègle: "catégorie",
+            détails: {
+              catégorie: {type: "liste", catégorieBase: "numérique"},
+            },
+          },
+        },
+      };
+      const règleVal: règleColonne<règleBornes> = {
+        source: "variable",
+        colonne: "col numérique",
+        règle: {
+          id: uuidv4(),
+          règle: {
+            typeRègle: "bornes",
+            détails: {
+              type: "fixe",
+              op: ">",
+              val: 0
+            }
+          } 
+        } 
+      }
+      const foncCat = générerFonctionRègle({ règle: règleCat, varsÀColonnes: {} });
+      const foncBorne = générerFonctionRègle({ règle: règleVal, varsÀColonnes: {} });
+      const empreinte = uuidv4();
+
+      test("Catérogie valide", () => {
+        const erreurs = foncCat([
+          {
+            données: { "col numérique": [123, 456] },
+            empreinte,
+          },
+        ]);
+        expect(isArray(erreurs)).toBe(true);
+        expect(erreurs).toHaveLength(0);
+      });
+      test("Catérogie invalide", () => {
+        const erreurs = foncCat([
+          {
+            données: { "col numérique": [123, "abc"] },
+            empreinte,
+          },
+        ]);
+        expect(isArray(erreurs)).toBe(true);
+        expect(erreurs).toHaveLength(1);
+        expect(erreurs[0].empreinte).toEqual(empreinte);
+        expect(erreurs[0].erreur.règle).toEqual(règleCat);
+      });
+      test("Valeur valide", () => {
+        const erreurs = foncBorne([
+          {
+            données: { "col numérique": [123, 456] },
+            empreinte,
+          },
+        ]);
+        expect(isArray(erreurs)).toBe(true);
+        expect(erreurs).toHaveLength(0);
+      });
+      test("Valeur invalide", () => {
+        const erreurs = foncBorne([
+          {
+            données: { "col numérique": [123, -123] },
+            empreinte,
+          },
+        ]);
+        expect(isArray(erreurs)).toBe(true);
+        expect(erreurs).toHaveLength(1);
+        expect(erreurs[0].empreinte).toEqual(empreinte);
+        expect(erreurs[0].erreur.règle).toEqual(règleVal);
       });
     });
   });

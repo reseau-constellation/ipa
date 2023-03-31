@@ -153,7 +153,7 @@ export const extraireDonnées = (
         throw new Error(`${c} ne peut pas indexer un objet.`);
       }
     } else {
-      throw new Error(`Clef de type non indexable : ${c}`);
+      throw new Error(`Clef de type non indexable : ${c}`); // eslint-disable-line no-irregular-whitespace
     }
   }
   return donnéesFinales;
@@ -177,7 +177,7 @@ export default class ImportateurDonnéesJSON {
     let racineDonnéesJSON = extraireDonnées(this.donnéesJSON, clefsRacine);
     if (typeof racineDonnéesJSON !== "object") {
       throw new Error(
-        `Type de données erroné : ${racineDonnéesJSON.toString()}`
+        `Type de données erroné : ${racineDonnéesJSON.toString()}` // eslint-disable-line no-irregular-whitespace
       );
     }
 
@@ -188,7 +188,7 @@ export default class ImportateurDonnéesJSON {
 
     for (const élémentJSON of racineDonnéesJSON) {
       if (typeof élémentJSON !== "object")
-        throw new Error(`Élément de type non supporté : ${élémentJSON}`);
+        throw new Error(`Élément de type non supporté : ${élémentJSON}`); // eslint-disable-line no-irregular-whitespace
       const élément = Object.fromEntries(
         Object.keys(cols)
           .map((c) => {
