@@ -2328,6 +2328,26 @@ export default class Réseau extends EventEmitter {
     });
   }
 
+  @cacheSuivi
+  async suivreNuéesMembre({
+    idCompte,
+    f,
+  }: {
+    idCompte: string;
+    f: schémaFonctionSuivi<string[] | undefined>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.suivreObjetsMembre({
+      idCompte,
+      clef: "nuées",
+      fListeObjets: async ({ id, fSuivreBd }) =>
+        await this.client.nuées!.suivreNuées({
+          f: fSuivreBd,
+          idBdNuéesCompte: id,
+        }),
+      fSuivi: f,
+    });
+  }
+
   async suivreFavorisObjet({
     idObjet,
     f,
