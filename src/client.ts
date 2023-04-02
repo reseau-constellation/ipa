@@ -264,7 +264,7 @@ export default class ClientConstellation extends EventEmitter {
         id: idBdProtocoles!,
       });
     const idOrbite = await this.obtIdOrbite();
-    const protocolesExistants = bdProtocoles.get(idOrbite);
+    const protocolesExistants = bdProtocoles.get(idOrbite) || [];
     const listesÉgales = (a: Array<string>, b: Array<string>) =>
       a.length === b.length && [...a].every((v) => b.includes(v));
     if (
