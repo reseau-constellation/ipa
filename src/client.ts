@@ -11,7 +11,7 @@ import KeyValueStore from "orbit-db-kvstore";
 import type AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
 import type IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
-import { InfoLicence, infoLicences } from "./licences";
+import { InfoLicence, infoLicences } from "@/licences.js";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
