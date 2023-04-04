@@ -810,7 +810,7 @@ export default class ClientConstellation extends EventEmitter {
             const estUnePromesse = (
               x: any | Promise<void> // eslint-disable-line @typescript-eslint/no-explicit-any
             ): x is Promise<void> => {
-              return !!x.then;
+              return x && !!x.then;
             };
 
             // @ts-igsnore
