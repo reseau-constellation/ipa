@@ -421,7 +421,7 @@ export default class Tableaux {
       colonnes?: { [key: string]: string };
     } = {};
 
-    const fFinale = () => {
+    const fFinale = async () => {
       const { données, colonnes } = info;
 
       if (données && colonnes) {
@@ -442,15 +442,15 @@ export default class Tableaux {
             return { données, empreinte };
           }
         );
-        f(donnéesFinales);
+        await f(donnéesFinales);
       }
     };
 
-    const fSuivreColonnes = (colonnes: InfoCol[]) => {
+    const fSuivreColonnes = async (colonnes: InfoCol[]) => {
       info.colonnes = Object.fromEntries(
         colonnes.map((c) => [c.id, c.variable])
       );
-      fFinale();
+      await fFinale();
     };
     const oublierColonnes = await this.suivreColonnes({
       idTableau,
@@ -458,9 +458,9 @@ export default class Tableaux {
       catégories: false,
     });
 
-    const fSuivreDonnées = (données: LogEntry<T>[]) => {
+    const fSuivreDonnées = async (données: LogEntry<T>[]) => {
       info.données = données;
-      fFinale();
+      await fFinale();
     };
     const oublierDonnées = await this.client.suivreBdListeDeClef<T>({
       id: idTableau,
@@ -670,7 +670,6 @@ export default class Tableaux {
     );
 
     await fOublier();
-
     return Object.fromEntries(
       clefsFinales.map((x: string) => [x, élément[x]])
     ) as T;
@@ -1018,8 +1017,8 @@ export default class Tableaux {
     f: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
     catégories?: boolean;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (colonnes?: InfoColAvecCatégorie[]) => {
-      return f(colonnes || []);
+    const fFinale = async (colonnes?: InfoColAvecCatégorie[]) => {
+      if (colonnes) return await f(colonnes);
     };
     const fBranche = async (
       id: string,

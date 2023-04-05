@@ -1,7 +1,10 @@
 import gjv from "geojson-validation";
 
 import { adresseOrbiteValide, cidValide, élémentsBd } from "@/utils/index.js";
-import type { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
+import type {
+  catégorieBaseVariables,
+  catégorieVariables,
+} from "@/variables.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
@@ -220,26 +223,31 @@ export function générerFonctionRègle<
 
       if (typeBornes === "fixe") {
         fComp = (v: élémentDonnées<T>): boolean => {
-          const donnéesCol =  v.données[colonne]
-          return Array.isArray(donnéesCol) ? donnéesCol.every(x=>fOp(x as number, val as number)) : fOp(donnéesCol as number, val as number);
-        }
-        
+          const donnéesCol = v.données[colonne];
+          return Array.isArray(donnéesCol)
+            ? donnéesCol.every((x) => fOp(x as number, val as number))
+            : fOp(donnéesCol as number, val as number);
+        };
       } else {
-        fComp = (v: élémentDonnées<T>): boolean =>{
-          const donnéesCol =  v.données[colonne]
-          
+        fComp = (v: élémentDonnées<T>): boolean => {
+          const donnéesCol = v.données[colonne];
+
           // Vérifier s'il s'agit d'une variable ou d'une colonne et s'ajuster en fonction
-          const borne = (typeBornes === "dynamiqueVariable"
-            ? v.données[varsÀColonnes[val]]
-            : v.données[val]) as number
-          return Array.isArray(donnéesCol) ? donnéesCol.every(x=>fOp(x as number, borne)) : fOp(
-            donnéesCol as number,
-            borne
-          );}
+          const borne = (
+            typeBornes === "dynamiqueVariable"
+              ? v.données[varsÀColonnes[val]]
+              : v.données[val]
+          ) as number;
+          return Array.isArray(donnéesCol)
+            ? donnéesCol.every((x) => fOp(x as number, borne))
+            : fOp(donnéesCol as number, borne);
+        };
       }
 
       return (vals: élémentDonnées<T>[]) => {
-        const nonValides = vals.filter((v) => !validerBorneVal({val: v, fComp}));
+        const nonValides = vals.filter(
+          (v) => !validerBorneVal({ val: v, fComp })
+        );
         return nonValides.map((v: élémentDonnées<T>) => {
           const { empreinte } = v;
           const erreur: erreurValidation<R> = {
@@ -322,30 +330,31 @@ export function validerCatégorieVal({
   if (val === undefined) return true; // Permettre les valeurs manquantes
 
   if (catégorie.type === "simple") {
-    return validerCatégorieBase({catégorie: catégorie.catégorie, val})
+    return validerCatégorieBase({ catégorie: catégorie.catégorie, val });
   } else {
     if (Array.isArray(val)) {
-      return val.every(v=>validerCatégorieBase({catégorie: catégorie.catégorieBase, val: v}))
+      return val.every((v) =>
+        validerCatégorieBase({ catégorie: catégorie.catégorieBase, val: v })
+      );
     } else {
       return false;
     }
   }
-
 }
 
 const validerBorneVal = ({
   val,
-  fComp
+  fComp,
 }: {
   val: unknown;
-  fComp:(v: any) => boolean;
+  fComp: (v: any) => boolean;
 }) => {
   if (Array.isArray(val)) {
-    return val.every(v=>fComp(v))
+    return val.every((v) => fComp(v));
   } else {
-    return fComp(val)
+    return fComp(val);
   }
-}
+};
 
 const estUnHoroDatage = (val: unknown): boolean => {
   if (!["number", "string"].includes(typeof val)) return false;
@@ -354,7 +363,13 @@ const estUnHoroDatage = (val: unknown): boolean => {
   return !isNaN(date.valueOf());
 };
 
-const validerCatégorieBase = ({catégorie, val}: {catégorie: catégorieBaseVariables, val: unknown}) => {
+const validerCatégorieBase = ({
+  catégorie,
+  val,
+}: {
+  catégorie: catégorieBaseVariables;
+  val: unknown;
+}) => {
   switch (catégorie) {
     case "numérique":
       return typeof val === "number";
@@ -386,4 +401,4 @@ const validerCatégorieBase = ({catégorie, val}: {catégorie: catégorieBaseVar
     default:
       return false;
   }
-} 
+};

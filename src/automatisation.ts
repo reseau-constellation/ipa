@@ -64,6 +64,7 @@ export type SpécificationExporter = BaseSpécificationAutomatisation & {
   langues?: string[];
   dispositifs: string[];
   inclureFichiersSFIP: boolean;
+  nRésultatsDésirésNuée?: number;
 };
 
 export type infoImporter = infoImporterJSON | infoImporterFeuilleCalcul;
@@ -447,6 +448,7 @@ const générerFExportation = (
         const donnéesNuée = await client.nuées!.exporterDonnéesNuée({
           idNuée: spéc.idObjet,
           langues: spéc.langues,
+          nRésultatsDésirés: spéc.nRésultatsDésirésNuée || 1000,
         });
         await client.bds!.exporterDocumentDonnées({
           données: donnéesNuée,
@@ -818,6 +820,7 @@ export default class Automatisations extends EventEmitter {
     langues,
     fréquence,
     dispositifs,
+    nRésultatsDésirésNuée,
   }: {
     id: string;
     typeObjet: typeObjetExportation;
@@ -827,6 +830,7 @@ export default class Automatisations extends EventEmitter {
     langues?: string[];
     fréquence?: fréquence;
     dispositifs?: string[];
+    nRésultatsDésirésNuée?: number;
   }): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
     const idAuto = uuidv4();
@@ -845,6 +849,7 @@ export default class Automatisations extends EventEmitter {
       langues,
       inclureFichiersSFIP,
       dossier: idDossier, // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier directement
+      nRésultatsDésirésNuée,
     };
 
     // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
@@ -939,7 +944,6 @@ export default class Automatisations extends EventEmitter {
   }): Promise<string> {
     const clef = "dossier." + uuidv4();
     await this.client.sauvegarderAuStockageLocal({ clef, val: fichier });
-    console.log({ clef });
     return clef;
   }
 

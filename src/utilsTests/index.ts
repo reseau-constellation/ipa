@@ -40,7 +40,8 @@ export const clientConnectéÀ = (
   client2: ClientConstellation
 ): Promise<void> => {
   const verrou = new Semaphore();
-  return new Promise(async (résoudre) => {  // eslint-disable-line no-async-promise-executor
+  return new Promise(async (résoudre) => {
+    // eslint-disable-line no-async-promise-executor
     const fFinale = async (dispositifs: statutDispositif[]) => {
       const idBdCompte2 = await client2.obtIdCompte();
       const connecté = !!dispositifs.find(

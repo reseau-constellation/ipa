@@ -35,6 +35,7 @@ import type { default as ContrôleurConstellation } from "@/accès/cntrlConstell
 export interface schémaSpécificationBd {
   licence: string;
   motsClefs?: string[];
+  nuées?: string[];
   tableaux: {
     cols: {
       idVariable: string;
@@ -322,13 +323,17 @@ export default class BDs {
     schéma: schémaSpécificationBd;
     ajouter?: boolean;
   }): Promise<string> {
-    const { tableaux, motsClefs, licence } = schéma;
+    const { tableaux, motsClefs, nuées, licence } = schéma;
 
     // On n'ajoutera la BD que lorsqu'elle sera prête
     const idBd = await this.créerBd({ licence, ajouter: false });
 
     if (motsClefs) {
       await this.ajouterMotsClefsBd({ idBd, idsMotsClefs: motsClefs });
+    }
+
+    if (nuées) {
+      await this.rejoindreNuées({ idBd, idsNuées: nuées });
     }
 
     for (const tb of tableaux) {
@@ -539,7 +544,6 @@ export default class BDs {
             idBd = idBdLocale;
           } else {
             idBd = await this.créerBdDeSchéma({ schéma });
-            await this.rejoindreNuées({ idBd, idsNuées: idNuéeUnique });
             await this.client.sauvegarderAuStockageLocal({
               clef: clefStockageLocal,
               val: idBd,
@@ -704,9 +708,8 @@ export default class BDs {
           },
         });
       },
-      true
+      x=>!!x
     );
-
     return await this.client.tableaux!.ajouterÉlément({
       idTableau: idTableau,
       vals,
@@ -737,7 +740,7 @@ export default class BDs {
           },
         });
       },
-      true
+      x=>!!x
     );
 
     return await this.client.tableaux!.modifierÉlément({
@@ -769,7 +772,7 @@ export default class BDs {
           },
         });
       },
-      true
+      x=>!!x
     );
 
     return await this.client.tableaux!.effacerÉlément({
@@ -796,7 +799,7 @@ export default class BDs {
           f: ignorerNonDéfinis(fSuivi),
         });
       },
-      true
+      x=>!!x
     );
     return await this.client!.tableaux!.suivreDonnées({
       idTableau,

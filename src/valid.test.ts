@@ -10,9 +10,7 @@ import {
   règleValeurCatégorique,
   typeOp,
 } from "@/valid.js";
-import type {
-  catégorieBaseVariables,
-} from "@/variables.js";
+import type { catégorieBaseVariables } from "@/variables.js";
 import isArray from "lodash/isArray";
 
 const catégories: {
@@ -26,8 +24,10 @@ const catégories: {
     invalides: [false, "abc", { a: 2 }],
   },
   chaîne: {
-    valides: ["/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e"],
-    invalides: [123, "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"]
+    valides: [
+      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e",
+    ],
+    invalides: [123, "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"],
   },
   chaîneNonTraductible: {
     valides: ["abc", "வணக்கம்", ""],
@@ -142,7 +142,10 @@ describe("Validation", function () {
           test(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
-              catégorie: {type:"simple", catégorie: cat as catégorieBaseVariables},
+              catégorie: {
+                type: "simple",
+                catégorie: cat as catégorieBaseVariables,
+              },
             });
             expect(valide).toBe(true);
           });
@@ -153,7 +156,10 @@ describe("Validation", function () {
           test(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
-              catégorie: {type: "simple", catégorie: cat as catégorieBaseVariables},
+              catégorie: {
+                type: "simple",
+                catégorie: cat as catégorieBaseVariables,
+              },
             });
             expect(valide).toBe(false);
           });
@@ -210,7 +216,7 @@ describe("Validation", function () {
           règle: {
             typeRègle: "catégorie",
             détails: {
-              catégorie: {type: "simple", catégorie: "numérique"},
+              catégorie: { type: "simple", catégorie: "numérique" },
             },
           },
         },
@@ -427,7 +433,7 @@ describe("Validation", function () {
           règle: {
             typeRègle: "catégorie",
             détails: {
-              catégorie: {type: "liste", catégorieBase: "numérique"},
+              catégorie: { type: "liste", catégorieBase: "numérique" },
             },
           },
         },
@@ -442,13 +448,19 @@ describe("Validation", function () {
             détails: {
               type: "fixe",
               op: ">",
-              val: 0
-            }
-          } 
-        } 
-      }
-      const foncCat = générerFonctionRègle({ règle: règleCat, varsÀColonnes: {} });
-      const foncBorne = générerFonctionRègle({ règle: règleVal, varsÀColonnes: {} });
+              val: 0,
+            },
+          },
+        },
+      };
+      const foncCat = générerFonctionRègle({
+        règle: règleCat,
+        varsÀColonnes: {},
+      });
+      const foncBorne = générerFonctionRègle({
+        règle: règleVal,
+        varsÀColonnes: {},
+      });
       const empreinte = uuidv4();
 
       test("Catérogie valide", () => {

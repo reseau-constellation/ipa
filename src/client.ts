@@ -1787,7 +1787,7 @@ export default class ClientConstellation extends EventEmitter {
       } catch {
         this.verrouObtIdBd.release(clefRequète);
         if (doitExister) return undefined;
-        else throw new Error("Bd n'existe pas :" + nom + " " + idBd);
+        else throw new Error("Bd n'existe pas : " + nom + " " + idBd);
       }
     }
 

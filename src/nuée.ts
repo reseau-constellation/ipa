@@ -108,6 +108,12 @@ export default class Nuée {
       autorisation ||
         (await this.générerGestionnaireAutorisations({ philosophie }))
     );
+    if (philosophie === "CJPI") {
+      await this.accepterMembreNuée({
+        idNuée: idBdNuée,
+        idCompte: await this.client.obtIdCompte(),
+      });
+    }
 
     const idBdNoms = await this.client.créerBdIndépendante({
       type: "kvstore",
@@ -596,15 +602,41 @@ export default class Nuée {
     idNuée: string;
     f: schémaFonctionSuivi<"IJPC" | "CJPI">;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (bd: KeyValueStore<string>) => {
+    const fFinale = async (bd?: KeyValueStore<string>) => {
+      if (!bd) return;
       const philosophie = bd.get("philosophie");
       if (["IJPC", "CJPI"].includes(philosophie)) {
-        f(philosophie as "IJPC" | "CJPI");
+        await f(philosophie as "IJPC" | "CJPI");
       }
     };
-    return await this.client.suivreBd<KeyValueStore<string>>({
-      id: idNuée,
+
+    const fRacine = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (nouvelIdBdCible?: string | undefined) => Promise<void>;
+    }) => {
+      return await this.suivreGestionnaireAutorisations({
+        idNuée,
+        f: fSuivreRacine,
+      });
+    };
+
+    const fSuivre = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<KeyValueStore<string> | undefined>;
+    }) => {
+      return await this.client.suivreBd<KeyValueStore<string>>({
+        id,
+        f: fSuivreBd,
+      });
+    };
+    return await this.client.suivreBdDeFonction({
+      fRacine,
       f: fFinale,
+      fSuivre,
     });
   }
 
@@ -621,7 +653,7 @@ export default class Nuée {
     const idBdMembres = await this.client.obtIdBd({
       nom: "membres",
       racine: idAutorisation,
-      type: "feed",
+      type: "kvstore",
       optionsAccès,
     });
     if (!idBdMembres) {
@@ -666,7 +698,7 @@ export default class Nuée {
     const idBdMembres = await this.client.obtIdBd({
       nom: "membres",
       racine: idAutorisation,
-      type: "feed",
+      type: "kvstore",
       optionsAccès,
     });
     if (!idBdMembres) {
@@ -1107,6 +1139,7 @@ export default class Nuée {
         },
       });
     };
+
     return await this.suivreDeParents({
       idNuée,
       f: fFinale,
@@ -1631,15 +1664,17 @@ export default class Nuée {
         ): string[] => {
           if (philoAutorisation === "CJPI") {
             const invités = membres
-              .filter(
-                (m) =>
-                  m.statut === "accepté" ||
-                  (toujoursInclureLesMiennes &&
-                    m.idCompte === this.client.idBdCompte)
-              )
+              .filter((m) => m.statut === "accepté")
               .map((m) => m.idCompte);
             return bds_
-              .filter((x) => x.auteurs.some((c) => invités.includes(c)))
+              .filter((x) =>
+                x.auteurs.some(
+                  async (c) =>
+                    invités.includes(c) ||
+                    (toujoursInclureLesMiennes &&
+                      x.auteurs.includes(await this.client.obtIdCompte()))
+                )
+              )
               .map((x) => x.idBd);
           } else if (philoAutorisation === "IJPC") {
             const exclus = membres
@@ -1698,12 +1733,10 @@ export default class Nuée {
         const fFinaleSuivreBranche = async (
           auteurs: infoAuteur[]
         ): Promise<void> => {
-          fSuivreBranche({
+          await fSuivreBranche({
             idBd,
             auteurs: auteurs
-              .filter((x) => {
-                x.accepté;
-              })
+              .filter((x) => x.accepté) // Uniquement considérer les auteurs qui ont accepté l'invitation.
               .map((x) => x.idBdCompte),
           });
         };
@@ -1775,11 +1808,12 @@ export default class Nuée {
     });
   }
 
-  @cacheSuivi
+  @cacheRechercheParNRésultats
   async suivreDonnéesTableauNuée<T extends élémentBdListeDonnées>({
     idNuée,
     clefTableau,
     f,
+    nRésultatsDésirés,
     ignorerErreursFormatBd = true,
     ignorerErreursFormatTableau = false,
     ignorerErreursDonnéesTableau = true,
@@ -1789,6 +1823,7 @@ export default class Nuée {
     idNuée: string;
     clefTableau: string;
     f: schémaFonctionSuivi<élémentDeMembreAvecValid<T>[]>;
+    nRésultatsDésirés: number;
     ignorerErreursFormatBd?: boolean;
     ignorerErreursFormatTableau?: boolean;
     ignorerErreursDonnéesTableau?: boolean;
@@ -1808,7 +1843,7 @@ export default class Nuée {
       return await this.suivreBdsCorrespondantes({
         idNuée,
         f: fSuivreRacine,
-        nRésultatsDésirés: 100,
+        nRésultatsDésirés,
         toujoursInclureLesMiennes,
       });
     };
@@ -1857,7 +1892,7 @@ export default class Nuée {
           });
           fsOublier.push(fOublierErreursFormatBd);
         }
-        fFinaleBdConforme();
+        await fFinaleBdConforme();
 
         return async () => {
           await Promise.all(fsOublier.map((f) => f()));
@@ -2015,10 +2050,12 @@ export default class Nuée {
     idNuée,
     langues,
     nomFichier,
+    nRésultatsDésirés,
   }: {
     idNuée: string;
     langues?: string[];
     nomFichier?: string;
+    nRésultatsDésirés: number;
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
     const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
@@ -2054,13 +2091,14 @@ export default class Nuée {
             idNuée,
             clefTableau,
             f: fSuivi,
+            nRésultatsDésirés,
           });
           return fOublier;
         }
       );
       const colonnes = await uneFois(
-        (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
-          this.suivreColonnesTableauNuée({ idNuée, clefTableau, f })
+        async (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
+          await this.suivreColonnesTableauNuée({ idNuée, clefTableau, f })
       );
       let donnéesPourXLSX = donnéesTableau.map((d) => {
         const élément: élémentBdListeDonnées = {
@@ -2265,11 +2303,13 @@ export default class Nuée {
             clefTableau: tableau.clef,
             f: fSuivi,
           });
-        }
+        },
+        x => !!x && !!x.length
       );
     };
     const schéma: schémaSpécificationBd = {
       licence,
+      nuées: [idNuée],
       tableaux: await Promise.all(
         tableaux.map(async (t) => {
           const cols = await générerCols(t);
