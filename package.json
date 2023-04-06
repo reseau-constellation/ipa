@@ -94,7 +94,7 @@
     "@chainsafe/libp2p-noise": "^11.0.4",
     "@chriscdn/promise-semaphore": "^1.0.9",
     "@constl/electron-webrtc-relay": "^0.2.1",
-    "@constl/mandataire": "^0.1.7",
+    "@constl/mandataire": "^0.1.8",
     "@libp2p/interface-transport": "^2.1.2",
     "@libp2p/kad-dht": "^7.0.3",
     "@libp2p/mplex": "^7.1.3",
