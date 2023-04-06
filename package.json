@@ -1,5 +1,5 @@
 {
-  "version": "0.6.46",
+  "version": "0.6.47",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "nettoyer": "rimraf dist",
-    "compiler": "pnpm versioner && pnpm nettoyer && pnpm tsc -p tsconfig.build.json",
+    "compiler": "pnpm versioner && pnpm nettoyer && pnpm ttsc -p tsconfig.build.json",
     "test": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
     "test:proc": "env MANDATAIRE=PROC pnpm test",
     "test:tous": "env MANDATAIRE=TOUS pnpm test",
@@ -94,7 +94,7 @@
     "@chainsafe/libp2p-noise": "^11.0.4",
     "@chriscdn/promise-semaphore": "^1.0.9",
     "@constl/electron-webrtc-relay": "^0.2.1",
-    "@constl/mandataire": "^0.1.6",
+    "@constl/mandataire": "^0.1.7",
     "@libp2p/interface-transport": "^2.1.2",
     "@libp2p/kad-dht": "^7.0.3",
     "@libp2p/mplex": "^7.1.3",

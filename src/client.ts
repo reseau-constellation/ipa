@@ -1613,7 +1613,7 @@ export default class ClientConstellation extends EventEmitter {
     return dossierOrbite;
   }
 
-  private obtClefStockageClient({
+  obtClefStockageClient({
     clef,
     parCompte = true,
   }: {
