@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./app.d3c21b9b.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"kaq/ipa/client.md"}'),c={name:"kaq/ipa/client.md"};function n(r,o,s,i,p,_){return a(),t("div")}const m=e(c,[["render",n]]);export{l as __pageData,m as default};

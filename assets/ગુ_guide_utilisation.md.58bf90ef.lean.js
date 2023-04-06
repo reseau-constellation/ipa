@@ -1,1 +1,0 @@
-import{_ as s,c as a,o as n,a as l}from"./app.d3c21b9b.js";const d=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ગુ/guide/utilisation.md"}'),t={name:"ગુ/guide/utilisation.md"},o=l("",3),p=[o];function e(c,r,i,y,D,F){return n(),a("div",null,p)}const A=s(t,[["render",e]]);export{d as __pageData,A as default};

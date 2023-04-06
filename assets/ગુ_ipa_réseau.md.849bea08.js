@@ -1,0 +1,1 @@
+import{_ as e,c as a,o as t}from"./app.be84dff8.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ગુ/ipa/réseau.md"}'),r={name:"ગુ/ipa/réseau.md"};function s(o,c,n,p,_,i){return t(),a("div")}const f=e(r,[["render",s]]);export{m as __pageData,f as default};
