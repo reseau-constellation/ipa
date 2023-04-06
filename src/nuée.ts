@@ -1644,7 +1644,8 @@ export default class Nuée {
 
       const fFinale = async (): Promise<void> => {
         const { philoAutorisation, membres, bds } = info;
-        if (!(membres && bds)) return;
+
+        if (!bds) return;
 
         if (!philoAutorisation) {
           if (toujoursInclureLesMiennes) {
@@ -1659,6 +1660,7 @@ export default class Nuée {
           return;
         }
 
+        if (!membres) return;
         const filtrerAutorisation = (
           bds_: { idBd: string; auteurs: string[] }[]
         ): string[] => {
@@ -1857,7 +1859,7 @@ export default class Nuée {
       ): Promise<schémaFonctionOublier> => {
         const conformes: { licence: boolean; formatBd: boolean } = {
           licence: false,
-          formatBd: false,
+          formatBd: true,  // Ça doit être vrai par défaut, en attendant de rejoindre la nuée distante
         };
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -2005,6 +2007,10 @@ export default class Nuée {
                 await fSuivreCondition(true);
                 return faisRien;
               } else {
+
+                // Il faut envoyer une condition vraie par défaut au début au cas où la nuée ne serait pas rejoignable
+                await fSuivreCondition(true);
+
                 return await this.suivreDifférencesNuéeEtTableau({
                   idNuée,
                   clefTableau,

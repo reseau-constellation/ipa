@@ -230,6 +230,95 @@ typesClients.forEach((type) => {
           expect(val.length).toEqual(0);
         });
       });
+
+      describe("Toujours inclure les miennes - idNuée non rejoignable", function () {
+        let empreinte: string;
+        
+        const idNuée = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/tuNeMeTrouverasPas";
+        const idCol = "colonne numérique";
+        const fsOublier: schémaFonctionOublier[] = [];
+        const résultatChezMoi = new AttendreRésultat<
+          élémentDeMembreAvecValid<élémentBdListeDonnées>[]
+        >();
+        const résultatChezLesAutres = new AttendreRésultat<
+          élémentDeMembreAvecValid<élémentBdListeDonnées>[]
+        >();
+
+        beforeAll(async () => {
+
+          const idVariableNumérique = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+
+          const schémaBd: schémaSpécificationBd = {
+            licence: "ODbl-1_0",
+            nuées: [idNuée],
+            tableaux: [
+              {
+                cols: [
+                  {
+                    idVariable: idVariableNumérique,
+                    idColonne: idCol,
+                  }
+                ],
+                clef: "principal" 
+              }
+            ]
+          } 
+
+          const { fOublier: fOublierChezMoi } =
+            await clients[1].nuées!.suivreDonnéesTableauNuée({
+              idNuée,
+              clefTableau: "principal",
+              f: async (x) => résultatChezMoi.mettreÀJour(x),
+              nRésultatsDésirés: 100,
+            });
+          fsOublier.push(fOublierChezMoi);
+
+          const { fOublier: fOublierChezLesAutres } =
+            await client.nuées!.suivreDonnéesTableauNuée({
+              idNuée,
+              clefTableau: "principal",
+              f: async (x) => résultatChezLesAutres.mettreÀJour(x),
+              nRésultatsDésirés: 100,
+            });
+          fsOublier.push(fOublierChezLesAutres);
+
+          empreinte = await clients[1].bds!.ajouterÉlémentÀTableauUnique({
+            schémaBd,
+            idNuéeUnique: idNuée,
+            clefTableau: "principal",
+            vals: { [idCol]: 3 },
+          });
+        });
+
+        afterAll(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+        });
+
+        test("Mes données aparaissent chez moi", async () => {
+          const val = await résultatChezMoi.attendreQue(
+            (x) => x && x.length > 0
+          );
+          const réf: élémentDeMembreAvecValid<élémentBdListeDonnées> = {
+            idBdCompte: await clients[1].obtIdCompte(),
+            élément: {
+              données: {
+                [idCol]: 3,
+                id: val[0].élément.données["id"],
+              },
+              empreinte,
+            },
+            valid: [],
+          };
+          expect(val[0]).toEqual(réf);
+        });
+
+        test("Mais pas chez les autres", async () => {
+          const val = await résultatChezLesAutres.attendreExiste();
+          expect(val.length).toEqual(0);
+        });
+      });
     });
 
     describe("Gestionnaires", function () {
