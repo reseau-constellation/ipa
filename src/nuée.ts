@@ -262,7 +262,7 @@ export default class Nuée {
     return await this.client.suivreBdListe({ id: idBdNuéesCompte, f });
   }
 
-  private async suivreDeParents<T>({
+  async suivreDeParents<T>({
     idNuée,
     f,
     fParents,

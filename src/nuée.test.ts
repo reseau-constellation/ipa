@@ -51,34 +51,43 @@ typesClients.forEach((type) => {
       if (fOublierClients) await fOublierClients();
       await Promise.all(fsOublier.map((f) => f()));
     });
+
     describe("Création", function () {
       test("Nuée", async () => {
         const idNuée = await client.nuées!.créerNuée({});
         expect(adresseOrbiteValide(idNuée)).toBe(true);
       });
     });
+
     describe("Noms", function () {
       test.todo("Nuée");
     });
+
     describe("Descriptions", function () {
       test.todo("Nuée");
     });
+
     describe("Mots-clefs", function () {
       test.todo("Nuée");
     });
+
     describe("Mes nuées", function () {
       test.todo("Nuée");
     });
+
     describe("Status nuée", function () {
       test.todo("Nuée");
     });
+
     describe("Création", function () {
       test.todo("Nuée");
     });
+
     describe("Tableaux", function () {
       describe("Ajouter et enlever", function () {
         test.todo("Nuée");
       });
+
       describe("Colonnes", function () {
         let idNuée: string;
         let idTableau: string;
