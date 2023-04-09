@@ -21,12 +21,12 @@ export const suivreBdAccès = async (
   bd: FeedStore<élémentBdAccès>,
   f: schémaFonctionSuivi<élémentBdAccès[]>
 ): Promise<schémaFonctionOublier> => {
-  const fFinale = () => {
+  const fFinale = async () => {
     const éléments: élémentBdAccès[] = bd
       .iterator({ limit: -1 })
       .collect()
       .map((e) => e.payload.value);
-    f(éléments);
+    await f(éléments);
   };
 
   bd.events.setMaxListeners(100);

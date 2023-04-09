@@ -131,7 +131,7 @@ export const sousRecherche = async <T extends infoRésultat>(
       }
     );
   };
-  const fFinale = (
+  const fFinale = async (
     résultats: {
       id: string;
       résultat: résultatObjectifRecherche<T>;
@@ -154,7 +154,7 @@ export const sousRecherche = async <T extends infoRésultat>(
       if (meilleur.résultat.clef) {
         résultat.info.clef = meilleur.résultat.clef;
       }
-      fSuivreRecherche(résultat);
+      await fSuivreRecherche(résultat);
     }
   };
 

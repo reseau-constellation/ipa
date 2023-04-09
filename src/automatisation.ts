@@ -1000,14 +1000,14 @@ export default class Automatisations extends EventEmitter {
   }: {
     f: schémaFonctionSuivi<{ [key: string]: ÉtatAutomatisation }>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = () => {
+    const fFinale = async () => {
       const étatsAuto: { [key: string]: ÉtatAutomatisation } =
         Object.fromEntries(
           Object.keys(this.automatisations)
             .map((a) => [a, this.automatisations[a].état])
             .filter((x) => x[1])
         );
-      f(étatsAuto);
+      await f(étatsAuto);
     };
     this.on("misÀJour", fFinale);
     return async () => {

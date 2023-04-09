@@ -528,7 +528,8 @@ export default class Variables {
       id,
       f: async (bd: KeyValueStore<typeÉlémentsBdVariable>) => {
         const catégorie = bd.get("catégorie") as catégorieVariables;
-        await f(this.standardiserCatégorieVariable(catégorie));
+        if (catégorie)
+          await f(this.standardiserCatégorieVariable(catégorie));
       },
     });
   }
@@ -565,11 +566,11 @@ export default class Variables {
       catégorie: [],
       propres: [],
     };
-    const fFinale = () => {
-      f([...règles.catégorie, ...règles.propres]);
+    const fFinale = async () => {
+      await f([...règles.catégorie, ...règles.propres]);
     };
 
-    const fSuivreCatégorie = (catégorie: catégorieVariables) => {
+    const fSuivreCatégorie = async (catégorie: catégorieVariables) => {
       const règleCat: règleVariableAvecId<règleCatégorie> = {
         id: uuidv4(),
         règle: {
@@ -578,16 +579,16 @@ export default class Variables {
         },
       };
       règles.catégorie = [règleCat];
-      fFinale();
+      await fFinale();
     };
     const fOublierCatégorie = await this.suivreCatégorieVariable({
       id,
       f: fSuivreCatégorie,
     });
 
-    const fSuivreRèglesPropres = (rgls: règleVariableAvecId[]) => {
+    const fSuivreRèglesPropres = async (rgls: règleVariableAvecId[]) => {
       règles.propres = rgls;
-      fFinale();
+      await fFinale();
     };
     const fOublierRèglesPropres =
       await this.client.suivreBdListeDeClef<règleVariableAvecId>({
@@ -622,7 +623,7 @@ export default class Variables {
       descr: {},
       règles: [],
     };
-    const fFinale = () => {
+    const fFinale = async () => {
       const scores = [
         Object.keys(rés.noms).length ? 1 : 0,
         Object.keys(rés.descr).length ? 1 : 0,
@@ -638,45 +639,45 @@ export default class Variables {
         scores.push(rés.règles.length >= 1 ? 1 : 0);
       }
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
-      f(qualité);
+      await f(qualité);
     };
     const oublierNoms = await this.suivreNomsVariable({
       id,
-      f: (noms) => {
+      f: async (noms) => {
         rés.noms = noms;
-        fFinale();
+        await fFinale();
       },
     });
 
     const oublierDescr = await this.suivreDescrVariable({
       id,
-      f: (descr) => {
+      f: async (descr) => {
         rés.descr = descr;
-        fFinale();
+        await fFinale();
       },
     });
 
     const oublierUnités = await this.suivreUnitésVariable({
       id,
-      f: (unités) => {
+      f: async (unités) => {
         rés.unités = unités;
-        fFinale();
+        await fFinale();
       },
     });
 
     const oublierCatégorie = await this.suivreCatégorieVariable({
       id,
-      f: (catégorie) => {
+      f: async (catégorie) => {
         rés.catégorie = catégorie;
-        fFinale();
+        await fFinale();
       },
     });
 
     const oublierRègles = await this.suivreRèglesVariable({
       id,
-      f: (règles) => {
+      f: async (règles) => {
         rés.règles = règles;
-        fFinale();
+        await fFinale();
       },
     });
 

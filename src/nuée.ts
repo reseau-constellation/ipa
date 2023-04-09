@@ -737,9 +737,9 @@ export default class Nuée {
     idNuée: string;
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (bd: KeyValueStore<string>) => {
+    const fFinale = async (bd: KeyValueStore<string>) => {
       const idAutorisation = bd.get("autorisation");
-      f(idAutorisation);
+      await f(idAutorisation);
     };
     return await this.client.suivreBd({ id: idNuée, f: fFinale });
   }
@@ -777,14 +777,14 @@ export default class Nuée {
     idAutorisation: string;
     f: schémaFonctionSuivi<statutMembreNuée[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (dicMembres: { [clef: string]: "exclus" | "accepté" }) => {
+    const fFinale = async (dicMembres: { [clef: string]: "exclus" | "accepté" }) => {
       const membres = Object.entries(dicMembres).map(([idCompte, statut]) => {
         return {
           idCompte,
           statut,
         };
       });
-      f(membres);
+      await f(membres);
     };
     return await this.client.suivreBdDicDeClef({
       id: idAutorisation,
@@ -1236,8 +1236,8 @@ export default class Nuée {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (variables?: string[]) => {
-      return f(variables || []);
+    const fFinale = async (variables?: string[]) => {
+      return await f(variables || []);
     };
 
     const fBranche = async (
@@ -1278,14 +1278,14 @@ export default class Nuée {
       noms: {},
       descr: {},
     };
-    const fFinale = () => {
+    const fFinale = async () => {
       const scores = [
         Object.keys(rés.noms).length ? 1 : 0,
         Object.keys(rés.descr).length ? 1 : 0,
       ];
 
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
-      f(qualité);
+      await f(qualité);
     };
     const oublierNoms = await this.suivreNomsNuée({
       idNuée,

@@ -92,8 +92,8 @@ export const formaterÉlément = ({
     switch (typeof é[col]) {
       case "object":
         if (
-          typeof catégorie === "string" &&
-          ["audio", "photo", "vidéo", "fichier"].includes(catégorie)
+          catégorie?.type === "simple" &&
+          ["audio", "image", "vidéo", "fichier"].includes(catégorie.catégorie)
         ) {
           const { cid, ext } = é[col] as { cid: string; ext: string };
           if (!cid || !ext) continue;
@@ -399,9 +399,9 @@ export default class Tableaux {
     idTableau: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (cols: InfoColAvecCatégorie[]) => {
+    const fFinale = async (cols: InfoColAvecCatégorie[]) => {
       const indexes = cols.filter((c) => c.index).map((c) => c.id);
-      f(indexes);
+      await f(indexes);
     };
     return await this.suivreColonnes({ idTableau, f: fFinale });
   }
@@ -1078,8 +1078,8 @@ export default class Tableaux {
     idTableau: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (variables?: string[]) => {
-      f((variables || []).filter((v) => v && OrbitDB.isValidAddress(v)));
+    const fFinale = async (variables?: string[]) => {
+      await f((variables || []).filter((v) => v && OrbitDB.isValidAddress(v)));
     };
     const fSuivreBdColonnes = async ({
       id,
@@ -1188,9 +1188,9 @@ export default class Tableaux {
   }): Promise<schémaFonctionOublier> {
     const dicRègles: { tableau?: règleColonne[]; variable?: règleColonne[] } =
       {};
-    const fFinale = () => {
+    const fFinale = async () => {
       if (!dicRègles.tableau || !dicRègles.variable) return;
-      return f([...dicRègles.tableau, ...dicRègles.variable]);
+      return await f([...dicRègles.tableau, ...dicRègles.variable]);
     };
 
     // Suivre les règles spécifiées dans le tableau
@@ -1274,7 +1274,7 @@ export default class Tableaux {
       règles?: schémaFonctionValidation<T>[];
       varsÀColonnes?: { [key: string]: string };
     } = {};
-    const fFinale = () => {
+    const fFinale = async () => {
       if (!info.données || !info.règles) return;
 
       let erreurs: erreurValidation[] = [];
@@ -1282,9 +1282,9 @@ export default class Tableaux {
         const nouvellesErreurs = r(info.données);
         erreurs = [...erreurs, ...nouvellesErreurs.flat()];
       }
-      f(erreurs);
+      await f(erreurs);
     };
-    const fFinaleRègles = (
+    const fFinaleRègles = async (
       règles: { règle: règleColonne; donnéesCatégorie?: élémentsBd[] }[]
     ) => {
       if (info.varsÀColonnes) {
@@ -1295,21 +1295,22 @@ export default class Tableaux {
             donnéesCatégorie: r.donnéesCatégorie,
           })
         );
-        fFinale();
+        await fFinale();
       }
     };
-    const fFinaleDonnées = (données: élémentDonnées<T>[]) => {
+    const fFinaleDonnées = async (données: élémentDonnées<T>[]) => {
       info.données = données;
-      fFinale();
+      await fFinale();
     };
     const fOublierVarsÀColonnes = await this.suivreColonnes({
       idTableau,
-      f: (cols) => {
+      f: async (cols) => {
         const varsÀColonnes = cols.reduce(
           (o, c) => ({ ...o, [c.variable]: c.id }),
           {}
         );
         info.varsÀColonnes = varsÀColonnes;
+        await fFinale()
       },
     });
 
@@ -1334,8 +1335,8 @@ export default class Tableaux {
         const { tableau, colonne } = règle.règle.règle.détails;
         return await this.suivreDonnées({
           idTableau: tableau as string,
-          f: (données) =>
-            fSuivreBranche({
+          f: async (données) =>
+            await fSuivreBranche({
               règle,
               donnéesCatégorie: données.map(
                 (d) => d.données[colonne as string]
@@ -1387,7 +1388,7 @@ export default class Tableaux {
       colonnes?: InfoColAvecCatégorie[];
     } = {};
 
-    const fFinale = () => {
+    const fFinale = async () => {
       if (!info.colonnes || !info.règles) return;
 
       const erreurs: erreurRègle[] = [];
@@ -1455,7 +1456,7 @@ export default class Tableaux {
           erreurs.push(erreur);
         }
       }
-      f(erreurs);
+      await f(erreurs);
     };
 
     const fFinaleRègles = (

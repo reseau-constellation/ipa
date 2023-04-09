@@ -570,11 +570,11 @@ export default class ClientConstellation extends EventEmitter {
   }: {
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = () => {
-      if (this.idBdCompte) f(this.idBdCompte);
+    const fFinale = async () => {
+      if (this.idBdCompte) await f(this.idBdCompte);
     };
     this.on("compteChangé", fFinale);
-    fFinale();
+    await fFinale();
     return async () => {
       this.off("compteChangé", fFinale);
     };

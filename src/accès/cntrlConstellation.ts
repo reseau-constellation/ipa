@@ -140,11 +140,11 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
   async suivreIdsOrbiteAutoriséesÉcriture(
     f: schémaFonctionSuivi<string[]>
   ): Promise<schémaFonctionOublier> {
-    const fFinale = () => {
-      f([...this.gestRôles._rôles.MEMBRE, ...this.gestRôles._rôles.MODÉRATEUR]);
+    const fFinale = async () => {
+      await f([...this.gestRôles._rôles.MEMBRE, ...this.gestRôles._rôles.MODÉRATEUR]);
     };
     this.gestRôles.on("misÀJour", fFinale);
-    fFinale();
+    await fFinale();
     const fOublier = async () => {
       this.gestRôles.off("misÀJour", fFinale);
     };

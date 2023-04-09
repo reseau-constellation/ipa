@@ -511,9 +511,9 @@ export default class BDs {
     clef: string;
     f: schémaFonctionSuivi<string | undefined>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (tableaux: infoTableauAvecId[]) => {
+    const fFinale = async (tableaux: infoTableauAvecId[]) => {
       const infoTableau = tableaux.find((t) => t.clef === clef);
-      f(infoTableau?.id);
+      await f(infoTableau?.id);
     };
     return await this.suivreTableauxBd({ id: idBd, f: fFinale });
   }
@@ -647,8 +647,8 @@ export default class BDs {
     clefTableau: string;
     f: schémaFonctionSuivi<élémentDonnées<T>[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (données?: élémentDonnées<T>[]) => {
-      return f(données || []);
+    const fFinale = async (données?: élémentDonnées<T>[]) => {
+      return await f(données || []);
     };
 
     const fSuivreDonnéesDeTableau = async ({
@@ -673,8 +673,8 @@ export default class BDs {
         schémaBd,
         idNuéeUnique,
         clefTableau,
-        f: (idTableau?: string) => {
-          if (idTableau) fSuivreRacine(idTableau);
+        f: async (idTableau?: string) => {
+          if (idTableau) await fSuivreRacine(idTableau);
         },
       });
     };
@@ -1427,7 +1427,7 @@ export default class BDs {
     id: string;
     f: schémaFonctionSuivi<infoTableauAvecId[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (infos: { [clef: string]: infoTableau }) => {
+    const fFinale = async (infos: { [clef: string]: infoTableau }) => {
       const tableaux: infoTableauAvecId[] = Object.entries(infos).map(
         ([id, info]) => {
           return {
@@ -1436,7 +1436,7 @@ export default class BDs {
           };
         }
       );
-      f(tableaux);
+      await f(tableaux);
     };
     return await this.client.suivreBdDicDeClef({
       id,
@@ -1468,7 +1468,7 @@ export default class BDs {
   }): Promise<schémaFonctionOublier> {
     type scoreTableau = { numérateur: number; dénominateur: number };
 
-    const fFinale = (branches: scoreTableau[]) => {
+    const fFinale = async (branches: scoreTableau[]) => {
       const numérateur = branches.reduce(
         (a: number, b: scoreTableau) => a + b.numérateur,
         0
@@ -1477,7 +1477,7 @@ export default class BDs {
         (a: number, b: scoreTableau) => a + b.dénominateur,
         0
       );
-      f(dénominateur === 0 ? undefined : numérateur / dénominateur);
+      await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
     };
 
     const fBranche = async (
@@ -1560,7 +1560,7 @@ export default class BDs {
   }): Promise<schémaFonctionOublier> {
     type scoreTableau = { numérateur: number; dénominateur: number };
 
-    const fFinale = (branches: scoreTableau[]) => {
+    const fFinale = async (branches: scoreTableau[]) => {
       const numérateur = branches.reduce(
         (a: number, b: scoreTableau) => a + b.numérateur,
         0
@@ -1569,7 +1569,7 @@ export default class BDs {
         (a: number, b: scoreTableau) => a + b.dénominateur,
         0
       );
-      f(dénominateur === 0 ? undefined : numérateur / dénominateur);
+      await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
     };
 
     const fBranche = async (
@@ -1696,7 +1696,7 @@ export default class BDs {
       licence?: number;
     } = {};
 
-    const fFinale = () => {
+    const fFinale = async () => {
       const { accès, couverture, valide, licence } = info;
       const score: infoScore = {
         // Score impitoyable de 0 pour BDs sans licence
@@ -1708,7 +1708,7 @@ export default class BDs {
         valide,
         licence,
       };
-      f(score);
+      await f(score);
     };
 
     const oublierAccès = await this.suivreScoreAccèsBd({
@@ -1755,8 +1755,8 @@ export default class BDs {
     id: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (variables?: string[]) => {
-      return f(variables || []);
+    const fFinale = async (variables?: string[]) => {
+      return await f(variables || []);
     };
 
     const fBranche = async (

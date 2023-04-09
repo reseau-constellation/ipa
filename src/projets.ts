@@ -565,18 +565,18 @@ export default class Projets {
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     const motsClefs: { propres?: string[]; bds?: string[] } = {};
-    const fFinale = () => {
+    const fFinale = async () => {
       if (motsClefs.propres && motsClefs.bds) {
         const motsClefsFinaux = [
           ...new Set([...motsClefs.propres, ...motsClefs.bds]),
         ];
-        f(motsClefsFinaux);
+        await f(motsClefsFinaux);
       }
     };
 
-    const fFinalePropres = (mots: string[]) => {
+    const fFinalePropres = async (mots: string[]) => {
       motsClefs.propres = mots;
-      fFinale();
+      await fFinale();
     };
     const fOublierMotsClefsPropres = await this.client.suivreBdListeDeClef({
       id: idProjet,
@@ -584,9 +584,9 @@ export default class Projets {
       f: fFinalePropres,
     });
 
-    const fFinaleBds = (mots: string[]) => {
+    const fFinaleBds = async (mots: string[]) => {
       motsClefs.bds = mots;
-      fFinale();
+      await fFinale();
     };
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
@@ -634,8 +634,8 @@ export default class Projets {
     id: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (variables?: string[]) => {
-      return f(variables || []);
+    const fFinale = async (variables?: string[]) => {
+      return await f(variables || []);
     };
     const fBranche = async (
       idBd: string,
@@ -672,8 +672,8 @@ export default class Projets {
     idProjet: string;
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = (scoresBds: number[]) => {
-      f(
+    const fFinale = async (scoresBds: number[]) => {
+      await f(
         scoresBds.length
           ? scoresBds.reduce((a, b) => a + b, 0) / scoresBds.length
           : 0
