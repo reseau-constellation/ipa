@@ -152,7 +152,7 @@ typesClients.forEach((type) => {
 
             const idTableau = await client.bds!.ajouterTableauBd({ idBd });
             const idVarPhoto = await client.variables!.créerVariable({
-              catégorie: "photo",
+              catégorie: "image",
             });
             const idColPhoto = await client.tableaux!.ajouterColonneTableau({
               idTableau,

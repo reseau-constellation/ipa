@@ -12,8 +12,9 @@ import ClientConstellation from "@/client.js";
 
 import type { statutDispositif } from "@/reseau.js";
 
-export * from "@/utilsTests/sfip.js";
-export * from "@/utilsTests/attente.js";
+export * as sfip from "@/utilsTests/sfip.js";
+export * as attente from "@/utilsTests/attente.js";
+export * as client from "@/utilsTests/client.js";
 
 export const config = {
   patience: 10 * 1000,

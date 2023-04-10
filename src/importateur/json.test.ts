@@ -162,7 +162,7 @@ describe("JSON", function () {
       });
       données = importateur.obtDonnées(
         ["mes données", "sont ici", 0],
-        [null, "data"],
+        [-1, "data"],
         {
           région: ["location"],
           date: ["data", "date"],

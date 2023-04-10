@@ -2,7 +2,7 @@ import { typesClients, générerClients } from "@/utilsTests/client.js";
 import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 import { config } from "@/utilsTests/sfip.js";
-import { AttendreRésultat } from "./utilsTests";
+import { AttendreRésultat } from "./utilsTests/attente";
 import { élémentDeMembreAvecValid } from "./reseau";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "./tableaux";
 import { schémaSpécificationBd } from "./bds";
