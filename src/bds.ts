@@ -36,6 +36,7 @@ export interface schémaSpécificationBd {
   licence: string;
   motsClefs?: string[];
   nuées?: string[];
+  statut?: schémaStatut;
   tableaux: {
     cols: {
       idVariable: string;
@@ -323,7 +324,7 @@ export default class BDs {
     schéma: schémaSpécificationBd;
     ajouter?: boolean;
   }): Promise<string> {
-    const { tableaux, motsClefs, nuées, licence } = schéma;
+    const { tableaux, motsClefs, nuées, licence, statut } = schéma;
 
     // On n'ajoutera la BD que lorsqu'elle sera prête
     const idBd = await this.créerBd({ licence, ajouter: false });
@@ -334,6 +335,10 @@ export default class BDs {
 
     if (nuées) {
       await this.rejoindreNuées({ idBd, idsNuées: nuées });
+    }
+
+    if (statut) {
+      await this.changerStatutBd({ idBd, statut  })
     }
 
     for (const tb of tableaux) {
@@ -1257,6 +1262,36 @@ export default class BDs {
     bdTableaux.set(idTableau, infoExistante);
 
     await fOublier();
+  }
+
+  async changerStatutBd({
+    idBd,
+    statut,
+  }: {
+    idBd: string;
+    statut: schémaStatut;
+  }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdBD>
+    >({ id: idBd });
+    bd.set("statut", statut);
+    await fOublier();
+  }
+
+  async suivreStatutBd({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: schémaFonctionSuivi<schémaStatut>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDic({
+      id: idBd,
+      f: async x => {
+        if (x["statut"])
+          return await f(x["statut"] as unknown as schémaStatut)
+      }
+    })
   }
 
   async marquerObsolète({
