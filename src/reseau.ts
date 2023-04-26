@@ -1467,7 +1467,7 @@ export default class Réseau extends EventEmitter {
     nRésultatsDésirés: number;
     fRecherche: (args: {
       idCompte: string;
-      fSuivi: (x: string[] | undefined) => void;
+      fSuivi: (x: string[] | undefined) => Promise<void>;
     }) => Promise<schémaFonctionOublier>;
     fConfiance: schémaFonctionSuivreConfianceRecherche;
     fQualité: schémaFonctionSuivreQualitéRecherche;
@@ -1872,7 +1872,7 @@ export default class Réseau extends EventEmitter {
       fSuivi,
     }: {
       idCompte: string;
-      fSuivi: (bds: string[] | undefined) => void;
+      fSuivi: (bds: string[] | undefined) => Promise<void>;
     }): Promise<schémaFonctionOublier> => {
       const résultats: { propres: string[]; favoris: string[] } = {
         propres: [],
