@@ -210,7 +210,7 @@ typesClients.forEach((type) => {
             clefTableau: "principal",
             vals: { [idCol]: 3 },
           });
-        });
+        }, config.patience);
 
         afterAll(async () => {
           await Promise.all(fsOublier.map((f) => f()));
