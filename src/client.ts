@@ -1604,11 +1604,12 @@ export default class ClientConstellation extends EventEmitter {
 
   dossierOrbite(): string | undefined {
     let dossierOrbite: string | undefined;
+
     const optsOrbite = this._opts.orbite;
     if (optsOrbite instanceof OrbitDB) {
       dossierOrbite = optsOrbite.directory;
     } else {
-      dossierOrbite = optsOrbite?.dossier;
+      dossierOrbite = optsOrbite?.dossier || this.orbite?.directory;
     }
     return dossierOrbite;
   }
@@ -2097,6 +2098,22 @@ export default class ClientConstellation extends EventEmitter {
 
     if (this.orbite && !this._orbiteExterne) await this.orbite.stop();
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
+  }
+
+  async effacerDispositif(): Promise<void> {
+    if (indexedDB) {
+      if (indexedDB.databases) {
+        const indexedDbDatabases = await indexedDB.databases();
+        await Promise.all(indexedDbDatabases.map(db=>{
+            if (db.name) indexedDB.deleteDatabase(db.name);
+        }));
+      } else {
+        console.warn("On a pas pu tout effacer.")
+      }
+    }
+    else {
+      throw new Error("Non implémenté pour Node, Électron, même si c'est plus facile que dans le navigateur.")
+    }
   }
 
   static async créer(
