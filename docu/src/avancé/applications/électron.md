@@ -40,6 +40,7 @@ export const gestionnaireFenêtres = new GestionnaireFenêtres({
 ```
 
 Connecter chaque nouvelle fenêtre de votre appli à Constellation au moment où vous la créez :
+
 ```TypeScript
 // main.ts
 import {BrowserWindow} from 'electron';

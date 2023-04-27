@@ -20,6 +20,7 @@ export default {
 ```
 
 Nous enrégistrerons notre extention lors de la création de l'appli :
+
 ```TypeScript
 // index.ts
 import {createApp} from 'vue';
@@ -34,6 +35,7 @@ app.mount('#app');
 ```
 
 Et c'est tout ! Vous pouvez maintenant utiliser Constellation dans l'ensemble de votre appli. Amusez-vous !
+
 ```Vue
 <script setup lang="ts">
 // composantes/MonCompte.vue
