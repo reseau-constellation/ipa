@@ -3,8 +3,8 @@ import OrbitDB from "orbit-db";
 
 import type { PeersResult } from "ipfs-core-types/src/swarm";
 import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";
-import type { Libp2p } from "libp2p";
-import type { ConnectionManagerEvents } from "@libp2p/interface-connection-manager";
+import type { Libp2p, Libp2pEvents } from "libp2p";
+
 import { EventEmitter } from "events";
 import sum from "lodash/sum.js";
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -257,8 +257,11 @@ export default class Réseau extends EventEmitter {
       this.emit("changementConnexions");
     };
 
-    const événements: (keyof ConnectionManagerEvents)[] = [
+    const événements: (keyof Libp2pEvents)[] = [
+      "peer:discovery",
+      // @ts-ignore
       "peer:connect",
+      // @ts-ignore
       "peer:disconnect",
     ];
     for (const é of événements) {
