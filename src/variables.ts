@@ -73,10 +73,6 @@ export default class Variables {
   }: {
     catégorie: catégorieVariables | catégorieBaseVariables;
   }): Promise<string> {
-    if (typeof catégorie !== "string")
-      throw new Error(
-        `catégorie doit être une chaîne, mais ${catégorie} est de type ${typeof catégorie}.`
-      );
 
     const idBdVariable = await this.client.créerBdIndépendante({
       type: "kvstore",
