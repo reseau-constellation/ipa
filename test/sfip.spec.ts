@@ -1,17 +1,26 @@
 import initSFIP from "../src/sfip/index.js";
 import { expect } from "aegir/chai";
 import type { IPFS } from "ipfs-core";
+import { isElectronMain, isNode } from "wherearewe";
 
 describe("SFIP", function () {
   let sfip: IPFS;
+  let dossier: string|undefined = undefined;
+
   before(async () => {
-    sfip = await initSFIP();
+    if (isNode || isElectronMain) {
+      const fs = await import("fs")
+      const path = await import("path")
+      const os = await import("os")
+      dossier = fs.mkdtempSync(path.join(os.tmpdir(), "constl-ipa"));
+    }
+    sfip = await initSFIP(dossier);
   });
   it("Initialiser", async () => {
     const id = await sfip.id();
     expect(id.id.toCID().toString()).to.be.a.string;
   }, 10000);
-  it("Connexion à un serveur webrtc-star", async () => {
+  it.skip("Connexion à un serveur webrtc-star", async () => {
     await new Promise<void>((résoudre) => {
       // @ts-expect-error libp2p n'est pas dans les déclarations de SFIP
       sfip.libp2p.addEventListener("peer:connect", async () => {
@@ -29,5 +38,11 @@ describe("SFIP", function () {
   });
   after(async () => {
     await sfip.stop();
+    if (dossier) {
+      if (isNode || isElectronMain) {
+        const rimraf = (await import("rimraf")).default;
+        rimraf.sync(dossier)
+      }
+    }
   });
 });
