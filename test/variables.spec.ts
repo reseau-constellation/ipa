@@ -262,7 +262,7 @@ typesClients.forEach((type) => {
             idVariable,
             catégorie: "chaîne",
           });
-          expect(catégorie).to.equal("chaîne");
+          expect(catégorie).to.deep.equal({type: "simple", catégorie: "chaîne"});
         });
       });
 
@@ -364,9 +364,10 @@ typesClients.forEach((type) => {
             (r) => r.règle.typeRègle === "catégorie"
           ) as règleVariableAvecId<règleCatégorie> | undefined;
           expect(règleCatégorie).to.exist();
-          expect(règleCatégorie?.règle.détails.catégorie).to.equal(
-            "horoDatage"
-          );
+          expect(règleCatégorie?.règle.détails.catégorie).to.deep.equal({
+            type: "simple",
+            catégorie: "horoDatage"
+          });
         });
       });
 
@@ -493,8 +494,8 @@ typesClients.forEach((type) => {
           expect(unités).to.equal("mm");
         });
 
-        it("La catégorie est copiés", async () => {
-          expect(catégorie).to.equal("numérique");
+        it("La catégorie est copiée", async () => {
+          expect(catégorie).to.deep.equal({type: 'simple', catégorie: "numérique"});
         });
       });
     });
