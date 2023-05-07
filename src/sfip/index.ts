@@ -57,6 +57,5 @@ export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
     config,
     configPlateforme
   );
-
-  return create(configFinale);
+  return await create(configFinale);
 }
