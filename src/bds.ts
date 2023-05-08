@@ -820,7 +820,7 @@ export default class BDs {
     idBd: string;
     clefTableau: string;
     vals: T;
-  }): Promise<void> {
+  }): Promise<string> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClef({
@@ -830,7 +830,7 @@ export default class BDs {
         });
       }
     );
-    await this.client.tableaux!.ajouterÉlément({
+    return await this.client.tableaux!.ajouterÉlément({
       idTableau,
       vals,
     });
@@ -846,7 +846,7 @@ export default class BDs {
     clefTableau: string;
     empreinteÉlément: string;
     vals: { [key: string]: élémentsBd | undefined };
-  }): Promise<void> {
+  }): Promise<string> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClef({
@@ -856,7 +856,7 @@ export default class BDs {
         });
       }
     );
-    this.client.tableaux!.modifierÉlément({
+    return await this.client.tableaux!.modifierÉlément({
       idTableau,
       vals,
       empreintePrécédente: empreinteÉlément,
