@@ -1821,6 +1821,7 @@ export default class Nuée {
     ignorerErreursDonnéesTableau = true,
     licensesPermises = undefined,
     toujoursInclureLesMiennes = true,
+    clefsSelonVariables = true,
   }: {
     idNuée: string;
     clefTableau: string;
@@ -1831,6 +1832,7 @@ export default class Nuée {
     ignorerErreursDonnéesTableau?: boolean;
     licensesPermises?: string[];
     toujoursInclureLesMiennes?: boolean;
+    clefsSelonVariables?: boolean;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = async (
       donnéesTableaux: élémentDeMembreAvecValid<T>[][]
@@ -1967,6 +1969,7 @@ export default class Nuée {
             infoTableau.données = données;
             await fFinaleTableau();
           },
+          clefsSelonVariables
         });
         fsOublier.push(fOublierDonnnées);
 
