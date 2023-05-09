@@ -40,6 +40,17 @@ const options = {
         buildConfig: esbuild,
       },
     },
+    before: async () => {
+      const { chromium } = await import('playwright');
+      const navigateur = await chromium.launch();
+
+      const page = await navigateur.newPage();
+      await page.goto("https://réseau-constellation.ca");
+      return {navigateur}
+    },
+    after: async (_, avant) => {
+      await avant.navigateur.close();
+    }
   },
   build: {
     config: esbuild,

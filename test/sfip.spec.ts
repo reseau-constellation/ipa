@@ -1,7 +1,8 @@
 import initSFIP from "../src/sfip/index.js";
 import { expect } from "aegir/chai";
 import type { IPFS } from "ipfs-core";
-import { isElectronMain, isNode } from "wherearewe";
+import { isElectronMain, isNode, isWebWorker } from "wherearewe";
+
 
 describe("SFIP", function () {
   let sfip: IPFS;
@@ -16,28 +17,31 @@ describe("SFIP", function () {
     }
     sfip = await initSFIP(dossier);
   });
+  
   it("Initialiser", async () => {
     const id = await sfip.id();
     expect(id.id.toCID().toString()).to.be.a.string;
   }, 10000);
+
   it.skip("Connexion à un serveur webrtc-star", async () => {
-    await new Promise<void>((résoudre) => {
-      // @ts-expect-error libp2p n'est pas dans les déclarations de SFIP
-      sfip.libp2p.addEventListener("peer:connect", async () => {
-        const pairs = await sfip.swarm.peers();
-        console.log({ pairs });
-        const trouvé = pairs.find((p) =>
-          p.addr.toString().includes("arcane-springs")
-        );
-        if (trouvé) {
-          console.log(trouvé.addr.toString());
-          résoudre();
-        }
+    if (!isWebWorker) {
+      await new Promise<void>((résoudre) => {
+        // @ts-expect-error libp2p n'est pas dans les déclarations de SFIP
+        sfip.libp2p.addEventListener("peer:connect", async () => {
+          const pairs = await sfip.swarm.peers();
+          const trouvé = pairs.find((p) =>
+            p.addr.toString().includes("p2p-webrtc-star")
+          );
+          if (trouvé) {
+            résoudre();
+          }
+        });
       });
-    });
+    }
+    
   });
   after(async () => {
-    await sfip.stop();
+    if (sfip) await sfip.stop();
     if (dossier) {
       if (isNode || isElectronMain) {
         const rimraf = (await import("rimraf")).default;

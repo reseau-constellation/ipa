@@ -6,6 +6,7 @@ import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";
 import type { IPFS } from "ipfs-core";
 import ClientConstellation from "@/client.js";
 import { obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
+import { isBrowser } from "wherearewe";
 
 export const générerOrbites = async (
   n = 1
@@ -66,6 +67,8 @@ export const générerClients = async (
 }> => {
   const clients: ClientConstellation[] = [];
   const fsOublier: (() => Promise<void>)[] = [];
+  // Nécessaire pour Playwright
+  if (isBrowser) window.localStorage.clear();
 
   if (type === "directe" || type == "proc") {
     const { orbites, fOublier: fOublierOrbites } = await générerOrbites(n);
