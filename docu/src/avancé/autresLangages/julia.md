@@ -72,7 +72,23 @@ end
 ```
 
 ### Fonctions raccourci
-À venir
+Quelques fonctions spéciales vous permettent d'effectuer rapidement des actions communes, dont `Constellation.obtDonnéesTableau` qui permet d'obtenir les données d'un `Tableau` Constellation et `Constellation.obtDonnéesNuée` qui résume les données d'une `Nuée`, tous en format [`DataFrames.DataFrame`](https://dataframes.juliadata.org/stable/).
+
+```Julia
+import Constellation
+
+# D'abord, lancer le nœud local
+Constellation.avecServeur() do port
+    Constellation.avecClient(port) do client
+
+        # Obtenir les données d'un Tableau
+        donnéesTableau = Constellation.obtDonnéesTableau(client, idTableau)
+
+        # Obtenir les données d'une Nuée, en français si possible, sinon en alemand
+        donnéesRéseau = Constellation.obtDonnéesNuée(client, idNuée, clefTableau, ["fr", "de"])
+    end
+end
+```
 
 ### Recherche
 Les fonctions de recherche fonctionnent comme `Constellation.suivi`, mais elles envoient deux fonctions en guise de réponse plutôt qu'une seule : une pour annuler la recherche (`fOublier`), et une pour modifier le nombre de résultats désirés (`fChangerN`).
