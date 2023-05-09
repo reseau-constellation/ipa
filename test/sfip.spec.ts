@@ -23,7 +23,7 @@ describe("SFIP", function () {
     expect(id.id.toCID().toString()).to.be.a.string;
   }, 10000);
 
-  it.skip("Connexion à un serveur webrtc-star", async () => {
+  it("Connexion à un serveur webrtc-star", async () => {
     if (!isWebWorker) {
       await new Promise<void>((résoudre) => {
         // @ts-expect-error libp2p n'est pas dans les déclarations de SFIP
