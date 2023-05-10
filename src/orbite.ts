@@ -10,7 +10,7 @@ export default async function initOrbite({
   sfip: IPFS;
   dossierOrbite?: string;
 }): Promise<OrbitDB> {
-  let dossierOrbiteFinal: string | undefined = undefined;
+  let dossierOrbiteFinal: string | undefined = dossierOrbite;
   if (isElectronMain) {
     const electron = await import("electron");
     const path = await import("path");
