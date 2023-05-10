@@ -43,9 +43,12 @@ const options = {
     before: async () => {
       const { chromium } = await import('playwright');
       const navigateur = await chromium.launch();
-
-      const page = await navigateur.newPage();
-      await page.goto("https://réseau-constellation.ca");
+      try {
+        const page = await navigateur.newPage();
+        await page.goto("https://réseau-constellation.ca");
+      } catch (e) {
+        console.error(e)
+      }
       return {navigateur}
     },
     after: async (_, avant) => {
