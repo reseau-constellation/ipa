@@ -15,7 +15,7 @@
     "test_": "node --no-warnings --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
     "test:tous": "env MANDATAIRE=TOUS pnpm test",
     "test:proc": "env MANDATAIRE=PROC pnpm test",
-    "test": "pnpm compiler && env MANDATAIRE=TOUS pnpm aegir test -t node && pnpm aegir test -t browser",
+    "test": "pnpm compiler && env MANDATAIRE=TOUS pnpm aegir test -t node -- --exit && pnpm aegir test -t browser",
     "couverture": "pnpm test -- --coverage",
     "couverture:tous": "pnpm test:tous -- --coverage --bail",
     "formatter": "pnpm prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\" && pnpm eslint --ext .js,.ts src",
