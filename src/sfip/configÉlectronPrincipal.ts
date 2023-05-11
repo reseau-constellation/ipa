@@ -2,7 +2,6 @@ import { webSockets } from "@libp2p/websockets";
 import { webRTCDirect } from "@libp2p/webrtc-direct";
 import { webRTCStar } from "@libp2p/webrtc-star";
 import { webTransport } from "@libp2p/webtransport";
-import { kadDHT } from "@libp2p/kad-dht";
 import type { create } from "ipfs-core";
 import webRTC from "@constl/electron-webrtc-relay";
 
@@ -27,7 +26,6 @@ const config: Parameters<typeof create>[0] = {
       webRTCDirect(),
     ],
     peerDiscovery: [webrtc.discovery],
-    dht: kadDHT(),
     addresses: {
       listen: ADRESSES_WEBRTC_STAR,
     },
