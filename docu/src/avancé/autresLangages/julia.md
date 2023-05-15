@@ -2,10 +2,10 @@
 Le client Julia vous permet d'accéder au réseau Constellation à partir d'un programme en [Julia](https://julialang.org/).
 
 ## Installation
-Ce paquet est tout nouveau et n'est pas encore publié sur le dépôt de paquets Julia. Mais si vous êtes impatiente, vous pouvez l'installer ainsi :
+Vous pouvez l'installer ainsi :
 
 ```
-pkg> add https://github.com/reseau-constellation/Constellation.jl.git
+pkg> add Constellation
 ```
 
 ## Utilisation
