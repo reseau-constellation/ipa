@@ -41,12 +41,14 @@ const options = {
       },
     },
     before: async () => {
+      // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
       const { chromium } = await import('playwright');
       const navigateur = await chromium.launch();
       try {
         const page = await navigateur.newPage();
         await page.goto("https://réseau-constellation.ca");
       } catch (e) {
+        // On arrête pas les tests pour une petite erreur comme ça
         console.error(e)
       }
       return {navigateur}
