@@ -156,6 +156,14 @@ export default class Nuée {
     await fOublier();
   }
 
+  async enleverDeMesNuées({ id }: { id: string }): Promise<void> {
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >({ id: this.idBd });
+    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
+    await fOublier();
+  }
+
   async copierNuée({
     id,
     ajouterÀMesNuées = true,
@@ -2343,4 +2351,46 @@ export default class Nuée {
 
     return schéma;
   }
+
+  async effacerNuée({ id }: { id: string }): Promise<void> {
+    // D'abord effacer l'entrée dans notre liste de BDs
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
+      FeedStore<string>
+    >({ id: this.idBd });
+    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
+    await fOublier();
+
+    // Et puis maintenant aussi effacer les tableaux et la Nuée elle-même
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
+    for (const clef in ["noms", "descriptions", "motsClefs"]) {
+      const idBd = await this.client.obtIdBd({
+        nom: clef,
+        racine: id,
+        optionsAccès,
+      });
+      if (idBd) await this.client.effacerBd({ id: idBd });
+    }
+    const idBdTableaux = await this.client.obtIdBd({
+      nom: "tableaux",
+      racine: id,
+      type: "kvstore",
+      optionsAccès,
+    });
+    if (idBdTableaux) {
+      const { bd: bdTableaux, fOublier: fOublierTableaux } =
+        await this.client.ouvrirBd<KeyValueStore<infoTableau>>({
+          id: idBdTableaux,
+        });
+      const tableaux: string[] = Object.keys(bdTableaux.all);
+      for (const t of tableaux) {
+        await this.client.tableaux!.effacerTableau({ idTableau: t });
+      }
+      fOublierTableaux();
+      await this.client.effacerBd({ id: idBdTableaux });
+    }
+
+    await this.enleverDeMesNuées({ id });
+    await this.client.effacerBd({ id });
+  }
+
 }
