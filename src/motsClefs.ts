@@ -79,18 +79,18 @@ export default class MotsClefs {
     await fOublier();
   }
 
-  async enleverDeMesMotsClefs({ id }: { id: string }): Promise<void> {
+  async enleverDeMesMotsClefs({ idMotClef }: { idMotClef: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
     >({ id: this.idBd });
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
+    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idMotClef });
     await fOublier();
   }
 
-  async copierMotClef({ id }: { id: string }): Promise<string> {
+  async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
     const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd<
       KeyValueStore<string>
-    >({ id });
+    >({ id: idMotClef });
 
     const idNouveauMotClef = await this.créerMotClef();
 
@@ -101,7 +101,7 @@ export default class MotsClefs {
     const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
       [key: string]: string;
     };
-    await this.ajouterNomsMotClef({ id: idNouveauMotClef, noms });
+    await this.sauvegarderNomsMotClef({ idMotClef: idNouveauMotClef, noms });
 
     const idBdDescriptions = bdBase.get("descriptions");
     const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
@@ -113,8 +113,8 @@ export default class MotsClefs {
     }) as {
       [key: string]: string;
     };
-    await this.ajouterDescriptionsMotClef({
-      id: idNouveauMotClef,
+    await this.sauvegarderDescriptionsMotClef({
+      idMotClef: idNouveauMotClef,
       descriptions,
     });
 
@@ -126,35 +126,35 @@ export default class MotsClefs {
 
   async inviterAuteur({
     idMotClef,
-    idBdCompteAuteur,
+    idCompteAuteur,
     rôle,
   }: {
     idMotClef: string;
-    idBdCompteAuteur: string;
+    idCompteAuteur: string;
     rôle: keyof objRôles;
   }): Promise<void> {
     await this.client.donnerAccès({
       idBd: idMotClef,
-      identité: idBdCompteAuteur,
+      identité: idCompteAuteur,
       rôle,
     });
   }
 
-  async ajouterNomsMotClef({
-    id,
+  async sauvegarderNomsMotClef({
+    idMotClef,
     noms,
   }: {
-    id: string;
+    idMotClef: string;
     noms: { [key: string]: string };
   }): Promise<void> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idMotClef,
       type: "kvstore",
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${id}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`
       );
     }
 
@@ -168,22 +168,22 @@ export default class MotsClefs {
   }
 
   async sauvegarderNomMotClef({
-    id,
+    idMotClef,
     langue,
     nom,
   }: {
-    id: string;
+    idMotClef: string;
     langue: string;
     nom: string;
   }): Promise<void> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idMotClef,
       type: "kvstore",
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${id}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`
       );
     }
 
@@ -195,20 +195,20 @@ export default class MotsClefs {
   }
 
   async effacerNomMotClef({
-    id,
+    idMotClef,
     langue,
   }: {
-    id: string;
+    idMotClef: string;
     langue: string;
   }): Promise<void> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idMotClef,
       type: "kvstore",
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${id}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`
       );
     }
 
@@ -221,30 +221,30 @@ export default class MotsClefs {
 
   @cacheSuivi
   async suivreNomsMotClef({
-    id,
+    idMotClef,
     f,
   }: {
-    id: string;
+    idMotClef: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id, clef: "noms", f });
+    return await this.client.suivreBdDicDeClef({ id: idMotClef, clef: "noms", f });
   }
 
-  async ajouterDescriptionsMotClef({
-    id,
+  async sauvegarderDescriptionsMotClef({
+    idMotClef,
     descriptions,
   }: {
-    id: string;
+    idMotClef: string;
     descriptions: { [key: string]: string };
   }): Promise<void> {
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idMotClef,
       type: "kvstore",
     });
     if (!idBdDescriptions) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${id}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`
       );
     }
 
@@ -258,29 +258,29 @@ export default class MotsClefs {
   }
 
   async sauvegarderDescriptionMotClef({
-    id,
+    idMotClef,
     langue,
-    nom,
+    description,
   }: {
-    id: string;
+    idMotClef: string;
     langue: string;
-    nom: string;
+    description: string;
   }): Promise<void> {
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idMotClef,
       type: "kvstore",
     });
     if (!idBdDescriptions) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${id}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`
       );
     }
 
     const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<string>
     >({ id: idBdDescriptions });
-    await bdDescriptions.set(langue, nom);
+    await bdDescriptions.set(langue, description);
     await fOublier();
   }
 
@@ -311,42 +311,42 @@ export default class MotsClefs {
 
   @cacheSuivi
   async suivreDescriptionsMotClef({
-    id,
+    idMotClef,
     f,
   }: {
-    id: string;
+    idMotClef: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id, clef: "descriptions", f });
+    return await this.client.suivreBdDicDeClef({ id: idMotClef, clef: "descriptions", f });
   }
 
-  async effacerMotClef({ id }: { id: string }): Promise<void> {
+  async effacerMotClef({ idMotClef }: { idMotClef: string }): Promise<void> {
     // Effacer l'entrée dans notre liste de mots clefs
-    await this.enleverDeMesMotsClefs({ id });
+    await this.enleverDeMesMotsClefs({ idMotClef });
 
     // Effacer le mot-clef lui-même
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
+    const optionsAccès = await this.client.obtOpsAccès({ idBd: idMotClef });
     for (const clef in ["noms"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
-        racine: id,
+        racine: idMotClef,
         optionsAccès,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }
-    await this.client.effacerBd({ id });
+    await this.client.effacerBd({ id: idMotClef });
   }
 
   @cacheSuivi
   async suivreQualitéMotClef({
-    id,
+    idMotClef,
     f,
   }: {
-    id: string;
+    idMotClef: string;
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreNomsMotClef({
-      id,
+      idMotClef,
       f: (noms) => f(Object.keys(noms).length ? 1 : 0),
     });
   }
