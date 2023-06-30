@@ -42,7 +42,7 @@ export type catégorieVariables =
     }
   | {
       type: "liste";
-      catégorieBase: catégorieBaseVariables;
+      catégorie: catégorieBaseVariables;
     };
 
 export type typeÉlémentsBdVariable = string | catégorieVariables | schémaStatut;
@@ -624,14 +624,10 @@ export default class Variables {
         Object.keys(rés.noms).length ? 1 : 0,
         Object.keys(rés.descr).length ? 1 : 0,
       ];
-      const catégorieBase =
-        rés.catégorie?.type === "simple"
-          ? rés.catégorie.catégorie
-          : rés.catégorie?.catégorieBase;
-      if (catégorieBase === "numérique") {
+      if (rés.catégorie?.catégorie === "numérique") {
         scores.push(rés.unités ? 1 : 0);
       }
-      if (catégorieBase === "numérique" || catégorieBase === "catégorique") {
+      if (rés.catégorie?.catégorie === "numérique" || rés.catégorie?.catégorie === "catégorique") {
         scores.push(rés.règles.length >= 1 ? 1 : 0);
       }
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;

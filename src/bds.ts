@@ -1529,11 +1529,7 @@ export default class BDs {
           const colsÉligibles = cols.filter(
             (c) =>
               c.catégorie &&
-              ["numérique", "catégorique"].includes(
-                c.catégorie.type === "simple"
-                  ? c.catégorie.catégorie
-                  : c.catégorie.catégorieBase
-              )
+              ["numérique", "catégorique"].includes(c.catégorie.catégorie)
           );
 
           const dénominateur = colsÉligibles.length;
@@ -1626,12 +1622,7 @@ export default class BDs {
         ) {
           const colsÉligibles = cols.filter(
             (c) =>
-              c.catégorie &&
-              ["numérique", "catégorique"].includes(
-                c.catégorie.type === "simple"
-                  ? c.catégorie.catégorie
-                  : c.catégorie.catégorieBase
-              )
+              c.catégorie && ["numérique", "catégorique"].includes(c.catégorie.catégorie)
           );
 
           const déjàVus: { empreinte: string; idColonne: string }[] = [];

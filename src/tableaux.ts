@@ -31,6 +31,7 @@ import {
   erreurRègleBornesColonneInexistante,
   erreurRègleBornesVariableNonPrésente,
   erreurRègleCatégoriqueColonneInexistante,
+  détailsRègleBornesDynamiqueColonne,
 } from "@/valid.js";
 import type { catégorieVariables } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
@@ -1401,7 +1402,7 @@ export default class Tableaux {
 
       const règlesBornesColonnes = règlesTypeBornes.filter(
         (r) => r.règle.règle.détails.type === "dynamiqueColonne"
-      );
+      ) as règleColonne<règleBornes<détailsRègleBornesDynamiqueColonne>>[];
 
       const règlesBornesVariables = règlesTypeBornes.filter(
         (r) => r.règle.règle.détails.type === "dynamiqueVariable"

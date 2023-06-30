@@ -332,7 +332,7 @@ export function validerCatégorieVal({
   } else {
     if (Array.isArray(val)) {
       return val.every((v) =>
-        validerCatégorieBase({ catégorie: catégorie.catégorieBase, val: v })
+        validerCatégorieBase({ catégorie: catégorie.catégorie, val: v })
       );
     } else {
       return false;
