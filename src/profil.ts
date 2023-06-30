@@ -10,6 +10,7 @@ import {
   élémentsBd,
 } from "@/utils/index.js";
 import { cacheSuivi } from "@/décorateursCache.js";
+import FeedStore from "orbit-db-feedstore";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
@@ -103,6 +104,32 @@ export default class Profil {
   }
 
   @cacheSuivi
+  async suivreSousBdListeProfil<T extends élémentsBd>({
+    idCompte,
+    clef,
+    f,
+  }: {
+    idCompte?: string;
+    clef: string;
+    f: schémaFonctionSuivi<T[]>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDeFonction({
+      fRacine: async ({ fSuivreRacine }) => {
+        return await this.suivreBdProfil({ f: fSuivreRacine, idCompte });
+      },
+      f: ignorerNonDéfinis(f),
+      fSuivre: async ({ id, fSuivreBd }) => {
+        return await this.client.suivreBdListeDeClef<T>({
+          id,
+          clef: clef,
+          f: fSuivreBd,
+          renvoyerValeur: true,
+        });
+      },
+    });
+  }
+
+  @cacheSuivi
   async suivreCourriel({
     f,
     idCompte,
@@ -112,7 +139,7 @@ export default class Profil {
   }): Promise<schémaFonctionOublier> {
     return await this.suivreContacts({
       idCompte,
-      f: async (contacts) => await f(contacts["courriel"] || null),
+      f: async (contacts) => await f(contacts.find(c=>c.type == "courriel")?.contact || null),
     });
   }
 
@@ -129,10 +156,10 @@ export default class Profil {
     f,
     idCompte,
   }: {
-    f: schémaFonctionSuivi<{ [type: string]: string }>;
+    f: schémaFonctionSuivi<{ type: string, contact: string }[]>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.suivreSousBdDicProfil<string>({
+    return await this.suivreSousBdListeProfil<{ type: string, contact: string }>({
       idCompte,
       clef: "contacts",
       f,
@@ -150,7 +177,7 @@ export default class Profil {
     const idBdContacts = await this.client.obtIdBd({
       nom: "contacts",
       racine: idBdProfil,
-      type: "kvstore",
+      type: "feed",
     });
     if (!idBdContacts) {
       throw new Error(
@@ -158,19 +185,19 @@ export default class Profil {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<{type: string, contact: string}>>({
       id: idBdContacts,
     });
-    await bd.set(type, contact);
+    await bd.add({type, contact});
     await fOublier();
   }
 
-  async effacerContact({ type }: { type: string }): Promise<void> {
+  async effacerContact({ type, contact }: { type: string, contact?: string }): Promise<void> {
     const idBdProfil = (await this.obtIdBdProfil())!;
     const idBdContacts = await this.client.obtIdBd({
       nom: "contacts",
       racine: idBdProfil,
-      type: "kvstore",
+      type: "feed",
     });
     if (!idBdContacts) {
       throw new Error(
@@ -178,10 +205,17 @@ export default class Profil {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<{type: string, contact: string}>>({
       id: idBdContacts,
     });
-    await bd.del(type);
+    this.client.effacerÉlémentsDeBdListe({
+      bd,
+      élément: (x) => (
+        x.payload.value.type === type
+        ) && (
+          contact === undefined || x.payload.value.contact === contact
+          )
+    })
     await fOublier();
   }
 
@@ -207,6 +241,10 @@ export default class Profil {
     langue: string;
     nom: string;
   }): Promise<void> {
+    return await this.sauvegarderNoms({noms: {[langue]: nom}});
+  }
+
+  async sauvegarderNoms({noms}: {noms: {[langue: string]: string}}): Promise<void> {
     const idBdProfil = (await this.obtIdBdProfil())!;
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
@@ -222,7 +260,9 @@ export default class Profil {
     const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
       id: idBdNoms,
     });
-    await bd.set(langue, nom);
+    for (const [langue, nom] of Object.entries(noms)) {
+      await bd.set(langue, nom);
+    }
     await fOublier();
   }
 

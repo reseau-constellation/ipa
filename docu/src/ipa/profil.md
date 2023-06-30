@@ -25,6 +25,24 @@ await client.profil.sauvegarderNom({ langue: "fr", nom: "C'est bien moi !" });
 
 ```
 
+### `client.profil.sauvegarderNoms({ noms })`
+Sauvegarde le nom de l'utilisateur dans plusieurs langues en même temps.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `noms` | `{ [langue: string]: string }` | Les noms de l'utilisatrice, indexés par langue. |
+
+#### Exemple
+```ts
+
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+await client.profil.sauvegarderNoms({ fr: "C'est bien moi !", हिं: "मैं हुँ"});
+
+```
+
 ### `client.profil.effacerNom({ langue })`
 Efface la traduction du nom de l'utilisateur dans une langue donnée.
 
@@ -124,3 +142,129 @@ await fOublierImage();
 ```
 
 ## Contact
+Chaque profil Constellation peur inclure des informations publiques de contact (courriel ou autre).
+
+### `client.profil.sauvegarderContact({ type, contact })`
+Sauvegarde un moyen de contact.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `type` | `string` | Le type de contact (p. ex., courriel, site Internet, numéro téléphonique). Peut être n'importe quelle valeur; nous recommandons l'un de `courriel`, `siteInternet`, `whatsapp`, `téléphone` ou `télégramme`|
+| `contact` | `string` | Le contact. |
+
+#### Exemple
+```ts
+
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+await client.profil.sauvegarderContact({ 
+    type: "courriel", 
+    contact: "moi@cestbienmoi.ca" 
+});
+
+```
+
+### `client.profil.effacerContact()`
+Effacer l'information de contact.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `type` | `string` | Le type de contact. |
+| `contact` | `string \| undefined` | Le contact à effacer. Si non spécifié, effacera tous les contacts de type `type`. |
+
+#### Exemple
+```ts
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+await client.profil.effacerContact({ type: "courriel" });
+```
+
+### `client.profil.suivreContacts({ f, idCompte? })`
+Suit les informations de contact de l'utilisatrice.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `f` | `(contacts: {[type: string]: string}) => void` | Une fonction qui sera appelée avec les informations de contact chaque fois que celles-ci changent. |
+| `idCompte?` | `string \| undefined` | L'id du compte de l'utilisateur. Par défaut, sera l'utilisateur courrant. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi |
+
+#### Exemple
+```ts
+import { ref } from 'vue';
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+const contacts = ref<Uint8Array>({[type: string]: string});
+const fOublierContacts = await client.profil.suivreContacts({
+    f: x => contacts.value = x
+});
+await fOublierContacts();
+```
+
+### `client.profil.sauvegarderCourriel({ courriel })`
+Fonction rapide pour sauvegarder un courriel. Équivalent à `client.profil.sauvegarderContact` avec `type === "courriel"`.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `courriel` | `string` | L'adresse courriel. |
+
+#### Exemple
+```ts
+
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+await client.profil.sauvegarderCourriel({ 
+    courriel: "moi@cestbienmoi.ca" 
+});
+
+```
+
+### `client.profil.effacerCourriel()`
+Fonction rapide pour effacer un courriel. Équivalent à `client.profil.effacerContact({ type: "courriel" })`.
+
+#### Exemple
+```ts
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+await client.profil.effacerCourriel();
+```
+
+### `client.profil.suivreCourriel({ f, idCompte? })`
+Version spécifique de `client.profil.suivreContact` qui suit le courriel de l'utilisatrice.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `f` | `(courriel: string) => void` | Une fonction qui sera appelée avec l'adresse courriel chaque fois que celle-ci change. |
+| `idCompte?` | `string \| undefined` | L'id du compte de l'utilisateur. Par défaut, sera l'utilisateur courrant. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi |
+
+#### Exemple
+```ts
+import { ref } from 'vue';
+import ClientConstellation from "@constl/ipa";
+const client = ClientConstellation();
+
+const courriel = ref<Uint8Array>();
+const fOublierCourriel = await client.profil.suivreCourriel({
+    f: x => courriel.value = x
+});
+await fOublierCourriel();
+```
+
