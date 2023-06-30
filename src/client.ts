@@ -428,6 +428,60 @@ export default class ClientConstellation extends EventEmitter {
     }
   }
 
+  async nommerDispositif({
+    idDispositif,
+    nom,
+    type,
+  }: {
+    idDispositif: string;
+    nom: string;
+    type: string;
+  }): Promise<void> {
+    const idBdNomsDispositifs = await this.obtIdBd({
+      nom: "nomsDispositifs",
+      racine: await this.obtIdCompte(),
+      type: "kvstore",
+    });
+    const {bd: bdNomsDispositifs, fOublier} = await this.ouvrirBd<KeyValueStore<{nom: string, type: string}>>({id: idBdNomsDispositifs!});
+    await bdNomsDispositifs.set(idDispositif, {nom, type});
+    await fOublier();
+  }
+
+  async suivreNomsDispositifs({
+    idCompte,
+    f,
+  }: {
+    idCompte?: string;
+    f: schémaFonctionSuivi<{ [id: string]: { type: string; nom: string } }>;
+  }): Promise<schémaFonctionOublier> {
+    const idCompteFinal = idCompte || (await this.obtIdCompte());
+    return await this.suivreBdDicDeClef({
+      id: idCompteFinal,
+      clef: "nomsDispositifs",
+      f
+    })
+  }
+
+  async suivreNomDispositif({
+    idCompte,
+    idDispositif,
+    f,
+  }: {
+    idDispositif: string;
+    idCompte?: string;
+    f: schémaFonctionSuivi<{ type: string; nom: string }>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.suivreNomsDispositifs({
+      idCompte,
+      f: async (noms) => {
+        const nomsDispositif = noms[idDispositif];
+        if (nomsDispositif) {
+          return await f(nomsDispositif);
+        }
+      },
+    });
+  }
+
   async générerInvitationRejoindreCompte(): Promise<{
     idCompte: string;
     codeSecret: string;
@@ -1188,6 +1242,28 @@ export default class ClientConstellation extends EventEmitter {
       );
 
     if (retrouvé) await bd.remove(retrouvé.hash);
+  }
+
+  async effacerÉlémentsDeBdListe<T extends élémentsBd>({
+    bd,
+    élément,
+  }: {
+    bd: FeedStore<T>;
+    élément: T | ((e: LogEntry<T>) => boolean);
+  }): Promise<void> {
+    await Promise.all(
+      bd
+        .iterator({ limit: -1 })
+        .collect()
+        .map(async (e: LogEntry<T>) => {
+          const àEffacer =
+            typeof élément === "function"
+              ? élément(e)
+              : deepEqual(e.payload.value, élément);
+          if (àEffacer) return await bd.remove(e.hash);
+          return Promise.resolve();
+        })
+    );
   }
 
   async suivreTypeObjet({
@@ -2104,15 +2180,18 @@ export default class ClientConstellation extends EventEmitter {
     if (indexedDB) {
       if (indexedDB.databases) {
         const indexedDbDatabases = await indexedDB.databases();
-        await Promise.all(indexedDbDatabases.map(db=>{
+        await Promise.all(
+          indexedDbDatabases.map((db) => {
             if (db.name) indexedDB.deleteDatabase(db.name);
-        }));
+          })
+        );
       } else {
-        console.warn("On a pas pu tout effacer.")
+        console.warn("On a pas pu tout effacer.");
       }
-    }
-    else {
-      throw new Error("Non implémenté pour Node, Électron, même si c'est plus facile que dans le navigateur.")
+    } else {
+      throw new Error(
+        "Non implémenté pour Node, Électron, même si c'est plus facile que dans le navigateur."
+      );
     }
   }
 
