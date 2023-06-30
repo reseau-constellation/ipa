@@ -1,4 +1,5 @@
-# Concepts clefs
+# Terminologie Constellation
+Constellation ressemble beaucoup à un tableau LibreOffice ou Excel, mais avec quelques fonctionnalités en plus. 
 
 [[toc]]
 
@@ -30,4 +31,4 @@ Le [réseau](/ipa/réseau.md) vous permet d'accéder aux informations des autres
 Vous pouvez également [rechercher](/ipa/recherche.md) les données qui vous intéressent.
 
 ## Nuée
-Les [nuées](/ipa/nuées.md) vous permettent de créer des projets de science citoyenne et de collecter toutes les contributions de vos participants à la même place.
+Les [nuées](/ipa/nuées.md) vous permettent de créer des projets de science citoyenne et de regrouper toutes les contributions de vos participants à la même place.

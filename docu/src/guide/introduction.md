@@ -17,5 +17,12 @@ Dans une système distribué, il n'y a pas de serveur qui contrôle les interact
 
 
 ## Comment ça se compare à ... ?
+| | Constellation | Excel | LibreOffice | Google Docs | BD sur serveur (MongoDB, SQL) |
+| --- | :---: | :---: | :---: |:---: | :---: |
+| Collaboration simultanée | ✅ | ❌ | ❌ | ✅ | ✅ |
+| Fontionne hors ligne | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Photos, vidéos | ✅ | ❌ | ❌ | ✅ | ✅ |
+| Contrôle local des données | ✅ | ✅ | ✅ | ❌ | Si le serveur vous appartient |
+| Réception de contributions d'autres personnes | ✅ | ❌ | ❌ | ✅ | ✅ |
+| Source ouverte | ✅ | ❌ | ✅ | ❌ | [C'est compliqué](https://www.zdnet.fr/actualites/mongodb-la-nouvelle-licence-sspl-fait-grincer-des-dents-dans-l-open-source-39879413.htm) |
 
-| --- | ---- | --- |
