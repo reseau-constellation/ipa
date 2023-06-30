@@ -34,6 +34,7 @@ import type { default as ContrôleurConstellation } from "@/accès/cntrlConstell
 
 export interface schémaSpécificationBd {
   licence: string;
+  licenceContenu?: string;
   motsClefs?: string[];
   nuées?: string[];
   statut?: schémaStatut;
@@ -126,9 +127,11 @@ export default class BDs {
 
   async créerBd({
     licence,
+    licenceContenu,
     ajouter = true,
   }: {
     licence: string;
+    licenceContenu?: string;
     ajouter?: boolean;
   }): Promise<string> {
     const idBdBd = await this.client.créerBdIndépendante({
@@ -144,6 +147,7 @@ export default class BDs {
     >({ id: idBdBd });
     await bdBD.set("type", "bd");
     await bdBD.set("licence", licence);
+    if (licenceContenu) await bdBD.set("licenceContenu", licenceContenu);
 
     const accès = bdBD.access as unknown as ContrôleurConstellation;
     const optionsAccès = { address: accès.address };
@@ -221,8 +225,10 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id });
     const licence = bdBase.get("licence") as string;
+    const licenceContenu = bdBase.get("licenceContenu") as string|undefined;
     const idNouvelleBd = await this.créerBd({
       licence,
+      licenceContenu,
       ajouter: ajouterÀMesBds,
     });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
@@ -324,10 +330,10 @@ export default class BDs {
     schéma: schémaSpécificationBd;
     ajouter?: boolean;
   }): Promise<string> {
-    const { tableaux, motsClefs, nuées, licence, statut } = schéma;
+    const { tableaux, motsClefs, nuées, licence, licenceContenu, statut } = schéma;
 
     // On n'ajoutera la BD que lorsqu'elle sera prête
-    const idBd = await this.créerBd({ licence, ajouter: false });
+    const idBd = await this.créerBd({ licence, licenceContenu, ajouter: false });
 
     if (motsClefs) {
       await this.ajouterMotsClefsBd({ idBd, idsMotsClefs: motsClefs });
@@ -1056,6 +1062,20 @@ export default class BDs {
     await fOublier();
   }
 
+  async changerLicenceContenuBd({
+    idBd,
+    licenceContenu,
+  }: {
+    idBd: string;
+    licenceContenu: string;
+  }): Promise<void> {
+    const { bd: bdBd, fOublier } = await this.client.ouvrirBd<
+      KeyValueStore<typeÉlémentsBdBD>
+    >({ id: idBd });
+    await bdBd.set("licenceContenu", licenceContenu);
+    await fOublier();
+  }
+
   async ajouterMotsClefsBd({
     idBd,
     idsMotsClefs,
@@ -1348,6 +1368,25 @@ export default class BDs {
           "licence"
         ) as string;
         await f(licence);
+      },
+    });
+  }
+
+  @cacheSuivi
+  async suivreLicenceContenu({
+    id,
+    f,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<string>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBd({
+      id,
+      f: async (bd) => {
+        const licenceContenu = (bd as KeyValueStore<typeÉlémentsBdBD>).get(
+          "licenceContenu"
+        ) as string;
+        await f(licenceContenu);
       },
     });
   }
