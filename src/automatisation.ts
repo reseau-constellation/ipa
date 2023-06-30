@@ -315,77 +315,6 @@ const obtTempsInterval = (fréq: fréquence): number => {
   }
 };
 
-export const obtDonnéesImportation = async <
-  T extends infoImporterJSON | infoImporterFeuilleCalcul
->(
-  spéc: SpécificationImporter<T>,
-  résoudreAdresse: (x?: string) => Promise<string | undefined> = async (x) => x
-) => {
-  const { typeSource } = spéc.source;
-  const { formatDonnées } = spéc.source.info;
-
-  switch (typeSource) {
-    case "url": {
-      const { url } = spéc.source;
-      switch (formatDonnées) {
-        case "json": {
-          const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
-          const donnéesJson = await importerJSONdURL(url);
-          const importateur = new ImportateurDonnéesJSON(donnéesJson);
-          return importateur.obtDonnées(clefsRacine, clefsÉléments, cols);
-        }
-
-        case "feuilleCalcul": {
-          const { nomTableau, cols, optionsXLSX } = spéc.source.info;
-          const docXLSX = await importerFeuilleCalculDURL(url, optionsXLSX);
-          const importateur = new ImportateurFeuilleCalcul(docXLSX);
-          return importateur.obtDonnées(nomTableau, cols);
-        }
-
-        default:
-          throw new Error(formatDonnées);
-      }
-    }
-    case "fichier": {
-      if (!isElectronMain && !isNode)
-        throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
-      const fs = await import("fs");
-      const { adresseFichier } = spéc.source;
-      const adresseFichierRésolue = await résoudreAdresse(adresseFichier);
-      if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue))
-        throw new Error(`Fichier ${adresseFichierRésolue} introuvable.`);
-
-      switch (formatDonnées) {
-        case "json": {
-          const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
-
-          const contenuFichier = await fs.promises.readFile(
-            adresseFichierRésolue
-          );
-          const donnéesJson = JSON.parse(contenuFichier.toString());
-          const importateur = new ImportateurDonnéesJSON(donnéesJson);
-
-          return importateur.obtDonnées(clefsRacine, clefsÉléments, cols);
-        }
-
-        case "feuilleCalcul": {
-          const { nomTableau, cols } = spéc.source.info;
-
-          const docXLSX = XLSX.readFile(adresseFichierRésolue);
-          const importateur = new ImportateurFeuilleCalcul(docXLSX);
-          return importateur.obtDonnées(nomTableau, cols);
-        }
-
-        default:
-          throw new Error(formatDonnées);
-      }
-    }
-
-    default:
-      throw new Error(typeSource);
-  }
-};
-
 const générerFExportation = (
   spéc: SpécificationExporter,
   client: ClientConstellation
@@ -481,7 +410,10 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
             })) || undefined
           );
         };
-        const données = await obtDonnéesImportation(spéc, résoudreAdresse);
+        const données = await client.automatisations!.obtDonnéesImportation(
+          spéc,
+          résoudreAdresse
+        );
         await client.tableaux!.importerDonnées({
           idTableau: spéc.idTableau,
           données,
@@ -809,6 +741,78 @@ export default class Automatisations extends EventEmitter {
     }
 
     verrou.release("miseÀJour");
+  }
+
+  async obtDonnéesImportation<
+    T extends infoImporterJSON | infoImporterFeuilleCalcul
+  >(
+    spéc: SpécificationImporter<T>,
+    résoudreAdresse: (x?: string) => Promise<string | undefined> = async (x) =>
+      x
+  ) {
+    const { typeSource } = spéc.source;
+    const { formatDonnées } = spéc.source.info;
+
+    switch (typeSource) {
+      case "url": {
+        const { url } = spéc.source;
+        switch (formatDonnées) {
+          case "json": {
+            const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
+            const donnéesJson = await importerJSONdURL(url);
+            const importateur = new ImportateurDonnéesJSON(donnéesJson);
+            return importateur.obtDonnées(clefsRacine, clefsÉléments, cols);
+          }
+
+          case "feuilleCalcul": {
+            const { nomTableau, cols, optionsXLSX } = spéc.source.info;
+            const docXLSX = await importerFeuilleCalculDURL(url, optionsXLSX);
+            const importateur = new ImportateurFeuilleCalcul(docXLSX);
+            return importateur.obtDonnées(nomTableau, cols);
+          }
+
+          default:
+            throw new Error(formatDonnées);
+        }
+      }
+      case "fichier": {
+        if (!isElectronMain && !isNode)
+          throw new Error(MESSAGE_NON_DISPO_NAVIGATEUR);
+        const fs = await import("fs");
+        const { adresseFichier } = spéc.source;
+        const adresseFichierRésolue = await résoudreAdresse(adresseFichier);
+        if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue))
+          throw new Error(`Fichier ${adresseFichierRésolue} introuvable.`);
+
+        switch (formatDonnées) {
+          case "json": {
+            const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
+
+            const contenuFichier = await fs.promises.readFile(
+              adresseFichierRésolue
+            );
+            const donnéesJson = JSON.parse(contenuFichier.toString());
+            const importateur = new ImportateurDonnéesJSON(donnéesJson);
+
+            return importateur.obtDonnées(clefsRacine, clefsÉléments, cols);
+          }
+
+          case "feuilleCalcul": {
+            const { nomTableau, cols } = spéc.source.info;
+
+            const docXLSX = XLSX.readFile(adresseFichierRésolue);
+            const importateur = new ImportateurFeuilleCalcul(docXLSX);
+            return importateur.obtDonnées(nomTableau, cols);
+          }
+
+          default:
+            throw new Error(formatDonnées);
+        }
+      }
+
+      default:
+        throw new Error(typeSource);
+    }
   }
 
   async ajouterAutomatisationExporter({
