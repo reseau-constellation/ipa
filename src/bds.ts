@@ -564,6 +564,7 @@ export default class BDs {
           });
           if (idBdLocale && idBd !== idBdLocale) {
             await this.combinerBds({ idBdBase: idBd, idBd2: idBdLocale });
+            await this.effacerBd({ id: idBdLocale });
           }
           break;
         }
@@ -580,6 +581,7 @@ export default class BDs {
 
             déjàCombinées.add(bd);
             await this.combinerBds({ idBdBase: idBd, idBd2: bd });
+            await this.effacerBd({ id: bd });
           }
 
           break;
