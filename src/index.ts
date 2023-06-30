@@ -1,7 +1,3 @@
-import client from "@/client.js";
-
-export default client;
-
 export { version } from "@/version.js";
 
 export * as accès from "@/accès/index.js";
@@ -25,3 +21,48 @@ export * as valid from "@/valid.js";
 export * as variables from "@/variables.js";
 
 export * as utilsTests from "@/utilsTests/index.js";
+
+import { ipa, ipaTravailleur } from "@/mandataire/index.js";
+import type { optsConstellation } from "@/client.js";
+import type { optsIpaTravailleur } from "@/mandataire/ipaTravailleur.js";
+import type { MandataireClientConstellation } from "@constl/mandataire";
+
+
+function générerClient({ 
+    opts, mandataire
+}: {
+    opts: optsConstellation;
+    mandataire: "proc"
+}): MandataireClientConstellation
+function générerClient({ 
+    opts, mandataire
+}: {
+    opts: optsIpaTravailleur;
+    mandataire: "travailleur"
+}): MandataireClientConstellation
+function générerClient({ 
+    opts, mandataire
+}: {
+    opts: optsConstellation;
+    mandataire?: "proc"
+}): MandataireClientConstellation
+function générerClient({ 
+    opts,
+    mandataire = "proc"
+}: {
+    opts: optsConstellation|optsIpaTravailleur;
+    mandataire?: "proc" | "travailleur"
+}): MandataireClientConstellation {
+    switch (mandataire) {
+        case "proc":
+            return ipa.générerMandataireProc(opts)
+        case "travailleur":
+            return ipaTravailleur.default(opts as optsIpaTravailleur)
+        default:
+            break;
+    }
+};
+
+
+export {générerClient};
+export default générerClient;
