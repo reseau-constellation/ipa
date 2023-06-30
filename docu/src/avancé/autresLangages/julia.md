@@ -1,4 +1,6 @@
 # Julia
+[![Client Julia](https://github.com/reseau-constellation/Constellation.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/reseau-constellation/Constellation.jl/actions/workflows/CI.yml)
+
 Le client Julia vous permet d'accéder au réseau Constellation à partir d'un programme en [Julia](https://julialang.org/).
 
 ## Installation
