@@ -242,8 +242,9 @@ typesClients.forEach((type) => {
 
       describe("Toujours inclure les miennes - idNuée non rejoignable", function () {
         let empreinte: string;
-        
-        const idNuée = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/tuNeMeTrouverasPas";
+
+        const idNuée =
+          "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/tuNeMeTrouverasPas";
         const idCol = "colonne numérique";
         const fsOublier: schémaFonctionOublier[] = [];
         const résultatChezMoi = new AttendreRésultat<
@@ -254,7 +255,6 @@ typesClients.forEach((type) => {
         >();
 
         beforeAll(async () => {
-
           const idVariableNumérique = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -268,12 +268,12 @@ typesClients.forEach((type) => {
                   {
                     idVariable: idVariableNumérique,
                     idColonne: idCol,
-                  }
+                  },
                 ],
-                clef: "principal" 
-              }
-            ]
-          } 
+                clef: "principal",
+              },
+            ],
+          };
 
           const { fOublier: fOublierChezMoi } =
             await clients[1].nuées!.suivreDonnéesTableauNuée({

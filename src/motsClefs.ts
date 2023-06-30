@@ -71,7 +71,11 @@ export default class MotsClefs {
     return idMotClef;
   }
 
-  async ajouterÀMesMotsClefs({ idMotClef }: { idMotClef: string }): Promise<void> {
+  async ajouterÀMesMotsClefs({
+    idMotClef,
+  }: {
+    idMotClef: string;
+  }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
       id: this.idBd,
     });
@@ -79,11 +83,18 @@ export default class MotsClefs {
     await fOublier();
   }
 
-  async enleverDeMesMotsClefs({ idMotClef }: { idMotClef: string }): Promise<void> {
+  async enleverDeMesMotsClefs({
+    idMotClef,
+  }: {
+    idMotClef: string;
+  }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
     >({ id: this.idBd });
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idMotClef });
+    await this.client.effacerÉlémentDeBdListe({
+      bd: bdRacine,
+      élément: idMotClef,
+    });
     await fOublier();
   }
 
@@ -227,7 +238,11 @@ export default class MotsClefs {
     idMotClef: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id: idMotClef, clef: "noms", f });
+    return await this.client.suivreBdDicDeClef({
+      id: idMotClef,
+      clef: "noms",
+      f,
+    });
   }
 
   async sauvegarderDescriptionsMotClef({
@@ -317,7 +332,11 @@ export default class MotsClefs {
     idMotClef: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id: idMotClef, clef: "descriptions", f });
+    return await this.client.suivreBdDicDeClef({
+      id: idMotClef,
+      clef: "descriptions",
+      f,
+    });
   }
 
   async effacerMotClef({ idMotClef }: { idMotClef: string }): Promise<void> {

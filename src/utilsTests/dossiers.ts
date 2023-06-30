@@ -24,12 +24,9 @@ export const obtDirTempoPourTest = async (
     const fs = await import("fs");
     const path = await import("path");
     const rimraf = (await import("rimraf")).default;
-    
-    const dossierRacine = await dossierTempoTests()
-    const dossier = path.resolve(
-      dossierRacine,
-      (nom || "") + uuidv4()
-    );
+
+    const dossierRacine = await dossierTempoTests();
+    const dossier = path.resolve(dossierRacine, (nom || "") + uuidv4());
     fs.mkdirSync(dossierRacine, { recursive: true });
     const fEffacer = () => rimraf.sync(dossier);
     return { dossier, fEffacer };

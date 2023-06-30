@@ -262,7 +262,10 @@ typesClients.forEach((type) => {
             idVariable,
             catégorie: "chaîne",
           });
-          expect(catégorie).to.deep.equal({type: "simple", catégorie: "chaîne"});
+          expect(catégorie).to.deep.equal({
+            type: "simple",
+            catégorie: "chaîne",
+          });
         });
       });
 
@@ -366,7 +369,7 @@ typesClients.forEach((type) => {
           expect(règleCatégorie).to.exist();
           expect(règleCatégorie?.règle.détails.catégorie).to.deep.equal({
             type: "simple",
-            catégorie: "horoDatage"
+            catégorie: "horoDatage",
           });
         });
       });
@@ -495,7 +498,10 @@ typesClients.forEach((type) => {
         });
 
         it("La catégorie est copiée", async () => {
-          expect(catégorie).to.deep.equal({type: 'simple', catégorie: "numérique"});
+          expect(catégorie).to.deep.equal({
+            type: "simple",
+            catégorie: "numérique",
+          });
         });
       });
     });

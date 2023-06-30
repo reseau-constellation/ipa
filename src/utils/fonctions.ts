@@ -5,7 +5,7 @@ import type {
 } from "@/utils/types.js";
 
 class ÉmetteurUneFois<T> extends EventEmitter {
-  condition: ((x: T) => boolean);
+  condition: (x: T) => boolean;
   résultatPrêt: boolean;
   fOublier?: schémaFonctionOublier;
   résultat?: T;
@@ -13,7 +13,7 @@ class ÉmetteurUneFois<T> extends EventEmitter {
 
   constructor(
     f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>,
-    condition?: ((x?: T) => boolean)
+    condition?: (x?: T) => boolean
   ) {
     super();
     this.condition = condition || (() => true);
@@ -46,7 +46,7 @@ class ÉmetteurUneFois<T> extends EventEmitter {
 
 export const uneFois = async function <T>(
   f: (fSuivi: schémaFonctionSuivi<T>) => Promise<schémaFonctionOublier>,
-  condition?: ((x?: T) => boolean)
+  condition?: (x?: T) => boolean
 ): Promise<T> {
   const émetteur = new ÉmetteurUneFois(f, condition);
   const résultat = (await once(émetteur, "fini")) as [T];

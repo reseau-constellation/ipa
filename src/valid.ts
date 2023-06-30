@@ -8,7 +8,9 @@ import type {
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
-export type sourceRègle ={type: "variable", id: string }| {type: "tableau", id: string};
+export type sourceRègle =
+  | { type: "variable"; id: string }
+  | { type: "tableau"; id: string };
 
 export type règleVariableAvecId<T extends règleVariable = règleVariable> = {
   id: string;
@@ -113,10 +115,15 @@ export type erreurValidation<T extends règleVariable = règleVariable> = {
   erreur: Erreur<T>;
 };
 
-export type erreurRègle = erreurRègleCatégoriqueColonneInexistante | erreurRègleBornesColonneInexistante | erreurRègleBornesVariableNonPrésente
+export type erreurRègle =
+  | erreurRègleCatégoriqueColonneInexistante
+  | erreurRègleBornesColonneInexistante
+  | erreurRègleBornesVariableNonPrésente;
 
 export type erreurRègleCatégoriqueColonneInexistante = {
-  règle: règleColonne<règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>>;
+  règle: règleColonne<
+    règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>
+  >;
   détails: "colonneCatégInexistante";
 };
 

@@ -3,21 +3,20 @@ import { expect } from "aegir/chai";
 import type { IPFS } from "ipfs-core";
 import { isElectronMain, isNode, isWebWorker } from "wherearewe";
 
-
 describe("SFIP", function () {
   let sfip: IPFS;
-  let dossier: string|undefined = undefined;
+  let dossier: string | undefined = undefined;
 
   before(async () => {
     if (isNode || isElectronMain) {
-      const fs = await import("fs")
-      const path = await import("path")
-      const os = await import("os")
+      const fs = await import("fs");
+      const path = await import("path");
+      const os = await import("os");
       dossier = fs.mkdtempSync(path.join(os.tmpdir(), "constl-ipa"));
     }
     sfip = await initSFIP(dossier);
   });
-  
+
   it("Initialiser", async () => {
     const id = await sfip.id();
     expect(id.id.toCID().toString()).to.be.a.string;
@@ -38,14 +37,13 @@ describe("SFIP", function () {
         });
       });
     }
-    
   });
   after(async () => {
     if (sfip) await sfip.stop();
     if (dossier) {
       if (isNode || isElectronMain) {
         const rimraf = (await import("rimraf")).default;
-        rimraf.sync(dossier)
+        rimraf.sync(dossier);
       }
     }
   });

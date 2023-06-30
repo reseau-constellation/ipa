@@ -1,4 +1,4 @@
-import pkg from 'lodash';
+import pkg from "lodash";
 const { isArray } = pkg;
 
 import { expect } from "aegir/chai";

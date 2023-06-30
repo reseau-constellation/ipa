@@ -141,7 +141,10 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
     f: schémaFonctionSuivi<string[]>
   ): Promise<schémaFonctionOublier> {
     const fFinale = async () => {
-      await f([...this.gestRôles._rôles.MEMBRE, ...this.gestRôles._rôles.MODÉRATEUR]);
+      await f([
+        ...this.gestRôles._rôles.MEMBRE,
+        ...this.gestRôles._rôles.MODÉRATEUR,
+      ]);
     };
     this.gestRôles.on("misÀJour", fFinale);
     await fFinale();

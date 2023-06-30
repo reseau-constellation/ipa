@@ -338,7 +338,7 @@ export default class BDs {
     }
 
     if (statut) {
-      await this.changerStatutBd({ idBd, statut  })
+      await this.changerStatutBd({ idBd, statut });
     }
 
     for (const tb of tableaux) {
@@ -713,7 +713,7 @@ export default class BDs {
           },
         });
       },
-      x=>!!x
+      (x) => !!x
     );
     return await this.client.tableaux!.ajouterÉlément({
       idTableau: idTableau,
@@ -745,7 +745,7 @@ export default class BDs {
           },
         });
       },
-      x=>!!x
+      (x) => !!x
     );
 
     return await this.client.tableaux!.modifierÉlément({
@@ -777,7 +777,7 @@ export default class BDs {
           },
         });
       },
-      x=>!!x
+      (x) => !!x
     );
 
     return await this.client.tableaux!.effacerÉlément({
@@ -804,7 +804,7 @@ export default class BDs {
           f: ignorerNonDéfinis(fSuivi),
         });
       },
-      x=>!!x
+      (x) => !!x
     );
     return await this.client!.tableaux!.suivreDonnées({
       idTableau,
@@ -1287,11 +1287,10 @@ export default class BDs {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDic({
       id: idBd,
-      f: async x => {
-        if (x["statut"])
-          return await f(x["statut"] as unknown as schémaStatut)
-      }
-    })
+      f: async (x) => {
+        if (x["statut"]) return await f(x["statut"] as unknown as schémaStatut);
+      },
+    });
   }
 
   async marquerObsolète({
@@ -1622,7 +1621,8 @@ export default class BDs {
         ) {
           const colsÉligibles = cols.filter(
             (c) =>
-              c.catégorie && ["numérique", "catégorique"].includes(c.catégorie.catégorie)
+              c.catégorie &&
+              ["numérique", "catégorique"].includes(c.catégorie.catégorie)
           );
 
           const déjàVus: { empreinte: string; idColonne: string }[] = [];

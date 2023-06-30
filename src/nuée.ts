@@ -785,7 +785,9 @@ export default class Nuée {
     idAutorisation: string;
     f: schémaFonctionSuivi<statutMembreNuée[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (dicMembres: { [clef: string]: "exclus" | "accepté" }) => {
+    const fFinale = async (dicMembres: {
+      [clef: string]: "exclus" | "accepté";
+    }) => {
       const membres = Object.entries(dicMembres).map(([idCompte, statut]) => {
         return {
           idCompte,
@@ -1869,7 +1871,7 @@ export default class Nuée {
       ): Promise<schémaFonctionOublier> => {
         const conformes: { licence: boolean; formatBd: boolean } = {
           licence: false,
-          formatBd: true,  // Ça doit être vrai par défaut, en attendant de rejoindre la nuée distante
+          formatBd: true, // Ça doit être vrai par défaut, en attendant de rejoindre la nuée distante
         };
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1977,7 +1979,7 @@ export default class Nuée {
             infoTableau.données = données;
             await fFinaleTableau();
           },
-          clefsSelonVariables
+          clefsSelonVariables,
         });
         fsOublier.push(fOublierDonnnées);
 
@@ -2018,7 +2020,6 @@ export default class Nuée {
                 await fSuivreCondition(true);
                 return faisRien;
               } else {
-
                 // Il faut envoyer une condition vraie par défaut au début au cas où la nuée ne serait pas rejoignable
                 await fSuivreCondition(true);
 
@@ -2321,7 +2322,7 @@ export default class Nuée {
             f: fSuivi,
           });
         },
-        x => !!x && !!x.length
+        (x) => !!x && !!x.length
       );
     };
     const schéma: schémaSpécificationBd = {
@@ -2392,5 +2393,4 @@ export default class Nuée {
     await this.enleverDeMesNuées({ id });
     await this.client.effacerBd({ id });
   }
-
 }

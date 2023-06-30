@@ -73,7 +73,6 @@ export default class Variables {
   }: {
     catégorie: catégorieVariables | catégorieBaseVariables;
   }): Promise<string> {
-
     const idBdVariable = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès: {
@@ -524,8 +523,7 @@ export default class Variables {
       id,
       f: async (bd: KeyValueStore<typeÉlémentsBdVariable>) => {
         const catégorie = bd.get("catégorie") as catégorieVariables;
-        if (catégorie)
-          await f(this.standardiserCatégorieVariable(catégorie));
+        if (catégorie) await f(this.standardiserCatégorieVariable(catégorie));
       },
     });
   }
@@ -627,7 +625,10 @@ export default class Variables {
       if (rés.catégorie?.catégorie === "numérique") {
         scores.push(rés.unités ? 1 : 0);
       }
-      if (rés.catégorie?.catégorie === "numérique" || rés.catégorie?.catégorie === "catégorique") {
+      if (
+        rés.catégorie?.catégorie === "numérique" ||
+        rés.catégorie?.catégorie === "catégorique"
+      ) {
         scores.push(rés.règles.length >= 1 ? 1 : 0);
       }
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;
