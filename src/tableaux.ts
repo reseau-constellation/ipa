@@ -12,6 +12,7 @@ import {
   faisRien,
   traduire,
   élémentsBd,
+  adresseOrbiteValide,
 } from "@/utils/index.js";
 
 import type { donnéesBdExportées } from "@/bds.js";
@@ -33,7 +34,7 @@ import {
   erreurRègleCatégoriqueColonneInexistante,
   détailsRègleBornesDynamiqueColonne,
 } from "@/valid.js";
-import type { catégorieVariables } from "@/variables.js";
+import type { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 export type élémentBdListeDonnées = {
@@ -69,60 +70,6 @@ export function indexÉlémentsÉgaux(
   if (!index.every((x) => élément1[x] === élément2[x])) return false;
   return true;
 }
-
-export const formaterÉlément = ({
-  é,
-  colonnes,
-  fichiersSFIP,
-  langues,
-}: {
-  é: élémentBdListeDonnées;
-  colonnes: InfoColAvecCatégorie[];
-  fichiersSFIP: Set<{ cid: string; ext: string }>;
-  langues?: string[];
-}): élémentBdListeDonnées => {
-  const élémentFinal: élémentBdListeDonnées = {};
-
-  for (const col of Object.keys(é)) {
-    const colonne = colonnes.find((c) => c.id === col);
-    if (!colonne) continue;
-
-    const { variable, catégorie } = colonne;
-
-    let val: string | number;
-    switch (typeof é[col]) {
-      case "object":
-        if (
-          catégorie?.type === "simple" &&
-          ["audio", "image", "vidéo", "fichier"].includes(catégorie.catégorie)
-        ) {
-          const { cid, ext } = é[col] as { cid: string; ext: string };
-          if (!cid || !ext) continue;
-          val = `${cid}.${ext}`;
-
-          fichiersSFIP.add({ cid, ext });
-        } else {
-          val = JSON.stringify(é[col]);
-        }
-
-        break;
-      case "boolean":
-        val = (é[col] as boolean).toString();
-        break;
-      case "number":
-        val = é[col] as number;
-        break;
-      case "string":
-        val = é[col] as string;
-        break;
-      default:
-        continue;
-    }
-    if (val !== undefined) élémentFinal[langues ? variable : col] = val;
-  }
-
-  return élémentFinal;
-};
 
 export type différenceTableaux =
   | différenceVariableColonne
@@ -476,6 +423,85 @@ export default class Tableaux {
     };
   }
 
+  async formaterÉlément ({
+    é,
+    colonnes,
+    fichiersSFIP,
+    langues,
+  }: {
+    é: élémentBdListeDonnées;
+    colonnes: InfoColAvecCatégorie[];
+    fichiersSFIP: Set<{ cid: string; ext: string }>;
+    langues?: string[];
+  }): Promise<élémentBdListeDonnées> {
+
+    const extraireTraduction = async ({
+      adresseBdTrads,
+      langues,
+    }: {
+      adresseBdTrads: string;
+      langues?: string[];
+    }): Promise<string> => {
+      const trads = await uneFois(
+        (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
+          this.client.suivreBdDic({ id: adresseBdTrads, f })
+      );
+    
+      return traduire(trads, langues || []) || adresseBdTrads;
+      
+    }
+    
+    const élémentFinal: élémentBdListeDonnées = {};
+  
+    const formaterValeur = async (v: élémentsBd, catégorie: catégorieBaseVariables): Promise<string | number | undefined> => {
+      switch (typeof v) {
+        case "object":{
+          if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
+            const { cid, ext } = v as { cid: string; ext: string };
+            if (!cid || !ext) return;
+            fichiersSFIP.add({ cid, ext });
+  
+            return `${cid}.${ext}`;
+          } else {
+            return JSON.stringify(v);
+          }
+        }
+        case "boolean":
+          return v.toString();
+        case "number":
+          return v;
+        case "string":
+          if (catégorie === "chaîne" && adresseOrbiteValide(v)) {
+            return await extraireTraduction({adresseBdTrads: v, langues})
+          }
+          return v;
+        default:
+          return;
+      }
+    }
+  
+    for (const col of Object.keys(é)) {
+      const colonne = colonnes.find((c) => c.id === col);
+      if (!colonne) continue;
+  
+      const { variable, catégorie } = colonne;
+  
+      let val: string | number | undefined = undefined;
+      const élément = é[col]
+      if (catégorie?.type === "simple") {
+        val = await formaterValeur(élément, catégorie.catégorie)
+      } else if (catégorie?.type === "liste") {
+        if (Array.isArray(élément)) {
+          val = JSON.stringify(await Promise.all(élément.map(x => formaterValeur(x, catégorie.catégorie))))
+        }
+      }
+      
+      if (val !== undefined) élémentFinal[langues ? variable : col] = val;
+    }
+  
+    return élémentFinal;
+  };
+
   async exporterDonnées({
     idTableau,
     langues,
@@ -514,14 +540,14 @@ export default class Tableaux {
         this.suivreDonnées({ idTableau, f })
     );
 
-    let donnéesPourXLSX = données.map((d) =>
-      formaterÉlément({
+    let donnéesPourXLSX = await Promise.all(données.map((d) =>
+      this.formaterÉlément({
         é: d.données,
         fichiersSFIP,
         colonnes,
         langues,
       })
-    );
+    ));
 
     if (langues) {
       const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
@@ -545,7 +571,7 @@ export default class Tableaux {
       );
     }
 
-    /* créer le tableau */
+    /* Créer le tableau */
     const tableau = utils.json_to_sheet(donnéesPourXLSX);
 
     /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */

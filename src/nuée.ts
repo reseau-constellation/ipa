@@ -42,7 +42,6 @@ import type { élémentDeMembreAvecValid } from "@/reseau.js";
 import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
 import {
   type différenceTableaux,
-  formaterÉlément,
   type InfoCol,
   type InfoColAvecCatégorie,
   type élémentBdListeDonnées,
@@ -2118,18 +2117,18 @@ export default class Nuée {
         async (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
           await this.suivreColonnesTableauNuée({ idNuée, clefTableau, f })
       );
-      let donnéesPourXLSX = donnéesTableau.map((d) => {
+      let donnéesPourXLSX = await Promise.all(donnéesTableau.map((d) => {
         const élément: élémentBdListeDonnées = {
           auteur: d.idBdCompte,
           ...d.élément,
         };
-        return formaterÉlément({
+        return this.client.tableaux!.formaterÉlément({
           é: élément,
           colonnes: [...colonnes, { id: "auteur", variable: "auteur" }],
           fichiersSFIP,
           langues,
         });
-      });
+      }));
 
       if (langues) {
         const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
