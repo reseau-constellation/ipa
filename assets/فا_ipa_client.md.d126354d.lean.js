@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as a}from"./app.f51e9c41.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"فا/ipa/client.md"}'),c={name:"فا/ipa/client.md"};function n(r,o,s,i,p,_){return a(),t("div")}const m=e(c,[["render",n]]);export{l as __pageData,m as default};

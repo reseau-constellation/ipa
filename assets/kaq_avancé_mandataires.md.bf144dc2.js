@@ -1,1 +1,0 @@
-import{_ as a,c as e,o as t}from"./app.be84dff8.js";const _=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"kaq/avancé/mandataires.md"}'),r={name:"kaq/avancé/mandataires.md"};function n(s,c,o,d,i,m){return t(),e("div")}const f=a(r,[["render",n]]);export{_ as __pageData,f as default};
