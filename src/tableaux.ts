@@ -1135,7 +1135,7 @@ export default class Tableaux {
 
     const entrée: règleColonne = {
       règle: règleAvecId,
-      source: "tableau",
+      source: {type: "tableau", id: idTableau},
       colonne: idColonne,
     };
     await bdRègles.add(entrée);
@@ -1229,7 +1229,7 @@ export default class Tableaux {
         const règlesColonnes: règleColonne[] = règles.map((r) => {
           return {
             règle: r,
-            source: "variable",
+            source: {type: "variable", id: idVariable},
             colonne: branche.id,
           };
         });

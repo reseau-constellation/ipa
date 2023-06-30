@@ -35,7 +35,7 @@ export default class MotsClefs {
   }
 
   async créerMotClef(): Promise<string> {
-    const idBdMotClef = await this.client.créerBdIndépendante({
+    const idMotClef = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès: {
         address: undefined,
@@ -43,11 +43,11 @@ export default class MotsClefs {
       },
     });
 
-    await this.ajouterÀMesMotsClefs({ id: idBdMotClef });
+    await this.ajouterÀMesMotsClefs({ idMotClef });
 
     const { bd: bdMotClef, fOublier: fOublierMotClef } =
       await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdMotClef>>({
-        id: idBdMotClef,
+        id: idMotClef,
       });
 
     const accès = bdMotClef.access as unknown as ContrôleurConstellation;
@@ -68,14 +68,14 @@ export default class MotsClefs {
     await bdMotClef.set("descriptions", idBdDescriptions);
 
     fOublierMotClef();
-    return idBdMotClef;
+    return idMotClef;
   }
 
-  async ajouterÀMesMotsClefs({ id }: { id: string }): Promise<void> {
+  async ajouterÀMesMotsClefs({ idMotClef }: { idMotClef: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
       id: this.idBd,
     });
-    await bd.add(id);
+    await bd.add(idMotClef);
     await fOublier();
   }
 

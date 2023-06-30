@@ -2036,7 +2036,7 @@ export default class Réseau extends EventEmitter {
       fSuivreQualité: schémaFonctionSuivi<number>
     ) => {
       return await this.client.motsClefs!.suivreQualitéMotClef({
-        id,
+        idMotClef: id,
         f: fSuivreQualité,
       });
     };

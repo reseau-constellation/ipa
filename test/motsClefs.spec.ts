@@ -52,7 +52,7 @@ typesClients.forEach((type) => {
           expect(motsClefs.length).to.equal(1);
         });
         it("Effacer un mot-clef", async () => {
-          await client.motsClefs!.effacerMotClef({ id: idMotClef });
+          await client.motsClefs!.effacerMotClef({ idMotClef });
           expect(isArray(motsClefs)).to.be.true;
           expect(motsClefs.length).to.equal(0);
         });
@@ -79,12 +79,12 @@ typesClients.forEach((type) => {
         });
 
         it("Enlever de mes mots-clefs", async () => {
-          await client.motsClefs!.enleverDeMesMotsClefs({ id: idMotClef });
+          await client.motsClefs!.enleverDeMesMotsClefs({ idMotClef });
           expect(mesMotsClefs).not.to.contain(idMotClef);
         });
 
         it("Ajouter à mes mots-clefs", async () => {
-          await client.motsClefs!.ajouterÀMesMotsClefs({ id: idMotClef });
+          await client.motsClefs!.ajouterÀMesMotsClefs({ idMotClef });
           expect(mesMotsClefs).to.contain(idMotClef);
         });
       });
@@ -97,7 +97,7 @@ typesClients.forEach((type) => {
         before(async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
           fOublier = await client.motsClefs!.suivreNomsMotClef({
-            id: idMotClef,
+            idMotClef,
             f: (n) => rés.mettreÀJour(n),
           });
         });
@@ -114,7 +114,7 @@ typesClients.forEach((type) => {
 
         it("Ajouter un nom", async () => {
           await client.motsClefs!.sauvegarderNomMotClef({
-            id: idMotClef,
+            idMotClef,
             langue: "fr",
             nom: "Hydrologie",
           });
@@ -123,8 +123,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.motsClefs!.ajouterNomsMotClef({
-            id: idMotClef,
+          await client.motsClefs!.sauvegarderNomsMotClef({
+            idMotClef,
             noms: {
               த: "நீரியல்",
               हिं: "जल विज्ञान",
@@ -140,7 +140,7 @@ typesClients.forEach((type) => {
 
         it("Changer un nom", async () => {
           await client.motsClefs!.sauvegarderNomMotClef({
-            id: idMotClef,
+            idMotClef,
             langue: "fr",
             nom: "hydrologie",
           });
@@ -151,7 +151,7 @@ typesClients.forEach((type) => {
 
         it("Effacer un nom", async () => {
           await client.motsClefs!.effacerNomMotClef({
-            id: idMotClef,
+            idMotClef,
             langue: "fr",
           });
           await rés.attendreQue((x) => !Object.keys(x).includes("fr"));
@@ -176,8 +176,8 @@ typesClients.forEach((type) => {
           });
 
           const idMotClef = await client.motsClefs!.créerMotClef();
-          await client.motsClefs!.ajouterNomsMotClef({
-            id: idMotClef,
+          await client.motsClefs!.sauvegarderNomsMotClef({
+            idMotClef,
             noms: {
               த: "நீரியல்",
               हिं: "जल विज्ञान",
@@ -185,10 +185,10 @@ typesClients.forEach((type) => {
           });
 
           idMotClef2 = await client.motsClefs!.copierMotClef({
-            id: idMotClef,
+            idMotClef,
           });
           fOublier2 = await client.motsClefs!.suivreNomsMotClef({
-            id: idMotClef2,
+            idMotClef: idMotClef2,
             f: (x) => (noms = x),
           });
         });

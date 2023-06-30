@@ -2271,7 +2271,7 @@ export default class Nuée {
           }
         );
         for (const règle of règles) {
-          if (règle.source === "tableau") {
+          if (règle.source.type === "tableau") {
             await this.ajouterRègleTableauNuée({
               idTableau: idTableauNuée,
               idColonne: col.id,

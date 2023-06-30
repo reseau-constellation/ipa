@@ -36,7 +36,7 @@ export const rechercherMotClefSelonNom = (
       }
     };
     const fOublier = await client.motsClefs!.suivreNomsMotClef({
-      id: idMotClef,
+      idMotClef,
       f: fSuivre,
     });
     return fOublier;
