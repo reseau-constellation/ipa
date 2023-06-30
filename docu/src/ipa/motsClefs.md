@@ -1,5 +1,5 @@
 # Mots-clefs
-Les mots-clefs peuvent s'associer à une [base de données](ipa/bds.md), à un [projet](ipa/projets.md) ou à une [nuée](ipa/nuées.md) et servent pour indexer et retrouver les données dans le réseau Constellation.
+Les mots-clefs peuvent s'associer à une [base de données](./bds.md), à un [projet](./projets.md) ou à une [nuée](./nuées.md) et servent pour indexer et retrouver les données dans le réseau Constellation.
 
 [[toc]]
 
@@ -7,7 +7,7 @@ Les mots-clefs peuvent s'associer à une [base de données](ipa/bds.md), à un [
 Actions générales pour gérer vos mot-clefs.
 
 ### `client.motClefs.suivreMotsClefs({ f })`
-Recherche les mots-clefs appartenant au compte présent. Pour rechercher des mots-clefs d'autres utilisateurs sur le réseau Constellation, voir la section [réseau](ipa/réseau.md).
+Recherche les mots-clefs appartenant au compte présent. Pour rechercher des mots-clefs d'autres utilisateurs sur le réseau Constellation, voir la section [réseau](./réseau.md).
 
 #### Paramètres
 | Nom | Type | Description |
