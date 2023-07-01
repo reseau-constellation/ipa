@@ -17,12 +17,12 @@ Dans une système distribué, il n'y a pas de serveur qui contrôle les interact
 
 
 ## Comment ça se compare à ... ?
-| | Constellation | Excel | LibreOffice | Google Docs | BD sur serveur (MongoDB, SQL) |
+| | Constellation | [Excel](https://fr.wikipedia.org/wiki/Microsoft_Excel) | [LibreOffice](https://fr.libreoffice.org/) | [Docs Google](https://www.google.com/intl/fr/drive/) | BD sur serveur ([MongoDB](https://www.mongodb.com/fr-fr), [SQL](https://sql.sh/)) |
 | --- | :---: | :---: | :---: |:---: | :---: |
 | Collaboration simultanée | ✅ | ❌ | ❌ | ✅ | ✅ |
-| Fontionne hors ligne | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Fontionne hors ligne | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Photos, vidéos | ✅ | ❌ | ❌ | ✅ | ✅ |
 | Contrôle local des données | ✅ | ✅ | ✅ | ❌ | Si le serveur vous appartient |
-| Réception de contributions d'autres personnes | ✅ | ❌ | ❌ | ✅ | ✅ |
+| Intégration avec vos applis | ✅ | ❌ | ❌ | ✅ | ✅ |
 | Source ouverte | ✅ | ❌ | ✅ | ❌ | [C'est compliqué](https://www.zdnet.fr/actualites/mongodb-la-nouvelle-licence-sspl-fait-grincer-des-dents-dans-l-open-source-39879413.htm) |
 
