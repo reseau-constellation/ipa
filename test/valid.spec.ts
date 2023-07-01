@@ -1,3 +1,6 @@
+import lodash from 'lodash';
+const { isArray } = lodash;
+
 import { v4 as uuidv4 } from "uuid";
 import type { élémentsBd } from "@/utils/index.js";
 import {
@@ -11,7 +14,8 @@ import {
   typeOp,
 } from "@/valid.js";
 import type { catégorieBaseVariables } from "@/variables.js";
-import isArray from "lodash/isArray";
+
+import { expect } from "aegir/chai";
 
 const catégories: {
   [key in catégorieBaseVariables]: {
@@ -139,7 +143,7 @@ describe("Validation", function () {
     Object.keys(catégories).forEach((cat) => {
       describe(cat + " valides", function () {
         catégories[cat as catégorieBaseVariables].valides.forEach((val) => {
-          test(`${val}`, () => {
+          it(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
               catégorie: {
@@ -147,13 +151,13 @@ describe("Validation", function () {
                 catégorie: cat as catégorieBaseVariables,
               },
             });
-            expect(valide).toBe(true);
+            expect(valide).to.be.true;
           });
         });
       });
       describe(cat + " non valides", function () {
         catégories[cat as catégorieBaseVariables].invalides.forEach((val) => {
-          test(`${val}`, () => {
+          it(`${val}`, () => {
             const valide = validerCatégorieVal({
               val,
               catégorie: {
@@ -161,7 +165,7 @@ describe("Validation", function () {
                 catégorie: cat as catégorieBaseVariables,
               },
             });
-            expect(valide).toBe(false);
+            expect(valide).to.be.false;
           });
         });
       });
@@ -170,7 +174,7 @@ describe("Validation", function () {
   describe("Générer fonction règle", function () {
     describe("Règle existe", function () {
       const règle: règleColonne<règleExiste> = {
-        source: "variable",
+        source: { type: "variable", id: "idVar" },
         colonne: "col numérique",
         règle: {
           id: uuidv4(),
@@ -183,33 +187,33 @@ describe("Validation", function () {
       const fonc = générerFonctionRègle({ règle, varsÀColonnes: {} });
       const empreinte = uuidv4();
 
-      test("Valeure existante", () => {
+      it("Valeure existante", () => {
         const erreurs = fonc([
           {
             données: { "col numérique": 123 },
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(0);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(0);
       });
-      test("Valeure manquante", () => {
+      it("Valeure manquante", () => {
         const erreurs = fonc([
           {
             données: { "une autre colonne": "abc" },
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(1);
-        expect(erreurs[0].empreinte).toEqual(empreinte);
-        expect(erreurs[0].erreur.règle).toEqual(règle);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(1);
+        expect(erreurs[0].empreinte).to.equal(empreinte);
+        expect(erreurs[0].erreur.règle).to.equal(règle);
       });
     });
 
     describe("Règles catégories", function () {
       const règle: règleColonne<règleCatégorie> = {
-        source: "variable",
+        source: { type: "variable", id: "idVar"},
         colonne: "col numérique",
         règle: {
           id: uuidv4(),
@@ -224,33 +228,33 @@ describe("Validation", function () {
       const fonc = générerFonctionRègle({ règle, varsÀColonnes: {} });
       const empreinte = uuidv4();
 
-      test("Catérogie valide", () => {
+      it("Catérogie valide", () => {
         const erreurs = fonc([
           {
             données: { "col numérique": 123 },
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(0);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(0);
       });
-      test("Catérogie invalide", () => {
+      it("Catérogie invalide", () => {
         const erreurs = fonc([
           {
             données: { "col numérique": "abc" },
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(1);
-        expect(erreurs[0].empreinte).toEqual(empreinte);
-        expect(erreurs[0].erreur.règle).toEqual(règle);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(1);
+        expect(erreurs[0].empreinte).to.equal(empreinte);
+        expect(erreurs[0].erreur.règle).to.equal(règle);
       });
     });
     describe("Règles bornes", function () {
-      test("Pas d'erreure si la colonne n'existe pas", () => {
+      it("Pas d'erreure si la colonne n'existe pas", () => {
         const règle: règleColonne<règleBornes> = {
-          source: "tableau",
+          source: {type: "tableau", id: "idTableau"},
           colonne: "col numérique",
           règle: {
             id: uuidv4(),
@@ -268,8 +272,8 @@ describe("Validation", function () {
         const erreurs = fonc([
           { données: { "une autre colonne": 1 }, empreinte: uuidv4() },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(0);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(0);
       });
 
       const ref = 0;
@@ -282,7 +286,7 @@ describe("Validation", function () {
       ops.forEach((op) => {
         describe(op.op, () => {
           const règle: règleColonne<règleBornes> = {
-            source: "variable",
+            source: { type: "variable", id: "idVar"},
             colonne: "col numérique",
             règle: {
               id: uuidv4(),
@@ -300,29 +304,29 @@ describe("Validation", function () {
           const empreinte = uuidv4();
 
           op.valides.forEach((v) => {
-            test(`${v}`, () => {
+            it(`${v}`, () => {
               const erreurs = fonc([
                 {
                   données: { "col numérique": v },
                   empreinte,
                 },
               ]);
-              expect(isArray(erreurs)).toBe(true);
-              expect(erreurs).toHaveLength(0);
+              expect(isArray(erreurs)).to.be.true;
+              expect(erreurs.length).to.equal(0);
             });
           });
           op.invalides.forEach((v) => {
-            test(`${v}`, () => {
+            it(`${v}`, () => {
               const erreurs = fonc([
                 {
                   données: { "col numérique": v },
                   empreinte,
                 },
               ]);
-              expect(isArray(erreurs)).toBe(true);
-              expect(erreurs).toHaveLength(1);
-              expect(erreurs[0].empreinte).toEqual(empreinte);
-              expect(erreurs[0].erreur.règle).toEqual(règle);
+              expect(isArray(erreurs)).to.be.true;
+              expect(erreurs.length).to.equal(1);
+              expect(erreurs[0].empreinte).to.equal(empreinte);
+              expect(erreurs[0].erreur.règle).to.equal(règle);
             });
           });
         });
@@ -330,7 +334,7 @@ describe("Validation", function () {
 
       describe("Bornes selon une autre variable", () => {
         const règle: règleColonne<règleBornes> = {
-          source: "variable",
+          source: { type: "variable", id: "idVar"},
           colonne: "temp max",
           règle: {
             id: uuidv4(),
@@ -352,38 +356,38 @@ describe("Validation", function () {
         });
         const empreinte = uuidv4(); // Pas important
 
-        test("Pas d'erreur si la colonne n'existe pas", () => {
+        it("Pas d'erreur si la colonne n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp min": 1 }, empreinte }]);
-          expect(isArray(erreurs)).toBe(true);
-          expect(erreurs).toHaveLength(0);
+          expect(isArray(erreurs)).to.be.true;
+          expect(erreurs.length).to.equal(0);
         });
-        test("Pas d'erreur si tout est valide", () => {
+        it("Pas d'erreur si tout est valide", () => {
           const erreurs = fonc([
             { données: { "temp min": 10, "temp max": 20 }, empreinte },
           ]);
-          expect(isArray(erreurs)).toBe(true);
-          expect(erreurs).toHaveLength(0);
+          expect(isArray(erreurs)).to.be.true;
+          expect(erreurs.length).to.equal(0);
         });
-        test("Pas d'erreur si la colonne référence n'existe pas", () => {
+        it("Pas d'erreur si la colonne référence n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp max": 20 }, empreinte }]);
-          expect(isArray(erreurs)).toBe(true);
-          expect(erreurs).toHaveLength(0);
+          expect(isArray(erreurs)).to.be.true;
+          expect(erreurs.length).to.equal(0);
         });
-        test("Erreur si non valide", () => {
+        it("Erreur si non valide", () => {
           const erreurs = fonc([
             { données: { "temp max": 20, "temp min": 25 }, empreinte },
           ]);
 
-          expect(isArray(erreurs)).toBe(true);
-          expect(erreurs).toHaveLength(1);
-          expect(erreurs[0].empreinte).toEqual(empreinte);
-          expect(erreurs[0].erreur.règle).toEqual(règle);
+          expect(isArray(erreurs)).to.be.true;
+          expect(erreurs.length).to.equal(1);
+          expect(erreurs[0].empreinte).to.equal(empreinte);
+          expect(erreurs[0].erreur.règle).to.equal(règle);
         });
       });
     });
     describe("Règles catégoriques", function () {
       const règle: règleColonne<règleValeurCatégorique> = {
-        source: "tableau",
+        source: { type: "tableau", id: "idTableau"},
         colonne: "col chaîne",
         règle: {
           id: uuidv4(),
@@ -402,44 +406,44 @@ describe("Validation", function () {
       });
       const empreinte = uuidv4();
 
-      test("Pas d'erreur si la colonne n'existe pas", () => {
+      it("Pas d'erreur si la colonne n'existe pas", () => {
         const erreurs = fonc([
           { données: { "une autre colonne": 2 }, empreinte },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(0);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(0);
       });
-      test("Pas d'erreur si tout valide", () => {
+      it("Pas d'erreur si tout valide", () => {
         const erreurs = fonc([{ données: { "col chaîne": "a" }, empreinte }]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(0);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(0);
       });
 
-      test("Erreur si non valide", () => {
+      it("Erreur si non valide", () => {
         const erreurs = fonc([{ données: { "col chaîne": "d" }, empreinte }]);
 
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(1);
-        expect(erreurs[0].empreinte).toEqual(empreinte);
-        expect(erreurs[0].erreur.règle).toEqual(règle);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(1);
+        expect(erreurs[0].empreinte).to.equal(empreinte);
+        expect(erreurs[0].erreur.règle).to.equal(règle);
       });
     });
     describe("Catégories liste", function () {
       const règleCat: règleColonne<règleCatégorie> = {
-        source: "variable",
+        source: { type: "variable", id: "idVar"},
         colonne: "col numérique",
         règle: {
           id: uuidv4(),
           règle: {
             typeRègle: "catégorie",
             détails: {
-              catégorie: { type: "liste", catégorieBase: "numérique" },
+              catégorie: { type: "liste", catégorie: "numérique" },
             },
           },
         },
       };
       const règleVal: règleColonne<règleBornes> = {
-        source: "variable",
+        source: { type: "variable", id: "idVar"},
         colonne: "col numérique",
         règle: {
           id: uuidv4(),
@@ -463,49 +467,49 @@ describe("Validation", function () {
       });
       const empreinte = uuidv4();
 
-      test("Catérogie valide", () => {
+      it("Catérogie valide", () => {
         const erreurs = foncCat([
           {
             données: { "col numérique": [123, 456] },
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(0);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(0);
       });
-      test("Catérogie invalide", () => {
+      it("Catérogie invalide", () => {
         const erreurs = foncCat([
           {
             données: { "col numérique": [123, "abc"] },
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(1);
-        expect(erreurs[0].empreinte).toEqual(empreinte);
-        expect(erreurs[0].erreur.règle).toEqual(règleCat);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(1);
+        expect(erreurs[0].empreinte).to.equal(empreinte);
+        expect(erreurs[0].erreur.règle).to.equal(règleCat);
       });
-      test("Valeur valide", () => {
+      it("Valeur valide", () => {
         const erreurs = foncBorne([
           {
             données: { "col numérique": [123, 456] },
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(0);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(0);
       });
-      test("Valeur invalide", () => {
+      it("Valeur invalide", () => {
         const erreurs = foncBorne([
           {
             données: { "col numérique": [123, -123] },
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).toBe(true);
-        expect(erreurs).toHaveLength(1);
-        expect(erreurs[0].empreinte).toEqual(empreinte);
-        expect(erreurs[0].erreur.règle).toEqual(règleVal);
+        expect(isArray(erreurs)).to.be.true;
+        expect(erreurs.length).to.equal(1);
+        expect(erreurs[0].empreinte).to.equal(empreinte);
+        expect(erreurs[0].erreur.règle).to.equal(règleVal);
       });
     });
   });
