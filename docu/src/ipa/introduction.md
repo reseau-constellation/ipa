@@ -1,5 +1,5 @@
 # Interface de programmation d'application (IPA)
-L'interface de programmation d'application (IPA) de Constellation vous permet d'utiliser Constellation dans vos propres logiciels et applications. Cette section documente les fonctions de Constellation en JavaScript/TypeScript, son langage principa. Pour utiliser Constellation dans d'autres langages informatiques, voir la section sur les [autres langages](/avancé/autresLangages/introduction.md).
+L'interface de programmation d'application (IPA) de Constellation vous permet d'utiliser Constellation dans vos propres logiciels et applications. Cette section documente les fonctions de Constellation en JavaScript/TypeScript, son langage principal. Pour utiliser Constellation dans d'autres langages informatiques, voir la section sur les [autres langages](/avancé/autresLangages/introduction.md).
 
 ## Installation
 Pour ajouter l'IPA de Constellation à votre projet, installez la librarie `@constl/ipa`:
