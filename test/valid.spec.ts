@@ -43,7 +43,7 @@ const catégories: {
   },
   intervaleTemps: {
     valides: [["01-01-2021", "01-02-2021"]],
-    invalides: ["01-01-2021"],
+    invalides: ["01-01-2021", ["01-01-2021"]],
   },
   catégorique: {
     valides: ["abc", 1, true, false, { a: 1 }], // Tout dépend des options...rien à vérifier pour l'instant

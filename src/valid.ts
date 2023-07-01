@@ -383,6 +383,7 @@ const validerCatégorieBase = ({
     }
     case "intervaleTemps":
       if (!Array.isArray(val)) return false;
+      if (val.length !== 2) return false;
       return (val as unknown[]).every((d) => estUnHoroDatage(d));
     case "chaîne":
       return adresseOrbiteValide(val);
