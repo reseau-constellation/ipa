@@ -1,1 +1,0 @@
-import{_ as e,c as t,o as a}from"./app.f51e9c41.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ខ្មែរ/ipa/projets.md"}'),r={name:"ខ្មែរ/ipa/projets.md"};function o(s,p,c,n,i,_){return a(),t("div")}const f=e(r,[["render",o]]);export{m as __pageData,f as default};
