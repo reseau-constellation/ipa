@@ -95,6 +95,7 @@ export const configVitePress = defineConfig({
           { text: "Variables", link: "/ipa/variables" },
           { text: "Mots-clefs", link: "/ipa/motsClefs" },
           { text: "Tableaux", link: "/ipa/tableaux" },
+          { text: "Licences", link: "/ipa/licences" },
           { text: "Bases de données", link: "/ipa/bds" },
           { text: "Projets", link: "/ipa/projets" },
           { text: "Recherche", link: "/ipa/recherche" },
