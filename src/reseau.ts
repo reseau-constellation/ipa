@@ -104,7 +104,7 @@ export interface statutMembre {
 
 export interface infoRéplications {
   membres: statutMembre[];
-  dispositifs: (épingleDispositif & { idDispositif: string; vuÀ?: number })[];
+  dispositifs: (épingleDispositif & { idDispositif: string; idCompte?: string; vuÀ?: number })[];
 }
 
 export interface résultatRechercheSansScore<T extends infoRésultat> {
@@ -2451,12 +2451,18 @@ export default class Réseau extends EventEmitter {
                 const vuÀ = résultats.connexionsDispositifs.find(
                   (c) => c.infoDispositif.idOrbite === d
                 )?.vuÀ;
+                const idCompte = résultats.connexionsDispositifs.find(
+                  (c) => c.infoDispositif.idOrbite === d
+                )?.infoDispositif.idCompte;
+
                 const dispositifsRéplication: épingleDispositif & {
                   idDispositif: string;
+                  idCompte?: string;
                   vuÀ?: number;
                 } = {
                   idObjet,
                   idDispositif: d,
+                  idCompte,
                   bd: await this.client.favoris!.estÉpingléSurDispositif({
                     dispositifs: favoris.dispositifs,
                     idOrbite: d,
