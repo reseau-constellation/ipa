@@ -93,7 +93,7 @@ type typeÉlémentsBdCompteClient = string;
 
 const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 
-export default class ClientConstellation extends EventEmitter {
+export class ClientConstellation extends EventEmitter {
   _opts: optsConstellation;
   optionsAccès?: { [key: string]: unknown };
   bdCompte?: KeyValueStore<typeÉlémentsBdCompteClient>;
@@ -2203,3 +2203,5 @@ export default class ClientConstellation extends EventEmitter {
     return client;
   }
 }
+
+export default ClientConstellation;
