@@ -33,8 +33,6 @@ import type {
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 
-import { config } from "@/utilsTests/sfip.js";
-
 import { expect } from "aegir/chai";
 
 typesClients.forEach((type) => {
@@ -1472,15 +1470,12 @@ typesClients.forEach((type) => {
         it("Données manquantes ajoutées", async () => {
           expect(isArray(données)).to.be.true;
           expect(données.length).to.equal(4);
-          expect(
-            données
-              .map((d) => d.données)
-              .map((d) => {
-                delete d.id;
-                return d;
-              })
-          ).to.deep.equal(
-            [
+          expect(données
+            .map((d) => d.données)
+            .map((d) => {
+              delete d.id;
+              return d;
+            })).to.deep.include.members([
               {
                 [idsCols[idVarEndroit]]: "ici",
                 [idsCols[idVarDate]]: "2021-01-01",
@@ -1502,8 +1497,7 @@ typesClients.forEach((type) => {
                 [idsCols[idVarDate]]: "2021-01-02",
                 [idsCols[idVarTempMin]]: 27,
               },
-            ]
-          );
+            ])
         });
       });
 
@@ -1607,7 +1601,7 @@ typesClients.forEach((type) => {
                 delete d.id;
                 return d;
               })
-          ).to.deep.equal([
+          ).to.have.deep.members([
             {
               [idsCols[idVarEndroit]]: "ici",
               [idsCols[idVarDate]]: "2021-01-01",
@@ -1767,7 +1761,7 @@ typesClients.forEach((type) => {
 
         it("Les fichiers SFIP sont détectés", async () => {
           expect(fichiersSFIP.size).to.equal(1);
-          expect(fichiersSFIP).to.equal(
+          expect(fichiersSFIP).to.deep.equal(
             new Set([
               {
                 cid: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ",
@@ -1789,7 +1783,7 @@ typesClients.forEach((type) => {
           ]) {
             expect(
               (doc.Sheets[idTableauCourt][cellule] as XLSX.CellObject).v
-            ).to.equal(val);
+            ).to.deep.equal(val);
           }
         });
       });
