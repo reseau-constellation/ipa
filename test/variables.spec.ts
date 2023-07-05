@@ -62,8 +62,7 @@ typesClients.forEach((type) => {
 
             expect(variables).to.have.lengthOf(1);
             expect(variables).to.contain(idVariable);
-          },
-          config.patience
+          }
         );
 
         it("Effacer un mot-clef", async () => {

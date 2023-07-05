@@ -20,7 +20,7 @@ describe("SFIP", function () {
   it("Initialiser", async () => {
     const id = await sfip.id();
     expect(id.id.toCID().toString()).to.be.a.string;
-  }, 10000);
+  });
 
   it("Connexion à un serveur webrtc-star", async () => {
     if (!isWebWorker) {
