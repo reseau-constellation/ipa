@@ -146,26 +146,6 @@
       ".": "git+https://github.com/julienmalard/electron-wrtc-relay.git"
     }
   },
-  "jest": {
-    "transform": {
-      "(.*).ts$": [
-        "ts-jest",
-        {
-          "useESM": true
-        }
-      ]
-    },
-    "preset": "ts-jest/presets/default-esm",
-    "moduleNameMapper": {
-      "^@/(.*).js$": "<rootDir>/src/$1",
-      "^@/(.*)$": "<rootDir>/src/$1"
-    },
-    "testMatch": [
-      "**/*.test.ts"
-    ],
-    "testEnvironment": "node",
-    "globalTeardown": "<rootDir>/src/utilsTests/nettoyerTests.ts"
-  },
   "peerDependencies": {
     "electron": "^23.0.0",
     "wrtc": "^0.4.7"
