@@ -34,7 +34,10 @@ import {
   erreurRègleCatégoriqueColonneInexistante,
   détailsRègleBornesDynamiqueColonne,
 } from "@/valid.js";
-import type { catégorieBaseVariables, catégorieVariables } from "@/variables.js";
+import type {
+  catégorieBaseVariables,
+  catégorieVariables,
+} from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 export type élémentBdListeDonnées = {
@@ -423,7 +426,7 @@ export default class Tableaux {
     };
   }
 
-  async formaterÉlément ({
+  async formaterÉlément({
     é,
     colonnes,
     fichiersSFIP,
@@ -434,7 +437,6 @@ export default class Tableaux {
     fichiersSFIP: Set<{ cid: string; ext: string }>;
     langues?: string[];
   }): Promise<élémentBdListeDonnées> {
-
     const extraireTraduction = async ({
       adresseBdTrads,
       langues,
@@ -446,21 +448,23 @@ export default class Tableaux {
         (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
           this.client.suivreBdDic({ id: adresseBdTrads, f })
       );
-    
+
       return traduire(trads, langues || []) || adresseBdTrads;
-      
-    }
-    
+    };
+
     const élémentFinal: élémentBdListeDonnées = {};
-  
-    const formaterValeur = async (v: élémentsBd, catégorie: catégorieBaseVariables): Promise<string | number | undefined> => {
+
+    const formaterValeur = async (
+      v: élémentsBd,
+      catégorie: catégorieBaseVariables
+    ): Promise<string | number | undefined> => {
       switch (typeof v) {
-        case "object":{
+        case "object": {
           if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
             const { cid, ext } = v as { cid: string; ext: string };
             if (!cid || !ext) return;
             fichiersSFIP.add({ cid, ext });
-  
+
             return `${cid}.${ext}`;
           } else {
             return JSON.stringify(v);
@@ -472,35 +476,39 @@ export default class Tableaux {
           return v;
         case "string":
           if (catégorie === "chaîne" && adresseOrbiteValide(v)) {
-            return await extraireTraduction({adresseBdTrads: v, langues})
+            return await extraireTraduction({ adresseBdTrads: v, langues });
           }
           return v;
         default:
           return;
       }
-    }
-  
+    };
+
     for (const col of Object.keys(é)) {
       const colonne = colonnes.find((c) => c.id === col);
       if (!colonne) continue;
-  
+
       const { variable, catégorie } = colonne;
-  
+
       let val: string | number | undefined = undefined;
-      const élément = é[col]
+      const élément = é[col];
       if (catégorie?.type === "simple") {
-        val = await formaterValeur(élément, catégorie.catégorie)
+        val = await formaterValeur(élément, catégorie.catégorie);
       } else if (catégorie?.type === "liste") {
         if (Array.isArray(élément)) {
-          val = JSON.stringify(await Promise.all(élément.map(x => formaterValeur(x, catégorie.catégorie))))
+          val = JSON.stringify(
+            await Promise.all(
+              élément.map((x) => formaterValeur(x, catégorie.catégorie))
+            )
+          );
         }
       }
-      
+
       if (val !== undefined) élémentFinal[langues ? variable : col] = val;
     }
-  
+
     return élémentFinal;
-  };
+  }
 
   async exporterDonnées({
     idTableau,
@@ -540,14 +548,16 @@ export default class Tableaux {
         this.suivreDonnées({ idTableau, f })
     );
 
-    let donnéesPourXLSX = await Promise.all(données.map((d) =>
-      this.formaterÉlément({
-        é: d.données,
-        fichiersSFIP,
-        colonnes,
-        langues,
-      })
-    ));
+    let donnéesPourXLSX = await Promise.all(
+      données.map((d) =>
+        this.formaterÉlément({
+          é: d.données,
+          fichiersSFIP,
+          colonnes,
+          langues,
+        })
+      )
+    );
 
     if (langues) {
       const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>

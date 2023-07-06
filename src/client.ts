@@ -442,8 +442,10 @@ export class ClientConstellation extends EventEmitter {
       racine: await this.obtIdCompte(),
       type: "kvstore",
     });
-    const {bd: bdNomsDispositifs, fOublier} = await this.ouvrirBd<KeyValueStore<{nom: string, type: string}>>({id: idBdNomsDispositifs!});
-    await bdNomsDispositifs.set(idDispositif, {nom, type});
+    const { bd: bdNomsDispositifs, fOublier } = await this.ouvrirBd<
+      KeyValueStore<{ nom: string; type: string }>
+    >({ id: idBdNomsDispositifs! });
+    await bdNomsDispositifs.set(idDispositif, { nom, type });
     await fOublier();
   }
 
@@ -458,8 +460,8 @@ export class ClientConstellation extends EventEmitter {
     return await this.suivreBdDicDeClef({
       id: idCompteFinal,
       clef: "nomsDispositifs",
-      f
-    })
+      f,
+    });
   }
 
   async suivreNomDispositif({

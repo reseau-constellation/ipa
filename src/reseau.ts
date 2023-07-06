@@ -104,7 +104,11 @@ export interface statutMembre {
 
 export interface infoRéplications {
   membres: statutMembre[];
-  dispositifs: (épingleDispositif & { idDispositif: string; idCompte?: string; vuÀ?: number })[];
+  dispositifs: (épingleDispositif & {
+    idDispositif: string;
+    idCompte?: string;
+    vuÀ?: number;
+  })[];
 }
 
 export interface résultatRechercheSansScore<T extends infoRésultat> {

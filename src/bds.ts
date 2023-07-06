@@ -225,7 +225,7 @@ export default class BDs {
       KeyValueStore<typeÉlémentsBdBD>
     >({ id });
     const licence = bdBase.get("licence") as string;
-    const licenceContenu = bdBase.get("licenceContenu") as string|undefined;
+    const licenceContenu = bdBase.get("licenceContenu") as string | undefined;
     const idNouvelleBd = await this.créerBd({
       licence,
       licenceContenu,
@@ -330,10 +330,15 @@ export default class BDs {
     schéma: schémaSpécificationBd;
     ajouter?: boolean;
   }): Promise<string> {
-    const { tableaux, motsClefs, nuées, licence, licenceContenu, statut } = schéma;
+    const { tableaux, motsClefs, nuées, licence, licenceContenu, statut } =
+      schéma;
 
     // On n'ajoutera la BD que lorsqu'elle sera prête
-    const idBd = await this.créerBd({ licence, licenceContenu, ajouter: false });
+    const idBd = await this.créerBd({
+      licence,
+      licenceContenu,
+      ajouter: false,
+    });
 
     if (motsClefs) {
       await this.ajouterMotsClefsBd({ idBd, idsMotsClefs: motsClefs });

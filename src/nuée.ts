@@ -2117,18 +2117,20 @@ export default class Nuée {
         async (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
           await this.suivreColonnesTableauNuée({ idNuée, clefTableau, f })
       );
-      let donnéesPourXLSX = await Promise.all(donnéesTableau.map((d) => {
-        const élément: élémentBdListeDonnées = {
-          auteur: d.idBdCompte,
-          ...d.élément,
-        };
-        return this.client.tableaux!.formaterÉlément({
-          é: élément,
-          colonnes: [...colonnes, { id: "auteur", variable: "auteur" }],
-          fichiersSFIP,
-          langues,
-        });
-      }));
+      let donnéesPourXLSX = await Promise.all(
+        donnéesTableau.map((d) => {
+          const élément: élémentBdListeDonnées = {
+            auteur: d.idBdCompte,
+            ...d.élément,
+          };
+          return this.client.tableaux!.formaterÉlément({
+            é: élément,
+            colonnes: [...colonnes, { id: "auteur", variable: "auteur" }],
+            fichiersSFIP,
+            langues,
+          });
+        })
+      );
 
       if (langues) {
         const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
