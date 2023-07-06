@@ -13,7 +13,7 @@ process.on("beforeExit", (code) => process.exit(code));
 const esbuild = {
   // this will inject all the named exports from 'node-globals.js' as globals
   inject: [path.join(__dirname, "./scripts/node-globals.js")],
-  external: ["fs", "path", "os", "chokidar", "@constl/electron-webrtc-relay"],
+  external: ["fs", "path", "os", "chokidar", "@constl/electron-webrtc-relay", "url", "zlib"],
   plugins: [
     {
       name: "node built ins", // this will make the bundler resolve node builtins to the respective browser polyfill
