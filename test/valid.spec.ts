@@ -1,4 +1,4 @@
-import lodash from 'lodash';
+import lodash from "lodash";
 const { isArray } = lodash;
 
 import { v4 as uuidv4 } from "uuid";
@@ -213,7 +213,7 @@ describe("Validation", function () {
 
     describe("Règles catégories", function () {
       const règle: règleColonne<règleCatégorie> = {
-        source: { type: "variable", id: "idVar"},
+        source: { type: "variable", id: "idVar" },
         colonne: "col numérique",
         règle: {
           id: uuidv4(),
@@ -254,7 +254,7 @@ describe("Validation", function () {
     describe("Règles bornes", function () {
       it("Pas d'erreure si la colonne n'existe pas", () => {
         const règle: règleColonne<règleBornes> = {
-          source: {type: "tableau", id: "idTableau"},
+          source: { type: "tableau", id: "idTableau" },
           colonne: "col numérique",
           règle: {
             id: uuidv4(),
@@ -286,7 +286,7 @@ describe("Validation", function () {
       ops.forEach((op) => {
         describe(op.op, () => {
           const règle: règleColonne<règleBornes> = {
-            source: { type: "variable", id: "idVar"},
+            source: { type: "variable", id: "idVar" },
             colonne: "col numérique",
             règle: {
               id: uuidv4(),
@@ -334,7 +334,7 @@ describe("Validation", function () {
 
       describe("Bornes selon une autre variable", () => {
         const règle: règleColonne<règleBornes> = {
-          source: { type: "variable", id: "idVar"},
+          source: { type: "variable", id: "idVar" },
           colonne: "temp max",
           règle: {
             id: uuidv4(),
@@ -387,7 +387,7 @@ describe("Validation", function () {
     });
     describe("Règles catégoriques", function () {
       const règle: règleColonne<règleValeurCatégorique> = {
-        source: { type: "tableau", id: "idTableau"},
+        source: { type: "tableau", id: "idTableau" },
         colonne: "col chaîne",
         règle: {
           id: uuidv4(),
@@ -430,7 +430,7 @@ describe("Validation", function () {
     });
     describe("Catégories liste", function () {
       const règleCat: règleColonne<règleCatégorie> = {
-        source: { type: "variable", id: "idVar"},
+        source: { type: "variable", id: "idVar" },
         colonne: "col numérique",
         règle: {
           id: uuidv4(),
@@ -443,7 +443,7 @@ describe("Validation", function () {
         },
       };
       const règleVal: règleColonne<règleBornes> = {
-        source: { type: "variable", id: "idVar"},
+        source: { type: "variable", id: "idVar" },
         colonne: "col numérique",
         règle: {
           id: uuidv4(),

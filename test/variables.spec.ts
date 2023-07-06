@@ -52,18 +52,15 @@ typesClients.forEach((type) => {
         it("Pas de variables pour commencer", async () => {
           expect(variables).to.be.an.empty("array");
         });
-        it(
-          "Créer des variables",
-          async () => {
-            idVariable = await client.variables!.créerVariable({
-              catégorie: "numérique",
-            });
-            expect(variables).to.be.an("array");
+        it("Créer des variables", async () => {
+          idVariable = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+          expect(variables).to.be.an("array");
 
-            expect(variables).to.have.lengthOf(1);
-            expect(variables).to.contain(idVariable);
-          }
-        );
+          expect(variables).to.have.lengthOf(1);
+          expect(variables).to.contain(idVariable);
+        });
 
         it("Effacer un mot-clef", async () => {
           await client.variables!.effacerVariable({ id: idVariable });

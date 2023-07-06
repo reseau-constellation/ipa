@@ -294,9 +294,7 @@ typesClients.forEach((type) => {
           );
           const variablesDesColonnes = colonnes.map((c) => c.variable);
           expect(variablesDesColonnes.length).to.equal(1);
-          expect(variablesDesColonnes).to.deep.equal(
-            [idsVariables[1]]
-          );
+          expect(variablesDesColonnes).to.deep.equal([idsVariables[1]]);
         });
       });
 
@@ -406,7 +404,7 @@ typesClients.forEach((type) => {
         });
 
         it("Aucune erreur pour commencer", async () => {
-          const val = await résErreurs.attendreExiste()
+          const val = await résErreurs.attendreExiste();
           expect(isArray(val)).to.be.true;
           expect(val.length).to.equal(0);
         });
@@ -458,7 +456,10 @@ typesClients.forEach((type) => {
           expect(val.length).to.equal(3);
           const règleAjoutée = val.filter((r) => r.règle.id === idRègle)[0];
           expect(règleAjoutée).to.not.be.undefined();
-          expect(règleAjoutée.source).to.deep.equal({type: "tableau", id: idTableauRègles});
+          expect(règleAjoutée.source).to.deep.equal({
+            type: "tableau",
+            id: idTableauRègles,
+          });
         });
 
         it("Ajouter une règle à la variable", async () => {
@@ -604,7 +605,6 @@ typesClients.forEach((type) => {
             },
           });
 
-
           let valErreurs = await résErreurs.attendreExiste();
           let valRègles = await résRègles.attendreExiste();
 
@@ -616,9 +616,8 @@ typesClients.forEach((type) => {
             idRègle,
           });
 
-
-          valErreurs = await résErreurs.attendreQue(x => x.length === 0);
-          valRègles = await résRègles.attendreQue( x=>x.length < 3);
+          valErreurs = await résErreurs.attendreQue((x) => x.length === 0);
+          valRègles = await résRègles.attendreQue((x) => x.length < 3);
 
           expect(valRègles.length).to.equal(2);
           expect(valErreurs.length).to.equal(0);
@@ -725,11 +724,13 @@ typesClients.forEach((type) => {
               détails: "colonneBornesInexistante",
             },
           ];
-          
+
           const résValid = await erreursValid.attendreExiste();
           expect(résValid.length).to.equal(0);
 
-          const résRègles = await erreursRègles.attendreQue(x=>x.length > 0)
+          const résRègles = await erreursRègles.attendreQue(
+            (x) => x.length > 0
+          );
           expect(résRègles).to.deep.equal(réf);
         });
 
@@ -773,7 +774,7 @@ typesClients.forEach((type) => {
             vals: { [idColonneTempMax]: 6 },
             empreintePrécédente: empreintesDonnées[0],
           });
-          const résValid = await erreursValid.attendreQue(x=>x.length < 1)
+          const résValid = await erreursValid.attendreQue((x) => x.length < 1);
           expect(résValid.length).to.equal(0);
         });
 
@@ -847,7 +848,7 @@ typesClients.forEach((type) => {
               empreinte: empreinte2,
               erreur: {
                 règle: {
-                  source: {type: "variable", id: idVariableTempMax},
+                  source: { type: "variable", id: idVariableTempMax },
                   colonne: idColonneTempMax,
                   règle: {
                     id: idRègle2,
@@ -1081,7 +1082,7 @@ typesClients.forEach((type) => {
                 [idColonneÀTester]: "வணக்கம்",
               },
             });
-            let rés = await erreursValid.attendreQue(x=>x.length > 0);
+            let rés = await erreursValid.attendreQue((x) => x.length > 0);
             expect(rés.length).to.equal(1);
 
             for (const mot of ["வணக்கம்", "Ütz iwäch"]) {
@@ -1093,7 +1094,7 @@ typesClients.forEach((type) => {
               });
             }
 
-            rés = await erreursValid.attendreQue(x=>x.length < 1)
+            rés = await erreursValid.attendreQue((x) => x.length < 1);
             expect(rés.length).to.equal(0);
           });
           it("Ajout éléments valides", async () => {
@@ -1113,7 +1114,7 @@ typesClients.forEach((type) => {
                 [idColonneÀTester]: "வணக்கம",
               },
             });
-            const rés = await erreursValid.attendreQue(x=>x.length > 0)
+            const rés = await erreursValid.attendreQue((x) => x.length > 0);
             expect(rés.length).to.equal(1);
           });
         });
@@ -1178,9 +1179,9 @@ typesClients.forEach((type) => {
           expect(colonnes).to.be.undefined;
         });
         it("Suivre colonnes sans catégorie", () => {
-          expect(colonnesSansCatégorie).to.deep.equal(
-            [{ id: idColonne, variable: idVarChaîne }]
-          );
+          expect(colonnesSansCatégorie).to.deep.equal([
+            { id: idColonne, variable: idVarChaîne },
+          ]);
         });
         it("Ajouter données", async () => {
           await client.tableaux!.ajouterÉlément({
@@ -1470,34 +1471,36 @@ typesClients.forEach((type) => {
         it("Données manquantes ajoutées", async () => {
           expect(isArray(données)).to.be.true;
           expect(données.length).to.equal(4);
-          expect(données
-            .map((d) => d.données)
-            .map((d) => {
-              delete d.id;
-              return d;
-            })).to.deep.include.members([
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: "2021-01-01",
-                [idsCols[idVarTempMin]]: 25,
-                [idsCols[idVarTempMax]]: 30,
-              },
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: "2021-01-02",
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "là-bas",
-                [idsCols[idVarDate]]: "2021-01-01",
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "là-bas",
-                [idsCols[idVarDate]]: "2021-01-02",
-                [idsCols[idVarTempMin]]: 27,
-              },
-            ])
+          expect(
+            données
+              .map((d) => d.données)
+              .map((d) => {
+                delete d.id;
+                return d;
+              })
+          ).to.deep.include.members([
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarTempMin]]: 25,
+              [idsCols[idVarTempMax]]: 30,
+            },
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "là-bas",
+              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "là-bas",
+              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarTempMin]]: 27,
+            },
+          ]);
         });
       });
 
