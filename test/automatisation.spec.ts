@@ -1,10 +1,8 @@
 import fs from "fs";
 import path from "path";
 import XLSX, { WorkBook } from "xlsx";
-import AdmZip from "adm-zip";
-import tmp from "tmp";
 import rmrf from "rimraf";
-import url from "url";
+import JSZip from "jszip"
 
 import type { default as ClientConstellation } from "@/client.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
@@ -37,7 +35,8 @@ import { obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
 
 import axios from "axios";
 
-import { expect } from "aegir/chai"
+import { expect } from "aegir/chai";
+import { isBrowser, isElectronRenderer } from "wherearewe";
 
 const vérifierDonnéesTableau = (
   doc: string | WorkBook,
@@ -79,33 +78,40 @@ const vérifierDonnéesProjet = async (
   // Il faut essayer plusieurs fois parce que le fichier ZIP peut
   // être créé avant la fin de l'écriture du fichier (ce qui cause
   // une erreur de lecture).
-  const zip = await new Promise<AdmZip>((résoudre) => {
-    const interval = setInterval(() => {
-      let zip: AdmZip;
+  
+  const zip = await new Promise<JSZip>((résoudre) => {
+    const interval = setInterval(async () => {
+      let zip: JSZip;
       try {
-        zip = new AdmZip(doc);
+        const donnéesFichier = fs.readFileSync(doc)
+        zip = await JSZip.loadAsync(donnéesFichier);
         clearInterval(interval);
         résoudre(zip);
-      } catch {
+      } catch (e) {
+        console.log(doc, e)
         // Réessayer
       }
-    }, 10);
+    }, 100);
   });
 
-  const fichierExtrait = tmp.dirSync();
-  zip.extractAllTo(fichierExtrait.name, true);
-
-  try {
-    for (const fichierBd of Object.keys(données)) {
-      vérifierDonnéesBd(
-        path.join(fichierExtrait.name, fichierBd),
-        données[fichierBd]
-      );
+  const {dossier: dossierFichierExtrait} = await obtDirTempoPourTest('fichier extrait');
+  await Promise.all(Object.entries(zip.files).map(async ([adresseRelative, élémentZip]) => {
+    const adresseAbsolue = path.join(dossierFichierExtrait, adresseRelative);
+    if (élémentZip.dir) {
+      fs.mkdirSync(adresseAbsolue)
+    } else {
+      const contenu = await élémentZip.async("nodebuffer");
+      fs.writeFileSync(adresseAbsolue, contenu)
     }
-  } catch (e) {
-    fichierExtrait.removeCallback();
-    throw e;
+  }));
+
+  for (const fichierBd of Object.keys(données)) {
+    vérifierDonnéesBd(
+      path.join(dossierFichierExtrait, fichierBd),
+      données[fichierBd]
+    );
   }
+
 };
 
 const comparerDonnéesTableau = (
@@ -148,7 +154,7 @@ typesClients.forEach((type) => {
         let fEffacer: () => void;
         let fOublierAuto: () => Promise<void>;
 
-        let _get: typeof axios.get
+        let _get: typeof axios.get;
 
         let rés: AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>;
         let fsOublier: schémaFonctionOublier[] = [];
@@ -197,53 +203,50 @@ typesClients.forEach((type) => {
           axios.get = _get;
         });
 
-        it(
-          "Importer de fichier JSON",
-          async () => {
-            const fichierJSON = path.join(dirTempo, "données.json");
-            const données = {
-              données: [
-                { "col 1": 1, "col 2": "អ" },
-                { "col 1": 2, "col 2": "அ" },
-                { "col 1": 3, "col 2": "a" },
-              ],
-            };
+        it("Importer de fichier JSON", async () => {
+          const fichierJSON = path.join(dirTempo, "données.json");
+          const données = {
+            données: [
+              { "col 1": 1, "col 2": "អ" },
+              { "col 1": 2, "col 2": "அ" },
+              { "col 1": 3, "col 2": "a" },
+            ],
+          };
 
-            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+          fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
-              typeSource: "fichier",
-              adresseFichier: fichierJSON,
-              info: {
-                formatDonnées: "json",
-                clefsRacine: ["données"],
-                clefsÉléments: [],
-                cols: {
-                  [idCol1]: ["col 1"],
-                  [idCol2]: ["col 2"],
-                },
+          const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+            typeSource: "fichier",
+            adresseFichier: fichierJSON,
+            info: {
+              formatDonnées: "json",
+              clefsRacine: ["données"],
+              clefsÉléments: [],
+              cols: {
+                [idCol1]: ["col 1"],
+                [idCol2]: ["col 2"],
               },
-            };
+            },
+          };
 
-            const idAuto =
-              await client.automatisations!.ajouterAutomatisationImporter({
-                idTableau,
-                source,
-              });
-            fOublierAuto = async () =>
-              await client.automatisations!.annulerAutomatisation({
-                id: idAuto,
-              });
+          const idAuto =
+            await client.automatisations!.ajouterAutomatisationImporter({
+              idTableau,
+              source,
+            });
+          fOublierAuto = async () =>
+            await client.automatisations!.annulerAutomatisation({
+              id: idAuto,
+            });
 
-            const val = await rés.attendreQue((x) => !!(x && x.length === 3));
+          const val = await rés.attendreQue((x) => !!(x && x.length === 3));
 
-            comparerDonnéesTableau(val, [
-              { [idCol1]: 1, [idCol2]: "អ" },
-              { [idCol1]: 2, [idCol2]: "அ" },
-              { [idCol1]: 3, [idCol2]: "a" },
-            ]);
-          },
-        );
+          comparerDonnéesTableau(val, [
+            { [idCol1]: 1, [idCol2]: "អ" },
+            { [idCol1]: 2, [idCol2]: "அ" },
+            { [idCol1]: 3, [idCol2]: "a" },
+          ]);
+        });
 
         it("Importer de fichier tableau", async () => {
           const fichierFeuilleCalcul = path.join(dirTempo, "données.ods");
@@ -291,18 +294,26 @@ typesClients.forEach((type) => {
           ]);
         });
 
-        it("Importer d'un URL (feuille calcul)", async () => {
+        it("Importer d'un URL (feuille calcul)", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
+          const url = await import("url");
+
           // @ts-expect-error  Faire semblant qu'on se connecte à l'Internet
           axios.get = async () => {
-            return {data: fs.readFileSync(
-              path.join(
-                url.fileURLToPath(new URL(".", import.meta.url)).replace("dist"+path.sep+"test", "src"),
-                "utilsTests",
-                "ressources",
-                "cases.csv",
-              )
-            )}
-          }
+            return {
+              data: fs.readFileSync(
+                path.join(
+                  url
+                    .fileURLToPath(new URL(".", import.meta.url))
+                    .replace("dist" + path.sep + "test", "src"),
+                  "utilsTests",
+                  "ressources",
+                  "cases.csv"
+                )
+              ),
+            };
+          };
           const source: SourceDonnéesImportationURL<infoImporterFeuilleCalcul> =
             {
               typeSource: "url",
@@ -348,7 +359,11 @@ typesClients.forEach((type) => {
           ]);
         });
 
-        it("Importer d'un URL (json)", async () => {
+        it("Importer d'un URL (json)", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
+          const url = await import("url");
+
           const source: SourceDonnéesImportationURL<infoImporterJSON> = {
             typeSource: "url",
             url: "https://coordinates.native-land.ca/indigenousLanguages.json",
@@ -365,19 +380,23 @@ typesClients.forEach((type) => {
 
           // @ts-expect-error Je ne suis pas trop as sûr pourquoi
           axios.get = async () => {
-            return {data: JSON.parse(
-              fs
-                .readFileSync(
-                  path.join(
-                    url.fileURLToPath(new URL(".", import.meta.url)).replace("dist"+path.sep+"test", "src"),
-                    "utilsTests",
-                    "ressources",
-                    "indigenousLanguages.json"
+            return {
+              data: JSON.parse(
+                fs
+                  .readFileSync(
+                    path.join(
+                      url
+                        .fileURLToPath(new URL(".", import.meta.url))
+                        .replace("dist" + path.sep + "test", "src"),
+                      "utilsTests",
+                      "ressources",
+                      "indigenousLanguages.json"
+                    )
                   )
-                )
-                .toString()
-            )}
-          }
+                  .toString()
+              ),
+            };
+          };
 
           const idAuto =
             await client.automatisations!.ajouterAutomatisationImporter({
@@ -408,118 +427,112 @@ typesClients.forEach((type) => {
           ).to.be.true();
         });
 
-        it(
-          "Importation selon changements",
-          async () => {
-            const fichierJSON = path.join(dirTempo, "données.json");
-            const données = {
-              données: [
-                { "col 1": 1, "col 2": "អ" },
-                { "col 1": 2, "col 2": "அ" },
-                { "col 1": 3, "col 2": "a" },
-              ],
-            };
+        it("Importation selon changements", async () => {
+          const fichierJSON = path.join(dirTempo, "données.json");
+          const données = {
+            données: [
+              { "col 1": 1, "col 2": "អ" },
+              { "col 1": 2, "col 2": "அ" },
+              { "col 1": 3, "col 2": "a" },
+            ],
+          };
 
-            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+          fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
-              typeSource: "fichier",
-              adresseFichier: fichierJSON,
-              info: {
-                formatDonnées: "json",
-                clefsRacine: ["données"],
-                clefsÉléments: [],
-                cols: {
-                  [idCol1]: ["col 1"],
-                  [idCol2]: ["col 2"],
-                },
+          const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+            typeSource: "fichier",
+            adresseFichier: fichierJSON,
+            info: {
+              formatDonnées: "json",
+              clefsRacine: ["données"],
+              clefsÉléments: [],
+              cols: {
+                [idCol1]: ["col 1"],
+                [idCol2]: ["col 2"],
               },
-            };
+            },
+          };
 
-            const idAuto =
-              await client.automatisations!.ajouterAutomatisationImporter({
-                idTableau,
-                source,
-              });
-            fOublierAuto = async () =>
-              await client.automatisations!.annulerAutomatisation({
-                id: idAuto,
-              });
+          const idAuto =
+            await client.automatisations!.ajouterAutomatisationImporter({
+              idTableau,
+              source,
+            });
+          fOublierAuto = async () =>
+            await client.automatisations!.annulerAutomatisation({
+              id: idAuto,
+            });
 
-            données.données.push({ "col 1": 4, "col 2": "子" });
-            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+          données.données.push({ "col 1": 4, "col 2": "子" });
+          fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            const val = await rés.attendreQue((x) => x?.length === 4);
+          const val = await rés.attendreQue((x) => x?.length === 4);
 
-            comparerDonnéesTableau(val, [
-              { [idCol1]: 1, [idCol2]: "អ" },
-              { [idCol1]: 2, [idCol2]: "அ" },
-              { [idCol1]: 3, [idCol2]: "a" },
-              { [idCol1]: 4, [idCol2]: "子" },
-            ]);
-          },
-        );
+          comparerDonnéesTableau(val, [
+            { [idCol1]: 1, [idCol2]: "អ" },
+            { [idCol1]: 2, [idCol2]: "அ" },
+            { [idCol1]: 3, [idCol2]: "a" },
+            { [idCol1]: 4, [idCol2]: "子" },
+          ]);
+        });
 
-        it(
-          "Importation selon fréquence",
-          async () => {
-            const fichierJSON = path.join(dirTempo, "données.json");
-            const données = {
-              données: [
-                { "col 1": 1, "col 2": "អ" },
-                { "col 1": 2, "col 2": "அ" },
-                { "col 1": 3, "col 2": "a" },
-              ],
-            };
+        it("Importation selon fréquence", async () => {
+          const fichierJSON = path.join(dirTempo, "données.json");
+          const données = {
+            données: [
+              { "col 1": 1, "col 2": "អ" },
+              { "col 1": 2, "col 2": "அ" },
+              { "col 1": 3, "col 2": "a" },
+            ],
+          };
 
-            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+          fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
-              typeSource: "fichier",
-              adresseFichier: fichierJSON,
-              info: {
-                formatDonnées: "json",
-                clefsRacine: ["données"],
-                clefsÉléments: [],
-                cols: {
-                  [idCol1]: ["col 1"],
-                  [idCol2]: ["col 2"],
-                },
+          const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+            typeSource: "fichier",
+            adresseFichier: fichierJSON,
+            info: {
+              formatDonnées: "json",
+              clefsRacine: ["données"],
+              clefsÉléments: [],
+              cols: {
+                [idCol1]: ["col 1"],
+                [idCol2]: ["col 2"],
               },
-            };
+            },
+          };
 
-            const idAuto =
-              await client.automatisations!.ajouterAutomatisationImporter({
-                idTableau,
-                source,
-                fréquence: {
-                  unités: "millisecondes",
-                  n: 300,
-                },
-              });
-            fOublierAuto = async () =>
-              await client.automatisations!.annulerAutomatisation({
-                id: idAuto,
-              });
-            await rés.attendreQue((x) => x?.length === 3);
+          const idAuto =
+            await client.automatisations!.ajouterAutomatisationImporter({
+              idTableau,
+              source,
+              fréquence: {
+                unités: "millisecondes",
+                n: 300,
+              },
+            });
+          fOublierAuto = async () =>
+            await client.automatisations!.annulerAutomatisation({
+              id: idAuto,
+            });
+          await rés.attendreQue((x) => x?.length === 3);
 
-            const maintenant = Date.now();
-            données.données.push({ "col 1": 4, "col 2": "子" });
-            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+          const maintenant = Date.now();
+          données.données.push({ "col 1": 4, "col 2": "子" });
+          fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            const val = await rés.attendreQue((x) => x?.length === 4);
+          const val = await rés.attendreQue((x) => x?.length === 4);
 
-            const après = Date.now();
-            expect(après - maintenant).to.be.greaterThanOrEqual(300);
+          const après = Date.now();
+          expect(après - maintenant).to.be.greaterThanOrEqual(300);
 
-            comparerDonnéesTableau(val, [
-              { [idCol1]: 1, [idCol2]: "អ" },
-              { [idCol1]: 2, [idCol2]: "அ" },
-              { [idCol1]: 3, [idCol2]: "a" },
-              { [idCol1]: 4, [idCol2]: "子" },
-            ]);
-          },
-        );
+          comparerDonnéesTableau(val, [
+            { [idCol1]: 1, [idCol2]: "អ" },
+            { [idCol1]: 2, [idCol2]: "அ" },
+            { [idCol1]: 3, [idCol2]: "a" },
+            { [idCol1]: 4, [idCol2]: "子" },
+          ]);
+        });
         it.skip("Effacer automatisation");
       });
 
@@ -1017,62 +1030,59 @@ typesClients.forEach((type) => {
           if (fEffacer) fEffacer();
         });
 
-        it(
-          "sync et écoute",
-          async () => {
-            const fichierJSON = path.join(dossier, "données.json");
-            const données = {
-              données: [
-                { "col 1": 1, "col 2": "អ" },
-                { "col 1": 2, "col 2": "அ" },
-                { "col 1": 3, "col 2": "a" },
-              ],
-            };
+        it("sync et écoute", async () => {
+          const fichierJSON = path.join(dossier, "données.json");
+          const données = {
+            données: [
+              { "col 1": 1, "col 2": "អ" },
+              { "col 1": 2, "col 2": "அ" },
+              { "col 1": 3, "col 2": "a" },
+            ],
+          };
 
-            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+          fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
-            const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
-              typeSource: "fichier",
-              adresseFichier: fichierJSON,
-              info: {
-                formatDonnées: "json",
-                clefsRacine: ["données"],
-                clefsÉléments: [],
-                cols: {
-                  [idCol1]: ["col 1"],
-                  [idCol2]: ["col 2"],
-                },
+          const source: SourceDonnéesImportationFichier<infoImporterJSON> = {
+            typeSource: "fichier",
+            adresseFichier: fichierJSON,
+            info: {
+              formatDonnées: "json",
+              clefsRacine: ["données"],
+              clefsÉléments: [],
+              cols: {
+                [idCol1]: ["col 1"],
+                [idCol2]: ["col 2"],
               },
-            };
+            },
+          };
 
-            const idAuto =
-              await client.automatisations!.ajouterAutomatisationImporter({
-                idTableau,
-                source,
-              });
-
-            const val = await résÉtats.attendreQue(
-              (x) => !!(x && x[idAuto]?.type === "écoute")
-            );
-
-            expect(val[idAuto]).to.deep.equal({
-              type: "écoute",
+          const idAuto =
+            await client.automatisations!.ajouterAutomatisationImporter({
+              idTableau,
+              source,
             });
 
-            données.données.push({ "col 1": 4, "col 2": "子" });
+          const val = await résÉtats.attendreQue(
+            (x) => !!(x && x[idAuto]?.type === "écoute")
+          );
 
-            const avantAjout = Date.now();
-            const attendre = résÉtats.attendreQue(
-              (x) => !!(x && x[idAuto]?.type === "sync")
-            );
-            fs.writeFileSync(fichierJSON, JSON.stringify(données));
+          expect(val[idAuto]).to.deep.equal({
+            type: "écoute",
+          });
 
-            const états = await attendre;
-            expect(états![idAuto].type).to.equal("sync");
-            const étatSync = états![idAuto] as ÉtatEnSync;
-            expect(étatSync.depuis).to.be.greaterThanOrEqual(avantAjout);
-          },
-        );
+          données.données.push({ "col 1": 4, "col 2": "子" });
+
+          const avantAjout = Date.now();
+          const attendre = résÉtats.attendreQue(
+            (x) => !!(x && x[idAuto]?.type === "sync")
+          );
+          fs.writeFileSync(fichierJSON, JSON.stringify(données));
+
+          const états = await attendre;
+          expect(états![idAuto].type).to.equal("sync");
+          const étatSync = états![idAuto] as ÉtatEnSync;
+          expect(étatSync.depuis).to.be.greaterThanOrEqual(avantAjout);
+        });
 
         it("programmée", async () => {
           const fichierJSON = path.join(dossier, "données.json");

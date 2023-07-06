@@ -48,9 +48,6 @@ dependencies:
   '@localfirst/auth':
     specifier: ^1.0.1
     version: 1.0.1
-  adm-zip:
-    specifier: ^0.5.10
-    version: 0.5.10
   approx-string-match:
     specifier: ^2.0.0
     version: 2.0.0
@@ -140,9 +137,6 @@ devDependencies:
   '@libp2p/interface-pubsub':
     specifier: ^4.0.1
     version: 4.0.1
-  '@types/adm-zip':
-    specifier: ^0.5.0
-    version: 0.5.0
   '@types/crypto-js':
     specifier: ^4.1.1
     version: 4.1.1
@@ -4379,12 +4373,6 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: true
 
-  /@types/adm-zip@0.5.0:
-    resolution: {integrity: sha512-FCJBJq9ODsQZUNURo5ILAQueuA8WJhRvuihS3ke2iI25mJlfV2LK8jG2Qj2z2AWg8U0FtWWqBHVRetceLskSaw==}
-    dependencies:
-      '@types/node': 18.16.19
-    dev: true
-
   /@types/cacheable-request@6.0.3:
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
     dependencies:
@@ -4895,11 +4883,6 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
-
-  /adm-zip@0.5.10:
-    resolution: {integrity: sha512-x0HvcHqVJNTPk/Bw8JbLWlWoo6Wwnsug0fnYYro1HBrjxZ3G7/AZk7Ahv8JwDe1uIcz8eBqvu86FuF1POiG7vQ==}
-    engines: {node: '>=6.0'}
-    dev: false
 
   /aegir@38.1.8(@babel/core@7.22.6)(@octokit/core@3.6.0)(@typescript-eslint/parser@5.61.0)(eslint-plugin-n@15.7.0):
     resolution: {integrity: sha512-F+xy8L/7H3lsmF8pRmKWDO580gRhmLyxB7FUVs3tzVAb5vK4N5k5dmrQjawWmcqLm0Mp4AGgUxgd7W7QHNhi3w==}
