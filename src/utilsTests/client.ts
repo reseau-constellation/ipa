@@ -5,7 +5,7 @@ import générerMandataireProc from "@/mandataire/ipaProc.js";
 import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";
 import type { IPFS } from "ipfs-core";
 import ClientConstellation from "@/client.js";
-import { obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
+import { dossierTempoTests } from "@/utilsTests/dossiers.js";
 import { isBrowser } from "wherearewe";
 
 export const générerOrbites = async (
@@ -17,7 +17,7 @@ export const générerOrbites = async (
   const {
     dossier: racineDossierOrbite,
     fEffacer: fEffacerRacineDossierOrbite,
-  } = await obtDirTempoPourTest("orbite");
+  } = await dossierTempoTests();
 
   fEffacerRacineDossierOrbite();
 
