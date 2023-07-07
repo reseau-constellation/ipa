@@ -38,9 +38,10 @@ export const connectPeers = async (
 
   const addresses1 = id1.addresses.filter(options.filter);
   const addresses2 = id2.addresses.filter(options.filter);
-
-  await ipfs1.swarm.connect(addresses2[0]);
-  await ipfs2.swarm.connect(addresses1[0]);
+  if (addresses1.length && addresses2.length) {
+    await ipfs1.swarm.connect(addresses2[0]);
+    await ipfs2.swarm.connect(addresses1[0]);
+  }
 };
 
 export const tousConnecter = async (sfips: IPFS[]) => {
