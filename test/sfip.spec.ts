@@ -39,7 +39,7 @@ describe("SFIP", function () {
     }
   });
   after(async () => {
-    if (sfip) await sfip.stop();
+    if (sfip) sfip.stop();
     if (dossier) {
       if (isNode || isElectronMain) {
         const rimraf = (await import("rimraf")).default;
