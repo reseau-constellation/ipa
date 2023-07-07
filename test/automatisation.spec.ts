@@ -1,7 +1,6 @@
 import fs from "fs";
 import path from "path";
 import XLSX, { WorkBook } from "xlsx";
-import rmrf from "rimraf";
 import JSZip from "jszip"
 
 import type { default as ClientConstellation } from "@/client.js";
@@ -31,7 +30,7 @@ import {
   AttendreFichierModifié,
   AttendreRésultat,
 } from "@/utilsTests/attente.js";
-import { obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
+import { dossierTempoTests, obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
 
 import axios from "axios";
 
@@ -52,8 +51,8 @@ const vérifierDonnéesTableau = (
   const cols = importateur.obtColsTableau(tableau);
   const donnéesFichier = importateur.obtDonnées(tableau, cols);
 
-  expect(donnéesFichier.length).to.equal(données.length);
   expect(donnéesFichier).to.have.deep.members(données);
+  expect(donnéesFichier.length).to.equal(données.length);
 };
 
 const vérifierDonnéesBd = (
@@ -88,13 +87,12 @@ const vérifierDonnéesProjet = async (
         clearInterval(interval);
         résoudre(zip);
       } catch (e) {
-        console.log(doc, e)
         // Réessayer
       }
     }, 100);
   });
 
-  const {dossier: dossierFichierExtrait} = await obtDirTempoPourTest('fichier extrait');
+  const {dossier: dossierFichierExtrait, fEffacer} = await dossierTempoTests();
   await Promise.all(Object.entries(zip.files).map(async ([adresseRelative, élémentZip]) => {
     const adresseAbsolue = path.join(dossierFichierExtrait, adresseRelative);
     if (élémentZip.dir) {
@@ -111,6 +109,8 @@ const vérifierDonnéesProjet = async (
       données[fichierBd]
     );
   }
+
+  fEffacer();
 
 };
 
@@ -133,6 +133,8 @@ typesClients.forEach((type) => {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
+      let fEffacerDossier: () => void;
+      let baseDossierTempo: string
 
       before(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients(
@@ -140,10 +142,12 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
+        ({ dossier: baseDossierTempo, fEffacer: fEffacerDossier } = await dossierTempoTests());
       });
 
       after(async () => {
         if (fOublierClients) await fOublierClients();
+        if (fEffacerDossier) fEffacerDossier();
       });
 
       describe("Importation", function () {
@@ -151,7 +155,6 @@ typesClients.forEach((type) => {
         let idCol1: string;
         let idCol2: string;
         let dirTempo: string;
-        let fEffacer: () => void;
         let fOublierAuto: () => Promise<void>;
 
         let _get: typeof axios.get;
@@ -164,9 +167,7 @@ typesClients.forEach((type) => {
 
           fsOublier = [];
           rés = new AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
-          ({ dossier: dirTempo, fEffacer } = await obtDirTempoPourTest(
-            "testImporterBd"
-          ));
+          dirTempo = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testImporterBd"})
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.bds!.ajouterTableauBd({ idBd });
@@ -197,13 +198,14 @@ typesClients.forEach((type) => {
         afterEach(async () => {
           await Promise.all(fsOublier.map((f) => f()));
           if (fOublierAuto) await fOublierAuto();
-          if (fEffacer) fEffacer();
-          rmrf.sync(dirTempo);
+
           rés.toutAnnuler();
           axios.get = _get;
         });
 
-        it("Importer de fichier JSON", async () => {
+        it("Importer de fichier JSON", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
@@ -248,7 +250,9 @@ typesClients.forEach((type) => {
           ]);
         });
 
-        it("Importer de fichier tableau", async () => {
+        it("Importer de fichier tableau", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichierFeuilleCalcul = path.join(dirTempo, "données.ods");
 
           const données = XLSX.utils.book_new();
@@ -295,8 +299,6 @@ typesClients.forEach((type) => {
         });
 
         it("Importer d'un URL (feuille calcul)", async function () {
-          if (isBrowser || isElectronRenderer) this.skip();
-
           const url = await import("url");
 
           // @ts-expect-error  Faire semblant qu'on se connecte à l'Internet
@@ -360,8 +362,6 @@ typesClients.forEach((type) => {
         });
 
         it("Importer d'un URL (json)", async function () {
-          if (isBrowser || isElectronRenderer) this.skip();
-
           const url = await import("url");
 
           const source: SourceDonnéesImportationURL<infoImporterJSON> = {
@@ -427,7 +427,9 @@ typesClients.forEach((type) => {
           ).to.be.true();
         });
 
-        it("Importation selon changements", async () => {
+        it("Importation selon changements", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+          
           const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
@@ -476,7 +478,9 @@ typesClients.forEach((type) => {
           ]);
         });
 
-        it("Importation selon fréquence", async () => {
+        it("Importation selon fréquence", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
@@ -543,12 +547,11 @@ typesClients.forEach((type) => {
         let idBd: string;
         let idProjet: string;
         let dossier: string;
-        let fEffacer: () => void;
 
         const fsOublier: (() => void)[] = [];
 
         before(async () => {
-          ({ dossier, fEffacer } = await obtDirTempoPourTest("testExporterBd"));
+          dossier = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testExporterBd"});
 
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.bds!.ajouterNomsBd({
@@ -610,8 +613,6 @@ typesClients.forEach((type) => {
             )
           );
           fsOublier.forEach((f) => f());
-          if (fEffacer) fEffacer();
-          rmrf.sync(dossier);
         });
 
         it("Exportation tableau", async () => {
@@ -634,7 +635,6 @@ typesClients.forEach((type) => {
           vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
 
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
-          rmrf.sync(fichier);
         });
 
         it("Exportation BD", async () => {
@@ -656,7 +656,6 @@ typesClients.forEach((type) => {
           await attendreExiste;
           vérifierDonnéesBd(fichier, { météo: [{ précipitation: 3 }] });
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
-          rmrf.sync(fichier);
         });
 
         it("Exportation projet", async () => {
@@ -682,7 +681,6 @@ typesClients.forEach((type) => {
           });
 
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
-          rmrf.sync(fichier);
         });
 
         it("Exportation selon changements", async () => {
@@ -718,7 +716,6 @@ typesClients.forEach((type) => {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
           });
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
-          rmrf.sync(fichier);
         });
 
         it("Exportation selon fréquence", async () => {
@@ -759,25 +756,75 @@ typesClients.forEach((type) => {
           expect(après - avantAttente).to.be.greaterThanOrEqual(0.3 * 1000);
 
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
-          rmrf.sync(fichier);
         });
       });
 
       describe("Exportation nuée bds", function () {
-        it.skip(
-          "Exportation selon changements"
-          /*async () => {
+        let dossier: string;
 
-          await client.automatisations!.ajouterAutomatisationExporterNuée(
-            idMotClef,
-            undefined,
-            fichier
-          );
+        let idNuée: string;
+        let idBd: string;
+        let idColonneNumérique: string;
+        
+        const clefTableau = "Tableau principal";
+        const fsOublier: (() => void)[] = [];
+
+        before(async () => {
+          dossier = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testExporterBd"});
+          idNuée = await client.nuées!.créerNuée({});
+          await client.nuées!.ajouterNomsNuée({id: idNuée, noms: {fr: "Science citoyenne"}});
+          const idTableau = await client.nuées!.ajouterTableauNuée({
+            idNuée, clefTableau
+          });
+          await client.tableaux?.sauvegarderNomTableau({idTableau, langue: "fr", nom: "météo"})
+          const idVariable = await client.variables!.créerVariable({ catégorie: "numérique" });
+          await client.variables!.sauvegarderNomVariable({id: idVariable, langue: "fr", nom: "Précipitation"})
+          idColonneNumérique = await client.nuées!.ajouterColonneTableauNuée({
+            idTableau,
+            idVariable
+          })
+          const schéma = await client.nuées!.générerSchémaBdNuée({idNuée, licence: "ODbl-1_0"});
+
+          idBd = await client.bds!.créerBdDeSchéma({schéma});
+        });
+
+        after(async () => {
+          fsOublier.forEach(f=>f());
+        });
+
+        it("Exportation selon changements", async () => {
+          const fichier = path.join(dossier, "Science citoyenne.ods");
+          const attente = new AttendreFichierExiste(fichier);
+          const attendreExiste = attente.attendre();
+          fsOublier.push(() => attente.annuler());
+          const idAuto = await client.automatisations!.ajouterAutomatisationExporter({
+            id: idNuée,
+            typeObjet: "nuée",
+            formatDoc: "ods",
+            inclureFichiersSFIP: false,
+            dossier,
+            langues: ["fr"],
+          });
+          await attendreExiste;
+          const attenteModifié = new AttendreFichierModifié(fichier);
+          fsOublier.push(() => attenteModifié.annuler());
+
+          const avant = Date.now();
+          await client.bds!.ajouterÉlémentÀTableauParClef({
+            idBd,
+            clefTableau,
+            vals: {[idColonneNumérique]: 123}
+          });
+
+          await attenteModifié.attendre(avant);
+
+          vérifierDonnéesBd(fichier, {
+            météo: [{ Précipitation: 123, auteur: await client.obtIdCompte() }],
+          });
+          await client.automatisations!.annulerAutomatisation({ id: idAuto });
 
         }
-      */
         );
-        it.skip("Exportation selon fréquence");
       });
 
       describe("Suivre état automatisations exportation", function () {
@@ -786,7 +833,6 @@ typesClients.forEach((type) => {
         let idTableau: string;
         let idBd: string;
         let dossier: string;
-        let fEffacer: () => void;
 
         const résÉtats = new AttendreRésultat<{
           [key: string]: ÉtatAutomatisation;
@@ -796,7 +842,7 @@ typesClients.forEach((type) => {
         const fsOublier: (schémaFonctionOublier | (() => void))[] = [];
 
         before(async () => {
-          ({ dossier, fEffacer } = await obtDirTempoPourTest("testExporterBd"));
+          dossier = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testExporterBd"});
 
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
@@ -865,8 +911,6 @@ typesClients.forEach((type) => {
                 })
             )
           );
-          if (fEffacer) fEffacer();
-          rmrf.sync(dossier);
         });
 
         it("sync et écoute", async () => {
@@ -981,7 +1025,6 @@ typesClients.forEach((type) => {
         let idCol1: string;
         let idCol2: string;
         let dossier: string;
-        let fEffacer: () => void;
 
         const résÉtats = new AttendreRésultat<{
           [key: string]: ÉtatAutomatisation;
@@ -1001,7 +1044,7 @@ typesClients.forEach((type) => {
             })
           );
 
-          ({ dossier, fEffacer } = await obtDirTempoPourTest("testExporterBd"));
+          dossier = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testExporterBd"});
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.tableaux!.créerTableau({ idBd });
@@ -1024,10 +1067,8 @@ typesClients.forEach((type) => {
 
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
-          rmrf.sync(dossier);
           résÉtats.toutAnnuler();
           résAutos.toutAnnuler();
-          if (fEffacer) fEffacer();
         });
 
         it("sync et écoute", async () => {
