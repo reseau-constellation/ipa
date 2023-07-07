@@ -25,6 +25,7 @@ import {
   résultatObjectifRecherche,
   résultatRecherche,
   faisRien,
+  schémaFonctionSuiviRecherche,
 } from "@/utils/index.js";
 import type { infoScore } from "@/bds.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
@@ -1863,6 +1864,7 @@ export default class Réseau extends EventEmitter {
     fRecherche,
     fQualité,
     fObjectif,
+    toutLeRéseau=true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     clef: clefObjet;
@@ -1873,7 +1875,43 @@ export default class Réseau extends EventEmitter {
     }) => Promise<schémaFonctionOublier>;
     fQualité: schémaFonctionSuivreQualitéRecherche;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
+    toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
+    if (!toutLeRéseau) {
+      // Il y a probablement une meilleure façon de faire ça, mais pour l'instant ça passe
+      const fObjectifFinal =
+        fObjectif ||
+        (rechercherTous() as schémaFonctionSuivreObjectifRecherche<T>)
+
+      return await this.client.suivreBdsDeFonctionListe({
+        fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>): Promise<schémaRetourFonctionRechercheParN> => {
+          let fRechercheLesMiens
+          switch (clef) {
+            case 'bds':
+              fRechercheLesMiens = async (fSuivreRacine: (éléments: string[]) => Promise<void>): Promise<schémaFonctionOublier> => await this.client.bds!.suivreBds({f: fSuivreRacine});
+              break;
+            case 'motsClefs':
+              fRechercheLesMiens = async (fSuivreRacine: (éléments: string[]) => Promise<void>): Promise<schémaFonctionOublier> => await this.client.bds!.suivreBds({f: fSuivreRacine}),async (fSuivreRacine: (éléments: string[]) => Promise<void>): Promise<schémaFonctionOublier> => await this.client.motsClefs!.suivreMotsClefs({f: fSuivreRacine});
+              break;
+            case 'variables':
+              fRechercheLesMiens = async (fSuivreRacine: (éléments: string[]) => Promise<void>): Promise<schémaFonctionOublier> => await this.client.variables!.suivreVariables({f: fSuivreRacine});
+              break;
+            case 'nuées':
+              fRechercheLesMiens = async (fSuivreRacine: (éléments: string[]) => Promise<void>): Promise<schémaFonctionOublier> => await this.client.nuées!.suivreNuées({f: fSuivreRacine});
+              break;
+            case 'projets':
+              fRechercheLesMiens = async (fSuivreRacine: (éléments: string[]) => Promise<void>): Promise<schémaFonctionOublier> => await this.client.projets!.suivreProjets({f: fSuivreRacine});
+              break;
+            default:
+              throw new Error(clef);
+          }
+          return {fOublier: await fRechercheLesMiens(fSuivreRacine), fChangerN: () => Promise.resolve()}  // À faire : implémenter fChangerN ?
+        },
+        f,
+        fBranche: async (id: string, fSuivreBranche: schémaFonctionSuiviRecherche<T>): Promise<schémaFonctionOublier> => await fObjectifFinal(this.client, id, fSuivreBranche)
+      })
+    }
+
     const fRechercheFinale = async ({
       idCompte,
       fSuivi,
@@ -1934,10 +1972,12 @@ export default class Réseau extends EventEmitter {
     f,
     nRésultatsDésirés,
     fObjectif,
+    toutLeRéseau=true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
+    toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreBdsMembre.bind(this);
     const fQualité = async (
@@ -1957,6 +1997,7 @@ export default class Réseau extends EventEmitter {
       fRecherche,
       fQualité,
       fObjectif,
+      toutLeRéseau,
     });
   }
 
@@ -1964,10 +2005,12 @@ export default class Réseau extends EventEmitter {
     f,
     nRésultatsDésirés,
     fObjectif,
+    toutLeRéseau=true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
+    toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreBdsMembre.bind(this);
     const fQualité = async (
@@ -1990,6 +2033,7 @@ export default class Réseau extends EventEmitter {
       fRecherche,
       fQualité,
       fObjectif,
+      toutLeRéseau,
     });
   }
 
@@ -1997,10 +2041,12 @@ export default class Réseau extends EventEmitter {
     f,
     nRésultatsDésirés,
     fObjectif,
+    toutLeRéseau=true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
+    toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreVariablesMembre.bind(this);
 
@@ -2021,6 +2067,7 @@ export default class Réseau extends EventEmitter {
       fRecherche,
       fQualité,
       fObjectif,
+      toutLeRéseau,
     });
   }
 
@@ -2028,10 +2075,12 @@ export default class Réseau extends EventEmitter {
     f,
     nRésultatsDésirés,
     fObjectif,
+    toutLeRéseau=true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
+    toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreMotsClefsMembre.bind(this);
 
@@ -2052,6 +2101,7 @@ export default class Réseau extends EventEmitter {
       fRecherche,
       fQualité,
       fObjectif,
+      toutLeRéseau,
     });
   }
 
@@ -2059,10 +2109,12 @@ export default class Réseau extends EventEmitter {
     f,
     nRésultatsDésirés,
     fObjectif,
+    toutLeRéseau=true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     nRésultatsDésirés: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
+    toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fRecherche = this.suivreProjetsMembre.bind(this);
 
@@ -2083,6 +2135,7 @@ export default class Réseau extends EventEmitter {
       fRecherche,
       fQualité,
       fObjectif,
+      toutLeRéseau,
     });
   }
 
