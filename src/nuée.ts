@@ -2109,6 +2109,7 @@ export default class Nuée {
             clefTableau,
             f: fSuivi,
             nRésultatsDésirés,
+            clefsSelonVariables: false,
           });
           return fOublier;
         }
@@ -2117,26 +2118,22 @@ export default class Nuée {
         async (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
           await this.suivreColonnesTableauNuée({ idNuée, clefTableau, f })
       );
-      let donnéesPourXLSX = await Promise.all(
-        donnéesTableau.map((d) => {
-          const élément: élémentBdListeDonnées = {
-            auteur: d.idBdCompte,
-            ...d.élément,
-          };
-          return this.client.tableaux!.formaterÉlément({
-            é: élément,
-            colonnes: [...colonnes, { id: "auteur", variable: "auteur" }],
+      let donnéesPourXLSX: élémentBdListeDonnées[] = await Promise.all(
+        donnéesTableau.map(async (d) => {
+          const élémentFormatté = await this.client.tableaux!.formaterÉlément({
+            é: d.élément.données,
+            colonnes,
             fichiersSFIP,
             langues,
           });
+          return {...élémentFormatté, auteur: d.idBdCompte}
         })
       );
-
       if (langues) {
         const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
           this.suivreVariablesNuée({ idNuée, f })
         );
-        const nomsVariables: { [key: string]: string } = {};
+        const nomsVariables: { [key: string]: string } = {'auteur': 'auteur'};
         for (const idVar of variables) {
           const nomsDisponibles = await uneFois(
             (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
@@ -2154,7 +2151,7 @@ export default class Nuée {
         );
       }
 
-      /* créer le tableau */
+      /* Créer le tableau */
       const tableauXLSX = utils.json_to_sheet(donnéesPourXLSX);
 
       /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
