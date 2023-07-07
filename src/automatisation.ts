@@ -450,18 +450,18 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 
   const verrou = new Semaphore();
   let idDernièreRequèteOpération = "";
+  const requèteDernièreModifImportée = await client.obtDeStockageLocal({
+    clef: clefStockageDernièreFois,
+  });
+  const requètesDéjàExécutées = new Set([requèteDernièreModifImportée])
 
   const fAutoAvecÉtats = async (requète: string) => {
-    const requèteDernièreModifImportée = await client.obtDeStockageLocal({
-      clef: clefStockageDernièreFois,
-    });
-
-    if (requète === requèteDernièreModifImportée) return;
+    if (requètesDéjàExécutées.has(requète)) return;
 
     idDernièreRequèteOpération = requète;
 
     await verrou.acquire("opération");
-    if (requète !== idDernièreRequèteOpération) {
+    if (requète !== idDernièreRequèteOpération || requètesDéjàExécutées.has(requète)) {
       verrou.release("opération");
       return;
     }
@@ -469,6 +469,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       clef: clefStockageDernièreFois,
       val: requète,
     });
+    requètesDéjàExécutées.add(requète)
 
     const nouvelÉtat: ÉtatEnSync = {
       type: "sync",
