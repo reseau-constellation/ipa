@@ -1,5 +1,3 @@
-import isArray from "lodash/isArray";
-
 import fs from "fs";
 import path from "path";
 
@@ -9,73 +7,76 @@ import ImportateurDonnéesJSON, {
   élément,
 } from "@/importateur/json.js";
 
-import { dossierRessourcesTests } from "@/utilsTests/dossiers";
+import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
+
+import {expect} from "aegir/chai";
+
 
 describe("JSON", function () {
   describe("Extraire données", function () {
-    test("Extraire d'objet", () => {
+    it("Extraire d'objet", () => {
       const donnéesJSON = { a: 1 };
       const données = extraireDonnées(donnéesJSON, ["a"]);
-      expect(données).toEqual(1);
+      expect(données).to.equal(1);
     });
-    test("Extraire de liste", () => {
+    it("Extraire de liste", () => {
       const donnéesJSON = [1, 2, 3];
       const données = extraireDonnées(donnéesJSON, [0]);
-      expect(données).toEqual(1);
+      expect(données).to.equal(1);
     });
-    test("Extraire récursif", () => {
+    it("Extraire récursif", () => {
       const donnéesJSON = [{ a: 1 }, 2, 3];
       const données = extraireDonnées(donnéesJSON, [0, "a"]);
-      expect(données).toEqual(1);
+      expect(données).to.equal(1);
     });
-    test("Erreur indexe chaîne pour liste", () => {
+    it("Erreur indexe chaîne pour liste", () => {
       const donnéesJSON = [1, 2, 3];
-      expect(() => extraireDonnées(donnéesJSON, ["0"])).toThrow();
+      expect(() => extraireDonnées(donnéesJSON, ["0"])).to.throw();
     });
-    test("Erreur indexe numérique pour objet", () => {
+    it("Erreur indexe numérique pour objet", () => {
       const donnéesJSON = [1, 2, 3];
-      expect(() => extraireDonnées(donnéesJSON, ["0"])).toThrow();
+      expect(() => extraireDonnées(donnéesJSON, ["0"])).to.throw();
     });
-    test("Erreur indexer non-élément", () => {
+    it("Erreur indexer non-élément", () => {
       const donnéesJSON = { a: 1 };
-      expect(() => extraireDonnées(donnéesJSON, [0])).toThrow();
+      expect(() => extraireDonnées(donnéesJSON, [0])).to.throw();
     });
   });
 
   describe("Aplatire données", function () {
-    test("Aplatire objet", () => {
+    it("Aplatire objet", () => {
       const données = { a: [{ b: 2 }, { b: 3 }, { b: 4 }], c: 1 };
 
       const aplaties = aplatirDonnées(données, ["a"]);
-      expect(aplaties).toEqual([
+      expect(aplaties).to.have.deep.members([
         { c: 1, a: { b: 2 } },
         { c: 1, a: { b: 3 } },
         { c: 1, a: { b: 4 } },
       ]);
     });
-    test("Aplatire liste", () => {
+    it("Aplatire liste", () => {
       const données = [[{ b: 2 }, { b: 3 }, { b: 4 }], { c: 1 }];
 
       const aplaties = aplatirDonnées(données, [0]);
-      expect(aplaties).toEqual([
+      expect(aplaties).to.have.deep.members([
         [{ b: 2 }, { c: 1 }],
         [{ b: 3 }, { c: 1 }],
         [{ b: 4 }, { c: 1 }],
       ]);
     });
-    test("Aplatire début liste", () => {
+    it("Aplatire début liste", () => {
       const données = [{ b: 2 }, { b: 3 }, { b: 4 }];
 
       const aplaties = aplatirDonnées(données);
-      expect(aplaties).toEqual([{ b: 2 }, { b: 3 }, { b: 4 }]);
+      expect(aplaties).to.have.deep.members([{ b: 2 }, { b: 3 }, { b: 4 }]);
     });
-    test("Aplatire début dict", () => {
+    it("Aplatire début dict", () => {
       const données = { a: { b: 2 }, b: { b: 3 }, c: { b: 4 } };
 
       const aplaties = aplatirDonnées(données);
-      expect(aplaties).toEqual([{ b: 2 }, { b: 3 }, { b: 4 }]);
+      expect(aplaties).to.have.deep.members([{ b: 2 }, { b: 3 }, { b: 4 }]);
     });
-    test("Aplatire dict imbriqué", () => {
+    it("Aplatire dict imbriqué", () => {
       const données = {
         AFG: {
           location: "Afghanistan",
@@ -108,7 +109,7 @@ describe("JSON", function () {
       };
 
       const aplaties = aplatirDonnées(données, [-1, "data"]);
-      expect(aplaties).toEqual([
+      expect(aplaties).to.have.deep.members([
         {
           location: "Afghanistan",
           population: 39835428.0,
@@ -148,7 +149,7 @@ describe("JSON", function () {
   describe("Importateur JSON", function () {
     let données: élément[];
 
-    beforeAll(async () => {
+    before(async () => {
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
       const donnéesJSON = JSON.parse(
         (
@@ -173,11 +174,11 @@ describe("JSON", function () {
       );
     });
 
-    test("Données importées", async () => {
-      expect(isArray(données)).toBe(true);
-      expect(données.length).toBeGreaterThan(0);
-      expect(Object.keys(données[0])).toEqual(
-        expect.arrayContaining(["région", "date", "nouveauxCas", "totalCas"])
+    it("Données importées", async () => {
+      expect(Array.isArray(données)).to.be.true();
+      expect(données.length).to.be.greaterThan(0);
+      expect(Object.keys(données[0])).to.have.members(
+        ["région", "date", "nouveauxCas", "totalCas"]
       );
     });
   });

@@ -1,16 +1,17 @@
 import { cidValide } from "@/utils/index.js";
+import {expect} from "aegir/chai"
 
 describe("Utils", function () {
   describe("cidValide", function () {
-    test("valide", () => {
+    it("valide", () => {
       const valide = cidValide(
         "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ"
       );
-      expect(valide).toBe(true);
+      expect(valide).to.be.true();
     });
-    test("non valide", () => {
+    it("non valide", () => {
       const valide = cidValide("Bonjour, je ne suis pas un IDC.");
-      expect(valide).toBe(false);
+      expect(valide).to.be.true();
     });
   });
 });

@@ -1,6 +1,3 @@
-import lodash from "lodash";
-const { isArray } = lodash;
-
 import { v4 as uuidv4 } from "uuid";
 import type { élémentsBd } from "@/utils/index.js";
 import {
@@ -194,7 +191,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(0);
       });
       it("Valeure manquante", () => {
@@ -204,7 +201,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -235,7 +232,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(0);
       });
       it("Catérogie invalide", () => {
@@ -245,7 +242,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -272,7 +269,7 @@ describe("Validation", function () {
         const erreurs = fonc([
           { données: { "une autre colonne": 1 }, empreinte: uuidv4() },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(0);
       });
 
@@ -311,7 +308,7 @@ describe("Validation", function () {
                   empreinte,
                 },
               ]);
-              expect(isArray(erreurs)).to.be.true;
+              expect(Array.isArray(erreurs)).to.be.true;
               expect(erreurs.length).to.equal(0);
             });
           });
@@ -323,7 +320,7 @@ describe("Validation", function () {
                   empreinte,
                 },
               ]);
-              expect(isArray(erreurs)).to.be.true;
+              expect(Array.isArray(erreurs)).to.be.true;
               expect(erreurs.length).to.equal(1);
               expect(erreurs[0].empreinte).to.equal(empreinte);
               expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -358,19 +355,19 @@ describe("Validation", function () {
 
         it("Pas d'erreur si la colonne n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp min": 1 }, empreinte }]);
-          expect(isArray(erreurs)).to.be.true;
+          expect(Array.isArray(erreurs)).to.be.true;
           expect(erreurs.length).to.equal(0);
         });
         it("Pas d'erreur si tout est valide", () => {
           const erreurs = fonc([
             { données: { "temp min": 10, "temp max": 20 }, empreinte },
           ]);
-          expect(isArray(erreurs)).to.be.true;
+          expect(Array.isArray(erreurs)).to.be.true;
           expect(erreurs.length).to.equal(0);
         });
         it("Pas d'erreur si la colonne référence n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp max": 20 }, empreinte }]);
-          expect(isArray(erreurs)).to.be.true;
+          expect(Array.isArray(erreurs)).to.be.true;
           expect(erreurs.length).to.equal(0);
         });
         it("Erreur si non valide", () => {
@@ -378,7 +375,7 @@ describe("Validation", function () {
             { données: { "temp max": 20, "temp min": 25 }, empreinte },
           ]);
 
-          expect(isArray(erreurs)).to.be.true;
+          expect(Array.isArray(erreurs)).to.be.true;
           expect(erreurs.length).to.equal(1);
           expect(erreurs[0].empreinte).to.equal(empreinte);
           expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -410,19 +407,19 @@ describe("Validation", function () {
         const erreurs = fonc([
           { données: { "une autre colonne": 2 }, empreinte },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(0);
       });
       it("Pas d'erreur si tout valide", () => {
         const erreurs = fonc([{ données: { "col chaîne": "a" }, empreinte }]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(0);
       });
 
       it("Erreur si non valide", () => {
         const erreurs = fonc([{ données: { "col chaîne": "d" }, empreinte }]);
 
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -474,7 +471,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(0);
       });
       it("Catérogie invalide", () => {
@@ -484,7 +481,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règleCat);
@@ -496,7 +493,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(0);
       });
       it("Valeur invalide", () => {
@@ -506,7 +503,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true;
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règleVal);

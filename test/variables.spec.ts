@@ -1,6 +1,3 @@
-import pkg from "lodash";
-const { isArray } = pkg;
-
 import type { default as ClientConstellation } from "@/client.js";
 import type { catégorieVariables } from "@/variables.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
@@ -13,7 +10,7 @@ import { expect } from "aegir/chai";
 
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
-import { config } from "@/utilsTests/index.js";
+
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -318,7 +315,7 @@ typesClients.forEach((type) => {
         });
 
         it("Règle générique de catégorie pour commencer", async () => {
-          expect(isArray(règles)).to.be.true();
+          expect(Array.isArray(règles)).to.be.true();
           expect(règles).to.have.lengthOf(1);
           expect(règles[0].règle.typeRègle).to.equal("catégorie");
         });
@@ -461,7 +458,7 @@ typesClients.forEach((type) => {
         });
 
         it("La variable est copiée", async () => {
-          expect(isArray(variables)).to.be.true();
+          expect(Array.isArray(variables)).to.be.true();
           expect(variables).to.contain(idVariable2);
         });
 

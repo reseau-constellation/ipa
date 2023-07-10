@@ -1,16 +1,16 @@
-import isArray from "lodash/isArray";
-
 import XLSX from "xlsx";
 
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
+import {expect} from "aegir/chai"
+
 describe("XLSX", function () {
   describe("Importateur XLSX", function () {
     let importateur: ImportateurFeuilleCalcul;
 
-    beforeAll(async () => {
+    before(async () => {
       const path = await import("path");
       const fs = await import("fs");
 
@@ -22,26 +22,24 @@ describe("XLSX", function () {
       importateur = new ImportateurFeuilleCalcul(doc);
     });
 
-    test("Noms tableaux", async () => {
+    it("Noms tableaux", async () => {
       const noms = importateur.obtNomsTableaux();
-      expect(isArray(noms)).toBe(true);
-      expect(noms).toHaveLength(1);
-      expect(noms).toEqual(expect.arrayContaining(["Feuille1"]));
+      expect(Array.isArray(noms)).to.be.true();
+      expect(noms.length).to.equal(1);
+      expect(noms).to.have.members(["Feuille1"]);
     });
-    test("Noms colonnes", async () => {
+    it("Noms colonnes", async () => {
       const cols = importateur.obtColsTableau("Feuille1");
-      expect(isArray(cols));
-      expect(cols).toHaveLength(2);
-      expect(cols).toEqual(
-        expect.arrayContaining(["Numérique", "இது உரை ஆகும்"])
-      );
+      expect(Array.isArray(cols));
+      expect(cols.length).to.equal(2);
+      expect(cols).to.have.members(["Numérique", "இது உரை ஆகும்"]);
     });
-    test("Données importées", async () => {
+    it("Données importées", async () => {
       const données = importateur.obtDonnées("Feuille1", {
         num: "Numérique",
         உரை: "இது உரை ஆகும்",
       });
-      expect(données).toEqual([
+      expect(données).to.have.deep.members([
         { num: 1, உரை: "வணக்கம்" },
         { num: 2, உரை: "Ütz awäch" },
         { num: 3, உரை: "Salut !" },

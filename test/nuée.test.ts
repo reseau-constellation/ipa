@@ -1,11 +1,14 @@
 import { typesClients, générerClients } from "@/utilsTests/client.js";
 import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
-import { config } from "@/utilsTests/sfip.js";
-import { AttendreRésultat } from "./utilsTests/attente";
-import { élémentDeMembreAvecValid } from "./reseau";
-import { InfoColAvecCatégorie, élémentBdListeDonnées } from "./tableaux";
-import { schémaSpécificationBd } from "./bds";
+
+import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { élémentDeMembreAvecValid } from "@/reseau.js";
+import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
+import { schémaSpécificationBd } from "@/bds.js";
+
+import {expect} from "aegir/chai";
+
 
 const générerNuéeTest = async (
   client: ClientConstellation,
@@ -42,50 +45,50 @@ typesClients.forEach((type) => {
 
     const fsOublier: schémaFonctionOublier[] = [];
 
-    beforeAll(async () => {
+    before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClients(2, type));
       client = clients[0];
-    }, config.patienceInit);
+    });
 
-    afterAll(async () => {
+    after(async () => {
       if (fOublierClients) await fOublierClients();
       await Promise.all(fsOublier.map((f) => f()));
     });
 
     describe("Création", function () {
-      test("Nuée", async () => {
+      it("Nuée", async () => {
         const idNuée = await client.nuées!.créerNuée({});
-        expect(adresseOrbiteValide(idNuée)).toBe(true);
+        expect(adresseOrbiteValide(idNuée)).to.be.true();
       });
     });
 
     describe("Noms", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
 
     describe("Descriptions", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
 
     describe("Mots-clefs", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
 
     describe("Mes nuées", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
 
     describe("Status nuée", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
 
     describe("Création", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
 
     describe("Tableaux", function () {
       describe("Ajouter et enlever", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
 
       describe("Colonnes", function () {
@@ -95,7 +98,7 @@ typesClients.forEach((type) => {
 
         const résultat = new AttendreRésultat<InfoColAvecCatégorie[]>();
 
-        beforeAll(async () => {
+        before(async () => {
           idNuée = await client.nuées!.créerNuée({});
           idTableau = await client.nuées!.ajouterTableauNuée({
             idNuée,
@@ -108,11 +111,11 @@ typesClients.forEach((type) => {
           });
         });
 
-        afterAll(async () => {
+        after(async () => {
           if (fOublier) await fOublier();
         });
 
-        test("Ajout colonne", async () => {
+        it("Ajout colonne", async () => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "chaîne",
           });
@@ -121,37 +124,37 @@ typesClients.forEach((type) => {
             idVariable,
           });
           const val = await résultat.attendreQue((x) => x.length > 0);
-          expect(val[0].variable).toEqual(idVariable);
+          expect(val[0].variable).to.equal(idVariable);
         });
       });
       describe("Variables", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
       describe("Règles", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
     });
     describe("Qualité", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
     describe("Différences tableau", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
     describe("Différences bd", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
     describe("Suivre données", function () {
       describe("Vérifier autorisations", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
       describe("Erreurs formats bds", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
       describe("Erreurs formats tableaux", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
       describe("Erreurs données", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
 
       describe("Toujours inclure les miennes", function () {
@@ -167,7 +170,7 @@ typesClients.forEach((type) => {
           élémentDeMembreAvecValid<élémentBdListeDonnées>[]
         >();
 
-        beforeAll(async () => {
+        before(async () => {
           idNuée = await client.nuées!.créerNuée({ philosophie: "CJPI" });
 
           const idTableau = await client.nuées!.ajouterTableauNuée({
@@ -210,13 +213,13 @@ typesClients.forEach((type) => {
             clefTableau: "principal",
             vals: { [idCol]: 3 },
           });
-        }, config.patience);
+        });
 
-        afterAll(async () => {
+        after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
         });
 
-        test("Mes données aparaissent chez moi", async () => {
+        it("Mes données aparaissent chez moi", async () => {
           const val = await résultatChezMoi.attendreQue(
             (x) => x && x.length > 0
           );
@@ -231,12 +234,12 @@ typesClients.forEach((type) => {
             },
             valid: [],
           };
-          expect(val[0]).toEqual(réf);
+          expect(val[0]).to.deep.equal(réf);
         });
 
-        test("Mais pas chez les autres", async () => {
+        it("Mais pas chez les autres", async () => {
           const val = await résultatChezLesAutres.attendreExiste();
-          expect(val.length).toEqual(0);
+          expect(val.length).to.equal(0);
         });
       });
 
@@ -254,7 +257,7 @@ typesClients.forEach((type) => {
           élémentDeMembreAvecValid<élémentBdListeDonnées>[]
         >();
 
-        beforeAll(async () => {
+        before(async () => {
           const idVariableNumérique = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -299,13 +302,13 @@ typesClients.forEach((type) => {
             clefTableau: "principal",
             vals: { [idCol]: 3 },
           });
-        }, config.patience);
+        });
 
-        afterAll(async () => {
+        after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
         });
 
-        test("Mes données aparaissent chez moi", async () => {
+        it("Mes données aparaissent chez moi", async () => {
           const val = await résultatChezMoi.attendreQue(
             (x) => x && x.length > 0
           );
@@ -320,30 +323,30 @@ typesClients.forEach((type) => {
             },
             valid: [],
           };
-          expect(val[0]).toEqual(réf);
+          expect(val[0]).to.deep.equal(réf);
         });
 
-        test("Mais pas chez les autres", async () => {
+        it("Mais pas chez les autres", async () => {
           const val = await résultatChezLesAutres.attendreExiste();
-          expect(val.length).toEqual(0);
+          expect(val.length).to.equal(0);
         });
       });
     });
 
     describe("Gestionnaires", function () {
-      test.todo("Créer gestionnaire indépendant");
-      test.todo("Exclure membre");
-      test.todo("Réintégrer membre");
-      test.todo("Changer philosophie à CJPI");
-      test.todo("Inviter membre");
+      test.skip("Créer gestionnaire indépendant");
+      test.skip("Exclure membre");
+      test.skip("Réintégrer membre");
+      test.skip("Changer philosophie à CJPI");
+      test.skip("Inviter membre");
     });
 
     describe("Autorisations nuée", function () {
-      test.todo("Créer Nuée avec gestionnaire existant");
-      test.todo("Changer philosophie");
-      test.todo("Accepter membre");
-      test.todo("Exclure membre");
-      test.todo("Changer gestionnaire");
+      test.skip("Créer Nuée avec gestionnaire existant");
+      test.skip("Changer philosophie");
+      test.skip("Accepter membre");
+      test.skip("Exclure membre");
+      test.skip("Changer gestionnaire");
     });
 
     describe("Correspondances bds", function () {
@@ -359,7 +362,7 @@ typesClients.forEach((type) => {
 
         const fsOublier: schémaFonctionOublier[] = [];
 
-        beforeAll(async () => {
+        before(async () => {
           ({ idNuée } = await générerNuéeTest(client, { philosophie: "CJPI" }));
           schémaNuée = await client.nuées!.générerSchémaBdNuée({
             idNuée,
@@ -392,38 +395,38 @@ typesClients.forEach((type) => {
           fsOublier.push(fOublierRésultatSansInclureLesMiennes);
         });
 
-        afterAll(async () => {
+        after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
         });
 
-        test("Bds de membres autorisés", async () => {
+        it("Bds de membres autorisés", async () => {
           idBdMembreAutorisé = await client.bds!.créerBdDeSchéma({
             schéma: schémaNuée,
           });
           const val = await résultat.attendreQue((x) => x.length > 0);
-          expect(val[0]).toEqual(idBdMembreAutorisé);
+          expect(val[0]).to.equal(idBdMembreAutorisé);
         });
 
-        test("Bd non autorisée - incluse dans les miennes", async () => {
+        it("Bd non autorisée - incluse dans les miennes", async () => {
           idBdMembreNonAutorisé = await clients[1].bds!.créerBdDeSchéma({
             schéma: schémaNuée,
           });
           const val = await résultat.attendreQue((x) => x.length > 1);
-          expect(val.includes(idBdMembreNonAutorisé)).toBe(true);
+          expect(val.includes(idBdMembreNonAutorisé)).to.be.true();
         });
 
-        test("Bd non autorisée - non incluse pour les autres", async () => {
+        it("Bd non autorisée - non incluse pour les autres", async () => {
           const val2 = await résultatSansInclureLesMiennes.attendreQue(
             (x) => x.length > 0
           );
-          expect(val2.includes(idBdMembreNonAutorisé)).toBe(false);
+          expect(val2.includes(idBdMembreNonAutorisé)).to.be.false();
         });
 
-        test("Bd non autorisée - incluse sans vérification", async () => {
+        it("Bd non autorisée - incluse sans vérification", async () => {
           const val3 = await résultatSansVérification.attendreQue(
             (x) => x.length > 1
           );
-          expect(val3.includes(idBdMembreNonAutorisé)).toEqual(true);
+          expect(val3.includes(idBdMembreNonAutorisé)).to.be.true();
         });
       });
 
@@ -436,7 +439,7 @@ typesClients.forEach((type) => {
 
         const fsOublier: schémaFonctionOublier[] = [];
 
-        beforeAll(async () => {
+        before(async () => {
           ({ idNuée } = await générerNuéeTest(client, { philosophie: "IJPC" }));
           schémaNuée = await client.nuées!.générerSchémaBdNuée({
             idNuée,
@@ -451,66 +454,66 @@ typesClients.forEach((type) => {
           fsOublier.push(fOublierRésultat);
         });
 
-        afterAll(async () => {
+        after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
         });
 
-        test("Bds de membres autorisés", async () => {
+        it("Bds de membres autorisés", async () => {
           idBd = await clients[1].bds!.créerBdDeSchéma({
             schéma: schémaNuée,
           });
           const val = await résultat.attendreQue((x) => x.length > 0);
-          expect(val[0]).toEqual(idBd);
+          expect(val[0]).to.equal(idBd);
         });
 
-        test("Bloquer membre", async () => {
+        it("Bloquer membre", async () => {
           await client.nuées?.exclureMembreDeNuée({
             idNuée,
             idCompte: await clients[1].obtIdCompte(),
           });
           const val = await résultat.attendreQue((x) => x.length === 0);
-          expect(val.includes(idBd)).toBe(false);
+          expect(val.includes(idBd)).to.be.false();
         });
       });
     });
 
     describe("Correspondances tableaux", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
 
     describe("Ascendance", function () {
       describe("Héritage noms", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
       describe("Héritage descriptions", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
       describe("Héritage règles", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
       describe("Traçabilité descendants", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
       describe("Suivi données descendants", function () {
-        test.todo("Nuée");
+        test.skip("Nuée");
       });
     });
     describe("Suivre empreinte tête", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
     describe("Exporter données", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
     describe("Générer de bd", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
     describe("Générer schéma", function () {
-      test.todo("Nuée");
+      test.skip("Nuée");
     });
   });
 });
 
-/*test("Les noms sont liés", async () => {
+/*it("Les noms sont liés", async () => {
   const réfNomsLiés: { [key: string]: string } = Object.assign(
     {},
     réfNoms,
@@ -522,7 +525,7 @@ typesClients.forEach((type) => {
     nom: "பொழிவு",
   });
 
-  expect(nomsLiés).toEqual(réfNomsLiés);
+  expect(nomsLiés).to.deep.equal(réfNomsLiés);
   await client.bds!.sauvegarderNomBd({
     id: idBdOrig,
     langue: "fr",
@@ -530,10 +533,10 @@ typesClients.forEach((type) => {
   });
 
   réfNomsLiés["fr"] = "précipitation";
-  expect(nomsLiés).toEqual(réfNomsLiés);
+  expect(nomsLiés).to.deep.equal(réfNomsLiés);
 });
 
-test("Les descriptions sont liées", async () => {
+it("Les descriptions sont liées", async () => {
   const réfDescrsLiées: { [key: string]: string } = Object.assign(
     {},
     réfNoms,
@@ -545,7 +548,7 @@ test("Les descriptions sont liées", async () => {
     descr: "தினசரி பொழிவு",
   });
 
-  expect(descrsLiées).toEqual(réfDescrsLiées);
+  expect(descrsLiées).to.deep.equal(réfDescrsLiées);
   await client.bds!.sauvegarderDescrBd({
     id: idBdOrig,
     langue: "fr",
@@ -553,11 +556,11 @@ test("Les descriptions sont liées", async () => {
   });
 
   réfDescrsLiées["fr"] = "précipitation";
-  expect(descrsLiées).toEqual(réfDescrsLiées);
+  expect(descrsLiées).to.deep.equal(réfDescrsLiées);
 });
 
-test.todo("Changement de tableaux détecté");
-test.todo("Changement de colonnes tableau détecté");
-test.todo("Changement propriétés de colonnes tableau détecté");
-test.todo("Changement de règles détecté");
+test.skip("Changement de tableaux détecté");
+test.skip("Changement de colonnes tableau détecté");
+test.skip("Changement propriétés de colonnes tableau détecté");
+test.skip("Changement de règles détecté");
 */

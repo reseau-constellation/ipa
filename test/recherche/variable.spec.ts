@@ -1,4 +1,4 @@
-import { config } from "@/utilsTests/sfip.js";
+
 
 import type { default as ClientConstellation } from "@/client.js";
 import type {
@@ -14,17 +14,20 @@ import {
 
 import { générerClients } from "@/utilsTests/client.js";
 
+import {expect} from "aegir/chai"
+
+
 describe("Rechercher variables", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation;
 
-  beforeAll(async () => {
+  before(async () => {
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
-  }, config.patienceInit);
+  });
 
-  afterAll(async () => {
+  after(async () => {
     if (fOublierClients) await fOublierClients();
   });
 
@@ -33,32 +36,32 @@ describe("Rechercher variables", function () {
     let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
     let fOublier: schémaFonctionOublier;
 
-    beforeAll(async () => {
+    before(async () => {
       idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
 
       const fRecherche = rechercherVariableSelonNom("Radiation solaire");
       fOublier = await fRecherche(client, idVariable, (r) => (résultat = r));
-    }, config.patience);
+    });
 
-    afterAll(async () => {
+    after(async () => {
       if (fOublier) await fOublier();
     });
 
-    test("Pas de résultat quand la variable n'a pas de nom", async () => {
-      expect(résultat).toBeUndefined;
+    it("Pas de résultat quand la variable n'a pas de nom", async () => {
+      expect(résultat).to.be.undefined();
     });
-    test("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
+    it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
       await client.variables!.ajouterNomsVariable({
         id: idVariable,
         noms: {
           த: "சூரிய கதிர்வீச்சு",
         },
       });
-      expect(résultat).toBeUndefined;
+      expect(résultat).to.be.undefined();
     });
-    test("Résultat si la variable est presque exacte", async () => {
+    it("Résultat si la variable est presque exacte", async () => {
       await client.variables!.ajouterNomsVariable({
         id: idVariable,
         noms: {
@@ -66,7 +69,7 @@ describe("Rechercher variables", function () {
         },
       });
 
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "es",
         de: "nom",
@@ -79,14 +82,14 @@ describe("Rechercher variables", function () {
         score: 0.2,
       });
     });
-    test("Résultat si le mot-clef est exacte", async () => {
+    it("Résultat si le mot-clef est exacte", async () => {
       await client.variables!.ajouterNomsVariable({
         id: idVariable,
         noms: {
           fr: "Radiation solaire",
         },
       });
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -106,32 +109,32 @@ describe("Rechercher variables", function () {
     let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
     let fOublier: schémaFonctionOublier;
 
-    beforeAll(async () => {
+    before(async () => {
       idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
 
       const fRecherche = rechercherVariableSelonDescr("Radiation solaire");
       fOublier = await fRecherche(client, idVariable, (r) => (résultat = r));
-    }, config.patience);
+    });
 
-    afterAll(async () => {
+    after(async () => {
       if (fOublier) await fOublier();
     });
 
-    test("Pas de résultat quand la variable n'a pas de description", async () => {
-      expect(résultat).toBeUndefined;
+    it("Pas de résultat quand la variable n'a pas de description", async () => {
+      expect(résultat).to.be.undefined();
     });
-    test("Pas de résultat si la description n'a vraiment rien à voir", async () => {
+    it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
       await client.variables!.ajouterDescriptionsVariable({
         id: idVariable,
         descriptions: {
           த: "சூரிய கதிர்வீச்சு",
         },
       });
-      expect(résultat).toBeUndefined;
+      expect(résultat).to.be.undefined();
     });
-    test("Résultat si la variable est presque exacte", async () => {
+    it("Résultat si la variable est presque exacte", async () => {
       await client.variables!.ajouterDescriptionsVariable({
         id: idVariable,
         descriptions: {
@@ -139,7 +142,7 @@ describe("Rechercher variables", function () {
         },
       });
 
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "es",
         de: "descr",
@@ -152,14 +155,14 @@ describe("Rechercher variables", function () {
         score: 0.2,
       });
     });
-    test("Résultat si la description est exacte", async () => {
+    it("Résultat si la description est exacte", async () => {
       await client.variables!.ajouterDescriptionsVariable({
         id: idVariable,
         descriptions: {
           fr: "Radiation solaire",
         },
       });
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "descr",
@@ -181,7 +184,7 @@ describe("Rechercher variables", function () {
 
     const fsOublier: schémaFonctionOublier[] = [];
 
-    beforeAll(async () => {
+    before(async () => {
       idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
@@ -204,14 +207,14 @@ describe("Rechercher variables", function () {
           fr: "précipitation",
         },
       });
-    }, config.patience);
+    });
 
-    afterAll(async () => {
+    after(async () => {
       await Promise.all(fsOublier.map((f) => f()));
     });
 
-    test("Résultat nom détecté", async () => {
-      expect(résultatNom).toEqual({
+    it("Résultat nom détecté", async () => {
+      expect(résultatNom).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -225,8 +228,8 @@ describe("Rechercher variables", function () {
       });
     });
 
-    test("Résultat id détecté", async () => {
-      expect(résultatId).toEqual({
+    it("Résultat id détecté", async () => {
+      expect(résultatId).to.deep.equal({
         type: "résultat",
         de: "id",
         info: {

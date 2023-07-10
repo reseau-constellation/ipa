@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import type FeedStore from "orbit-db-feedstore";
-import { config } from "@/utilsTests/sfip.js";
+
 
 import type { default as ClientConstellation } from "@/client.js";
 import type {
@@ -24,27 +24,30 @@ import {
 import { générerClients } from "@/utilsTests/client.js";
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
+import {expect} from "aegir/chai"
+
+
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation;
 
-  beforeAll(async () => {
+  before(async () => {
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
-  }, config.patienceInit);
+  });
 
-  afterAll(async () => {
+  after(async () => {
     if (fOublierClients) await fOublierClients();
   });
 
   describe("Rechercher dans texte", function () {
-    test("Recherche exacte", () => {
+    it("Recherche exacte", () => {
       const résultat = rechercherDansTexte(
         "வணக்கம்",
         "வணக்கம், சாப்பிட்டீர்களா?"
       );
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "texte",
         score: 1,
         début: 0,
@@ -52,12 +55,12 @@ describe("Utils recherche", function () {
       });
     });
 
-    test("Recherche approximative", () => {
+    it("Recherche approximative", () => {
       const résultat = rechercherDansTexte(
         "வணக்கம்",
         "வணககம், சாப்பிட்டீர்களா?"
       );
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "texte",
         score: 0.5,
         début: 0,
@@ -65,9 +68,9 @@ describe("Utils recherche", function () {
       });
     });
 
-    test("Recherche retourne meilleure", () => {
+    it("Recherche retourne meilleure", () => {
       const résultat = rechercherDansTexte("வணக்கம்", "வணககம், வணக்கம்");
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "texte",
         score: 1,
         début: 8,
@@ -75,14 +78,14 @@ describe("Utils recherche", function () {
       });
     });
 
-    test("Recherche vraiment pas possible", () => {
+    it("Recherche vraiment pas possible", () => {
       const résultat = rechercherDansTexte("வணக்கம்", "សួស្តី");
-      expect(résultat).toBeUndefined;
+      expect(résultat).to.be.undefined();
     });
   });
 
   describe("Simil texte", function () {
-    test("exacte", () => {
+    it("exacte", () => {
       const textes = {
         fr: "hydrologie",
         es: "hidrología",
@@ -90,7 +93,7 @@ describe("Utils recherche", function () {
       };
 
       const résultat = similTexte("hydrologie", textes);
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
         info: {
@@ -102,14 +105,14 @@ describe("Utils recherche", function () {
         score: 1,
       });
     });
-    test("approx", () => {
+    it("approx", () => {
       const textes = {
         es: "hidrología",
         த: "நீரியல்",
       };
 
       const résultat = similTexte("hydrologie", textes);
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "es",
         info: {
@@ -121,7 +124,7 @@ describe("Utils recherche", function () {
         score: 0.25,
       });
     });
-    test("meilleure", () => {
+    it("meilleure", () => {
       const textes = {
         fr: "hydrologie",
         es: "hidrología",
@@ -129,7 +132,7 @@ describe("Utils recherche", function () {
       };
 
       const résultat = similTexte("hydro", textes);
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
         info: {
@@ -141,7 +144,7 @@ describe("Utils recherche", function () {
         score: 1,
       });
     });
-    test("aucune", () => {
+    it("aucune", () => {
       const textes = {
         fr: "hydrologie",
         es: "hidrología",
@@ -149,15 +152,15 @@ describe("Utils recherche", function () {
       };
 
       const résultat = similTexte("entomologie", textes);
-      expect(résultat).toBeUndefined;
+      expect(résultat).to.be.undefined();
     });
 
-    test("simil texte liste", () => {
+    it("simil texte liste", () => {
       const résultat = similTexte("entomologie", [
         "entomología",
         "entomologie",
       ]);
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "entomologie",
         info: {
@@ -175,7 +178,7 @@ describe("Utils recherche", function () {
     let IMAGE: Buffer;
     let IMAGE2: Buffer;
 
-    beforeAll(async () => {
+    before(async () => {
       IMAGE = fs.readFileSync(
         path.join(await dossierRessourcesTests(), "logo.png")
       );
@@ -184,19 +187,19 @@ describe("Utils recherche", function () {
       );
     });
 
-    test("Pas d'image réf", () => {
+    it("Pas d'image réf", () => {
       const résultat = similImages(IMAGE, null);
-      expect(résultat).toEqual(0);
+      expect(résultat).to.equal(0);
     });
 
-    test("Images identiques", () => {
+    it("Images identiques", () => {
       const résultat = similImages(IMAGE, IMAGE);
-      expect(résultat).toEqual(1);
+      expect(résultat).to.equal(1);
     });
 
-    test("Images similaires", () => {
+    it("Images similaires", () => {
       const résultat = similImages(IMAGE, IMAGE2);
-      expect(résultat).toBeGreaterThan(0.5);
+      expect(résultat).to.be.greaterThan(0.5);
     });
   });
 
@@ -206,17 +209,17 @@ describe("Utils recherche", function () {
 
     const fRecherche = rechercherSelonId("id");
 
-    beforeAll(async () => {
+    before(async () => {
       fOublier = await fRecherche(
         client,
         "voici mon id",
         (rés) => (résultat = rés)
       );
     });
-    afterAll(async () => {
+    after(async () => {
       if (fOublier) await fOublier();
     });
-    test("Résultat détecté", () => {
+    it("Résultat détecté", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
         type: "résultat",
         de: "id",
@@ -229,7 +232,7 @@ describe("Utils recherche", function () {
         score: 1,
       };
 
-      expect(résultat).toEqual(réfRés);
+      expect(résultat).to.deep.equal(réfRés);
     });
   });
 
@@ -237,7 +240,7 @@ describe("Utils recherche", function () {
     let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
     let fOublier: schémaFonctionOublier;
 
-    beforeAll(async () => {
+    before(async () => {
       const fRechercheAbc = rechercherSelonId("abc");
       const fRechercheAbcdef = rechercherSelonId("abcdef");
 
@@ -251,10 +254,10 @@ describe("Utils recherche", function () {
         (rés) => (résultat = rés)
       );
     });
-    afterAll(async () => {
+    after(async () => {
       if (fOublier) await fOublier();
     });
-    test("Résultat détecté", () => {
+    it("Résultat détecté", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
         type: "résultat",
         de: "id",
@@ -266,7 +269,7 @@ describe("Utils recherche", function () {
         },
         score: 1,
       };
-      expect(résultat).toEqual(réfRés);
+      expect(résultat).to.deep.equal(réfRés);
     });
   });
 
@@ -278,7 +281,7 @@ describe("Utils recherche", function () {
 
     const fsOublier: schémaFonctionOublier[] = [];
 
-    beforeAll(async () => {
+    before(async () => {
       idBd = await client.créerBdIndépendante({ type: "feed" });
 
       const fListe = async (
@@ -305,14 +308,14 @@ describe("Utils recherche", function () {
           fSuivreRecherche
         )
       );
-    }, config.patience);
-    afterAll(async () => await Promise.all(fsOublier.map((f) => f())));
+    });
+    after(async () => await Promise.all(fsOublier.map((f) => f())));
 
-    test("Rien pour commencer", () => {
-      expect(résultat).toBeUndefined;
+    it("Rien pour commencer", () => {
+      expect(résultat).to.be.undefined();
     });
 
-    test("Ajout variable détecté", async () => {
+    it("Ajout variable détecté", async () => {
       const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
         id: idBd,
       });
@@ -338,10 +341,10 @@ describe("Utils recherche", function () {
         score: 0.5,
       };
 
-      expect(résultat).toEqual(réfRés);
+      expect(résultat).to.deep.equal(réfRés);
     });
 
-    test("Ajout meilleure variable détecté", async () => {
+    it("Ajout meilleure variable détecté", async () => {
       const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
         id: idBd,
       });
@@ -367,7 +370,7 @@ describe("Utils recherche", function () {
         type: "résultat",
       };
 
-      expect(résultat).toEqual(réfRés);
+      expect(résultat).to.deep.equal(réfRés);
     });
   });
 
@@ -375,21 +378,21 @@ describe("Utils recherche", function () {
     let résultat: résultatObjectifRecherche<infoRésultatVide> | undefined;
     let fOublier: schémaFonctionOublier;
 
-    beforeAll(async () => {
+    before(async () => {
       const fRecherche = rechercherTous();
       fOublier = await fRecherche(client, "abc", (rés) => (résultat = rés));
     });
-    afterAll(async () => {
+    after(async () => {
       if (fOublier) await fOublier();
     });
-    test("Tous ont le même score", () => {
+    it("Tous ont le même score", () => {
       const réfRés: résultatObjectifRecherche<infoRésultatVide> = {
         type: "résultat",
         score: 1,
         de: "*",
         info: { type: "vide" },
       };
-      expect(résultat).toEqual(réfRés);
+      expect(résultat).to.deep.equal(réfRés);
     });
   });
 });

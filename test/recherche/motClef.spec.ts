@@ -11,19 +11,20 @@ import {
 
 import { générerClients } from "@/utilsTests/client.js";
 
-import { config } from "@/utilsTests/sfip.js";
+import {expect} from "aegir/chai"
+
 
 describe("Rechercher mots clefs", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation;
 
-  beforeAll(async () => {
+  before(async () => {
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
-  }, config.patienceInit);
+  });
 
-  afterAll(async () => {
+  after(async () => {
     if (fOublierClients) await fOublierClients();
   });
 
@@ -32,38 +33,38 @@ describe("Rechercher mots clefs", function () {
     let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
     let fOublier: schémaFonctionOublier;
 
-    beforeAll(async () => {
+    before(async () => {
       idMotClef = await client.motsClefs!.créerMotClef();
 
       const fRecherche = rechercherMotClefSelonNom("hydrologie");
       fOublier = await fRecherche(client, idMotClef, (r) => (résultat = r));
-    }, config.patience);
+    });
 
-    afterAll(async () => {
+    after(async () => {
       if (fOublier) await fOublier();
     });
 
-    test("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
-      expect(résultat).toBeUndefined;
+    it("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
+      expect(résultat).to.be.undefined();
     });
-    test("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-      await client.motsClefs!.ajouterNomsMotClef({
-        id: idMotClef,
+    it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
+      await client.motsClefs!.sauvegarderNomsMotClef({
+        idMotClef,
         noms: {
           த: "நீரியல்",
         },
       });
-      expect(résultat).toBeUndefined;
+      expect(résultat).to.be.undefined();
     });
-    test("Résultat si le mot-clef est presque exacte", async () => {
-      await client.motsClefs!.ajouterNomsMotClef({
-        id: idMotClef,
+    it("Résultat si le mot-clef est presque exacte", async () => {
+      await client.motsClefs!.sauvegarderNomsMotClef({
+        idMotClef,
         noms: {
           fr: "Sciences hydrologiques",
         },
       });
 
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -76,14 +77,14 @@ describe("Rechercher mots clefs", function () {
         score: 0.5,
       });
     });
-    test("Résultat si le mot-clef est exacte", async () => {
-      await client.motsClefs!.ajouterNomsMotClef({
-        id: idMotClef,
+    it("Résultat si le mot-clef est exacte", async () => {
+      await client.motsClefs!.sauvegarderNomsMotClef({
+        idMotClef,
         noms: {
           fr: "hydrologie",
         },
       });
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -105,7 +106,7 @@ describe("Rechercher mots clefs", function () {
 
     const fsOublier: schémaFonctionOublier[] = [];
 
-    beforeAll(async () => {
+    before(async () => {
       idMotClef = await client.motsClefs!.créerMotClef();
 
       const fRechercheNom = rechercherMotClefSelonTexte("hydrologie");
@@ -118,20 +119,20 @@ describe("Rechercher mots clefs", function () {
         await fRechercheId(client, idMotClef, (r) => (résultatId = r))
       );
 
-      await client.motsClefs!.ajouterNomsMotClef({
-        id: idMotClef,
+      await client.motsClefs!.sauvegarderNomsMotClef({
+        idMotClef,
         noms: {
           fr: "hydrologie",
         },
       });
-    }, config.patience);
+    });
 
-    afterAll(async () => {
+    after(async () => {
       await Promise.all(fsOublier.map((f) => f()));
     });
 
-    test("Résultat nom détecté", async () => {
-      expect(résultatNom).toEqual({
+    it("Résultat nom détecté", async () => {
+      expect(résultatNom).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -144,8 +145,8 @@ describe("Rechercher mots clefs", function () {
         score: 1,
       });
     });
-    test("Résultat id détecté", async () => {
-      expect(résultatId).toEqual({
+    it("Résultat id détecté", async () => {
+      expect(résultatId).to.deep.equal({
         type: "résultat",
         de: "id",
         info: {

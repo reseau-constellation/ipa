@@ -30,7 +30,7 @@ typesClients.forEach((type) => {
         if (fOublierClients) await fOublierClients();
       });
 
-      describe.only("Courriels", function () {
+      describe("Courriels", function () {
         let fOublier: schémaFonctionOublier;
         
         const résultatCourriel = new AttendreRésultat<string | null>();
@@ -148,7 +148,7 @@ typesClients.forEach((type) => {
         it("Ajouter une image", async () => {
           await client.profil!.sauvegarderImage({ image: IMAGE });
           const val = await rés.attendreExiste();
-          expect(val).to.equal(new Uint8Array(IMAGE));
+          expect(val).to.deep.equal(new Uint8Array(IMAGE));
         });
 
         it("Effacer l'image", async () => {

@@ -80,12 +80,12 @@ const vérifierDonnéesProjet = async (
   
   const zip = await new Promise<JSZip>((résoudre) => {
     const interval = setInterval(async () => {
-      let zip: JSZip;
+      let zip_: JSZip;
       try {
         const donnéesFichier = fs.readFileSync(doc)
-        zip = await JSZip.loadAsync(donnéesFichier);
+        zip_ = await JSZip.loadAsync(donnéesFichier);
         clearInterval(interval);
-        résoudre(zip);
+        résoudre(zip_);
       } catch (e) {
         // Réessayer
       }

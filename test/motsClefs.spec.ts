@@ -1,6 +1,3 @@
-import pkg from "lodash";
-const { isArray } = pkg;
-
 import { expect } from "aegir/chai";
 
 import type { default as ClientConstellation } from "@/client.js";
@@ -43,17 +40,17 @@ typesClients.forEach((type) => {
           if (fOublier) await fOublier();
         });
         it("Pas de mots-clefs pour commencer", async () => {
-          expect(isArray(motsClefs)).to.be.true;
+          expect(Array.isArray(motsClefs)).to.be.true;
           expect(motsClefs.length).to.equal(0);
         });
         it("Créer des mots-clefs", async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
-          expect(isArray(motsClefs)).to.be.true;
+          expect(Array.isArray(motsClefs)).to.be.true;
           expect(motsClefs.length).to.equal(1);
         });
         it("Effacer un mot-clef", async () => {
           await client.motsClefs!.effacerMotClef({ idMotClef });
-          expect(isArray(motsClefs)).to.be.true;
+          expect(Array.isArray(motsClefs)).to.be.true;
           expect(motsClefs.length).to.equal(0);
         });
       });
@@ -199,7 +196,7 @@ typesClients.forEach((type) => {
         });
 
         it("Le mot-clef est copié", async () => {
-          expect(isArray(motsClefs)).to.be.true;
+          expect(Array.isArray(motsClefs)).to.be.true;
           expect(motsClefs).to.contain(idMotClef2);
         });
 

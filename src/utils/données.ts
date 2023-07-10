@@ -38,7 +38,10 @@ export async function sauvegarderFichierZip({fichierZip, nomFichier}: {fichierZi
     const contenu = fichierZip.generateNodeStream();
     fs.mkdirSync(path.dirname(nomFichier), { recursive: true });
     const fluxÉcriture = fs.createWriteStream(nomFichier)
-    contenu.pipe(fluxÉcriture)
+    const flux = contenu.pipe(fluxÉcriture)
+    return new Promise(résoudre =>
+      flux.on('finish', résoudre)
+    )
   } else {
     const contenu = await fichierZip.generateAsync({ type: "blob" });
     await fileSave(contenu, {fileName: nomFichier});

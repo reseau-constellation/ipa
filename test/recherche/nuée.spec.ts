@@ -1,69 +1,71 @@
 import type { default as ClientConstellation } from "@/client.js";
+import { config } from "@/utilsTests/sfip";
+import { générerClients } from "@/utilsTests/client.js";
+import {
+  rechercherNuéeSelonNom,
+  rechercherNuéeSelonDescr,
+  rechercherNuéeSelonIdMotClef,
+  rechercherNuéeSelonNomMotClef,
+  rechercherNuéeSelonMotClef,
+  rechercherNuéeSelonIdVariable,
+  rechercherNuéeSelonNomVariable,
+  rechercherNuéeSelonVariable,
+  rechercherNuéeSelonTexte,
+} from "@/recherche/nuée.js";
+
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatRecherche,
 } from "@/utils/index.js";
-import {
-  rechercherBdSelonNom,
-  rechercherBdSelonDescr,
-  rechercherBdSelonTexte,
-  rechercherBdSelonMotClef,
-  rechercherBdSelonVariable,
-  rechercherBdSelonIdMotClef,
-  rechercherBdSelonIdVariable,
-  rechercherBdSelonNomMotClef,
-  rechercherBdSelonNomVariable,
-} from "@/recherche/bd.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
-import { générerClients } from "@/utilsTests/client.js";
+import {expect} from "aegir/chai"
 
-import { config } from "@/utilsTests/sfip.js";
-
-describe("Rechercher bds", function () {
+describe("Client ", function () {
   let fOublierClients: () => Promise<void>;
   let clients: ClientConstellation[];
   let client: ClientConstellation;
 
-  beforeAll(async () => {
+  before(async () => {
     ({ fOublier: fOublierClients, clients } = await générerClients(1));
     client = clients[0];
-  }, config.patienceInit);
+  });
 
-  afterAll(async () => {
+  after(async () => {
     if (fOublierClients) await fOublierClients();
   });
 
   describe("Selon nom", function () {
-    let idBd: string;
+    let idNuée: string;
     let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
     let fOublier: schémaFonctionOublier;
 
-    beforeAll(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+    before(async () => {
+      idNuée = await client.nuées!.créerNuée({});
 
-      const fRecherche = rechercherBdSelonNom("Météo");
-      fOublier = await fRecherche(client, idBd, (r) => (résultat = r));
-    }, config.patience);
+      const fRecherche = rechercherNuéeSelonNom("Météo");
+      fOublier = await fRecherche(client, idNuée, (r) => (résultat = r));
+    });
 
-    afterAll(async () => {
+    after(async () => {
       if (fOublier) await fOublier();
     });
 
-    test("Pas de résultat quand la bd n'a pas de nom", async () => {
-      expect(résultat).toBeUndefined;
+    it("Pas de résultat quand la nuée n'a pas de nom", async () => {
+      expect(résultat).to.be.undefined();
     });
 
-    test("Ajout nom détecté", async () => {
-      await client.bds!.ajouterNomsBd({
-        id: idBd,
+    it("Ajout nom détecté", async () => {
+      await client.nuées!.ajouterNomsNuée({
+        id: idNuée,
         noms: {
           fr: "Météorologie",
         },
       });
 
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -79,34 +81,34 @@ describe("Rechercher bds", function () {
   });
 
   describe("Selon description", function () {
-    let idBd: string;
+    let idNuée: string;
     let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
     let fOublier: schémaFonctionOublier;
 
-    beforeAll(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+    before(async () => {
+      idNuée = await client.nuées!.créerNuée({});
 
-      const fRecherche = rechercherBdSelonDescr("Météo");
-      fOublier = await fRecherche(client, idBd, (r) => (résultat = r));
-    }, config.patience);
+      const fRecherche = rechercherNuéeSelonDescr("Météo");
+      fOublier = await fRecherche(client, idNuée, (r) => (résultat = r));
+    });
 
-    afterAll(async () => {
+    after(async () => {
       if (fOublier) await fOublier();
     });
 
-    test("Pas de résultat quand la bd n'a pas de description", async () => {
-      expect(résultat).toBeUndefined;
+    it("Pas de résultat quand la nuée n'a pas de description", async () => {
+      expect(résultat).to.be.undefined();
     });
 
-    test("Ajout description détecté", async () => {
-      await client.bds!.ajouterDescriptionsBd({
-        id: idBd,
+    it("Ajout description détecté", async () => {
+      await client.nuées!.ajouterDescriptionsNuée({
+        id: idNuée,
         descriptions: {
-          fr: "Météo historique pour la région de Montréal",
+          fr: "Météo historique",
         },
       });
 
-      expect(résultat).toEqual({
+      expect(résultat).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "descr",
@@ -114,7 +116,7 @@ describe("Rechercher bds", function () {
           type: "texte",
           début: 0,
           fin: 5,
-          texte: "Météo historique pour la région de Montréal",
+          texte: "Météo historique",
         },
         score: 1,
       });
@@ -122,7 +124,7 @@ describe("Rechercher bds", function () {
   });
 
   describe("Selon mot-clef", function () {
-    let idBd: string;
+    let idNuée: string;
     let idMotClef: string;
     let résultatNom:
       | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
@@ -136,37 +138,39 @@ describe("Rechercher bds", function () {
 
     const fsOublier: schémaFonctionOublier[] = [];
 
-    beforeAll(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+    before(async () => {
+      idNuée = await client.nuées!.créerNuée({});
       idMotClef = await client.motsClefs!.créerMotClef();
 
-      const fRechercheNom = rechercherBdSelonNomMotClef("Météo");
+      const fRechercheNom = rechercherNuéeSelonNomMotClef("Météo");
       fsOublier.push(
-        await fRechercheNom(client, idBd, (r) => (résultatNom = r))
+        await fRechercheNom(client, idNuée, (r) => (résultatNom = r))
       );
 
-      const fRechercheId = rechercherBdSelonIdMotClef(idMotClef.slice(0, 15));
-      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
-
-      const fRechercheTous = rechercherBdSelonMotClef("Météo");
+      const fRechercheId = rechercherNuéeSelonIdMotClef(idMotClef.slice(0, 15));
       fsOublier.push(
-        await fRechercheTous(client, idBd, (r) => (résultatTous = r))
+        await fRechercheId(client, idNuée, (r) => (résultatId = r))
       );
-    }, config.patience);
 
-    afterAll(async () => {
+      const fRechercheTous = rechercherNuéeSelonMotClef("Météo");
+      fsOublier.push(
+        await fRechercheTous(client, idNuée, (r) => (résultatTous = r))
+      );
+    });
+
+    after(async () => {
       await Promise.all(fsOublier.map((f) => f()));
     });
 
-    test("Pas de résultat quand la bd n'a pas de mot-clef", async () => {
-      expect(résultatId).toBeUndefined;
-      expect(résultatNom).toBeUndefined;
-      expect(résultatTous).toBeUndefined;
+    it("Pas de résultat quand la nuée n'a pas de mot-clef", async () => {
+      expect(résultatId).to.be.undefined();
+      expect(résultatNom).to.be.undefined();
+      expect(résultatTous).to.be.undefined();
     });
 
-    test("Ajout mot-clef détecté", async () => {
-      await client.bds!.ajouterMotsClefsBd({
-        idBd,
+    it("Ajout mot-clef détecté", async () => {
+      await client.nuées!.ajouterMotsClefsNuée({
+        idNuée,
         idsMotsClefs: idMotClef,
       });
 
@@ -189,12 +193,12 @@ describe("Rechercher bds", function () {
         score: 1,
       };
 
-      expect(résultatId).toEqual(réfRésId);
+      expect(résultatId).to.deep.equal(réfRésId);
     });
 
-    test("Ajout nom mot-clef détecté", async () => {
-      await client.motsClefs!.ajouterNomsMotClef({
-        id: idMotClef,
+    it("Ajout nom mot-clef détecté", async () => {
+      await client.motsClefs!.sauvegarderNomsMotClef({
+        idMotClef,
         noms: {
           fr: "Météo historique pour la région de Montréal",
         },
@@ -220,13 +224,13 @@ describe("Rechercher bds", function () {
         score: 1,
       };
 
-      expect(résultatNom).toEqual(réfRésNom);
-      expect(résultatTous).toEqual(réfRésNom);
+      expect(résultatNom).to.deep.equal(réfRésNom);
+      expect(résultatTous).to.deep.equal(réfRésNom);
     });
   });
 
   describe("Selon variable", function () {
-    let idBd: string;
+    let idNuée: string;
     let idVariable: string;
     let résultatNom:
       | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
@@ -240,39 +244,43 @@ describe("Rechercher bds", function () {
 
     const fsOublier: schémaFonctionOublier[] = [];
 
-    beforeAll(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+    before(async () => {
+      idNuée = await client.nuées!.créerNuée({});
       idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
 
-      const fRechercheNom = rechercherBdSelonNomVariable("Précip");
+      const fRechercheNom = rechercherNuéeSelonNomVariable("Précip");
       fsOublier.push(
-        await fRechercheNom(client, idBd, (r) => (résultatNom = r))
+        await fRechercheNom(client, idNuée, (r) => (résultatNom = r))
       );
 
-      const fRechercheId = rechercherBdSelonIdVariable(idVariable.slice(0, 15));
-      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
-
-      const fRechercheTous = rechercherBdSelonVariable("Précip");
-      fsOublier.push(
-        await fRechercheTous(client, idBd, (r) => (résultatTous = r))
+      const fRechercheId = rechercherNuéeSelonIdVariable(
+        idVariable.slice(0, 15)
       );
-    }, config.patience);
+      fsOublier.push(
+        await fRechercheId(client, idNuée, (r) => (résultatId = r))
+      );
 
-    afterAll(async () => {
+      const fRechercheTous = rechercherNuéeSelonVariable("Précip");
+      fsOublier.push(
+        await fRechercheTous(client, idNuée, (r) => (résultatTous = r))
+      );
+    });
+
+    after(async () => {
       await Promise.all(fsOublier.map((f) => f()));
     });
 
-    test("Pas de résultat quand la bd n'a pas de variable", async () => {
-      expect(résultatId).toBeUndefined;
-      expect(résultatNom).toBeUndefined;
-      expect(résultatTous).toBeUndefined;
+    it("Pas de résultat quand la nuée n'a pas de variable", async () => {
+      expect(résultatId).to.be.undefined();
+      expect(résultatNom).to.be.undefined();
+      expect(résultatTous).to.be.undefined();
     });
 
-    test("Ajout variable détecté", async () => {
-      const idTableau = await client.bds!.ajouterTableauBd({ idBd });
-      await client.tableaux!.ajouterColonneTableau({
+    it("Ajout variable détecté", async () => {
+      const idTableau = await client.nuées!.ajouterTableauNuée({ idNuée });
+      await client.nuées!.ajouterColonneTableauNuée({
         idTableau,
         idVariable,
       });
@@ -296,10 +304,10 @@ describe("Rechercher bds", function () {
         score: 1,
       };
 
-      expect(résultatId).toEqual(réfRésId);
+      expect(résultatId).to.deep.equal(réfRésId);
     });
 
-    test("Ajout nom variable détecté", async () => {
+    it("Ajout nom variable détecté", async () => {
       await client.variables!.ajouterNomsVariable({
         id: idVariable,
         noms: {
@@ -327,94 +335,116 @@ describe("Rechercher bds", function () {
         score: 1,
       };
 
-      expect(résultatNom).toEqual(réfRésNom);
-      expect(résultatTous).toEqual(réfRésNom);
+      expect(résultatNom).to.deep.equal(réfRésNom);
+      expect(résultatTous).to.deep.equal(réfRésNom);
     });
   });
 
   describe("Selon texte", function () {
-    // node --experimental-specifier-resolution=node --inspect dist/recherche/bd.test.js
-    let idBd: string;
+    let idNuée: string;
     let résultatId:
       | résultatObjectifRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          | infoRésultatTexte
+          | infoRésultatRecherche<
+              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+            >
         >
       | undefined;
     let résultatNom:
       | résultatObjectifRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          | infoRésultatTexte
+          | infoRésultatRecherche<
+              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+            >
         >
       | undefined;
     let résultatDescr:
       | résultatObjectifRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          | infoRésultatTexte
+          | infoRésultatRecherche<
+              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+            >
         >
       | undefined;
     let résultatVariable:
       | résultatObjectifRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          | infoRésultatTexte
+          | infoRésultatRecherche<
+              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+            >
         >
       | undefined;
-    let résultatMotsClef:
-      | résultatObjectifRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-        >
-      | undefined;
+
+    const résultatMotClef = new AttendreRésultat<
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
-    beforeAll(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+    before(async () => {
+      idNuée = await client.nuées!.créerNuée({});
 
-      const fRechercheNom = rechercherBdSelonTexte("Hydrologie");
+      const fRechercheNom = rechercherNuéeSelonTexte("Hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idBd, (r) => (résultatNom = r))
+        await fRechercheNom(client, idNuée, (r) => (résultatNom = r))
       );
 
-      const fRechercheId = rechercherBdSelonTexte(idBd.slice(0, 15));
-      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
-
-      const fRechercheDescr = rechercherBdSelonTexte("Montréal");
+      const fRechercheId = rechercherNuéeSelonTexte(idNuée.slice(0, 15));
       fsOublier.push(
-        await fRechercheDescr(client, idBd, (r) => (résultatDescr = r))
+        await fRechercheId(client, idNuée, (r) => (résultatId = r))
       );
 
-      const fRechercheVariables = rechercherBdSelonTexte("Température");
+      const fRechercheDescr = rechercherNuéeSelonTexte("Montréal");
       fsOublier.push(
-        await fRechercheVariables(client, idBd, (r) => (résultatVariable = r))
+        await fRechercheDescr(client, idNuée, (r) => (résultatDescr = r))
       );
 
-      const fRechercheMotsClef = rechercherBdSelonTexte("Météo");
+      const fRechercheVariables = rechercherNuéeSelonTexte("Température");
       fsOublier.push(
-        await fRechercheMotsClef(client, idBd, (r) => (résultatMotsClef = r))
+        await fRechercheVariables(client, idNuée, (r) => (résultatVariable = r))
       );
-    }, config.patience);
 
-    afterAll(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      const fRechercheMotsClef = rechercherNuéeSelonTexte("Météo");
+      fsOublier.push(
+        await fRechercheMotsClef(client, idNuée, (r) =>
+          résultatMotClef.mettreÀJour(r)
+        )
+      );
     });
 
-    test("Résultat id détecté", async () => {
-      expect(résultatId).toEqual({
+    after(async () => {
+      await Promise.all(fsOublier.map((f) => f()));
+      résultatMotClef.toutAnnuler();
+    });
+
+    it("Résultat id détecté", async () => {
+      expect(résultatId).to.deep.equal({
         type: "résultat",
         de: "id",
         info: {
           type: "texte",
           début: 0,
           fin: 15,
-          texte: idBd,
+          texte: idNuée,
         },
         score: 1,
       });
     });
 
-    test("Résultat nom détecté", async () => {
-      await client.bds!.ajouterNomsBd({
-        id: idBd,
-        noms: { fr: "Hydrologie" },
+    it("Résultat nom détecté", async () => {
+      await client.nuées!.ajouterNomsNuée({
+        id: idNuée,
+        noms: {
+          fr: "Hydrologie",
+        },
       });
 
-      expect(résultatNom).toEqual({
+      expect(résultatNom).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -428,14 +458,14 @@ describe("Rechercher bds", function () {
       });
     });
 
-    test("Résultat descr détecté", async () => {
-      await client.bds!.ajouterDescriptionsBd({
-        id: idBd,
+    it("Résultat descr détecté", async () => {
+      await client.nuées!.ajouterDescriptionsNuée({
+        id: idNuée,
         descriptions: {
           fr: "Hydrologie de Montréal",
         },
       });
-      expect(résultatDescr).toEqual({
+      expect(résultatDescr).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "descr",
@@ -449,12 +479,12 @@ describe("Rechercher bds", function () {
       });
     });
 
-    test("Résultat variable détecté", async () => {
+    it("Résultat variable détecté", async () => {
       const idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
-      const idTableau = await client.bds!.ajouterTableauBd({ idBd });
-      await client.tableaux!.ajouterColonneTableau({
+      const idTableau = await client.nuées!.ajouterTableauNuée({ idNuée });
+      await client.nuées!.ajouterColonneTableauNuée({
         idTableau,
         idVariable,
       });
@@ -465,7 +495,9 @@ describe("Rechercher bds", function () {
         },
       });
 
-      expect(résultatVariable).toEqual({
+      const résRéf: résultatObjectifRecherche<
+        infoRésultatRecherche<infoRésultatTexte>
+      > = {
         type: "résultat",
         clef: idVariable,
         de: "variable",
@@ -481,23 +513,27 @@ describe("Rechercher bds", function () {
           },
         },
         score: 1,
-      });
+      };
+
+      expect(résultatVariable).to.equal(résRéf);
     });
 
-    test("Résultat mot-clef détecté", async () => {
+    it("Résultat mot-clef détecté", async () => {
       const idMotClef = await client.motsClefs!.créerMotClef();
-      await client.bds!.ajouterMotsClefsBd({
-        idBd,
-        idsMotsClefs: idMotClef,
-      });
-      await client.motsClefs!.ajouterNomsMotClef({
-        id: idMotClef,
+      await client.motsClefs!.sauvegarderNomsMotClef({
+        idMotClef,
         noms: {
           fr: "Météorologie",
         },
       });
+      await client.nuées!.ajouterMotsClefsNuée({
+        idNuée: idNuée,
+        idsMotsClefs: idMotClef,
+      });
 
-      expect(résultatMotsClef).toEqual({
+      const résRéf: résultatObjectifRecherche<
+        infoRésultatRecherche<infoRésultatTexte>
+      > = {
         type: "résultat",
         clef: idMotClef,
         de: "motClef",
@@ -513,7 +549,10 @@ describe("Rechercher bds", function () {
           },
         },
         score: 1,
-      });
+      };
+
+      const val = await résultatMotClef.attendreExiste();
+      expect(val).to.equal(résRéf);
     });
   });
 });

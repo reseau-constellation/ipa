@@ -1,6 +1,3 @@
-import pkg from "lodash";
-const { isArray } = pkg;
-
 import type XLSX from "xlsx";
 
 import type { default as ClientConstellation } from "@/client.js";
@@ -188,13 +185,13 @@ typesClients.forEach((type) => {
         });
 
         it("Tout est vide pour commencer", async () => {
-          expect(isArray(variables)).to.be.true;
+          expect(Array.isArray(variables)).to.be.true;
           expect(variables.length).to.equal(0);
 
-          expect(isArray(colonnes)).to.be.true;
+          expect(Array.isArray(colonnes)).to.be.true;
           expect(colonnes.length).to.equal(0);
 
-          expect(isArray(données)).to.be.true;
+          expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(0);
         });
 
@@ -220,7 +217,7 @@ typesClients.forEach((type) => {
             [idsColonnes[1]]: "வணக்கம்",
           };
           await client.tableaux!.ajouterÉlément({ idTableau, vals: élément });
-          expect(isArray(données)).to.be.true;
+          expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(1);
 
           const élémentDonnées = données[0];
@@ -238,7 +235,7 @@ typesClients.forEach((type) => {
             vals: { [idsColonnes[0]]: -123 },
             empreintePrécédente: élémentDonnées.empreinte,
           });
-          expect(isArray(données)).to.be.true;
+          expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(1);
 
           const nouvelÉlémentDonnées = données[0];
@@ -280,7 +277,7 @@ typesClients.forEach((type) => {
             idTableau,
             empreinteÉlément: élémentDonnées.empreinte,
           });
-          expect(isArray(données)).to.be.true;
+          expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(0);
         });
 
@@ -314,7 +311,7 @@ typesClients.forEach((type) => {
         });
 
         it("Pas d'index pour commencer", async () => {
-          expect(isArray(indexes)).to.be.true;
+          expect(Array.isArray(indexes)).to.be.true;
           expect(indexes.length).to.equal(0);
         });
 
@@ -334,7 +331,7 @@ typesClients.forEach((type) => {
             idColonne: colonnes[0].id,
             val: false,
           });
-          expect(isArray(indexes)).to.be.true;
+          expect(Array.isArray(indexes)).to.be.true;
           expect(indexes.length).to.equal(0);
         });
       });
@@ -396,7 +393,7 @@ typesClients.forEach((type) => {
         it("Règles génériques de catégorie pour commencer", async () => {
           const val = await résRègles.attendreQue((r) => !!r && r.length === 2);
 
-          expect(isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true;
           expect(val.length).to.equal(2);
           for (const r of val) {
             expect(r.règle.règle.typeRègle).to.equal("catégorie");
@@ -405,7 +402,7 @@ typesClients.forEach((type) => {
 
         it("Aucune erreur pour commencer", async () => {
           const val = await résErreurs.attendreExiste();
-          expect(isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true;
           expect(val.length).to.equal(0);
         });
 
@@ -418,7 +415,7 @@ typesClients.forEach((type) => {
             },
           });
           const val = await résErreurs.attendreExiste();
-          expect(isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true;
           expect(val.length).to.equal(0);
         });
 
@@ -431,7 +428,7 @@ typesClients.forEach((type) => {
           });
           expect(typeof empreinte).to.equal("string");
           const val = await résErreurs.attendreQue((x) => !!x.length);
-          expect(isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true;
           expect(val.length).to.equal(1);
           expect(val[0].erreur.règle.règle.règle.typeRègle).to.equal(
             "catégorie"
@@ -1314,13 +1311,13 @@ typesClients.forEach((type) => {
         });
 
         it("Les colonnes sont copiées", async () => {
-          expect(isArray(colonnes)).to.be.true;
+          expect(Array.isArray(colonnes)).to.be.true;
           expect(colonnes.length).to.equal(1);
           expect(colonnes[0].variable).to.equal(idVariable);
         });
 
         it("Les indexes sont copiés", async () => {
-          expect(isArray(colsIndexe)).to.be.true;
+          expect(Array.isArray(colsIndexe)).to.be.true;
           expect(colsIndexe.length).to.equal(1);
           expect(colsIndexe[0]).to.equal(idColonne);
         });
@@ -1333,13 +1330,13 @@ typesClients.forEach((type) => {
         });
 
         it("Les variables sont copiés", async () => {
-          expect(isArray(variables)).to.be.true;
+          expect(Array.isArray(variables)).to.be.true;
           expect(variables.length).to.equal(1);
           expect(variables[0]).to.equal(idVariable);
         });
 
         it("Les données sont copiés", async () => {
-          expect(isArray(données)).to.be.true;
+          expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(1);
           expect(données[0].données[colonnes[0].id]).to.equal(123);
         });
@@ -1469,7 +1466,7 @@ typesClients.forEach((type) => {
         });
 
         it("Données manquantes ajoutées", async () => {
-          expect(isArray(données)).to.be.true;
+          expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(4);
           expect(
             données
@@ -1595,7 +1592,7 @@ typesClients.forEach((type) => {
         });
 
         it("Données importées correctement", async () => {
-          expect(isArray(données)).to.be.true;
+          expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(2);
           expect(
             données
