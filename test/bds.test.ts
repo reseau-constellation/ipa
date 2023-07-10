@@ -4,7 +4,7 @@ import path from "path";
 import rmrf from "rimraf";
 
 import pkg from "lodash";
-const {isSet} = pkg
+const { isSet } = pkg;
 
 import type { default as ClientConstellation } from "@/client.js";
 import {
@@ -25,13 +25,12 @@ import type { élémentDonnées, règleBornes } from "@/valid.js";
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import {
-  dossierRessourcesTests, dossierTempoTests,
+  dossierRessourcesTests,
+  dossierTempoTests,
 } from "@/utilsTests/dossiers.js";
 
-
-import {expect} from "aegir/chai";
+import { expect } from "aegir/chai";
 import JSZip from "jszip";
-
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -58,27 +57,19 @@ typesClients.forEach((type) => {
         await Promise.all(fsOublier.map((f) => f()));
       });
 
-      it(
-        "Création",
-        async () => {
-          idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          expect(adresseOrbiteValide(idBd)).to.be.true();
-        },
-        
-      );
-      it(
-        "Accès",
-        async () => {
-          fsOublier.push(
-            await client.suivrePermissionÉcrire({
-              id: idBd,
-              f: (x) => (accèsBd = x),
-            })
-          );
-          expect(accèsBd).to.be.true();
-        },
-        
-      );
+      it("Création", async () => {
+        idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+        expect(adresseOrbiteValide(idBd)).to.be.true();
+      });
+      it("Accès", async () => {
+        fsOublier.push(
+          await client.suivrePermissionÉcrire({
+            id: idBd,
+            f: (x) => (accèsBd = x),
+          })
+        );
+        expect(accèsBd).to.be.true();
+      });
 
       describe("Mes BDs", () => {
         let fOublier: schémaFonctionOublier;
@@ -98,19 +89,15 @@ typesClients.forEach((type) => {
           expect(bds.length).to.equal(1);
           expect(bds[0]).to.equal(idBd);
         });
-        it(
-          "On crée une autre BD sans l'ajouter",
-          async () => {
-            idNouvelleBd = await client.bds!.créerBd({
-              licence: "ODbl-1_0",
-              ajouter: false,
-            });
-            expect(Array.isArray(bds)).to.be.true();
-            expect(bds.length).to.equal(1);
-            expect(bds[0]).to.equal(idBd);
-          },
-          
-        );
+        it("On crée une autre BD sans l'ajouter", async () => {
+          idNouvelleBd = await client.bds!.créerBd({
+            licence: "ODbl-1_0",
+            ajouter: false,
+          });
+          expect(Array.isArray(bds)).to.be.true();
+          expect(bds.length).to.equal(1);
+          expect(bds[0]).to.equal(idBd);
+        });
         it("On peut l'ajouter ensuite à mes bds", async () => {
           await client.bds!.ajouterÀMesBds({ id: idNouvelleBd });
           expect(Array.isArray(bds)).to.be.true();
@@ -341,12 +328,12 @@ typesClients.forEach((type) => {
           expect(Array.isArray(tableaux)).to.be.true();
           expect(tableaux.length).to.equal(1);
           expect(tableaux).to.have.deep.members([
-              {
-                id: idTableau,
-                clef: "abc",
-                position: 0,
-              },
-            ]);
+            {
+              id: idTableau,
+              clef: "abc",
+              position: 0,
+            },
+          ]);
         });
 
         it("Accès au tableau", async () => {
@@ -359,15 +346,11 @@ typesClients.forEach((type) => {
           expect(accèsTableau).to.be.true();
         });
 
-        it(
-          "Effacer un tableau",
-          async () => {
-            await client.bds!.effacerTableauBd({ id: idBd, idTableau });
-            expect(Array.isArray(tableaux)).to.be.true();
-            expect(tableaux.length).to.equal(0);
-          },
-          
-        );
+        it("Effacer un tableau", async () => {
+          await client.bds!.effacerTableauBd({ id: idBd, idTableau });
+          expect(Array.isArray(tableaux)).to.be.true();
+          expect(tableaux.length).to.equal(0);
+        });
       });
 
       describe("Variables", function () {
@@ -391,25 +374,21 @@ typesClients.forEach((type) => {
           expect(Array.isArray(variables)).to.be.true();
           expect(variables.length).to.equal(0);
         });
-        it(
-          "Ajout d'un tableau et d'une variable",
-          async () => {
-            idTableau = await client.bds!.ajouterTableauBd({ idBd });
-            idVariable = await client.variables!.créerVariable({
-              catégorie: "numérique",
-            });
+        it("Ajout d'un tableau et d'une variable", async () => {
+          idTableau = await client.bds!.ajouterTableauBd({ idBd });
+          idVariable = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
 
-            idColonne = await client.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable,
-            });
+          idColonne = await client.tableaux!.ajouterColonneTableau({
+            idTableau,
+            idVariable,
+          });
 
-            expect(Array.isArray(variables)).to.be.true();
-            expect(variables.length).to.equal(1);
-            expect(variables[0]).to.equal(idVariable);
-          },
-          
-        );
+          expect(Array.isArray(variables)).to.be.true();
+          expect(variables.length).to.equal(1);
+          expect(variables[0]).to.equal(idVariable);
+        });
         it("Effacer une variable", async () => {
           await client.tableaux!.effacerColonneTableau({
             idTableau,
@@ -671,10 +650,10 @@ typesClients.forEach((type) => {
 
           expect(donnéesSansId.length).to.equal(3);
           expect(donnéesSansId).to.have.deep.members([
-              { [idVarClef]: "fr", [idVarTrad]: "Constellation" },
-              { [idVarClef]: "kaq", [idVarTrad]: "Ch'umil" },
-              { [idVarClef]: "हिं", [idVarTrad]: "तारामंडल" },
-            ]);
+            { [idVarClef]: "fr", [idVarTrad]: "Constellation" },
+            { [idVarClef]: "kaq", [idVarTrad]: "Ch'umil" },
+            { [idVarClef]: "हिं", [idVarTrad]: "तारामंडल" },
+          ]);
         });
       });
 
@@ -882,14 +861,10 @@ typesClients.forEach((type) => {
           if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
-        it(
-          "La BD est créée lorsqu'elle n'existe pas",
-          async () => {
-            await rés.attendreExiste();
-            expect(adresseOrbiteValide(rés.val)).to.be.true();
-          },
-          
-        );
+        it("La BD est créée lorsqu'elle n'existe pas", async () => {
+          await rés.attendreExiste();
+          expect(adresseOrbiteValide(rés.val)).to.be.true();
+        });
         test.skip("Gestion de la concurrence entre dispositifs");
         test.skip("Gestion de concurrence entre 2+ BDs");
       });
@@ -983,14 +958,10 @@ typesClients.forEach((type) => {
           rés.toutAnnuler();
         });
 
-        it(
-          "Tableau unique détecté",
-          async () => {
-            await rés.attendreExiste();
-            expect(adresseOrbiteValide(rés.val)).to.be.true();
-          },
-          
-        );
+        it("Tableau unique détecté", async () => {
+          await rés.attendreExiste();
+          expect(adresseOrbiteValide(rés.val)).to.be.true();
+        });
       });
 
       describe("Score", function () {
@@ -1040,49 +1011,41 @@ typesClients.forEach((type) => {
             expect(score.couverture).to.be.undefined();
           });
 
-          it(
-            "Ajout de colonnes",
-            async () => {
-              idColNumérique = await client.tableaux!.ajouterColonneTableau({
-                idTableau,
-                idVariable: idVarNumérique,
-              });
-              idColNumérique2 = await client.tableaux!.ajouterColonneTableau({
-                idTableau,
-                idVariable: idVarNumérique2,
-              });
-              await client.tableaux!.ajouterColonneTableau({
-                idTableau,
-                idVariable: idVarChaîne,
-              });
-              expect(score.couverture).to.equal(0);
-            },
-            
-          );
+          it("Ajout de colonnes", async () => {
+            idColNumérique = await client.tableaux!.ajouterColonneTableau({
+              idTableau,
+              idVariable: idVarNumérique,
+            });
+            idColNumérique2 = await client.tableaux!.ajouterColonneTableau({
+              idTableau,
+              idVariable: idVarNumérique2,
+            });
+            await client.tableaux!.ajouterColonneTableau({
+              idTableau,
+              idVariable: idVarChaîne,
+            });
+            expect(score.couverture).to.equal(0);
+          });
 
-          it(
-            "Ajout de règles",
-            async () => {
-              const règleNumérique: règleBornes = {
-                typeRègle: "bornes",
-                détails: { type: "fixe", val: 0, op: ">=" },
-              };
-              await client.tableaux!.ajouterRègleTableau({
-                idTableau,
-                idColonne: idColNumérique,
-                règle: règleNumérique,
-              });
-              expect(score.couverture).to.equal(0.5);
+          it("Ajout de règles", async () => {
+            const règleNumérique: règleBornes = {
+              typeRègle: "bornes",
+              détails: { type: "fixe", val: 0, op: ">=" },
+            };
+            await client.tableaux!.ajouterRègleTableau({
+              idTableau,
+              idColonne: idColNumérique,
+              règle: règleNumérique,
+            });
+            expect(score.couverture).to.equal(0.5);
 
-              await client.tableaux!.ajouterRègleTableau({
-                idTableau,
-                idColonne: idColNumérique2,
-                règle: règleNumérique,
-              });
-              expect(score.couverture).to.equal(1);
-            },
-            
-          );
+            await client.tableaux!.ajouterRègleTableau({
+              idTableau,
+              idColonne: idColNumérique2,
+              règle: règleNumérique,
+            });
+            expect(score.couverture).to.equal(1);
+          });
         });
 
         describe("Score validité", function () {
@@ -1202,7 +1165,9 @@ typesClients.forEach((type) => {
         it("Fichiers SFIP retrouvés de tous les tableaux", () => {
           expect(isSet(fichiersSFIP)).to.be.true();
           expect(fichiersSFIP.size).to.equal(1);
-          expect(fichiersSFIP).to.have.members([...new Set([{ cid, ext: "svg" }])]);
+          expect(fichiersSFIP).to.have.members([
+            ...new Set([{ cid, ext: "svg" }]),
+          ]);
         });
 
         describe("Exporter document données", function () {
@@ -1234,17 +1199,17 @@ typesClients.forEach((type) => {
           });
 
           it("Les données sont exportées", () => {
-            const contenu = zip.files[nomFichier + ".ods"]
+            const contenu = zip.files[nomFichier + ".ods"];
             expect(contenu).to.exist();
           });
 
           it("Le dossier pour les données SFIP existe", () => {
-            const contenu = zip.files["sfip/"]
+            const contenu = zip.files["sfip/"];
             expect(contenu?.dir).to.be.true();
           });
 
           it("Les fichiers SFIP existent", () => {
-            const contenu = zip.files[path.join("sfip", cid + ".svg")]
+            const contenu = zip.files[path.join("sfip", cid + ".svg")];
             expect(contenu).to.exist();
           });
         });

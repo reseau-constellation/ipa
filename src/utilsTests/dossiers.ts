@@ -6,7 +6,10 @@ export const dossierRessourcesTests = async (): Promise<string> => {
   return path.resolve(path.dirname(""), "src", "utilsTests", "ressources");
 };
 
-export const dossierTempoTests = async (): Promise<{ dossier: string; fEffacer: () => void }> => {
+export const dossierTempoTests = async (): Promise<{
+  dossier: string;
+  fEffacer: () => void;
+}> => {
   if (isNode || isElectronMain) {
     const fs = await import("fs");
     const path = await import("path");
@@ -28,20 +31,21 @@ export const dossierTempoTests = async (): Promise<{ dossier: string; fEffacer: 
 };
 
 export const obtDirTempoPourTest = async ({
-  base, nom
+  base,
+  nom,
 }: {
-  base: string
-  nom?: string
+  base: string;
+  nom?: string;
 }): Promise<string> => {
   if (isNode || isElectronMain) {
     const fs = await import("fs");
     const path = await import("path");
-    
+
     const dossier = path.resolve(base, (nom || "") + uuidv4());
     fs.mkdirSync(dossier, { recursive: true });
-    return dossier
+    return dossier;
   } else {
-    const dossier = (base) + "/" + (nom || "") + uuidv4();
-    return dossier
+    const dossier = base + "/" + (nom || "") + uuidv4();
+    return dossier;
   }
 };

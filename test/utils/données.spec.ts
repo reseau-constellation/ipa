@@ -3,7 +3,7 @@ import path from "path";
 import rmrf from "rimraf";
 
 import { traduire, zipper } from "@/utils/index.js";
-import {expect} from "aegir/chai"
+import { expect } from "aegir/chai";
 
 import { dossierTempoTests } from "@/utilsTests/dossiers.js";
 import { AttendreFichierExiste } from "@/utilsTests/attente.js";
@@ -31,13 +31,13 @@ describe("Utils : données", function () {
       let fEffacer: () => void;
       let nomFichier: string;
       let zip: JSZip;
-  
+
       let attendreFichier: AttendreFichierExiste;
-  
+
       before(async () => {
         ({ dossier, fEffacer } = await dossierTempoTests());
         nomFichier = path.join(dossier, "testZip.zip");
-        attendreFichier = new AttendreFichierExiste(nomFichier)
+        attendreFichier = new AttendreFichierExiste(nomFichier);
         const fichiersDocs = [
           {
             nom: "fichier1.txt",
@@ -54,32 +54,36 @@ describe("Utils : données", function () {
             octets: Buffer.from("Je le fichier SFIP no. 2."),
           },
         ];
-  
+
         await zipper(fichiersDocs, fichiersSFIP, nomFichier);
       });
-  
+
       after(() => {
         if (attendreFichier) attendreFichier.annuler();
         if (fEffacer) fEffacer();
         rmrf.sync(dossier);
       });
-  
+
       it("Le fichier zip est créé", async () => {
-        await attendreFichier.attendre()
-  
+        await attendreFichier.attendre();
+
         zip = await JSZip.loadAsync(fs.readFileSync(nomFichier));
       });
       it("Les documents de base existent", async () => {
-        const contenu = await zip.files["fichier1.txt"].async("string")
+        const contenu = await zip.files["fichier1.txt"].async("string");
         expect(contenu).to.equal("Je ne suis que du texte.");
       });
       it("Les fichiers SFIP sont inclus", async () => {
         expect(zip.files["sfip/"].dir).to.be.true();
-        const contenuFichierSFIP1 = await zip.files[path.join("sfip", "fichierSFIP1.txt")].async("string");
+        const contenuFichierSFIP1 = await zip.files[
+          path.join("sfip", "fichierSFIP1.txt")
+        ].async("string");
         expect(contenuFichierSFIP1).to.equal("Je le fichier SFIP no. 1.");
-  
-        const contenuFichierSFIP2 = await zip.files[path.join("sfip", "fichierSFIP2.txt")].async("string");
-        expect(contenuFichierSFIP2).to.equal("Je le fichier SFIP no. 2.")
+
+        const contenuFichierSFIP2 = await zip.files[
+          path.join("sfip", "fichierSFIP2.txt")
+        ].async("string");
+        expect(contenuFichierSFIP2).to.equal("Je le fichier SFIP no. 2.");
       });
     });
   }

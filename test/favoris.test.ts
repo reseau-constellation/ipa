@@ -1,5 +1,3 @@
-
-
 import { isElectronMain, isNode } from "wherearewe";
 
 import type { default as ClientConstellation } from "@/client.js";
@@ -8,10 +6,8 @@ import type { schémaFonctionOublier } from "@/utils/index.js";
 
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 
-
-import {expect} from "aegir/chai";
+import { expect } from "aegir/chai";
 import { AttendreRésultat } from "@/utilsTests/attente";
-
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -92,7 +88,7 @@ typesClients.forEach((type) => {
 
           fsOublier.push(
             await client.favoris!.suivreFavoris({
-              f: (favs) => (favoris.mettreÀJour(favs)),
+              f: (favs) => favoris.mettreÀJour(favs),
             })
           );
           fsOublier.push(
@@ -118,7 +114,7 @@ typesClients.forEach((type) => {
             id: idBd,
             dispositifs: "TOUS",
           });
-          const val = await favoris.attendreQue(x=>!!x.length);
+          const val = await favoris.attendreQue((x) => !!x.length);
           expect(Array.isArray(val)).to.be.true();
 
           expect(val.length).to.equal(1);
@@ -151,30 +147,26 @@ typesClients.forEach((type) => {
           });
         });
 
-        it(
-          "Ajouter un favori avec fichiers",
-          async () => {
-            const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ";
+        it("Ajouter un favori avec fichiers", async () => {
+          const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ";
 
-            const idTableau = await client.bds!.ajouterTableauBd({ idBd });
-            const idVarPhoto = await client.variables!.créerVariable({
-              catégorie: "image",
-            });
-            const idColPhoto = await client.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable: idVarPhoto,
-            });
-            await client.tableaux!.ajouterÉlément({
-              idTableau,
-              vals: {
-                [idColPhoto]: idc,
-              },
-            });
+          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+          const idVarPhoto = await client.variables!.créerVariable({
+            catégorie: "image",
+          });
+          const idColPhoto = await client.tableaux!.ajouterColonneTableau({
+            idTableau,
+            idVariable: idVarPhoto,
+          });
+          await client.tableaux!.ajouterÉlément({
+            idTableau,
+            vals: {
+              [idColPhoto]: idc,
+            },
+          });
 
-            expect(await client.épingles!.épinglée({ id: idc }));
-          },
-          
-        );
+          expect(await client.épingles!.épinglée({ id: idc }));
+        });
       });
     });
   });

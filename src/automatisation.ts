@@ -453,7 +453,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   const requèteDernièreModifImportée = await client.obtDeStockageLocal({
     clef: clefStockageDernièreFois,
   });
-  const requètesDéjàExécutées = new Set([requèteDernièreModifImportée])
+  const requètesDéjàExécutées = new Set([requèteDernièreModifImportée]);
 
   const fAutoAvecÉtats = async (requète: string) => {
     if (requètesDéjàExécutées.has(requète)) return;
@@ -461,7 +461,10 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     idDernièreRequèteOpération = requète;
 
     await verrou.acquire("opération");
-    if (requète !== idDernièreRequèteOpération || requètesDéjàExécutées.has(requète)) {
+    if (
+      requète !== idDernièreRequèteOpération ||
+      requètesDéjàExécutées.has(requète)
+    ) {
       verrou.release("opération");
       return;
     }
@@ -469,7 +472,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       clef: clefStockageDernièreFois,
       val: requète,
     });
-    requètesDéjàExécutées.add(requète)
+    requètesDéjàExécutées.add(requète);
 
     const nouvelÉtat: ÉtatEnSync = {
       type: "sync",
@@ -716,7 +719,7 @@ export default class Automatisations extends EventEmitter {
       id: this.idBd,
       récursif: false,
       fichiers: false,
-    })
+    });
   }
 
   async mettreAutosÀJour(

@@ -7,8 +7,7 @@ import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 import { schémaSpécificationBd } from "@/bds.js";
 
-import {expect} from "aegir/chai";
-
+import { expect } from "aegir/chai";
 
 const générerNuéeTest = async (
   client: ClientConstellation,

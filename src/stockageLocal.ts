@@ -49,7 +49,7 @@ class LocalStorage {
     this.demanderSauvegarde();
   }
   clear(): void {
-    this._données = {}
+    this._données = {};
     fs.rmSync(this.fichier);
   }
   async sauvegarder(id: string): Promise<void> {
@@ -89,13 +89,13 @@ export const obtStockageLocal = async (
     return localStorage;
   }
 };
-export default obtStockageLocal
+export default obtStockageLocal;
 
 export const exporterStockageLocal = async (): Promise<string> => {
   const stockageLocal = await obtStockageLocal();
   if (stockageLocal instanceof LocalStorage) {
     return JSON.stringify(stockageLocal._données);
   } else {
-    return JSON.stringify(stockageLocal)
+    return JSON.stringify(stockageLocal);
   }
-}
+};

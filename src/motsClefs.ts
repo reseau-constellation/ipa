@@ -27,7 +27,7 @@ export default class MotsClefs {
       id: this.idBd,
       récursif: false,
       fichiers: false,
-    })
+    });
   }
 
   @cacheSuivi

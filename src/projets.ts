@@ -45,7 +45,7 @@ export default class Projets {
       id: this.idBd,
       récursif: false,
       fichiers: false,
-    })
+    });
   }
 
   @cacheSuivi

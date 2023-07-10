@@ -118,7 +118,7 @@ export default class BDs {
       id: this.idBd,
       récursif: false,
       fichiers: false,
-    })
+    });
   }
 
   @cacheSuivi

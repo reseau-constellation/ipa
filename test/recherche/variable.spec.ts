@@ -1,5 +1,3 @@
-
-
 import type { default as ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
@@ -14,8 +12,7 @@ import {
 
 import { générerClients } from "@/utilsTests/client.js";
 
-import {expect} from "aegir/chai"
-
+import { expect } from "aegir/chai";
 
 describe("Rechercher variables", function () {
   let fOublierClients: () => Promise<void>;

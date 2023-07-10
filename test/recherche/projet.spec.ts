@@ -22,9 +22,7 @@ import {
 import { générerClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 
-import {expect} from "aegir/chai"
-
-
+import { expect } from "aegir/chai";
 
 describe("Rechercher projets", function () {
   let fOublierClients: () => Promise<void>;

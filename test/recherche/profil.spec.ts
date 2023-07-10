@@ -19,9 +19,7 @@ import { générerClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
-
-import {expect} from "aegir/chai"
-
+import { expect } from "aegir/chai";
 
 describe("Rechercher profil", function () {
   let fOublierClients: () => Promise<void>;

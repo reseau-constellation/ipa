@@ -130,13 +130,13 @@ export default class Profil {
   }
 
   async épingler() {
-    const idBdProfil = await this.obtIdBdProfil()
+    const idBdProfil = await this.obtIdBdProfil();
     if (idBdProfil)
       await this.client.épingles?.épinglerBd({
         id: idBdProfil,
         récursif: true,
         fichiers: true,
-      })
+      });
   }
 
   @cacheSuivi

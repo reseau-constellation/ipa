@@ -351,10 +351,16 @@ export class ClientConstellation extends EventEmitter {
     this.épingles!.épinglerBd({ id: await this.obtIdCompte() }); // Celle-ci doit être récursive et inclure les fichiers
     await Promise.all(
       [
-        this.profil, this.automatisations, 
-        this.bds, this.variables, this.projets, this.nuées, this.motsClefs, this.réseau, 
+        this.profil,
+        this.automatisations,
+        this.bds,
+        this.variables,
+        this.projets,
+        this.nuées,
+        this.motsClefs,
+        this.réseau,
         this.favoris,
-      ].map(async x => x && await x.épingler())
+      ].map(async (x) => x && (await x.épingler()))
     );
   }
 
@@ -1697,7 +1703,7 @@ export class ClientConstellation extends EventEmitter {
     const optsOrbite = this._opts.orbite;
     if (!(optsOrbite instanceof OrbitDB)) {
       dossierSFIP = optsOrbite?.sfip?.dossier;
-    };
+    }
     return dossierSFIP;
   }
 
@@ -2201,9 +2207,9 @@ export class ClientConstellation extends EventEmitter {
         console.warn("On a pas pu tout effacer.");
       }
     } else {
-      const fs = await import("fs")
-      const dossierOrbite = this.dossierOrbite()
-      const dossierSFIP = this.dossierSFIP()
+      const fs = await import("fs");
+      const dossierOrbite = this.dossierOrbite();
+      const dossierSFIP = this.dossierSFIP();
       if (dossierOrbite) fs.rmdirSync(dossierOrbite);
       if (dossierSFIP) fs.rmdirSync(dossierSFIP);
       const stockageLocal = await obtStockageLocal();
@@ -2211,71 +2217,96 @@ export class ClientConstellation extends EventEmitter {
     }
   }
 
-  async exporterDispositif({nomFichier}: {nomFichier: string}): Promise<void> {
+  async exporterDispositif({
+    nomFichier,
+  }: {
+    nomFichier: string;
+  }): Promise<void> {
     if (isNode || isElectronMain) {
       const fs = await import("fs");
       const path = await import("path");
 
-      const ajouterDossierÀZip = ({dossier, zip}: {dossier: string, zip: JSZip}): void => {
-      
-          const dossiers = fs.readdirSync(dossier)
-          dossiers.map(d=>{
-            const stat = fs.statSync(d)
-            if (stat?.isDirectory()) {
-              ajouterDossierÀZip({dossier: path.join(dossier, d), zip: zip.folder(d)!})
-            } else {
-              const fluxFichier = fs.createReadStream(path.join(dossier, d))
-              zip.file(d, fluxFichier);
-            }
-          });
+      const ajouterDossierÀZip = ({
+        dossier,
+        zip,
+      }: {
+        dossier: string;
+        zip: JSZip;
+      }): void => {
+        const dossiers = fs.readdirSync(dossier);
+        dossiers.map((d) => {
+          const stat = fs.statSync(d);
+          if (stat?.isDirectory()) {
+            ajouterDossierÀZip({
+              dossier: path.join(dossier, d),
+              zip: zip.folder(d)!,
+            });
+          } else {
+            const fluxFichier = fs.createReadStream(path.join(dossier, d));
+            zip.file(d, fluxFichier);
+          }
+        });
       };
-      const dossierOrbite = this.dossierOrbite()
-      const dossierSFIP = this.dossierSFIP()
-      if (!dossierOrbite || !dossierSFIP) throw new Error('Constellation pas encore initialisée.')
+      const dossierOrbite = this.dossierOrbite();
+      const dossierSFIP = this.dossierSFIP();
+      if (!dossierOrbite || !dossierSFIP)
+        throw new Error("Constellation pas encore initialisée.");
       const donnéesStockageLocal = await exporterStockageLocal();
 
       const zip = new JSZip();
-      ajouterDossierÀZip({dossier: dossierOrbite, zip: zip.folder('orbite')!})
-      ajouterDossierÀZip({dossier: dossierSFIP, zip: zip.folder('sfip')!});
-      zip.file('stockageLocal', donnéesStockageLocal);
-      await sauvegarderFichierZip({fichierZip: zip, nomFichier});
-      
+      ajouterDossierÀZip({
+        dossier: dossierOrbite,
+        zip: zip.folder("orbite")!,
+      });
+      ajouterDossierÀZip({ dossier: dossierSFIP, zip: zip.folder("sfip")! });
+      zip.file("stockageLocal", donnéesStockageLocal);
+      await sauvegarderFichierZip({ fichierZip: zip, nomFichier });
     } else if (indexedDB) {
-
-      const sauvegarderBdIndexeÀZip = ({bd, zip}: {bd: IDBDatabaseInfo, zip: JSZip}) => {
-        const {name: nomBd} = bd;
+      const sauvegarderBdIndexeÀZip = ({
+        bd,
+        zip,
+      }: {
+        bd: IDBDatabaseInfo;
+        zip: JSZip;
+      }) => {
+        const { name: nomBd } = bd;
         if (nomBd) {
-          const dossierZipBd = zip.folder(nomBd)
-          if (!dossierZipBd) throw new Error(nomBd)
+          const dossierZipBd = zip.folder(nomBd);
+          if (!dossierZipBd) throw new Error(nomBd);
           const bdOuverte = indexedDB.open(nomBd).result;
           const tableauxBdIndexe = bdOuverte.objectStoreNames;
-          const listeTableaux = [...Array(tableauxBdIndexe.length).keys()].map(i => tableauxBdIndexe.item(i)).filter(x=>!!x) as string[]
-          listeTableaux.map(tbl => dossierZipBd.file(
-            tbl, 
-            new indexedDbStream.IndexedDbReadStream({
-              databaseName: nomBd,
-              objectStoreName: tbl,
-            })
-          )) 
+          const listeTableaux = [...Array(tableauxBdIndexe.length).keys()]
+            .map((i) => tableauxBdIndexe.item(i))
+            .filter((x) => !!x) as string[];
+          listeTableaux.map((tbl) =>
+            dossierZipBd.file(
+              tbl,
+              new indexedDbStream.IndexedDbReadStream({
+                databaseName: nomBd,
+                objectStoreName: tbl,
+              })
+            )
+          );
         }
-      }
+      };
       const fichierZip = new JSZip();
 
       if (indexedDB.databases) {
         const indexedDbDatabases = await indexedDB.databases();
-        const dossierZipIndexe = fichierZip.folder('bdIndexe');
-        if (!dossierZipIndexe) throw new Error('Erreur Bd Indexe...')
+        const dossierZipIndexe = fichierZip.folder("bdIndexe");
+        if (!dossierZipIndexe) throw new Error("Erreur Bd Indexe...");
         indexedDbDatabases.forEach((bd) => {
-            sauvegarderBdIndexeÀZip({bd, zip: dossierZipIndexe});
+          sauvegarderBdIndexeÀZip({ bd, zip: dossierZipIndexe });
         });
-        fichierZip.file('stockageLocal', JSON.stringify(await exporterStockageLocal()));
+        fichierZip.file(
+          "stockageLocal",
+          JSON.stringify(await exporterStockageLocal())
+        );
       }
 
-      await sauvegarderFichierZip({fichierZip, nomFichier});
+      await sauvegarderFichierZip({ fichierZip, nomFichier });
     } else {
-      throw new Error(
-        "Sauvegarde non implémenté."
-      );
+      throw new Error("Sauvegarde non implémenté.");
     }
   }
 

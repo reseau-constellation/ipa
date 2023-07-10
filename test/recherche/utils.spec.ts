@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import type FeedStore from "orbit-db-feedstore";
 
-
 import type { default as ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
@@ -24,8 +23,7 @@ import {
 import { générerClients } from "@/utilsTests/client.js";
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
-import {expect} from "aegir/chai"
-
+import { expect } from "aegir/chai";
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;

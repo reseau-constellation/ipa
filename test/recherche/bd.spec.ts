@@ -19,7 +19,7 @@ import {
 
 import { générerClients } from "@/utilsTests/client.js";
 
-import {expect} from "aegir/chai"
+import { expect } from "aegir/chai";
 
 describe("Rechercher bds", function () {
   let fOublierClients: () => Promise<void>;

@@ -9,7 +9,7 @@ import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
-import {expect} from "aegir/chai";
+import { expect } from "aegir/chai";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -32,18 +32,20 @@ typesClients.forEach((type) => {
 
       describe("Courriels", function () {
         let fOublier: schémaFonctionOublier;
-        
+
         const résultatCourriel = new AttendreRésultat<string | null>();
         const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
         before(async () => {
           fOublier = await client.profil!.suivreCourriel({
-            f: (c) => (résultatCourriel.mettreÀJour(c)),
+            f: (c) => résultatCourriel.mettreÀJour(c),
           });
         });
-        
+
         it("Pas de courriel pour commencer", async () => {
-          const courriel = await résultatCourriel.attendreQue(c => c !== undefined)
+          const courriel = await résultatCourriel.attendreQue(
+            (c) => c !== undefined
+          );
           expect(courriel).to.be.null();
         });
 
@@ -55,7 +57,7 @@ typesClients.forEach((type) => {
 
         it("Effacer le courriel", async () => {
           await client.profil!.effacerCourriel();
-          const courriel = await résultatCourriel.attendreQue(c => !c)
+          const courriel = await résultatCourriel.attendreQue((c) => !c);
           expect(courriel).to.be.null();
         });
 

@@ -4,7 +4,7 @@ import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
-import {expect} from "aegir/chai"
+import { expect } from "aegir/chai";
 
 describe("XLSX", function () {
   describe("Importateur XLSX", function () {

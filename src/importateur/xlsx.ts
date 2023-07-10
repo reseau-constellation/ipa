@@ -14,7 +14,7 @@ export default class ImportateurFeuilleCalcul {
   obtColsTableau(nomTableau: string): string[] {
     const feuille = this.doc.Sheets[nomTableau];
     const données = utils.sheet_to_json(feuille, { header: 1 });
-    return (données[0] as string[] || []).map(c=>c.toString());
+    return ((données[0] as string[]) || []).map((c) => c.toString());
   }
 
   obtDonnées(

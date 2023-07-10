@@ -61,7 +61,7 @@ export default class Variables {
       id: this.idBd,
       récursif: false,
       fichiers: false,
-    })
+    });
   }
 
   @cacheSuivi

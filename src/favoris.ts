@@ -42,7 +42,7 @@ export default class Favoris {
       id: this.idBd,
       récursif: false,
       fichiers: false,
-    })
+    });
   }
 
   async _épinglerFavoris() {

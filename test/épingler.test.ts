@@ -1,5 +1,5 @@
 import pkg from "lodash";
-const {isSet} = pkg
+const { isSet } = pkg;
 
 import type KeyValueStore from "orbit-db-kvstore";
 import type FeedStore from "orbit-db-feedstore";
@@ -8,9 +8,7 @@ import type { default as ClientConstellation } from "@/client.js";
 
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 
-
-import {expect} from "aegir/chai";
-
+import { expect } from "aegir/chai";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

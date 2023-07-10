@@ -21,7 +21,7 @@ import type {
 } from "@/utils/index.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 
-import {expect} from "aegir/chai"
+import { expect } from "aegir/chai";
 
 describe("Client ", function () {
   let fOublierClients: () => Promise<void>;

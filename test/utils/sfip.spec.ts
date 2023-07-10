@@ -1,5 +1,5 @@
 import { cidValide } from "@/utils/index.js";
-import {expect} from "aegir/chai"
+import { expect } from "aegir/chai";
 
 describe("Utils", function () {
   describe("cidValide", function () {

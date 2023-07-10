@@ -11,7 +11,6 @@ import { expect } from "aegir/chai";
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 
-
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Variables", function () {

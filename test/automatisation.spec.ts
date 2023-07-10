@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import XLSX, { WorkBook } from "xlsx";
-import JSZip from "jszip"
+import JSZip from "jszip";
 
 import type { default as ClientConstellation } from "@/client.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
@@ -30,7 +30,10 @@ import {
   AttendreFichierModifié,
   AttendreRésultat,
 } from "@/utilsTests/attente.js";
-import { dossierTempoTests, obtDirTempoPourTest } from "@/utilsTests/dossiers.js";
+import {
+  dossierTempoTests,
+  obtDirTempoPourTest,
+} from "@/utilsTests/dossiers.js";
 
 import axios from "axios";
 
@@ -77,12 +80,12 @@ const vérifierDonnéesProjet = async (
   // Il faut essayer plusieurs fois parce que le fichier ZIP peut
   // être créé avant la fin de l'écriture du fichier (ce qui cause
   // une erreur de lecture).
-  
+
   const zip = await new Promise<JSZip>((résoudre) => {
     const interval = setInterval(async () => {
       let zip_: JSZip;
       try {
-        const donnéesFichier = fs.readFileSync(doc)
+        const donnéesFichier = fs.readFileSync(doc);
         zip_ = await JSZip.loadAsync(donnéesFichier);
         clearInterval(interval);
         résoudre(zip_);
@@ -92,16 +95,19 @@ const vérifierDonnéesProjet = async (
     }, 100);
   });
 
-  const {dossier: dossierFichierExtrait, fEffacer} = await dossierTempoTests();
-  await Promise.all(Object.entries(zip.files).map(async ([adresseRelative, élémentZip]) => {
-    const adresseAbsolue = path.join(dossierFichierExtrait, adresseRelative);
-    if (élémentZip.dir) {
-      fs.mkdirSync(adresseAbsolue)
-    } else {
-      const contenu = await élémentZip.async("nodebuffer");
-      fs.writeFileSync(adresseAbsolue, contenu)
-    }
-  }));
+  const { dossier: dossierFichierExtrait, fEffacer } =
+    await dossierTempoTests();
+  await Promise.all(
+    Object.entries(zip.files).map(async ([adresseRelative, élémentZip]) => {
+      const adresseAbsolue = path.join(dossierFichierExtrait, adresseRelative);
+      if (élémentZip.dir) {
+        fs.mkdirSync(adresseAbsolue);
+      } else {
+        const contenu = await élémentZip.async("nodebuffer");
+        fs.writeFileSync(adresseAbsolue, contenu);
+      }
+    })
+  );
 
   for (const fichierBd of Object.keys(données)) {
     vérifierDonnéesBd(
@@ -111,7 +117,6 @@ const vérifierDonnéesProjet = async (
   }
 
   fEffacer();
-
 };
 
 const comparerDonnéesTableau = (
@@ -134,7 +139,7 @@ typesClients.forEach((type) => {
       let clients: ClientConstellation[];
       let client: ClientConstellation;
       let fEffacerDossier: () => void;
-      let baseDossierTempo: string
+      let baseDossierTempo: string;
 
       before(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients(
@@ -142,7 +147,8 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-        ({ dossier: baseDossierTempo, fEffacer: fEffacerDossier } = await dossierTempoTests());
+        ({ dossier: baseDossierTempo, fEffacer: fEffacerDossier } =
+          await dossierTempoTests());
       });
 
       after(async () => {
@@ -167,7 +173,10 @@ typesClients.forEach((type) => {
 
           fsOublier = [];
           rés = new AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
-          dirTempo = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testImporterBd"})
+          dirTempo = await obtDirTempoPourTest({
+            base: baseDossierTempo,
+            nom: "testImporterBd",
+          });
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.bds!.ajouterTableauBd({ idBd });
@@ -429,7 +438,7 @@ typesClients.forEach((type) => {
 
         it("Importation selon changements", async function () {
           if (isBrowser || isElectronRenderer) this.skip();
-          
+
           const fichierJSON = path.join(dirTempo, "données.json");
           const données = {
             données: [
@@ -551,7 +560,10 @@ typesClients.forEach((type) => {
         const fsOublier: (() => void)[] = [];
 
         before(async () => {
-          dossier = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testExporterBd"});
+          dossier = await obtDirTempoPourTest({
+            base: baseDossierTempo,
+            nom: "testExporterBd",
+          });
 
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           await client.bds!.ajouterNomsBd({
@@ -765,31 +777,51 @@ typesClients.forEach((type) => {
         let idNuée: string;
         let idBd: string;
         let idColonneNumérique: string;
-        
+
         const clefTableau = "Tableau principal";
         const fsOublier: (() => void)[] = [];
 
         before(async () => {
-          dossier = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testExporterBd"});
-          idNuée = await client.nuées!.créerNuée({});
-          await client.nuées!.ajouterNomsNuée({id: idNuée, noms: {fr: "Science citoyenne"}});
-          const idTableau = await client.nuées!.ajouterTableauNuée({
-            idNuée, clefTableau
+          dossier = await obtDirTempoPourTest({
+            base: baseDossierTempo,
+            nom: "testExporterBd",
           });
-          await client.tableaux?.sauvegarderNomTableau({idTableau, langue: "fr", nom: "météo"})
-          const idVariable = await client.variables!.créerVariable({ catégorie: "numérique" });
-          await client.variables!.sauvegarderNomVariable({id: idVariable, langue: "fr", nom: "Précipitation"})
+          idNuée = await client.nuées!.créerNuée({});
+          await client.nuées!.ajouterNomsNuée({
+            id: idNuée,
+            noms: { fr: "Science citoyenne" },
+          });
+          const idTableau = await client.nuées!.ajouterTableauNuée({
+            idNuée,
+            clefTableau,
+          });
+          await client.tableaux?.sauvegarderNomTableau({
+            idTableau,
+            langue: "fr",
+            nom: "météo",
+          });
+          const idVariable = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+          await client.variables!.sauvegarderNomVariable({
+            id: idVariable,
+            langue: "fr",
+            nom: "Précipitation",
+          });
           idColonneNumérique = await client.nuées!.ajouterColonneTableauNuée({
             idTableau,
-            idVariable
-          })
-          const schéma = await client.nuées!.générerSchémaBdNuée({idNuée, licence: "ODbl-1_0"});
+            idVariable,
+          });
+          const schéma = await client.nuées!.générerSchémaBdNuée({
+            idNuée,
+            licence: "ODbl-1_0",
+          });
 
-          idBd = await client.bds!.créerBdDeSchéma({schéma});
+          idBd = await client.bds!.créerBdDeSchéma({ schéma });
         });
 
         after(async () => {
-          fsOublier.forEach(f=>f());
+          fsOublier.forEach((f) => f());
         });
 
         it("Exportation selon changements", async () => {
@@ -797,14 +829,15 @@ typesClients.forEach((type) => {
           const attente = new AttendreFichierExiste(fichier);
           const attendreExiste = attente.attendre();
           fsOublier.push(() => attente.annuler());
-          const idAuto = await client.automatisations!.ajouterAutomatisationExporter({
-            id: idNuée,
-            typeObjet: "nuée",
-            formatDoc: "ods",
-            inclureFichiersSFIP: false,
-            dossier,
-            langues: ["fr"],
-          });
+          const idAuto =
+            await client.automatisations!.ajouterAutomatisationExporter({
+              id: idNuée,
+              typeObjet: "nuée",
+              formatDoc: "ods",
+              inclureFichiersSFIP: false,
+              dossier,
+              langues: ["fr"],
+            });
           await attendreExiste;
           const attenteModifié = new AttendreFichierModifié(fichier);
           fsOublier.push(() => attenteModifié.annuler());
@@ -813,7 +846,7 @@ typesClients.forEach((type) => {
           await client.bds!.ajouterÉlémentÀTableauParClef({
             idBd,
             clefTableau,
-            vals: {[idColonneNumérique]: 123}
+            vals: { [idColonneNumérique]: 123 },
           });
 
           await attenteModifié.attendre(avant);
@@ -822,9 +855,7 @@ typesClients.forEach((type) => {
             météo: [{ Précipitation: 123, auteur: await client.obtIdCompte() }],
           });
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
-
-        }
-        );
+        });
       });
 
       describe("Suivre état automatisations exportation", function () {
@@ -842,7 +873,10 @@ typesClients.forEach((type) => {
         const fsOublier: (schémaFonctionOublier | (() => void))[] = [];
 
         before(async () => {
-          dossier = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testExporterBd"});
+          dossier = await obtDirTempoPourTest({
+            base: baseDossierTempo,
+            nom: "testExporterBd",
+          });
 
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
@@ -1044,7 +1078,10 @@ typesClients.forEach((type) => {
             })
           );
 
-          dossier = await obtDirTempoPourTest({base: baseDossierTempo, nom: "testExporterBd"});
+          dossier = await obtDirTempoPourTest({
+            base: baseDossierTempo,
+            nom: "testExporterBd",
+          });
 
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.tableaux!.créerTableau({ idBd });

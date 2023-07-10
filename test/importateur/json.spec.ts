@@ -9,8 +9,7 @@ import ImportateurDonnéesJSON, {
 
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
-import {expect} from "aegir/chai";
-
+import { expect } from "aegir/chai";
 
 describe("JSON", function () {
   describe("Extraire données", function () {
@@ -177,9 +176,12 @@ describe("JSON", function () {
     it("Données importées", async () => {
       expect(Array.isArray(données)).to.be.true();
       expect(données.length).to.be.greaterThan(0);
-      expect(Object.keys(données[0])).to.have.members(
-        ["région", "date", "nouveauxCas", "totalCas"]
-      );
+      expect(Object.keys(données[0])).to.have.members([
+        "région",
+        "date",
+        "nouveauxCas",
+        "totalCas",
+      ]);
     });
   });
 });

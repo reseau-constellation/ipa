@@ -28,7 +28,7 @@ export class Recherche {
   async rechercherVariables({
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
@@ -46,7 +46,7 @@ export class Recherche {
     idVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idVariable: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -67,7 +67,7 @@ export class Recherche {
     nomVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomVariable: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -88,7 +88,7 @@ export class Recherche {
     descrVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     descrVariable: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -109,7 +109,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -129,7 +129,7 @@ export class Recherche {
   async rechercherMotsClefs({
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
@@ -147,7 +147,7 @@ export class Recherche {
     idMotClef,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idMotClef: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -168,7 +168,7 @@ export class Recherche {
     nomMotClef,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomMotClef: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -189,7 +189,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -209,13 +209,17 @@ export class Recherche {
   async rechercherBds({
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
-    return await this.client.réseau!.rechercherBds({ f, nRésultatsDésirés, toutLeRéseau, });
+    return await this.client.réseau!.rechercherBds({
+      f,
+      nRésultatsDésirés,
+      toutLeRéseau,
+    });
   }
 
   @cacheRechercheParNRésultats
@@ -223,7 +227,7 @@ export class Recherche {
     idBd,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idBd: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -244,7 +248,7 @@ export class Recherche {
     nomBd,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomBd: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -265,7 +269,7 @@ export class Recherche {
     descrBd,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     descrBd: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -286,7 +290,7 @@ export class Recherche {
     idMotClef,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idMotClef: string;
     f: schémaFonctionSuivi<
@@ -309,7 +313,7 @@ export class Recherche {
     idVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idVariable: string;
     f: schémaFonctionSuivi<
@@ -332,7 +336,7 @@ export class Recherche {
     nomMotClef,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomMotClef: string;
     f: schémaFonctionSuivi<
@@ -355,7 +359,7 @@ export class Recherche {
     nomVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomVariable: string;
     f: schémaFonctionSuivi<
@@ -378,7 +382,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -401,7 +405,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -424,7 +428,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -448,7 +452,7 @@ export class Recherche {
   async rechercherProjets({
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
@@ -572,7 +576,7 @@ export class Recherche {
     idProjet,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idProjet: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -593,7 +597,7 @@ export class Recherche {
     nomProjet,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomProjet: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -614,7 +618,7 @@ export class Recherche {
     descrProjet,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     descrProjet: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -635,7 +639,7 @@ export class Recherche {
     idVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idVariable: string;
     f: schémaFonctionSuivi<
@@ -658,7 +662,7 @@ export class Recherche {
     nomVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomVariable: string;
     f: schémaFonctionSuivi<
@@ -681,7 +685,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -704,7 +708,7 @@ export class Recherche {
     idMotClef,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idMotClef: string;
     f: schémaFonctionSuivi<
@@ -727,7 +731,7 @@ export class Recherche {
     nomMotClef,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomMotClef: string;
     f: schémaFonctionSuivi<
@@ -750,7 +754,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -773,7 +777,7 @@ export class Recherche {
     idBd,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idBd: string;
     f: schémaFonctionSuivi<
@@ -796,7 +800,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -823,7 +827,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -850,13 +854,17 @@ export class Recherche {
   async rechercherNuées({
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
     nRésultatsDésirés: number;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
-    return await this.client.réseau!.rechercherNuées({ f, nRésultatsDésirés, toutLeRéseau});
+    return await this.client.réseau!.rechercherNuées({
+      f,
+      nRésultatsDésirés,
+      toutLeRéseau,
+    });
   }
 
   @cacheRechercheParNRésultats
@@ -864,7 +872,7 @@ export class Recherche {
     idNuée,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -885,7 +893,7 @@ export class Recherche {
     nomNuée,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomNuée: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -906,7 +914,7 @@ export class Recherche {
     descrNuée,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     descrNuée: string;
     f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte>[]>;
@@ -927,7 +935,7 @@ export class Recherche {
     idMotClef,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idMotClef: string;
     f: schémaFonctionSuivi<
@@ -950,7 +958,7 @@ export class Recherche {
     idVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     idVariable: string;
     f: schémaFonctionSuivi<
@@ -973,7 +981,7 @@ export class Recherche {
     nomMotClef,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomMotClef: string;
     f: schémaFonctionSuivi<
@@ -996,7 +1004,7 @@ export class Recherche {
     nomVariable,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     nomVariable: string;
     f: schémaFonctionSuivi<
@@ -1019,7 +1027,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -1042,7 +1050,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<
@@ -1065,7 +1073,7 @@ export class Recherche {
     texte,
     f,
     nRésultatsDésirés,
-    toutLeRéseau=true,
+    toutLeRéseau = true,
   }: {
     texte: string;
     f: schémaFonctionSuivi<

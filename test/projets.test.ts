@@ -1,5 +1,3 @@
-
-
 import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
@@ -16,10 +14,8 @@ import {
   dossierTempoTests,
 } from "@/utilsTests/dossiers.js";
 
-
-import {expect} from "aegir/chai";
+import { expect } from "aegir/chai";
 import JSZip from "jszip";
-
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -507,7 +503,10 @@ typesClients.forEach((type) => {
           expect(Array.isArray(docs)).to.be.true();
           expect(docs.length).to.equal(1);
           expect(Array.isArray(docs[0].doc.SheetNames)).to.be.true();
-          expect(docs[0].doc.SheetNames).to.have.members([nomTableau1, nomTableau2]);
+          expect(docs[0].doc.SheetNames).to.have.members([
+            nomTableau1,
+            nomTableau2,
+          ]);
           expect(docs[0].nom).to.equal("Ma BD");
         });
 
@@ -523,11 +522,17 @@ typesClients.forEach((type) => {
           let dossierFichierExtrait: string;
           let nomZip: string;
           let zip: JSZip;
-  
+
           before(async () => {
-            ({dossier: dossierBase, fEffacer} = await dossierTempoTests());
-            dossierZip = await obtDirTempoPourTest({base: dossierBase, nom: "testExporterProjet"});
-            dossierFichierExtrait = await obtDirTempoPourTest({base: dossierBase, nom: "testExporterProjetExtrait"});
+            ({ dossier: dossierBase, fEffacer } = await dossierTempoTests());
+            dossierZip = await obtDirTempoPourTest({
+              base: dossierBase,
+              nom: "testExporterProjet",
+            });
+            dossierFichierExtrait = await obtDirTempoPourTest({
+              base: dossierBase,
+              nom: "testExporterProjetExtrait",
+            });
 
             await client.projets!.exporterDocumentDonnées({
               données: { docs, fichiersSFIP, nomFichier },
@@ -550,17 +555,17 @@ typesClients.forEach((type) => {
           });
 
           it("Les données sont exportées", async () => {
-            const contenu = zip.files["Ma BD.ods"]
+            const contenu = zip.files["Ma BD.ods"];
             expect(contenu).to.exist();
           });
 
           it("Le dossier pour les données SFIP existe", () => {
-            const contenu = zip.files["sfip/"]
+            const contenu = zip.files["sfip/"];
             expect(contenu?.dir).to.be.true();
           });
 
           it("Les fichiers SFIP existent", () => {
-            const contenu = zip.files[path.join("sfip", cid + ".svg")]
+            const contenu = zip.files[path.join("sfip", cid + ".svg")];
             expect(contenu).to.exist();
           });
         });

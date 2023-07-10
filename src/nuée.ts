@@ -76,7 +76,7 @@ export default class Nuée {
       id: this.idBd,
       récursif: false,
       fichiers: false,
-    })
+    });
   }
 
   async créerNuée({
@@ -2134,14 +2134,14 @@ export default class Nuée {
             fichiersSFIP,
             langues,
           });
-          return {...élémentFormatté, auteur: d.idBdCompte}
+          return { ...élémentFormatté, auteur: d.idBdCompte };
         })
       );
       if (langues) {
         const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
           this.suivreVariablesNuée({ idNuée, f })
         );
-        const nomsVariables: { [key: string]: string } = {'auteur': 'auteur'};
+        const nomsVariables: { [key: string]: string } = { auteur: "auteur" };
         for (const idVar of variables) {
           const nomsDisponibles = await uneFois(
             (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
