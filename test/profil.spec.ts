@@ -8,7 +8,8 @@ import type { schémaFonctionOublier } from "@/utils/index.js";
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
-import { config } from "@/utilsTests/sfip.js";
+
+import {expect} from "aegir/chai";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -17,15 +18,15 @@ typesClients.forEach((type) => {
       let clients: ClientConstellation[];
       let client: ClientConstellation;
 
-      beforeAll(async () => {
+      before(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
           type
         ));
         [client] = clients;
-      }, config.patienceInit);
+      });
 
-      afterAll(async () => {
+      after(async () => {
         if (fOublierClients) await fOublierClients();
       });
 
@@ -35,27 +36,27 @@ typesClients.forEach((type) => {
 
         const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
-        beforeAll(async () => {
+        before(async () => {
           fOublier = await client.profil!.suivreCourriel({
             f: (c) => (courriel = c),
           });
         });
 
-        test("Pas de courriel pour commencer", async () => {
-          expect(courriel).toBeNull;
+        it("Pas de courriel pour commencer", async () => {
+          expect(courriel).to.be.null();
         });
 
-        test("Ajouter un courriel", async () => {
+        it("Ajouter un courriel", async () => {
           await client.profil!.sauvegarderCourriel({ courriel: COURRIEL });
-          expect(courriel).toEqual(COURRIEL);
+          expect(courriel).to.equal(COURRIEL);
         });
 
-        test("Effacer le courriel", async () => {
+        it("Effacer le courriel", async () => {
           await client.profil!.effacerCourriel();
-          expect(courriel).toBeNull;
+          expect(courriel).to.be.null();
         });
 
-        afterAll(async () => {
+        after(async () => {
           if (fOublier) await fOublier();
         });
       });
@@ -64,51 +65,51 @@ typesClients.forEach((type) => {
         const rés = new AttendreRésultat<{ [key: string]: string }>();
         let fOublier: schémaFonctionOublier;
 
-        beforeAll(async () => {
+        before(async () => {
           fOublier = await client.profil!.suivreNoms({
             f: (n) => rés.mettreÀJour(n),
           });
         });
 
-        afterAll(async () => {
+        after(async () => {
           if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
 
-        test("Pas de noms pour commencer", async () => {
+        it("Pas de noms pour commencer", async () => {
           const val = await rés.attendreExiste();
-          expect(Object.keys(val)).toHaveLength(0);
+          expect(Object.keys(val)).to.be.empty();
         });
 
-        test("Ajouter un nom", async () => {
+        it("Ajouter un nom", async () => {
           await client.profil!.sauvegarderNom({
             langue: "fr",
             nom: "Julien Malard-Adam",
           });
           const val = await rés.attendreQue((x) => Object.keys(x).length > 0);
-          expect(val.fr).toEqual("Julien Malard-Adam");
+          expect(val.fr).to.equal("Julien Malard-Adam");
 
           await client.profil!.sauvegarderNom({
             langue: "த",
             nom: "ஜூலீஎன்",
           });
           const val2 = await rés.attendreQue((x) => Object.keys(x).length > 1);
-          expect(val2.த).toEqual("ஜூலீஎன்");
+          expect(val2.த).to.equal("ஜூலீஎன்");
         });
 
-        test("Changer un nom", async () => {
+        it("Changer un nom", async () => {
           await client.profil!.sauvegarderNom({
             langue: "த",
             nom: "ம.-ஆதான் ஜூலீஎன்",
           });
           const val = await rés.attendreQue((x) => x.த !== "ஜூலீஎன்");
-          expect(val.த).toEqual("ம.-ஆதான் ஜூலீஎன்");
+          expect(val.த).to.equal("ம.-ஆதான் ஜூலீஎன்");
         });
 
-        test("Effacer un nom", async () => {
+        it("Effacer un nom", async () => {
           await client.profil!.effacerNom({ langue: "fr" });
           const val = await rés.attendreQue((x) => Object.keys(x).length <= 1);
-          expect(val).toEqual({ த: "ம.-ஆதான் ஜூலீஎன்" });
+          expect(val).to.deep.equal({ த: "ம.-ஆதான் ஜூலீஎன்" });
         });
       });
 
@@ -119,46 +120,46 @@ typesClients.forEach((type) => {
 
         let IMAGE: Uint8Array;
 
-        beforeAll(async () => {
+        before(async () => {
           IMAGE = fs.readFileSync(
             path.join(await dossierRessourcesTests(), "logo.svg")
           );
         });
 
-        beforeAll(async () => {
+        before(async () => {
           fOublier = await client.profil!.suivreImage({
             f: (i) => rés.mettreÀJour(i),
           });
         });
 
-        afterAll(async () => {
+        after(async () => {
           if (fOublier) await fOublier();
           rés.toutAnnuler();
         });
 
-        test("Pas d'image pour commencer", async () => {
+        it("Pas d'image pour commencer", async () => {
           const val = await rés.attendreQue((x) => x === null);
-          expect(val).toBeNull;
+          expect(val).to.be.null();
         });
 
-        test("Ajouter une image", async () => {
+        it("Ajouter une image", async () => {
           await client.profil!.sauvegarderImage({ image: IMAGE });
           const val = await rés.attendreExiste();
-          expect(val).toEqual(new Uint8Array(IMAGE));
+          expect(val).to.equal(new Uint8Array(IMAGE));
         });
 
-        test("Effacer l'image", async () => {
+        it("Effacer l'image", async () => {
           await client.profil!.effacerImage();
           const val = await rés.attendreQue((x) => x === null);
-          expect(val).toBeNull;
+          expect(val).to.be.null();
         });
 
-        test("Ajouter une image trop grande", async () => {
-          await expect(() =>
+        it("Ajouter une image trop grande", async () => {
+          expect(
             client.profil!.sauvegarderImage({
               image: Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 }),
             })
-          ).rejects.toThrow();
+          ).to.be.rejected();
         });
       });
     });
