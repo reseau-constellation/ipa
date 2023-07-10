@@ -344,23 +344,18 @@ export class ClientConstellation extends EventEmitter {
     this.nuées = new Nuées({ client: this, id: idBdNuées! });
 
     this.recherche = new Recherche({ client: this });
+    this.épingler();
+  }
 
-    // this.épingles!.épinglerBd({ id: idBdProfil! }); // Celle-ci doit être récursive et inclure les fichiers
-    /* for (const idBd of [
-      idBdBDs,
-      idBdVariables,
-      idBdRéseau,
-      idBdFavoris,
-      idBdProjets,
-      idBdMotsClefs,
-      idBdAuto,
-    ]) {
-      await this.épingles!.épinglerBd({
-        id: idBd,
-        récursif: false,
-        fichiers: false,
-      });
-    } */
+  async épingler() {
+    this.épingles!.épinglerBd({ id: await this.obtIdCompte() }); // Celle-ci doit être récursive et inclure les fichiers
+    await Promise.all(
+      [
+        this.profil, this.automatisations, 
+        this.bds, this.variables, this.projets, this.nuées, this.motsClefs, this.réseau, 
+        this.favoris,
+      ].map(async x => x && await x.épingler())
+    );
   }
 
   async signer({ message }: { message: string }): Promise<Signature> {

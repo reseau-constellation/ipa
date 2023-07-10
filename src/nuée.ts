@@ -71,6 +71,14 @@ export default class Nuée {
     this.idBd = id;
   }
 
+  async épingler() {
+    await this.client.épingles?.épinglerBd({
+      id: this.idBd,
+      récursif: false,
+      fichiers: false,
+    })
+  }
+
   async créerNuée({
     nuéeParent,
     autorisation,

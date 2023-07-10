@@ -113,6 +113,14 @@ export default class BDs {
     this.idBd = id;
   }
 
+  async épingler() {
+    await this.client.épingles?.épinglerBd({
+      id: this.idBd,
+      récursif: false,
+      fichiers: false,
+    })
+  }
+
   @cacheSuivi
   async suivreBds({
     f,

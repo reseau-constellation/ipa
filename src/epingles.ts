@@ -25,7 +25,7 @@ export default class Épingles {
 
   async épinglerBd({
     id,
-    récursif = true,
+    récursif = false,
     fichiers = true,
   }: {
     id: string;

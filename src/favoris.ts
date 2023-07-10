@@ -37,6 +37,14 @@ export default class Favoris {
     this._promesseInit = this._épinglerFavoris();
   }
 
+  async épingler() {
+    await this.client.épingles?.épinglerBd({
+      id: this.idBd,
+      récursif: false,
+      fichiers: false,
+    })
+  }
+
   async _épinglerFavoris() {
     let précédentes: string[] = [];
 

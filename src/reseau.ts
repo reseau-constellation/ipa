@@ -286,6 +286,14 @@ export default class Réseau extends EventEmitter {
     await this.direSalut({});
   }
 
+  async épingler() {
+    await this.client.épingles?.épinglerBd({
+      id: this.idBd,
+      récursif: false,
+      fichiers: false,
+    })
+  }
+
   async envoyerMessageAuDispositif({
     msg,
     idSFIP,

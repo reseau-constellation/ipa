@@ -40,6 +40,14 @@ export default class Projets {
     this.idBd = id;
   }
 
+  async épingler() {
+    await this.client.épingles?.épinglerBd({
+      id: this.idBd,
+      récursif: false,
+      fichiers: false,
+    })
+  }
+
   @cacheSuivi
   async suivreProjets({
     f,

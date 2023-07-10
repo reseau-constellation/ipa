@@ -56,6 +56,14 @@ export default class Variables {
     this.idBd = id;
   }
 
+  async épingler() {
+    await this.client.épingles?.épinglerBd({
+      id: this.idBd,
+      récursif: false,
+      fichiers: false,
+    })
+  }
+
   @cacheSuivi
   async suivreVariables({
     f,

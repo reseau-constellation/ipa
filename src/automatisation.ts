@@ -711,6 +711,14 @@ export default class Automatisations extends EventEmitter {
       });
   }
 
+  async épingler() {
+    await this.client.épingles?.épinglerBd({
+      id: this.idBd,
+      récursif: false,
+      fichiers: false,
+    })
+  }
+
   async mettreAutosÀJour(
     autos: LogEntry<SpécificationAutomatisation>[]
   ): Promise<void> {
