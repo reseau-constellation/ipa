@@ -4,7 +4,6 @@ import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
 import rmrf from "rimraf";
-import AdmZip from "adm-zip";
 
 import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";

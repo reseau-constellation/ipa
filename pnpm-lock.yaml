@@ -54,6 +54,9 @@ dependencies:
   axios:
     specifier: ^1.4.0
     version: 1.4.0
+  browser-fs-access:
+    specifier: ^0.34.1
+    version: 0.34.1
   chokidar:
     specifier: ^3.5.3
     version: 3.5.3
@@ -69,15 +72,15 @@ dependencies:
   events:
     specifier: ^3.3.0
     version: 3.3.0
-  file-saver:
-    specifier: ^2.0.5
-    version: 2.0.5
   genversion:
     specifier: ^3.1.1
     version: 3.1.1
   geojson-validation:
     specifier: ^1.0.2
     version: 1.0.2
+  indexed-db-stream:
+    specifier: ^1.0.0
+    version: 1.0.0
   ipfs-core:
     specifier: ^0.18.1
     version: 0.18.1
@@ -5652,6 +5655,10 @@ packages:
     resolution: {integrity: sha512-cKV8tMCEpQs4hK/ik71d6LrPOnpkpGBR0wzxqr68g2m/LB2GxVYQroAjMJZRVM1Y4BCjCKc3vAamxSzOY2RP+w==}
     dev: false
 
+  /browser-fs-access@0.34.1:
+    resolution: {integrity: sha512-HPaRf2yimp8kWSuWJXc8Mi78dPbDzfduA+Gyq14H4jlMvd6XNfIRm36Y2yRLaa4x0gwcGuepj4zf14oiTlxrxQ==}
+    dev: false
+
   /browser-level@1.0.1:
     resolution: {integrity: sha512-XECYKJ+Dbzw0lbydyQuJzwNXtOpbMSq737qxJN11sIRTErOMShvDpbzTlgju7orJKvx4epULolZAuJGLzCmWRQ==}
     dependencies:
@@ -8176,10 +8183,6 @@ packages:
       flat-cache: 3.0.4
     dev: true
 
-  /file-saver@2.0.5:
-    resolution: {integrity: sha512-P9bmyZ3h/PRG+Nzga+rbdI4OEpNDzAVyy74uVO9ATgzLK6VtAsYybF/+TOCvrc0MO793d6+42lLyZTw7/ArVzA==}
-    dev: false
-
   /file-type@18.5.0:
     resolution: {integrity: sha512-yvpl5U868+V6PqXHMmsESpg6unQ5GfnPssl4dxdJudBrr9qy7Fddt7EVX1VLlddFfe8Gj9N7goCZH22FXuSQXQ==}
     engines: {node: '>=14.16'}
@@ -9263,6 +9266,10 @@ packages:
   /indent-string@5.0.0:
     resolution: {integrity: sha512-m6FAo/spmsW2Ab2fU35JTYwtOKa2yAwXSwgjSv1TJzh4Mh7mC3lzAOVLBprb72XsTrgkEIsl7YrFNAiDiRhIGg==}
     engines: {node: '>=12'}
+
+  /indexed-db-stream@1.0.0:
+    resolution: {integrity: sha512-/u7saN9vXJBDvm6xWxZexRnq60Vt1TkXH1zmC/CwDMyF4I9D0AFz5/7WPpX/P/usE4Z+SviWKLwQOQ8wC7tIjQ==}
+    dev: false
 
   /indexof@0.0.1:
     resolution: {integrity: sha512-i0G7hLJ1z0DE8dsqJa2rycj9dBmNKgXBvotXtZYXakU9oivfB9Uj2ZBC27qqef2U58/ZLwalxa1X/RDCdkHtVg==}

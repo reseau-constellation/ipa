@@ -48,6 +48,10 @@ class LocalStorage {
     delete this._données[clef];
     this.demanderSauvegarde();
   }
+  clear(): void {
+    this._données = {}
+    fs.rmSync(this.fichier);
+  }
   async sauvegarder(id: string): Promise<void> {
     await this.verrou.acquire("sauvegarder");
     if (this._idRequèteSauvegarde !== id) {
@@ -65,7 +69,7 @@ class LocalStorage {
   }
 }
 
-export default async (
+export const obtStockageLocal = async (
   dossierOrbite?: string
 ): Promise<Storage | LocalStorage> => {
   if (typeof localStorage === "undefined" || localStorage === null) {
@@ -85,3 +89,13 @@ export default async (
     return localStorage;
   }
 };
+export default obtStockageLocal
+
+export const exporterStockageLocal = async (): Promise<string> => {
+  const stockageLocal = await obtStockageLocal();
+  if (stockageLocal instanceof LocalStorage) {
+    return JSON.stringify(stockageLocal._données);
+  } else {
+    return JSON.stringify(stockageLocal)
+  }
+}

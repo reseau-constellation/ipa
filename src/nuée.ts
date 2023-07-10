@@ -1828,7 +1828,7 @@ export default class Nuée {
     ignorerErreursFormatBd = true,
     ignorerErreursFormatTableau = false,
     ignorerErreursDonnéesTableau = true,
-    licensesPermises = undefined,
+    licencesPermises = undefined,
     toujoursInclureLesMiennes = true,
     clefsSelonVariables = true,
   }: {
@@ -1839,7 +1839,7 @@ export default class Nuée {
     ignorerErreursFormatBd?: boolean;
     ignorerErreursFormatTableau?: boolean;
     ignorerErreursDonnéesTableau?: boolean;
-    licensesPermises?: string[];
+    licencesPermises?: string[];
     toujoursInclureLesMiennes?: boolean;
     clefsSelonVariables?: boolean;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
@@ -1879,11 +1879,11 @@ export default class Nuée {
           await fSuivreCondition(conforme);
         };
 
-        if (licensesPermises) {
+        if (licencesPermises) {
           const fOublierLicence = await this.client.bds!.suivreLicence({
             id: idBd,
             f: async (licence) => {
-              conformes.licence = licensesPermises.includes(licence);
+              conformes.licence = licencesPermises.includes(licence);
               await fFinaleBdConforme();
             },
           });

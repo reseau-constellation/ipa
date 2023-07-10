@@ -15,6 +15,7 @@ import { InfoLicence, infoLicences } from "@/licences.js";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
+import indexedDbStream from "indexed-db-stream";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import Épingles from "@/epingles.js";
@@ -44,8 +45,9 @@ import {
   élémentsBd,
   toBuffer,
   ignorerNonDéfinis,
+  sauvegarderFichierZip,
 } from "@/utils/index.js";
-import obtStockageLocal from "@/stockageLocal.js";
+import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 import ContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
@@ -55,6 +57,8 @@ import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import Base64 from "crypto-js/enc-base64.js";
 import sha256 from "crypto-js/sha256.js";
 import md5 from "crypto-js/md5.js";
+import JSZip from "jszip";
+import { isElectronMain, isNode } from "wherearewe";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -1692,6 +1696,16 @@ export class ClientConstellation extends EventEmitter {
     return dossierOrbite;
   }
 
+  dossierSFIP(): string | undefined {
+    let dossierSFIP: string | undefined;
+
+    const optsOrbite = this._opts.orbite;
+    if (!(optsOrbite instanceof OrbitDB)) {
+      dossierSFIP = optsOrbite?.sfip?.dossier;
+    };
+    return dossierSFIP;
+  }
+
   obtClefStockageClient({
     clef,
     parCompte = true,
@@ -2179,20 +2193,93 @@ export class ClientConstellation extends EventEmitter {
   }
 
   async effacerDispositif(): Promise<void> {
+    await this.fermer();
     if (indexedDB) {
       if (indexedDB.databases) {
         const indexedDbDatabases = await indexedDB.databases();
         await Promise.all(
-          indexedDbDatabases.map((db) => {
-            if (db.name) indexedDB.deleteDatabase(db.name);
+          indexedDbDatabases.map((bd) => {
+            if (bd.name) indexedDB.deleteDatabase(bd.name);
           })
         );
       } else {
         console.warn("On a pas pu tout effacer.");
       }
     } else {
+      const fs = await import("fs")
+      const dossierOrbite = this.dossierOrbite()
+      const dossierSFIP = this.dossierSFIP()
+      if (dossierOrbite) fs.rmdirSync(dossierOrbite);
+      if (dossierSFIP) fs.rmdirSync(dossierSFIP);
+      const stockageLocal = await obtStockageLocal();
+      stockageLocal.clear();
+    }
+  }
+
+  async exporterDispositif({nomFichier}: {nomFichier: string}): Promise<void> {
+    if (isNode || isElectronMain) {
+      const fs = await import("fs");
+      const path = await import("path");
+
+      const ajouterDossierÀZip = ({dossier, zip}: {dossier: string, zip: JSZip}): void => {
+      
+          const dossiers = fs.readdirSync(dossier)
+          dossiers.map(d=>{
+            const stat = fs.statSync(d)
+            if (stat?.isDirectory()) {
+              ajouterDossierÀZip({dossier: path.join(dossier, d), zip: zip.folder(d)!})
+            } else {
+              const fluxFichier = fs.createReadStream(path.join(dossier, d))
+              zip.file(d, fluxFichier);
+            }
+          });
+      };
+      const dossierOrbite = this.dossierOrbite()
+      const dossierSFIP = this.dossierSFIP()
+      if (!dossierOrbite || !dossierSFIP) throw new Error('Constellation pas encore initialisée.')
+      const donnéesStockageLocal = await exporterStockageLocal();
+
+      const zip = new JSZip();
+      ajouterDossierÀZip({dossier: dossierOrbite, zip: zip.folder('orbite')!})
+      ajouterDossierÀZip({dossier: dossierSFIP, zip: zip.folder('sfip')!});
+      zip.file('stockageLocal', donnéesStockageLocal);
+      await sauvegarderFichierZip({fichierZip: zip, nomFichier});
+      
+    } else if (indexedDB) {
+
+      const sauvegarderBdIndexeÀZip = ({bd, zip}: {bd: IDBDatabaseInfo, zip: JSZip}) => {
+        const {name: nomBd} = bd;
+        if (nomBd) {
+          const dossierZipBd = zip.folder(nomBd)
+          if (!dossierZipBd) throw new Error(nomBd)
+          const bdOuverte = indexedDB.open(nomBd).result;
+          const tableauxBdIndexe = bdOuverte.objectStoreNames;
+          const listeTableaux = [...Array(tableauxBdIndexe.length).keys()].map(i => tableauxBdIndexe.item(i)).filter(x=>!!x) as string[]
+          listeTableaux.map(tbl => dossierZipBd.file(
+            tbl, 
+            new indexedDbStream.IndexedDbReadStream({
+              databaseName: nomBd,
+              objectStoreName: tbl,
+            })
+          )) 
+        }
+      }
+      const fichierZip = new JSZip();
+
+      if (indexedDB.databases) {
+        const indexedDbDatabases = await indexedDB.databases();
+        const dossierZipIndexe = fichierZip.folder('bdIndexe');
+        if (!dossierZipIndexe) throw new Error('Erreur Bd Indexe...')
+        indexedDbDatabases.forEach((bd) => {
+            sauvegarderBdIndexeÀZip({bd, zip: dossierZipIndexe});
+        });
+        fichierZip.file('stockageLocal', JSON.stringify(await exporterStockageLocal()));
+      }
+
+      await sauvegarderFichierZip({fichierZip, nomFichier});
+    } else {
       throw new Error(
-        "Non implémenté pour Node, Électron, même si c'est plus facile que dans le navigateur."
+        "Sauvegarde non implémenté."
       );
     }
   }

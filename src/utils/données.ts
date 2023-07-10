@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import saveAs from "file-saver";
+import {fileSave} from "browser-fs-access";
 import path from "path";
 import { isNode, isElectronMain } from "wherearewe";
 
@@ -28,15 +28,18 @@ export async function zipper(
   for (const fichier of fichiersSFIP) {
     dossierFichiersSFIP.file(fichier.nom, fichier.octets);
   }
+  await sauvegarderFichierZip({fichierZip, nomFichier});
+}
 
+export async function sauvegarderFichierZip({fichierZip, nomFichier}: {fichierZip: JSZip, nomFichier: string}): Promise<void> {
   if (isNode || isElectronMain) {
     const fs = await import("fs");
-    const contenu = await fichierZip.generateAsync({ type: "arraybuffer" });
+    
+    const contenu = fichierZip.generateNodeStream();
     fs.mkdirSync(path.dirname(nomFichier), { recursive: true });
-
-    await fs.promises.writeFile(nomFichier, Buffer.from(contenu), "binary");
+    await fs.promises.writeFile(nomFichier, contenu, "binary");
   } else {
     const contenu = await fichierZip.generateAsync({ type: "blob" });
-    saveAs(contenu, nomFichier);
+    fileSave(contenu, {fileName: nomFichier});
   }
 }
