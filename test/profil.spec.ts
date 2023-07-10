@@ -30,29 +30,32 @@ typesClients.forEach((type) => {
         if (fOublierClients) await fOublierClients();
       });
 
-      describe("Courriels", function () {
-        let courriel: string | null;
+      describe.only("Courriels", function () {
         let fOublier: schémaFonctionOublier;
-
+        
+        const résultatCourriel = new AttendreRésultat<string | null>();
         const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
         before(async () => {
           fOublier = await client.profil!.suivreCourriel({
-            f: (c) => (courriel = c),
+            f: (c) => (résultatCourriel.mettreÀJour(c)),
           });
         });
-
+        
         it("Pas de courriel pour commencer", async () => {
+          const courriel = await résultatCourriel.attendreQue(c => c !== undefined)
           expect(courriel).to.be.null();
         });
 
         it("Ajouter un courriel", async () => {
           await client.profil!.sauvegarderCourriel({ courriel: COURRIEL });
+          const courriel = await résultatCourriel.attendreExiste();
           expect(courriel).to.equal(COURRIEL);
         });
 
         it("Effacer le courriel", async () => {
           await client.profil!.effacerCourriel();
+          const courriel = await résultatCourriel.attendreQue(c => !c)
           expect(courriel).to.be.null();
         });
 
