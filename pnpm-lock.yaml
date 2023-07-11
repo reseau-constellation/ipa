@@ -70,8 +70,8 @@ dependencies:
     specifier: ^2.1.0
     version: 2.1.0
   ennikkai:
-    specifier: ^2.1.1
-    version: 2.1.1(@constl/ipa@0.7.3)
+    specifier: ^2.1.3
+    version: 2.1.3(@constl/ipa@0.7.4)
   events:
     specifier: ^3.3.0
     version: 3.3.0
@@ -88,7 +88,7 @@ dependencies:
     specifier: ^0.18.1
     version: 0.18.1
   iso-constants:
-    specifier: github:inverted-capital/iso-constants#patch-1
+    specifier: git+https://github.com/inverted-capital/iso-constants.git#patch-1
     version: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
   it-to-buffer:
     specifier: ^3.0.1
@@ -1299,8 +1299,8 @@ packages:
       - supports-color
     dev: false
 
-  /@constl/ipa@0.7.3(electron@23.3.10)(go-ipfs@0.21.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7):
-    resolution: {integrity: sha512-CQQLgTtgJJQWRIWrS+5QA0aA3J5AZRC4JPPXuK8ozyIVBhLJF7W8Eh0RQ7hCcMq3uQA3ROnt+LThZNPbq9HhEA==}
+  /@constl/ipa@0.7.4(electron@23.3.10)(go-ipfs@0.21.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7):
+    resolution: {integrity: sha512-PYmnWoNIHKZqmTB2psF0opFdcXtKVpTBCbO/KjLafIoz7KHm84tTpHa2mlEFxbTkgZ2UNKbg3lreMz7uYtmgOw==}
     engines: {node: '>=16'}
     peerDependencies:
       electron: ^23.0.0
@@ -1320,18 +1320,19 @@ packages:
       '@libp2p/websockets': 5.0.10
       '@libp2p/webtransport': 1.0.11
       '@localfirst/auth': 1.0.1
-      adm-zip: 0.5.10
       approx-string-match: 2.0.0
       axios: 1.4.0
+      browser-fs-access: 0.34.1
       chokidar: 3.5.3
       crypto-js: 4.1.1
       deep-equal: 2.2.2
       deepcopy: 2.1.0
       electron: 23.3.10
+      ennikkai: 2.1.3(@constl/ipa@0.7.4)
       events: 3.3.0
-      file-saver: 2.0.5
       genversion: 3.1.1
       geojson-validation: 1.0.2
+      indexed-db-stream: 1.0.0
       ipfs-core: 0.18.1
       iso-constants: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
       it-to-buffer: 3.0.1
@@ -2699,12 +2700,12 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@lassi-js/kili@0.1.2(@constl/ipa@0.7.3):
+  /@lassi-js/kili@0.1.2(@constl/ipa@0.7.4):
     resolution: {integrity: sha512-6ZjhDJ2cFIDUZiMB5KvMFonBqbHusJXa24okAnVVqffJ+T9aBr8VXg9GdYNYPyyrqIBoj98cB00JwFhht++ePQ==}
     peerDependencies:
       '@constl/ipa': ^0.7.3
     dependencies:
-      '@constl/ipa': 0.7.3(electron@23.3.10)(go-ipfs@0.21.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
+      '@constl/ipa': 0.7.4(electron@23.3.10)(go-ipfs@0.21.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
       deepcopy: 2.1.0
     dev: false
 
@@ -4956,11 +4957,6 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
     dev: true
-
-  /adm-zip@0.5.10:
-    resolution: {integrity: sha512-x0HvcHqVJNTPk/Bw8JbLWlWoo6Wwnsug0fnYYro1HBrjxZ3G7/AZk7Ahv8JwDe1uIcz8eBqvu86FuF1POiG7vQ==}
-    engines: {node: '>=6.0'}
-    dev: false
 
   /aegir@38.1.8(@babel/core@7.22.8)(@octokit/core@3.6.0)(@typescript-eslint/parser@5.62.0)(eslint-plugin-n@15.7.0):
     resolution: {integrity: sha512-F+xy8L/7H3lsmF8pRmKWDO580gRhmLyxB7FUVs3tzVAb5vK4N5k5dmrQjawWmcqLm0Mp4AGgUxgd7W7QHNhi3w==}
@@ -7346,13 +7342,13 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: false
 
-  /ennikkai@2.1.1(@constl/ipa@0.7.3):
-    resolution: {integrity: sha512-187Rj234aHJ+nYK0cljJBy5G89pQdDDkz01/MNrL6ghCuXmmjv7vzjNpqH9QzQbsLlsIQ73XzNQthqOwGjk1Yg==}
+  /ennikkai@2.1.3(@constl/ipa@0.7.4):
+    resolution: {integrity: sha512-KbuLffnczgM1/+WxNtxI45FpMaP56SqJrbM/JacpwxW8GuOGLtqrmrlhsjwj1s89BHLFRuz/AlARcvS6PGddSA==}
     peerDependencies:
       '@constl/ipa': ^0.7.3
     dependencies:
-      '@constl/ipa': 0.7.3(electron@23.3.10)(go-ipfs@0.21.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
-      '@lassi-js/kili': 0.1.2(@constl/ipa@0.7.3)
+      '@constl/ipa': 0.7.4(electron@23.3.10)(go-ipfs@0.21.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
+      '@lassi-js/kili': 0.1.2(@constl/ipa@0.7.4)
       deepmerge: 4.3.1
       events: 3.3.0
     dev: false
@@ -8266,10 +8262,6 @@ packages:
     dependencies:
       flat-cache: 3.0.4
     dev: true
-
-  /file-saver@2.0.5:
-    resolution: {integrity: sha512-P9bmyZ3h/PRG+Nzga+rbdI4OEpNDzAVyy74uVO9ATgzLK6VtAsYybF/+TOCvrc0MO793d6+42lLyZTw7/ArVzA==}
-    dev: false
 
   /file-type@18.5.0:
     resolution: {integrity: sha512-yvpl5U868+V6PqXHMmsESpg6unQ5GfnPssl4dxdJudBrr9qy7Fddt7EVX1VLlddFfe8Gj9N7goCZH22FXuSQXQ==}
@@ -16686,6 +16678,8 @@ packages:
       node-pre-gyp: 0.13.0
     optionalDependencies:
       domexception: 1.0.1
+    transitivePeerDependencies:
+      - supports-color
     bundledDependencies:
       - node-pre-gyp
 
