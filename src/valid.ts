@@ -6,6 +6,7 @@ import type {
   catégorieVariables,
 } from "@/variables.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
+import { cholqij } from "@/dates.js";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle =
@@ -362,10 +363,12 @@ const validerBorneVal = ({
 };
 
 const estUnHoroDatage = (val: unknown): boolean => {
-  if (!["number", "string"].includes(typeof val)) return false;
-
-  const date = new Date(val as string | number);
-  return !isNaN(date.valueOf());
+  if (["number", "string"].includes(typeof val)) {
+    const date = new Date(val as string | number);
+    return !isNaN(date.valueOf());
+  } else {
+    return cholqij.dateValide(val);
+  }
 };
 
 const validerCatégorieBase = ({
@@ -384,13 +387,11 @@ const validerCatégorieBase = ({
     case "intervaleTemps":
       if (!Array.isArray(val)) return false;
       if (val.length !== 2) return false;
-      return (val as unknown[]).every((d) => estUnHoroDatage(d));
+      return val.every((d) => estUnHoroDatage(d));
     case "chaîne":
       return adresseOrbiteValide(val);
     case "chaîneNonTraductible":
       return typeof val === "string";
-    case "catégorique":
-      return true;
     case "booléen":
       return typeof val === "boolean";
     case "géojson":

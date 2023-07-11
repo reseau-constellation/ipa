@@ -4,7 +4,7 @@ import { initierSFIP, arrêterSFIP } from "@/utilsTests/sfip.js";
 import générerMandataireProc from "@/mandataire/ipaProc.js";
 import générerMandataireTravailleur from "@/mandataire/ipaTravailleur.js";
 import type { IPFS } from "ipfs-core";
-import ClientConstellation from "@/client.js";
+import { ClientConstellation } from "@/client.js";
 import { dossierTempoTests } from "@/utilsTests/dossiers.js";
 import { isBrowser } from "wherearewe";
 

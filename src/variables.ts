@@ -27,7 +27,6 @@ export type catégorieBaseVariables =
   | "intervaleTemps"
   | "chaîne"
   | "chaîneNonTraductible"
-  | "catégorique"
   | "booléen"
   | "géojson"
   | "vidéo"
@@ -633,10 +632,7 @@ export default class Variables {
       if (rés.catégorie?.catégorie === "numérique") {
         scores.push(rés.unités ? 1 : 0);
       }
-      if (
-        rés.catégorie?.catégorie === "numérique" ||
-        rés.catégorie?.catégorie === "catégorique"
-      ) {
+      if (rés.catégorie?.catégorie === "numérique") {
         scores.push(rés.règles.length >= 1 ? 1 : 0);
       }
       const qualité = scores.reduce((a, b) => a + b, 0) / scores.length;

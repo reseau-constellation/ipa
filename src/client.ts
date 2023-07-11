@@ -2,7 +2,7 @@ import type { IPFS as SFIP } from "ipfs-core";
 import type { IDResult } from "ipfs-core-types/src/root";
 import type { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
-
+import { எண்ணிக்கை } from "ennikkai";
 import OrbitDB from "orbit-db";
 import type Store from "orbit-db-store";
 import type FeedStore from "orbit-db-feedstore";
@@ -127,6 +127,7 @@ export class ClientConstellation extends EventEmitter {
   encryption: Encryption;
   sujet_réseau: string;
   motsDePasseRejoindreCompte: { [key: string]: number };
+  ennikkai: எண்ணிக்கை;
 
   verrouOuvertureBd: Semaphore;
   verrouObtIdBd: Semaphore;
@@ -147,6 +148,7 @@ export class ClientConstellation extends EventEmitter {
     this._orbiteExterne = this._sfipExterne = false;
 
     this.encryption = new EncryptionLocalFirst();
+    this.ennikkai = new எண்ணிக்கை({ விண்மீன்: this });
   }
 
   async initialiser(): Promise<void> {

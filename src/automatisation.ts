@@ -43,6 +43,24 @@ export type fréquence = {
   n: number;
 };
 
+export type conversionDonnées =
+  | conversionDonnéesNumérique
+  | conversionDonnéesDate
+  | conversionDonnéesChaîne;
+export type conversionDonnéesNumérique = {
+  type: "numérique";
+  facteur?: number;
+  systèmeNumération?: string;
+};
+export type conversionDonnéesDate = {
+  type: "horoDatage";
+  système: string;
+  format: string;
+};
+export type conversionDonnéesChaîne = {
+  type: "chaîne";
+  langue: string;
+};
 export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
 export type SpécificationAutomatisation =
@@ -251,6 +269,7 @@ export type SpécificationImporter<T extends infoImporter = infoImporter> =
     idTableau: string;
     dispositif: string;
     source: SourceDonnéesImportationAdresseOptionel<T>;
+    conversions?: { [idCol: string]: conversionDonnées };
   };
 
 export type SpécificationImporterAvecFichier<
@@ -414,9 +433,27 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
           spéc,
           résoudreAdresse
         );
+
+        // Adresse base des fichiers pour résoudre les entrées fichiers, si applicable. Fonctionne uniquement
+        // sur Node et Électron principal.
+        const path = await import("path");
+
+        let cheminBaseFichiers: string | undefined = undefined;
+        if (
+          spéc.source.typeSource === "fichier" &&
+          spéc.source.adresseFichier
+        ) {
+          const fichierRésolu = await résoudreAdresse(
+            spéc.source.adresseFichier
+          );
+          if (fichierRésolu) cheminBaseFichiers = path.dirname(fichierRésolu);
+        }
+
         await client.tableaux!.importerDonnées({
           idTableau: spéc.idTableau,
           données,
+          conversions: spéc.conversions,
+          cheminBaseFichiers,
         });
       };
     }

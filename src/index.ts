@@ -61,7 +61,9 @@ function générerClient({
     case "travailleur":
       return ipaTravailleur.default(opts as optsIpaTravailleur);
     default:
-      break;
+      throw new Error(
+        `Mandataire de type ${mandataire} non reconnu (doit être "proc" ou "travailleur").`
+      );
   }
 }
 

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { WorkBook, utils } from "xlsx";
 import type FeedStore from "orbit-db-feedstore";
-import type KeyValueStore from "orbit-db-kvstore";
+import KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
 import ClientConstellation from "@/client.js";
@@ -39,6 +39,11 @@ import type {
   catégorieVariables,
 } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
+import { conversionDonnées } from "@/automatisation.js";
+import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { cholqij } from "@/dates.js";
+
+import { isElectronMain, isNode } from "wherearewe";
 
 export type élémentBdListeDonnées = {
   [key: string]: élémentsBd;
@@ -808,12 +813,278 @@ export default class Tableaux {
     }
   }
 
-  async importerDonnées({
+  async convertirDonnées({
     idTableau,
     données,
+    conversions,
+    cheminBaseFichiers,
+    donnéesExistantes,
   }: {
     idTableau: string;
     données: élémentBdListeDonnées[];
+    conversions: { [col: string]: conversionDonnées };
+    cheminBaseFichiers?: string;
+    donnéesExistantes?: élémentBdListeDonnées[];
+  }): Promise<élémentBdListeDonnées[]> {
+    const colonnes = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
+        return await this.suivreColonnes({ idTableau, f: fSuivi });
+      }
+    );
+
+    const idsOrbiteColsChaîne: Set<string> = new Set(
+      donnéesExistantes?.map(
+        d => {
+          return colonnes.filter(c => c.catégorie?.catégorie === 'chaîne').map(
+            c => c.catégorie?.type === 'simple' ? [d[c.id]] : d[c.id]
+          ).flat().filter(x=>typeof x === 'string') as string[]
+        }
+      ).flat() || []
+    );
+
+    const fichiersDéjàAjoutés: {
+      [chemin: string]: { cid: string; ext: string };
+    } = {};
+    const ajouterFichierÀSFIP = async ({
+      chemin,
+    }: {
+      chemin: string;
+    }): Promise<{ ext: string; cid: string } | undefined> => {
+      if (isNode || isElectronMain) {
+        const fs = await import("fs");
+        const path = await import("path");
+
+        const ext = chemin.split(".").pop() || "";
+        const cheminAbsolut = cheminBaseFichiers
+          ? path.resolve(cheminBaseFichiers, chemin)
+          : chemin;
+
+        if (!fs.existsSync(cheminAbsolut)) return;
+        if (fichiersDéjàAjoutés[cheminAbsolut])
+          return fichiersDéjàAjoutés[cheminAbsolut];
+
+        const contenuFichier = fs.readFileSync(cheminAbsolut);
+        const cid = await this.client.ajouterÀSFIP({ fichier: contenuFichier });
+        fichiersDéjàAjoutés[chemin] = { ext, cid };
+
+        return { ext, cid };
+      }
+      return undefined;
+    };
+
+    const cacheRechercheIdOrbite: {
+      [langue: string]: { [val: string]: string };
+    } = {};
+    const rechercherIdOrbiteChaîne = async ({
+      val,
+      langue,
+    }: {
+      val: string;
+      langue: string;
+    }): Promise<string | undefined> => {
+      if (cacheRechercheIdOrbite[langue]?.[val])
+        return cacheRechercheIdOrbite[langue][val];
+      for (const id of idsOrbiteColsChaîne) {
+        const { bd, fOublier } = await this.client.ouvrirBd<
+          KeyValueStore<string>
+        >({ id });
+        const valLangue = bd.get(langue);
+        await fOublier();
+        if (valLangue === val) {
+          if (!cacheRechercheIdOrbite[langue])
+            cacheRechercheIdOrbite[langue] = {};
+          cacheRechercheIdOrbite[langue][val] = id;
+          return id;
+        }
+      }
+      return undefined;
+    };
+
+    const créerIdOrbiteChaîne = async ({
+      val,
+      langue,
+    }: {
+      val: string;
+      langue: string;
+    }): Promise<string> => {
+      const { bd: bdNuée, fOublier: fOublierBdTableau } =
+        await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdTableaux>>({
+          id: idTableau,
+        });
+
+      const accès = bdNuée.access as ContrôleurConstellation;
+      const optionsAccès = { address: accès.address };
+      await fOublierBdTableau();
+      const idOrbite = await this.client.créerBdIndépendante({
+        type: "kvstore",
+        optionsAccès,
+      });
+
+      const { bd, fOublier } = await this.client.ouvrirBd<
+        KeyValueStore<string>
+      >({ id: idOrbite });
+      await bd.set(langue, val);
+      await fOublier();
+      idsOrbiteColsChaîne.add(idOrbite);
+      return idOrbite;
+    };
+
+    const convertir = async ({
+      val,
+      catégorie,
+      conversion,
+    }: {
+      val: élémentsBd;
+      catégorie: catégorieBaseVariables;
+      conversion: conversionDonnées;
+    }): Promise<élémentsBd> => {
+      switch (catégorie) {
+        case "audio":
+        case "image":
+        case "vidéo":
+        case "fichier": {
+          if (typeof val === "string") {
+            try {
+              return JSON.parse(val);
+            } catch {
+              const infoFichier = await ajouterFichierÀSFIP({ chemin: val });
+              return infoFichier || val;
+            }
+          }
+          return val;
+        }
+
+        case "booléen":
+          return typeof val === "string" ? val.toLowerCase() === "true" : val;
+
+        case "numérique": {
+          let facteur: number | undefined = undefined;
+          let systèmeNumération: string | undefined = undefined;
+          if (conversion.type === "numérique") {
+            ({ facteur, systèmeNumération } = conversion);
+          }
+          const facteurFinal = facteur === undefined ? 1 : facteur;
+
+          let valNumérique: number | undefined = undefined;
+          if (typeof val === "string") {
+            try {
+              valNumérique = this.client.ennikkai.எண்ணுக்கு({
+                உரை: val,
+                மொழி: systèmeNumération,
+              });
+            } catch {
+              // Rien à faire...
+            }
+          } else if (typeof val === "number") {
+            valNumérique = val;
+          }
+          return valNumérique !== undefined ? valNumérique * facteurFinal : val;
+        }
+
+        case "horoDatage": {
+          if (conversion.type === "horoDatage" && typeof val === 'string') {
+            const { système, format } = conversion;
+            const date = cholqij.lireDate({système, val, format})
+            return {
+              système: "dateJS",
+              val: date.valueOf()
+            }
+          } else {
+            if (["number", "string"].includes(typeof val)) {
+              const date = new Date(val as string | number);
+              return isNaN(date.valueOf())
+                ? val
+                : {
+                    système: "dateJS",
+                    val: date.valueOf(),
+                  };
+            }
+          }
+          throw new Error("Pas implémenté !");
+        }
+        case "intervaleTemps": {
+          const valObjet = typeof val === "string" ? JSON.parse(val) : val;
+          if (Array.isArray(valObjet)) {
+            return Promise.all(
+              valObjet.map(
+                async (v) =>
+                  await convertir({
+                    val: v,
+                    catégorie: "horoDatage",
+                    conversion,
+                  })
+              )
+            );
+          }
+          return valObjet;
+        }
+
+        case "chaîneNonTraductible":
+          return val;
+
+        case "chaîne": {
+          if (typeof val !== "string") return val;
+          if (adresseOrbiteValide(val)) return val;
+          else {
+            if (conversion.type === "chaîne") {
+              const { langue } = conversion;
+              const idOrbiteExistante = await rechercherIdOrbiteChaîne({
+                val,
+                langue,
+              });
+              return (
+                idOrbiteExistante ||
+                (await créerIdOrbiteChaîne({ val, langue }))
+              );
+            }
+            return val;
+          }
+        }
+
+        case "géojson":
+          return typeof val === "string" ? JSON.parse(val) : val;
+        default:
+          return val;
+      }
+    };
+
+    for (const file of données) {
+      for (const c of colonnes) {
+        if (c.catégorie) {
+          const { type, catégorie } = c.catégorie;
+          const val = file[c.id];
+          if (val === undefined) continue;
+
+          const conversion = conversions[c.id];
+
+          if (type === "simple") {
+            file[c.id] = await convertir({ val, catégorie, conversion });
+          } else {
+            file[c.id] = Array.isArray(val)
+              ? await Promise.all(
+                  val.map(
+                    async (v) =>
+                      await convertir({ val: v, catégorie, conversion })
+                  )
+                )
+              : [await convertir({ val, catégorie, conversion })];
+          }
+        }
+      }
+    }
+    return données;
+  }
+
+  async importerDonnées({
+    idTableau,
+    données,
+    conversions = {},
+    cheminBaseFichiers,
+  }: {
+    idTableau: string;
+    données: élémentBdListeDonnées[];
+    conversions?: { [col: string]: conversionDonnées };
+    cheminBaseFichiers?: string;
   }): Promise<void> {
     const donnéesTableau = await uneFois(
       async (
@@ -823,8 +1094,16 @@ export default class Tableaux {
       }
     );
 
+    const donnéesConverties = await this.convertirDonnées({
+      idTableau,
+      données,
+      conversions,
+      cheminBaseFichiers,
+      donnéesExistantes: donnéesTableau.map(x=>x.données)
+    });
+
     const nouveaux: élémentBdListeDonnées[] = [];
-    for (const élément of données) {
+    for (const élément of donnéesConverties) {
       if (!donnéesTableau.some((x) => élémentsÉgaux(x.données, élément))) {
         nouveaux.push(élément);
       }
@@ -832,7 +1111,7 @@ export default class Tableaux {
 
     const àEffacer: string[] = [];
     for (const élément of donnéesTableau) {
-      if (!données.some((x) => élémentsÉgaux(x, élément.données))) {
+      if (!donnéesConverties.some((x) => élémentsÉgaux(x, élément.données))) {
         àEffacer.push(élément.empreinte);
       }
     }
