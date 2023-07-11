@@ -148,7 +148,7 @@ export class ClientConstellation extends EventEmitter {
     this._orbiteExterne = this._sfipExterne = false;
 
     this.encryption = new EncryptionLocalFirst();
-    this.ennikkai = new எண்ணிக்கை({ விண்மீன்: this });
+    this.ennikkai = new எண்ணிக்கை({});
   }
 
   async initialiser(): Promise<void> {
