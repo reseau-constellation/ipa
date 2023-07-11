@@ -960,7 +960,7 @@ export default class Tableaux {
         case "numérique": {
           let facteur: number | undefined = undefined;
           let systèmeNumération: string | undefined = undefined;
-          if (conversion.type === "numérique") {
+          if (conversion?.type === "numérique") {
             ({ facteur, systèmeNumération } = conversion);
           }
           const facteurFinal = facteur === undefined ? 1 : facteur;
@@ -982,7 +982,7 @@ export default class Tableaux {
         }
 
         case "horoDatage": {
-          if (conversion.type === "horoDatage" && typeof val === 'string') {
+          if (conversion?.type === "horoDatage" && typeof val === 'string') {
             const { système, format } = conversion;
             const date = cholqij.lireDate({système, val, format})
             return {
@@ -999,13 +999,13 @@ export default class Tableaux {
                     val: date.valueOf(),
                   };
             }
+            return val;
           }
-          throw new Error("Pas implémenté !");
         }
         case "intervaleTemps": {
           const valObjet = typeof val === "string" ? JSON.parse(val) : val;
           if (Array.isArray(valObjet)) {
-            return Promise.all(
+            return await Promise.all(
               valObjet.map(
                 async (v) =>
                   await convertir({
@@ -1026,7 +1026,7 @@ export default class Tableaux {
           if (typeof val !== "string") return val;
           if (adresseOrbiteValide(val)) return val;
           else {
-            if (conversion.type === "chaîne") {
+            if (conversion?.type === "chaîne") {
               const { langue } = conversion;
               const idOrbiteExistante = await rechercherIdOrbiteChaîne({
                 val,
@@ -1060,14 +1060,15 @@ export default class Tableaux {
           if (type === "simple") {
             file[c.id] = await convertir({ val, catégorie, conversion });
           } else {
-            file[c.id] = Array.isArray(val)
+            const valListe = typeof val === 'string' ? JSON.parse(val) : val
+            file[c.id] = Array.isArray(valListe)
               ? await Promise.all(
-                  val.map(
+                valListe.map(
                     async (v) =>
                       await convertir({ val: v, catégorie, conversion })
                   )
                 )
-              : [await convertir({ val, catégorie, conversion })];
+              : [await convertir({ val: valListe, catégorie, conversion })];
           }
         }
       }
