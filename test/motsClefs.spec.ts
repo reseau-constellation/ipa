@@ -26,13 +26,14 @@ typesClients.forEach((type) => {
       });
 
       describe("Création", function () {
-        let motsClefs: string[];
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
+        
+        const motsClefs = new AttendreRésultat<string[]>();
 
         before(async () => {
           fOublier = await client.motsClefs!.suivreMotsClefs({
-            f: (x) => (motsClefs = x),
+            f: (x) => (motsClefs.mettreÀJour(x)),
           });
         });
 
@@ -40,30 +41,35 @@ typesClients.forEach((type) => {
           if (fOublier) await fOublier();
         });
         it("Pas de mots-clefs pour commencer", async () => {
-          expect(Array.isArray(motsClefs)).to.be.true;
-          expect(motsClefs.length).to.equal(0);
+          const val = await motsClefs.attendreExiste();
+          
+          expect(val).to.be.an.empty("array");
         });
         it("Créer des mots-clefs", async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
-          expect(Array.isArray(motsClefs)).to.be.true;
-          expect(motsClefs.length).to.equal(1);
+          const val = await motsClefs.attendreQue(x=>!!x.length)
+          
+          expect(Array.isArray(val)).to.be.true;
+          expect(val.length).to.equal(1);
         });
         it("Effacer un mot-clef", async () => {
           await client.motsClefs!.effacerMotClef({ idMotClef });
-          expect(Array.isArray(motsClefs)).to.be.true;
-          expect(motsClefs.length).to.equal(0);
+          const val = await motsClefs.attendreQue(x=>!x.length)
+
+          expect(val).to.be.an.empty("array");
         });
       });
 
       describe("Mes mots-clefs", function () {
         let idMotClef: string;
-        let mesMotsClefs: string[] = [];
         let fOublier: schémaFonctionOublier;
+        
+        const mesMotsClefs = new AttendreRésultat<string[]>();;
 
         before(async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
           fOublier = await client.motsClefs!.suivreMotsClefs({
-            f: (mc) => (mesMotsClefs = mc),
+            f: (mc) => (mesMotsClefs.mettreÀJour(mc)),
           });
         });
 
@@ -72,17 +78,23 @@ typesClients.forEach((type) => {
         });
 
         it("Le mot-clef est déjà ajouté", async () => {
-          expect(mesMotsClefs).to.contain(idMotClef);
+          const val = await mesMotsClefs.attendreQue(x => !!x.length)
+
+          expect(val).to.contain(idMotClef);
         });
 
         it("Enlever de mes mots-clefs", async () => {
           await client.motsClefs!.enleverDeMesMotsClefs({ idMotClef });
-          expect(mesMotsClefs).not.to.contain(idMotClef);
+          const val = await mesMotsClefs.attendreQue(x => !x.length)
+          
+          expect(val).not.to.contain(idMotClef);
         });
 
         it("Ajouter à mes mots-clefs", async () => {
           await client.motsClefs!.ajouterÀMesMotsClefs({ idMotClef });
-          expect(mesMotsClefs).to.contain(idMotClef);
+          const val = await mesMotsClefs.attendreQue(x => !!x.length)
+          
+          expect(val).to.contain(idMotClef);
         });
       });
 
