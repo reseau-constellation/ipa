@@ -836,7 +836,6 @@ export class ClientConstellation extends EventEmitter {
               return x && !!x.then;
             };
 
-            // @ts-igsnore
             if (estUnePromesse(promesse)) {
               promesses[idSuivi] = promesse;
               (promesse as Promise<void>).then(() => {
