@@ -175,57 +175,57 @@ export class ComposanteClientDic<T extends élémentsBd> extends ComposanteClien
 }
 
 export class ComposanteClientListe<T extends élémentsBd> extends ComposanteClient<FeedStore<T>> {
-    constructor({ client, clef }: { client: ClientConstellation; clef: string }) {
-        super({
-            client,
-            clef,
-            typeBd: "feed",
-        });
-    }
-
-    async suivreBdPrincipale({
-      idBd,
-      f,
-      renvoyerValeur,
-    }: {
-      idBd?: string;
-      f: schémaFonctionSuivi<T[]>;
-      renvoyerValeur?: true;
-    }): Promise<schémaFonctionOublier>;
-
-    async suivreBdPrincipale({
-      idBd,
-      f,
-      renvoyerValeur,
-    }: {
-      idBd?: string;
-      f: schémaFonctionSuivi<LogEntry<T>[]>;
-      renvoyerValeur: false;
-    }): Promise<schémaFonctionOublier>;
-
-    @cacheSuivi
-    async suivreBdPrincipale({
-      idBd,
-      f,
-      renvoyerValeur = true,
-    }: {
-      idBd?: string;
-      f: schémaFonctionSuivi<T[] | LogEntry<T>[]>;
-      renvoyerValeur?: boolean;
-    }): Promise<schémaFonctionOublier> {
-      return await this.client.suivreBdDeFonction({
-        fRacine: async ({ fSuivreRacine }) => {
-          return await this.suivreIdBd({ f: fSuivreRacine, idBd });
-        },
-        f: ignorerNonDéfinis(f),
-        fSuivre: async ({ id, fSuivreBd }) => {
-          return await this.client.suivreBdListe({
-            id,
-            f: fSuivreBd,
-            renvoyerValeur: renvoyerValeur,
-          });
-        },
+  constructor({ client, clef }: { client: ClientConstellation; clef: string }) {
+      super({
+          client,
+          clef,
+          typeBd: "feed",
       });
-    }
-    
+  }
+
+  @cacheSuivi
+  async suivreBdPrincipale({
+    idBd,
+    f,
+  }: {
+    idBd?: string;
+    f: schémaFonctionSuivi<T[]>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDeFonction({
+      fRacine: async ({ fSuivreRacine }) => {
+        return await this.suivreIdBd({ f: fSuivreRacine, idBd });
+      },
+      f: ignorerNonDéfinis(f),
+      fSuivre: async ({ id, fSuivreBd }) => {
+        return await this.client.suivreBdListe<T>({
+          id,
+          f: fSuivreBd,
+          renvoyerValeur: true,
+        });
+      },
+    });
+  }
+
+  @cacheSuivi
+  async suivreBdPrincipaleBrute({
+    idBd,
+    f,
+  }: {
+    idBd?: string;
+    f: schémaFonctionSuivi<LogEntry<T>[]>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDeFonction({
+      fRacine: async ({ fSuivreRacine }) => {
+        return await this.suivreIdBd({ f: fSuivreRacine, idBd });
+      },
+      f: ignorerNonDéfinis(f),
+      fSuivre: async ({ id, fSuivreBd }) => {
+        return await this.client.suivreBdListe<T>({
+          id,
+          f: fSuivreBd,
+          renvoyerValeur: false,
+        });
+      },
+    });
+  }
 }

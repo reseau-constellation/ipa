@@ -741,9 +741,8 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
   }
 
   async initialiser(): Promise<void> {
-    this.fOublier = await this.suivreBdPrincipale({
+    this.fOublier = await this.suivreBdPrincipaleBrute({
       f: (autos) => this.mettreAutosÀJour(autos),
-      renvoyerValeur: false,
     });
   }
 
