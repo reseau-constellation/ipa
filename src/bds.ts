@@ -31,6 +31,7 @@ import {
 } from "@/utils/index.js";
 import type { objRôles } from "@/accès/types.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import { ComposanteClientListe } from "@/composanteClient.js";
 
 export interface schémaSpécificationBd {
   licence: string;
@@ -104,18 +105,15 @@ export type infoTableauAvecId = infoTableau & { id: string };
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
-export default class BDs {
-  client: ClientConstellation;
-  idBd: string;
+export default class BDs extends ComposanteClientListe<string> {
 
-  constructor({ client, id }: { client: ClientConstellation; id: string }) {
-    this.client = client;
-    this.idBd = id;
+  constructor({ client }: { client: ClientConstellation }) {
+    super({client, clef: "bds"})
   }
 
   async épingler() {
     await this.client.épingles?.épinglerBd({
-      id: this.idBd,
+      id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
     });
@@ -129,8 +127,7 @@ export default class BDs {
     f: schémaFonctionSuivi<string[]>;
     idBdBdsCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    idBdBdsCompte = idBdBdsCompte || this.idBd;
-    return await this.client.suivreBdListe({ id: idBdBdsCompte, f });
+    return await this.suivreBdPrincipale({ idBd: idBdBdsCompte, f });
   }
 
   async créerBd({
@@ -194,7 +191,7 @@ export default class BDs {
 
     if (ajouter) {
       const { bd: bdRacine, fOublier: fOublierRacine } =
-        await this.client.ouvrirBd<FeedStore<string>>({ id: this.idBd });
+        await this.client.ouvrirBd<FeedStore<string>>({ id: await this.obtIdBd() });
       await bdRacine.add(idBdBd);
       fOublierRacine();
     }
@@ -206,7 +203,7 @@ export default class BDs {
 
   async ajouterÀMesBds({ id }: { id: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
-      id: this.idBd,
+      id: await this.obtIdBd(),
     });
     await bd.add(id);
     await fOublier();
@@ -214,7 +211,7 @@ export default class BDs {
 
   async enleverDeMesBds({ id }: { id: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
-      id: this.idBd,
+      id: await this.obtIdBd(),
     });
     await this.client.effacerÉlémentDeBdListe({ bd, élément: id });
     await fOublier();
@@ -1965,7 +1962,7 @@ export default class BDs {
     // D'abord effacer l'entrée dans notre liste de BDs
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
     await fOublier();
 

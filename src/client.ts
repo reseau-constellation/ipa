@@ -282,68 +282,28 @@ export class ClientConstellation extends EventEmitter {
       else await bdProtocoles.del(idOrbite);
     }
     await fOublierBdProtocoles();
-
+    
     // Bds orbite internes
     this.profil = new Profil({ client: this });
-
-    const idBdBDs = await this.obtIdBd({
-      nom: "bds",
-      racine: this.bdCompte,
-      type: "feed",
-    });
-    this.bds = new BDs({ client: this, id: idBdBDs! });
-
+    
+    this.motsClefs = new MotsClefs({ client: this });
+    
     this.tableaux = new Tableaux({ client: this });
+    
+    this.variables = new Variables({ client: this });
+    
+    this.bds = new BDs({ client: this });
 
-    const idBdVariables = await this.obtIdBd({
-      nom: "variables",
-      racine: this.bdCompte,
-      type: "feed",
-    });
-    this.variables = new Variables({ client: this, id: idBdVariables! });
+    this.projets = new Projets({ client: this });
+    
+    this.nuées = new Nuées({ client: this });
 
-    const idBdRéseau = await this.obtIdBd({
-      nom: "réseau",
-      racine: this.bdCompte,
-      type: "kvstore",
-    });
-    this.réseau = new Réseau({ client: this, id: idBdRéseau! });
+    this.réseau = new Réseau({ client: this });
     await this.réseau.initialiser();
 
-    const idBdFavoris = await this.obtIdBd({
-      nom: "favoris",
-      racine: this.bdCompte,
-      type: "kvstore",
-    });
-    this.favoris = new Favoris({ client: this, id: idBdFavoris! });
+    this.favoris = new Favoris({ client: this });
 
-    const idBdProjets = await this.obtIdBd({
-      nom: "projets",
-      racine: this.bdCompte,
-      type: "feed",
-    });
-    this.projets = new Projets({ client: this, id: idBdProjets! });
-
-    const idBdMotsClefs = await this.obtIdBd({
-      nom: "motsClefs",
-      racine: this.bdCompte,
-      type: "feed",
-    });
-    this.motsClefs = new MotsClefs({ client: this, id: idBdMotsClefs! });
-
-    const idBdAuto = await this.obtIdBd({
-      nom: "automatisations",
-      racine: this.bdCompte,
-      type: "feed",
-    });
-    this.automatisations = new Automatisations({ client: this, id: idBdAuto! });
-
-    const idBdNuées = await this.obtIdBd({
-      nom: "nuées",
-      racine: this.bdCompte,
-      type: "feed",
-    });
-    this.nuées = new Nuées({ client: this, id: idBdNuées! });
+    this.automatisations = new Automatisations({ client: this });
 
     this.recherche = new Recherche({ client: this });
     this.épingler();
@@ -1281,7 +1241,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     idObjet: string;
     f: schémaFonctionSuivi<
-      "motClef" | "variable" | "bd" | "projet" | undefined
+      "motClef" | "variable" | "bd" | "projet" | "nuée" | undefined
     >;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (vals: { [key: string]: string }) => {
@@ -1290,12 +1250,13 @@ export class ClientConstellation extends EventEmitter {
         | "variable"
         | "bd"
         | "projet"
+        | "nuée"
         | undefined;
 
       const { type } = vals;
       if (type) {
-        typeFinal = ["motClef", "variable", "bd", "projet"].includes(type)
-          ? (type as "motClef" | "variable" | "bd" | "projet")
+        typeFinal = ["motClef", "variable", "bd", "projet", "nuée"].includes(type)
+          ? (type as "motClef" | "variable" | "bd" | "projet" | "nuée")
           : undefined;
       } else {
         if (vals.bds) typeFinal = "projet";
@@ -2311,6 +2272,21 @@ export class ClientConstellation extends EventEmitter {
       throw new Error("Sauvegarde non implémenté.");
     }
   }
+
+  /*
+  async rétablirDispositif({
+    stockageLocal,
+  }: {
+    stockageLocal: string;
+  }): Promise<void> {
+    await this.effacerDispositif();
+
+    if (isNode || isElectronMain) {
+    } else {
+    }
+
+    const donnéesStockageLocal = JSON.parse(stockageLocal);
+  }*/
 
   static async créer(
     opts: optsConstellation = {}

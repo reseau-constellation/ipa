@@ -19,6 +19,7 @@ import {
 } from "@/importateur/index.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
+import { ComposanteClientListe } from "@/composanteClient.js";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
@@ -724,36 +725,31 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
 
 const verrou = new Semaphore();
 
-export default class Automatisations extends EventEmitter {
-  client: ClientConstellation;
-  idBd: string;
-
+export default class Automatisations extends ComposanteClientListe<SpécificationAutomatisation> {
   automatisations: { [key: string]: AutomatisationActive };
+  événements: EventEmitter;
+  
   fOublier?: schémaFonctionOublier;
 
-  constructor({ client, id }: { client: ClientConstellation; id: string }) {
-    super();
-
-    this.client = client;
-    this.idBd = id;
+  constructor({ client }: { client: ClientConstellation }) {
+    super({client, clef: "automatisations"});
 
     this.automatisations = {};
+    this.événements = new EventEmitter();
 
     this.initialiser();
   }
 
   async initialiser(): Promise<void> {
-    this.fOublier =
-      await this.client.suivreBdListe<SpécificationAutomatisation>({
-        id: this.idBd,
-        f: (autos) => this.mettreAutosÀJour(autos),
-        renvoyerValeur: false,
-      });
+    this.fOublier = await this.suivreBdPrincipale({
+      f: (autos) => this.mettreAutosÀJour(autos),
+      renvoyerValeur: false,
+    });
   }
 
   async épingler() {
     await this.client.épingles?.épinglerBd({
-      id: this.idBd,
+      id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
     });
@@ -778,7 +774,7 @@ export default class Automatisations extends EventEmitter {
       if (activePourCeDispositif(value, this.client.orbite!.identity.id)) {
         if (!Object.keys(this.automatisations).includes(value.id)) {
           const auto = new AutomatisationActive(value, value.id, this.client);
-          auto.on("misÀJour", () => this.emit("misÀJour"));
+          auto.on("misÀJour", () => this.événements.emit("misÀJour"));
           this.automatisations[value.id] = auto;
         }
       } else {
@@ -913,7 +909,7 @@ export default class Automatisations extends EventEmitter {
     });
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await bd.add(élément);
 
     await fOublier();
@@ -936,7 +932,7 @@ export default class Automatisations extends EventEmitter {
   }): Promise<string> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
 
     dispositif = dispositif || this.client.orbite!.identity.id;
     const id = uuidv4();
@@ -973,7 +969,7 @@ export default class Automatisations extends EventEmitter {
   async annulerAutomatisation({ id }: { id: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       FeedStore<SpécificationAutomatisation>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await this.client.effacerÉlémentDeBdListe({
       bd,
       élément: (é) => é.payload.value.id === id,
@@ -1002,12 +998,11 @@ export default class Automatisations extends EventEmitter {
 
   async suivreAutomatisations({
     f,
-    idRacine,
+    idBdAutomatisations,
   }: {
     f: schémaFonctionSuivi<SpécificationAutomatisation[]>;
-    idRacine?: string;
+    idBdAutomatisations?: string;
   }): Promise<schémaFonctionOublier> {
-    idRacine = idRacine || this.idBd;
     const fFinale = async (autos: SpécificationAutomatisation[]) => {
       const autosFinales = await Promise.all(
         autos.map(async (a) => {
@@ -1045,7 +1040,10 @@ export default class Automatisations extends EventEmitter {
       );
       await f(autosFinales);
     };
-    return await this.client.suivreBdListe({ id: idRacine, f: fFinale });
+    return await this.suivreBdPrincipale({
+      idBd: idBdAutomatisations,
+      f: fFinale
+    });
   }
 
   async suivreÉtatAutomatisations({
@@ -1062,9 +1060,9 @@ export default class Automatisations extends EventEmitter {
         );
       await f(étatsAuto);
     };
-    this.on("misÀJour", fFinale);
+    this.événements.on("misÀJour", fFinale);
     return async () => {
-      this.off("misÀJour", fFinale);
+      this.événements.off("misÀJour", fFinale);
     };
   }
 

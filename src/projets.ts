@@ -19,6 +19,7 @@ import {
   schémaFonctionOublier,
   uneFois,
 } from "@/utils/index.js";
+import { ComposanteClientListe } from "./composanteClient.js";
 
 export interface donnéesProjetExportées {
   docs: { doc: WorkBook; nom: string }[];
@@ -31,18 +32,15 @@ export type typeÉlémentsBdProjet = string | schémaStatut;
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
-export default class Projets {
-  client: ClientConstellation;
-  idBd: string;
+export default class Projets extends ComposanteClientListe<string> {
 
-  constructor({ client, id }: { client: ClientConstellation; id: string }) {
-    this.client = client;
-    this.idBd = id;
+  constructor({ client }: { client: ClientConstellation }) {
+    super({client, clef: "projets"})
   }
 
   async épingler() {
     await this.client.épingles?.épinglerBd({
-      id: this.idBd,
+      id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
     });
@@ -56,13 +54,15 @@ export default class Projets {
     f: schémaFonctionSuivi<string[]>;
     idBdProjets?: string;
   }): Promise<schémaFonctionOublier> {
-    idBdProjets = idBdProjets || this.idBd;
-    return await this.client.suivreBdListe({ id: idBdProjets, f });
+    return await this.suivreBdPrincipale({
+      idBd: idBdProjets,
+      f,
+    });
   }
 
   async créerProjet(): Promise<string> {
     const { bd: bdRacine, fOublier: fOublierRacine } =
-      await this.client.ouvrirBd<FeedStore<string>>({ id: this.idBd });
+      await this.client.ouvrirBd<FeedStore<string>>({ id: await this.obtIdBd() });
     const idBdProjet = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès: {
@@ -190,7 +190,7 @@ export default class Projets {
   async ajouterÀMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await bdRacine.add(idProjet);
     await fOublier();
   }
@@ -198,7 +198,7 @@ export default class Projets {
   async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await this.client.effacerÉlémentDeBdListe({
       bd: bdRacine,
       élément: idProjet,

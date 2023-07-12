@@ -43,6 +43,7 @@ import {
   cacheSuivi,
 } from "@/décorateursCache.js";
 import { v4 as uuidv4 } from "uuid";
+import { ComposanteClientDic } from "./composanteClient.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
@@ -190,10 +191,6 @@ export interface ContenuMessageRejoindreCompte extends ContenuMessage {
 }
 
 export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
-export type typeÉlémentsBdRéseau = {
-  idBdCompte: string;
-  statut: statutConfianceMembre;
-};
 
 const INTERVALE_SALUT = 1000 * 60;
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
@@ -207,9 +204,8 @@ const obtChaîneIdSFIPClient = (client: ClientConstellation): string => {
   return client.idNodeSFIP!.id.toCID().toString();
 };
 
-export default class Réseau extends EventEmitter {
+export default class Réseau extends ComposanteClientDic<statutConfianceMembre> {
   client: ClientConstellation;
-  idBd: string;
   bloquésPrivés: Set<string>;
   _fermé: boolean;
 
@@ -218,18 +214,19 @@ export default class Réseau extends EventEmitter {
   };
 
   fsOublier: schémaFonctionOublier[];
+  événements: EventEmitter;
 
-  constructor({ client, id }: { client: ClientConstellation; id: string }) {
-    super();
+  constructor({ client }: { client: ClientConstellation }) {
+    super({client, clef: "réseau"});
 
     this.client = client;
-    this.idBd = id;
 
     this.bloquésPrivés = new Set();
 
     this.dispositifsEnLigne = {};
     this.fsOublier = [];
     this._fermé = false;
+    this.événements = new EventEmitter();
   }
 
   async initialiser(): Promise<void> {
@@ -259,7 +256,7 @@ export default class Réseau extends EventEmitter {
     const libp2p: Libp2p = this.client.sfip!.libp2p;
 
     const fSuivreConnexions = () => {
-      this.emit("changementConnexions");
+      this.événements.emit("changementConnexions");
     };
 
     const événements: (keyof Libp2pEvents)[] = [
@@ -288,7 +285,7 @@ export default class Réseau extends EventEmitter {
 
   async épingler() {
     await this.client.épingles?.épinglerBd({
-      id: this.idBd,
+      id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
     });
@@ -499,7 +496,7 @@ export default class Réseau extends EventEmitter {
       vuÀ: new Date().getTime(),
     };
 
-    this.emit("membreVu");
+    this.événements.emit("membreVu");
     this._sauvegarderDispositifsEnLigne();
   }
 
@@ -571,7 +568,7 @@ export default class Réseau extends EventEmitter {
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<statutConfianceMembre>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await bd.set(idBdCompte, "FIABLE");
     await fOublier();
   }
@@ -583,7 +580,7 @@ export default class Réseau extends EventEmitter {
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<statutConfianceMembre>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     if (
       Object.keys(ClientConstellation.obtObjetdeBdDic({ bd })).includes(
         idBdCompte
@@ -629,7 +626,7 @@ export default class Réseau extends EventEmitter {
       JSON.parse(bloquésPrivésChaîne).forEach((b: string) =>
         this.bloquésPrivés.add(b)
       );
-      this.emit("changementMembresBloqués");
+      this.événements.emit("changementMembresBloqués");
     }
   }
 
@@ -656,19 +653,19 @@ export default class Réseau extends EventEmitter {
     } else {
       const { bd, fOublier } = await this.client.ouvrirBd<
         KeyValueStore<statutConfianceMembre>
-      >({ id: this.idBd });
+      >({ id: await this.obtIdBd() });
       // Enlever du régistre privé s'il y existe
       await this.débloquerMembre({ idBdCompte });
       await bd.set(idBdCompte, "BLOQUÉ");
       await fOublier();
     }
-    this.emit("changementMembresBloqués");
+    this.événements.emit("changementMembresBloqués");
   }
 
   async débloquerMembre({ idBdCompte }: { idBdCompte: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<
       KeyValueStore<statutConfianceMembre>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     if (
       Object.keys(ClientConstellation.obtObjetdeBdDic({ bd })).includes(
         idBdCompte
@@ -683,7 +680,7 @@ export default class Réseau extends EventEmitter {
       this.bloquésPrivés.delete(idBdCompte);
       await this._sauvegarderBloquésPrivés();
     }
-    this.emit("changementMembresBloqués");
+    this.événements.emit("changementMembresBloqués");
   }
 
   @cacheSuivi
@@ -694,8 +691,6 @@ export default class Réseau extends EventEmitter {
     f: schémaFonctionSuivi<string[]>;
     idBdCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    idBdCompte = idBdCompte || this.client.idBdCompte!;
-
     const fFinale = async (membres: {
       [key: string]: statutConfianceMembre;
     }): Promise<void> => {
@@ -705,11 +700,10 @@ export default class Réseau extends EventEmitter {
       await f(bloqués);
     };
 
-    return await this.client.suivreBdDicDeClef<statutConfianceMembre>({
-      id: idBdCompte,
-      clef: "réseau",
+    return await this.suivreBdPrincipale({
+      idBd: idBdCompte,
       f: fFinale,
-    });
+    })
   }
 
   @cacheSuivi
@@ -753,9 +747,9 @@ export default class Réseau extends EventEmitter {
 
     if (idBdCompte === this.client.idBdCompte) {
       await this._initaliserBloquésPrivés();
-      this.on("changementMembresBloqués", fFinale);
+      this.événements.on("changementMembresBloqués", fFinale);
       fsOublier.push(async () => {
-        this.off("changementMembresBloqués", fFinale);
+        this.événements.off("changementMembresBloqués", fFinale);
       });
       fFinale();
     }
@@ -1301,11 +1295,11 @@ export default class Réseau extends EventEmitter {
       );
     };
 
-    this.on("changementConnexions", fFinale);
+    this.événements.on("changementConnexions", fFinale);
     fFinale();
 
     const oublier = async () => {
-      this.off("changementConnexions", fFinale);
+      this.événements.off("changementConnexions", fFinale);
     };
     return oublier;
   }
@@ -1320,11 +1314,11 @@ export default class Réseau extends EventEmitter {
       await f(Object.values(this.dispositifsEnLigne));
     };
 
-    this.on("membreVu", fFinale);
+    this.événements.on("membreVu", fFinale);
     await fFinale();
 
     const oublier = async () => {
-      this.off("membreVu", fFinale);
+      this.événements.off("membreVu", fFinale);
     };
     return oublier;
   }

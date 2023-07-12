@@ -10,21 +10,20 @@ import type { objRôles } from "@/accès/types.js";
 import ClientConstellation from "@/client.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { cacheSuivi } from "@/décorateursCache.js";
+import { ComposanteClientListe } from "@/composanteClient.js";
 
 type typeÉlémentsBdMotClef = string;
 
-export default class MotsClefs {
-  client: ClientConstellation;
-  idBd: string;
+export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMotClef> {
 
-  constructor({ client, id }: { client: ClientConstellation; id: string }) {
-    this.client = client;
-    this.idBd = id;
+  constructor({ client }: { client: ClientConstellation }) {
+    super({client, clef: "motsClefs"});
   }
 
   async épingler() {
+    const idBd = await this.obtIdBd();
     await this.client.épingles?.épinglerBd({
-      id: this.idBd,
+      id: idBd,
       récursif: false,
       fichiers: false,
     });
@@ -38,8 +37,7 @@ export default class MotsClefs {
     f: schémaFonctionSuivi<string[]>;
     idBdMotsClefs?: string;
   }): Promise<schémaFonctionOublier> {
-    idBdMotsClefs = idBdMotsClefs || this.idBd;
-    return await this.client.suivreBdListe<string>({ id: idBdMotsClefs, f });
+    return await this.suivreBdPrincipale({ idBd: idBdMotsClefs, f});
   }
 
   async créerMotClef(): Promise<string> {
@@ -85,7 +83,7 @@ export default class MotsClefs {
     idMotClef: string;
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
-      id: this.idBd,
+      id: await this.obtIdBd(),
     });
     await bd.add(idMotClef);
     await fOublier();
@@ -98,7 +96,7 @@ export default class MotsClefs {
   }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await this.client.effacerÉlémentDeBdListe({
       bd: bdRacine,
       élément: idMotClef,

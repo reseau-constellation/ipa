@@ -46,6 +46,7 @@ import {
   type InfoColAvecCatégorie,
   type élémentBdListeDonnées,
 } from "@/tableaux.js";
+import { ComposanteClientListe } from "./composanteClient.js";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
@@ -62,18 +63,15 @@ export type statutMembreNuée = {
 
 export type typeÉlémentsBdNuée = string | schémaStatut;
 
-export default class Nuée {
-  client: ClientConstellation;
-  idBd: string;
+export default class Nuée extends ComposanteClientListe<string> {
 
-  constructor({ client, id }: { client: ClientConstellation; id: string }) {
-    this.client = client;
-    this.idBd = id;
+  constructor({ client }: { client: ClientConstellation }) {
+    super({client, clef: "nuées"})
   }
 
   async épingler() {
     await this.client.épingles?.épinglerBd({
-      id: this.idBd,
+      id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
     });
@@ -157,7 +155,7 @@ export default class Nuée {
 
   async ajouterÀMesNuées({ id }: { id: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
-      id: this.idBd,
+      id: await this.obtIdBd(),
     });
     await bd.add(id);
     await fOublier();
@@ -166,7 +164,7 @@ export default class Nuée {
   async enleverDeMesNuées({ id }: { id: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
     await fOublier();
   }
@@ -273,8 +271,10 @@ export default class Nuée {
     f: schémaFonctionSuivi<string[]>;
     idBdNuéesCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    idBdNuéesCompte = idBdNuéesCompte || this.idBd;
-    return await this.client.suivreBdListe({ id: idBdNuéesCompte, f });
+    return await this.suivreBdPrincipale({
+      f,
+      idBd: idBdNuéesCompte,
+    });
   }
 
   async suivreDeParents<T>({
@@ -2363,7 +2363,7 @@ export default class Nuée {
     // D'abord effacer l'entrée dans notre liste de BDs
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
     await fOublier();
 

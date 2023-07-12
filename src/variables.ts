@@ -20,6 +20,7 @@ import {
   schémaFonctionOublier,
   schémaStatut,
 } from "@/utils/index.js";
+import { ComposanteClientListe } from "./composanteClient.js";
 
 export type catégorieBaseVariables =
   | "numérique"
@@ -46,18 +47,15 @@ export type catégorieVariables =
 
 export type typeÉlémentsBdVariable = string | catégorieVariables | schémaStatut;
 
-export default class Variables {
-  client: ClientConstellation;
-  idBd: string;
+export default class Variables extends ComposanteClientListe<string> {
 
-  constructor({ client, id }: { client: ClientConstellation; id: string }) {
-    this.client = client;
-    this.idBd = id;
+  constructor({ client }: { client: ClientConstellation }) {
+    super({client, clef: "variables"})
   }
 
   async épingler() {
     await this.client.épingles?.épinglerBd({
-      id: this.idBd,
+      id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
     });
@@ -71,8 +69,7 @@ export default class Variables {
     f: schémaFonctionSuivi<string[]>;
     idBdVariables?: string;
   }): Promise<schémaFonctionOublier> {
-    idBdVariables = idBdVariables || this.idBd;
-    return await this.client.suivreBdListe<string>({ id: idBdVariables, f });
+    return await this.suivreBdPrincipale({ idBd: idBdVariables, f });
   }
 
   async créerVariable({
@@ -134,7 +131,7 @@ export default class Variables {
 
   async ajouterÀMesVariables({ id }: { id: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
-      id: this.idBd,
+      id: await this.obtIdBd(),
     });
     await bd.add(id);
     await fOublier();
@@ -143,7 +140,7 @@ export default class Variables {
   async enleverDeMesVariables({ id }: { id: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
       FeedStore<string>
-    >({ id: this.idBd });
+    >({ id: await this.obtIdBd() });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
     await fOublier();
   }

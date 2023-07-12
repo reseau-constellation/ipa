@@ -833,13 +833,15 @@ export default class Tableaux {
     );
 
     const idsOrbiteColsChaîne: Set<string> = new Set(
-      donnéesExistantes?.map(
-        d => {
-          return colonnes.filter(c => c.catégorie?.catégorie === 'chaîne').map(
-            c => c.catégorie?.type === 'simple' ? [d[c.id]] : d[c.id]
-          ).flat().filter(x=>typeof x === 'string') as string[]
-        }
-      ).flat() || []
+      donnéesExistantes
+        ?.map((d) => {
+          return colonnes
+            .filter((c) => c.catégorie?.catégorie === "chaîne")
+            .map((c) => (c.catégorie?.type === "simple" ? [d[c.id]] : d[c.id]))
+            .flat()
+            .filter((x) => typeof x === "string") as string[];
+        })
+        .flat() || []
     );
 
     const fichiersDéjàAjoutés: {
@@ -982,13 +984,13 @@ export default class Tableaux {
         }
 
         case "horoDatage": {
-          if (conversion?.type === "horoDatage" && typeof val === 'string') {
+          if (conversion?.type === "horoDatage" && typeof val === "string") {
             const { système, format } = conversion;
-            const date = cholqij.lireDate({système, val, format})
+            const date = cholqij.lireDate({ système, val, format });
             return {
               système: "dateJS",
-              val: date.valueOf()
-            }
+              val: date.valueOf(),
+            };
           } else {
             if (["number", "string"].includes(typeof val)) {
               const date = new Date(val as string | number);
@@ -1060,10 +1062,10 @@ export default class Tableaux {
           if (type === "simple") {
             file[c.id] = await convertir({ val, catégorie, conversion });
           } else {
-            const valListe = typeof val === 'string' ? JSON.parse(val) : val
+            const valListe = typeof val === "string" ? JSON.parse(val) : val;
             file[c.id] = Array.isArray(valListe)
               ? await Promise.all(
-                valListe.map(
+                  valListe.map(
                     async (v) =>
                       await convertir({ val: v, catégorie, conversion })
                   )
@@ -1100,7 +1102,7 @@ export default class Tableaux {
       données,
       conversions,
       cheminBaseFichiers,
-      donnéesExistantes: donnéesTableau.map(x=>x.données)
+      donnéesExistantes: donnéesTableau.map((x) => x.données),
     });
 
     const nouveaux: élémentBdListeDonnées[] = [];
