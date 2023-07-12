@@ -831,9 +831,9 @@ export class ClientConstellation extends EventEmitter {
             const promesse = f(bd);
 
             const estUnePromesse = (
-              x: any | Promise<void> // eslint-disable-line @typescript-eslint/no-explicit-any
+              x: unknown,
             ): x is Promise<void> => {
-              return x && !!x.then;
+              return !!x && !!(x as Promise<void>).then;
             };
 
             if (estUnePromesse(promesse)) {
