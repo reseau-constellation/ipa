@@ -1418,7 +1418,7 @@ typesClients.forEach((type) => {
               // Désactiver
             };
             c.réseau!.dispositifsEnLigne = {};
-            c.réseau!.emit("membreVu");
+            c.réseau!.événements.emit("membreVu");
           }
 
           await résMembresEnLigne.attendreQue((x) => !!x && !x.length);
