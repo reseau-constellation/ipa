@@ -1,5 +1,3 @@
-import type FeedStore from "orbit-db-feedstore";
-import type KeyValueStore from "orbit-db-kvstore";
 import { v4 as uuidv4 } from "uuid";
 
 import ClientConstellation from "@/client.js";
@@ -21,6 +19,7 @@ import {
   schémaStatut,
 } from "@/utils/index.js";
 import { ComposanteClientListe } from "./composanteClient.js";
+import { JSONSchemaType } from "ajv";
 
 export type catégorieBaseVariables =
   | "numérique"
@@ -45,7 +44,41 @@ export type catégorieVariables =
       catégorie: catégorieBaseVariables;
     };
 
-export type typeÉlémentsBdVariable = string | catégorieVariables | schémaStatut;
+export type structureBdVariable = {
+  type: string,
+  catégorie: catégorieVariables,
+  noms: string,
+  descriptions: string,
+  règles: string,
+  statut: schémaStatut
+};
+
+const schémaStructureBdVariable: JSONSchemaType<structureBdVariable> = {
+  type: "object",
+  properties: {
+    type: {type: "string"},
+    catégorie: {
+      type: "object",
+      properties: {
+        catégorie: {type: "string"},
+        type: {type: "string"}
+      },
+      required: ["catégorie", "type"]
+    },
+    noms: {type: "string"},
+    descriptions: {type: "string"},
+    règles: {type: "string"},
+    statut: {
+      type: "object",
+      properties: {
+        idNouvelle: {type: "string", nullable: true},
+        statut: {type: "string"},
+      },
+      required: ['statut']
+    },
+  },
+  required: ["type", "catégorie", "statut"]
+}
 
 export default class Variables extends ComposanteClientListe<string> {
 
@@ -87,8 +120,10 @@ export default class Variables extends ComposanteClientListe<string> {
     await this.ajouterÀMesVariables({ id: idBdVariable });
 
     const { bd: bdVariable, fOublier: fOublierVariable } =
-      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>({
+      await this.client.ouvrirBd({
         id: idBdVariable,
+        type: 'keyvalue',
+        schéma: schémaStructureBdVariable
       });
 
     const accès = bdVariable.access as unknown as ContrôleurConstellation;
@@ -130,33 +165,35 @@ export default class Variables extends ComposanteClientListe<string> {
   }
 
   async ajouterÀMesVariables({ id }: { id: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd<string>({
       id: await this.obtIdBd(),
+      type: "feed",
     });
     await bd.add(id);
     await fOublier();
   }
 
   async enleverDeMesVariables({ id }: { id: string }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >({ id: await this.obtIdBd() });
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({ 
+      id: await this.obtIdBd(),
+      type: "feed"
+    });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
     await fOublier();
   }
 
   async copierVariable({ id }: { id: string }): Promise<string> {
-    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdVariable>
-    >({ id });
+    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({ 
+      id, type: "keyvalue", schéma: schémaStructureBdVariable 
+    });
     const catégorie = bdBase.get("catégorie") as
       | catégorieVariables
       | catégorieBaseVariables;
 
     const idNouvelleBd = await this.créerVariable({ catégorie });
     const { bd: bdNouvelle, fOublier: fOublierNouvelle } =
-      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdVariable>>({
-        id: idNouvelleBd,
+      await this.client.ouvrirBd({
+        id: idNouvelleBd, type: "keyvalue", schéma: schémaStructureBdVariable 
       });
 
     const idBdNoms = bdBase.get("noms") as string;

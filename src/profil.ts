@@ -9,14 +9,15 @@ import {
 } from "@/utils/index.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "@/composanteClient.js";
-import FeedStore from "orbit-db-feedstore";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
-export type typeÉlémentsBdProfil = string;
+type structureBdProfil = {
+  image?: string;
+}
 
-export default class Profil extends ComposanteClientDic<typeÉlémentsBdProfil> {
+export default class Profil extends ComposanteClientDic<structureBdProfil> {
 
   constructor({ client }: { client: ClientConstellation }) {
     super({client, clef: "compte"});
@@ -92,9 +93,10 @@ export default class Profil extends ComposanteClientDic<typeÉlémentsBdProfil> 
     }
 
     const { bd, fOublier } = await this.client.ouvrirBd<
-      FeedStore<{ type: string; contact: string }>
+      { type: string; contact: string }
     >({
       id: idBdContacts,
+      type: "feed",
     });
     await bd.add({ type, contact });
     await fOublier();
@@ -120,9 +122,10 @@ export default class Profil extends ComposanteClientDic<typeÉlémentsBdProfil> 
     }
 
     const { bd, fOublier } = await this.client.ouvrirBd<
-      FeedStore<{ type: string; contact: string }>
+      { type: string; contact: string }
     >({
       id: idBdContacts,
+      type: "feed",
     });
     this.client.effacerÉlémentsDeBdListe({
       bd,
@@ -175,8 +178,9 @@ export default class Profil extends ComposanteClientDic<typeÉlémentsBdProfil> 
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd<{[langue: string]: string}>({
       id: idBdNoms,
+      type: "kvstore",
     });
     for (const [langue, nom] of Object.entries(noms)) {
       await bd.set(langue, nom);
@@ -197,8 +201,9 @@ export default class Profil extends ComposanteClientDic<typeÉlémentsBdProfil> 
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd<{[langue: string]: string}>({
       id: idBdNoms,
+      type: "kvstore"
     });
     await bd.del(langue);
     await fOublier();
@@ -243,7 +248,7 @@ export default class Profil extends ComposanteClientDic<typeÉlémentsBdProfil> 
       fSuivre: async ({ id, fSuivreBd }) => {
         return await this.client.suivreBd({
           id,
-          f: async (bd: KeyValueStore<typeÉlémentsBdProfil>) => {
+          f: async (bd: KeyValueStore<structureBdProfil>) => {
             const idImage = bd.get("image");
             if (!idImage) {
               await fSuivreBd(null);

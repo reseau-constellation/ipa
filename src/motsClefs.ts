@@ -1,6 +1,3 @@
-import type FeedStore from "orbit-db-feedstore";
-import type KeyValueStore from "orbit-db-kvstore";
-
 import type {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -11,10 +8,24 @@ import ClientConstellation from "@/client.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
+import { JSONSchemaType } from "ajv";
 
-type typeÉlémentsBdMotClef = string;
+type structureBdMotClef = {
+  type: string;
+  noms: string;
+  descriptions: string;
+};
+const schémaBdMotClef: JSONSchemaType<structureBdMotClef> = {
+  type: "object",
+  properties: {
+    type: {type: "string"},
+    noms: {type: "string"},
+    descriptions: {type: "string"}
+  },
+  required: ["type", "noms", "descriptions"]
+}
 
-export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMotClef> {
+export default class MotsClefs extends ComposanteClientListe<string> {
 
   constructor({ client }: { client: ClientConstellation }) {
     super({client, clef: "motsClefs"});
@@ -52,8 +63,10 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
     await this.ajouterÀMesMotsClefs({ idMotClef });
 
     const { bd: bdMotClef, fOublier: fOublierMotClef } =
-      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdMotClef>>({
+      await this.client.ouvrirBd<structureBdMotClef>({
         id: idMotClef,
+        type: "kvstore",
+        schéma: schémaBdMotClef
       });
 
     const accès = bdMotClef.access as unknown as ContrôleurConstellation;
@@ -82,8 +95,9 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd<string>({
       id: await this.obtIdBd(),
+      type: "feed",
     });
     await bd.add(idMotClef);
     await fOublier();
@@ -94,9 +108,7 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >({ id: await this.obtIdBd() });
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({ id: await this.obtIdBd(), type: "feed" });
     await this.client.effacerÉlémentDeBdListe({
       bd: bdRacine,
       élément: idMotClef,
@@ -105,16 +117,14 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
   }
 
   async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
-    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idMotClef });
+    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({ id: idMotClef, type: "keyvalue", schéma: schémaBdMotClef });
 
     const idNouveauMotClef = await this.créerMotClef();
 
     const idBdNoms = bdBase.get("noms");
     const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
+      structureBdMotClef
+    >({ id: idBdNoms, type: "keyvalue" });
     const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
       [key: string]: string;
     };
@@ -122,8 +132,9 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
 
     const idBdDescriptions = bdBase.get("descriptions");
     const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
-      await this.client.ouvrirBd<KeyValueStore<string>>({
+      await this.client.ouvrirBd<{[langue: string]: string}>({
         id: idBdDescriptions,
+        type: "keyvalue"
       });
     const descriptions = ClientConstellation.obtObjetdeBdDic({
       bd: bdDescriptions,
@@ -176,8 +187,8 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
+      {[langue: string]: string}
+    >({ id: idBdNoms, type: "keyvalue" });
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
@@ -205,8 +216,8 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
+      {[langue: string]: string}
+    >({ id: idBdNoms, type: "keyvalue" });
     await bdNoms.set(langue, nom);
     await fOublier();
   }
@@ -230,8 +241,8 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
     }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
+      {[langue: string]: string}
+    >({ id: idBdNoms, type: "keyvalue" });
     await bdNoms.del(langue);
     await fOublier();
   }
@@ -270,8 +281,8 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
     }
 
     const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdDescriptions });
+      {[langue: string]: string}
+    >({ id: idBdDescriptions, type: "keyvalue" });
     for (const lng in descriptions) {
       await bdDescriptions.set(lng, descriptions[lng]);
     }
@@ -299,8 +310,8 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
     }
 
     const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdDescriptions });
+      {[langue: string]: string}
+    >({ id: idBdDescriptions, type: "keyvalue" });
     await bdDescriptions.set(langue, description);
     await fOublier();
   }
@@ -324,8 +335,8 @@ export default class MotsClefs extends ComposanteClientListe<typeÉlémentsBdMot
     }
 
     const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdDescriptions });
+     {[langue: string]: string}
+    >({ id: idBdDescriptions, type: "keyvalue" });
     await bdDescriptions.del(langue);
     await fOublier();
   }

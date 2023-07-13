@@ -21,7 +21,7 @@ export enum TYPES_STATUT {
   OBSOLÈTE = "obsolète",
 }
 
-export interface schémaStatut {
+export type schémaStatut = {
   statut: TYPES_STATUT;
   idNouvelle?: string;
 }
