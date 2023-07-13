@@ -72,7 +72,7 @@ les données les plus récentes. Comme règle générale, le plus longtemps le n
 le plus de connexions et de données il obtiendra.
 
 Vous pouvez donc lancer votre nœud local à l'aide de la ligne de commande. Vous pouvez utiliser
-n'importe quel port libre (ici 5001). Vous pouvez le laisser rouler aussi longtemps que vous voudrez,
+n'importe quel port libre (ici `5001`). Vous pouvez le laisser rouler aussi longtemps que vous voudrez,
 il y se synchronisera automatiquement avec le réseau Constellation.
 Tout client pyConstellation que vous lancerez en même temps obtiendra ainsi les données les plus
 à jour disponibles.
@@ -89,7 +89,7 @@ mettre_constellation_à_jour()
 
 Vous pourrez ensuite invoquer le serveur Constellation ainsi :
 ```shell
-constl lancer --port 5001 -b
+$ constl lancer --port 5001 -b
 ```
 
 Vous ne savez pas quel port mettre ? Lancez tout simplement `constl lancer` et puis Constellation
@@ -139,7 +139,7 @@ with Serveur():
     client = ClientSync()
 
     client.profil.sauvegarder_nom(langue="fr", nom="moi !")
-    client.bds.créer_bd(licence="ODbl-1.0")
+    client.bds.créer_bd(licence="ODbl-1_0")
 
 ```
 
@@ -173,27 +173,14 @@ with Serveur():
 
 **Quelques points importants**
 
-* Les fonctions plus obscures qui prennent plus qu'une autre fonction comme argument (p.
-  ex. `client.suivreBdDeFonction`) ne fonctionnent pas avec le client Python. Ne vous en faites pas. Elles sont obscures
-  pour une raison. Laissez-les en paix. Vous avez amplement de quoi vous amuser avec le reste de l'IPA.
-* Vous **devez** utiliser des paramètres nommés (p. ex., `client.bds.créerBd(licence="ODbl-1.0")`). Si vous ne le
-  faites pas (`client.bds.créerBd("ODbl-1.0")`), ça va vous créer des ennuis. Les noms des paramètres doivent être
-  les mêmes que dans l'IPA Constellation JavaScript (p. ex., l'exemple précédent provient de la version JavaSCript 
-  `client.bds.créerBd({ licence: "ODbl-1.0" })`).
-* Avec le client synchrone, les fonctions de suivi (voir ci-dessous) doivent être appelées avec une fonction vide (p.
-  ex., `lambda: pass` ou bien tout simplement `fais_rien`) à la place de la fonction de suivi.
-* Vous vous demandez où trouver tous ces drôles de « id tableau » pour les bases de données qui vous intéressent ? Il
-  s'agit de l'identifiant unique d'un tableau ou d'une base de données, que vous pouvez récupérer lorsque vous créez la
-  base de données, ou bien visuellement avec
-  l'[appli Constellation](https://reseau-constellation.github.io/constellation)
-  (recherchez l'icône lien 🔗).
+* Les fonctions plus obscures qui prennent plus qu'une autre fonction comme argument (p. ex. `client.suivreBdDeFonction`) ne fonctionnent pas avec le client Python. Ne vous en faites pas. Elles sont obscures pour une raison. Laissez-les en paix. Vous avez amplement de quoi vous amuser avec le reste de l'IPA.
+* Vous **devez** utiliser des paramètres nommés (p. ex., `client.bds.créerBd(licence="ODbl-1_0")`). Si vous ne le faites pas (`client.bds.créerBd("ODbl-1_0")`), ça va vous créer des ennuis. Les noms des paramètres doivent être les mêmes que dans l'IPA Constellation JavaScript (p. ex., l'exemple précédent provient de la version JavaSCript `client.bds.créerBd({ licence: "ODbl-1_0" })`).
+* Avec le client synchrone, les fonctions de suivi (voir ci-dessous) doivent être appelées avec une fonction vide (p. ex., `lambda: pass` ou bien tout simplement `fais_rien`) à la place de la fonction de suivi.
+* Vous vous demandez où trouver tous ces drôles de « id tableau » pour les bases de données qui vous intéressent ? Il s'agit de l'identifiant unique d'un tableau ou d'une base de données, que vous pouvez récupérer lorsque vous créez la base de données, ou bien visuellement avec l'[appli Constellation](https://reseau-constellation.github.io/constellation) (recherchez l'icône lien 🔗).
 
 #### Fonctions de suivi
 
-Constellation, dans sa version asynchrone JavaScript, offre des fonctions qui, plutôt que de rendre le résultat
-immédiatement, *suivent* le résultat à travers le temps et vous notifient (selon une fonction que vous choisissez)
-chaque fois que le résultat change. La grande majorité des fonctions utiles de l'IPA de Constellation (p.
-ex., `client.tableaux.suivreDonnées`) sont de ce genre.
+Constellation, dans sa version asynchrone JavaScript, offre des fonctions qui, plutôt que de rendre le résultat immédiatement, *suivent* le résultat à travers le temps et vous notifient (selon une fonction que vous choisissez) chaque fois que le résultat change. La grande majorité des fonctions utiles de l'IPA de Constellation (p. ex., `client.tableaux.suivreDonnées`) sont de ce genre.
 
 Évidemment, ce comportement n'est pas util dans un programme synchrone. Le client synchrone `ClientSync`
 s'occupe donc de vous rendre le résultat, sans tracas. Il vous suffira de passer une fonction vide là où la fonction

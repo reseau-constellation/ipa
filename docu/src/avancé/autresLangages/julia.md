@@ -11,7 +11,7 @@ pkg> add Constellation
 ```
 
 ## Utilisation
-Vous pouvez accéder à toutes les fonctions de Constellation de type action ou suivi avec le client Julia. Les actions sont les fonctions qui vous redonnent immédiatement une valeur, tandis que les [fonctions de suivi](../../ipa/introduction.md#quelques-concepts) sont celles qui écoutent pour des changements du réseau et vous renvoient les nouvelles données en temps réel, au fur et à mesure qu'elles changent.
+Vous pouvez accéder à toutes les fonctions de Constellation de type action ou suivi avec le client Julia. Les actions sont les fonctions qui vous redonnent immédiatement une valeur, tandis que les [fonctions de suivi](../../ipa/introduction.md#quelques-concepts) sont celles qui écoutent des changements du réseau et vous renvoient les nouvelles données en temps réel, au fur et à mesure qu'elles changent.
 
 ### Initialisation
 Vous devrez d'abord initialiser un nœud Constellation local sur votre machine. Vous pouvez le lancer manuellement à travers l'interface, ou bien le lancer directement en Julia :
