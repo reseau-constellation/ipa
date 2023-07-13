@@ -19,15 +19,11 @@ export default async function initOrbite({
   dossierOrbite?: string;
 }): Promise<OrbitDB> {
   let dossierOrbiteFinal: string | undefined = dossierOrbite;
-  if (isElectronMain) {
-    const electron = await import("electron");
-    const path = await import("path");
-    dossierOrbiteFinal =
-      dossierOrbite ||
-      path.join(electron.default.app.getPath("userData"), "orbite");
-  } else if (isNode) {
+  if (isElectronMain || isNode) {
     const path = await import("path");
     dossierOrbiteFinal = dossierOrbite || path.join(".", "orbite");
+  } else {
+    dossierOrbiteFinal = dossierOrbite || "./orbite"
   }
 
   return await OrbitDB.createInstance(sfip, {
