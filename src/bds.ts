@@ -7,7 +7,7 @@ import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
-import { schémaStatut, TYPES_STATUT, élémentsBd } from "@/utils/types.js";
+import { schémaStatut, schémaStructureBdNoms, TYPES_STATUT, élémentsBd } from "@/utils/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import type {
@@ -144,13 +144,30 @@ export type différenceTableauxBds<
 
 export type infoTableauAvecId = infoTableau & { id: string };
 
+export const schémaInfoTableauAvecId: JSONSchemaType<infoTableauAvecId> = {
+  type: "object",
+  properties: {
+    clef: {type: "string"},
+    id: {type: "string"},
+    position: {type: "integer"}
+  },
+  required: ["clef", "id", "position"]
+}
+export const schémaBdTableauxDeBd: JSONSchemaType<{[idTableau: string]: infoTableauAvecId}> = {
+  type: "object",
+  additionalProperties: schémaInfoTableauAvecId,
+  required: [],
+}
+
+const schémaBdPrincipale: JSONSchemaType<string>  = {type: "string"}
+
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
 export default class BDs extends ComposanteClientListe<string> {
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "bds"})
+    super({client, clef: "bds", schémaBdPrincipale})
   }
 
   async épingler() {
@@ -464,6 +481,7 @@ export default class BDs extends ComposanteClientListe<string> {
     return await this.client.suivreBdListeDeClef({
       id: idBd,
       clef: "nuées",
+      schéma: {type: "string"},
       f,
     });
   }
@@ -1481,7 +1499,7 @@ export default class BDs extends ComposanteClientListe<string> {
     id: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id, clef: "noms", f });
+    return await this.client.suivreBdDicDeClef({ id, clef: "noms", schéma: schémaStructureBdNoms, f });
   }
 
   @cacheSuivi
@@ -1492,7 +1510,7 @@ export default class BDs extends ComposanteClientListe<string> {
     id: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id, clef: "descriptions", f });
+    return await this.client.suivreBdDicDeClef({ id, clef: "descriptions", schéma: schémaStructureBdNoms, f });
   }
 
   @cacheSuivi
@@ -1503,7 +1521,7 @@ export default class BDs extends ComposanteClientListe<string> {
     id: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdListeDeClef({ id, clef: "motsClefs", f });
+    return await this.client.suivreBdListeDeClef({ id, clef: "motsClefs", schéma: {type: "string"}, f });
   }
 
   @cacheSuivi
@@ -1528,6 +1546,7 @@ export default class BDs extends ComposanteClientListe<string> {
     return await this.client.suivreBdDicDeClef({
       id,
       clef: "tableaux",
+      schéma: schémaBdTableauxDeBd,
       f: fFinale,
     });
   }

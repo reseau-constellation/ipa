@@ -1,4 +1,3 @@
-import type KeyValueStore from "orbit-db-kvstore";
 import OrbitDB from "orbit-db";
 
 import type { PeersResult } from "ipfs-core-types/src/swarm";
@@ -10,7 +9,7 @@ import sum from "lodash/sum.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import ClientConstellation, { Signature, infoAccès } from "@/client.js";
+import ClientConstellation, { Signature, infoAccès, schémaStructureBdCompte } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -44,6 +43,7 @@ import {
 } from "@/décorateursCache.js";
 import { v4 as uuidv4 } from "uuid";
 import { ComposanteClientDic } from "./composanteClient.js";
+import { JSONSchemaType } from "ajv";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
@@ -192,6 +192,18 @@ export interface ContenuMessageRejoindreCompte extends ContenuMessage {
 
 export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
 
+type structureBdPrincipaleRéseau = {
+  [idCompte: string]: statutConfianceMembre
+}
+
+const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> = {
+  type: "object",
+  additionalProperties: {
+    type: "string",
+  },
+  required: [],
+}
+
 const INTERVALE_SALUT = 1000 * 60;
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
 const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
@@ -204,7 +216,7 @@ const obtChaîneIdSFIPClient = (client: ClientConstellation): string => {
   return client.idNodeSFIP!.id.toCID().toString();
 };
 
-export default class Réseau extends ComposanteClientDic<statutConfianceMembre> {
+export default class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: ClientConstellation;
   bloquésPrivés: Set<string>;
   _fermé: boolean;
@@ -217,7 +229,7 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
   événements: EventEmitter;
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "réseau"});
+    super({client, clef: "réseau", schémaBdPrincipale: schémaBdPrincipaleRéseau});
 
     this.client = client;
 
@@ -261,9 +273,9 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
 
     const événements: (keyof Libp2pEvents)[] = [
       "peer:discovery",
-      // @ts-ignore
+      // @ts-expect-error erreur dans les types SFIP
       "peer:connect",
-      // @ts-ignore
+      // @ts-expect-error erreur dans les types SFIP
       "peer:disconnect",
     ];
     for (const é of événements) {
@@ -566,9 +578,7 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
   }: {
     idBdCompte: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<statutConfianceMembre>
-    >({ id: await this.obtIdBd() });
+    const { bd, fOublier } = await this.obtBd();
     await bd.set(idBdCompte, "FIABLE");
     await fOublier();
   }
@@ -578,9 +588,7 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
   }: {
     idBdCompte: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<statutConfianceMembre>
-    >({ id: await this.obtIdBd() });
+    const { bd, fOublier } = await this.obtBd();
     if (
       Object.keys(ClientConstellation.obtObjetdeBdDic({ bd })).includes(
         idBdCompte
@@ -600,8 +608,7 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
     f: schémaFonctionSuivi<string[]>;
     idBdCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    idBdCompte = idBdCompte || this.client.idBdCompte!;
-
+    
     const fFinale = async (membres: {
       [key: string]: statutConfianceMembre;
     }): Promise<void> => {
@@ -610,11 +617,10 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
       );
       await f(fiables);
     };
-
-    return await this.client.suivreBdDicDeClef<statutConfianceMembre>({
-      id: idBdCompte,
-      clef: "réseau",
-      f: fFinale,
+    
+    return await this.suivreBdPrincipale({
+      idBd: idBdCompte,
+      f: fFinale
     });
   }
 
@@ -651,9 +657,7 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
       this.bloquésPrivés.add(idBdCompte);
       await this._sauvegarderBloquésPrivés();
     } else {
-      const { bd, fOublier } = await this.client.ouvrirBd<
-        KeyValueStore<statutConfianceMembre>
-      >({ id: await this.obtIdBd() });
+      const { bd, fOublier } = await this.obtBd();
       // Enlever du régistre privé s'il y existe
       await this.débloquerMembre({ idBdCompte });
       await bd.set(idBdCompte, "BLOQUÉ");
@@ -663,9 +667,7 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
   }
 
   async débloquerMembre({ idBdCompte }: { idBdCompte: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<statutConfianceMembre>
-    >({ id: await this.obtIdBd() });
+    const { bd, fOublier } = await this.obtBd();
     if (
       Object.keys(ClientConstellation.obtObjetdeBdDic({ bd })).includes(
         idBdCompte
@@ -828,9 +830,10 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
     );
 
     fsOublier.push(
-      await this.client.suivreBdDicDeClef<statutConfianceMembre>({
+      await this.client.suivreBdDicDeClef({
         id: idBdCompte,
         clef: "réseau",
+        schéma: schémaBdPrincipaleRéseau,
         f: (membres: { [key: string]: statutConfianceMembre }) => {
           comptes.suivis = Object.entries(membres)
             .filter(([_, statut]) => statut === "FIABLE")
@@ -1402,9 +1405,10 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
     idCompte?: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef<string[]>({
+    return await this.client.suivreBdDicDeClef({
       id: idCompte || (await this.client.obtIdCompte()),
       clef: "protocoles",
+      schéma: schémaStructureBdCompte,
       f: async (protocoles) => await f(Object.keys(protocoles)),
     });
   }
@@ -1444,10 +1448,9 @@ export default class Réseau extends ComposanteClientDic<statutConfianceMembre> 
       id: string;
       fSuivreBd: schémaFonctionSuivi<{ [key: string]: string[] } | undefined>;
     }) => {
-      return this.client.suivreBdDicDeClef<string[]>({
-        id,
-        clef: "protocoles",
+      return await this.client.suivreProtocoles({
         f: fSuivreBd,
+        idBdCompte: id
       });
     };
 

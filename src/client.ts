@@ -102,10 +102,43 @@ export type structureBdCompte = {
   motsClefs: string;
   variables: string;
   bds: string;
-
+  projets: string;
   nuées: string;
 
+  réseau: string;
+  automatisations: string;
 };
+export const schémaStructureBdCompte: JSONSchemaType<structureBdCompte> = {
+  type: "object",
+  properties: {
+    protocoles: {type: "string"},
+
+    compte: {type: "string"},
+    motsClefs: {type: "string"},
+    variables: {type: "string"},
+    bds: {type: "string"},
+    projets: {type: "string"},
+    nuées: {type: "string"},
+  
+    réseau: {type: "string"},
+    automatisations: {type: "string"},
+  },
+  required: ["automatisations", "bds", "compte", "motsClefs", "nuées", "projets", "protocoles", "réseau", "variables"]
+}
+
+export type structureBdProtocoles = {
+  [idDispositif: string]: string[];
+}
+export const schémaStructureBdProtocoles: JSONSchemaType<structureBdProtocoles> = {
+  type: "object",
+  additionalProperties: {
+    type: "array",
+    items: {
+      type: "string"
+    }
+  },
+  required: []
+}
 
 export type structureNomsDispositifs = {
   [idDispositif: string]: {nom?: string, type?: string}
@@ -376,6 +409,22 @@ export class ClientConstellation extends EventEmitter {
       signature.clefPublique,
       message
     );
+  }
+
+  @cacheSuivi
+  async suivreProtocoles({
+    f,
+    idBdCompte,
+  }: {
+    f: schémaFonctionSuivi<{ [key: string]: string[] }>;
+    idBdCompte?: string;
+  }): Promise<schémaFonctionOublier> {
+    return await this.suivreBdDicDeClef({
+      id: idBdCompte || await this.obtIdCompte(),
+      clef: "protocoles",
+      schéma: schémaStructureBdProtocoles,
+      f
+    })
   }
 
   @cacheSuivi
@@ -1118,7 +1167,7 @@ export class ClientConstellation extends EventEmitter {
     id: string;
     clef: string;
     f: schémaFonctionSuivi<LogEntry<T>[]>;
-    schéma: JSONSchemaType<T>;
+    schéma?: JSONSchemaType<T>;
     renvoyerValeur: false;
   }): Promise<schémaFonctionOublier>;
   async suivreBdListeDeClef<T extends élémentsBd>({
@@ -1131,7 +1180,7 @@ export class ClientConstellation extends EventEmitter {
     id: string;
     clef: string;
     f: schémaFonctionSuivi<T[]>;
-    schéma: JSONSchemaType<T>;
+    schéma?: JSONSchemaType<T>;
     renvoyerValeur?: true;
   }): Promise<schémaFonctionOublier>;
   async suivreBdListeDeClef<T extends élémentsBd>({
@@ -1144,7 +1193,7 @@ export class ClientConstellation extends EventEmitter {
     id: string;
     clef: string;
     f: schémaFonctionSuivi<T[] | LogEntry<T>[]>;
-    schéma: JSONSchemaType<T>;
+    schéma?: JSONSchemaType<T>;
     renvoyerValeur?: true;
   }): Promise<schémaFonctionOublier>;
   async suivreBdListeDeClef<T extends élémentsBd>({
@@ -1157,7 +1206,7 @@ export class ClientConstellation extends EventEmitter {
     id: string;
     clef: string;
     f: schémaFonctionSuivi<T[] | LogEntry<T>[]>;
-    schéma: JSONSchemaType<T>;
+    schéma?: JSONSchemaType<T>;
     renvoyerValeur?: boolean;
   }): Promise<schémaFonctionOublier> {
     // À faire : très laid en raison de contraintes Typescript...peut-être existe-il une meilleure façon ?

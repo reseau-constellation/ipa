@@ -20,6 +20,7 @@ import {
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
+import { JSONSchemaType } from "ajv";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
@@ -67,6 +68,91 @@ export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 export type SpécificationAutomatisation =
   | SpécificationExporter
   | SpécificationImporter;
+
+const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationAutomatisation> = {
+  type: "object",
+  anyOf: [
+    {
+      type: "object",
+      properties: {
+        type: {type: "string"},
+        id: {type: "string"},
+        fréquence: {
+          type: "object",
+          properties: {
+            n: {type: "integer"},
+            unités: {type: "string"}
+          },
+          nullable: true,
+          required: ["n", "unités"],
+        },
+        idObjet: {type: "string"},
+        typeObjet: {type: "string"},
+        formatDoc: {type: "string"},
+        dossier: {type: "string", nullable: true},
+        langues: {
+          type: "array",
+          items: {
+            type: "string"
+          },
+          nullable: true,
+        },
+        dispositifs: {
+          type: "array",
+          items: { type: "string"}
+        },
+        inclureFichiersSFIP: {
+          type: "boolean"
+        },
+        nRésultatsDésirésNuée: {
+          type: "integer",
+          nullable: true,
+        }
+      },
+      required: ["type", "idObjet", "typeObjet", "formatDoc", "dispositifs", "inclureFichiersSFIP"]
+    },
+    {
+      type: "object",
+      properties: {
+        id: {type: "string"},
+        fréquence: {
+          type: "object",
+          properties: {
+            n: {type: "integer"},
+            unités: {type: "string"}
+          },
+          nullable: true,
+          required: ["n", "unités"],
+        },
+        idTableau: {type: "string"},
+        dispositif: {type: "string"},
+        source: {
+          type: "object",
+          properties: {
+            typeSource: {type: "string"},
+            adresseFichier: {type: "string", nullable: true},
+            info: {
+              type: "object",
+              additionalProperties: true,
+              required: []
+            },
+
+          },
+          required: ["info", "typeSource"]
+        },
+        conversions: {
+          type: "object",
+          nullable: true,
+          additionalProperties: true,
+          required: [],
+        }
+      },
+      required: ["id", "idTableau", "dispositif", "source", "conversions"]
+    },
+  ],
+  required: ["id", "type"],
+  
+}
 
 type BaseSpécificationAutomatisation = {
   fréquence?: fréquence;
@@ -732,7 +818,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
   fOublier?: schémaFonctionOublier;
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "automatisations"});
+    super({client, clef: "automatisations", schémaBdPrincipale: schémaSpécificationAutomatisation});
 
     this.automatisations = {};
     this.événements = new EventEmitter();

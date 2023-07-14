@@ -18,19 +18,19 @@ import {
 } from "@/utils/index.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import type FeedStore from "orbit-db-feedstore";
-import type KeyValueStore from "orbit-db-kvstore";
+
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import type { objRôles } from "@/accès/types.js";
-import type {
-  différenceBds,
-  différenceBDTableauManquant,
-  différenceBDTableauSupplémentaire,
-  différenceTableauxBds,
-  donnéesBdExportées,
-  infoTableau,
-  infoTableauAvecId,
-  schémaSpécificationBd,
+import {
+  type différenceBds,
+  type différenceBDTableauManquant,
+  type différenceBDTableauSupplémentaire,
+  type différenceTableauxBds,
+  type donnéesBdExportées,
+  type infoTableau,
+  type infoTableauAvecId,
+  type schémaSpécificationBd,
+  schémaBdTableauxDeBd,
 } from "@/bds";
 import { v4 as uuidv4 } from "uuid";
 import type {
@@ -41,6 +41,7 @@ import type {
 } from "@/valid";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
 import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
+import type KeyValueStore from "orbit-db-kvstore";
 import {
   type différenceTableaux,
   type InfoCol,
@@ -63,6 +64,14 @@ export type statutMembreNuée = {
   statut: "exclus" | "accepté";
 };
 
+const schémaBdAutorisations: JSONSchemaType<{[idCompte: string]: statutMembreNuée["statut"]}> = {
+  type: "object",
+  additionalProperties: {
+    type: "string"
+  },
+  required: []
+}
+
 export type structureBdNuée = {
   type: "nuée";
   noms: string;
@@ -71,22 +80,56 @@ export type structureBdNuée = {
   tableaux: string;
   autorisation: string;
   statut: schémaStatut;
+  parent?: string;
+  image?: string;
+  copiéDe?: string;
 };
 const schémaStructureBdNuée: JSONSchemaType<structureBdNuée> = {
   type: 'object',
   properties: {
     type: {type: "string"},
     noms: {type: "string"},
+    descriptions: {type: "string"},
+    motsClefs: {type: "string"},
+    image: {type:  "string", nullable: true},
+    tableaux: {type: "string"},
+    autorisation: {type: "string"},
     statut: {
       type: "object",
-    }
-  }
+      properties: {
+        idNouvelle: {type: "string", nullable: true},
+        statut: {type: "string"}
+      },
+      required: ["statut"]
+    },
+    parent: {type: "string", nullable: true},
+    copiéDe: {type:  "string", nullable: true},
+  },
+  required: ["type", "noms", "descriptions", "motsClefs", "tableaux", "autorisation", "statut"]
+}
+
+type structureBdAuthorisation = {
+  philosophie: "CJPI" | "IJPC",
+  membres: string,
+}
+
+const schémaStructureBdAuthorisation: JSONSchemaType<structureBdAuthorisation> = {
+  type: "object",
+  properties: {
+    philosophie: {type: "string"},
+    membres: {type: "string"}
+  },
+  required: ["philosophie", "membres"]
+}
+
+const schémaBdMotsClefsNuée: JSONSchemaType<string> = {
+  type: "string"
 }
 
 export default class Nuée extends ComposanteClientListe<string> {
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "nuées"})
+    super({client, clef: "nuées", schémaBdPrincipale: {type: "string"}})
   }
 
   async épingler() {
@@ -174,17 +217,13 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async ajouterÀMesNuées({ id }: { id: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<FeedStore<string>>({
-      id: await this.obtIdBd(),
-    });
+    const { bd, fOublier } = await this.obtBd();
     await bd.add(id);
     await fOublier();
   }
 
   async enleverDeMesNuées({ id }: { id: string }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >({ id: await this.obtIdBd() });
+    const { bd: bdRacine, fOublier } = await this.obtBd();
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
     await fOublier();
   }
@@ -229,10 +268,10 @@ export default class Nuée extends ComposanteClientListe<string> {
 
     const idBdMotsClefs = bdBase.get("motsClefs") as string;
     const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
-      await this.client.ouvrirBd<FeedStore<string>>({ id: idBdMotsClefs });
+      await this.client.ouvrirBd({ id: idBdMotsClefs, type: "feed", schéma: schémaBdMotsClefsNuée });
     const motsClefs = ClientConstellation.obtÉlémentsDeBdListe({
       bd: bdMotsClefs,
-    }) as string[];
+    });
     await this.ajouterMotsClefsNuée({
       idNuée: idNouvelleNuée,
       idsMotsClefs: motsClefs,
@@ -242,19 +281,23 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idNouvelleBdTableaux = nouvelleBd.get("tableaux") as string;
 
     const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
-      await this.client.ouvrirBd<KeyValueStore<infoTableau>>({
+      await this.client.ouvrirBd({
         id: idNouvelleBdTableaux,
+        type: "keyvalue",
+        schéma: schémaBdTableauxDeBd
       });
     const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
-      await this.client.ouvrirBd<KeyValueStore<infoTableau>>({
+      await this.client.ouvrirBd({
         id: idBdTableaux,
+        type: "keyvalue",
+        schéma: schémaBdTableauxDeBd,
       });
     const tableaux = ClientConstellation.obtObjetdeBdDic({
       bd: bdTableaux,
     });
 
     for (const idTableau of Object.keys(tableaux)) {
-      const idNouveauTableau: string =
+      const idNouveauTableau =
         await this.client.tableaux!.copierTableau({
           id: idTableau,
           idBd: idNouvelleNuée,
@@ -388,6 +431,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         return await this.client.suivreBdDicDeClef({
           id,
           clef: "noms",
+          schéma: schémaStructureBdNoms,
           f: fSuivreBranche,
         });
       },
@@ -462,6 +506,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         return await this.client.suivreBdDicDeClef({
           id,
           clef: "descriptions",
+          schéma: schémaStructureBdNoms,
           f: fSuivreBranche,
         });
       },
@@ -487,9 +532,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
     }
 
-    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >({ id: idBdMotsClefs });
+    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd({ id: idBdMotsClefs,  type: "feed", schéma: schémaBdMotsClefsNuée });
     for (const id of idsMotsClefs) {
       const motsClefsExistants = ClientConstellation.obtÉlémentsDeBdListe({
         bd: bdMotsClefs,
@@ -517,9 +560,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
     }
 
-    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >({ id: idBdMotsClefs });
+    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd({ id: idBdMotsClefs, type: "feed", schéma: schémaBdMotsClefsNuée });
 
     await this.client.effacerÉlémentDeBdListe({
       bd: bdMotsClefs,
@@ -551,6 +592,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         return await this.client.suivreBdListeDeClef({
           id,
           clef: "motsClefs",
+          schéma: {type: "string"},
           f: fSuivreBranche,
         });
       },
@@ -586,8 +628,10 @@ export default class Nuée extends ComposanteClientListe<string> {
       },
     });
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd({
       id: idBdAutorisation,
+      type: "keyvalue",
+      schéma: schémaStructureBdAuthorisation,
     });
 
     await bd.set("philosophie", philosophie);
@@ -611,8 +655,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idAutorisation: string;
     philosophie: "IJPC" | "CJPI";
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd({
       id: idAutorisation,
+      type: "keyvalue",
+      schéma: schémaStructureBdAuthorisation,
     });
     await bd.set("philosophie", philosophie);
     fOublier();
@@ -625,7 +671,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     f: schémaFonctionSuivi<"IJPC" | "CJPI">;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd?: KeyValueStore<string>) => {
+    const fFinale = async (bd?: KeyValueStore<structureBdAuthorisation>) => {
       if (!bd) return;
       const philosophie = bd.get("philosophie");
       if (["IJPC", "CJPI"].includes(philosophie)) {
@@ -649,10 +695,12 @@ export default class Nuée extends ComposanteClientListe<string> {
       fSuivreBd,
     }: {
       id: string;
-      fSuivreBd: schémaFonctionSuivi<KeyValueStore<string> | undefined>;
+      fSuivreBd: schémaFonctionSuivi<KeyValueStore<structureBdAuthorisation> | undefined>;
     }) => {
-      return await this.client.suivreBd<KeyValueStore<string>>({
+      return await this.client.suivreBd({
         id,
+        type: "keyvalue",
+        schéma: schémaStructureBdAuthorisation,
         f: fSuivreBd,
       });
     };
@@ -685,8 +733,10 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd({
       id: idBdMembres,
+      type: "keyvalue",
+      schéma: schémaBdAutorisations
     });
     await bd.set(idCompte, "accepté");
     fOublier();
@@ -730,8 +780,10 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd({
       id: idBdMembres,
+      type: "keyvalue",
+      schéma: schémaBdAutorisations
     });
     await bd.set(idCompte, "exclus");
     fOublier();
@@ -760,11 +812,15 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: KeyValueStore<string>) => {
-      const idAutorisation = bd.get("autorisation");
-      await f(idAutorisation);
-    };
-    return await this.client.suivreBd({ id: idNuée, f: fFinale });
+    return await this.client.suivreBd({ 
+      id: idNuée,
+      type: "keyvalue",
+      schéma: schémaStructureBdNuée,
+      f: async (bd) => {
+        const idAutorisation = bd.get("autorisation");
+        await f(idAutorisation);
+      }, 
+    });
   }
 
   async changerGestionnaireAutorisations({
@@ -774,8 +830,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     idAutorisation: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<KeyValueStore<string>>({
+    const { bd, fOublier } = await this.client.ouvrirBd({
       id: idNuée,
+      type: "keyvalue",
+      schéma: schémaStructureBdNuée,
     });
 
     await bd.set("autorisation", idAutorisation);
@@ -814,6 +872,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     return await this.client.suivreBdDicDeClef({
       id: idAutorisation,
       clef: "membres",
+      schéma: schémaBdAutorisations,
       f: fFinale,
     });
   }
@@ -874,9 +933,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<infoTableau>
-    >({ id: idBdTableaux });
+    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<{[tbl: string]: infoTableau}>({ id: idBdTableaux, type: "keyvalue" });
 
     clefTableau = clefTableau || uuidv4();
     const idTableau = await this.client.tableaux!.créerTableau({
@@ -912,9 +969,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdTableaux });
+    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<{[tbl: string]: infoTableau}>({ id: idBdTableaux, type: "keyvalue" });
     await bdTableaux.del(idTableau);
     await fOublier();
 
@@ -951,6 +1006,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       return await this.client.suivreBdDicDeClef({
         id,
         clef: "tableaux",
+        schéma: schémaBdTableauxDeBd,
         f: fFinaleTableaux,
       });
     };
@@ -1613,10 +1669,10 @@ export default class Nuée extends ComposanteClientListe<string> {
       let fOublierParent: schémaFonctionOublier | undefined;
       let ancienParent: string;
 
-      const fOublier = await this.client.suivreBd<
-        KeyValueStore<typeÉlémentsBdNuée>
-      >({
+      const fOublier = await this.client.suivreBd({
         id,
+        type: "keyvalue",
+        schéma: schémaStructureBdNuée,
         f: async (bd) => {
           const parent = bd.get("parent") as string | undefined;
           ancêtres = [...ancêtres];
@@ -2369,9 +2425,7 @@ export default class Nuée extends ComposanteClientListe<string> {
 
   async effacerNuée({ id }: { id: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >({ id: await this.obtIdBd() });
+    const { bd: bdRacine, fOublier } = await this.obtBd();
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
     await fOublier();
 

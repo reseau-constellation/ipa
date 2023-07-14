@@ -56,6 +56,40 @@ export type règleColonne<T extends règleVariable = règleVariable> = {
   colonne: string;
 };
 
+export const schémaRègleColonne: JSONSchemaType<règleColonne> = {
+  type: "object",
+  properties: {
+    colonne: {type: "string"},
+    source: {
+      type: "object",
+      properties: {
+        id: {type: "string"},
+        type: {type: "string"},
+      },
+      required: ["id", "type"]
+    },
+    règle: {
+      type: "object",
+      properties: {
+        id: {type: "string"},
+        règle: {
+          type: "object",
+          properties: {
+            détails: {
+              type: "object",
+              required: []
+            },
+            typeRègle: {type: "string"}
+          },
+          required: ["détails", "typeRègle"]
+        }
+      },
+      required: ["id", "règle"]
+    }
+  },
+  required: ["colonne", "règle", "source"]
+}
+
 export type détailsRègleVariable =
   | détailsRègleExiste
   | détailsRègleBornes

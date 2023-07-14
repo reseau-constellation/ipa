@@ -67,7 +67,8 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
 
     return await this.client.ouvrirBd({
       id,
-      type: "keyvalue"
+      type: "keyvalue",
+      schéma: this.schémaBdPrincipale,
     });
   }
 
@@ -209,7 +210,8 @@ export class ComposanteClientListe<T extends élémentsBd> extends ComposanteCli
 
     return await this.client.ouvrirBd({
       id,
-      type: "feed"
+      type: "feed",
+      schéma: this.schémaBdPrincipale,
     });
   }
 
