@@ -14,6 +14,7 @@ import {
   résultatRecherche,
   ignorerNonDéfinis,
   traduire,
+  schémaStructureBdNoms,
 } from "@/utils/index.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
@@ -50,6 +51,7 @@ import { ComposanteClientListe } from "./composanteClient.js";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
+import { JSONSchemaType } from "ajv";
 
 export type correspondanceBdEtNuée = {
   nuée: string;
@@ -61,7 +63,25 @@ export type statutMembreNuée = {
   statut: "exclus" | "accepté";
 };
 
-export type typeÉlémentsBdNuée = string | schémaStatut;
+export type structureBdNuée = {
+  type: "nuée";
+  noms: string;
+  descriptions: string;
+  motsClefs: string;
+  tableaux: string;
+  autorisation: string;
+  statut: schémaStatut;
+};
+const schémaStructureBdNuée: JSONSchemaType<structureBdNuée> = {
+  type: 'object',
+  properties: {
+    type: {type: "string"},
+    noms: {type: "string"},
+    statut: {
+      type: "object",
+    }
+  }
+}
 
 export default class Nuée extends ComposanteClientListe<string> {
 
@@ -97,10 +117,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
     if (ajouter) await this.ajouterÀMesNuées({ id: idBdNuée });
 
-    const { bd: bdNuée, fOublier: fOublierNuée } = await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdNuée>
-    >({
+    const { bd: bdNuée, fOublier: fOublierNuée } = await this.client.ouvrirBd({
       id: idBdNuée,
+      type: "keyvalue",
+      schéma: schémaStructureBdNuée,
     });
 
     const accès = bdNuée.access as ContrôleurConstellation;
@@ -176,23 +196,19 @@ export default class Nuée extends ComposanteClientListe<string> {
     id: string;
     ajouterÀMesNuées?: boolean;
   }): Promise<string> {
-    const { bd: bdBase, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<typeÉlémentsBdNuée>
-    >({ id });
+    const { bd: bdBase, fOublier } = await this.client.ouvrirBd({ id, type: "keyvalue", schéma: schémaStructureBdNuée });
     const nuéeParent = bdBase.get("parent") as string;
     const idNouvelleNuée = await this.créerNuée({
       nuéeParent,
       ajouter: ajouterÀMesNuées,
     });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
-      await this.client.ouvrirBd<KeyValueStore<typeÉlémentsBdNuée>>({
-        id: idNouvelleNuée,
+      await this.client.ouvrirBd({
+        id: idNouvelleNuée, type: "keyvalue", schéma: schémaStructureBdNuée
       });
 
     const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
+    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd({ id: idBdNoms, type: "kvstore", schéma: schémaStructureBdNoms });
     const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
       [key: string]: string;
     };
@@ -200,7 +216,7 @@ export default class Nuée extends ComposanteClientListe<string> {
 
     const idBdDescr = bdBase.get("descriptions") as string;
     const { bd: bdDescr, fOublier: fOublierBdDescr } =
-      await this.client.ouvrirBd<KeyValueStore<string>>({ id: idBdDescr });
+      await this.client.ouvrirBd({ id: idBdDescr, type: "kvstore", schéma: schémaStructureBdNoms });
     const descriptions = ClientConstellation.obtObjetdeBdDic({
       bd: bdDescr,
     }) as {
@@ -321,9 +337,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour Nuée ${id}.`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({ id: idBdNoms, type: "kvstore", schéma: schémaStructureBdNoms });
 
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
@@ -348,9 +362,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour Nuée ${id}.`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdNoms });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({ id: idBdNoms, type: "kvstore", schéma: schémaStructureBdNoms });
     await bdNoms.del(langue);
     await fOublier();
   }
@@ -399,9 +411,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdDescr });
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({ id: idBdDescr, type: "kvstore", schéma: schémaStructureBdNoms });
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
@@ -425,9 +435,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<string>
-    >({ id: idBdDescr });
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({ id: idBdDescr, type: "kvstore", schéma: schémaStructureBdNoms });
     await bdDescr.del(langue);
     await fOublier();
   }
@@ -451,7 +459,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         id: string,
         fSuivreBranche: schémaFonctionSuivi<{ [key: string]: string }>
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.suivreBdDicDeClef<string>({
+        return await this.client.suivreBdDicDeClef({
           id,
           clef: "descriptions",
           f: fSuivreBranche,

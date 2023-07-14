@@ -7,6 +7,7 @@ import type {
 } from "@/variables.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 import { cholqij } from "@/dates.js";
+import { JSONSchemaType } from "ajv";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle =
@@ -17,6 +18,26 @@ export type règleVariableAvecId<T extends règleVariable = règleVariable> = {
   id: string;
   règle: T;
 };
+
+export const schémaRègleVariableAvecId: JSONSchemaType<règleVariableAvecId> = {
+  type: "object",
+  properties: {
+    id: {type: "string"},
+    règle: {
+      type: "object",
+      properties: {
+        typeRègle: {type: "string"},
+        détails: {
+          type: "object",
+          required: [],
+          additionalProperties: true,
+        }
+      },
+      required: ["détails", "typeRègle"] 
+    }
+  },
+  required: ["id", "règle"]
+}
 
 export type règleVariable =
   | règleExiste

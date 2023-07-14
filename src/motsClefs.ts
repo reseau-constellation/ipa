@@ -1,6 +1,7 @@
-import type {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
+import {
+  type schémaFonctionSuivi,
+  type schémaFonctionOublier,
+  schémaStructureBdNoms,
 } from "@/utils/index.js";
 import type { objRôles } from "@/accès/types.js";
 
@@ -9,6 +10,8 @@ import type { default as ContrôleurConstellation } from "@/accès/cntrlConstell
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
+
+const schémaBdPrincipale: JSONSchemaType<string> = { type: "string" };
 
 type structureBdMotClef = {
   type: string;
@@ -28,7 +31,7 @@ const schémaBdMotClef: JSONSchemaType<structureBdMotClef> = {
 export default class MotsClefs extends ComposanteClientListe<string> {
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "motsClefs"});
+    super({client, clef: "motsClefs", schémaBdPrincipale });
   }
 
   async épingler() {
@@ -258,6 +261,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     return await this.client.suivreBdDicDeClef({
       id: idMotClef,
       clef: "noms",
+      schéma: schémaStructureBdNoms,
       f,
     });
   }
@@ -352,6 +356,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     return await this.client.suivreBdDicDeClef({
       id: idMotClef,
       clef: "descriptions",
+      schéma: schémaStructureBdNoms,
       f,
     });
   }

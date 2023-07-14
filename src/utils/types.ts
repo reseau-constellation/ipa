@@ -1,5 +1,6 @@
 import type { objRôles } from "@/accès/types.js";
 import type { default as ClientConstellation } from "@/client.js";
+import { JSONSchemaType } from "ajv";
 
 export interface infoAuteur {
   idBdCompte: string;
@@ -96,3 +97,9 @@ export type schémaFonctionSuivreQualitéRecherche = (
   id: string,
   f: schémaFonctionSuivi<number>
 ) => Promise<schémaFonctionOublier>;
+
+export type structureBdNoms = {[langue: string]: string};
+export const schémaStructureBdNoms: JSONSchemaType<structureBdNoms> = {
+  type: "object",
+  required: [],
+}

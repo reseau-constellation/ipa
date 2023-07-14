@@ -10,6 +10,7 @@ import { faisRien, ignorerNonDéfinis } from "./utils/fonctions.js";
 
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
+import { JSONSchemaType } from "ajv";
 
 // Obtenu de https://stackoverflow.com/a/54520829
 type KeysMatching<T, V> = {[K in keyof T]-?: T[K] extends V ? K : never}[keyof T];
@@ -46,12 +47,15 @@ export class ComposanteClient {
 }
 
 export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> extends ComposanteClient {
-  constructor({ client, clef }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string> }) {
+  schémaBdPrincipale: JSONSchemaType<T>;
+
+  constructor({ client, clef, schémaBdPrincipale }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string>, schémaBdPrincipale: JSONSchemaType<T> }) {
     super({
       client,
       clef,
       typeBd: "kvstore",
     });
+    this.schémaBdPrincipale = schémaBdPrincipale
   }
 
   async obtBd(): Promise<{
@@ -81,8 +85,9 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdDic<T>({
+        return await this.client.suivreBdDic({
           id,
+          schéma: this.schémaBdPrincipale,
           f: fSuivreBd,
         });
       },
@@ -94,10 +99,12 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
   async suivreSousBdDic<U extends {[key: string]: élémentsBd}>({
     idBd,
     clef,
+    schéma,
     f,
   }: {
     idBd?: string;
     clef: string;
+    schéma: JSONSchemaType<U>;
     f: schémaFonctionSuivi<U>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
@@ -106,9 +113,10 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdDicDeClef<U>({
+        return await this.client.suivreBdDicDeClef({
           id,
           clef,
+          schéma,
           f: fSuivreBd,
         });
       },
@@ -119,10 +127,12 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
   async suivreSousBdListe<U extends élémentsBd>({
     idBd,
     clef,
+    schéma,
     f,
   }: {
     idBd?: string;
     clef: string;
+    schéma: JSONSchemaType<U>;
     f: schémaFonctionSuivi<U[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
@@ -131,10 +141,11 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdListeDeClef<U>({
+        return await this.client.suivreBdListeDeClef({
           id,
           clef: clef,
           f: fSuivreBd,
+          schéma,
           renvoyerValeur: true,
         });
       },
@@ -178,12 +189,15 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
 }
 
 export class ComposanteClientListe<T extends élémentsBd> extends ComposanteClient {
-  constructor({ client, clef }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string> }) {
+  schémaBdPrincipale: JSONSchemaType<T>;
+
+  constructor({ client, clef, schémaBdPrincipale }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string>; schémaBdPrincipale: JSONSchemaType<T> }) {
       super({
           client,
           clef,
           typeBd: "feed",
       });
+      this.schémaBdPrincipale = schémaBdPrincipale;
   }
 
   async obtBd(): Promise<{
@@ -213,9 +227,10 @@ export class ComposanteClientListe<T extends élémentsBd> extends ComposanteCli
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdListe<T>({
+        return await this.client.suivreBdListe({
           id,
           f: fSuivreBd,
+          schéma: this.schémaBdPrincipale,
           renvoyerValeur: true,
         });
       },
@@ -236,9 +251,10 @@ export class ComposanteClientListe<T extends élémentsBd> extends ComposanteCli
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdListe<T>({
+        return await this.client.suivreBdListe({
           id,
           f: fSuivreBd,
+          schéma: this.schémaBdPrincipale,
           renvoyerValeur: false,
         });
       },

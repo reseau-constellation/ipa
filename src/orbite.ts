@@ -34,7 +34,7 @@ export default async function initOrbite({
 }
 export function vérifierTypesBdOrbite<T extends élémentsBd>({bd, schéma}: {bd: FeedStore<T>, schéma?: JSONSchemaType<T>}): FeedStore<T>;
 export function vérifierTypesBdOrbite<T extends {[clef: string]: élémentsBd}>({bd, schéma}: {bd: KeyValueStore<T>, schéma?: JSONSchemaType<T>}): KeyValueStore<T>
-export function vérifierTypesBdOrbite<T extends {[clef: string]: élémentsBd} | élémentsBd>({bd, schéma}: {bd: Store, schéma?: JSONSchemaType<T>}): Store {
+export function vérifierTypesBdOrbite<T extends ({[clef: string]: élémentsBd} | élémentsBd)>({bd, schéma}: {bd: Store, schéma?: JSONSchemaType<T>}): Store {
   if (!schéma) return bd;
   if (bd.type === 'feed') {
     const bdListe = bd as FeedStore<T>

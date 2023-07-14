@@ -1,4 +1,3 @@
-import KeyValueStore from "orbit-db-kvstore";
 import type { ImportCandidate } from "ipfs-core-types/src/utils";
 
 import type { default as ClientConstellation } from "@/client.js";
@@ -6,9 +5,11 @@ import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   ignorerNonDéfinis,
+  schémaStructureBdNoms,
 } from "@/utils/index.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "@/composanteClient.js";
+import { JSONSchemaType } from "ajv";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
@@ -16,11 +17,34 @@ export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 type structureBdProfil = {
   image?: string;
 }
+const schémaStructureBdProfil: JSONSchemaType<structureBdProfil> = {
+  type: "object",
+  properties: {
+    image: {
+      type: "string",
+      nullable: true
+    }
+  },
+  required: []
+}
+
+type structureContactProfil = {
+  type: string;
+  contact: string;
+}
+const schémaContactProfil: JSONSchemaType<structureContactProfil> = {
+  type: "object",
+  properties: {
+    type: {type: "string"},
+    contact: {type: "string"}
+  },
+  required: ["contact", "type"]
+}
 
 export default class Profil extends ComposanteClientDic<structureBdProfil> {
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "compte"});
+    super({client, clef: "compte", schémaBdPrincipale: schémaContactProfil});
   }
 
   async épingler() {
@@ -63,12 +87,10 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     f: schémaFonctionSuivi<{ type: string; contact: string }[]>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.suivreSousBdListe<{
-      type: string;
-      contact: string;
-    }>({
+    return await this.suivreSousBdListe({
       idBd: idCompte,
       clef: "contacts",
+      schéma: schémaContactProfil,
       f,
     });
   }
@@ -92,11 +114,10 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      { type: string; contact: string }
-    >({
+    const { bd, fOublier } = await this.client.ouvrirBd({
       id: idBdContacts,
       type: "feed",
+      schéma: schémaContactProfil,
     });
     await bd.add({ type, contact });
     await fOublier();
@@ -126,6 +147,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     >({
       id: idBdContacts,
       type: "feed",
+      schéma: schémaContactProfil,
     });
     this.client.effacerÉlémentsDeBdListe({
       bd,
@@ -144,9 +166,10 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     f: schémaFonctionSuivi<{ [key: string]: string }>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.suivreSousBdDic<string>({
+    return await this.suivreSousBdDic({
       idBd: idCompte,
       clef: "noms",
+      schéma: schémaStructureBdNoms,
       f,
     });
   }
@@ -178,9 +201,10 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<{[langue: string]: string}>({
+    const { bd, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
       type: "kvstore",
+      schéma: schémaStructureBdNoms,
     });
     for (const [langue, nom] of Object.entries(noms)) {
       await bd.set(langue, nom);
@@ -201,9 +225,10 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<{[langue: string]: string}>({
+    const { bd, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
-      type: "kvstore"
+      type: "kvstore",
+      schéma: schémaStructureBdNoms,
     });
     await bd.del(langue);
     await fOublier();
@@ -248,7 +273,9 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       fSuivre: async ({ id, fSuivreBd }) => {
         return await this.client.suivreBd({
           id,
-          f: async (bd: KeyValueStore<structureBdProfil>) => {
+          type: "keyvalue",
+          schéma: schémaStructureBdProfil,
+          f: async (bd) => {
             const idImage = bd.get("image");
             if (!idImage) {
               await fSuivreBd(null);
