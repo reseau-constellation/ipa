@@ -85,7 +85,9 @@ export const générerClients = async (
         }
 
         case "proc": {
-          client = générerMandataireProc({ orbite: orbites[i] }) as unknown as ClientConstellation;
+          client = générerMandataireProc({
+            orbite: orbites[i],
+          }) as unknown as ClientConstellation;
           break;
         }
 
@@ -97,7 +99,9 @@ export const générerClients = async (
   } else if (type === "travailleur") {
     let client: ClientConstellation;
     for (const i in [...Array(n).keys()]) {
-      client = générerMandataireTravailleur({ orbite: { dossier: String(i) } }) as unknown as ClientConstellation;
+      client = générerMandataireTravailleur({
+        orbite: { dossier: String(i) },
+      }) as unknown as ClientConstellation;
       clients.push(client);
     }
   } else {

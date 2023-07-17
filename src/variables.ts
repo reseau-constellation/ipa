@@ -47,51 +47,50 @@ export type catégorieVariables =
     };
 
 const schémaBdPrincipale: JSONSchemaType<string> = {
-  type: "string"
-}
+  type: "string",
+};
 
 export type structureBdVariable = {
-  type: string,
-  catégorie: catégorieVariables,
-  noms: string,
-  unités?: string,
-  descriptions: string,
-  règles: string,
-  statut: schémaStatut
+  type: string;
+  catégorie: catégorieVariables;
+  noms: string;
+  unités?: string;
+  descriptions: string;
+  règles: string;
+  statut: schémaStatut;
 };
 
 const schémaStructureBdVariable: JSONSchemaType<structureBdVariable> = {
   type: "object",
   properties: {
-    type: {type: "string"},
+    type: { type: "string" },
     catégorie: {
       type: "object",
       properties: {
-        catégorie: {type: "string"},
-        type: {type: "string"}
+        catégorie: { type: "string" },
+        type: { type: "string" },
       },
-      required: ["catégorie", "type"]
+      required: ["catégorie", "type"],
     },
-    noms: {type: "string"},
-    descriptions: {type: "string"},
-    unités: {type: "string", nullable: true},
-    règles: {type: "string"},
+    noms: { type: "string" },
+    descriptions: { type: "string" },
+    unités: { type: "string", nullable: true },
+    règles: { type: "string" },
     statut: {
       type: "object",
       properties: {
-        idNouvelle: {type: "string", nullable: true},
-        statut: {type: "string"},
+        idNouvelle: { type: "string", nullable: true },
+        statut: { type: "string" },
       },
-      required: ['statut']
+      required: ["statut"],
     },
   },
-  required: ["type", "catégorie", "statut", "noms", "descriptions", "règles"]
-}
+  required: ["type", "catégorie", "statut", "noms", "descriptions", "règles"],
+};
 
 export default class Variables extends ComposanteClientListe<string> {
-
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "variables", schémaBdPrincipale})
+    super({ client, clef: "variables", schémaBdPrincipale });
   }
 
   async épingler() {
@@ -130,8 +129,8 @@ export default class Variables extends ComposanteClientListe<string> {
     const { bd: bdVariable, fOublier: fOublierVariable } =
       await this.client.ouvrirBd({
         id: idBdVariable,
-        type: 'keyvalue',
-        schéma: schémaStructureBdVariable
+        type: "keyvalue",
+        schéma: schémaStructureBdVariable,
       });
 
     const accès = bdVariable.access as unknown as ContrôleurConstellation;
@@ -182,17 +181,19 @@ export default class Variables extends ComposanteClientListe<string> {
   }
 
   async enleverDeMesVariables({ id }: { id: string }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({ 
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({
       id: await this.obtIdBd(),
-      type: "feed"
+      type: "feed",
     });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
     await fOublier();
   }
 
   async copierVariable({ id }: { id: string }): Promise<string> {
-    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({ 
-      id, type: "keyvalue", schéma: schémaStructureBdVariable 
+    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({
+      id,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
     });
     const catégorie = bdBase.get("catégorie") as
       | catégorieVariables
@@ -201,11 +202,15 @@ export default class Variables extends ComposanteClientListe<string> {
     const idNouvelleBd = await this.créerVariable({ catégorie });
     const { bd: bdNouvelle, fOublier: fOublierNouvelle } =
       await this.client.ouvrirBd({
-        id: idNouvelleBd, type: "keyvalue", schéma: schémaStructureBdVariable 
+        id: idNouvelleBd,
+        type: "keyvalue",
+        schéma: schémaStructureBdVariable,
       });
 
     const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd({ id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd(
+      { id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms }
+    );
     const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
       [key: string]: string;
     };
@@ -213,7 +218,11 @@ export default class Variables extends ComposanteClientListe<string> {
 
     const idBdDescr = bdBase.get("descriptions") as string;
     const { bd: bdDescr, fOublier: fOublierBdDescr } =
-      await this.client.ouvrirBd({ id: idBdDescr, type: "keyvalue", schéma: schémaStructureBdNoms });
+      await this.client.ouvrirBd({
+        id: idBdDescr,
+        type: "keyvalue",
+        schéma: schémaStructureBdNoms,
+      });
     const descriptions = ClientConstellation.obtObjetdeBdDic({
       bd: bdDescr,
     }) as {
@@ -227,7 +236,9 @@ export default class Variables extends ComposanteClientListe<string> {
     const idBdRègles = bdBase.get("règles") as string;
     const { bd: bdRègles, fOublier: fOublierBdRègles } =
       await this.client.ouvrirBd({
-        id: idBdRègles, type: "feed", schéma: schémaRègleVariableAvecId 
+        id: idBdRègles,
+        type: "feed",
+        schéma: schémaRègleVariableAvecId,
       });
     const règles = ClientConstellation.obtÉlémentsDeBdListe({
       bd: bdRègles,
@@ -287,7 +298,11 @@ export default class Variables extends ComposanteClientListe<string> {
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({ id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
@@ -311,7 +326,11 @@ export default class Variables extends ComposanteClientListe<string> {
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({ id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdNoms.set(langue, nom);
     await fOublier();
   }
@@ -331,7 +350,11 @@ export default class Variables extends ComposanteClientListe<string> {
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({ id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdNoms.del(langue);
     await fOublier();
   }
@@ -351,7 +374,11 @@ export default class Variables extends ComposanteClientListe<string> {
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({ id: idBdDescr, type: "kvstore", schéma: schémaStructureBdNoms });
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({
+      id: idBdDescr,
+      type: "kvstore",
+      schéma: schémaStructureBdNoms,
+    });
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
@@ -375,7 +402,11 @@ export default class Variables extends ComposanteClientListe<string> {
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({ id: idBdDescr, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({
+      id: idBdDescr,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdDescr.set(langue, description);
 
     await fOublier();
@@ -396,7 +427,11 @@ export default class Variables extends ComposanteClientListe<string> {
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({ id: idBdDescr, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({
+      id: idBdDescr,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdDescr.del(langue);
 
     await fOublier();
@@ -409,7 +444,11 @@ export default class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     catégorie: catégorieVariables | catégorieBaseVariables;
   }): Promise<void> {
-    const { bd: bdVariable, fOublier } = await this.client.ouvrirBd({ id: idVariable, type: "keyvalue", schéma: schémaStructureBdVariable });
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBd({
+      id: idVariable,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
+    });
     await bdVariable.set(
       "catégorie",
       this.standardiserCatégorieVariable(catégorie)
@@ -433,7 +472,11 @@ export default class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     idUnité: string;
   }): Promise<void> {
-    const { bd: bdVariable, fOublier } = await this.client.ouvrirBd({ id: idVariable, type: "keyvalue", schéma: schémaStructureBdVariable });
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBd({
+      id: idVariable,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
+    });
     await bdVariable.set("unités", idUnité);
 
     await fOublier();
@@ -464,7 +507,11 @@ export default class Variables extends ComposanteClientListe<string> {
       id: idRègle,
       règle,
     };
-    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd({ id: idBdRègles, type: "feed", schéma: schémaRègleVariableAvecId });
+    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd({
+      id: idBdRègles,
+      type: "feed",
+      schéma: schémaRègleVariableAvecId,
+    });
     await bdRègles.add(règleAvecId);
 
     await fOublier();
@@ -489,7 +536,11 @@ export default class Variables extends ComposanteClientListe<string> {
         `Permission de modification refusée pour variable ${idVariable}.`
       );
     }
-    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd({ id: idBdRègles, type: "feed", schéma: schémaRègleVariableAvecId  });
+    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd({
+      id: idBdRègles,
+      type: "feed",
+      schéma: schémaRègleVariableAvecId,
+    });
 
     await this.client.effacerÉlémentDeBdListe({
       bd: bdRègles,
@@ -524,7 +575,12 @@ export default class Variables extends ComposanteClientListe<string> {
     id: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id, clef: "noms", schéma: schémaStructureBdNoms, f });
+    return await this.client.suivreBdDicDeClef({
+      id,
+      clef: "noms",
+      schéma: schémaStructureBdNoms,
+      f,
+    });
   }
 
   @cacheSuivi
@@ -535,7 +591,12 @@ export default class Variables extends ComposanteClientListe<string> {
     id: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({ id, clef: "descriptions", schéma: schémaStructureBdNoms, f });
+    return await this.client.suivreBdDicDeClef({
+      id,
+      clef: "descriptions",
+      schéma: schémaStructureBdNoms,
+      f,
+    });
   }
 
   @cacheSuivi
@@ -550,7 +611,7 @@ export default class Variables extends ComposanteClientListe<string> {
       id,
       type: "keyvalue",
       schéma: schémaStructureBdVariable,
-      f: async bd => {
+      f: async (bd) => {
         const catégorie = bd.get("catégorie");
         if (catégorie) await f(this.standardiserCatégorieVariable(catégorie));
       },
@@ -563,7 +624,7 @@ export default class Variables extends ComposanteClientListe<string> {
     f,
   }: {
     id: string;
-    f: schémaFonctionSuivi<string|null>;
+    f: schémaFonctionSuivi<string | null>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id,
@@ -642,7 +703,7 @@ export default class Variables extends ComposanteClientListe<string> {
       noms: { [key: string]: string };
       descr: { [key: string]: string };
       règles: règleVariableAvecId<règleVariable>[];
-      unités?: string|null;
+      unités?: string | null;
       catégorie?: catégorieVariables;
     } = {
       noms: {},
@@ -721,7 +782,11 @@ export default class Variables extends ComposanteClientListe<string> {
     id: string;
     statut: schémaStatut;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd({ id, type: "keyvalue", schéma: schémaStructureBdVariable });
+    const { bd, fOublier } = await this.client.ouvrirBd({
+      id,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
+    });
     await bd.set("statut", statut);
     await fOublier();
   }
@@ -733,7 +798,11 @@ export default class Variables extends ComposanteClientListe<string> {
     id: string;
     idNouvelle?: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd({ id, type: "keyvalue", schéma: schémaStructureBdVariable });
+    const { bd, fOublier } = await this.client.ouvrirBd({
+      id,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
+    });
     bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
     await fOublier();
   }

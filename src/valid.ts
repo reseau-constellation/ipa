@@ -22,22 +22,22 @@ export type règleVariableAvecId<T extends règleVariable = règleVariable> = {
 export const schémaRègleVariableAvecId: JSONSchemaType<règleVariableAvecId> = {
   type: "object",
   properties: {
-    id: {type: "string"},
+    id: { type: "string" },
     règle: {
       type: "object",
       properties: {
-        typeRègle: {type: "string"},
+        typeRègle: { type: "string" },
         détails: {
           type: "object",
           required: [],
           additionalProperties: true,
-        }
+        },
       },
-      required: ["détails", "typeRègle"] 
-    }
+      required: ["détails", "typeRègle"],
+    },
   },
-  required: ["id", "règle"]
-}
+  required: ["id", "règle"],
+};
 
 export type règleVariable =
   | règleExiste
@@ -59,36 +59,36 @@ export type règleColonne<T extends règleVariable = règleVariable> = {
 export const schémaRègleColonne: JSONSchemaType<règleColonne> = {
   type: "object",
   properties: {
-    colonne: {type: "string"},
+    colonne: { type: "string" },
     source: {
       type: "object",
       properties: {
-        id: {type: "string"},
-        type: {type: "string"},
+        id: { type: "string" },
+        type: { type: "string" },
       },
-      required: ["id", "type"]
+      required: ["id", "type"],
     },
     règle: {
       type: "object",
       properties: {
-        id: {type: "string"},
+        id: { type: "string" },
         règle: {
           type: "object",
           properties: {
             détails: {
               type: "object",
-              required: []
+              required: [],
             },
-            typeRègle: {type: "string"}
+            typeRègle: { type: "string" },
           },
-          required: ["détails", "typeRègle"]
-        }
+          required: ["détails", "typeRègle"],
+        },
       },
-      required: ["id", "règle"]
-    }
+      required: ["id", "règle"],
+    },
   },
-  required: ["colonne", "règle", "source"]
-}
+  required: ["colonne", "règle", "source"],
+};
 
 export type détailsRègleVariable =
   | détailsRègleExiste

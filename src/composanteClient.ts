@@ -1,7 +1,7 @@
 import type {
-    schémaFonctionOublier,
-    schémaFonctionSuivi,
-    élémentsBd,
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  élémentsBd,
 } from "./utils/types.js";
 import type { ClientConstellation, structureBdCompte } from "@/client.js";
 
@@ -13,11 +13,13 @@ import FeedStore from "orbit-db-feedstore";
 import { JSONSchemaType } from "ajv";
 
 // Obtenu de https://stackoverflow.com/a/54520829
-type KeysMatching<T, V> = {[K in keyof T]-?: T[K] extends V ? K : never}[keyof T];
+type KeysMatching<T, V> = {
+  [K in keyof T]-?: T[K] extends V ? K : never;
+}[keyof T];
 
 export class ComposanteClient {
   client: ClientConstellation;
-  clef: KeysMatching<structureBdCompte, string|undefined>;
+  clef: KeysMatching<structureBdCompte, string | undefined>;
   typeBd: "kvstore" | "feed";
 
   constructor({
@@ -26,7 +28,7 @@ export class ComposanteClient {
     typeBd,
   }: {
     client: ClientConstellation;
-    clef: KeysMatching<structureBdCompte, string|undefined>;
+    clef: KeysMatching<structureBdCompte, string | undefined>;
     typeBd: "kvstore" | "feed";
   }) {
     this.client = client;
@@ -41,21 +43,30 @@ export class ComposanteClient {
       type: this.typeBd,
     });
     if (!idBd) throw new Error("Mal initialisé");
-    return idBd
+    return idBd;
   }
-
 }
 
-export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> extends ComposanteClient {
+export class ComposanteClientDic<
+  T extends { [clef: string]: élémentsBd }
+> extends ComposanteClient {
   schémaBdPrincipale: JSONSchemaType<T>;
 
-  constructor({ client, clef, schémaBdPrincipale }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string|undefined>, schémaBdPrincipale: JSONSchemaType<T> }) {
+  constructor({
+    client,
+    clef,
+    schémaBdPrincipale,
+  }: {
+    client: ClientConstellation;
+    clef: KeysMatching<structureBdCompte, string | undefined>;
+    schémaBdPrincipale: JSONSchemaType<T>;
+  }) {
     super({
       client,
       clef,
       typeBd: "kvstore",
     });
-    this.schémaBdPrincipale = schémaBdPrincipale
+    this.schémaBdPrincipale = schémaBdPrincipale;
   }
 
   async obtBd(): Promise<{
@@ -94,10 +105,9 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
       },
     });
   }
-  
 
   @cacheSuivi
-  async suivreSousBdDic<U extends {[key: string]: élémentsBd}>({
+  async suivreSousBdDic<U extends { [key: string]: élémentsBd }>({
     idBd,
     clef,
     schéma,
@@ -189,16 +199,26 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
   }
 }
 
-export class ComposanteClientListe<T extends élémentsBd> extends ComposanteClient {
+export class ComposanteClientListe<
+  T extends élémentsBd
+> extends ComposanteClient {
   schémaBdPrincipale: JSONSchemaType<T>;
 
-  constructor({ client, clef, schémaBdPrincipale }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string|undefined>; schémaBdPrincipale: JSONSchemaType<T> }) {
-      super({
-          client,
-          clef,
-          typeBd: "feed",
-      });
-      this.schémaBdPrincipale = schémaBdPrincipale;
+  constructor({
+    client,
+    clef,
+    schémaBdPrincipale,
+  }: {
+    client: ClientConstellation;
+    clef: KeysMatching<structureBdCompte, string | undefined>;
+    schémaBdPrincipale: JSONSchemaType<T>;
+  }) {
+    super({
+      client,
+      clef,
+      typeBd: "feed",
+    });
+    this.schémaBdPrincipale = schémaBdPrincipale;
   }
 
   async obtBd(): Promise<{
@@ -262,7 +282,6 @@ export class ComposanteClientListe<T extends élémentsBd> extends ComposanteCli
       },
     });
   }
-
 
   @cacheSuivi
   async suivreIdBd({

@@ -21,17 +21,16 @@ type structureBdMotClef = {
 const schémaBdMotClef: JSONSchemaType<structureBdMotClef> = {
   type: "object",
   properties: {
-    type: {type: "string"},
-    noms: {type: "string"},
-    descriptions: {type: "string"}
+    type: { type: "string" },
+    noms: { type: "string" },
+    descriptions: { type: "string" },
   },
-  required: ["type", "noms", "descriptions"]
-}
+  required: ["type", "noms", "descriptions"],
+};
 
 export default class MotsClefs extends ComposanteClientListe<string> {
-
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "motsClefs", schémaBdPrincipale });
+    super({ client, clef: "motsClefs", schémaBdPrincipale });
   }
 
   async épingler() {
@@ -51,7 +50,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<string[]>;
     idBdMotsClefs?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.suivreBdPrincipale({ idBd: idBdMotsClefs, f});
+    return await this.suivreBdPrincipale({ idBd: idBdMotsClefs, f });
   }
 
   async créerMotClef(): Promise<string> {
@@ -69,7 +68,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       await this.client.ouvrirBd<structureBdMotClef>({
         id: idMotClef,
         type: "kvstore",
-        schéma: schémaBdMotClef
+        schéma: schémaBdMotClef,
       });
 
     const accès = bdMotClef.access as unknown as ContrôleurConstellation;
@@ -108,7 +107,10 @@ export default class MotsClefs extends ComposanteClientListe<string> {
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({ id: await this.obtIdBd(), type: "feed" });
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({
+      id: await this.obtIdBd(),
+      type: "feed",
+    });
     await this.client.effacerÉlémentDeBdListe({
       bd: bdRacine,
       élément: idMotClef,
@@ -117,14 +119,20 @@ export default class MotsClefs extends ComposanteClientListe<string> {
   }
 
   async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
-    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({ id: idMotClef, type: "keyvalue", schéma: schémaBdMotClef });
+    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({
+      id: idMotClef,
+      type: "keyvalue",
+      schéma: schémaBdMotClef,
+    });
 
     const idNouveauMotClef = await this.créerMotClef();
 
     const idBdNoms = bdBase.get("noms");
-    const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd<
-      structureBdMotClef
-    >({ id: idBdNoms, type: "keyvalue" });
+    const { bd: bdNoms, fOublier: fOublierNoms } =
+      await this.client.ouvrirBd<structureBdMotClef>({
+        id: idBdNoms,
+        type: "keyvalue",
+      });
     const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
       [key: string]: string;
     };
@@ -132,9 +140,9 @@ export default class MotsClefs extends ComposanteClientListe<string> {
 
     const idBdDescriptions = bdBase.get("descriptions");
     const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
-      await this.client.ouvrirBd<{[langue: string]: string}>({
+      await this.client.ouvrirBd<{ [langue: string]: string }>({
         id: idBdDescriptions,
-        type: "keyvalue"
+        type: "keyvalue",
       });
     const descriptions = ClientConstellation.obtObjetdeBdDic({
       bd: bdDescriptions,
@@ -186,9 +194,9 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
-      {[langue: string]: string}
-    >({ id: idBdNoms, type: "keyvalue" });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdNoms, type: "keyvalue" });
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
@@ -215,9 +223,9 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
-      {[langue: string]: string}
-    >({ id: idBdNoms, type: "keyvalue" });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdNoms, type: "keyvalue" });
     await bdNoms.set(langue, nom);
     await fOublier();
   }
@@ -240,9 +248,9 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<
-      {[langue: string]: string}
-    >({ id: idBdNoms, type: "keyvalue" });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdNoms, type: "keyvalue" });
     await bdNoms.del(langue);
     await fOublier();
   }
@@ -281,9 +289,9 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
-      {[langue: string]: string}
-    >({ id: idBdDescriptions, type: "keyvalue" });
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdDescriptions, type: "keyvalue" });
     for (const lng in descriptions) {
       await bdDescriptions.set(lng, descriptions[lng]);
     }
@@ -310,9 +318,9 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
-      {[langue: string]: string}
-    >({ id: idBdDescriptions, type: "keyvalue" });
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdDescriptions, type: "keyvalue" });
     await bdDescriptions.set(langue, description);
     await fOublier();
   }
@@ -335,9 +343,9 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<
-     {[langue: string]: string}
-    >({ id: idBdDescriptions, type: "keyvalue" });
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdDescriptions, type: "keyvalue" });
     await bdDescriptions.del(langue);
     await fOublier();
   }

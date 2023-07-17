@@ -26,7 +26,7 @@ export type ÉlémentFavoris = {
 
 export type ÉlémentFavorisAvecObjet = ÉlémentFavoris & { idObjet: string };
 
-type structureBdFavoris = { [idObjet: string]: ÉlémentFavoris }
+type structureBdFavoris = { [idObjet: string]: ÉlémentFavoris };
 const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
   type: "object",
   additionalProperties: {
@@ -36,36 +36,36 @@ const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
         anyOf: [
           {
             type: "array",
-            items: {type: "string"}
+            items: { type: "string" },
           },
-          {type: "string"}
-        ]
+          { type: "string" },
+        ],
       },
       dispositifsFichiers: {
         type: ["array", "string"],
         anyOf: [
           {
             type: "array",
-            items: {type: "string"}
+            items: { type: "string" },
           },
-          {type: "string"}
+          { type: "string" },
         ],
         nullable: true,
         allowUnionTypes: true,
       },
-      récursif: {type: "boolean"}
+      récursif: { type: "boolean" },
     },
-    required: ["dispositifs", "récursif"]
+    required: ["dispositifs", "récursif"],
   },
   required: [],
-}
+};
 
 export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
   _promesseInit: Promise<void>;
   oublierÉpingler?: schémaFonctionOublier;
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "favoris", schémaBdPrincipale})
+    super({ client, clef: "favoris", schémaBdPrincipale });
 
     this._promesseInit = this._épinglerFavoris();
   }
@@ -81,9 +81,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
   async _épinglerFavoris() {
     let précédentes: string[] = [];
 
-    const fFinale = async (favoris: {
-      [clef: string]: ÉlémentFavoris;
-    }) => {
+    const fFinale = async (favoris: { [clef: string]: ÉlémentFavoris }) => {
       const nouvelles: string[] = [];
 
       await Promise.all(
@@ -116,8 +114,8 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
     };
 
     const fOublier = await this.suivreBdPrincipale({
-      f: fFinale
-    })
+      f: fFinale,
+    });
 
     this.oublierÉpingler = fOublier;
   }
@@ -145,7 +143,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
     return await this.suivreBdPrincipale({
       idBd: idBdFavoris,
       f: fFinale,
-    })
+    });
   }
 
   async épinglerFavori({
@@ -187,7 +185,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBdPrincipale({
       f: (favoris) => f(favoris[id]),
-    })
+    });
   }
 
   @cacheSuivi

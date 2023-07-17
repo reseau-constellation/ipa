@@ -25,7 +25,7 @@ export enum TYPES_STATUT {
 export type schémaStatut = {
   statut: TYPES_STATUT;
   idNouvelle?: string;
-}
+};
 
 export type dicTrads = { [key: string]: string };
 
@@ -98,11 +98,11 @@ export type schémaFonctionSuivreQualitéRecherche = (
   f: schémaFonctionSuivi<number>
 ) => Promise<schémaFonctionOublier>;
 
-export type structureBdNoms = {[langue: string]: string};
+export type structureBdNoms = { [langue: string]: string };
 export const schémaStructureBdNoms: JSONSchemaType<structureBdNoms> = {
   type: "object",
   additionalProperties: {
     type: "string",
   },
   required: [],
-}
+};

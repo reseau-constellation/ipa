@@ -62,34 +62,34 @@ export type InfoColAvecCatégorie = InfoCol & {
 };
 
 const schémaInfoColAvecCatégorie: JSONSchemaType<InfoColAvecCatégorie> = {
-  type:  "object",
+  type: "object",
   properties: {
     catégorie: {
       type: "object",
       nullable: true,
       properties: {
-        catégorie: {type: "string"},
-        type: {type: "string"}
+        catégorie: { type: "string" },
+        type: { type: "string" },
       },
-      required: ["catégorie", "type"]
+      required: ["catégorie", "type"],
     },
-    id: {type: "string"},
+    id: { type: "string" },
     variable: {
-      type: "string"
+      type: "string",
     },
     index: {
       type: "boolean",
       nullable: true,
-    }
+    },
   },
-  required: ["id", "variable"]
-}
+  required: ["id", "variable"],
+};
 
-const schémaDonnéesTableau: JSONSchemaType<{[clef: string]: élémentsBd}> = {
+const schémaDonnéesTableau: JSONSchemaType<{ [clef: string]: élémentsBd }> = {
   type: "object",
   additionalProperties: true,
-  required: []
-}
+  required: [],
+};
 
 export function élémentsÉgaux(
   élément1: { [key: string]: élémentsBd },
@@ -151,14 +151,14 @@ export type structureBdTableau = {
 const schémaStructureBdTableau: JSONSchemaType<structureBdTableau> = {
   type: "object",
   properties: {
-    type: {type: "string"},
-    noms: {type: "string"},
-    données: {type: "string"},
-    colonnes: {type: "string"},
-    règles: {type: "string"},
+    type: { type: "string" },
+    noms: { type: "string" },
+    données: { type: "string" },
+    colonnes: { type: "string" },
+    règles: { type: "string" },
   },
-  required: ["données", "colonnes", "noms", "règles", "type"]
-}
+  required: ["données", "colonnes", "noms", "règles", "type"],
+};
 
 export default class Tableaux {
   client: ClientConstellation;
@@ -174,7 +174,11 @@ export default class Tableaux {
       type: "kvstore",
       optionsAccès,
     });
-    const { bd: bdTableau, fOublier } = await this.client.ouvrirBd({ id: idBdTableau, type: "keyvalue", schéma: schémaStructureBdTableau });
+    const { bd: bdTableau, fOublier } = await this.client.ouvrirBd({
+      id: idBdTableau,
+      type: "keyvalue",
+      schéma: schémaStructureBdTableau,
+    });
 
     await bdTableau.set("type", "tableau");
 
@@ -216,16 +220,26 @@ export default class Tableaux {
     idBd: string;
     copierDonnées?: boolean;
   }): Promise<string> {
-    const { bd: bdBase, fOublier } = await this.client.ouvrirBd({ id, type: "keyvalue", schéma: schémaStructureBdTableau });
+    const { bd: bdBase, fOublier } = await this.client.ouvrirBd({
+      id,
+      type: "keyvalue",
+      schéma: schémaStructureBdTableau,
+    });
     const idNouveauTableau = await this.créerTableau({ idBd });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
       await this.client.ouvrirBd({
-        id: idNouveauTableau, type: "keyvalue", schéma: schémaStructureBdTableau
+        id: idNouveauTableau,
+        type: "keyvalue",
+        schéma: schémaStructureBdTableau,
       });
 
     // Copier les noms
     const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd({ id: idBdNoms, type: "keyvalue", schéma:  schémaStructureBdNoms });
+    const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     const noms = bdNoms.all;
     await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
 
@@ -933,7 +947,11 @@ export default class Tableaux {
       if (cacheRechercheIdOrbite[langue]?.[val])
         return cacheRechercheIdOrbite[langue][val];
       for (const id of idsOrbiteColsChaîne) {
-        const { bd, fOublier } = await this.client.ouvrirBd({ id, type: "keyvalue", schéma: schémaStructureBdNoms });
+        const { bd, fOublier } = await this.client.ouvrirBd({
+          id,
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
+        });
         const valLangue = bd.get(langue);
         await fOublier();
         if (valLangue === val) {
@@ -955,7 +973,9 @@ export default class Tableaux {
     }): Promise<string> => {
       const { bd: bdNuée, fOublier: fOublierBdTableau } =
         await this.client.ouvrirBd({
-          id: idTableau, type: "keyvalue", schéma: schémaStructureBdNoms
+          id: idTableau,
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
         });
 
       const accès = bdNuée.access as ContrôleurConstellation;
@@ -966,7 +986,11 @@ export default class Tableaux {
         optionsAccès,
       });
 
-      const { bd, fOublier } = await this.client.ouvrirBd({ id: idOrbite, type: "keyvalue", schéma: schémaStructureBdNoms });
+      const { bd, fOublier } = await this.client.ouvrirBd({
+        id: idOrbite,
+        type: "keyvalue",
+        schéma: schémaStructureBdNoms,
+      });
       await bd.set(langue, val);
       await fOublier();
       idsOrbiteColsChaîne.add(idOrbite);
@@ -1190,7 +1214,11 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({ id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
@@ -1220,7 +1248,11 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({ id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdNoms.set(langue, nom);
     await fOublier();
   }
@@ -1245,7 +1277,11 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({ id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms });
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdNoms.del(langue);
 
     await fOublier();
@@ -1556,13 +1592,12 @@ export default class Tableaux {
       fFinale();
     };
 
-    const oublierRèglesTableau =
-      await this.client.suivreBdListeDeClef({
-        id: idTableau,
-        clef: "règles",
-        schéma: schémaRègleColonne,
-        f: fFinaleRèglesTableau,
-      });
+    const oublierRèglesTableau = await this.client.suivreBdListeDeClef({
+      id: idTableau,
+      clef: "règles",
+      schéma: schémaRègleColonne,
+      f: fFinaleRèglesTableau,
+    });
 
     // Suivre les règles spécifiées dans les variables
     const fListe = async (

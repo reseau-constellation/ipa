@@ -16,35 +16,38 @@ export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
 type structureBdProfil = {
   image?: string;
-}
+};
 const schémaStructureBdProfil: JSONSchemaType<structureBdProfil> = {
   type: "object",
   properties: {
     image: {
       type: "string",
-      nullable: true
-    }
+      nullable: true,
+    },
   },
-  required: []
-}
+  required: [],
+};
 
 type structureContactProfil = {
   type: string;
   contact: string;
-}
+};
 const schémaContactProfil: JSONSchemaType<structureContactProfil> = {
   type: "object",
   properties: {
-    type: {type: "string"},
-    contact: {type: "string"},
+    type: { type: "string" },
+    contact: { type: "string" },
   },
   required: ["contact", "type"],
-}
+};
 
 export default class Profil extends ComposanteClientDic<structureBdProfil> {
-
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "compte", schémaBdPrincipale: schémaStructureBdProfil});
+    super({
+      client,
+      clef: "compte",
+      schémaBdPrincipale: schémaStructureBdProfil,
+    });
   }
 
   async épingler() {
@@ -142,9 +145,10 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      { type: string; contact: string }
-    >({
+    const { bd, fOublier } = await this.client.ouvrirBd<{
+      type: string;
+      contact: string;
+    }>({
       id: idBdContacts,
       type: "feed",
       schéma: schémaContactProfil,

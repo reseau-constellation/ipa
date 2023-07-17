@@ -8,9 +8,9 @@ import type { élémentsBd } from "./utils/types.js";
 import OrbitDB from "orbit-db";
 import AccessControllers from "@/accès/index.js";
 import { isElectronMain, isNode } from "wherearewe";
-import Ajv, {type JSONSchemaType, type ValidateFunction} from "ajv";
+import Ajv, { type JSONSchemaType, type ValidateFunction } from "ajv";
 
-const ajv  = new Ajv();
+const ajv = new Ajv();
 
 export default async function initOrbite({
   sfip,
@@ -24,7 +24,7 @@ export default async function initOrbite({
     const path = await import("path");
     dossierOrbiteFinal = dossierOrbite || path.join(".", "orbite");
   } else {
-    dossierOrbiteFinal = dossierOrbite || "./orbite"
+    dossierOrbiteFinal = dossierOrbite || "./orbite";
   }
 
   return await OrbitDB.createInstance(sfip, {
@@ -32,149 +32,204 @@ export default async function initOrbite({
     AccessControllers,
   });
 }
-export function vérifierTypesBdOrbite<T extends élémentsBd>({bd, schéma}: {bd: FeedStore<T>, schéma?: JSONSchemaType<T>}): FeedStore<T>;
-export function vérifierTypesBdOrbite<T extends {[clef: string]: élémentsBd}>({bd, schéma}: {bd: KeyValueStore<T>, schéma?: JSONSchemaType<T>}): KeyValueStore<T>
-export function vérifierTypesBdOrbite<T extends ({[clef: string]: élémentsBd} | élémentsBd)>({bd, schéma}: {bd: Store, schéma?: JSONSchemaType<T>}): Store {
+export function vérifierTypesBdOrbite<T extends élémentsBd>({
+  bd,
+  schéma,
+}: {
+  bd: FeedStore<T>;
+  schéma?: JSONSchemaType<T>;
+}): FeedStore<T>;
+export function vérifierTypesBdOrbite<
+  T extends { [clef: string]: élémentsBd }
+>({
+  bd,
+  schéma,
+}: {
+  bd: KeyValueStore<T>;
+  schéma?: JSONSchemaType<T>;
+}): KeyValueStore<T>;
+export function vérifierTypesBdOrbite<
+  T extends { [clef: string]: élémentsBd } | élémentsBd
+>({ bd, schéma }: { bd: Store; schéma?: JSONSchemaType<T> }): Store {
   if (!schéma) return bd;
-  if (bd.type === 'feed') {
-    const bdListe = bd as FeedStore<T>
-    return validerTypesListeOrbite({bd: bdListe, schéma})
+  if (bd.type === "feed") {
+    const bdListe = bd as FeedStore<T>;
+    return validerTypesListeOrbite({ bd: bdListe, schéma });
   } else if (bd.type === "keyvalue") {
-    const bdDic = bd as KeyValueStore<Extract<T, {[clef: string]: élémentsBd}>>
-    return validerTypesDicOrbite({bd: bdDic, schéma: schéma as JSONSchemaType<Extract<T, {[clef: string]: élémentsBd}>>})
+    const bdDic = bd as KeyValueStore<
+      Extract<T, { [clef: string]: élémentsBd }>
+    >;
+    return validerTypesDicOrbite({
+      bd: bdDic,
+      schéma: schéma as JSONSchemaType<
+        Extract<T, { [clef: string]: élémentsBd }>
+      >,
+    });
   }
   return bd;
 }
 
-const validerTypesListeOrbite = <T extends élémentsBd>({bd, schéma}: {bd: FeedStore<T>, schéma: JSONSchemaType<T>}): FeedStore<T> => {
-
+const validerTypesListeOrbite = <T extends élémentsBd>({
+  bd,
+  schéma,
+}: {
+  bd: FeedStore<T>;
+  schéma: JSONSchemaType<T>;
+}): FeedStore<T> => {
   const validateur = ajv.compile(schéma);
-  const valider = (v:  unknown) => {
-    const valid = validateur(v)
+  const valider = (v: unknown) => {
+    const valid = validateur(v);
     if (valid) return true;
-    else console.error(v, JSON.stringify(validateur.errors, undefined, 2))
+    else console.error(v, JSON.stringify(validateur.errors, undefined, 2));
     return false;
-  }
+  };
 
   return new Proxy(bd, {
     get(target, prop) {
-      if (prop === 'all') {
-        return target[prop].filter(x => valider(x.payload.value));
-      } else if (prop === 'add') {
+      if (prop === "all") {
+        return target[prop].filter((x) => valider(x.payload.value));
+      } else if (prop === "add") {
         return async (data: T): Promise<string> => {
-          const valide = valider(data)
+          const valide = valider(data);
           if (valide) {
-            return await target.add(data)
+            return await target.add(data);
           }
           throw new Error(JSON.stringify(validateur.errors, undefined, 2));
-        }
-      } else if (prop === 'get') {
+        };
+      } else if (prop === "get") {
         return (hash: string): LogEntry<T> => {
           const données = target.get(hash);
-          const valide = valider(données.payload.value)
+          const valide = valider(données.payload.value);
           if (valide) {
-            return données
+            return données;
           }
-          throw new Error(JSON.stringify(validateur.errors, undefined, 2))
-        }
-      } else if (prop === 'iterator') {
+          throw new Error(JSON.stringify(validateur.errors, undefined, 2));
+        };
+      } else if (prop === "iterator") {
         return (options?: {
-            gt?: string,
-            gte?: string,
-            lt?: string,
-            lte?: string,
-            limit?: number,
-            reverse?: boolean
+          gt?: string;
+          gte?: string;
+          lt?: string;
+          lte?: string;
+          limit?: number;
+          reverse?: boolean;
         }): {
-            [Symbol.iterator](): Iterator<LogEntry<T>>,
-            next(): { value?: LogEntry<T>, done: boolean },
-            collect(): LogEntry<T>[]
+          [Symbol.iterator](): Iterator<LogEntry<T>>;
+          next(): { value?: LogEntry<T>; done: boolean };
+          collect(): LogEntry<T>[];
         } => {
           const itérateurBd = target.iterator(options);
 
-          const itérateurType =  {
+          const itérateurType = {
             *[Symbol.iterator](): Iterator<LogEntry<T>> {
-                for (const x of itérateurBd) {
-                  if (valider(x.payload.value)) {
-                    yield x;
-                  }
+              for (const x of itérateurBd) {
+                if (valider(x.payload.value)) {
+                  yield x;
                 }
+              }
             },
-            next(): { value?: LogEntry<T>, done: boolean } {
+            next(): { value?: LogEntry<T>; done: boolean } {
               let suivant = itérateurBd.next();
               while (!valider(suivant.value.payload.value)) {
                 if (suivant.done) return { done: true };
                 suivant = itérateurBd.next();
               }
-              return suivant
+              return suivant;
             },
             collect(): LogEntry<T>[] {
-              return itérateurBd.collect().filter(x => valider(x.payload.value));
-            }
-          }
-          return itérateurType
+              return itérateurBd
+                .collect()
+                .filter((x) => valider(x.payload.value));
+            },
+          };
+          return itérateurType;
         };
       } else {
         return target[prop as keyof typeof target];
-      };
-    }
-  })
-}
+      }
+    },
+  });
+};
 
-const validerTypesDicOrbite = <T extends {[clef: string]: élémentsBd}>({bd, schéma}: {bd: KeyValueStore<T>, schéma: JSONSchemaType<T>}): KeyValueStore<T> => {
+const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
+  bd,
+  schéma,
+}: {
+  bd: KeyValueStore<T>;
+  schéma: JSONSchemaType<T>;
+}): KeyValueStore<T> => {
   const validateur = ajv.compile(schéma);
   const compilerSchémaClef = (s: JSONSchemaType<T[keyof T]>) => {
     // Apparemment nécessaire pour éviter que AJV donne une erreur si `nullable: true` et la valeur est `undefined`
     if (s.nullable) {
-      const f = ajv.compile(s)
+      const f = ajv.compile(s);
       return (v: unknown) => {
-        return f(v === undefined ? null : v)
-      }
+        return f(v === undefined ? null : v);
+      };
     } else {
-      return ajv.compile(s)
+      return ajv.compile(s);
     }
-  }
-  const validateurs = Object.fromEntries((Object.entries(schéma.properties || {}) as [keyof T, JSONSchemaType<T[keyof T]>][]).map(([c, p])=>[c, compilerSchémaClef(p)])) as  {[clef in keyof T]: ValidateFunction<T[clef]>};
-  const validPropriétésAditionnelles = schéma.additionalProperties ? compilerSchémaClef(schéma.additionalProperties) : () => false;
+  };
+  const validateurs = Object.fromEntries(
+    (
+      Object.entries(schéma.properties || {}) as [
+        keyof T,
+        JSONSchemaType<T[keyof T]>
+      ][]
+    ).map(([c, p]) => [c, compilerSchémaClef(p)])
+  ) as { [clef in keyof T]: ValidateFunction<T[clef]> };
+  const validPropriétésAditionnelles = schéma.additionalProperties
+    ? compilerSchémaClef(schéma.additionalProperties)
+    : () => false;
 
-  const valider = (v:  unknown, clef?: string) => {
-    const vld = clef ? (validateurs[clef] || validPropriétésAditionnelles) : validateur
-    const valid = vld(v)
+  const valider = (v: unknown, clef?: string) => {
+    const vld = clef
+      ? validateurs[clef] || validPropriétésAditionnelles
+      : validateur;
+    const valid = vld(v);
     if (valid) return true;
-    else console.error(v, clef, JSON.stringify(vld.errors, undefined, 2))
+    else console.error(v, clef, JSON.stringify(vld.errors, undefined, 2));
     return false;
-  }
+  };
 
   return new Proxy(bd, {
     get(target, prop) {
-      if (prop === 'get') {
+      if (prop === "get") {
         return (key: Extract<keyof T, string>): T[typeof key] => {
           const val = target.get(key);
-          const valide  = valider(val, key) // validateurs[key]?.(val);
-          if (valide)
-            return val
+          const valide = valider(val, key); // validateurs[key]?.(val);
+          if (valide) return val;
           else
-            throw new Error(JSON.stringify(validateurs[key]?.errors, undefined, 2) || `Clef ${key} non supportée.`)
+            throw new Error(
+              JSON.stringify(validateurs[key]?.errors, undefined, 2) ||
+                `Clef ${key} non supportée.`
+            );
         };
-      } else if (prop === 'put' || prop === 'set') {
-        return async (key: Extract<keyof T, string>, value: T[typeof key], options?: object): Promise<string>  => {
-          const valide = valider(value, key) // validateurs[key]?.(value);
-          if (valide)
-            return await target.put(key, value,  options)
+      } else if (prop === "put" || prop === "set") {
+        return async (
+          key: Extract<keyof T, string>,
+          value: T[typeof key],
+          options?: object
+        ): Promise<string> => {
+          const valide = valider(value, key); // validateurs[key]?.(value);
+          if (valide) return await target.put(key, value, options);
           else
-          throw new Error(JSON.stringify(validateurs[key]?.errors, undefined, 2) || `Clef ${key} non supportée.`)
+            throw new Error(
+              JSON.stringify(validateurs[key]?.errors, undefined, 2) ||
+                `Clef ${key} non supportée.`
+            );
         };
-      } else if (prop === 'all') {
-        const données = target.all
-        const valide = valider(données) // validateur(données)
+      } else if (prop === "all") {
+        const données = target.all;
+        const valide = valider(données); // validateur(données)
         if (valide) {
-          return données
+          return données;
         } else {
-          throw new Error(JSON.stringify(validateur.errors, undefined, 2))
+          throw new Error(JSON.stringify(validateur.errors, undefined, 2));
         }
       } else {
-        return target[prop as keyof typeof target]
+        return target[prop as keyof typeof target];
       }
-    }
-  })
-}
+    },
+  });
+};

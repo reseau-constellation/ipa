@@ -9,7 +9,11 @@ import sum from "lodash/sum.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import ClientConstellation, { Signature, infoAccès, schémaStructureBdCompte } from "@/client.js";
+import ClientConstellation, {
+  Signature,
+  infoAccès,
+  schémaStructureBdCompte,
+} from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -193,8 +197,8 @@ export interface ContenuMessageRejoindreCompte extends ContenuMessage {
 export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
 
 type structureBdPrincipaleRéseau = {
-  [idCompte: string]: statutConfianceMembre
-}
+  [idCompte: string]: statutConfianceMembre;
+};
 
 const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> = {
   type: "object",
@@ -202,7 +206,7 @@ const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> =
     type: "string",
   },
   required: [],
-}
+};
 
 const INTERVALE_SALUT = 1000 * 60;
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
@@ -229,7 +233,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   événements: EventEmitter;
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "réseau", schémaBdPrincipale: schémaBdPrincipaleRéseau});
+    super({
+      client,
+      clef: "réseau",
+      schémaBdPrincipale: schémaBdPrincipaleRéseau,
+    });
 
     this.client = client;
 
@@ -608,7 +616,6 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     f: schémaFonctionSuivi<string[]>;
     idBdCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    
     const fFinale = async (membres: {
       [key: string]: statutConfianceMembre;
     }): Promise<void> => {
@@ -617,10 +624,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       );
       await f(fiables);
     };
-    
+
     return await this.suivreBdPrincipale({
       idBd: idBdCompte,
-      f: fFinale
+      f: fFinale,
     });
   }
 
@@ -705,7 +712,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     return await this.suivreBdPrincipale({
       idBd: idBdCompte,
       f: fFinale,
-    })
+    });
   }
 
   @cacheSuivi
@@ -1450,7 +1457,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     }) => {
       return await this.client.suivreProtocoles({
         f: fSuivreBd,
-        idBdCompte: id
+        idBdCompte: id,
       });
     };
 
