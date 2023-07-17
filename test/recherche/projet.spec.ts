@@ -823,7 +823,7 @@ describe("Rechercher projets", function () {
         score: 1,
       };
 
-      expect(résultatVariable).to.equal(résRéf);
+      expect(résultatVariable).to.deep.equal(résRéf);
     });
 
     it("Résultat mot-clef détecté", async () => {
@@ -860,7 +860,7 @@ describe("Rechercher projets", function () {
       };
 
       const val = await résultatMotClef.attendreExiste();
-      expect(val).to.equal(résRéf);
+      expect(val).to.deep.equal(résRéf);
     });
   });
 });
