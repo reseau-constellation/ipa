@@ -11,7 +11,7 @@
   },
   "scripts": {
     "nettoyer": "rimraf dist",
-    "compiler": "pnpm versioner && pnpm nettoyer && pnpm ttsc -p tsconfig.build.json",
+    "compiler": "pnpm versioner && pnpm nettoyer && pnpm tspc -p tsconfig.build.json",
     "test:tous": "env MANDATAIRE=TOUS pnpm test",
     "test:proc": "env MANDATAIRE=PROC pnpm test",
     "test": "pnpm compiler && env MANDATAIRE=TOUS pnpm aegir test -t node -- --exit && pnpm aegir test -t browser",
@@ -74,10 +74,10 @@
     "rimraf": "^3.0.2",
     "source-map-support": "^0.5.21",
     "tmp": "^0.2.1",
+    "ts-patch": "^3.0.1",
     "tsconfig-paths": "^4.2.0",
     "tscpaths": "^0.0.9",
-    "ttypescript": "^1.5.15",
-    "typescript": "4.8.4",
+    "typescript": "5.1.6",
     "typescript-transform-paths": "^3.4.6",
     "wrtc": "^0.4.7"
   },

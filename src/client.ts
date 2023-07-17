@@ -104,6 +104,7 @@ export type structureBdCompte = {
   bds: string;
   projets: string;
   nuées: string;
+  favoris: string;
 
   réseau: string;
   automatisations: string;
@@ -119,6 +120,7 @@ export const schémaStructureBdCompte: JSONSchemaType<structureBdCompte> = {
     bds: {type: "string"},
     projets: {type: "string"},
     nuées: {type: "string"},
+    favoris: {type: "string"},
   
     réseau: {type: "string"},
     automatisations: {type: "string"},
@@ -514,7 +516,7 @@ export class ClientConstellation extends EventEmitter {
     f,
   }: {
     idCompte?: string;
-    f: schémaFonctionSuivi<{ [id: string]: { type: string; nom: string } }>;
+    f: schémaFonctionSuivi<structureNomsDispositifs>;
   }): Promise<schémaFonctionOublier> {
     const idCompteFinal = idCompte || (await this.obtIdCompte());
     return await this.suivreBdDicDeClef({
@@ -532,7 +534,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     idDispositif: string;
     idCompte?: string;
-    f: schémaFonctionSuivi<{ type: string; nom: string }>;
+    f: schémaFonctionSuivi<{ type?: string; nom?: string }>;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreNomsDispositifs({
       idCompte,
@@ -987,7 +989,7 @@ export class ClientConstellation extends EventEmitter {
 
             if (estUnePromesse(promesse)) {
               promesses[idSuivi] = promesse;
-              (promesse as Promise<void>).then(() => {
+              promesse.then(() => {
                 delete promesses[idSuivi];
               });
             }
@@ -1015,6 +1017,7 @@ export class ClientConstellation extends EventEmitter {
             if (String(e).includes("ipfs unable to find")) {
               lancerSuivi();
             } else {
+              console.error(schéma)
               throw new Error(e);
             }
           }
@@ -1300,7 +1303,7 @@ export class ClientConstellation extends EventEmitter {
       id,
       type: "feed",
       schéma,
-      f: async (bd: FeedStore<T>) => {
+      f: async (bd) => {
         const éléments = ClientConstellation.obtÉlémentsDeBdListe({
           bd,
           renvoyerValeur,

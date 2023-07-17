@@ -101,5 +101,8 @@ export type schémaFonctionSuivreQualitéRecherche = (
 export type structureBdNoms = {[langue: string]: string};
 export const schémaStructureBdNoms: JSONSchemaType<structureBdNoms> = {
   type: "object",
+  additionalProperties: {
+    type: "string",
+  },
   required: [],
 }

@@ -85,7 +85,7 @@ const schémaStructureBdVariable: JSONSchemaType<structureBdVariable> = {
       required: ['statut']
     },
   },
-  required: ["type", "catégorie", "statut"]
+  required: ["type", "catégorie", "statut", "noms", "descriptions", "règles"]
 }
 
 export default class Variables extends ComposanteClientListe<string> {
@@ -563,7 +563,7 @@ export default class Variables extends ComposanteClientListe<string> {
     f,
   }: {
     id: string;
-    f: schémaFonctionSuivi<string|undefined>;
+    f: schémaFonctionSuivi<string|null>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id,
@@ -571,7 +571,7 @@ export default class Variables extends ComposanteClientListe<string> {
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
         const unités = bd.get("unités");
-        await f(unités);
+        await f(unités || null);
       },
     });
   }
@@ -642,7 +642,7 @@ export default class Variables extends ComposanteClientListe<string> {
       noms: { [key: string]: string };
       descr: { [key: string]: string };
       règles: règleVariableAvecId<règleVariable>[];
-      unités?: string;
+      unités?: string|null;
       catégorie?: catégorieVariables;
     } = {
       noms: {},

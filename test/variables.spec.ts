@@ -33,12 +33,13 @@ typesClients.forEach((type) => {
       });
 
       describe("Création", function () {
-        let variables: string[];
         let fOublier: schémaFonctionOublier;
+        
+        const variables = new AttendreRésultat<string[]>();
 
         before("Préparer clients", async () => {
           fOublier = await client.variables!.suivreVariables({
-            f: (x) => (variables = x),
+            f: (x) => (variables.mettreÀJour(x)),
           });
         });
 
@@ -46,35 +47,37 @@ typesClients.forEach((type) => {
           if (fOublier) await fOublier();
         });
         it("Pas de variables pour commencer", async () => {
-          expect(variables).to.be.an.empty("array");
+          const val = await variables.attendreExiste();
+          expect(val).to.be.an.empty("array");
         });
         it("Créer des variables", async () => {
           idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          expect(variables).to.be.an("array");
-
-          expect(variables).to.have.lengthOf(1);
-          expect(variables).to.contain(idVariable);
+          const val = await variables.attendreQue(x=>!!x.length)
+          expect(val).to.be.an("array").with.lengthOf(1);
+          expect(val).to.contain(idVariable);
         });
 
-        it("Effacer un mot-clef", async () => {
+        it("Effacer une variable", async () => {
           await client.variables!.effacerVariable({ id: idVariable });
-          expect(variables).to.be.an.empty("array");
+          const val = await variables.attendreQue(x=>!x.length)
+          expect(val).to.be.an.empty("array");
         });
       });
 
       describe("Mes variables", function () {
         let idVariable: string;
-        let mesVariables: string[] = [];
         let fOublier: schémaFonctionOublier;
+        
+        const mesVariables = new AttendreRésultat<string[]>();;
 
         before("Préparer clients", async () => {
           idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
           fOublier = await client.variables!.suivreVariables({
-            f: (vs) => (mesVariables = vs),
+            f: (vs) => (mesVariables.mettreÀJour(vs)),
           });
         });
 
@@ -83,17 +86,20 @@ typesClients.forEach((type) => {
         });
 
         it("La variable est déjà ajoutée", async () => {
-          expect(mesVariables).to.contain(idVariable);
+          const val = await mesVariables.attendreQue(x=>!!x.length);
+          expect(val).to.contain(idVariable);
         });
 
         it("Enlever de mes variables", async () => {
           await client.variables!.enleverDeMesVariables({ id: idVariable });
-          expect(mesVariables).not.to.contain(idVariable);
+          const val = await mesVariables.attendreQue(x => !x.length)
+          expect(val).not.to.contain(idVariable);
         });
 
         it("Ajouter à mes variables", async () => {
           await client.variables!.ajouterÀMesVariables({ id: idVariable });
-          expect(mesVariables).to.contain(idVariable);
+          const val = await mesVariables.attendreQue(x=>!!x.length);
+          expect(val).to.contain(idVariable);
         });
       });
 
@@ -262,9 +268,9 @@ typesClients.forEach((type) => {
       });
 
       describe("Unités", function () {
-        let unités: string;
         let idVariable: string;
         let fOublier: schémaFonctionOublier;
+        const unités = new AttendreRésultat<string|null>();
 
         before("Préparer clients", async () => {
           idVariable = await client.variables!.créerVariable({
@@ -272,16 +278,18 @@ typesClients.forEach((type) => {
           });
           fOublier = await client.variables!.suivreUnitésVariable({
             id: idVariable,
-            f: (u) => (unités = u),
+            f: (u) => (unités.mettreÀJour(u)),
           });
         });
 
         after(async () => {
           if (fOublier) await fOublier();
+          unités.toutAnnuler();
         });
 
         it("Aucune unité pour commencer", async () => {
-          expect(unités).to.be.undefined();
+          const val = await unités.attendreQue(x=>x!==undefined);
+          expect(val).to.be.null();
         });
 
         it("Changer les unités", async () => {
@@ -289,7 +297,8 @@ typesClients.forEach((type) => {
             idVariable,
             idUnité: "mm",
           });
-          expect(unités).to.equal("mm");
+          const val = await unités.attendreQue(x=>!!x)
+          expect(val).to.equal("mm");
         });
       });
 
@@ -372,7 +381,7 @@ typesClients.forEach((type) => {
         let descrs: { [key: string]: string };
         let catégorie: catégorieVariables;
         let règles: règleVariableAvecId[];
-        let unités: string;
+        let unités: string | null;
 
         let idVariable2: string;
 

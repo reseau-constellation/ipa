@@ -1,4 +1,3 @@
-import type KeyValueStore from "orbit-db-kvstore";
 import { isNode, isElectron } from "wherearewe";
 
 import type { default as ClientConstellation } from "@/client.js";
@@ -8,6 +7,7 @@ import type {
 } from "@/utils/index.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
+import { JSONSchemaType } from "ajv";
 
 export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
 
@@ -26,12 +26,45 @@ export type ÉlémentFavoris = {
 
 export type ÉlémentFavorisAvecObjet = ÉlémentFavoris & { idObjet: string };
 
-export default class Favoris extends ComposanteClientDic<ÉlémentFavoris> {
+type structureBdFavoris = { [idObjet: string]: ÉlémentFavoris }
+const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
+  type: "object",
+  additionalProperties: {
+    type: "object",
+    properties: {
+      dispositifs: {
+        anyOf: [
+          {
+            type: "array",
+            items: {type: "string"}
+          },
+          {type: "string"}
+        ]
+      },
+      dispositifsFichiers: {
+        type: ["array", "string"],
+        anyOf: [
+          {
+            type: "array",
+            items: {type: "string"}
+          },
+          {type: "string"}
+        ],
+        nullable: true
+      },
+      récursif: {type: "boolean"}
+    },
+    required: ["dispositifs", "récursif"]
+  },
+  required: [],
+}
+
+export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
   _promesseInit: Promise<void>;
   oublierÉpingler?: schémaFonctionOublier;
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "favoris"})
+    super({client, clef: "favoris", schémaBdPrincipale})
 
     this._promesseInit = this._épinglerFavoris();
   }
@@ -125,9 +158,7 @@ export default class Favoris extends ComposanteClientDic<ÉlémentFavoris> {
     dispositifsFichiers?: typeDispositifs | undefined;
     récursif?: boolean;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<ÉlémentFavoris>
-    >({ id: await this.obtIdBd() });
+    const { bd, fOublier } = await this.obtBd();
 
     const élément: ÉlémentFavoris = {
       récursif,
@@ -140,9 +171,7 @@ export default class Favoris extends ComposanteClientDic<ÉlémentFavoris> {
   }
 
   async désépinglerFavori({ id }: { id: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      KeyValueStore<ÉlémentFavoris>
-    >({ id: await this.obtIdBd() });
+    const { bd, fOublier } = await this.obtBd();
     await bd.del(id);
     await fOublier();
   }

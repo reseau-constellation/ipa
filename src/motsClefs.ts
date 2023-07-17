@@ -98,10 +98,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<string>({
-      id: await this.obtIdBd(),
-      type: "feed",
-    });
+    const { bd, fOublier } = await this.obtBd();
     await bd.add(idMotClef);
     await fOublier();
   }

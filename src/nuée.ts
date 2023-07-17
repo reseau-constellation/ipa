@@ -31,14 +31,14 @@ import {
   type infoTableauAvecId,
   type schémaSpécificationBd,
   schémaBdTableauxDeBd,
-} from "@/bds";
+} from "@/bds.js";
 import { v4 as uuidv4 } from "uuid";
 import type {
   erreurValidation,
   élémentDonnées,
   règleVariable,
   règleColonne,
-} from "@/valid";
+} from "@/valid.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
 import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
 import type KeyValueStore from "orbit-db-kvstore";

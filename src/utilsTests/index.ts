@@ -78,7 +78,7 @@ export const attendreSync = async (bd: Store): Promise<void> => {
 };
 
 export const peutÉcrire = async (
-  bd: KeyValueStore<number> | FeedStore<string>,
+  bd: KeyValueStore<{test: number}> | FeedStore<string>,
   attendre?: OrbitDB
 ): Promise<boolean> => {
   if (attendre) {
@@ -90,10 +90,10 @@ export const peutÉcrire = async (
       const CLEF = "test";
       const VAL = 123;
 
-      await (bd as KeyValueStore<number>).set(CLEF, VAL);
+      await (bd as KeyValueStore<{test: number}>).set(CLEF, VAL);
       const val = bd.get(CLEF);
 
-      await (bd as KeyValueStore<number>).del(CLEF);
+      await (bd as KeyValueStore<{test: number}>).del(CLEF);
       return val === VAL;
     } else if (bd.type === "feed") {
       const VAL = "test";

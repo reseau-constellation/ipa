@@ -36,15 +36,15 @@ const schémaContactProfil: JSONSchemaType<structureContactProfil> = {
   type: "object",
   properties: {
     type: {type: "string"},
-    contact: {type: "string"}
+    contact: {type: "string"},
   },
-  required: ["contact", "type"]
+  required: ["contact", "type"],
 }
 
 export default class Profil extends ComposanteClientDic<structureBdProfil> {
 
   constructor({ client }: { client: ClientConstellation }) {
-    super({client, clef: "compte", schémaBdPrincipale: schémaContactProfil});
+    super({client, clef: "compte", schémaBdPrincipale: schémaStructureBdProfil});
   }
 
   async épingler() {

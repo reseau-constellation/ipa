@@ -41,7 +41,7 @@ export function vérifierTypesBdOrbite<T extends ({[clef: string]: élémentsBd}
     return validerTypesListeOrbite({bd: bdListe, schéma})
   } else if (bd.type === "keyvalue") {
     const bdDic = bd as KeyValueStore<Extract<T, {[clef: string]: élémentsBd}>>
-    return validerTypesDicOrbite({bd: bdDic, schéma: schéma as JSONSchemaType<T>})
+    return validerTypesDicOrbite({bd: bdDic, schéma: schéma as JSONSchemaType<Extract<T, {[clef: string]: élémentsBd}>>})
   }
   return bd;
 }
@@ -49,14 +49,20 @@ export function vérifierTypesBdOrbite<T extends ({[clef: string]: élémentsBd}
 const validerTypesListeOrbite = <T extends élémentsBd>({bd, schéma}: {bd: FeedStore<T>, schéma: JSONSchemaType<T>}): FeedStore<T> => {
 
   const validateur = ajv.compile(schéma);
+  const valider = (v:  unknown) => {
+    const valid = validateur(v)
+    if (valid) return true;
+    else console.error(v, JSON.stringify(validateur.errors, undefined, 2))
+    return false;
+  }
 
   return new Proxy(bd, {
     get(target, prop) {
       if (prop === 'all') {
-        return target[prop].filter(x => validateur(x.payload.value));
+        return target[prop].filter(x => valider(x.payload.value));
       } else if (prop === 'add') {
         return async (data: T): Promise<string> => {
-          const valide = validateur(data)
+          const valide = valider(data)
           if (valide) {
             return await target.add(data)
           }
@@ -65,7 +71,7 @@ const validerTypesListeOrbite = <T extends élémentsBd>({bd, schéma}: {bd: Fee
       } else if (prop === 'get') {
         return (hash: string): LogEntry<T> => {
           const données = target.get(hash);
-          const valide = validateur(données.payload.value)
+          const valide = valider(données.payload.value)
           if (valide) {
             return données
           }
@@ -89,21 +95,21 @@ const validerTypesListeOrbite = <T extends élémentsBd>({bd, schéma}: {bd: Fee
           const itérateurType =  {
             *[Symbol.iterator](): Iterator<LogEntry<T>> {
                 for (const x of itérateurBd) {
-                  if (validateur(x)) {
+                  if (valider(x.payload.value)) {
                     yield x;
                   }
                 }
             },
             next(): { value?: LogEntry<T>, done: boolean } {
               let suivant = itérateurBd.next();
-              while (!validateur(suivant.value)) {
+              while (!valider(suivant.value.payload.value)) {
                 if (suivant.done) return { done: true };
                 suivant = itérateurBd.next();
               }
               return suivant
             },
             collect(): LogEntry<T>[] {
-              return itérateurBd.collect().filter(x => validateur(x));
+              return itérateurBd.collect().filter(x => valider(x.payload.value));
             }
           }
           return itérateurType
@@ -117,14 +123,34 @@ const validerTypesListeOrbite = <T extends élémentsBd>({bd, schéma}: {bd: Fee
 
 const validerTypesDicOrbite = <T extends {[clef: string]: élémentsBd}>({bd, schéma}: {bd: KeyValueStore<T>, schéma: JSONSchemaType<T>}): KeyValueStore<T> => {
   const validateur = ajv.compile(schéma);
-  const validateurs = Object.fromEntries((Object.entries(schéma.properties || {}) as [keyof T, JSONSchemaType<T[keyof T]>][]).map(([c, p])=>[c, ajv.compile(p.type)])) as  {[clef in keyof T]: ValidateFunction<T[clef]>};
+  const compilerSchémaClef = (s: JSONSchemaType<T[keyof T]>) => {
+    // Apparemment nécessaire pour éviter que AJV donne une erreur si `nullable: true` et la valeur est `undefined`
+    if (s.nullable) {
+      const f = ajv.compile(s)
+      return (v: unknown) => {
+        return f(v === undefined ? null : v)
+      }
+    } else {
+      return ajv.compile(s)
+    }
+  }
+  const validateurs = Object.fromEntries((Object.entries(schéma.properties || {}) as [keyof T, JSONSchemaType<T[keyof T]>][]).map(([c, p])=>[c, compilerSchémaClef(p)])) as  {[clef in keyof T]: ValidateFunction<T[clef]>};
+  const validPropriétésAditionnelles = schéma.additionalProperties ? compilerSchémaClef(schéma.additionalProperties) : () => false;
+
+  const valider = (v:  unknown, clef?: string) => {
+    const vld = clef ? (validateurs[clef] || validPropriétésAditionnelles) : validateur
+    const valid = vld(v)
+    if (valid) return true;
+    else console.error(v, clef, JSON.stringify(vld.errors, undefined, 2))
+    return false;
+  }
 
   return new Proxy(bd, {
     get(target, prop) {
       if (prop === 'get') {
         return (key: Extract<keyof T, string>): T[typeof key] => {
           const val = target.get(key);
-          const valide  = validateurs[key]?.(val);
+          const valide  = valider(val, key) // validateurs[key]?.(val);
           if (valide)
             return val
           else
@@ -132,7 +158,7 @@ const validerTypesDicOrbite = <T extends {[clef: string]: élémentsBd}>({bd, sc
         };
       } else if (prop === 'put' || prop === 'set') {
         return async (key: Extract<keyof T, string>, value: T[typeof key], options?: object): Promise<string>  => {
-          const valide = validateurs[key]?.(value);
+          const valide = valider(value, key) // validateurs[key]?.(value);
           if (valide)
             return await target.put(key, value,  options)
           else
@@ -140,7 +166,7 @@ const validerTypesDicOrbite = <T extends {[clef: string]: élémentsBd}>({bd, sc
         };
       } else if (prop === 'all') {
         const données = target.all
-        const valide = validateur(données)
+        const valide = valider(données) // validateur(données)
         if (valide) {
           return données
         } else {

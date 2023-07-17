@@ -65,7 +65,7 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
     const id = await this.obtIdBd();
     if (!id) throw new Error("Initialisation " + this.clef);
 
-    return await this.client.ouvrirBd({
+    return await this.client.ouvrirBd<T>({
       id,
       type: "keyvalue",
       schéma: this.schémaBdPrincipale,
@@ -86,7 +86,7 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdDic({
+        return await this.client.suivreBdDic<T>({
           id,
           schéma: this.schémaBdPrincipale,
           f: fSuivreBd,
