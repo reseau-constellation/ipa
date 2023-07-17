@@ -196,12 +196,12 @@ export default class BDs extends ComposanteClientListe<string> {
   @cacheSuivi
   async suivreBds({
     f,
-    idBdBdsCompte,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<string[]>;
-    idBdBdsCompte?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.suivreBdPrincipale({ idBd: idBdBdsCompte, f });
+    return await this.suivreBdPrincipale({ idCompte, f });
   }
 
   async créerBd({
@@ -521,16 +521,16 @@ export default class BDs extends ComposanteClientListe<string> {
   async rechercherBdsParMotsClefs({
     motsClefs,
     f,
-    idBdBdsCompte,
+    idCompte,
   }: {
     motsClefs: string[];
     f: schémaFonctionSuivi<string[]>;
-    idBdBdsCompte?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBds({ f: fSuivreRacine, idBdBdsCompte });
+      return await this.suivreBds({ f: fSuivreRacine, idCompte });
     };
 
     const fCondition = async (
@@ -550,16 +550,16 @@ export default class BDs extends ComposanteClientListe<string> {
   async rechercherBdsParNuée({
     idNuée,
     f,
-    idBdBdsCompte,
+    idCompte,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
-    idBdBdsCompte?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBds({ f: fSuivreRacine, idBdBdsCompte });
+      return await this.suivreBds({ f: fSuivreRacine, idCompte });
     };
 
     const fCondition = async (

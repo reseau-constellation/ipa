@@ -91,7 +91,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreSousBdListe({
-      idBd: idCompte,
+      idCompte,
       clef: "contacts",
       schéma: schémaContactProfil,
       f,
@@ -171,7 +171,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreSousBdDic({
-      idBd: idCompte,
+      idCompte,
       clef: "noms",
       schéma: schémaStructureBdNoms,
       f,
@@ -271,7 +271,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
-        return await this.suivreIdBd({ f: fSuivreRacine, idBd: idCompte });
+        return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {

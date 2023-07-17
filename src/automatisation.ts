@@ -627,7 +627,12 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     } catch (e) {
       const nouvelÉtat: ÉtatErreur = {
         type: "erreur",
-        erreur: (e as Error).toString(),
+        erreur: JSON.stringify({
+          nom: (e as Error).name,
+          message: (e as Error).message,
+          pile: (e as Error).stack,
+          cause: (e as Error).cause
+        }, undefined, 2),
         prochaineProgramméeÀ: tempsInterval
           ? Date.now() + tempsInterval
           : undefined,
@@ -1093,10 +1098,10 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
 
   async suivreAutomatisations({
     f,
-    idBdAutomatisations,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<SpécificationAutomatisation[]>;
-    idBdAutomatisations?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (autos: SpécificationAutomatisation[]) => {
       const autosFinales = await Promise.all(
@@ -1136,7 +1141,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
       await f(autosFinales);
     };
     return await this.suivreBdPrincipale({
-      idBd: idBdAutomatisations,
+      idCompte,
       f: fFinale,
     });
   }

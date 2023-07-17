@@ -123,10 +123,10 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
   @cacheSuivi
   async suivreFavoris({
     f,
-    idBdFavoris,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[]>;
-    idBdFavoris?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (favoris: { [key: string]: ÉlémentFavoris }) => {
       const favorisFinaux = Object.entries(favoris).map(
@@ -141,7 +141,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
     };
 
     return await this.suivreBdPrincipale({
-      idBd: idBdFavoris,
+      idCompte,
       f: fFinale,
     });
   }

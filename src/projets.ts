@@ -92,13 +92,13 @@ export default class Projets extends ComposanteClientListe<string> {
   @cacheSuivi
   async suivreProjets({
     f,
-    idBdProjets,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<string[]>;
-    idBdProjets?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBdPrincipale({
-      idBd: idBdProjets,
+      idCompte,
       f,
     });
   }

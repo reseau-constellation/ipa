@@ -85,15 +85,15 @@ export class ComposanteClientDic<
 
   @cacheSuivi
   async suivreBdPrincipale({
-    idBd,
+    idCompte,
     f,
   }: {
-    idBd?: string;
+    idCompte?: string;
     f: schémaFonctionSuivi<T>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
-        return await this.suivreIdBd({ f: fSuivreRacine, idBd });
+        return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
@@ -108,19 +108,19 @@ export class ComposanteClientDic<
 
   @cacheSuivi
   async suivreSousBdDic<U extends { [key: string]: élémentsBd }>({
-    idBd,
+    idCompte,
     clef,
     schéma,
     f,
   }: {
-    idBd?: string;
+    idCompte?: string;
     clef: string;
     schéma: JSONSchemaType<U>;
     f: schémaFonctionSuivi<U>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
-        return await this.suivreIdBd({ f: fSuivreRacine, idBd });
+        return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
@@ -136,19 +136,19 @@ export class ComposanteClientDic<
 
   @cacheSuivi
   async suivreSousBdListe<U extends élémentsBd>({
-    idBd,
+    idCompte,
     clef,
     schéma,
     f,
   }: {
-    idBd?: string;
+    idCompte?: string;
     clef: string;
     schéma: JSONSchemaType<U>;
     f: schémaFonctionSuivi<U[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
-        return await this.suivreIdBd({ f: fSuivreRacine, idBd });
+        return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
@@ -166,15 +166,15 @@ export class ComposanteClientDic<
   @cacheSuivi
   async suivreIdBd({
     f,
-    idBd,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<string>;
-    idBd?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
-        if (idBd) {
-          await fSuivreRacine(idBd);
+        if (idCompte) {
+          await fSuivreRacine(idCompte);
           return faisRien;
         } else {
           return await this.client.suivreIdBdCompte({ f: fSuivreRacine });
@@ -237,15 +237,15 @@ export class ComposanteClientListe<
 
   @cacheSuivi
   async suivreBdPrincipale({
-    idBd,
+    idCompte,
     f,
   }: {
-    idBd?: string;
+    idCompte?: string;
     f: schémaFonctionSuivi<T[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
-        return await this.suivreIdBd({ f: fSuivreRacine, idBd });
+        return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
@@ -261,15 +261,15 @@ export class ComposanteClientListe<
 
   @cacheSuivi
   async suivreBdPrincipaleBrute({
-    idBd,
+    idCompte,
     f,
   }: {
-    idBd?: string;
+    idCompte?: string;
     f: schémaFonctionSuivi<LogEntry<T>[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
-        return await this.suivreIdBd({ f: fSuivreRacine, idBd });
+        return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
@@ -286,15 +286,15 @@ export class ComposanteClientListe<
   @cacheSuivi
   async suivreIdBd({
     f,
-    idBd,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<string>;
-    idBd?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
-        if (idBd) {
-          await fSuivreRacine(idBd);
+        if (idCompte) {
+          await fSuivreRacine(idCompte);
           return faisRien;
         } else {
           return await this.client.suivreIdBdCompte({ f: fSuivreRacine });

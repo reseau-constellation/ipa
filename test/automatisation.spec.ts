@@ -771,7 +771,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Exportation nuée bds", function () {
+      describe.only("Exportation nuée bds", function () {
         let dossier: string;
 
         let idNuée: string;

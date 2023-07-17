@@ -104,12 +104,12 @@ export default class Variables extends ComposanteClientListe<string> {
   @cacheSuivi
   async suivreVariables({
     f,
-    idBdVariables,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<string[]>;
-    idBdVariables?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.suivreBdPrincipale({ idBd: idBdVariables, f });
+    return await this.suivreBdPrincipale({ idCompte, f });
   }
 
   async créerVariable({

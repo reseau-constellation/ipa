@@ -349,14 +349,14 @@ export default class Nuée extends ComposanteClientListe<string> {
 
   async suivreNuées({
     f,
-    idBdNuéesCompte,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<string[]>;
-    idBdNuéesCompte?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBdPrincipale({
       f,
-      idBd: idBdNuéesCompte,
+      idCompte,
     });
   }
 
@@ -2010,7 +2010,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             id: idBd,
             f: async (licence) => {
               conformes.licence = licencesPermises.includes(licence);
-              await fFinaleBdConforme();
+              return await fFinaleBdConforme();
             },
           });
           fsOublier.push(fOublierLicence);
@@ -2026,7 +2026,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             idNuée,
             f: async (différences) => {
               conformes.formatBd = !différences.length;
-              await fFinaleBdConforme();
+              return await fFinaleBdConforme();
             },
           });
           fsOublier.push(fOublierErreursFormatBd);
@@ -2265,8 +2265,9 @@ export default class Nuée extends ComposanteClientListe<string> {
             (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
               this.client.variables!.suivreNomsVariable({ id: idVar, f })
           );
-          const idCol = colonnes.find((c) => c.variable === idVar)!.id!;
-          nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
+          
+          const idCol = colonnes.find((c) => c.variable === idVar)?.id;
+          nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol || idVar;
         }
         donnéesPourXLSX = donnéesPourXLSX.map((d) =>
           Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {

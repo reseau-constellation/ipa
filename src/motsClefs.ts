@@ -45,12 +45,12 @@ export default class MotsClefs extends ComposanteClientListe<string> {
   @cacheSuivi
   async suivreMotsClefs({
     f,
-    idBdMotsClefs,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<string[]>;
-    idBdMotsClefs?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.suivreBdPrincipale({ idBd: idBdMotsClefs, f });
+    return await this.suivreBdPrincipale({ idCompte, f });
   }
 
   async créerMotClef(): Promise<string> {
