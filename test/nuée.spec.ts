@@ -62,32 +62,32 @@ typesClients.forEach((type) => {
     });
 
     describe("Noms", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
 
     describe("Descriptions", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
 
     describe("Mots-clefs", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
 
     describe("Mes nuées", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
 
     describe("Status nuée", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
 
     describe("Création", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
 
     describe("Tableaux", function () {
       describe("Ajouter et enlever", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
 
       describe("Colonnes", function () {
@@ -127,33 +127,33 @@ typesClients.forEach((type) => {
         });
       });
       describe("Variables", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
       describe("Règles", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
     });
     describe("Qualité", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
     describe("Différences tableau", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
     describe("Différences bd", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
     describe("Suivre données", function () {
       describe("Vérifier autorisations", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
       describe("Erreurs formats bds", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
       describe("Erreurs formats tableaux", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
       describe("Erreurs données", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
 
       describe("Toujours inclure les miennes", function () {
@@ -333,19 +333,19 @@ typesClients.forEach((type) => {
     });
 
     describe("Gestionnaires", function () {
-      test.skip("Créer gestionnaire indépendant");
-      test.skip("Exclure membre");
-      test.skip("Réintégrer membre");
-      test.skip("Changer philosophie à CJPI");
-      test.skip("Inviter membre");
+      it.skip("Créer gestionnaire indépendant");
+      it.skip("Exclure membre");
+      it.skip("Réintégrer membre");
+      it.skip("Changer philosophie à CJPI");
+      it.skip("Inviter membre");
     });
 
     describe("Autorisations nuée", function () {
-      test.skip("Créer Nuée avec gestionnaire existant");
-      test.skip("Changer philosophie");
-      test.skip("Accepter membre");
-      test.skip("Exclure membre");
-      test.skip("Changer gestionnaire");
+      it.skip("Créer Nuée avec gestionnaire existant");
+      it.skip("Changer philosophie");
+      it.skip("Accepter membre");
+      it.skip("Exclure membre");
+      it.skip("Changer gestionnaire");
     });
 
     describe("Correspondances bds", function () {
@@ -477,37 +477,37 @@ typesClients.forEach((type) => {
     });
 
     describe("Correspondances tableaux", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
 
     describe("Ascendance", function () {
       describe("Héritage noms", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
       describe("Héritage descriptions", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
       describe("Héritage règles", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
       describe("Traçabilité descendants", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
       describe("Suivi données descendants", function () {
-        test.skip("Nuée");
+        it.skip("Nuée");
       });
     });
     describe("Suivre empreinte tête", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
     describe("Exporter données", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
     describe("Générer de bd", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
     describe("Générer schéma", function () {
-      test.skip("Nuée");
+      it.skip("Nuée");
     });
   });
 });
@@ -558,8 +558,8 @@ it("Les descriptions sont liées", async () => {
   expect(descrsLiées).to.deep.equal(réfDescrsLiées);
 });
 
-test.skip("Changement de tableaux détecté");
-test.skip("Changement de colonnes tableau détecté");
-test.skip("Changement propriétés de colonnes tableau détecté");
-test.skip("Changement de règles détecté");
+it.skip("Changement de tableaux détecté");
+it.skip("Changement de colonnes tableau détecté");
+it.skip("Changement propriétés de colonnes tableau détecté");
+it.skip("Changement de règles détecté");
 */

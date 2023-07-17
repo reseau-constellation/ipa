@@ -1784,7 +1784,7 @@ typesClients.forEach((type) => {
             expect(val).to.deep.equal(new Uint8Array(IMAGE));
           });
 
-          test.skip("Protocoles détectés");
+          it.skip("Protocoles détectés");
         });
 
         describe("Suivre mots-clefs", function () {

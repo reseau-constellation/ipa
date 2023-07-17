@@ -241,7 +241,7 @@ typesClients.forEach((type) => {
       });
 
       describe("Statut projet", function () {
-        test.skip("À faire");
+        it.skip("À faire");
       });
 
       describe("BDs", function () {

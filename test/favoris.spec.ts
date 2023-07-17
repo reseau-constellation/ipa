@@ -7,7 +7,7 @@ import type { schémaFonctionOublier } from "@/utils/index.js";
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 
 import { expect } from "aegir/chai";
-import { AttendreRésultat } from "@/utilsTests/attente";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

@@ -168,7 +168,7 @@ if (isNode || isElectronMain) {
         expect(autorisé).to.be.true();
       });
 
-      test.skip("Mauvais mot de passe");
+      it.skip("Mauvais mot de passe");
     });
   });
 
@@ -214,7 +214,7 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre protocoles", function () {
-      test.skip("Suivre protocoles compte");
+      it.skip("Suivre protocoles compte");
     });
 
     describe("Suivre BD", function () {
