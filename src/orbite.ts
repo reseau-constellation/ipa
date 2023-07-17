@@ -159,8 +159,12 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
   schéma: JSONSchemaType<T>;
 }): KeyValueStore<T> => {
   const validateur = ajv.compile(schéma);
-  const compilerSchémaClef = (s: JSONSchemaType<T[keyof T]>) => {
+  const compilerSchémaClef = (s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"]) => {
     // Apparemment nécessaire pour éviter que AJV donne une erreur si `nullable: true` et la valeur est `undefined`
+    if (s === true) {
+      return () => true;
+    };
+
     if (s.nullable) {
       const f = ajv.compile(s);
       return (v: unknown) => {
