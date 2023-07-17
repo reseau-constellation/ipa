@@ -798,7 +798,7 @@ class AutomatisationActive extends EventEmitter {
         });
       });
     }
-    this.fOublier!();
+    await this.fOublier?.();
   }
 }
 
@@ -1177,6 +1177,6 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
         this.fermerAuto(a);
       })
     );
-    if (this.fOublier) await this.fOublier();
+    await this.fOublier?.();
   }
 }
