@@ -173,7 +173,7 @@ typesClients.forEach((type) => {
             fsOublier.push(
               await clients[1].réseau!.suivreFiables({
                 f: (m) => fiablesAutres.mettreÀJour(m),
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
               })
             );
           });
@@ -257,7 +257,7 @@ typesClients.forEach((type) => {
             fsOublier.push(
               await clients[1].réseau!.suivreBloqués({
                 f: (m) => bloquésAutreMembre.mettreÀJour(m),
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
               })
             );
           });

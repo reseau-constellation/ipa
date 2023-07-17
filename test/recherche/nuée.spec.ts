@@ -1,5 +1,5 @@
 import type { default as ClientConstellation } from "@/client.js";
-import { config } from "@/utilsTests/sfip";
+
 import { générerClients } from "@/utilsTests/client.js";
 import {
   rechercherNuéeSelonNom,
