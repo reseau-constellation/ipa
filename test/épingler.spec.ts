@@ -1,9 +1,6 @@
 import pkg from "lodash";
 const { isSet } = pkg;
 
-import type KeyValueStore from "orbit-db-kvstore";
-import type FeedStore from "orbit-db-feedstore";
-
 import type { default as ClientConstellation } from "@/client.js";
 
 import { générerClients, typesClients } from "@/utilsTests/client.js";
@@ -79,8 +76,9 @@ typesClients.forEach((type) => {
         it("Épingler liste récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe });
 
-          const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
+          const { bd, fOublier } = await client.ouvrirBd<string>({
             id: idBdListe,
+            type: "feed",
           });
           await bd.add(idBdAutre);
           await fOublier();
@@ -101,15 +99,17 @@ typesClients.forEach((type) => {
         it("Épingler dic récursif", async () => {
           await client.épingles!.épinglerBd({ id: idBdDic });
 
-          const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
-            { id: idBdDic }
-          );
+          const { bd, fOublier } = await client.ouvrirBd<{[clef: string]: string}>({ 
+            id: idBdDic,
+            type: "keyvalue",
+          });
           await bd.set("clef", idBdDic2);
           await fOublier();
 
-          const { bd: bdDic2, fOublier: fOublier2 } = await client.ouvrirBd<
-            KeyValueStore<string>
-          >({ id: idBdDic2 });
+          const { bd: bdDic2, fOublier: fOublier2 } = await client.ouvrirBd<{[clef: string]: string}>({
+            id: idBdDic2,
+            type: "keyvalue",
+          });
           await bdDic2.set("clef", idBdAutre);
           fOublier2();
 
@@ -156,16 +156,17 @@ typesClients.forEach((type) => {
         });
 
         it("Fichier épinglé", async () => {
-          const { bd, fOublier } = await client.ouvrirBd<KeyValueStore<string>>(
-            { id: idBd }
+          const { bd, fOublier } = await client.ouvrirBd<{[clef: string]: string}>(
+            { id: idBd, type: "keyvalue" }
           );
           await bd.set("clef", idc);
           await bd.set("clef2", idc2);
           await fOublier();
 
-          const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<
-            KeyValueStore<string>
-          >({ id: idBd2 });
+          const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<{[clef: string]: string}>({ 
+            id: idBd2, 
+            type: "keyvalue" 
+          });
           await bd2.set("clef2", idc2);
           fOublier2();
 
@@ -193,8 +194,9 @@ typesClients.forEach((type) => {
         it("Fichier épinglé dans BD récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe });
 
-          const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
+          const { bd, fOublier } = await client.ouvrirBd<string>({
             id: idBdListe,
+            type: "feed",
           });
           await bd.add(idBd);
           await fOublier();
