@@ -552,7 +552,7 @@ describe("Client ", function () {
       };
 
       const val = await résultatMotClef.attendreExiste();
-      expect(val).to.equal(résRéf);
+      expect(val).to.deep.equal(résRéf);
     });
   });
 });
