@@ -47,11 +47,15 @@ const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
           {
             type: "array",
             items: { type: "string" },
+            nullable: true,
           },
-          { type: "string" },
+          { 
+            type: "string",
+            nullable: true,
+          },
         ],
         nullable: true,
-        allowUnionTypes: true,
+        // allowUnionTypes: true,
       },
       récursif: { type: "boolean" },
     },
