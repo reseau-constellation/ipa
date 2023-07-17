@@ -1604,12 +1604,18 @@ typesClients.forEach((type) => {
           ).to.have.deep.members([
             {
               [idsCols[idVarEndroit]]: "ici",
-              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-01").valueOf()
+              },
               [idsCols[idVarTempMin]]: 25,
             },
             {
               [idsCols[idVarEndroit]]: "ici",
-              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-02").valueOf()
+              },
               [idsCols[idVarTempMin]]: 27,
             },
           ]);
