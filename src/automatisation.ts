@@ -80,7 +80,7 @@ const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationAutomati
         fréquence: {
           type: "object",
           properties: {
-            n: {type: "integer"},
+            n: {type: "number"},
             unités: {type: "string"}
           },
           nullable: true,
@@ -118,7 +118,7 @@ const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationAutomati
         fréquence: {
           type: "object",
           properties: {
-            n: {type: "integer"},
+            n: {type: "number"},
             unités: {type: "string"}
           },
           nullable: true,
@@ -147,7 +147,7 @@ const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationAutomati
           required: [],
         }
       },
-      required: ["id", "idTableau", "dispositif", "source", "conversions"]
+      required: ["id", "idTableau", "dispositif", "source"]
     },
   ],
   required: ["id", "type"],

@@ -144,18 +144,17 @@ export type différenceTableauxBds<
 
 export type infoTableauAvecId = infoTableau & { id: string };
 
-export const schémaInfoTableauAvecId: JSONSchemaType<infoTableauAvecId> = {
+export const schémaInfoTableau: JSONSchemaType<infoTableau> = {
   type: "object",
   properties: {
     clef: {type: "string"},
-    id: {type: "string"},
     position: {type: "integer"}
   },
-  required: ["clef", "id", "position"]
+  required: ["clef", "position"]
 }
-export const schémaBdTableauxDeBd: JSONSchemaType<{[idTableau: string]: infoTableauAvecId}> = {
+export const schémaBdTableauxDeBd: JSONSchemaType<{[idTableau: string]: infoTableau}> = {
   type: "object",
-  additionalProperties: schémaInfoTableauAvecId,
+  additionalProperties: schémaInfoTableau,
   required: [],
 }
 

@@ -17,7 +17,7 @@ type KeysMatching<T, V> = {[K in keyof T]-?: T[K] extends V ? K : never}[keyof T
 
 export class ComposanteClient {
   client: ClientConstellation;
-  clef: KeysMatching<structureBdCompte, string>;
+  clef: KeysMatching<structureBdCompte, string|undefined>;
   typeBd: "kvstore" | "feed";
 
   constructor({
@@ -26,7 +26,7 @@ export class ComposanteClient {
     typeBd,
   }: {
     client: ClientConstellation;
-    clef: KeysMatching<structureBdCompte, string>;
+    clef: KeysMatching<structureBdCompte, string|undefined>;
     typeBd: "kvstore" | "feed";
   }) {
     this.client = client;
@@ -49,7 +49,7 @@ export class ComposanteClient {
 export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> extends ComposanteClient {
   schémaBdPrincipale: JSONSchemaType<T>;
 
-  constructor({ client, clef, schémaBdPrincipale }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string>, schémaBdPrincipale: JSONSchemaType<T> }) {
+  constructor({ client, clef, schémaBdPrincipale }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string|undefined>, schémaBdPrincipale: JSONSchemaType<T> }) {
     super({
       client,
       clef,
@@ -192,7 +192,7 @@ export class ComposanteClientDic<T extends {[clef: string]: élémentsBd}> exten
 export class ComposanteClientListe<T extends élémentsBd> extends ComposanteClient {
   schémaBdPrincipale: JSONSchemaType<T>;
 
-  constructor({ client, clef, schémaBdPrincipale }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string>; schémaBdPrincipale: JSONSchemaType<T> }) {
+  constructor({ client, clef, schémaBdPrincipale }: { client: ClientConstellation; clef: KeysMatching<structureBdCompte, string|undefined>; schémaBdPrincipale: JSONSchemaType<T> }) {
       super({
           client,
           clef,

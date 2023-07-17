@@ -96,36 +96,36 @@ type optsInitSFIP = {
 type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string> };
 
 export type structureBdCompte = {
-  protocoles: string;
+  protocoles?: string;
 
-  compte: string;
-  motsClefs: string;
-  variables: string;
-  bds: string;
-  projets: string;
-  nuées: string;
-  favoris: string;
+  compte?: string;
+  motsClefs?: string;
+  variables?: string;
+  bds?: string;
+  projets?: string;
+  nuées?: string;
+  favoris?: string;
 
-  réseau: string;
-  automatisations: string;
+  réseau?: string;
+  automatisations?: string;
 };
 export const schémaStructureBdCompte: JSONSchemaType<structureBdCompte> = {
   type: "object",
   properties: {
-    protocoles: {type: "string"},
+    protocoles: {type: "string", nullable: true},
 
-    compte: {type: "string"},
-    motsClefs: {type: "string"},
-    variables: {type: "string"},
-    bds: {type: "string"},
-    projets: {type: "string"},
-    nuées: {type: "string"},
-    favoris: {type: "string"},
+    compte: {type: "string", nullable: true},
+    motsClefs: {type: "string", nullable: true},
+    variables: {type: "string", nullable: true},
+    bds: {type: "string", nullable: true},
+    projets: {type: "string", nullable: true},
+    nuées: {type: "string", nullable: true},
+    favoris: {type: "string", nullable: true},
   
-    réseau: {type: "string"},
-    automatisations: {type: "string"},
+    réseau: {type: "string", nullable: true},
+    automatisations: {type: "string", nullable: true},
   },
-  required: ["automatisations", "bds", "compte", "motsClefs", "nuées", "projets", "protocoles", "réseau", "variables"]
+  required: []
 }
 
 export type structureBdProtocoles = {
@@ -1017,7 +1017,6 @@ export class ClientConstellation extends EventEmitter {
             if (String(e).includes("ipfs unable to find")) {
               lancerSuivi();
             } else {
-              console.error(schéma)
               throw new Error(e);
             }
           }
@@ -2005,7 +2004,7 @@ export class ClientConstellation extends EventEmitter {
     doitExister,
   }: {
     nom: K;
-    racine: string | KeyValueStore<Record<K, string> & {[clef: string]: unknown}>;
+    racine: string | KeyValueStore<Partial<Record<K, string>> & {[clef: string]: unknown}>;
     type?: TStoreType;
     optionsAccès?: OptionsContrôleurConstellation;
     doitExister?: false;
@@ -2018,7 +2017,7 @@ export class ClientConstellation extends EventEmitter {
     doitExister,
   }: {
     nom: K;
-    racine: string | KeyValueStore<Record<K, string> & {[clef: string]: unknown}>;
+    racine: string | KeyValueStore<Partial<Record<K, string>> & {[clef: string]: unknown}>;
     type?: TStoreType;
     optionsAccès?: OptionsContrôleurConstellation;
     doitExister?: true;
@@ -2031,12 +2030,12 @@ export class ClientConstellation extends EventEmitter {
     doitExister = false,
   }: {
     nom: K;
-    racine: string | KeyValueStore<Record<K, string> & {[clef: string]: unknown}>;
+    racine: string | KeyValueStore<Partial<Record<K, string>> & {[clef: string]: unknown}>;
     type?: TStoreType;
     optionsAccès?: OptionsContrôleurConstellation;
     doitExister?: boolean;
   }): Promise<string | undefined> {
-    let bdRacine: KeyValueStore<Record<K, string>>;
+    let bdRacine: KeyValueStore<Partial<Record<K, string>>>;
     let fOublier: schémaFonctionOublier | undefined;
     
     if (typeof racine === "string") {
