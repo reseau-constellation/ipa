@@ -25,7 +25,7 @@ import type {
 import type { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
-import { générerClients, typesClients, typeClient } from "@/utilsTests/client";
+import { générerClients, typesClients, typeClient } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 

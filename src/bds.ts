@@ -1001,12 +1001,10 @@ export default class BDs extends ComposanteClientListe<string> {
     id: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -1030,12 +1028,10 @@ export default class BDs extends ComposanteClientListe<string> {
     langue: string;
     nom: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -1054,12 +1050,10 @@ export default class BDs extends ComposanteClientListe<string> {
     id: string;
     langue: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -1078,12 +1072,10 @@ export default class BDs extends ComposanteClientListe<string> {
     id: string;
     descriptions: { [key: string]: string };
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -1106,12 +1098,10 @@ export default class BDs extends ComposanteClientListe<string> {
     langue: string;
     descr: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -1130,12 +1120,10 @@ export default class BDs extends ComposanteClientListe<string> {
     id: string;
     langue: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -1185,12 +1173,10 @@ export default class BDs extends ComposanteClientListe<string> {
     idsMotsClefs: string | string[];
   }): Promise<void> {
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
-    const optionsAccès = await this.client.obtOpsAccès({ idBd });
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idBd,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1216,12 +1202,10 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idMotClef: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd });
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idBd,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1248,12 +1232,10 @@ export default class BDs extends ComposanteClientListe<string> {
     idsNuées: string | string[];
   }): Promise<void> {
     if (!Array.isArray(idsNuées)) idsNuées = [idsNuées];
-    const optionsAccès = await this.client.obtOpsAccès({ idBd });
     const idBdNuées = await this.client.obtIdBd({
       nom: "nuées",
       racine: idBd,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdNuées) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1279,12 +1261,10 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idNuée: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd });
     const idBdNuées = await this.client.obtIdBd({
       nom: "nuée",
       racine: idBd,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdNuées) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1310,12 +1290,10 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     clefTableau?: string;
   }): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd });
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdTableaux) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1343,13 +1321,11 @@ export default class BDs extends ComposanteClientListe<string> {
     id: string;
     idTableau: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     // D'abord effacer l'entrée dans notre liste de tableaux
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdTableaux) {
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -2088,12 +2064,10 @@ export default class BDs extends ComposanteClientListe<string> {
     await fOublier();
 
     // Et puis maintenant aussi effacer les données et la BD elle-même
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     for (const clef in ["noms", "descriptions", "motsClefs"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: id,
-        optionsAccès,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }
@@ -2101,7 +2075,6 @@ export default class BDs extends ComposanteClientListe<string> {
       nom: "tableaux",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =

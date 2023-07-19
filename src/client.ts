@@ -93,7 +93,7 @@ type optsInitSFIP = {
   dossier?: string;
 };
 
-type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string> };
+type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string>, fermerBd: schémaFonctionOublier };
 
 export type structureBdCompte = {
   protocoles?: string;
@@ -299,10 +299,10 @@ export class ClientConstellation extends EventEmitter {
     const fNettoyer = async () => {
       await Promise.all(
         Object.keys(this._bds).map(async (id) => {
-          const { bd, idsRequètes } = this._bds[id];
+          const { bd, idsRequètes, fermerBd } = this._bds[id];
           if (!idsRequètes.size) {
             delete this._bds[id];
-            await bd.close();
+            await fermerBd();
           }
         })
       );
@@ -372,11 +372,11 @@ export class ClientConstellation extends EventEmitter {
     this.automatisations = new Automatisations({ client: this });
 
     this.recherche = new Recherche({ client: this });
-    this.épingler();
+    await this.épingler();
   }
 
   async épingler() {
-    this.épingles!.épinglerBd({ id: await this.obtIdCompte() }); // Celle-ci doit être récursive et inclure les fichiers
+    await this.épingles!.épinglerBd({ id: await this.obtIdCompte() }); // Celle-ci doit être récursive et inclure les fichiers
     await Promise.all(
       [
         this.profil,
@@ -614,7 +614,7 @@ export class ClientConstellation extends EventEmitter {
       codeSecret,
     });
     await this.rejoindreCompte({
-      idBdCompte: idCompte,
+      idCompte,
     });
   }
 
@@ -630,16 +630,17 @@ export class ClientConstellation extends EventEmitter {
     await accès.revoke(MODÉRATEUR, idOrbite);
   }
 
-  async rejoindreCompte({ idBdCompte }: { idBdCompte: string }): Promise<void> {
-    if (!adresseOrbiteValide(idBdCompte)) {
-      throw new Error(`Adresse compte "${idBdCompte}" non valide`);
+  async rejoindreCompte({ idCompte }: { idCompte: string }): Promise<void> {
+    if (!adresseOrbiteValide(idCompte)) {
+      throw new Error(`Adresse compte "${idCompte}" non valide`);
     }
 
     // Attendre de recevoir la permission d'écrire à idBdCompte
     let autorisé: boolean;
     const { bd, fOublier } = await this.ouvrirBd({
-      id: idBdCompte,
+      id: idCompte,
       type: "kvstore",
+      schéma: schémaStructureBdCompte,
     });
     const accès = bd.access as unknown as ContrôleurConstellation;
     const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
@@ -662,10 +663,10 @@ export class ClientConstellation extends EventEmitter {
     });
 
     // Là on peut y aller
-    this.idBdCompte = idBdCompte;
+    this.idBdCompte = idCompte;
     await this.sauvegarderAuStockageLocal({
       clef: "idBdCompte",
-      val: idBdCompte,
+      val: idCompte,
       parCompte: false,
     });
     await this.fermerCompte();
@@ -771,23 +772,27 @@ export class ClientConstellation extends EventEmitter {
   async combinerBds({
     idBdBase,
     idBd2,
-    type,
   }: {
     idBdBase: string;
     idBd2: string;
-    type: "kvstore" | "keyvalue" | "feed";
   }): Promise<void> {
+    
+    // Extraire le type
+    const {bd, fOublier} = (await this.ouvrirBd({id: idBdBase}))
+    const type = bd.type
+    await fOublier();
+    
     // Un peu dupliqué, à cause de TypeScript
     switch (type) {
       case "kvstore":
       case "keyvalue": {
         const { bd: bdBase, fOublier: fOublierBase } = await this.ouvrirBd({
           id: idBdBase,
-          type,
+          type: "keyvalue",
         });
         const { bd: bd2, fOublier: fOublier2 } = await this.ouvrirBd({
           id: idBd2,
-          type,
+          type: "keyvalue",
         });
         await this.combinerBdsDict({
           bdBase,
@@ -800,11 +805,11 @@ export class ClientConstellation extends EventEmitter {
       case "feed": {
         const { bd: bdBase, fOublier: fOublierBase } = await this.ouvrirBd({
           id: idBdBase,
-          type,
+          type: "feed",
         });
         const { bd: bd2, fOublier: fOublier2 } = await this.ouvrirBd({
           id: idBd2,
-          type,
+          type: "feed",
         });
         await this.combinerBdsListe({
           bdBase,
@@ -841,7 +846,6 @@ export class ClientConstellation extends EventEmitter {
         await this.combinerBds({
           idBdBase: valBdBase as string,
           idBd2: v as string,
-          type: "keyvalue",
         });
       }
     }
@@ -915,7 +919,6 @@ export class ClientConstellation extends EventEmitter {
                   await this.combinerBds({
                     idBdBase: combiné[c] as string,
                     idBd2: v as string,
-                    type: "feed",
                   });
                 }
               }
@@ -953,7 +956,7 @@ export class ClientConstellation extends EventEmitter {
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready"],
+    événements = ["write", "replicated", "ready", "peer.exchanged"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
@@ -964,7 +967,7 @@ export class ClientConstellation extends EventEmitter {
   async suivreBd({
     id,
     f,
-    événements = ["write", "replicated", "ready"],
+    événements = ["write", "replicated", "ready", "peer.exchanged"],
   }: {
     id: string;
     f: schémaFonctionSuivi<Store>;
@@ -975,7 +978,7 @@ export class ClientConstellation extends EventEmitter {
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready"],
+    événements = ["write", "replicated", "ready", "peer.exchanged"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
@@ -1035,13 +1038,13 @@ export class ClientConstellation extends EventEmitter {
               bd.events.off(é, fFinale);
             });
 
-            if (
+            /* if (
               é === "write" &&
               bd.events.listenerCount("write") > bd.events.getMaxListeners()
             ) {
               // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
               // console.log({f})
-            }
+            } */
           }
 
           fFinale();
@@ -1179,6 +1182,7 @@ export class ClientConstellation extends EventEmitter {
       id: string;
       fSuivreBd: schémaFonctionSuivi<T>;
     }) => {
+
       return await this.suivreBdDic({ id, schéma, f: fSuivreBd });
     };
     return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre });
@@ -2027,7 +2031,7 @@ export class ClientConstellation extends EventEmitter {
       this._bds[id].idsRequètes.add(idRequète);
       this.verrouOuvertureBd.release(id);
       if (!vérifierTypeBd(existante.bd))
-        throw new Error(`La bd n'est pas de type ${type}.`);
+        throw new Error(`La bd est de type ${existante.bd.type}, et non ${type}.`);
       if (existante.bd.type === "feed") {
         return {
           bd: vérifierTypesBdOrbite({
@@ -2051,13 +2055,23 @@ export class ClientConstellation extends EventEmitter {
     }
     try {
       const bd = await this.orbite!.open(id);
-      this._bds[id] = { bd, idsRequètes: new Set([idRequète]) };
+      
+      // On doit périodiquement appeler syncLocal sur la BD afin d'obtenir les valeurs les plus récentes reçues des pairs. Ça semble être
+      // un problême avec orbit-db.
+      const idIntervale = setInterval(()=>bd.syncLocal(), 1000)
+      const fOublierIntervale = () => clearInterval(idIntervale)
+      this._bds[id] = { bd, idsRequètes: new Set([idRequète]), fermerBd: async () => {
+        fOublierIntervale();
+        await bd.close();
+      } };
       await bd.load();
 
       // Maintenant que la BD a été créée, on peut relâcher le verrou
       this.verrouOuvertureBd.release(id);
-      if (!vérifierTypeBd(bd))
-        throw new Error(`La bd n'est pas de type ${type}.`);
+      if (!vérifierTypeBd(bd)) {
+        console.error((new Error(`La bd est de type ${bd.type}, et non ${type}.`)).stack)
+        throw new Error(`La bd est de type ${bd.type}, et non ${type}.`)
+      };
 
       return {
         bd: (bd.type === "feed"
@@ -2084,46 +2098,34 @@ export class ClientConstellation extends EventEmitter {
     nom,
     racine,
     type,
-    optionsAccès,
-    doitExister,
   }: {
     nom: K;
     racine:
       | string
       | KeyValueStore<Partial<Record<K, string>> & { [clef: string]: unknown }>;
-    type?: TStoreType;
-    optionsAccès?: OptionsContrôleurConstellation;
-    doitExister?: false;
+    type?: "feed" | "keyvalue" | "kvstore";
   }): Promise<string | undefined>;
   async obtIdBd<K extends string>({
     nom,
     racine,
     type,
-    optionsAccès,
-    doitExister,
   }: {
     nom: K;
     racine:
       | string
       | KeyValueStore<Partial<Record<K, string>> & { [clef: string]: unknown }>;
-    type?: TStoreType;
-    optionsAccès?: OptionsContrôleurConstellation;
-    doitExister?: true;
+    type?: "feed" | "keyvalue" | "kvstore";
   }): Promise<string>;
   async obtIdBd<K extends string>({
     nom,
     racine,
     type,
-    optionsAccès,
-    doitExister = false,
   }: {
     nom: K;
     racine:
       | string
       | KeyValueStore<Partial<Record<K, string>> & { [clef: string]: unknown }>;
-    type?: TStoreType;
-    optionsAccès?: OptionsContrôleurConstellation;
-    doitExister?: boolean;
+    type?: "feed" | "keyvalue" | "kvstore";
   }): Promise<string | undefined> {
     let bdRacine: KeyValueStore<Partial<Record<K, string>>>;
     let fOublier: schémaFonctionOublier | undefined;
@@ -2140,24 +2142,21 @@ export class ClientConstellation extends EventEmitter {
     const clefRequète = bdRacine.id + ":" + nom;
     await this.verrouObtIdBd.acquire(clefRequète);
 
-    const idBdCompte = bdRacine.id;
-
     let idBd = bdRacine.get(nom);
-
-    const clefLocale = idBdCompte + nom;
-    const idBdPrécédente = await this.obtDeStockageLocal({ clef: clefLocale });
+  
+    const idBdPrécédente = await this.obtDeStockageLocal({ clef: clefRequète });
 
     if (idBd && idBdPrécédente && idBd !== idBdPrécédente) {
       try {
-        if (bdRacine.type !== "feed" && bdRacine.type !== "keyvalue")
-          throw new Error(`Impossible de combiner les bds.`);
         await this.combinerBds({
           idBdBase: idBd,
           idBd2: idBdPrécédente,
-          type: bdRacine.type,
         });
+
+        await this.effacerBd({id: idBdPrécédente});
+        await this.sauvegarderAuStockageLocal({ clef: clefRequète, val: idBd });
       } catch {
-        // Rien à faire
+        // Rien à faire ; on démissionne !
       }
     }
 
@@ -2169,8 +2168,7 @@ export class ClientConstellation extends EventEmitter {
         return idBd;
       } catch {
         this.verrouObtIdBd.release(clefRequète);
-        if (doitExister) return undefined;
-        else throw new Error("Bd n'existe pas : " + nom + " " + idBd);
+        throw new Error("Bd n'existe pas : " + nom + " " + idBd);
       }
     }
 
@@ -2184,13 +2182,16 @@ export class ClientConstellation extends EventEmitter {
       );
 
       if (permission) {
+        const optionsAccès = await this.obtOpsAccès({
+          idBd: bdRacine.id,
+        });
         idBd = await this.créerBdIndépendante({ type, optionsAccès });
         await bdRacine.set(nom, idBd);
       }
     }
 
     if (idBd)
-      await this.sauvegarderAuStockageLocal({ clef: clefLocale, val: idBd });
+      await this.sauvegarderAuStockageLocal({ clef: clefRequète, val: idBd });
 
     if (fOublier) await fOublier();
 
@@ -2217,7 +2218,15 @@ export class ClientConstellation extends EventEmitter {
     );
     await bd.load();
     const { id } = bd;
-    this._bds[id] = { bd, idsRequètes: new Set() };
+    
+    // On doit périodiquement appeler syncLocal sur la BD afin d'obtenir les valeurs les plus récentes reçues des pairs. Ça semble être
+    // un problême avec orbit-db.
+    const idIntervale = setInterval(()=>bd.syncLocal(), 1000);
+    const fOublierIntervale = () => clearInterval(idIntervale)
+    this._bds[id] = { bd, idsRequètes: new Set(), fermerBd: async () => {
+      fOublierIntervale();
+      await bd.close();
+    }};
 
     return id;
   }

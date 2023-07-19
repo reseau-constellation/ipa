@@ -812,12 +812,10 @@ export default class Variables extends ComposanteClientListe<string> {
     await this.enleverDeMesVariables({ id });
 
     // Effacer la variable elle-même
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     for (const clef in ["noms", "descriptions", "règles"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: id,
-        optionsAccès,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }

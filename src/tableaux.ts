@@ -373,12 +373,10 @@ export default class Tableaux {
     idColonne: string;
     val: boolean;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdColonnes) {
       throw new Error(
@@ -663,12 +661,10 @@ export default class Tableaux {
     idTableau: string;
     vals: T;
   }): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdDonnées) {
       throw new Error(
@@ -697,12 +693,10 @@ export default class Tableaux {
     vals: { [key: string]: élémentsBd | undefined };
     empreintePrécédente: string;
   }): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdDonnées) {
       throw new Error(
@@ -746,12 +740,10 @@ export default class Tableaux {
     idTableau: string;
     élément: élémentBdListeDonnées;
   }): Promise<T> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdColonnes) {
       throw new Error(
@@ -784,12 +776,10 @@ export default class Tableaux {
     idTableau: string;
     empreinteÉlément: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdDonnées) {
       throw new Error(
@@ -1201,12 +1191,10 @@ export default class Tableaux {
     idTableau: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1235,12 +1223,10 @@ export default class Tableaux {
     langue: string;
     nom: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1264,12 +1250,10 @@ export default class Tableaux {
     idTableau: string;
     langue: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1312,12 +1296,10 @@ export default class Tableaux {
     idVariable: string;
     idColonne?: string;
   }): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdColonnes) {
       throw new Error(
@@ -1345,12 +1327,10 @@ export default class Tableaux {
     idTableau: string;
     idColonne: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdColonnes) {
       throw new Error(
@@ -1503,12 +1483,10 @@ export default class Tableaux {
     idColonne: string;
     règle: R;
   }): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdRègles) {
       throw new Error(
@@ -1545,12 +1523,10 @@ export default class Tableaux {
     idTableau: string;
     idRègle: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idTableau,
       type: "feed",
-      optionsAccès,
     });
 
     if (!idBdRègles) {
@@ -1923,12 +1899,10 @@ export default class Tableaux {
 
   async effacerTableau({ idTableau }: { idTableau: string }): Promise<void> {
     // Effacer toutes les composantes du tableau
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idTableau });
     for (const clef in ["noms", "données", "colonnes", "règles"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: idTableau,
-        optionsAccès,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }

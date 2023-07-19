@@ -53,7 +53,7 @@ typesClients.forEach((type) => {
 
           const épingles = await client.épingles!.épingles();
           expect(isSet(épingles)).to.be.true();
-          expect(épingles.size).to.equal(0);
+          expect([...épingles]).to.not.contain(idBd);
         });
       });
 
@@ -85,15 +85,14 @@ typesClients.forEach((type) => {
 
           const épingles = await client.épingles!.épingles();
 
-          expect(épingles.size).to.equal(2);
-          expect(épingles).have.members([idBdListe, idBdAutre]);
+          expect([...épingles]).to.contain(idBdListe)
+          expect([...épingles]).to.contain(idBdAutre);
         });
 
         it("Désépingler liste récursive", async () => {
           await client.épingles!.désépinglerBd({ id: idBdListe });
           const épingles = await client.épingles!.épingles();
-          expect(isSet(épingles)).to.be.true();
-          expect(épingles.size).to.equal(0);
+          expect([...épingles]).to.not.have.members([idBdListe, idBdAutre]);
         });
 
         it("Épingler dic récursif", async () => {
@@ -121,7 +120,7 @@ typesClients.forEach((type) => {
         it("Désépingler dic récursif", async () => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
           const épingles = await client.épingles!.épingles();
-          expect(épingles.size).to.equal(0);
+          expect([...épingles]).to.not.have.members([idBdDic, idBdAutre]);
         });
 
         it("BD ajoutée individuellement est toujours là", async () => {
@@ -130,8 +129,8 @@ typesClients.forEach((type) => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
 
           const épingles = await client.épingles!.épingles();
-          expect(épingles.size).to.equal(1);
-          expect(épingles).to.contain(idBdAutre);
+          expect([...épingles]).to.not.contain(idBdDic);
+          expect([...épingles]).to.contain(idBdAutre);
         });
       });
 

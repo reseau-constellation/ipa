@@ -11,6 +11,7 @@ import { faisRien, ignorerNonDéfinis } from "./utils/fonctions.js";
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 import { JSONSchemaType } from "ajv";
+import { v4 } from "uuid";
 
 // Obtenu de https://stackoverflow.com/a/54520829
 type KeysMatching<T, V> = {
@@ -182,6 +183,7 @@ export class ComposanteClientDic<
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
+        let précédente: string | undefined = undefined;
         return await this.client.suivreBd({
           id,
           type: "keyvalue",
@@ -191,6 +193,8 @@ export class ComposanteClientDic<
               racine: id,
               type: "keyvalue",
             });
+            if (idBd === précédente ) return;
+            précédente = idBd;
             return await fSuivreBd(idBd);
           },
         });

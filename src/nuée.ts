@@ -394,12 +394,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     id: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour Nuée ${id}.`);
@@ -423,12 +421,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     id: string;
     langue: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour Nuée ${id}.`);
@@ -477,12 +473,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     id: string;
     descriptions: { [langue: string]: string };
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -505,12 +499,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     id: string;
     langue: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${id}.`);
@@ -561,12 +553,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
   }): Promise<void> {
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idNuée });
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idNuée,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
@@ -593,12 +583,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idMotClef: string;
     idNuée: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idNuée });
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idNuée,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
@@ -768,14 +756,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idAutorisation: string;
     idCompte: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({
-      idBd: idAutorisation,
-    });
     const idBdMembres = await this.client.obtIdBd({
       nom: "membres",
       racine: idAutorisation,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdMembres) {
       throw new Error(
@@ -815,14 +799,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idAutorisation: string;
     idCompte: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({
-      idBd: idAutorisation,
-    });
     const idBdMembres = await this.client.obtIdBd({
       nom: "membres",
       racine: idAutorisation,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdMembres) {
       throw new Error(
@@ -970,12 +950,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     clefTableau?: string;
   }): Promise<string> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idNuée });
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idNuée,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdTableaux) {
       throw new Error(
@@ -1007,13 +985,11 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     idTableau: string;
   }): Promise<void> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idNuée });
     // D'abord effacer l'entrée dans notre liste de tableaux
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idNuée,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdTableaux) {
       throw new Error(
@@ -2485,12 +2461,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     await fOublier();
 
     // Et puis maintenant aussi effacer les tableaux et la Nuée elle-même
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     for (const clef in ["noms", "descriptions", "motsClefs"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: id,
-        optionsAccès,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }
@@ -2498,7 +2472,6 @@ export default class Nuée extends ComposanteClientListe<string> {
       nom: "tableaux",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =

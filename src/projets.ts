@@ -283,12 +283,10 @@ export default class Projets extends ComposanteClientListe<string> {
     bd: KeyValueStore<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdNoms) {
       throw new Error(`Permission de modification refusée pour Projet ${id}.`);
@@ -349,12 +347,10 @@ export default class Projets extends ComposanteClientListe<string> {
     bd: KeyValueStore<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: id,
       type: "kvstore",
-      optionsAccès,
     });
     if (!idBdDescr) {
       throw new Error(`Permission de modification refusée pour Projet ${id}.`);
@@ -412,12 +408,10 @@ export default class Projets extends ComposanteClientListe<string> {
   }: {
     id: string;
   }): Promise<{ bd: FeedStore<string>; fOublier: schémaFonctionOublier }> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: id,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour projet ${id}.`);
@@ -470,12 +464,10 @@ export default class Projets extends ComposanteClientListe<string> {
   }: {
     id: string;
   }): Promise<{ bd: FeedStore<string>; fOublier: schémaFonctionOublier }> {
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     const idBdBds = await this.client.obtIdBd({
       nom: "bds",
       racine: id,
       type: "feed",
-      optionsAccès,
     });
     if (!idBdBds)
       throw new Error(`Permission de modification refusée pour Projet ${id}.`);
@@ -898,12 +890,10 @@ export default class Projets extends ComposanteClientListe<string> {
     await this.enleverDeMesProjets({ idProjet: id });
 
     // Et puis maintenant aussi effacer les données et le projet lui-même
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: id });
     for (const clef in ["noms", "descriptions", "motsClefs", "bds"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: id,
-        optionsAccès,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }

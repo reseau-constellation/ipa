@@ -371,12 +371,10 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     await this.enleverDeMesMotsClefs({ idMotClef });
 
     // Effacer le mot-clef lui-même
-    const optionsAccès = await this.client.obtOpsAccès({ idBd: idMotClef });
     for (const clef in ["noms"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: idMotClef,
-        optionsAccès,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }

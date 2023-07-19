@@ -7,6 +7,7 @@ import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   faisRien,
+  structureBdNoms,
 } from "@/utils/index.js";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
@@ -17,12 +18,13 @@ import { générerClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import { peutÉcrire } from "@/utilsTests/index.js";
+import { clientsConnectés, peutÉcrire } from "@/utilsTests/index.js";
 
 import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
 import FeedStore from "orbit-db-feedstore";
+import Store from "orbit-db-store";
 
 describe("adresseOrbiteValide", function () {
   it("adresse orbite est valide", () => {
@@ -56,8 +58,9 @@ if (isNode || isElectronMain) {
 
     let idBdCompte1: string;
 
-    let mesDispositifs: string[];
     let idBdCompte2EnDirecte: string | undefined;
+    
+    const mesDispositifs = new AttendreRésultat<string[]>();
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClients(3));
@@ -69,7 +72,7 @@ if (isNode || isElectronMain) {
       idOrbite2 = await client2.obtIdOrbite();
       idOrbite3 = await client3.obtIdOrbite();
       fOublierDispositifs = await client.suivreDispositifs({
-        f: (dispositifs) => (mesDispositifs = dispositifs),
+        f: (dispositifs) => (mesDispositifs.mettreÀJour(dispositifs)),
       });
       fOublierIdBdCompte = await client2.suivreIdBdCompte({
         f: (id) => (idBdCompte2EnDirecte = id),
@@ -83,26 +86,30 @@ if (isNode || isElectronMain) {
     });
 
     it("Mon dispositif est présent", async () => {
-      expect(mesDispositifs).to.have.members([idOrbite1]);
+      const val = await mesDispositifs.attendreExiste()
+      expect(val).to.have.members([idOrbite1]);
     });
 
     describe("Ajouter dispositif manuellement", function () {
       let idBd: string;
+
       const fsOublier: schémaFonctionOublier[] = [];
       const résNom = new AttendreRésultat<{ [lng: string]: string }>();
 
       before(async () => {
         fsOublier.push(
           await client2.profil!.suivreNoms({
-            f: (noms) => résNom.mettreÀJour(noms),
+            f: (noms) => résNom.mettreÀJour(noms)
           })
         );
+
         await client.profil!.sauvegarderNom({
           nom: "Julien Malard-Adam",
           langue: "fr",
         });
+
         await client.ajouterDispositif({ idOrbite: idOrbite2 });
-        await client2.rejoindreCompte({ idBdCompte: idBdCompte1 });
+        await client2.rejoindreCompte({ idCompte: idBdCompte1 });
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
       });
 
@@ -112,8 +119,8 @@ if (isNode || isElectronMain) {
       });
 
       it("Mes dispositifs sont mis à jour", async () => {
-        expect(mesDispositifs.length).to.equal(2);
-        expect(mesDispositifs).to.have.members([idOrbite2]);
+        const val = await mesDispositifs.attendreQue(x=>x.length > 1)
+        expect(val).to.have.members([idOrbite1, idOrbite2]);
       });
 
       it("Le nouveau dispositif a rejoint notre compte", () => {
@@ -127,13 +134,13 @@ if (isNode || isElectronMain) {
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
         const { bd: bd_orbite2, fOublier } = await client2.ouvrirBd<{test: number}>({ id: idBd, type: "kvstore" });
+        fsOublier.push(fOublier);
         const autorisé = await peutÉcrire(bd_orbite2, client2.orbite);
-        await fOublier();
         expect(autorisé).to.be.true();
       });
 
       it("Le nouveau dispositif suit mon profil", async () => {
-        const val = await résNom.attendreQue((x) => Object.keys(x).length > 0);
+        const val = await résNom.attendreQue((x) => Object.keys(x).includes("fr"));
         expect(val.fr).to.equal("Julien Malard-Adam");
       });
     });
@@ -143,13 +150,14 @@ if (isNode || isElectronMain) {
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
-        // await clientsConnectés(client3, client);
+
         const invitation = await client.générerInvitationRejoindreCompte();
         await client3.demanderEtPuisRejoindreCompte(invitation);
       });
 
       it("Nouveau dispositif ajouté au compte", async () => {
-        expect(mesDispositifs).to.have.members([
+        const val = await mesDispositifs.attendreQue(x=>x.length > 2)
+        expect(val).to.have.members([
           idOrbite1,
           idOrbite2,
           idOrbite3,
@@ -314,7 +322,7 @@ if (isNode || isElectronMain) {
         données.toutAnnuler();
       });
       it("`undefined` est retourné si la fonction ne renvoie pas de BD", async () => {
-        expect(données.val).to.be.undefined()();
+        expect(données.val).to.be.undefined();
       });
       it("Les changements à la BD suivie sont détectés", async () => {
         await changerBd(idBd);
@@ -371,7 +379,7 @@ if (isNode || isElectronMain) {
       });
 
       it("`undefined` est retourné si la clef n'existe pas", async () => {
-        expect(données.val).to.be.undefined()();
+        expect(données.val).to.be.undefined();
       });
 
       it("Les changements à la BD suivie sont détectés", async () => {
@@ -825,7 +833,7 @@ if (isNode || isElectronMain) {
           id: idBd,
           f: fRecherche,
         });
-        expect(résultat).to.be.undefined()();
+        expect(résultat).to.be.undefined();
       });
     });
 
@@ -956,7 +964,7 @@ if (isNode || isElectronMain) {
         });
 
         it("Sans branches", async () => {
-          expect(résultats).to.be.undefined()();
+          expect(résultats).to.be.undefined();
         });
         it("Ajout d'une branche ou deux", async () => {
           await changerBds([idBd1, idBd2]);
@@ -1239,6 +1247,7 @@ if (isNode || isElectronMain) {
         const idBdRetrouvée = await client.obtIdBd({
           nom: "clef",
           racine: idRacine,
+          type: "feed"
         });
         expect(idBdRetrouvée).to.equal(idBd);
       });
@@ -1276,7 +1285,7 @@ if (isNode || isElectronMain) {
           racine: bdRacine,
           type: "feed",
         });
-        expect(idBdRetrouvée).to.be.undefined()();
+        expect(idBdRetrouvée).to.be.undefined();
       });
 
       it("On ne perd pas les données en cas de concurrence entre dispositifs", async () => {
@@ -1622,7 +1631,7 @@ if (isNode || isElectronMain) {
 
         const val = bd.get("test");
 
-        expect(val).to.be.undefined()();
+        expect(val).to.be.undefined();
       });
     });
 
@@ -1657,7 +1666,7 @@ if (isNode || isElectronMain) {
       });
 
       it("On n'a pas d'accès avant", async () => {
-        expect(rés.val).to.be.undefined()();
+        expect(rés.val).to.be.undefined();
       });
 
       it("On détecte l'ajout d'une permission membre", async () => {
@@ -1798,7 +1807,7 @@ if (isNode || isElectronMain) {
         cidTexte = (await client2.sfip!.add("Bonjour !")).cid.toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
         await bdListe.add(cidTexte);
 
-        await client.épingles!.épinglerBd({ id: idBdKv });
+        await client.épingles!.épinglerBd({ id: idBdKv, récursif: true });
       });
 
       after(async () => {
