@@ -2058,7 +2058,13 @@ export class ClientConstellation extends EventEmitter {
       
       // On doit périodiquement appeler syncLocal sur la BD afin d'obtenir les valeurs les plus récentes reçues des pairs. Ça semble être
       // un problême avec orbit-db.
-      const idIntervale = setInterval(()=>bd.syncLocal(), 1000)
+      const idIntervale = setInterval(()=>{
+        try {
+          bd.syncLocal()
+        } catch (e) {
+          if (!e.toString().contains("Database is not open")) throw e
+        }
+      }, 1000)
       const fOublierIntervale = () => clearInterval(idIntervale)
       this._bds[id] = { bd, idsRequètes: new Set([idRequète]), fermerBd: async () => {
         fOublierIntervale();
@@ -2221,7 +2227,13 @@ export class ClientConstellation extends EventEmitter {
     
     // On doit périodiquement appeler syncLocal sur la BD afin d'obtenir les valeurs les plus récentes reçues des pairs. Ça semble être
     // un problême avec orbit-db.
-    const idIntervale = setInterval(()=>bd.syncLocal(), 1000);
+    const idIntervale = setInterval(()=>{
+      try {
+        bd.syncLocal()
+      } catch (e) {
+        if (!e.toString().contains("Database is not open")) throw e
+      }
+    }, 1000);
     const fOublierIntervale = () => clearInterval(idIntervale)
     this._bds[id] = { bd, idsRequètes: new Set(), fermerBd: async () => {
       fOublierIntervale();
