@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { rimraf } from "rimraf";
 
 import { traduire, zipper } from "@/utils/index.js";
 import { expect } from "aegir/chai";
@@ -61,7 +60,6 @@ describe("Utils : données", function () {
       after(() => {
         if (attendreFichier) attendreFichier.annuler();
         if (fEffacer) fEffacer();
-        rimraf.sync(dossier);
       });
 
       it("Le fichier zip est créé", async () => {

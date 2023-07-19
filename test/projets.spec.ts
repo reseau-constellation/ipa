@@ -1,7 +1,6 @@
 import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
-import { rimraf } from "rimraf";
 
 import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
@@ -519,7 +518,7 @@ typesClients.forEach((type) => {
           let dossierBase: string;
           let dossierZip: string;
           let fEffacer: () => void;
-          let dossierFichierExtrait: string;
+
           let nomZip: string;
           let zip: JSZip;
 
@@ -528,10 +527,6 @@ typesClients.forEach((type) => {
             dossierZip = await obtDirTempoPourTest({
               base: dossierBase,
               nom: "testExporterProjet",
-            });
-            dossierFichierExtrait = await obtDirTempoPourTest({
-              base: dossierBase,
-              nom: "testExporterProjetExtrait",
             });
 
             await client.projets!.exporterDocumentDonnées({
@@ -545,8 +540,6 @@ typesClients.forEach((type) => {
 
           after(() => {
             if (fEffacer) fEffacer();
-            rimraf.sync(dossierZip);
-            rimraf.sync(dossierFichierExtrait);
           });
 
           it("Le fichier zip existe", async () => {

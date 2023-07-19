@@ -86,7 +86,7 @@ typesClients.forEach((type) => {
         })
 
         it("Épingler liste récursive", async () => {
-          await client.épingles!.épinglerBd({ id: idBdListe });
+          await client.épingles!.épinglerBd({ id: idBdListe, récursif: true });
 
           const { bd, fOublier } = await client.ouvrirBd<string>({
             id: idBdListe,
@@ -95,10 +95,10 @@ typesClients.forEach((type) => {
           await bd.add(idBdAutre);
           await fOublier();
 
-          const épingles = await client.épingles!.épingles();
+          const val = await épingles.attendreQue(x=>x.size > 1);
 
-          expect([...épingles]).to.contain(idBdListe)
-          expect([...épingles]).to.contain(idBdAutre);
+          expect([...val]).to.contain(idBdListe)
+          expect([...val]).to.contain(idBdAutre);
         });
 
         it("Désépingler liste récursive", async () => {
@@ -108,7 +108,7 @@ typesClients.forEach((type) => {
         });
 
         it("Épingler dic récursif", async () => {
-          await client.épingles!.épinglerBd({ id: idBdDic });
+          await client.épingles!.épinglerBd({ id: idBdDic, récursif: true });
 
           const { bd, fOublier } = await client.ouvrirBd<{[clef: string]: string}>({ 
             id: idBdDic,
@@ -136,8 +136,8 @@ typesClients.forEach((type) => {
         });
 
         it("BD ajoutée individuellement est toujours là", async () => {
-          await client.épingles!.épinglerBd({ id: idBdDic });
-          await client.épingles!.épinglerBd({ id: idBdAutre });
+          await client.épingles!.épinglerBd({ id: idBdDic, récursif: true });
+          await client.épingles!.épinglerBd({ id: idBdAutre, récursif: true });
           await client.épingles!.désépinglerBd({ id: idBdDic });
 
           const épingles = await client.épingles!.épingles();
