@@ -11,7 +11,6 @@ import { faisRien, ignorerNonDéfinis } from "./utils/fonctions.js";
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 import { JSONSchemaType } from "ajv";
-import { v4 } from "uuid";
 
 // Obtenu de https://stackoverflow.com/a/54520829
 type KeysMatching<T, V> = {

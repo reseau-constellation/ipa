@@ -1,7 +1,7 @@
 import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
-import rmrf from "rimraf";
+import { rimraf } from "rimraf";
 
 import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
@@ -545,8 +545,8 @@ typesClients.forEach((type) => {
 
           after(() => {
             if (fEffacer) fEffacer();
-            rmrf.sync(dossierZip);
-            rmrf.sync(dossierFichierExtrait);
+            rimraf.sync(dossierZip);
+            rimraf.sync(dossierFichierExtrait);
           });
 
           it("Le fichier zip existe", async () => {

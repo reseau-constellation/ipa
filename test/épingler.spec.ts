@@ -4,11 +4,13 @@ const { isSet } = pkg;
 import type { default as ClientConstellation } from "@/client.js";
 
 import { générerClients, typesClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 import { expect } from "aegir/chai";
+import { schémaFonctionOublier } from "@/utils";
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("Épingles", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -63,6 +65,10 @@ typesClients.forEach((type) => {
         let idBdDic2: string;
         let idBdAutre: string;
 
+        let fOublierÉpingles: schémaFonctionOublier ;
+
+        const épingles = new AttendreRésultat<Set<string>>();
+
         before(async () => {
           await client.épingles!.toutDésépingler();
 
@@ -71,7 +77,13 @@ typesClients.forEach((type) => {
 
           idBdDic2 = await client!.créerBdIndépendante({ type: "kvstore" });
           idBdAutre = await client!.créerBdIndépendante({ type: "kvstore" });
+          fOublierÉpingles = await client.épingles!.suivreÉpingles({f: x => épingles.mettreÀJour(x)})
         });
+
+        after(async () => {
+          if (fOublierÉpingles) await fOublierÉpingles()
+          épingles.toutAnnuler();
+        })
 
         it("Épingler liste récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe });

@@ -1,7 +1,7 @@
 import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
-import rmrf from "rimraf";
+import { rimraf } from "rimraf";
 
 import pkg from "lodash";
 const { isSet } = pkg;
@@ -1182,7 +1182,7 @@ typesClients.forEach((type) => {
           });
 
           after(() => {
-            rmrf.sync(dossier);
+            rimraf.sync(dossier);
             if (fEffacer) fEffacer();
           });
 

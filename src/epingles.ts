@@ -4,7 +4,9 @@ import {
   élémentsBd,
   adresseOrbiteValide,
   cidValide,
+  schémaFonctionSuivi,
 } from "@/utils/index.js";
+import { EventEmitter } from "events";
 
 interface RequèteÉpingle {
   id: string;
@@ -16,11 +18,13 @@ export default class Épingles {
   client: ClientConstellation;
   requètes: RequèteÉpingle[];
   fsOublier: { [key: string]: schémaFonctionOublier };
+  événements: EventEmitter
 
   constructor({ client }: { client: ClientConstellation }) {
     this.client = client;
     this.requètes = [];
     this.fsOublier = {};
+    this.événements = new EventEmitter();
   }
 
   async épinglerBd({
@@ -81,6 +85,17 @@ export default class Épingles {
     return new Set(this.requètes.map((r) => r.id));
   }
 
+  async suivreÉpingles({f}: {f: schémaFonctionSuivi<Set<string>>}): Promise<schémaFonctionOublier> {
+    const fFinale = async () => {
+      const épingles = await this.épingles()
+      return await f(épingles)
+    }
+    this.événements.on("changement épingles", fFinale)
+    return async () => {
+      this.événements.off("changement épingles", fFinale)
+    }
+  }
+
   async _épingler({
     id,
     récursif,
@@ -96,6 +111,7 @@ export default class Épingles {
 
     const { bd, fOublier } = await this.client.ouvrirBd({ id });
     this.requètes.push({ id, parent, fOublier });
+    this.événements.emit("changement épingles")
 
     if (récursif) {
       const fSuivre = async (vals: élémentsBd) => {
@@ -136,6 +152,7 @@ export default class Épingles {
               }
             };
             this.requètes.push({ id: id_, parent: id, fOublier: fOublier_ });
+            this.événements.emit("changement épingles")
           });
         }
 
