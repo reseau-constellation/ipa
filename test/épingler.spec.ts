@@ -10,7 +10,7 @@ import { expect } from "aegir/chai";
 import { schémaFonctionOublier } from "@/utils";
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("Épingles", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
