@@ -80,41 +80,34 @@ export type structureBdNuée = {
   motsClefs: string;
   tableaux: string;
   autorisation: string;
-  statut: schémaStatut;
+  statut: Partial<schémaStatut>;
   parent?: string;
   image?: string;
   copiéDe?: string;
 };
-const schémaStructureBdNuée: JSONSchemaType<structureBdNuée> = {
+const schémaStructureBdNuée: JSONSchemaType<Partial<structureBdNuée>> = {
   type: "object",
   properties: {
-    type: { type: "string" },
-    noms: { type: "string" },
-    descriptions: { type: "string" },
-    motsClefs: { type: "string" },
+    type: { type: "string", nullable: true },
+    noms: { type: "string", nullable: true },
+    descriptions: { type: "string", nullable: true },
+    motsClefs: { type: "string", nullable: true },
     image: { type: "string", nullable: true },
-    tableaux: { type: "string" },
-    autorisation: { type: "string" },
+    tableaux: { type: "string", nullable: true },
+    autorisation: { type: "string", nullable: true },
     statut: {
       type: "object",
       properties: {
         idNouvelle: { type: "string", nullable: true },
-        statut: { type: "string" },
+        statut: { type: "string", nullable: true },
       },
-      required: ["statut"],
+      required: [],
+      nullable: true,
     },
     parent: { type: "string", nullable: true },
     copiéDe: { type: "string", nullable: true },
   },
-  required: [
-    "type",
-    "noms",
-    "descriptions",
-    "motsClefs",
-    "tableaux",
-    "autorisation",
-    "statut",
-  ],
+  required: [],
 };
 
 type structureBdAuthorisation = {
@@ -122,14 +115,14 @@ type structureBdAuthorisation = {
   membres: string;
 };
 
-const schémaStructureBdAuthorisation: JSONSchemaType<structureBdAuthorisation> =
+const schémaStructureBdAuthorisation: JSONSchemaType<Partial<structureBdAuthorisation>> =
   {
     type: "object",
     properties: {
-      philosophie: { type: "string" },
-      membres: { type: "string" },
+      philosophie: { type: "string", nullable: true },
+      membres: { type: "string", nullable: true },
     },
-    required: ["philosophie", "membres"],
+    required: [],
   };
 
 const schémaBdMotsClefsNuée: JSONSchemaType<string> = {
@@ -783,9 +776,11 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     idCompte: string;
   }): Promise<void> {
+    console.log("ici")
     const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({
       idNuée,
     });
+    console.log("là")
     return await this.accepterMembreAutorisation({
       idAutorisation,
       idCompte,
@@ -826,9 +821,11 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     idCompte: string;
   }): Promise<void> {
+    console.log("ici")
     const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({
       idNuée,
     });
+    console.log("là")
     return await this.exclureMembreAutorisation({
       idAutorisation,
       idCompte,
@@ -840,7 +837,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     f,
   }: {
     idNuée: string;
-    f: schémaFonctionSuivi<string>;
+    f: schémaFonctionSuivi<string|undefined>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idNuée,
@@ -877,7 +874,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
   }): Promise<string> {
     return await uneFois(async (fSuivi: schémaFonctionSuivi<string>) => {
-      return await this.suivreGestionnaireAutorisations({ idNuée, f: fSuivi });
+      return await this.suivreGestionnaireAutorisations({ idNuée, f: ignorerNonDéfinis(fSuivi) });
     });
   }
 
