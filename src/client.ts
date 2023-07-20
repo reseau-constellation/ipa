@@ -93,7 +93,7 @@ type optsInitSFIP = {
   dossier?: string;
 };
 
-type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string>, fermerBd: schémaFonctionOublier };
+type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string> };
 
 export type structureBdCompte = {
   protocoles?: string;
@@ -299,10 +299,10 @@ export class ClientConstellation extends EventEmitter {
     const fNettoyer = async () => {
       await Promise.all(
         Object.keys(this._bds).map(async (id) => {
-          const { bd, idsRequètes, fermerBd } = this._bds[id];
+          const { bd, idsRequètes } = this._bds[id];
           if (!idsRequètes.size) {
             delete this._bds[id];
-            await fermerBd();
+            await bd.close();
           }
         })
       );
@@ -1032,7 +1032,6 @@ export class ClientConstellation extends EventEmitter {
             }
           };
 
-          bd.events.on("replicated", ()=>console.log("replicated", bd.id))
           for (const é of événements) {
             bd.events.on(é, fFinale);
             fsOublier.push(async () => {
@@ -2072,9 +2071,7 @@ export class ClientConstellation extends EventEmitter {
     try {
       const bd = await this.orbite!.open(id);
 
-      this._bds[id] = { bd, idsRequètes: new Set([idRequète]), fermerBd: async () => {
-        await bd.close();
-      } };
+      this._bds[id] = { bd, idsRequètes: new Set([idRequète]) };
       await bd.load();
 
       // Maintenant que la BD a été créée, on peut relâcher le verrou
@@ -2167,7 +2164,7 @@ export class ClientConstellation extends EventEmitter {
         await this.effacerBd({id: idBdPrécédente});
         await this.sauvegarderAuStockageLocal({ clef: clefRequète, val: idBd });
       } catch {
-        // Rien à faire ; on démissionne !
+        // Rien à faire ; on démissionne !
       }
     }
 
@@ -2231,22 +2228,8 @@ export class ClientConstellation extends EventEmitter {
     );
     await bd.load();
     const { id } = bd;
-    bd.events.on("replicated", ()=>console.log("replicated", bd.id))
-    
-    // On doit périodiquement appeler `load()` sur la BD afin d'obtenir les valeurs les plus récentes reçues des pairs. Ça semble être
-    // un problême avec orbit-db.
-    const idIntervale = setInterval(()=>{
-      try {
-        // bd.load()
-      } catch (e) {
-        if (!e.toString().contains("Database is not")) throw e
-      }
-    }, 5000);
-    const fOublierIntervale = () => clearInterval(idIntervale)
-    this._bds[id] = { bd, idsRequètes: new Set(), fermerBd: async () => {
-      fOublierIntervale();
-      await bd.close();
-    }};
+
+    this._bds[id] = { bd, idsRequètes: new Set() };
 
     return id;
   }
