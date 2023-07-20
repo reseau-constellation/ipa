@@ -19,7 +19,7 @@ describe("Contrôleur Constellation", function () {
         let fOublierOrbites: () => Promise<void>;
         let orbites: OrbitDB[];
         let orbitdb1: OrbitDB, orbitdb2: OrbitDB;
-        let bd: KeyValueStore<{test: number}>;
+        let bd: KeyValueStore<{ test: number }>;
 
         before(async () => {
           ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(2));
@@ -46,9 +46,9 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
-          const bdOrbite2 = (await orbitdb2.open(
-            bd.id
-          )) as KeyValueStore<{test: number}>;
+          const bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<{
+            test: number;
+          }>;
           await bdOrbite2.load();
 
           const autorisé = await peutÉcrire(bdOrbite2);
@@ -60,9 +60,9 @@ describe("Contrôleur Constellation", function () {
         it("...mais on peut l'inviter !", async () => {
           await bd.access.grant(MEMBRE, orbitdb2.identity.id);
 
-          const bdOrbite2 = (await orbitdb2.open(
-            bd.id
-          )) as KeyValueStore<{test: number}>;
+          const bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<{
+            test: number;
+          }>;
           await bdOrbite2.load();
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
@@ -80,10 +80,10 @@ describe("Contrôleur Constellation", function () {
           orbitdb3: OrbitDB,
           orbitdb4: OrbitDB;
 
-        let bdRacine: KeyValueStore<{[clef: string]: string}>;
-        let bdRacine2: KeyValueStore<{[clef: string]: string}>;
-        let bd: KeyValueStore<{test: number}>;
-        let bdOrbite2: KeyValueStore<{test: number}>;
+        let bdRacine: KeyValueStore<{ [clef: string]: string }>;
+        let bdRacine2: KeyValueStore<{ [clef: string]: string }>;
+        let bd: KeyValueStore<{ test: number }>;
+        let bdOrbite2: KeyValueStore<{ test: number }>;
 
         before(async () => {
           ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(4));
@@ -129,7 +129,9 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
-          bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<{test: number}>;
+          bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<{
+            test: number;
+          }>;
           await bdOrbite2.load();
           attendreSync(bdOrbite2);
 
@@ -155,9 +157,9 @@ describe("Contrôleur Constellation", function () {
           // await tousConnecter([orbitdb1._ipfs, orbitdb2._ipfs, orbitdb3._ipfs, orbitdb4._ipfs])
           await bdRacine2.access.grant(MODÉRATEUR, orbitdb3.identity.id);
 
-          const bdOrbite3 = (await orbitdb3.open(
-            bd.id
-          )) as KeyValueStore<{test: number}>;
+          const bdOrbite3 = (await orbitdb3.open(bd.id)) as KeyValueStore<{
+            test: number;
+          }>;
           await bdOrbite3.load();
 
           const autorisé = await peutÉcrire(bdOrbite3, orbitdb3);
@@ -177,9 +179,9 @@ describe("Contrôleur Constellation", function () {
           const accès = bdOrbite2.access as unknown as ContrôleurConstellation;
           await accès.grant(MEMBRE, orbitdb4.identity.id);
 
-          const bdOrbite4 = (await orbitdb4.open(
-            bd.id
-          )) as KeyValueStore<{test: number}>;
+          const bdOrbite4 = (await orbitdb4.open(bd.id)) as KeyValueStore<{
+            test: number;
+          }>;
           await bdOrbite4.load();
 
           const autorisé = await peutÉcrire(bdOrbite4, orbitdb4);
@@ -198,7 +200,7 @@ describe("Contrôleur Constellation", function () {
 
         it("Invitations transitives lors de bd.load()", async () => {
           await bd.close();
-          bd = (await orbitdb1.open(bd.id)) as KeyValueStore<{test: number}>;
+          bd = (await orbitdb1.open(bd.id)) as KeyValueStore<{ test: number }>;
           await bd.load();
 
           const accès = bd.access as unknown as ContrôleurConstellation;

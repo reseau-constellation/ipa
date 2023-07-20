@@ -776,12 +776,11 @@ export class ClientConstellation extends EventEmitter {
     idBdBase: string;
     idBd2: string;
   }): Promise<void> {
-    
     // Extraire le type
-    const {bd, fOublier} = (await this.ouvrirBd({id: idBdBase}))
-    const type = bd.type
+    const { bd, fOublier } = await this.ouvrirBd({ id: idBdBase });
+    const type = bd.type;
     await fOublier();
-    
+
     // Un peu dupliqué, à cause de TypeScript
     switch (type) {
       case "kvstore":
@@ -1182,7 +1181,6 @@ export class ClientConstellation extends EventEmitter {
       id: string;
       fSuivreBd: schémaFonctionSuivi<T>;
     }) => {
-
       return await this.suivreBdDic({ id, schéma, f: fSuivreBd });
     };
     return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre });
@@ -2001,7 +1999,7 @@ export class ClientConstellation extends EventEmitter {
     id: string;
     schéma?: JSONSchemaType<U>;
     type?: "kvstore" | "keyvalue" | "feed";
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<
     U,
     T extends
@@ -2046,7 +2044,9 @@ export class ClientConstellation extends EventEmitter {
       this._bds[id].idsRequètes.add(idRequète);
       this.verrouOuvertureBd.release(id);
       if (!vérifierTypeBd(existante.bd))
-        throw new Error(`La bd est de type ${existante.bd.type}, et non ${type}.`);
+        throw new Error(
+          `La bd est de type ${existante.bd.type}, et non ${type}.`
+        );
       if (existante.bd.type === "feed") {
         return {
           bd: vérifierTypesBdOrbite({
@@ -2077,9 +2077,11 @@ export class ClientConstellation extends EventEmitter {
       // Maintenant que la BD a été créée, on peut relâcher le verrou
       this.verrouOuvertureBd.release(id);
       if (!vérifierTypeBd(bd)) {
-        console.error((new Error(`La bd est de type ${bd.type}, et non ${type}.`)).stack)
-        throw new Error(`La bd est de type ${bd.type}, et non ${type}.`)
-      };
+        console.error(
+          new Error(`La bd est de type ${bd.type}, et non ${type}.`).stack
+        );
+        throw new Error(`La bd est de type ${bd.type}, et non ${type}.`);
+      }
 
       return {
         bd: (bd.type === "feed"
@@ -2151,7 +2153,7 @@ export class ClientConstellation extends EventEmitter {
     await this.verrouObtIdBd.acquire(clefRequète);
 
     let idBd = bdRacine.get(nom);
-  
+
     const idBdPrécédente = await this.obtDeStockageLocal({ clef: clefRequète });
 
     if (idBd && idBdPrécédente && idBd !== idBdPrécédente) {
@@ -2161,7 +2163,7 @@ export class ClientConstellation extends EventEmitter {
           idBd2: idBdPrécédente,
         });
 
-        await this.effacerBd({id: idBdPrécédente});
+        await this.effacerBd({ id: idBdPrécédente });
         await this.sauvegarderAuStockageLocal({ clef: clefRequète, val: idBd });
       } catch {
         // Rien à faire ; on démissionne !
@@ -2171,7 +2173,7 @@ export class ClientConstellation extends EventEmitter {
     // Nous devons confirmer que la base de données spécifiée était du bon genre
     if (idBd && type) {
       try {
-        const {fOublier} = await this.ouvrirBd({id: idBd, type })
+        const { fOublier } = await this.ouvrirBd({ id: idBd, type });
         await fOublier();
 
         this.verrouObtIdBd.release(clefRequète);

@@ -14,7 +14,7 @@ import {
   élémentsBd,
 } from "@/utils/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import Semaphore from "@chriscdn/promise-semaphore"
+import Semaphore from "@chriscdn/promise-semaphore";
 
 import type {
   règleColonne,
@@ -649,7 +649,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const fFinale = async (bds: string[]): Promise<void> => {
       let idBd: string;
 
-      await this.verrouBdUnique.acquire(idNuéeUnique)
+      await this.verrouBdUnique.acquire(idNuéeUnique);
       const idBdLocale = await this.client.obtDeStockageLocal({
         clef: clefStockageLocal,
       });
@@ -698,7 +698,7 @@ export default class BDs extends ComposanteClientListe<string> {
           break;
         }
       }
-      this.verrouBdUnique.release(idNuéeUnique)
+      this.verrouBdUnique.release(idNuéeUnique);
       await f(idBd);
     };
 

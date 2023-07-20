@@ -724,7 +724,6 @@ typesClients.forEach((type) => {
 
           await attenteModifié.attendre(avant);
 
-
           vérifierDonnéesBd(fichier, {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
           });
@@ -1045,7 +1044,9 @@ typesClients.forEach((type) => {
           expect(val[idAuto].type).to.equal("erreur");
           const état = val[idAuto] as ÉtatErreur;
 
-          expect(JSON.parse(état.erreur).message).to.equal("Unrecognized bookType |ods!|");
+          expect(JSON.parse(état.erreur).message).to.equal(
+            "Unrecognized bookType |ods!|"
+          );
           expect(état.prochaineProgramméeÀ).to.be.lessThanOrEqual(
             après + 1000 * 60 * 60 * 24 * 7
           );

@@ -77,7 +77,7 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fOublier = await client.bds!.suivreBds({
-            f: (_bds) => (bds.mettreÀJour(_bds)),
+            f: (_bds) => bds.mettreÀJour(_bds),
           });
         });
         after(async () => {
@@ -92,17 +92,20 @@ typesClients.forEach((type) => {
             licence: "ODbl-1_0",
             ajouter: false,
           });
-          const val = bds.val
+          const val = bds.val;
           expect(val).to.be.an("array").with.length(1).and.contain(idBd);
         });
         it("On peut l'ajouter ensuite à mes bds", async () => {
           await client.bds!.ajouterÀMesBds({ id: idNouvelleBd });
-          const val = await bds.attendreQue(x=>x.length > 1);
-          expect(val).to.be.an("array").with.length(2).to.have.members([idNouvelleBd, idBd]);
+          const val = await bds.attendreQue((x) => x.length > 1);
+          expect(val)
+            .to.be.an("array")
+            .with.length(2)
+            .to.have.members([idNouvelleBd, idBd]);
         });
         it("On peut aussi l'effacer", async () => {
           await client.bds!.effacerBd({ id: idNouvelleBd });
-          const val = await bds.attendreQue(x=>x.length < 2)
+          const val = await bds.attendreQue((x) => x.length < 2);
           expect(val).to.be.an("array").with.length(1).and.contain(idBd);
         });
       });

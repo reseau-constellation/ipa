@@ -275,11 +275,7 @@ export default class Projets extends ComposanteClientListe<string> {
     });
   }
 
-  async _obtBdNoms({
-    id,
-  }: {
-    id: string;
-  }): Promise<{
+  async _obtBdNoms({ id }: { id: string }): Promise<{
     bd: KeyValueStore<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
@@ -339,11 +335,7 @@ export default class Projets extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async _obtBdDescr({
-    id,
-  }: {
-    id: string;
-  }): Promise<{
+  async _obtBdDescr({ id }: { id: string }): Promise<{
     bd: KeyValueStore<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {

@@ -627,12 +627,16 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     } catch (e) {
       const nouvelÉtat: ÉtatErreur = {
         type: "erreur",
-        erreur: JSON.stringify({
-          nom: (e as Error).name,
-          message: (e as Error).message,
-          pile: (e as Error).stack,
-          cause: (e as Error).cause
-        }, undefined, 2),
+        erreur: JSON.stringify(
+          {
+            nom: (e as Error).name,
+            message: (e as Error).message,
+            pile: (e as Error).stack,
+            cause: (e as Error).cause,
+          },
+          undefined,
+          2
+        ),
         prochaineProgramméeÀ: tempsInterval
           ? Date.now() + tempsInterval
           : undefined,

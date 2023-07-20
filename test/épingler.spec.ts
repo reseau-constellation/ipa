@@ -65,7 +65,7 @@ typesClients.forEach((type) => {
         let idBdDic2: string;
         let idBdAutre: string;
 
-        let fOublierÉpingles: schémaFonctionOublier ;
+        let fOublierÉpingles: schémaFonctionOublier;
 
         const épingles = new AttendreRésultat<Set<string>>();
 
@@ -77,13 +77,15 @@ typesClients.forEach((type) => {
 
           idBdDic2 = await client!.créerBdIndépendante({ type: "kvstore" });
           idBdAutre = await client!.créerBdIndépendante({ type: "kvstore" });
-          fOublierÉpingles = await client.épingles!.suivreÉpingles({f: x => épingles.mettreÀJour(x)})
+          fOublierÉpingles = await client.épingles!.suivreÉpingles({
+            f: (x) => épingles.mettreÀJour(x),
+          });
         });
 
         after(async () => {
-          if (fOublierÉpingles) await fOublierÉpingles()
+          if (fOublierÉpingles) await fOublierÉpingles();
           épingles.toutAnnuler();
-        })
+        });
 
         it("Épingler liste récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe, récursif: true });
@@ -95,9 +97,9 @@ typesClients.forEach((type) => {
           await bd.add(idBdAutre);
           await fOublier();
 
-          const val = await épingles.attendreQue(x=>x.size > 1);
+          const val = await épingles.attendreQue((x) => x.size > 1);
 
-          expect([...val]).to.contain(idBdListe)
+          expect([...val]).to.contain(idBdListe);
           expect([...val]).to.contain(idBdAutre);
         });
 
@@ -110,14 +112,18 @@ typesClients.forEach((type) => {
         it("Épingler dic récursif", async () => {
           await client.épingles!.épinglerBd({ id: idBdDic, récursif: true });
 
-          const { bd, fOublier } = await client.ouvrirBd<{[clef: string]: string}>({ 
+          const { bd, fOublier } = await client.ouvrirBd<{
+            [clef: string]: string;
+          }>({
             id: idBdDic,
             type: "keyvalue",
           });
           await bd.set("clef", idBdDic2);
           await fOublier();
 
-          const { bd: bdDic2, fOublier: fOublier2 } = await client.ouvrirBd<{[clef: string]: string}>({
+          const { bd: bdDic2, fOublier: fOublier2 } = await client.ouvrirBd<{
+            [clef: string]: string;
+          }>({
             id: idBdDic2,
             type: "keyvalue",
           });
@@ -167,16 +173,18 @@ typesClients.forEach((type) => {
         });
 
         it("Fichier épinglé", async () => {
-          const { bd, fOublier } = await client.ouvrirBd<{[clef: string]: string}>(
-            { id: idBd, type: "keyvalue" }
-          );
+          const { bd, fOublier } = await client.ouvrirBd<{
+            [clef: string]: string;
+          }>({ id: idBd, type: "keyvalue" });
           await bd.set("clef", idc);
           await bd.set("clef2", idc2);
           await fOublier();
 
-          const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<{[clef: string]: string}>({ 
-            id: idBd2, 
-            type: "keyvalue" 
+          const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<{
+            [clef: string]: string;
+          }>({
+            id: idBd2,
+            type: "keyvalue",
           });
           await bd2.set("clef2", idc2);
           fOublier2();

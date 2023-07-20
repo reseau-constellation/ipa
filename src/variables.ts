@@ -60,35 +60,36 @@ export type structureBdVariable = {
   statut: Partial<schémaStatut>;
 };
 
-const schémaStructureBdVariable: JSONSchemaType<Partial<structureBdVariable>> = {
-  type: "object",
-  properties: {
-    type: { type: "string", nullable: true },
-    catégorie: {
-      type: "object",
-      properties: {
-        catégorie: { type: "string", nullable: true },
-        type: { type: "string", nullable: true },
+const schémaStructureBdVariable: JSONSchemaType<Partial<structureBdVariable>> =
+  {
+    type: "object",
+    properties: {
+      type: { type: "string", nullable: true },
+      catégorie: {
+        type: "object",
+        properties: {
+          catégorie: { type: "string", nullable: true },
+          type: { type: "string", nullable: true },
+        },
+        required: [],
+        nullable: true,
       },
-      required: [],
-      nullable: true
-    },
-    noms: { type: "string", nullable: true },
-    descriptions: { type: "string", nullable: true },
-    unités: { type: "string", nullable: true },
-    règles: { type: "string", nullable: true },
-    statut: {
-      type: "object",
-      properties: {
-        idNouvelle: { type: "string", nullable: true },
-        statut: { type: "string", nullable: true },
+      noms: { type: "string", nullable: true },
+      descriptions: { type: "string", nullable: true },
+      unités: { type: "string", nullable: true },
+      règles: { type: "string", nullable: true },
+      statut: {
+        type: "object",
+        properties: {
+          idNouvelle: { type: "string", nullable: true },
+          statut: { type: "string", nullable: true },
+        },
+        required: [],
+        nullable: true,
       },
-      required: [],
-      nullable: true
     },
-  },
-  required: [],
-};
+    required: [],
+  };
 
 export default class Variables extends ComposanteClientListe<string> {
   constructor({ client }: { client: ClientConstellation }) {
@@ -615,7 +616,10 @@ export default class Variables extends ComposanteClientListe<string> {
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
         const catégorie = bd.get("catégorie");
-        if (catégorie && catégorie.catégorie && catégorie.type) await f(this.standardiserCatégorieVariable(catégorie as catégorieVariables));
+        if (catégorie && catégorie.catégorie && catégorie.type)
+          await f(
+            this.standardiserCatégorieVariable(catégorie as catégorieVariables)
+          );
       },
     });
   }

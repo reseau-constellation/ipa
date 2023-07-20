@@ -115,15 +115,16 @@ type structureBdAuthorisation = {
   membres: string;
 };
 
-const schémaStructureBdAuthorisation: JSONSchemaType<Partial<structureBdAuthorisation>> =
-  {
-    type: "object",
-    properties: {
-      philosophie: { type: "string", nullable: true },
-      membres: { type: "string", nullable: true },
-    },
-    required: [],
-  };
+const schémaStructureBdAuthorisation: JSONSchemaType<
+  Partial<structureBdAuthorisation>
+> = {
+  type: "object",
+  properties: {
+    philosophie: { type: "string", nullable: true },
+    membres: { type: "string", nullable: true },
+  },
+  required: [],
+};
 
 const schémaBdMotsClefsNuée: JSONSchemaType<string> = {
   type: "string",
@@ -628,7 +629,6 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
   }
 
-
   async changerStatutNuée({
     idNuée,
     statut,
@@ -906,7 +906,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     f,
   }: {
     idNuée: string;
-    f: schémaFonctionSuivi<string|undefined>;
+    f: schémaFonctionSuivi<string | undefined>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idNuée,
@@ -943,7 +943,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
   }): Promise<string> {
     return await uneFois(async (fSuivi: schémaFonctionSuivi<string>) => {
-      return await this.suivreGestionnaireAutorisations({ idNuée, f: ignorerNonDéfinis(fSuivi) });
+      return await this.suivreGestionnaireAutorisations({
+        idNuée,
+        f: ignorerNonDéfinis(fSuivi),
+      });
     });
   }
 
@@ -1838,7 +1841,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         }
 
         if (!membres) return;
-        const idMonCompte = await this.client.obtIdCompte()
+        const idMonCompte = await this.client.obtIdCompte();
 
         const filtrerAutorisation = (
           bds_: { idBd: string; auteurs: string[] }[]
@@ -1847,16 +1850,12 @@ export default class Nuée extends ComposanteClientListe<string> {
             const invités = membres
               .filter((m) => m.statut === "accepté")
               .map((m) => m.idCompte);
-            
+
             return bds_
-              .filter((x) =>
-                x.auteurs.some(
-                  (c) =>
-                    invités.includes(c)) ||
-                    (
-                      toujoursInclureLesMiennes &&
-                      x.auteurs.includes(idMonCompte)
-                    )
+              .filter(
+                (x) =>
+                  x.auteurs.some((c) => invités.includes(c)) ||
+                  (toujoursInclureLesMiennes && x.auteurs.includes(idMonCompte))
               )
               .map((x) => x.idBd);
           } else if (philoAutorisation === "IJPC") {
@@ -2311,9 +2310,10 @@ export default class Nuée extends ComposanteClientListe<string> {
             (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
               this.client.variables!.suivreNomsVariable({ id: idVar, f })
           );
-          
+
           const idCol = colonnes.find((c) => c.variable === idVar)?.id;
-          nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol || idVar;
+          nomsVariables[idVar] =
+            traduire(nomsDisponibles, langues) || idCol || idVar;
         }
         donnéesPourXLSX = donnéesPourXLSX.map((d) =>
           Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {

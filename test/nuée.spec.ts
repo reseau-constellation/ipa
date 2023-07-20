@@ -1,6 +1,11 @@
 import { typesClients, générerClients } from "@/utilsTests/client.js";
 import type { default as ClientConstellation } from "@/client.js";
-import { schémaFonctionOublier, adresseOrbiteValide, schémaStatut, TYPES_STATUT } from "@/utils/index.js";
+import {
+  schémaFonctionOublier,
+  adresseOrbiteValide,
+  schémaStatut,
+  TYPES_STATUT,
+} from "@/utils/index.js";
 
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { élémentDeMembreAvecValid } from "@/reseau.js";
@@ -64,14 +69,14 @@ typesClients.forEach((type) => {
     describe("Noms", function () {
       let idNuée: string;
       let fOublier: schémaFonctionOublier;
-      
+
       const noms = new AttendreRésultat<{ [key: string]: string }>();
-      
+
       before(async () => {
         idNuée = await client.nuées!.créerNuée({});
         fOublier = await client.nuées!.suivreNomsNuée({
           idNuée,
-          f: (n) => (noms.mettreÀJour(n)),
+          f: (n) => noms.mettreÀJour(n),
         });
       });
 
@@ -87,9 +92,9 @@ typesClients.forEach((type) => {
       it("Ajouter un nom", async () => {
         await client.nuées!.ajouterNomsNuée({
           id: idNuée,
-          noms: {fr: "Alphabets",}
+          noms: { fr: "Alphabets" },
         });
-        const val = await noms.attendreQue(x=>Object.keys(x).length > 0)
+        const val = await noms.attendreQue((x) => Object.keys(x).length > 0);
         expect(val.fr).to.equal("Alphabets");
       });
 
@@ -101,7 +106,7 @@ typesClients.forEach((type) => {
             हिं: "वर्णमाला",
           },
         });
-        const val = await noms.attendreQue(x=>!!x.हिं)
+        const val = await noms.attendreQue((x) => !!x.हिं);
         expect(val).to.deep.equal({
           fr: "Alphabets",
           த: "எழுத்துகள்",
@@ -112,15 +117,15 @@ typesClients.forEach((type) => {
       it("Changer un nom", async () => {
         await client.nuées!.ajouterNomsNuée({
           id: idNuée,
-          noms: {fr: "Systèmes d'écriture",}
+          noms: { fr: "Systèmes d'écriture" },
         });
-        const val = await noms.attendreQue(x=>x.fr !== "Alphabets")
+        const val = await noms.attendreQue((x) => x.fr !== "Alphabets");
         expect(val?.fr).to.equal("Systèmes d'écriture");
       });
 
       it("Effacer un nom", async () => {
         await client.nuées!.effacerNomNuée({ id: idNuée, langue: "fr" });
-        const val = await noms.attendreQue(x=>!x.fr)
+        const val = await noms.attendreQue((x) => !x.fr);
         expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
       });
     });
@@ -128,14 +133,14 @@ typesClients.forEach((type) => {
     describe("Descriptions", function () {
       let idNuée: string;
       let fOublier: schémaFonctionOublier;
-      
+
       const descr = new AttendreRésultat<{ [key: string]: string }>();
-      
+
       before(async () => {
         idNuée = await client.nuées!.créerNuée({});
         fOublier = await client.nuées!.suivreDescriptionsNuée({
           idNuée,
-          f: (n) => (descr.mettreÀJour(n)),
+          f: (n) => descr.mettreÀJour(n),
         });
       });
 
@@ -151,9 +156,9 @@ typesClients.forEach((type) => {
       it("Ajouter une description", async () => {
         await client.nuées!.ajouterDescriptionsNuée({
           id: idNuée,
-          descriptions: {fr: "Alphabets",}
+          descriptions: { fr: "Alphabets" },
         });
-        const val = await descr.attendreQue(x=>Object.keys(x).length > 0)
+        const val = await descr.attendreQue((x) => Object.keys(x).length > 0);
         expect(val.fr).to.equal("Alphabets");
       });
 
@@ -165,7 +170,7 @@ typesClients.forEach((type) => {
             हिं: "वर्णमाला",
           },
         });
-        const val = await descr.attendreQue(x=>!!x.हिं)
+        const val = await descr.attendreQue((x) => !!x.हिं);
         expect(val).to.deep.equal({
           fr: "Alphabets",
           த: "எழுத்துகள்",
@@ -176,15 +181,18 @@ typesClients.forEach((type) => {
       it("Changer une description", async () => {
         await client.nuées!.ajouterDescriptionsNuée({
           id: idNuée,
-          descriptions: {fr: "Systèmes d'écriture",}
+          descriptions: { fr: "Systèmes d'écriture" },
         });
-        const val = await descr.attendreQue(x=>x.fr !== "Alphabets")
+        const val = await descr.attendreQue((x) => x.fr !== "Alphabets");
         expect(val?.fr).to.equal("Systèmes d'écriture");
       });
 
       it("Effacer une description", async () => {
-        await client.nuées!.effacerDescriptionNuée({ id: idNuée, langue: "fr" });
-        const val = await descr.attendreQue(x=>!x.fr)
+        await client.nuées!.effacerDescriptionNuée({
+          id: idNuée,
+          langue: "fr",
+        });
+        const val = await descr.attendreQue((x) => !x.fr);
         expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
       });
     });
@@ -194,14 +202,14 @@ typesClients.forEach((type) => {
       let idNuée: string;
 
       let fOublier: schémaFonctionOublier;
-      
+
       const motsClefs = new AttendreRésultat<string[]>();
 
       before(async () => {
-        idNuée = await client.nuées!.créerNuée({})
+        idNuée = await client.nuées!.créerNuée({});
         fOublier = await client.nuées!.suivreMotsClefsNuée({
           idNuée,
-          f: (m) => (motsClefs.mettreÀJour(m)),
+          f: (m) => motsClefs.mettreÀJour(m),
         });
       });
 
@@ -218,14 +226,14 @@ typesClients.forEach((type) => {
           idNuée,
           idsMotsClefs: idMotClef,
         });
-        const val = await motsClefs.attendreQue(x=>x.length > 0)
-        
+        const val = await motsClefs.attendreQue((x) => x.length > 0);
+
         expect(val).to.contain(idMotClef);
       });
       it("Effacer un mot-clef", async () => {
         await client.nuées!.effacerMotClefNuée({ idNuée, idMotClef });
-        const val = await motsClefs.attendreQue(x=>!x.includes(idMotClef))
-        
+        const val = await motsClefs.attendreQue((x) => !x.includes(idMotClef));
+
         expect(val).to.be.an.empty("array");
       });
     });
@@ -234,13 +242,13 @@ typesClients.forEach((type) => {
       let fOublier: schémaFonctionOublier;
       let idNuée: string;
       let idNouvelleNuée: string;
-      
+
       const nuées = new AttendreRésultat<string[]>();
 
       before(async () => {
-        idNuée = await client.nuées!.créerNuée({})
+        idNuée = await client.nuées!.créerNuée({});
         fOublier = await client.nuées!.suivreNuées({
-          f: (_nuées) => (nuées.mettreÀJour(_nuées)),
+          f: (_nuées) => nuées.mettreÀJour(_nuées),
         });
       });
       after(async () => {
@@ -257,17 +265,17 @@ typesClients.forEach((type) => {
         const val = await nuées.attendreExiste();
         expect(val).to.be.an("array").and.to.contain(idNuée);
       });
-      
+
       it("On peut l'ajouter ensuite à mes bds", async () => {
         await client.nuées!.ajouterÀMesNuées({ id: idNouvelleNuée });
-        const val = await nuées.attendreQue(x=>x.includes(idNouvelleNuée));
+        const val = await nuées.attendreQue((x) => x.includes(idNouvelleNuée));
 
         expect(val).to.be.an("array").and.to.contain(idNouvelleNuée);
       });
 
       it("On peut aussi l'effacer", async () => {
         await client.nuées!.effacerNuée({ id: idNouvelleNuée });
-        const val = await nuées.attendreQue(x=>!x.includes(idNouvelleNuée))
+        const val = await nuées.attendreQue((x) => !x.includes(idNouvelleNuée));
         expect(val).to.be.an("array").and.to.not.contain(idNouvelleNuée);
       });
     });
@@ -275,14 +283,14 @@ typesClients.forEach((type) => {
     describe("Statut nuée", function () {
       let fOublier: schémaFonctionOublier;
       let idNuée: string;
-      
+
       const statut = new AttendreRésultat<schémaStatut>();
 
       before(async () => {
-        idNuée = await client.nuées!.créerNuée({})
+        idNuée = await client.nuées!.créerNuée({});
         fOublier = await client.nuées!.suivreStatutNuée({
           idNuée,
-          f: (x) => (statut.mettreÀJour(x)),
+          f: (x) => statut.mettreÀJour(x),
         });
       });
       after(async () => {
@@ -290,53 +298,63 @@ typesClients.forEach((type) => {
       });
 
       it("Marquer bêta", async () => {
-        await client.nuées?.marquerBêta({idNuée})
-        const val = await statut.attendreQue(x=>x.statut === TYPES_STATUT.BÊTA)
+        await client.nuées?.marquerBêta({ idNuée });
+        const val = await statut.attendreQue(
+          (x) => x.statut === TYPES_STATUT.BÊTA
+        );
         expect(val).to.deep.equal({
-          statut: TYPES_STATUT.BÊTA
-        })
+          statut: TYPES_STATUT.BÊTA,
+        });
       });
 
       it("Marquer interne", async () => {
-        await client.nuées?.marquerInterne({idNuée})
-        const val = await statut.attendreQue(x=>x.statut === TYPES_STATUT.INTERNE)
+        await client.nuées?.marquerInterne({ idNuée });
+        const val = await statut.attendreQue(
+          (x) => x.statut === TYPES_STATUT.INTERNE
+        );
         expect(val).to.deep.equal({
-          statut: TYPES_STATUT.INTERNE
-        })
-      })
+          statut: TYPES_STATUT.INTERNE,
+        });
+      });
 
       it("Marquer obsolète", async () => {
-        await client.nuées?.marquerObsolète({idNuée, idNouvelle: "Une nouvelle bd."})  //  Pour une vraie application, utiliser un id Nuée valide, bien entendu.
-        const val = await statut.attendreQue(x=>x.statut === TYPES_STATUT.OBSOLÈTE)
+        await client.nuées?.marquerObsolète({
+          idNuée,
+          idNouvelle: "Une nouvelle bd.",
+        }); //  Pour une vraie application, utiliser un id Nuée valide, bien entendu.
+        const val = await statut.attendreQue(
+          (x) => x.statut === TYPES_STATUT.OBSOLÈTE
+        );
         expect(val).to.deep.equal({
           statut: TYPES_STATUT.OBSOLÈTE,
-          idNouvelle: "Une nouvelle bd."
-        })
-      })
+          idNouvelle: "Une nouvelle bd.",
+        });
+      });
 
       it("Marquer active", async () => {
-        await client.nuées?.marquerActive({idNuée})
-        const val = await statut.attendreQue(x=>x.statut === TYPES_STATUT.ACTIVE)
+        await client.nuées?.marquerActive({ idNuée });
+        const val = await statut.attendreQue(
+          (x) => x.statut === TYPES_STATUT.ACTIVE
+        );
         expect(val).to.deep.equal({
-          statut: TYPES_STATUT.ACTIVE
-        })
-      })
+          statut: TYPES_STATUT.ACTIVE,
+        });
+      });
     });
 
     describe("Tableaux", function () {
-
       describe("Ajouter et enlever", function () {
         let fOublier: schémaFonctionOublier;
         let idNuée: string;
         let idTableau: string;
-        
+
         const tableaux = new AttendreRésultat<infoTableauAvecId[]>();
-  
+
         before(async () => {
-          idNuée = await client.nuées!.créerNuée({})
+          idNuée = await client.nuées!.créerNuée({});
           fOublier = await client.nuées!.suivreTableauxNuée({
             idNuée,
-            f: (x) => (tableaux.mettreÀJour(x)),
+            f: (x) => tableaux.mettreÀJour(x),
           });
         });
         after(async () => {
@@ -346,24 +364,26 @@ typesClients.forEach((type) => {
         it("Ajout tableau", async () => {
           idTableau = await client.nuées!.ajouterTableauNuée({
             idNuée,
-            clefTableau: "abc"
-          })
+            clefTableau: "abc",
+          });
           const val = await tableaux.attendreExiste();
-          expect(val).to.have.deep.members([{
-            clef: "abc",
-            position: 0,
-            id: idTableau
-          }])
-        })
+          expect(val).to.have.deep.members([
+            {
+              clef: "abc",
+              position: 0,
+              id: idTableau,
+            },
+          ]);
+        });
 
         it("Effacer tableau", async () => {
           await client.nuées!.effacerTableauNuée({
             idNuée,
-            idTableau
+            idTableau,
           });
-          const val = await tableaux.attendreQue(x=>!x.length);
-          expect(val).to.be.empty()
-        })
+          const val = await tableaux.attendreQue((x) => !x.length);
+          expect(val).to.be.empty();
+        });
       });
 
       describe("Colonnes", function () {
@@ -408,19 +428,19 @@ typesClients.forEach((type) => {
         let idNuée: string;
         let idTableau: string;
         let idColonne: string;
-        
+
         const variables = new AttendreRésultat<string[]>();
-  
+
         before(async () => {
           idNuée = await client.nuées!.créerNuée({});
-          idTableau = await client.nuées!.ajouterTableauNuée({idNuée});
+          idTableau = await client.nuées!.ajouterTableauNuée({ idNuée });
 
           fOublier = await client.nuées!.suivreVariablesNuée({
             idNuée,
-            f: (x) => (variables.mettreÀJour(x)),
+            f: (x) => variables.mettreÀJour(x),
           });
         });
-        
+
         after(async () => {
           if (fOublier) await fOublier();
         });
@@ -440,7 +460,7 @@ typesClients.forEach((type) => {
             idVariable,
           });
 
-          const val = await variables.attendreQue(x=>x.length > 0)
+          const val = await variables.attendreQue((x) => x.length > 0);
           expect(val).to.have.members([idVariable]);
         });
 
@@ -449,10 +469,9 @@ typesClients.forEach((type) => {
             idTableau,
             idColonne,
           });
-          const val = await variables.attendreQue(x=>!x.length)
+          const val = await variables.attendreQue((x) => !x.length);
           expect(val).to.be.an.empty("array");
         });
-
       });
 
       describe("Règles", function () {

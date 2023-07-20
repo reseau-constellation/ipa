@@ -178,7 +178,8 @@ export default class GestionnaireClient {
           fonctionIPA[attr as keyof typeof fonctionIPA]
         ) {
           // @ts-ignore
-          fonctionIPA = fonctionIPA[attr as keyof typeof fonct].bind(fonctionIPA);
+          fonctionIPA =
+            fonctionIPA[attr as keyof typeof fonct].bind(fonctionIPA);
         } else {
           this.fErreur(erreur, idMessage);
           return undefined;

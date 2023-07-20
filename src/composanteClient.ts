@@ -192,7 +192,7 @@ export class ComposanteClientDic<
               racine: id,
               type: "keyvalue",
             });
-            if (idBd === précédente ) return;
+            if (idBd === précédente) return;
             précédente = idBd;
             return await fSuivreBd(idBd);
           },

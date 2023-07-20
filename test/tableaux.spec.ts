@@ -1606,7 +1606,7 @@ typesClients.forEach((type) => {
               [idsCols[idVarEndroit]]: "ici",
               [idsCols[idVarDate]]: {
                 système: "dateJS",
-                val: new Date("2021-01-01").valueOf()
+                val: new Date("2021-01-01").valueOf(),
               },
               [idsCols[idVarTempMin]]: 25,
             },
@@ -1614,7 +1614,7 @@ typesClients.forEach((type) => {
               [idsCols[idVarEndroit]]: "ici",
               [idsCols[idVarDate]]: {
                 système: "dateJS",
-                val: new Date("2021-01-02").valueOf()
+                val: new Date("2021-01-02").valueOf(),
               },
               [idsCols[idVarTempMin]]: 27,
             },

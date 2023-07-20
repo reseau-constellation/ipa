@@ -25,7 +25,11 @@ import type {
 import type { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
-import { générerClients, typesClients, typeClient } from "@/utilsTests/client.js";
+import {
+  générerClients,
+  typesClients,
+  typeClient,
+} from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
@@ -383,7 +387,6 @@ typesClients.forEach((type) => {
         });
 
         describe("Suivre relations immédiates", function () {
-          
           describe("Relations explicites", function () {
             let fOublierClients: () => Promise<void>;
             let idsBdCompte: string[];
@@ -506,8 +509,8 @@ typesClients.forEach((type) => {
               );
               expect(val.length).to.equal(0);
             });
-          })
-          
+          });
+
           describe("Relations indirectes", function () {
             let fOublierClients: () => Promise<void>;
             let idsBdCompte: string[];
@@ -610,7 +613,7 @@ typesClients.forEach((type) => {
               const valPropres = await relationsPropres.attendreExiste();
               expect(valPropres.length).to.equal(0);
 
-              const val = await relationsAutres.attendreQue(x => !x.length);
+              const val = await relationsAutres.attendreQue((x) => !x.length);
               expect(val.length).to.equal(0);
             });
 
@@ -673,12 +676,9 @@ typesClients.forEach((type) => {
               const valPropres = await relationsPropres.attendreExiste();
               expect(valPropres.length).to.equal(0);
 
-              const val = await relationsAutres.attendreQue(
-                x => !x.length
-              );
+              const val = await relationsAutres.attendreQue((x) => !x.length);
               expect(val.length).to.equal(0);
             });
-
 
             it.skip("Ajout coauteur mot-clef détecté", async () => {
               idMotClef1 = await clients[0].motsClefs!.créerMotClef();
@@ -714,8 +714,7 @@ typesClients.forEach((type) => {
               const valAutres = await relationsPropres.attendreExiste();
               expect(valAutres.length).to.equal(0);
             });
-          })
-
+          });
         });
 
         describe("Suivre relations confiance", function () {

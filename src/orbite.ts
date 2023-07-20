@@ -159,11 +159,13 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
   schéma: JSONSchemaType<T>;
 }): KeyValueStore<T> => {
   const validateur = ajv.compile(schéma);
-  const compilerSchémaClef = (s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"]) => {
+  const compilerSchémaClef = (
+    s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"]
+  ) => {
     // Apparemment nécessaire pour éviter que AJV donne une erreur si `nullable: true` et la valeur est `undefined`
     if (s === true) {
       return () => true;
-    };
+    }
 
     if (s.nullable) {
       const f = ajv.compile(s);
@@ -192,7 +194,12 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
       : validateur;
     const valid = vld(v);
     if (valid) return true;
-    else console.error((new Error(JSON.stringify({v, clef, erreurs: vld.errors}, undefined, 2))).stack);
+    else
+      console.error(
+        new Error(
+          JSON.stringify({ v, clef, erreurs: vld.errors }, undefined, 2)
+        ).stack
+      );
     return false;
   };
 
@@ -219,8 +226,9 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
           if (valide) return await target.put(key, value, options);
           else
             throw new Error(
-              validateurs[key] ? JSON.stringify(validateurs[key].errors, undefined, 2) :
-                `Clef ${key} non supportée.`
+              validateurs[key]
+                ? JSON.stringify(validateurs[key].errors, undefined, 2)
+                : `Clef ${key} non supportée.`
             );
         };
       } else if (prop === "all") {

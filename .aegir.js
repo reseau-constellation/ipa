@@ -21,7 +21,7 @@ const esbuild = {
     "@constl/electron-webrtc-relay",
     "url",
     "zlib",
-    "rimraf"
+    "rimraf",
   ],
   plugins: [
     {

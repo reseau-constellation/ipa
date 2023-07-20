@@ -49,7 +49,7 @@ const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
             items: { type: "string" },
             nullable: true,
           },
-          { 
+          {
             type: "string",
             nullable: true,
           },
