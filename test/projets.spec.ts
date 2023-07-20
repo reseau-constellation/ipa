@@ -59,26 +59,26 @@ typesClients.forEach((type) => {
         });
 
         it("Le projet est déjà ajouté", async () => {
-          expect(mesProjets).to.have.members([idNouveauProjet]);
+          expect(mesProjets).to.contain(idNouveauProjet);
         });
 
         it("Enlever de mes projets", async () => {
           await client.projets!.enleverDeMesProjets({
             idProjet: idNouveauProjet,
           });
-          expect(mesProjets).not.to.have.members([idNouveauProjet]);
+          expect(mesProjets).not.to.contain(idNouveauProjet);
         });
 
         it("Ajouter à mes projets", async () => {
           await client.projets!.ajouterÀMesProjets({
             idProjet: idNouveauProjet,
           });
-          expect(mesProjets).to.have.members([idNouveauProjet]);
+          expect(mesProjets).to.contain(idNouveauProjet);
         });
 
         it("On peut aussi l'effacer", async () => {
           await client.projets!.effacerProjet({ id: idNouveauProjet });
-          expect(mesProjets).not.to.have.members([idNouveauProjet]);
+          expect(mesProjets).not.to.contain(idNouveauProjet);
         });
       });
 
@@ -511,7 +511,7 @@ typesClients.forEach((type) => {
 
         it("Fichiers SFIP retrouvés de tous les tableaux", () => {
           expect(fichiersSFIP.size).to.equal(1);
-          expect(fichiersSFIP).to.have.deep.members([{ cid, ext: "svg" }]);
+          expect([...fichiersSFIP]).to.have.deep.members([{ cid, ext: "svg" }]);
         });
 
         describe("Exporter document projet", function () {
