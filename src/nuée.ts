@@ -776,11 +776,9 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     idCompte: string;
   }): Promise<void> {
-    console.log("ici")
     const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({
       idNuée,
     });
-    console.log("là")
     return await this.accepterMembreAutorisation({
       idAutorisation,
       idCompte,
@@ -821,11 +819,9 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     idCompte: string;
   }): Promise<void> {
-    console.log("ici")
     const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({
       idNuée,
     });
-    console.log("là")
     return await this.exclureMembreAutorisation({
       idAutorisation,
       idCompte,
@@ -1769,6 +1765,8 @@ export default class Nuée extends ComposanteClientListe<string> {
         }
 
         if (!membres) return;
+        const idMonCompte = await this.client.obtIdCompte()
+
         const filtrerAutorisation = (
           bds_: { idBd: string; auteurs: string[] }[]
         ): string[] => {
@@ -1776,14 +1774,16 @@ export default class Nuée extends ComposanteClientListe<string> {
             const invités = membres
               .filter((m) => m.statut === "accepté")
               .map((m) => m.idCompte);
+            
             return bds_
               .filter((x) =>
                 x.auteurs.some(
-                  async (c) =>
-                    invités.includes(c) ||
-                    (toujoursInclureLesMiennes &&
-                      x.auteurs.includes(await this.client.obtIdCompte()))
-                )
+                  (c) =>
+                    invités.includes(c)) ||
+                    (
+                      toujoursInclureLesMiennes &&
+                      x.auteurs.includes(idMonCompte)
+                    )
               )
               .map((x) => x.idBd);
           } else if (philoAutorisation === "IJPC") {
