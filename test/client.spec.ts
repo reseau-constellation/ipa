@@ -90,7 +90,7 @@ if (isNode || isElectronMain) {
       expect(val).to.have.members([idOrbite1]);
     });
 
-    describe.only("Ajouter dispositif manuellement", function () {
+    describe("Ajouter dispositif manuellement", function () {
       let idBd: string;
 
       const fsOublier: schémaFonctionOublier[] = [];
