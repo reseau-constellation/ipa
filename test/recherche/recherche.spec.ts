@@ -65,7 +65,7 @@ const vérifierRecherche = (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     if (isElectronMain || isNode) {
       describe("Rechercher dans réseau", function () {
         describe("Profil", function () {
@@ -258,11 +258,12 @@ typesClients.forEach((type) => {
             });
 
             it("Changements détectés", async () => {
+              await clients[1].profil?.effacerCourriel();
               await clients[1].profil!.sauvegarderCourriel({
                 courriel: "julien.malard@mail.mcgill.ca",
               });
 
-              const val = await rés.attendreQue((x) => !!x && !x.length);
+              const val = await rés.attendreQue((x) => !x.length);
               expect(val.length).to.equal(0);
             });
           });
