@@ -219,7 +219,7 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
           if (valide) return await target.put(key, value, options);
           else
             throw new Error(
-              JSON.stringify(validateurs[key]?.errors, undefined, 2) ||
+              validateurs[key] ? JSON.stringify(validateurs[key].errors, undefined, 2) :
                 `Clef ${key} non supportée.`
             );
         };
