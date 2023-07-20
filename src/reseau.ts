@@ -1872,6 +1872,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     clef,
     nRésultatsDésirés,
     fRecherche,
+    fRechercheLesMiens,
     fQualité,
     fObjectif,
     toutLeRéseau = true,
@@ -1883,6 +1884,9 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       idCompte: string;
       f: (bds: string[] | undefined) => void;
     }) => Promise<schémaFonctionOublier>;
+    fRechercheLesMiens: (
+      fSuivreRacine: (éléments: string[]) => Promise<void>
+    ) => Promise<schémaFonctionOublier>;
     fQualité: schémaFonctionSuivreQualitéRecherche;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
@@ -1897,49 +1901,6 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         fListe: async (
           fSuivreRacine: (éléments: string[]) => Promise<void>
         ): Promise<schémaRetourFonctionRechercheParN> => {
-          let fRechercheLesMiens;
-          switch (clef) {
-            case "bds":
-              fRechercheLesMiens = async (
-                fSuivreRacine: (éléments: string[]) => Promise<void>
-              ): Promise<schémaFonctionOublier> =>
-                await this.client.bds!.suivreBds({ f: fSuivreRacine });
-              break;
-            case "motsClefs":
-              (fRechercheLesMiens = async (
-                fSuivreRacine: (éléments: string[]) => Promise<void>
-              ): Promise<schémaFonctionOublier> =>
-                await this.client.bds!.suivreBds({ f: fSuivreRacine })),
-                async (
-                  fSuivreRacine: (éléments: string[]) => Promise<void>
-                ): Promise<schémaFonctionOublier> =>
-                  await this.client.motsClefs!.suivreMotsClefs({
-                    f: fSuivreRacine,
-                  });
-              break;
-            case "variables":
-              fRechercheLesMiens = async (
-                fSuivreRacine: (éléments: string[]) => Promise<void>
-              ): Promise<schémaFonctionOublier> =>
-                await this.client.variables!.suivreVariables({
-                  f: fSuivreRacine,
-                });
-              break;
-            case "nuées":
-              fRechercheLesMiens = async (
-                fSuivreRacine: (éléments: string[]) => Promise<void>
-              ): Promise<schémaFonctionOublier> =>
-                await this.client.nuées!.suivreNuées({ f: fSuivreRacine });
-              break;
-            case "projets":
-              fRechercheLesMiens = async (
-                fSuivreRacine: (éléments: string[]) => Promise<void>
-              ): Promise<schémaFonctionOublier> =>
-                await this.client.projets!.suivreProjets({ f: fSuivreRacine });
-              break;
-            default:
-              throw new Error(clef);
-          }
           return {
             fOublier: await fRechercheLesMiens(fSuivreRacine),
             fChangerN: () => Promise.resolve(),
@@ -2031,12 +1992,17 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         f: fSuivreQualité,
       });
     };
+    const fRechercheLesMiens = async (
+      fSuivreRacine: (éléments: string[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> =>
+      await this.client.nuées!.suivreNuées({ f: fSuivreRacine });
 
     return await this.rechercherObjets({
       f,
       clef: "nuées",
       nRésultatsDésirés,
       fRecherche,
+      fRechercheLesMiens,
       fQualité,
       fObjectif,
       toutLeRéseau,
@@ -2068,11 +2034,18 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       });
     };
 
+    const fRechercheLesMiens = async (
+          fSuivreRacine: (éléments: string[]) => Promise<void>
+        ): Promise<schémaFonctionOublier> =>
+          await this.client.bds!.suivreBds({ f: fSuivreRacine });
+
+
     return await this.rechercherObjets({
       f,
       clef: "bds",
       nRésultatsDésirés,
       fRecherche,
+      fRechercheLesMiens,
       fQualité,
       fObjectif,
       toutLeRéseau,
@@ -2102,11 +2075,20 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       });
     };
 
+    const fRechercheLesMiens = async (
+          fSuivreRacine: (éléments: string[]) => Promise<void>
+        ): Promise<schémaFonctionOublier> =>
+          await this.client.variables!.suivreVariables({
+            f: fSuivreRacine,
+          });
+        
+
     return await this.rechercherObjets({
       f,
       clef: "variables",
       nRésultatsDésirés,
       fRecherche,
+      fRechercheLesMiens,
       fQualité,
       fObjectif,
       toutLeRéseau,
@@ -2136,11 +2118,19 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       });
     };
 
+    const fRechercheLesMiens = async (
+      fSuivreRacine: (éléments: string[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> =>
+      await this.client.motsClefs!.suivreMotsClefs({
+        f: fSuivreRacine,
+      });
+
     return await this.rechercherObjets({
       f,
       clef: "motsClefs",
       nRésultatsDésirés,
       fRecherche,
+      fRechercheLesMiens,
       fQualité,
       fObjectif,
       toutLeRéseau,
@@ -2170,11 +2160,17 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       });
     };
 
+    const fRechercheLesMiens = async (
+      fSuivreRacine: (éléments: string[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> =>
+      await this.client.projets!.suivreProjets({ f: fSuivreRacine });
+
     return await this.rechercherObjets({
       f,
       clef: "projets",
       nRésultatsDésirés,
       fRecherche,
+      fRechercheLesMiens,
       fQualité,
       fObjectif,
       toutLeRéseau,
