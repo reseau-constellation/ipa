@@ -52,40 +52,42 @@ const schémaBdPrincipale: JSONSchemaType<string> = {
 
 export type structureBdVariable = {
   type: string;
-  catégorie: catégorieVariables;
+  catégorie: Partial<catégorieVariables>;
   noms: string;
   unités?: string;
   descriptions: string;
   règles: string;
-  statut: schémaStatut;
+  statut: Partial<schémaStatut>;
 };
 
-const schémaStructureBdVariable: JSONSchemaType<structureBdVariable> = {
+const schémaStructureBdVariable: JSONSchemaType<Partial<structureBdVariable>> = {
   type: "object",
   properties: {
-    type: { type: "string" },
+    type: { type: "string", nullable: true },
     catégorie: {
       type: "object",
       properties: {
-        catégorie: { type: "string" },
-        type: { type: "string" },
+        catégorie: { type: "string", nullable: true },
+        type: { type: "string", nullable: true },
       },
-      required: ["catégorie", "type"],
+      required: [],
+      nullable: true
     },
-    noms: { type: "string" },
-    descriptions: { type: "string" },
+    noms: { type: "string", nullable: true },
+    descriptions: { type: "string", nullable: true },
     unités: { type: "string", nullable: true },
-    règles: { type: "string" },
+    règles: { type: "string", nullable: true },
     statut: {
       type: "object",
       properties: {
         idNouvelle: { type: "string", nullable: true },
-        statut: { type: "string" },
+        statut: { type: "string", nullable: true },
       },
-      required: ["statut"],
+      required: [],
+      nullable: true
     },
   },
-  required: ["type", "catégorie", "statut", "noms", "descriptions", "règles"],
+  required: [],
 };
 
 export default class Variables extends ComposanteClientListe<string> {
@@ -613,7 +615,7 @@ export default class Variables extends ComposanteClientListe<string> {
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
         const catégorie = bd.get("catégorie");
-        if (catégorie) await f(this.standardiserCatégorieVariable(catégorie));
+        if (catégorie && catégorie.catégorie && catégorie.type) await f(this.standardiserCatégorieVariable(catégorie as catégorieVariables));
       },
     });
   }
