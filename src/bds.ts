@@ -14,6 +14,7 @@ import {
   élémentsBd,
 } from "@/utils/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
+import Semaphore from "@chriscdn/promise-semaphore"
 
 import type {
   règleColonne,
@@ -181,8 +182,11 @@ export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
 export default class BDs extends ComposanteClientListe<string> {
+  verrouBdUnique: Semaphore;
+
   constructor({ client }: { client: ClientConstellation }) {
     super({ client, clef: "bds", schémaBdPrincipale });
+    this.verrouBdUnique = new Semaphore();
   }
 
   async épingler() {
@@ -644,6 +648,8 @@ export default class BDs extends ComposanteClientListe<string> {
 
     const fFinale = async (bds: string[]): Promise<void> => {
       let idBd: string;
+
+      await this.verrouBdUnique.acquire(idNuéeUnique)
       const idBdLocale = await this.client.obtDeStockageLocal({
         clef: clefStockageLocal,
       });
@@ -692,7 +698,8 @@ export default class BDs extends ComposanteClientListe<string> {
           break;
         }
       }
-      f(idBd);
+      this.verrouBdUnique.release(idNuéeUnique)
+      await f(idBd);
     };
 
     const fOublier = await this.rechercherBdsParNuée({
