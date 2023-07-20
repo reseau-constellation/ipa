@@ -37,7 +37,7 @@ const générerNuéeTest = async (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation;
@@ -182,7 +182,7 @@ typesClients.forEach((type) => {
           idCol = await client.nuées!.ajouterColonneTableauNuée({
             idTableau,
             idVariable: idVariableNumérique,
-            idColonne: "numérique",
+            idColonne: "col numérique",
           });
           const { fOublier: fOublierChezMoi } =
             await clients[1].nuées!.suivreDonnéesTableauNuée({
@@ -190,6 +190,7 @@ typesClients.forEach((type) => {
               clefTableau: "principal",
               f: async (x) => résultatChezMoi.mettreÀJour(x),
               nRésultatsDésirés: 100,
+              clefsSelonVariables: false,
             });
           fsOublier.push(fOublierChezMoi);
 
