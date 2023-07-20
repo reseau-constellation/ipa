@@ -943,7 +943,7 @@ export class ClientConstellation extends EventEmitter {
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready"],
+    événements = ["write", "replicated", "ready", "peer.exchanged"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
@@ -1032,6 +1032,7 @@ export class ClientConstellation extends EventEmitter {
             }
           };
 
+          bd.events.on("replicated", ()=>console.log("replicated", bd.id))
           for (const é of événements) {
             bd.events.on(é, fFinale);
             fsOublier.push(async () => {
@@ -1042,8 +1043,8 @@ export class ClientConstellation extends EventEmitter {
               é === "write" &&
               bd.events.listenerCount("write") > bd.events.getMaxListeners()
             ) {
-              // console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
-              // console.log({f})
+              console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
+              console.log({f})
             } */
           }
 
@@ -2001,6 +2002,21 @@ export class ClientConstellation extends EventEmitter {
     id: string;
     schéma?: JSONSchemaType<U>;
     type?: "kvstore" | "keyvalue" | "feed";
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>
+  async ouvrirBd<
+    U,
+    T extends
+      | Store
+      | KeyValueStore<{ [clef: string]: élémentsBd }>
+      | FeedStore<élémentsBd>
+  >({
+    id,
+    type,
+    schéma,
+  }: {
+    id: string;
+    schéma?: JSONSchemaType<U>;
+    type?: "kvstore" | "keyvalue" | "feed";
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
     if (!adresseOrbiteValide(id))
       throw new Error(`Adresse "${id}" non valide.`);
@@ -2055,19 +2071,8 @@ export class ClientConstellation extends EventEmitter {
     }
     try {
       const bd = await this.orbite!.open(id);
-      
-      // On doit périodiquement appeler syncLocal sur la BD afin d'obtenir les valeurs les plus récentes reçues des pairs. Ça semble être
-      // un problême avec orbit-db.
-      const idIntervale = setInterval(()=>{
-        try {
-          bd.syncLocal()
-        } catch (e) {
-          if (!e.toString().contains("Database is not open")) throw e
-        }
-      }, 1000)
-      const fOublierIntervale = () => clearInterval(idIntervale)
+
       this._bds[id] = { bd, idsRequètes: new Set([idRequète]), fermerBd: async () => {
-        fOublierIntervale();
         await bd.close();
       } };
       await bd.load();
@@ -2169,7 +2174,9 @@ export class ClientConstellation extends EventEmitter {
     // Nous devons confirmer que la base de données spécifiée était du bon genre
     if (idBd && type) {
       try {
-        await this.orbite![type as keyof OrbitDB](idBd);
+        const {fOublier} = await this.ouvrirBd({id: idBd, type })
+        await fOublier();
+
         this.verrouObtIdBd.release(clefRequète);
         return idBd;
       } catch {
@@ -2224,16 +2231,17 @@ export class ClientConstellation extends EventEmitter {
     );
     await bd.load();
     const { id } = bd;
+    bd.events.on("replicated", ()=>console.log("replicated", bd.id))
     
-    // On doit périodiquement appeler syncLocal sur la BD afin d'obtenir les valeurs les plus récentes reçues des pairs. Ça semble être
+    // On doit périodiquement appeler `load()` sur la BD afin d'obtenir les valeurs les plus récentes reçues des pairs. Ça semble être
     // un problême avec orbit-db.
     const idIntervale = setInterval(()=>{
       try {
-        bd.syncLocal()
+        // bd.load()
       } catch (e) {
-        if (!e.toString().contains("Database is not open")) throw e
+        if (!e.toString().contains("Database is not")) throw e
       }
-    }, 1000);
+    }, 5000);
     const fOublierIntervale = () => clearInterval(idIntervale)
     this._bds[id] = { bd, idsRequètes: new Set(), fermerBd: async () => {
       fOublierIntervale();
