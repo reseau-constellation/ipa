@@ -192,7 +192,7 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
       : validateur;
     const valid = vld(v);
     if (valid) return true;
-    else console.error(v, clef, JSON.stringify(vld.errors, undefined, 2));
+    else console.error((new Error(JSON.stringify({v, clef, erreurs: vld.errors}, undefined, 2))).stack);
     return false;
   };
 

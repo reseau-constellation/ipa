@@ -628,6 +628,79 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
   }
 
+
+  async changerStatutNuée({
+    idNuée,
+    statut,
+  }: {
+    idNuée: string;
+    statut: schémaStatut;
+  }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<structureBdNuée>({
+      id: idNuée,
+      type: "keyvalue",
+    });
+    bd.set("statut", statut);
+    await fOublier();
+  }
+
+  async suivreStatutNuée({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<schémaStatut>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDic({
+      id: idNuée,
+      f: async (x) => {
+        if (x["statut"]) return await f(x["statut"] as unknown as schémaStatut);
+      },
+    });
+  }
+
+  async marquerObsolète({
+    idNuée,
+    idNouvelle,
+  }: {
+    idNuée: string;
+    idNouvelle?: string;
+  }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<structureBdNuée>({
+      id: idNuée,
+      type: "keyvalue",
+    });
+    bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
+    await fOublier();
+  }
+
+  async marquerActive({ idNuée }: { idNuée: string }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<structureBdNuée>({
+      id: idNuée,
+      type: "keyvalue",
+    });
+    bd.set("statut", { statut: TYPES_STATUT.ACTIVE });
+    await fOublier();
+  }
+
+  async marquerBêta({ idNuée }: { idNuée: string }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<structureBdNuée>({
+      id: idNuée,
+      type: "keyvalue",
+    });
+    bd.set("statut", { statut: TYPES_STATUT.BÊTA });
+    await fOublier();
+  }
+
+  async marquerInterne({ idNuée }: { idNuée: string }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<structureBdNuée>({
+      id: idNuée,
+      type: "keyvalue",
+    });
+    bd.set("statut", { statut: TYPES_STATUT.INTERNE });
+    await fOublier();
+  }
+
   async inviterAuteur({
     idNuée,
     idBdCompteAuteur,

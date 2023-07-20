@@ -1,11 +1,11 @@
 import { typesClients, générerClients } from "@/utilsTests/client.js";
 import type { default as ClientConstellation } from "@/client.js";
-import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
+import { schémaFonctionOublier, adresseOrbiteValide, schémaStatut, TYPES_STATUT } from "@/utils/index.js";
 
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
-import { schémaSpécificationBd } from "@/bds.js";
+import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 
 import { expect } from "aegir/chai";
 
@@ -37,7 +37,7 @@ const générerNuéeTest = async (
 };
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation;
@@ -62,32 +62,308 @@ typesClients.forEach((type) => {
     });
 
     describe("Noms", function () {
-      it.skip("Nuée");
+      let idNuée: string;
+      let fOublier: schémaFonctionOublier;
+      
+      const noms = new AttendreRésultat<{ [key: string]: string }>();
+      
+      before(async () => {
+        idNuée = await client.nuées!.créerNuée({});
+        fOublier = await client.nuées!.suivreNomsNuée({
+          idNuée,
+          f: (n) => (noms.mettreÀJour(n)),
+        });
+      });
+
+      after(async () => {
+        if (fOublier) await fOublier();
+      });
+
+      it("Pas de noms pour commencer", async () => {
+        const val = await noms.attendreExiste();
+        expect(Object.keys(val).length).to.equal(0);
+      });
+
+      it("Ajouter un nom", async () => {
+        await client.nuées!.ajouterNomsNuée({
+          id: idNuée,
+          noms: {fr: "Alphabets",}
+        });
+        const val = await noms.attendreQue(x=>Object.keys(x).length > 0)
+        expect(val.fr).to.equal("Alphabets");
+      });
+
+      it("Ajouter des noms", async () => {
+        await client.nuées!.ajouterNomsNuée({
+          id: idNuée,
+          noms: {
+            த: "எழுத்துகள்",
+            हिं: "वर्णमाला",
+          },
+        });
+        const val = await noms.attendreQue(x=>!!x.हिं)
+        expect(val).to.deep.equal({
+          fr: "Alphabets",
+          த: "எழுத்துகள்",
+          हिं: "वर्णमाला",
+        });
+      });
+
+      it("Changer un nom", async () => {
+        await client.nuées!.ajouterNomsNuée({
+          id: idNuée,
+          noms: {fr: "Systèmes d'écriture",}
+        });
+        const val = await noms.attendreQue(x=>x.fr !== "Alphabets")
+        expect(val?.fr).to.equal("Systèmes d'écriture");
+      });
+
+      it("Effacer un nom", async () => {
+        await client.nuées!.effacerNomNuée({ id: idNuée, langue: "fr" });
+        const val = await noms.attendreQue(x=>!x.fr)
+        expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+      });
     });
 
     describe("Descriptions", function () {
-      it.skip("Nuée");
+      let idNuée: string;
+      let fOublier: schémaFonctionOublier;
+      
+      const descr = new AttendreRésultat<{ [key: string]: string }>();
+      
+      before(async () => {
+        idNuée = await client.nuées!.créerNuée({});
+        fOublier = await client.nuées!.suivreDescriptionsNuée({
+          idNuée,
+          f: (n) => (descr.mettreÀJour(n)),
+        });
+      });
+
+      after(async () => {
+        if (fOublier) await fOublier();
+      });
+
+      it("Pas de descriptions pour commencer", async () => {
+        const val = await descr.attendreExiste();
+        expect(Object.keys(val).length).to.equal(0);
+      });
+
+      it("Ajouter une description", async () => {
+        await client.nuées!.ajouterDescriptionsNuée({
+          id: idNuée,
+          descriptions: {fr: "Alphabets",}
+        });
+        const val = await descr.attendreQue(x=>Object.keys(x).length > 0)
+        expect(val.fr).to.equal("Alphabets");
+      });
+
+      it("Ajouter des descriptions", async () => {
+        await client.nuées!.ajouterDescriptionsNuée({
+          id: idNuée,
+          descriptions: {
+            த: "எழுத்துகள்",
+            हिं: "वर्णमाला",
+          },
+        });
+        const val = await descr.attendreQue(x=>!!x.हिं)
+        expect(val).to.deep.equal({
+          fr: "Alphabets",
+          த: "எழுத்துகள்",
+          हिं: "वर्णमाला",
+        });
+      });
+
+      it("Changer une description", async () => {
+        await client.nuées!.ajouterDescriptionsNuée({
+          id: idNuée,
+          descriptions: {fr: "Systèmes d'écriture",}
+        });
+        const val = await descr.attendreQue(x=>x.fr !== "Alphabets")
+        expect(val?.fr).to.equal("Systèmes d'écriture");
+      });
+
+      it("Effacer une description", async () => {
+        await client.nuées!.effacerDescriptionNuée({ id: idNuée, langue: "fr" });
+        const val = await descr.attendreQue(x=>!x.fr)
+        expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+      });
     });
 
     describe("Mots-clefs", function () {
-      it.skip("Nuée");
+      let idMotClef: string;
+      let idNuée: string;
+
+      let fOublier: schémaFonctionOublier;
+      
+      const motsClefs = new AttendreRésultat<string[]>();
+
+      before(async () => {
+        idNuée = await client.nuées!.créerNuée({})
+        fOublier = await client.nuées!.suivreMotsClefsNuée({
+          idNuée,
+          f: (m) => (motsClefs.mettreÀJour(m)),
+        });
+      });
+
+      after(async () => {
+        if (fOublier) await fOublier();
+      });
+      it("Pas de mots-clefs pour commencer", async () => {
+        const val = await motsClefs.attendreExiste();
+        expect(val).to.be.an.empty("array");
+      });
+      it("Ajout d'un mot-clef", async () => {
+        idMotClef = await client.motsClefs!.créerMotClef();
+        await client.nuées!.ajouterMotsClefsNuée({
+          idNuée,
+          idsMotsClefs: idMotClef,
+        });
+        const val = await motsClefs.attendreQue(x=>x.length > 0)
+        
+        expect(val).to.contain(idMotClef);
+      });
+      it("Effacer un mot-clef", async () => {
+        await client.nuées!.effacerMotClefNuée({ idNuée, idMotClef });
+        const val = await motsClefs.attendreQue(x=>!x.includes(idMotClef))
+        
+        expect(val).to.be.an.empty("array");
+      });
     });
 
     describe("Mes nuées", function () {
-      it.skip("Nuée");
+      let fOublier: schémaFonctionOublier;
+      let idNuée: string;
+      let idNouvelleNuée: string;
+      
+      const nuées = new AttendreRésultat<string[]>();
+
+      before(async () => {
+        idNuée = await client.nuées!.créerNuée({})
+        fOublier = await client.nuées!.suivreNuées({
+          f: (_nuées) => (nuées.mettreÀJour(_nuées)),
+        });
+      });
+      after(async () => {
+        if (fOublier) await fOublier();
+      });
+      it("On crée une autre nuée sans l'ajouter", async () => {
+        idNouvelleNuée = await client.nuées!.créerNuée({
+          ajouter: false,
+        });
+        const val = await nuées.attendreExiste();
+        expect(val).to.be.an("array").and.not.to.contain(idNouvelleNuée);
+      });
+      it("La nuée déjà ajoutée est présente", async () => {
+        const val = await nuées.attendreExiste();
+        expect(val).to.be.an("array").and.to.contain(idNuée);
+      });
+      
+      it("On peut l'ajouter ensuite à mes bds", async () => {
+        await client.nuées!.ajouterÀMesNuées({ id: idNouvelleNuée });
+        const val = await nuées.attendreQue(x=>x.includes(idNouvelleNuée));
+
+        expect(val).to.be.an("array").and.to.contain(idNouvelleNuée);
+      });
+
+      it("On peut aussi l'effacer", async () => {
+        await client.nuées!.effacerNuée({ id: idNouvelleNuée });
+        const val = await nuées.attendreQue(x=>!x.includes(idNouvelleNuée))
+        expect(val).to.be.an("array").and.to.not.contain(idNouvelleNuée);
+      });
     });
 
-    describe("Status nuée", function () {
-      it.skip("Nuée");
-    });
+    describe("Statut nuée", function () {
+      let fOublier: schémaFonctionOublier;
+      let idNuée: string;
+      
+      const statut = new AttendreRésultat<schémaStatut>();
 
-    describe("Création", function () {
-      it.skip("Nuée");
+      before(async () => {
+        idNuée = await client.nuées!.créerNuée({})
+        fOublier = await client.nuées!.suivreStatutNuée({
+          idNuée,
+          f: (x) => (statut.mettreÀJour(x)),
+        });
+      });
+      after(async () => {
+        if (fOublier) await fOublier();
+      });
+
+      it("Marquer bêta", async () => {
+        await client.nuées?.marquerBêta({idNuée})
+        const val = await statut.attendreQue(x=>x.statut === TYPES_STATUT.BÊTA)
+        expect(val).to.deep.equal({
+          statut: TYPES_STATUT.BÊTA
+        })
+      });
+
+      it("Marquer interne", async () => {
+        await client.nuées?.marquerInterne({idNuée})
+        const val = await statut.attendreQue(x=>x.statut === TYPES_STATUT.INTERNE)
+        expect(val).to.deep.equal({
+          statut: TYPES_STATUT.INTERNE
+        })
+      })
+
+      it("Marquer obsolète", async () => {
+        await client.nuées?.marquerObsolète({idNuée, idNouvelle: "Une nouvelle bd."})  //  Pour une vraie application, utiliser un id Nuée valide, bien entendu.
+        const val = await statut.attendreQue(x=>x.statut === TYPES_STATUT.OBSOLÈTE)
+        expect(val).to.deep.equal({
+          statut: TYPES_STATUT.OBSOLÈTE,
+          idNouvelle: "Une nouvelle bd."
+        })
+      })
+
+      it("Marquer active", async () => {
+        await client.nuées?.marquerActive({idNuée})
+        const val = await statut.attendreQue(x=>x.statut === TYPES_STATUT.ACTIVE)
+        expect(val).to.deep.equal({
+          statut: TYPES_STATUT.ACTIVE
+        })
+      })
     });
 
     describe("Tableaux", function () {
+
       describe("Ajouter et enlever", function () {
-        it.skip("Nuée");
+        let fOublier: schémaFonctionOublier;
+        let idNuée: string;
+        let idTableau: string;
+        
+        const tableaux = new AttendreRésultat<infoTableauAvecId[]>();
+  
+        before(async () => {
+          idNuée = await client.nuées!.créerNuée({})
+          fOublier = await client.nuées!.suivreTableauxNuée({
+            idNuée,
+            f: (x) => (tableaux.mettreÀJour(x)),
+          });
+        });
+        after(async () => {
+          if (fOublier) await fOublier();
+        });
+
+        it("Ajout tableau", async () => {
+          idTableau = await client.nuées!.ajouterTableauNuée({
+            idNuée,
+            clefTableau: "abc"
+          })
+          const val = await tableaux.attendreExiste();
+          expect(val).to.have.deep.members([{
+            clef: "abc",
+            position: 0,
+            id: idTableau
+          }])
+        })
+
+        it("Effacer tableau", async () => {
+          await client.nuées!.effacerTableauNuée({
+            idNuée,
+            idTableau
+          });
+          const val = await tableaux.attendreQue(x=>!x.length);
+          expect(val).to.be.empty()
+        })
       });
 
       describe("Colonnes", function () {
@@ -126,9 +402,59 @@ typesClients.forEach((type) => {
           expect(val[0].variable).to.equal(idVariable);
         });
       });
+
       describe("Variables", function () {
-        it.skip("Nuée");
+        let fOublier: schémaFonctionOublier;
+        let idNuée: string;
+        let idTableau: string;
+        let idColonne: string;
+        
+        const variables = new AttendreRésultat<string[]>();
+  
+        before(async () => {
+          idNuée = await client.nuées!.créerNuée({});
+          idTableau = await client.nuées!.ajouterTableauNuée({idNuée});
+
+          fOublier = await client.nuées!.suivreVariablesNuée({
+            idNuée,
+            f: (x) => (variables.mettreÀJour(x)),
+          });
+        });
+        
+        after(async () => {
+          if (fOublier) await fOublier();
+        });
+
+        it("Pas de variables pour commencer", async () => {
+          const val = await variables.attendreExiste();
+          expect(val).to.be.an.empty("array");
+        });
+
+        it("Ajout d'une variable", async () => {
+          const idVariable = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+
+          idColonne = await client.nuées!.ajouterColonneTableauNuée({
+            idTableau,
+            idVariable,
+          });
+
+          const val = await variables.attendreQue(x=>x.length > 0)
+          expect(val).to.have.members([idVariable]);
+        });
+
+        it("Effacer une variable", async () => {
+          await client.nuées!.effacerColonneTableauNuée({
+            idTableau,
+            idColonne,
+          });
+          const val = await variables.attendreQue(x=>!x.length)
+          expect(val).to.be.an.empty("array");
+        });
+
       });
+
       describe("Règles", function () {
         it.skip("Nuée");
       });
@@ -284,6 +610,7 @@ typesClients.forEach((type) => {
               clefTableau: "principal",
               f: async (x) => résultatChezMoi.mettreÀJour(x),
               nRésultatsDésirés: 100,
+              clefsSelonVariables: false,
             });
           fsOublier.push(fOublierChezMoi);
 
