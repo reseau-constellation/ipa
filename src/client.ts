@@ -1130,13 +1130,13 @@ export class ClientConstellation extends EventEmitter {
     const fRacine = async ({
       fSuivreRacine,
     }: {
-      fSuivreRacine: (nouvelIdBdCible: string) => Promise<void>;
+      fSuivreRacine: (nouvelIdBdCible: string|undefined) => Promise<void>;
     }): Promise<schémaFonctionOublier> => {
       const fSuivreBdRacine = async (
         bd: KeyValueStore<Record<typeof clef, string>>
       ) => {
         const nouvelIdBdCible = bd.get(clef);
-        if (nouvelIdBdCible) return await fSuivreRacine(nouvelIdBdCible);
+        return await fSuivreRacine(nouvelIdBdCible);
       };
       return await this.suivreBd({ id, f: fSuivreBdRacine, type: "keyvalue" });
     };
