@@ -65,7 +65,7 @@ const vérifierRecherche = (
 };
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     if (isElectronMain || isNode) {
       describe("Rechercher dans réseau", function () {
         describe("Profil", function () {
@@ -164,7 +164,7 @@ typesClients.forEach((type) => {
                 nom: "Julien",
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réfClient2]);
             });
 
@@ -253,7 +253,7 @@ typesClients.forEach((type) => {
                 courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réfClient2]);
             });
 
@@ -305,7 +305,7 @@ typesClients.forEach((type) => {
             });
 
             it("Membre détecté", async () => {
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réfClient2]);
             });
           });
@@ -314,16 +314,12 @@ typesClients.forEach((type) => {
         describe("Mots-clefs", () => {
           let fOublierClients: () => Promise<void>;
           let clients: ClientConstellation[];
-          let idsComptes: string[];
 
           before(async () => {
             ({ fOublier: fOublierClients, clients } = await générerClients(
               2,
               type
             ));
-            idsComptes = await Promise.all(
-              clients.map(async (c) => await c.obtIdCompte())
-            );
           });
 
           after(async () => {
@@ -347,7 +343,7 @@ typesClients.forEach((type) => {
                   nRésultatsDésirés: 2,
                 }));
               réfClient2 = {
-                id: idsComptes[1],
+                id: idMotClef,
                 résultatObjectif: {
                   score: 0,
                   type: "résultat",
@@ -368,7 +364,7 @@ typesClients.forEach((type) => {
             });
 
             it("Mot-clef détecté", async () => {
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réfClient2]);
             });
           });
@@ -423,7 +419,7 @@ typesClients.forEach((type) => {
                 },
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -447,7 +443,7 @@ typesClients.forEach((type) => {
             });
 
             it("Mots-clefs détectés", async () => {
-              await rés.attendreQue((x) => !!x && !!x.length);
+              await rés.attendreQue((x) => x.length > 0);
             });
           });
         });
@@ -507,7 +503,7 @@ typesClients.forEach((type) => {
             });
 
             it("Variable détecté", async () => {
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réfClient2]);
             });
           });
@@ -564,7 +560,7 @@ typesClients.forEach((type) => {
                 },
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -621,7 +617,7 @@ typesClients.forEach((type) => {
                 },
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -645,7 +641,7 @@ typesClients.forEach((type) => {
             });
 
             it("Variables détectées", async () => {
-              await rés.attendreQue((x) => !!x && !!x.length);
+              await rés.attendreQue((x) => x.length > 0);
             });
           });
         });
@@ -703,7 +699,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -746,7 +742,7 @@ typesClients.forEach((type) => {
                 id: idBd,
                 noms: { fr: "météorologie" },
               });
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -793,7 +789,7 @@ typesClients.forEach((type) => {
                   fr: "Météorologie de la région de Montpellier.",
                 },
               });
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -859,7 +855,7 @@ typesClients.forEach((type) => {
                 },
               };
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -920,7 +916,7 @@ typesClients.forEach((type) => {
                 },
               };
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -961,7 +957,324 @@ typesClients.forEach((type) => {
                   fr: "Météorologie de la région de Montpellier.",
                 },
               });
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réf]);
+            });
+          });
+        });
+
+        describe("Nuées", () => {
+          let idNuée: string;
+
+          let fOublierClients: () => Promise<void>;
+          let clients: ClientConstellation[];
+
+          before(async () => {
+            ({ fOublier: fOublierClients, clients } = await générerClients(
+              2,
+              type
+            ));
+          });
+
+          after(async () => {
+            if (fOublierClients) await fOublierClients();
+          });
+
+          describe("selon id", () => {
+            let fOublier: schémaFonctionOublier;
+            const rés = new AttendreRésultat<
+              résultatRecherche<infoRésultatTexte>[]
+            >();
+
+            before(async () => {
+              idNuée = await clients[1].nuées!.créerNuée({});
+
+              ({ fOublier } = await clients[0].recherche!.rechercherNuéeSelonId({
+                idNuée,
+                f: (nuées) => rés.mettreÀJour(nuées),
+                nRésultatsDésirés: 2,
+              }));
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              rés.toutAnnuler();
+            });
+
+            it("Nuée détectée", async () => {
+              const réf: résultatRecherche<infoRésultatTexte> = {
+                id: idNuée,
+                résultatObjectif: {
+                  score: 0,
+                  type: "résultat",
+                  de: "id",
+                  info: {
+                    type: "texte",
+                    texte: idNuée,
+                    début: 0,
+                    fin: idNuée.length,
+                  },
+                },
+              };
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réf]);
+            });
+          });
+          describe("selon nom", () => {
+            let fOublier: schémaFonctionOublier;
+            const rés = new AttendreRésultat<
+              résultatRecherche<infoRésultatTexte>[]
+            >();
+
+            before(async () => {
+              ({ fOublier } = await clients[0].recherche!.rechercherNuéeSelonNom({
+                nomNuée: "météo",
+                f: (nuées) => rés.mettreÀJour(nuées),
+                nRésultatsDésirés: 2,
+              }));
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              rés.toutAnnuler();
+            });
+
+            it("Nuée détectée", async () => {
+              const réf: résultatRecherche<infoRésultatTexte> = {
+                id: idNuée,
+                résultatObjectif: {
+                  score: 0,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "fr",
+                  info: {
+                    type: "texte",
+                    texte: "météorologie",
+                    début: 0,
+                    fin: 5,
+                  },
+                },
+              };
+              await clients[1].nuées!.ajouterNomsNuée({
+                id: idNuée,
+                noms: { fr: "météorologie" },
+              });
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réf]);
+            });
+          });
+
+          describe("selon descr", () => {
+            let fOublier: schémaFonctionOublier;
+            const rés = new AttendreRésultat<
+              résultatRecherche<infoRésultatTexte>[]
+            >();
+
+            before(async () => {
+              ({ fOublier } =
+                await clients[0].recherche!.rechercherNuéeSelonDescr({
+                  descrNuée: "météo",
+                  f: (nuées) => rés.mettreÀJour(nuées),
+                  nRésultatsDésirés: 2,
+                }));
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              rés.toutAnnuler();
+            });
+
+            it("Nuée détectée", async () => {
+              const réf: résultatRecherche<infoRésultatTexte> = {
+                id: idNuée,
+                résultatObjectif: {
+                  score: 0,
+                  type: "résultat",
+                  de: "descr",
+                  clef: "fr",
+                  info: {
+                    type: "texte",
+                    texte: "Météorologie de la région de Montpellier.",
+                    début: 0,
+                    fin: 5,
+                  },
+                },
+              };
+              await clients[1].nuées!.ajouterDescriptionsNuée({
+                id: idNuée,
+                descriptions: {
+                  fr: "Météorologie de la région de Montpellier.",
+                },
+              });
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réf]);
+            });
+          });
+
+          describe("selon variables", () => {
+            let fOublier: schémaFonctionOublier;
+            const rés = new AttendreRésultat<
+              résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+            >();
+
+            before(async () => {
+              ({ fOublier } =
+                await clients[0].recherche!.rechercherNuéeSelonVariable({
+                  texte: "précipitation",
+                  f: (nuées) => rés.mettreÀJour(nuées),
+                  nRésultatsDésirés: 2,
+                }));
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              rés.toutAnnuler();
+            });
+
+            it("Nouvelle variable détectée", async () => {
+              const idVariable = await clients[1].variables!.créerVariable({
+                catégorie: "numérique",
+              });
+              const idTableau = await clients[1].nuées!.ajouterTableauNuée({
+                idNuée,
+              });
+              await clients[1].nuées!.ajouterColonneTableauNuée({
+                idTableau,
+                idVariable,
+              });
+              await clients[1].variables!.ajouterNomsVariable({
+                id: idVariable,
+                noms: {
+                  fr: "Précipitation",
+                },
+              });
+
+              const réf: résultatRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              > = {
+                id: idNuée,
+                résultatObjectif: {
+                  score: 0,
+                  type: "résultat",
+                  de: "variable",
+                  clef: idVariable,
+                  info: {
+                    type: "résultat",
+                    de: "nom",
+                    clef: "fr",
+                    info: {
+                      type: "texte",
+                      texte: "Précipitation",
+                      début: 0,
+                      fin: 13,
+                    },
+                  },
+                },
+              };
+
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réf]);
+            });
+          });
+
+          describe("selon mots-clefs", () => {
+            let fOublier: schémaFonctionOublier;
+            const rés = new AttendreRésultat<
+              résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+            >();
+
+            before(async () => {
+              ({ fOublier } =
+                await clients[0].recherche!.rechercherNuéeSelonMotClef({
+                  texte: "meteorología",
+                  f: (nuées) => rés.mettreÀJour(nuées),
+                  nRésultatsDésirés: 2,
+                }));
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              rés.toutAnnuler();
+            });
+
+            it("Nouveau mot-clef détecté", async () => {
+              const idMotClef = await clients[1].motsClefs!.créerMotClef();
+              await clients[1].nuées!.ajouterMotsClefsNuée({
+                idNuée,
+                idsMotsClefs: idMotClef,
+              });
+              await clients[1].motsClefs!.sauvegarderNomsMotClef({
+                idMotClef,
+                noms: {
+                  es: "Meteorología",
+                },
+              });
+
+              const réf: résultatRecherche<
+                infoRésultatRecherche<infoRésultatTexte>
+              > = {
+                id: idNuée,
+                résultatObjectif: {
+                  score: 0,
+                  type: "résultat",
+                  de: "motClef",
+                  clef: idMotClef,
+                  info: {
+                    type: "résultat",
+                    de: "nom",
+                    clef: "es",
+                    info: {
+                      type: "texte",
+                      texte: "Meteorología",
+                      début: 0,
+                      fin: 12,
+                    },
+                  },
+                },
+              };
+
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réf]);
+            });
+          });
+
+          describe("tous", () => {
+            let fOublier: schémaFonctionOublier;
+            const rés = new AttendreRésultat<
+              résultatRecherche<infoRésultatTexte>[]
+            >();
+
+            before(async () => {
+              ({ fOublier } = await clients[0].recherche!.rechercherNuées({
+                f: (nuées) => rés.mettreÀJour(nuées),
+                nRésultatsDésirés: 2,
+              }));
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              rés.toutAnnuler();
+            });
+
+            it("Nuée détectée", async () => {
+              const réf: résultatRecherche<infoRésultatVide> = {
+                id: idNuée,
+                résultatObjectif: {
+                  score: 0,
+                  type: "résultat",
+                  de: "*",
+                  info: {
+                    type: "vide",
+                  },
+                },
+              };
+              await clients[1].nuées!.ajouterNomsNuée({
+                id: idNuée,
+                noms: {
+                  fr: "Météorologie de la région de Montpellier.",
+                },
+              });
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -1022,7 +1335,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -1070,7 +1383,7 @@ typesClients.forEach((type) => {
                 },
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -1118,7 +1431,7 @@ typesClients.forEach((type) => {
                 },
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -1187,7 +1500,7 @@ typesClients.forEach((type) => {
                 },
               };
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -1231,7 +1544,7 @@ typesClients.forEach((type) => {
               const réf: résultatRecherche<
                 infoRésultatRecherche<infoRésultatTexte>
               > = {
-                id: idBd,
+                id: idProjet,
                 résultatObjectif: {
                   score: 0,
                   type: "résultat",
@@ -1251,7 +1564,7 @@ typesClients.forEach((type) => {
                 },
               };
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -1310,7 +1623,7 @@ typesClients.forEach((type) => {
                 noms: { es: "Mi base de datos meteorológicos" },
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -1352,7 +1665,7 @@ typesClients.forEach((type) => {
                 },
               });
 
-              const val = await rés.attendreQue((x) => !!x && !!x.length);
+              const val = await rés.attendreQue((x) => x.length > 0);
               vérifierRecherche(val, [réf]);
             });
           });
@@ -1466,7 +1779,7 @@ typesClients.forEach((type) => {
             },
           });
 
-          const val = await résMotsClefs.attendreQue((x) => !!x && !!x.length);
+          const val = await résMotsClefs.attendreQue((x) => x.length > 0);
           vérifierRecherche(val, réf);
         });
 
@@ -1537,7 +1850,7 @@ typesClients.forEach((type) => {
           }
 
           const val = await résMotsClefs.attendreQue(
-            (x) => !!x && !!x.length && x.length <= 4
+            (x) => x.length > 0 && x.length <= 4
           );
           vérifierRecherche(val, réf);
         });
