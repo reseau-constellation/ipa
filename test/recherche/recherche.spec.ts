@@ -989,11 +989,13 @@ typesClients.forEach((type) => {
             before(async () => {
               idNuée = await clients[1].nuées!.créerNuée({});
 
-              ({ fOublier } = await clients[0].recherche!.rechercherNuéeSelonId({
-                idNuée,
-                f: (nuées) => rés.mettreÀJour(nuées),
-                nRésultatsDésirés: 2,
-              }));
+              ({ fOublier } = await clients[0].recherche!.rechercherNuéeSelonId(
+                {
+                  idNuée,
+                  f: (nuées) => rés.mettreÀJour(nuées),
+                  nRésultatsDésirés: 2,
+                }
+              ));
             });
 
             after(async () => {
@@ -1027,11 +1029,12 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              ({ fOublier } = await clients[0].recherche!.rechercherNuéeSelonNom({
-                nomNuée: "météo",
-                f: (nuées) => rés.mettreÀJour(nuées),
-                nRésultatsDésirés: 2,
-              }));
+              ({ fOublier } =
+                await clients[0].recherche!.rechercherNuéeSelonNom({
+                  nomNuée: "météo",
+                  f: (nuées) => rés.mettreÀJour(nuées),
+                  nRésultatsDésirés: 2,
+                }));
             });
 
             after(async () => {

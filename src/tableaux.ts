@@ -236,11 +236,13 @@ export default class Tableaux {
     // Copier les noms
     const idBdNoms = bdBase.get("noms");
     if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd({
-        id: idBdNoms,
-        type: "keyvalue",
-        schéma: schémaStructureBdNoms,
-      });
+      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd(
+        {
+          id: idBdNoms,
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
+        }
+      );
       const noms = ClientConstellation.obtObjetdeBdDic({
         bd: bdNoms,
       });
@@ -1709,9 +1711,7 @@ export default class Tableaux {
           f: async (données) =>
             await fSuivreBranche({
               règle,
-              donnéesCatégorie: données.map(
-                (d) => d.données[colonne]
-              ),
+              donnéesCatégorie: données.map((d) => d.données[colonne]),
             }),
         });
       } else {

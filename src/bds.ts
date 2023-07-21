@@ -316,7 +316,8 @@ export default class BDs extends ComposanteClientListe<string> {
     });
     const licence = bdBase.get("licence");
     const licenceContenu = bdBase.get("licenceContenu");
-    if (!licence) throw new Error(`Aucune licence trouvée sur la BD source ${id}.`)
+    if (!licence)
+      throw new Error(`Aucune licence trouvée sur la BD source ${id}.`);
     const idNouvelleBd = await this.créerBd({
       licence,
       licenceContenu,
@@ -384,7 +385,7 @@ export default class BDs extends ComposanteClientListe<string> {
 
     const idBdTableaux = bdBase.get("tableaux");
     const idNouvelleBdTableaux = nouvelleBd.get("tableaux");
-    if (!idNouvelleBdTableaux) throw new Error("Erreur d'initialisation.")
+    if (!idNouvelleBdTableaux) throw new Error("Erreur d'initialisation.");
 
     const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
       await this.client.ouvrirBd<{ [tbl: string]: infoTableau }>({
@@ -393,10 +394,10 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
-      await this.client.ouvrirBd<{ [tbl: string]: infoTableau }>({
-        id: idBdTableaux,
-        type: "kvstore",
-      });
+        await this.client.ouvrirBd<{ [tbl: string]: infoTableau }>({
+          id: idBdTableaux,
+          type: "kvstore",
+        });
       const tableaux = ClientConstellation.obtObjetdeBdDic({
         bd: bdTableaux,
       });
@@ -412,7 +413,6 @@ export default class BDs extends ComposanteClientListe<string> {
       }
     }
 
-
     const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
     await nouvelleBd.set("statut", statut);
 
@@ -421,7 +421,11 @@ export default class BDs extends ComposanteClientListe<string> {
 
     await nouvelleBd.set("copiéDe", { id });
 
-    await Promise.all([fOublier(), fOublierNouvelleTableaux(), fOublierNouvelle()]);
+    await Promise.all([
+      fOublier(),
+      fOublierNouvelleTableaux(),
+      fOublierNouvelle(),
+    ]);
     return idNouvelleBd;
   }
 

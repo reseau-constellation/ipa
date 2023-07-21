@@ -212,9 +212,12 @@ export default class Variables extends ComposanteClientListe<string> {
 
     const idBdNoms = bdBase.get("noms");
     if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd(
-        { id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms }
-      );
+      const { bd: bdNoms, fOublier: fOublierBdNoms } =
+        await this.client.ouvrirBd({
+          id: idBdNoms,
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
+        });
       const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
       await fOublierBdNoms();
       await this.ajouterNomsVariable({ id: idNouvelleBd, noms });
@@ -223,7 +226,7 @@ export default class Variables extends ComposanteClientListe<string> {
     const idBdDescr = bdBase.get("descriptions");
     if (idBdDescr) {
       const { bd: bdDescr, fOublier: fOublierBdDescr } =
-      await this.client.ouvrirBd({
+        await this.client.ouvrirBd({
           id: idBdDescr,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -232,7 +235,10 @@ export default class Variables extends ComposanteClientListe<string> {
         bd: bdDescr,
       });
       await fOublierBdDescr();
-      await this.ajouterDescriptionsVariable({ id: idNouvelleBd, descriptions });
+      await this.ajouterDescriptionsVariable({
+        id: idNouvelleBd,
+        descriptions,
+      });
     }
 
     const unités = bdBase.get("unités");

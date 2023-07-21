@@ -206,12 +206,11 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
   return new Proxy(bd, {
     get(target, prop) {
       if (prop === "get") {
-        return (key: Extract<keyof T, string>): T[typeof key]|undefined => {
+        return (key: Extract<keyof T, string>): T[typeof key] | undefined => {
           const val = target.get(key);
           const valide = valider(val, key); // validateurs[key]?.(val);
           if (valide) return val;
-          else
-            return undefined
+          else return undefined;
         };
       } else if (prop === "put" || prop === "set") {
         return async (
@@ -234,7 +233,7 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
         if (valide) {
           return données;
         } else {
-          console.error(JSON.stringify(validateur.errors, undefined, 2))
+          console.error(JSON.stringify(validateur.errors, undefined, 2));
           throw new Error(JSON.stringify(validateur.errors, undefined, 2));
         }
       } else {

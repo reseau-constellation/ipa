@@ -178,11 +178,13 @@ export default class Projets extends ComposanteClientListe<string> {
 
     const idBdNoms = bdBase.get("noms");
     if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd({
-        id: idBdNoms,
-        type: "keyvalue",
-        schéma: schémaStructureBdNoms,
-      });
+      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd(
+        {
+          id: idBdNoms,
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
+        }
+      );
       const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
         [key: string]: string;
       };
@@ -192,22 +194,28 @@ export default class Projets extends ComposanteClientListe<string> {
 
     const idBdDescr = bdBase.get("descriptions");
     if (idBdDescr) {
-      const { bd: bdDescr, fOublier: fOublierDescr } = await this.client.ouvrirBd(
-        { id: idBdDescr, type: "keyvalue", schéma: schémaStructureBdNoms }
-      );
+      const { bd: bdDescr, fOublier: fOublierDescr } =
+        await this.client.ouvrirBd({
+          id: idBdDescr,
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
+        });
       const descriptions = ClientConstellation.obtObjetdeBdDic({
         bd: bdDescr,
       }) as {
         [key: string]: string;
       };
       await fOublierDescr();
-      await this.ajouterDescriptionsProjet({ id: idNouveauProjet, descriptions });
+      await this.ajouterDescriptionsProjet({
+        id: idNouveauProjet,
+        descriptions,
+      });
     }
 
     const idBdMotsClefs = bdBase.get("motsClefs");
     if (idBdMotsClefs) {
       const { bd: bdMotsClefs, fOublier: fOublierMotsClefs } =
-      await this.client.ouvrirBd<FeedStore<string>>({ id: idBdMotsClefs });
+        await this.client.ouvrirBd<FeedStore<string>>({ id: idBdMotsClefs });
       const idsMotsClefs = ClientConstellation.obtÉlémentsDeBdListe({
         bd: bdMotsClefs,
       });

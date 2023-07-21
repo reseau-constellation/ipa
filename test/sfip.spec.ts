@@ -42,7 +42,7 @@ describe("SFIP", function () {
     if (sfip) sfip.stop();
     if (dossier) {
       if (isNode || isElectronMain) {
-        const { sync } = (await import("rimraf"));
+        const { sync } = await import("rimraf");
         sync(dossier);
       }
     }

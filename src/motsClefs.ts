@@ -148,14 +148,14 @@ export default class MotsClefs extends ComposanteClientListe<string> {
           id: idBdDescriptions,
           type: "keyvalue",
         });
-        const descriptions = ClientConstellation.obtObjetdeBdDic({
-          bd: bdDescriptions,
-        });
-        await this.sauvegarderDescriptionsMotClef({
-          idMotClef: idNouveauMotClef,
-          descriptions,
-        });
-        await fOublierDescriptions();
+      const descriptions = ClientConstellation.obtObjetdeBdDic({
+        bd: bdDescriptions,
+      });
+      await this.sauvegarderDescriptionsMotClef({
+        idMotClef: idNouveauMotClef,
+        descriptions,
+      });
+      await fOublierDescriptions();
     }
 
     await fOublierBase();

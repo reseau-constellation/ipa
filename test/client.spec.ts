@@ -231,7 +231,7 @@ if (isNode || isElectronMain) {
       let fOublier: schémaFonctionOublier;
       let bd: KeyValueStore<{ [clef: string]: number }>;
       let fOublierBd: schémaFonctionOublier;
-      let données: { [key: string]: number|undefined };
+      let données: { [key: string]: number | undefined };
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
@@ -878,7 +878,7 @@ if (isNode || isElectronMain) {
       let idBd1: string;
       let idBd2: string;
 
-      type branche = { [key: string]: number|undefined };
+      type branche = { [key: string]: number | undefined };
       let données: branche[];
       const fsOublier: schémaFonctionOublier[] = [];
 

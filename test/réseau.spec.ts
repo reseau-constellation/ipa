@@ -2053,7 +2053,7 @@ typesClients.forEach((type) => {
 
             // On dirait qu'il faut attendre un peu avant de suivre les favoris. Sinon, parfois, le suivi de la bd racine de l'autre membre ne fonctionne pas.
             // C'est peut-être lié à la fonctionnalité pubsub de libp2p... ?
-            await new Promise(résoudre => setTimeout(résoudre, 3000))
+            await new Promise((résoudre) => setTimeout(résoudre, 3000));
 
             fsOublier.push(
               await clients[1].réseau!.suivreFavorisMembre({

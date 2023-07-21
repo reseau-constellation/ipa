@@ -185,8 +185,8 @@ export class ComposanteClientDic<
         return await this.client.suivreBdDic<structureBdCompte>({
           id,
           f: async (données) => {
-            const idBd = données[this.clef]
-            return await fSuivreBd(idBd)
+            const idBd = données[this.clef];
+            return await fSuivreBd(idBd);
           },
         });
       },

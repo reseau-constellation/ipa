@@ -257,9 +257,12 @@ export default class Nuée extends ComposanteClientListe<string> {
 
     const idBdNoms = bdBase.get("noms");
     if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd(
-        { id: idBdNoms, type: "kvstore", schéma: schémaStructureBdNoms }
-      );
+      const { bd: bdNoms, fOublier: fOublierBdNoms } =
+        await this.client.ouvrirBd({
+          id: idBdNoms,
+          type: "kvstore",
+          schéma: schémaStructureBdNoms,
+        });
       const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
       await fOublierBdNoms();
       await this.ajouterNomsNuée({ id: idNouvelleNuée, noms });
@@ -278,7 +281,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       });
       await fOublierBdDescr();
       await this.ajouterDescriptionsNuée({ id: idNouvelleNuée, descriptions });
-    };
+    }
 
     const idBdMotsClefs = bdBase.get("motsClefs");
     if (idBdMotsClefs) {
@@ -300,7 +303,7 @@ export default class Nuée extends ComposanteClientListe<string> {
 
     const idBdTableaux = bdBase.get("tableaux");
     const idNouvelleBdTableaux = nouvelleBd.get("tableaux");
-    if (!idNouvelleBdTableaux) throw new Error("Erreur initialisation.")
+    if (!idNouvelleBdTableaux) throw new Error("Erreur initialisation.");
 
     if (idBdTableaux) {
       const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
