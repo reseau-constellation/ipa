@@ -504,7 +504,7 @@ export default class BDs extends ComposanteClientListe<string> {
       id: idBd,
       f: async (bd) => {
         const copiéDe = bd.get("copiéDe");
-        await f(copiéDe as { id: string });
+        await f(copiéDe);
       },
       type: "keyvalue",
       schéma: schémaStructureBdBd,
@@ -1373,9 +1373,11 @@ export default class BDs extends ComposanteClientListe<string> {
       [tbl: string]: infoTableau;
     }>({ id: idBdTableaux, type: "keyvalue" });
 
-    const infoExistante = bdTableaux.get(idTableau) as infoTableau;
-    infoExistante.clef = clef;
-    bdTableaux.set(idTableau, infoExistante);
+    const infoExistante = bdTableaux.get(idTableau);
+    if (infoExistante) {
+      infoExistante.clef = clef;
+      bdTableaux.set(idTableau, infoExistante);
+    }
 
     await fOublier();
   }
@@ -1404,8 +1406,9 @@ export default class BDs extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDic({
       id: idBd,
+      schéma: schémaStructureBdBd,
       f: async (x) => {
-        if (x["statut"]) return await f(x["statut"] as unknown as schémaStatut);
+        if (x["statut"]) return await f(x["statut"]);
       },
     });
   }
