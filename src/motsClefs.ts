@@ -18,14 +18,14 @@ type structureBdMotClef = {
   noms: string;
   descriptions: string;
 };
-const schémaBdMotClef: JSONSchemaType<structureBdMotClef> = {
+const schémaBdMotClef: JSONSchemaType<Partial<structureBdMotClef>> = {
   type: "object",
   properties: {
-    type: { type: "string" },
-    noms: { type: "string" },
-    descriptions: { type: "string" },
+    type: { type: "string", nullable: true },
+    noms: { type: "string", nullable: true },
+    descriptions: { type: "string", nullable: true },
   },
-  required: ["type", "noms", "descriptions"],
+  required: [],
 };
 
 export default class MotsClefs extends ComposanteClientListe<string> {
@@ -128,35 +128,37 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idNouveauMotClef = await this.créerMotClef();
 
     const idBdNoms = bdBase.get("noms");
-    const { bd: bdNoms, fOublier: fOublierNoms } =
-      await this.client.ouvrirBd<structureBdMotClef>({
-        id: idBdNoms,
-        type: "keyvalue",
-      });
-    const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
-      [key: string]: string;
-    };
-    await this.sauvegarderNomsMotClef({ idMotClef: idNouveauMotClef, noms });
+    if (idBdNoms) {
+      const { bd: bdNoms, fOublier: fOublierNoms } =
+        await this.client.ouvrirBd<structureBdMotClef>({
+          id: idBdNoms,
+          type: "keyvalue",
+        });
+      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
+        [key: string]: string;
+      };
+      await this.sauvegarderNomsMotClef({ idMotClef: idNouveauMotClef, noms });
+      await fOublierNoms();
+    }
 
     const idBdDescriptions = bdBase.get("descriptions");
-    const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
-      await this.client.ouvrirBd<{ [langue: string]: string }>({
-        id: idBdDescriptions,
-        type: "keyvalue",
-      });
-    const descriptions = ClientConstellation.obtObjetdeBdDic({
-      bd: bdDescriptions,
-    }) as {
-      [key: string]: string;
-    };
-    await this.sauvegarderDescriptionsMotClef({
-      idMotClef: idNouveauMotClef,
-      descriptions,
-    });
+    if (idBdDescriptions) {
+      const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
+        await this.client.ouvrirBd<{ [langue: string]: string }>({
+          id: idBdDescriptions,
+          type: "keyvalue",
+        });
+        const descriptions = ClientConstellation.obtObjetdeBdDic({
+          bd: bdDescriptions,
+        });
+        await this.sauvegarderDescriptionsMotClef({
+          idMotClef: idNouveauMotClef,
+          descriptions,
+        });
+        await fOublierDescriptions();
+    }
 
     await fOublierBase();
-    await fOublierNoms();
-    await fOublierDescriptions();
     return idNouveauMotClef;
   }
 
