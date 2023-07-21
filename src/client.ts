@@ -1135,7 +1135,8 @@ export class ClientConstellation extends EventEmitter {
         bd: KeyValueStore<Record<typeof clef, string>>
       ) => {
         const nouvelIdBdCible = bd.get(clef);
-        await fSuivreRacine(nouvelIdBdCible);
+        if (nouvelIdBdCible)
+          return await fSuivreRacine(nouvelIdBdCible);
       };
       return await this.suivreBd({ id, f: fSuivreBdRacine, type: "keyvalue" });
     };
