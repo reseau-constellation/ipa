@@ -210,62 +210,62 @@ export default class Variables extends ComposanteClientListe<string> {
         schéma: schémaStructureBdVariable,
       });
 
-    const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd(
-      { id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms }
-    );
-    const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
-      [key: string]: string;
-    };
-    await this.ajouterNomsVariable({ id: idNouvelleBd, noms });
+    const idBdNoms = bdBase.get("noms");
+    if (idBdNoms) {
+      const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd(
+        { id: idBdNoms, type: "keyvalue", schéma: schémaStructureBdNoms }
+      );
+      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
+      await fOublierBdNoms();
+      await this.ajouterNomsVariable({ id: idNouvelleBd, noms });
+    }
 
-    const idBdDescr = bdBase.get("descriptions") as string;
-    const { bd: bdDescr, fOublier: fOublierBdDescr } =
+    const idBdDescr = bdBase.get("descriptions");
+    if (idBdDescr) {
+      const { bd: bdDescr, fOublier: fOublierBdDescr } =
       await this.client.ouvrirBd({
-        id: idBdDescr,
-        type: "keyvalue",
-        schéma: schémaStructureBdNoms,
+          id: idBdDescr,
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
+        });
+      const descriptions = ClientConstellation.obtObjetdeBdDic({
+        bd: bdDescr,
       });
-    const descriptions = ClientConstellation.obtObjetdeBdDic({
-      bd: bdDescr,
-    }) as {
-      [key: string]: string;
-    };
-    await this.ajouterDescriptionsVariable({ id: idNouvelleBd, descriptions });
+      await fOublierBdDescr();
+      await this.ajouterDescriptionsVariable({ id: idNouvelleBd, descriptions });
+    }
 
     const unités = bdBase.get("unités");
     if (unités) await bdNouvelle.put("unités", unités);
 
-    const idBdRègles = bdBase.get("règles") as string;
-    const { bd: bdRègles, fOublier: fOublierBdRègles } =
-      await this.client.ouvrirBd({
-        id: idBdRègles,
-        type: "feed",
-        schéma: schémaRègleVariableAvecId,
-      });
-    const règles = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdRègles,
-    }) as règleVariableAvecId[];
-
-    await Promise.all(
-      règles.map(async (r: règleVariableAvecId) => {
-        await this.ajouterRègleVariable({
-          idVariable: idNouvelleBd,
-          règle: r.règle,
+    const idBdRègles = bdBase.get("règles");
+    if (idBdRègles) {
+      const { bd: bdRègles, fOublier: fOublierBdRègles } =
+        await this.client.ouvrirBd({
+          id: idBdRègles,
+          type: "feed",
+          schéma: schémaRègleVariableAvecId,
         });
-      })
-    );
+      const règles = ClientConstellation.obtÉlémentsDeBdListe({
+        bd: bdRègles,
+      });
+      await fOublierBdRègles();
+      await Promise.all(
+        règles.map(async (r: règleVariableAvecId) => {
+          await this.ajouterRègleVariable({
+            idVariable: idNouvelleBd,
+            règle: r.règle,
+          });
+        })
+      );
+    }
 
     const statut = (bdBase.get("statut") as schémaStatut) || {
       statut: TYPES_STATUT.ACTIVE,
     };
     await this.établirStatut({ id: idNouvelleBd, statut });
 
-    fOublierBase();
-    fOublierNouvelle();
-    fOublierBdNoms();
-    fOublierBdDescr();
-    fOublierBdRègles();
+    await Promise.all([fOublierBase(), fOublierNouvelle()]);
 
     return idNouvelleBd;
   }
