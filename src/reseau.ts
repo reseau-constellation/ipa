@@ -1920,7 +1920,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivi,
     }: {
       idCompte: string;
-      fSuivi: (bds: string[] | undefined) => Promise<void>;
+      fSuivi: (objets: string[] | undefined) => Promise<void>;
     }): Promise<schémaFonctionOublier> => {
       const résultats: { propres: string[]; favoris: string[] } = {
         propres: [],
@@ -1982,7 +1982,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
-    const fRecherche = this.suivreBdsMembre.bind(this);
+    const fRecherche = this.suivreNuéesMembre.bind(this);
     const fQualité = async (
       id: string,
       fSuivreQualité: schémaFonctionSuivi<number>
@@ -2368,6 +2368,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fListeObjets: async (fSuivi) =>
         await this.client.variables!.suivreVariables({
           f: fSuivi,
+          idCompte,
         }),
       fSuivi: f,
     });
@@ -2386,6 +2387,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fListeObjets: async (fSuivi) =>
         await this.client.motsClefs!.suivreMotsClefs({
           f: fSuivi,
+          idCompte,
         }),
       fSuivi: f,
     });
@@ -2404,6 +2406,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fListeObjets: async (fSuivi) =>
         await this.client.nuées!.suivreNuées({
           f: fSuivi,
+          idCompte,
         }),
       fSuivi: f,
     });
