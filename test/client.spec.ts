@@ -69,6 +69,7 @@ if (isNode || isElectronMain) {
       idOrbite1 = await client.obtIdOrbite();
       idOrbite2 = await client2.obtIdOrbite();
       idOrbite3 = await client3.obtIdOrbite();
+
       fOublierDispositifs = await client.suivreDispositifs({
         f: (dispositifs) => mesDispositifs.mettreÀJour(dispositifs),
       });
