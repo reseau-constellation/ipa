@@ -98,7 +98,7 @@ type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string> };
 export type structureBdCompte = {
   protocoles?: string;
 
-  compte?: string;
+  profil?: string;
   motsClefs?: string;
   variables?: string;
   bds?: string;
@@ -114,7 +114,7 @@ export const schémaStructureBdCompte: JSONSchemaType<structureBdCompte> = {
   properties: {
     protocoles: { type: "string", nullable: true },
 
-    compte: { type: "string", nullable: true },
+    profil: { type: "string", nullable: true },
     motsClefs: { type: "string", nullable: true },
     variables: { type: "string", nullable: true },
     bds: { type: "string", nullable: true },

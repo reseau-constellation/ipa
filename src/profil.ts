@@ -45,7 +45,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
   constructor({ client }: { client: ClientConstellation }) {
     super({
       client,
-      clef: "compte",
+      clef: "profil",
       schémaBdPrincipale: schémaStructureBdProfil,
     });
   }
