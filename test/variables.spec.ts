@@ -18,8 +18,6 @@ typesClients.forEach((type) => {
       let clients: ClientConstellation[];
       let client: ClientConstellation;
 
-      let idVariable: string;
-
       before("Préparer clients", async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients(
           1,
@@ -34,6 +32,7 @@ typesClients.forEach((type) => {
 
       describe("Création", function () {
         let fOublier: schémaFonctionOublier;
+        let idVariable: string;
 
         const variables = new AttendreRésultat<string[]>();
 
@@ -72,7 +71,7 @@ typesClients.forEach((type) => {
 
         const mesVariables = new AttendreRésultat<string[]>();
 
-        before("Préparer clients", async () => {
+        before("Créer variable", async () => {
           idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -104,10 +103,15 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
+        let idVariable: string;
         let fOublier: schémaFonctionOublier;
+
         const noms = new AttendreRésultat<{ [clef: string]: string }>();
 
-        before("Préparer clients", async () => {
+        before("Suivre noms variable", async () => {
+          idVariable = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
           fOublier = await client.variables!.suivreNomsVariable({
             id: idVariable,
             f: (n) => noms.mettreÀJour(n),
@@ -169,10 +173,15 @@ typesClients.forEach((type) => {
       });
 
       describe("Descriptions", function () {
+        let idVariable: string;
         let descrs: { [key: string]: string };
+
         let fOublier: schémaFonctionOublier;
 
         before("Préparer clients", async () => {
+          idVariable = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
           fOublier = await client.variables!.suivreDescrVariable({
             id: idVariable,
             f: (d) => (descrs = d),
