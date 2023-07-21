@@ -7,7 +7,6 @@ import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   faisRien,
-  structureBdNoms,
 } from "@/utils/index.js";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
@@ -18,13 +17,12 @@ import { générerClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import { clientsConnectés, peutÉcrire } from "@/utilsTests/index.js";
+import { peutÉcrire } from "@/utilsTests/index.js";
 
 import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
 import FeedStore from "orbit-db-feedstore";
-import Store from "orbit-db-store";
 
 describe("adresseOrbiteValide", function () {
   it("adresse orbite est valide", () => {
@@ -232,7 +230,7 @@ if (isNode || isElectronMain) {
       let fOublier: schémaFonctionOublier;
       let bd: KeyValueStore<{ [clef: string]: number }>;
       let fOublierBd: schémaFonctionOublier;
-      let données: { [key: string]: number };
+      let données: { [key: string]: number|undefined };
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
@@ -879,7 +877,7 @@ if (isNode || isElectronMain) {
       let idBd1: string;
       let idBd2: string;
 
-      type branche = { [key: string]: number };
+      type branche = { [key: string]: number|undefined };
       let données: branche[];
       const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1568,6 +1566,7 @@ if (isNode || isElectronMain) {
         await client.combinerBdsDict({ bdBase: bdDic1, bd2: bdDic2 });
 
         const idBdListeFinale = bdDic1.get("clef");
+        if (!idBdListeFinale) throw new Error("idBdListeFinale non définie");
         const { bd: bdListeFinale, fOublier: fOublierBdListeFinale } =
           await client.ouvrirBd<number>({ id: idBdListeFinale, type: "feed" });
 
