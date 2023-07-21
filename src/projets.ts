@@ -176,51 +176,63 @@ export default class Projets extends ComposanteClientListe<string> {
         schéma: schémaStructureBdProjet,
       });
 
-    const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
-      [key: string]: string;
-    };
-    await this.ajouterNomsProjet({ id: idNouveauProjet, noms });
+    const idBdNoms = bdBase.get("noms");
+    if (idBdNoms) {
+      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd({
+        id: idBdNoms,
+        type: "keyvalue",
+        schéma: schémaStructureBdNoms,
+      });
+      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
+        [key: string]: string;
+      };
+      await fOublierNoms();
+      await this.ajouterNomsProjet({ id: idNouveauProjet, noms });
+    }
 
-    const idBdDescr = bdBase.get("descriptions") as string;
-    const { bd: bdDescr, fOublier: fOublierDescr } = await this.client.ouvrirBd(
-      { id: idBdDescr, type: "keyvalue", schéma: schémaStructureBdNoms }
-    );
-    const descriptions = ClientConstellation.obtObjetdeBdDic({
-      bd: bdDescr,
-    }) as {
-      [key: string]: string;
-    };
-    await this.ajouterDescriptionsProjet({ id: idNouveauProjet, descriptions });
+    const idBdDescr = bdBase.get("descriptions");
+    if (idBdDescr) {
+      const { bd: bdDescr, fOublier: fOublierDescr } = await this.client.ouvrirBd(
+        { id: idBdDescr, type: "keyvalue", schéma: schémaStructureBdNoms }
+      );
+      const descriptions = ClientConstellation.obtObjetdeBdDic({
+        bd: bdDescr,
+      }) as {
+        [key: string]: string;
+      };
+      await fOublierDescr();
+      await this.ajouterDescriptionsProjet({ id: idNouveauProjet, descriptions });
+    }
 
     const idBdMotsClefs = bdBase.get("motsClefs");
-    const { bd: bdMotsClefs, fOublier: fOublierMotsClefs } =
+    if (idBdMotsClefs) {
+      const { bd: bdMotsClefs, fOublier: fOublierMotsClefs } =
       await this.client.ouvrirBd<FeedStore<string>>({ id: idBdMotsClefs });
-    const idsMotsClefs = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdMotsClefs,
-    }) as string[];
-    await this.ajouterMotsClefsProjet({
-      idProjet: idNouveauProjet,
-      idsMotsClefs,
-    });
+      const idsMotsClefs = ClientConstellation.obtÉlémentsDeBdListe({
+        bd: bdMotsClefs,
+      });
+      await fOublierMotsClefs();
+      await this.ajouterMotsClefsProjet({
+        idProjet: idNouveauProjet,
+        idsMotsClefs,
+      });
+    }
 
-    const idBdBds = bdBase.get("bds") as string;
-    const { bd: bdBds, fOublier: fOublierBds } = await this.client.ouvrirBd<
-      FeedStore<string>
-    >({ id: idBdBds });
-    const bds = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdBds,
-    }) as string[];
-    await Promise.all(
-      bds.map(async (idBd: string) => {
-        await this.ajouterBdProjet({ idProjet: idNouveauProjet, idBd });
-      })
-    );
+    const idBdBds = bdBase.get("bds");
+    if (idBdBds) {
+      const { bd: bdBds, fOublier: fOublierBds } = await this.client.ouvrirBd<
+        FeedStore<string>
+      >({ id: idBdBds });
+      const bds = ClientConstellation.obtÉlémentsDeBdListe({
+        bd: bdBds,
+      });
+      await fOublierBds();
+      await Promise.all(
+        bds.map(async (idBd: string) => {
+          await this.ajouterBdProjet({ idProjet: idNouveauProjet, idBd });
+        })
+      );
+    }
 
     const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
     await nouvelleBd.set("statut", statut);
@@ -230,13 +242,7 @@ export default class Projets extends ComposanteClientListe<string> {
 
     await nouvelleBd.set("copiéDe", { id });
 
-    fOublierBase();
-    fOublierNouvelle();
-    fOublierNoms();
-    fOublierDescr();
-    fOublierMotsClefs();
-    fOublierBds();
-
+    await Promise.all([fOublierBase(), fOublierNouvelle()]);
     return idNouveauProjet;
   }
 
@@ -594,7 +600,7 @@ export default class Projets extends ComposanteClientListe<string> {
           await f(null);
         } else {
           const image = await this.client.obtFichierSFIP({
-            id: idImage as string,
+            id: idImage,
             max: MAX_TAILLE_IMAGE_VIS,
           });
           await f(image);
