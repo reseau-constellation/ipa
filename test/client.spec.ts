@@ -434,9 +434,9 @@ if (isNode || isElectronMain) {
     describe("Suivre BD dic de clef", function () {
       let idBdBase: string;
       let idBd: string;
-      let données: { [key: string]: number };
-
+      
       const CLEF = "clef";
+      const données = new AttendreRésultat<{ [key: string]: number }>();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
@@ -444,7 +444,7 @@ if (isNode || isElectronMain) {
 
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
 
-        const fSuivre = (d: { [key: string]: number }) => (données = d);
+        const fSuivre = (d: { [key: string]: number }) => (données.mettreÀJour(d));
         await client.suivreBdDicDeClef({
           id: idBdBase,
           clef: CLEF,
@@ -458,7 +458,8 @@ if (isNode || isElectronMain) {
       });
 
       it("`{}` est retourné si la clef n'existe pas", async () => {
-        expect(Object.keys(données).length).to.equal(0);
+        const val = await données.attendreExiste();
+        expect(val).to.be.an.empty("object");
       });
 
       it("Les données sont retournés en format objet", async () => {
@@ -467,7 +468,9 @@ if (isNode || isElectronMain) {
         }>({ id: idBdBase, type: "keyvalue" });
         fsOublier.push(fOublierBase);
         await bdBase.put(CLEF, idBd);
-        expect(Object.keys(données).length).to.equal(0);
+
+        const val1 = await données.attendreExiste();
+        expect(Object.keys(val1).length).to.equal(0);
 
         const { bd, fOublier } = await client.ouvrirBd<{
           [clef: string]: number;
@@ -477,7 +480,8 @@ if (isNode || isElectronMain) {
         });
         fsOublier.push(fOublier);
         await bd.put("a", 1);
-        expect(données.a).to.equal(1);
+        const val2 = await données.attendreQue(x=>Object.keys(x).length > 0);
+        expect(val2.a).to.equal(1);
       });
     });
 
