@@ -156,8 +156,8 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
   schéma,
 }: {
   bd: KeyValueStore<T>;
-  schéma: JSONSchemaType<T>;
-}): KeyValueStore<T> => {
+  schéma: JSONSchemaType<Partial<T>>;
+}): KeyValueStore<Partial<T>> => {
   const validateur = ajv.compile(schéma);
   const compilerSchémaClef = (
     s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"]
@@ -206,15 +206,12 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
   return new Proxy(bd, {
     get(target, prop) {
       if (prop === "get") {
-        return (key: Extract<keyof T, string>): T[typeof key] => {
+        return (key: Extract<keyof T, string>): T[typeof key]|undefined => {
           const val = target.get(key);
           const valide = valider(val, key); // validateurs[key]?.(val);
           if (valide) return val;
           else
-            throw new Error(
-              JSON.stringify(validateurs[key]?.errors, undefined, 2) ||
-                `Clef ${key} non supportée.`
-            );
+            return undefined
         };
       } else if (prop === "put" || prop === "set") {
         return async (
@@ -237,6 +234,7 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
         if (valide) {
           return données;
         } else {
+          console.error(JSON.stringify(validateur.errors, undefined, 2))
           throw new Error(JSON.stringify(validateur.errors, undefined, 2));
         }
       } else {
