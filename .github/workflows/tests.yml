@@ -7,8 +7,8 @@ on:
       - '**.md'
 
 jobs:
-  tests-et-couverture:
-    name: On test l'IPA
+  test-ipa-nodejs:
+    name: IPA sur Node.js
     runs-on: ubuntu-latest
     steps:
       
@@ -30,7 +30,93 @@ jobs:
         run: pnpm install
 
       - name: Vérifier les tests
-        run: pnpm couverture:tous
+        run: pnpm couverture:node
+
+      - name: Envoyer couverure à Codecov
+        uses: codecov/codecov-action@v2
+  
+  test-ipa-navig:
+    name: IPA sur le navigateur
+    runs-on: ubuntu-latest
+    steps:
+      
+      - name: Ouvrir la branche
+        uses: actions/checkout@v3
+
+      - name: Installer pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Préparation de Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Installer
+        run: pnpm install
+
+      - name: Vérifier les tests
+        run: pnpm couverture:navig
+
+      - name: Envoyer couverure à Codecov
+        uses: codecov/codecov-action@v2
+
+  test-ipa-electron-principal:
+    name: IPA sur Électron principal
+    runs-on: ubuntu-latest
+    needs: test-ipa-nodejs
+    steps:
+      
+      - name: Ouvrir la branche
+        uses: actions/checkout@v3
+
+      - name: Installer pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Préparation de Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Installer
+        run: pnpm install
+
+      - name: Vérifier les tests
+        run: pnpm couverture:électron-principal
+
+      - name: Envoyer couverure à Codecov
+        uses: codecov/codecov-action@v2
+
+  test-ipa-electron-rendu:
+    name: IPA sur Électron rendu
+    runs-on: ubuntu-latest
+    needs: [test-ipa-navig]
+    steps:
+      
+      - name: Ouvrir la branche
+        uses: actions/checkout@v3
+
+      - name: Installer pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
+      - name: Préparation de Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Installer
+        run: pnpm install
+
+      - name: Vérifier les tests
+        run: pnpm couverture:électron-rendu
 
       - name: Envoyer couverure à Codecov
         uses: codecov/codecov-action@v2

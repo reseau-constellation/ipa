@@ -97,6 +97,7 @@ export class ComposanteClientDic<
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
+        if (this.clef === 'favoris') console.log("suivre bd principale, ", {idCompte, id})
         return await this.client.suivreBdDic<T>({
           id,
           schéma: this.schémaBdPrincipale,
@@ -183,18 +184,24 @@ export class ComposanteClientDic<
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
         let précédente: string | undefined = undefined;
+        if (this.clef === 'favoris') console.log("fSuivre", id)
         return await this.client.suivreBd({
           id,
           type: "keyvalue",
           f: async () => {
-            const idBd = await this.client.obtIdBd({
-              nom: this.clef,
-              racine: id,
-              type: "keyvalue",
-            });
-            if (idBd === précédente) return;
-            précédente = idBd;
-            return await fSuivreBd(idBd);
+            if (this.clef === 'favoris'  && idCompte) console.log("ici, ", id, précédente)
+            try {
+              const idBd = await this.client.obtIdBd({
+                nom: this.clef,
+                racine: id,
+                type: "keyvalue",
+              });
+              if (this.clef === 'favoris' && !précédente && idCompte) console.log({id, idBd, précédente})
+              if (idBd === précédente) return;
+              précédente = idBd;
+              return await fSuivreBd(idBd);
+            } catch (e) { console.error("erreur", e) }
+            
           },
         });
       },
