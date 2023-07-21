@@ -234,18 +234,19 @@ export default class Tableaux {
       });
 
     // Copier les noms
-    const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd({
-      id: idBdNoms,
-      type: "keyvalue",
-      schéma: schémaStructureBdNoms,
-    });
-    const noms = ClientConstellation.obtObjetdeBdDic({
-      bd: bdNoms,
-    });
-    await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
-
-    await fOublierNoms();
+    const idBdNoms = bdBase.get("noms");
+    if (idBdNoms) {
+      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd({
+        id: idBdNoms,
+        type: "keyvalue",
+        schéma: schémaStructureBdNoms,
+      });
+      const noms = ClientConstellation.obtObjetdeBdDic({
+        bd: bdNoms,
+      });
+      await fOublierNoms();
+      await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
+    }
 
     // Copier les colonnes
     await this.client.copierContenuBdListe({
@@ -270,8 +271,7 @@ export default class Tableaux {
       });
     }
 
-    await fOublier();
-    await fOublierNouvelle();
+    await Promise.all([fOublier(), fOublierNouvelle()]);
 
     return idNouveauTableau;
   }
@@ -1705,12 +1705,12 @@ export default class Tableaux {
       ) {
         const { tableau, colonne } = règle.règle.règle.détails;
         return await this.suivreDonnées({
-          idTableau: tableau as string,
+          idTableau: tableau,
           f: async (données) =>
             await fSuivreBranche({
               règle,
               donnéesCatégorie: données.map(
-                (d) => d.données[colonne as string]
+                (d) => d.données[colonne]
               ),
             }),
         });
