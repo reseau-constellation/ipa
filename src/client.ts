@@ -315,6 +315,7 @@ export class ClientConstellation extends EventEmitter {
     const { bd } = await this.ouvrirBd<structureBdCompte>({
       id: this.idBdCompte!,
       type: "kvstore",
+      schéma: schémaStructureBdCompte,
     });
     this.bdCompte = bd;
 
