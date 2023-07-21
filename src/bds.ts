@@ -314,8 +314,9 @@ export default class BDs extends ComposanteClientListe<string> {
       id,
       type: "kvstore",
     });
-    const licence = bdBase.get("licence") as string;
-    const licenceContenu = bdBase.get("licenceContenu") as string | undefined;
+    const licence = bdBase.get("licence");
+    const licenceContenu = bdBase.get("licenceContenu");
+    if (!licence) throw new Error(`Aucune licence trouvée sur la BD source ${id}.`)
     const idNouvelleBd = await this.créerBd({
       licence,
       licenceContenu,
@@ -327,79 +328,90 @@ export default class BDs extends ComposanteClientListe<string> {
         type: "kvstore",
       });
 
-    const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierBdNoms } =
-      await this.client.ouvrirBd<{ [langue: string]: string }>({
-        id: idBdNoms,
-        type: "kvstore",
+    const idBdNoms = bdBase.get("noms");
+    if (idBdNoms) {
+      const { bd: bdNoms, fOublier: fOublierBdNoms } =
+        await this.client.ouvrirBd<{ [langue: string]: string }>({
+          id: idBdNoms,
+          type: "kvstore",
+        });
+      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
+      await fOublierBdNoms();
+      await this.ajouterNomsBd({ id: idNouvelleBd, noms });
+    }
+
+    const idBdDescr = bdBase.get("descriptions");
+    if (idBdDescr) {
+      const { bd: bdDescr, fOublier: fOublierBdDescr } =
+        await this.client.ouvrirBd<{ [langue: string]: string }>({
+          id: idBdDescr,
+          type: "kvstore",
+        });
+      const descriptions = ClientConstellation.obtObjetdeBdDic({
+        bd: bdDescr,
       });
-    const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
-    await this.ajouterNomsBd({ id: idNouvelleBd, noms });
+      await fOublierBdDescr();
+      await this.ajouterDescriptionsBd({ id: idNouvelleBd, descriptions });
+    }
 
-    const idBdDescr = bdBase.get("descriptions") as string;
-    const { bd: bdDescr, fOublier: fOublierBdDescr } =
-      await this.client.ouvrirBd<{ [langue: string]: string }>({
-        id: idBdDescr,
-        type: "kvstore",
+    const idBdMotsClefs = bdBase.get("motsClefs");
+    if (idBdMotsClefs) {
+      const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
+        await this.client.ouvrirBd<string>({ id: idBdMotsClefs, type: "feed" });
+      const motsClefs = ClientConstellation.obtÉlémentsDeBdListe({
+        bd: bdMotsClefs,
       });
-    const descriptions = ClientConstellation.obtObjetdeBdDic({
-      bd: bdDescr,
-    }) as {
-      [key: string]: string;
-    };
-    await this.ajouterDescriptionsBd({ id: idNouvelleBd, descriptions });
+      await fOublierBdMotsClefs();
+      await this.ajouterMotsClefsBd({
+        idBd: idNouvelleBd,
+        idsMotsClefs: motsClefs,
+      });
+    }
 
-    fOublierBdNoms();
-    fOublierBdDescr();
+    const idBdNuées = bdBase.get("nuées");
+    if (idBdNuées) {
+      const { bd: bdNuées, fOublier: fOublierBdNuées } =
+        await this.client.ouvrirBd<string>({ id: idBdNuées, type: "feed" });
+      const nuées = ClientConstellation.obtÉlémentsDeBdListe({
+        bd: bdNuées,
+      });
+      await fOublierBdNuées();
+      await this.rejoindreNuées({
+        idBd: idNouvelleBd,
+        idsNuées: nuées,
+      });
+    }
 
-    const idBdMotsClefs = bdBase.get("motsClefs") as string;
-    const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
-      await this.client.ouvrirBd<string>({ id: idBdMotsClefs, type: "feed" });
-    const motsClefs = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdMotsClefs,
-    }) as string[];
-    await this.ajouterMotsClefsBd({
-      idBd: idNouvelleBd,
-      idsMotsClefs: motsClefs,
-    });
-
-    const idBdNuées = bdBase.get("nuées") as string;
-    const { bd: bdNuées, fOublier: fOublierBdNuées } =
-      await this.client.ouvrirBd<string>({ id: idBdNuées, type: "feed" });
-    const nuées = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdNuées,
-    }) as string[];
-    await this.rejoindreNuées({
-      idBd: idNouvelleBd,
-      idsNuées: nuées,
-    });
-
-    const idBdTableaux = bdBase.get("tableaux") as string;
-    const idNouvelleBdTableaux = nouvelleBd.get("tableaux") as string;
+    const idBdTableaux = bdBase.get("tableaux");
+    const idNouvelleBdTableaux = nouvelleBd.get("tableaux");
+    if (!idNouvelleBdTableaux) throw new Error("Erreur d'initialisation.")
 
     const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
       await this.client.ouvrirBd<{ [tbl: string]: infoTableau }>({
         id: idNouvelleBdTableaux,
         type: "kvstore",
       });
-    const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
+    if (idBdTableaux) {
+      const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
       await this.client.ouvrirBd<{ [tbl: string]: infoTableau }>({
         id: idBdTableaux,
         type: "kvstore",
       });
-    const tableaux = ClientConstellation.obtObjetdeBdDic({
-      bd: bdTableaux,
-    });
-
-    for (const idTableau of Object.keys(tableaux)) {
-      const idNouveauTableau: string =
-        await this.client.tableaux!.copierTableau({
-          id: idTableau,
-          idBd: idNouvelleBd,
-          copierDonnées,
-        });
-      await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
+      const tableaux = ClientConstellation.obtObjetdeBdDic({
+        bd: bdTableaux,
+      });
+      await fOublierBdTableaux();
+      for (const idTableau of Object.keys(tableaux)) {
+        const idNouveauTableau: string =
+          await this.client.tableaux!.copierTableau({
+            id: idTableau,
+            idBd: idNouvelleBd,
+            copierDonnées,
+          });
+        await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
+      }
     }
+
 
     const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
     await nouvelleBd.set("statut", statut);
@@ -409,13 +421,7 @@ export default class BDs extends ComposanteClientListe<string> {
 
     await nouvelleBd.set("copiéDe", { id });
 
-    await fOublier();
-    fOublierNouvelleTableaux();
-
-    fOublierNouvelle();
-    fOublierBdTableaux();
-    fOublierBdMotsClefs();
-    fOublierBdNuées();
+    await Promise.all([fOublier(), fOublierNouvelleTableaux(), fOublierNouvelle()]);
     return idNouvelleBd;
   }
 
@@ -1460,7 +1466,7 @@ export default class BDs extends ComposanteClientListe<string> {
       schéma: schémaStructureBdBd,
       f: async (bd) => {
         const licence = bd.get("licence");
-        await f(licence);
+        if (licence) await f(licence);
       },
     });
   }
@@ -1549,7 +1555,7 @@ export default class BDs extends ComposanteClientListe<string> {
           await f(null);
         } else {
           const image = await this.client.obtFichierSFIP({
-            id: idImage as string,
+            id: idImage,
             max: MAX_TAILLE_IMAGE_VIS,
           });
           await f(image);
