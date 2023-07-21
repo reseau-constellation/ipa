@@ -584,7 +584,7 @@ typesClients.forEach((type) => {
               expect(valAutres.length).to.equal(0);
             });
 
-            it.skip("Ajout coauteur variable détecté", async () => {
+            it("Ajout coauteur variable détecté", async () => {
               idVariable = await clients[0].variables!.créerVariable({
                 catégorie: "numérique",
               });
@@ -601,14 +601,14 @@ typesClients.forEach((type) => {
               expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
             });
 
-            it.skip("Ajout coauteur variable d'un tiers détecté", async () => {
+            it("Ajout coauteur variable d'un tiers détecté", async () => {
               const val = await relationsAutres.attendreQue(
                 (x) => x.length > 0
               );
               expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
             });
 
-            it.skip("Enlever variable détecté", async () => {
+            it("Enlever variable détecté", async () => {
               await clients[0].variables!.effacerVariable({ id: idVariable });
               const valPropres = await relationsPropres.attendreExiste();
               expect(valPropres.length).to.equal(0);
@@ -680,7 +680,7 @@ typesClients.forEach((type) => {
               expect(val.length).to.equal(0);
             });
 
-            it.skip("Ajout coauteur mot-clef détecté", async () => {
+            it("Ajout coauteur mot-clef détecté", async () => {
               idMotClef1 = await clients[0].motsClefs!.créerMotClef();
               await clients[0].motsClefs!.inviterAuteur({
                 idMotClef: idMotClef1,
@@ -694,14 +694,14 @@ typesClients.forEach((type) => {
               expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
             });
 
-            it.skip("Ajout coauteur mot-clef d'un tiers détecté", async () => {
+            it("Ajout coauteur mot-clef d'un tiers détecté", async () => {
               const val = await relationsAutres.attendreQue(
                 (x) => !!x && Boolean(x.length)
               );
               expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
             });
 
-            it.skip("Enlever mot-clef détecté", async () => {
+            it("Enlever mot-clef détecté", async () => {
               await clients[0].motsClefs!.effacerMotClef({
                 idMotClef: idMotClef1,
               });
@@ -2050,6 +2050,11 @@ typesClients.forEach((type) => {
               2,
               type
             ));
+
+            // On dirait qu'il faut attendre un peu avant de suivre les favoris. Sinon, parfois, le suivi de la bd racine de l'autre membre ne fonctionne pas.
+            // C'est peut-être lié à la fonctionnalité pubsub de libp2p... ?
+            await new Promise(résoudre => setTimeout(résoudre, 3000))
+
             fsOublier.push(
               await clients[1].réseau!.suivreFavorisMembre({
                 idCompte: idsBdCompte[0],
@@ -2088,7 +2093,7 @@ typesClients.forEach((type) => {
               id: idMotClef,
               dispositifs: "TOUS",
             });
-            const val = await résPropres.attendreQue((x) => !!x && !!x.length);
+            const val = await résPropres.attendreQue((x) => x.length > 0);
             expect(val).to.have.deep.members(réf);
           });
 
@@ -2106,7 +2111,7 @@ typesClients.forEach((type) => {
               id: idMotClef,
               dispositifs: "TOUS",
             });
-            const val = await résAutres.attendreQue((x) => !!x && x.length > 0);
+            const val = await résAutres.attendreQue((x) => x.length > 0);
             expect(val).to.have.deep.members(réf);
           });
         });
