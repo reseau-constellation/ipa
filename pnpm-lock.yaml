@@ -138,8 +138,8 @@ dependencies:
 
 devDependencies:
   '@constl/orbit-db-types':
-    specifier: ^1.0.9
-    version: 1.0.9
+    specifier: ^1.1.0
+    version: 1.1.0
   '@libp2p/interface-connection-manager':
     specifier: ^3.0.1
     version: 3.0.1
@@ -1350,8 +1350,8 @@ packages:
       uuid: 9.0.0
     dev: false
 
-  /@constl/orbit-db-types@1.0.9:
-    resolution: {integrity: sha512-Sj7Zh0An+EbHGYYG+kCMGnGiUyJJ8AAZ6/zJX2gReivgYaH0IPeF2Bu8h2cxp94MfunECu7bEGVub7VlWvuzvQ==}
+  /@constl/orbit-db-types@1.1.0:
+    resolution: {integrity: sha512-4N3iQvhR5AF54EqllWieAP6Q5+1qru/7671XnBp6+/cCU9P0FU8MJxEdZbXFyXkFEmWylMjs3X7H0YEUexpBiA==}
     dev: true
 
   /@cspotcode/source-map-support@0.8.1:
