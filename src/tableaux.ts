@@ -240,7 +240,9 @@ export default class Tableaux {
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
     });
-    const noms = bdNoms.all;
+    const noms = ClientConstellation.obtObjetdeBdDic({
+      bd: bdNoms,
+    });
     await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
 
     await fOublierNoms();
