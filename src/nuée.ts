@@ -243,7 +243,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
     });
-    const nuéeParent = bdBase.get("parent") as string;
+    const nuéeParent = bdBase.get("parent");
     const idNouvelleNuée = await this.créerNuée({
       nuéeParent,
       ajouter: ajouterÀMesNuées,
@@ -255,73 +255,79 @@ export default class Nuée extends ComposanteClientListe<string> {
         schéma: schémaStructureBdNuée,
       });
 
-    const idBdNoms = bdBase.get("noms") as string;
-    const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd(
-      { id: idBdNoms, type: "kvstore", schéma: schémaStructureBdNoms }
-    );
-    const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
-      [key: string]: string;
+    const idBdNoms = bdBase.get("noms");
+    if (idBdNoms) {
+      const { bd: bdNoms, fOublier: fOublierBdNoms } = await this.client.ouvrirBd(
+        { id: idBdNoms, type: "kvstore", schéma: schémaStructureBdNoms }
+      );
+      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
+      await fOublierBdNoms();
+      await this.ajouterNomsNuée({ id: idNouvelleNuée, noms });
+    }
+
+    const idBdDescr = bdBase.get("descriptions");
+    if (idBdDescr) {
+      const { bd: bdDescr, fOublier: fOublierBdDescr } =
+        await this.client.ouvrirBd({
+          id: idBdDescr,
+          type: "kvstore",
+          schéma: schémaStructureBdNoms,
+        });
+      const descriptions = ClientConstellation.obtObjetdeBdDic({
+        bd: bdDescr,
+      });
+      await fOublierBdDescr();
+      await this.ajouterDescriptionsNuée({ id: idNouvelleNuée, descriptions });
     };
-    await this.ajouterNomsNuée({ id: idNouvelleNuée, noms });
 
-    const idBdDescr = bdBase.get("descriptions") as string;
-    const { bd: bdDescr, fOublier: fOublierBdDescr } =
-      await this.client.ouvrirBd({
-        id: idBdDescr,
-        type: "kvstore",
-        schéma: schémaStructureBdNoms,
+    const idBdMotsClefs = bdBase.get("motsClefs");
+    if (idBdMotsClefs) {
+      const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
+        await this.client.ouvrirBd({
+          id: idBdMotsClefs,
+          type: "feed",
+          schéma: schémaBdMotsClefsNuée,
+        });
+      const motsClefs = ClientConstellation.obtÉlémentsDeBdListe({
+        bd: bdMotsClefs,
       });
-    const descriptions = ClientConstellation.obtObjetdeBdDic({
-      bd: bdDescr,
-    }) as {
-      [key: string]: string;
-    };
-    await this.ajouterDescriptionsNuée({ id: idNouvelleNuée, descriptions });
-
-    fOublierBdNoms();
-    fOublierBdDescr();
-
-    const idBdMotsClefs = bdBase.get("motsClefs") as string;
-    const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
-      await this.client.ouvrirBd({
-        id: idBdMotsClefs,
-        type: "feed",
-        schéma: schémaBdMotsClefsNuée,
+      await fOublierBdMotsClefs();
+      await this.ajouterMotsClefsNuée({
+        idNuée: idNouvelleNuée,
+        idsMotsClefs: motsClefs,
       });
-    const motsClefs = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdMotsClefs,
-    });
-    await this.ajouterMotsClefsNuée({
-      idNuée: idNouvelleNuée,
-      idsMotsClefs: motsClefs,
-    });
+    }
 
-    const idBdTableaux = bdBase.get("tableaux") as string;
-    const idNouvelleBdTableaux = nouvelleBd.get("tableaux") as string;
+    const idBdTableaux = bdBase.get("tableaux");
+    const idNouvelleBdTableaux = nouvelleBd.get("tableaux");
+    if (!idNouvelleBdTableaux) throw new Error("Erreur initialisation.")
 
-    const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
-      await this.client.ouvrirBd({
-        id: idNouvelleBdTableaux,
-        type: "keyvalue",
-        schéma: schémaBdTableauxDeBd,
+    if (idBdTableaux) {
+      const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
+        await this.client.ouvrirBd({
+          id: idNouvelleBdTableaux,
+          type: "keyvalue",
+          schéma: schémaBdTableauxDeBd,
+        });
+      const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
+        await this.client.ouvrirBd({
+          id: idBdTableaux,
+          type: "keyvalue",
+          schéma: schémaBdTableauxDeBd,
+        });
+      const tableaux = ClientConstellation.obtObjetdeBdDic({
+        bd: bdTableaux,
       });
-    const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
-      await this.client.ouvrirBd({
-        id: idBdTableaux,
-        type: "keyvalue",
-        schéma: schémaBdTableauxDeBd,
-      });
-    const tableaux = ClientConstellation.obtObjetdeBdDic({
-      bd: bdTableaux,
-    });
-
-    for (const idTableau of Object.keys(tableaux)) {
-      const idNouveauTableau = await this.client.tableaux!.copierTableau({
-        id: idTableau,
-        idBd: idNouvelleNuée,
-        copierDonnées: false,
-      });
-      await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
+      await fOublierBdTableaux();
+      for (const idTableau of Object.keys(tableaux)) {
+        const idNouveauTableau = await this.client.tableaux!.copierTableau({
+          id: idTableau,
+          idBd: idNouvelleNuée,
+          copierDonnées: false,
+        });
+        await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
+      }
+      await fOublierNouvelleTableaux();
     }
 
     const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
@@ -332,12 +338,7 @@ export default class Nuée extends ComposanteClientListe<string> {
 
     await nouvelleBd.set("copiéDe", id);
 
-    await fOublier();
-    fOublierNouvelleTableaux();
-
-    fOublierNouvelle();
-    fOublierBdTableaux();
-    fOublierBdMotsClefs();
+    await Promise.all([fOublier(), fOublierNouvelle()]);
     return idNouvelleNuée;
   }
 
@@ -776,7 +777,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const fFinale = async (bd?: KeyValueStore<structureBdAuthorisation>) => {
       if (!bd) return;
       const philosophie = bd.get("philosophie");
-      if (["IJPC", "CJPI"].includes(philosophie)) {
+      if (philosophie && ["IJPC", "CJPI"].includes(philosophie)) {
         await f(philosophie as "IJPC" | "CJPI");
       }
     };
@@ -1773,7 +1774,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         type: "keyvalue",
         schéma: schémaStructureBdNuée,
         f: async (bd) => {
-          const parent = bd.get("parent") as string | undefined;
+          const parent = bd.get("parent");
           ancêtres = [...ancêtres];
           if (parent) ancêtres.push(parent);
           await f(ancêtres);
