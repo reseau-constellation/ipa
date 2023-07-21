@@ -476,7 +476,7 @@ export default class RÃ©seau extends ComposanteClientDic<structureBdPrincipaleRÃ
     });
     if (!signatureValide) return;
 
-    const contenu = valeur.contenu as ContenuMessage;
+    const contenu = valeur.contenu;
 
     switch (valeur.type) {
       case "Salut !": {
