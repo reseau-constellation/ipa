@@ -839,7 +839,7 @@ describe("Rechercher projets", function () {
         idsMotsClefs: idMotClef,
       });
 
-      const résRéf: résultatObjectifRecherche<
+      const résRéfMotClef: résultatObjectifRecherche<
         infoRésultatRecherche<infoRésultatTexte>
       > = {
         type: "résultat",
@@ -859,8 +859,39 @@ describe("Rechercher projets", function () {
         score: 1,
       };
 
+      const résRéfMotClefDeBd: résultatObjectifRecherche<
+        infoRésultatRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      > = {
+        type: "résultat",
+        clef: idBd,
+        de: "bd",
+        info: {
+          type: "résultat",
+          clef: idMotClef,
+          de: "motClef",
+          info: {
+            type: "résultat",
+            de: "nom",
+            clef: "fr",
+            info: {
+              type: "texte",
+              début: 0,
+              fin: 5,
+              texte: "Météorologie",
+            },
+          },
+        },
+        score: 1,
+      };
+
       const val = await résultatMotClef.attendreExiste();
-      expect(val).to.deep.equal(résRéf);
+
+      // Il faut vérifier les deux, parce que le mot-clef peut être détecté sur le projet lui-même ou bien sur la bd
+      if (val.de === 'bd') {
+        expect(val).to.deep.equal(résRéfMotClefDeBd);
+      } else {
+        expect(val).to.deep.equal(résRéfMotClef);
+      }
     });
   });
 });
