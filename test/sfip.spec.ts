@@ -42,8 +42,8 @@ describe("SFIP", function () {
     if (sfip) sfip.stop();
     if (dossier) {
       if (isNode || isElectronMain) {
-        const rimraf = (await import("rimraf")).default;
-        rimraf.sync(dossier);
+        const { sync } = (await import("rimraf"));
+        sync(dossier);
       }
     }
   });
