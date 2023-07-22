@@ -12,7 +12,7 @@
   "scripts": {
     "nettoyer": "rimraf dist",
     "compiler": "pnpm versioner && pnpm nettoyer && pnpm tspc -p tsconfig.build.json",
-    "test:node": "pnpm compiler && env MANDATAIRE=TOUS pnpm aegir test -t node -- --exit",
+    "test:node": "pnpm compiler && pnpm aegir test -t node -- --exit",
     "test:navig": "pnpm compiler && env MANDATAIRE=TOUS pnpm aegir test -t browser",
     "test:électron-principal": "pnpm compiler && env MANDATAIRE=TOUS pnpm aegir test -t electron-main",
     "test:électron-rendu": "pnpm compiler && env MANDATAIRE=TOUS pnpm aegir test -t electron-renderer",
@@ -73,6 +73,7 @@
     "libp2p": "^0.42.2",
     "os-browserify": "^0.3.0",
     "playwright": "^1.36.1",
+    "playwright-utilities": "^1.0.1",
     "prettier": "^2.8.8",
     "process": "^0.11.10",
     "require-json5": "^1.3.0",
