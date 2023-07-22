@@ -51,21 +51,7 @@ export function vérifierTypesBdOrbite<
 export function vérifierTypesBdOrbite<
   T extends { [clef: string]: élémentsBd } | élémentsBd
 >({ bd, schéma }: { bd: Store; schéma?: JSONSchemaType<T> }): Store {
-  if (!schéma) return bd;
-  if (bd.type === "feed") {
-    const bdListe = bd as FeedStore<T>;
-    return validerTypesListeOrbite({ bd: bdListe, schéma });
-  } else if (bd.type === "keyvalue") {
-    const bdDic = bd as KeyValueStore<
-      Extract<T, { [clef: string]: élémentsBd }>
-    >;
-    return validerTypesDicOrbite({
-      bd: bdDic,
-      schéma: schéma as JSONSchemaType<
-        Extract<T, { [clef: string]: élémentsBd }>
-      >,
-    });
-  }
+
   return bd;
 }
 
