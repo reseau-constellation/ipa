@@ -2033,7 +2033,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("Suivre favoris", function () {
+        describe("Suivre favoris", function () {
           let fOublierClients: () => Promise<void>;
           let idsBdCompte: string[];
           let clients: ClientConstellation[];
