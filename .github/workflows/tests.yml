@@ -5,6 +5,7 @@ on:
       - main
     paths-ignore:
       - '**.md'
+      - 'docu/**'
 
 jobs:
   test-ipa-nodejs:
