@@ -136,7 +136,7 @@ if (isNode || isElectronMain) {
           test: number;
         }>({ id: idBd, type: "kvstore" });
         fsOublier.push(fOublier);
-        const autorisé = await peutÉcrire(bd_orbite2, client2.orbite);
+        const autorisé = await peutÉcrire(bd_orbite2, client2.orbite?.orbite);
         expect(autorisé).to.be.true();
       });
 
@@ -172,7 +172,7 @@ if (isNode || isElectronMain) {
         const { bd: bd_orbite3, fOublier } = await client3.ouvrirBd<{
           test: number;
         }>({ id: idBd, type: "keyvalue" });
-        const autorisé = await peutÉcrire(bd_orbite3, client3.orbite);
+        const autorisé = await peutÉcrire(bd_orbite3, client3.orbite?.orbite);
         await fOublier();
         expect(autorisé).to.be.true();
       });
@@ -1405,7 +1405,7 @@ if (isNode || isElectronMain) {
         });
         fsOublier.push(fOublier);
 
-        const autorisé = await peutÉcrire(bd, client.orbite);
+        const autorisé = await peutÉcrire(bd, client.orbite?.orbite);
         expect(autorisé).to.be.true();
       });
       it("Avec accès personalisé", async () => {
@@ -1420,7 +1420,7 @@ if (isNode || isElectronMain) {
         }>({ id: idBd, type: "keyvalue" });
         fsOublier.push(fOublier);
 
-        const autorisé = await peutÉcrire(bd_orbite2, client2.orbite);
+        const autorisé = await peutÉcrire(bd_orbite2, client2.orbite?.orbite);
 
         expect(autorisé).to.be.true();
       });
@@ -1737,7 +1737,7 @@ if (isNode || isElectronMain) {
 
         fsOublier.push(fOublier);
 
-        const permission = await peutÉcrire(bd, client2.orbite);
+        const permission = await peutÉcrire(bd, client2.orbite?.orbite);
         expect(permission).to.be.true();
       });
 
@@ -1872,13 +1872,13 @@ if (isNode || isElectronMain) {
       });
 
       it("La BD est épinglée", async () => {
-        expect(client._bds[idBdKv]).to.exist();
+        expect(client.orbite?._bdsOrbite[idBdKv]).to.exist();
       });
       it("Récursion KVStore", async () => {
-        expect(client._bds[idBdListe]).to.exist();
+        expect(client.orbite?._bdsOrbite[idBdListe]).to.exist();
       });
       it("Récursion FeedStore", async () => {
-        expect(client._bds[idBdKv2]).to.exist();
+        expect(client.orbite?._bdsOrbite[idBdKv2]).to.exist();
       });
       it("Les fichiers SFIP sont également épinglés", async () => {
         let fichierEstÉpinglé = false;

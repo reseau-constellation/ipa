@@ -7,6 +7,7 @@ import type { IPFS } from "ipfs-core";
 import { ClientConstellation } from "@/client.js";
 import { dossierTempoTests } from "@/utilsTests/dossiers.js";
 import { isBrowser } from "wherearewe";
+import { clientsConnectés } from "@/utilsTests/index.js";
 
 export const générerOrbites = async (
   n = 1
@@ -107,6 +108,7 @@ export const générerClients = async (
   } else {
     throw new Error(type);
   }
+  await clientsConnectés(...clients)
 
   const fOublier = async () => {
     await Promise.all(clients.map((client) => client.fermer()));

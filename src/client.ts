@@ -60,7 +60,7 @@ import md5 from "crypto-js/md5.js";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
-import { vérifierTypesBdOrbite } from "@/orbite.js";
+import { gestionnaireOrbiteGénéral, type GestionnaireOrbite } from "@/orbite.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -92,8 +92,6 @@ type optsInitSFIP = {
   sfip?: SFIP;
   dossier?: string;
 };
-
-type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string> };
 
 export type structureBdCompte = {
   protocoles?: string;
@@ -165,8 +163,7 @@ export class ClientConstellation extends EventEmitter {
   _opts: optsConstellation;
   optionsAccès?: { [key: string]: unknown };
   bdCompte?: KeyValueStore<structureBdCompte>;
-  _bds: { [key: string]: bdOuverte<Store> };
-  orbite?: OrbitDB;
+  orbite?: GestionnaireOrbite;
   sfip?: SFIP;
   idNodeSFIP?: IDResult;
   épingles?: Épingles;
@@ -181,7 +178,6 @@ export class ClientConstellation extends EventEmitter {
   motsClefs?: MotsClefs;
   automatisations?: Automatisations;
   nuées?: Nuées;
-  _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
 
   _orbiteExterne: boolean;
   _sfipExterne: boolean;
@@ -193,7 +189,6 @@ export class ClientConstellation extends EventEmitter {
   motsDePasseRejoindreCompte: { [key: string]: number };
   ennikkai: எண்ணிக்கை;
 
-  verrouOuvertureBd: Semaphore;
   verrouObtIdBd: Semaphore;
 
   constructor(opts: optsConstellation = {}) {
@@ -201,12 +196,10 @@ export class ClientConstellation extends EventEmitter {
     enregistrerContrôleurs();
     this._opts = opts;
 
-    this._bds = {};
     this.prêt = false;
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
 
-    this.verrouOuvertureBd = new Semaphore();
     this.verrouObtIdBd = new Semaphore();
 
     this._orbiteExterne = this._sfipExterne = false;
@@ -218,7 +211,7 @@ export class ClientConstellation extends EventEmitter {
   async initialiser(): Promise<void> {
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
-    this.orbite = orbite;
+    this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
 
     this.idNodeSFIP = await this.sfip!.id();
 
@@ -248,7 +241,6 @@ export class ClientConstellation extends EventEmitter {
       });
     }
     this.épingles = new Épingles({ client: this });
-    this._oublierNettoyageBdsOuvertes = this._lancerNettoyageBdsOuvertes();
 
     await this.initialiserCompte();
 
@@ -293,22 +285,6 @@ export class ClientConstellation extends EventEmitter {
     }
 
     return { sfip: sfipFinale, orbite: orbiteFinale };
-  }
-
-  _lancerNettoyageBdsOuvertes(): schémaFonctionOublier {
-    const fNettoyer = async () => {
-      await Promise.all(
-        Object.keys(this._bds).map(async (id) => {
-          const { bd, idsRequètes } = this._bds[id];
-          if (!idsRequètes.size) {
-            delete this._bds[id];
-            await bd.close();
-          }
-        })
-      );
-    };
-    const i = setInterval(fNettoyer, 1000 * 60 * 5);
-    return async () => clearInterval(i);
   }
 
   async initialiserCompte(): Promise<void> {
@@ -1888,7 +1864,7 @@ export class ClientConstellation extends EventEmitter {
     if (optsOrbite instanceof OrbitDB) {
       dossierOrbite = optsOrbite.directory;
     } else {
-      dossierOrbite = optsOrbite?.dossier || this.orbite?.directory;
+      dossierOrbite = optsOrbite?.dossier || this.orbite?.orbite.directory;
     }
     return dossierOrbite;
   }
@@ -2016,93 +1992,7 @@ export class ClientConstellation extends EventEmitter {
     schéma?: JSONSchemaType<U>;
     type?: "kvstore" | "keyvalue" | "feed";
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
-    if (!adresseOrbiteValide(id))
-      throw new Error(`Adresse "${id}" non valide.`);
-
-    // Fonction utilitaire pour vérifier le type de la bd
-    const vérifierTypeBd = (bd: Store): bd is T => {
-      const { type: typeBd } = bd;
-      if (type === undefined) return true;
-      if (typeBd === "keyvalue" && type === "kvstore") return true;
-      return typeBd === type;
-    };
-
-    // Nous avons besoin d'un verrou afin d'éviter la concurrence
-    await this.verrouOuvertureBd.acquire(id);
-    const existante = this._bds[id];
-
-    const idRequète = uuidv4();
-
-    const fOublier = async () => {
-      // Si la BD a été effacée entre-temps par `client.effacerBd`,
-      // elle ne sera plus disponible ici
-      if (!this._bds[id]) return;
-
-      this._bds[id].idsRequètes.delete(idRequète);
-    };
-
-    if (existante) {
-      this._bds[id].idsRequètes.add(idRequète);
-      this.verrouOuvertureBd.release(id);
-      if (!vérifierTypeBd(existante.bd))
-        throw new Error(
-          `La bd est de type ${existante.bd.type}, et non ${type}.`
-        );
-      if (existante.bd.type === "feed") {
-        return {
-          bd: vérifierTypesBdOrbite({
-            bd: existante.bd as Extract<T, FeedStore<U>>,
-            schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
-          }) as T,
-          fOublier,
-        };
-      } else {
-        return {
-          bd: vérifierTypesBdOrbite({
-            bd: existante.bd as Extract<
-              T,
-              KeyValueStore<Extract<{ [clef: string]: élémentsBd }, U>>
-            >,
-            schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
-          }) as T,
-          fOublier,
-        };
-      }
-    }
-    try {
-      const bd = await this.orbite!.open(id);
-
-      this._bds[id] = { bd, idsRequètes: new Set([idRequète]) };
-      await bd.load();
-
-      // Maintenant que la BD a été créée, on peut relâcher le verrou
-      this.verrouOuvertureBd.release(id);
-      if (!vérifierTypeBd(bd)) {
-        console.error(
-          new Error(`La bd est de type ${bd.type}, et non ${type}.`).stack
-        );
-        throw new Error(`La bd est de type ${bd.type}, et non ${type}.`);
-      }
-
-      return {
-        bd: (bd.type === "feed"
-          ? vérifierTypesBdOrbite({
-              bd: bd as Extract<T, FeedStore<U>>,
-              schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
-            })
-          : vérifierTypesBdOrbite({
-              bd: bd as Extract<
-                T,
-                KeyValueStore<Extract<{ [clef: string]: élémentsBd }, U>>
-              >,
-              schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
-            })) as T,
-        fOublier,
-      };
-    } catch (e) {
-      console.error((e as Error).toString());
-      throw e;
-    }
+    return await this.orbite!.ouvrirBd({id, type, schéma})
   }
 
   async obtIdBd<K extends string>({
@@ -2221,26 +2111,15 @@ export class ClientConstellation extends EventEmitter {
     optionsAccès?: OptionsContrôleurConstellation;
     nom?: string;
   }): Promise<string> {
-    optionsAccès = Object.assign({}, this.optionsAccès, optionsAccès || {});
-    const options = {
-      accessController: optionsAccès,
-    };
-    const bd: Store = await this.orbite![type as keyof OrbitDB](
-      nom || uuidv4(),
-      options
-    );
-    await bd.load();
-    const { id } = bd;
-
-    this._bds[id] = { bd, idsRequètes: new Set() };
-
-    return id;
+    return await this.orbite!.créerBdIndépendante({
+      type,
+      optionsAccès: Object.assign({}, this.optionsAccès, optionsAccès || {}),
+      nom
+    });
   }
 
   async effacerBd({ id }: { id: string }): Promise<void> {
-    const { bd } = await this.ouvrirBd({ id });
-    await bd.drop();
-    delete this._bds[id];
+    return await this.orbite?.effacerBd({id})
   }
 
   async obtOpsAccès({
@@ -2491,11 +2370,10 @@ export class ClientConstellation extends EventEmitter {
 
   async fermer(): Promise<void> {
     await (await obtStockageLocal(this.dossierOrbite())).fermer?.();
-    if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
     await this.fermerCompte();
     if (this.épingles) await this.épingles.fermer();
 
-    if (this.orbite && !this._orbiteExterne) await this.orbite.stop();
+    await this.orbite!.fermer({arrêterOrbite: !this._orbiteExterne})
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
   }
 

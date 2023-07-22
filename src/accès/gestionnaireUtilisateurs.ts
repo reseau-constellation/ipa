@@ -1,5 +1,4 @@
 import OrbitDB from "orbit-db";
-import type Store from "orbit-db-store";
 import type FeedStore from "orbit-db-feedstore";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
@@ -9,11 +8,11 @@ import type {
   schémaFonctionOublier,
 } from "@/utils/index.js";
 
-import accesseurBdOrbite from "@/accès/accesseurBdOrbite.js";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, objRôles } from "@/accès/types.js";
 
 import type { default as ContrôleurConstellation } from "./cntrlConstellation.js";
+import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
 
 const événementsSuiviBd = ["ready", "write", "replicated"];
 
@@ -43,11 +42,12 @@ export const suivreBdAccès = async (
 };
 
 class AccèsUtilisateur extends EventEmitter {
-  orbite: OrbitDB;
+  orbite: GestionnaireOrbite;
   idBd: string;
-  bd?: Store;
+
   idBdAccès?: string;
   bdAccès?: FeedStore<élémentBdAccès>;
+  fOublierBd?: schémaFonctionOublier;
   oublierSuivi?: schémaFonctionOublier;
   autorisés: string[];
   accès?: ContrôleurConstellation;
@@ -56,7 +56,7 @@ class AccèsUtilisateur extends EventEmitter {
 
   constructor(orbite: OrbitDB, idBd: string) {
     super();
-    this.orbite = orbite;
+    this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
     this.idBd = idBd;
 
     this.autorisés = [];
@@ -65,15 +65,13 @@ class AccèsUtilisateur extends EventEmitter {
   }
 
   async initialiser(): Promise<void> {
-    this.bd = await accesseurBdOrbite.ouvrirBd(
-      this.orbite,
-      this.idBd,
-      this.idRequète
-    );
+    const {bd, fOublier} = await this.orbite.ouvrirBd({ id: this.idBd });
+    this.fOublierBd = fOublier;
 
-    this.accès = this.bd.access as unknown as ContrôleurConstellation;
+    this.accès = bd.access as unknown as ContrôleurConstellation;
     this.bdAccès = this.accès.bd!;
     this.idBdAccès = this.bdAccès.id;
+
 
     this.oublierSuivi = await suivreBdAccès(this.bdAccès, async (éléments) => {
       await this._miseÀJour(éléments);
@@ -99,9 +97,7 @@ class AccèsUtilisateur extends EventEmitter {
 
   async fermer() {
     if (this.oublierSuivi) this.oublierSuivi();
-    if (this.prêt) {
-      await accesseurBdOrbite.fermerBd(this.orbite, this.idBd, this.idRequète);
-    }
+    await this.fOublierBd?.()
   }
 }
 

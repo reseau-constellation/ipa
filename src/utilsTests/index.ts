@@ -5,12 +5,11 @@ import type Store from "orbit-db-store";
 import type KeyValueStore from "orbit-db-kvstore";
 import type FeedStore from "orbit-db-feedstore";
 
-import Semaphore from "@chriscdn/promise-semaphore";
-
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import ClientConstellation from "@/client.js";
 
 import type { statutDispositif } from "@/reseau.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 export * as sfip from "@/utilsTests/sfip.js";
 export * as attente from "@/utilsTests/attente.js";
@@ -36,39 +35,37 @@ const attendreInvité = (bd: Store, idInvité: string): Promise<void> =>
     testAutorisé();
   });
 
-export const clientConnectéÀ = (
+export const clientConnectéÀ = async (
   client1: ClientConstellation,
   client2: ClientConstellation
 ): Promise<void> => {
-  const verrou = new Semaphore();
-  return new Promise(async (résoudre) => {
-    // eslint-disable-line no-async-promise-executor
-    const fFinale = async (dispositifs: statutDispositif[]) => {
-      const idBdCompte2 = await client2.obtIdCompte();
-      const connecté = !!dispositifs.find(
-        (d) => d.infoDispositif.idCompte === idBdCompte2
-      );
-      if (connecté) {
-        await verrou.acquire("suivreConnexions");
-        await fOublier();
-        résoudre();
-      }
-    };
-    await verrou.acquire("suivreConnexions");
-    const fOublier = await client1.réseau!.suivreConnexionsDispositifs({
-      f: fFinale,
-    });
-    verrou.release("suivreConnexions");
+  const dispositifsConnectés = new AttendreRésultat<statutDispositif[]>();
+  const idBdCompte2 = await client2.obtIdCompte();
+
+  const fOublier = await client1.réseau!.suivreConnexionsDispositifs({
+    f: dispositifs => dispositifsConnectés.mettreÀJour(dispositifs),
   });
+  await dispositifsConnectés.attendreQue(dispositifs=>{
+    return !!dispositifs.find(
+      (d) => d.infoDispositif.idCompte === idBdCompte2
+    );
+  })
+  await fOublier();
+  return;
 };
 
 export const clientsConnectés = async (
-  client1: ClientConstellation,
-  client2: ClientConstellation
+  ...clients: ClientConstellation[]
 ): Promise<void> => {
-  const client1ConnectéÀ2 = clientConnectéÀ(client1, client2);
-  const client2ConnectéÀ1 = clientConnectéÀ(client2, client1);
-  await Promise.all([client1ConnectéÀ2, client2ConnectéÀ1]);
+  if (clients.length < 2) return;
+  const promesses: Promise<void>[] = []
+  for (let i = 1; i < clients.length; i++) {
+    for (let j = 0; j < i; j++) {
+      promesses.push(clientConnectéÀ(clients[i], clients[j]));
+      promesses.push(clientConnectéÀ(clients[j], clients[i]));
+    };
+  }
+  await Promise.all(promesses);
   return;
 };
 

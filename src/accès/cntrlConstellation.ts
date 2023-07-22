@@ -12,10 +12,11 @@ import type {
 import GestionnaireAccès, {
   suivreBdAccès,
 } from "@/accès/gestionnaireUtilisateurs.js";
-import accesseurBdOrbite from "@/accès/accesseurBdOrbite.js";
+
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
 import path from "path";
+import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License
@@ -62,6 +63,8 @@ interface OptionsInitContrôleurConstellation
 
 export default class ContrôleurConstellation extends AccessControllers.AccessController {
   bd?: FeedStore<élémentBdAccès>;
+  _gestionnaireOrbite: GestionnaireOrbite;
+  fOublierBd?: schémaFonctionOublier;
   nom: string;
   _orbitdb: OrbitDB;
   _premierMod: string;
@@ -72,6 +75,8 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
   constructor(orbitdb: OrbitDB, options: OptionsInitContrôleurConstellation) {
     super();
     this._orbitdb = orbitdb;
+    this._gestionnaireOrbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({orbite: orbitdb})
+
     this._premierMod = options.premierMod;
     this._adresseBd = options.address;
     this.nom = options.nom;
@@ -182,11 +187,8 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
   }
 
   async close(): Promise<void> {
-    await accesseurBdOrbite.fermerBd(
-      this._orbitdb,
-      this.bd!.id,
-      this.idRequète
-    );
+    await this.fOublierBd?.()
+
     await this.gestRôles.fermer();
   }
 
@@ -206,11 +208,12 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
       ).toString();
     }
 
-    this.bd = (await accesseurBdOrbite.ouvrirBd(
-      this._orbitdb,
-      adresseFinale,
-      this.idRequète
-    )) as FeedStore<élémentBdAccès>;
+    const {bd, fOublier} = await this._gestionnaireOrbite.ouvrirBd<élémentBdAccès>({
+      id: adresseFinale,
+      type: "feed"
+    });
+    this.bd = bd
+    this.fOublierBd = fOublier;
 
     suivreBdAccès(this.bd, () => this._miseÀJourBdAccès());
   }
