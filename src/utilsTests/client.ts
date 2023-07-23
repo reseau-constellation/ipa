@@ -108,7 +108,7 @@ export const générerClients = async (
   } else {
     throw new Error(type);
   }
-  await clientsConnectés(...clients)
+  // await clientsConnectés(...clients)
 
   const fOublier = async () => {
     await Promise.all(clients.map((client) => client.fermer()));
