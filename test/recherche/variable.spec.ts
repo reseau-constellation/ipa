@@ -11,6 +11,7 @@ import {
 } from "@/recherche/variable.js";
 
 import { générerClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 import { expect } from "aegir/chai";
 
@@ -30,7 +31,7 @@ describe("Rechercher variables", function () {
 
   describe("Selon nom", function () {
     let idVariable: string;
-    let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -39,7 +40,7 @@ describe("Rechercher variables", function () {
       });
 
       const fRecherche = rechercherVariableSelonNom("Radiation solaire");
-      fOublier = await fRecherche(client, idVariable, (r) => (résultat = r));
+      fOublier = await fRecherche(client, idVariable, (r) => (résultat.mettreÀJour(r)));
     });
 
     after(async () => {
@@ -47,7 +48,7 @@ describe("Rechercher variables", function () {
     });
 
     it("Pas de résultat quand la variable n'a pas de nom", async () => {
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
       await client.variables!.ajouterNomsVariable({
@@ -56,7 +57,8 @@ describe("Rechercher variables", function () {
           த: "சூரிய கதிர்வீச்சு",
         },
       });
-      expect(résultat).to.be.undefined();
+
+      expect(résultat.val).to.be.undefined();
     });
     it("Résultat si la variable est presque exacte", async () => {
       await client.variables!.ajouterNomsVariable({
@@ -66,7 +68,8 @@ describe("Rechercher variables", function () {
         },
       });
 
-      expect(résultat).to.deep.equal({
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "es",
         de: "nom",
@@ -86,7 +89,8 @@ describe("Rechercher variables", function () {
           fr: "Radiation solaire",
         },
       });
-      expect(résultat).to.deep.equal({
+      const val = await résultat.attendreQue(x=>x.score>0.5);
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -103,7 +107,7 @@ describe("Rechercher variables", function () {
 
   describe("Selon descr", function () {
     let idVariable: string;
-    let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -112,7 +116,7 @@ describe("Rechercher variables", function () {
       });
 
       const fRecherche = rechercherVariableSelonDescr("Radiation solaire");
-      fOublier = await fRecherche(client, idVariable, (r) => (résultat = r));
+      fOublier = await fRecherche(client, idVariable, (r) => (résultat.mettreÀJour(r)));
     });
 
     after(async () => {
@@ -120,7 +124,7 @@ describe("Rechercher variables", function () {
     });
 
     it("Pas de résultat quand la variable n'a pas de description", async () => {
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
       await client.variables!.ajouterDescriptionsVariable({
@@ -129,7 +133,7 @@ describe("Rechercher variables", function () {
           த: "சூரிய கதிர்வீச்சு",
         },
       });
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
     it("Résultat si la variable est presque exacte", async () => {
       await client.variables!.ajouterDescriptionsVariable({
@@ -138,8 +142,9 @@ describe("Rechercher variables", function () {
           es: "Radiación solar",
         },
       });
-
-      expect(résultat).to.deep.equal({
+      
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "es",
         de: "descr",
@@ -159,7 +164,8 @@ describe("Rechercher variables", function () {
           fr: "Radiation solaire",
         },
       });
-      expect(résultat).to.deep.equal({
+      const val = await résultat.attendreQue(x=>x.score > 0.5)
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "descr",
@@ -176,8 +182,8 @@ describe("Rechercher variables", function () {
 
   describe("Selon texte", function () {
     let idVariable: string;
-    let résultatId: résultatObjectifRecherche<infoRésultatTexte> | undefined;
-    let résultatNom: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -188,14 +194,14 @@ describe("Rechercher variables", function () {
 
       const fRechercheNom = rechercherVariableSelonTexte("précipitation");
       fsOublier.push(
-        await fRechercheNom(client, idVariable, (r) => (résultatNom = r))
+        await fRechercheNom(client, idVariable, (r) => (résultatNom.mettreÀJour(r)))
       );
 
       const fRechercheId = rechercherVariableSelonTexte(
         idVariable.slice(0, 15)
       );
       fsOublier.push(
-        await fRechercheId(client, idVariable, (r) => (résultatId = r))
+        await fRechercheId(client, idVariable, (r) => (résultatId.mettreÀJour(r)))
       );
 
       await client.variables!.ajouterNomsVariable({
@@ -211,7 +217,9 @@ describe("Rechercher variables", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      expect(résultatNom).to.deep.equal({
+      
+      const val = await résultatNom.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -226,7 +234,8 @@ describe("Rechercher variables", function () {
     });
 
     it("Résultat id détecté", async () => {
-      expect(résultatId).to.deep.equal({
+      const val = await résultatId.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         de: "id",
         info: {

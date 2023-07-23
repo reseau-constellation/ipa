@@ -20,6 +20,7 @@ import {
 import { générerClients } from "@/utilsTests/client.js";
 
 import { expect } from "aegir/chai";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 describe("Rechercher bds", function () {
   let fOublierClients: () => Promise<void>;
@@ -124,15 +125,9 @@ describe("Rechercher bds", function () {
   describe("Selon mot-clef", function () {
     let idBd: string;
     let idMotClef: string;
-    let résultatNom:
-      | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
-      | undefined;
-    let résultatId:
-      | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
-      | undefined;
-    let résultatTous:
-      | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
-      | undefined;
+    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatTous = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -142,15 +137,15 @@ describe("Rechercher bds", function () {
 
       const fRechercheNom = rechercherBdSelonNomMotClef("Météo");
       fsOublier.push(
-        await fRechercheNom(client, idBd, (r) => (résultatNom = r))
+        await fRechercheNom(client, idBd, (r) => (résultatNom.mettreÀJour(r)))
       );
 
       const fRechercheId = rechercherBdSelonIdMotClef(idMotClef.slice(0, 15));
-      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
+      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId.mettreÀJour(r))));
 
       const fRechercheTous = rechercherBdSelonMotClef("Météo");
       fsOublier.push(
-        await fRechercheTous(client, idBd, (r) => (résultatTous = r))
+        await fRechercheTous(client, idBd, (r) => (résultatTous.mettreÀJour(r)))
       );
     });
 
@@ -228,15 +223,9 @@ describe("Rechercher bds", function () {
   describe("Selon variable", function () {
     let idBd: string;
     let idVariable: string;
-    let résultatNom:
-      | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
-      | undefined;
-    let résultatId:
-      | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
-      | undefined;
-    let résultatTous:
-      | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
-      | undefined;
+    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatTous = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -248,15 +237,15 @@ describe("Rechercher bds", function () {
 
       const fRechercheNom = rechercherBdSelonNomVariable("Précip");
       fsOublier.push(
-        await fRechercheNom(client, idBd, (r) => (résultatNom = r))
+        await fRechercheNom(client, idBd, (r) => (résultatNom.mettreÀJour(r)))
       );
 
       const fRechercheId = rechercherBdSelonIdVariable(idVariable.slice(0, 15));
-      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
+      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId.mettreÀJour(r))));
 
       const fRechercheTous = rechercherBdSelonVariable("Précip");
       fsOublier.push(
-        await fRechercheTous(client, idBd, (r) => (résultatTous = r))
+        await fRechercheTous(client, idBd, (r) => (résultatTous.mettreÀJour(r)))
       );
     });
 
@@ -295,8 +284,9 @@ describe("Rechercher bds", function () {
         },
         score: 1,
       };
-
-      expect(résultatId).to.deep.equal(réfRésId);
+      
+      const valRésultatId = await résultatId.attendreExiste();
+      expect(valRésultatId).to.deep.equal(réfRésId);
     });
 
     it("Ajout nom variable détecté", async () => {
@@ -327,39 +317,31 @@ describe("Rechercher bds", function () {
         score: 1,
       };
 
-      expect(résultatNom).to.deep.equal(réfRésNom);
-      expect(résultatTous).to.deep.equal(réfRésNom);
+      const valRésultatNom = await résultatNom.attendreExiste();
+      const valRésultatTous = await résultatTous.attendreExiste();
+      expect(valRésultatNom).to.deep.equal(réfRésNom);
+      expect(valRésultatTous).to.deep.equal(réfRésNom);
     });
   });
 
   describe("Selon texte", function () {
     // node --experimental-specifier-resolution=node --inspect dist/recherche/bd.test.js
     let idBd: string;
-    let résultatId:
-      | résultatObjectifRecherche<
+    const résultatId = new AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-        >
-      | undefined;
-    let résultatNom:
-      | résultatObjectifRecherche<
+        >>();
+    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-        >
-      | undefined;
-    let résultatDescr:
-      | résultatObjectifRecherche<
+        >>();
+    const résultatDescr = new AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-        >
-      | undefined;
-    let résultatVariable:
-      | résultatObjectifRecherche<
+        >>();
+    const résultatVariable = new AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-        >
-      | undefined;
-    let résultatMotsClef:
-      | résultatObjectifRecherche<
+        >>();
+    const résultatMotsClef = new AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-        >
-      | undefined;
+        >>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -368,25 +350,25 @@ describe("Rechercher bds", function () {
 
       const fRechercheNom = rechercherBdSelonTexte("Hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idBd, (r) => (résultatNom = r))
+        await fRechercheNom(client, idBd, (r) => (résultatNom.mettreÀJour(r)))
       );
 
       const fRechercheId = rechercherBdSelonTexte(idBd.slice(0, 15));
-      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId = r)));
+      fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId.mettreÀJour(r))));
 
       const fRechercheDescr = rechercherBdSelonTexte("Montréal");
       fsOublier.push(
-        await fRechercheDescr(client, idBd, (r) => (résultatDescr = r))
+        await fRechercheDescr(client, idBd, (r) => (résultatDescr.mettreÀJour(r)))
       );
 
       const fRechercheVariables = rechercherBdSelonTexte("Température");
       fsOublier.push(
-        await fRechercheVariables(client, idBd, (r) => (résultatVariable = r))
+        await fRechercheVariables(client, idBd, (r) => (résultatVariable.mettreÀJour(r)))
       );
 
       const fRechercheMotsClef = rechercherBdSelonTexte("Météo");
       fsOublier.push(
-        await fRechercheMotsClef(client, idBd, (r) => (résultatMotsClef = r))
+        await fRechercheMotsClef(client, idBd, (r) => (résultatMotsClef.mettreÀJour(r)))
       );
     });
 
@@ -394,8 +376,9 @@ describe("Rechercher bds", function () {
       await Promise.all(fsOublier.map((f) => f()));
     });
 
-    it("Résultat id détecté", async () => {
-      expect(résultatId).to.deep.equal({
+    it("Résultat id détecté", async () => { 
+      const val = await résultatId.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         de: "id",
         info: {
@@ -413,8 +396,8 @@ describe("Rechercher bds", function () {
         id: idBd,
         noms: { fr: "Hydrologie" },
       });
-
-      expect(résultatNom).to.deep.equal({
+      const val = await résultatNom.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -434,8 +417,9 @@ describe("Rechercher bds", function () {
         descriptions: {
           fr: "Hydrologie de Montréal",
         },
-      });
-      expect(résultatDescr).to.deep.equal({
+      }); 
+      const val = await résultatDescr.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "descr",
@@ -464,8 +448,8 @@ describe("Rechercher bds", function () {
           fr: "Température maximale",
         },
       });
-
-      expect(résultatVariable).to.deep.equal({
+      const val = await résultatVariable.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: idVariable,
         de: "variable",
@@ -497,7 +481,8 @@ describe("Rechercher bds", function () {
         },
       });
 
-      expect(résultatMotsClef).to.deep.equal({
+      const val = await résultatMotsClef.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: idMotClef,
         de: "motClef",

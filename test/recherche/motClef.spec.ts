@@ -10,6 +10,7 @@ import {
 } from "@/recherche/motClef.js";
 
 import { générerClients } from "@/utilsTests/client.js";
+import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 import { expect } from "aegir/chai";
 
@@ -29,14 +30,14 @@ describe("Rechercher mots clefs", function () {
 
   describe("Selon nom", function () {
     let idMotClef: string;
-    let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
     let fOublier: schémaFonctionOublier;
+    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
 
     before(async () => {
       idMotClef = await client.motsClefs!.créerMotClef();
 
       const fRecherche = rechercherMotClefSelonNom("hydrologie");
-      fOublier = await fRecherche(client, idMotClef, (r) => (résultat = r));
+      fOublier = await fRecherche(client, idMotClef, (r) => (résultat.mettreÀJour(r)));
     });
 
     after(async () => {
@@ -53,7 +54,7 @@ describe("Rechercher mots clefs", function () {
           த: "நீரியல்",
         },
       });
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
     it("Résultat si le mot-clef est presque exacte", async () => {
       await client.motsClefs!.sauvegarderNomsMotClef({
@@ -63,7 +64,8 @@ describe("Rechercher mots clefs", function () {
         },
       });
 
-      expect(résultat).to.deep.equal({
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -83,7 +85,9 @@ describe("Rechercher mots clefs", function () {
           fr: "hydrologie",
         },
       });
-      expect(résultat).to.deep.equal({
+
+      const val = await résultat.attendreQue(x=>x.score > 0.5)
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -100,8 +104,8 @@ describe("Rechercher mots clefs", function () {
 
   describe("Selon texte", function () {
     let idMotClef: string;
-    let résultatId: résultatObjectifRecherche<infoRésultatTexte> | undefined;
-    let résultatNom: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>;
+    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>;
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -110,12 +114,12 @@ describe("Rechercher mots clefs", function () {
 
       const fRechercheNom = rechercherMotClefSelonTexte("hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idMotClef, (r) => (résultatNom = r))
+        await fRechercheNom(client, idMotClef, (r) => (résultatNom.mettreÀJour(r)))
       );
 
       const fRechercheId = rechercherMotClefSelonTexte(idMotClef.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idMotClef, (r) => (résultatId = r))
+        await fRechercheId(client, idMotClef, (r) => (résultatId.mettreÀJour(r)))
       );
 
       await client.motsClefs!.sauvegarderNomsMotClef({
@@ -131,7 +135,8 @@ describe("Rechercher mots clefs", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      expect(résultatNom).to.deep.equal({
+      const val = await résultatNom.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -145,7 +150,8 @@ describe("Rechercher mots clefs", function () {
       });
     });
     it("Résultat id détecté", async () => {
-      expect(résultatId).to.deep.equal({
+      const val = await résultatId.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         de: "id",
         info: {
