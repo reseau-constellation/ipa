@@ -98,7 +98,7 @@ describe("Client ", function () {
     });
 
     it("Pas de résultat quand la nuée n'a pas de description", async () => {
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
 
     it("Ajout description détecté", async () => {

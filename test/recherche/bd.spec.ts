@@ -38,14 +38,14 @@ describe("Rechercher bds", function () {
 
   describe("Selon nom", function () {
     let idBd: string;
-    let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
       idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
       const fRecherche = rechercherBdSelonNom("Météo");
-      fOublier = await fRecherche(client, idBd, (r) => (résultat = r));
+      fOublier = await fRecherche(client, idBd, (r) => (résultat.mettreÀJour(r)));
     });
 
     after(async () => {
@@ -53,7 +53,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Pas de résultat quand la bd n'a pas de nom", async () => {
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
 
     it("Ajout nom détecté", async () => {
@@ -64,7 +64,8 @@ describe("Rechercher bds", function () {
         },
       });
 
-      expect(résultat).to.deep.equal({
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "nom",
@@ -81,14 +82,14 @@ describe("Rechercher bds", function () {
 
   describe("Selon description", function () {
     let idBd: string;
-    let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
       idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
       const fRecherche = rechercherBdSelonDescr("Météo");
-      fOublier = await fRecherche(client, idBd, (r) => (résultat = r));
+      fOublier = await fRecherche(client, idBd, (r) => (résultat.mettreÀJour(r)));
     });
 
     after(async () => {
@@ -96,7 +97,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Pas de résultat quand la bd n'a pas de description", async () => {
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
 
     it("Ajout description détecté", async () => {
@@ -107,7 +108,8 @@ describe("Rechercher bds", function () {
         },
       });
 
-      expect(résultat).to.deep.equal({
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
         de: "descr",
@@ -154,9 +156,9 @@ describe("Rechercher bds", function () {
     });
 
     it("Pas de résultat quand la bd n'a pas de mot-clef", async () => {
-      expect(résultatId).to.be.undefined();
-      expect(résultatNom).to.be.undefined();
-      expect(résultatTous).to.be.undefined();
+      expect(résultatId.val).to.be.undefined();
+      expect(résultatNom.val).to.be.undefined();
+      expect(résultatTous.val).to.be.undefined();
     });
 
     it("Ajout mot-clef détecté", async () => {
@@ -184,7 +186,8 @@ describe("Rechercher bds", function () {
         score: 1,
       };
 
-      expect(résultatId).to.deep.equal(réfRésId);
+      const val = await résultatId.attendreExiste();
+      expect(val).to.deep.equal(réfRésId);
     });
 
     it("Ajout nom mot-clef détecté", async () => {
@@ -215,8 +218,10 @@ describe("Rechercher bds", function () {
         score: 1,
       };
 
-      expect(résultatNom).to.deep.equal(réfRésNom);
-      expect(résultatTous).to.deep.equal(réfRésNom);
+      const valRésultatNom = await résultatNom.attendreExiste();
+      const valRésultatTous = await résultatTous.attendreExiste();
+      expect(valRésultatNom).to.deep.equal(réfRésNom);
+      expect(valRésultatTous).to.deep.equal(réfRésNom);
     });
   });
 
@@ -254,9 +259,9 @@ describe("Rechercher bds", function () {
     });
 
     it("Pas de résultat quand la bd n'a pas de variable", async () => {
-      expect(résultatId).to.be.undefined();
-      expect(résultatNom).to.be.undefined();
-      expect(résultatTous).to.be.undefined();
+      expect(résultatId.val).to.be.undefined();
+      expect(résultatNom.val).to.be.undefined();
+      expect(résultatTous.val).to.be.undefined();
     });
 
     it("Ajout variable détecté", async () => {

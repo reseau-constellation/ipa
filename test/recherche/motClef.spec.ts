@@ -45,7 +45,7 @@ describe("Rechercher mots clefs", function () {
     });
 
     it("Pas de résultat quand le mot-clef n'a pas de nom", async () => {
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
       await client.motsClefs!.sauvegarderNomsMotClef({
