@@ -140,7 +140,7 @@ if (isNode || isElectronMain) {
         expect(autorisé).to.be.true();
       });
 
-      it.skip("Le nouveau dispositif suit mon profil", async () => {
+      it("Le nouveau dispositif suit mon profil", async () => {
         const val = await résNom.attendreQue((x) =>
           Object.keys(x).includes("fr")
         );
