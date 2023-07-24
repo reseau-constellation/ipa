@@ -934,7 +934,9 @@ typesClients.forEach((type) => {
           );
         });
 
-        it("sync et écoute", async () => {
+        it("sync et écoute", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const attendreFichierExiste = new AttendreFichierExiste(
             path.join(dossier, "Ma bd.ods")
           );
@@ -1023,7 +1025,7 @@ typesClients.forEach((type) => {
             });
 
           const val = await résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto]?.type === "erreur")
+            (x) => x[idAuto]?.type === "erreur"
           );
 
           const après = Date.now();
