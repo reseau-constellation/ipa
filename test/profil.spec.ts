@@ -124,7 +124,7 @@ typesClients.forEach((type) => {
         let IMAGE: Uint8Array;
 
         before(async () => {
-          IMAGE = await obtRessourceTest({nomFichier: "logo.svg"});
+          IMAGE = await obtRessourceTest({nomFichier: "logo.svg", optsAxios: { responseType: "arraybuffer" }});
         });
 
         before(async () => {

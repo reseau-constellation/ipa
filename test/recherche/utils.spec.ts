@@ -177,8 +177,8 @@ describe("Utils recherche", function () {
     let IMAGE2: Buffer;
 
     before(async () => {
-      IMAGE = await obtRessourceTest({nomFichier: "logo.png"});
-      IMAGE2 = await obtRessourceTest({nomFichier: "logo2.png" });
+      IMAGE = await obtRessourceTest({nomFichier: "logo.png", optsAxios: { responseType: "arraybuffer" }});
+      IMAGE2 = await obtRessourceTest({nomFichier: "logo2.png", optsAxios: { responseType: "arraybuffer" } });
     });
 
     it("Pas d'image réf", () => {

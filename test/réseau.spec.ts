@@ -1755,7 +1755,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            IMAGE = await obtRessourceTest({nomFichier: "logo.svg"});
+            IMAGE = await obtRessourceTest({nomFichier: "logo.svg", optsAxios: { responseType: "arraybuffer" }});
 
             ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
               2,

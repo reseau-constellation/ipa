@@ -1125,7 +1125,7 @@ typesClients.forEach((type) => {
             idVariable: idVarFichier,
           });
 
-          const octets = await obtRessourceTest({nomFichier: "logo.svg"});
+          const octets = await obtRessourceTest({nomFichier: "logo.svg", optsAxios: { responseType: "arraybuffer" }});
           cid = await client.ajouterÀSFIP({ fichier: octets });
 
           await client.tableaux!.ajouterÉlément({
