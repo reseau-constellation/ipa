@@ -24,12 +24,12 @@ import type { élémentDonnées, règleBornes } from "@/valid.js";
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import {
-  dossierRessourcesTests,
   dossierTempoTests,
 } from "@/utilsTests/dossiers.js";
 
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
+import { obtRessourceTest } from "./ressources/index.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -1124,9 +1124,7 @@ typesClients.forEach((type) => {
             idVariable: idVarFichier,
           });
 
-          const octets = fs.readFileSync(
-            path.join(await dossierRessourcesTests(), "logo.svg")
-          );
+          const octets = await obtRessourceTest({nomFichier: "logo.svg"});
           cid = await client.ajouterÀSFIP({ fichier: octets });
 
           await client.tableaux!.ajouterÉlément({

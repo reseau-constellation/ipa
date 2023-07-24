@@ -972,7 +972,9 @@ typesClients.forEach((type) => {
           expect(depuis).to.be.greaterThanOrEqual(avantAjout);
         });
 
-        it("programmée", async () => {
+        it("programmée", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+          
           const attendreFichierExiste = new AttendreFichierExiste(
             path.join(dossier, "Ma bd.ods")
           );

@@ -1,6 +1,3 @@
-import fs from "fs";
-import path from "path";
-
 import type { default as ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
@@ -17,7 +14,7 @@ import {
 
 import { générerClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
-import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
+import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";
 
@@ -75,9 +72,7 @@ describe("Rechercher profil", function () {
     });
 
     it("C'est parfait avec un photo !", async () => {
-      const IMAGE = fs.readFileSync(
-        path.join(await dossierRessourcesTests(), "logo.png")
-      );
+      const IMAGE = await obtRessourceTest({nomFichier: "logo.png"});
 
       await client.profil!.sauvegarderImage({ image: IMAGE });
       const val = await rés.attendreQue(

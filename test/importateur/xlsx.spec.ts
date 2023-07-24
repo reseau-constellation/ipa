@@ -1,8 +1,8 @@
 import XLSX from "xlsx";
 
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
+import { obtRessourceTest } from "../ressources/index.js";
 
-import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
 
 import { expect } from "aegir/chai";
 
@@ -15,9 +15,7 @@ describe("XLSX", function () {
       const fs = await import("fs");
 
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
-      const données = fs.readFileSync(
-        path.join(await dossierRessourcesTests(), "donnéesTest.ods")
-      );
+      const données = obtRessourceTest({nomFichier: "donnéesTest.ods"});
       const doc = XLSX.read(données);
       importateur = new ImportateurFeuilleCalcul(doc);
     });

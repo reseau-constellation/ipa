@@ -9,9 +9,9 @@ import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
 import {
   obtDirTempoPourTest,
-  dossierRessourcesTests,
   dossierTempoTests,
 } from "@/utilsTests/dossiers.js";
+import { obtRessourceTest } from "./ressources/index.js";
 
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
@@ -463,9 +463,7 @@ typesClients.forEach((type) => {
             idVariable: idVarFichier,
           });
 
-          const OCTETS = fs.readFileSync(
-            path.join(await dossierRessourcesTests(), "logo.svg")
-          );
+          const OCTETS = await obtRessourceTest({nomFichier: "logo.svg"});
           cid = await client.ajouterÀSFIP({ fichier: OCTETS });
 
           await client.tableaux!.ajouterÉlément({

@@ -31,10 +31,11 @@ import {
   typeClient,
 } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
-import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
+import { obtRessourceTest } from "./ressources/index.js";
+
+import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
-import { isNode, isElectronMain } from "wherearewe";
 
 async function toutPréparer(n: number, type: typeClient) {
   const { fOublier: fOublierClients, clients } = await générerClients(n, type);
@@ -1754,9 +1755,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            IMAGE = fs.readFileSync(
-              path.join(await dossierRessourcesTests(), "logo.svg")
-            );
+            IMAGE = await obtRessourceTest({nomFichier: "logo.svg"});
 
             ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
               2,

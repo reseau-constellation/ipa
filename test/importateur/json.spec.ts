@@ -1,13 +1,9 @@
-import fs from "fs";
-import path from "path";
-
 import ImportateurDonnéesJSON, {
   extraireDonnées,
   aplatirDonnées,
   élément,
 } from "@/importateur/json.js";
-
-import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
+import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";
 
@@ -150,13 +146,7 @@ describe("JSON", function () {
 
     before(async () => {
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
-      const donnéesJSON = JSON.parse(
-        (
-          await fs.promises.readFile(
-            path.join(await dossierRessourcesTests(), "donnéesTest.json")
-          )
-        ).toString()
-      );
+      const donnéesJSON = await obtRessourceTest({nomFichier: "donnéesTest.json"});
       const importateur = new ImportateurDonnéesJSON({
         "mes données": { "sont ici": [donnéesJSON] },
       });

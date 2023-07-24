@@ -21,7 +21,7 @@ import {
 } from "@/recherche/utils.js";
 
 import { générerClients } from "@/utilsTests/client.js";
-import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
+import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";
 
@@ -177,12 +177,8 @@ describe("Utils recherche", function () {
     let IMAGE2: Buffer;
 
     before(async () => {
-      IMAGE = fs.readFileSync(
-        path.join(await dossierRessourcesTests(), "logo.png")
-      );
-      IMAGE2 = fs.readFileSync(
-        path.join(await dossierRessourcesTests(), "logo2.png")
-      );
+      IMAGE = await obtRessourceTest({nomFichier: "logo.png"});
+      IMAGE2 = await obtRessourceTest({nomFichier: "logo2.png" });
     });
 
     it("Pas d'image réf", () => {

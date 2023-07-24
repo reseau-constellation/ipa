@@ -1,13 +1,11 @@
-import fs from "fs";
-import path from "path";
-
 import type { default as ClientConstellation } from "@/client.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
-import { dossierRessourcesTests } from "@/utilsTests/dossiers.js";
+
+import { obtRessourceTest } from "./ressources/index.js";
 
 import { expect } from "aegir/chai";
 
@@ -126,9 +124,7 @@ typesClients.forEach((type) => {
         let IMAGE: Uint8Array;
 
         before(async () => {
-          IMAGE = fs.readFileSync(
-            path.join(await dossierRessourcesTests(), "logo.svg")
-          );
+          IMAGE = await obtRessourceTest({nomFichier: "logo.svg"});
         });
 
         before(async () => {
