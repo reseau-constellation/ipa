@@ -27,9 +27,9 @@ $ pnpm add -g @constl/serveur @constl/ipa
 
 ### Ligne de commande
 Vous pourrez ensuite lancer le nœud local en spécifiant (ou non) le port, l'identifiant de compte, et les dossiers à utiliser pour sauvegarder les données de votre compte :
-```
-$ constl lancer [-p <port>] [--compte <id-compte>] [--doss-orbite <dossierOrbite>] [--doss-sfip <dossierSFIP>]
-```
+
+`$ constl lancer [-p <port>] [--compte <id-compte>] [--doss-orbite <dossierOrbite>] [--doss-sfip <dossierSFIP>]`
+
 Si vous ne comprennez pas ce que font les options de compte ou de dossier, laissez-les vides et inquiétez-vous pas ; ça fonctionnera pareil.
 
 Pour obtenir le numéro de la version :
