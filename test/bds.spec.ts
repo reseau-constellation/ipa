@@ -30,6 +30,7 @@ import {
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
 import { obtRessourceTest } from "./ressources/index.js";
+import { isElectronMain, isNode } from "wherearewe";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -1165,46 +1166,49 @@ typesClients.forEach((type) => {
         });
 
         describe("Exporter document données", function () {
-          let dossier: string;
-          let fEffacer: () => void;
-          let dirZip: string;
-          let zip: JSZip;
-
-          before(async () => {
-            ({ dossier, fEffacer } = await dossierTempoTests());
-            dirZip = path.join(dossier, "testExporterBd");
-            await client.bds!.exporterDocumentDonnées({
-              données: { doc, fichiersSFIP, nomFichier },
-              formatDoc: "ods",
-              dossier: dirZip,
-              inclureFichiersSFIP: true,
+          if (isElectronMain || isNode ) {
+            let dossier: string;
+            let fEffacer: () => void;
+            let dirZip: string;
+            let zip: JSZip;
+  
+            before(async () => {
+              ({ dossier, fEffacer } = await dossierTempoTests());
+              dirZip = path.join(dossier, "testExporterBd");
+              await client.bds!.exporterDocumentDonnées({
+                données: { doc, fichiersSFIP, nomFichier },
+                formatDoc: "ods",
+                dossier: dirZip,
+                inclureFichiersSFIP: true,
+              });
             });
-          });
+  
+            after(() => {
+              if (fEffacer) fEffacer();
+            });
+  
+            it("Le fichier zip existe", async () => {
+              const nomZip = path.join(dirZip, nomFichier + ".zip");
+              expect(fs.existsSync(nomZip)).to.be.true();
+              zip = await JSZip.loadAsync(fs.readFileSync(nomZip));
+            });
+  
+            it("Les données sont exportées", () => {
+              const contenu = zip.files[nomFichier + ".ods"];
+              expect(contenu).to.exist();
+            });
+  
+            it("Le dossier pour les données SFIP existe", () => {
+              const contenu = zip.files["sfip/"];
+              expect(contenu?.dir).to.be.true();
+            });
+  
+            it("Les fichiers SFIP existent", () => {
+              const contenu = zip.files[path.join("sfip", cid + ".svg")];
+              expect(contenu).to.exist();
+            });
+          }
 
-          after(() => {
-            if (fEffacer) fEffacer();
-          });
-
-          it("Le fichier zip existe", async () => {
-            const nomZip = path.join(dirZip, nomFichier + ".zip");
-            expect(fs.existsSync(nomZip)).to.be.true();
-            zip = await JSZip.loadAsync(fs.readFileSync(nomZip));
-          });
-
-          it("Les données sont exportées", () => {
-            const contenu = zip.files[nomFichier + ".ods"];
-            expect(contenu).to.exist();
-          });
-
-          it("Le dossier pour les données SFIP existe", () => {
-            const contenu = zip.files["sfip/"];
-            expect(contenu?.dir).to.be.true();
-          });
-
-          it("Les fichiers SFIP existent", () => {
-            const contenu = zip.files[path.join("sfip", cid + ".svg")];
-            expect(contenu).to.exist();
-          });
         });
       });
 
