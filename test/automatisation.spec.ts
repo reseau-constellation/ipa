@@ -134,7 +134,7 @@ const comparerDonnéesTableau = (
 };
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("Automatisation", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
