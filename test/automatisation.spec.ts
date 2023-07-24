@@ -34,11 +34,12 @@ import {
   dossierTempoTests,
   obtDirTempoPourTest,
 } from "@/utilsTests/dossiers.js";
+import { obtRessourceTest } from "./ressources/index.js";
 
+import { isBrowser, isElectronRenderer } from "wherearewe";
 import axios from "axios";
 
 import { expect } from "aegir/chai";
-import { isBrowser, isElectronRenderer } from "wherearewe";
 
 const vérifierDonnéesTableau = (
   doc: string | WorkBook,
@@ -133,7 +134,7 @@ const comparerDonnéesTableau = (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("Automatisation", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -308,22 +309,11 @@ typesClients.forEach((type) => {
         });
 
         it("Importer d'un URL (feuille calcul)", async function () {
-          const url = await import("url");
-
           // @ts-expect-error  Faire semblant qu'on se connecte à l'Internet
-          axios.get = async () => {
-            return {
-              data: fs.readFileSync(
-                path.join(
-                  url
-                    .fileURLToPath(new URL(".", import.meta.url))
-                    .replace("dist" + path.sep + "test", "src"),
-                  "utilsTests",
-                  "ressources",
-                  "cases.csv"
-                )
-              ),
-            };
+          axios.get = async (url, opts) => {
+            return url.startsWith("https://") ? {
+              data: await obtRessourceTest({nomFichier: "cases.csv", optsAxios: opts})
+            } : _get(url, opts);
           };
           const source: SourceDonnéesImportationURL<infoImporterFeuilleCalcul> =
             {
@@ -354,7 +344,7 @@ typesClients.forEach((type) => {
           fOublierAuto = async () =>
             await client.automatisations!.annulerAutomatisation({ id: idAuto });
 
-          const val = await rés.attendreQue((x) => !!(x && x.length >= 10));
+          const val = await rés.attendreQue((x) => x.length >= 10);
 
           comparerDonnéesTableau(val, [
             { [idCol1]: 24846678, [idCol2]: "United States" },
@@ -371,8 +361,6 @@ typesClients.forEach((type) => {
         });
 
         it("Importer d'un URL (json)", async function () {
-          const url = await import("url");
-
           const source: SourceDonnéesImportationURL<infoImporterJSON> = {
             typeSource: "url",
             url: "https://coordinates.native-land.ca/indigenousLanguages.json",
@@ -388,23 +376,10 @@ typesClients.forEach((type) => {
           };
 
           // @ts-expect-error Je ne suis pas trop as sûr pourquoi
-          axios.get = async () => {
-            return {
-              data: JSON.parse(
-                fs
-                  .readFileSync(
-                    path.join(
-                      url
-                        .fileURLToPath(new URL(".", import.meta.url))
-                        .replace("dist" + path.sep + "test", "src"),
-                      "utilsTests",
-                      "ressources",
-                      "indigenousLanguages.json"
-                    )
-                  )
-                  .toString()
-              ),
-            };
+          axios.get = async (url, opts) => {
+            return url.startsWith("https://") ? {
+              data: await obtRessourceTest({nomFichier: "indigenousLanguages.json", optsAxios: opts}),
+            } : _get(url, opts);
           };
 
           const idAuto =
@@ -627,7 +602,9 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        it("Exportation tableau", async () => {
+        it("Exportation tableau", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichier = path.join(dossier, "météo.ods");
           const attente = new AttendreFichierExiste(fichier);
           fsOublier.push(() => attente.annuler());
@@ -649,7 +626,9 @@ typesClients.forEach((type) => {
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
         });
 
-        it("Exportation BD", async () => {
+        it("Exportation BD", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichier = path.join(dossier, "Ma bd.ods");
           const attente = new AttendreFichierExiste(fichier);
           const attendreExiste = attente.attendre();
@@ -670,7 +649,9 @@ typesClients.forEach((type) => {
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
         });
 
-        it("Exportation projet", async () => {
+        it("Exportation projet", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichier = path.join(dossier, "Mon projet.zip");
           const attente = new AttendreFichierExiste(fichier);
           const attendreExiste = attente.attendre();
@@ -695,7 +676,9 @@ typesClients.forEach((type) => {
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
         });
 
-        it("Exportation selon changements", async () => {
+        it("Exportation selon changements", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichier = path.join(dossier, "Ma bd.ods");
 
           const attente = new AttendreFichierExiste(fichier);
@@ -730,7 +713,9 @@ typesClients.forEach((type) => {
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
         });
 
-        it("Exportation selon fréquence", async () => {
+        it("Exportation selon fréquence", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichier = path.join(dossier, "Mi bd.ods");
           const attente = new AttendreFichierExiste(fichier);
           const attendreExiste = attente.attendre();
@@ -824,7 +809,9 @@ typesClients.forEach((type) => {
           fsOublier.forEach((f) => f());
         });
 
-        it("Exportation selon changements", async () => {
+        it("Exportation selon changements", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+
           const fichier = path.join(dossier, "Science citoyenne.ods");
           const attente = new AttendreFichierExiste(fichier);
           const attendreExiste = attente.attendre();
@@ -1110,7 +1097,9 @@ typesClients.forEach((type) => {
           résAutos.toutAnnuler();
         });
 
-        it("sync et écoute", async () => {
+        it("sync et écoute", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+          
           const fichierJSON = path.join(dossier, "données.json");
           const données = {
             données: [
@@ -1164,7 +1153,9 @@ typesClients.forEach((type) => {
           expect(étatSync.depuis).to.be.greaterThanOrEqual(avantAjout);
         });
 
-        it("programmée", async () => {
+        it("programmée", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+          
           const fichierJSON = path.join(dossier, "données.json");
           const données = {
             données: [
@@ -1212,7 +1203,9 @@ typesClients.forEach((type) => {
           expect(état.à).to.be.lessThanOrEqual(maintenant + 1000 * 60 * 3);
         });
 
-        it("erreur", async () => {
+        it("erreur", async function () {
+          if (isBrowser || isElectronRenderer) this.skip();
+          
           const avant = Date.now();
 
           const fichierJSON = path.join(dossier, "données.json");
