@@ -11,11 +11,9 @@ describe("XLSX", function () {
     let importateur: ImportateurFeuilleCalcul;
 
     before(async () => {
-      const path = await import("path");
-      const fs = await import("fs");
-
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
-      const données = obtRessourceTest({nomFichier: "donnéesTest.ods"});
+      const données = await obtRessourceTest({nomFichier: "donnéesTest.ods", optsAxios: { responseType: "arraybuffer" }});
+      console.log({données})
       const doc = XLSX.read(données);
       importateur = new ImportateurFeuilleCalcul(doc);
     });
