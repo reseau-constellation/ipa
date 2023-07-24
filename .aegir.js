@@ -107,7 +107,7 @@ const options = {
     },
     after: async (_, avant) => {
       await avant.navigateur.close();
-      await avant.serveurLocal.close()
+      await avant.serveurLocal?.close()
     },
   },
   build: {
