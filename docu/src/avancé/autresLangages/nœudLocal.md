@@ -19,7 +19,7 @@ $ pnpm add @constl/serveur
 Si vous voulez tout simplement utiliser Constellation avec Python ou R, veuillez installer les librairies respectives [constellation-py](https://github.com/reseau-constellation/client-python), [Constellation.jl](https://github.com/reseau-constellation/Consellation.jl) et [constellation-R](https://github.com/reseau-constellation/client-r) (en progrès). Celles-ci se chargeront automatiquement de lancer le serveur Constellation.
 
 ## Installation globale
-L'installation globale vous permet de lancer un nœud local Constellation de la ligne de commande. Si vous comptez simplement utiliser le serveur Constellation (y compris pour une analyse en Python, en R ou en Julia), installez-le comme suit :
+L'installation globale vous permet de lancer un nœud local Constellation de la ligne de commande. Si vous comptez simplement utiliser le serveur Constellation (y compris pour une analyse en Python, en R ou en Julia), installez-le comme suit :
 
 ```shell
 $ pnpm add -g @constl/serveur @constl/ipa
@@ -27,7 +27,7 @@ $ pnpm add -g @constl/serveur @constl/ipa
 
 ### Ligne de commande
 Vous pourrez ensuite lancer le nœud local en spécifiant (ou non) le port, l'identifiant de compte, et les dossiers à utiliser pour sauvegarder les données de votre compte :
-```shell
+```
 $ constl lancer [-p <port>] [--compte <id-compte>] [--doss-orbite <dossierOrbite>] [--doss-sfip <dossierSFIP>]
 ```
 Si vous ne comprennez pas ce que font les options de compte ou de dossier, laissez-les vides et inquiétez-vous pas ; ça fonctionnera pareil.
@@ -53,9 +53,7 @@ $ pnpm add @constl/serveur
 Vous pourrez ensuite importer le serveur dans votre propre code et le lancer programmatiquement.
 
 ::: tip 
-Constellation elle-même (`@constl/ipa`) est spécifiée en tant que dépendance
-pair du serveur Constellation. Vous pouvez donc installer la version de Constellation
-qui vous convient.
+Constellation elle-même (`@constl/ipa`) est spécifiée en tant que dépendance pair du serveur Constellation. Vous pouvez donc installer la version de Constellation qui vous convient.
 :::
 
 ### Serveur
@@ -71,9 +69,7 @@ fermerServeur();
 
 ```
 
-Invoqué sans configuration, `lancerServeur` trouvera un port disponible sur
-`localhost` et redonnera cette valeur dans la variable `port`. Vous pouvez
-également spécifier une configuration Constellation plus précise :
+Invoqué sans configuration, `lancerServeur` trouvera un port disponible sur `localhost` et redonnera cette valeur dans la variable `port`. Vous pouvez également spécifier une configuration Constellation plus précise :
 
 ```TypeScript
 import { lancerServeur } from "@constl/serveur";

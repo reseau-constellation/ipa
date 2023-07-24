@@ -58,7 +58,7 @@ export const configVitePress = defineConfig({
               },
               { text: "Python", link: "/avancé/autresLangages/python" },
               { text: "Julia", link: "/avancé/autresLangages/julia" },
-              { text: "Nœud local", link: "/avancé/autresLangages/noeudLocal" },
+              { text: "Nœud local", link: "/avancé/autresLangages/nœudLocal" },
               {
                 text: "Nouveaux langages",
                 link: "/avancé/autresLangages/nouveauxLangages",
