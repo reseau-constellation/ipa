@@ -72,10 +72,10 @@ const options = {
       let serveurLocal = undefined;
 
       if (opts.target.includes('browser') || opts.target.includes('electron-renderer')) {
-        serveurLocal = express();
+        const appliExpress = express();
 
         // Permettre l'accès à partir de l'hôte locale
-        serveurLocal.use(cors({
+        appliExpress.use(cors({
           origin: function (origin, callback) {
             if (!origin) {
               callback(null, true)
@@ -88,7 +88,7 @@ const options = {
             }
           },
         }));
-        serveurLocal.get("/fichier/:nomFichier", function (req, res) {
+        appliExpress.get("/fichier/:nomFichier", function (req, res) {
           const { nomFichier } = req.params
 
           const cheminFichier = path.join(
@@ -100,7 +100,7 @@ const options = {
 
           res.sendFile(cheminFichier)
         })
-        serveurLocal.listen(3000);
+        serveurLocal = appliExpress.listen(3000);
       }
 
       return { navigateur, serveurLocal };
