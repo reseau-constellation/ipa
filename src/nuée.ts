@@ -2312,7 +2312,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         for (const idVar of variables) {
           const nomsDisponibles = await uneFois(
             (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-              this.client.variables!.suivreNomsVariable({ id: idVar, f })
+              this.client.variables!.suivreNomsVariable({ idVariable: idVar, f })
           );
 
           const idCol = colonnes.find((c) => c.variable === idVar)?.id;

@@ -127,7 +127,7 @@ export default class Variables extends ComposanteClientListe<string> {
         premierMod: this.client.bdCompte!.id,
       },
     });
-    await this.ajouterÀMesVariables({ id: idBdVariable });
+    await this.ajouterÀMesVariables({ idVariable: idBdVariable });
 
     const { bd: bdVariable, fOublier: fOublierVariable } =
       await this.client.ouvrirBd({
@@ -174,27 +174,27 @@ export default class Variables extends ComposanteClientListe<string> {
     return idBdVariable;
   }
 
-  async ajouterÀMesVariables({ id }: { id: string }): Promise<void> {
+  async ajouterÀMesVariables({ idVariable }: { idVariable: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd<string>({
       id: await this.obtIdBd(),
       type: "feed",
     });
-    await bd.add(id);
+    await bd.add(idVariable);
     await fOublier();
   }
 
-  async enleverDeMesVariables({ id }: { id: string }): Promise<void> {
+  async enleverDeMesVariables({ idVariable }: { idVariable: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({
       id: await this.obtIdBd(),
       type: "feed",
     });
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
+    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idVariable });
     await fOublier();
   }
 
-  async copierVariable({ id }: { id: string }): Promise<string> {
+  async copierVariable({ idVariable }: { idVariable: string }): Promise<string> {
     const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({
-      id,
+      id: idVariable,
       type: "keyvalue",
       schéma: schémaStructureBdVariable,
     });
@@ -578,14 +578,14 @@ export default class Variables extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreNomsVariable({
-    id,
+    idVariable,
     f,
   }: {
-    id: string;
+    idVariable: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
-      id,
+      id: idVariable,
       clef: "noms",
       schéma: schémaStructureBdNoms,
       f,
@@ -594,14 +594,14 @@ export default class Variables extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreDescrVariable({
-    id,
+    idVariable,
     f,
   }: {
-    id: string;
+    idVariable: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
-      id,
+      id: idVariable,
       clef: "descriptions",
       schéma: schémaStructureBdNoms,
       f,
@@ -610,14 +610,14 @@ export default class Variables extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreCatégorieVariable({
-    id,
+    idVariable,
     f,
   }: {
-    id: string;
+    idVariable: string;
     f: schémaFonctionSuivi<catégorieVariables>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
-      id,
+      id: idVariable,
       type: "keyvalue",
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
@@ -632,14 +632,14 @@ export default class Variables extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreUnitésVariable({
-    id,
+    idVariable,
     f,
   }: {
-    id: string;
+    idVariable: string;
     f: schémaFonctionSuivi<string | null>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
-      id,
+      id: idVariable,
       type: "keyvalue",
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
@@ -651,10 +651,10 @@ export default class Variables extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreRèglesVariable({
-    id,
+    idVariable,
     f,
   }: {
-    id: string;
+    idVariable: string;
     f: schémaFonctionSuivi<règleVariableAvecId[]>;
   }): Promise<schémaFonctionOublier> {
     const règles: {
@@ -680,7 +680,7 @@ export default class Variables extends ComposanteClientListe<string> {
       await fFinale();
     };
     const fOublierCatégorie = await this.suivreCatégorieVariable({
-      id,
+      idVariable,
       f: fSuivreCatégorie,
     });
 
@@ -690,7 +690,7 @@ export default class Variables extends ComposanteClientListe<string> {
     };
     const fOublierRèglesPropres =
       await this.client.suivreBdListeDeClef<règleVariableAvecId>({
-        id,
+        id: idVariable,
         clef: "règles",
         schéma: schémaRègleVariableAvecId,
         f: fSuivreRèglesPropres,
@@ -705,10 +705,10 @@ export default class Variables extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreQualitéVariable({
-    id,
+    idVariable,
     f,
   }: {
-    id: string;
+    idVariable: string;
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
     const rés: {
@@ -737,7 +737,7 @@ export default class Variables extends ComposanteClientListe<string> {
       await f(qualité);
     };
     const oublierNoms = await this.suivreNomsVariable({
-      id,
+      idVariable,
       f: async (noms) => {
         rés.noms = noms;
         await fFinale();
@@ -745,7 +745,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
 
     const oublierDescr = await this.suivreDescrVariable({
-      id,
+      idVariable,
       f: async (descr) => {
         rés.descr = descr;
         await fFinale();
@@ -753,7 +753,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
 
     const oublierUnités = await this.suivreUnitésVariable({
-      id,
+      idVariable,
       f: async (unités) => {
         rés.unités = unités;
         await fFinale();
@@ -761,7 +761,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
 
     const oublierCatégorie = await this.suivreCatégorieVariable({
-      id,
+      idVariable,
       f: async (catégorie) => {
         rés.catégorie = catégorie;
         await fFinale();
@@ -769,7 +769,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
 
     const oublierRègles = await this.suivreRèglesVariable({
-      id,
+      idVariable,
       f: async (règles) => {
         rés.règles = règles;
         await fFinale();
@@ -819,18 +819,18 @@ export default class Variables extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async effacerVariable({ id }: { id: string }): Promise<void> {
+  async effacerVariable({ idVariable }: { idVariable: string }): Promise<void> {
     // Effacer l'entrée dans notre liste de variables
-    await this.enleverDeMesVariables({ id });
+    await this.enleverDeMesVariables({ idVariable });
 
     // Effacer la variable elle-même
     for (const clef in ["noms", "descriptions", "règles"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
-        racine: id,
+        racine: idVariable,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }
-    await this.client.effacerBd({ id });
+    await this.client.effacerBd({ id: idVariable });
   }
 }
