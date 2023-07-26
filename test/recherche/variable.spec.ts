@@ -51,8 +51,8 @@ describe("Rechercher variables", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-      await client.variables!.ajouterNomsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderNomsVariable({
+        idVariable,
         noms: {
           த: "சூரிய கதிர்வீச்சு",
         },
@@ -61,8 +61,8 @@ describe("Rechercher variables", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Résultat si la variable est presque exacte", async () => {
-      await client.variables!.ajouterNomsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderNomsVariable({
+        idVariable,
         noms: {
           es: "Radiación solar",
         },
@@ -83,8 +83,8 @@ describe("Rechercher variables", function () {
       });
     });
     it("Résultat si le mot-clef est exacte", async () => {
-      await client.variables!.ajouterNomsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderNomsVariable({
+        idVariable,
         noms: {
           fr: "Radiation solaire",
         },
@@ -127,8 +127,8 @@ describe("Rechercher variables", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
-      await client.variables!.ajouterDescriptionsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderDescriptionsVariable({
+        idVariable,
         descriptions: {
           த: "சூரிய கதிர்வீச்சு",
         },
@@ -136,8 +136,8 @@ describe("Rechercher variables", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Résultat si la variable est presque exacte", async () => {
-      await client.variables!.ajouterDescriptionsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderDescriptionsVariable({
+        idVariable,
         descriptions: {
           es: "Radiación solar",
         },
@@ -158,8 +158,8 @@ describe("Rechercher variables", function () {
       });
     });
     it("Résultat si la description est exacte", async () => {
-      await client.variables!.ajouterDescriptionsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderDescriptionsVariable({
+        idVariable,
         descriptions: {
           fr: "Radiation solaire",
         },
@@ -204,8 +204,8 @@ describe("Rechercher variables", function () {
         await fRechercheId(client, idVariable, (r) => (résultatId.mettreÀJour(r)))
       );
 
-      await client.variables!.ajouterNomsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderNomsVariable({
+        idVariable,
         noms: {
           fr: "précipitation",
         },

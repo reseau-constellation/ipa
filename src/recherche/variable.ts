@@ -20,11 +20,11 @@ export const rechercherVariableSelonNom = (
     idVariable: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (nomsVariable: { [key: string]: string }) => {
+    const fSuivre = async (nomsVariable: { [key: string]: string }) => {
       const résultat = similTexte(nom, nomsVariable);
       if (résultat) {
         const { score, clef, info } = résultat;
-        fSuivreRecherche({
+        return await fSuivreRecherche({
           type: "résultat",
           score,
           de: "nom",
@@ -32,11 +32,11 @@ export const rechercherVariableSelonNom = (
           info,
         });
       } else {
-        fSuivreRecherche();
+        return await fSuivreRecherche();
       }
     };
     const fOublier = await client.variables!.suivreNomsVariable({
-      id: idVariable,
+      idVariable,
       f: fSuivre,
     });
     return fOublier;
@@ -51,11 +51,11 @@ export const rechercherVariableSelonDescr = (
     idVariable: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (nomsVariable: { [key: string]: string }) => {
+    const fSuivre = async (nomsVariable: { [key: string]: string }) => {
       const résultat = similTexte(descr, nomsVariable);
       if (résultat) {
         const { score, clef, info } = résultat;
-        fSuivreRecherche({
+        return await fSuivreRecherche({
           type: "résultat",
           score,
           de: "descr",
@@ -63,11 +63,11 @@ export const rechercherVariableSelonDescr = (
           info,
         });
       } else {
-        fSuivreRecherche();
+        return await fSuivreRecherche();
       }
     };
     const fOublier = await client.variables!.suivreDescrVariable({
-      id: idVariable,
+      idVariable,
       f: fSuivre,
     });
     return fOublier;
