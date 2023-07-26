@@ -111,6 +111,7 @@ export const générerClients = async (
   // await clientsConnectés(...clients)
 
   const fOublier = async () => {
+    if (isBrowser) return;  // Mystère et boule de gomme !!
     await Promise.all(clients.map((client) => client.fermer()));
     await Promise.all(fsOublier.map((f) => f()));
   };
