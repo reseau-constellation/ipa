@@ -6,13 +6,18 @@ Les mots-clefs peuvent s'associer à une [base de données](./bds.md), à un [pr
 ## Général
 Actions générales pour gérer vos mot-clefs.
 
-### `client.motClefs.suivreMotsClefs({ f })`
+### `client.motsClefs.suivreMotsClefs({ f })`
 Recherche les mots-clefs appartenant au compte présent. Pour rechercher des mots-clefs d'autres utilisateurs sur le réseau Constellation, voir la section [réseau](./réseau.md).
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `f` | `(motsClefs: string[]) => void` | Cette fonction sera appelée avec la liste des identifiants des mot-clefs chaque fois que celle-ci est modifiée. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi |
 
 #### Exemple
 ```ts
@@ -26,7 +31,7 @@ await client.motsClefs.suivreMotsClefs({ f: x => motsClefs.value = x });
 
 ```
 
-### `client.motClefs.créerMotClef()`
+### `client.motsClefs.créerMotClef()`
 Crée un nouveau mot-clef.
 
 #### Retour
@@ -44,7 +49,7 @@ const idMotClef = await client.motsClefs.créerMotClef();
 ```
 
 
-### `client.motClefs.copierMotClef({ idMotClef })`
+### `client.motsClefs.copierMotClef({ idMotClef })`
 Crée une copie d'un mot-clef.
 
 #### Paramètres
@@ -67,8 +72,7 @@ const idCopie = await client.motsClefs.copierMotClef({ idMotClef });
 
 ```
 
-
-### `client.motClefs.inviterAuteur({ idMotClef, idCompteAuteur, rôle })`
+### `client.motsClefs.inviterAuteur({ idMotClef, idCompteAuteur, rôle })`
 Inviter une autre utilisatrice à modifier un mot-clef vous appartenant. Attention ! Une fois invitée, une personne ne peut pas être désinvitée.
 
 #### Paramètres
@@ -92,18 +96,13 @@ await client.motsClefs.inviterAuteur({
 
 ```
 
-### `client.motClefs.effacerMotClef({ idMotClef })`
+### `client.motsClefs.effacerMotClef({ idMotClef })`
 Effacer un mot-clef. Étant donné la structure distribuée de Constellation, cette action effacera le mot-clef de votre dispositif, mais ne pourra pas forcer les autres membres du réseau à l'effacer également.
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
-| `idMotClef` | `string` | L'identifiant du mot-clef à copier. |
-
-#### Retour
-| Type | Description |
-| ---- | ----------- |
-| `Promise<string>` | L'identifiant du nouveau mot-clef. |
+| `idMotClef` | `string` | L'identifiant du mot-clef à effacer. |
 
 #### Exemple
 ```ts
@@ -111,11 +110,11 @@ import { générerClient } from "@constl/ipa";
 const client = générerClient();
 
 const idMotClef = await client.motsClefs.créerMotClef();
-const idCopie = await client.motsClefs.copierMotClef({ idMotClef });
+await client.motsClefs.effacerMotClef({ idMotClef });
 
 ```
 
-### `client.motClefs.suivreQualitéMotClef({ idMotClef })`
+### `client.motsClefs.suivreQualitéMotClef({ idMotClef })`
 Suivre une mesure (subjective, de 0 à 1) de la qualité d'un mot-clef. 1 indique la meilleure qualité.
 
 #### Paramètres
@@ -151,7 +150,7 @@ const fOublierSuivi = await client.motsClefs.suivreQualitéMotClef({
 ## Noms
 Dans Constellation, chaque mot-clef est défini par un code identifiant et peut ensuite être nommé dans autant de langues que vous le souhaitez.
 
-### `client.motClefs.sauvegarderNomMotClef({ idMotClef, langue, nom })`
+### `client.motsClefs.sauvegarderNomMotClef({ idMotClef, langue, nom })`
 Sauvegarde le nom du mot-clef dans une langue donnée.
 
 #### Paramètres
@@ -259,7 +258,7 @@ await client.motsClefs.sauvegarderNomsMotClef({
 ## Descriptions
 Dans Constellation, chaque mot-clef peut aussi être accompagné d'une description plus informative.
 
-### `client.motClefs.sauvegarderDescriptionMotClef({ idMotClef, langue, nom })`
+### `client.motsClefs.sauvegarderDescriptionMotClef({ idMotClef, langue, nom })`
 Sauvegarde la description du mot-clef dans une langue donnée.
 
 #### Paramètres
@@ -291,7 +290,7 @@ Sauvegarde la description d'un mot-clef dans plusieurs langues en même temps.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idMotClef` | `string` | L'identifiant du mot-clef. |
-| `descriptions` | `{ [langue: string]: string }` | Les descriptions du mot-clef, indexés par langue. |
+| `descriptions` | `{ [langue: string]: string }` | Les descriptions du mot-clef, indexées par langue. |
 
 #### Exemple
 ```ts
@@ -330,13 +329,13 @@ await client.motsClefs.effacerDescriptionMotClef({ idMotClef, langue: "fr" });
 
 
 ### `client.motsClefs.suivreDescriptionsMotClef({ idMotClef, f })`
-Suit les descriptions (traduits en différentes langues) du mot-clef.
+Suit les descriptions (traduites en différentes langues) du mot-clef.
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idMotClef` | `string` | L'identifiant du mot-clef. |
-| `f` | `(noms: { [langue: string]: string }) => void` | Une fonction qui sera appelée avec les descriptions du mot-clef chaque fois qu'elles changent|
+| `f` | `(descriptions: { [langue: string]: string }) => void` | Une fonction qui sera appelée avec les descriptions du mot-clef chaque fois qu'elles changent|
 
 #### Retour
 | Type | Description |

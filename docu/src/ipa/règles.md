@@ -183,7 +183,7 @@ const idColonneNiveauDEau = await client.tableaux.ajouterColonneTableau({
 });
 
 // Le site doit être l'un des sites d'échantillonnage connus
-const règleFixe: règleValeurCatégorique = {
+const règleFixe: valid.règleValeurCatégorique = {
     typeRègle: "valeurCatégorique",
     détails: { 
         type: "fixe", 
@@ -234,7 +234,4 @@ await client.variables.ajouterRègleTableau({
     idColonne: idColonneSiteÉchantillon,
     règle: règleFixe 
 });
-```s
-
-
-
+```

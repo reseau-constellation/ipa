@@ -14,3 +14,5 @@
 
 ## Accès et permissions
 
+## Règles
+

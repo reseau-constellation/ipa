@@ -89,3 +89,6 @@ onUnmounted(async () => {
 </script>
 
 ```
+
+## Langues
+Constellation est un logiciel multilingue, et tout peut être traduit, y compris vos données, les noms des variables, et aussi votre profil d'utilisatrice. Constellation utilise les codes de langue [`nuchab'äl`](https://github.com/julienmalard/nuchabal/tree/master) pour identifier les langues.

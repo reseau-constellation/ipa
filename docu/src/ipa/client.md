@@ -1,3 +1,7 @@
 # Client
 
 [[toc]]
+
+## Identité
+
+## Dispositifs

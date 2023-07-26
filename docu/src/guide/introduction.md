@@ -17,7 +17,8 @@ Dans une système distribué, il n'y a pas de serveur qui contrôle les interact
 
 
 ## Comment ça se compare à ... ?
-| | Constellation | [Excel](https://fr.wikipedia.org/wiki/Microsoft_Excel) | [LibreOffice](https://fr.libreoffice.org/) | [Docs Google](https://www.google.com/intl/fr/drive/) | BD sur serveur ([MongoDB](https://www.mongodb.com/fr-fr), [SQL](https://sql.sh/)) |
+
+| Fonctionnalité | Constellation | [Excel](https://fr.wikipedia.org/wiki/Microsoft_Excel) | [LibreOffice](https://fr.libreoffice.org/) | [Docs Google](https://www.google.com/intl/fr/drive/) | BD sur serveur ([MongoDB](https://www.mongodb.com/fr-fr), [SQL](https://sql.sh/)) |
 | --- | :---: | :---: | :---: |:---: | :---: |
 | Collaboration simultanée | ✅ | ❌ | ❌ | ✅ | ✅ |
 | Fontionne hors ligne | ✅ | ✅ | ✅ | ❌ | ❌ |

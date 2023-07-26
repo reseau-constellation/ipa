@@ -53,7 +53,7 @@ Constellation.avecServeur() do port
         idBd = Constellation.action(client, "bds.créerBd", Dict([("licence", "ODbl-1_0")]))
 
         # Nous pouvons aussi appeler des fonctions de suivi
-        Constellation.action(client, "bds.ajouterNomsBd", Dict([("id", idBd), ("noms", Dict([("fr", "Météo"), ("த", "காலநிலை")]))]))
+        Constellation.action(client, "bds.sauvegarderNomsBd", Dict([("idBd", idBd), ("noms", Dict([("fr", "Météo"), ("த", "காலநிலை")]))]))
         
         dicNoms = Dict([])
         réponse = Constellation.suivre(client, "bds.suivreNomsBd", Dict([("id", idBd)])) do noms
@@ -117,8 +117,8 @@ Constellation.avecServeur() do port
         fChangerN = réponse["fChangerN"]
 
         # Détecter nouvelles variables
-        Constellation.action(client, "variables.ajouterNomsVariable", Dict([("id", variables[1]), ("noms", Dict([("fr", "Humidite")]))]))
-        Constellation.action(client, "variables.ajouterNomsVariable", Dict([("id", variables[2]), ("noms", Dict([("fr", "humidite")]))]))
+        Constellation.action(client, "variables.sauvegarderNomsVariable", Dict([("idVariable", variables[1]), ("noms", Dict([("fr", "Humidite")]))]))
+        Constellation.action(client, "variables.sauvegarderNomsVariable", Dict([("idVariable", variables[2]), ("noms", Dict([("fr", "humidite")]))]))
         
         print([r["id"] for r in résultatsRecherche] == [variables[2], variables[1]])
 
@@ -129,7 +129,7 @@ Constellation.avecServeur() do port
         print(résultatsRecherche[1]["id"] == variables[2])  # Le meilleur résultat devrait être retenu
 
         # Améliorer résultat recherche
-        Constellation.action(client, "variables.ajouterNomsVariable", Dict([("id", variables[3]), ("noms", Dict([("fr", "humidité")]))]))
+        Constellation.action(client, "variables.sauvegarderNomsVariable", Dict([("idVariable", variables[3]), ("noms", Dict([("fr", "humidité")]))]))
         print(résultatsRecherche[1]["id"])  # == variables[3]
 
         # Augmenter N
@@ -141,7 +141,7 @@ Constellation.avecServeur() do port
         fOublier()
 
         # Maintenant, les résultats ne sont plus réactifs
-        Constellation.action(client, "variables.ajouterNomsVariable", Dict([("id", variables[4]), ("noms", Dict([("fr", "humidité")]))]))
+        Constellation.action(client, "variables.sauvegarderNomsVariable", Dict([("idVariable", variables[4]), ("noms", Dict([("fr", "humidité")]))]))
         print(length(résultatsRecherche))  # Toujours égal à 3
 
     end

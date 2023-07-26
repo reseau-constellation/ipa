@@ -5,7 +5,7 @@ dans d'autres langages informatiques. Des clients sont disposibles dans les lang
 * [Python](./python.md) : Fonctionnel
 * [Julia](./julia.md) : Fonctionnel
 * [R](https://github.com/reseau-constellation/client-r) : En progrès.
-* Autres langages : Si vous développez un client Constellation dans un autre langage, [contactez-nous](julien.malard@mail.mcgill.ca) et nous l'annoncerons ici. 
+* Autres langages : Si vous développez un client Constellation dans un autre langage, [contactez-nous](mailto:julien.malard@mail.mcgill.ca) et nous l'annoncerons ici. 
 
 Tous ces clients fonctionnent en ouvrant un serveur WS Constellation local sur votre machine. Le client Python, Julia ou autre communiquera ensuite avec ce serveur local par messages WS et vous permettent d'utiliser Constellation dans le langage de votre choix.
 
