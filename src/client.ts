@@ -307,9 +307,10 @@ export class ClientConstellation extends EventEmitter {
       racine: this.bdCompte,
       type: "kvstore",
     });
+    if (!idBdProtocoles) throw new Error("Bd protocoles non détectée.")
     const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } =
       await this.ouvrirBd<{ [clef: string]: string[] }>({
-        id: idBdProtocoles!,
+        id: idBdProtocoles,
         type: "kvstore",
       });
     const idOrbite = await this.obtIdOrbite();
@@ -541,6 +542,18 @@ export class ClientConstellation extends EventEmitter {
     const codeSecret = this.encryption.clefAléatoire();
     this.motsDePasseRejoindreCompte[codeSecret] = Date.now();
     return { idCompte, codeSecret };
+  }
+
+  async révoquerInvitationRejoindreCompte({
+    codeSecret
+  }: {
+    codeSecret?: string
+  }): Promise<void> {
+    if (codeSecret) {
+      delete this.motsDePasseRejoindreCompte[codeSecret]
+    } else {
+      this.motsDePasseRejoindreCompte = {}
+    }
   }
 
   async considérerRequèteRejoindreCompte({
