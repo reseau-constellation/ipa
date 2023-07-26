@@ -59,7 +59,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer une variable", async () => {
-          await client.variables!.effacerVariable({ id: idVariable });
+          await client.variables!.effacerVariable({ idVariable });
           const val = await variables.attendreQue((x) => !x.length);
           expect(val).to.be.an.empty("array");
         });
@@ -90,13 +90,13 @@ typesClients.forEach((type) => {
         });
 
         it("Enlever de mes variables", async () => {
-          await client.variables!.enleverDeMesVariables({ id: idVariable });
+          await client.variables!.enleverDeMesVariables({ idVariable });
           const val = await mesVariables.attendreQue((x) => !x.length);
           expect(val).not.to.contain(idVariable);
         });
 
         it("Ajouter à mes variables", async () => {
-          await client.variables!.ajouterÀMesVariables({ id: idVariable });
+          await client.variables!.ajouterÀMesVariables({ idVariable });
           const val = await mesVariables.attendreQue((x) => !!x.length);
           expect(val).to.contain(idVariable);
         });
@@ -113,7 +113,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           fOublier = await client.variables!.suivreNomsVariable({
-            id: idVariable,
+            idVariable,
             f: (n) => noms.mettreÀJour(n),
           });
         });
@@ -130,7 +130,7 @@ typesClients.forEach((type) => {
 
         it("Ajouter un nom", async () => {
           await client.variables!.sauvegarderNomVariable({
-            id: idVariable,
+            idVariable,
             langue: "fr",
             nom: "Précipitation",
           });
@@ -139,8 +139,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.variables!.ajouterNomsVariable({
-            id: idVariable,
+          await client.variables!.sauvegarderNomsVariable({
+            idVariable,
             noms: {
               த: "மழை",
               हिं: "बारिश",
@@ -155,7 +155,7 @@ typesClients.forEach((type) => {
 
         it("Changer un nom", async () => {
           await client.variables!.sauvegarderNomVariable({
-            id: idVariable,
+            idVariable,
             langue: "fr",
             nom: "précipitation",
           });
@@ -165,7 +165,7 @@ typesClients.forEach((type) => {
 
         it("Effacer un nom", async () => {
           await client.variables!.effacerNomVariable({
-            id: idVariable,
+            idVariable,
             langue: "fr",
           });
           expect(noms.val).to.deep.equal({ த: "மழை", हिं: "बारिश" });
@@ -183,7 +183,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           fOublier = await client.variables!.suivreDescrVariable({
-            id: idVariable,
+            idVariable,
             f: (d) => (descrs = d),
           });
         });
@@ -197,8 +197,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter une description", async () => {
-          await client.variables!.sauvegarderDescrVariable({
-            id: idVariable,
+          await client.variables!.sauvegarderDescriptionVariable({
+            idVariable,
             langue: "fr",
             description: "la quantité de précipitation quotidienne",
           });
@@ -208,8 +208,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des descriptions", async () => {
-          await client.variables!.ajouterDescriptionsVariable({
-            id: idVariable,
+          await client.variables!.sauvegarderDescriptionsVariable({
+            idVariable,
             descriptions: {
               த: "தினசரி மழை",
               हिं: "दैनिक बारिश",
@@ -223,8 +223,8 @@ typesClients.forEach((type) => {
         });
 
         it("Changer une description", async () => {
-          await client.variables!.sauvegarderDescrVariable({
-            id: idVariable,
+          await client.variables!.sauvegarderDescriptionVariable({
+            idVariable,
             langue: "fr",
             description: "La quantité de précipitation quotidienne",
           });
@@ -234,8 +234,8 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer une description", async () => {
-          await client.variables!.effacerDescrVariable({
-            id: idVariable,
+          await client.variables!.effacerDescriptionVariable({
+            idVariable,
             langue: "fr",
           });
           expect(descrs).to.deep.equal({
@@ -255,7 +255,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           fOublier = await client.variables!.suivreCatégorieVariable({
-            id: idVariable,
+            idVariable,
             f: (c) => (catégorie = c),
           });
         });
@@ -286,7 +286,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           fOublier = await client.variables!.suivreUnitésVariable({
-            id: idVariable,
+            idVariable,
             f: (u) => unités.mettreÀJour(u),
           });
         });
@@ -322,7 +322,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           fOublier = await client.variables!.suivreRèglesVariable({
-            id: idVariable,
+            idVariable,
             f: (r) => (règles = r),
           });
         });
@@ -414,15 +414,15 @@ typesClients.forEach((type) => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          await client.variables!.ajouterNomsVariable({
-            id: idVariable,
+          await client.variables!.sauvegarderNomsVariable({
+            idVariable,
             noms: {
               த: "மழை",
               हिं: "बारिश",
             },
           });
-          await client.variables!.ajouterDescriptionsVariable({
-            id: idVariable,
+          await client.variables!.sauvegarderDescriptionsVariable({
+            idVariable,
             descriptions: {
               த: "தினசரி மழை",
               हिं: "दैनिक बारिश",
@@ -435,36 +435,36 @@ typesClients.forEach((type) => {
           });
 
           idVariable2 = await client.variables!.copierVariable({
-            id: idVariable,
+            idVariable,
           });
 
           fsOublier.push(
             await client.variables!.suivreNomsVariable({
-              id: idVariable2,
+              idVariable: idVariable2,
               f: (x) => (noms = x),
             })
           );
           fsOublier.push(
             await client.variables!.suivreDescrVariable({
-              id: idVariable2,
+              idVariable: idVariable2,
               f: (x) => (descrs = x),
             })
           );
           fsOublier.push(
             await client.variables!.suivreRèglesVariable({
-              id: idVariable2,
+              idVariable: idVariable2,
               f: (r) => (règles = r),
             })
           );
           fsOublier.push(
             await client.variables!.suivreCatégorieVariable({
-              id: idVariable2,
+              idVariable: idVariable2,
               f: (c) => (catégorie = c),
             })
           );
           fsOublier.push(
             await client.variables!.suivreUnitésVariable({
-              id: idVariable2,
+              idVariable: idVariable2,
               f: (u) => (unités = u),
             })
           );

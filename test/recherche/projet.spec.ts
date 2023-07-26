@@ -307,8 +307,8 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout nom variable détecté", async () => {
-      await client.variables!.ajouterNomsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderNomsVariable({
+        idVariable,
         noms: {
           fr: "Précipitation mensuelle",
         },
@@ -515,8 +515,8 @@ describe("Rechercher projets", function () {
         idTableau,
         idVariable,
       });
-      await client.variables!.ajouterNomsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderNomsVariable({
+        idVariable,
         noms: {
           fr: "Température maximale",
         },
@@ -782,8 +782,8 @@ describe("Rechercher projets", function () {
         idTableau,
         idVariable,
       });
-      await client.variables!.ajouterNomsVariable({
-        id: idVariable,
+      await client.variables!.sauvegarderNomsVariable({
+        idVariable,
         noms: {
           fr: "Température maximale",
         },

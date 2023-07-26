@@ -553,8 +553,8 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await clients[1].variables!.ajouterNomsVariable({
-                id: idVariable,
+              await clients[1].variables!.sauvegarderNomsVariable({
+                idVariable,
                 noms: {
                   fr: "précipitation",
                 },
@@ -610,8 +610,8 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await clients[1].variables!.ajouterDescriptionsVariable({
-                id: idVariable,
+              await clients[1].variables!.sauvegarderDescriptionsVariable({
+                idVariable,
                 descriptions: {
                   fr: "précipitation",
                 },
@@ -825,8 +825,8 @@ typesClients.forEach((type) => {
                 idTableau,
                 idVariable,
               });
-              await clients[1].variables!.ajouterNomsVariable({
-                id: idVariable,
+              await clients[1].variables!.sauvegarderNomsVariable({
+                idVariable,
                 noms: {
                   fr: "Précipitation",
                 },
@@ -1145,8 +1145,8 @@ typesClients.forEach((type) => {
                 idTableau,
                 idVariable,
               });
-              await clients[1].variables!.ajouterNomsVariable({
-                id: idVariable,
+              await clients[1].variables!.sauvegarderNomsVariable({
+                idVariable,
                 noms: {
                   fr: "Précipitation",
                 },
@@ -1473,8 +1473,8 @@ typesClients.forEach((type) => {
                 idTableau,
                 idVariable,
               });
-              await clients[1].variables!.ajouterNomsVariable({
-                id: idVariable,
+              await clients[1].variables!.sauvegarderNomsVariable({
+                idVariable,
                 noms: {
                   fr: "Précipitation",
                 },

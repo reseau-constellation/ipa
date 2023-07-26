@@ -1,6 +1,3 @@
-import fs from "fs";
-import path from "path";
-
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts.js";
 import type { default as ClientConstellation } from "@/client.js";
 import {
@@ -610,7 +607,7 @@ typesClients.forEach((type) => {
             });
 
             it("Enlever variable détecté", async () => {
-              await clients[0].variables!.effacerVariable({ id: idVariable });
+              await clients[0].variables!.effacerVariable({ idVariable });
               const valPropres = await relationsPropres.attendreExiste();
               expect(valPropres.length).to.equal(0);
 
@@ -1530,7 +1527,7 @@ typesClients.forEach((type) => {
             ];
 
             await clients[1].variables!.ajouterÀMesVariables({
-              id: idVariable,
+              idVariable,
             });
             const val = await résVariable.attendreQue(
               (x) => !!x?.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
@@ -1553,7 +1550,7 @@ typesClients.forEach((type) => {
             ];
 
             await clients[1].variables!.enleverDeMesVariables({
-              id: idVariable,
+              idVariable,
             });
             const val = await résVariable.attendreQue(
               (x) =>

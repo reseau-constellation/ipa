@@ -1680,16 +1680,16 @@ typesClients.forEach((type) => {
             },
           });
 
-          await client.variables!.ajouterNomsVariable({
-            id: idVarNumérique,
+          await client.variables!.sauvegarderNomsVariable({
+            idVariable: idVarNumérique,
             noms: {
               fr: "Numérique",
               हिं: "यह है संख्या",
             },
           });
 
-          await client.variables!.ajouterNomsVariable({
-            id: idVarChaîne,
+          await client.variables!.sauvegarderNomsVariable({
+            idVariable: idVarChaîne,
             noms: {
               fr: "Numérique",
               த: "இது உரை ஆகும்",
