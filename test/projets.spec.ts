@@ -1,6 +1,6 @@
 import type XLSX from "xlsx";
-import fs from "fs";
-import path from "path";
+import JSZip from "jszip";
+import { isElectronMain, isNode } from "wherearewe";
 
 import type { default as ClientConstellation } from "@/client.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
@@ -14,7 +14,6 @@ import {
 import { obtRessourceTest } from "./ressources/index.js";
 
 import { expect } from "aegir/chai";
-import JSZip from "jszip";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -512,54 +511,61 @@ typesClients.forEach((type) => {
           expect([...fichiersSFIP]).to.have.deep.members([{ cid, ext: "svg" }]);
         });
 
-        describe("Exporter document projet", function () {
-          let dossierBase: string;
-          let dossierZip: string;
-          let fEffacer: () => void;
+        if (isElectronMain || isNode) {
+          describe("Exporter document projet", function () {
 
-          let nomZip: string;
-          let zip: JSZip;
+            let dossierBase: string;
+            let dossierZip: string;
+            let fEffacer: () => void;
+  
+            let nomZip: string;
+            let zip: JSZip;
+  
+            before(async () => {
+              const path = await import("path");
 
-          before(async () => {
-            ({ dossier: dossierBase, fEffacer } = await dossierTempoTests());
-            dossierZip = await obtDirTempoPourTest({
-              base: dossierBase,
-              nom: "testExporterProjet",
+              ({ dossier: dossierBase, fEffacer } = await dossierTempoTests());
+              dossierZip = await obtDirTempoPourTest({
+                base: dossierBase,
+                nom: "testExporterProjet",
+              });
+  
+              await client.projets!.exporterDocumentDonnées({
+                données: { docs, fichiersSFIP, nomFichier },
+                formatDoc: "ods",
+                dossier: dossierZip,
+                inclureFichiersSFIP: true,
+              });
+              nomZip = path.join(dossierZip, nomFichier + ".zip");
             });
-
-            await client.projets!.exporterDocumentDonnées({
-              données: { docs, fichiersSFIP, nomFichier },
-              formatDoc: "ods",
-              dossier: dossierZip,
-              inclureFichiersSFIP: true,
+  
+            after(() => {
+              if (fEffacer) fEffacer();
             });
-            nomZip = path.join(dossierZip, nomFichier + ".zip");
+  
+            it("Le fichier zip existe", async () => {
+              const fs = await import("fs");
+              expect(fs.existsSync(nomZip)).to.be.true();
+              zip = await JSZip.loadAsync(fs.readFileSync(nomZip));
+            });
+  
+            it("Les données sont exportées", async () => {
+              const contenu = zip.files["Ma BD.ods"];
+              expect(contenu).to.exist();
+            });
+  
+            it("Le dossier pour les données SFIP existe", () => {
+              const contenu = zip.files["sfip/"];
+              expect(contenu?.dir).to.be.true();
+            });
+  
+            it("Les fichiers SFIP existent", async () => {
+              const path = await import("path");
+              const contenu = zip.files[path.join("sfip", cid + ".svg")];
+              expect(contenu).to.exist();
+            });
           });
-
-          after(() => {
-            if (fEffacer) fEffacer();
-          });
-
-          it("Le fichier zip existe", async () => {
-            expect(fs.existsSync(nomZip)).to.be.true();
-            zip = await JSZip.loadAsync(fs.readFileSync(nomZip));
-          });
-
-          it("Les données sont exportées", async () => {
-            const contenu = zip.files["Ma BD.ods"];
-            expect(contenu).to.exist();
-          });
-
-          it("Le dossier pour les données SFIP existe", () => {
-            const contenu = zip.files["sfip/"];
-            expect(contenu?.dir).to.be.true();
-          });
-
-          it("Les fichiers SFIP existent", () => {
-            const contenu = zip.files[path.join("sfip", cid + ".svg")];
-            expect(contenu).to.exist();
-          });
-        });
+        }
       });
     });
   });
