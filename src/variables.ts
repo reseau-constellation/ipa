@@ -278,16 +278,16 @@ export default class Variables extends ComposanteClientListe<string> {
 
   async inviterAuteur({
     idVariable,
-    idBdCompteAuteur,
+    idCompteAuteur,
     rôle,
   }: {
     idVariable: string;
-    idBdCompteAuteur: string;
+    idCompteAuteur: string;
     rôle: keyof objRôles;
   }): Promise<void> {
     await this.client.donnerAccès({
       idBd: idVariable,
-      identité: idBdCompteAuteur,
+      identité: idCompteAuteur,
       rôle,
     });
   }

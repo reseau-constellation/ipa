@@ -57,8 +57,8 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.bds!.ajouterNomsBd({
-        id: idBd,
+      await client.bds!.sauvegarderNomsBd({
+        idBd,
         noms: {
           fr: "Météorologie",
         },
@@ -101,8 +101,8 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout description détecté", async () => {
-      await client.bds!.ajouterDescriptionsBd({
-        id: idBd,
+      await client.bds!.sauvegarderDescriptionsBd({
+        idBd,
         descriptions: {
           fr: "Météo historique pour la région de Montréal",
         },
@@ -397,8 +397,8 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.bds!.ajouterNomsBd({
-        id: idBd,
+      await client.bds!.sauvegarderNomsBd({
+        idBd,
         noms: { fr: "Hydrologie" },
       });
       const val = await résultatNom.attendreExiste();
@@ -417,8 +417,8 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.bds!.ajouterDescriptionsBd({
-        id: idBd,
+      await client.bds!.sauvegarderDescriptionsBd({
+        idBd,
         descriptions: {
           fr: "Hydrologie de Montréal",
         },

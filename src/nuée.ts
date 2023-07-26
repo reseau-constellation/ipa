@@ -707,16 +707,16 @@ export default class Nuée extends ComposanteClientListe<string> {
 
   async inviterAuteur({
     idNuée,
-    idBdCompteAuteur,
+    idCompteAuteur,
     rôle,
   }: {
     idNuée: string;
-    idBdCompteAuteur: string;
+    idCompteAuteur: string;
     rôle: keyof objRôles;
   }): Promise<void> {
     await this.client.donnerAccès({
       idBd: idNuée,
-      identité: idBdCompteAuteur,
+      identité: idCompteAuteur,
       rôle,
     });
   }
@@ -1198,16 +1198,26 @@ export default class Nuée extends ComposanteClientListe<string> {
     idTableau,
     idVariable,
     idColonne,
+    index,
   }: {
     idTableau: string;
     idVariable: string;
     idColonne?: string;
+    index?: boolean;
   }): Promise<string> {
-    return await this.client.tableaux!.ajouterColonneTableau({
+    const idColonneFinale = await this.client.tableaux!.ajouterColonneTableau({
       idTableau,
       idVariable,
       idColonne,
     });
+    if (index) {
+      await this.changerColIndexTableauNuée({
+        idTableau,
+        idColonne: idColonneFinale,
+        val: true,
+      })
+    }
+    return idColonneFinale;
   }
 
   async effacerColonneTableauNuée({
@@ -1597,7 +1607,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     };
 
     const fOublierTableauxBd = await this.client.bds!.suivreTableauxBd({
-      id: idBd,
+      idBd,
       f: (tableaux) => {
         info.tableauxBd = tableaux;
         fFinale();
@@ -1689,7 +1699,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             fSuivreRacine: (idsTableaux: infoTableauAvecId[]) => Promise<void>
           ): Promise<schémaFonctionOublier> => {
             return await this.client.bds!.suivreTableauxBd({
-              id: idBd,
+              idBd,
               f: fSuivreRacine,
             });
           },
@@ -2056,7 +2066,7 @@ export default class Nuée extends ComposanteClientListe<string> {
 
         if (licencesPermises) {
           const fOublierLicence = await this.client.bds!.suivreLicence({
-            id: idBd,
+            idBd,
             f: async (licence) => {
               conformes.licence = licencesPermises.includes(licence);
               return await fFinaleBdConforme();
@@ -2356,7 +2366,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       async (
         fSuivi: schémaFonctionSuivi<{ [key: string]: string }>
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreNomsBd({ id: idBd, f: fSuivi });
+        return await this.client.bds!.suivreNomsBd({ idBd, f: fSuivi });
       }
     );
     await this.ajouterNomsNuée({
@@ -2369,7 +2379,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       async (
         fSuivi: schémaFonctionSuivi<{ [key: string]: string }>
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreDescrBd({ id: idBd, f: fSuivi });
+        return await this.client.bds!.suivreDescriptionsBd({ idBd, f: fSuivi });
       }
     );
     await this.ajouterDescriptionsNuée({
@@ -2383,7 +2393,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         fSuivi: schémaFonctionSuivi<string[]>
       ): Promise<schémaFonctionOublier> => {
         return await this.client.bds!.suivreMotsClefsBd({
-          id: idBd,
+          idBd,
           f: fSuivi,
         });
       }
@@ -2398,7 +2408,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       async (
         fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreTableauxBd({ id: idBd, f: fSuivi });
+        return await this.client.bds!.suivreTableauxBd({ idBd, f: fSuivi });
       }
     );
 
@@ -2426,6 +2436,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           idTableau: idTableauNuée,
           idVariable: col.variable,
           idColonne: col.id,
+          index: col.index,
         });
 
         // Indexes

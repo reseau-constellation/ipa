@@ -588,7 +588,7 @@ typesClients.forEach((type) => {
               });
               await clients[0].variables!.inviterAuteur({
                 idVariable,
-                idBdCompteAuteur: idsBdCompte[1],
+                idCompteAuteur: idsBdCompte[1],
                 rôle: MEMBRE,
               });
 
@@ -619,7 +619,7 @@ typesClients.forEach((type) => {
               idBd = await clients[0].bds!.créerBd({ licence: "ODbl-1_0" });
               await clients[0].bds!.inviterAuteur({
                 idBd,
-                idBdCompteAuteur: idsBdCompte[1],
+                idCompteAuteur: idsBdCompte[1],
                 rôle: MEMBRE,
               });
 
@@ -638,7 +638,7 @@ typesClients.forEach((type) => {
             });
 
             it("Enlever bd détecté", async () => {
-              await clients[0].bds!.effacerBd({ id: idBd });
+              await clients[0].bds!.effacerBd({ idBd });
               const valPropres = await relationsPropres.attendreExiste();
               expect(valPropres.length).to.equal(0);
 
@@ -652,7 +652,7 @@ typesClients.forEach((type) => {
               idProjet = await clients[0].projets!.créerProjet();
               await clients[0].projets!.inviterAuteur({
                 idProjet,
-                idBdCompteAuteur: idsBdCompte[1],
+                idCompteAuteur: idsBdCompte[1],
                 rôle: MEMBRE,
               });
 
@@ -1503,7 +1503,7 @@ typesClients.forEach((type) => {
             ];
             await clients[0].variables!.inviterAuteur({
               idVariable,
-              idBdCompteAuteur: idsBdCompte[1],
+              idCompteAuteur: idsBdCompte[1],
               rôle: MEMBRE,
             });
 
@@ -1562,7 +1562,7 @@ typesClients.forEach((type) => {
           it("Variables : Promotion à modérateur", async () => {
             await clients[0].variables!.inviterAuteur({
               idVariable,
-              idBdCompteAuteur: idsBdCompte[1],
+              idCompteAuteur: idsBdCompte[1],
               rôle: MODÉRATEUR,
             });
 
@@ -1589,7 +1589,7 @@ typesClients.forEach((type) => {
             ];
             await clients[0].bds!.inviterAuteur({
               idBd,
-              idBdCompteAuteur: idsBdCompte[1],
+              idCompteAuteur: idsBdCompte[1],
               rôle: MEMBRE,
             });
 
@@ -1610,7 +1610,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await clients[1].bds!.ajouterÀMesBds({ id: idBd });
+            await clients[1].bds!.ajouterÀMesBds({ idBd });
             const val = await résBds.attendreQue((x) =>
               Boolean(
                 !!x && x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
@@ -1633,7 +1633,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await clients[1].bds!.enleverDeMesBds({ id: idBd });
+            await clients[1].bds!.enleverDeMesBds({ idBd });
             const val = await résBds.attendreQue(
               (x) =>
                 !!x && !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
@@ -1644,7 +1644,7 @@ typesClients.forEach((type) => {
           it("Bds : Promotion à modérateur", async () => {
             await clients[0].bds!.inviterAuteur({
               idBd,
-              idBdCompteAuteur: idsBdCompte[1],
+              idCompteAuteur: idsBdCompte[1],
               rôle: MODÉRATEUR,
             });
 
@@ -1671,7 +1671,7 @@ typesClients.forEach((type) => {
             ];
             await clients[0].projets!.inviterAuteur({
               idProjet,
-              idBdCompteAuteur: idsBdCompte[1],
+              idCompteAuteur: idsBdCompte[1],
               rôle: MEMBRE,
             });
 
@@ -1726,7 +1726,7 @@ typesClients.forEach((type) => {
           it("Projets : Promotion à modérateur", async () => {
             await clients[0].projets!.inviterAuteur({
               idProjet,
-              idBdCompteAuteur: idsBdCompte[1],
+              idCompteAuteur: idsBdCompte[1],
               rôle: MODÉRATEUR,
             });
 
@@ -2350,7 +2350,7 @@ typesClients.forEach((type) => {
                   fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
                 ): Promise<schémaFonctionOublier> => {
                   return await clients[0].bds!.suivreTableauxBd({
-                    id: idBd1,
+                    idBd: idBd1,
                     f: fSuivi,
                   });
                 }
@@ -2363,7 +2363,7 @@ typesClients.forEach((type) => {
                   fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
                 ): Promise<schémaFonctionOublier> => {
                   return await clients[1].bds!.suivreTableauxBd({
-                    id: idBd2,
+                    idBd: idBd2,
                     f: fSuivi,
                   });
                 }

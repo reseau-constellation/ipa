@@ -98,7 +98,7 @@ typesClients.forEach((type) => {
           expect(val).to.be.an("array").with.length(1).and.contain(idBd);
         });
         it("On peut l'ajouter ensuite à mes bds", async () => {
-          await client.bds!.ajouterÀMesBds({ id: idNouvelleBd });
+          await client.bds!.ajouterÀMesBds({ idBd: idNouvelleBd });
           const val = await bds.attendreQue((x) => x.length > 1);
           expect(val)
             .to.be.an("array")
@@ -106,7 +106,7 @@ typesClients.forEach((type) => {
             .to.have.members([idNouvelleBd, idBd]);
         });
         it("On peut aussi l'effacer", async () => {
-          await client.bds!.effacerBd({ id: idNouvelleBd });
+          await client.bds!.effacerBd({ idBd: idNouvelleBd });
           const val = await bds.attendreQue((x) => x.length < 2);
           expect(val).to.be.an("array").with.length(1).and.contain(idBd);
         });
@@ -118,7 +118,7 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fOublier = await client.bds!.suivreNomsBd({
-            id: idBd,
+            idBd,
             f: (n) => (noms = n),
           });
         });
@@ -133,7 +133,7 @@ typesClients.forEach((type) => {
 
         it("Ajouter un nom", async () => {
           await client.bds!.sauvegarderNomBd({
-            id: idBd,
+            idBd,
             langue: "fr",
             nom: "Alphabets",
           });
@@ -141,8 +141,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.bds!.ajouterNomsBd({
-            id: idBd,
+          await client.bds!.sauvegarderNomsBd({
+            idBd,
             noms: {
               த: "எழுத்துகள்",
               हिं: "वर्णमाला",
@@ -157,7 +157,7 @@ typesClients.forEach((type) => {
 
         it("Changer un nom", async () => {
           await client.bds!.sauvegarderNomBd({
-            id: idBd,
+            idBd,
             langue: "fr",
             nom: "Systèmes d'écriture",
           });
@@ -165,7 +165,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer un nom", async () => {
-          await client.bds!.effacerNomBd({ id: idBd, langue: "fr" });
+          await client.bds!.effacerNomBd({ idBd, langue: "fr" });
           expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
       });
@@ -175,8 +175,8 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
 
         before(async () => {
-          fOublier = await client.bds!.suivreDescrBd({
-            id: idBd,
+          fOublier = await client.bds!.suivreDescriptionsBd({
+            idBd,
             f: (d) => (descrs = d),
           });
         });
@@ -190,8 +190,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter une description", async () => {
-          await client.bds!.sauvegarderDescrBd({
-            id: idBd,
+          await client.bds!.sauvegarderDescriptionBd({
+            idBd,
             langue: "fr",
             descr: "Alphabets",
           });
@@ -199,8 +199,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des descriptions", async () => {
-          await client.bds!.ajouterDescriptionsBd({
-            id: idBd,
+          await client.bds!.sauvegarderDescriptionsBd({
+            idBd,
             descriptions: {
               த: "எழுத்துகள்",
               हिं: "वर्णमाला",
@@ -214,8 +214,8 @@ typesClients.forEach((type) => {
         });
 
         it("Changer une description", async () => {
-          await client.bds!.sauvegarderDescrBd({
-            id: idBd,
+          await client.bds!.sauvegarderDescriptionBd({
+            idBd,
             langue: "fr",
             descr: "Systèmes d'écriture",
           });
@@ -223,7 +223,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer une description", async () => {
-          await client.bds!.effacerDescrBd({ id: idBd, langue: "fr" });
+          await client.bds!.effacerDescriptionBd({ idBd, langue: "fr" });
           expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
       });
@@ -235,7 +235,7 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fOublier = await client.bds!.suivreMotsClefsBd({
-            id: idBd,
+            idBd,
             f: (m) => (motsClefs = m),
           });
         });
@@ -271,7 +271,7 @@ typesClients.forEach((type) => {
         before(async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
           fOublier = await client.bds!.suivreLicence({
-            id: idBd,
+            idBd,
             f: (l) => (licence = l),
           });
         });
@@ -304,7 +304,7 @@ typesClients.forEach((type) => {
         before(async () => {
           fsOublier.push(
             await client.bds!.suivreTableauxBd({
-              id: idBd,
+              idBd,
               f: (t) => (tableaux = t),
             })
           );
@@ -347,7 +347,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer un tableau", async () => {
-          await client.bds!.effacerTableauBd({ id: idBd, idTableau });
+          await client.bds!.effacerTableauBd({ idBd, idTableau });
           expect(Array.isArray(tableaux)).to.be.true();
           expect(tableaux.length).to.equal(0);
         });
@@ -362,7 +362,7 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fOublier = await client.bds!.suivreVariablesBd({
-            id: idBd,
+            idBd,
             f: (v) => (variables = v),
           });
         });
@@ -429,9 +429,9 @@ typesClients.forEach((type) => {
         before(async () => {
           idBdOrig = await client.bds!.créerBd({ licence: réfLicence });
 
-          await client.bds!.ajouterNomsBd({ id: idBdOrig, noms: réfNoms });
-          await client.bds!.ajouterDescriptionsBd({
-            id: idBdOrig,
+          await client.bds!.sauvegarderNomsBd({ idBd: idBdOrig, noms: réfNoms });
+          await client.bds!.sauvegarderDescriptionsBd({
+            idBd: idBdOrig,
             descriptions: réfDescrs,
           });
 
@@ -451,41 +451,41 @@ typesClients.forEach((type) => {
             idVariable,
           });
 
-          idBdCopie = await client.bds!.copierBd({ id: idBdOrig });
+          idBdCopie = await client.bds!.copierBd({ idBd: idBdOrig });
 
           fsOublier.push(
             await client.bds!.suivreNomsBd({
-              id: idBdCopie,
+              idBd: idBdCopie,
               f: (x) => (noms = x),
             })
           );
           fsOublier.push(
-            await client.bds!.suivreDescrBd({
-              id: idBdCopie,
+            await client.bds!.suivreDescriptionsBd({
+              idBd: idBdCopie,
               f: (x) => (descrs = x),
             })
           );
           fsOublier.push(
             await client.bds!.suivreLicence({
-              id: idBdCopie,
+              idBd: idBdCopie,
               f: (x) => (licence = x),
             })
           );
           fsOublier.push(
             await client.bds!.suivreMotsClefsBd({
-              id: idBdCopie,
+              idBd: idBdCopie,
               f: (x) => (motsClefs = x),
             })
           );
           fsOublier.push(
             await client.bds!.suivreVariablesBd({
-              id: idBdCopie,
+              idBd: idBdCopie,
               f: (x) => (variables = x),
             })
           );
           fsOublier.push(
             await client.bds!.suivreTableauxBd({
-              id: idBdCopie,
+              idBd: idBdCopie,
               f: (x) => (tableaux = x),
             })
           );
@@ -567,7 +567,7 @@ typesClients.forEach((type) => {
                 fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
               ): Promise<schémaFonctionOublier> => {
                 return await client.bds!.suivreTableauxBd({
-                  id: idBd1,
+                  idBd: idBd1,
                   f: fSuivi,
                 });
               }
@@ -579,7 +579,7 @@ typesClients.forEach((type) => {
                 fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
               ): Promise<schémaFonctionOublier> => {
                 return await client.bds!.suivreTableauxBd({
-                  id: idBd2,
+                  idBd: idBd2,
                   f: fSuivi,
                 });
               }
@@ -718,7 +718,7 @@ typesClients.forEach((type) => {
           idBd = await client.bds!.créerBdDeSchéma({ schéma });
           fsOublier.push(
             await client.bds!.suivreTableauxBd({
-              id: idBd,
+              idBd,
               f: (t) => (tableaux = t),
             })
           );
@@ -765,7 +765,7 @@ typesClients.forEach((type) => {
               fSuivi: schémaFonctionSuivi<string[]>
             ): Promise<schémaFonctionOublier> => {
               return await client.bds!.suivreMotsClefsBd({
-                id: idBd,
+                idBd,
                 f: fSuivi,
               });
             }
@@ -992,8 +992,8 @@ typesClients.forEach((type) => {
             catégorie: "chaîneNonTraductible",
           });
 
-          fOublier = await client.bds!.suivreScoreBd({
-            id: idBd,
+          fOublier = await client.bds!.suivreQualitéBd({
+            idBd,
             f: (s) => (score = s),
           });
         });
@@ -1153,7 +1153,7 @@ typesClients.forEach((type) => {
           });
 
           ({ doc, fichiersSFIP, nomFichier } =
-            await client.bds!.exporterDonnées({ id: idBd, langues: ["fr"] }));
+            await client.bds!.exporterDonnées({ idBd, langues: ["fr"] }));
         });
 
         it("Doc créé avec tous les tableaux", () => {

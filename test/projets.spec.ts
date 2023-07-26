@@ -438,8 +438,8 @@ typesClients.forEach((type) => {
         before(async () => {
           idProjet = await client.projets!.créerProjet();
           const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          await client.bds!.ajouterNomsBd({
-            id: idBd,
+          await client.bds!.sauvegarderNomsBd({
+            idBd,
             noms: { fr: "Ma BD" },
           });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });

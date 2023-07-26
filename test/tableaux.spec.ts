@@ -698,7 +698,7 @@ typesClients.forEach((type) => {
             détails: {
               type: "dynamiqueColonne",
               val: idColonneTempMax,
-              op: "<=",
+              op: "≤",
             },
           };
 

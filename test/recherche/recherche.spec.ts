@@ -738,8 +738,8 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].bds!.ajouterNomsBd({
-                id: idBd,
+              await clients[1].bds!.sauvegarderNomsBd({
+                idBd,
                 noms: { fr: "météorologie" },
               });
               const val = await rés.attendreQue((x) => x.length > 0);
@@ -783,8 +783,8 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].bds!.ajouterDescriptionsBd({
-                id: idBd,
+              await clients[1].bds!.sauvegarderDescriptionsBd({
+                idBd,
                 descriptions: {
                   fr: "Météorologie de la région de Montpellier.",
                 },
@@ -951,8 +951,8 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].bds!.ajouterNomsBd({
-                id: idBd,
+              await clients[1].bds!.sauvegarderNomsBd({
+                idBd,
                 noms: {
                   fr: "Météorologie de la région de Montpellier.",
                 },
@@ -1621,8 +1621,8 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].bds!.ajouterNomsBd({
-                id: idBd,
+              await clients[1].bds!.sauvegarderNomsBd({
+                idBd,
                 noms: { es: "Mi base de datos meteorológicos" },
               });
 

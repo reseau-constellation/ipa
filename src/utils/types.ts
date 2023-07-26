@@ -12,7 +12,7 @@ export type élémentsBd =
   | number
   | boolean
   | string
-  | { [key: string]: élémentsBd }
+  | { [clef: string]: élémentsBd }
   | Array<élémentsBd>;
 
 export enum TYPES_STATUT {

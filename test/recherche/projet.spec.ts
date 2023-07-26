@@ -446,8 +446,8 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.bds!.ajouterNomsBd({
-        id: idBd,
+      await client.bds!.sauvegarderNomsBd({
+        idBd,
         noms: { fr: "Hydrologie" },
       });
 
@@ -476,8 +476,8 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.bds!.ajouterDescriptionsBd({
-        id: idBd,
+      await client.bds!.sauvegarderDescriptionsBd({
+        idBd,
         descriptions: {
           fr: "Hydrologie de Montréal",
         },

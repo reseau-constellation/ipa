@@ -2025,8 +2025,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       const fFinaleSuivreQualité = async (score: infoScore) => {
         return await fSuivreQualité(score.total);
       };
-      return await this.client.bds!.suivreScoreBd({
-        id,
+      return await this.client.bds!.suivreQualitéBd({
+        idBd: id,
         f: fFinaleSuivreQualité,
       });
     };

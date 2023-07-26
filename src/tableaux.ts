@@ -28,7 +28,6 @@ import {
   détailsRègleBornesDynamiqueVariable,
   générerFonctionRègle,
   schémaFonctionValidation,
-  élémentDonnées,
   erreurRègleBornesColonneInexistante,
   erreurRègleBornesVariableNonPrésente,
   erreurRègleCatégoriqueColonneInexistante,
@@ -46,6 +45,13 @@ import { cholqij } from "@/dates.js";
 
 import { isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
+
+export interface élémentDonnées<
+  T extends élémentBdListeDonnées = élémentBdListeDonnées
+> {
+  données: T;
+  empreinte: string;
+}
 
 export type élémentBdListeDonnées = {
   [key: string]: élémentsBd;

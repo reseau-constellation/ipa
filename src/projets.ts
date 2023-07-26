@@ -274,16 +274,16 @@ export default class Projets extends ComposanteClientListe<string> {
 
   async inviterAuteur({
     idProjet,
-    idBdCompteAuteur,
+    idCompteAuteur,
     rôle,
   }: {
     idProjet: string;
-    idBdCompteAuteur: string;
+    idCompteAuteur: string;
     rôle: keyof objRôles;
   }): Promise<void> {
     await this.client.donnerAccès({
       idBd: idProjet,
-      identité: idBdCompteAuteur,
+      identité: idCompteAuteur,
       rôle,
     });
   }
@@ -690,7 +690,7 @@ export default class Projets extends ComposanteClientListe<string> {
       idBd: string,
       fSuivi: schémaFonctionSuivi<string[]>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds!.suivreMotsClefsBd({ id: idBd, f: fSuivi });
+      return await this.client.bds!.suivreMotsClefsBd({ idBd, f: fSuivi });
     };
     const fOublierMotsClefsBds = await this.client.suivreBdsDeFonctionListe({
       fListe,
@@ -735,7 +735,7 @@ export default class Projets extends ComposanteClientListe<string> {
       idBd: string,
       f: schémaFonctionSuivi<string[]>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds!.suivreVariablesBd({ id: idBd, f });
+      return await this.client.bds!.suivreVariablesBd({ idBd, f });
     };
     const fSuivreBds = async ({
       id,
@@ -782,8 +782,8 @@ export default class Projets extends ComposanteClientListe<string> {
       idBd: string,
       fSuiviBranche: schémaFonctionSuivi<number>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds!.suivreScoreBd({
-        id: idBd,
+      return await this.client.bds!.suivreQualitéBd({
+        idBd,
         f: (score) => fSuiviBranche(score.total),
       });
     };
@@ -826,7 +826,7 @@ export default class Projets extends ComposanteClientListe<string> {
     );
     for (const idBd of idsBds) {
       const { doc, fichiersSFIP } = await this.client.bds!.exporterDonnées({
-        id: idBd,
+        idBd,
         langues,
       });
 
@@ -835,7 +835,7 @@ export default class Projets extends ComposanteClientListe<string> {
       if (langues) {
         const noms = await uneFois(
           (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-            this.client.bds!.suivreNomsBd({ id: idBd, f })
+            this.client.bds!.suivreNomsBd({ idBd, f })
         );
 
         nom = traduire(noms, langues) || idCourtBd;

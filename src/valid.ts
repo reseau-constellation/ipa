@@ -5,7 +5,7 @@ import type {
   catégorieBaseVariables,
   catégorieVariables,
 } from "@/variables.js";
-import type { élémentBdListeDonnées } from "@/tableaux.js";
+import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import { cholqij } from "@/dates.js";
 import { JSONSchemaType } from "ajv";
 
@@ -96,7 +96,7 @@ export type détailsRègleVariable =
   | détailsRègleValeurCatégorique
   | détailsRègleCatégorie;
 
-export type typeOp = ">" | "<" | ">=" | "<=";
+export type typeOp = ">" | "<" | ">=" | "<=" | "≥" | "≤";
 
 export type règleExiste = schémaRègleVariable<détailsRègleExiste> & {
   typeRègle: "existe";
@@ -198,13 +198,6 @@ export type schémaFonctionValidation<
   R extends règleVariable = règleVariable
 > = (valeurs: élémentDonnées<T>[]) => erreurValidation<R>[];
 
-export interface élémentDonnées<
-  T extends élémentBdListeDonnées = élémentBdListeDonnées
-> {
-  données: T;
-  empreinte: string;
-}
-
 export function générerFonctionRègle<
   T extends élémentBdListeDonnées,
   R extends règleVariable
@@ -274,9 +267,11 @@ export function générerFonctionRègle<
         case "<":
           fOp = (v1?: number, v2?: number) => manquantes(v1, v2) || v1! < v2!;
           break;
+        case "≥":
         case ">=":
           fOp = (v1?: number, v2?: number) => manquantes(v1, v2) || v1! >= v2!;
           break;
+        case "≤":
         case "<=":
           fOp = (v1?: number, v2?: number) => manquantes(v1, v2) || v1! <= v2!;
           break;
