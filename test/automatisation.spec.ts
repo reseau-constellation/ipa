@@ -561,8 +561,8 @@ typesClients.forEach((type) => {
             idTableau,
             idVariable,
           });
-          await client.variables!.ajouterNomsVariable({
-            id: idVariable,
+          await client.variables!.sauvegarderNomsVariable({
+            idVariable,
             noms: {
               fr: "précipitation",
             },
@@ -789,7 +789,7 @@ typesClients.forEach((type) => {
             catégorie: "numérique",
           });
           await client.variables!.sauvegarderNomVariable({
-            id: idVariable,
+            idVariable,
             langue: "fr",
             nom: "Précipitation",
           });
@@ -899,8 +899,8 @@ typesClients.forEach((type) => {
             idTableau,
             idVariable,
           });
-          await client.variables!.ajouterNomsVariable({
-            id: idVariable,
+          await client.variables!.sauvegarderNomsVariable({
+            idVariable,
             noms: {
               fr: "précipitation",
             },
