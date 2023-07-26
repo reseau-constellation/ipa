@@ -475,13 +475,13 @@ typesClients.forEach((type) => {
             },
           });
 
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau: idTableau1,
             noms: {
               fr: nomTableau1,
             },
           });
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau: idTableau2,
             noms: {
               fr: nomTableau2,

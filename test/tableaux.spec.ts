@@ -11,6 +11,7 @@ import type {
   InfoCol,
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
+  élémentDonnées,
 } from "@/tableaux.js";
 import type {
   règleBornes,
@@ -22,7 +23,6 @@ import type {
   erreurRègleBornesColonneInexistante,
   erreurRègleCatégoriqueColonneInexistante,
   erreurRègleBornesVariableNonPrésente,
-  élémentDonnées,
   détailsRègleBornesDynamiqueColonne,
   détailsRègleBornesDynamiqueVariable,
 } from "@/valid.js";
@@ -110,7 +110,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau,
             noms: {
               த: "எழுத்துகள்",
@@ -153,7 +153,7 @@ typesClients.forEach((type) => {
         before(async () => {
           idTableau = await client.tableaux!.créerTableau({ idBd });
           fsOublier.push(
-            await client.tableaux!.suivreColonnes({
+            await client.tableaux!.suivreColonnesTableau({
               idTableau,
               f: (c) => (colonnes = c),
             })
@@ -275,7 +275,7 @@ typesClients.forEach((type) => {
 
           await client.tableaux!.effacerÉlément({
             idTableau,
-            empreinteÉlément: élémentDonnées.empreinte,
+            empreinte: élémentDonnées.empreinte,
           });
           expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(0);
@@ -1142,13 +1142,13 @@ typesClients.forEach((type) => {
             })
           );
           fsOublier.push(
-            await client.tableaux!.suivreColonnes({
+            await client.tableaux!.suivreColonnesTableau({
               idTableau,
               f: (c) => (colonnes = c),
             })
           );
           fsOublier.push(
-            await client.tableaux!.suivreColonnes({
+            await client.tableaux!.suivreColonnesTableau({
               idTableau,
               f: (c) => (colonnesSansCatégorie = c),
               catégories: false,
@@ -1224,7 +1224,7 @@ typesClients.forEach((type) => {
 
         before(async () => {
           idTableau = await client.tableaux!.créerTableau({ idBd });
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau,
             noms: réfNoms,
           });
@@ -1279,7 +1279,7 @@ typesClients.forEach((type) => {
             })
           );
           fsOublier.push(
-            await client.tableaux!.suivreColonnes({
+            await client.tableaux!.suivreColonnesTableau({
               idTableau: idTableauCopie,
               f: (x) => (colonnes = x),
             })
@@ -1673,7 +1673,7 @@ typesClients.forEach((type) => {
             idVariable: idVarFichier,
           });
 
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau,
             noms: {
               fr: nomTableauFr,

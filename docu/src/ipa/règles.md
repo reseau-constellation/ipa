@@ -235,3 +235,26 @@ await client.variables.ajouterRègleTableau({
     règle: règleFixe 
 });
 ```
+
+## Types
+Ces types spécifient les structures des règles de tableau et de variable.
+
+```ts
+type règleColonne<T extends règleVariable = règleVariable> = {
+  règle: règleVariableAvecId<T>;
+  source: sourceRègle;
+  colonne: string;
+};
+
+type règleVariableAvecId<T extends règleVariable = règleVariable> = {
+  id: string;
+  règle: T;
+};
+
+type règleVariable =
+  | règleExiste
+  | règleBornes
+  | règleValeurCatégorique
+  | règleCatégorie;
+
+```

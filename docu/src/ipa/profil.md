@@ -72,7 +72,7 @@ Suit les noms (traduits en différentes langues) de l'utilisatrice.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -128,7 +128,7 @@ Suit l'image de profil de l'utilisatrice.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts
@@ -195,7 +195,7 @@ Suit les informations de contact de l'utilisatrice.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts
@@ -253,7 +253,7 @@ Version spécifique de `client.profil.suivreContact` qui suit le courriel de l'u
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts

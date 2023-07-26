@@ -18,8 +18,8 @@ import type {
   schémaSpécificationBd,
   infoTableauAvecId,
 } from "@/bds.js";
-import type { élémentBdListeDonnées } from "@/tableaux.js";
-import type { élémentDonnées, règleBornes } from "@/valid.js";
+import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
+import type { règleBornes } from "@/valid.js";
 
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import { AttendreRésultat } from "@/utilsTests/attente.js";
@@ -270,7 +270,7 @@ typesClients.forEach((type) => {
 
         before(async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          fOublier = await client.bds!.suivreLicence({
+          fOublier = await client.bds!.suivreLicenceBd({
             idBd,
             f: (l) => (licence = l),
           });
@@ -466,7 +466,7 @@ typesClients.forEach((type) => {
             })
           );
           fsOublier.push(
-            await client.bds!.suivreLicence({
+            await client.bds!.suivreLicenceBd({
               idBd: idBdCopie,
               f: (x) => (licence = x),
             })
@@ -745,7 +745,7 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>
             ): Promise<schémaFonctionOublier> => {
-              return await client.tableaux!.suivreColonnes({
+              return await client.tableaux!.suivreColonnesTableau({
                 idTableau: tableaux[0].id,
                 f: fSuivi,
               });
@@ -1139,13 +1139,13 @@ typesClients.forEach((type) => {
             },
           });
 
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau: idTableau1,
             noms: {
               fr: nomTableau1,
             },
           });
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau: idTableau2,
             noms: {
               fr: nomTableau2,

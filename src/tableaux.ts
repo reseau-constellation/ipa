@@ -253,7 +253,7 @@ export default class Tableaux {
         bd: bdNoms,
       });
       await fOublierNoms();
-      await this.ajouterNomsTableau({ idTableau: idNouveauTableau, noms });
+      await this.sauvegarderNomsTableau({ idTableau: idNouveauTableau, noms });
     }
 
     // Copier les colonnes
@@ -351,7 +351,7 @@ export default class Tableaux {
       await f(différences);
     };
 
-    const fOublierColonnesTableau = await this.suivreColonnes({
+    const fOublierColonnesTableau = await this.suivreColonnesTableau({
       idTableau,
       f: async (x) => {
         info.colonnesTableau = x;
@@ -360,7 +360,7 @@ export default class Tableaux {
       catégories: false,
     });
 
-    const fOublierColonnesRéf = await this.suivreColonnes({
+    const fOublierColonnesRéf = await this.suivreColonnesTableau({
       idTableau: idTableauRéf,
       f: async (x) => {
         info.colonnesTableauRéf = x;
@@ -426,7 +426,7 @@ export default class Tableaux {
       const indexes = cols.filter((c) => c.index).map((c) => c.id);
       await f(indexes);
     };
-    return await this.suivreColonnes({ idTableau, f: fFinale });
+    return await this.suivreColonnesTableau({ idTableau, f: fFinale });
   }
 
   @cacheSuivi
@@ -475,7 +475,7 @@ export default class Tableaux {
       );
       await fFinale();
     };
-    const oublierColonnes = await this.suivreColonnes({
+    const oublierColonnes = await this.suivreColonnesTableau({
       idTableau,
       f: fSuivreColonnes,
       catégories: false,
@@ -613,7 +613,7 @@ export default class Tableaux {
 
     const colonnes = await uneFois(
       (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
-        this.suivreColonnes({ idTableau, f })
+        this.suivreColonnesTableau({ idTableau, f })
     );
 
     const données = await uneFois(
@@ -781,10 +781,10 @@ export default class Tableaux {
 
   async effacerÉlément({
     idTableau,
-    empreinteÉlément,
+    empreinte,
   }: {
     idTableau: string;
-    empreinteÉlément: string;
+    empreinte: string;
   }): Promise<void> {
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
@@ -800,7 +800,7 @@ export default class Tableaux {
     const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
       FeedStore<InfoCol>
     >({ id: idBdDonnées });
-    await bdDonnées.remove(empreinteÉlément);
+    await bdDonnées.remove(empreinte);
     await fOublier();
   }
 
@@ -813,7 +813,7 @@ export default class Tableaux {
   }): Promise<void> {
     const colsTableauBase = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
-        return await this.suivreColonnes({
+        return await this.suivreColonnesTableau({
           idTableau: idTableauBase,
           f: fSuivi,
         });
@@ -857,7 +857,7 @@ export default class Tableaux {
         if (Object.keys(àAjouter).length) {
           await this.effacerÉlément({
             idTableau: idTableauBase,
-            empreinteÉlément: existant.empreinte,
+            empreinte: existant.empreinte,
           });
           await this.ajouterÉlément({
             idTableau: idTableauBase,
@@ -888,7 +888,7 @@ export default class Tableaux {
   }): Promise<élémentBdListeDonnées[]> {
     const colonnes = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
-        return await this.suivreColonnes({ idTableau, f: fSuivi });
+        return await this.suivreColonnesTableau({ idTableau, f: fSuivi });
       }
     );
 
@@ -1190,11 +1190,11 @@ export default class Tableaux {
     }
 
     for (const e of àEffacer) {
-      await this.effacerÉlément({ idTableau, empreinteÉlément: e });
+      await this.effacerÉlément({ idTableau, empreinte: e });
     }
   }
 
-  async ajouterNomsTableau({
+  async sauvegarderNomsTableau({
     idTableau,
     noms,
   }: {
@@ -1359,7 +1359,7 @@ export default class Tableaux {
     await fOublier();
   }
 
-  suivreColonnes<T = InfoColAvecCatégorie>({
+  suivreColonnesTableau<T = InfoColAvecCatégorie>({
     idTableau,
     f,
     catégories,
@@ -1369,7 +1369,7 @@ export default class Tableaux {
     catégories?: true;
   }): Promise<schémaFonctionOublier>;
 
-  suivreColonnes<T = InfoCol>({
+  suivreColonnesTableau<T = InfoCol>({
     idTableau,
     f,
     catégories,
@@ -1379,7 +1379,7 @@ export default class Tableaux {
     catégories: false;
   }): Promise<schémaFonctionOublier>;
 
-  suivreColonnes<T = InfoCol | InfoColAvecCatégorie>({
+  suivreColonnesTableau<T = InfoCol | InfoColAvecCatégorie>({
     idTableau,
     f,
     catégories,
@@ -1390,7 +1390,7 @@ export default class Tableaux {
   }): Promise<schémaFonctionOublier>;
 
   @cacheSuivi
-  async suivreColonnes({
+  async suivreColonnesTableau({
     idTableau,
     f,
     catégories = true,
@@ -1589,7 +1589,7 @@ export default class Tableaux {
     const fListe = async (
       fSuivreRacine: (éléments: InfoCol[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreColonnes({ idTableau, f: fSuivreRacine });
+      return await this.suivreColonnesTableau({ idTableau, f: fSuivreRacine });
     };
 
     const fFinaleRèglesVariables = async (règles: règleColonne[]) => {
@@ -1681,7 +1681,7 @@ export default class Tableaux {
       info.données = données;
       await fFinale();
     };
-    const fOublierVarsÀColonnes = await this.suivreColonnes({
+    const fOublierVarsÀColonnes = await this.suivreColonnesTableau({
       idTableau,
       f: async (cols) => {
         const varsÀColonnes = cols.reduce(
@@ -1846,7 +1846,7 @@ export default class Tableaux {
       return await fFinale();
     };
 
-    const fOublierColonnes = await this.suivreColonnes({
+    const fOublierColonnes = await this.suivreColonnesTableau({
       idTableau,
       f: async (cols) => {
         info.colonnes = cols;
@@ -1873,7 +1873,7 @@ export default class Tableaux {
         règle.règle.règle.détails.type === "dynamique"
       ) {
         const { tableau } = règle.règle.règle.détails;
-        return await this.suivreColonnes({
+        return await this.suivreColonnesTableau({
           idTableau: tableau,
           f: (cols) =>
             fSuivreBranche({

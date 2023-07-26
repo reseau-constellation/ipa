@@ -34,10 +34,10 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import type {
   erreurValidation,
-  élémentDonnées,
   règleVariable,
   règleColonne,
 } from "@/valid.js";
+import type { élémentDonnées } from "@/tableaux.js"
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
 import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
 import type KeyValueStore from "orbit-db-kvstore";
@@ -1127,7 +1127,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idTableau: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    return await this.client.tableaux!.ajouterNomsTableau({ idTableau, noms });
+    return await this.client.tableaux!.sauvegarderNomsTableau({ idTableau, noms });
   }
 
   async effacerNomsTableauNuée({
@@ -1325,7 +1325,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           id: string;
           fSuivreBd: schémaFonctionSuivi<T[]>;
         }): Promise<schémaFonctionOublier> => {
-          return await this.client.tableaux!.suivreColonnes<T>({
+          return await this.client.tableaux!.suivreColonnesTableau<T>({
             idTableau,
             f: fSuivreBd,
             catégories,
@@ -2065,7 +2065,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         };
 
         if (licencesPermises) {
-          const fOublierLicence = await this.client.bds!.suivreLicence({
+          const fOublierLicence = await this.client.bds!.suivreLicenceBd({
             idBd,
             f: async (licence) => {
               conformes.licence = licencesPermises.includes(licence);
@@ -2424,7 +2424,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         async (
           fSuivi: schémaFonctionSuivi<InfoCol[]>
         ): Promise<schémaFonctionOublier> => {
-          return await this.client.tableaux!.suivreColonnes({
+          return await this.client.tableaux!.suivreColonnesTableau({
             idTableau,
             f: fSuivi,
             catégories: false,

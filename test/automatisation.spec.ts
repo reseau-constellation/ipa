@@ -21,8 +21,7 @@ import type {
   ÉtatProgrammée,
   ÉtatEnSync,
 } from "@/automatisation.js";
-import type { élémentDonnées } from "@/valid.js";
-import type { élémentBdListeDonnées } from "@/tableaux.js";
+import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 
 import { générerClients, typesClients } from "@/utilsTests/client.js";
 import {
@@ -547,7 +546,7 @@ typesClients.forEach((type) => {
           });
 
           idTableau = await client.bds!.ajouterTableauBd({ idBd });
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau,
             noms: {
               fr: "météo",
@@ -885,7 +884,7 @@ typesClients.forEach((type) => {
           });
 
           idTableau = await client.bds!.ajouterTableauBd({ idBd });
-          await client.tableaux!.ajouterNomsTableau({
+          await client.tableaux!.sauvegarderNomsTableau({
             idTableau,
             noms: {
               fr: "météo",

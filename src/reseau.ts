@@ -31,13 +31,13 @@ import {
   schémaFonctionSuiviRecherche,
 } from "@/utils/index.js";
 import type { infoScore } from "@/bds.js";
-import type { élémentBdListeDonnées } from "@/tableaux.js";
+import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   ÉlémentFavoris,
   ÉlémentFavorisAvecObjet,
   épingleDispositif,
 } from "@/favoris.js";
-import type { erreurValidation, élémentDonnées } from "@/valid.js";
+import type { erreurValidation } from "@/valid.js";
 import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
 import {

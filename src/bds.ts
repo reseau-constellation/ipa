@@ -905,7 +905,7 @@ export default class BDs extends ComposanteClientListe<string> {
 
     return await this.client.tableaux!.effacerÉlément({
       idTableau: idTableau,
-      empreinteÉlément: empreinte,
+      empreinte,
     });
   }
 
@@ -1006,7 +1006,7 @@ export default class BDs extends ComposanteClientListe<string> {
     );
     this.client.tableaux!.effacerÉlément({
       idTableau,
-      empreinteÉlément,
+      empreinte: empreinteÉlément,
     });
   }
 
@@ -1712,7 +1712,7 @@ export default class BDs extends ComposanteClientListe<string> {
         }
       };
 
-      const fOublierCols = await this.client.tableaux!.suivreColonnes({
+      const fOublierCols = await this.client.tableaux!.suivreColonnesTableau({
         idTableau,
         f: async (cols) => {
           info.cols = cols;
@@ -1846,7 +1846,7 @@ export default class BDs extends ComposanteClientListe<string> {
         },
       });
 
-      const fOublierColonnes = await this.client.tableaux!.suivreColonnes({
+      const fOublierColonnes = await this.client.tableaux!.suivreColonnesTableau({
         idTableau,
         f: (cols) => {
           info.cols = cols;

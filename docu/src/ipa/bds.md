@@ -19,7 +19,7 @@ Recherche les bases de données appartenant au compte présent. Pour rechercher 
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts
@@ -68,7 +68,7 @@ Crée une copie d'une base de données.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données à copier. |
-| `copierDonnées` | `boolean | undefined` | Si on copie aussi les données de la base de données (ou bien juste sa structure). Vrai par défaut. |
+| `copierDonnées` | `boolean \| undefined` | Si on copie aussi les données de la base de données (ou bien juste sa structure). Vrai par défaut. |
 
 #### Retour
 | Type | Description |
@@ -198,7 +198,7 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'une base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -300,7 +300,7 @@ Suit les noms (traduits en différentes langues) de la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -410,7 +410,7 @@ Suit les descriptions (traduites en différentes langues) de la base de données
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -488,7 +488,7 @@ Suit l'image de la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts
@@ -539,7 +539,7 @@ Change la licence des fichiers (images, vidéos ou autres) contenus dans la base
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `licenceContenu` | `string | undefined` | Le code de la nouvelle licence pour le contenu. Si `undefined`, la licence sera effacée et le contenu donc disponible sous la même licence que la base de données elle-même. |
+| `licenceContenu` | `string \| undefined` | Le code de la nouvelle licence pour le contenu. Si `undefined`, la licence sera effacée et le contenu donc disponible sous la même licence que la base de données elle-même. |
 
 #### Exemple
 ```ts
@@ -568,7 +568,7 @@ Suit la licence de la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -606,7 +606,7 @@ Suit la licence des fichiers contenus par la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -642,7 +642,7 @@ Ajoute des mots-clefs à la base de données.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `idsMotsClefs` | `string | string[]` | Les identifiants des mots-clefs à ajouter. |
+| `idsMotsClefs` | `string \| string[]` | Les identifiants des mots-clefs à ajouter. |
 
 #### Exemple
 ```ts
@@ -695,7 +695,7 @@ Suit les mots-clefs associés à la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -729,7 +729,7 @@ await client.bds.ajouterMotsClefsBd({
 ```
 
 ## Variables
-Les variables ne peuvent pas être ajoutées directement à une base de données, sinon aux tableaux de celle-ci. Cependant, vous pouvez suivre la liste de variables associées à une base de données.
+Les variables ne peuvent pas être ajoutées directement à une base de données, sinon aux [tableaux](./tableaux.md#colonnes) de celle-ci. Cependant, vous pouvez suivre la liste de variables associées à une base de données.
 
 ### `client.bds.suivreVariablesBd({ idBd, f })`
 Suit les variables associées à la base de données.
@@ -743,7 +743,7 @@ Suit les variables associées à la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -785,7 +785,7 @@ Ajoute un nouveau tableau à la base de données.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `clefTableau` | `string | undefined` | La clef du tableau. Si non spécifiée, Constellation en générera une de manière aléatoire. |
+| `clefTableau` | `string \| undefined` | La clef du tableau. Si non spécifiée, Constellation en générera une de manière aléatoire. |
 
 #### Exemple
 ```ts
@@ -853,7 +853,7 @@ Suit les tableaux associés à la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -924,8 +924,8 @@ Prend les données exportées par [`client.bds.exporterDonnées`](#clientbdsexpo
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `données` | [`donnéesBdExportées`](#donnees-exportees) | Les données déjà exportées. |
-| `formatDoc` | `xlsx.BookType | "xls"` | Le format du fichier (`odt`, `xlsx`, `csv`, `txt` ou n'importe quel autre type supporté par [SheetJS](https://docs.sheetjs.com/docs/api/write-options/#supported-output-formats). |
-| `dossier` | `string | undefined` | Le dossier (optionnel) où sauvegarder les données. |
+| `formatDoc` | `xlsx.BookType \| "xls"` | Le format du fichier (`odt`, `xlsx`, `csv`, `txt` ou n'importe quel autre type supporté par [SheetJS](https://docs.sheetjs.com/docs/api/write-options/#supported-output-formats). |
+| `dossier` | `string \| undefined` | Le dossier (optionnel) où sauvegarder les données. |
 | `inclureFichiersSFIP` | `boolean` | Si nous voulons sauvegarder les fichiers (images, vidéos ou autres) incluses dans la base de données. Si oui, le tout sera sauvegardé en tant que fichier `zip`. |
 
 #### Retour
@@ -982,7 +982,7 @@ Indique que la base de données est maintenant obsolète.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `idNouvelle` | `string | undefined` | L'identifiant (optionnel) d'une nouvelle base de données qui reprendre le rôle de la base de données obsolète. |
+| `idNouvelle` | `string \| undefined` | L'identifiant (optionnel) d'une nouvelle base de données qui reprendre le rôle de la base de données obsolète. |
 
 #### Exemple
 ```ts
@@ -1064,7 +1064,7 @@ Suit le statut de la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -1096,7 +1096,7 @@ Associer la base de données à des nuées.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `idsNuées` | `string | string[]` | Les identifiants des nuées à ajouter. |
+| `idsNuées` | `string \| string[]` | Les identifiants des nuées à ajouter. |
 
 #### Exemple
 ```ts
@@ -1144,7 +1144,7 @@ Suit les nuées associées à la base de données.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -1198,7 +1198,7 @@ Suit les données d'un tableau d'une base de données unique.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts
@@ -1261,7 +1261,7 @@ const fOublierDonnées = await client.bds.suivreDonnéesDeTableauUnique({
 ```
 
 ### `client.bds.ajouterÉlémentÀTableauUnique({ schémaBd, idNuéeUnique, clefTableau, vals })`
-Ajoutte un élément à un tableau d'une base de données unique.
+Ajoute un élément à un tableau d'une base de données unique.
 
 #### Paramètres
 | Nom | Type | Description |
@@ -1269,7 +1269,7 @@ Ajoutte un élément à un tableau d'une base de données unique.
 | `schémaBd` | [`schémaSpécificationBd`](#schema-bd) | Le schéma de spécification de la base de données. Il sera utilisé pour créer la base de données si elle n'existe pas encore. |
 | `idNuéeUnique` | `string` | L'identifiant de la nuée à laquelle une seule base de données par compte peut appartenir. Doit exister dans `schémaBd`. |
 | `clefTableau` | `string` | La clef du tableau auquel nous voulons ajouter des données. Doit exister dans `schémaBd`. |
-| `vals` | [`élémentDonnées`](./tableaux.md#types-donnees) | Les données à ajouter. |
+| `vals` | [`élémentBdListeDonnées`](./tableaux.md#types-donnees) | Les données à ajouter. |
 
 #### Retour
 | Type | Description |
@@ -1309,7 +1309,7 @@ Modifie un élément d'un tableau d'une base de données unique.
 | `schémaBd` | [`schémaSpécificationBd`](#schema-bd) | Le schéma de spécification de la base de données. Il sera utilisé pour créer la base de données si elle n'existe pas encore. |
 | `idNuéeUnique` | `string` | L'identifiant de la nuée à laquelle une seule base de données par compte peut appartenir. Doit exister dans `schémaBd`. |
 | `clefTableau` | `string` | La clef du tableau dont nous voulons modifier des données. Doit exister dans `schémaBd`. |
-| `vals` | { [idColonne: string]: [`élémentsBd`](./tableaux.md#types-donnees) | undefined } | Les données à jour. Si une colonne n'apparaît pas sur `vals`, elle ne sera pas modifiée. Si, au contraire, elle est égale à `undefined`, la valeur correspondante sera effacée. |
+| `vals` | { [idColonne: string]: [`élémentsBd`](./tableaux.md#types-donnees) \| undefined } | Les données à jour. Si une colonne n'apparaît pas sur `vals`, elle ne sera pas modifiée. Si, au contraire, elle est égale à `undefined`, la valeur correspondante sera effacée. |
 | `empreintePrécédente` | `string` | L'empreinte de l'élément à modifier. |
 
 #### Retour

@@ -459,7 +459,7 @@ const générerFExportation = (
 
       case "bd": {
         const donnéesExp = await client.bds!.exporterDonnées({
-          id: spéc.idObjet,
+          idBd: spéc.idObjet,
           langues: spéc.langues,
         });
         await client.bds!.exporterDocumentDonnées({

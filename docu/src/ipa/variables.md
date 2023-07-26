@@ -17,7 +17,7 @@ Recherche les variables appartenant au compte présent. Pour rechercher des vari
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts
@@ -133,7 +133,7 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'une variable. 1 indiq
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -235,7 +235,7 @@ Suit les noms (traduits en différentes langues) de la variable.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -353,7 +353,7 @@ Suit les descriptions (traduites en différentes langues) de la variable.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -428,7 +428,7 @@ Suit la catégorie de la variable.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -472,7 +472,7 @@ Pour en apprendre plus sur les règles, voir la [section correspondante](./règl
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idVariable` | `string` | L'identifiant de la variable. |
-| `règle` | [`valid.règleVariable`](./règles.md) | Une fonction qui sera appelée avec les règles de la variable chaque fois que celles-ci changent.|
+| `règle` | [`valid.règleVariable`](./règles.md) | La règle à ajouter. |
 | `idRègle` | `string \| undefined` | Un identifiant unique pour la règle. Si non spécifié, Constellation en générera un de manière aléatoire.|
 
 #### Retour
@@ -602,12 +602,12 @@ Suit les règles associées à la variable.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idVariable` | `string` | L'identifiant de la variable. |
-| `f` | `(règles: schémaFonctionSuivi<règleVariableAvecId[]>) => void` | Une fonction qui sera appelée avec les règles de la variable chaque fois que celles-ci changent.|
+| `f` | `(règles: schémaFonctionSuivi<` [`règleVariableAvecId`](./règles.md#types) `[]>) => void` | Une fonction qui sera appelée avec les règles de la variable chaque fois que celles-ci changent.|
 
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts
@@ -616,7 +616,7 @@ import { ref } from "vue";
 
 const client = générerClient();
 
-const règles = ref<règleVariableAvecId[]>();
+const règles = ref<valid.règleVariableAvecId[]>();
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -694,4 +694,9 @@ type catégorieBaseVariables =
   | "audio"
   | "image"
   | "fichier";
+```
+
+### Règles variables
+```ts
+
 ```
