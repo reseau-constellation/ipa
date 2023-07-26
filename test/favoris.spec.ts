@@ -115,7 +115,7 @@ typesClients.forEach((type) => {
             dispositifs: "TOUS",
           });
           const val = await favoris.attendreQue((x) => !!x.length);
-          expect(Array.isArray(val)).to.be.true();
+          expect(val).to.be.an("array");
 
           expect(val.length).to.equal(1);
           expect(val).to.have.deep.members([
@@ -129,14 +129,14 @@ typesClients.forEach((type) => {
           expect(épingleBd).to.deep.equal({
             idObjet: idBd,
             bd: true,
-            fichiers: true,
+            fichiers: isElectronMain || isNode,
             récursif: true,
           });
         });
 
         it("Enlever un favori", async () => {
           await client.favoris!.désépinglerFavori({ id: idBd });
-          // await attendreRésultat(favo, "ris", x=>x.length===0);
+
           const val = await favoris.attendreExiste();
           expect(val.length).to.equal(0);
           expect(épingleBd).to.deep.equal({

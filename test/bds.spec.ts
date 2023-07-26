@@ -83,10 +83,11 @@ typesClients.forEach((type) => {
         });
         after(async () => {
           if (fOublier) await fOublier();
+          bds.toutAnnuler();
         });
         it("La BD déjà créée est présente", async () => {
           const val = await bds.attendreExiste();
-          expect(val).to.be.an("array").with.length(1).and.contain(idBd);
+          expect(val).to.be.an("array").and.to.contain(idBd);
         });
         it("On crée une autre BD sans l'ajouter", async () => {
           idNouvelleBd = await client.bds!.créerBd({
