@@ -220,7 +220,7 @@ export default class Variables extends ComposanteClientListe<string> {
         });
       const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
       await fOublierBdNoms();
-      await this.ajouterNomsVariable({ id: idNouvelleBd, noms });
+      await this.sauvegarderNomsVariable({ idVariable: idNouvelleBd, noms });
     }
 
     const idBdDescr = bdBase.get("descriptions");
@@ -235,8 +235,8 @@ export default class Variables extends ComposanteClientListe<string> {
         bd: bdDescr,
       });
       await fOublierBdDescr();
-      await this.ajouterDescriptionsVariable({
-        id: idNouvelleBd,
+      await this.sauvegarderDescriptionsVariable({
+        idVariable: idNouvelleBd,
         descriptions,
       });
     }
@@ -292,20 +292,20 @@ export default class Variables extends ComposanteClientListe<string> {
     });
   }
 
-  async ajouterNomsVariable({
-    id,
+  async sauvegarderNomsVariable({
+    idVariable,
     noms,
   }: {
-    id: string;
+    idVariable: string;
     noms: dicTrads;
   }): Promise<void> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idVariable,
       type: "kvstore",
     });
     if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour BD ${id}.`);
+      throw new Error(`Permission de modification refusée pour Variable ${idVariable}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
@@ -319,21 +319,21 @@ export default class Variables extends ComposanteClientListe<string> {
   }
 
   async sauvegarderNomVariable({
-    id,
+    idVariable,
     langue,
     nom,
   }: {
-    id: string;
+    idVariable: string;
     langue: string;
     nom: string;
   }): Promise<void> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idVariable,
       type: "kvstore",
     });
     if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour BD ${id}.`);
+      throw new Error(`Permission de modification refusée pour variable ${idVariable}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
@@ -345,19 +345,19 @@ export default class Variables extends ComposanteClientListe<string> {
   }
 
   async effacerNomVariable({
-    id,
+    idVariable,
     langue,
   }: {
-    id: string;
+    idVariable: string;
     langue: string;
   }): Promise<void> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idVariable,
       type: "kvstore",
     });
     if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour BD ${id}.`);
+      throw new Error(`Permission de modification refusée pour Variable ${idVariable}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
@@ -368,20 +368,20 @@ export default class Variables extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async ajouterDescriptionsVariable({
-    id,
+  async sauvegarderDescriptionsVariable({
+    idVariable,
     descriptions,
   }: {
-    id: string;
+    idVariable: string;
     descriptions: dicTrads;
   }): Promise<void> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idVariable,
       type: "kvstore",
     });
     if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${id}.`);
+      throw new Error(`Permission de modification refusée pour Variable ${idVariable}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({
       id: idBdDescr,
@@ -394,22 +394,22 @@ export default class Variables extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async sauvegarderDescrVariable({
-    id,
+  async sauvegarderDescriptionVariable({
+    idVariable,
     langue,
     description,
   }: {
-    id: string;
+    idVariable: string;
     langue: string;
     description: string;
   }): Promise<void> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idVariable,
       type: "kvstore",
     });
     if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${id}.`);
+      throw new Error(`Permission de modification refusée pour Variable ${idVariable}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({
       id: idBdDescr,
@@ -421,20 +421,20 @@ export default class Variables extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async effacerDescrVariable({
-    id,
+  async effacerDescriptionVariable({
+    idVariable,
     langue,
   }: {
-    id: string;
+    idVariable: string;
     langue: string;
   }): Promise<void> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idVariable,
       type: "kvstore",
     });
     if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${id}.`);
+      throw new Error(`Permission de modification refusée pour Variable ${idVariable}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({
       id: idBdDescr,
@@ -777,11 +777,13 @@ export default class Variables extends ComposanteClientListe<string> {
     });
 
     const fOublier = async () => {
-      await oublierNoms();
-      await oublierDescr();
-      await oublierUnités();
-      await oublierCatégorie();
-      await oublierRègles();
+      await Promise.all([
+        oublierNoms(),
+        oublierDescr(),
+        oublierUnités(),
+        oublierCatégorie(),
+        oublierRègles(),
+      ])
     };
 
     return fOublier;

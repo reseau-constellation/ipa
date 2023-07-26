@@ -20,11 +20,11 @@ export const rechercherMotClefSelonNom = (
     idMotClef: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (noms: { [key: string]: string }) => {
+    const fSuivre = async (noms: { [key: string]: string }) => {
       const corresp = similTexte(nomMotClef, noms);
       if (corresp) {
         const { score, clef, info } = corresp;
-        fSuivreRecherche({
+        return await fSuivreRecherche({
           type: "résultat",
           score,
           clef,
@@ -32,7 +32,7 @@ export const rechercherMotClefSelonNom = (
           de: "nom",
         });
       } else {
-        fSuivreRecherche();
+        return await fSuivreRecherche();
       }
     };
     const fOublier = await client.motsClefs!.suivreNomsMotClef({

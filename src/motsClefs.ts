@@ -88,7 +88,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     });
     await bdMotClef.set("descriptions", idBdDescriptions);
 
-    fOublierMotClef();
+    await fOublierMotClef();
     return idMotClef;
   }
 

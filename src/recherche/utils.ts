@@ -240,7 +240,7 @@ export const rechercherTous =
       _id: string,
       fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
     ): Promise<schémaFonctionOublier> => {
-      fSuivreRecherche({
+      await fSuivreRecherche({
         type: "résultat",
         score: 1,
         de: "*",

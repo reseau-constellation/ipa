@@ -24,11 +24,11 @@ export const rechercherBdSelonNom = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (noms: { [key: string]: string }) => {
+    const fSuivre = async (noms: { [key: string]: string }) => {
       const corresp = similTexte(nomBd, noms);
       if (corresp) {
         const { score, clef, info } = corresp;
-        fSuivreRecherche({
+        return await fSuivreRecherche({
           type: "résultat",
           score,
           clef,
@@ -36,7 +36,7 @@ export const rechercherBdSelonNom = (
           de: "nom",
         });
       } else {
-        fSuivreRecherche();
+        return await fSuivreRecherche();
       }
     };
     const fOublier = await client.bds!.suivreNomsBd({ id: idBd, f: fSuivre });
@@ -52,11 +52,11 @@ export const rechercherBdSelonDescr = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fSuivre = (descrs: { [key: string]: string }) => {
+    const fSuivre = async (descrs: { [key: string]: string }) => {
       const corresp = similTexte(descrBd, descrs);
       if (corresp) {
         const { score, clef, info } = corresp;
-        fSuivreRecherche({
+        return await fSuivreRecherche({
           type: "résultat",
           score,
           clef,
@@ -64,7 +64,7 @@ export const rechercherBdSelonDescr = (
           de: "descr",
         });
       } else {
-        fSuivreRecherche();
+        return await fSuivreRecherche();
       }
     };
     const fOublier = await client.bds!.suivreDescrBd({ id: idBd, f: fSuivre });

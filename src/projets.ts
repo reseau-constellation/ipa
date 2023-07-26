@@ -156,8 +156,7 @@ export default class Projets extends ComposanteClientListe<string> {
 
     await bdRacine.add(idBdProjet);
 
-    fOublierRacine();
-    fOublierProjet();
+    await Promise.all([fOublierRacine(), fOublierProjet()]);
 
     return idBdProjet;
   }
@@ -605,13 +604,13 @@ export default class Projets extends ComposanteClientListe<string> {
       f: async (bd) => {
         const idImage = bd.get("image");
         if (!idImage) {
-          await f(null);
+          return await f(null);
         } else {
           const image = await this.client.obtFichierSFIP({
             id: idImage,
             max: MAX_TAILLE_IMAGE_VIS,
           });
-          await f(image);
+          return await f(image);
         }
       },
     });
@@ -663,13 +662,13 @@ export default class Projets extends ComposanteClientListe<string> {
         const motsClefsFinaux = [
           ...new Set([...motsClefs.propres, ...motsClefs.bds]),
         ];
-        await f(motsClefsFinaux);
+        return await f(motsClefsFinaux);
       }
     };
 
     const fFinalePropres = async (mots: string[]) => {
       motsClefs.propres = mots;
-      await fFinale();
+      return await fFinale();
     };
     const fOublierMotsClefsPropres = await this.client.suivreBdListeDeClef({
       id: idProjet,
@@ -680,7 +679,7 @@ export default class Projets extends ComposanteClientListe<string> {
 
     const fFinaleBds = async (mots: string[]) => {
       motsClefs.bds = mots;
-      await fFinale();
+      return await fFinale();
     };
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
@@ -768,7 +767,7 @@ export default class Projets extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (scoresBds: number[]) => {
-      await f(
+      return await f(
         scoresBds.length
           ? scoresBds.reduce((a, b) => a + b, 0) / scoresBds.length
           : 0

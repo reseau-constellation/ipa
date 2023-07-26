@@ -32,7 +32,7 @@ export const suivreBdAccès = async (
   for (const é of événementsSuiviBd) {
     bd.events.on(é, fFinale);
   }
-  fFinale();
+  await fFinale();
   const oublier = async () => {
     événementsSuiviBd.forEach((é) => {
       bd.events.off(é, fFinale);

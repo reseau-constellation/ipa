@@ -282,13 +282,13 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
           f: async (bd) => {
             const idImage = bd.get("image");
             if (!idImage) {
-              await fSuivreBd(null);
+              return await fSuivreBd(null);
             } else {
               const image = await this.client.obtFichierSFIP({
                 id: idImage,
                 max: MAX_TAILLE_IMAGE_VIS,
               });
-              await fSuivreBd(image);
+              return await fSuivreBd(image);
             }
           },
         });

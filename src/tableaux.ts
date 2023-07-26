@@ -634,7 +634,7 @@ export default class Tableaux {
       for (const idVar of variables) {
         const nomsDisponibles = await uneFois(
           (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-            this.client.variables!.suivreNomsVariable({ id: idVar, f })
+            this.client.variables!.suivreNomsVariable({ idVariable: idVar, f })
         );
         const idCol = colonnes.find((c) => c.variable === idVar)!.id!;
         nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
@@ -1404,7 +1404,7 @@ export default class Tableaux {
       if (!id) return faisRien;
 
       return await this.client.variables!.suivreCatégorieVariable({
-        id,
+        idVariable: id,
         f: async (catégorie) => {
           const col = Object.assign({ catégorie }, branche);
           await fSuivi(col);
@@ -1567,9 +1567,9 @@ export default class Tableaux {
     };
 
     // Suivre les règles spécifiées dans le tableau
-    const fFinaleRèglesTableau = (règles: règleColonne[]) => {
+    const fFinaleRèglesTableau = async (règles: règleColonne[]) => {
       dicRègles.tableau = règles;
-      fFinale();
+      return await fFinale();
     };
 
     const oublierRèglesTableau = await this.client.suivreBdListeDeClef({
@@ -1586,9 +1586,9 @@ export default class Tableaux {
       return await this.suivreColonnes({ idTableau, f: fSuivreRacine });
     };
 
-    const fFinaleRèglesVariables = (règles: règleColonne[]) => {
+    const fFinaleRèglesVariables = async (règles: règleColonne[]) => {
       dicRègles.variable = règles;
-      fFinale();
+      return await fFinale();
     };
 
     const fBranche = async (
@@ -1609,7 +1609,7 @@ export default class Tableaux {
         return fSuivreBranche(règlesColonnes);
       };
       return await this.client.variables!.suivreRèglesVariable({
-        id: idVariable,
+        idVariable,
         f: fFinaleSuivreBranche,
       });
     };
@@ -1715,7 +1715,7 @@ export default class Tableaux {
             }),
         });
       } else {
-        fSuivreBranche({ règle });
+        await fSuivreBranche({ règle });
         return faisRien;
       }
     };
@@ -1830,21 +1830,21 @@ export default class Tableaux {
       await f(erreurs);
     };
 
-    const fFinaleRègles = (
+    const fFinaleRègles = async (
       règles: {
         règle: règleColonne<règleVariable>;
         colsTableauRéf?: InfoColAvecCatégorie[];
       }[]
     ) => {
       info.règles = règles;
-      fFinale();
+      return await fFinale();
     };
 
     const fOublierColonnes = await this.suivreColonnes({
       idTableau,
-      f: (cols) => {
+      f: async (cols) => {
         info.colonnes = cols;
-        fFinale();
+        return await fFinale();
       },
     });
 
@@ -1876,7 +1876,7 @@ export default class Tableaux {
             }),
         });
       } else {
-        fSuivreBranche({ règle });
+        await fSuivreBranche({ règle });
         return faisRien;
       }
     };

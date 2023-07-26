@@ -211,7 +211,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
         idOrbite,
       });
 
-      f({
+      return await f({
         idObjet,
         bd: bdEstÉpinglée,
         fichiers: fichiersSontÉpinglés,
