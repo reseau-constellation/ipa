@@ -17,7 +17,7 @@ Recherche les variables appartenant au compte présent. Pour rechercher des vari
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi |
+| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
 
 #### Exemple
 ```ts
@@ -133,7 +133,7 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'une variable. 1 indiq
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi |
+| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -235,7 +235,7 @@ Suit les noms (traduits en différentes langues) de la variable.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi |
+| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
@@ -353,7 +353,7 @@ Suit les descriptions (traduites en différentes langues) de la variable.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi |
+| `() => Promise<void>` | Fonction à appeler pour arrêter le suivi. |
 
 
 #### Exemple
