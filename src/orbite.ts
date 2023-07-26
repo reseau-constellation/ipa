@@ -468,6 +468,7 @@ export class GestionnaireOrbiteGénéral {
   
   obtGestionnaireOrbite ({orbite}: {orbite: OrbitDB}): GestionnaireOrbite {
     if (!this.gestionnaires[orbite.identity.id]) {
+      console.log("création gestionnaire pour ", orbite.identity.id)
       this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite(orbite)
     }
     return this.gestionnaires[orbite.identity.id]
