@@ -189,7 +189,7 @@ Suit les informations de contact de l'utilisatrice.
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
-| `f` | `(contacts: {[type: string]: string}) => void` | Une fonction qui sera appelée avec les informations de contact chaque fois que celles-ci changent. |
+| `f` | `(contacts: {type: string, contact: string}[]) => void` | Une fonction qui sera appelée avec les informations de contact chaque fois que celles-ci changent. |
 | `idCompte?` | `string \| undefined` | L'id du compte de l'utilisateur. Par défaut, sera l'utilisateur courrant. |
 
 #### Retour
@@ -203,7 +203,7 @@ import { ref } from 'vue';
 import { générerClient } from "@constl/ipa";
 const client = générerClient();
 
-const contacts = ref<Uint8Array>({[type: string]: string});
+const contacts = ref<Uint8Array>({type: string, contact: string}[]);
 const fOublierContacts = await client.profil.suivreContacts({
     f: x => contacts.value = x
 });
