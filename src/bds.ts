@@ -1108,11 +1108,11 @@ export default class BDs extends ComposanteClientListe<string> {
   async sauvegarderDescriptionBd({
     idBd,
     langue,
-    descr,
+    description,
   }: {
     idBd: string;
     langue: string;
-    descr: string;
+    description: string;
   }): Promise<void> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
@@ -1125,7 +1125,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<{
       [langue: string]: string;
     }>({ id: idBdDescr, type: "kvstore" });
-    await bdDescr.set(langue, descr);
+    await bdDescr.set(langue, description);
     await fOublier();
   }
 

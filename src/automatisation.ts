@@ -17,6 +17,8 @@ import {
   importerFeuilleCalculDURL,
   importerJSONdURL,
 } from "@/importateur/index.js";
+import type { conversionDonnées } from "@/tableaux.js";
+
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
@@ -45,24 +47,6 @@ export type fréquence = {
   n: number;
 };
 
-export type conversionDonnées =
-  | conversionDonnéesNumérique
-  | conversionDonnéesDate
-  | conversionDonnéesChaîne;
-export type conversionDonnéesNumérique = {
-  type: "numérique";
-  facteur?: number;
-  systèmeNumération?: string;
-};
-export type conversionDonnéesDate = {
-  type: "horoDatage";
-  système: string;
-  format: string;
-};
-export type conversionDonnéesChaîne = {
-  type: "chaîne";
-  langue: string;
-};
 export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
 export type SpécificationAutomatisation =
