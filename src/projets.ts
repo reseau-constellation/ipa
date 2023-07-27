@@ -31,7 +31,6 @@ export interface donnéesProjetExportées {
   nomFichier: string;
 }
 
-export type typeÉlémentsBdProjet = string | schémaStatut;
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
@@ -161,9 +160,9 @@ export default class Projets extends ComposanteClientListe<string> {
     return idBdProjet;
   }
 
-  async copierProjet({ id }: { id: string }): Promise<string> {
+  async copierProjet({ idProjet }: { idProjet: string }): Promise<string> {
     const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({
-      id,
+      id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
@@ -188,7 +187,7 @@ export default class Projets extends ComposanteClientListe<string> {
         [key: string]: string;
       };
       await fOublierNoms();
-      await this.ajouterNomsProjet({ id: idNouveauProjet, noms });
+      await this.sauvegarderNomsProjet({ idProjet: idNouveauProjet, noms });
     }
 
     const idBdDescr = bdBase.get("descriptions");
@@ -205,8 +204,8 @@ export default class Projets extends ComposanteClientListe<string> {
         [key: string]: string;
       };
       await fOublierDescr();
-      await this.ajouterDescriptionsProjet({
-        id: idNouveauProjet,
+      await this.sauvegarderDescriptionsProjet({
+        idProjet: idNouveauProjet,
         descriptions,
       });
     }
@@ -247,7 +246,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const image = bdBase.get("image");
     if (image) await nouvelleBd.set("image", image);
 
-    await nouvelleBd.set("copiéDe", { id });
+    await nouvelleBd.set("copiéDe", { id: idProjet });
 
     await Promise.all([fOublierBase(), fOublierNouvelle()]);
     return idNouveauProjet;
@@ -288,17 +287,17 @@ export default class Projets extends ComposanteClientListe<string> {
     });
   }
 
-  async _obtBdNoms({ id }: { id: string }): Promise<{
+  async _obtBdNoms({ idProjet }: { idProjet: string }): Promise<{
     bd: KeyValueStore<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idProjet,
       type: "kvstore",
     });
     if (!idBdNoms) {
-      throw new Error(`Permission de modification refusée pour Projet ${id}.`);
+      throw new Error(`Permission de modification refusée pour Projet ${idProjet}.`);
     }
 
     return await this.client.ouvrirBd({
@@ -308,14 +307,14 @@ export default class Projets extends ComposanteClientListe<string> {
     });
   }
 
-  async ajouterNomsProjet({
-    id,
+  async sauvegarderNomsProjet({
+    idProjet,
     noms,
   }: {
-    id: string;
-    noms: { [key: string]: string };
+    idProjet: string;
+    noms: { [langue: string]: string };
   }): Promise<void> {
-    const { bd: bdNoms, fOublier } = await this._obtBdNoms({ id });
+    const { bd: bdNoms, fOublier } = await this._obtBdNoms({ idProjet });
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
@@ -323,42 +322,42 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async sauvegarderNomProjet({
-    id,
+    idProjet,
     langue,
     nom,
   }: {
-    id: string;
+    idProjet: string;
     langue: string;
     nom: string;
   }): Promise<void> {
-    const { bd: bdNoms, fOublier } = await this._obtBdNoms({ id });
+    const { bd: bdNoms, fOublier } = await this._obtBdNoms({ idProjet });
     await bdNoms.set(langue, nom);
     await fOublier();
   }
 
   async effacerNomProjet({
-    id,
+    idProjet,
     langue,
   }: {
-    id: string;
+    idProjet: string;
     langue: string;
   }): Promise<void> {
-    const { bd: bdNoms, fOublier } = await this._obtBdNoms({ id });
+    const { bd: bdNoms, fOublier } = await this._obtBdNoms({ idProjet });
     await bdNoms.del(langue);
     await fOublier();
   }
 
-  async _obtBdDescr({ id }: { id: string }): Promise<{
+  async _obtBdDescr({ idProjet }: { idProjet: string }): Promise<{
     bd: KeyValueStore<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idProjet,
       type: "kvstore",
     });
     if (!idBdDescr) {
-      throw new Error(`Permission de modification refusée pour Projet ${id}.`);
+      throw new Error(`Permission de modification refusée pour Projet ${idProjet}.`);
     }
 
     return await this.client.ouvrirBd({
@@ -368,58 +367,58 @@ export default class Projets extends ComposanteClientListe<string> {
     });
   }
 
-  async ajouterDescriptionsProjet({
-    id,
+  async sauvegarderDescriptionsProjet({
+    idProjet,
     descriptions,
   }: {
-    id: string;
+    idProjet: string;
     descriptions: { [key: string]: string };
   }): Promise<void> {
-    const { bd: bdDescr, fOublier } = await this._obtBdDescr({ id });
+    const { bd: bdDescr, fOublier } = await this._obtBdDescr({ idProjet });
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
     await fOublier();
   }
 
-  async sauvegarderDescrProjet({
-    id,
+  async sauvegarderDescriptionProjet({
+    idProjet,
     langue,
-    nom,
+    description,
   }: {
-    id: string;
+    idProjet: string;
     langue: string;
-    nom: string;
+    description: string;
   }): Promise<void> {
-    const { bd: bdDescr, fOublier } = await this._obtBdDescr({ id });
-    await bdDescr.set(langue, nom);
+    const { bd: bdDescr, fOublier } = await this._obtBdDescr({ idProjet });
+    await bdDescr.set(langue, description);
     await fOublier();
   }
 
-  async effacerDescrProjet({
-    id,
+  async effacerDescriptionProjet({
+    idProjet,
     langue,
   }: {
-    id: string;
+    idProjet: string;
     langue: string;
   }): Promise<void> {
-    const { bd: bdDescr, fOublier } = await this._obtBdDescr({ id });
+    const { bd: bdDescr, fOublier } = await this._obtBdDescr({ idProjet });
     await bdDescr.del(langue);
     await fOublier();
   }
 
   async _obtBdMotsClefs({
-    id,
+    idProjet,
   }: {
-    id: string;
+    idProjet: string;
   }): Promise<{ bd: FeedStore<string>; fOublier: schémaFonctionOublier }> {
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
-      racine: id,
+      racine: idProjet,
       type: "feed",
     });
     if (!idBdMotsClefs) {
-      throw new Error(`Permission de modification refusée pour projet ${id}.`);
+      throw new Error(`Permission de modification refusée pour projet ${idProjet}.`);
     }
 
     return await this.client.ouvrirBd<FeedStore<string>>({ id: idBdMotsClefs });
@@ -434,7 +433,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }): Promise<void> {
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
     const { bd: bdMotsClefs, fOublier } = await this._obtBdMotsClefs({
-      id: idProjet,
+      idProjet,
     });
 
     await Promise.all(
@@ -455,7 +454,7 @@ export default class Projets extends ComposanteClientListe<string> {
     idMotClef: string;
   }): Promise<void> {
     const { bd: bdMotsClefs, fOublier } = await this._obtBdMotsClefs({
-      id: idProjet,
+      idProjet,
     });
     await this.client.effacerÉlémentDeBdListe({
       bd: bdMotsClefs,
@@ -465,17 +464,17 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async _obtBdBds({
-    id,
+    idProjet,
   }: {
-    id: string;
+    idProjet: string;
   }): Promise<{ bd: FeedStore<string>; fOublier: schémaFonctionOublier }> {
     const idBdBds = await this.client.obtIdBd({
       nom: "bds",
-      racine: id,
+      racine: idProjet,
       type: "feed",
     });
     if (!idBdBds)
-      throw new Error(`Permission de modification refusée pour Projet ${id}.`);
+      throw new Error(`Permission de modification refusée pour Projet ${idProjet}.`);
 
     return await this.client.ouvrirBd<FeedStore<string>>({ id: idBdBds });
   }
@@ -487,7 +486,7 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet: string;
     idBd: string;
   }): Promise<void> {
-    const { bd: bdBds, fOublier } = await this._obtBdBds({ id: idProjet });
+    const { bd: bdBds, fOublier } = await this._obtBdBds({ idProjet });
     await bdBds.add(idBd);
     await fOublier();
   }
@@ -499,7 +498,7 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet: string;
     idBd: string;
   }): Promise<void> {
-    const { bd: bdBds, fOublier } = await this._obtBdBds({ id: idProjet });
+    const { bd: bdBds, fOublier } = await this._obtBdBds({ idProjet });
 
     // Effacer l'entrée dans notre liste de bds (n'efface pas la BD elle-même)
     await this.client.effacerÉlémentDeBdListe({ bd: bdBds, élément: idBd });
@@ -507,14 +506,14 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async marquerObsolète({
-    id,
+    idProjet,
     idNouvelle,
   }: {
-    id: string;
+    idProjet: string;
     idNouvelle?: string;
   }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd({
-      id,
+      id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
@@ -522,9 +521,25 @@ export default class Projets extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async marquerActive({ id }: { id: string }): Promise<void> {
+  async changerStatutProjet({
+    idProjet,
+    statut,
+  }: {
+    idProjet: string;
+    statut: schémaStatut;
+  }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd({
-      id,
+      id: idProjet,
+      type: "keyvalue",
+      schéma: schémaStructureBdProjet
+    });
+    bd.set("statut", statut);
+    await fOublier();
+  }
+
+  async marquerActif({ idProjet }: { idProjet: string }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd({
+      id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
@@ -532,9 +547,9 @@ export default class Projets extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async marquerBêta({ id }: { id: string }): Promise<void> {
+  async marquerBêta({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd({
-      id,
+      id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
@@ -542,9 +557,9 @@ export default class Projets extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async marquerInterne({ id }: { id: string }): Promise<void> {
+  async marquerInterne({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBd({
-      id,
+      id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
@@ -618,14 +633,14 @@ export default class Projets extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreNomsProjet({
-    id,
+    idProjet,
     f,
   }: {
-    id: string;
+    idProjet: string;
     f: schémaFonctionSuivi<{ [key: string]: string }>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
-      id,
+      id: idProjet,
       clef: "noms",
       schéma: schémaStructureBdNoms,
       f,
@@ -633,15 +648,15 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   @cacheSuivi
-  async suivreDescrProjet({
-    id,
+  async suivreDescriptionsProjet({
+    idProjet,
     f,
   }: {
-    id: string;
-    f: schémaFonctionSuivi<{ [key: string]: string }>;
+    idProjet: string;
+    f: schémaFonctionSuivi<{ [langue: string]: string }>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
-      id,
+      id: idProjet,
       clef: "descriptions",
       schéma: schémaStructureBdNoms,
       f,
@@ -654,14 +669,15 @@ export default class Projets extends ComposanteClientListe<string> {
     f,
   }: {
     idProjet: string;
-    f: schémaFonctionSuivi<string[]>;
+    f: schémaFonctionSuivi<{idMotClef: string, source: "projet" | "bds"}[]>;
   }): Promise<schémaFonctionOublier> {
     const motsClefs: { propres?: string[]; bds?: string[] } = {};
     const fFinale = async () => {
       if (motsClefs.propres && motsClefs.bds) {
         const motsClefsFinaux = [
-          ...new Set([...motsClefs.propres, ...motsClefs.bds]),
-        ];
+          ...motsClefs.propres.map(idMotClef=>({idMotClef, source: "projet"})), 
+          ...motsClefs.bds.map(idMotClef=>({idMotClef, source: "bds"})),
+        ] as {idMotClef: string, source: "projet" | "bds"}[];
         return await f(motsClefsFinaux);
       }
     };
@@ -684,7 +700,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdsProjet({ id: idProjet, f: fSuivreRacine });
+      return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
     };
     const fBranche = async (
       idBd: string,
@@ -706,14 +722,14 @@ export default class Projets extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreBdsProjet({
-    id,
+    idProjet,
     f,
   }: {
-    id: string;
+    idProjet: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdListeDeClef<string>({
-      id,
+      id: idProjet,
       clef: "bds",
       schéma: { type: "string" },
       f,
@@ -722,10 +738,10 @@ export default class Projets extends ComposanteClientListe<string> {
 
   @cacheSuivi
   async suivreVariablesProjet({
-    id,
+    idProjet,
     f,
   }: {
-    id: string;
+    idProjet: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (variables?: string[]) => {
@@ -751,7 +767,7 @@ export default class Projets extends ComposanteClientListe<string> {
       });
     };
     return await this.client.suivreBdDeClef({
-      id,
+      id: idProjet,
       clef: "bds",
       f: fFinale,
       fSuivre: fSuivreBds,
@@ -776,7 +792,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const fListe = async (
       fSuiviListe: schémaFonctionSuivi<string[]>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdsProjet({ id: idProjet, f: fSuiviListe });
+      return await this.suivreBdsProjet({ idProjet, f: fSuiviListe });
     };
     const fBranche = async (
       idBd: string,
@@ -799,20 +815,20 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async exporterDonnées({
-    id,
+    idProjet,
     langues,
     nomFichier,
   }: {
-    id: string;
+    idProjet: string;
     langues?: string[];
     nomFichier?: string;
   }): Promise<donnéesProjetExportées> {
     if (!nomFichier) {
       const nomsBd = await uneFois(
         (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.suivreNomsProjet({ id, f })
+          this.suivreNomsProjet({ idProjet, f })
       );
-      const idCourt = id.split("/").pop()!;
+      const idCourt = idProjet.split("/").pop()!;
 
       nomFichier = langues ? traduire(nomsBd, langues) || idCourt : idCourt;
     }
@@ -822,7 +838,7 @@ export default class Projets extends ComposanteClientListe<string> {
       nomFichier,
     };
     const idsBds = await uneFois((f: schémaFonctionSuivi<string[]>) =>
-      this.suivreBdsProjet({ id, f })
+      this.suivreBdsProjet({ idProjet, f })
     );
     for (const idBd of idsBds) {
       const { doc, fichiersSFIP } = await this.client.bds!.exporterDonnées({
