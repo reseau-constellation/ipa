@@ -39,7 +39,6 @@ import type {
   catégorieVariables,
 } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { conversionDonnées } from "@/automatisation.js";
 import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { cholqij } from "@/dates.js";
 
@@ -65,6 +64,30 @@ export type InfoCol = {
 
 export type InfoColAvecCatégorie = InfoCol & {
   catégorie?: catégorieVariables;
+};
+
+export type conversionDonnées =
+  | conversionDonnéesNumérique
+  | conversionDonnéesDate
+  | conversionDonnéesChaîne;
+
+export type conversionDonnéesNumérique = {
+  type: "numérique";
+  opération?: opérationConversionNumérique | opérationConversionNumérique[];
+  systèmeNumération?: string;
+};
+export type opérationConversionNumérique = {
+  op: "+" | "-" | "/" | "*" | "^";
+  val: number;
+}
+export type conversionDonnéesDate = {
+  type: "horoDatage";
+  système: string;
+  format: string;
+};
+export type conversionDonnéesChaîne = {
+  type: "chaîne";
+  langue: string;
 };
 
 const schémaInfoColAvecCatégorie: JSONSchemaType<InfoColAvecCatégorie> = {
@@ -1026,12 +1049,38 @@ export default class Tableaux {
           return typeof val === "string" ? val.toLowerCase() === "true" : val;
 
         case "numérique": {
-          let facteur: number | undefined = undefined;
+          let opération: opérationConversionNumérique | opérationConversionNumérique[] | undefined = undefined;
           let systèmeNumération: string | undefined = undefined;
           if (conversion?.type === "numérique") {
-            ({ facteur, systèmeNumération } = conversion);
+            ({ opération, systèmeNumération } = conversion);
           }
-          const facteurFinal = facteur === undefined ? 1 : facteur;
+          const convertirValNumérique = ({val, ops}: {val: number, ops?: opérationConversionNumérique[]}): number => {
+            if (!ops) return val;
+
+            let valFinale = val
+            for (const op of ops) {
+              switch (op.op) {
+                case '+':
+                  valFinale = val + op.val;
+                  break;
+                case '-':
+                  valFinale = val - op.val;
+                  break;
+                case '*':
+                  valFinale = val * op.val;
+                  break;
+                case '/':
+                  valFinale = val / op.val;
+                  break;
+                case '^':
+                  valFinale = val ** op.val;
+                  break;
+                default:
+                  throw new Error(op.op);
+              }
+            }
+            return valFinale;
+          }
 
           let valNumérique: number | undefined = undefined;
           if (typeof val === "string") {
@@ -1046,7 +1095,10 @@ export default class Tableaux {
           } else if (typeof val === "number") {
             valNumérique = val;
           }
-          return valNumérique !== undefined ? valNumérique * facteurFinal : val;
+          return valNumérique !== undefined ? convertirValNumérique({
+            val: valNumérique, 
+            ops: Array.isArray(opération) || typeof opération === 'undefined' ? opération : [opération]
+          }) : val;
         }
 
         case "horoDatage": {
