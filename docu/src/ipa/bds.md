@@ -204,13 +204,13 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'une base de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type infoScore } from "@constl/ipa";
+import { générerClient, type bds } from "@constl/ipa";
 
 const client = générerClient();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
-const qualité = ref<bds,infoScore>();
+const qualité = ref<bds.infoScore>();
 const fOublierSuivi = await client.bds.suivreQualitéBd({ 
     idBd,
     f: x => qualité.value = x
@@ -430,7 +430,7 @@ const fOublierDescriptions = await client.bds.suivreDescriptionsBd({
 
 await client.bds.sauvegarderDescriptionBd({ 
     idBd, 
-    langue: "fr",
+    langue: "த",
     description: "பல்கலைக்கழக சோதனையில் ஒரு சிறுதானிய பயிரின் வளர்ச்சி தகவல்கள்"
 });
 
@@ -886,12 +886,16 @@ Pour ce qui est de l'importation de données, celle-ci s'effectue directement su
 ### `client.bds.exporterDonnées({ idBd, langues, nomFichier })`
 Exporte les données d'une la base de données mais ne le sauvegarde pas immédiatement au disque.
 
+:::tip
+Vous pouvez également [automatiser](./automatisations.md) ces actions !
+:::
+
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `langues` | `string[] | undefined` | Si vous voulez que les colonnes et les tableaux portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
-| `nomFichier` | `string | undefined` | Le nom du fichier que vous voulez créer. Si non spécifier, Constellation utilisera le nom de la base de données si `langues !== undefined` ou, à défaut, l'identifiant unique de la base de données. |
+| `langues` | `string[] \| undefined` | Si vous voulez que les colonnes et les tableaux portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
+| `nomFichier` | `string \| undefined` | Le nom du fichier que vous voulez créer. Si non spécifier, Constellation utilisera le nom de la base de données si `langues !== undefined` ou, à défaut, l'identifiant unique de la base de données. |
 
 #### Retour
 | Type | Description |
@@ -982,7 +986,7 @@ Indique que la base de données est maintenant obsolète.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `idNouvelle` | `string \| undefined` | L'identifiant (optionnel) d'une nouvelle base de données qui reprendre le rôle de la base de données obsolète. |
+| `idNouvelle` | `string \| undefined` | L'identifiant (optionnel) d'une nouvelle base de données qui reprendra le rôle de la base de données obsolète. |
 
 #### Exemple
 ```ts
@@ -1059,7 +1063,7 @@ Suit le statut de la base de données.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `f` | `(tableaux:`[`schémaStatut`](#statut-1)`) => void` | Une fonction qui sera appelée avec le statut de la base de données chaque fois que celui-ci change. |
+| `f` | `(statut:`[`schémaStatut`](#statut-1)`) => void` | Une fonction qui sera appelée avec le statut de la base de données chaque fois que celui-ci change. |
 
 #### Retour
 | Type | Description |

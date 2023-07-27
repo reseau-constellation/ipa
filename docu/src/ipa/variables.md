@@ -602,7 +602,7 @@ Suit les règles associées à la variable.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idVariable` | `string` | L'identifiant de la variable. |
-| `f` | `(règles: schémaFonctionSuivi<` [`règleVariableAvecId`](./règles.md#types) `[]>) => void` | Une fonction qui sera appelée avec les règles de la variable chaque fois que celles-ci changent.|
+| `f` | `(règles:` [`règleVariableAvecId`](./règles.md#types) `[]) => void` | Une fonction qui sera appelée avec les règles de la variable chaque fois que celles-ci changent.|
 
 #### Retour
 | Type | Description |
@@ -694,9 +694,4 @@ type catégorieBaseVariables =
   | "audio"
   | "image"
   | "fichier";
-```
-
-### Règles variables
-```ts
-
 ```

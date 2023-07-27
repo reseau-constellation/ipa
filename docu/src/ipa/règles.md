@@ -237,6 +237,8 @@ await client.variables.ajouterRègleTableau({
 ```
 
 ## Types
+
+## Types règles
 Ces types spécifient les structures des règles de tableau et de variable.
 
 ```ts
@@ -256,5 +258,40 @@ type règleVariable =
   | règleBornes
   | règleValeurCatégorique
   | règleCatégorie;
+
+```
+
+## Types erreurs
+Ces types sont associés aux erreurs de validation des données et des règles elles-mêmes.
+
+```ts
+type erreurValidation<T extends règleVariable = règleVariable> = {
+  empreinte: string;
+  erreur: {
+    règle: règleColonne<T>;
+  };
+};
+
+type erreurRègle =
+  | erreurRègleCatégoriqueColonneInexistante
+  | erreurRègleBornesColonneInexistante
+  | erreurRègleBornesVariableNonPrésente;
+
+type erreurRègleCatégoriqueColonneInexistante = {
+  règle: règleColonne<
+    règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>
+  >;
+  détails: "colonneCatégInexistante";
+};
+
+type erreurRègleBornesColonneInexistante = {
+  règle: règleColonne<règleBornes<détailsRègleBornesDynamiqueColonne>>;
+  détails: "colonneBornesInexistante";
+};
+
+type erreurRègleBornesVariableNonPrésente = {
+  règle: règleColonne<règleBornes<détailsRègleBornesDynamiqueVariable>>;
+  détails: "variableBornesNonPrésente";
+};
 
 ```
