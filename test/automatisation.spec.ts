@@ -575,8 +575,8 @@ typesClients.forEach((type) => {
 
           idProjet = await client.projets!.créerProjet();
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
-          await client.projets!.ajouterNomsProjet({
-            id: idProjet,
+          await client.projets!.sauvegarderNomsProjet({
+            idProjet,
             noms: {
               fr: "Mon projet",
             },
