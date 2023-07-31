@@ -52,24 +52,24 @@ typesClients.forEach((type) => {
           }
         });
         it("installé, pour un autre dispositif", async () => {
-          const idOrbiteAutre = "abc";
+          const idDispositifAutre = "abc";
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
             dispositifs: "INSTALLÉ",
-            idOrbite: idOrbiteAutre,
+            idDispositif: idDispositifAutre,
           });
           expect(épinglé).to.be.false();
         });
-        it("idOrbite", async () => {
-          const idOrbite = await client.obtIdOrbite();
+        it("idDispositif", async () => {
+          const idDispositif = await client.obtIdDispositif();
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
-            dispositifs: idOrbite,
+            dispositifs: idDispositif,
           });
           expect(épinglé).to.be.true();
         });
-        it("listeIdOrbite", async () => {
-          const idOrbite = await client.obtIdOrbite();
+        it("listeIdDispositif", async () => {
+          const idDispositif = await client.obtIdDispositif();
           const épinglé = await client.favoris!.estÉpingléSurDispositif({
-            dispositifs: [idOrbite],
+            dispositifs: [idDispositif],
           });
           expect(épinglé).to.be.true();
         });
@@ -111,7 +111,7 @@ typesClients.forEach((type) => {
 
         it("Ajouter un favori", async () => {
           await client.favoris!.épinglerFavori({
-            id: idBd,
+            idObjet: idBd,
             dispositifs: "TOUS",
           });
           const val = await favoris.attendreQue((x) => !!x.length);
@@ -135,7 +135,7 @@ typesClients.forEach((type) => {
         });
 
         it("Enlever un favori", async () => {
-          await client.favoris!.désépinglerFavori({ id: idBd });
+          await client.favoris!.désépinglerFavori({ idObjet: idBd });
 
           const val = await favoris.attendreExiste();
           expect(val.length).to.equal(0);

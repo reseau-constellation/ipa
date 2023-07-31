@@ -1,4 +1,4 @@
-import { isNode, isElectron } from "wherearewe";
+import { isNode, isElectronMain } from "wherearewe";
 
 import type { default as ClientConstellation } from "@/client.js";
 import type {
@@ -150,13 +150,13 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }
 
   async épinglerFavori({
-    id,
-    dispositifs,
+    idObjet,
+    dispositifs = "TOUS",
     dispositifsFichiers = "INSTALLÉ",
     récursif = true,
   }: {
-    id: string;
-    dispositifs: typeDispositifs;
+    idObjet: string;
+    dispositifs?: typeDispositifs;
     dispositifsFichiers?: typeDispositifs | undefined;
     récursif?: boolean;
   }): Promise<void> {
@@ -167,27 +167,27 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
       dispositifs,
     };
     if (dispositifsFichiers) élément.dispositifsFichiers = dispositifsFichiers;
-    await bd.put(id, élément);
+    await bd.put(idObjet, élément);
 
     await fOublier();
   }
 
-  async désépinglerFavori({ id }: { id: string }): Promise<void> {
+  async désépinglerFavori({ idObjet }: { idObjet: string }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
-    await bd.del(id);
+    await bd.del(idObjet);
     await fOublier();
   }
 
   @cacheSuivi
   async suivreÉtatFavori({
-    id,
+    idObjet,
     f,
   }: {
-    id: string;
+    idObjet: string;
     f: schémaFonctionSuivi<ÉlémentFavoris | undefined>;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBdPrincipale({
-      f: (favoris) => f(favoris[id]),
+      f: (favoris) => f(favoris[idObjet]),
     });
   }
 
@@ -195,20 +195,20 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
   async suivreEstÉpingléSurDispositif({
     idObjet,
     f,
-    idOrbite,
+    idDispositif,
   }: {
     idObjet: string;
     f: schémaFonctionSuivi<épingleDispositif>;
-    idOrbite?: string;
+    idDispositif?: string;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (élément?: ÉlémentFavoris): Promise<void> => {
       const bdEstÉpinglée = await this.estÉpingléSurDispositif({
         dispositifs: élément?.dispositifs,
-        idOrbite,
+        idDispositif,
       });
       const fichiersSontÉpinglés = await this.estÉpingléSurDispositif({
         dispositifs: élément?.dispositifsFichiers,
-        idOrbite,
+        idDispositif,
       });
 
       return await f({
@@ -218,31 +218,31 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
         récursif: élément?.récursif || false,
       });
     };
-    return await this.suivreÉtatFavori({ id: idObjet, f: fFinale });
+    return await this.suivreÉtatFavori({ idObjet, f: fFinale });
   }
 
   async estÉpingléSurDispositif({
     dispositifs,
-    idOrbite,
+    idDispositif,
   }: {
     dispositifs: ÉlémentFavoris["dispositifs"] | undefined;
-    idOrbite?: string;
+    idDispositif?: string;
   }): Promise<boolean> {
-    idOrbite = idOrbite || (await this.client.obtIdOrbite());
+    idDispositif = idDispositif || (await this.client.obtIdDispositif());
     if (dispositifs === undefined) {
       return false;
     } else if (dispositifs === "TOUS") {
       return true;
     } else if (dispositifs === "INSTALLÉ") {
-      if (idOrbite === (await this.client.obtIdOrbite())) {
-        return isNode || isElectron;
+      if (idDispositif === (await this.client.obtIdDispositif())) {
+        return isNode || isElectronMain;
       } else {
         return false; // En réalité, inconnu. Mais on ne peut pas magiquement deviner la plateforme d'un autre paire.
       }
     } else if (typeof dispositifs === "string") {
-      return dispositifs === idOrbite;
+      return dispositifs === idDispositif;
     } else {
-      return dispositifs.includes(idOrbite);
+      return dispositifs.includes(idDispositif);
     }
   }
 
