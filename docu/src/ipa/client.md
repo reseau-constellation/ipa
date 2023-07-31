@@ -9,10 +9,10 @@
 obtIdCompte
 Obtenir l'identifiant du compte Constellation.
 
-suivreIdBdCompte
+suivreIdCompte
 Suivre l'identifiant du compte Constellation. Celui-ci ne changera que si le dispositif se rejoint à un compte existant.
 
-obtIdOrbite
+### `client.obtIdDispositif()`
 Obtenir l'identifiant [bd-orbite](https://github.com/orbitdb/orbit-db) du compte Constellation.
 
 obtIdSFIP
@@ -21,7 +21,7 @@ Obtenir l'identifiant du nœud de Système de fichiers interplanétaire ([SFIP](
 ## Dispositifs
 Différents dispositifs (téléphones, ordinateurs) peuvent être connectés au même compte Constellation.
 
-suivreDispositifs
+### `client.suivreDispositifs({ f, idCompte })`
 Suivre les dispositifs associés à ce compte.
 
 nommerDispositif
