@@ -5,8 +5,8 @@ import type {
   infoRésultatTexte,
 } from "@/utils/index.js";
 import {
-  rechercherMotClefSelonNom,
-  rechercherMotClefSelonTexte,
+  rechercherMotsClefsSelonNom,
+  rechercherMotsClefsSelonTexte,
 } from "@/recherche/motClef.js";
 
 import { générerClients } from "@/utilsTests/client.js";
@@ -36,7 +36,7 @@ describe("Rechercher mots clefs", function () {
     before(async () => {
       idMotClef = await client.motsClefs!.créerMotClef();
 
-      const fRecherche = rechercherMotClefSelonNom("hydrologie");
+      const fRecherche = rechercherMotsClefsSelonNom("hydrologie");
       fOublier = await fRecherche(client, idMotClef, (r) => (résultat.mettreÀJour(r)));
     });
 
@@ -112,12 +112,12 @@ describe("Rechercher mots clefs", function () {
     before(async () => {
       idMotClef = await client.motsClefs!.créerMotClef();
 
-      const fRechercheNom = rechercherMotClefSelonTexte("hydrologie");
+      const fRechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
       fsOublier.push(
         await fRechercheNom(client, idMotClef, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherMotClefSelonTexte(idMotClef.slice(0, 15));
+      const fRechercheId = rechercherMotsClefsSelonTexte(idMotClef.slice(0, 15));
       fsOublier.push(
         await fRechercheId(client, idMotClef, (r) => (résultatId.mettreÀJour(r)))
       );

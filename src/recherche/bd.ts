@@ -7,8 +7,8 @@ import type {
   infoRésultatRecherche,
 } from "@/utils/index.js";
 
-import { rechercherVariableSelonNom } from "@/recherche/variable.js";
-import { rechercherMotClefSelonNom } from "@/recherche/motClef.js";
+import { rechercherVariablesSelonNom } from "@/recherche/variable.js";
+import { rechercherMotsClefsSelonNom } from "@/recherche/motClef.js";
 import {
   combinerRecherches,
   sousRecherche,
@@ -16,7 +16,7 @@ import {
   similTexte,
 } from "@/recherche/utils.js";
 
-export const rechercherBdSelonNom = (
+export const rechercherBdsSelonNom = (
   nomBd: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -44,7 +44,7 @@ export const rechercherBdSelonNom = (
   };
 };
 
-export const rechercherBdSelonDescr = (
+export const rechercherBdsSelonDescr = (
   descrBd: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -72,7 +72,7 @@ export const rechercherBdSelonDescr = (
   };
 };
 
-export const rechercherBdSelonIdVariable = (
+export const rechercherBdsSelonIdVariable = (
   idVariable: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -105,7 +105,7 @@ export const rechercherBdSelonIdVariable = (
   };
 };
 
-export const rechercherBdSelonNomVariable = (
+export const rechercherBdsSelonNomVariable = (
   nomVariable: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -126,7 +126,7 @@ export const rechercherBdSelonNomVariable = (
       });
     };
 
-    const fRechercher = rechercherVariableSelonNom(nomVariable);
+    const fRechercher = rechercherVariablesSelonNom(nomVariable);
 
     return await sousRecherche(
       "variable",
@@ -138,7 +138,7 @@ export const rechercherBdSelonNomVariable = (
   };
 };
 
-export const rechercherBdSelonVariable = (
+export const rechercherBdsSelonVariable = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -152,8 +152,8 @@ export const rechercherBdSelonVariable = (
   ) => {
     return await combinerRecherches(
       {
-        id: rechercherBdSelonIdVariable(texte),
-        nom: rechercherBdSelonNomVariable(texte),
+        id: rechercherBdsSelonIdVariable(texte),
+        nom: rechercherBdsSelonNomVariable(texte),
       },
       client,
       idBd,
@@ -162,7 +162,7 @@ export const rechercherBdSelonVariable = (
   };
 };
 
-export const rechercherBdSelonIdMotClef = (
+export const rechercherBdsSelonIdMotClef = (
   idMotClef: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -195,7 +195,7 @@ export const rechercherBdSelonIdMotClef = (
   };
 };
 
-export const rechercherBdSelonNomMotClef = (
+export const rechercherBdsSelonNomMotClef = (
   nomMotClef: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -216,7 +216,7 @@ export const rechercherBdSelonNomMotClef = (
       });
     };
 
-    const fRechercher = rechercherMotClefSelonNom(nomMotClef);
+    const fRechercher = rechercherMotsClefsSelonNom(nomMotClef);
 
     return await sousRecherche(
       "motClef",
@@ -228,7 +228,7 @@ export const rechercherBdSelonNomMotClef = (
   };
 };
 
-export const rechercherBdSelonMotClef = (
+export const rechercherBdsSelonMotClef = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -242,8 +242,8 @@ export const rechercherBdSelonMotClef = (
   ) => {
     return await combinerRecherches(
       {
-        id: rechercherBdSelonIdMotClef(texte),
-        nom: rechercherBdSelonNomMotClef(texte),
+        id: rechercherBdsSelonIdMotClef(texte),
+        nom: rechercherBdsSelonNomMotClef(texte),
       },
       client,
       idBd,
@@ -252,7 +252,7 @@ export const rechercherBdSelonMotClef = (
   };
 };
 
-export const rechercherBdSelonTexte = (
+export const rechercherBdsSelonTexte = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
@@ -268,10 +268,10 @@ export const rechercherBdSelonTexte = (
       infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
     >(
       {
-        nom: rechercherBdSelonNom(texte),
-        descr: rechercherBdSelonDescr(texte),
-        variables: rechercherBdSelonVariable(texte),
-        motsClefs: rechercherBdSelonMotClef(texte),
+        nom: rechercherBdsSelonNom(texte),
+        descr: rechercherBdsSelonDescr(texte),
+        variables: rechercherBdsSelonVariable(texte),
+        motsClefs: rechercherBdsSelonMotClef(texte),
         id: rechercherSelonId(texte),
       },
       client,

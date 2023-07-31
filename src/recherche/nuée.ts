@@ -7,8 +7,8 @@ import type {
   infoRésultatRecherche,
 } from "@/utils/index.js";
 
-import { rechercherVariableSelonNom } from "@/recherche/variable.js";
-import { rechercherMotClefSelonNom } from "@/recherche/motClef.js";
+import { rechercherVariablesSelonNom } from "@/recherche/variable.js";
+import { rechercherMotsClefsSelonNom } from "@/recherche/motClef.js";
 import {
   combinerRecherches,
   sousRecherche,
@@ -16,7 +16,7 @@ import {
   similTexte,
 } from "@/recherche/utils.js";
 
-export const rechercherNuéeSelonNom = (
+export const rechercherNuéesSelonNom = (
   nomNuée: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -44,7 +44,7 @@ export const rechercherNuéeSelonNom = (
   };
 };
 
-export const rechercherNuéeSelonDescr = (
+export const rechercherNuéesSelonDescr = (
   descrNuée: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -75,7 +75,7 @@ export const rechercherNuéeSelonDescr = (
   };
 };
 
-export const rechercherNuéeSelonIdVariable = (
+export const rechercherNuéesSelonIdVariable = (
   idVariable: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -108,7 +108,7 @@ export const rechercherNuéeSelonIdVariable = (
   };
 };
 
-export const rechercherNuéeSelonNomVariable = (
+export const rechercherNuéesSelonNomVariable = (
   nomVariable: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -129,7 +129,7 @@ export const rechercherNuéeSelonNomVariable = (
       });
     };
 
-    const fRechercher = rechercherVariableSelonNom(nomVariable);
+    const fRechercher = rechercherVariablesSelonNom(nomVariable);
 
     return await sousRecherche(
       "variable",
@@ -141,7 +141,7 @@ export const rechercherNuéeSelonNomVariable = (
   };
 };
 
-export const rechercherNuéeSelonVariable = (
+export const rechercherNuéesSelonVariable = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -155,8 +155,8 @@ export const rechercherNuéeSelonVariable = (
   ) => {
     return await combinerRecherches(
       {
-        id: rechercherNuéeSelonIdVariable(texte),
-        nom: rechercherNuéeSelonNomVariable(texte),
+        id: rechercherNuéesSelonIdVariable(texte),
+        nom: rechercherNuéesSelonNomVariable(texte),
       },
       client,
       idNuée,
@@ -165,7 +165,7 @@ export const rechercherNuéeSelonVariable = (
   };
 };
 
-export const rechercherNuéeSelonIdMotClef = (
+export const rechercherNuéesSelonIdMotClef = (
   idMotClef: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -198,7 +198,7 @@ export const rechercherNuéeSelonIdMotClef = (
   };
 };
 
-export const rechercherNuéeSelonNomMotClef = (
+export const rechercherNuéesSelonNomMotClef = (
   nomMotClef: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -219,7 +219,7 @@ export const rechercherNuéeSelonNomMotClef = (
       });
     };
 
-    const fRechercher = rechercherMotClefSelonNom(nomMotClef);
+    const fRechercher = rechercherMotsClefsSelonNom(nomMotClef);
 
     return await sousRecherche(
       "motClef",
@@ -231,7 +231,7 @@ export const rechercherNuéeSelonNomMotClef = (
   };
 };
 
-export const rechercherNuéeSelonMotClef = (
+export const rechercherNuéesSelonMotClef = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -245,8 +245,8 @@ export const rechercherNuéeSelonMotClef = (
   ) => {
     return await combinerRecherches(
       {
-        id: rechercherNuéeSelonIdMotClef(texte),
-        nom: rechercherNuéeSelonNomMotClef(texte),
+        id: rechercherNuéesSelonIdMotClef(texte),
+        nom: rechercherNuéesSelonNomMotClef(texte),
       },
       client,
       idNuée,
@@ -255,7 +255,7 @@ export const rechercherNuéeSelonMotClef = (
   };
 };
 
-export const rechercherNuéeSelonTexte = (
+export const rechercherNuéesSelonTexte = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
@@ -271,10 +271,10 @@ export const rechercherNuéeSelonTexte = (
       infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
     >(
       {
-        nom: rechercherNuéeSelonNom(texte),
-        descr: rechercherNuéeSelonDescr(texte),
-        variables: rechercherNuéeSelonVariable(texte),
-        motsClefs: rechercherNuéeSelonMotClef(texte),
+        nom: rechercherNuéesSelonNom(texte),
+        descr: rechercherNuéesSelonDescr(texte),
+        variables: rechercherNuéesSelonVariable(texte),
+        motsClefs: rechercherNuéesSelonMotClef(texte),
         id: rechercherSelonId(texte),
       },
       client,

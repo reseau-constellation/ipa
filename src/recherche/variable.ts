@@ -12,7 +12,7 @@ import {
   rechercherSelonId,
 } from "@/recherche/utils.js";
 
-export const rechercherVariableSelonNom = (
+export const rechercherVariablesSelonNom = (
   nom: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -43,7 +43,7 @@ export const rechercherVariableSelonNom = (
   };
 };
 
-export const rechercherVariableSelonDescr = (
+export const rechercherVariablesSelonDescr = (
   descr: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -74,7 +74,7 @@ export const rechercherVariableSelonDescr = (
   };
 };
 
-export const rechercherVariableSelonTexte = (
+export const rechercherVariablesSelonTexte = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -82,8 +82,8 @@ export const rechercherVariableSelonTexte = (
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fRechercherNoms = rechercherVariableSelonNom(texte);
-    const fRechercherDescr = rechercherVariableSelonDescr(texte);
+    const fRechercherNoms = rechercherVariablesSelonNom(texte);
+    const fRechercherDescr = rechercherVariablesSelonDescr(texte);
     const fRechercherId = rechercherSelonId(texte);
 
     return await combinerRecherches(

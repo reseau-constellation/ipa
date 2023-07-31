@@ -6,15 +6,15 @@ import type {
   infoRésultatRecherche,
 } from "@/utils/index.js";
 import {
-  rechercherBdSelonNom,
-  rechercherBdSelonDescr,
-  rechercherBdSelonTexte,
-  rechercherBdSelonMotClef,
-  rechercherBdSelonVariable,
-  rechercherBdSelonIdMotClef,
-  rechercherBdSelonIdVariable,
-  rechercherBdSelonNomMotClef,
-  rechercherBdSelonNomVariable,
+  rechercherBdsSelonNom,
+  rechercherBdsSelonDescr,
+  rechercherBdsSelonTexte,
+  rechercherBdsSelonMotClef,
+  rechercherBdsSelonVariable,
+  rechercherBdsSelonIdMotClef,
+  rechercherBdsSelonIdVariable,
+  rechercherBdsSelonNomMotClef,
+  rechercherBdsSelonNomVariable,
 } from "@/recherche/bd.js";
 
 import { générerClients } from "@/utilsTests/client.js";
@@ -44,7 +44,7 @@ describe("Rechercher bds", function () {
     before(async () => {
       idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
-      const fRecherche = rechercherBdSelonNom("Météo");
+      const fRecherche = rechercherBdsSelonNom("Météo");
       fOublier = await fRecherche(client, idBd, (r) => (résultat.mettreÀJour(r)));
     });
 
@@ -88,7 +88,7 @@ describe("Rechercher bds", function () {
     before(async () => {
       idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
-      const fRecherche = rechercherBdSelonDescr("Météo");
+      const fRecherche = rechercherBdsSelonDescr("Météo");
       fOublier = await fRecherche(client, idBd, (r) => (résultat.mettreÀJour(r)));
     });
 
@@ -137,15 +137,15 @@ describe("Rechercher bds", function () {
       idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
       idMotClef = await client.motsClefs!.créerMotClef();
 
-      const fRechercheNom = rechercherBdSelonNomMotClef("Météo");
+      const fRechercheNom = rechercherBdsSelonNomMotClef("Météo");
       fsOublier.push(
         await fRechercheNom(client, idBd, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherBdSelonIdMotClef(idMotClef.slice(0, 15));
+      const fRechercheId = rechercherBdsSelonIdMotClef(idMotClef.slice(0, 15));
       fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId.mettreÀJour(r))));
 
-      const fRechercheTous = rechercherBdSelonMotClef("Météo");
+      const fRechercheTous = rechercherBdsSelonMotClef("Météo");
       fsOublier.push(
         await fRechercheTous(client, idBd, (r) => (résultatTous.mettreÀJour(r)))
       );
@@ -240,15 +240,15 @@ describe("Rechercher bds", function () {
         catégorie: "numérique",
       });
 
-      const fRechercheNom = rechercherBdSelonNomVariable("Précip");
+      const fRechercheNom = rechercherBdsSelonNomVariable("Précip");
       fsOublier.push(
         await fRechercheNom(client, idBd, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherBdSelonIdVariable(idVariable.slice(0, 15));
+      const fRechercheId = rechercherBdsSelonIdVariable(idVariable.slice(0, 15));
       fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId.mettreÀJour(r))));
 
-      const fRechercheTous = rechercherBdSelonVariable("Précip");
+      const fRechercheTous = rechercherBdsSelonVariable("Précip");
       fsOublier.push(
         await fRechercheTous(client, idBd, (r) => (résultatTous.mettreÀJour(r)))
       );
@@ -353,25 +353,25 @@ describe("Rechercher bds", function () {
     before(async () => {
       idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
-      const fRechercheNom = rechercherBdSelonTexte("Hydrologie");
+      const fRechercheNom = rechercherBdsSelonTexte("Hydrologie");
       fsOublier.push(
         await fRechercheNom(client, idBd, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherBdSelonTexte(idBd.slice(0, 15));
+      const fRechercheId = rechercherBdsSelonTexte(idBd.slice(0, 15));
       fsOublier.push(await fRechercheId(client, idBd, (r) => (résultatId.mettreÀJour(r))));
 
-      const fRechercheDescr = rechercherBdSelonTexte("Montréal");
+      const fRechercheDescr = rechercherBdsSelonTexte("Montréal");
       fsOublier.push(
         await fRechercheDescr(client, idBd, (r) => (résultatDescr.mettreÀJour(r)))
       );
 
-      const fRechercheVariables = rechercherBdSelonTexte("Température");
+      const fRechercheVariables = rechercherBdsSelonTexte("Température");
       fsOublier.push(
         await fRechercheVariables(client, idBd, (r) => (résultatVariable.mettreÀJour(r)))
       );
 
-      const fRechercheMotsClef = rechercherBdSelonTexte("Météo");
+      const fRechercheMotsClef = rechercherBdsSelonTexte("Météo");
       fsOublier.push(
         await fRechercheMotsClef(client, idBd, (r) => (résultatMotsClef.mettreÀJour(r)))
       );

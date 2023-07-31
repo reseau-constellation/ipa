@@ -5,9 +5,9 @@ import type {
   infoRésultatTexte,
 } from "@/utils/index.js";
 import {
-  rechercherVariableSelonNom,
-  rechercherVariableSelonDescr,
-  rechercherVariableSelonTexte,
+  rechercherVariablesSelonNom,
+  rechercherVariablesSelonDescr,
+  rechercherVariablesSelonTexte,
 } from "@/recherche/variable.js";
 
 import { générerClients } from "@/utilsTests/client.js";
@@ -39,7 +39,7 @@ describe("Rechercher variables", function () {
         catégorie: "numérique",
       });
 
-      const fRecherche = rechercherVariableSelonNom("Radiation solaire");
+      const fRecherche = rechercherVariablesSelonNom("Radiation solaire");
       fOublier = await fRecherche(client, idVariable, (r) => (résultat.mettreÀJour(r)));
     });
 
@@ -115,7 +115,7 @@ describe("Rechercher variables", function () {
         catégorie: "numérique",
       });
 
-      const fRecherche = rechercherVariableSelonDescr("Radiation solaire");
+      const fRecherche = rechercherVariablesSelonDescr("Radiation solaire");
       fOublier = await fRecherche(client, idVariable, (r) => (résultat.mettreÀJour(r)));
     });
 
@@ -192,12 +192,12 @@ describe("Rechercher variables", function () {
         catégorie: "numérique",
       });
 
-      const fRechercheNom = rechercherVariableSelonTexte("précipitation");
+      const fRechercheNom = rechercherVariablesSelonTexte("précipitation");
       fsOublier.push(
         await fRechercheNom(client, idVariable, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherVariableSelonTexte(
+      const fRechercheId = rechercherVariablesSelonTexte(
         idVariable.slice(0, 15)
       );
       fsOublier.push(

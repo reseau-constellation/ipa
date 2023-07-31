@@ -6,17 +6,17 @@ import type {
   infoRésultatRecherche,
 } from "@/utils/index.js";
 import {
-  rechercherProjetSelonNom,
-  rechercherProjetSelonDescr,
-  rechercherProjetSelonIdBd,
-  rechercherProjetSelonBd,
-  rechercherProjetSelonIdMotClef,
-  rechercherProjetSelonNomMotClef,
-  rechercherProjetSelonMotClef,
-  rechercherProjetSelonIdVariable,
-  rechercherProjetSelonNomVariable,
-  rechercherProjetSelonVariable,
-  rechercherProjetSelonTexte,
+  rechercherProjetsSelonNom,
+  rechercherProjetsSelonDescr,
+  rechercherProjetsSelonIdBd,
+  rechercherProjetsSelonBd,
+  rechercherProjetsSelonIdMotClef,
+  rechercherProjetsSelonNomMotClef,
+  rechercherProjetsSelonMotClef,
+  rechercherProjetsSelonIdVariable,
+  rechercherProjetsSelonNomVariable,
+  rechercherProjetsSelonVariable,
+  rechercherProjetsSelonTexte,
 } from "@/recherche/projet.js";
 
 import { générerClients } from "@/utilsTests/client.js";
@@ -46,7 +46,7 @@ describe("Rechercher projets", function () {
     before(async () => {
       idProjet = await client.projets!.créerProjet();
 
-      const fRecherche = rechercherProjetSelonNom("Météo");
+      const fRecherche = rechercherProjetsSelonNom("Météo");
       fOublier = await fRecherche(client, idProjet, (r) => (résultat.mettreÀJour(r)));
     });
 
@@ -59,8 +59,8 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.projets!.ajouterNomsProjet({
-        id: idProjet,
+      await client.projets!.sauvegarderNomsProjet({
+        idProjet,
         noms: {
           fr: "Météorologie",
         },
@@ -90,7 +90,7 @@ describe("Rechercher projets", function () {
     before(async () => {
       idProjet = await client.projets!.créerProjet();
 
-      const fRecherche = rechercherProjetSelonDescr("Météo");
+      const fRecherche = rechercherProjetsSelonDescr("Météo");
       fOublier = await fRecherche(client, idProjet, (r) => (résultat.mettreÀJour(r)));
     });
 
@@ -103,8 +103,8 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout description détecté", async () => {
-      await client.projets!.ajouterDescriptionsProjet({
-        id: idProjet,
+      await client.projets!.sauvegarderDescriptionsProjet({
+        idProjet,
         descriptions: {
           fr: "Météo historique",
         },
@@ -138,19 +138,19 @@ describe("Rechercher projets", function () {
       idProjet = await client.projets!.créerProjet();
       idMotClef = await client.motsClefs!.créerMotClef();
 
-      const fRechercheNom = rechercherProjetSelonNomMotClef("Météo");
+      const fRechercheNom = rechercherProjetsSelonNomMotClef("Météo");
       fsOublier.push(
         await fRechercheNom(client, idProjet, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherProjetSelonIdMotClef(
+      const fRechercheId = rechercherProjetsSelonIdMotClef(
         idMotClef.slice(0, 15)
       );
       fsOublier.push(
         await fRechercheId(client, idProjet, (r) => (résultatId.mettreÀJour(r)))
       );
 
-      const fRechercheTous = rechercherProjetSelonMotClef("Météo");
+      const fRechercheTous = rechercherProjetsSelonMotClef("Météo");
       fsOublier.push(
         await fRechercheTous(client, idProjet, (r) => (résultatTous.mettreÀJour(r)))
       );
@@ -245,19 +245,19 @@ describe("Rechercher projets", function () {
         catégorie: "numérique",
       });
 
-      const fRechercheNom = rechercherProjetSelonNomVariable("Précip");
+      const fRechercheNom = rechercherProjetsSelonNomVariable("Précip");
       fsOublier.push(
         await fRechercheNom(client, idProjet, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherProjetSelonIdVariable(
+      const fRechercheId = rechercherProjetsSelonIdVariable(
         idVariable.slice(0, 15)
       );
       fsOublier.push(
         await fRechercheId(client, idProjet, (r) => (résultatId.mettreÀJour(r)))
       );
 
-      const fRechercheTous = rechercherProjetSelonVariable("Précip");
+      const fRechercheTous = rechercherProjetsSelonVariable("Précip");
       fsOublier.push(
         await fRechercheTous(client, idProjet, (r) => (résultatTous.mettreÀJour(r)))
       );
@@ -381,22 +381,22 @@ describe("Rechercher projets", function () {
       idProjet = await client.projets!.créerProjet();
       idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
-      const fRechercheNom = rechercherProjetSelonBd("Hydrologie");
+      const fRechercheNom = rechercherProjetsSelonBd("Hydrologie");
       fsOublier.push(
         await fRechercheNom(client, idProjet, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherProjetSelonIdBd(idBd.slice(0, 15));
+      const fRechercheId = rechercherProjetsSelonIdBd(idBd.slice(0, 15));
       fsOublier.push(
         await fRechercheId(client, idProjet, (r) => (résultatId.mettreÀJour(r)))
       );
 
-      const fRechercheDescr = rechercherProjetSelonBd("Montréal");
+      const fRechercheDescr = rechercherProjetsSelonBd("Montréal");
       fsOublier.push(
         await fRechercheDescr(client, idProjet, (r) => (résultatDescr.mettreÀJour(r)))
       );
 
-      const fRechercheVariables = rechercherProjetSelonBd("Température");
+      const fRechercheVariables = rechercherProjetsSelonBd("Température");
       fsOublier.push(
         await fRechercheVariables(
           client,
@@ -405,7 +405,7 @@ describe("Rechercher projets", function () {
         )
       );
 
-      const fRechercheMotsClef = rechercherProjetSelonBd("Météo");
+      const fRechercheMotsClef = rechercherProjetsSelonBd("Météo");
       fsOublier.push(
         await fRechercheMotsClef(
           client,
@@ -648,27 +648,27 @@ describe("Rechercher projets", function () {
       idProjet = await client.projets!.créerProjet();
       idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
 
-      const fRechercheNom = rechercherProjetSelonTexte("Hydrologie");
+      const fRechercheNom = rechercherProjetsSelonTexte("Hydrologie");
       fsOublier.push(
         await fRechercheNom(client, idProjet, (r) => (résultatNom.mettreÀJour(r)))
       );
 
-      const fRechercheId = rechercherProjetSelonTexte(idProjet.slice(0, 15));
+      const fRechercheId = rechercherProjetsSelonTexte(idProjet.slice(0, 15));
       fsOublier.push(
         await fRechercheId(client, idProjet, (r) => (résultatId.mettreÀJour(r)))
       );
 
-      const fRechercheDescr = rechercherProjetSelonTexte("Montréal");
+      const fRechercheDescr = rechercherProjetsSelonTexte("Montréal");
       fsOublier.push(
         await fRechercheDescr(client, idProjet, (r) => (résultatDescr.mettreÀJour(r)))
       );
 
-      const fRechercheBds = rechercherProjetSelonTexte(idBd);
+      const fRechercheBds = rechercherProjetsSelonTexte(idBd);
       fsOublier.push(
         await fRechercheBds(client, idProjet, (r) => (résultatBd.mettreÀJour(r)))
       );
 
-      const fRechercheVariables = rechercherProjetSelonTexte("Température");
+      const fRechercheVariables = rechercherProjetsSelonTexte("Température");
       fsOublier.push(
         await fRechercheVariables(
           client,
@@ -677,7 +677,7 @@ describe("Rechercher projets", function () {
         )
       );
 
-      const fRechercheMotsClef = rechercherProjetSelonTexte("Météo");
+      const fRechercheMotsClef = rechercherProjetsSelonTexte("Météo");
       fsOublier.push(
         await fRechercheMotsClef(client, idProjet, (r) =>
           résultatMotClef.mettreÀJour(r)
@@ -706,8 +706,8 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.projets!.ajouterNomsProjet({
-        id: idProjet,
+      await client.projets!.sauvegarderNomsProjet({
+        idProjet,
         noms: {
           fr: "Hydrologie",
         },
@@ -729,8 +729,8 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.projets!.ajouterDescriptionsProjet({
-        id: idProjet,
+      await client.projets!.sauvegarderDescriptionsProjet({
+        idProjet,
         descriptions: {
           fr: "Hydrologie de Montréal",
         },

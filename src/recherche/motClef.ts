@@ -12,7 +12,7 @@ import {
   rechercherSelonId,
 } from "@/recherche/utils.js";
 
-export const rechercherMotClefSelonNom = (
+export const rechercherMotsClefsSelonNom = (
   nomMotClef: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -43,7 +43,38 @@ export const rechercherMotClefSelonNom = (
   };
 };
 
-export const rechercherMotClefSelonTexte = (
+export const rechercherMotsClefsSelonDescr = (
+  desrcMotClef: string
+): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
+  return async (
+    client: ClientConstellation,
+    idMotClef: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+  ): Promise<schémaFonctionOublier> => {
+    const fSuivre = async (noms: { [key: string]: string }) => {
+      const corresp = similTexte(desrcMotClef, noms);
+      if (corresp) {
+        const { score, clef, info } = corresp;
+        return await fSuivreRecherche({
+          type: "résultat",
+          score,
+          clef,
+          info,
+          de: "descr",
+        });
+      } else {
+        return await fSuivreRecherche();
+      }
+    };
+    const fOublier = await client.motsClefs!.suivreDescriptionsMotClef({
+      idMotClef,
+      f: fSuivre,
+    });
+    return fOublier;
+  };
+};
+
+export const rechercherMotsClefsSelonTexte = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -51,7 +82,7 @@ export const rechercherMotClefSelonTexte = (
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fRechercherNoms = rechercherMotClefSelonNom(texte);
+    const fRechercherNoms = rechercherMotsClefsSelonNom(texte);
     const fRechercherId = rechercherSelonId(texte);
 
     return await combinerRecherches(

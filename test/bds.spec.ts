@@ -193,7 +193,7 @@ typesClients.forEach((type) => {
           await client.bds!.sauvegarderDescriptionBd({
             idBd,
             langue: "fr",
-            descr: "Alphabets",
+            description: "Alphabets",
           });
           expect(descrs.fr).to.equal("Alphabets");
         });
@@ -217,7 +217,7 @@ typesClients.forEach((type) => {
           await client.bds!.sauvegarderDescriptionBd({
             idBd,
             langue: "fr",
-            descr: "Systèmes d'écriture",
+            description: "Systèmes d'écriture",
           });
           expect(descrs?.fr).to.equal("Systèmes d'écriture");
         });

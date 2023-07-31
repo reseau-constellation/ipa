@@ -38,7 +38,7 @@ import type {
   épingleDispositif,
 } from "@/favoris.js";
 import type { erreurValidation } from "@/valid.js";
-import { rechercherProfilSelonActivité } from "@/recherche/profil.js";
+import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
 import {
   cacheRechercheParNRésultats,
@@ -1793,7 +1793,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       idCompte: string,
       fSuivi: schémaFonctionSuivi<number>
     ): Promise<schémaFonctionOublier> => {
-      const fRechercherSelonActivité = rechercherProfilSelonActivité();
+      const fRechercherSelonActivité = rechercherProfilsSelonActivité();
       return await fRechercherSelonActivité(
         this.client,
         idCompte,

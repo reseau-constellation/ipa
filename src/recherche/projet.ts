@@ -7,14 +7,14 @@ import type {
   infoRésultatTexte,
 } from "@/utils/index.js";
 
-import { rechercherBdSelonTexte } from "@/recherche/bd.js";
+import { rechercherBdsSelonTexte } from "@/recherche/bd.js";
 import {
-  rechercherVariableSelonTexte,
-  rechercherVariableSelonNom,
+  rechercherVariablesSelonTexte,
+  rechercherVariablesSelonNom,
 } from "@/recherche/variable.js";
 import {
-  rechercherMotClefSelonTexte,
-  rechercherMotClefSelonNom,
+  rechercherMotsClefsSelonTexte,
+  rechercherMotsClefsSelonNom,
 } from "@/recherche/motClef.js";
 import {
   similTexte,
@@ -23,7 +23,7 @@ import {
   rechercherSelonId,
 } from "@/recherche/utils.js";
 
-export const rechercherProjetSelonNom = (
+export const rechercherProjetsSelonNom = (
   nomProjet: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -47,14 +47,14 @@ export const rechercherProjetSelonNom = (
       }
     };
     const fOublier = await client.projets!.suivreNomsProjet({
-      id: idProjet,
+      idProjet,
       f: fSuivre,
     });
     return fOublier;
   };
 };
 
-export const rechercherProjetSelonDescr = (
+export const rechercherProjetsSelonDescr = (
   descProjet: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -77,15 +77,15 @@ export const rechercherProjetSelonDescr = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.projets!.suivreDescrProjet({
-      id: idProjet,
+    const fOublier = await client.projets!.suivreDescriptionsProjet({
+      idProjet,
       f: fSuivre,
     });
     return fOublier;
   };
 };
 
-export const rechercherProjetSelonIdBd = (
+export const rechercherProjetsSelonIdBd = (
   idBd: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -101,7 +101,7 @@ export const rechercherProjetSelonIdBd = (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreBdsProjet({
-        id: idProjet,
+        idProjet,
         f: fSuivreRacine,
       });
     };
@@ -118,7 +118,7 @@ export const rechercherProjetSelonIdBd = (
   };
 };
 
-export const rechercherProjetSelonBd = (
+export const rechercherProjetsSelonBd = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<
@@ -138,12 +138,12 @@ export const rechercherProjetSelonBd = (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreBdsProjet({
-        id: idProjet,
+        idProjet,
         f: fSuivreRacine,
       });
     };
 
-    const fRechercher = rechercherBdSelonTexte(texte);
+    const fRechercher = rechercherBdsSelonTexte(texte);
 
     return await sousRecherche(
       "bd",
@@ -155,7 +155,7 @@ export const rechercherProjetSelonBd = (
   };
 };
 
-export const rechercherProjetSelonIdVariable = (
+export const rechercherProjetsSelonIdVariable = (
   idVariable: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -171,7 +171,7 @@ export const rechercherProjetSelonIdVariable = (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreVariablesProjet({
-        id: idProjet,
+        idProjet,
         f: fSuivreRacine,
       });
     };
@@ -188,7 +188,7 @@ export const rechercherProjetSelonIdVariable = (
   };
 };
 
-export const rechercherProjetSelonNomVariable = (
+export const rechercherProjetsSelonNomVariable = (
   nomVariable: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -204,12 +204,12 @@ export const rechercherProjetSelonNomVariable = (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreVariablesProjet({
-        id: idProjet,
+        idProjet,
         f: fSuivreRacine,
       });
     };
 
-    const fRechercher = rechercherVariableSelonNom(nomVariable);
+    const fRechercher = rechercherVariablesSelonNom(nomVariable);
 
     return await sousRecherche(
       "variable",
@@ -221,7 +221,7 @@ export const rechercherProjetSelonNomVariable = (
   };
 };
 
-export const rechercherProjetSelonVariable = (
+export const rechercherProjetsSelonVariable = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -237,12 +237,12 @@ export const rechercherProjetSelonVariable = (
       fSuivreRacine: (idsVariables: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreVariablesProjet({
-        id: idProjet,
+        idProjet,
         f: fSuivreRacine,
       });
     };
 
-    const fRechercher = rechercherVariableSelonTexte(texte);
+    const fRechercher = rechercherVariablesSelonTexte(texte);
 
     return await sousRecherche(
       "variable",
@@ -254,7 +254,7 @@ export const rechercherProjetSelonVariable = (
   };
 };
 
-export const rechercherProjetSelonIdMotClef = (
+export const rechercherProjetsSelonIdMotClef = (
   idMotClef: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -267,11 +267,11 @@ export const rechercherProjetSelonIdMotClef = (
     >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void
+      fSuivreRacine: (motsClefs: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreMotsClefsProjet({
         idProjet,
-        f: fSuivreRacine,
+        f: motsClefs => fSuivreRacine(motsClefs.map(m=>m.idMotClef)),
       });
     };
 
@@ -287,7 +287,7 @@ export const rechercherProjetSelonIdMotClef = (
   };
 };
 
-export const rechercherProjetSelonNomMotClef = (
+export const rechercherProjetsSelonNomMotClef = (
   nomMotClef: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -300,15 +300,15 @@ export const rechercherProjetSelonNomMotClef = (
     >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void
+      fSuivreRacine: (motsClefs: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreMotsClefsProjet({
         idProjet,
-        f: fSuivreRacine,
+        f: motsClefs => fSuivreRacine(motsClefs.map(m=>m.idMotClef)),
       });
     };
 
-    const fRechercher = rechercherMotClefSelonNom(nomMotClef);
+    const fRechercher = rechercherMotsClefsSelonNom(nomMotClef);
 
     return await sousRecherche(
       "motClef",
@@ -320,7 +320,7 @@ export const rechercherProjetSelonNomMotClef = (
   };
 };
 
-export const rechercherProjetSelonMotClef = (
+export const rechercherProjetsSelonMotClef = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
@@ -333,15 +333,15 @@ export const rechercherProjetSelonMotClef = (
     >
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void
+      fSuivreRacine: (motsClefs: string[]) => void
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreMotsClefsProjet({
         idProjet,
-        f: fSuivreRacine,
+        f: motsClefs => fSuivreRacine(motsClefs.map(m=>m.idMotClef)),
       });
     };
 
-    const fRechercher = rechercherMotClefSelonTexte(texte);
+    const fRechercher = rechercherMotsClefsSelonTexte(texte);
 
     return await sousRecherche(
       "motClef",
@@ -353,7 +353,7 @@ export const rechercherProjetSelonMotClef = (
   };
 };
 
-export const rechercherProjetSelonTexte = (
+export const rechercherProjetsSelonTexte = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<
   | infoRésultatTexte
@@ -371,11 +371,11 @@ export const rechercherProjetSelonTexte = (
         >
     >
   ): Promise<schémaFonctionOublier> => {
-    const fRechercherNoms = rechercherProjetSelonNom(texte);
-    const fRechercherDescr = rechercherProjetSelonDescr(texte);
-    const fRechercherBd = rechercherProjetSelonBd(texte);
-    const fRechercherVariable = rechercherProjetSelonVariable(texte);
-    const fRechercherMotClef = rechercherProjetSelonMotClef(texte);
+    const fRechercherNoms = rechercherProjetsSelonNom(texte);
+    const fRechercherDescr = rechercherProjetsSelonDescr(texte);
+    const fRechercherBd = rechercherProjetsSelonBd(texte);
+    const fRechercherVariable = rechercherProjetsSelonVariable(texte);
+    const fRechercherMotClef = rechercherProjetsSelonMotClef(texte);
     const fRechercherId = rechercherSelonId(texte);
 
     return await combinerRecherches<

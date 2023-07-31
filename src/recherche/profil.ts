@@ -16,7 +16,7 @@ import {
   rechercherSelonId,
 } from "@/recherche/utils.js";
 
-export const rechercherProfilSelonActivité =
+export const rechercherProfilsSelonActivité =
   (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
     return async (
       client: ClientConstellation,
@@ -85,7 +85,7 @@ export const rechercherProfilSelonActivité =
     };
   };
 
-export const rechercherProfilSelonNom = (
+export const rechercherProfilsSelonNom = (
   nom: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -116,7 +116,7 @@ export const rechercherProfilSelonNom = (
   };
 };
 
-export const rechercherProfilSelonCourriel = (
+export const rechercherProfilsSelonCourriel = (
   courriel: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -149,7 +149,7 @@ export const rechercherProfilSelonCourriel = (
   };
 };
 
-export const rechercherProfilSelonTexte = (
+export const rechercherProfilsSelonTexte = (
   texte: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
@@ -157,8 +157,8 @@ export const rechercherProfilSelonTexte = (
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
-    const fRechercherNoms = rechercherProfilSelonNom(texte);
-    const fRechercherCourriel = rechercherProfilSelonCourriel(texte);
+    const fRechercherNoms = rechercherProfilsSelonNom(texte);
+    const fRechercherCourriel = rechercherProfilsSelonCourriel(texte);
     const fRechercherId = rechercherSelonId(texte);
 
     return await combinerRecherches(
@@ -174,7 +174,7 @@ export const rechercherProfilSelonTexte = (
   };
 };
 
-export const rechercherProfilSelonImage = (
+export const rechercherProfilsSelonImage = (
   image: Uint8Array
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
   return async (

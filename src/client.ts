@@ -11,7 +11,7 @@ import KeyValueStore from "orbit-db-kvstore";
 import type AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
 import type IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
-import { InfoLicence, infoLicences } from "@/licences.js";
+import Licences from "@/licences.js";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -178,6 +178,7 @@ export class ClientConstellation extends EventEmitter {
   motsClefs?: MotsClefs;
   automatisations?: Automatisations;
   nuées?: Nuées;
+  licences?: Licences;
 
   _orbiteExterne: boolean;
   _sfipExterne: boolean;
@@ -350,6 +351,8 @@ export class ClientConstellation extends EventEmitter {
     this.automatisations = new Automatisations({ client: this });
 
     this.recherche = new Recherche({ client: this });
+
+    this.licences = new Licences({ client: this });
     await this.épingler();
   }
 
@@ -408,16 +411,6 @@ export class ClientConstellation extends EventEmitter {
       schéma: schémaStructureBdProtocoles,
       f,
     });
-  }
-
-  @cacheSuivi
-  async suivreLicences({
-    f,
-  }: {
-    f: schémaFonctionSuivi<{ [licence: string]: InfoLicence }>;
-  }) {
-    await f(infoLicences);
-    return faisRien; // Pour l'instant. Plus tard, on pourra le connecter avec une nuée Kili
   }
 
   @cacheSuivi

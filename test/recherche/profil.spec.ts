@@ -6,10 +6,10 @@ import type {
   infoRésultatVide,
 } from "@/utils/index.js";
 import {
-  rechercherProfilSelonNom,
-  rechercherProfilSelonTexte,
-  rechercherProfilSelonActivité,
-  rechercherProfilSelonCourriel,
+  rechercherProfilsSelonNom,
+  rechercherProfilsSelonTexte,
+  rechercherProfilsSelonActivité,
+  rechercherProfilsSelonCourriel,
 } from "@/recherche/profil.js";
 
 import { générerClients } from "@/utilsTests/client.js";
@@ -35,7 +35,7 @@ describe("Rechercher profil", function () {
       ({ fOublier: fOublierClients, clients } = await générerClients(1));
       client = clients[0];
       idBdCompte = await client.obtIdCompte();
-      const fRecherche = rechercherProfilSelonActivité();
+      const fRecherche = rechercherProfilsSelonActivité();
       fOublier = await fRecherche(client, idBdCompte, (r) =>
         rés.mettreÀJour(r)
       );
@@ -99,7 +99,7 @@ describe("Rechercher profil", function () {
       ({ fOublier: fOublierClients, clients } = await générerClients(1));
       client = clients[0];
       idBdCompte = await client.obtIdCompte();
-      const fRecherche = rechercherProfilSelonNom("Julien");
+      const fRecherche = rechercherProfilsSelonNom("Julien");
       fOublier = await fRecherche(client, idBdCompte, (r) =>
         rés.mettreÀJour(r)
       );
@@ -157,7 +157,7 @@ describe("Rechercher profil", function () {
       ({ fOublier: fOublierClients, clients } = await générerClients(1));
       client = clients[0];
       idBdCompte = await client.obtIdCompte();
-      const fRecherche = rechercherProfilSelonCourriel("julien");
+      const fRecherche = rechercherProfilsSelonCourriel("julien");
       fOublier = await fRecherche(client, idBdCompte, (r) =>
         rés.mettreÀJour(r)
       );
@@ -212,12 +212,12 @@ describe("Rechercher profil", function () {
       client = clients[0];
 
       idBdCompte = await client.obtIdCompte();
-      const fRechercheNom = rechercherProfilSelonTexte("Julien Malard");
+      const fRechercheNom = rechercherProfilsSelonTexte("Julien Malard");
       fsOublier.push(
         await fRechercheNom(client, idBdCompte, (r) => résNom.mettreÀJour(r))
       );
 
-      const fRechercherCourriel = rechercherProfilSelonTexte("julien.");
+      const fRechercherCourriel = rechercherProfilsSelonTexte("julien.");
       fsOublier.push(
         await fRechercherCourriel(client, idBdCompte, (r) =>
           résCourriel.mettreÀJour(r)
