@@ -590,7 +590,7 @@ typesClients.forEach((type) => {
               (x) => x && x.length > 0
             );
             const réf: élémentDeMembreAvecValid<élémentBdListeDonnées> = {
-              idBdCompte: await clients[1].obtIdCompte(),
+              idCompte: await clients[1].obtIdCompte(),
               élément: {
                 données: {
                   [idCol]: 3,
@@ -680,7 +680,7 @@ typesClients.forEach((type) => {
               (x) => x && x.length > 0
             );
             const réf: élémentDeMembreAvecValid<élémentBdListeDonnées> = {
-              idBdCompte: await clients[1].obtIdCompte(),
+              idCompte: await clients[1].obtIdCompte(),
               élément: {
                 données: {
                   [idCol]: 3,

@@ -47,7 +47,7 @@ const idCompte = ref<string>();
 
 let fOublierIdCompte: () => Promise<void> | undefined;
 onMounted(async () => {
-    fOublierIdCompte = await constellation.suivreIdBdCompte({ 
+    fOublierIdCompte = await constellation.suivreIdCompte({ 
         f: id => idCompte.value = id
     });
 })

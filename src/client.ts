@@ -65,7 +65,7 @@ import { gestionnaireOrbiteGénéral, type GestionnaireOrbite } from "@/orbite.j
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
 export type infoAccès = {
-  idBdCompte: string;
+  idCompte: string;
   rôle: keyof objRôles;
 };
 
@@ -184,7 +184,7 @@ export class ClientConstellation extends EventEmitter {
   _sfipExterne: boolean;
 
   prêt: boolean;
-  idBdCompte?: string;
+  idCompte?: string;
   encryption: Encryption;
   sujet_réseau: string;
   motsDePasseRejoindreCompte: { [key: string]: number };
@@ -222,22 +222,22 @@ export class ClientConstellation extends EventEmitter {
       nom: "racine",
     };
 
-    this.idBdCompte =
+    this.idCompte =
       this._opts.compte ||
       (await this.obtDeStockageLocal({
-        clef: "idBdCompte",
+        clef: "idCompte",
         parCompte: false,
       })) ||
       undefined;
-    if (!this.idBdCompte) {
-      this.idBdCompte = await this.créerBdIndépendante({
+    if (!this.idCompte) {
+      this.idCompte = await this.créerBdIndépendante({
         type: "kvstore",
         optionsAccès: optionsAccèsRacine,
         nom: "racine",
       });
       await this.sauvegarderAuStockageLocal({
-        clef: "idBdCompte",
-        val: this.idBdCompte,
+        clef: "idCompte",
+        val: this.idCompte,
         parCompte: false,
       });
     }
@@ -290,7 +290,7 @@ export class ClientConstellation extends EventEmitter {
 
   async initialiserCompte(): Promise<void> {
     const { bd } = await this.ouvrirBd<structureBdCompte>({
-      id: this.idBdCompte!,
+      id: this.idCompte!,
       type: "kvstore",
       schéma: schémaStructureBdCompte,
     });
@@ -314,8 +314,8 @@ export class ClientConstellation extends EventEmitter {
         id: idBdProtocoles,
         type: "kvstore",
       });
-    const idOrbite = await this.obtIdOrbite();
-    const protocolesExistants = bdProtocoles.get(idOrbite) || [];
+    const idDispositif = await this.obtIdDispositif();
+    const protocolesExistants = bdProtocoles.get(idDispositif) || [];
     const listesÉgales = (a: Array<string>, b: Array<string>) =>
       a.length === b.length && [...a].every((v) => b.includes(v));
     if (
@@ -323,8 +323,8 @@ export class ClientConstellation extends EventEmitter {
       !listesÉgales(protocolesExistants, this._opts.protocoles)
     ) {
       if (this._opts.protocoles)
-        await bdProtocoles.put(idOrbite, this._opts.protocoles);
-      else await bdProtocoles.del(idOrbite);
+        await bdProtocoles.put(idDispositif, this._opts.protocoles);
+      else await bdProtocoles.del(idDispositif);
     }
     await fOublierBdProtocoles();
 
@@ -400,13 +400,13 @@ export class ClientConstellation extends EventEmitter {
   @cacheSuivi
   async suivreProtocoles({
     f,
-    idBdCompte,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<{ [key: string]: string[] }>;
-    idBdCompte?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBdDicDeClef({
-      id: idBdCompte || (await this.obtIdCompte()),
+      id: idCompte || (await this.obtIdCompte()),
       clef: "protocoles",
       schéma: schémaStructureBdProtocoles,
       f,
@@ -416,10 +416,10 @@ export class ClientConstellation extends EventEmitter {
   @cacheSuivi
   async suivreDispositifs({
     f,
-    idBdCompte,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<string[]>;
-    idBdCompte?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     const fSuivi = async ({
       id,
@@ -458,11 +458,11 @@ export class ClientConstellation extends EventEmitter {
       }: {
         fSuivreRacine: (nouvelIdBdCible?: string | undefined) => Promise<void>;
       }): Promise<schémaFonctionOublier> => {
-        if (idBdCompte) {
-          await fSuivreRacine(idBdCompte);
+        if (idCompte) {
+          await fSuivreRacine(idCompte);
           return faisRien;
         } else {
-          return await this.suivreIdBdCompte({ f: fSuivreRacine });
+          return await this.suivreIdCompte({ f: fSuivreRacine });
         }
       },
       f: ignorerNonDéfinis(f),
@@ -554,7 +554,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     requète: ContenuMessageRejoindreCompte;
   }): Promise<void> {
-    const { idOrbite, empreinteVérification } = requète;
+    const { idDispositif, empreinteVérification } = requète;
     const maintenant = Date.now();
 
     for (const codeSecret of Object.keys(this.motsDePasseRejoindreCompte)) {
@@ -563,26 +563,26 @@ export class ClientConstellation extends EventEmitter {
         maintenant - dateCodeSecret < DÉLAI_EXPIRATION_INVITATIONS;
       if (dateValide) {
         const empreinteCorrespondante = this.empreinteInvitation({
-          idOrbite,
+          idDispositif,
           codeSecret,
         });
         if (empreinteCorrespondante === empreinteVérification) {
           // Empreinte code secret validé
           delete this.motsDePasseRejoindreCompte[codeSecret];
-          await this.ajouterDispositif({ idOrbite });
+          await this.ajouterDispositif({ idDispositif });
         }
       }
     }
   }
 
   empreinteInvitation({
-    idOrbite,
+    idDispositif,
     codeSecret,
   }: {
-    idOrbite: string;
+    idDispositif: string;
     codeSecret: string;
   }): string {
-    return Base64.stringify(sha256(idOrbite + codeSecret));
+    return Base64.stringify(sha256(idDispositif + codeSecret));
   }
 
   async demanderEtPuisRejoindreCompte({
@@ -601,16 +601,16 @@ export class ClientConstellation extends EventEmitter {
     });
   }
 
-  async ajouterDispositif({ idOrbite }: { idOrbite: string }): Promise<void> {
+  async ajouterDispositif({ idDispositif }: { idDispositif: string }): Promise<void> {
     if (!this.bdCompte) await once(this, "prêt");
     const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
-    accès.grant(MODÉRATEUR, idOrbite);
+    accès.grant(MODÉRATEUR, idDispositif);
   }
 
-  async enleverDispositif({ idOrbite }: { idOrbite: string }): Promise<void> {
+  async enleverDispositif({ idDispositif }: { idDispositif: string }): Promise<void> {
     if (!this.bdCompte) await once(this, "prêt");
     const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
-    await accès.revoke(MODÉRATEUR, idOrbite);
+    await accès.revoke(MODÉRATEUR, idDispositif);
   }
 
   async rejoindreCompte({ idCompte }: { idCompte: string }): Promise<void> {
@@ -618,7 +618,7 @@ export class ClientConstellation extends EventEmitter {
       throw new Error(`Adresse compte "${idCompte}" non valide`);
     }
 
-    // Attendre de recevoir la permission d'écrire à idBdCompte
+    // Attendre de recevoir la permission d'écrire à idCompte
     let autorisé: boolean;
     const { bd, fOublier } = await this.ouvrirBd({
       id: idCompte,
@@ -646,9 +646,9 @@ export class ClientConstellation extends EventEmitter {
     });
 
     // Là on peut y aller
-    this.idBdCompte = idCompte;
+    this.idCompte = idCompte;
     await this.sauvegarderAuStockageLocal({
-      clef: "idBdCompte",
+      clef: "idCompte",
       val: idCompte,
       parCompte: false,
     });
@@ -680,13 +680,13 @@ export class ClientConstellation extends EventEmitter {
   }
 
   @cacheSuivi
-  async suivreIdBdCompte({
+  async suivreIdCompte({
     f,
   }: {
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async () => {
-      if (this.idBdCompte) await f(this.idBdCompte);
+      if (this.idCompte) await f(this.idCompte);
     };
     this.on("compteChangé", fFinale);
     await fFinale();
@@ -700,7 +700,7 @@ export class ClientConstellation extends EventEmitter {
     return this.idNodeSFIP!;
   }
 
-  async obtIdOrbite(): Promise<string> {
+  async obtIdDispositif(): Promise<string> {
     if (!this.orbite) await once(this, "prêt");
     return this.orbite!.identity.id;
   }
@@ -711,8 +711,8 @@ export class ClientConstellation extends EventEmitter {
   }
 
   async obtIdCompte(): Promise<string> {
-    if (!this.idBdCompte) await once(this, "prêt");
-    return this.idBdCompte!;
+    if (!this.idCompte) await once(this, "prêt");
+    return this.idCompte!;
   }
 
   async copierContenuBdListe<T extends { [clef: string]: élémentsBd }>({
@@ -1893,9 +1893,9 @@ export class ClientConstellation extends EventEmitter {
     parCompte?: boolean;
   }): string {
     return parCompte
-      ? `${this.idBdCompte!.slice(
-          this.idBdCompte!.length - 23,
-          this.idBdCompte!.length - 8
+      ? `${this.idCompte!.slice(
+          this.idCompte!.length - 23,
+          this.idCompte!.length - 8
         )} : ${clef}`
       : clef;
   }
@@ -2165,7 +2165,7 @@ export class ClientConstellation extends EventEmitter {
     } else if (typeAccès === nomTypeContrôleurConstellation) {
       const fFinale = async (utilisateurs: infoUtilisateur[]) => {
         const mesRôles = utilisateurs
-          .filter((u) => u.idBdCompte === this.idBdCompte)
+          .filter((u) => u.idCompte === this.idCompte)
           .map((u) => u.rôle);
         const rôlePlusPuissant = mesRôles.includes(MODÉRATEUR)
           ? MODÉRATEUR
@@ -2216,7 +2216,7 @@ export class ClientConstellation extends EventEmitter {
       const listeAccès: infoAccès[] = (accès as IPFSAccessController).write.map(
         (id) => {
           return {
-            idBdCompte: id,
+            idCompte: id,
             rôle: MODÉRATEUR,
           };
         }

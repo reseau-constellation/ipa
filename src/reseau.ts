@@ -53,7 +53,7 @@ type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
 export type infoDispositif = {
   idSFIP: string;
-  idOrbite: string;
+  idDispositif: string;
   idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
@@ -66,7 +66,7 @@ export type statutDispositif = {
 };
 
 export type élémentBdMembres = {
-  idBdCompte: string;
+  idCompte: string;
   dispositifs: string[];
 };
 
@@ -75,7 +75,7 @@ export type itemRechercheProfondeur = {
 } & { [key: string]: unknown };
 
 export type infoMembreRéseau = {
-  idBdCompte: string;
+  idCompte: string;
   profondeur: number;
   confiance: number;
 };
@@ -88,17 +88,17 @@ export type infoRelation = {
 };
 
 export interface infoConfiance {
-  idBdCompte: string;
+  idCompte: string;
   confiance: number;
 }
 
 export interface infoBloqué {
-  idBdCompte: string;
+  idCompte: string;
   privé: boolean;
 }
 
 export interface infoMembre {
-  idBdCompte: string;
+  idCompte: string;
   protocoles: string[];
   dispositifs: infoDispositif[];
 }
@@ -125,7 +125,7 @@ export interface résultatRechercheSansScore<T extends infoRésultat> {
 }
 
 export type élémentDeMembre<T extends élémentBdListeDonnées> = {
-  idBdCompte: string;
+  idCompte: string;
   élément: élémentDonnées<T>;
 };
 
@@ -135,7 +135,7 @@ export type élémentDeMembreAvecValid<T extends élémentBdListeDonnées> =
   };
 
 export type bdDeMembre = {
-  idBdCompte: string;
+  idCompte: string;
   bd: string;
 };
 
@@ -177,7 +177,7 @@ export interface ValeurMessageSalut extends ValeurMessage {
 
 export interface ContenuMessageSalut extends ContenuMessage {
   idSFIP: string;
-  idOrbite: string;
+  idDispositif: string;
   idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
@@ -190,7 +190,7 @@ export interface ValeurMessageRequèteRejoindreCompte extends ValeurMessage {
 }
 
 export interface ContenuMessageRejoindreCompte extends ContenuMessage {
-  idOrbite: string;
+  idDispositif: string;
   empreinteVérification: string;
 }
 
@@ -393,7 +393,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       type: "Salut !",
       contenu: {
         idSFIP: obtChaîneIdSFIPClient(this.client),
-        idOrbite: this.client.orbite!.identity.id,
+        idDispositif: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
         idCompte: this.client.bdCompte!.id,
@@ -425,13 +425,13 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     idCompte: string;
     codeSecret: string;
   }): Promise<void> {
-    const idOrbite = await this.client.obtIdOrbite();
+    const idDispositif = await this.client.obtIdDispositif();
     const msg: ValeurMessageRequèteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
       contenu: {
-        idOrbite,
+        idDispositif,
         empreinteVérification: this.client.empreinteInvitation({
-          idOrbite,
+          idDispositif,
           codeSecret,
         }),
       },
@@ -469,7 +469,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       return;
     }
 
-    // Assurer que la signature est valide (message envoyé par détenteur de idOrbite)
+    // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
     const signatureValide = await this.client.vérifierSignature({
       signature,
       message: JSON.stringify(valeur),
@@ -483,7 +483,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         const contenuSalut = contenu as ContenuMessageSalut;
         const { clefPublique } = contenuSalut;
 
-        // S'assurer que idOrbite est la même que celle sur la signature
+        // S'assurer que idDispositif est la même que celle sur la signature
         if (clefPublique !== signature.clefPublique) return;
 
         await this.recevoirSalut({ message: contenuSalut });
@@ -511,7 +511,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }): Promise<void> {
     const dispositifValid = await this._validerInfoMembre({ info: message });
     if (!dispositifValid) return;
-    this.dispositifsEnLigne[message.idOrbite] = {
+    this.dispositifsEnLigne[message.idDispositif] = {
       infoDispositif: message,
       vuÀ: new Date().getTime(),
     };
@@ -527,7 +527,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         (d) => maintenant - (d.vuÀ || 0) > DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE
       )
       .sort((a, b) => ((a.vuÀ || 0) < (b.vuÀ || 0) ? -1 : 1))
-      .map((d) => d.infoDispositif.idOrbite);
+      .map((d) => d.infoDispositif.idDispositif);
 
     const nEffacer =
       Object.keys(this.dispositifsEnLigne).length -
@@ -549,22 +549,22 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }: {
     info: infoDispositif;
   }): Promise<boolean> {
-    const { idCompte, signatures, clefPublique, idOrbite } = info;
+    const { idCompte, signatures, clefPublique, idDispositif } = info;
 
-    if (!(idCompte && signatures && clefPublique && idOrbite)) return false;
+    if (!(idCompte && signatures && clefPublique && idDispositif)) return false;
 
     const sigIdValide = await this.client.vérifierSignature({
       signature: {
         signature: signatures.id,
         clefPublique: clefPublique,
       },
-      message: idOrbite,
+      message: idDispositif,
     });
 
     const sigClefPubliqueValide = await this.client.vérifierSignature({
       signature: {
         signature: signatures.publicKey,
-        clefPublique: idOrbite,
+        clefPublique: idDispositif,
       },
       message: clefPublique + signatures.id,
     });
@@ -575,35 +575,35 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     });
 
     if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
-    const bdCompteValide = bdCompte.access.estAutorisé(idOrbite);
+    const bdCompteValide = bdCompte.access.estAutorisé(idDispositif);
 
     await fOublier();
     return sigIdValide && sigClefPubliqueValide && bdCompteValide;
   }
 
   async faireConfianceAuMembre({
-    idBdCompte,
+    idCompte,
   }: {
-    idBdCompte: string;
+    idCompte: string;
   }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
-    await bd.set(idBdCompte, "FIABLE");
+    await bd.set(idCompte, "FIABLE");
     await fOublier();
   }
 
   async nePlusFaireConfianceAuMembre({
-    idBdCompte,
+    idCompte,
   }: {
-    idBdCompte: string;
+    idCompte: string;
   }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
     if (
       Object.keys(ClientConstellation.obtObjetdeBdDic({ bd })).includes(
-        idBdCompte
+        idCompte
       ) &&
-      bd.get(idBdCompte) === "FIABLE"
+      bd.get(idCompte) === "FIABLE"
     ) {
-      await bd.del(idBdCompte);
+      await bd.del(idCompte);
     }
     await fOublier();
   }
@@ -653,40 +653,40 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }
 
   async bloquerMembre({
-    idBdCompte,
+    idCompte,
     privé = false,
   }: {
-    idBdCompte: string;
+    idCompte: string;
     privé?: boolean;
   }): Promise<void> {
     if (privé) {
-      await this.débloquerMembre({ idBdCompte }); // Enlever du régistre publique s'il y est déjà
-      this.bloquésPrivés.add(idBdCompte);
+      await this.débloquerMembre({ idCompte }); // Enlever du régistre publique s'il y est déjà
+      this.bloquésPrivés.add(idCompte);
       await this._sauvegarderBloquésPrivés();
     } else {
       const { bd, fOublier } = await this.obtBd();
       // Enlever du régistre privé s'il y existe
-      await this.débloquerMembre({ idBdCompte });
-      await bd.set(idBdCompte, "BLOQUÉ");
+      await this.débloquerMembre({ idCompte });
+      await bd.set(idCompte, "BLOQUÉ");
       await fOublier();
     }
     this.événements.emit("changementMembresBloqués");
   }
 
-  async débloquerMembre({ idBdCompte }: { idBdCompte: string }): Promise<void> {
+  async débloquerMembre({ idCompte }: { idCompte: string }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
     if (
       Object.keys(ClientConstellation.obtObjetdeBdDic({ bd })).includes(
-        idBdCompte
+        idCompte
       ) &&
-      bd.get(idBdCompte) === "BLOQUÉ"
+      bd.get(idCompte) === "BLOQUÉ"
     ) {
-      await bd.del(idBdCompte);
+      await bd.del(idCompte);
     }
     await fOublier();
 
-    if (this.bloquésPrivés.has(idBdCompte)) {
-      this.bloquésPrivés.delete(idBdCompte);
+    if (this.bloquésPrivés.has(idCompte)) {
+      this.bloquésPrivés.delete(idCompte);
       await this._sauvegarderBloquésPrivés();
     }
     this.événements.emit("changementMembresBloqués");
@@ -731,10 +731,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       const listeBloqués = [
         ...new Set([
           ...[...this.bloquésPrivés].map((m) => {
-            return { idBdCompte: m, privé: true };
+            return { idCompte: m, privé: true };
           }),
           ...bloquésPubliques.map((m) => {
-            return { idBdCompte: m, privé: false };
+            return { idCompte: m, privé: false };
           }),
         ]),
       ];
@@ -752,7 +752,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       })
     );
 
-    if (idCompte === undefined || idCompte === this.client.idBdCompte) {
+    if (idCompte === undefined || idCompte === this.client.idCompte) {
       await this._initaliserBloquésPrivés();
       this.événements.on("changementMembresBloqués", fFinale);
       fsOublier.push(async () => {
@@ -769,12 +769,12 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   @cacheSuivi
   async suivreRelationsImmédiates({
     f,
-    idBdCompte,
+    idCompte,
   }: {
     f: schémaFonctionSuivi<infoConfiance[]>;
-    idBdCompte?: string;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    idBdCompte = idBdCompte ? idBdCompte : this.client.idBdCompte!;
+    idCompte = idCompte ? idCompte : this.client.idCompte!;
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -805,21 +805,21 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         ...comptes.coauteursVariables,
         ...comptes.coauteursMotsClefs,
         ...bloqués.map((b) => {
-          return { idBdCompte: b, confiance: -1 };
+          return { idCompte: b, confiance: -1 };
         }),
       ];
       const membresUniques = [...new Set(tous)];
       const relations = membresUniques.map((m) => {
-        const { idBdCompte } = m;
-        if (bloqués.includes(idBdCompte)) {
-          return { idBdCompte, confiance: -1 };
+        const { idCompte } = m;
+        if (bloqués.includes(idCompte)) {
+          return { idCompte, confiance: -1 };
         }
         const points = tous
-          .filter((x) => x.idBdCompte === idBdCompte)
+          .filter((x) => x.idCompte === idCompte)
           .map((x) => x.confiance);
         const confiance =
           1 - points.map((p) => 1 - p).reduce((total, c) => c * total, 1);
-        return { idBdCompte, confiance };
+        return { idCompte, confiance };
       });
       return await f(relations);
     };
@@ -827,23 +827,23 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     fsOublier.push(
       await this.suivreBloqués({
         f: async (blqs: infoBloqué[]) => {
-          bloqués = blqs.map((b) => b.idBdCompte);
+          bloqués = blqs.map((b) => b.idCompte);
           await fFinale();
         },
-        idCompte: idBdCompte,
+        idCompte: idCompte,
       })
     );
 
     fsOublier.push(
       await this.client.suivreBdDicDeClef({
-        id: idBdCompte,
+        id: idCompte,
         clef: "réseau",
         schéma: schémaBdPrincipaleRéseau,
         f: async (membres: { [key: string]: statutConfianceMembre }) => {
           comptes.suivis = Object.entries(membres)
             .filter(([_, statut]) => statut === "FIABLE")
             .map(([id, _]) => {
-              return { idBdCompte: id, confiance: 1 };
+              return { idCompte: id, confiance: 1 };
             });
           return await fFinale();
         },
@@ -861,8 +861,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         await this.client.suivreBdsDeFonctionListe({
           fListe,
           f: async (membres: string[]) => {
-            comptes[clef] = membres.map((idBdCompte) => {
-              return { idBdCompte, confiance };
+            comptes[clef] = membres.map((idCompte) => {
+              return { idCompte, confiance };
             });
             return await fFinale();
           },
@@ -876,8 +876,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
               f: (accès: infoAccès[]) =>
                 fSuivi(
                   accès
-                    .map((a) => a.idBdCompte)
-                    .filter((id) => id !== idBdCompte)
+                    .map((a) => a.idCompte)
+                    .filter((id) => id !== idCompte)
                 ),
             });
           },
@@ -889,7 +889,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
       return await this.suivreFavorisMembre({
-        idCompte: idBdCompte!,
+        idCompte: idCompte!,
         f: (favoris) => {
           return fSuivreRacine((favoris || []).map((f) => f.idObjet));
         },
@@ -901,7 +901,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
       return await this.suivreBdsMembre({
-        idCompte: idBdCompte!,
+        idCompte: idCompte!,
         f: (bds) => fSuivreRacine(bds || []),
       });
     };
@@ -915,7 +915,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
       return await this.suivreProjetsMembre({
-        idCompte: idBdCompte!,
+        idCompte: idCompte!,
         f: (projets) => fSuivreRacine(projets || []),
       });
     };
@@ -929,7 +929,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
       return await this.suivreVariablesMembre({
-        idCompte: idBdCompte!,
+        idCompte: idCompte!,
         f: (variables) => fSuivreRacine(variables || []),
       });
     };
@@ -943,7 +943,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (é: string[]) => Promise<void>
     ) => {
       return await this.suivreMotsClefsMembre({
-        idCompte: idBdCompte!,
+        idCompte: idCompte!,
         f: (motsClefs) => fSuivreRacine(motsClefs || []),
       });
     };
@@ -979,7 +979,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const connectéPar = (id: string): string[] => {
       return Object.entries(dicRelations)
         .filter(([_, info]) =>
-          info.relations.map((r) => r.idBdCompte).includes(id)
+          info.relations.map((r) => r.idCompte).includes(id)
         )
         .map(([de, _]) => de);
     };
@@ -1021,7 +1021,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           const p = calcProfondeurCompte(de) + 1;
           relationsFinales.push({
             de,
-            pour: r.idBdCompte,
+            pour: r.idCompte,
             confiance: r.confiance,
             profondeur: p,
           });
@@ -1041,7 +1041,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             fMiseÀJour();
           }
         },
-        idBdCompte: idCompte,
+        idCompte: idCompte,
       });
       dicOublierRelations[idCompte] = fOublierRelationsImmédiates;
     };
@@ -1065,7 +1065,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         ...new Set(
           Object.entries(dicRelations)
             .filter(([de, _]) => calcProfondeurCompte(de) + 1 < profondeur)
-            .map(([_, info]) => info.relations.map((r) => r.idBdCompte))
+            .map(([_, info]) => info.relations.map((r) => r.idCompte))
             .flat()
         ),
       ].filter((id) => !Object.keys(dicRelations).includes(id));
@@ -1104,8 +1104,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fSuivi = async (relations: infoRelation[]) => {
       // S'ajouter soi-même
       relations.push({
-        de: this.client.idBdCompte!,
-        pour: this.client.idBdCompte!,
+        de: this.client.idCompte!,
+        pour: this.client.idCompte!,
         confiance: 1,
         profondeur: 0,
       });
@@ -1119,13 +1119,13 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       });
 
       const comptes: infoMembreRéseau[] = Object.entries(dicRelations).map(
-        ([idBdCompte, rs]) => {
-          const maRelation = rs.find((r) => r.de === this.client.idBdCompte);
+        ([idCompte, rs]) => {
+          const maRelation = rs.find((r) => r.de === this.client.idCompte);
 
           if (maRelation?.confiance === 1 || maRelation?.confiance === -1) {
             return {
-              idBdCompte,
-              profondeur: maRelation.pour === this.client.idBdCompte ? 0 : 1,
+              idCompte,
+              profondeur: maRelation.pour === this.client.idCompte ? 0 : 1,
               confiance: maRelation!.confiance,
             };
           }
@@ -1156,7 +1156,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             coûtNégatif;
 
           return {
-            idBdCompte,
+            idCompte,
             profondeur: profondeurCompte,
             confiance,
           };
@@ -1194,7 +1194,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fFinale = async () => {
       const membres = [...dicComptes.réseau];
       dicComptes.enLigne.forEach((c) => {
-        if (!membres.find((m) => m.idBdCompte === c.idBdCompte)) {
+        if (!membres.find((m) => m.idCompte === c.idCompte)) {
           membres.push(c);
         }
       });
@@ -1204,10 +1204,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fOublierComptesEnLigne = await this.suivreConnexionsMembres({
       f: async (membres: statutMembre[]) => {
         const infoMembresEnLigne: infoMembreRéseau[] = membres
-          .filter((m) => m.infoMembre.idBdCompte !== this.client.idBdCompte)
+          .filter((m) => m.infoMembre.idCompte !== this.client.idCompte)
           .map((m) => {
             return {
-              idBdCompte: m.infoMembre.idBdCompte,
+              idCompte: m.infoMembre.idCompte,
               profondeur: Infinity,
               confiance: 0,
             };
@@ -1238,32 +1238,32 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }
 
   async suivreConfianceMonRéseauPourMembre({
-    idBdCompte,
+    idCompte,
     f,
     profondeur,
-    idBdCompteRéférence,
+    idCompteRéférence,
   }: {
-    idBdCompte: string;
+    idCompte: string;
     f: schémaFonctionSuivi<number>;
     profondeur: number;
-    idBdCompteRéférence?: string;
+    idCompteRéférence?: string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     /*
     Note : Ne PAS envelopper cette fonction avec un `@cacheRechercheParProfondeur` !
     Elle retourne un nombre, pas une liste de résultat, et ça va bien sûr planter
     si on essaie de l'envelopper.
     */
-    idBdCompteRéférence = idBdCompteRéférence || this.client.idBdCompte!;
+    const idCompteRéférenceFinal = idCompteRéférence || await this.client.obtIdCompte();
 
     const fFinale = async (membres: infoMembreRéseau[]) => {
-      const infoRecherchée = membres.find((m) => m.idBdCompte === idBdCompte);
+      const infoRecherchée = membres.find((m) => m.idCompte === idCompte);
       return await f(infoRecherchée?.confiance || 0);
     };
 
     return await this.suivreComptesRéseau({
       f: fFinale,
       profondeur,
-      idCompteDébut: idBdCompteRéférence,
+      idCompteDébut: idCompteRéférenceFinal,
     });
   }
 
@@ -1340,7 +1340,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }): Promise<schémaFonctionOublier> {
     type statutMembreSansProtocoles = {
       infoMembre: {
-        idBdCompte: string;
+        idCompte: string;
         dispositifs: infoDispositif[];
       };
       vuÀ?: number;
@@ -1356,7 +1356,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           if (!membres[idCompte]) {
             membres[idCompte] = {
               infoMembre: {
-                idBdCompte: idCompte,
+                idCompte: idCompte,
                 dispositifs: [],
               },
             };
@@ -1398,18 +1398,18 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       f,
       fBranche,
       fIdBdDeBranche: (x: statutMembreSansProtocoles) =>
-        x.infoMembre.idBdCompte,
-      fCode: (x: statutMembreSansProtocoles) => x.infoMembre.idBdCompte,
+        x.infoMembre.idCompte,
+      fCode: (x: statutMembreSansProtocoles) => x.infoMembre.idCompte,
     });
   }
 
   @cacheSuivi
   async suivreProtocolesMembre({
-    idCompte,
     f,
+    idCompte,
   }: {
-    idCompte?: string;
     f: schémaFonctionSuivi<string[]>;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
       id: idCompte || (await this.client.obtIdCompte()),
@@ -1424,9 +1424,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     idDispositif,
     f,
   }: {
-    idDispositif: string;
+    idDispositif?: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
+    const idDispositifFinal = idDispositif || await this.client.obtIdDispositif();
+
     const fRacine = async ({
       fSuivreRacine,
     }: {
@@ -1435,7 +1437,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       return await this.suivreConnexionsDispositifs({
         f: async (dispositifs) => {
           const dispositif = dispositifs.find(
-            (d) => d.infoDispositif.idOrbite === idDispositif
+            (d) => d.infoDispositif.idDispositif === idDispositifFinal
           );
           if (dispositif) {
             const { idCompte } = dispositif.infoDispositif;
@@ -1456,14 +1458,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     }) => {
       return await this.client.suivreProtocoles({
         f: fSuivreBd,
-        idBdCompte: id,
+        idCompte: id,
       });
     };
 
     const fFinale = async (protocoles?: {
       [key: string]: string[];
     }): Promise<void> => {
-      if (protocoles) return await f(protocoles[idDispositif]);
+      if (protocoles) return await f(protocoles[idDispositifFinal]);
     };
 
     return await this.client.suivreBdDeFonction({
@@ -1600,19 +1602,19 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const suivreRésultatsMembre = async (
       membre: infoMembreRéseau
     ): Promise<void> => {
-      const { idBdCompte } = membre;
+      const { idCompte } = membre;
 
       const fListe = async (
         fSuivreRacine: (éléments: string[]) => Promise<void>
       ): Promise<schémaFonctionOublier> => {
         return await fRecherche({
-          idCompte: membre.idBdCompte,
+          idCompte: membre.idCompte,
           fSuivi: async (résultats) => await fSuivreRacine(résultats || []),
         });
       };
 
       const fSuivi = async (résultats: résultatRecherche<T>[]) => {
-        résultatsParMembre[idBdCompte].résultats = résultats;
+        résultatsParMembre[idCompte].résultats = résultats;
         return await fFinale();
       };
 
@@ -1673,7 +1675,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         return fOublierBranche;
       };
 
-      résultatsParMembre[idBdCompte] = {
+      résultatsParMembre[idCompte] = {
         résultats: [] as résultatRecherche<T>[],
         membre,
         mettreÀJour: fFinale,
@@ -1686,7 +1688,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           fBranche,
         });
 
-      fsOublierRechercheMembres[idBdCompte] = fOublierRechercheMembre;
+      fsOublierRechercheMembres[idCompte] = fOublierRechercheMembre;
     };
 
     const oublierRésultatsMembre = async (compte: string) => {
@@ -1705,12 +1707,12 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
       comptes = comptes.filter((c) => c.confiance >= 0); // Enlever les membres bloqués
 
-      const nouveaux = comptes.filter((c) => !résultatsParMembre[c.idBdCompte]);
+      const nouveaux = comptes.filter((c) => !résultatsParMembre[c.idCompte]);
       const clefsObsolètes = Object.keys(résultatsParMembre).filter(
-        (m) => !comptes.find((c) => c.idBdCompte === m)
+        (m) => !comptes.find((c) => c.idCompte === m)
       );
       const changés = comptes.filter((c) => {
-        const avant = résultatsParMembre[c.idBdCompte];
+        const avant = résultatsParMembre[c.idCompte];
         return (
           avant &&
           (c.confiance !== avant.membre.confiance ||
@@ -1721,7 +1723,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       await Promise.all(nouveaux.map(suivreRésultatsMembre));
       await Promise.all(
         changés.map(
-          async (c) => await résultatsParMembre[c.idBdCompte].mettreÀJour(c)
+          async (c) => await résultatsParMembre[c.idCompte].mettreÀJour(c)
         )
       );
 
@@ -1771,7 +1773,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivi: schémaFonctionSuivi<number>
     ) => {
       const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
-        idBdCompte: idCompte,
+        idCompte: idCompte,
         f: fSuivi,
         profondeur: 4,
       });
@@ -1831,7 +1833,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         f: async (auteurs: infoAuteur[]) => {
           const idsAuteurs = auteurs
             .filter((a) => a.accepté)
-            .map((a) => a.idBdCompte);
+            .map((a) => a.idCompte);
           return await fSuivreRacine(idsAuteurs);
         },
       });
@@ -1842,7 +1844,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreBranche: schémaFonctionSuivi<number>
     ): Promise<schémaFonctionOublier> => {
       const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
-        idBdCompte: idAuteur,
+        idCompte: idAuteur,
         f: fSuivreBranche,
         profondeur: 4,
       });
@@ -2188,7 +2190,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       return await this.client.suivreAccèsBd({ id: idObjet, f: fSuivreRacine });
     };
     const fBranche = async (
-      idBdCompte: string,
+      idCompte: string,
       fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
       branche: infoAccès
     ) => {
@@ -2196,20 +2198,20 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         bdsMembre = bdsMembre || [];
         return fSuivreBranche([
           {
-            idBdCompte: branche.idBdCompte,
+            idCompte: branche.idCompte,
             rôle: branche.rôle,
             accepté: bdsMembre.includes(idObjet),
           },
         ]);
       };
       return await this.client.suivreBdListeDeClef({
-        id: idBdCompte,
+        id: idCompte,
         clef,
         f: fFinaleSuivreBranche,
       });
     };
-    const fIdBdDeBranche = (x: infoAccès) => x.idBdCompte;
-    const fCode = (x: infoAccès) => x.idBdCompte;
+    const fIdBdDeBranche = (x: infoAccès) => x.idCompte;
+    const fCode = (x: infoAccès) => x.idCompte;
 
     const fOublier = this.client.suivreBdsDeFonctionListe({
       fListe,
@@ -2282,7 +2284,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     fListeObjets: (
       fSuivreRacine: (ids: string[]) => Promise<void>
     ) => Promise<schémaFonctionOublier>;
-    fSuivi: schémaFonctionSuivi<string[] | undefined>;
+    fSuivi: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdsSelonCondition({
       fListe: fListeObjets,
@@ -2294,7 +2296,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           id,
           f: (autorisés: infoAccès[]) =>
             fSuivreCondition(
-              autorisés.map((a) => a.idBdCompte).includes(idCompte)
+              autorisés.map((a) => a.idCompte).includes(idCompte)
             ),
         });
       },
@@ -2308,7 +2310,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     f,
   }: {
     idCompte: string;
-    f: schémaFonctionSuivi<string[] | undefined>;
+    f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreObjetsMembre({
       idCompte,
@@ -2343,7 +2345,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     f,
   }: {
     idCompte: string;
-    f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[] | undefined>;
+    f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[]>;
   }): Promise<schémaFonctionOublier> {
     // suivreFavoris est différent parce qu'on n'a pas besoin de vérifier l'autorisation du membre
     return await this.client.favoris!.suivreFavoris({
@@ -2416,12 +2418,12 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }: {
     idObjet: string;
     f: schémaFonctionSuivi<
-      (ÉlémentFavorisAvecObjet & { idBdCompte: string })[]
+      (ÉlémentFavorisAvecObjet & { idCompte: string })[]
     >;
     profondeur: number;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = async (
-      favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
+      favoris: (ÉlémentFavoris & { idObjet: string; idCompte: string })[]
     ) => {
       const favorisDIntérêt = favoris.filter((f) => f.idObjet === idObjet);
       await f(favorisDIntérêt);
@@ -2433,31 +2435,31 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       const fSuivreComptes = async (infosMembres: infoMembreRéseau[]) => {
         // On s'ajoute à la liste des favoris
         return await fSuivreRacine([
-          this.client.idBdCompte!,
-          ...infosMembres.map((i) => i.idBdCompte),
+          this.client.idCompte!,
+          ...infosMembres.map((i) => i.idCompte),
         ]);
       };
 
       return await this.suivreComptesRéseauEtEnLigne({
         f: fSuivreComptes,
         profondeur,
-        idCompteDébut: this.client.idBdCompte!,
+        idCompteDébut: this.client.idCompte!,
       });
     };
 
     const fBranche = async (
-      idBdCompte: string,
+      idCompte: string,
       fSuivreBranche: schémaFonctionSuivi<
-        (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[] | undefined
+        (ÉlémentFavoris & { idObjet: string; idCompte: string })[] | undefined
       >
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreFavorisMembre({
-        idCompte: idBdCompte,
+        idCompte: idCompte,
         f: (favoris: (ÉlémentFavoris & { idObjet: string })[] | undefined) =>
           fSuivreBranche(
             favoris
               ? favoris.map((fav) => {
-                  return { idBdCompte, ...fav };
+                  return { idCompte, ...fav };
                 })
               : undefined
           ),
@@ -2484,16 +2486,16 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       connexionsMembres: statutMembre[];
       connexionsDispositifs: statutDispositif[];
       favoris: {
-        favoris: ÉlémentFavoris & { idObjet: string; idBdCompte: string };
+        favoris: ÉlémentFavoris & { idObjet: string; idCompte: string };
         dispositifs: string[];
       }[];
     } = { connexionsMembres: [], connexionsDispositifs: [], favoris: [] };
 
     const fFinale = async () => {
       const { connexionsMembres, favoris } = résultats;
-      const idsMembres = favoris.map((fav) => fav.favoris.idBdCompte);
+      const idsMembres = favoris.map((fav) => fav.favoris.idCompte);
       const membres = connexionsMembres.filter((c) =>
-        idsMembres.includes(c.infoMembre.idBdCompte)
+        idsMembres.includes(c.infoMembre.idCompte)
       );
 
       const dispositifs: (épingleDispositif & {
@@ -2507,10 +2509,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             return await Promise.all(
               dispositifs.map(async (d) => {
                 const vuÀ = résultats.connexionsDispositifs.find(
-                  (c) => c.infoDispositif.idOrbite === d
+                  (c) => c.infoDispositif.idDispositif === d
                 )?.vuÀ;
                 const idCompte = résultats.connexionsDispositifs.find(
-                  (c) => c.infoDispositif.idOrbite === d
+                  (c) => c.infoDispositif.idDispositif === d
                 )?.infoDispositif.idCompte;
 
                 const dispositifsRéplication: épingleDispositif & {
@@ -2523,11 +2525,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
                   idCompte,
                   bd: await this.client.favoris!.estÉpingléSurDispositif({
                     dispositifs: favoris.dispositifs,
-                    idOrbite: d,
+                    idDispositif: d,
                   }),
                   fichiers: await this.client.favoris!.estÉpingléSurDispositif({
                     dispositifs: favoris.dispositifsFichiers,
-                    idOrbite: d,
+                    idDispositif: d,
                   }),
                   récursif: favoris.récursif,
                   vuÀ,
@@ -2562,7 +2564,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fSuivreFavoris = async (
       favoris: {
-        favoris: ÉlémentFavoris & { idObjet: string; idBdCompte: string };
+        favoris: ÉlémentFavoris & { idObjet: string; idCompte: string };
         dispositifs: string[];
       }[]
     ) => {
@@ -2572,7 +2574,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fListeFavoris = async (
       fSuivreRacine: (
-        favoris: (ÉlémentFavoris & { idObjet: string; idBdCompte: string })[]
+        favoris: (ÉlémentFavoris & { idObjet: string; idCompte: string })[]
       ) => void
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreFavorisObjet({
@@ -2585,10 +2587,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fBrancheFavoris = async (
       id: string,
       fSuivreBranche: schémaFonctionSuivi<{
-        favoris: ÉlémentFavoris & { idObjet: string; idBdCompte: string };
+        favoris: ÉlémentFavoris & { idObjet: string; idCompte: string };
         dispositifs: string[];
       }>,
-      branche: ÉlémentFavoris & { idObjet: string; idBdCompte: string }
+      branche: ÉlémentFavoris & { idObjet: string; idCompte: string }
     ): Promise<schémaFonctionOublier> => {
       const fSuivreDispositifsMembre = async (dispositifs: string[]) => {
         return await fSuivreBranche({ favoris: branche, dispositifs });
@@ -2596,7 +2598,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
       const fOublierDispositifsMembre = await this.client.suivreDispositifs({
         f: fSuivreDispositifsMembre,
-        idBdCompte: id,
+        idCompte: id,
       });
 
       return async () => {
@@ -2605,11 +2607,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fIdBdDeBranche = (
-      x: ÉlémentFavoris & { idObjet: string; idBdCompte: string }
-    ) => x.idBdCompte;
+      x: ÉlémentFavoris & { idObjet: string; idCompte: string }
+    ) => x.idCompte;
     const fCode = (
-      x: ÉlémentFavoris & { idObjet: string; idBdCompte: string }
-    ) => x.idBdCompte;
+      x: ÉlémentFavoris & { idObjet: string; idCompte: string }
+    ) => x.idCompte;
 
     const { fOublier: fOublierFavoris, fChangerProfondeur } =
       await this.client.suivreBdsDeFonctionRecherche({
@@ -2653,7 +2655,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreComptesRéseauEtEnLigne({
-        f: (résultats) => fSuivreRacine(résultats.map((r) => r.idBdCompte)),
+        f: (résultats) => fSuivreRacine(résultats.map((r) => r.idCompte)),
         profondeur: nRésultatsDésirés,
       });
     };
@@ -2696,11 +2698,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         return await this.suivreAuteursBd({
           idBd,
           f: async (auteurs: infoAuteur[]) => {
-            const idBdCompte = auteurs.find((a) => a.accepté)?.idBdCompte;
-            const infoBdDeMembre: bdDeMembre | undefined = idBdCompte
+            const idCompte = auteurs.find((a) => a.accepté)?.idCompte;
+            const infoBdDeMembre: bdDeMembre | undefined = idCompte
               ? {
                   bd: idBd,
-                  idBdCompte,
+                  idCompte,
                 }
               : undefined;
             return await f(infoBdDeMembre);
@@ -2719,7 +2721,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       f: schémaFonctionSuivi<élémentDeMembre<T>[]>,
       branche: bdDeMembre
     ): Promise<schémaFonctionOublier> => {
-      const { idBdCompte } = branche;
+      const { idCompte } = branche;
 
       const fSuivreTableaux = async ({
         fSuivreRacine,
@@ -2745,7 +2747,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         const fSuivreDonnéesTableauFinale = async (données: élémentDonnées<T>[]) => {
           const donnéesMembre: élémentDeMembre<T>[] = données.map((d) => {
             return {
-              idBdCompte,
+              idCompte,
               élément: d,
             };
           });

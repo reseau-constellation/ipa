@@ -7,7 +7,7 @@ export type élémentBdAccès = {
 
 export type infoUtilisateur = {
   rôle: (typeof rôles)[number];
-  idBdCompte: string;
+  idCompte: string;
 };
 
 export type objRôles = { [key in (typeof rôles)[number]]: string[] };

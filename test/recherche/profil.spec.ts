@@ -23,7 +23,7 @@ describe("Rechercher profil", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation;
-    let idBdCompte: string;
+    let idCompte: string;
 
     let fOublier: schémaFonctionOublier;
 
@@ -34,9 +34,9 @@ describe("Rechercher profil", function () {
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClients(1));
       client = clients[0];
-      idBdCompte = await client.obtIdCompte();
+      idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonActivité();
-      fOublier = await fRecherche(client, idBdCompte, (r) =>
+      fOublier = await fRecherche(client, idCompte, (r) =>
         rés.mettreÀJour(r)
       );
     });
@@ -88,7 +88,7 @@ describe("Rechercher profil", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation;
-    let idBdCompte: string;
+    let idCompte: string;
     let fOublier: schémaFonctionOublier;
 
     const rés = new AttendreRésultat<
@@ -98,9 +98,9 @@ describe("Rechercher profil", function () {
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClients(1));
       client = clients[0];
-      idBdCompte = await client.obtIdCompte();
+      idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonNom("Julien");
-      fOublier = await fRecherche(client, idBdCompte, (r) =>
+      fOublier = await fRecherche(client, idCompte, (r) =>
         rés.mettreÀJour(r)
       );
     });
@@ -146,7 +146,7 @@ describe("Rechercher profil", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation;
-    let idBdCompte: string;
+    let idCompte: string;
     let fOublier: schémaFonctionOublier;
 
     const rés = new AttendreRésultat<
@@ -156,9 +156,9 @@ describe("Rechercher profil", function () {
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClients(1));
       client = clients[0];
-      idBdCompte = await client.obtIdCompte();
+      idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonCourriel("julien");
-      fOublier = await fRecherche(client, idBdCompte, (r) =>
+      fOublier = await fRecherche(client, idCompte, (r) =>
         rés.mettreÀJour(r)
       );
     });
@@ -198,7 +198,7 @@ describe("Rechercher profil", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation;
-    let idBdCompte: string;
+    let idCompte: string;
     const fsOublier: schémaFonctionOublier[] = [];
     const résNom = new AttendreRésultat<
       résultatObjectifRecherche<infoRésultatTexte>
@@ -211,15 +211,15 @@ describe("Rechercher profil", function () {
       ({ fOublier: fOublierClients, clients } = await générerClients(1));
       client = clients[0];
 
-      idBdCompte = await client.obtIdCompte();
+      idCompte = await client.obtIdCompte();
       const fRechercheNom = rechercherProfilsSelonTexte("Julien Malard");
       fsOublier.push(
-        await fRechercheNom(client, idBdCompte, (r) => résNom.mettreÀJour(r))
+        await fRechercheNom(client, idCompte, (r) => résNom.mettreÀJour(r))
       );
 
       const fRechercherCourriel = rechercherProfilsSelonTexte("julien.");
       fsOublier.push(
-        await fRechercherCourriel(client, idBdCompte, (r) =>
+        await fRechercherCourriel(client, idCompte, (r) =>
           résCourriel.mettreÀJour(r)
         )
       );

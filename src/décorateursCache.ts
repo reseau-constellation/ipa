@@ -379,7 +379,7 @@ export const envelopper = ({
             : "nRésultatsDésirés";
           return cache.suivreRecherche({
             adresseFonction: this.constructor.name + "." + nom,
-            idClient: client.idBdCompte,
+            idClient: client.idCompte,
             fOriginale: original,
             args: args[0],
             ceciOriginal: this,
@@ -389,7 +389,7 @@ export const envelopper = ({
         } else {
           return cache.suivre({
             adresseFonction: this.constructor.name + "." + nom,
-            idClient: client.idBdCompte,
+            idClient: client.idCompte,
             fOriginale: original,
             args: args[0],
             ceciOriginal: this,

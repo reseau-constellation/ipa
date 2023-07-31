@@ -1696,7 +1696,7 @@ typesClients.forEach((type) => {
           idsComptes.push(await c.obtIdCompte());
           if (i < clients.length - 1) {
             await c.réseau!.faireConfianceAuMembre({
-              idBdCompte: await clients[i + 1].obtIdCompte(),
+              idCompte: await clients[i + 1].obtIdCompte(),
             });
           }
         }

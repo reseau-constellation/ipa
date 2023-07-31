@@ -48,15 +48,15 @@ if (isNode || isElectronMain) {
       client3: ClientConstellation;
 
     let fOublierDispositifs: schémaFonctionOublier;
-    let fOublierIdBdCompte: schémaFonctionOublier;
+    let fOublieridCompte: schémaFonctionOublier;
 
-    let idOrbite1: string;
-    let idOrbite2: string;
-    let idOrbite3: string;
+    let idDispositif1: string;
+    let idDispositif2: string;
+    let idDispositif3: string;
 
-    let idBdCompte1: string;
+    let idCompte1: string;
 
-    let idBdCompte2EnDirecte: string | undefined;
+    let idCompte2EnDirecte: string | undefined;
 
     const mesDispositifs = new AttendreRésultat<string[]>();
 
@@ -64,29 +64,29 @@ if (isNode || isElectronMain) {
       ({ fOublier: fOublierClients, clients } = await générerClients(3));
       [client, client2, client3] = clients;
 
-      idBdCompte1 = await client.obtIdCompte();
+      idCompte1 = await client.obtIdCompte();
 
-      idOrbite1 = await client.obtIdOrbite();
-      idOrbite2 = await client2.obtIdOrbite();
-      idOrbite3 = await client3.obtIdOrbite();
+      idDispositif1 = await client.obtIdDispositif();
+      idDispositif2 = await client2.obtIdDispositif();
+      idDispositif3 = await client3.obtIdDispositif();
 
       fOublierDispositifs = await client.suivreDispositifs({
         f: (dispositifs) => mesDispositifs.mettreÀJour(dispositifs),
       });
-      fOublierIdBdCompte = await client2.suivreIdBdCompte({
-        f: (id) => (idBdCompte2EnDirecte = id),
+      fOublieridCompte = await client2.suivreIdCompte({
+        f: (id) => (idCompte2EnDirecte = id),
       });
     });
 
     after(async () => {
       if (fOublierDispositifs) await fOublierDispositifs();
-      if (fOublierIdBdCompte) await fOublierIdBdCompte();
+      if (fOublieridCompte) await fOublieridCompte();
       if (fOublierClients) await fOublierClients();
     });
 
     it("Mon dispositif est présent", async () => {
       const val = await mesDispositifs.attendreExiste();
-      expect(val).to.have.members([idOrbite1]);
+      expect(val).to.have.members([idDispositif1]);
     });
 
     describe("Ajouter dispositif manuellement", function () {
@@ -107,8 +107,8 @@ if (isNode || isElectronMain) {
           langue: "fr",
         });
 
-        await client.ajouterDispositif({ idOrbite: idOrbite2 });
-        await client2.rejoindreCompte({ idCompte: idBdCompte1 });
+        await client.ajouterDispositif({ idDispositif: idDispositif2 });
+        await client2.rejoindreCompte({ idCompte: idCompte1 });
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
       });
 
@@ -119,16 +119,16 @@ if (isNode || isElectronMain) {
 
       it("Mes dispositifs sont mis à jour", async () => {
         const val = await mesDispositifs.attendreQue((x) => x.length > 1);
-        expect(val).to.have.members([idOrbite1, idOrbite2]);
+        expect(val).to.have.members([idDispositif1, idDispositif2]);
       });
 
       it("Le nouveau dispositif a rejoint notre compte", () => {
-        expect(idBdCompte2EnDirecte).to.equal(idBdCompte1);
+        expect(idCompte2EnDirecte).to.equal(idCompte1);
       });
 
-      it("idOrbite ne change pas", async () => {
-        const idOrbiteClient2Après = await client2.obtIdOrbite();
-        expect(idOrbiteClient2Après).to.equal(idOrbite2);
+      it("idDispositif ne change pas", async () => {
+        const idDispositifClient2Après = await client2.obtIdDispositif();
+        expect(idDispositifClient2Après).to.equal(idDispositif2);
       });
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
@@ -160,12 +160,12 @@ if (isNode || isElectronMain) {
 
       it("Nouveau dispositif ajouté au compte", async () => {
         const val = await mesDispositifs.attendreQue((x) => x.length > 2);
-        expect(val).to.have.members([idOrbite1, idOrbite2, idOrbite3]);
+        expect(val).to.have.members([idDispositif1, idDispositif2, idDispositif3]);
       });
 
       it("Nouveau dispositif indique le nouveau compte", async () => {
-        const idBdCompte3 = await client3.obtIdCompte();
-        expect(idBdCompte3).to.equal(idBdCompte1);
+        const idCompte3 = await client3.obtIdCompte();
+        expect(idCompte3).to.equal(idCompte1);
       });
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
@@ -186,13 +186,13 @@ if (isNode || isElectronMain) {
     let clients: ClientConstellation[];
     let client: ClientConstellation, client2: ClientConstellation;
 
-    let idbdCompte2: string;
+    let idCompte2: string;
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClients(2));
       [client, client2] = clients;
 
-      idbdCompte2 = await client2.obtIdCompte();
+      idCompte2 = await client2.obtIdCompte();
     });
 
     after(async () => {
@@ -1724,7 +1724,7 @@ if (isNode || isElectronMain) {
       });
 
       it("On détecte l'ajout d'une permission membre", async () => {
-        await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
+        await client.donnerAccès({ idBd, identité: idCompte2, rôle: MEMBRE });
         const val = await rés.attendreExiste();
         expect(val).to.equal(MEMBRE);
       });
@@ -1744,7 +1744,7 @@ if (isNode || isElectronMain) {
       it("On détecte l'ajout d'une permission modératrice", async () => {
         await client.donnerAccès({
           idBd,
-          identité: idbdCompte2,
+          identité: idCompte2,
           rôle: MODÉRATEUR,
         });
         await rés.attendreQue((x) => x === MODÉRATEUR);
@@ -1801,10 +1801,10 @@ if (isNode || isElectronMain) {
         résultatPermission.toutAnnuler();
       });
       it("On détecte l'ajout d'une permission membre", async () => {
-        await client.donnerAccès({ idBd, identité: idbdCompte2, rôle: MEMBRE });
+        await client.donnerAccès({ idBd, identité: idCompte2, rôle: MEMBRE });
         await résultatPermission.attendreQue((x) => x === MEMBRE);
 
-        const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
+        const infoInvité = lAccès.find((a) => a.idCompte === idCompte2);
         expect(infoInvité?.rôle).to.equal(MEMBRE);
       });
 
@@ -1816,12 +1816,12 @@ if (isNode || isElectronMain) {
       it("On détecte l'ajout d'une permission modératrice", async () => {
         await client.donnerAccès({
           idBd,
-          identité: idbdCompte2,
+          identité: idCompte2,
           rôle: MODÉRATEUR,
         });
         await résultatPermission.attendreQue((x) => x === MODÉRATEUR);
 
-        const infoInvité = lAccès.find((a) => a.idBdCompte === idbdCompte2);
+        const infoInvité = lAccès.find((a) => a.idCompte === idCompte2);
         expect(infoInvité?.rôle).to.equal(MODÉRATEUR);
       });
 

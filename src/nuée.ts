@@ -1846,7 +1846,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             return await f(
               bds
                 .filter((bd) =>
-                  bd.auteurs.some((c) => c === this.client.idBdCompte)
+                  bd.auteurs.some((c) => c === this.client.idCompte)
                 )
                 .map((x) => x.idBd)
             );
@@ -1933,7 +1933,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             idBd,
             auteurs: auteurs
               .filter((x) => x.accepté) // Uniquement considérer les auteurs qui ont accepté l'invitation.
-              .map((x) => x.idBdCompte),
+              .map((x) => x.idCompte),
           });
         };
 
@@ -2117,13 +2117,13 @@ export default class Nuée extends ComposanteClientListe<string> {
       const fFinaleBranche = async () => {
         const { données, erreursÉléments, auteurs } = info;
         if (données && erreursÉléments && auteurs && auteurs.length) {
-          const auteur = auteurs.find((a) => a.accepté)?.idBdCompte;
+          const auteur = auteurs.find((a) => a.accepté)?.idCompte;
           if (!auteur) return;
 
           const donnéesMembres: élémentDeMembreAvecValid<T>[] = données
             .map((d) => {
               return {
-                idBdCompte: auteur,
+                idCompte: auteur,
                 élément: d,
                 valid: erreursÉléments.filter(
                   (e) => e.empreinte == d.empreinte
@@ -2311,7 +2311,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             fichiersSFIP,
             langues,
           });
-          return { ...élémentFormatté, auteur: d.idBdCompte };
+          return { ...élémentFormatté, auteur: d.idCompte };
         })
       );
       if (langues) {

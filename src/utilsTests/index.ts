@@ -40,14 +40,14 @@ export const clientConnectéÀ = async (
   client2: ClientConstellation
 ): Promise<void> => {
   const dispositifsConnectés = new AttendreRésultat<statutDispositif[]>();
-  const idBdCompte2 = await client2.obtIdCompte();
+  const idCompte2 = await client2.obtIdCompte();
 
   const fOublier = await client1.réseau!.suivreConnexionsDispositifs({
     f: dispositifs => dispositifsConnectés.mettreÀJour(dispositifs),
   });
   await dispositifsConnectés.attendreQue(dispositifs=>{
     return !!dispositifs.find(
-      (d) => d.infoDispositif.idCompte === idBdCompte2
+      (d) => d.infoDispositif.idCompte === idCompte2
     );
   })
   await fOublier();

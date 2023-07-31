@@ -177,7 +177,7 @@ export class ComposanteClientDic<
           await fSuivreRacine(idCompte);
           return faisRien;
         } else {
-          return await this.client.suivreIdBdCompte({ f: fSuivreRacine });
+          return await this.client.suivreIdCompte({ f: fSuivreRacine });
         }
       },
       f: ignorerNonDéfinis(f),
@@ -292,7 +292,7 @@ export class ComposanteClientListe<
           await fSuivreRacine(idCompte);
           return faisRien;
         } else {
-          return await this.client.suivreIdBdCompte({ f: fSuivreRacine });
+          return await this.client.suivreIdCompte({ f: fSuivreRacine });
         }
       },
       f: ignorerNonDéfinis(f),

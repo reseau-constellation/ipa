@@ -115,21 +115,21 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
         this.gestRôles._rôlesUtilisateurs[MODÉRATEUR]
       ).map((m) => {
         return {
-          idBdCompte: m,
+          idCompte: m,
           rôle: MODÉRATEUR,
         };
       });
-      const idsMods = mods.map((m) => m.idBdCompte);
+      const idsMods = mods.map((m) => m.idCompte);
       const membres: infoUtilisateur[] = Object.keys(
         this.gestRôles._rôlesUtilisateurs[MEMBRE]
       )
         .map((m) => {
           return {
-            idBdCompte: m,
+            idCompte: m,
             rôle: MEMBRE,
           } as infoUtilisateur;
         })
-        .filter((m) => !idsMods.includes(m.idBdCompte));
+        .filter((m) => !idsMods.includes(m.idCompte));
 
       const utilisateurs: infoUtilisateur[] = [...mods, ...membres];
       await f(utilisateurs);

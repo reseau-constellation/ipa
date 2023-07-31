@@ -40,7 +40,7 @@ async function toutPréparer(n: number, type: typeClient) {
     clients.map(async (c) => (await c.obtIdSFIP()).id.toCID().toString())
   );
   const idsOrbite = await Promise.all(
-    clients.map(async (c) => await c.obtIdOrbite())
+    clients.map(async (c) => await c.obtIdDispositif())
   );
   const idsBdCompte = await Promise.all(
     clients.map(async (c) => await c.obtIdCompte())
@@ -118,7 +118,7 @@ typesClients.forEach((type) => {
             const val = await dispositifs.attendreQue(
               (x?: statutDispositif[]) => !!x && x.length >= 3
             );
-            expect(val.map((d) => d.infoDispositif.idOrbite)).to.have.members(
+            expect(val.map((d) => d.infoDispositif.idDispositif)).to.have.members(
               idsOrbite
             );
           });
@@ -128,12 +128,12 @@ typesClients.forEach((type) => {
             for (let i = 0; i <= clients.length - 1; i++) {
               const identitéOrbite = await clients[i].obtIdentitéOrbite();
               réfRés.push({
-                idBdCompte: idsBdCompte[i],
+                idCompte: idsBdCompte[i],
                 protocoles: [],
                 dispositifs: [
                   {
                     idSFIP: idsNodesSFIP[i],
-                    idOrbite: idsOrbite[i],
+                    idDispositif: idsOrbite[i],
                     idCompte: idsBdCompte[i],
                     clefPublique: identitéOrbite.publicKey,
                     encryption: {
@@ -194,7 +194,7 @@ typesClients.forEach((type) => {
 
           it("Faire confiance", async () => {
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             const val = await fiablesPropres.attendreQue(
               (x) => !!x && x.length > 0
@@ -213,7 +213,7 @@ typesClients.forEach((type) => {
 
           it("Un débloquage accidental ne fait rien", async () => {
             await clients[0].réseau!.débloquerMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             const val = await fiablesPropres.attendreExiste();
             expect(Array.isArray(val)).to.be.true();
@@ -223,7 +223,7 @@ typesClients.forEach((type) => {
 
           it("Il n'était pas si chouette que ça après tout", async () => {
             await clients[0].réseau!.nePlusFaireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             const val = await fiablesPropres.attendreExiste();
             expect(val.length).to.equal(0);
@@ -280,7 +280,7 @@ typesClients.forEach((type) => {
 
           it("Bloquer quelqu'un", async () => {
             await clients[0].réseau!.bloquerMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             const val = await bloquésTous.attendreQue(
               (x) => !!x && x.length > 0
@@ -289,7 +289,7 @@ typesClients.forEach((type) => {
             expect(val.length).to.equal(1);
             expect(val).to.have.deep.members([
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 privé: false,
               },
             ]);
@@ -298,7 +298,7 @@ typesClients.forEach((type) => {
 
           it("Un dé-confiance accidental ne fait rien", async () => {
             await clients[0].réseau!.nePlusFaireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
 
             const bloqués = await bloquésTous.attendreQue(
@@ -307,7 +307,7 @@ typesClients.forEach((type) => {
 
             expect(bloqués).to.have.deep.members([
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 privé: false,
               },
             ]);
@@ -315,7 +315,7 @@ typesClients.forEach((type) => {
 
           it("Bloquer privé", async () => {
             await clients[0].réseau!.bloquerMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
               privé: true,
             });
 
@@ -324,11 +324,11 @@ typesClients.forEach((type) => {
             );
             expect(bloqués).to.have.deep.members([
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 privé: false,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 privé: true,
               },
             ]);
@@ -340,7 +340,7 @@ typesClients.forEach((type) => {
             );
             expect(val).to.have.deep.members([
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 privé: false,
               },
             ]);
@@ -348,12 +348,12 @@ typesClients.forEach((type) => {
 
           it("On ne détecte pas le bloqué privé d'un autre membre", async () => {
             const val = await bloquésAutreMembre.attendreExiste();
-            expect(val.map((b) => b.idBdCompte)).not.to.contain(idsBdCompte[2]);
+            expect(val.map((b) => b.idCompte)).not.to.contain(idsBdCompte[2]);
           });
 
           it("Débloquer publique", async () => {
             await clients[0].réseau!.débloquerMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             const val = await bloquésPubliques.attendreExiste();
             expect(val.length).to.equal(0);
@@ -361,7 +361,7 @@ typesClients.forEach((type) => {
 
           it("Débloquer privé", async () => {
             await clients[0].réseau!.débloquerMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
             const val = await bloquésTous.attendreExiste();
             expect(val.length).to.equal(0);
@@ -369,13 +369,13 @@ typesClients.forEach((type) => {
 
           it("Passer de bloqué privé à bloqué publique", async () => {
             await clients[0].réseau!.bloquerMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
               privé: true,
             });
             let val = await bloquésPubliques.attendreExiste();
             expect(val.length).to.equal(0);
             await clients[0].réseau!.bloquerMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
               privé: false,
             });
             val = await bloquésPubliques.attendreQue((x) => x.length > 0);
@@ -408,7 +408,7 @@ typesClients.forEach((type) => {
               fsOublier.push(
                 await clients[1].réseau!.suivreRelationsImmédiates({
                   f: (c) => relationsAutres.mettreÀJour(c),
-                  idBdCompte: idsBdCompte[0],
+                  idCompte: idsBdCompte[0],
                 })
               );
             });
@@ -432,12 +432,12 @@ typesClients.forEach((type) => {
             it("Ajout membre de confiance détecté", async () => {
               const réf: infoConfiance[] = [
                 {
-                  idBdCompte: idsBdCompte[1],
+                  idCompte: idsBdCompte[1],
                   confiance: 1,
                 },
               ];
               await clients[0].réseau!.faireConfianceAuMembre({
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
               });
               const val = await relationsPropres.attendreQue(
                 (x) => !!x && !!x.length
@@ -449,17 +449,17 @@ typesClients.forEach((type) => {
             it("Bloquer membre détecté", async () => {
               const réf: infoConfiance[] = [
                 {
-                  idBdCompte: idsBdCompte[1],
+                  idCompte: idsBdCompte[1],
                   confiance: 1,
                 },
                 {
-                  idBdCompte: idsBdCompte[2],
+                  idCompte: idsBdCompte[2],
                   confiance: -1,
                 },
               ];
 
               await clients[0].réseau!.bloquerMembre({
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
               });
               const val = await relationsPropres.attendreQue(
                 (x) => !!x && x.length === 2
@@ -470,12 +470,12 @@ typesClients.forEach((type) => {
             it("Débloquer membre détecté", async () => {
               const réf: infoConfiance[] = [
                 {
-                  idBdCompte: idsBdCompte[1],
+                  idCompte: idsBdCompte[1],
                   confiance: 1,
                 },
               ];
               await clients[0].réseau!.débloquerMembre({
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
               });
               const val = await relationsPropres.attendreQue(
                 (x) => !!x && x.length === 1
@@ -486,7 +486,7 @@ typesClients.forEach((type) => {
             it("Ajout membres au réseau d'un autre membre détecté", async () => {
               const réf: infoConfiance[] = [
                 {
-                  idBdCompte: idsBdCompte[1],
+                  idCompte: idsBdCompte[1],
                   confiance: 1,
                 },
               ];
@@ -500,7 +500,7 @@ typesClients.forEach((type) => {
 
             it("Enlever membre de confiance détecté", async () => {
               await clients[0].réseau!.nePlusFaireConfianceAuMembre({
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
               });
               const val = await relationsPropres.attendreQue(
                 (x) => !!x && x.length == 0
@@ -538,7 +538,7 @@ typesClients.forEach((type) => {
               fsOublier.push(
                 await clients[1].réseau!.suivreRelationsImmédiates({
                   f: (c) => relationsAutres.mettreÀJour(c),
-                  idBdCompte: idsBdCompte[0],
+                  idCompte: idsBdCompte[0],
                 })
               );
             });
@@ -561,14 +561,14 @@ typesClients.forEach((type) => {
               const val = await relationsPropres.attendreQue(
                 (x) => !!x && x.length > 0
               );
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Ajout aux favoris d'un tiers détecté", async () => {
               const val = await relationsAutres.attendreQue(
                 (x) => !!x && Boolean(x.length)
               );
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Enlever favori détecté", async () => {
@@ -596,14 +596,14 @@ typesClients.forEach((type) => {
                 (x) => !!x && Boolean(x.length)
               );
 
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Ajout coauteur variable d'un tiers détecté", async () => {
               const val = await relationsAutres.attendreQue(
                 (x) => x.length > 0
               );
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Enlever variable détecté", async () => {
@@ -627,14 +627,14 @@ typesClients.forEach((type) => {
                 (x) => !!x && Boolean(x.length)
               );
 
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Ajout coauteur BD d'un tiers détecté", async () => {
               const val = await relationsAutres.attendreQue(
                 (x) => !!x && Boolean(x.length)
               );
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Enlever bd détecté", async () => {
@@ -659,14 +659,14 @@ typesClients.forEach((type) => {
               const val = await relationsPropres.attendreQue(
                 (x) => !!x && Boolean(x.length)
               );
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Ajout coauteur projet d'un tiers détecté", async () => {
               const val = await relationsAutres.attendreQue(
                 (x) => !!x && Boolean(x.length)
               );
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Enlever projet détecté", async () => {
@@ -689,14 +689,14 @@ typesClients.forEach((type) => {
               const val = await relationsPropres.attendreQue(
                 (x) => !!x && Boolean(x.length)
               );
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Ajout coauteur mot-clef d'un tiers détecté", async () => {
               const val = await relationsAutres.attendreQue(
                 (x) => !!x && Boolean(x.length)
               );
-              expect(val.map((r) => r.idBdCompte)).to.contain(idsBdCompte[1]);
+              expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
             });
 
             it("Enlever mot-clef détecté", async () => {
@@ -753,7 +753,7 @@ typesClients.forEach((type) => {
               },
             ];
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
 
             const val = await rés.attendreQue((x) => !!x && !!x.length);
@@ -775,7 +775,7 @@ typesClients.forEach((type) => {
               },
             ];
             await clients[1].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
 
             const val = await rés.attendreQue((x) => !!x && x.length > 1);
@@ -836,7 +836,7 @@ typesClients.forEach((type) => {
               type
             ));
             moiMême = {
-              idBdCompte: idsBdCompte[0],
+              idCompte: idsBdCompte[0],
               profondeur: 0,
               confiance: 1,
             };
@@ -857,13 +857,13 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
             ];
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
 
             const val = await rés.attendreQue((x) => !!x && x.length > 1);
@@ -873,18 +873,18 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: 0.8,
                 profondeur: 2,
               },
             ];
             await clients[1].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
 
             await rés.attendreQue((x) => !!x && x.length > 2);
@@ -894,18 +894,18 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: 1,
                 profondeur: 1,
               },
             ];
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
 
             const val = await rés.attendreQue(
@@ -919,18 +919,18 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: 0.8,
                 profondeur: 2,
               },
             ];
             await clients[0].réseau!.nePlusFaireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
 
             const val = await rés.attendreQue(
@@ -944,13 +944,13 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
             ];
             await clients[1].réseau!.nePlusFaireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
 
             const val = await rés.attendreQue((x) => x.length === 2);
@@ -960,7 +960,7 @@ typesClients.forEach((type) => {
             const réf = [moiMême];
 
             await clients[0].réseau!.nePlusFaireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
 
             const val = await rés.attendreQue((x) => !!x && x.length === 1);
@@ -970,13 +970,13 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: -1,
                 profondeur: 1,
               },
             ];
             await clients[0].réseau!.bloquerMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
 
             const val = await rés.attendreQue((x) => !!x && x.length > 1);
@@ -986,7 +986,7 @@ typesClients.forEach((type) => {
             const réf = [moiMême];
 
             await clients[0].réseau!.débloquerMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
 
             const val = await rés.attendreQue((x) => !!x && x.length === 1);
@@ -996,21 +996,21 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: -0.9,
                 profondeur: 2,
               },
             ];
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             await clients[1].réseau!.bloquerMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
 
             const val = await rés.attendreQue((x) => !!x && x.length === 3);
@@ -1020,51 +1020,51 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: 1,
                 profondeur: 1,
               },
             ];
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
 
             const val = await rés.attendreQue(
               (x) =>
                 !!x &&
-                x.find((y) => y.idBdCompte === idsBdCompte[2])?.confiance === 1
+                x.find((y) => y.idCompte === idsBdCompte[2])?.confiance === 1
             );
             expect(val).to.have.deep.members(réf);
 
             await clients[0].réseau!.nePlusFaireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
             await clients[0].réseau!.nePlusFaireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             await clients[1].réseau!.débloquerMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
           });
           it("Diminuer profondeur", async () => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
             ];
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             await clients[1].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
             rés.attendreQue(
               (x) => !!x && x.length === 3 && x.every((r) => r.confiance > 0)
@@ -1078,12 +1078,12 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: 0.8,
                 profondeur: 2,
               },
@@ -1114,7 +1114,7 @@ typesClients.forEach((type) => {
               type
             ));
             moiMême = {
-              idBdCompte: idsBdCompte[0],
+              idCompte: idsBdCompte[0],
               profondeur: 0,
               confiance: 1,
             };
@@ -1135,12 +1135,12 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 0,
                 profondeur: Infinity,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: 0,
                 profondeur: Infinity,
               },
@@ -1154,26 +1154,26 @@ typesClients.forEach((type) => {
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: 0,
                 profondeur: Infinity,
               },
             ];
 
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             const val = await rés.attendreQue(
               (x) =>
                 !!x &&
-                x.find((x) => x.idBdCompte === idsBdCompte[1])?.confiance ===
+                x.find((x) => x.idCompte === idsBdCompte[1])?.confiance ===
                   1 &&
-                x.find((x) => x.idBdCompte === idsBdCompte[2])?.confiance === 0
+                x.find((x) => x.idCompte === idsBdCompte[2])?.confiance === 0
             );
 
             expect(val).to.have.deep.members(réf);
@@ -1181,24 +1181,24 @@ typesClients.forEach((type) => {
 
           it("Changer profondeur", async () => {
             await clients[1].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
             await rés.attendreQue(
               (x) =>
                 !!x &&
-                (x.find((x) => x.idBdCompte === idsBdCompte[2])?.confiance ||
+                (x.find((x) => x.idCompte === idsBdCompte[2])?.confiance ||
                   0) > 0
             );
 
             const réf: infoMembreRéseau[] = [
               moiMême,
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 confiance: 1,
                 profondeur: 1,
               },
               {
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 confiance: 0,
                 profondeur: Infinity,
               },
@@ -1207,7 +1207,7 @@ typesClients.forEach((type) => {
             const val = await rés.attendreQue(
               (x) =>
                 !!x &&
-                x.find((x) => x.idBdCompte === idsBdCompte[2])?.confiance === 0
+                x.find((x) => x.idCompte === idsBdCompte[2])?.confiance === 0
             );
 
             expect(val).to.have.deep.members(réf);
@@ -1231,7 +1231,7 @@ typesClients.forEach((type) => {
             ));
             ({ fOublier, fChangerProfondeur } =
               await clients[0].réseau!.suivreConfianceMonRéseauPourMembre({
-                idBdCompte: idsBdCompte[2],
+                idCompte: idsBdCompte[2],
                 f: (confiance) => rés.mettreÀJour(confiance),
                 profondeur: 4,
               }));
@@ -1250,10 +1250,10 @@ typesClients.forEach((type) => {
 
           it("Faire confiance au membre", async () => {
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
             await clients[1].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
 
             const val = await rés.attendreQue((x) => !!x && x > 0);
@@ -1302,7 +1302,7 @@ typesClients.forEach((type) => {
 
           it("Ajout auteur au réseau", async () => {
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[1],
+              idCompte: idsBdCompte[1],
             });
 
             const val = await rés.attendreQue((x) => !!x && x > 0);
@@ -1322,7 +1322,7 @@ typesClients.forEach((type) => {
             expect(valAvant).to.be.lessThan(2);
 
             await clients[0].réseau!.faireConfianceAuMembre({
-              idBdCompte: idsBdCompte[2],
+              idCompte: idsBdCompte[2],
             });
             const val = await rés.attendreQue((x) => !!x && x > valAvant);
 
@@ -1407,12 +1407,12 @@ typesClients.forEach((type) => {
           it("Mots-clefs : Inviter auteur", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1431,12 +1431,12 @@ typesClients.forEach((type) => {
           it("Mots-clefs : Accepter invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: true,
                 rôle: MEMBRE,
               },
@@ -1445,7 +1445,7 @@ typesClients.forEach((type) => {
             await clients[1].motsClefs!.ajouterÀMesMotsClefs({ idMotClef });
             const val = await résMotClef.attendreQue((x) =>
               Boolean(
-                !!x && x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+                !!x && x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
               )
             );
 
@@ -1454,12 +1454,12 @@ typesClients.forEach((type) => {
           it("Mots-clefs : Refuser invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1468,7 +1468,7 @@ typesClients.forEach((type) => {
             await clients[1].motsClefs!.enleverDeMesMotsClefs({ idMotClef });
             const val = await résMotClef.attendreQue(
               (x) =>
-                !!x && !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+                !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
             );
 
             expect(val).to.deep.equal(réf);
@@ -1483,7 +1483,7 @@ typesClients.forEach((type) => {
             await résMotClef.attendreQue(
               (auteurs) =>
                 !!auteurs &&
-                auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
+                auteurs.find((a) => a.idCompte === idsBdCompte[1])?.rôle ===
                   MODÉRATEUR
             );
           });
@@ -1491,12 +1491,12 @@ typesClients.forEach((type) => {
           it("Variables : Inviter auteur", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1515,12 +1515,12 @@ typesClients.forEach((type) => {
           it("Variables : Accepter invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: true,
                 rôle: MEMBRE,
               },
@@ -1530,7 +1530,7 @@ typesClients.forEach((type) => {
               idVariable,
             });
             const val = await résVariable.attendreQue(
-              (x) => !!x?.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+              (x) => !!x?.find((y) => y.idCompte === idsBdCompte[1])?.accepté
             );
 
             expect(val).to.have.deep.members(réf);
@@ -1538,12 +1538,12 @@ typesClients.forEach((type) => {
           it("Variables : Refuser invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1554,7 +1554,7 @@ typesClients.forEach((type) => {
             });
             const val = await résVariable.attendreQue(
               (x) =>
-                !!x && !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+                !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
             );
 
             expect(val).to.have.deep.members(réf);
@@ -1569,7 +1569,7 @@ typesClients.forEach((type) => {
             await résVariable.attendreQue(
               (auteurs) =>
                 !!auteurs &&
-                auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
+                auteurs.find((a) => a.idCompte === idsBdCompte[1])?.rôle ===
                   MODÉRATEUR
             );
           });
@@ -1577,12 +1577,12 @@ typesClients.forEach((type) => {
           it("Bds : Inviter auteur", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1599,12 +1599,12 @@ typesClients.forEach((type) => {
           it("Bds : Accepter invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: true,
                 rôle: MEMBRE,
               },
@@ -1613,7 +1613,7 @@ typesClients.forEach((type) => {
             await clients[1].bds!.ajouterÀMesBds({ idBd });
             const val = await résBds.attendreQue((x) =>
               Boolean(
-                !!x && x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+                !!x && x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
               )
             );
 
@@ -1622,12 +1622,12 @@ typesClients.forEach((type) => {
           it("Bds : Refuser invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1636,7 +1636,7 @@ typesClients.forEach((type) => {
             await clients[1].bds!.enleverDeMesBds({ idBd });
             const val = await résBds.attendreQue(
               (x) =>
-                !!x && !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+                !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
             );
 
             expect(val).to.have.deep.members(réf);
@@ -1651,7 +1651,7 @@ typesClients.forEach((type) => {
             await résBds.attendreQue(
               (auteurs) =>
                 !!auteurs &&
-                auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
+                auteurs.find((a) => a.idCompte === idsBdCompte[1])?.rôle ===
                   MODÉRATEUR
             );
           });
@@ -1659,12 +1659,12 @@ typesClients.forEach((type) => {
           it("Projets : Inviter auteur", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1681,12 +1681,12 @@ typesClients.forEach((type) => {
           it("Projets : Accepter invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: true,
                 rôle: MEMBRE,
               },
@@ -1695,7 +1695,7 @@ typesClients.forEach((type) => {
             await clients[1].projets!.ajouterÀMesProjets({ idProjet });
             const val = await résProjet.attendreQue((x) =>
               Boolean(
-                !!x && x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+                !!x && x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
               )
             );
 
@@ -1704,12 +1704,12 @@ typesClients.forEach((type) => {
           it("Projets : Refuser invitation", async () => {
             const réf: infoAuteur[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 accepté: true,
                 rôle: MODÉRATEUR,
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 accepté: false,
                 rôle: MEMBRE,
               },
@@ -1718,7 +1718,7 @@ typesClients.forEach((type) => {
             await clients[1].projets!.enleverDeMesProjets({ idProjet });
             const val = await résProjet.attendreQue(
               (x) =>
-                !!x && !x.find((y) => y.idBdCompte === idsBdCompte[1])?.accepté
+                !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
             );
 
             expect(val).to.have.deep.members(réf);
@@ -1733,7 +1733,7 @@ typesClients.forEach((type) => {
             await résProjet.attendreQue(
               (auteurs) =>
                 !!auteurs &&
-                auteurs.find((a) => a.idBdCompte === idsBdCompte[1])?.rôle ===
+                auteurs.find((a) => a.idCompte === idsBdCompte[1])?.rôle ===
                   MODÉRATEUR
             );
           });
@@ -2117,7 +2117,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
 
           const rés = new AttendreRésultat<
-            (ÉlémentFavorisAvecObjet & { idBdCompte: string })[]
+            (ÉlémentFavorisAvecObjet & { idCompte: string })[]
           >();
 
           before(async () => {
@@ -2146,13 +2146,13 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout à mes favoris détecté", async () => {
-            const réf: (ÉlémentFavorisAvecObjet & { idBdCompte: string })[] = [
+            const réf: (ÉlémentFavorisAvecObjet & { idCompte: string })[] = [
               {
                 récursif: true,
                 dispositifs: "TOUS",
                 dispositifsFichiers: "INSTALLÉ",
                 idObjet: idMotClef,
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
               },
             ];
             await clients[0].favoris!.épinglerFavori({
@@ -2165,20 +2165,20 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout aux favoris d'un autre membre détecté", async () => {
-            const réf: (ÉlémentFavorisAvecObjet & { idBdCompte: string })[] = [
+            const réf: (ÉlémentFavorisAvecObjet & { idCompte: string })[] = [
               {
                 récursif: true,
                 dispositifs: "TOUS",
                 dispositifsFichiers: "INSTALLÉ",
                 idObjet: idMotClef,
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
               },
               {
                 récursif: true,
                 dispositifs: "TOUS",
                 dispositifsFichiers: "INSTALLÉ",
                 idObjet: idMotClef,
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
               },
             ];
             await clients[1].favoris!.épinglerFavori({
@@ -2233,7 +2233,7 @@ typesClients.forEach((type) => {
               (x) => !!x && x.membres.length > 0
             );
 
-            expect(val.membres.map((m) => m.infoMembre.idBdCompte)).to.contain(
+            expect(val.membres.map((m) => m.infoMembre.idCompte)).to.contain(
               idsBdCompte[0]
             );
             expect(val.dispositifs.map((d) => d.idDispositif)).to.contain(
@@ -2252,7 +2252,7 @@ typesClients.forEach((type) => {
             );
 
             expect(
-              val.membres.map((m) => m.infoMembre.idBdCompte)
+              val.membres.map((m) => m.infoMembre.idCompte)
             ).to.have.members([idsBdCompte[0], idsBdCompte[1]]);
             expect(val.dispositifs.map((d) => d.idDispositif)).to.have.members([
               idsOrbite[0],
@@ -2429,21 +2429,21 @@ typesClients.forEach((type) => {
 
             const réf: élémentDeMembre<élémentBdListeDonnées>[] = [
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 élément: {
                   empreinte: empreinte1,
                   données: données1,
                 },
               },
               {
-                idBdCompte: idsBdCompte[0],
+                idCompte: idsBdCompte[0],
                 élément: {
                   empreinte: empreinte2,
                   données: données2,
                 },
               },
               {
-                idBdCompte: idsBdCompte[1],
+                idCompte: idsBdCompte[1],
                 élément: {
                   empreinte: empreinte3,
                   données: données3,

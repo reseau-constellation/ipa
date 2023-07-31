@@ -3,7 +3,7 @@ import type { default as ClientConstellation } from "@/client.js";
 import { JSONSchemaType } from "ajv";
 
 export interface infoAuteur {
-  idBdCompte: string;
+  idCompte: string;
   accepté: boolean;
   rôle: keyof objRôles;
 }

@@ -858,15 +858,15 @@ class AutomatisationActive extends EventEmitter {
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   spéc: T,
-  monIdOrbite: string
+  monIdDispositif: string
 ): boolean => {
   switch (spéc.type) {
     case "importation": {
-      return spéc.dispositif === monIdOrbite;
+      return spéc.dispositif === monIdDispositif;
     }
 
     case "exportation": {
-      return spéc.dispositifs.includes(monIdOrbite);
+      return spéc.dispositifs.includes(monIdDispositif);
     }
 
     default:

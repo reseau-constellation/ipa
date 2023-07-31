@@ -125,8 +125,8 @@ from constellationPy import ClientSync, Serveur
 with Serveur():
     client = ClientSync()
 
-    résultatChameau = client.obtIdOrbite()
-    résultat_kebab = client.obt_id_orbite()
+    résultatChameau = client.obtIdDispositif()
+    résultat_kebab = client.obt_id_dispositif()
 
     print(résultatChameau == résultat_kebab)
 ```
