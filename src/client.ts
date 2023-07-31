@@ -398,22 +398,6 @@ export class ClientConstellation extends EventEmitter {
   }
 
   @cacheSuivi
-  async suivreProtocoles({
-    f,
-    idCompte,
-  }: {
-    f: schémaFonctionSuivi<{ [key: string]: string[] }>;
-    idCompte?: string;
-  }): Promise<schémaFonctionOublier> {
-    return await this.suivreBdDicDeClef({
-      id: idCompte || (await this.obtIdCompte()),
-      clef: "protocoles",
-      schéma: schémaStructureBdProtocoles,
-      f,
-    });
-  }
-
-  @cacheSuivi
   async suivreDispositifs({
     f,
     idCompte,
@@ -475,10 +459,12 @@ export class ClientConstellation extends EventEmitter {
     nom,
     type,
   }: {
-    idDispositif: string;
+    idDispositif?: string;
     nom: string;
     type: string;
   }): Promise<void> {
+    const idDispositifFinal = idDispositif || await this.obtIdDispositif();
+
     const idBdNomsDispositifs = await this.obtIdBd({
       nom: "nomsDispositifs",
       racine: await this.obtIdCompte(),
@@ -487,7 +473,7 @@ export class ClientConstellation extends EventEmitter {
     const { bd: bdNomsDispositifs, fOublier } = await this.ouvrirBd<{
       [clef: string]: { nom: string; type: string };
     }>({ id: idBdNomsDispositifs!, type: "kvstore" });
-    await bdNomsDispositifs.set(idDispositif, { nom, type });
+    await bdNomsDispositifs.set(idDispositifFinal, { nom, type });
     await fOublier();
   }
 

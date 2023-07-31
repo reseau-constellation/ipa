@@ -1408,14 +1408,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     f,
     idCompte,
   }: {
-    f: schémaFonctionSuivi<string[]>;
+    f: schémaFonctionSuivi<{ [key: string]: string[] }>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
       id: idCompte || (await this.client.obtIdCompte()),
       clef: "protocoles",
       schéma: schémaStructureBdCompte,
-      f: async (protocoles) => await f(Object.keys(protocoles)),
+      f,
     });
   }
 
@@ -1456,7 +1456,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       id: string;
       fSuivreBd: schémaFonctionSuivi<{ [key: string]: string[] } | undefined>;
     }) => {
-      return await this.client.suivreProtocoles({
+      return await this.suivreProtocolesMembre({
         f: fSuivreBd,
         idCompte: id,
       });
