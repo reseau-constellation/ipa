@@ -1,10 +1,12 @@
 # Python
-[![Paquet Python](https://github.com/reseau-constellation/client-python/actions/workflows/test.yaml/badge.svg)](https://github.com/reseau-constellation/client-python/actions/workflows/test.yaml)
-
 Cette librarie offre un client [Constellation](https://reseau-constellation.github.io/constellation)
 pour [Python](https://python.org). Elle fonctionne en lançant
 un [serveur ws Constellation](https://github.com/reseau-constellation/serveur-ws)
 local, avec lequel elle gère ensuite la communication par websocket.
+
+[![Paquet Python](https://github.com/reseau-constellation/client-python/actions/workflows/test.yaml/badge.svg)](https://github.com/reseau-constellation/client-python/actions/workflows/test.yaml)
+
+[![codecov](https://codecov.io/gh/reseau-constellation/client-python/branch/master/graph/badge.svg?token=F5dfS5Epsg)](https://codecov.io/gh/reseau-constellation/client-python)
 
 ## Installation
 

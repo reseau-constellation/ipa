@@ -4,7 +4,7 @@ import { Extention } from "./extention.js";
 import type { Message } from "@/types.js";
 
 export class ExtentionMd extends Extention {
-  ext = "md";
+  exts = ["md"];
 
   constructor() {
     super();
@@ -210,16 +210,18 @@ export class ExtentionMd extends Extention {
   }
 
   async compiler({
-    texte,
+    contenu,
     traducs,
     fichier,
     langue,
   }: {
-    texte: string;
+    contenu: Buffer;
     traducs: { [clef: string]: string };
     fichier: string;
     langue: string;
   }): Promise<string> {
+    const texte = contenu.toString();
+
     const texteFinal: string[] = [];
     const lexée = marked.lexer(texte);
     for (const composante of lexée) {

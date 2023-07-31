@@ -56,8 +56,9 @@ export const configVitePress = defineConfig({
                 text: "Introduction",
                 link: "/avancé/autresLangages/introduction",
               },
-              { text: "Python", link: "/avancé/autresLangages/python" },
               { text: "Julia", link: "/avancé/autresLangages/julia" },
+              { text: "Python", link: "/avancé/autresLangages/python" },
+              { text: "R", link: "/avancé/autresLangages/r" },
               { text: "Nœud local", link: "/avancé/autresLangages/nœudLocal" },
               {
                 text: "Nouveaux langages",
@@ -83,11 +84,6 @@ export const configVitePress = defineConfig({
               { text: "Nuées", link: "/avancé/applications/nuées" },
             ],
           },
-          { text: "Mandataires", link: "/avancé/mandataires" },
-          {
-            text: "Configuration SFIP et Orbite",
-            link: "/avancé/sfipEtOrbite",
-          },
         ],
       },
       {
@@ -111,6 +107,9 @@ export const configVitePress = defineConfig({
         ],
       },
     ],
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/reseau-constellation' },
+    ],
     footer: {
       message: "Disponible sous licence AGPL-3.0",
       copyright: "© 2021+ Contributeurs Constellation",
@@ -120,6 +119,14 @@ export const configVitePress = defineConfig({
         "https://github.com/reseau-constellation/ipa/edit/main/docu/src/:path",
       text: "Éditer sur GitHub",
     },
+    docFooter: {
+      prev: 'Page précédente',
+      next: 'Prochaine page'
+    },
+    darkModeSwitchLabel: "Thème",
+    search: {
+      provider: 'local',
+    }
   },
   vite: {
     css: {

@@ -6,7 +6,7 @@ import xml2js from "xml2js";
 import { Extention } from "./extention.js";
 
 export class ExtentionSvg extends Extention {
-  ext = "svg";
+  exts = ["svg"];
 
   async extraireMessages({ texte }: { texte: string }): Promise<Message[]> {
     const lexé = await new xml2js.Parser().parseStringPromise(texte);
@@ -17,14 +17,15 @@ export class ExtentionSvg extends Extention {
   }
 
   async compiler({
-    texte,
+    contenu,
     traducs,
     fichier,
   }: {
-    texte: string;
+    contenu: Buffer;
     traducs: { [clef: string]: string };
     fichier: string;
   }): Promise<string> {
+    const texte = contenu.toString();
     const lexé = await new xml2js.Parser().parseStringPromise(texte);
     const texteFinal: string[] = [];
     for (const t of lexé.svg.text || []) {

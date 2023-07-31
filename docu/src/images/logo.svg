@@ -1,8 +1,7 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 200 110">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" height="220" width="400" viewBox="0 0 200 110">
   <defs>
     <style>.cls-1{fill:#1697f6;}.cls-2{fill:#7bc6ff;}.cls-3{fill:#1867c0;}.cls-4{fill:#aeddff;}.l{stroke:rgb(255,255,255);stroke-width:0.5}</style>
   </defs>
-  <title>Logo Constellation</title>
   <line class="l" x1="70.1742129851985" y1="1.87" x2="34.3464829934943" y2="10.01" />
   <line class="l" x1="67.306684713793" y1="16.47" x2="34.3464829934943" y2="10.01" />
   <line class="l" x1="34.3464829934943" y1="10.01" x2="22.5783740121382" y2="31.93" />

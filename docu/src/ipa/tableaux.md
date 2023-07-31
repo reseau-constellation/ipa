@@ -564,7 +564,7 @@ const fOublierRègles = await client.tableaux.suivreValidRègles({
 ## Importation et exportation
 Vous pouvez importer et exporter des données d'un tableau.
 
-:::tip
+:::tip ASTUCE
 Vous pouvez également [automatiser](./automatisations.md) ces actions !
 :::
 
@@ -661,7 +661,7 @@ Exporte des données d'un tableau Constellation, mais ne le sauvegarde pas immé
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<`[`donnéesBdExportées`](./bds.md/#donnees-exportees)`>` | Les données exportées, prètes à être écrites à un fichier de votre choix. |
+| `Promise<`[`donnéesBdExportées`](./bds.md#donnees-exportees)`>` | Les données exportées, prètes à être écrites à un fichier de votre choix. |
 
 
 #### Exemple

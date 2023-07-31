@@ -204,7 +204,7 @@ await client.tableaux.ajouterRègleTableau({
 #### Dynamiques
 Mais peut-être que vos sites d'échantillonnage risquent d'évoluer avec le temps. Dans ce cas, il serait mieux de créer un autre tableau avec les informations de vos sites (identifiant, longitude et latitude) et lier les deux tableaux ensemble. Ceci peut se faire avec une règle catégorique dynamique.
 
-:::tip
+:::tip ASTUCE
 Dans ce cas-ci, nous ajoutons le tableau à la même base de données, mais il pourrait aussi bien appartenir à une base de données à part.
 :::
 

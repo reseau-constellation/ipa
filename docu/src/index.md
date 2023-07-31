@@ -5,7 +5,7 @@ hero:
   name: Constellation
   text: Le réseau distribué pour les données scientifiques
   tagline: Partagez et récoltez des données scientifiques sur un réseau ouvert de pair à pair, tout en favorisant la transparence et la souveraineté des données.
-  image: /logo.svg
+  image: /images/logo.svg
   actions:
     - theme: brand
       text: Lire le guide

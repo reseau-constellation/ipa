@@ -166,7 +166,7 @@ await client.profil.sauvegarderContact({
 
 ```
 
-### `client.profil.effacerContact()`
+### `client.profil.effacerContact({ type, contact })`
 Effacer l'information de contact.
 
 #### Paramètres

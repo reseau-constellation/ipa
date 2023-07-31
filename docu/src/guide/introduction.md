@@ -21,7 +21,7 @@ Dans une système distribué, il n'y a pas de serveur qui contrôle les interact
 | Fonctionnalité | Constellation | [Excel](https://fr.wikipedia.org/wiki/Microsoft_Excel) | [LibreOffice](https://fr.libreoffice.org/) | [Docs Google](https://www.google.com/intl/fr/drive/) | BD sur serveur ([MongoDB](https://www.mongodb.com/fr-fr), [SQL](https://sql.sh/)) |
 | --- | :---: | :---: | :---: |:---: | :---: |
 | Collaboration simultanée | ✅ | ❌ | ❌ | ✅ | ✅ |
-| Fontionne hors ligne | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Fonctionne hors ligne | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Photos, vidéos | ✅ | ❌ | ❌ | ✅ | ✅ |
 | Contrôle local des données | ✅ | ✅ | ✅ | ❌ | Si le serveur vous appartient |
 | Intégration avec vos applis | ✅ | ❌ | ❌ | ✅ | ✅ |

@@ -10,7 +10,7 @@
   },
   "repository": "https://github.com/reseau-constellation/ipa/constellation",
   "scripts": {
-    "traducs": "cd ./scripts/traducsVitepress && pnpm compiler && cd ../.. && node ./scripts/compilerTraducs.mjs",
+    "traducs": "cd ./scripts/traducsVitepress && pnpm compiler && cd ../images && pnpm compiler && cd ../.. && node ./scripts/compilerTraducs.mjs",
     "dev": "pnpm traducs && vitepress dev src",
     "build": "pnpm traducs && vitepress build src",
     "preview": "pnpm build && vitepress preview src"
@@ -24,7 +24,7 @@
     "marked": "^4.2.12",
     "nuchabal": "^3.1.0",
     "postcss-rtl": "^2.0.0",
-    "vitepress": "1.0.0-alpha.40",
+    "vitepress": "1.0.0-beta.6",
     "xml2js": "^0.4.23",
     "yaml": "^2.2.1"
   }

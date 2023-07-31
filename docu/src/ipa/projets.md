@@ -679,7 +679,7 @@ Vous pouvez exporter des données d'un projet Constellation vers un autre format
 ### `client.projets.exporterDonnées({ idProjet, langues, nomFichier })`
 Exporte les données d'une le projet mais ne le sauvegarde pas immédiatement au disque.
 
-:::tip
+:::tip ASTUCE
 Vous pouvez également [automatiser](./automatisations.md) ces actions !
 :::
 

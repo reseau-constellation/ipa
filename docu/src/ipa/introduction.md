@@ -39,7 +39,7 @@ let image: Uint8Array | null;
 
 const oublierImage = await client.profil.suivreImage({ 
     idCompte: "id du compte qui m'intéresse",
-    f: x => image.value = x 
+    f: x => image = x 
 });
 
 // Arrêter le suivi
@@ -92,3 +92,6 @@ onUnmounted(async () => {
 
 ## Langues
 Constellation est un logiciel multilingue, et tout peut être traduit, y compris vos données, les noms des variables, et aussi votre profil d'utilisatrice. Constellation utilise les codes de langue [`nuchab'äl`](https://github.com/julienmalard/nuchabal/tree/master) pour identifier les langues.
+
+## Chiffres
+Constellation utilise les systèmes de numération du paquet [எண்ணிக்கை](https://github.com/lassi-niruvanam/ennikkai/tree/master/பை/மூலம்/எண்ணிக்கை) pour lire et présenter les numéros en différentes langues.

@@ -11,7 +11,7 @@ type ComposanteYaml =
 type DocYaml = { [clef: string]: ComposanteYaml };
 
 export class ExtentionYaml extends Extention {
-  ext = "md";
+  exts = ["md"];
 
   constructor() {
     super();
@@ -118,16 +118,18 @@ export class ExtentionYaml extends Extention {
   }
 
   async compiler({
-    texte,
+    contenu,
     traducs,
     fichier,
     langue,
   }: {
-    texte: string;
+    contenu: Buffer;
     traducs: { [clef: string]: string };
     fichier: string;
     langue: string;
   }): Promise<string> {
+    const texte = contenu.toString();
+
     const texteYaml = texte.slice(
       texte.indexOf("---\n") + 4,
       texte.indexOf("---\n", 1)

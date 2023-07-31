@@ -508,7 +508,7 @@ await fOublierImage();
 ## Licences
 Chaque base de données dans Constellation doit être associée à une licence qui explique les conditions d'utilisation des données qu'elle contient. 
 
-:::tip
+:::tip ASTUCE
 Voir les [licences](./licences.md) pour accéder à la liste de licences possibles.
 
 Vous n'êtes évidemment pas limités par cette liste, et vous pouvez inclure n'importe quel nom de licence avec vos bases de données. Cependant, seulement les licences reconnues par Constellation apparaîteront avec un résumé de leurs conditions sur [l'interface graphique](https://github.com/reseau-constellation/iug) de Constellation.
@@ -879,14 +879,14 @@ const idTableau = await client.tableaux.ajouterTableauBd({ idBd });
 ## Importation et exportation
 Vous pouvez exporter des données Constellation vers un autre format (Excel, LibreOffice ou autre).
 
-:::tip
+:::tip ASTUCE
 Pour ce qui est de l'importation de données, celle-ci s'effectue directement sur les [tableaux eux-mêmes](./tableaux.md#importation-et-exportation).
 :::
 
 ### `client.bds.exporterDonnées({ idBd, langues, nomFichier })`
 Exporte les données d'une la base de données mais ne le sauvegarde pas immédiatement au disque.
 
-:::tip
+:::tip ASTUCE
 Vous pouvez également [automatiser](./automatisations.md) ces actions !
 :::
 
@@ -1174,7 +1174,7 @@ suivreNuéesBd
 
 
 ## BDs uniques
-:::tip
+:::tip ASTUCE
 Cette section est vraiment pour les pros. Si c'est votre première fois, passez donc à autre chose. Pas de soucis. :)
 :::
 
@@ -1184,7 +1184,7 @@ Cependant, une situation cause problème : que faire avec les applications tièr
 
 C'est là que servent les bases de données uniques, qui sont associées à une [nuée](./nuées.md) unique. Constellation s'assurera que chaque compte d'utilisateur n'aura qu'une seule base de données associée à cette nuée, et, si elle en détecte plus qu'une, fusionnera les données qu'elles contiennent.
 
-:::warning
+:::warning AVERTISSEMENT
 Constellation fusionnera automatiquement toutes les bases de données appartenant au même compte et qui sont associées à la nuée unique. **N'utilisez donc pas une nuée qui est utilisée pour d'autres projets !** Si vous voulez, vous pouvez bien évidemment associer la base de données à plusieurs nuées existantes (à spécifier dans le `schémaBd`) et utiliser une copie personnelle d'une d'entres elles pour la nuée unique (`idNuéeUnique`).
 :::
 
@@ -1197,7 +1197,7 @@ Suit les données d'un tableau d'une base de données unique.
 | `schémaBd` | [`schémaSpécificationBd`](#schema-bd) | Le schéma de spécification de la base de données. Il sera utilisé pour créer la base de données si elle n'existe pas encore. |
 | `idNuéeUnique` | `string` | L'identifiant de la nuée à laquelle une seule base de données par compte peut appartenir. Doit exister dans `schémaBd`. |
 | `clefTableau` | `string` | La clef du tableau dont nous voulons suivre les données. Doit exister dans `schémaBd`. |
-| `f` | `(données:`[`élémentDonnées`](./tableaux.md#types-donnees)`[]) => void` | La clef du tableau dont nous voulons suivre les données. Doit exister dans `schémaBd`. |
+| `f` | `(données:`[`élémentDonnées`](./tableaux.md#types-donnees)`[]) => void` | La fonction qui sera appellée avec les données du tableau chaque fois que ceux-ci changent. |
 
 #### Retour
 | Type | Description |

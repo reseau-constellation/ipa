@@ -1,5 +1,5 @@
 # Applis Internet
-C'est très facile d'incorporer Constellation à vos applications. Le point important est de créer une seule instance de Constellation qui sera utilisée par toutes les partis de votre appli.
+C'est très facile d'incorporer Constellation à vos applications. Le point important est de créer une seule instance de Constellation qui sera utilisée par toutes les composantes de votre appli.
 
 ## Exemple Vue 3
 Voici un exemple d'extention [Vue.js 3](https://fr.vuejs.org/) qui crée une instance de Constellation et la rend disponible à l'ensemble de votre application.
@@ -8,11 +8,11 @@ Voici un exemple d'extention [Vue.js 3](https://fr.vuejs.org/) qui crée une ins
 // extentions/constellation.ts
 import type {App} from 'vue';
 
-import {mandataire} from '@constl/ipa';
+import { générerClient } from '@constl/ipa';
 
 export default {
   install: (app: App) => {
-    const client = mandataire.ipa.générerMandataireProc();
+    const client = générerClient();
     app.provide('constl', client);
   },
 };

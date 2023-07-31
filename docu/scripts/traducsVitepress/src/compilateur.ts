@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import rtl from "postcss-rtl";
 
-import type { Extention } from "./extentions/extention.js";
+import { ExtentionDéfaut, type Extention } from "./extentions/extention.js";
 import { empreinte } from "./utils.js";
 
 import type { UserConfig, DefaultTheme } from "vitepress";
@@ -71,11 +71,9 @@ export class Compilateur {
     if (fichier === "index.md") {
       return new ExtentionYaml();
     }
-    const compilateur = this.extentions.find((e) => e.ext === ext);
-    if (!compilateur)
-      throw new Error(`Compilateur introuvable pour fichiers .${ext}.`);
+    const compilateur = this.extentions.find((e) => e.exts?.includes(ext));
 
-    return compilateur;
+    return compilateur || new ExtentionDéfaut();
   }
 
   obtTraductions({ langue }: { langue: string }) {
@@ -94,7 +92,6 @@ export class Compilateur {
     dossier: string;
   }): Generator<{ ext: string; fichier: string }> {
     const fichiers = fs.readdirSync(dossier);
-    const exts = this.extentions.map((x) => x.ext);
 
     for (const fichier of fichiers) {
       const adresseAbsolue = path.join(dossier, fichier);
@@ -115,7 +112,6 @@ export class Compilateur {
           .split(path.sep)[0];
         if (
           ext &&
-          exts.includes(ext) &&
           !this.languesCibles.includes(premièrePartieDossier)
         ) {
           yield { ext, fichier: adresseAbsolue };
@@ -126,17 +122,19 @@ export class Compilateur {
 
   extraireTexteDict({
     dict = {},
-    racineClef = "",
+    racineClef,
   }: {
-    dict?: DefaultTheme.Config[keyof DefaultTheme.Config];
+    dict?: DefaultTheme.Config | DefaultTheme.Config[keyof DefaultTheme.Config];
     racineClef?: string;
   }): Message[] {
+    racineClef = racineClef ? racineClef + "." : "";
+
     if (Array.isArray(dict)) {
       return Object.entries(dict)
         .map(([i, x]) =>
           this.extraireTexteDict({
             dict: x,
-            racineClef: racineClef + "." + String(i),
+            racineClef: racineClef + String(i),
           })
         )
         .flat();
@@ -144,11 +142,11 @@ export class Compilateur {
       return Object.entries(dict)
         .map(([clef, valeur]) => {
           if (typeof valeur === "string" && valeur[0] !== "/") {
-            return { clef: racineClef + "." + clef, valeur };
+            return { clef: racineClef + clef, valeur };
           } else if (typeof valeur === "object") {
             return this.extraireTexteDict({
               dict: valeur,
-              racineClef: racineClef + "." + clef,
+              racineClef: racineClef + clef,
             });
           } else {
             return undefined;
@@ -159,19 +157,6 @@ export class Compilateur {
     } else {
       throw new Error(`Oups ! Ça devrait vraiment pas arriver. ${dict}`);
     }
-  }
-
-  obtConfigNav(): DefaultTheme.Config["nav"] {
-    return this.configVitePress.themeConfig?.nav;
-  }
-  obtConfigPiedDePage(): DefaultTheme.Config["footer"] {
-    return this.configVitePress.themeConfig?.footer;
-  }
-  obtConfigPanneau(): DefaultTheme.Config["sidebar"] {
-    return this.configVitePress.themeConfig?.sidebar;
-  }
-  obtConfigLiensÉditer(): DefaultTheme.Config["socialLinks"] {
-    return this.configVitePress.themeConfig?.socialLinks;
   }
 
   async extraireMessages(): Promise<Message[]> {
@@ -194,19 +179,11 @@ export class Compilateur {
       messages = [...messages, ...messagesFichierFinal];
     }
 
-    const nav = this.obtConfigNav();
-    const piedDePage = this.obtConfigPiedDePage();
-    const panneau = this.obtConfigPanneau();
-    const liensÉditer = this.obtConfigLiensÉditer();
+    const configThème = this.configVitePress.themeConfig!;
+
     messages = [
       ...messages,
-      ...this.extraireTexteDict({ dict: nav, racineClef: "nav" }),
-      ...this.extraireTexteDict({ dict: piedDePage, racineClef: "pied" }),
-      ...this.extraireTexteDict({ dict: panneau, racineClef: "panneau" }),
-      ...this.extraireTexteDict({
-        dict: liensÉditer,
-        racineClef: "liensÉditer",
-      }),
+      ...this.extraireTexteDict({ dict: configThème }),
     ];
     if (this.configVitePress.title) {
       messages.push({ clef: "titre", valeur: this.configVitePress.title });
@@ -260,14 +237,14 @@ export class Compilateur {
         dossier: this.dossierSource,
       })) {
         const fichierRelatif = path.relative(this.dossierSource, fichier);
-        const texte = fs.readFileSync(fichier).toString();
+        const contenu = fs.readFileSync(fichier);
 
         const compilateur = this.obtCompilateur({
           ext,
           fichier: fichierRelatif,
         });
         const compilé = await compilateur.compiler({
-          texte,
+          contenu,
           traducs,
           fichier: fichierRelatif,
           langue,
@@ -304,13 +281,15 @@ export class Compilateur {
     config?: T;
     clefRacine?: string;
   }): any {
+    clefRacine = clefRacine ? clefRacine + "." : "";
+
     if (Array.isArray(config)) {
       return Object.entries(config)
         .map(([i, x]) => {
           return this.compilerConfig({
             langue,
             config: x,
-            clefRacine: clefRacine + "." + String(i),
+            clefRacine: clefRacine + String(i),
           });
         })
         .flat();
@@ -319,9 +298,9 @@ export class Compilateur {
         Object.entries(config).map(([clef, valeur]) => {
           if (clef === "link" && valeur[0] === "/") {
             return [clef, "/" + langue + valeur];
-          } else if (clef === "text") {
+          } else if (typeof valeur === "string") {
             const traductions = this.obtTraductions({ langue });
-            const clefTraduc = clefRacine + "." + clef;
+            const clefTraduc = clefRacine + clef + "." + empreinte(valeur);
             const traduc = traductions[clefTraduc];
             return [clef, traduc || valeur];
           } else {
@@ -330,7 +309,7 @@ export class Compilateur {
               this.compilerConfig({
                 langue,
                 config: valeur,
-                clefRacine: clefRacine + "." + clef,
+                clefRacine: clefRacine + clef,
               }),
             ];
           }
@@ -341,9 +320,9 @@ export class Compilateur {
     }
   }
 
-  générerTitre({ langue }: { langue: string }): string {
+  générerTitre({ langue, titreOriginal }: { langue: string, titreOriginal: string }): string {
     const traductions = this.obtTraductions({ langue });
-    return traductions["titre"];
+    return traductions["titre." + empreinte(titreOriginal)];
   }
 
   async générerConfigVitePress(): Promise<UserConfig<DefaultTheme.Config>> {
@@ -351,11 +330,6 @@ export class Compilateur {
 
     const nuchabäl =
       this.nuchabäl || new (await import("nuchabal")).Nuchabäl({});
-
-    const configNav = this.obtConfigNav();
-    const configPiedDePage = this.obtConfigPiedDePage();
-    const configPanneau = this.obtConfigPanneau();
-    const configLiensÉditer = this.obtConfigLiensÉditer();
 
     config.locales = {
       root: {
@@ -372,34 +346,16 @@ export class Compilateur {
             {
               lang: langue,
               label: nuchabäl.rubiChabäl({ runuk: langue }) || langue,
-              title: this.générerTitre({ langue }) || config.title,
+              title: config.title ? this.générerTitre({ langue, titreOriginal: config.title }) || config.title : config.title,
               dir:
                 nuchabäl.rucholanemTzibanem({ runuk: écriture }) === "←↓"
                   ? "rtl"
                   : "ltr",
 
-              themeConfig: {
-                nav: this.compilerConfig({
-                  langue,
-                  config: configNav,
-                  clefRacine: "nav",
-                }),
-                sidebar: this.compilerConfig({
-                  langue,
-                  config: configPanneau,
-                  clefRacine: "panneau",
-                }),
-                editLink: this.compilerConfig({
-                  langue,
-                  config: configLiensÉditer,
-                  clefRacine: "liensÉditer",
-                }),
-                footer: this.compilerConfig({
-                  langue,
-                  config: configPiedDePage,
-                  clefRacine: "piedDePage",
-                }),
-              },
+              themeConfig: this.compilerConfig({
+                langue,
+                config: config.themeConfig
+              })
             },
           ];
         })
