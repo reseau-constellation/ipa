@@ -144,6 +144,18 @@ const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationAutomati
     required: ["id", "type"],
   };
 
+export type copiesExportation = copiesExportationN | copiesExportationTemps;
+
+export type copiesExportationN = {
+  type: "n",
+  n: number,
+}
+
+export type copiesExportationTemps = {
+  type: "temps",
+  temps: fréquence,
+}
+
 type BaseSpécificationAutomatisation = {
   fréquence?: fréquence;
   type: "importation" | "exportation";
@@ -160,6 +172,7 @@ export type SpécificationExporter = BaseSpécificationAutomatisation & {
   dispositifs: string[];
   inclureFichiersSFIP: boolean;
   nRésultatsDésirésNuée?: number;
+  copies?: copiesExportation;
 };
 
 export type infoImporter = infoImporterJSON | infoImporterFeuilleCalcul;
@@ -418,19 +431,27 @@ const générerFExportation = (
   return async () => {
     const os = await import("os");
     const path = await import("path");
+    const fs = await import("fs");
     const dossier = spéc.dossier
       ? await client.automatisations!.résoudreAdressePrivéeFichier({
           clef: spéc.dossier,
         })
       : path.join(os.homedir(), "constellation");
-
     if (!dossier) throw new Error("Dossier introuvable");
+
+    let nomFichier: string;
+    const ajouterÉtiquetteÀNomFichier = (nom: string): string => {
+      const composantes = nom.split(".");
+      return `${composantes[0]}-${Date.now()}.${composantes[1]}`
+    }
     switch (spéc.typeObjet) {
       case "tableau": {
         const donnéesExp = await client.tableaux!.exporterDonnées({
           idTableau: spéc.idObjet,
           langues: spéc.langues,
         });
+        nomFichier = donnéesExp.nomFichier;
+        if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier)
 
         await client.bds!.exporterDocumentDonnées({
           données: donnéesExp,
@@ -446,6 +467,9 @@ const générerFExportation = (
           idBd: spéc.idObjet,
           langues: spéc.langues,
         });
+        nomFichier = donnéesExp.nomFichier;
+        if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier)
+        
         await client.bds!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
@@ -457,9 +481,12 @@ const générerFExportation = (
 
       case "projet": {
         const donnéesExp = await client.projets!.exporterDonnées({
-          id: spéc.idObjet,
+          idProjet: spéc.idObjet,
           langues: spéc.langues,
         });
+        nomFichier = donnéesExp.nomFichier;
+        if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier)
+
         await client.projets!.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
@@ -475,6 +502,9 @@ const générerFExportation = (
           langues: spéc.langues,
           nRésultatsDésirés: spéc.nRésultatsDésirésNuée || 1000,
         });
+        nomFichier = donnéesNuée.nomFichier;
+        if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
+
         await client.bds!.exporterDocumentDonnées({
           données: donnéesNuée,
           formatDoc: spéc.formatDoc,
@@ -486,6 +516,42 @@ const générerFExportation = (
 
       default:
         throw new Error(spéc.typeObjet);
+    }
+
+    // Effacer les sauvegardes plus vieilles si nécessaire
+    const correspondants = fs.readdirSync(dossier).filter(
+      x => {
+        try {
+          return fs.statSync(x).isFile() && nomsCorrespondent(path.basename(x), nomFichier)
+        } catch {
+          return false;
+        }
+      }
+    );
+    const nomsCorrespondent = (nom: string, réf: string): boolean => {
+      const ext = nom.split(".").pop() || ""
+      const nomBase = (nom.slice(0, -(ext?.length + 1))).split("-").slice(0, -1).join("")
+      return `${nomBase}.${ext}` === réf;
+    }
+
+    if (spéc.copies) {
+      if (spéc.copies.type === 'n') {
+        const enTrop = spéc.copies.n - correspondants.length
+        if (enTrop > 0) {
+          const fichiersAvecTempsModif = correspondants.map(fichier => ({temps: (new Date(fs.statSync(fichier).mtime)).valueOf(), fichier}))
+          const fichiersOrdreModif = fichiersAvecTempsModif.sort((a, b) => a.temps > b.temps ? 1 : -1);
+          const àEffacer = fichiersOrdreModif.slice(enTrop).map(x=>x.fichier);
+          àEffacer.forEach(fichier => fs.rmSync(fichier));
+        }
+      } else if (spéc.copies.type === 'temps') {
+        const maintenant = Date.now()
+        const { temps } = spéc.copies
+        const àEffacer = correspondants.filter(fichier=>{
+          const dateModifFichier = (new Date(fs.statSync(fichier).mtime)).valueOf()
+          return (maintenant - dateModifFichier) < obtTempsInterval(temps)
+        });
+        àEffacer.forEach(fichier => fs.rmSync(fichier));
+      }
     }
   };
 };
@@ -958,6 +1024,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
     fréquence,
     dispositifs,
     nRésultatsDésirésNuée,
+    copies
   }: {
     id: string;
     typeObjet: typeObjetExportation;
@@ -968,6 +1035,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
     fréquence?: fréquence;
     dispositifs?: string[];
     nRésultatsDésirésNuée?: number;
+    copies?: copiesExportation;
   }): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
     const idAuto = uuidv4();
@@ -987,6 +1055,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
       inclureFichiersSFIP,
       dossier: idDossier, // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier directement
       nRésultatsDésirésNuée,
+      copies,
     };
 
     // Enlever les options qui n'existent pas. (DLIP n'aime pas `undefined`.)
