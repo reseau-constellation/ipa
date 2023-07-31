@@ -12,7 +12,7 @@ import { générerClient } from '@constl/ipa';
 
 export default {
   install: (app: App) => {
-    const client = générerClient();
+    const client = générerClient({});
     app.provide('constl', client);
   },
 };

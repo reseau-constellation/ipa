@@ -26,7 +26,7 @@ Recherche des profils correspondant à un identifiant de compte.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -66,7 +66,7 @@ Recherche des profils selon leur nom.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -104,7 +104,7 @@ Recherche des profils selon leur niveau d'activité. Utile pour trouver des prof
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatVide>
@@ -142,7 +142,7 @@ Recherche des profils selon leur courriel.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -181,7 +181,7 @@ Recherche des profils selon tous leurs attributs (nom, contact ou autre).
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -223,7 +223,7 @@ Recherche des mots-clefs du réseau sans aucun critère spécifique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -263,7 +263,7 @@ Recherche des mots-clefs selon leur identifiant unique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -305,7 +305,7 @@ Recherche des mots-clefs selon leur nom.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -347,7 +347,7 @@ Recherche des mots-clefs selon leur description.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -389,7 +389,7 @@ Recherche tous les champs des mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -433,7 +433,7 @@ Recherche des variables du réseau sans aucun critère spécifique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -473,7 +473,7 @@ Recherche des variables selon leur identifiant unique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -515,7 +515,7 @@ Recherche des variables selon leur nom.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -557,7 +557,7 @@ Recherche des variables selon leur description.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -599,7 +599,7 @@ Recherche tous les champs des variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -643,7 +643,7 @@ Recherche des bases de données du réseau sans aucun critère spécifique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -683,7 +683,7 @@ Recherche des bases de données selon leur identifiant unique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -725,7 +725,7 @@ Recherche des variables selon leur nom.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -767,7 +767,7 @@ Recherche des bases de données selon leur description.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -809,7 +809,7 @@ Recherche des bases de données selon les identifiants uniques de leurs mots-cle
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -853,7 +853,7 @@ Recherche des bases de données selon les identifiants uniques de leurs variable
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -898,7 +898,7 @@ Recherche des bases de données selon les noms de leurs mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -948,7 +948,7 @@ Recherche des bases de données selon les noms de leurs variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -999,7 +999,7 @@ Recherche des bases de données selon leurs mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1049,7 +1049,7 @@ Recherche des bases de données selon leurs variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1100,7 +1100,7 @@ Recherche tous les champs des bases de données.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<types.résultatRecherche<
   types.infoRésultatTexte | types.infoRésultatRecherche<types.infoRésultatTexte>
@@ -1148,7 +1148,7 @@ Recherche des bases de données du réseau sans aucun critère spécifique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -1188,7 +1188,7 @@ Recherche des projets selon leur identifiant unique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -1230,7 +1230,7 @@ Recherche des variables selon leur nom.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -1272,7 +1272,7 @@ Recherche des projets selon leur description.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -1314,7 +1314,7 @@ Recherche des projets selon les identifiants uniques de leurs mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1358,7 +1358,7 @@ Recherche des projets selon les identifiants uniques de leurs variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1407,7 +1407,7 @@ Recherche des projets selon les noms de leurs mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1457,7 +1457,7 @@ Recherche des projets selon les noms de leurs variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1511,7 +1511,7 @@ Recherche des projets selon leurs mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1561,7 +1561,7 @@ Recherche des projets selon leurs variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1617,7 +1617,7 @@ Recherche des projets selon les identifiants de leurs bases de données.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1660,7 +1660,7 @@ Recherche des projets selon leurs bases de données.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<
@@ -1713,7 +1713,7 @@ Recherche tous les champs des projets.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<types.résultatRecherche<
   types.infoRésultatTexte
@@ -1767,7 +1767,7 @@ Recherche des nuées du réseau sans aucun critère spécifique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -1807,7 +1807,7 @@ Recherche des nuées selon leur identifiant unique.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -1849,7 +1849,7 @@ Recherche des variables selon leur nom.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -1891,7 +1891,7 @@ Recherche des nuées selon leur description.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatTexte>
@@ -1933,7 +1933,7 @@ Recherche des nuées selon les identifiants uniques de leurs mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -1977,7 +1977,7 @@ Recherche des nuées selon les identifiants uniques de leurs variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -2022,7 +2022,7 @@ Recherche des nuées selon les noms de leurs mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -2072,7 +2072,7 @@ Recherche des nuées selon les noms de leurs variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -2123,7 +2123,7 @@ Recherche des nuées selon leurs mots-clefs.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -2173,7 +2173,7 @@ Recherche des nuées selon leurs variables.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<
   types.résultatRecherche<types.infoRésultatRecherche<types.infoRésultatTexte>>
@@ -2224,7 +2224,7 @@ Recherche tous les champs des nuées.
 import { ref } from "vue";
 import { générerClient, type types } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const résultats = ref<types.résultatRecherche<
   types.infoRésultatTexte | types.infoRésultatRecherche<types.infoRésultatTexte>

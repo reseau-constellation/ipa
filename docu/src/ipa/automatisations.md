@@ -47,7 +47,7 @@ Cette fonction automatise une exportation.
 import { générerClient, type types, type automatisations as autos } from "@constl/ipa";
 import { ref } from "vue";
 
-const client = générerClient();
+const client = générerClient({});
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idAuto = await client.automatisations.ajouterAutomatisationExporter({
@@ -96,7 +96,7 @@ Cette fonction automatise l'importation de données.
 import { générerClient, type types } from "@constl/ipa";
 import { ref } from "vue";
 
-const client = générerClient();
+const client = générerClient({});
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -155,7 +155,7 @@ Cette fonction vous permet de suivre les automatisations spécifiées sur votre 
 import { ref } from "vue";
 import { générerClient, type automatisations } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const autos = ref<automatisations.SpécificationAutomatisation[]>();
 const fOublier = await client.automatisations.suivreAutomatisations({
@@ -191,7 +191,7 @@ Note: les heures ci-dessous sont exprimées en horodatages JavaScript (utiliser 
 import { ref } from "vue";
 import { générerClient, type automatisations } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const états = ref<{ [id: string]: automatisations.ÉtatAutomatisation}>();
 const fOublier = await client.automatisations.suivreÉtatAutomatisations({

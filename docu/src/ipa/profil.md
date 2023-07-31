@@ -19,7 +19,7 @@ Sauvegarde le nom de l'utilisateur dans une langue donnée.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 await client.profil.sauvegarderNom({ langue: "fr", nom: "C'est bien moi !" });
 
@@ -37,7 +37,7 @@ Sauvegarde le nom de l'utilisateur dans plusieurs langues en même temps.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 await client.profil.sauvegarderNoms({ fr: "C'est bien moi !", हिं: "मैं हुँ"});
 
@@ -54,7 +54,7 @@ Efface la traduction du nom de l'utilisateur dans une langue donnée.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 await client.profil.effacerNom({ langue: "fr" });
 ```
@@ -78,7 +78,7 @@ Suit les noms (traduits en différentes langues) de l'utilisatrice.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const fOublierNoms = await client.profil.suivreNoms({ f: noms => console.log(noms) });
 await fOublierNoms();
@@ -98,7 +98,7 @@ Sauvegarde une image de profil.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const image = fs.readFileSync("mon image locale.jpeg");
 await client.profil.sauvegarderImage({ image });
@@ -111,7 +111,7 @@ Efface l'image de profil.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 await client.profil.effacerImage();
 ```
@@ -134,7 +134,7 @@ Suit l'image de profil de l'utilisatrice.
 ```ts
 import { ref } from 'vue';
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const image = ref<Uint8Array>();
 const fOublierImage = await client.profil.suivreImage({ f: x => image.value = x });
@@ -157,7 +157,7 @@ Sauvegarde un moyen de contact.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 await client.profil.sauvegarderContact({ 
     type: "courriel", 
@@ -178,7 +178,7 @@ Effacer l'information de contact.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 await client.profil.effacerContact({ type: "courriel" });
 ```
@@ -201,7 +201,7 @@ Suit les informations de contact de l'utilisatrice.
 ```ts
 import { ref } from 'vue';
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const contacts = ref<Uint8Array>({type: string, contact: string}[]);
 const fOublierContacts = await client.profil.suivreContacts({
@@ -222,7 +222,7 @@ Fonction rapide pour sauvegarder un courriel. Équivalent à `client.profil.sauv
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 await client.profil.sauvegarderCourriel({ 
     courriel: "moi@cestbienmoi.ca" 
@@ -236,7 +236,7 @@ Fonction rapide pour effacer un courriel. Équivalent à `client.profil.effacerC
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 await client.profil.effacerCourriel();
 ```
@@ -259,7 +259,7 @@ Version spécifique de `client.profil.suivreContact` qui suit le courriel de l'u
 ```ts
 import { ref } from 'vue';
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const courriel = ref<Uint8Array>();
 const fOublierCourriel = await client.profil.suivreCourriel({

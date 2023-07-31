@@ -29,7 +29,7 @@ Suit les licences disponibles sur Constellation.
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const licences = ref<InfoLicence[]>();
 const fOublier = await client.licences.suivreLicences({
@@ -54,7 +54,7 @@ N'importe qui (oui, toi aussi !) peut suggérer une nouvelle licence à inclure.
 ```ts
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 await client.licences.suggérerLicence({
     code: "codeDeMaLicence";
@@ -82,7 +82,7 @@ Efface une suggesion de nouvelle licence que vous aviez fait auparavant.
 ```ts
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 await client.licences.effacerSuggestionLicence({
     empreinte: "codeDeMaSuggestion"
@@ -110,7 +110,7 @@ import { générerClient, type licences } from "@constl/ipa";
 
 import { type பிணையம்_பரிந்துரை } from "@lassi-js/kili"
 
-const client = générerClient();
+const client = générerClient({});
 
 const suggestions: பிணையம்_பரிந்துரை<licences.InfoLicenceAvecCode>[]([]);
 await client.licences.suivreSuggestionsLicences({

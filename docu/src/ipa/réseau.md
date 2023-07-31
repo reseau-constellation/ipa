@@ -24,7 +24,7 @@ Suit les connexions aux autres comptes Constellation.
 import { ref } from "vue";
 import { générerClient, type réseau } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const connexions = ref<réseau.statutMembre[]>();
 
@@ -52,7 +52,7 @@ Suit les connexions aux autres dispositifs des comptes Constellation.
 import { ref } from "vue";
 import { générerClient, type réseau } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const connexions = ref<réseau.statutDispositif[]>();
 
@@ -80,7 +80,7 @@ Suit les connexions aux autres postes du [Systèmes de fichiers Interplanétaire
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const connexions = ref<{ adresse: string; pair: string }[]>();
 
@@ -110,7 +110,7 @@ Suit les membres qui font parti du réseau personnel d'un compte (en ligne ou no
 import { ref } from "vue";
 import { générerClient, type réseau } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const comptes = ref<réseau.infoMembreRéseau[]>();
 
@@ -142,7 +142,7 @@ Suit les membres qui font parti du réseau personnel d'un compte (en ligne ou no
 import { ref } from "vue";
 import { générerClient, type réseau } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const comptes = ref<réseau.infoMembreRéseau[]>();
 
@@ -172,7 +172,7 @@ Indique que vous faites confiance à un compte Constellation (`confiance = 1`).
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 await client.réseau.faireConfianceAuMembre({
     idCompte: "idCompteDeQuelquUnDeChouette",
@@ -193,7 +193,7 @@ Indique que vous ne faites plus confiance à un compte Constellation (la confian
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 await client.réseau.nePlusFaireConfianceAuMembre({
     idCompte: "idCompteDeQuelquUnDePasSiChouetteAprèsTout",
@@ -221,7 +221,7 @@ Si le bloquage est privé, le compte sera bloqué uniquement sur ce dispositif, 
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 await client.réseau.bloquerMembre({
     idCompte: "idCompteDeQuelquUnQuiNestVraimentPasGentil",
@@ -242,7 +242,7 @@ Débloque un compte qui avait été bloqué.
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const confiance = ref<number>();
 
@@ -271,7 +271,7 @@ Suit les comptes à qui on fait confiance.
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const fiables = ref<string[]>();
 
@@ -304,7 +304,7 @@ Le champ `privé` dans les réponses indique si le compte est bloqué de manièr
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const bloqués = ref<{ idCompte: string; privé: boolean }[]>();
 
@@ -333,7 +333,7 @@ Suit les comptes qui ont été bloqués de manière publique.
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const bloqués = ref<string[]>();
 
@@ -364,7 +364,7 @@ Suit la confiance de mon réseau envers un compte.
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const confiance = ref<number>();
 
@@ -401,7 +401,7 @@ Suit les bases de données appartenant à un utilisateur Constellation, en véri
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const bds = ref<string[]>();
 
@@ -432,7 +432,7 @@ Suit les projets appartenant à une utilisatrice Constellation, en vérifiant et
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const projets = ref<string[]>();
 
@@ -463,7 +463,7 @@ Suit les variables appartenant à une utilisatrice Constellation, en vérifiant 
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const variables = ref<string[]>();
 
@@ -493,7 +493,7 @@ Suit les mots-clefs appartenant à une utilisatrice Constellation, en vérifiant
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const motsClefs = ref<string[]>();
 
@@ -523,7 +523,7 @@ Suit les nuées appartenant à une utilisatrice Constellation, en vérifiant et 
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const nuées = ref<string[]>();
 
@@ -553,7 +553,7 @@ Suit les favoris d'une utilisatrice Constellation.
 import { ref } from "vue";
 import { générerClient, type favoris as favo } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const favoris = ref<favo.ÉlémentFavorisAvecObjet[]>();
 
@@ -584,7 +584,7 @@ Suit les personnes qui ont marqué un objet (base de données, projet, variable 
 import { ref } from "vue";
 import { générerClient, type favoris as favo } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const favoris = ref<(favo.ÉlémentFavorisAvecObjet & { idCompte: string })[]>();
 
@@ -619,7 +619,7 @@ Suit les réplications d'un objet (base de données, projet, variable ou autre) 
 import { ref } from "vue";
 import { générerClient, type réseau } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const réplications = ref<réseau.infoRéplications>();
 
@@ -655,7 +655,7 @@ Suit les protocoles associés à un membre du réseau Constellation.
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const protocoles = ref<string[]>();
 
@@ -684,7 +684,7 @@ Suit les protocoles associés à un dispositif sur le réseau Constellation.
 import { ref } from "vue";
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const protocoles = ref<string[]>();
 

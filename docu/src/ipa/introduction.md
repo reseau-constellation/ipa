@@ -33,7 +33,7 @@ Constellation est bien plus simple. On ne demande pas à Constellation de nous d
 ```TypeScript
 import { générerClient } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 let image: Uint8Array | null;
 

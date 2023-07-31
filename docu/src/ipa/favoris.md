@@ -40,7 +40,7 @@ Suit les favoris d'un compte. Identique à [`client.réseau.suivreFavorisMembre`
 import { ref } from "vue";
 import { générerClient, type favoris as fav} from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const favoris = ref<fav.ÉlémentFavorisAvecObjet[]>();
 const fOublier = await client.favoris.suivreFavoris({
@@ -63,7 +63,7 @@ const fOublier = await client.favoris.suivreFavoris({
 ```ts
 import { générerClient, type favoris } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -115,7 +115,7 @@ Si vous voulez savoir si des données sont épinglées ailleurs sur le réseau, 
 import { ref } from "vue";
 import { générerClient, type favoris as fav } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -147,7 +147,7 @@ Suit le statut de l'épingle d'un objet sur un dispositif.
 import { ref } from "vue";
 import { générerClient, type favoris as fav } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 

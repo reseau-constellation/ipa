@@ -24,7 +24,7 @@ Recherche les variables appartenant au compte présent. Pour rechercher des vari
 import { ref } from "vue";
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const variables = ref<string[]>();
 await client.variables.suivreVariables({ f: x => variables.value = x });
@@ -48,7 +48,7 @@ Crée une nouvelle variable.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: 'numérique' });
 
@@ -71,7 +71,7 @@ Crée une copie d'une variable.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: 'numérique' });
 const idCopie = await client.variables.copierVariable({ idVariable });
@@ -92,7 +92,7 @@ Inviter une autre utilisatrice à modifier une variable qui vous appartient. Att
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "chaîne" });
 await client.variables.inviterAuteur({ 
@@ -114,7 +114,7 @@ Effacer une variable. Étant donné la structure distribuée de Constellation, c
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: 'numérique' });
 await client.variables.effacerVariable({ idVariable });
@@ -141,7 +141,7 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'une variable. 1 indiq
 import { ref } from "vue";
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -170,7 +170,7 @@ Sauvegarde le nom de la variable dans une langue donnée.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.variables.sauvegarderNomVariable({
@@ -194,7 +194,7 @@ Sauvegarde le nom de la variable dans plusieurs langues en même temps.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.variables.sauvegarderNomsVariable({ 
@@ -216,7 +216,7 @@ Efface la traduction du nom de la variable dans une langue donnée.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.variables.effacerNomVariable({ idVariable, langue: "fr" });
@@ -241,7 +241,7 @@ Suit les noms (traduits en différentes langues) de la variable.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -277,7 +277,7 @@ Sauvegarde la description de la variable dans une langue donnée.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.variables.sauvegarderDescriptionVariable({
@@ -301,7 +301,7 @@ Sauvegarde la description d'une variable dans plusieurs langues en même temps.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.variables.sauvegarderDescriptionsVariable({ 
@@ -326,7 +326,7 @@ Efface la traduction d'une description de la variable dans une langue donnée.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -359,7 +359,7 @@ Suit les descriptions (traduites en différentes langues) de la variable.
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -395,7 +395,7 @@ Sauvegarde la catégorie de la variable.
 ```ts
 
 import { générerClient } from "@constl/ipa";
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -436,7 +436,7 @@ Suit la catégorie de la variable.
 import { générerClient } from "@constl/ipa";
 import { ref } from "vue";
 
-const client = générerClient();
+const client = générerClient({});
 
 const catégorie = ref();
 
@@ -484,7 +484,7 @@ Pour en apprendre plus sur les règles, voir la [section correspondante](./règl
 ```ts
 import { générerClient, type valid } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -519,7 +519,7 @@ Permet de modifier une règle existante.
 ```ts
 import { générerClient, type valid } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -568,7 +568,7 @@ Efface une règle existante.
 ```ts
 import { générerClient, type valid } from "@constl/ipa";
 
-const client = générerClient();
+const client = générerClient({});
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -614,7 +614,7 @@ Suit les règles associées à la variable.
 import { générerClient, type valid } from "@constl/ipa";
 import { ref } from "vue";
 
-const client = générerClient();
+const client = générerClient({});
 
 const règles = ref<valid.règleVariableAvecId[]>();
 
