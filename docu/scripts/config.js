@@ -100,6 +100,7 @@ export const configVitePress = defineConfig({
           { text: "Tableaux", link: "/ipa/tableaux" },
           { text: "Projets", link: "/ipa/projets" },
           { text: "Nuées", link: "/ipa/nuées" },
+          { text: "Favoris", link: "/ipa/favoris" },
           { text: "Automatisations", link: "/ipa/automatisations" },
           { text: "Règles", link: "/ipa/règles" },
           { text: "Recherche", link: "/ipa/recherche" },
@@ -126,7 +127,11 @@ export const configVitePress = defineConfig({
     darkModeSwitchLabel: "Thème",
     search: {
       provider: 'local',
-    }
+    },
+    outlineTitle: "Sur cette page",
+    sidebarMenuLabel: "Menu",
+    lastUpdatedText: "Dernière mise à jour",
+    returnToTopLabel: "Haut de page",
   },
   vite: {
     css: {
