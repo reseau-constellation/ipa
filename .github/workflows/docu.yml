@@ -24,6 +24,7 @@ jobs:
           cache: 'pnpm'
 
       - run: cd docu && pnpm install
+      - run: cd docu/scripts/images && pnpm install
       - run: cd docu && pnpm build
 
       - name: Deploy
