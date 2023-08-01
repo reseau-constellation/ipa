@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "marked": "^4.2.12",
+    "playwright": "^1.36.2",
     "yaml": "^2.2.1"
   }
 }
