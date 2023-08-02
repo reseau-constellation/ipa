@@ -1385,7 +1385,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           fSuivreBranche({
             infoMembre: {
               ...branche.infoMembre,
-              protocoles,
+              protocoles: Object.values(protocoles).flat(),
             },
             vuÀ: branche.vuÀ,
           });

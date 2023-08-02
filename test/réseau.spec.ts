@@ -554,7 +554,7 @@ typesClients.forEach((type) => {
             it("Ajout aux favoris détecté", async () => {
               idMotClef2 = await clients[1].motsClefs!.créerMotClef();
               await clients[0].favoris!.épinglerFavori({
-                id: idMotClef2,
+                idObjet: idMotClef2,
                 dispositifs: "TOUS",
               });
 
@@ -572,7 +572,7 @@ typesClients.forEach((type) => {
             });
 
             it("Enlever favori détecté", async () => {
-              await clients[0].favoris!.désépinglerFavori({ id: idMotClef2 });
+              await clients[0].favoris!.désépinglerFavori({ idObjet: idMotClef2 });
               const valPropres = await relationsPropres.attendreExiste();
               expect(valPropres.length).to.equal(0);
 
@@ -670,7 +670,7 @@ typesClients.forEach((type) => {
             });
 
             it("Enlever projet détecté", async () => {
-              await clients[0].projets!.effacerProjet({ id: idProjet });
+              await clients[0].projets!.effacerProjet({ idProjet });
               const valPropres = await relationsPropres.attendreExiste();
               expect(valPropres.length).to.equal(0);
 
@@ -2082,7 +2082,7 @@ typesClients.forEach((type) => {
             ];
 
             await clients[1].favoris!.épinglerFavori({
-              id: idMotClef,
+              idObjet: idMotClef,
               dispositifs: "TOUS",
             });
             const val = await résPropres.attendreQue((x) => x.length > 0);
@@ -2100,7 +2100,7 @@ typesClients.forEach((type) => {
             ];
 
             await clients[0].favoris!.épinglerFavori({
-              id: idMotClef,
+              idObjet: idMotClef,
               dispositifs: "TOUS",
             });
             const val = await résAutres.attendreQue((x) => x.length > 0);
@@ -2156,7 +2156,7 @@ typesClients.forEach((type) => {
               },
             ];
             await clients[0].favoris!.épinglerFavori({
-              id: idMotClef,
+              idObjet: idMotClef,
               dispositifs: "TOUS",
             });
             const val = await rés.attendreQue((x) => !!x && !!x.length);
@@ -2182,7 +2182,7 @@ typesClients.forEach((type) => {
               },
             ];
             await clients[1].favoris!.épinglerFavori({
-              id: idMotClef,
+              idObjet: idMotClef,
               dispositifs: "TOUS",
             });
             const val = await rés.attendreQue((x) => !!x && x.length === 2);
@@ -2225,7 +2225,7 @@ typesClients.forEach((type) => {
 
           it("Auteur de la BD pour commencer", async () => {
             await clients[0].favoris!.épinglerFavori({
-              id: idBd,
+              idObjet: idBd,
               dispositifs: "TOUS",
             });
 
@@ -2243,7 +2243,7 @@ typesClients.forEach((type) => {
 
           it("Ajout d'une réplication détectée", async () => {
             await clients[1].favoris!.épinglerFavori({
-              id: idBd,
+              idObjet: idBd,
               dispositifs: "TOUS",
             });
 

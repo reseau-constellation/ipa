@@ -76,7 +76,7 @@ typesClients.forEach((type) => {
         });
 
         it("On peut aussi l'effacer", async () => {
-          await client.projets!.effacerProjet({ id: idNouveauProjet });
+          await client.projets!.effacerProjet({ idProjet: idNouveauProjet });
           expect(mesProjets).not.to.contain(idNouveauProjet);
         });
       });

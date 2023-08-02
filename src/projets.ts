@@ -906,19 +906,19 @@ export default class Projets extends ComposanteClientListe<string> {
     await zipper(fichiersDocs, fichiersDeSFIP, path.join(dossier, nomFichier));
   }
 
-  async effacerProjet({ id }: { id: string }): Promise<void> {
+  async effacerProjet({ idProjet }: { idProjet: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de projets
-    await this.enleverDeMesProjets({ idProjet: id });
+    await this.enleverDeMesProjets({ idProjet });
 
     // Et puis maintenant aussi effacer les données et le projet lui-même
     for (const clef in ["noms", "descriptions", "motsClefs", "bds"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
-        racine: id,
+        racine: idProjet,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }
 
-    await this.client.effacerBd({ id });
+    await this.client.effacerBd({ id: idProjet });
   }
 }
