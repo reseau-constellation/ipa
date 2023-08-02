@@ -511,9 +511,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }): Promise<void> {
     const dispositifValid = await this._validerInfoMembre({ info: message });
     if (!dispositifValid) return;
+    
+    // Peut-être possible de convertir à une méthode peer.onDisconnect pour détecter vuÀ ?
     this.dispositifsEnLigne[message.idDispositif] = {
       infoDispositif: message,
-      vuÀ: new Date().getTime(),
+      vuÀ: message.idDispositif === await this.client.obtIdDispositif() ? undefined : new Date().getTime(),
     };
 
     this.événements.emit("membreVu");
