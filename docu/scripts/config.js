@@ -1,5 +1,4 @@
 import { defineConfig } from "vitepress";
-import rtl from "postcss-rtl";
 
 export const configVitePress = defineConfig({
   title: "Constellation",
@@ -132,12 +131,5 @@ export const configVitePress = defineConfig({
     sidebarMenuLabel: "Menu",
     lastUpdatedText: "Dernière mise à jour",
     returnToTopLabel: "Haut de page",
-  },
-  vite: {
-    css: {
-      postcss: {
-        plugins: [rtl()],
-      },
-    },
-  },
+  }
 });

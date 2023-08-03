@@ -1,16 +1,17 @@
 {
-  "name": "constellation",
+  "name": "documentation-constellation",
   "version": "0.0.1",
-  "description": "Le réseau distribué pour les données scientifiques",
+  "description": "Documentation du réseau distribué pour les données scientifiques",
   "main": "index.js",
   "type": "module",
   "authors": {
     "name": "Julien Malard-Adam",
     "email": "julien.malard@mail.mcgill.ca"
   },
-  "repository": "https://github.com/reseau-constellation/ipa/constellation",
+  "repository": "https://github.com/reseau-constellation/ipa/docu",
   "scripts": {
-    "traducs": "cd ./scripts/traducsVitepress && pnpm compiler && cd ../images && pnpm compiler && cd ../.. && node ./scripts/compilerTraducs.mjs",
+    "traducs": "cd ./scripts/traducsVitepress && pnpm compiler && cd ../.. && node ./scripts/compilerTraducs.mjs",
+    "prises": "cd ./scripts/images && pnpm compiler && cd ../.. && node ./scripts/générerPrisesdÉcran.mjs",
     "dev": "pnpm traducs && vitepress dev src",
     "build": "pnpm traducs && vitepress build src",
     "preview": "pnpm build && vitepress preview src"

@@ -23,7 +23,7 @@ export const générerPrisesDÉcran = async ({
 
     for (const langue of [langueSource, ...langues]) {
         await prisesAccueil({ langue, navigateur, obtCheminImage });
-        await prisesCréationCompte({ langue, navigateur, obtCheminImage });
+        // await prisesCréationCompte({ langue, navigateur, obtCheminImage });
     }
     await navigateur.close()
 }
