@@ -9,7 +9,7 @@ Elles peuvent également contenir des types de données nos supportés par Excel
 Actions générales pour gérer vos bases de données.
 
 ### `client.bds.suivreBds({ f })`
-Recherche les bases de données appartenant au compte présent. Pour rechercher des bases ded données d'autres utilisateurs sur le réseau Constellation, voir la section [réseau](./réseau.md).
+Recherche les bases de données appartenant au compte présent. Pour rechercher des bases de données d'autres utilisateurs sur le réseau Constellation, voir la section [réseau](./réseau.md).
 
 #### Paramètres
 | Nom | Type | Description |
@@ -1369,7 +1369,7 @@ const effacerDonnées = async () => {
 ## Types
 Plusieurs types sont associés avec les bases de données Constellation.
 
-### Score Bd
+### Types score BD
 L'interface `infoScore` représente les différentes parties du score de qualité d'une base de données.
 
 ```ts
@@ -1382,7 +1382,7 @@ interface infoScore {
 }
 ```
 
-### Schéma Bd
+### Types schéma BD
 Les schémas de bases de données permettent de rapidement créer des bases de données selon un schéma prédéterminé.
 
 ```ts
@@ -1405,7 +1405,7 @@ interface schémaSpécificationBd {
 
 ```
 
-### Statut
+### Types statut
 Les bases de données, de même que d'autres objets Constellation, peuvent avoi différents statuts de développement. La valeur par défaut est `active`.
 
 ```ts
@@ -1422,7 +1422,7 @@ type schémaStatut = {
 };
 ```
 
-### Info tableaux
+### Types info tableaux
 Ces types représentent la spécification d'un tableau et sa position dans la base de données.
 
 ```ts
@@ -1433,7 +1433,7 @@ type infoTableau = {
 type infoTableauAvecId = infoTableau & { id: string }
 ```
 
-### Données exportées
+### Types données exportées
 Ce type décrit les données exportées d'une base de données Constellation.
 
 ```ts
