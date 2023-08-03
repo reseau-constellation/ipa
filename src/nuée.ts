@@ -1,5 +1,7 @@
 import ClientConstellation from "@/client.js";
 
+import type { ImportCandidate } from "ipfs-core-types/src/utils";
+
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -53,6 +55,9 @@ import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
 import { JSONSchemaType } from "ajv";
 import OrbitDB from "orbit-db";
+
+export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
+export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
 export type correspondanceBdEtNuée = {
   nuée: string;
@@ -593,6 +598,68 @@ export default class Nuée extends ComposanteClientListe<string> {
           schéma: schémaStructureBdNoms,
           f: fSuivreBranche,
         });
+      },
+    });
+  }
+
+  async sauvegarderImage({
+    idNuée,
+    image,
+  }: {
+    idNuée: string;
+    image: ImportCandidate;
+  }): Promise<void> {
+    let contenu: ImportCandidate;
+
+    if ((image as File).size !== undefined) {
+      if ((image as File).size > MAX_TAILLE_IMAGE) {
+        throw new Error("Taille maximale excédée");
+      }
+      contenu = await (image as File).arrayBuffer();
+    } else {
+      contenu = image;
+    }
+    const idImage = await this.client.ajouterÀSFIP({ fichier: contenu });
+    const { bd, fOublier } = await this.client.ouvrirBd<structureBdNuée>({
+      id: idNuée,
+      type: "keyvalue",
+    });
+    await bd.set("image", idImage);
+    await fOublier();
+  }
+
+  async effacerImage({ idNuée }: { idNuée: string }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBd<structureBdNuée>({
+      id: idNuée,
+      type: "kvstore",
+    });
+    await bd.del("image");
+    await fOublier();
+  }
+
+  @cacheSuivi
+  async suivreImage({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<Uint8Array | null>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBd({
+      id: idNuée,
+      type: "keyvalue",
+      schéma: schémaStructureBdNuée,
+      f: async (bd) => {
+        const idImage = bd.get("image");
+        if (!idImage) {
+          await f(null);
+        } else {
+          const image = await this.client.obtFichierSFIP({
+            id: idImage,
+            max: MAX_TAILLE_IMAGE_VIS,
+          });
+          await f(image);
+        }
       },
     });
   }
