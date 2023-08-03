@@ -308,25 +308,28 @@ export class ClientConstellation extends EventEmitter {
       racine: this.bdCompte,
       type: "kvstore",
     });
-    if (!idBdProtocoles) throw new Error("Bd protocoles non détectée.")
-    const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } =
-      await this.ouvrirBd<{ [clef: string]: string[] }>({
-        id: idBdProtocoles,
-        type: "kvstore",
-      });
-    const idDispositif = await this.obtIdDispositif();
-    const protocolesExistants = bdProtocoles.get(idDispositif) || [];
-    const listesÉgales = (a: Array<string>, b: Array<string>) =>
-      a.length === b.length && [...a].every((v) => b.includes(v));
-    if (
-      !this._opts.protocoles ||
-      !listesÉgales(protocolesExistants, this._opts.protocoles)
-    ) {
-      if (this._opts.protocoles)
-        await bdProtocoles.put(idDispositif, this._opts.protocoles);
-      else await bdProtocoles.del(idDispositif);
+    if (idBdProtocoles) {
+      const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } =
+        await this.ouvrirBd<{ [clef: string]: string[] }>({
+          id: idBdProtocoles,
+          type: "kvstore",
+        });
+        const idDispositif = await this.obtIdDispositif();
+        const protocolesExistants = bdProtocoles.get(idDispositif) || [];
+        const listesÉgales = (a: Array<string>, b: Array<string>) =>
+          a.length === b.length && [...a].every((v) => b.includes(v));
+        if (
+          !this._opts.protocoles ||
+          !listesÉgales(protocolesExistants, this._opts.protocoles)
+        ) {
+          if (this._opts.protocoles)
+            await bdProtocoles.put(idDispositif, this._opts.protocoles);
+          else await bdProtocoles.del(idDispositif);
+        }
+        await fOublierBdProtocoles();
+    } else {
+      console.warn("Bd protocoles non détectée.")
     }
-    await fOublierBdProtocoles();
 
     // Bds orbite internes
     this.profil = new Profil({ client: this });
@@ -911,7 +914,7 @@ export class ClientConstellation extends EventEmitter {
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready", "peer.exchanged"],
+    événements = ["write", "replicated", "ready"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
@@ -924,7 +927,7 @@ export class ClientConstellation extends EventEmitter {
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready", "peer.exchanged"],
+    événements = ["write", "replicated", "ready"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
@@ -935,7 +938,7 @@ export class ClientConstellation extends EventEmitter {
   async suivreBd({
     id,
     f,
-    événements = ["write", "replicated", "ready", "peer.exchanged"],
+    événements = ["write", "replicated", "ready"],
   }: {
     id: string;
     f: schémaFonctionSuivi<Store>;
@@ -946,7 +949,7 @@ export class ClientConstellation extends EventEmitter {
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready", "peer.exchanged"],
+    événements = ["write", "replicated", "ready"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
