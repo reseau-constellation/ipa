@@ -30,6 +30,9 @@ jobs:
       - name: Installer
         run: pnpm install
 
+      - name: Installer playwright
+        run: npx playwright install
+
       - name: Vérifier les tests
         run: pnpm test:node
 
