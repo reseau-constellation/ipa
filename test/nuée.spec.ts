@@ -536,7 +536,7 @@ typesClients.forEach((type) => {
           >();
   
           before(async () => {
-            idNuée = await client.nuées!.créerNuée({ philosophie: "CJPI" });
+            idNuée = await client.nuées!.créerNuée({ autorisation: "CJPI" });
   
             const idTableau = await client.nuées!.ajouterTableauNuée({
               idNuée,

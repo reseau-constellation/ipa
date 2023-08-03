@@ -52,6 +52,7 @@ import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
 import { JSONSchemaType } from "ajv";
+import OrbitDB from "orbit-db";
 
 export type correspondanceBdEtNuée = {
   nuée: string;
@@ -145,13 +146,11 @@ export default class Nuée extends ComposanteClientListe<string> {
 
   async créerNuée({
     nuéeParent,
-    autorisation,
-    philosophie = "IJPC",
+    autorisation = "IJPC",
     ajouter = true,
   }: {
     nuéeParent?: string;
-    autorisation?: string;
-    philosophie?: "IJPC" | "CJPI";
+    autorisation?: string | "IJPC" | "CJPI";
     ajouter?: boolean;
   }): Promise<string> {
     const idBdNuée = await this.client.créerBdIndépendante({
@@ -174,12 +173,19 @@ export default class Nuée extends ComposanteClientListe<string> {
 
     await bdNuée.set("type", "nuée");
 
+    let autorisationFinale: string;
+    if (OrbitDB.isValidAddress(autorisation)) {
+      autorisationFinale = autorisation
+    } else if (autorisation === 'CJPI' || autorisation === 'IJPC') {
+      autorisationFinale = await this.générerGestionnaireAutorisations({ philosophie: autorisation })
+    } else {
+      throw new Error(`Autorisation non valide : ${autorisation}`)
+    }
     await bdNuée.set(
       "autorisation",
-      autorisation ||
-        (await this.générerGestionnaireAutorisations({ philosophie }))
+       autorisationFinale
     );
-    if (philosophie === "CJPI") {
+    if (autorisation === "CJPI") {
       await this.accepterMembreNuée({
         idNuée: idBdNuée,
         idCompte: await this.client.obtIdCompte(),
