@@ -186,7 +186,7 @@ await client.bds.effacerBd({ idBd });
 
 ```
 
-### `client.bds.suivreQualitéBd({ idBd })`
+### `client.bds.suivreQualitéBd({ idBd, f })`
 Suivre une mesure (subjective, de 0 à 1) de la qualité d'une base de données. 1 indique la meilleure qualité.
 
 #### Paramètres
