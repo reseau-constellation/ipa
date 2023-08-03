@@ -258,7 +258,7 @@ await client.nuées.sauvegarderNomsNuée({
     idNuée, 
     noms: { 
         fr: "Science citoyenne fleuve Saint-Laurent", 
-        த: "ஸைன் லொரான் ஆற்றில் கூடிமக்கள் அறிவியல்"
+        த: "ஸென் லொரான் ஆற்றில் கூடிமக்கள் அறிவியல்"
     }
 });
 
