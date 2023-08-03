@@ -92,8 +92,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter un nom", async () => {
-          await client.nuées!.ajouterNomsNuée({
-            id: idNuée,
+          await client.nuées!.sauvegarderNomsNuée({
+            idNuée,
             noms: { fr: "Alphabets" },
           });
           const val = await noms.attendreQue((x) => Object.keys(x).length > 0);
@@ -101,8 +101,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.nuées!.ajouterNomsNuée({
-            id: idNuée,
+          await client.nuées!.sauvegarderNomsNuée({
+            idNuée,
             noms: {
               த: "எழுத்துகள்",
               हिं: "वर्णमाला",
@@ -117,8 +117,8 @@ typesClients.forEach((type) => {
         });
 
         it("Changer un nom", async () => {
-          await client.nuées!.ajouterNomsNuée({
-            id: idNuée,
+          await client.nuées!.sauvegarderNomsNuée({
+            idNuée,
             noms: { fr: "Systèmes d'écriture" },
           });
           const val = await noms.attendreQue((x) => x.fr !== "Alphabets");
@@ -126,7 +126,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer un nom", async () => {
-          await client.nuées!.effacerNomNuée({ id: idNuée, langue: "fr" });
+          await client.nuées!.effacerNomNuée({ idNuée, langue: "fr" });
           const val = await noms.attendreQue((x) => !x.fr);
           expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
@@ -156,8 +156,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter une description", async () => {
-          await client.nuées!.ajouterDescriptionsNuée({
-            id: idNuée,
+          await client.nuées!.sauvegarderDescriptionsNuée({
+            idNuée,
             descriptions: { fr: "Alphabets" },
           });
           const val = await descr.attendreQue((x) => Object.keys(x).length > 0);
@@ -165,8 +165,8 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des descriptions", async () => {
-          await client.nuées!.ajouterDescriptionsNuée({
-            id: idNuée,
+          await client.nuées!.sauvegarderDescriptionsNuée({
+            idNuée,
             descriptions: {
               த: "எழுத்துகள்",
               हिं: "वर्णमाला",
@@ -181,8 +181,8 @@ typesClients.forEach((type) => {
         });
 
         it("Changer une description", async () => {
-          await client.nuées!.ajouterDescriptionsNuée({
-            id: idNuée,
+          await client.nuées!.sauvegarderDescriptionsNuée({
+            idNuée,
             descriptions: { fr: "Systèmes d'écriture" },
           });
           const val = await descr.attendreQue((x) => x.fr !== "Alphabets");
@@ -191,7 +191,7 @@ typesClients.forEach((type) => {
 
         it("Effacer une description", async () => {
           await client.nuées!.effacerDescriptionNuée({
-            id: idNuée,
+            idNuée,
             langue: "fr",
           });
           const val = await descr.attendreQue((x) => !x.fr);
@@ -269,14 +269,14 @@ typesClients.forEach((type) => {
         });
 
         it("On peut l'ajouter ensuite à mes bds", async () => {
-          await client.nuées!.ajouterÀMesNuées({ id: idNouvelleNuée });
+          await client.nuées!.ajouterÀMesNuées({ idNuée: idNouvelleNuée });
           const val = await nuées.attendreQue((x) => x.includes(idNouvelleNuée));
 
           expect(val).to.be.an("array").and.to.contain(idNouvelleNuée);
         });
 
         it("On peut aussi l'effacer", async () => {
-          await client.nuées!.effacerNuée({ id: idNouvelleNuée });
+          await client.nuées!.effacerNuée({ idNuée: idNouvelleNuée });
           const val = await nuées.attendreQue((x) => !x.includes(idNouvelleNuée));
           expect(val).to.be.an("array").and.to.not.contain(idNouvelleNuée);
         });

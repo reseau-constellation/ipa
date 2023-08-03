@@ -771,8 +771,8 @@ typesClients.forEach((type) => {
             nom: "testExporterBd",
           });
           idNuée = await client.nuées!.créerNuée({});
-          await client.nuées!.ajouterNomsNuée({
-            id: idNuée,
+          await client.nuées!.sauvegarderNomsNuée({
+            idNuée,
             noms: { fr: "Science citoyenne" },
           });
           const idTableau = await client.nuées!.ajouterTableauNuée({

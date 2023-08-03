@@ -1058,8 +1058,8 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].nuées!.ajouterNomsNuée({
-                id: idNuée,
+              await clients[1].nuées!.sauvegarderNomsNuée({
+                idNuée,
                 noms: { fr: "météorologie" },
               });
               const val = await rés.attendreQue((x) => x.length > 0);
@@ -1103,8 +1103,8 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].nuées!.ajouterDescriptionsNuée({
-                id: idNuée,
+              await clients[1].nuées!.sauvegarderDescriptionsNuée({
+                idNuée,
                 descriptions: {
                   fr: "Météorologie de la région de Montpellier.",
                 },
@@ -1271,8 +1271,8 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].nuées!.ajouterNomsNuée({
-                id: idNuée,
+              await clients[1].nuées!.sauvegarderNomsNuée({
+                idNuée,
                 noms: {
                   fr: "Météorologie de la région de Montpellier.",
                 },

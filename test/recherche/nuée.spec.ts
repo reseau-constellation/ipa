@@ -58,8 +58,8 @@ describe("Client ", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.nuées!.ajouterNomsNuée({
-        id: idNuée,
+      await client.nuées!.sauvegarderNomsNuée({
+        idNuée,
         noms: {
           fr: "Météorologie",
         },
@@ -102,8 +102,8 @@ describe("Client ", function () {
     });
 
     it("Ajout description détecté", async () => {
-      await client.nuées!.ajouterDescriptionsNuée({
-        id: idNuée,
+      await client.nuées!.sauvegarderDescriptionsNuée({
+        idNuée,
         descriptions: {
           fr: "Météo historique",
         },
@@ -426,8 +426,8 @@ describe("Client ", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.nuées!.ajouterNomsNuée({
-        id: idNuée,
+      await client.nuées!.sauvegarderNomsNuée({
+        idNuée,
         noms: {
           fr: "Hydrologie",
         },
@@ -449,8 +449,8 @@ describe("Client ", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.nuées!.ajouterDescriptionsNuée({
-        id: idNuée,
+      await client.nuées!.sauvegarderDescriptionsNuée({
+        idNuée,
         descriptions: {
           fr: "Hydrologie de Montréal",
         },

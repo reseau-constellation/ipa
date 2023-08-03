@@ -160,7 +160,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         premierMod: this.client.bdCompte!.id,
       },
     });
-    if (ajouter) await this.ajouterÀMesNuées({ id: idBdNuée });
+    if (ajouter) await this.ajouterÀMesNuées({ idNuée: idBdNuée });
 
     const { bd: bdNuée, fOublier: fOublierNuée } = await this.client.ouvrirBd({
       id: idBdNuée,
@@ -225,27 +225,27 @@ export default class Nuée extends ComposanteClientListe<string> {
     return idBdNuée;
   }
 
-  async ajouterÀMesNuées({ id }: { id: string }): Promise<void> {
+  async ajouterÀMesNuées({ idNuée }: { idNuée: string }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
-    await bd.add(id);
+    await bd.add(idNuée);
     await fOublier();
   }
 
-  async enleverDeMesNuées({ id }: { id: string }): Promise<void> {
+  async enleverDeMesNuées({ idNuée }: { idNuée: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.obtBd();
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
+    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idNuée });
     await fOublier();
   }
 
   async copierNuée({
-    id,
+    idNuée,
     ajouterÀMesNuées = true,
   }: {
-    id: string;
+    idNuée: string;
     ajouterÀMesNuées?: boolean;
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBd({
-      id,
+      id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
     });
@@ -271,7 +271,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         });
       const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
       await fOublierBdNoms();
-      await this.ajouterNomsNuée({ id: idNouvelleNuée, noms });
+      await this.sauvegarderNomsNuée({ idNuée: idNouvelleNuée, noms });
     }
 
     const idBdDescr = bdBase.get("descriptions");
@@ -286,7 +286,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         bd: bdDescr,
       });
       await fOublierBdDescr();
-      await this.ajouterDescriptionsNuée({ id: idNouvelleNuée, descriptions });
+      await this.sauvegarderDescriptionsNuée({ idNuée: idNouvelleNuée, descriptions });
     }
 
     const idBdMotsClefs = bdBase.get("motsClefs");
@@ -345,7 +345,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const image = bdBase.get("image");
     if (image) await nouvelleBd.set("image", image);
 
-    await nouvelleBd.set("copiéDe", id);
+    await nouvelleBd.set("copiéDe", idNuée);
 
     await Promise.all([fOublier(), fOublierNouvelle()]);
     return idNouvelleNuée;
@@ -391,20 +391,44 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
   }
 
-  async ajouterNomsNuée({
-    id,
+  async sauvegarderNomNuée({
+    idNuée,
+    langue,
+    nom,
+  }: {
+    idNuée: string;
+    langue: string;
+    nom: string;
+  }): Promise<void> {
+    const idBdNoms = await this.client.obtIdBd({
+      nom: "noms",
+      racine: idNuée,
+      type: "kvstore",
+    });
+    if (!idBdNoms)
+      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdNoms, type: "kvstore" });
+    await bdNoms.set(langue, nom);
+    await fOublier();
+  }
+
+  async sauvegarderNomsNuée({
+    idNuée,
     noms,
   }: {
-    id: string;
+    idNuée: string;
     noms: { [key: string]: string };
   }): Promise<void> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idNuée,
       type: "kvstore",
     });
     if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour Nuée ${id}.`);
+      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
@@ -419,19 +443,19 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async effacerNomNuée({
-    id,
+    idNuée,
     langue,
   }: {
-    id: string;
+    idNuée: string;
     langue: string;
   }): Promise<void> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
-      racine: id,
+      racine: idNuée,
       type: "kvstore",
     });
     if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour Nuée ${id}.`);
+      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
@@ -470,20 +494,44 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
   }
 
-  async ajouterDescriptionsNuée({
-    id,
+  async sauvegarderDescriptionNuée({
+    idNuée,
+    langue,
+    description,
+  }: {
+    idNuée: string;
+    langue: string;
+    description: string;
+  }): Promise<void> {
+    const idBdDescr = await this.client.obtIdBd({
+      nom: "descriptions",
+      racine: idNuée,
+      type: "kvstore",
+    });
+    if (!idBdDescr)
+      throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
+
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdDescr, type: "kvstore" });
+    await bdDescr.set(langue, description);
+    await fOublier();
+  }
+
+  async sauvegarderDescriptionsNuée({
+    idNuée,
     descriptions,
   }: {
-    id: string;
+    idNuée: string;
     descriptions: { [langue: string]: string };
   }): Promise<void> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idNuée,
       type: "kvstore",
     });
     if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${id}.`);
+      throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({
       id: idBdDescr,
@@ -497,19 +545,19 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async effacerDescriptionNuée({
-    id,
+    idNuée,
     langue,
   }: {
-    id: string;
+    idNuée: string;
     langue: string;
   }): Promise<void> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idNuée,
       type: "kvstore",
     });
     if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${id}.`);
+      throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd({
       id: idBdDescr,
@@ -550,11 +598,11 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async ajouterMotsClefsNuée({
-    idsMotsClefs,
     idNuée,
+    idsMotsClefs,
   }: {
-    idsMotsClefs: string | string[];
     idNuée: string;
+    idsMotsClefs: string | string[];
   }): Promise<void> {
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
     const idBdMotsClefs = await this.client.obtIdBd({
@@ -581,11 +629,11 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async effacerMotClefNuée({
-    idMotClef,
     idNuée,
+    idMotClef,
   }: {
-    idMotClef: string;
     idNuée: string;
+    idMotClef: string;
   }): Promise<void> {
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
@@ -2375,8 +2423,8 @@ export default class Nuée extends ComposanteClientListe<string> {
         return await this.client.bds!.suivreNomsBd({ idBd, f: fSuivi });
       }
     );
-    await this.ajouterNomsNuée({
-      id: idNuée,
+    await this.sauvegarderNomsNuée({
+      idNuée,
       noms,
     });
 
@@ -2388,8 +2436,8 @@ export default class Nuée extends ComposanteClientListe<string> {
         return await this.client.bds!.suivreDescriptionsBd({ idBd, f: fSuivi });
       }
     );
-    await this.ajouterDescriptionsNuée({
-      id: idNuée,
+    await this.sauvegarderDescriptionsNuée({
+      idNuée,
       descriptions,
     });
 
@@ -2545,23 +2593,23 @@ export default class Nuée extends ComposanteClientListe<string> {
     return schéma;
   }
 
-  async effacerNuée({ id }: { id: string }): Promise<void> {
+  async effacerNuée({ idNuée }: { idNuée: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs
     const { bd: bdRacine, fOublier } = await this.obtBd();
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: id });
+    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idNuée });
     await fOublier();
 
     // Et puis maintenant aussi effacer les tableaux et la Nuée elle-même
     for (const clef in ["noms", "descriptions", "motsClefs"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
-        racine: id,
+        racine: idNuée,
       });
       if (idBd) await this.client.effacerBd({ id: idBd });
     }
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
-      racine: id,
+      racine: idNuée,
       type: "kvstore",
     });
     if (idBdTableaux) {
@@ -2577,7 +2625,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       await this.client.effacerBd({ id: idBdTableaux });
     }
 
-    await this.enleverDeMesNuées({ id });
-    await this.client.effacerBd({ id });
+    await this.enleverDeMesNuées({ idNuée });
+    await this.client.effacerBd({ id: idNuée });
   }
 }
