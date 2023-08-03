@@ -219,7 +219,7 @@ const fOublierSuivi = await client.bds.suivreQualitéBd({
 ```
 
 ## Noms
-Dans Constellation, chaque base de données est défini par un code identifiant et peut ensuite être nommé dans autant de langues que vous le souhaitez.
+Dans Constellation, chaque base de données est définie par un code identifiant et peut ensuite être nommée dans autant de langues que vous le souhaitez.
 
 ### `client.bds.sauvegarderNomBd({ idBd, langue, nom })`
 Sauvegarde le nom de la base de données dans une langue donnée.
@@ -295,7 +295,7 @@ Suit les noms (traduits en différentes langues) de la base de données.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `f` | `(noms: { [langue: string]: string }) => void` | Une fonction qui sera appelée avec les noms de la base de données chaque fois qu'ils changent|
+| `f` | `(noms: { [langue: string]: string }) => void` | Une fonction qui sera appelée avec les noms de la base de données chaque fois qu'ils changent. |
 
 #### Retour
 | Type | Description |
@@ -327,7 +327,7 @@ await client.bds.sauvegarderNomsBd({
 
 
 ## Descriptions
-Dans Constellation, chaque base de données peut aussi être accompagné d'une description plus informative.
+Dans Constellation, chaque base de données peut aussi être accompagnée d'une description plus informative.
 
 ### `client.bds.sauvegarderDescriptionBd({ idBd, langue, nom })`
 Sauvegarde la description de la base de données dans une langue donnée.
@@ -405,7 +405,7 @@ Suit les descriptions (traduites en différentes langues) de la base de données
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `f` | `(descriptions: { [langue: string]: string }) => void` | Une fonction qui sera appelée avec les descriptions de la base de données chaque fois qu'elles changent|
+| `f` | `(descriptions: { [langue: string]: string }) => void` | Une fonction qui sera appelée avec les descriptions de la base de données chaque fois qu'elles changent. |
 
 #### Retour
 | Type | Description |
@@ -500,7 +500,10 @@ const client = générerClient({});
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
 const image = ref<Uint8Array | null>();
-const fOublierImage = await client.bds.suivreImage({ f: x => image.value = x });
+const fOublierImage = await client.bds.suivreImage({ 
+    idBd,
+    f: x => image.value = x,
+});
 
 await fOublierImage();
 ```
