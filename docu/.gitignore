@@ -13,6 +13,8 @@ basement_dist
 cache
 .temp
 
+traducs/fr.json
+
 src/த
 src/es
 src/kaq
@@ -20,5 +22,4 @@ src/ខ្មែរ
 src/हिं
 src/فا
 src/ગુ
-
 src/తె
