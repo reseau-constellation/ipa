@@ -13,7 +13,7 @@
     "traducs": "cd ./scripts/traducsVitepress && pnpm compiler && cd ../.. && node ./scripts/compilerTraducs.mjs",
     "prises": "cd ./scripts/images && pnpm compiler && cd ../.. && node ./scripts/générerPrisesdÉcran.mjs",
     "dev": "pnpm traducs && vitepress dev src",
-    "build": "pnpm traducs && vitepress build src",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=3584 pnpm traducs && vitepress build src",
     "preview": "pnpm build && vitepress preview src"
   },
   "license": "MIT",
@@ -21,6 +21,7 @@
     "@types/jsdom": "^21.1.0",
     "@types/marked": "^4.0.8",
     "@types/xml2js": "^0.4.11",
+    "cross-env": "^7.0.3",
     "jsdom": "^21.1.0",
     "marked": "^4.2.12",
     "nuchabal": "^3.1.0",
