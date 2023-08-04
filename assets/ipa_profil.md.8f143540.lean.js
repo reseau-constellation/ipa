@@ -1,0 +1,1 @@
+import{_ as s,o as a,c as l,V as e}from"./chunks/framework.b1ba171e.js";const C=JSON.parse('{"title":"Profil","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/profil.md","filePath":"ipa/profil.md"}'),o={name:"ipa/profil.md"},n=e("",90),t=[n];function p(r,c,i,D,y,F){return a(),l("div",null,t)}const A=s(o,[["render",p]]);export{C as __pageData,A as default};

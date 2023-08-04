@@ -1,0 +1,1 @@
+import{_ as s,o as a,c as n,V as l}from"./chunks/framework.b1ba171e.js";const i=JSON.parse('{"title":"Règles","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/règles.md","filePath":"ipa/règles.md"}'),p={name:"ipa/règles.md"},o=l("",39),e=[o];function t(r,c,D,y,F,C){return a(),n("div",null,e)}const u=s(p,[["render",t]]);export{i as __pageData,u as default};
