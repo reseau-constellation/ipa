@@ -779,7 +779,7 @@ const données = await client.nuées.exporterDonnéesNuée({
 Les nuées peuvent hériter d'autres nuées. Cette fonctionnalité leur permet de partager des noms, des mots-clefs et des structures de données. Les nuées « enfant » doivent contenir tous les tableaux et colonnes des nuées « parent » , mais peuvent contenir des colonnes ou des tableaux additionnels si vous le souhaitez.
 
 :::info INFO
-Un exemple classique est le système de traduction communautaire [`கிளிமூக்கு`]() (`kilimukku`). Dans cet exemple, une nuée originale permet de spécifier la structure et de regrouper toutes les traductions communautaires de tous les projets de traduction utilisant `kilimukku`. Ensuite, chaque projet de traduction individuel crée sa propre nuée, héritant de la nuée `kilimukku` originale, afin de recevoir les propositions de traduction pour les phrases appartenant à ce projet particulier.
+Un exemple classique est le système de traduction communautaire [`கிளிமூக்கு`](https://github.com/lassi-niruvanam/kilimukku) (`kilimukku`). Dans cet exemple, une nuée originale permet de spécifier la structure et de regrouper toutes les traductions communautaires de tous les projets de traduction utilisant `kilimukku`. Ensuite, chaque projet de traduction individuel crée sa propre nuée, héritant de la nuée `kilimukku` originale, afin de recevoir les propositions de traduction pour les phrases appartenant à ce projet particulier.
 :::
 
 ### `client.nuées.rechercherNuéesDéscendantes({ idNuée, f, ... })`
