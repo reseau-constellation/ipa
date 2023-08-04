@@ -636,7 +636,7 @@ await client.bds.changerLicenceContenuBd({
 ```
 
 ## Mots-clefs
-Chaque base de données Constellation peut être associé avec plusieurs [mots-clefs](./motsClefs.md).
+Chaque base de données Constellation peut être associée avec plusieurs [mots-clefs](./motsClefs.md).
 
 ### `client.bds.ajouterMotsClefsBd({ idBd, idsMotsClefs })`
 Ajoute des mots-clefs à la base de données.
