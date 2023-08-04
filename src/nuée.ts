@@ -1846,7 +1846,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   @cacheRechercheParNRésultats
-  async rechercherNuéesSpécialiséesLiées({
+  async rechercherNuéesDéscendantes({
     idNuée,
     f,
     nRésultatsDésirés,
