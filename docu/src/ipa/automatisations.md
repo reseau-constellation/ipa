@@ -44,7 +44,7 @@ Cette fonction automatise une exportation.
 
 #### Exemple
 ```ts
-import { générerClient, type types, type automatisations as autos } from "@constl/ipa";
+import { générerClient } from "@constl/ipa";
 import { ref } from "vue";
 
 const client = générerClient({});
@@ -93,7 +93,7 @@ Cette fonction automatise l'importation de données.
 
 #### Exemple
 ```ts
-import { générerClient, type types } from "@constl/ipa";
+import { générerClient, type automatisations as autos } from "@constl/ipa";
 import { ref } from "vue";
 
 const client = générerClient({});
@@ -112,7 +112,7 @@ const idColonneDate = await client.tableaux.ajouterColonneTableau({
   idVariable: idVariableDate 
 });
 
-const source: SourceDonnéesImportationFichier<infoImporterFeuilleCalcul> = {
+const source: autos.SourceDonnéesImportationFichier<autos.infoImporterFeuilleCalcul> = {
   typeSource: "fichier",
   adresseFichier: "mon/fichier/local.xlsx",
   info: {

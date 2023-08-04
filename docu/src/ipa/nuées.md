@@ -513,14 +513,148 @@ await fOublierImage();
 
 
 ## Mots-clefs
-### `client.nuées.ajouterMotsClefsNuée`
-### `client.nuées.effacerMotClefNuée`
-### `client.nuées.suivreMotsClefsNuée`
+Chaque nuée Constellation peut être associée avec plusieurs [mots-clefs](./motsClefs.md).
+
+### `client.nuées.ajouterMotsClefsNuée({ idNuée, idsMotsClefs })`
+Ajoute des mots-clefs à la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `idsMotsClefs` | `string \| string[]` | Les identifiants des mots-clefs à ajouter. |
+
+
+#### Exemple
+```ts
+import { générerClient } from "@constl/ipa";
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({ });
+
+const idMotClef = await client.motsClefs.créerMotClef();
+await client.motsClefs.sauvegarderNomMotClef({
+    idMotClef,
+    nom: "Hydrologie",
+    langue: "fr"
+})
+
+await client.nuées.ajouterMotsClefsNuée({ 
+    idNuée, 
+    idsMotsClefs: idMotClef
+});
+```
+
+### `client.nuées.effacerMotClefNuée({ idNuée, idMotClef })`
+Enlève un mot-clef de la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `idMotClef` | `string` | L'identifiant du mot-clef à enlever. |
+
+#### Exemple
+```ts
+// En continuant de ci-dessus...
+
+await client.nuées.effacerMotClefNuée({ 
+    idNuée, 
+    idMotClef
+});
+```
+
+### `client.nuées.suivreMotsClefsNuée({ idNuée, f })`
+Suit les mots-clefs associés à la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `f` | `(motsClefs: string[]) => void` | Une fonction qui sera appelée avec la liste des identifiants des mots-clefs associés à la nuée chaque fois que celle-ci change. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { générerClient } from "@constl/ipa";
+
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({ });
+
+const motsClefs = ref<string[]>();
+
+const fOublierMotsClefs = await client.nuées.suivreMotsClefsNuée({ 
+    idNuée,
+    f: x => motsClefs.value = x,
+});
+
+const idMotClef = await client.motsClefs.créerMotClef();
+await client.motsClefs.sauvegarderNomMotClef({
+    idMotClef,
+    nom: "Hydrologie",
+    langue: "fr"
+})
+
+await client.nuées.ajouterMotsClefsNuée({ 
+    idNuée, 
+    idsMotsClefs: idMotClef
+});
+
+```
+
 
 ## Variables
-### `client.nuées.suivreVariablesNuée`
+Les variables ne peuvent pas être ajoutées directement à une nuée, sinon aux [tableaux](#tableaux) de celle-ci. Cependant, vous pouvez suivre la liste de variables associées à une nuée.
+
+### `client.nuées.suivreVariablesNuée({ idNuée, f })`
+Suit les variables associées à la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `f` | `(variables: string[]) => void` | Une fonction qui sera appelée avec la liste des identifiants des variables associées à la nuée chaque fois que celle-ci change. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { générerClient } from "@constl/ipa";
+
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({ });
+
+const variables = ref<string[]>();
+
+const fOublierVariables = await client.nuées.suivreVariablesNuée({ 
+    idNuée,
+    f: x => variables.value = x,
+});
+
+const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
+const idVariableNumérique = await client.variables.créerVariable({ catégorie: "numérique" });
+await client.tableaux.ajouterColonneTableauNuée({
+    idTableau,
+    idVariable: idVariableNumérique,
+});
+
+```
 
 ## Statut
+
 ### `client.nuées.changerStatutNuée`
 ### `client.nuées.suivreStatutNuée`
 ### `client.nuées.marquerObsolète`
@@ -529,6 +663,10 @@ await fOublierImage();
 ### `client.nuées.marquerInterne`
 
 ## Tableaux
+Les tableaux des nuées se comportent comme les [tableaux](./tableaux.md) des bases de données, à l'exception que ces premiers **ne peuvent pas contenir des données**. En effet, les nuées ne contiennent pas leurs propres données, mais servent plutôt à [regrouper des données existantes](#donnees) (avec le même format) dans différentes bases de données appartenant à différentes personnes. Même si elles présentent les données sous la forme d'un seul tableau, derrière tout cela, il s'agit de multiples bases de données apartenant à différentes personnes (d'où le nom `nuée`). Pour cette raison, les tableaux des nuées servent uniquement à spécifier la structure des données qui seront ajoutées aux bases de données participantes, et non à sauvegarder les données elles-mêmes.
+
+À part ce petit détail, les tableaux des nuées sont identiques ceux des bases de données - vous pouvez y ajouter des colonnes et des [règles de validation](#regles) des données.
+
 ### `client.nuées.ajouterTableauNuée`
 ### `client.nuées.effacerTableauNuée`
 ### `client.nuées.suivreTableauxNuée`
@@ -539,6 +677,16 @@ await fOublierImage();
 ### `client.nuées.effacerColonneTableauNuée`
 ### `client.nuées.changerColIndexTableauNuée`
 ### `client.nuées.suivreColonnesTableauNuée`
+
+## Règles
+Vous pouvez ajouter des règles de validation de données aux nuées. Ces règles seront appliquées pour valider les données contribuées par les différents participants. Pour plus d'information sur les possibilités de validation, voir la section [règles](./règles.md) de la documentation..
+
+### `client.nuées.ajouterRègleTableauNuée`
+### `client.nuées.effacerRègleTableauNuée`
+### `client.nuées.suivreRèglesTableauNuée`
+
+## Données
+
 ### `client.nuées.suivreDonnéesTableauNuée`
 
 ## Bds
@@ -563,19 +711,146 @@ Ces autorisations ne s'appliquent qu'au droit des personnes à contribuer des do
 ### `client.nuées.suivreAutorisationsMembresDeGestionnaire`
 ### `client.nuées.suivreAutorisationsMembresDeNuée`
 
-## Règles
-### `client.nuées.ajouterRègleTableauNuée`
-### `client.nuées.effacerRègleTableauNuée`
-### `client.nuées.suivreRèglesTableauNuée`
-
 ## Comparaisons
+Ces fonctions servent à comparer une base de donnée ou un tableau à leurs spécifications dans une nuée afin de vérifier s'ils sont compatibles ou non.
+
+### `client.nuées.suivreCorrespondanceBd`
+Suit toutes les différences de structure entre une nuée et une base de données (y compris les différences entre leux tableaux).
+
 ### `client.nuées.suivreDifférencesNuéeEtTableau`
+Suit différences de structure entre un tableaux d'un base de données et sa spécification correspondante dans une nuée.
+
 ### `client.nuées.suivreDifférencesNuéeEtBd`
-### `client.nuées.suivreCorrespondanceBd` ?
+Suit différences de structure entre une base de données et la spécification d'une nuée (ignorant les différences éventuelles entre les tableaux).
+
 
 ## Exportation
-### `client.nuées.exporterDonnéesNuée`
+Vous pouvez exporter des données d'une nuée vers un fichier externe sur votre ordinateur. Ceci est utile pour faire des sauvegardes des données importantes.
+
+:::warning AVERTISSEMENT
+**Constellation est un logiciel en début de développement.** Même si nous espérons ben ben fort que ce ne sera pas le cas, des erreurs et des pertes de données sont toujours possibles. Nous vous recommandons d'utiliser ces fonctionnalités d'exportation et de sauvegarde de manière fréquente et enthousiaste.
+:::
+
+### `client.nuées.exporterDonnéesNuée({ idNuée, ... })`
+Cette fonction vous permet d'exporter les données présentes dans une nuée.
+
+:::tip CONSEIL
+Vous pouvez également [automatiser](./automatisations.md) les exportations selon une fréquence qui vous convient. C'est bien plus pratique !
+:::
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `langues` | `string[] \| undefined` | Si vous voulez que les colonnes portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
+| `nomFichier` | `string \| undefined` | Le nom du fichier que vous voulez créer. Si non spécifié, Constellation utilisera le nom de la nuée si `langues !== undefined` ou, à défaut, l'identifiant unique de la nuée. |
+| `nRésultatsDésirés` | `number` | Le nombre maximum de files de données désirées (le réseau peut être grand !). |
+
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<`[`donnéesBdExportées`](./bds.md#types-donnees-exportees)`>` | Les données exportées, prètes à être écrites à un fichier de votre choix. |
+
+:::tip CONSEIL
+Vous pouvez passer le résultat de cette fonction à la fonction [`bds.exporterDocumentDonnées`](./bds.md#client-bds-exporterdocumentdonnees-donnees-formatdoc-dossier-inclurefichierssfip) afin d'écrire le des données exportées à un document local ou les télécharger.
+:::
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { générerClient } from "@constl/ipa";
+
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({ });
+
+// ajouter des tableaux, créer des bases de données liées et y ajouter des données...
+
+const données = await client.nuées.exporterDonnéesNuée({ 
+    idNuée,
+    langues: [],
+    nRésultatsDésirés: 1000
+});
+
+```
 
 ## Héritage
-### `client.nuées.rechercherNuéesSpécialiséesLiées`
-### `client.nuées.suivreNuéesParents`
+Les nuées peuvent hériter d'autres nuées. Cette fonctionnalité leur permet de partager des noms, des mots-clefs et des structures de données. Les nuées « enfant » doivent contenir tous les tableaux et colonnes des nuées « parent » , mais peuvent contenir des colonnes ou des tableaux additionnels si vous le souhaitez.
+
+:::info INFO
+Un exemple classique est le système de traduction communautaire [`கிளிமூக்கு`]() (`kilimukku`). Dans cet exemple, une nuée originale permet de spécifier la structure et de regrouper toutes les traductions communautaires de tous les projets de traduction utilisant `kilimukku`. Ensuite, chaque projet de traduction individuel crée sa propre nuée, héritant de la nuée `kilimukku` originale, afin de recevoir les propositions de traduction pour les phrases appartenant à ce projet particulier.
+:::
+
+### `client.nuées.rechercherNuéesDéscendantes({ idNuée, f, ... })`
+Cette fonction suit, de manière récursive, les nuées qui ont spécifié la nuée présente en tant que nuée « parent ».
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée parent. |
+| `f` | `(résultats: string[]) => void` | La fonction qui sera appellée avec les identifiants des nuées liées chaque fois que celles-ci changent. |
+| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<{ fOublier: () => Promise<void>, fChangerN: (n: number) => Promise<void>; }>` | Fonctions à appeler pour arrêter le suivi ou pour changer le nombre de résultats désirés. |
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { générerClient } from "@constl/ipa";
+
+const client = générerClient({});
+
+const nuéesLiées = ref<string[]>();
+
+const idNuée = await client.nuées.créerNuée({ });
+const idNuéeSpécialisée = await client.nuées.créerNuée({ nuéeParent: idNuée });
+
+const { 
+  fOublier, 
+  fChangerN 
+} = await client.nuées.rechercherNuéesDéscendantes({
+  idNuée,
+  f: x => résultats.value = x,
+  nRésultatsDésirés: 10,
+});
+
+await fChangerN(3);  // On veut 3 résultats maximum
+await fOublier();  // Arrêter le suivi
+```
+
+
+### `client.nuées.suivreNuéesParents({ idNuée, f })`
+Cette fonction suit, de manière récursive, les nuées « parent » de la présente nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée d'intérêt. |
+| `f` | `(résultats: string[]) => void` | La fonction qui sera appellée avec les identifiants des nuées « parent » de la nuée présente chaque fois que celles-ci changent. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+#### Exemple
+```ts
+// ...continuant de ci-dessus...
+
+const parents = ref<string[]>();
+const { 
+  fOublier: fOublierParents, 
+  fChangerN: fChangerNParents, 
+} = await client.nuées.suivreNuéesParents({
+  idNuéeSpécialisée,
+  f: x => parents.value = x,
+  nRésultatsDésirés: 10,
+});
+
+await fChangerNParents(3);  // On veut 3 résultats maximum
+await fOublierParents();  // Arrêter le suivi
+```

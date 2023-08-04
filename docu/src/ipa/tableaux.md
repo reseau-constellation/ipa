@@ -656,7 +656,7 @@ Exporte des données d'un tableau Constellation, mais ne le sauvegarde pas immé
 | `idTableau` | `string` | L'identifiant du tableau. |
 | `langues` | `string[] \| undefined` | Si vous voulez que les colonnes et les tableaux portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
 | `doc` | `xlsx.WorkBook \| undefined` | Optionnellement, un document `xlsx.WorkBook` existant auquel ajouter le tableau. Si non défini, un nouveau document `xlsx.WorkBook` sera créé. |
-| `nomFichier` | `string \| undefined` | Le nom du fichier que vous voulez créer. Si non spécifier, Constellation utilisera le nom du tableau si `langues !== undefined` ou, à défaut, l'identifiant unique du tableau. |
+| `nomFichier` | `string \| undefined` | Le nom du fichier que vous voulez créer. Si non spécifié, Constellation utilisera le nom du tableau si `langues !== undefined` ou, à défaut, l'identifiant unique du tableau. |
 
 #### Retour
 | Type | Description |

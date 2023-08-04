@@ -898,7 +898,7 @@ Vous pouvez également [automatiser](./automatisations.md) ces actions !
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
 | `langues` | `string[] \| undefined` | Si vous voulez que les colonnes et les tableaux portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
-| `nomFichier` | `string \| undefined` | Le nom du fichier que vous voulez créer. Si non spécifier, Constellation utilisera le nom de la base de données si `langues !== undefined` ou, à défaut, l'identifiant unique de la base de données. |
+| `nomFichier` | `string \| undefined` | Le nom du fichier que vous voulez créer. Si non spécifié, Constellation utilisera le nom de la base de données si `langues !== undefined` ou, à défaut, l'identifiant unique de la base de données. |
 
 #### Retour
 | Type | Description |
@@ -1076,14 +1076,14 @@ Suit le statut de la base de données.
 
 #### Exemple
 ```ts
-import { générerClient, type types } from "@constl/ipa";
+import { générerClient, type utils } from "@constl/ipa";
 import { ref } from "vue";
 
 const client = générerClient({});
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
-const statut = ref<types.schémaStatut>();
+const statut = ref<utils.schémaStatut>();
 const fOublierStatut = await client.bds.suivreStatutBd({ 
     idBd,
     f: x => statut.value = x,
