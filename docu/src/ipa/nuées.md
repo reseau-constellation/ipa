@@ -1,5 +1,5 @@
 # Nuées
-Les nuées de données Constellation permettent de regrouper des données, toutes suivant la même structure de données, provenant de différentes utilisatrices. Elles vous permettent de visualiser et partager, dans un seul tableau, des données provenant de personnes différentes, et aussi de décider les conditions d'accès (ouverte ou par invitation). 
+Les [nuées](../guide/concepts.md#nuee) de données Constellation permettent de regrouper des données, toutes suivant la même structure de données, provenant de différentes utilisatrices. Elles vous permettent de visualiser et partager, dans un seul tableau, des données provenant de personnes différentes, et aussi de décider les conditions d'accès (ouverte ou par invitation). 
 
 Les nuées sont très utiles pour les projets de science citoyenne.
 

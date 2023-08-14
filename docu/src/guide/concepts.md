@@ -31,4 +31,12 @@ Le [réseau](/ipa/réseau.md) vous permet d'accéder aux informations des autres
 Vous pouvez également [rechercher](/ipa/recherche.md) les données qui vous intéressent.
 
 ## Nuée
-Les [nuées](/ipa/nuées.md) vous permettent de créer des projets de science citoyenne et de regrouper toutes les contributions de vos participants à la même place.
+Les [nuées](/ipa/nuées.md) vous permettent de créer des projets de science citoyenne et de regrouper toutes les contributions de vos participants à la même place. Elles permettent de combiner des données de différents utilisateurs, un peu comme le ferait une base de données commune dans un système centralisé.
+
+| ![bdCentraliséé](/images/bdCentralisée.svg) | 
+|:--:| 
+| **Exemple d'une base de données centralisée.** Un serveur central contrôle l'accès à une seule base de données dans laquelle les données de toutes les utilisatrices sont écrites. |
+
+| ![bdDistribuée](/images/bdDistribuée.svg) | 
+|:--:| 
+| **Exemple d'une nuée Constellation.** Les données de chaque utilisatrice sont écrites sur leur propre base de données. Constellation se charge de toutes les retrouver et de les combiner au moment de la visualisation. |
