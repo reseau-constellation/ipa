@@ -40,6 +40,7 @@ import { JSONSchemaType } from "ajv";
 export interface schémaSpécificationBd {
   licence: string;
   licenceContenu?: string;
+  métadonnées?: string;
   motsClefs?: string[];
   nuées?: string[];
   statut?: schémaStatut;
@@ -89,6 +90,7 @@ const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
   type: "object",
   properties: {
     type: { type: "string" },
+    // métadonnées: {type: "string", nullable: true},
     licence: { type: "string" },
     licenceContenu: { type: "string", nullable: true },
     image: { type: "string", nullable: true },
