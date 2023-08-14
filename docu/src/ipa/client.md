@@ -431,7 +431,7 @@ const fOublier = await client.suivrePermissionÉcrire({
 ## Types
 Plusieurs types sont associés au client Constellation.
 
-## Types initialisation
+### Types initialisation
 ```ts
 interface optsConstellation {
   compte?: string;
@@ -463,7 +463,7 @@ interface optsIpaTravailleur extends optsConstellation {
 }
 ```
 
-## Types dispositifs
+### Types dispositifs
 ```ts
 type structureNomsDispositifs = {
   [idDispositif: string]: { nom?: string; type?: string };

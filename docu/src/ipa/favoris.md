@@ -8,7 +8,7 @@ En ajoutant des données à vos favoris, vous serez assurés que Constellation e
 :::warning AVERTISSEMENT
 Constellation est toujours un logiciel expérimental. Des « oups » sont toujours possibles. **Si vos données sont vraiment vraiment importantes, on vous suggère, en plus de les ajouter à vos favoris, d'en garder une copie exportée comme sauvegarde d'au cas où.** Vous pouvez aussi [automatiser](./automatisations.md) l'exportation des données de manière périodique ; c'est bien pratique !
 
-Bon, là vous êtes prévenus, majeurs et vaccinés. Si vous ne m'écoutez pas, je ne suis pas responsable. (En réalité, selon la [licence](https://github.com/reseau-constellation/ipa/blob/main/LICENSE), je ne le suis pas peut importe.)
+Bon, là vous êtes prévenus, majeurs et vaccinés. Si vous ne m'écoutez pas, je ne suis pas responsable. (En réalité, selon la [licence](https://github.com/reseau-constellation/ipa/blob/main/LICENSE), je ne le suis pas peu importe.)
 :::
 
 [[toc]]
