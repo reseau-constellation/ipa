@@ -2136,7 +2136,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     ignorerErreursDonnéesTableau = true,
     licencesPermises = undefined,
     toujoursInclureLesMiennes = true,
-    clefsSelonVariables = true,
+    clefsSelonVariables = false,
   }: {
     idNuée: string;
     clefTableau: string;
