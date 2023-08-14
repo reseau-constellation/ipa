@@ -19,8 +19,7 @@ const générerNuéeTest = async (
   client: ClientConstellation,
   opts: {
     nuéeParent?: string;
-    autorisation?: string;
-    philosophie?: "IJPC" | "CJPI";
+    autorisation?: string | "IJPC" | "CJPI";
     ajouter?: boolean;
   } = {}
 ): Promise<{ idNuée: string; idTableau: string }> => {
@@ -556,7 +555,6 @@ typesClients.forEach((type) => {
                 clefTableau: "principal",
                 f: async (x) => résultatChezMoi.mettreÀJour(x),
                 nRésultatsDésirés: 100,
-                clefsSelonVariables: false,
               });
             fsOublier.push(fOublierChezMoi);
   
@@ -650,7 +648,6 @@ typesClients.forEach((type) => {
                 clefTableau: "principal",
                 f: async (x) => résultatChezMoi.mettreÀJour(x),
                 nRésultatsDésirés: 100,
-                clefsSelonVariables: false,
               });
             fsOublier.push(fOublierChezMoi);
   
@@ -745,7 +742,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
   
           before(async () => {
-            ({ idNuée } = await générerNuéeTest(client, { philosophie: "CJPI" }));
+            ({ idNuée } = await générerNuéeTest(client, { autorisation: "CJPI" }));
             schémaNuée = await client.nuées!.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
@@ -822,7 +819,7 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
   
           before(async () => {
-            ({ idNuée } = await générerNuéeTest(client, { philosophie: "IJPC" }));
+            ({ idNuée } = await générerNuéeTest(client, { autorisation: "IJPC" }));
             schémaNuée = await client.nuées!.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
