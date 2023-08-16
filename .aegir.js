@@ -21,7 +21,6 @@ const esbuild = {
     "path",
     "os",
     "chokidar",
-    "@constl/electron-webrtc-relay",
     "url",
     "zlib",
     "rimraf",
@@ -35,6 +34,9 @@ const esbuild = {
         });
         build.onResolve({ filter: /^os$/ }, () => {
           return { path: require.resolve("os-browserify") };
+        });
+        build.onResolve({ filter: /^crypto$/ }, () => {
+          return { path: require.resolve("crypto-browserify") };
         });
         build.onResolve({ filter: /^fs/ }, () => {
           return { path: require.resolve("browserify-fs") };
