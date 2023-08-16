@@ -150,7 +150,7 @@ describe("Validation", function () {
       });
       describe(cat + " non valides", function () {
         catégories[cat as catégorieBaseVariables].invalides.forEach((val) => {
-          it(val.toString(), () => {
+          it(JSON.stringify(val), () => {
             const valide = validerCatégorieVal({
               val,
               catégorie: {
