@@ -3,7 +3,10 @@ import { expect } from "aegir/chai";
 import type { ClientConstellation } from "./ressources/utils.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { typesClients, générerClients } = utilsClientTest;
 
 typesClients.forEach((type) => {
@@ -99,7 +102,9 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
-        const rés = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
+        const rés = new utilsTestAttente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
 

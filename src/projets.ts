@@ -31,7 +31,6 @@ export interface donnéesProjetExportées {
   nomFichier: string;
 }
 
-
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
@@ -297,7 +296,9 @@ export default class Projets extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdNoms) {
-      throw new Error(`Permission de modification refusée pour Projet ${idProjet}.`);
+      throw new Error(
+        `Permission de modification refusée pour Projet ${idProjet}.`
+      );
     }
 
     return await this.client.ouvrirBd({
@@ -357,7 +358,9 @@ export default class Projets extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdDescr) {
-      throw new Error(`Permission de modification refusée pour Projet ${idProjet}.`);
+      throw new Error(
+        `Permission de modification refusée pour Projet ${idProjet}.`
+      );
     }
 
     return await this.client.ouvrirBd({
@@ -418,7 +421,9 @@ export default class Projets extends ComposanteClientListe<string> {
       type: "feed",
     });
     if (!idBdMotsClefs) {
-      throw new Error(`Permission de modification refusée pour projet ${idProjet}.`);
+      throw new Error(
+        `Permission de modification refusée pour projet ${idProjet}.`
+      );
     }
 
     return await this.client.ouvrirBd<FeedStore<string>>({ id: idBdMotsClefs });
@@ -474,7 +479,9 @@ export default class Projets extends ComposanteClientListe<string> {
       type: "feed",
     });
     if (!idBdBds)
-      throw new Error(`Permission de modification refusée pour Projet ${idProjet}.`);
+      throw new Error(
+        `Permission de modification refusée pour Projet ${idProjet}.`
+      );
 
     return await this.client.ouvrirBd<FeedStore<string>>({ id: idBdBds });
   }
@@ -531,7 +538,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const { bd, fOublier } = await this.client.ouvrirBd({
       id: idProjet,
       type: "keyvalue",
-      schéma: schémaStructureBdProjet
+      schéma: schémaStructureBdProjet,
     });
     bd.set("statut", statut);
     await fOublier();
@@ -669,15 +676,18 @@ export default class Projets extends ComposanteClientListe<string> {
     f,
   }: {
     idProjet: string;
-    f: schémaFonctionSuivi<{idMotClef: string, source: "projet" | "bds"}[]>;
+    f: schémaFonctionSuivi<{ idMotClef: string; source: "projet" | "bds" }[]>;
   }): Promise<schémaFonctionOublier> {
     const motsClefs: { propres?: string[]; bds?: string[] } = {};
     const fFinale = async () => {
       if (motsClefs.propres && motsClefs.bds) {
         const motsClefsFinaux = [
-          ...motsClefs.propres.map(idMotClef=>({idMotClef, source: "projet"})), 
-          ...motsClefs.bds.map(idMotClef=>({idMotClef, source: "bds"})),
-        ] as {idMotClef: string, source: "projet" | "bds"}[];
+          ...motsClefs.propres.map((idMotClef) => ({
+            idMotClef,
+            source: "projet",
+          })),
+          ...motsClefs.bds.map((idMotClef) => ({ idMotClef, source: "bds" })),
+        ] as { idMotClef: string; source: "projet" | "bds" }[];
         return await f(motsClefsFinaux);
       }
     };

@@ -19,7 +19,10 @@ import {
   rechercherProjetsSelonTexte,
 } from "@/recherche/projet.js";
 
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
@@ -30,7 +33,8 @@ describe("Rechercher projets", function () {
   let client: ClientConstellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
+    ({ fOublier: fOublierClients, clients: clients as unknown } =
+      await générerClients(1));
     client = clients[0];
   });
 
@@ -40,14 +44,18 @@ describe("Rechercher projets", function () {
 
   describe("Selon nom", function () {
     let idProjet: string;
-    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatTexte>
+    >();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
       idProjet = await client.projets!.créerProjet();
 
       const fRecherche = rechercherProjetsSelonNom("Météo");
-      fOublier = await fRecherche(client, idProjet, (r) => (résultat.mettreÀJour(r)));
+      fOublier = await fRecherche(client, idProjet, (r) =>
+        résultat.mettreÀJour(r)
+      );
     });
 
     after(async () => {
@@ -84,14 +92,18 @@ describe("Rechercher projets", function () {
 
   describe("Selon description", function () {
     let idProjet: string;
-    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatTexte>
+    >();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
       idProjet = await client.projets!.créerProjet();
 
       const fRecherche = rechercherProjetsSelonDescr("Météo");
-      fOublier = await fRecherche(client, idProjet, (r) => (résultat.mettreÀJour(r)));
+      fOublier = await fRecherche(client, idProjet, (r) =>
+        résultat.mettreÀJour(r)
+      );
     });
 
     after(async () => {
@@ -128,9 +140,15 @@ describe("Rechercher projets", function () {
   describe("Selon mot-clef", function () {
     let idProjet: string;
     let idMotClef: string;
-    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
-    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
-    const résultatTous = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatNom = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    >();
+    const résultatId = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    >();
+    const résultatTous = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -140,19 +158,21 @@ describe("Rechercher projets", function () {
 
       const fRechercheNom = rechercherProjetsSelonNomMotClef("Météo");
       fsOublier.push(
-        await fRechercheNom(client, idProjet, (r) => (résultatNom.mettreÀJour(r)))
+        await fRechercheNom(client, idProjet, (r) => résultatNom.mettreÀJour(r))
       );
 
       const fRechercheId = rechercherProjetsSelonIdMotClef(
         idMotClef.slice(0, 15)
       );
       fsOublier.push(
-        await fRechercheId(client, idProjet, (r) => (résultatId.mettreÀJour(r)))
+        await fRechercheId(client, idProjet, (r) => résultatId.mettreÀJour(r))
       );
 
       const fRechercheTous = rechercherProjetsSelonMotClef("Météo");
       fsOublier.push(
-        await fRechercheTous(client, idProjet, (r) => (résultatTous.mettreÀJour(r)))
+        await fRechercheTous(client, idProjet, (r) =>
+          résultatTous.mettreÀJour(r)
+        )
       );
     });
 
@@ -233,9 +253,15 @@ describe("Rechercher projets", function () {
   describe("Selon variable", function () {
     let idProjet: string;
     let idVariable: string;
-    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
-    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
-    const résultatTous = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
+    const résultatNom = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    >();
+    const résultatId = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    >();
+    const résultatTous = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+    >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -247,19 +273,21 @@ describe("Rechercher projets", function () {
 
       const fRechercheNom = rechercherProjetsSelonNomVariable("Précip");
       fsOublier.push(
-        await fRechercheNom(client, idProjet, (r) => (résultatNom.mettreÀJour(r)))
+        await fRechercheNom(client, idProjet, (r) => résultatNom.mettreÀJour(r))
       );
 
       const fRechercheId = rechercherProjetsSelonIdVariable(
         idVariable.slice(0, 15)
       );
       fsOublier.push(
-        await fRechercheId(client, idProjet, (r) => (résultatId.mettreÀJour(r)))
+        await fRechercheId(client, idProjet, (r) => résultatId.mettreÀJour(r))
       );
 
       const fRechercheTous = rechercherProjetsSelonVariable("Précip");
       fsOublier.push(
-        await fRechercheTous(client, idProjet, (r) => (résultatTous.mettreÀJour(r)))
+        await fRechercheTous(client, idProjet, (r) =>
+          résultatTous.mettreÀJour(r)
+        )
       );
     });
 
@@ -344,36 +372,46 @@ describe("Rechercher projets", function () {
   describe("Selon bd", function () {
     let idProjet: string;
     let idBd: string;
-    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
-    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
-    const résultatDescr = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
-    const résultatVariable = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
-    const résultatMotsClef = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
+    const résultatId = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
+    const résultatNom = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
+    const résultatDescr = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
+    const résultatVariable = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
+    const résultatMotsClef = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -383,34 +421,32 @@ describe("Rechercher projets", function () {
 
       const fRechercheNom = rechercherProjetsSelonBd("Hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idProjet, (r) => (résultatNom.mettreÀJour(r)))
+        await fRechercheNom(client, idProjet, (r) => résultatNom.mettreÀJour(r))
       );
 
       const fRechercheId = rechercherProjetsSelonIdBd(idBd.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idProjet, (r) => (résultatId.mettreÀJour(r)))
+        await fRechercheId(client, idProjet, (r) => résultatId.mettreÀJour(r))
       );
 
       const fRechercheDescr = rechercherProjetsSelonBd("Montréal");
       fsOublier.push(
-        await fRechercheDescr(client, idProjet, (r) => (résultatDescr.mettreÀJour(r)))
+        await fRechercheDescr(client, idProjet, (r) =>
+          résultatDescr.mettreÀJour(r)
+        )
       );
 
       const fRechercheVariables = rechercherProjetsSelonBd("Température");
       fsOublier.push(
-        await fRechercheVariables(
-          client,
-          idProjet,
-          (r) => (résultatVariable.mettreÀJour(r))
+        await fRechercheVariables(client, idProjet, (r) =>
+          résultatVariable.mettreÀJour(r)
         )
       );
 
       const fRechercheMotsClef = rechercherProjetsSelonBd("Météo");
       fsOublier.push(
-        await fRechercheMotsClef(
-          client,
-          idProjet,
-          (r) => (résultatMotsClef.mettreÀJour(r))
+        await fRechercheMotsClef(client, idProjet, (r) =>
+          résultatMotsClef.mettreÀJour(r)
         )
       );
     });
@@ -470,7 +506,7 @@ describe("Rechercher projets", function () {
         },
         score: 1,
       };
-      
+
       const val = await résultatNom.attendreExiste();
       expect(val).to.deep.equal(réfRés);
     });
@@ -598,40 +634,45 @@ describe("Rechercher projets", function () {
     let idProjet: string;
     let idBd: string;
     const résultatId = new utilsTestAttente.AttendreRésultat<
-       résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-       résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
     const résultatDescr = new utilsTestAttente.AttendreRésultat<
-       résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
     const résultatBd = new utilsTestAttente.AttendreRésultat<
-       résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
     const résultatVariable = new utilsTestAttente.AttendreRésultat<
-       résultatObjectifRecherche<
-          | infoRésultatTexte
-          | infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
-        >>();
+      résultatObjectifRecherche<
+        | infoRésultatTexte
+        | infoRésultatRecherche<
+            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          >
+      >
+    >();
 
     const résultatMotClef = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
@@ -650,30 +691,30 @@ describe("Rechercher projets", function () {
 
       const fRechercheNom = rechercherProjetsSelonTexte("Hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idProjet, (r) => (résultatNom.mettreÀJour(r)))
+        await fRechercheNom(client, idProjet, (r) => résultatNom.mettreÀJour(r))
       );
 
       const fRechercheId = rechercherProjetsSelonTexte(idProjet.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idProjet, (r) => (résultatId.mettreÀJour(r)))
+        await fRechercheId(client, idProjet, (r) => résultatId.mettreÀJour(r))
       );
 
       const fRechercheDescr = rechercherProjetsSelonTexte("Montréal");
       fsOublier.push(
-        await fRechercheDescr(client, idProjet, (r) => (résultatDescr.mettreÀJour(r)))
+        await fRechercheDescr(client, idProjet, (r) =>
+          résultatDescr.mettreÀJour(r)
+        )
       );
 
       const fRechercheBds = rechercherProjetsSelonTexte(idBd);
       fsOublier.push(
-        await fRechercheBds(client, idProjet, (r) => (résultatBd.mettreÀJour(r)))
+        await fRechercheBds(client, idProjet, (r) => résultatBd.mettreÀJour(r))
       );
 
       const fRechercheVariables = rechercherProjetsSelonTexte("Température");
       fsOublier.push(
-        await fRechercheVariables(
-          client,
-          idProjet,
-          (r) => (résultatVariable.mettreÀJour(r))
+        await fRechercheVariables(client, idProjet, (r) =>
+          résultatVariable.mettreÀJour(r)
         )
       );
 
@@ -879,7 +920,7 @@ describe("Rechercher projets", function () {
       const val = await résultatMotClef.attendreExiste();
 
       // Il faut vérifier les deux, parce que le mot-clef peut être détecté sur le projet lui-même ou bien sur la bd
-      if (val.de === 'bd') {
+      if (val.de === "bd") {
         expect(val).to.deep.equal(résRéfMotClefDeBd);
       } else {
         expect(val).to.deep.equal(résRéfMotClef);

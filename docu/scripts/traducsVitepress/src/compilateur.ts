@@ -110,10 +110,7 @@ export class Compilateur {
         const premièrePartieDossier = path
           .relative(this.dossierSource, dossier)
           .split(path.sep)[0];
-        if (
-          ext &&
-          !this.languesCibles.includes(premièrePartieDossier)
-        ) {
+        if (ext && !this.languesCibles.includes(premièrePartieDossier)) {
           yield { ext, fichier: adresseAbsolue };
         }
       }
@@ -181,10 +178,7 @@ export class Compilateur {
 
     const configThème = this.configVitePress.themeConfig!;
 
-    messages = [
-      ...messages,
-      ...this.extraireTexteDict({ dict: configThème }),
-    ];
+    messages = [...messages, ...this.extraireTexteDict({ dict: configThème })];
     if (this.configVitePress.title) {
       messages.push({ clef: "titre", valeur: this.configVitePress.title });
     }
@@ -320,7 +314,13 @@ export class Compilateur {
     }
   }
 
-  générerTitre({ langue, titreOriginal }: { langue: string, titreOriginal: string }): string {
+  générerTitre({
+    langue,
+    titreOriginal,
+  }: {
+    langue: string;
+    titreOriginal: string;
+  }): string {
     const traductions = this.obtTraductions({ langue });
     return traductions["titre." + empreinte(titreOriginal)];
   }
@@ -346,7 +346,10 @@ export class Compilateur {
             {
               lang: langue,
               label: nuchabäl.rubiChabäl({ runuk: langue }) || langue,
-              title: config.title ? this.générerTitre({ langue, titreOriginal: config.title }) || config.title : config.title,
+              title: config.title
+                ? this.générerTitre({ langue, titreOriginal: config.title }) ||
+                  config.title
+                : config.title,
               dir:
                 nuchabäl.rucholanemTzibanem({ runuk: écriture }) === "←↓"
                   ? "rtl"
@@ -354,8 +357,8 @@ export class Compilateur {
 
               themeConfig: this.compilerConfig({
                 langue,
-                config: config.themeConfig
-              })
+                config: config.themeConfig,
+              }),
             },
           ];
         })

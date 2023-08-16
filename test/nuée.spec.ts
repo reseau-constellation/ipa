@@ -10,7 +10,10 @@ import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { typesClients, générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
@@ -52,7 +55,10 @@ typesClients.forEach((type) => {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(1, type));
+        ({ fOublier: fOublierClients, clients } = await générerClients(
+          1,
+          type
+        ));
         client = clients[0];
       });
 
@@ -72,7 +78,9 @@ typesClients.forEach((type) => {
         let idNuée: string;
         let fOublier: schémaFonctionOublier;
 
-        const noms = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
+        const noms = new utilsTestAttente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
 
         before(async () => {
           idNuée = await client.nuées!.créerNuée({});
@@ -136,7 +144,9 @@ typesClients.forEach((type) => {
         let idNuée: string;
         let fOublier: schémaFonctionOublier;
 
-        const descr = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
+        const descr = new utilsTestAttente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
 
         before(async () => {
           idNuée = await client.nuées!.créerNuée({});
@@ -234,7 +244,9 @@ typesClients.forEach((type) => {
         });
         it("Effacer un mot-clef", async () => {
           await client.nuées!.effacerMotClefNuée({ idNuée, idMotClef });
-          const val = await motsClefs.attendreQue((x) => !x.includes(idMotClef));
+          const val = await motsClefs.attendreQue(
+            (x) => !x.includes(idMotClef)
+          );
 
           expect(val).to.be.an.empty("array");
         });
@@ -270,14 +282,18 @@ typesClients.forEach((type) => {
 
         it("On peut l'ajouter ensuite à mes bds", async () => {
           await client.nuées!.ajouterÀMesNuées({ idNuée: idNouvelleNuée });
-          const val = await nuées.attendreQue((x) => x.includes(idNouvelleNuée));
+          const val = await nuées.attendreQue((x) =>
+            x.includes(idNouvelleNuée)
+          );
 
           expect(val).to.be.an("array").and.to.contain(idNouvelleNuée);
         });
 
         it("On peut aussi l'effacer", async () => {
           await client.nuées!.effacerNuée({ idNuée: idNouvelleNuée });
-          const val = await nuées.attendreQue((x) => !x.includes(idNouvelleNuée));
+          const val = await nuées.attendreQue(
+            (x) => !x.includes(idNouvelleNuée)
+          );
           expect(val).to.be.an("array").and.to.not.contain(idNouvelleNuée);
         });
       });
@@ -350,7 +366,9 @@ typesClients.forEach((type) => {
           let idNuée: string;
           let idTableau: string;
 
-          const tableaux = new utilsTestAttente.AttendreRésultat<infoTableauAvecId[]>();
+          const tableaux = new utilsTestAttente.AttendreRésultat<
+            infoTableauAvecId[]
+          >();
 
           before(async () => {
             idNuée = await client.nuées!.créerNuée({});
@@ -393,7 +411,9 @@ typesClients.forEach((type) => {
           let idTableau: string;
           let fOublier: schémaFonctionOublier;
 
-          const résultat = new utilsTestAttente.AttendreRésultat<InfoColAvecCatégorie[]>();
+          const résultat = new utilsTestAttente.AttendreRésultat<
+            InfoColAvecCatégorie[]
+          >();
 
           before(async () => {
             idNuée = await client.nuées!.créerNuée({});
@@ -489,22 +509,24 @@ typesClients.forEach((type) => {
       describe("Différences bd", function () {
         it.skip("Nuée");
       });
-    })
+    });
 
-    if (isElectronMain || isNode) {  
+    if (isElectronMain || isNode) {
       describe("Suivre données", function () {
-  
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
         let client: ClientConstellation;
-  
+
         const fsOublier: schémaFonctionOublier[] = [];
-  
+
         before(async () => {
-          ({ fOublier: fOublierClients, clients } = await générerClients(2, type));
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+            2,
+            type
+          ));
           client = clients[0];
         });
-  
+
         after(async () => {
           if (fOublierClients) await fOublierClients();
           await Promise.all(fsOublier.map((f) => f()));
@@ -521,12 +543,12 @@ typesClients.forEach((type) => {
         describe("Erreurs données", function () {
           it.skip("Nuée");
         });
-  
+
         describe("Toujours inclure les miennes", function () {
           let idNuée: string;
           let idCol: string;
           let empreinte: string;
-  
+
           const fsOublier: schémaFonctionOublier[] = [];
           const résultatChezMoi = new utilsTestAttente.AttendreRésultat<
             élémentDeMembreAvecValid<élémentBdListeDonnées>[]
@@ -534,10 +556,10 @@ typesClients.forEach((type) => {
           const résultatChezLesAutres = new utilsTestAttente.AttendreRésultat<
             élémentDeMembreAvecValid<élémentBdListeDonnées>[]
           >();
-  
+
           before(async () => {
             idNuée = await client.nuées!.créerNuée({ autorisation: "CJPI" });
-  
+
             const idTableau = await client.nuées!.ajouterTableauNuée({
               idNuée,
               clefTableau: "principal",
@@ -558,7 +580,7 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 100,
               });
             fsOublier.push(fOublierChezMoi);
-  
+
             const { fOublier: fOublierChezLesAutres } =
               await client.nuées!.suivreDonnéesTableauNuée({
                 idNuée,
@@ -567,7 +589,7 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 100,
               });
             fsOublier.push(fOublierChezLesAutres);
-  
+
             const schémaNuée = await client.nuées!.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
@@ -579,11 +601,11 @@ typesClients.forEach((type) => {
               vals: { [idCol]: 3 },
             });
           });
-  
+
           after(async () => {
             await Promise.all(fsOublier.map((f) => f()));
           });
-  
+
           it("Mes données aparaissent chez moi", async () => {
             const val = await résultatChezMoi.attendreQue(
               (x) => x && x.length > 0
@@ -601,16 +623,16 @@ typesClients.forEach((type) => {
             };
             expect(val[0]).to.deep.equal(réf);
           });
-  
+
           it("Mais pas chez les autres", async () => {
             const val = await résultatChezLesAutres.attendreExiste();
             expect(val.length).to.equal(0);
           });
         });
-  
+
         describe("Toujours inclure les miennes - idNuée non rejoignable", function () {
           let empreinte: string;
-  
+
           const idNuée =
             "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/tuNeMeTrouverasPas";
           const idCol = "colonne numérique";
@@ -621,12 +643,12 @@ typesClients.forEach((type) => {
           const résultatChezLesAutres = new utilsTestAttente.AttendreRésultat<
             élémentDeMembreAvecValid<élémentBdListeDonnées>[]
           >();
-  
+
           before(async () => {
             const idVariableNumérique = await client.variables!.créerVariable({
               catégorie: "numérique",
             });
-  
+
             const schémaBd: schémaSpécificationBd = {
               licence: "ODbl-1_0",
               nuées: [idNuée],
@@ -642,7 +664,7 @@ typesClients.forEach((type) => {
                 },
               ],
             };
-  
+
             const { fOublier: fOublierChezMoi } =
               await clients[1].nuées!.suivreDonnéesTableauNuée({
                 idNuée,
@@ -651,7 +673,7 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 100,
               });
             fsOublier.push(fOublierChezMoi);
-  
+
             const { fOublier: fOublierChezLesAutres } =
               await client.nuées!.suivreDonnéesTableauNuée({
                 idNuée,
@@ -660,7 +682,7 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 100,
               });
             fsOublier.push(fOublierChezLesAutres);
-  
+
             empreinte = await clients[1].bds!.ajouterÉlémentÀTableauUnique({
               schémaBd,
               idNuéeUnique: idNuée,
@@ -668,11 +690,11 @@ typesClients.forEach((type) => {
               vals: { [idCol]: 3 },
             });
           });
-  
+
           after(async () => {
             await Promise.all(fsOublier.map((f) => f()));
           });
-  
+
           it("Mes données aparaissent chez moi", async () => {
             const val = await résultatChezMoi.attendreQue(
               (x) => x && x.length > 0
@@ -690,14 +712,14 @@ typesClients.forEach((type) => {
             };
             expect(val[0]).to.deep.equal(réf);
           });
-  
+
           it("Mais pas chez les autres", async () => {
             const val = await résultatChezLesAutres.attendreExiste();
             expect(val.length).to.equal(0);
           });
         });
       });
-  
+
       describe("Gestionnaires", function () {
         it.skip("Créer gestionnaire indépendant");
         it.skip("Exclure membre");
@@ -705,7 +727,7 @@ typesClients.forEach((type) => {
         it.skip("Changer philosophie à CJPI");
         it.skip("Inviter membre");
       });
-  
+
       describe("Autorisations nuée", function () {
         it.skip("Créer Nuée avec gestionnaire existant");
         it.skip("Changer philosophie");
@@ -718,14 +740,17 @@ typesClients.forEach((type) => {
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
         let client: ClientConstellation;
-  
+
         const fsOublier: schémaFonctionOublier[] = [];
-  
+
         before(async () => {
-          ({ fOublier: fOublierClients, clients } = await générerClients(2, type));
+          ({ fOublier: fOublierClients, clients } = await générerClients(
+            2,
+            type
+          ));
           client = clients[0];
         });
-  
+
         after(async () => {
           if (fOublierClients) await fOublierClients();
           await Promise.all(fsOublier.map((f) => f()));
@@ -735,15 +760,19 @@ typesClients.forEach((type) => {
           let schémaNuée: schémaSpécificationBd;
           let idBdMembreAutorisé: string;
           let idBdMembreNonAutorisé: string;
-  
+
           const résultat = new utilsTestAttente.AttendreRésultat<string[]>();
-          const résultatSansVérification = new utilsTestAttente.AttendreRésultat<string[]>();
-          const résultatSansInclureLesMiennes = new utilsTestAttente.AttendreRésultat<string[]>();
-  
+          const résultatSansVérification =
+            new utilsTestAttente.AttendreRésultat<string[]>();
+          const résultatSansInclureLesMiennes =
+            new utilsTestAttente.AttendreRésultat<string[]>();
+
           const fsOublier: schémaFonctionOublier[] = [];
-  
+
           before(async () => {
-            ({ idNuée } = await générerNuéeTest(client, { autorisation: "CJPI" }));
+            ({ idNuée } = await générerNuéeTest(client, {
+              autorisation: "CJPI",
+            }));
             schémaNuée = await client.nuées!.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
@@ -755,7 +784,7 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 100,
               });
             fsOublier.push(fOublierRésultat);
-  
+
             const { fOublier: fOublierRésultatSansVérification } =
               await client.nuées!.suivreBdsCorrespondantes({
                 idNuée,
@@ -764,7 +793,7 @@ typesClients.forEach((type) => {
                 vérifierAutorisation: false,
               });
             fsOublier.push(fOublierRésultatSansVérification);
-  
+
             const { fOublier: fOublierRésultatSansInclureLesMiennes } =
               await clients[1].nuées!.suivreBdsCorrespondantes({
                 idNuée,
@@ -774,11 +803,11 @@ typesClients.forEach((type) => {
               });
             fsOublier.push(fOublierRésultatSansInclureLesMiennes);
           });
-  
+
           after(async () => {
             await Promise.all(fsOublier.map((f) => f()));
           });
-  
+
           it("Bds de membres autorisés", async () => {
             idBdMembreAutorisé = await client.bds!.créerBdDeSchéma({
               schéma: schémaNuée,
@@ -786,7 +815,7 @@ typesClients.forEach((type) => {
             const val = await résultat.attendreQue((x) => x.length > 0);
             expect(val[0]).to.equal(idBdMembreAutorisé);
           });
-  
+
           it("Bd non autorisée - incluse dans les miennes", async () => {
             idBdMembreNonAutorisé = await clients[1].bds!.créerBdDeSchéma({
               schéma: schémaNuée,
@@ -794,14 +823,14 @@ typesClients.forEach((type) => {
             const val = await résultat.attendreQue((x) => x.length > 1);
             expect(val.includes(idBdMembreNonAutorisé)).to.be.true();
           });
-  
+
           it("Bd non autorisée - non incluse pour les autres", async () => {
             const val2 = await résultatSansInclureLesMiennes.attendreQue(
               (x) => x.length > 0
             );
             expect(val2.includes(idBdMembreNonAutorisé)).to.be.false();
           });
-  
+
           it("Bd non autorisée - incluse sans vérification", async () => {
             const val3 = await résultatSansVérification.attendreQue(
               (x) => x.length > 1
@@ -809,18 +838,20 @@ typesClients.forEach((type) => {
             expect(val3.includes(idBdMembreNonAutorisé)).to.be.true();
           });
         });
-  
+
         describe("IJPC", function () {
           let idNuée: string;
           let schémaNuée: schémaSpécificationBd;
           let idBd: string;
-  
+
           const résultat = new utilsTestAttente.AttendreRésultat<string[]>();
-  
+
           const fsOublier: schémaFonctionOublier[] = [];
-  
+
           before(async () => {
-            ({ idNuée } = await générerNuéeTest(client, { autorisation: "IJPC" }));
+            ({ idNuée } = await générerNuéeTest(client, {
+              autorisation: "IJPC",
+            }));
             schémaNuée = await client.nuées!.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
@@ -833,11 +864,11 @@ typesClients.forEach((type) => {
               });
             fsOublier.push(fOublierRésultat);
           });
-  
+
           after(async () => {
             await Promise.all(fsOublier.map((f) => f()));
           });
-  
+
           it("Bds de membres autorisés", async () => {
             idBd = await clients[1].bds!.créerBdDeSchéma({
               schéma: schémaNuée,
@@ -845,7 +876,7 @@ typesClients.forEach((type) => {
             const val = await résultat.attendreQue((x) => x.length > 0);
             expect(val[0]).to.equal(idBd);
           });
-  
+
           it("Bloquer membre", async () => {
             await client.nuées?.exclureMembreDeNuée({
               idNuée,

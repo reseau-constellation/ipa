@@ -10,11 +10,11 @@ import {
   rechercherVariablesSelonTexte,
 } from "@/recherche/variable.js";
 
-
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { générerClients } = utilsClientTest;
-
-
 
 import { expect } from "aegir/chai";
 
@@ -24,7 +24,8 @@ describe("Rechercher variables", function () {
   let client: ClientConstellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
+    ({ fOublier: fOublierClients, clients: clients as unknown } =
+      await générerClients(1));
     client = clients[0];
   });
 
@@ -34,7 +35,9 @@ describe("Rechercher variables", function () {
 
   describe("Selon nom", function () {
     let idVariable: string;
-    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatTexte>
+    >();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -43,7 +46,9 @@ describe("Rechercher variables", function () {
       });
 
       const fRecherche = rechercherVariablesSelonNom("Radiation solaire");
-      fOublier = await fRecherche(client, idVariable, (r) => (résultat.mettreÀJour(r)));
+      fOublier = await fRecherche(client, idVariable, (r) =>
+        résultat.mettreÀJour(r)
+      );
     });
 
     after(async () => {
@@ -92,7 +97,7 @@ describe("Rechercher variables", function () {
           fr: "Radiation solaire",
         },
       });
-      const val = await résultat.attendreQue(x=>x.score>0.5);
+      const val = await résultat.attendreQue((x) => x.score > 0.5);
       expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
@@ -110,7 +115,9 @@ describe("Rechercher variables", function () {
 
   describe("Selon descr", function () {
     let idVariable: string;
-    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatTexte>
+    >();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -119,7 +126,9 @@ describe("Rechercher variables", function () {
       });
 
       const fRecherche = rechercherVariablesSelonDescr("Radiation solaire");
-      fOublier = await fRecherche(client, idVariable, (r) => (résultat.mettreÀJour(r)));
+      fOublier = await fRecherche(client, idVariable, (r) =>
+        résultat.mettreÀJour(r)
+      );
     });
 
     after(async () => {
@@ -145,7 +154,7 @@ describe("Rechercher variables", function () {
           es: "Radiación solar",
         },
       });
-      
+
       const val = await résultat.attendreExiste();
       expect(val).to.deep.equal({
         type: "résultat",
@@ -167,7 +176,7 @@ describe("Rechercher variables", function () {
           fr: "Radiation solaire",
         },
       });
-      const val = await résultat.attendreQue(x=>x.score > 0.5)
+      const val = await résultat.attendreQue((x) => x.score > 0.5);
       expect(val).to.deep.equal({
         type: "résultat",
         clef: "fr",
@@ -185,8 +194,12 @@ describe("Rechercher variables", function () {
 
   describe("Selon texte", function () {
     let idVariable: string;
-    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
-    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultatId = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatTexte>
+    >();
+    const résultatNom = new utilsTestAttente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatTexte>
+    >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -197,14 +210,16 @@ describe("Rechercher variables", function () {
 
       const fRechercheNom = rechercherVariablesSelonTexte("précipitation");
       fsOublier.push(
-        await fRechercheNom(client, idVariable, (r) => (résultatNom.mettreÀJour(r)))
+        await fRechercheNom(client, idVariable, (r) =>
+          résultatNom.mettreÀJour(r)
+        )
       );
 
       const fRechercheId = rechercherVariablesSelonTexte(
         idVariable.slice(0, 15)
       );
       fsOublier.push(
-        await fRechercheId(client, idVariable, (r) => (résultatId.mettreÀJour(r)))
+        await fRechercheId(client, idVariable, (r) => résultatId.mettreÀJour(r))
       );
 
       await client.variables!.sauvegarderNomsVariable({
@@ -220,7 +235,6 @@ describe("Rechercher variables", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      
       const val = await résultatNom.attendreExiste();
       expect(val).to.deep.equal({
         type: "résultat",

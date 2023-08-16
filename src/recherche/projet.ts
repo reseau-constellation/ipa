@@ -271,7 +271,7 @@ export const rechercherProjetsSelonIdMotClef = (
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreMotsClefsProjet({
         idProjet,
-        f: motsClefs => fSuivreRacine(motsClefs.map(m=>m.idMotClef)),
+        f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.idMotClef)),
       });
     };
 
@@ -304,7 +304,7 @@ export const rechercherProjetsSelonNomMotClef = (
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreMotsClefsProjet({
         idProjet,
-        f: motsClefs => fSuivreRacine(motsClefs.map(m=>m.idMotClef)),
+        f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.idMotClef)),
       });
     };
 
@@ -337,7 +337,7 @@ export const rechercherProjetsSelonMotClef = (
     ): Promise<schémaFonctionOublier> => {
       return await client.projets!.suivreMotsClefsProjet({
         idProjet,
-        f: motsClefs => fSuivreRacine(motsClefs.map(m=>m.idMotClef)),
+        f: (motsClefs) => fSuivreRacine(motsClefs.map((m) => m.idMotClef)),
       });
     };
 

@@ -31,7 +31,8 @@ describe("Utils recherche", function () {
   let client: ClientConstellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
+    ({ fOublier: fOublierClients, clients: clients as unknown } =
+      await générerClients(1));
     client = clients[0];
   });
 
@@ -177,8 +178,14 @@ describe("Utils recherche", function () {
     let IMAGE2: Buffer;
 
     before(async () => {
-      IMAGE = await obtRessourceTest({nomFichier: "logo.png", optsAxios: { responseType: "arraybuffer" }});
-      IMAGE2 = await obtRessourceTest({nomFichier: "logo2.png", optsAxios: { responseType: "arraybuffer" } });
+      IMAGE = await obtRessourceTest({
+        nomFichier: "logo.png",
+        optsAxios: { responseType: "arraybuffer" },
+      });
+      IMAGE2 = await obtRessourceTest({
+        nomFichier: "logo2.png",
+        optsAxios: { responseType: "arraybuffer" },
+      });
     });
 
     it("Pas d'image réf", () => {

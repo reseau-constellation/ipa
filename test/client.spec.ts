@@ -12,12 +12,14 @@ import type { ClientConstellation as typeClientConstellation } from "./ressource
 
 import type KeyValueStore from "orbit-db-kvstore";
 
-import { client as utilsClientTest, attente as utilsTestAttente, peutÉcrire } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+  peutÉcrire,
+} from "@constl/utils-tests";
 const { générerClients } = utilsClientTest;
 
-
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
-
 
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
@@ -95,7 +97,9 @@ if (isNode || isElectronMain) {
       let idBd: string;
 
       const fsOublier: schémaFonctionOublier[] = [];
-      const résNom = new utilsTestAttente.AttendreRésultat<{ [lng: string]: string }>();
+      const résNom = new utilsTestAttente.AttendreRésultat<{
+        [lng: string]: string;
+      }>();
 
       before(async () => {
         fsOublier.push(
@@ -162,7 +166,11 @@ if (isNode || isElectronMain) {
 
       it("Nouveau dispositif ajouté au compte", async () => {
         const val = await mesDispositifs.attendreQue((x) => x.length > 2);
-        expect(val).to.have.members([idDispositif1, idDispositif2, idDispositif3]);
+        expect(val).to.have.members([
+          idDispositif1,
+          idDispositif2,
+          idDispositif3,
+        ]);
       });
 
       it("Nouveau dispositif indique le nouveau compte", async () => {
@@ -280,7 +288,9 @@ if (isNode || isElectronMain) {
       let fSuivre: (id: string) => Promise<void>;
       let fOublier: schémaFonctionOublier;
 
-      const données = new utilsTestAttente.AttendreRésultat<{ [key: string]: number }>();
+      const données = new utilsTestAttente.AttendreRésultat<{
+        [key: string]: number;
+      }>();
 
       const changerBd = async (id: string) => {
         await fSuivre(id);
@@ -358,7 +368,9 @@ if (isNode || isElectronMain) {
       let bdBase: KeyValueStore<{ [clef: string]: string }>;
       let idBd: string | undefined;
 
-      const données = new utilsTestAttente.AttendreRésultat<{ [key: string]: number }>();
+      const données = new utilsTestAttente.AttendreRésultat<{
+        [key: string]: number;
+      }>();
 
       const CLEF = "clef";
       const fsOublier: schémaFonctionOublier[] = [];
@@ -436,9 +448,11 @@ if (isNode || isElectronMain) {
     describe("Suivre BD dic de clef", function () {
       let idBdBase: string;
       let idBd: string;
-      
+
       const CLEF = "clef";
-      const données = new utilsTestAttente.AttendreRésultat<{ [key: string]: number }>();
+      const données = new utilsTestAttente.AttendreRésultat<{
+        [key: string]: number;
+      }>();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
@@ -446,7 +460,8 @@ if (isNode || isElectronMain) {
 
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
 
-        const fSuivre = (d: { [key: string]: number }) => (données.mettreÀJour(d));
+        const fSuivre = (d: { [key: string]: number }) =>
+          données.mettreÀJour(d);
         await client.suivreBdDicDeClef({
           id: idBdBase,
           clef: CLEF,
@@ -482,7 +497,9 @@ if (isNode || isElectronMain) {
         });
         fsOublier.push(fOublier);
         await bd.put("a", 1);
-        const val2 = await données.attendreQue(x=>Object.keys(x).length > 0);
+        const val2 = await données.attendreQue(
+          (x) => Object.keys(x).length > 0
+        );
         expect(val2.a).to.equal(1);
       });
     });

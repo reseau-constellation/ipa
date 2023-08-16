@@ -12,7 +12,10 @@ import {
   rechercherProfilsSelonCourriel,
 } from "@/recherche/profil.js";
 
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { générerClients } = utilsClientTest;
 
 import { obtRessourceTest } from "../ressources/index.js";
@@ -33,13 +36,12 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
+      ({ fOublier: fOublierClients, clients: clients as unknown } =
+        await générerClients(1));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonActivité();
-      fOublier = await fRecherche(client, idCompte, (r) =>
-        rés.mettreÀJour(r)
-      );
+      fOublier = await fRecherche(client, idCompte, (r) => rés.mettreÀJour(r));
     });
 
     after(async () => {
@@ -73,7 +75,10 @@ describe("Rechercher profil", function () {
     });
 
     it("C'est parfait avec un photo !", async () => {
-      const IMAGE = await obtRessourceTest({nomFichier: "logo.png", optsAxios: { responseType: "arraybuffer" }});
+      const IMAGE = await obtRessourceTest({
+        nomFichier: "logo.png",
+        optsAxios: { responseType: "arraybuffer" },
+      });
 
       await client.profil!.sauvegarderImage({ image: IMAGE });
       const val = await rés.attendreQue(
@@ -97,13 +102,12 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
+      ({ fOublier: fOublierClients, clients: clients as unknown } =
+        await générerClients(1));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonNom("Julien");
-      fOublier = await fRecherche(client, idCompte, (r) =>
-        rés.mettreÀJour(r)
-      );
+      fOublier = await fRecherche(client, idCompte, (r) => rés.mettreÀJour(r));
     });
 
     after(async () => {
@@ -155,13 +159,12 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
+      ({ fOublier: fOublierClients, clients: clients as unknown } =
+        await générerClients(1));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonCourriel("julien");
-      fOublier = await fRecherche(client, idCompte, (r) =>
-        rés.mettreÀJour(r)
-      );
+      fOublier = await fRecherche(client, idCompte, (r) => rés.mettreÀJour(r));
     });
 
     after(async () => {
@@ -209,7 +212,8 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
+      ({ fOublier: fOublierClients, clients: clients as unknown } =
+        await générerClients(1));
       client = clients[0];
 
       idCompte = await client.obtIdCompte();

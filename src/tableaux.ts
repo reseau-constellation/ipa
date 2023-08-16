@@ -79,7 +79,7 @@ export type conversionDonnéesNumérique = {
 export type opérationConversionNumérique = {
   op: "+" | "-" | "/" | "*" | "^";
   val: number;
-}
+};
 export type conversionDonnéesDate = {
   type: "horoDatage";
   système: string;
@@ -1049,30 +1049,39 @@ export default class Tableaux {
           return typeof val === "string" ? val.toLowerCase() === "true" : val;
 
         case "numérique": {
-          let opération: opérationConversionNumérique | opérationConversionNumérique[] | undefined = undefined;
+          let opération:
+            | opérationConversionNumérique
+            | opérationConversionNumérique[]
+            | undefined = undefined;
           let systèmeNumération: string | undefined = undefined;
           if (conversion?.type === "numérique") {
             ({ opération, systèmeNumération } = conversion);
           }
-          const convertirValNumérique = ({val, ops}: {val: number, ops?: opérationConversionNumérique[]}): number => {
+          const convertirValNumérique = ({
+            val,
+            ops,
+          }: {
+            val: number;
+            ops?: opérationConversionNumérique[];
+          }): number => {
             if (!ops) return val;
 
-            let valFinale = val
+            let valFinale = val;
             for (const op of ops) {
               switch (op.op) {
-                case '+':
+                case "+":
                   valFinale = val + op.val;
                   break;
-                case '-':
+                case "-":
                   valFinale = val - op.val;
                   break;
-                case '*':
+                case "*":
                   valFinale = val * op.val;
                   break;
-                case '/':
+                case "/":
                   valFinale = val / op.val;
                   break;
-                case '^':
+                case "^":
                   valFinale = val ** op.val;
                   break;
                 default:
@@ -1080,7 +1089,7 @@ export default class Tableaux {
               }
             }
             return valFinale;
-          }
+          };
 
           let valNumérique: number | undefined = undefined;
           if (typeof val === "string") {
@@ -1095,10 +1104,15 @@ export default class Tableaux {
           } else if (typeof val === "number") {
             valNumérique = val;
           }
-          return valNumérique !== undefined ? convertirValNumérique({
-            val: valNumérique, 
-            ops: Array.isArray(opération) || typeof opération === 'undefined' ? opération : [opération]
-          }) : val;
+          return valNumérique !== undefined
+            ? convertirValNumérique({
+                val: valNumérique,
+                ops:
+                  Array.isArray(opération) || typeof opération === "undefined"
+                    ? opération
+                    : [opération],
+              })
+            : val;
         }
 
         case "horoDatage": {

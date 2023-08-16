@@ -10,10 +10,11 @@ import type {
   résultatObjectifRecherche,
 } from "@/utils/index.js";
 
-
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { générerClients, typesClients } = utilsClientTest;
-
 
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
@@ -76,10 +77,8 @@ typesClients.forEach((type) => {
           let idsComptes: string[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
-              3,
-              type
-            ));
+            ({ fOublier: fOublierClients, clients: clients as unknown } =
+              await générerClients(3, type));
             idsComptes = await Promise.all(
               clients.map(async (c) => await c.obtIdCompte())
             );
@@ -318,10 +317,8 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
-              2,
-              type
-            ));
+            ({ fOublier: fOublierClients, clients: clients as unknown } =
+              await générerClients(2, type));
           });
 
           after(async () => {
@@ -455,10 +452,8 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
-              2,
-              type
-            ));
+            ({ fOublier: fOublierClients, clients: clients as unknown } =
+              await générerClients(2, type));
           });
 
           after(async () => {
@@ -655,10 +650,8 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
-              2,
-              type
-            ));
+            ({ fOublier: fOublierClients, clients: clients as unknown } =
+              await générerClients(2, type));
           });
 
           after(async () => {
@@ -712,11 +705,13 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              ({ fOublier } = await clients[0].recherche!.rechercherBdsSelonNom({
-                nomBd: "météo",
-                f: (bds) => rés.mettreÀJour(bds),
-                nRésultatsDésirés: 2,
-              }));
+              ({ fOublier } = await clients[0].recherche!.rechercherBdsSelonNom(
+                {
+                  nomBd: "météo",
+                  f: (bds) => rés.mettreÀJour(bds),
+                  nRésultatsDésirés: 2,
+                }
+              ));
             });
 
             after(async () => {
@@ -972,10 +967,8 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
-              2,
-              type
-            ));
+            ({ fOublier: fOublierClients, clients: clients as unknown } =
+              await générerClients(2, type));
           });
 
           after(async () => {
@@ -991,13 +984,12 @@ typesClients.forEach((type) => {
             before(async () => {
               idNuée = await clients[1].nuées!.créerNuée({});
 
-              ({ fOublier } = await clients[0].recherche!.rechercherNuéesSelonId(
-                {
+              ({ fOublier } =
+                await clients[0].recherche!.rechercherNuéesSelonId({
                   idNuée,
                   f: (nuées) => rés.mettreÀJour(nuées),
                   nRésultatsDésirés: 2,
-                }
-              ));
+                }));
             });
 
             after(async () => {
@@ -1293,10 +1285,8 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
-              2,
-              type
-            ));
+            ({ fOublier: fOublierClients, clients: clients as unknown } =
+              await générerClients(2, type));
           });
 
           after(async () => {
@@ -1689,10 +1679,8 @@ typesClients.forEach((type) => {
       let idsComptes: string[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
-          5,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients: clients as unknown } =
+          await générerClients(5, type));
         client = clients[0];
         for (const [i, c] of clients.entries()) {
           idsComptes.push(await c.obtIdCompte());
@@ -1712,7 +1700,9 @@ typesClients.forEach((type) => {
         let fOublierRecherche: schémaFonctionOublier;
         let fChangerN: (x: number) => Promise<void>;
 
-        const résMembresEnLigne = new utilsTestAttente.AttendreRésultat<statutMembre[]>();
+        const résMembresEnLigne = new utilsTestAttente.AttendreRésultat<
+          statutMembre[]
+        >();
         const résMotsClefs = new utilsTestAttente.AttendreRésultat<
           résultatRecherche<infoRésultatTexte>[]
         >();

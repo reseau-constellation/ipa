@@ -16,15 +16,7 @@ process.on("beforeExit", (code) => process.exit(code));
 const esbuild = {
   // this will inject all the named exports from 'node-globals.js' as globals
   inject: [path.join(__dirname, "./scripts/node-globals.js")],
-  external: [
-    "fs",
-    "path",
-    "os",
-    "chokidar",
-    "url",
-    "zlib",
-    "rimraf",
-  ],
+  external: ["fs", "path", "os", "chokidar", "url", "zlib", "rimraf"],
   plugins: [
     {
       name: "node built ins", // this will make the bundler resolve node builtins to the respective browser polyfill
@@ -55,7 +47,6 @@ const options = {
       },
     },
     before: async (opts) => {
-
       // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
       const { chromium } = await import("playwright");
       const navigateur = await chromium.launch();
@@ -73,35 +64,40 @@ const options = {
        */
       let serveurLocal = undefined;
 
-      if (opts.target.includes('browser') || opts.target.includes('electron-renderer')) {
+      if (
+        opts.target.includes("browser") ||
+        opts.target.includes("electron-renderer")
+      ) {
         const appliExpress = express();
 
         // Permettre l'accès à partir de l'hôte locale
-        appliExpress.use(cors({
-          origin: function (origin, callback) {
-            if (!origin) {
-              callback(null, true)
-              return;
-            }
-            if ((new URL(origin)).hostname === "127.0.0.1") {
-              callback(null, true)
-            } else {
-              callback(new Error('Not allowed by CORS'))
-            }
-          },
-        }));
+        appliExpress.use(
+          cors({
+            origin: function (origin, callback) {
+              if (!origin) {
+                callback(null, true);
+                return;
+              }
+              if (new URL(origin).hostname === "127.0.0.1") {
+                callback(null, true);
+              } else {
+                callback(new Error("Not allowed by CORS"));
+              }
+            },
+          })
+        );
         appliExpress.get("/fichier/:nomFichier", function (req, res) {
-          const { nomFichier } = req.params
+          const { nomFichier } = req.params;
 
           const cheminFichier = path.join(
             url.fileURLToPath(new URL(".", import.meta.url)),
             "test",
             "ressources",
-            decodeURIComponent(nomFichier),
-          )
+            decodeURIComponent(nomFichier)
+          );
 
-          res.sendFile(cheminFichier)
-        })
+          res.sendFile(cheminFichier);
+        });
         serveurLocal = appliExpress.listen(3000);
       }
 
@@ -109,7 +105,7 @@ const options = {
     },
     after: async (_, avant) => {
       await avant.navigateur.close();
-      await avant.serveurLocal?.close()
+      await avant.serveurLocal?.close();
     },
   },
   build: {

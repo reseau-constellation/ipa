@@ -2,10 +2,11 @@ import type { ClientConstellation } from "./ressources/utils.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
-
-import { client as utilsClientTest, attente as utilsTestAttente} from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { typesClients, générerClients } = utilsClientTest;
-
 
 import { obtRessourceTest } from "./ressources/index.js";
 
@@ -33,7 +34,9 @@ typesClients.forEach((type) => {
       describe("Courriels", function () {
         let fOublier: schémaFonctionOublier;
 
-        const résultatCourriel = new utilsTestAttente.AttendreRésultat<string | null>();
+        const résultatCourriel = new utilsTestAttente.AttendreRésultat<
+          string | null
+        >();
         const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
         before(async () => {
@@ -67,7 +70,9 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
-        const rés = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
+        const rés = new utilsTestAttente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
         let fOublier: schémaFonctionOublier;
 
         before(async () => {
@@ -126,7 +131,10 @@ typesClients.forEach((type) => {
         let IMAGE: Uint8Array;
 
         before(async () => {
-          IMAGE = await obtRessourceTest({nomFichier: "logo.svg", optsAxios: { responseType: "arraybuffer" }});
+          IMAGE = await obtRessourceTest({
+            nomFichier: "logo.svg",
+            optsAxios: { responseType: "arraybuffer" },
+          });
         });
 
         before(async () => {

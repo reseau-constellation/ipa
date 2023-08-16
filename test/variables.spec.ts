@@ -8,10 +8,11 @@ import type {
 } from "@/valid.js";
 import { expect } from "aegir/chai";
 
-
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { typesClients, générerClients } = utilsClientTest;
-
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -21,10 +22,8 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       before("Préparer clients", async () => {
-        ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(
-          1,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients: clients as unknown } =
+          await générerClients(1, type));
         client = clients[0];
       });
 
@@ -108,7 +107,9 @@ typesClients.forEach((type) => {
         let idVariable: string;
         let fOublier: schémaFonctionOublier;
 
-        const noms = new utilsTestAttente.AttendreRésultat<{ [clef: string]: string }>();
+        const noms = new utilsTestAttente.AttendreRésultat<{
+          [clef: string]: string;
+        }>();
 
         before("Suivre noms variable", async () => {
           idVariable = await client.variables!.créerVariable({

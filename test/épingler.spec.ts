@@ -3,7 +3,10 @@ const { isSet } = pkg;
 
 import type { ClientConstellation } from "./ressources/utils.js";
 
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { typesClients, générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";

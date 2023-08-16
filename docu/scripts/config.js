@@ -108,7 +108,7 @@ export const configVitePress = defineConfig({
       },
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/reseau-constellation' },
+      { icon: "github", link: "https://github.com/reseau-constellation" },
     ],
     footer: {
       message: "Disponible sous licence AGPL-3.0",
@@ -120,16 +120,16 @@ export const configVitePress = defineConfig({
       text: "Éditer sur GitHub",
     },
     docFooter: {
-      prev: 'Page précédente',
-      next: 'Prochaine page'
+      prev: "Page précédente",
+      next: "Prochaine page",
     },
     darkModeSwitchLabel: "Thème",
     search: {
-      provider: 'local',
+      provider: "local",
     },
     outlineTitle: "Sur cette page",
     sidebarMenuLabel: "Menu",
     lastUpdatedText: "Dernière mise à jour",
     returnToTopLabel: "Haut de page",
-  }
+  },
 });

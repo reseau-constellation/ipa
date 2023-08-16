@@ -67,7 +67,10 @@ export const rechercherBdsSelonDescr = (
         return await fSuivreRecherche();
       }
     };
-    const fOublier = await client.bds!.suivreDescriptionsBd({ idBd, f: fSuivre });
+    const fOublier = await client.bds!.suivreDescriptionsBd({
+      idBd,
+      f: fSuivre,
+    });
     return fOublier;
   };
 };

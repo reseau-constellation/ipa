@@ -3,7 +3,6 @@ import XLSX from "xlsx";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import { obtRessourceTest } from "../ressources/index.js";
 
-
 import { expect } from "aegir/chai";
 
 describe("XLSX", function () {
@@ -12,7 +11,10 @@ describe("XLSX", function () {
 
     before(async () => {
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
-      const données = await obtRessourceTest({nomFichier: "donnéesTest.ods", optsAxios: { responseType: "arraybuffer" }});
+      const données = await obtRessourceTest({
+        nomFichier: "donnéesTest.ods",
+        optsAxios: { responseType: "arraybuffer" },
+      });
       const doc = XLSX.read(données);
       importateur = new ImportateurFeuilleCalcul(doc);
     });

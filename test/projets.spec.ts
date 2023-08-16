@@ -5,13 +5,14 @@ import { isElectronMain, isNode } from "wherearewe";
 import type { ClientConstellation } from "./ressources/utils.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
-import { client as utilsClientTest, attente as utilsTestAttente, dossiers as utilsTestDossiers } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+  dossiers as utilsTestDossiers,
+} from "@constl/utils-tests";
 const { typesClients, générerClients } = utilsClientTest;
 
-const {
-  dossierTempoTests,
-  obtDirTempoPourTest,
-} = utilsTestDossiers;
+const { dossierTempoTests, obtDirTempoPourTest } = utilsTestDossiers;
 
 import { obtRessourceTest } from "./ressources/index.js";
 
@@ -206,7 +207,7 @@ typesClients.forEach((type) => {
       });
 
       describe("Mots-clefs", function () {
-        let motsClefs: {source: "projet" | "bds", idMotClef: string}[];
+        let motsClefs: { source: "projet" | "bds"; idMotClef: string }[];
         let fOublier: schémaFonctionOublier;
         let idMotClef: string;
 
@@ -250,7 +251,9 @@ typesClients.forEach((type) => {
         let bds: string[];
         let variables: string[];
 
-        const rés = new utilsTestAttente.AttendreRésultat<{source: "projet" | "bds", idMotClef: string}[]>();
+        const rés = new utilsTestAttente.AttendreRésultat<
+          { source: "projet" | "bds"; idMotClef: string }[]
+        >();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -301,7 +304,7 @@ typesClients.forEach((type) => {
           });
 
           const val = await rés.attendreQue((x) => !!x && x.length > 0);
-          expect(val).to.have.deep.members([{source: "bds", idMotClef}]);
+          expect(val).to.have.deep.members([{ source: "bds", idMotClef }]);
         });
 
         it("Variables BD détectées", async () => {
@@ -339,7 +342,7 @@ typesClients.forEach((type) => {
         let noms: { [key: string]: string };
         let descrs: { [key: string]: string };
 
-        let motsClefs: {source: "projet" | "bds", idMotClef: string}[];
+        let motsClefs: { source: "projet" | "bds"; idMotClef: string }[];
         let bds: string[];
 
         const réfNoms = {
@@ -418,7 +421,9 @@ typesClients.forEach((type) => {
           expect(descrs).to.deep.equal(réfDescrs);
         });
         it("Les mots-clefs sont copiés", async () => {
-          expect(motsClefs).to.have.deep.members([{source: "projet", idMotClef}]);
+          expect(motsClefs).to.have.deep.members([
+            { source: "projet", idMotClef },
+          ]);
         });
         it("Les BDs sont copiées", async () => {
           expect(Array.isArray(bds)).to.be.true();
@@ -464,7 +469,10 @@ typesClients.forEach((type) => {
             idVariable: idVarFichier,
           });
 
-          const OCTETS = await obtRessourceTest({nomFichier: "logo.svg", optsAxios: { responseType: "arraybuffer" }});
+          const OCTETS = await obtRessourceTest({
+            nomFichier: "logo.svg",
+            optsAxios: { responseType: "arraybuffer" },
+          });
           cid = await client.ajouterÀSFIP({ fichier: OCTETS });
 
           await client.tableaux!.ajouterÉlément({
@@ -515,14 +523,13 @@ typesClients.forEach((type) => {
 
         if (isElectronMain || isNode) {
           describe("Exporter document projet", function () {
-
             let dossierBase: string;
             let dossierZip: string;
             let fEffacer: () => void;
-  
+
             let nomZip: string;
             let zip: JSZip;
-  
+
             before(async () => {
               const path = await import("path");
 
@@ -531,7 +538,7 @@ typesClients.forEach((type) => {
                 base: dossierBase,
                 nom: "testExporterProjet",
               });
-  
+
               await client.projets!.exporterDocumentDonnées({
                 données: { docs, fichiersSFIP, nomFichier },
                 formatDoc: "ods",
@@ -540,27 +547,27 @@ typesClients.forEach((type) => {
               });
               nomZip = path.join(dossierZip, nomFichier + ".zip");
             });
-  
+
             after(() => {
               if (fEffacer) fEffacer();
             });
-  
+
             it("Le fichier zip existe", async () => {
               const fs = await import("fs");
               expect(fs.existsSync(nomZip)).to.be.true();
               zip = await JSZip.loadAsync(fs.readFileSync(nomZip));
             });
-  
+
             it("Les données sont exportées", async () => {
               const contenu = zip.files["Ma BD.ods"];
               expect(contenu).to.exist();
             });
-  
+
             it("Le dossier pour les données SFIP existe", () => {
               const contenu = zip.files["sfip/"];
               expect(contenu?.dir).to.be.true();
             });
-  
+
             it("Les fichiers SFIP existent", async () => {
               const path = await import("path");
               const contenu = zip.files[path.join("sfip", cid + ".svg")];

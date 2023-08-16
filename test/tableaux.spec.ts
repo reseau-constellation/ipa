@@ -27,8 +27,10 @@ import type {
   détailsRègleBornesDynamiqueVariable,
 } from "@/valid.js";
 
-
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { typesClients, générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
@@ -347,8 +349,12 @@ typesClients.forEach((type) => {
         let idColonneNumérique: string;
         let idColonneChaîne: string;
 
-        const résRègles = new utilsTestAttente.AttendreRésultat<règleColonne[]>();
-        const résErreurs = new utilsTestAttente.AttendreRésultat<erreurValidation[]>();
+        const résRègles = new utilsTestAttente.AttendreRésultat<
+          règleColonne[]
+        >();
+        const résErreurs = new utilsTestAttente.AttendreRésultat<
+          erreurValidation[]
+        >();
 
         let fsOublier: schémaFonctionOublier[] = [];
 
@@ -636,8 +642,12 @@ typesClients.forEach((type) => {
         let idRègle3: string;
         let empreinte2: string;
 
-        const erreursValid = new utilsTestAttente.AttendreRésultat<erreurValidation[]>();
-        const erreursRègles = new utilsTestAttente.AttendreRésultat<erreurRègle[]>();
+        const erreursValid = new utilsTestAttente.AttendreRésultat<
+          erreurValidation[]
+        >();
+        const erreursRègles = new utilsTestAttente.AttendreRésultat<
+          erreurRègle[]
+        >();
 
         const idColonneTempMax = "col temp max";
         const empreintesDonnées: string[] = [];
@@ -912,7 +922,9 @@ typesClients.forEach((type) => {
           let idColonne: string;
           let idVariable: string;
 
-          const erreurs = new utilsTestAttente.AttendreRésultat<erreurValidation[]>();
+          const erreurs = new utilsTestAttente.AttendreRésultat<
+            erreurValidation[]
+          >();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -985,8 +997,12 @@ typesClients.forEach((type) => {
 
           const idColonneCatégories = "id colonne catégories";
 
-          const erreursValid = new utilsTestAttente.AttendreRésultat<erreurValidation[]>();
-          const erreursRègles = new utilsTestAttente.AttendreRésultat<erreurRègle[]>();
+          const erreursValid = new utilsTestAttente.AttendreRésultat<
+            erreurValidation[]
+          >();
+          const erreursRègles = new utilsTestAttente.AttendreRésultat<
+            erreurRègle[]
+          >();
 
           const fsOublier: schémaFonctionOublier[] = [];
 

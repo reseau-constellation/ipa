@@ -2,7 +2,9 @@ import { configVitePress } from "./config.js";
 
 export const obtCompilateur = async () => {
   const { Compilateur } = await import("./traducsVitepress/dist/index.js");
-  const { ExtentionImages } = await import("./traducsVitepress/dist/extentions/images.js");
+  const { ExtentionImages } = await import(
+    "./traducsVitepress/dist/extentions/images.js"
+  );
 
   const compilateur = new Compilateur({
     languePrincipale: "fr",
@@ -10,9 +12,11 @@ export const obtCompilateur = async () => {
     dossierSource: "src",
     dossierTraductions: "traducs",
     configVitePress,
-    extentions: [new ExtentionImages({
-      dossierImages: "traducsImages"
-    })]
+    extentions: [
+      new ExtentionImages({
+        dossierImages: "traducsImages",
+      }),
+    ],
   });
   return compilateur;
 };

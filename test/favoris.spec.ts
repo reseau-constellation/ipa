@@ -4,10 +4,11 @@ import type { ClientConstellation } from "./ressources/utils.js";
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
-
-import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+} from "@constl/utils-tests";
 const { typesClients, générerClients } = utilsClientTest;
-
 
 import { expect } from "aegir/chai";
 
@@ -80,7 +81,9 @@ typesClients.forEach((type) => {
       describe("Épingler BDs", function () {
         let idBd: string;
 
-        const favoris = new utilsTestAttente.AttendreRésultat<ÉlémentFavorisAvecObjet[]>();
+        const favoris = new utilsTestAttente.AttendreRésultat<
+          ÉlémentFavorisAvecObjet[]
+        >();
         let épingleBd: épingleDispositif;
 
         const fsOublier: schémaFonctionOublier[] = [];

@@ -75,7 +75,9 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
   constructor(orbitdb: OrbitDB, options: OptionsInitContrôleurConstellation) {
     super();
     this._orbitdb = orbitdb;
-    this._gestionnaireOrbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({orbite: orbitdb})
+    this._gestionnaireOrbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({
+      orbite: orbitdb,
+    });
 
     this._premierMod = options.premierMod;
     this._adresseBd = options.address;
@@ -187,7 +189,7 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
   }
 
   async close(): Promise<void> {
-    await this.fOublierBd?.()
+    await this.fOublierBd?.();
 
     await this.gestRôles.fermer();
   }
@@ -208,11 +210,12 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
       ).toString();
     }
 
-    const {bd, fOublier} = await this._gestionnaireOrbite.ouvrirBd<élémentBdAccès>({
-      id: adresseFinale,
-      type: "feed"
-    });
-    this.bd = bd
+    const { bd, fOublier } =
+      await this._gestionnaireOrbite.ouvrirBd<élémentBdAccès>({
+        id: adresseFinale,
+        type: "feed",
+      });
+    this.bd = bd;
     this.fOublierBd = fOublier;
 
     suivreBdAccès(this.bd, () => this._miseÀJourBdAccès());

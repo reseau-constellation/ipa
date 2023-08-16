@@ -65,13 +65,12 @@ class AccèsUtilisateur extends EventEmitter {
   }
 
   async initialiser(): Promise<void> {
-    const {bd, fOublier} = await this.orbite.ouvrirBd({ id: this.idBd });
+    const { bd, fOublier } = await this.orbite.ouvrirBd({ id: this.idBd });
     this.fOublierBd = fOublier;
 
     this.accès = bd.access as unknown as ContrôleurConstellation;
     this.bdAccès = this.accès.bd!;
     this.idBdAccès = this.bdAccès.id;
-
 
     this.oublierSuivi = await suivreBdAccès(this.bdAccès, async (éléments) => {
       await this._miseÀJour(éléments);
@@ -97,7 +96,7 @@ class AccèsUtilisateur extends EventEmitter {
 
   async fermer() {
     if (this.oublierSuivi) this.oublierSuivi();
-    await this.fOublierBd?.()
+    await this.fOublierBd?.();
   }
 }
 

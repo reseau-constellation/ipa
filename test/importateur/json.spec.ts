@@ -146,7 +146,9 @@ describe("JSON", function () {
 
     before(async () => {
       // Données de https://covid.ourworldindata.org/data/owid-covid-dataon
-      const donnéesJSON = await obtRessourceTest({nomFichier: "donnéesTest.json"});
+      const donnéesJSON = await obtRessourceTest({
+        nomFichier: "donnéesTest.json",
+      });
       const importateur = new ImportateurDonnéesJSON({
         "mes données": { "sont ici": [donnéesJSON] },
       });

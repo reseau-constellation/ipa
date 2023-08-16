@@ -60,7 +60,10 @@ import md5 from "crypto-js/md5.js";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
-import { gestionnaireOrbiteGénéral, type GestionnaireOrbite } from "@/orbite.js";
+import {
+  gestionnaireOrbiteGénéral,
+  type GestionnaireOrbite,
+} from "@/orbite.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
@@ -314,21 +317,21 @@ export class ClientConstellation extends EventEmitter {
           id: idBdProtocoles,
           type: "kvstore",
         });
-        const idDispositif = await this.obtIdDispositif();
-        const protocolesExistants = bdProtocoles.get(idDispositif) || [];
-        const listesÉgales = (a: Array<string>, b: Array<string>) =>
-          a.length === b.length && [...a].every((v) => b.includes(v));
-        if (
-          !this._opts.protocoles ||
-          !listesÉgales(protocolesExistants, this._opts.protocoles)
-        ) {
-          if (this._opts.protocoles)
-            await bdProtocoles.put(idDispositif, this._opts.protocoles);
-          else await bdProtocoles.del(idDispositif);
-        }
-        await fOublierBdProtocoles();
+      const idDispositif = await this.obtIdDispositif();
+      const protocolesExistants = bdProtocoles.get(idDispositif) || [];
+      const listesÉgales = (a: Array<string>, b: Array<string>) =>
+        a.length === b.length && [...a].every((v) => b.includes(v));
+      if (
+        !this._opts.protocoles ||
+        !listesÉgales(protocolesExistants, this._opts.protocoles)
+      ) {
+        if (this._opts.protocoles)
+          await bdProtocoles.put(idDispositif, this._opts.protocoles);
+        else await bdProtocoles.del(idDispositif);
+      }
+      await fOublierBdProtocoles();
     } else {
-      console.warn("Bd protocoles non détectée.")
+      console.warn("Bd protocoles non détectée.");
     }
 
     // Bds orbite internes
@@ -466,7 +469,7 @@ export class ClientConstellation extends EventEmitter {
     nom: string;
     type: string;
   }): Promise<void> {
-    const idDispositifFinal = idDispositif || await this.obtIdDispositif();
+    const idDispositifFinal = idDispositif || (await this.obtIdDispositif());
 
     const idBdNomsDispositifs = await this.obtIdBd({
       nom: "nomsDispositifs",
@@ -527,14 +530,14 @@ export class ClientConstellation extends EventEmitter {
   }
 
   async révoquerInvitationRejoindreCompte({
-    codeSecret
+    codeSecret,
   }: {
-    codeSecret?: string
+    codeSecret?: string;
   }): Promise<void> {
     if (codeSecret) {
-      delete this.motsDePasseRejoindreCompte[codeSecret]
+      delete this.motsDePasseRejoindreCompte[codeSecret];
     } else {
-      this.motsDePasseRejoindreCompte = {}
+      this.motsDePasseRejoindreCompte = {};
     }
   }
 
@@ -590,13 +593,21 @@ export class ClientConstellation extends EventEmitter {
     });
   }
 
-  async ajouterDispositif({ idDispositif }: { idDispositif: string }): Promise<void> {
+  async ajouterDispositif({
+    idDispositif,
+  }: {
+    idDispositif: string;
+  }): Promise<void> {
     if (!this.bdCompte) await once(this, "prêt");
     const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
     accès.grant(MODÉRATEUR, idDispositif);
   }
 
-  async enleverDispositif({ idDispositif }: { idDispositif: string }): Promise<void> {
+  async enleverDispositif({
+    idDispositif,
+  }: {
+    idDispositif: string;
+  }): Promise<void> {
     if (!this.bdCompte) await once(this, "prêt");
     const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
     await accès.revoke(MODÉRATEUR, idDispositif);
@@ -1101,7 +1112,7 @@ export class ClientConstellation extends EventEmitter {
     const fRacine = async ({
       fSuivreRacine,
     }: {
-      fSuivreRacine: (nouvelIdBdCible: string|undefined) => Promise<void>;
+      fSuivreRacine: (nouvelIdBdCible: string | undefined) => Promise<void>;
     }): Promise<schémaFonctionOublier> => {
       const fSuivreBdRacine = async (
         bd: KeyValueStore<Record<typeof clef, string>>
@@ -1987,7 +1998,7 @@ export class ClientConstellation extends EventEmitter {
     schéma?: JSONSchemaType<U>;
     type?: "kvstore" | "keyvalue" | "feed";
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
-    return await this.orbite!.ouvrirBd({id, type, schéma})
+    return await this.orbite!.ouvrirBd({ id, type, schéma });
   }
 
   async obtIdBd<K extends string>({
@@ -2109,12 +2120,12 @@ export class ClientConstellation extends EventEmitter {
     return await this.orbite!.créerBdIndépendante({
       type,
       optionsAccès: Object.assign({}, this.optionsAccès, optionsAccès || {}),
-      nom
+      nom,
     });
   }
 
   async effacerBd({ id }: { id: string }): Promise<void> {
-    return await this.orbite?.effacerBd({id})
+    return await this.orbite?.effacerBd({ id });
   }
 
   async obtOpsAccès({
@@ -2368,7 +2379,7 @@ export class ClientConstellation extends EventEmitter {
     await this.fermerCompte();
     if (this.épingles) await this.épingles.fermer();
 
-    await this.orbite!.fermer({arrêterOrbite: !this._orbiteExterne})
+    await this.orbite!.fermer({ arrêterOrbite: !this._orbiteExterne });
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
   }
 
