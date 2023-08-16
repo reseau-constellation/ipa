@@ -1,8 +1,6 @@
-import fs from "fs";
-import path from "path";
 import type FeedStore from "orbit-db-feedstore";
 
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -20,7 +18,9 @@ import {
   rechercherTous,
 } from "@/recherche/utils.js";
 
-import { générerClients } from "@/utilsTests/client.js";
+import { client as utilsClientTest } from "@constl/utils-tests";
+const { générerClients } = utilsClientTest;
+
 import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";
@@ -31,7 +31,7 @@ describe("Utils recherche", function () {
   let client: ClientConstellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClients(1));
+    ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
     client = clients[0];
   });
 

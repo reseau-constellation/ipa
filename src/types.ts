@@ -108,8 +108,9 @@ export const schémaStructureBdNoms: JSONSchemaType<structureBdNoms> = {
 };
 
 export type structureBdMétadonnées = { [langue: string]: élémentsBd };
-export const schémaStructureBdMétadonnées: JSONSchemaType<structureBdMétadonnées> = {
-  type: "object",
-  additionalProperties: true,
-  required: [],
-};
+export const schémaStructureBdMétadonnées: JSONSchemaType<structureBdMétadonnées> =
+  {
+    type: "object",
+    additionalProperties: true,
+    required: [],
+  };

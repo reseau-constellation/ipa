@@ -35,14 +35,10 @@ import {
   schémaBdTableauxDeBd,
 } from "@/bds.js";
 import { v4 as uuidv4 } from "uuid";
-import type {
-  erreurValidation,
-  règleVariable,
-  règleColonne,
-} from "@/valid.js";
-import type { élémentDonnées } from "@/tableaux.js"
+import type { erreurValidation, règleVariable, règleColonne } from "@/valid.js";
+import type { élémentDonnées } from "@/tableaux.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
-import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/utils/types.js";
+import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/types.js";
 import type KeyValueStore from "orbit-db-kvstore";
 import {
   type différenceTableaux,
@@ -183,16 +179,15 @@ export default class Nuée extends ComposanteClientListe<string> {
 
     let autorisationFinale: string;
     if (OrbitDB.isValidAddress(autorisation)) {
-      autorisationFinale = autorisation
-    } else if (autorisation === 'CJPI' || autorisation === 'IJPC') {
-      autorisationFinale = await this.générerGestionnaireAutorisations({ philosophie: autorisation })
+      autorisationFinale = autorisation;
+    } else if (autorisation === "CJPI" || autorisation === "IJPC") {
+      autorisationFinale = await this.générerGestionnaireAutorisations({
+        philosophie: autorisation,
+      });
     } else {
-      throw new Error(`Autorisation non valide : ${autorisation}`)
+      throw new Error(`Autorisation non valide : ${autorisation}`);
     }
-    await bdNuée.set(
-      "autorisation",
-       autorisationFinale
-    );
+    await bdNuée.set("autorisation", autorisationFinale);
     if (autorisation === "CJPI") {
       await this.accepterMembreNuée({
         idNuée: idBdNuée,
@@ -247,7 +242,10 @@ export default class Nuée extends ComposanteClientListe<string> {
 
   async enleverDeMesNuées({ idNuée }: { idNuée: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.obtBd();
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idNuée });
+    await this.client.effacerÉlémentDeBdListe({
+      bd: bdRacine,
+      élément: idNuée,
+    });
     await fOublier();
   }
 
@@ -283,9 +281,14 @@ export default class Nuée extends ComposanteClientListe<string> {
           type: "kvstore",
           schéma: schémaStructureBdNoms,
         });
-      const métadonnées = ClientConstellation.obtObjetdeBdDic({ bd: bdMéatdonnées });
+      const métadonnées = ClientConstellation.obtObjetdeBdDic({
+        bd: bdMéatdonnées,
+      });
       await fOublierBdMétadonnées();
-      await this.sauvegarderMétadonnéesNuée({ idNuée: idNouvelleNuée, métadonnées });
+      await this.sauvegarderMétadonnéesNuée({
+        idNuée: idNouvelleNuée,
+        métadonnées,
+      });
     }
 
     const idBdNoms = bdBase.get("noms");
@@ -313,7 +316,10 @@ export default class Nuée extends ComposanteClientListe<string> {
         bd: bdDescr,
       });
       await fOublierBdDescr();
-      await this.sauvegarderDescriptionsNuée({ idNuée: idNouvelleNuée, descriptions });
+      await this.sauvegarderDescriptionsNuée({
+        idNuée: idNouvelleNuée,
+        descriptions,
+      });
     }
 
     const idBdMotsClefs = bdBase.get("motsClefs");
@@ -433,11 +439,13 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdMétadonnées)
-      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+      throw new Error(
+        `Permission de modification refusée pour Nuée ${idNuée}.`
+      );
 
     const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd({
-       id: idBdMétadonnées, 
-       type: "kvstore" 
+      id: idBdMétadonnées,
+      type: "kvstore",
     });
     await bdMétadonnées.set(clef, valeur);
     await fOublier();
@@ -456,7 +464,9 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdMétadonnées)
-      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+      throw new Error(
+        `Permission de modification refusée pour Nuée ${idNuée}.`
+      );
 
     const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd({
       id: idBdMétadonnées,
@@ -482,7 +492,9 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdMétadonnées)
-      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+      throw new Error(
+        `Permission de modification refusée pour Nuée ${idNuée}.`
+      );
 
     const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd({
       id: idBdMétadonnées,
@@ -536,7 +548,9 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+      throw new Error(
+        `Permission de modification refusée pour Nuée ${idNuée}.`
+      );
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
       [langue: string]: string;
@@ -558,7 +572,9 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+      throw new Error(
+        `Permission de modification refusée pour Nuée ${idNuée}.`
+      );
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
@@ -585,7 +601,9 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+      throw new Error(
+        `Permission de modification refusée pour Nuée ${idNuée}.`
+      );
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
       id: idBdNoms,
@@ -639,7 +657,9 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+      throw new Error(
+        `Permission de modification refusée pour Nuée ${idNuée}.`
+      );
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<{
       [langue: string]: string;
@@ -1373,7 +1393,10 @@ export default class Nuée extends ComposanteClientListe<string> {
     idTableau: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    return await this.client.tableaux!.sauvegarderNomsTableau({ idTableau, noms });
+    return await this.client.tableaux!.sauvegarderNomsTableau({
+      idTableau,
+      noms,
+    });
   }
 
   async effacerNomsTableauNuée({
@@ -1461,7 +1484,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         idTableau,
         idColonne: idColonneFinale,
         val: true,
-      })
+      });
     }
     return idColonneFinale;
   }
@@ -2568,7 +2591,10 @@ export default class Nuée extends ComposanteClientListe<string> {
         for (const idVar of variables) {
           const nomsDisponibles = await uneFois(
             (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-              this.client.variables!.suivreNomsVariable({ idVariable: idVar, f })
+              this.client.variables!.suivreNomsVariable({
+                idVariable: idVar,
+                f,
+              })
           );
 
           const idCol = colonnes.find((c) => c.variable === idVar)?.id;
@@ -2788,7 +2814,10 @@ export default class Nuée extends ComposanteClientListe<string> {
   async effacerNuée({ idNuée }: { idNuée: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs
     const { bd: bdRacine, fOublier } = await this.obtBd();
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idNuée });
+    await this.client.effacerÉlémentDeBdListe({
+      bd: bdRacine,
+      élément: idNuée,
+    });
     await fOublier();
 
     // Et puis maintenant aussi effacer les tableaux et la Nuée elle-même

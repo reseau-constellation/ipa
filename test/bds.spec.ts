@@ -5,7 +5,16 @@ import path from "path";
 import pkg from "lodash";
 const { isSet } = pkg;
 
-import type { default as ClientConstellation } from "@/client.js";
+import {
+  client as utilsClientTest,
+  attente as utilsTestAttente,
+  dossiers as utilsTestDossiers,
+} from "@constl/utils-tests";
+const { typesClients, générerClients } = utilsClientTest;
+
+const { dossierTempoTests } = utilsTestDossiers;
+
+import type { ClientConstellation } from "./ressources/utils.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -20,12 +29,6 @@ import type {
 } from "@/bds.js";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type { règleBornes } from "@/valid.js";
-
-import { générerClients, typesClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
-import {
-  dossierTempoTests,
-} from "@/utilsTests/dossiers.js";
 
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
@@ -74,7 +77,7 @@ typesClients.forEach((type) => {
       describe("Mes BDs", () => {
         let fOublier: schémaFonctionOublier;
         let idNouvelleBd: string;
-        const bds = new AttendreRésultat<string[]>();
+        const bds = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
           fOublier = await client.bds!.suivreBds({
@@ -429,7 +432,10 @@ typesClients.forEach((type) => {
         before(async () => {
           idBdOrig = await client.bds!.créerBd({ licence: réfLicence });
 
-          await client.bds!.sauvegarderNomsBd({ idBd: idBdOrig, noms: réfNoms });
+          await client.bds!.sauvegarderNomsBd({
+            idBd: idBdOrig,
+            noms: réfNoms,
+          });
           await client.bds!.sauvegarderDescriptionsBd({
             idBd: idBdOrig,
             descriptions: réfDescrs,
@@ -805,7 +811,7 @@ typesClients.forEach((type) => {
 
         let fOublier: schémaFonctionOublier;
 
-        const rés = new AttendreRésultat<string>();
+        const rés = new utilsTestAttente.AttendreRésultat<string>();
 
         before(async () => {
           idVarClef = await client.variables!.créerVariable({
@@ -875,7 +881,7 @@ typesClients.forEach((type) => {
 
         let fOublier: schémaFonctionOublier;
 
-        const rés = new AttendreRésultat<string>();
+        const rés = new utilsTestAttente.AttendreRésultat<string>();
 
         before(async () => {
           idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
@@ -913,7 +919,7 @@ typesClients.forEach((type) => {
 
         let fOublier: schémaFonctionOublier;
 
-        const rés = new AttendreRésultat<string>();
+        const rés = new utilsTestAttente.AttendreRésultat<string>();
 
         before(async () => {
           idVarClef = await client.variables!.créerVariable({
@@ -1126,7 +1132,10 @@ typesClients.forEach((type) => {
             idVariable: idVarFichier,
           });
 
-          const octets = await obtRessourceTest({nomFichier: "logo.svg", optsAxios: { responseType: "arraybuffer" }});
+          const octets = await obtRessourceTest({
+            nomFichier: "logo.svg",
+            optsAxios: { responseType: "arraybuffer" },
+          });
           cid = await client.ajouterÀSFIP({ fichier: octets });
 
           await client.tableaux!.ajouterÉlément({
@@ -1167,12 +1176,12 @@ typesClients.forEach((type) => {
         });
 
         describe("Exporter document données", function () {
-          if (isElectronMain || isNode ) {
+          if (isElectronMain || isNode) {
             let dossier: string;
             let fEffacer: () => void;
             let dirZip: string;
             let zip: JSZip;
-  
+
             before(async () => {
               ({ dossier, fEffacer } = await dossierTempoTests());
               dirZip = path.join(dossier, "testExporterBd");
@@ -1183,33 +1192,32 @@ typesClients.forEach((type) => {
                 inclureFichiersSFIP: true,
               });
             });
-  
+
             after(() => {
               if (fEffacer) fEffacer();
             });
-  
+
             it("Le fichier zip existe", async () => {
               const nomZip = path.join(dirZip, nomFichier + ".zip");
               expect(fs.existsSync(nomZip)).to.be.true();
               zip = await JSZip.loadAsync(fs.readFileSync(nomZip));
             });
-  
+
             it("Les données sont exportées", () => {
               const contenu = zip.files[nomFichier + ".ods"];
               expect(contenu).to.exist();
             });
-  
+
             it("Le dossier pour les données SFIP existe", () => {
               const contenu = zip.files["sfip/"];
               expect(contenu?.dir).to.be.true();
             });
-  
+
             it("Les fichiers SFIP existent", () => {
               const contenu = zip.files[path.join("sfip", cid + ".svg")];
               expect(contenu).to.exist();
             });
           }
-
         });
       });
 

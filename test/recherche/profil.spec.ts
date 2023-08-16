@@ -1,4 +1,4 @@
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -12,8 +12,9 @@ import {
   rechercherProfilsSelonCourriel,
 } from "@/recherche/profil.js";
 
-import { générerClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { générerClients } = utilsClientTest;
+
 import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";
@@ -27,12 +28,12 @@ describe("Rechercher profil", function () {
 
     let fOublier: schémaFonctionOublier;
 
-    const rés = new AttendreRésultat<
+    const rés = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<infoRésultatVide>
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClients(1));
+      ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonActivité();
@@ -91,12 +92,12 @@ describe("Rechercher profil", function () {
     let idCompte: string;
     let fOublier: schémaFonctionOublier;
 
-    const rés = new AttendreRésultat<
+    const rés = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<infoRésultatTexte>
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClients(1));
+      ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonNom("Julien");
@@ -149,12 +150,12 @@ describe("Rechercher profil", function () {
     let idCompte: string;
     let fOublier: schémaFonctionOublier;
 
-    const rés = new AttendreRésultat<
+    const rés = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<infoRésultatTexte>
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClients(1));
+      ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonCourriel("julien");
@@ -200,15 +201,15 @@ describe("Rechercher profil", function () {
     let client: ClientConstellation;
     let idCompte: string;
     const fsOublier: schémaFonctionOublier[] = [];
-    const résNom = new AttendreRésultat<
+    const résNom = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<infoRésultatTexte>
     >();
-    const résCourriel = new AttendreRésultat<
+    const résCourriel = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<infoRésultatTexte>
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClients(1));
+      ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
       client = clients[0];
 
       idCompte = await client.obtIdCompte();

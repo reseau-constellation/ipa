@@ -7,7 +7,7 @@ import * as nuée from "@/recherche/nuée.js";
 import * as utils from "@/recherche/utils.js";
 
 import type { default as ClientConstellation } from "@/client.js";
-import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
+import type { schémaRetourFonctionRechercheParN } from "@/types.js";
 import type {
   schémaFonctionSuivi,
   résultatRecherche,
@@ -204,7 +204,6 @@ export class Recherche {
       toutLeRéseau,
     });
   }
-
 
   @cacheRechercheParNRésultats
   async rechercherMotsClefsSelonTexte({

@@ -1,11 +1,24 @@
-import type { schémaFonctionOublier, schémaFonctionSuivi, schémaRetourFonctionRechercheParProfondeur } from "@/utils/types";
+import type {
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaRetourFonctionRechercheParProfondeur,
+} from "@/types";
 
 import { cacheSuivi } from "@/décorateursCache.js";
 import ClientConstellation from "@/client.js";
 import { faisRien } from "@/utils/fonctions.js";
-import { CLEF_TABLEAU_LICENCES_APPROUVÉES, ID_BD_LICENCES_APPROUVÉES, ID_NUÉE_LICENCES, SCHÉMA_BD_LICENCES } from "@/const.js";
+import {
+  CLEF_TABLEAU_LICENCES_APPROUVÉES,
+  ID_BD_LICENCES_APPROUVÉES,
+  ID_NUÉE_LICENCES,
+  SCHÉMA_BD_LICENCES,
+} from "@/const.js";
 
-import { கிளி, type அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை, type பிணையம்_பரிந்துரை } from "@lassi-js/kili"
+import {
+  கிளி,
+  type அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை,
+  type பிணையம்_பரிந்துரை,
+} from "@lassi-js/kili";
 import EventEmitter from "events";
 
 // https://github.com/github/choosealicense.com
@@ -47,11 +60,11 @@ export type InfoLicence = {
   limitations: limitations[];
   catégorie: catégories;
   spécialisée?: boolean;
-}
+};
 
 export type InfoLicenceAvecCode = InfoLicence & {
   code: string;
-}
+};
 
 export const infoLicences: { [key: string]: InfoLicence } = {
   // Licences pour BD
@@ -415,16 +428,21 @@ export default class Licences {
   prêt: boolean;
   perroquet?: கிளி<InfoLicenceAvecCode>;
 
-  constructor({client}: {client: ClientConstellation}) {
+  constructor({ client }: { client: ClientConstellation }) {
     this.client = client;
 
     this.prêt = false;
     this.événements = new EventEmitter();
     this.initialiser();
-  };
+  }
 
   async initialiser() {
-    if (SCHÉMA_BD_LICENCES && ID_BD_LICENCES_APPROUVÉES && CLEF_TABLEAU_LICENCES_APPROUVÉES && ID_NUÉE_LICENCES) {
+    if (
+      SCHÉMA_BD_LICENCES &&
+      ID_BD_LICENCES_APPROUVÉES &&
+      CLEF_TABLEAU_LICENCES_APPROUVÉES &&
+      ID_NUÉE_LICENCES
+    ) {
       this.perroquet = new கிளி({
         // @ts-ignore
         விண்மீன்: this.client,
@@ -432,9 +450,9 @@ export default class Licences {
           தரவுத்தள_அடையாளம்: ID_BD_LICENCES_APPROUVÉES,
           அட்டவணை_சாபி: CLEF_TABLEAU_LICENCES_APPROUVÉES,
           குழு_அடையாளம்: ID_NUÉE_LICENCES,
-          வார்ப்புரு: SCHÉMA_BD_LICENCES
-        }
-      })
+          வார்ப்புரு: SCHÉMA_BD_LICENCES,
+        },
+      });
     }
     this.prêt = true;
     this.événements.emit("prêt");
@@ -442,13 +460,13 @@ export default class Licences {
 
   async attendrePrêt() {
     if (this.prêt) return;
-    return new Promise<void>(résoudre => {
+    return new Promise<void>((résoudre) => {
       const fFinale = () => {
         résoudre();
-        this.événements.off('prêt', fFinale)
-      }
-      this.événements.on("prêt", fFinale)
-    })
+        this.événements.off("prêt", fFinale);
+      };
+      this.événements.on("prêt", fFinale);
+    });
   }
 
   @cacheSuivi
@@ -461,55 +479,70 @@ export default class Licences {
 
     await this.attendrePrêt();
     if (this.perroquet) {
-      const fFinale = async (licences: அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை<InfoLicenceAvecCode>[]) => {
-        return await f(Object.fromEntries(licences.map(l => [l.code, l])))
-      }
-      return await this.perroquet.உறுப்படிகளை_கேள்ளு({ செ: fFinale, பரிந்துரைகள்: "எனது" });
-    };
-    
+      const fFinale = async (
+        licences: அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை<InfoLicenceAvecCode>[]
+      ) => {
+        return await f(Object.fromEntries(licences.map((l) => [l.code, l])));
+      };
+      return await this.perroquet.உறுப்படிகளை_கேள்ளு({
+        செ: fFinale,
+        பரிந்துரைகள்: "எனது",
+      });
+    }
+
     // Pour l'instant. Plus tard, on pourra le connecter avec une nuée Kili
-    return faisRien; 
+    return faisRien;
   }
 
   async suggérerLicence({
     code,
-    infoLicence
-  }: { 
-    code: string;  
+    infoLicence,
+  }: {
+    code: string;
     infoLicence: InfoLicence;
   }): Promise<void> {
     await this.attendrePrêt();
     if (this.perroquet) {
-      await this.perroquet.பரிந்துரையு({ பரிந்துரை: {
-        code,
-        ...infoLicence,
-      }})
+      await this.perroquet.பரிந்துரையு({
+        பரிந்துரை: {
+          code,
+          ...infoLicence,
+        },
+      });
     }
   }
 
   async effacerSuggestionLicence({
-    empreinte
+    empreinte,
   }: {
-    empreinte: string
+    empreinte: string;
   }): Promise<void> {
     await this.attendrePrêt();
     if (this.perroquet) {
-      await this.perroquet.பரிந்துரையை_நீக்கு({ கைரேகை: empreinte })
+      await this.perroquet.பரிந்துரையை_நீக்கு({ கைரேகை: empreinte });
     }
   }
 
-  async suivreSuggestionsLicences({ f }: { f: schémaFonctionSuivi<பிணையம்_பரிந்துரை<InfoLicenceAvecCode>[]> }): Promise<schémaRetourFonctionRechercheParProfondeur> {
+  async suivreSuggestionsLicences({
+    f,
+  }: {
+    f: schémaFonctionSuivi<பிணையம்_பரிந்துரை<InfoLicenceAvecCode>[]>;
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     await this.attendrePrêt();
     if (this.perroquet) {
-      return await this.perroquet.பரிந்துரைகளை_கேள்ளு({ செ: f})
+      return await this.perroquet.பரிந்துரைகளை_கேள்ளு({ செ: f });
     }
-    return { fOublier: faisRien, fChangerProfondeur: faisRien}
+    return { fOublier: faisRien, fChangerProfondeur: faisRien };
   }
 
-  async approuverLicence({ suggestion }: { suggestion: பிணையம்_பரிந்துரை<InfoLicenceAvecCode> }): Promise<void> {
+  async approuverLicence({
+    suggestion,
+  }: {
+    suggestion: பிணையம்_பரிந்துரை<InfoLicenceAvecCode>;
+  }): Promise<void> {
     await this.attendrePrêt();
     if (this.perroquet) {
-      return await this.perroquet.அங்கீகரி({ பரிந்துரை: suggestion })
+      return await this.perroquet.அங்கீகரி({ பரிந்துரை: suggestion });
     }
   }
 }

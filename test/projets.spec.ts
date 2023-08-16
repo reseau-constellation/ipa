@@ -2,15 +2,17 @@ import type XLSX from "xlsx";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "./ressources/utils.js";
 import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
 
-import { générerClients, typesClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
-import {
-  obtDirTempoPourTest,
+import { client as utilsClientTest, attente as utilsTestAttente, dossiers as utilsTestDossiers } from "@constl/utils-tests";
+const { typesClients, générerClients } = utilsClientTest;
+
+const {
   dossierTempoTests,
-} from "@/utilsTests/dossiers.js";
+  obtDirTempoPourTest,
+} = utilsTestDossiers;
+
 import { obtRessourceTest } from "./ressources/index.js";
 
 import { expect } from "aegir/chai";
@@ -248,7 +250,7 @@ typesClients.forEach((type) => {
         let bds: string[];
         let variables: string[];
 
-        const rés = new AttendreRésultat<{source: "projet" | "bds", idMotClef: string}[]>();
+        const rés = new utilsTestAttente.AttendreRésultat<{source: "projet" | "bds", idMotClef: string}[]>();
 
         const fsOublier: schémaFonctionOublier[] = [];
 

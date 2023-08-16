@@ -1,4 +1,4 @@
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -17,10 +17,12 @@ import {
   rechercherBdsSelonNomVariable,
 } from "@/recherche/bd.js";
 
-import { générerClients } from "@/utilsTests/client.js";
+
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { générerClients } = utilsClientTest;
+
 
 import { expect } from "aegir/chai";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
 
 describe("Rechercher bds", function () {
   let fOublierClients: () => Promise<void>;
@@ -28,7 +30,7 @@ describe("Rechercher bds", function () {
   let client: ClientConstellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClients(1));
+    ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
     client = clients[0];
   });
 
@@ -38,7 +40,7 @@ describe("Rechercher bds", function () {
 
   describe("Selon nom", function () {
     let idBd: string;
-    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -82,7 +84,7 @@ describe("Rechercher bds", function () {
 
   describe("Selon description", function () {
     let idBd: string;
-    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -127,9 +129,9 @@ describe("Rechercher bds", function () {
   describe("Selon mot-clef", function () {
     let idBd: string;
     let idMotClef: string;
-    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
-    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
-    const résultatTous = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatTous = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -228,9 +230,9 @@ describe("Rechercher bds", function () {
   describe("Selon variable", function () {
     let idBd: string;
     let idVariable: string;
-    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
-    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
-    const résultatTous = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatTous = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -332,19 +334,19 @@ describe("Rechercher bds", function () {
   describe("Selon texte", function () {
     // node --experimental-specifier-resolution=node --inspect dist/recherche/bd.test.js
     let idBd: string;
-    const résultatId = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
         >>();
-    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
         >>();
-    const résultatDescr = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatDescr = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
         >>();
-    const résultatVariable = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatVariable = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
         >>();
-    const résultatMotsClef = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatMotsClef = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
         >>();
 

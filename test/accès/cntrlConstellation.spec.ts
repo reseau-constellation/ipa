@@ -6,8 +6,12 @@ import type { default as ContrôleurConstellation } from "@/accès/cntrlConstell
 import type OrbitDB from "orbit-db";
 import type KeyValueStore from "orbit-db-kvstore";
 
-import { peutÉcrire, attendreSync } from "@/utilsTests/index.js";
-import { générerOrbites } from "@/utilsTests/client.js";
+import {
+  attendreSync,
+  peutÉcrire,
+  client as utilsClientTest,
+} from "@constl/utils-tests";
+const { générerOrbites } = utilsClientTest;
 
 import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";

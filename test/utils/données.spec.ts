@@ -4,8 +4,12 @@ import path from "path";
 import { traduire, zipper } from "@/utils/index.js";
 import { expect } from "aegir/chai";
 
-import { dossierTempoTests } from "@/utilsTests/dossiers.js";
-import { AttendreFichierExiste } from "@/utilsTests/attente.js";
+import { client as utilsClientTest, attente as utilsTestAttente, dossiers as utilsTestDossiers } from "@constl/utils-tests";
+
+const {
+  dossierTempoTests,
+} = utilsTestDossiers;
+
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
@@ -31,12 +35,12 @@ describe("Utils : données", function () {
       let nomFichier: string;
       let zip: JSZip;
 
-      let attendreFichier: AttendreFichierExiste;
+      let attendreFichier: utilsTestAttente.AttendreFichierExiste;
 
       before(async () => {
         ({ dossier, fEffacer } = await dossierTempoTests());
         nomFichier = path.join(dossier, "testZip.zip");
-        attendreFichier = new AttendreFichierExiste(nomFichier);
+        attendreFichier = new utilsTestAttente.AttendreFichierExiste(nomFichier);
         const fichiersDocs = [
           {
             nom: "fichier1.txt",

@@ -1,4 +1,4 @@
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -9,8 +9,10 @@ import {
   rechercherMotsClefsSelonTexte,
 } from "@/recherche/motClef.js";
 
-import { générerClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { générerClients } = utilsClientTest;
+
 
 import { expect } from "aegir/chai";
 
@@ -20,7 +22,7 @@ describe("Rechercher mots clefs", function () {
   let client: ClientConstellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClients(1));
+    ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
     client = clients[0];
   });
 
@@ -31,7 +33,7 @@ describe("Rechercher mots clefs", function () {
   describe("Selon nom", function () {
     let idMotClef: string;
     let fOublier: schémaFonctionOublier;
-    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
 
     before(async () => {
       idMotClef = await client.motsClefs!.créerMotClef();
@@ -104,8 +106,8 @@ describe("Rechercher mots clefs", function () {
 
   describe("Selon texte", function () {
     let idMotClef: string;
-    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>;
-    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>;
+    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>;
+    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>;
 
     const fsOublier: schémaFonctionOublier[] = [];
 

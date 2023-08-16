@@ -1,4 +1,4 @@
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -19,8 +19,8 @@ import {
   rechercherProjetsSelonTexte,
 } from "@/recherche/projet.js";
 
-import { générerClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
 
@@ -30,7 +30,7 @@ describe("Rechercher projets", function () {
   let client: ClientConstellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await générerClients(1));
+    ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(1));
     client = clients[0];
   });
 
@@ -40,7 +40,7 @@ describe("Rechercher projets", function () {
 
   describe("Selon nom", function () {
     let idProjet: string;
-    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -84,7 +84,7 @@ describe("Rechercher projets", function () {
 
   describe("Selon description", function () {
     let idProjet: string;
-    const résultat = new AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
+    const résultat = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte>>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -128,9 +128,9 @@ describe("Rechercher projets", function () {
   describe("Selon mot-clef", function () {
     let idProjet: string;
     let idMotClef: string;
-    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
-    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
-    const résultatTous = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
+    const résultatTous = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -233,9 +233,9 @@ describe("Rechercher projets", function () {
   describe("Selon variable", function () {
     let idProjet: string;
     let idVariable: string;
-    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
-    const résultatId = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
-    const résultatTous = new AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
+    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
+    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
+    const résultatTous = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>>;
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -344,31 +344,31 @@ describe("Rechercher projets", function () {
   describe("Selon bd", function () {
     let idProjet: string;
     let idBd: string;
-    const résultatId = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatId = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
             >
         >>();
-    const résultatNom = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatNom = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
             >
         >>();
-    const résultatDescr = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatDescr = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
             >
         >>();
-    const résultatVariable = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatVariable = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
             >
         >>();
-    const résultatMotsClef = new AttendreRésultat<résultatObjectifRecherche<
+    const résultatMotsClef = new utilsTestAttente.AttendreRésultat<résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
@@ -597,35 +597,35 @@ describe("Rechercher projets", function () {
   describe("Selon texte", function () {
     let idProjet: string;
     let idBd: string;
-    const résultatId = new AttendreRésultat<
+    const résultatId = new utilsTestAttente.AttendreRésultat<
        résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
             >
         >>();
-    const résultatNom = new AttendreRésultat<
+    const résultatNom = new utilsTestAttente.AttendreRésultat<
        résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
             >
         >>();
-    const résultatDescr = new AttendreRésultat<
+    const résultatDescr = new utilsTestAttente.AttendreRésultat<
        résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
             >
         >>();
-    const résultatBd = new AttendreRésultat<
+    const résultatBd = new utilsTestAttente.AttendreRésultat<
        résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
               infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
             >
         >>();
-    const résultatVariable = new AttendreRésultat<
+    const résultatVariable = new utilsTestAttente.AttendreRésultat<
        résultatObjectifRecherche<
           | infoRésultatTexte
           | infoRésultatRecherche<
@@ -633,7 +633,7 @@ describe("Rechercher projets", function () {
             >
         >>();
 
-    const résultatMotClef = new AttendreRésultat<
+    const résultatMotClef = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<

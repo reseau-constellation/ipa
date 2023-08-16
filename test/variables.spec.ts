@@ -1,4 +1,4 @@
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type { catégorieVariables } from "@/variables.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 import type {
@@ -8,8 +8,10 @@ import type {
 } from "@/valid.js";
 import { expect } from "aegir/chai";
 
-import { générerClients, typesClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { typesClients, générerClients } = utilsClientTest;
+
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -19,7 +21,7 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       before("Préparer clients", async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
+        ({ fOublier: fOublierClients, clients: clients as unknown } = await générerClients(
           1,
           type
         ));
@@ -34,7 +36,7 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
         let idVariable: string;
 
-        const variables = new AttendreRésultat<string[]>();
+        const variables = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before("Préparer clients", async () => {
           fOublier = await client.variables!.suivreVariables({
@@ -69,7 +71,7 @@ typesClients.forEach((type) => {
         let idVariable: string;
         let fOublier: schémaFonctionOublier;
 
-        const mesVariables = new AttendreRésultat<string[]>();
+        const mesVariables = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before("Créer variable", async () => {
           idVariable = await client.variables!.créerVariable({
@@ -106,7 +108,7 @@ typesClients.forEach((type) => {
         let idVariable: string;
         let fOublier: schémaFonctionOublier;
 
-        const noms = new AttendreRésultat<{ [clef: string]: string }>();
+        const noms = new utilsTestAttente.AttendreRésultat<{ [clef: string]: string }>();
 
         before("Suivre noms variable", async () => {
           idVariable = await client.variables!.créerVariable({
@@ -279,7 +281,7 @@ typesClients.forEach((type) => {
       describe("Unités", function () {
         let idVariable: string;
         let fOublier: schémaFonctionOublier;
-        const unités = new AttendreRésultat<string | null>();
+        const unités = new utilsTestAttente.AttendreRésultat<string | null>();
 
         before("Préparer clients", async () => {
           idVariable = await client.variables!.créerVariable({

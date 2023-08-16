@@ -1,10 +1,10 @@
 import pkg from "lodash";
 const { isSet } = pkg;
 
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "./ressources/utils.js";
 
-import { générerClients, typesClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { typesClients, générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
 import { schémaFonctionOublier } from "@/utils";
@@ -67,7 +67,7 @@ typesClients.forEach((type) => {
 
         let fOublierÉpingles: schémaFonctionOublier;
 
-        const épingles = new AttendreRésultat<Set<string>>();
+        const épingles = new utilsTestAttente.AttendreRésultat<Set<string>>();
 
         before(async () => {
           await client.épingles!.toutDésépingler();

@@ -2,7 +2,7 @@ import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   élémentsBd,
-} from "./utils/types.js";
+} from "./types.js";
 import type { ClientConstellation, structureBdCompte } from "@/client.js";
 
 import { cacheSuivi } from "./décorateursCache.js";

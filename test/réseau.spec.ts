@@ -1,5 +1,5 @@
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts.js";
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "./ressources/utils.js";
 import {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
@@ -22,19 +22,18 @@ import type {
 import type { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
-import {
-  générerClients,
-  typesClients,
-  typeClient,
-} from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { typesClients, générerClients } = utilsClientTest;
+
+
 import { obtRessourceTest } from "./ressources/index.js";
 
 import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
-async function toutPréparer(n: number, type: typeClient) {
+async function toutPréparer(n: number, type: utilsClientTest.typeClient) {
   const { fOublier: fOublierClients, clients } = await générerClients(n, type);
   const idsNodesSFIP = await Promise.all(
     clients.map(async (c) => (await c.obtIdSFIP()).id.toCID().toString())
@@ -65,11 +64,11 @@ typesClients.forEach((type) => {
           let idsOrbite: string[];
           let clients: ClientConstellation[];
 
-          const rés = new AttendreRésultat<
+          const rés = new utilsTestAttente.AttendreRésultat<
             { adresse: string; pair: string }[]
           >();
-          const dispositifs = new AttendreRésultat<statutDispositif[]>();
-          const membresEnLigne = new AttendreRésultat<statutMembre[]>();
+          const dispositifs = new utilsTestAttente.AttendreRésultat<statutDispositif[]>();
+          const membresEnLigne = new utilsTestAttente.AttendreRésultat<statutMembre[]>();
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
@@ -152,8 +151,8 @@ typesClients.forEach((type) => {
         });
 
         describe("Membres fiables", function () {
-          const fiablesPropres = new AttendreRésultat<string[]>();
-          const fiablesAutres = new AttendreRésultat<string[]>();
+          const fiablesPropres = new utilsTestAttente.AttendreRésultat<string[]>();
+          const fiablesAutres = new utilsTestAttente.AttendreRésultat<string[]>();
 
           let fOublierClients: () => Promise<void>;
           let idsBdCompte: string[];
@@ -235,9 +234,9 @@ typesClients.forEach((type) => {
           let idsBdCompte: string[];
           let clients: ClientConstellation[];
 
-          const bloquésTous = new AttendreRésultat<infoBloqué[]>();
-          const bloquésPubliques = new AttendreRésultat<string[]>();
-          const bloquésAutreMembre = new AttendreRésultat<infoBloqué[]>();
+          const bloquésTous = new utilsTestAttente.AttendreRésultat<infoBloqué[]>();
+          const bloquésPubliques = new utilsTestAttente.AttendreRésultat<string[]>();
+          const bloquésAutreMembre = new utilsTestAttente.AttendreRésultat<infoBloqué[]>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -390,8 +389,8 @@ typesClients.forEach((type) => {
             let idsBdCompte: string[];
             let clients: ClientConstellation[];
 
-            const relationsPropres = new AttendreRésultat<infoConfiance[]>();
-            const relationsAutres = new AttendreRésultat<infoConfiance[]>();
+            const relationsPropres = new utilsTestAttente.AttendreRésultat<infoConfiance[]>();
+            const relationsAutres = new utilsTestAttente.AttendreRésultat<infoConfiance[]>();
 
             const fsOublier: schémaFonctionOublier[] = [];
 
@@ -520,8 +519,8 @@ typesClients.forEach((type) => {
             let idVariable: string;
             let idProjet: string;
 
-            const relationsPropres = new AttendreRésultat<infoConfiance[]>();
-            const relationsAutres = new AttendreRésultat<infoConfiance[]>();
+            const relationsPropres = new utilsTestAttente.AttendreRésultat<infoConfiance[]>();
+            const relationsAutres = new utilsTestAttente.AttendreRésultat<infoConfiance[]>();
 
             const fsOublier: schémaFonctionOublier[] = [];
 
@@ -722,7 +721,7 @@ typesClients.forEach((type) => {
 
           let fOublier: schémaFonctionOublier;
           let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
-          const rés = new AttendreRésultat<infoRelation[]>();
+          const rés = new utilsTestAttente.AttendreRésultat<infoRelation[]>();
 
           before(async () => {
             ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
@@ -828,7 +827,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
 
-          const rés = new AttendreRésultat<infoMembreRéseau[]>();
+          const rés = new utilsTestAttente.AttendreRésultat<infoMembreRéseau[]>();
 
           before(async () => {
             ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
@@ -1106,7 +1105,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
 
-          const rés = new AttendreRésultat<infoMembreRéseau[]>();
+          const rés = new utilsTestAttente.AttendreRésultat<infoMembreRéseau[]>();
 
           before(async () => {
             ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
@@ -1222,7 +1221,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
 
-          const rés = new AttendreRésultat<number>();
+          const rés = new utilsTestAttente.AttendreRésultat<number>();
 
           before(async () => {
             ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
@@ -1274,7 +1273,7 @@ typesClients.forEach((type) => {
           let fOublier: schémaFonctionOublier;
           let idMotClef: string;
 
-          const rés = new AttendreRésultat<number>();
+          const rés = new utilsTestAttente.AttendreRésultat<number>();
 
           before(async () => {
             ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(
@@ -1347,10 +1346,10 @@ typesClients.forEach((type) => {
           let idBd: string;
           let idProjet: string;
 
-          const résMotClef = new AttendreRésultat<infoAuteur[]>();
-          const résVariable = new AttendreRésultat<infoAuteur[]>();
-          const résBds = new AttendreRésultat<infoAuteur[]>();
-          const résProjet = new AttendreRésultat<infoAuteur[]>();
+          const résMotClef = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
+          const résVariable = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
+          const résBds = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
+          const résProjet = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1745,9 +1744,9 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
           let IMAGE: Buffer;
 
-          const résNom = new AttendreRésultat<{ [key: string]: string }>();
-          const résCourriel = new AttendreRésultat<string | null>();
-          const résImage = new AttendreRésultat<Uint8Array | null>();
+          const résNom = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
+          const résCourriel = new utilsTestAttente.AttendreRésultat<string | null>();
+          const résImage = new utilsTestAttente.AttendreRésultat<Uint8Array | null>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1826,8 +1825,8 @@ typesClients.forEach((type) => {
           let idMotClef1: string;
           let idMotClef2: string;
 
-          const résPropres = new AttendreRésultat<string[]>();
-          const résAutres = new AttendreRésultat<string[]>();
+          const résPropres = new utilsTestAttente.AttendreRésultat<string[]>();
+          const résAutres = new utilsTestAttente.AttendreRésultat<string[]>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1879,8 +1878,8 @@ typesClients.forEach((type) => {
           let idVariable1: string;
           let idVariable2: string;
 
-          const résPropres = new AttendreRésultat<string[]>();
-          const résAutres = new AttendreRésultat<string[]>();
+          const résPropres = new utilsTestAttente.AttendreRésultat<string[]>();
+          const résAutres = new utilsTestAttente.AttendreRésultat<string[]>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1934,8 +1933,8 @@ typesClients.forEach((type) => {
           let idsBdCompte: string[];
           let clients: ClientConstellation[];
 
-          const résPropres = new AttendreRésultat<string[]>();
-          const résAutres = new AttendreRésultat<string[]>();
+          const résPropres = new utilsTestAttente.AttendreRésultat<string[]>();
+          const résAutres = new utilsTestAttente.AttendreRésultat<string[]>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1984,8 +1983,8 @@ typesClients.forEach((type) => {
           let idsBdCompte: string[];
           let clients: ClientConstellation[];
 
-          const résPropres = new AttendreRésultat<string[]>();
-          const résAutres = new AttendreRésultat<string[]>();
+          const résPropres = new utilsTestAttente.AttendreRésultat<string[]>();
+          const résAutres = new utilsTestAttente.AttendreRésultat<string[]>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -2036,8 +2035,8 @@ typesClients.forEach((type) => {
 
           let idMotClef: string;
 
-          const résPropres = new AttendreRésultat<ÉlémentFavorisAvecObjet[]>();
-          const résAutres = new AttendreRésultat<ÉlémentFavorisAvecObjet[]>();
+          const résPropres = new utilsTestAttente.AttendreRésultat<ÉlémentFavorisAvecObjet[]>();
+          const résAutres = new utilsTestAttente.AttendreRésultat<ÉlémentFavorisAvecObjet[]>();
 
           const fsOublier: schémaFonctionOublier[] = [];
 
@@ -2116,7 +2115,7 @@ typesClients.forEach((type) => {
           let idMotClef: string;
           let fOublier: schémaFonctionOublier;
 
-          const rés = new AttendreRésultat<
+          const rés = new utilsTestAttente.AttendreRésultat<
             (ÉlémentFavorisAvecObjet & { idCompte: string })[]
           >();
 
@@ -2199,7 +2198,7 @@ typesClients.forEach((type) => {
 
           let idBd: string;
 
-          const rés = new AttendreRésultat<infoRéplications>();
+          const rés = new utilsTestAttente.AttendreRésultat<infoRéplications>();
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
@@ -2285,8 +2284,8 @@ typesClients.forEach((type) => {
           const données2 = { clef: "titre", langue: "हिं", trad: "तारामंडल" };
           const données3 = { clef: "titre", langue: "kaq", trad: "Ch'umil" };
 
-          const résBds = new AttendreRésultat<string[]>();
-          const résÉléments = new AttendreRésultat<
+          const résBds = new utilsTestAttente.AttendreRésultat<string[]>();
+          const résÉléments = new utilsTestAttente.AttendreRésultat<
             élémentDeMembre<élémentBdListeDonnées>[]
           >();
 

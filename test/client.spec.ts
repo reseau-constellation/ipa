@@ -8,16 +8,18 @@ import {
   schémaFonctionOublier,
   faisRien,
 } from "@/utils/index.js";
-
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
+import type { ClientConstellation as typeClientConstellation } from "./ressources/utils.js";
 
 import type KeyValueStore from "orbit-db-kvstore";
 
-import { générerClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { client as utilsClientTest, attente as utilsTestAttente, peutÉcrire } from "@constl/utils-tests";
+const { générerClients } = utilsClientTest;
+
+
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
+
 
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import { peutÉcrire } from "@/utilsTests/index.js";
 
 import { isNode, isElectronMain } from "wherearewe";
 
@@ -42,10 +44,10 @@ describe("adresseOrbiteValide", function () {
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation,
-      client2: ClientConstellation,
-      client3: ClientConstellation;
+    let clients: typeClientConstellation[];
+    let client: typeClientConstellation,
+      client2: typeClientConstellation,
+      client3: typeClientConstellation;
 
     let fOublierDispositifs: schémaFonctionOublier;
     let fOublieridCompte: schémaFonctionOublier;
@@ -58,7 +60,7 @@ if (isNode || isElectronMain) {
 
     let idCompte2EnDirecte: string | undefined;
 
-    const mesDispositifs = new AttendreRésultat<string[]>();
+    const mesDispositifs = new utilsTestAttente.AttendreRésultat<string[]>();
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClients(3));
@@ -93,7 +95,7 @@ if (isNode || isElectronMain) {
       let idBd: string;
 
       const fsOublier: schémaFonctionOublier[] = [];
-      const résNom = new AttendreRésultat<{ [lng: string]: string }>();
+      const résNom = new utilsTestAttente.AttendreRésultat<{ [lng: string]: string }>();
 
       before(async () => {
         fsOublier.push(
@@ -183,8 +185,8 @@ if (isNode || isElectronMain) {
 
   describe("Fonctionalités client", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation, client2: ClientConstellation;
+    let clients: typeClientConstellation[];
+    let client: typeClientConstellation, client2: typeClientConstellation;
 
     let idCompte2: string;
 
@@ -278,7 +280,7 @@ if (isNode || isElectronMain) {
       let fSuivre: (id: string) => Promise<void>;
       let fOublier: schémaFonctionOublier;
 
-      const données = new AttendreRésultat<{ [key: string]: number }>();
+      const données = new utilsTestAttente.AttendreRésultat<{ [key: string]: number }>();
 
       const changerBd = async (id: string) => {
         await fSuivre(id);
@@ -356,7 +358,7 @@ if (isNode || isElectronMain) {
       let bdBase: KeyValueStore<{ [clef: string]: string }>;
       let idBd: string | undefined;
 
-      const données = new AttendreRésultat<{ [key: string]: number }>();
+      const données = new utilsTestAttente.AttendreRésultat<{ [key: string]: number }>();
 
       const CLEF = "clef";
       const fsOublier: schémaFonctionOublier[] = [];
@@ -436,7 +438,7 @@ if (isNode || isElectronMain) {
       let idBd: string;
       
       const CLEF = "clef";
-      const données = new AttendreRésultat<{ [key: string]: number }>();
+      const données = new utilsTestAttente.AttendreRésultat<{ [key: string]: number }>();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
@@ -606,7 +608,7 @@ if (isNode || isElectronMain) {
       let idBd2: string;
       let fOublier: schémaFonctionOublier;
 
-      const rés = new AttendreRésultat<string[]>();
+      const rés = new utilsTestAttente.AttendreRésultat<string[]>();
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
@@ -747,7 +749,7 @@ if (isNode || isElectronMain) {
       let idBd2: string;
       let fOublier: schémaFonctionOublier;
 
-      const rés = new AttendreRésultat<string>();
+      const rés = new utilsTestAttente.AttendreRésultat<string>();
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
@@ -1690,7 +1692,7 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre mes permissions", function () {
-      const rés = new AttendreRésultat<string>();
+      const rés = new utilsTestAttente.AttendreRésultat<string>();
       let idBd: string;
 
       const fsOublier: schémaFonctionOublier[] = [];
@@ -1758,7 +1760,7 @@ if (isNode || isElectronMain) {
 
       let lAccès: infoAccès[];
       let idBd: string;
-      const résultatPermission = new AttendreRésultat<
+      const résultatPermission = new utilsTestAttente.AttendreRésultat<
         typeof MODÉRATEUR | typeof MEMBRE
       >();
 

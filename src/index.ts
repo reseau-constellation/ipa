@@ -20,8 +20,6 @@ export * as utils from "@/utils/index.js";
 export * as valid from "@/valid.js";
 export * as variables from "@/variables.js";
 
-export * as utilsTests from "@/utilsTests/index.js";
-
 import { ipa, ipaTravailleur } from "@/mandataire/index.js";
 import type { optsConstellation } from "@/client.js";
 import type { optsIpaTravailleur } from "@/mandataire/ipaTravailleur.js";

@@ -13,16 +13,16 @@ import {
   schémaStructureBdNoms,
   TYPES_STATUT,
   élémentsBd,
-} from "@/utils/types.js";
+} from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
+import type { règleColonne, erreurValidation, règleExiste } from "@/valid.js";
 import type {
-  règleColonne,
-  erreurValidation,
-  règleExiste,
-} from "@/valid.js";
-import type { élémentBdListeDonnées, différenceTableaux, élémentDonnées } from "@/tableaux.js";
+  élémentBdListeDonnées,
+  différenceTableaux,
+  élémentDonnées,
+} from "@/tableaux.js";
 import ClientConstellation from "@/client.js";
 import {
   traduire,
@@ -92,7 +92,7 @@ const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
   type: "object",
   properties: {
     type: { type: "string" },
-    métadonnées: {type: "string", nullable: true},
+    métadonnées: { type: "string", nullable: true },
     licence: { type: "string" },
     licenceContenu: { type: "string", nullable: true },
     image: { type: "string", nullable: true },
@@ -345,7 +345,9 @@ export default class BDs extends ComposanteClientListe<string> {
           id: idBdMétadonnées,
           type: "kvstore",
         });
-      const métadonnées = ClientConstellation.obtObjetdeBdDic({ bd: bdMétadonnées });
+      const métadonnées = ClientConstellation.obtObjetdeBdDic({
+        bd: bdMétadonnées,
+      });
       await fOublierBdNoms();
       await this.sauvegarderMétadonnéesBd({ idBd: idNouvelleBd, métadonnées });
     }
@@ -373,7 +375,10 @@ export default class BDs extends ComposanteClientListe<string> {
         bd: bdDescr,
       });
       await fOublierBdDescr();
-      await this.sauvegarderDescriptionsBd({ idBd: idNouvelleBd, descriptions });
+      await this.sauvegarderDescriptionsBd({
+        idBd: idNouvelleBd,
+        descriptions,
+      });
     }
 
     const idBdMotsClefs = bdBase.get("motsClefs");
@@ -576,7 +581,10 @@ export default class BDs extends ComposanteClientListe<string> {
         const état = motsClefs.every((m) => motsClefsBd.includes(m));
         fSuivreCondition(état);
       };
-      return await this.suivreMotsClefsBd({ idBd: id, f: fFinaleSuivreCondition });
+      return await this.suivreMotsClefsBd({
+        idBd: id,
+        f: fFinaleSuivreCondition,
+      });
     };
     return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
   }
@@ -1955,13 +1963,14 @@ export default class BDs extends ComposanteClientListe<string> {
         },
       });
 
-      const fOublierColonnes = await this.client.tableaux!.suivreColonnesTableau({
-        idTableau,
-        f: (cols) => {
-          info.cols = cols;
-          fFinaleBranche();
-        },
-      });
+      const fOublierColonnes =
+        await this.client.tableaux!.suivreColonnesTableau({
+          idTableau,
+          f: (cols) => {
+            info.cols = cols;
+            fFinaleBranche();
+          },
+        });
 
       return async () => {
         await fOublierDonnées();

@@ -1,9 +1,11 @@
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "./ressources/utils.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
-import { générerClients, typesClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+
+import { client as utilsClientTest, attente as utilsTestAttente} from "@constl/utils-tests";
+const { typesClients, générerClients } = utilsClientTest;
+
 
 import { obtRessourceTest } from "./ressources/index.js";
 
@@ -31,7 +33,7 @@ typesClients.forEach((type) => {
       describe("Courriels", function () {
         let fOublier: schémaFonctionOublier;
 
-        const résultatCourriel = new AttendreRésultat<string | null>();
+        const résultatCourriel = new utilsTestAttente.AttendreRésultat<string | null>();
         const COURRIEL = "தொடர்பு@லஸ்ஸி.இந்தியா";
 
         before(async () => {
@@ -65,7 +67,7 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
-        const rés = new AttendreRésultat<{ [key: string]: string }>();
+        const rés = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
         let fOublier: schémaFonctionOublier;
 
         before(async () => {
@@ -117,7 +119,7 @@ typesClients.forEach((type) => {
       });
 
       describe("Images", function () {
-        const rés = new AttendreRésultat<Uint8Array | null>();
+        const rés = new utilsTestAttente.AttendreRésultat<Uint8Array | null>();
 
         let fOublier: schémaFonctionOublier;
 

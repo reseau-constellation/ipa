@@ -1,5 +1,4 @@
-import { typesClients, générerClients } from "@/utilsTests/client.js";
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "./ressources/utils.js";
 import {
   schémaFonctionOublier,
   adresseOrbiteValide,
@@ -7,10 +6,12 @@ import {
   TYPES_STATUT,
 } from "@/utils/index.js";
 
-import { AttendreRésultat } from "@/utilsTests/attente.js";
 import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
+
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { typesClients, générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
@@ -71,7 +72,7 @@ typesClients.forEach((type) => {
         let idNuée: string;
         let fOublier: schémaFonctionOublier;
 
-        const noms = new AttendreRésultat<{ [key: string]: string }>();
+        const noms = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
 
         before(async () => {
           idNuée = await client.nuées!.créerNuée({});
@@ -135,7 +136,7 @@ typesClients.forEach((type) => {
         let idNuée: string;
         let fOublier: schémaFonctionOublier;
 
-        const descr = new AttendreRésultat<{ [key: string]: string }>();
+        const descr = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
 
         before(async () => {
           idNuée = await client.nuées!.créerNuée({});
@@ -204,7 +205,7 @@ typesClients.forEach((type) => {
 
         let fOublier: schémaFonctionOublier;
 
-        const motsClefs = new AttendreRésultat<string[]>();
+        const motsClefs = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
           idNuée = await client.nuées!.créerNuée({});
@@ -244,7 +245,7 @@ typesClients.forEach((type) => {
         let idNuée: string;
         let idNouvelleNuée: string;
 
-        const nuées = new AttendreRésultat<string[]>();
+        const nuées = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
           idNuée = await client.nuées!.créerNuée({});
@@ -285,7 +286,7 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
         let idNuée: string;
 
-        const statut = new AttendreRésultat<schémaStatut>();
+        const statut = new utilsTestAttente.AttendreRésultat<schémaStatut>();
 
         before(async () => {
           idNuée = await client.nuées!.créerNuée({});
@@ -349,7 +350,7 @@ typesClients.forEach((type) => {
           let idNuée: string;
           let idTableau: string;
 
-          const tableaux = new AttendreRésultat<infoTableauAvecId[]>();
+          const tableaux = new utilsTestAttente.AttendreRésultat<infoTableauAvecId[]>();
 
           before(async () => {
             idNuée = await client.nuées!.créerNuée({});
@@ -392,7 +393,7 @@ typesClients.forEach((type) => {
           let idTableau: string;
           let fOublier: schémaFonctionOublier;
 
-          const résultat = new AttendreRésultat<InfoColAvecCatégorie[]>();
+          const résultat = new utilsTestAttente.AttendreRésultat<InfoColAvecCatégorie[]>();
 
           before(async () => {
             idNuée = await client.nuées!.créerNuée({});
@@ -430,7 +431,7 @@ typesClients.forEach((type) => {
           let idTableau: string;
           let idColonne: string;
 
-          const variables = new AttendreRésultat<string[]>();
+          const variables = new utilsTestAttente.AttendreRésultat<string[]>();
 
           before(async () => {
             idNuée = await client.nuées!.créerNuée({});
@@ -527,10 +528,10 @@ typesClients.forEach((type) => {
           let empreinte: string;
   
           const fsOublier: schémaFonctionOublier[] = [];
-          const résultatChezMoi = new AttendreRésultat<
+          const résultatChezMoi = new utilsTestAttente.AttendreRésultat<
             élémentDeMembreAvecValid<élémentBdListeDonnées>[]
           >();
-          const résultatChezLesAutres = new AttendreRésultat<
+          const résultatChezLesAutres = new utilsTestAttente.AttendreRésultat<
             élémentDeMembreAvecValid<élémentBdListeDonnées>[]
           >();
   
@@ -614,10 +615,10 @@ typesClients.forEach((type) => {
             "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/tuNeMeTrouverasPas";
           const idCol = "colonne numérique";
           const fsOublier: schémaFonctionOublier[] = [];
-          const résultatChezMoi = new AttendreRésultat<
+          const résultatChezMoi = new utilsTestAttente.AttendreRésultat<
             élémentDeMembreAvecValid<élémentBdListeDonnées>[]
           >();
-          const résultatChezLesAutres = new AttendreRésultat<
+          const résultatChezLesAutres = new utilsTestAttente.AttendreRésultat<
             élémentDeMembreAvecValid<élémentBdListeDonnées>[]
           >();
   
@@ -735,9 +736,9 @@ typesClients.forEach((type) => {
           let idBdMembreAutorisé: string;
           let idBdMembreNonAutorisé: string;
   
-          const résultat = new AttendreRésultat<string[]>();
-          const résultatSansVérification = new AttendreRésultat<string[]>();
-          const résultatSansInclureLesMiennes = new AttendreRésultat<string[]>();
+          const résultat = new utilsTestAttente.AttendreRésultat<string[]>();
+          const résultatSansVérification = new utilsTestAttente.AttendreRésultat<string[]>();
+          const résultatSansInclureLesMiennes = new utilsTestAttente.AttendreRésultat<string[]>();
   
           const fsOublier: schémaFonctionOublier[] = [];
   
@@ -814,7 +815,7 @@ typesClients.forEach((type) => {
           let schémaNuée: schémaSpécificationBd;
           let idBd: string;
   
-          const résultat = new AttendreRésultat<string[]>();
+          const résultat = new utilsTestAttente.AttendreRésultat<string[]>();
   
           const fsOublier: schémaFonctionOublier[] = [];
   

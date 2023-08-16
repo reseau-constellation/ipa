@@ -1,4 +1,4 @@
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type { statutMembre } from "@/reseau.js";
 import type {
   schémaFonctionOublier,
@@ -10,8 +10,10 @@ import type {
   résultatObjectifRecherche,
 } from "@/utils/index.js";
 
-import { générerClients, typesClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { générerClients, typesClients } = utilsClientTest;
+
 
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
@@ -74,7 +76,7 @@ typesClients.forEach((type) => {
           let idsComptes: string[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients } = await générerClients(
+            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
               3,
               type
             ));
@@ -97,10 +99,10 @@ typesClients.forEach((type) => {
             let réfClient2: résultatRecherche<infoRésultatTexte>;
             let réfClient3: résultatRecherche<infoRésultatTexte>;
 
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
-            const rés2 = new AttendreRésultat<
+            const rés2 = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -211,7 +213,7 @@ typesClients.forEach((type) => {
             let fOublier: schémaFonctionOublier;
             let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -272,7 +274,7 @@ typesClients.forEach((type) => {
             let fOublier: schémaFonctionOublier;
             let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -316,7 +318,7 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients } = await générerClients(
+            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
               2,
               type
             ));
@@ -330,7 +332,7 @@ typesClients.forEach((type) => {
             let fOublier: schémaFonctionOublier;
             let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -371,7 +373,7 @@ typesClients.forEach((type) => {
 
           describe("selon nom", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -426,7 +428,7 @@ typesClients.forEach((type) => {
 
           describe("tous", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -453,7 +455,7 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients } = await générerClients(
+            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
               2,
               type
             ));
@@ -467,7 +469,7 @@ typesClients.forEach((type) => {
             let fOublier: schémaFonctionOublier;
             let réfClient2: résultatRecherche<infoRésultatTexte>;
 
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -510,7 +512,7 @@ typesClients.forEach((type) => {
 
           describe("selon nom", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -567,7 +569,7 @@ typesClients.forEach((type) => {
 
           describe("selon descr", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -624,7 +626,7 @@ typesClients.forEach((type) => {
 
           describe("tous", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -653,7 +655,7 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients } = await générerClients(
+            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
               2,
               type
             ));
@@ -665,7 +667,7 @@ typesClients.forEach((type) => {
 
           describe("selon id", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -705,7 +707,7 @@ typesClients.forEach((type) => {
           });
           describe("selon nom", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -749,7 +751,7 @@ typesClients.forEach((type) => {
 
           describe("selon descr", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -796,7 +798,7 @@ typesClients.forEach((type) => {
 
           describe("selon variables", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
             >();
 
@@ -862,7 +864,7 @@ typesClients.forEach((type) => {
 
           describe("selon mots-clefs", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
             >();
 
@@ -923,7 +925,7 @@ typesClients.forEach((type) => {
 
           describe("tous", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -970,7 +972,7 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients } = await générerClients(
+            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
               2,
               type
             ));
@@ -982,7 +984,7 @@ typesClients.forEach((type) => {
 
           describe("selon id", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -1024,7 +1026,7 @@ typesClients.forEach((type) => {
           });
           describe("selon nom", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -1069,7 +1071,7 @@ typesClients.forEach((type) => {
 
           describe("selon descr", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -1116,7 +1118,7 @@ typesClients.forEach((type) => {
 
           describe("selon variables", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
             >();
 
@@ -1182,7 +1184,7 @@ typesClients.forEach((type) => {
 
           describe("selon mots-clefs", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
             >();
 
@@ -1243,7 +1245,7 @@ typesClients.forEach((type) => {
 
           describe("tous", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -1291,7 +1293,7 @@ typesClients.forEach((type) => {
           let clients: ClientConstellation[];
 
           before(async () => {
-            ({ fOublier: fOublierClients, clients } = await générerClients(
+            ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
               2,
               type
             ));
@@ -1303,7 +1305,7 @@ typesClients.forEach((type) => {
 
           describe("selon id", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -1345,7 +1347,7 @@ typesClients.forEach((type) => {
 
           describe("selon nom", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -1393,7 +1395,7 @@ typesClients.forEach((type) => {
 
           describe("selon descr", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -1441,7 +1443,7 @@ typesClients.forEach((type) => {
 
           describe("selon variables", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
             >();
 
@@ -1510,7 +1512,7 @@ typesClients.forEach((type) => {
 
           describe("selon mots-clefs", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
             >();
 
@@ -1576,7 +1578,7 @@ typesClients.forEach((type) => {
             let fOublier: schémaFonctionOublier;
 
             const nouveauNom = "Mi base de datos meteorológicos";
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<
                 infoRésultatRecherche<
                   infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
@@ -1633,7 +1635,7 @@ typesClients.forEach((type) => {
 
           describe("tous", () => {
             let fOublier: schémaFonctionOublier;
-            const rés = new AttendreRésultat<
+            const rés = new utilsTestAttente.AttendreRésultat<
               résultatRecherche<infoRésultatTexte>[]
             >();
 
@@ -1687,7 +1689,7 @@ typesClients.forEach((type) => {
       let idsComptes: string[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
+        ({ fOublier: fOublierClients, clients: clients as unknown} = await générerClients(
           5,
           type
         ));
@@ -1710,8 +1712,8 @@ typesClients.forEach((type) => {
         let fOublierRecherche: schémaFonctionOublier;
         let fChangerN: (x: number) => Promise<void>;
 
-        const résMembresEnLigne = new AttendreRésultat<statutMembre[]>();
-        const résMotsClefs = new AttendreRésultat<
+        const résMembresEnLigne = new utilsTestAttente.AttendreRésultat<statutMembre[]>();
+        const résMotsClefs = new utilsTestAttente.AttendreRésultat<
           résultatRecherche<infoRésultatTexte>[]
         >();
 

@@ -1,10 +1,10 @@
 import { expect } from "aegir/chai";
 
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "./ressources/utils.js";
 import type { schémaFonctionOublier } from "@/utils/index.js";
 
-import { générerClients, typesClients } from "@/utilsTests/client.js";
-import { AttendreRésultat } from "@/utilsTests/attente.js";
+import { client as utilsClientTest, attente as utilsTestAttente } from "@constl/utils-tests";
+const { typesClients, générerClients } = utilsClientTest;
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -29,7 +29,7 @@ typesClients.forEach((type) => {
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
 
-        const motsClefs = new AttendreRésultat<string[]>();
+        const motsClefs = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
           fOublier = await client.motsClefs!.suivreMotsClefs({
@@ -64,7 +64,7 @@ typesClients.forEach((type) => {
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
 
-        const mesMotsClefs = new AttendreRésultat<string[]>();
+        const mesMotsClefs = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
@@ -99,7 +99,7 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
-        const rés = new AttendreRésultat<{ [key: string]: string }>();
+        const rés = new utilsTestAttente.AttendreRésultat<{ [key: string]: string }>();
         let idMotClef: string;
         let fOublier: schémaFonctionOublier;
 

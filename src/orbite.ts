@@ -2,7 +2,7 @@ import type { IPFS } from "ipfs-core";
 import type KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";
 import Store from "orbit-db-store";
-import type { schémaFonctionOublier, élémentsBd } from "./utils/types.js";
+import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 
 import { v4 as uuidv4 } from "uuid";
 import OrbitDB from "orbit-db";
@@ -97,7 +97,9 @@ const validerTypesListeOrbite = <T extends élémentsBd>({
           if (valide) {
             return await target.add(data);
           }
-          throw new Error(data.toString() + JSON.stringify(validateur.errors, undefined, 2));
+          throw new Error(
+            data.toString() + JSON.stringify(validateur.errors, undefined, 2)
+          );
         };
       } else if (prop === "get") {
         return (hash: string): LogEntry<T> => {
@@ -249,15 +251,15 @@ export class GestionnaireOrbite {
 
   constructor(orbite: OrbitDB) {
     this.orbite = orbite;
-    
+
     this._bdsOrbite = {};
     this.verrouOuvertureBd = new Semaphore();
 
     this._oublierNettoyageBdsOuvertes = this.lancerNettoyageBdsOuvertes();
   }
-  
-  get identity (): OrbitDB["identity"] {
-    return this.orbite.identity
+
+  get identity(): OrbitDB["identity"] {
+    return this.orbite.identity;
   }
 
   async ouvrirBd<
@@ -451,7 +453,7 @@ export class GestionnaireOrbite {
     return async () => clearInterval(i);
   }
 
-  async fermer({arrêterOrbite}: {arrêterOrbite: boolean}): Promise<void> {
+  async fermer({ arrêterOrbite }: { arrêterOrbite: boolean }): Promise<void> {
     if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
     if (arrêterOrbite) {
       await this.orbite.stop();
@@ -460,24 +462,30 @@ export class GestionnaireOrbite {
 }
 
 export class GestionnaireOrbiteGénéral {
-  gestionnaires: {[idOrbite: string]: GestionnaireOrbite}
+  gestionnaires: { [idOrbite: string]: GestionnaireOrbite };
 
   constructor() {
     this.gestionnaires = {};
   }
-  
-  obtGestionnaireOrbite ({orbite}: {orbite: OrbitDB}): GestionnaireOrbite {
+
+  obtGestionnaireOrbite({ orbite }: { orbite: OrbitDB }): GestionnaireOrbite {
     if (!this.gestionnaires[orbite.identity.id]) {
-      this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite(orbite)
+      this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite(orbite);
     }
-    return this.gestionnaires[orbite.identity.id]
+    return this.gestionnaires[orbite.identity.id];
   }
 
-  async fermer({orbite, arrêterOrbite }: {orbite: OrbitDB, arrêterOrbite: boolean}): Promise<void> {
+  async fermer({
+    orbite,
+    arrêterOrbite,
+  }: {
+    orbite: OrbitDB;
+    arrêterOrbite: boolean;
+  }): Promise<void> {
     const gestionnaireOrbite = this.obtGestionnaireOrbite({ orbite });
     await gestionnaireOrbite.fermer({ arrêterOrbite });
-    delete this.gestionnaires[orbite.identity.id]
+    delete this.gestionnaires[orbite.identity.id];
   }
 }
 
-export const gestionnaireOrbiteGénéral = new GestionnaireOrbiteGénéral()
+export const gestionnaireOrbiteGénéral = new GestionnaireOrbiteGénéral();
