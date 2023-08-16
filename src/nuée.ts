@@ -17,6 +17,7 @@ import {
   ignorerNonDéfinis,
   traduire,
   schémaStructureBdNoms,
+  schémaStructureBdMétadonnées,
 } from "@/utils/index.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
@@ -41,7 +42,7 @@ import type {
 } from "@/valid.js";
 import type { élémentDonnées } from "@/tableaux.js"
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
-import type { schémaRetourFonctionRechercheParN } from "@/utils/types.js";
+import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/utils/types.js";
 import type KeyValueStore from "orbit-db-kvstore";
 import {
   type différenceTableaux,
@@ -82,6 +83,7 @@ const schémaBdAutorisations: JSONSchemaType<{
 export type structureBdNuée = {
   type: "nuée";
   noms: string;
+  métadonnées: string;
   descriptions: string;
   motsClefs: string;
   tableaux: string;
@@ -95,6 +97,7 @@ const schémaStructureBdNuée: JSONSchemaType<Partial<structureBdNuée>> = {
   type: "object",
   properties: {
     type: { type: "string", nullable: true },
+    métadonnées: { type: "string", nullable: true },
     noms: { type: "string", nullable: true },
     descriptions: { type: "string", nullable: true },
     motsClefs: { type: "string", nullable: true },
@@ -215,6 +218,12 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
     await bdNuée.set("tableaux", idBdTableaux);
 
+    const idBdMétadonnées = await this.client.créerBdIndépendante({
+      type: "kvstore",
+      optionsAccès,
+    });
+    await bdNuée.set("métadonnées", idBdMétadonnées);
+
     const idBdMotsClefs = await this.client.créerBdIndépendante({
       type: "feed",
       optionsAccès,
@@ -265,6 +274,19 @@ export default class Nuée extends ComposanteClientListe<string> {
         type: "keyvalue",
         schéma: schémaStructureBdNuée,
       });
+
+    const idBdMétadonnées = bdBase.get("métadonnées");
+    if (idBdMétadonnées) {
+      const { bd: bdMéatdonnées, fOublier: fOublierBdMétadonnées } =
+        await this.client.ouvrirBd({
+          id: idBdMétadonnées,
+          type: "kvstore",
+          schéma: schémaStructureBdNoms,
+        });
+      const métadonnées = ClientConstellation.obtObjetdeBdDic({ bd: bdMéatdonnées });
+      await fOublierBdMétadonnées();
+      await this.sauvegarderMétadonnéesNuée({ idNuée: idNouvelleNuée, métadonnées });
+    }
 
     const idBdNoms = bdBase.get("noms");
     if (idBdNoms) {
@@ -396,6 +418,109 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
   }
 
+  async sauvegarderMétadonnéeNuée({
+    idNuée,
+    clef,
+    valeur,
+  }: {
+    idNuée: string;
+    clef: string;
+    valeur: élémentsBd;
+  }): Promise<void> {
+    const idBdMétadonnées = await this.client.obtIdBd({
+      nom: "métadonnées",
+      racine: idNuée,
+      type: "kvstore",
+    });
+    if (!idBdMétadonnées)
+      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd({
+       id: idBdMétadonnées, 
+       type: "kvstore" 
+    });
+    await bdMétadonnées.set(clef, valeur);
+    await fOublier();
+  }
+
+  async sauvegarderMétadonnéesNuée({
+    idNuée,
+    métadonnées,
+  }: {
+    idNuée: string;
+    métadonnées: { [key: string]: string };
+  }): Promise<void> {
+    const idBdMétadonnées = await this.client.obtIdBd({
+      nom: "métadonnées",
+      racine: idNuée,
+      type: "kvstore",
+    });
+    if (!idBdMétadonnées)
+      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd({
+      id: idBdMétadonnées,
+      type: "kvstore",
+    });
+
+    for (const clef in métadonnées) {
+      await bdMétadonnées.set(clef, métadonnées[clef]);
+    }
+    await fOublier();
+  }
+
+  async effacerMétadonnéeNuée({
+    idNuée,
+    clef,
+  }: {
+    idNuée: string;
+    clef: string;
+  }): Promise<void> {
+    const idBdMétadonnées = await this.client.obtIdBd({
+      nom: "métadonnées",
+      racine: idNuée,
+      type: "kvstore",
+    });
+    if (!idBdMétadonnées)
+      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
+
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd({
+      id: idBdMétadonnées,
+      type: "kvstore",
+      schéma: schémaStructureBdMétadonnées,
+    });
+    await bdMétadonnées.del(clef);
+    await fOublier();
+  }
+
+  async suivreMétadonnéesNuée({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<{ [clef: string]: élémentsBd }>;
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = async (noms: { [key: string]: string }[]) => {
+      await f(Object.assign({}, ...noms));
+    };
+
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents: async (
+        id: string,
+        fSuivreBranche: schémaFonctionSuivi<{ [key: string]: string }>
+      ): Promise<schémaFonctionOublier> => {
+        return await this.client.suivreBdDicDeClef({
+          id,
+          clef: "métadonnées",
+          schéma: schémaStructureBdMétadonnées,
+          f: fSuivreBranche,
+        });
+      },
+    });
+  }
+
   async sauvegarderNomNuée({
     idNuée,
     langue,
@@ -514,7 +639,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "kvstore",
     });
     if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
+      throw new Error(`Permission de modification refusée pour Nuée ${idNuée}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<{
       [langue: string]: string;

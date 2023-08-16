@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import {
   schémaStatut,
+  schémaStructureBdMétadonnées,
   schémaStructureBdNoms,
   TYPES_STATUT,
   élémentsBd,
@@ -78,6 +79,7 @@ export type structureBdBd = {
   licence: string;
   licenceContenu?: string;
   image?: string;
+  métadonnées?: string;
   noms: string;
   descriptions: string;
   tableaux: string;
@@ -90,7 +92,7 @@ const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
   type: "object",
   properties: {
     type: { type: "string" },
-    // métadonnées: {type: "string", nullable: true},
+    métadonnées: {type: "string", nullable: true},
     licence: { type: "string" },
     licenceContenu: { type: "string", nullable: true },
     image: { type: "string", nullable: true },
@@ -237,6 +239,12 @@ export default class BDs extends ComposanteClientListe<string> {
     const accès = bdBD.access as unknown as ContrôleurConstellation;
     const optionsAccès = { address: accès.address };
 
+    const idBdMétadonnées = await this.client.créerBdIndépendante({
+      type: "kvstore",
+      optionsAccès,
+    });
+    await bdBD.set("métadonnées", idBdMétadonnées);
+
     const idBdNoms = await this.client.créerBdIndépendante({
       type: "kvstore",
       optionsAccès,
@@ -329,6 +337,18 @@ export default class BDs extends ComposanteClientListe<string> {
         id: idNouvelleBd,
         type: "kvstore",
       });
+
+    const idBdMétadonnées = bdBase.get("métadonnées");
+    if (idBdMétadonnées) {
+      const { bd: bdMétadonnées, fOublier: fOublierBdNoms } =
+        await this.client.ouvrirBd<{ [clef: string]: élémentsBd }>({
+          id: idBdMétadonnées,
+          type: "kvstore",
+        });
+      const métadonnées = ClientConstellation.obtObjetdeBdDic({ bd: bdMétadonnées });
+      await fOublierBdNoms();
+      await this.sauvegarderMétadonnéesBd({ idBd: idNouvelleBd, métadonnées });
+    }
 
     const idBdNoms = bdBase.get("noms");
     if (idBdNoms) {
@@ -1009,6 +1029,93 @@ export default class BDs extends ComposanteClientListe<string> {
     this.client.tableaux!.effacerÉlément({
       idTableau,
       empreinte: empreinteÉlément,
+    });
+  }
+
+  async sauvegarderMétadonnéesBd({
+    idBd,
+    métadonnées,
+  }: {
+    idBd: string;
+    métadonnées: { [key: string]: élémentsBd };
+  }): Promise<void> {
+    const idBdMétadonnées = await this.client.obtIdBd({
+      nom: "métadonnées",
+      racine: idBd,
+      type: "kvstore",
+    });
+    if (!idBdMétadonnées)
+      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
+
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd<{
+      [clef: string]: élémentsBd;
+    }>({ id: idBdMétadonnées, type: "kvstore" });
+
+    for (const clef in métadonnées) {
+      await bdMétadonnées.set(clef, métadonnées[clef]);
+    }
+    await fOublier();
+  }
+
+  async sauvegarderMétadonnéeBd({
+    idBd,
+    clef,
+    métadonnée,
+  }: {
+    idBd: string;
+    clef: string;
+    métadonnée: string;
+  }): Promise<void> {
+    const idBdMétadonnées = await this.client.obtIdBd({
+      nom: "métadonnées",
+      racine: idBd,
+      type: "kvstore",
+    });
+    if (!idBdMétadonnées)
+      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
+
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd<{
+      [clef: string]: string;
+    }>({ id: idBdMétadonnées, type: "kvstore" });
+    await bdMétadonnées.set(clef, métadonnée);
+    await fOublier();
+  }
+
+  async effacerMétadonnéeBd({
+    idBd,
+    clef,
+  }: {
+    idBd: string;
+    clef: string;
+  }): Promise<void> {
+    const idBdMétadonnées = await this.client.obtIdBd({
+      nom: "métadonnées",
+      racine: idBd,
+      type: "kvstore",
+    });
+    if (!idBdMétadonnées)
+      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
+
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd<{
+      [langue: string]: string;
+    }>({ id: idBdMétadonnées, type: "kvstore" });
+    await bdMétadonnées.del(clef);
+    await fOublier();
+  }
+
+  @cacheSuivi
+  async suivreMétadonnéesBd({
+    idBd,
+    f,
+  }: {
+    idBd: string;
+    f: schémaFonctionSuivi<{ [key: string]: élémentsBd }>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDicDeClef({
+      id: idBd,
+      clef: "métadonnées",
+      schéma: schémaStructureBdMétadonnées,
+      f,
     });
   }
 
