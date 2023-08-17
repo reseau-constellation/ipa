@@ -48,6 +48,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
+import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
@@ -1472,7 +1473,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       if (protocoles) return await f(protocoles[idDispositifFinal]);
     };
 
-    return await this.client.suivreBdDeFonction({
+    return await suivreBdDeFonction({
       fRacine,
       f: fFinale,
       fSuivre,
@@ -2770,7 +2771,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         return await f(données || []);
       };
 
-      return await this.client.suivreBdDeFonction({
+      return await suivreBdDeFonction({
         fRacine: fSuivreTableaux,
         f: fFinale,
         fSuivre: fSuivreDonnéesDeTableau,

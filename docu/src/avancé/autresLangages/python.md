@@ -175,7 +175,7 @@ with Serveur():
 
 **Quelques points importants**
 
-* Les fonctions plus obscures qui prennent plus qu'une autre fonction comme argument (p. ex. `client.suivreBdDeFonction`) ne fonctionnent pas avec le client Python. Ne vous en faites pas. Elles sont obscures pour une raison. Laissez-les en paix. Vous avez amplement de quoi vous amuser avec le reste de l'IPA.
+* Les fonctions plus obscures qui prennent plus qu'une autre fonction comme argument (p. ex. `client.suivreBdDeFonctionListe`) ne fonctionnent pas avec le client Python. Ne vous en faites pas. Elles sont obscures pour une raison. Laissez-les en paix. Vous avez amplement de quoi vous amuser avec le reste de l'IPA.
 * Vous **devez** utiliser des paramètres nommés (p. ex., `client.bds.créerBd(licence="ODbl-1_0")`). Si vous ne le faites pas (`client.bds.créerBd("ODbl-1_0")`), ça va vous créer des ennuis. Les noms des paramètres doivent être les mêmes que dans l'IPA Constellation JavaScript (p. ex., l'exemple précédent provient de la version JavaSCript `client.bds.créerBd({ licence: "ODbl-1_0" })`).
 * Avec le client synchrone, les fonctions de suivi (voir ci-dessous) doivent être appelées avec une fonction vide (p. ex., `lambda: pass` ou bien tout simplement `fais_rien`) à la place de la fonction de suivi.
 * Vous vous demandez où trouver tous ces drôles de « id tableau » pour les bases de données qui vous intéressent ? Il s'agit de l'identifiant unique d'un tableau ou d'une base de données, que vous pouvez récupérer lorsque vous créez la base de données, ou bien visuellement avec l'[appli Constellation](https://reseau-constellation.github.io/constellation) (recherchez l'icône lien 🔗).

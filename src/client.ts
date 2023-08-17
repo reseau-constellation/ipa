@@ -17,6 +17,8 @@ import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 import indexedDbStream from "indexed-db-stream";
 
+import { suivreBdDeFonction } from "@constl/utils-ipa";
+
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import Épingles from "@/epingles.js";
 import Profil from "@/profil.js";
@@ -442,7 +444,7 @@ export class ClientConstellation extends EventEmitter {
         return faisRien;
       }
     };
-    return await this.suivreBdDeFonction({
+    return await suivreBdDeFonction({
       fRacine: async ({
         fSuivreRacine,
       }: {
@@ -1052,49 +1054,6 @@ export class ClientConstellation extends EventEmitter {
     return fOublier;
   }
 
-  async suivreBdDeFonction<T>({
-    fRacine,
-    f,
-    fSuivre,
-  }: {
-    fRacine: (args: {
-      fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
-    }) => Promise<schémaFonctionOublier>;
-    f: schémaFonctionSuivi<T | undefined>;
-    fSuivre: (args: {
-      id: string;
-      fSuivreBd: schémaFonctionSuivi<T | undefined>;
-    }) => Promise<schémaFonctionOublier>;
-  }): Promise<schémaFonctionOublier> {
-    let oublierFSuivre: schémaFonctionOublier | undefined;
-    let idBdCible: string | undefined;
-    let premièreFois = true;
-
-    const oublierRacine = await fRacine({
-      fSuivreRacine: async (nouvelIdBdCible?: string) => {
-        if (nouvelIdBdCible === undefined && premièreFois) {
-          premièreFois = false;
-          await f(undefined);
-        }
-        if (nouvelIdBdCible !== idBdCible) {
-          idBdCible = nouvelIdBdCible;
-          if (oublierFSuivre) await oublierFSuivre();
-
-          if (idBdCible) {
-            oublierFSuivre = await fSuivre({ id: idBdCible, fSuivreBd: f });
-          } else {
-            await f(undefined);
-            oublierFSuivre = undefined;
-          }
-        }
-      },
-    });
-    return async () => {
-      await oublierRacine();
-      if (oublierFSuivre) await oublierFSuivre();
-    };
-  }
-
   async suivreBdDeClef<T>({
     id,
     clef,
@@ -1122,7 +1081,7 @@ export class ClientConstellation extends EventEmitter {
       };
       return await this.suivreBd({ id, f: fSuivreBdRacine, type: "keyvalue" });
     };
-    return await this.suivreBdDeFonction<T>({ fRacine, f, fSuivre });
+    return await suivreBdDeFonction<T>({ fRacine, f, fSuivre });
   }
 
   async suivreBdDic<T extends { [clef: string]: élémentsBd }>({
@@ -1771,7 +1730,7 @@ export class ClientConstellation extends EventEmitter {
         fSuivreBd(condition ? id : undefined);
       });
     };
-    return await this.suivreBdDeFonction({
+    return await suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => await fRacine(fSuivreRacine),
       f: ignorerNonDéfinis(f),
       fSuivre,

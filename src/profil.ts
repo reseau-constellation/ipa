@@ -10,6 +10,7 @@ import {
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
+import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
@@ -269,7 +270,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     f: schémaFonctionSuivi<Uint8Array | null>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDeFonction({
+    return await suivreBdDeFonction({
       fRacine: async ({ fSuivreRacine }) => {
         return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },

@@ -5,6 +5,7 @@ import toBuffer from "it-to-buffer";
 import path from "path";
 import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
+import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import {
@@ -786,7 +787,7 @@ export default class BDs extends ComposanteClientListe<string> {
         f: fSuivreBd,
       });
     };
-    return await this.client.suivreBdDeFonction<string>({
+    return await suivreBdDeFonction<string>({
       fRacine,
       f,
       fSuivre,
@@ -837,7 +838,7 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     };
 
-    return await this.client.suivreBdDeFonction({
+    return await suivreBdDeFonction({
       fRacine: fSuivreTableau,
       f: fFinale,
       fSuivre: fSuivreDonnéesDeTableau,

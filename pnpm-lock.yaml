@@ -28,6 +28,9 @@ dependencies:
   '@constl/mandataire':
     specifier: ^0.1.13
     version: 0.1.13
+  '@constl/utils-ipa':
+    specifier: ^0.1.1
+    version: 0.1.1(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
   '@lassi-js/kili':
     specifier: ^0.1.2
     version: 0.1.2(@constl/ipa@0.7.9)
@@ -1399,7 +1402,31 @@ packages:
 
   /@constl/orbit-db-types@1.1.0:
     resolution: {integrity: sha512-4N3iQvhR5AF54EqllWieAP6Q5+1qru/7671XnBp6+/cCU9P0FU8MJxEdZbXFyXkFEmWylMjs3X7H0YEUexpBiA==}
-    dev: true
+
+  /@constl/utils-ipa@0.1.1(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7):
+    resolution: {integrity: sha512-ZhprY/W4PlxWn6uHGhYPT6m6Eb5xKFFukeXWoFoeJXjbYx6j0IFcWm2n3DWo0Cu0mZavXWArELHSQo8+B8qTLg==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      wrtc: ^0.4.7
+    dependencies:
+      '@achingbrain/nat-port-mapper': 1.0.8
+      '@constl/orbit-db-types': 1.1.0
+      browser-fs-access: 0.34.1
+      events: 3.3.0
+      genversion: 3.1.1
+      jszip: 3.10.1
+      multiformats: 9.9.0
+      orbit-db: 0.29.0(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)
+      rimraf: 5.0.1
+      uint8arrays: 4.0.6
+      wherearewe: 2.0.1
+      wrtc: 0.4.7
+    transitivePeerDependencies:
+      - go-ipfs
+      - ipfs
+      - ipfsd-ctl
+      - supports-color
+    dev: false
 
   /@constl/utils-tests@0.1.1(@constl/ipa@0.7.9)(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7):
     resolution: {integrity: sha512-PA6WuPOXbry3js2bAONDY+OBq9tGwo6W3pf5xHvo3cGbEGCQKq9FNc3W61/znUw711WSfwkrpqUIVfovudMxrQ==}
@@ -2730,7 +2757,7 @@ packages:
       node-forge: 1.3.1
       protons-runtime: 5.0.1(uint8arraylist@2.4.3)
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
 
   /@libp2p/delegated-content-routing@4.0.6:
     resolution: {integrity: sha512-bOgc7x7djdsIx78VJJgyBP3iVsMMcNc0ngNduuHU6S7AcHbfeweVzW7wTQSrsNNhaQd5vRpI2mZUC3aLEGBugg==}
@@ -3133,7 +3160,7 @@ packages:
       protons-runtime: 5.0.1(uint8arraylist@2.4.3)
       timeout-abort-controller: 3.0.0
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
       varint: 6.0.0
     transitivePeerDependencies:
       - supports-color
@@ -3183,7 +3210,7 @@ packages:
       it-stream-types: 1.0.5
       rate-limiter-flexible: 2.4.1
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
       varint: 6.0.0
     transitivePeerDependencies:
       - supports-color
@@ -3225,7 +3252,7 @@ packages:
       it-reader: 6.0.4
       it-stream-types: 2.0.1
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -3247,7 +3274,7 @@ packages:
       multiformats: 11.0.2
       protons-runtime: 5.0.1(uint8arraylist@2.4.3)
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
 
   /@libp2p/peer-id@2.0.4:
     resolution: {integrity: sha512-gcOsN8Fbhj6izIK+ejiWsqiqKeJ2yWPapi/m55VjOvDa52/ptQzZszxQP8jUk93u36de92ATFXDfZR/Bi6eeUQ==}
@@ -3256,7 +3283,7 @@ packages:
       '@libp2p/interface-peer-id': 2.0.2
       '@libp2p/interfaces': 3.3.2
       multiformats: 11.0.2
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
 
   /@libp2p/peer-record@5.0.4:
     resolution: {integrity: sha512-e+AArf7pwMLqF24mehTe1OYjr1v0SOKshVrI1E9YH/Cb1F3ZZuK3smyGmnLaS4JlqsarRCMSe3V50tRkqMFY7g==}
@@ -3272,7 +3299,7 @@ packages:
       protons-runtime: 5.0.1(uint8arraylist@2.4.3)
       uint8-varint: 1.0.6
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -3298,7 +3325,7 @@ packages:
       multiformats: 11.0.2
       protons-runtime: 5.0.1(uint8arraylist@2.4.3)
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -3374,7 +3401,7 @@ packages:
       multiformats: 11.0.2
       protons-runtime: 5.0.1(uint8arraylist@2.4.3)
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -3481,7 +3508,7 @@ packages:
       it-stream-types: 1.0.5
       p-defer: 4.0.0
       p-event: 5.0.1
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -3672,7 +3699,7 @@ packages:
       dns-over-http-resolver: 2.1.1
       err-code: 3.0.1
       multiformats: 11.0.2
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
       varint: 6.0.0
     transitivePeerDependencies:
       - supports-color
@@ -6561,7 +6588,7 @@ packages:
       it-pipe: 2.0.5
       it-pushable: 3.2.1
       it-take: 2.0.1
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -6604,7 +6631,7 @@ packages:
       '@libp2p/logger': 2.1.1
       datastore-core: 8.0.4
       interface-datastore: 7.0.4
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -8933,7 +8960,7 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       sparse-array: 1.3.2
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
 
   /handlebars@4.7.8:
     resolution: {integrity: sha512-vafaFqs8MZkRrSX7sFVUdo3ap/eNiLnb4IakshzvP56X5Nr1iGKAIqdX6tMlm6HcNRIkr6AxO5jFEoJzzpT8aQ==}
@@ -9348,7 +9375,7 @@ packages:
     dependencies:
       interface-store: 3.0.4
       nanoid: 4.0.2
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
 
   /interface-datastore@8.2.3:
     resolution: {integrity: sha512-5U6BfK7cR4oSngm4pqYZBBAX7tpLI4YCOa3Ifz/EJEaEV2mmlloH5qP8ADWCVFk6vP1MPT925JJkt3kFIi7iWQ==}
@@ -9425,7 +9452,7 @@ packages:
       protobufjs: 7.2.4
       readable-stream: 4.4.2
       timeout-abort-controller: 3.0.0
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
       varint: 6.0.0
       varint-decoder: 1.0.0
     transitivePeerDependencies:
@@ -9498,7 +9525,7 @@ packages:
       it-drain: 2.0.1
       it-foreach: 1.0.1
       p-queue: 7.3.4
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -9547,7 +9574,7 @@ packages:
       nanoid: 4.0.2
       parse-duration: 1.1.0
       timeout-abort-controller: 3.0.0
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -9715,7 +9742,7 @@ packages:
       multiformats: 11.0.2
       parse-duration: 1.1.0
       stream-to-it: 0.2.4
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -9875,7 +9902,7 @@ packages:
       proper-lockfile: 4.1.2
       quick-lru: 6.1.1
       sort-keys: 5.0.0
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -9897,7 +9924,7 @@ packages:
       it-pushable: 3.2.1
       multiformats: 11.0.2
       p-queue: 7.3.4
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
 
   /ipfs-unixfs-importer@12.0.1:
     resolution: {integrity: sha512-//VPZOqbONtc1HNtb+sBrw+nIGijHEloSm1O3LVR5orSlhHQ8X7+OCkeqceFBhu40tPMe/TwgAPrkvh+fXL+bA==}
@@ -9917,7 +9944,7 @@ packages:
       multiformats: 11.0.2
       rabin-wasm: 0.1.5
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -10010,7 +10037,7 @@ packages:
       protons-runtime: 4.0.2(uint8arraylist@2.4.3)
       timestamp-nano: 1.0.1
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -10255,7 +10282,7 @@ packages:
       '@multiformats/multiaddr': 11.6.1
       iso-url: 1.2.1
       multiformats: 11.0.2
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
     transitivePeerDependencies:
       - supports-color
 
@@ -10680,7 +10707,7 @@ packages:
       it-stream-types: 1.0.5
       uint8-varint: 1.0.6
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
 
   /it-length-prefixed@9.0.1:
     resolution: {integrity: sha512-ZBD8ZFLERj8d1q9CeBtk0eJ4EpeI3qwnkmWtemBSm3ZI2dM8PUweNVk5haZ2vw3EIq2uYQiabV9YwNm6EASM4A==}
@@ -10833,7 +10860,7 @@ packages:
       it-to-buffer: 3.0.1
       p-defer: 4.0.0
       uint8arraylist: 2.4.3
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
 
   /it-to-buffer@3.0.1:
     resolution: {integrity: sha512-TiMudfypF2yW+HdNfhDgbkNQ42yuK1MizB716kwnzIJSQa8AM15zh+VZG2L/xQWaqyWfra1dr9neWO55xsYolA==}
@@ -10858,7 +10885,7 @@ packages:
       event-iterator: 2.0.0
       iso-url: 1.2.1
       it-stream-types: 1.0.5
-      uint8arrays: 4.0.4
+      uint8arrays: 4.0.6
       ws: 8.13.0
     transitivePeerDependencies:
       - bufferutil

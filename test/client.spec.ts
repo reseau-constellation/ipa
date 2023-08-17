@@ -12,6 +12,7 @@ import type { ClientConstellation as typeClientConstellation } from "./ressource
 
 import type KeyValueStore from "orbit-db-kvstore";
 
+import { suivreBdDeFonction } from "@constl/utils-ipa";
 import {
   client as utilsClientTest,
   attente as utilsTestAttente,
@@ -327,7 +328,7 @@ if (isNode || isElectronMain) {
         }): Promise<schémaFonctionOublier> => {
           return await client.suivreBdDic({ id, f: fSuivreBd });
         };
-        const fOublierSuivre = await client.suivreBdDeFonction({
+        const fOublierSuivre = await suivreBdDeFonction({
           fRacine,
           f,
           fSuivre: fSuivre_,

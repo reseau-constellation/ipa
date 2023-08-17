@@ -20,6 +20,7 @@ import {
   schémaStructureBdMétadonnées,
 } from "@/utils/index.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import type { objRôles } from "@/accès/types.js";
@@ -1078,7 +1079,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         f: fSuivreBd,
       });
     };
-    return await this.client.suivreBdDeFonction({
+    return await suivreBdDeFonction({
       fRacine,
       f: fFinale,
       fSuivre,
@@ -1275,7 +1276,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         f: fSuivreBd,
       });
     };
-    return await this.client.suivreBdDeFonction({
+    return await suivreBdDeFonction({
       fRacine,
       f: ignorerNonDéfinis(f),
       fSuivre,
@@ -1429,7 +1430,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         [key: string]: string;
       }>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreBdDeFonction({
+      return await suivreBdDeFonction({
         fRacine: async ({
           fSuivreRacine,
         }: {
@@ -1574,7 +1575,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       idNuéeParent: string,
       fSuivreBranche: schémaFonctionSuivi<T[]>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreBdDeFonction({
+      return await suivreBdDeFonction({
         fRacine: async ({
           fSuivreRacine,
         }: {
@@ -1658,7 +1659,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       idNuéeParent: string,
       fSuivreBranche: schémaFonctionSuivi<règleColonne[]>
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreBdDeFonction({
+      return await suivreBdDeFonction({
         fRacine: async ({
           fSuivreRacine,
         }: {
@@ -1818,7 +1819,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         f: fSuivreBd,
       });
     };
-    return await this.client.suivreBdDeFonction({
+    return await suivreBdDeFonction({
       fRacine,
       f: ignorerNonDéfinis(fFinale),
       fSuivre,
@@ -2450,7 +2451,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         };
       };
 
-      const fOublierSuivreTableau = await this.client.suivreBdDeFonction<{
+      const fOublierSuivreTableau = await suivreBdDeFonction<{
         données?: élémentDonnées<T>[];
         erreurs?: erreurValidation<règleVariable>[];
       }>({
