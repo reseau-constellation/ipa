@@ -7,13 +7,15 @@ import ClientConstellation from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
+  élémentsBd,
+  schémaStructureBdNoms,
+} from "@/types.js";
+import {
   uneFois,
   faisRien,
   traduire,
-  élémentsBd,
   adresseOrbiteValide,
-  schémaStructureBdNoms,
-} from "@/utils/index.js";
+} from "@constl/utils-ipa";
 
 import type { donnéesBdExportées } from "@/bds.js";
 import {

@@ -4,7 +4,7 @@ import type {
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatRecherche,
-} from "@/utils/index.js";
+} from "@/types.js";
 import {
   rechercherBdsSelonNom,
   rechercherBdsSelonDescr,

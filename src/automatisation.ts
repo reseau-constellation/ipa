@@ -8,11 +8,8 @@ import { v4 as uuidv4 } from "uuid";
 import deepcopy from "deepcopy";
 
 import type { default as ClientConstellation } from "@/client.js";
-import {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  faisRien,
-} from "@/utils/index.js";
+import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
+import { faisRien } from "@constl/utils-ipa";
 import {
   importerFeuilleCalculDURL,
   importerJSONdURL,

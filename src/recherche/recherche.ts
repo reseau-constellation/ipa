@@ -7,14 +7,14 @@ import * as nuée from "@/recherche/nuée.js";
 import * as utils from "@/recherche/utils.js";
 
 import type { default as ClientConstellation } from "@/client.js";
-import type { schémaRetourFonctionRechercheParN } from "@/types.js";
 import type {
+  schémaRetourFonctionRechercheParN,
   schémaFonctionSuivi,
   résultatRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils/index.js";
+} from "@/types.js";
 import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
 
 export class Recherche {

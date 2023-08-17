@@ -1,6 +1,6 @@
 import type { ClientConstellation } from "./ressources/utils.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
-import type { schémaFonctionOublier } from "@/utils/index.js";
+import type { schémaFonctionOublier } from "@/types.js";
 
 import {
   client as utilsClientTest,

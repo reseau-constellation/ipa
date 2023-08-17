@@ -7,7 +7,7 @@ import type {
   infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils/index.js";
+} from "@/types.js";
 import {
   rechercherDansTexte,
   similTexte,

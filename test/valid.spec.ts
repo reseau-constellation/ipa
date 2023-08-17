@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import type { élémentsBd } from "@/utils/index.js";
+import type { élémentsBd } from "@/types.js";
 import {
   validerCatégorieVal,
   générerFonctionRègle,

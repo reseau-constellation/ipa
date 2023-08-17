@@ -16,7 +16,6 @@ export * as motsClefs from "@/motsClefs.js";
 export * as projets from "@/projets.js";
 export * as réseau from "@/reseau.js";
 export * as tableaux from "@/tableaux.js";
-export * as utils from "@/utils/index.js";
 export * as valid from "@/valid.js";
 export * as variables from "@/variables.js";
 

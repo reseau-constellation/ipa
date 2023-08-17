@@ -10,7 +10,7 @@ import {
 const { typesClients, générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
-import { schémaFonctionOublier } from "@/utils";
+import { schémaFonctionOublier } from "@/types.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

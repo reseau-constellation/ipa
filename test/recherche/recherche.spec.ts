@@ -8,7 +8,7 @@ import type {
   infoRésultatRecherche,
   infoRésultatVide,
   résultatObjectifRecherche,
-} from "@/utils/index.js";
+} from "@/types.js";
 
 import {
   client as utilsClientTest,

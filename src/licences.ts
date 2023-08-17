@@ -6,7 +6,7 @@ import type {
 
 import { cacheSuivi } from "@/décorateursCache.js";
 import ClientConstellation from "@/client.js";
-import { faisRien } from "@/utils/fonctions.js";
+import { faisRien } from "@constl/utils-ipa";
 import {
   CLEF_TABLEAU_LICENCES_APPROUVÉES,
   ID_BD_LICENCES_APPROUVÉES,

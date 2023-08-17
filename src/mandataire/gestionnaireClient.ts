@@ -1,7 +1,7 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 
 import ClientConstellation, { optsConstellation } from "@/client.js";
-import type { schémaFonctionOublier } from "@/utils/index.js";
+import type { schémaFonctionOublier } from "@/types.js";
 import type {
   MessagePourTravailleur,
   MessageDeTravailleur,

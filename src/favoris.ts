@@ -1,10 +1,7 @@
 import { isNode, isElectronMain } from "wherearewe";
 
 import type { default as ClientConstellation } from "@/client.js";
-import type {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-} from "@/utils/index.js";
+import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";

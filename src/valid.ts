@@ -1,6 +1,7 @@
 import gjv from "geojson-validation";
 
-import { adresseOrbiteValide, cidValide, élémentsBd } from "@/utils/index.js";
+import { élémentsBd } from "@/types.js";
+import { cidValide, adresseOrbiteValide } from "@constl/utils-ipa";
 import type {
   catégorieBaseVariables,
   catégorieVariables,

@@ -6,7 +6,7 @@ import type {
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-} from "@/utils/index.js";
+} from "@/types.js";
 
 import {
   similImages,

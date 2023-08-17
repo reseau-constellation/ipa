@@ -1,10 +1,6 @@
 import type { ClientConstellation } from "./ressources/utils.js";
-import {
-  schémaFonctionOublier,
-  adresseOrbiteValide,
-  schémaStatut,
-  TYPES_STATUT,
-} from "@/utils/index.js";
+import { schémaFonctionOublier, schémaStatut, TYPES_STATUT } from "@/types.js";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 
 import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";

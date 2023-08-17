@@ -4,7 +4,7 @@ import type {
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
   infoRésultatTexte,
-} from "@/utils/index.js";
+} from "@/types.js";
 
 import {
   similTexte,

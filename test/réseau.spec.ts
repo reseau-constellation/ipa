@@ -4,9 +4,9 @@ import {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
   schémaFonctionOublier,
-  uneFois,
   infoAuteur,
-} from "@/utils/index.js";
+} from "@/types.js";
+import { uneFois } from "@constl/utils-ipa";
 import type { ÉlémentFavorisAvecObjet } from "@/favoris.js";
 import type {
   élémentDeMembre,

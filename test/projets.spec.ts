@@ -3,7 +3,8 @@ import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
 import type { ClientConstellation } from "./ressources/utils.js";
-import { schémaFonctionOublier, adresseOrbiteValide } from "@/utils/index.js";
+import { schémaFonctionOublier } from "@/types.js";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 
 import {
   client as utilsClientTest,

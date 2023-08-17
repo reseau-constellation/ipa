@@ -7,7 +7,7 @@ import type { ClientConstellation, structureBdCompte } from "@/client.js";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 import { cacheSuivi } from "./décorateursCache.js";
-import { faisRien, ignorerNonDéfinis } from "./utils/fonctions.js";
+import { faisRien, ignorerNonDéfinis } from "@constl/utils-ipa";
 
 import KeyValueStore from "orbit-db-kvstore";
 import FeedStore from "orbit-db-feedstore";

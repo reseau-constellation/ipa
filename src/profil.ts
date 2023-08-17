@@ -4,9 +4,10 @@ import type { default as ClientConstellation } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  ignorerNonDéfinis,
   schémaStructureBdNoms,
-} from "@/utils/index.js";
+} from "@/types.js";
+import { ignorerNonDéfinis } from "@constl/utils-ipa";
+
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";

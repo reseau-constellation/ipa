@@ -9,7 +9,7 @@ import OrbitDB from "orbit-db";
 import AccessControllers from "@/accès/index.js";
 import { isElectronMain, isNode } from "wherearewe";
 import Ajv, { type JSONSchemaType, type ValidateFunction } from "ajv";
-import { adresseOrbiteValide } from "./utils/sfip.js";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 import Semaphore from "@chriscdn/promise-semaphore";
 import { OptionsContrôleurConstellation } from "./accès/cntrlConstellation.js";
 

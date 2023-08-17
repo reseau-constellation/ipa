@@ -9,16 +9,19 @@ import {
   TYPES_STATUT,
   schémaRetourFonctionRechercheParProfondeur,
   infoAuteur,
-  faisRien,
-  uneFois,
   schémaFonctionSuiviRecherche,
   infoRésultatVide,
   résultatRecherche,
-  ignorerNonDéfinis,
-  traduire,
   schémaStructureBdNoms,
   schémaStructureBdMétadonnées,
-} from "@/utils/index.js";
+} from "@/types.js";
+import {
+  faisRien,
+  uneFois,
+  ignorerNonDéfinis,
+  traduire,
+} from "@constl/utils-ipa";
+
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 

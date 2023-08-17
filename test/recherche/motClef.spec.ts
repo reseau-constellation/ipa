@@ -3,7 +3,7 @@ import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
-} from "@/utils/index.js";
+} from "@/types.js";
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,

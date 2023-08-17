@@ -14,7 +14,7 @@ import ClientConstellation, {
   infoAccès,
   schémaStructureBdCompte,
 } from "@/client.js";
-import {
+import type {
   schémaFonctionSuivi,
   schémaFonctionOublier,
   schémaRetourFonctionRechercheParN,
@@ -27,9 +27,9 @@ import {
   infoRésultat,
   résultatObjectifRecherche,
   résultatRecherche,
-  faisRien,
   schémaFonctionSuiviRecherche,
-} from "@/utils/index.js";
+} from "@/types.js";
+import { faisRien } from "@constl/utils-ipa";
 import type { infoScore } from "@/bds.js";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {

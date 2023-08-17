@@ -1,11 +1,8 @@
 import type XLSX from "xlsx";
 
 import type { ClientConstellation } from "./ressources/utils.js";
-import {
-  schémaFonctionOublier,
-  adresseOrbiteValide,
-  élémentsBd,
-} from "@/utils/index.js";
+import { schémaFonctionOublier, élémentsBd } from "@/types.js";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 
 import type {
   InfoCol,

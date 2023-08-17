@@ -2,7 +2,7 @@ import {
   type schémaFonctionSuivi,
   type schémaFonctionOublier,
   schémaStructureBdNoms,
-} from "@/utils/index.js";
+} from "@/types.js";
 import type { objRôles } from "@/accès/types.js";
 
 import ClientConstellation from "@/client.js";

@@ -15,12 +15,8 @@ const { typesClients, générerClients } = utilsClientTest;
 const { dossierTempoTests } = utilsTestDossiers;
 
 import type { ClientConstellation } from "./ressources/utils.js";
-import {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  adresseOrbiteValide,
-  uneFois,
-} from "@/utils/index.js";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
+import { adresseOrbiteValide, uneFois } from "@constl/utils-ipa";
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import type {
   infoScore,

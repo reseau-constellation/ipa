@@ -2,12 +2,8 @@ import all from "it-all";
 import toBuffer from "it-to-buffer";
 
 import ClientConstellation, { infoAccès } from "@/client.js";
-import {
-  adresseOrbiteValide,
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  faisRien,
-} from "@/utils/index.js";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
+import { adresseOrbiteValide, faisRien } from "@constl/utils-ipa";
 import type { ClientConstellation as typeClientConstellation } from "./ressources/utils.js";
 
 import type KeyValueStore from "orbit-db-kvstore";

@@ -14,6 +14,8 @@ import {
   schémaStructureBdNoms,
   TYPES_STATUT,
   élémentsBd,
+  schémaFonctionSuivi,
+  schémaFonctionOublier,
 } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -28,12 +30,10 @@ import ClientConstellation from "@/client.js";
 import {
   traduire,
   zipper,
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
   uneFois,
   faisRien,
   ignorerNonDéfinis,
-} from "@/utils/index.js";
+} from "@constl/utils-ipa";
 import type { objRôles } from "@/accès/types.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { ComposanteClientListe } from "@/composanteClient.js";

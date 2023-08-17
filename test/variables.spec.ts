@@ -1,6 +1,6 @@
 import type { ClientConstellation } from "@/client.js";
 import type { catégorieVariables } from "@/variables.js";
-import type { schémaFonctionOublier } from "@/utils/index.js";
+import type { schémaFonctionOublier } from "@/types.js";
 import type {
   règleVariableAvecId,
   règleBornes,

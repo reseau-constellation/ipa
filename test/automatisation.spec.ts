@@ -15,11 +15,8 @@ const { typesClients, générerClients } = utilsClientTest;
 const { dossierTempoTests, obtDirTempoPourTest } = utilsTestDossiers;
 
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
-import {
-  uneFois,
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-} from "@/utils/index.js";
+import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
+import { uneFois } from "@constl/utils-ipa";
 import type {
   SpécificationAutomatisation,
   SourceDonnéesImportationURL,

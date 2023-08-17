@@ -1,4 +1,4 @@
-import { cidValide } from "@/utils/index.js";
+import { cidValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 
 describe("Utils", function () {

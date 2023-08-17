@@ -19,7 +19,7 @@ import {
   schémaFonctionOublier,
   schémaStatut,
   schémaStructureBdNoms,
-} from "@/utils/index.js";
+} from "@/types.js";
 import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 

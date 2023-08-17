@@ -5,7 +5,7 @@ import type {
   schémaFonctionSuiviRecherche,
   infoRésultatTexte,
   infoRésultatRecherche,
-} from "@/utils/index.js";
+} from "@/types.js";
 
 import { rechercherVariablesSelonNom } from "@/recherche/variable.js";
 import { rechercherMotsClefsSelonNom } from "@/recherche/motClef.js";

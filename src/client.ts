@@ -38,17 +38,19 @@ import Automatisations from "@/automatisation.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import {
-  adresseOrbiteValide,
   schémaFonctionSuivi,
   schémaFonctionOublier,
   schémaRetourFonctionRechercheParProfondeur,
+  élémentsBd,
+} from "@/types.js";
+import {
+  adresseOrbiteValide,
   faisRien,
   uneFois,
-  élémentsBd,
   toBuffer,
   ignorerNonDéfinis,
   sauvegarderFichierZip,
-} from "@/utils/index.js";
+} from "@constl/utils-ipa";
 import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 import ContrôleurConstellation, {
   OptionsContrôleurConstellation,

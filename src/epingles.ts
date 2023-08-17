@@ -2,10 +2,10 @@ import type { default as ClientConstellation } from "@/client.js";
 import {
   schémaFonctionOublier,
   élémentsBd,
-  adresseOrbiteValide,
-  cidValide,
   schémaFonctionSuivi,
-} from "@/utils/index.js";
+} from "@/types.js";
+import { adresseOrbiteValide, cidValide } from "@constl/utils-ipa";
+
 import { EventEmitter } from "events";
 
 interface RequèteÉpingle {

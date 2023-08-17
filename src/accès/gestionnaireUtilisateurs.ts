@@ -3,10 +3,7 @@ import type FeedStore from "orbit-db-feedstore";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 
-import type {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-} from "@/utils/index.js";
+import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, objRôles } from "@/accès/types.js";

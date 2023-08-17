@@ -5,7 +5,7 @@ import type {
   schémaFonctionSuiviRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
-} from "@/utils/index.js";
+} from "@/types.js";
 
 import { rechercherBdsSelonTexte } from "@/recherche/bd.js";
 import {

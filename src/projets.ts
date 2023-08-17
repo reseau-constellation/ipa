@@ -11,16 +11,14 @@ import type { objRôles } from "@/accès/types.js";
 import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import {
-  traduire,
-  zipper,
   TYPES_STATUT,
   schémaStatut,
   schémaFonctionSuivi,
   schémaFonctionOublier,
-  uneFois,
   schémaStructureBdNoms,
   structureBdNoms,
-} from "@/utils/index.js";
+} from "@/types.js";
+import { traduire, zipper, uneFois } from "@constl/utils-ipa";
 import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import { schémaCopiéDe } from "./bds.js";

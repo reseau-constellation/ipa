@@ -2,7 +2,7 @@ import { isElectronMain, isNode } from "wherearewe";
 
 import type { ClientConstellation } from "./ressources/utils.js";
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
-import type { schémaFonctionOublier } from "@/utils/index.js";
+import type { schémaFonctionOublier } from "@/types.js";
 
 import {
   client as utilsClientTest,

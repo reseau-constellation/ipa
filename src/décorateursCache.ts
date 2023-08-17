@@ -9,7 +9,7 @@ import type {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParN,
   schémaRetourFonctionRechercheParProfondeur,
-} from "@/utils/index.js";
+} from "@/types.js";
 
 export class CacheSuivi {
   verrou: Semaphore;

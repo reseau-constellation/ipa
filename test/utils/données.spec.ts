@@ -1,11 +1,10 @@
 import fs from "fs";
 import path from "path";
 
-import { traduire, zipper } from "@/utils/index.js";
+import { traduire, zipper } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 
 import {
-  client as utilsClientTest,
   attente as utilsTestAttente,
   dossiers as utilsTestDossiers,
 } from "@constl/utils-tests";

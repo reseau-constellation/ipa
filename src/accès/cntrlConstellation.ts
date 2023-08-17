@@ -5,10 +5,7 @@ import type FeedStore from "orbit-db-feedstore";
 import type { IdentityProvider } from "orbit-db-identity-provider";
 import { v4 as uuidv4 } from "uuid";
 
-import type {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-} from "@/utils/index.js";
+import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import GestionnaireAccès, {
   suivreBdAccès,
 } from "@/accès/gestionnaireUtilisateurs.js";
