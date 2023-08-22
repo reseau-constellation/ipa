@@ -620,7 +620,7 @@ export default class Variables extends ComposanteClientListe<string> {
   }
 
   @cacheSuivi
-  async suivreDescrVariable({
+  async suivreDescriptionsVariable({
     idVariable,
     f,
   }: {
@@ -771,7 +771,7 @@ export default class Variables extends ComposanteClientListe<string> {
       },
     });
 
-    const oublierDescr = await this.suivreDescrVariable({
+    const oublierDescr = await this.suivreDescriptionsVariable({
       idVariable,
       f: async (descr) => {
         rés.descr = descr;

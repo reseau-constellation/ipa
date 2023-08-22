@@ -185,7 +185,7 @@ typesClients.forEach((type) => {
           idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          fOublier = await client.variables!.suivreDescrVariable({
+          fOublier = await client.variables!.suivreDescriptionsVariable({
             idVariable,
             f: (d) => (descrs = d),
           });
@@ -448,7 +448,7 @@ typesClients.forEach((type) => {
             })
           );
           fsOublier.push(
-            await client.variables!.suivreDescrVariable({
+            await client.variables!.suivreDescriptionsVariable({
               idVariable: idVariable2,
               f: (x) => (descrs = x),
             })
