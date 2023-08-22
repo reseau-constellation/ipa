@@ -92,7 +92,7 @@
     "@constl/electron-webrtc-relay": "^0.2.1",
     "@constl/mandataire": "^0.1.13",
     "@constl/utils-ipa": "^0.1.1",
-    "@lassi-js/kili": "^0.1.2",
+    "@lassi-js/kili": "^0.2.2",
     "@libp2p/interface-transport": "^4.0.3",
     "@libp2p/mplex": "^8.0.4",
     "@libp2p/tcp": "^7.0.3",
