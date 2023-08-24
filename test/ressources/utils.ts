@@ -16,6 +16,8 @@ export const générerClientsInternes = async ({n}: {n: number}): Promise<{
   fOublier: () => Promise<void>;
 }> => {
   const fsOublier: (() => Promise<void>)[] = [];
+  // Nécessaire pour Playwright
+  if (isBrowser) window.localStorage.clear();
 
   const { orbites, fOublier: fOublierOrbites } = await utilsClientTest.générerOrbites(n);
   fsOublier.push(fOublierOrbites);
