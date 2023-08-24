@@ -1,8 +1,7 @@
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
-import { client as utilsClientTest } from "@constl/utils-tests";
-const { typesClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
+import { typesClients } from "./ressources/utils.js";
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {

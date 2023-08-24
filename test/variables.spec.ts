@@ -12,7 +12,10 @@ import {
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typesClients } from "./ressources/utils.js";
+import { générerClient } from "@/index.js";
+
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -23,7 +26,7 @@ typesClients.forEach((type) => {
 
       before("Préparer clients", async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
-          await générerClients(1, type));
+          await générerClients({n: 1, type, générerClient }));
         client = clients[0];
       });
 

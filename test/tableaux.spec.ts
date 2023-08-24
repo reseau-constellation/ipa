@@ -1,6 +1,6 @@
 import type XLSX from "xlsx";
 
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier, élémentsBd } from "@/types.js";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 
@@ -28,7 +28,9 @@ import {
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typesClients } from "./ressources/utils.js";
+
 
 import { expect } from "aegir/chai";
 
@@ -44,10 +46,11 @@ typesClients.forEach((type) => {
       let colonnes: InfoColAvecCatégorie[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
-          1,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient
+        }));
         client = clients[0];
         idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
       });

@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -20,10 +20,9 @@ import {
 } from "@/recherche/projet.js";
 
 import {
-  client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { générerClients } = utilsClientTest;
+import {générerClientsInternes} from "../ressources/utils.js";
 
 import { expect } from "aegir/chai";
 
@@ -34,7 +33,7 @@ describe("Rechercher projets", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClients(1));
+      await générerClientsInternes({ n: 1 }));
     client = clients[0];
   });
 

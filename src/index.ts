@@ -56,6 +56,13 @@ function générerClient({
 }: {
   opts: optsConstellation | optsIpaTravailleur;
   mandataire?: "proc" | "travailleur";
+}): ClientConstellation;
+function générerClient({
+  opts,
+  mandataire = "proc",
+}: {
+  opts: optsConstellation | optsIpaTravailleur;
+  mandataire?: "proc" | "travailleur";
 }): ClientConstellation {
   switch (mandataire) {
     case "proc":

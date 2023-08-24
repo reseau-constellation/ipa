@@ -8,7 +8,7 @@ import {
 } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
 
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import type { ÉlémentFavorisAvecObjet } from "@/favoris.js";
 import type {
   élémentDeMembre,
@@ -28,7 +28,9 @@ import {
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typeClient, typesClients } from "./ressources/utils.js";
+
 
 import { obtRessourceTest } from "./ressources/index.js";
 
@@ -36,8 +38,8 @@ import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
-async function toutPréparer(n: number, type: utilsClientTest.typeClient) {
-  const { fOublier: fOublierClients, clients } = await générerClients(n, type);
+async function toutPréparer(n: number, type: typeClient) {
+  const { fOublier: fOublierClients, clients } = await générerClients({n, type, générerClient});
   const idsNodesSFIP = await Promise.all(
     clients.map(async (c) => (await c.obtIdSFIP()).id.toCID().toString())
   );

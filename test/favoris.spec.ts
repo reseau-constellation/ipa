@@ -2,13 +2,15 @@ import { isElectronMain, isNode } from "wherearewe";
 
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/types.js";
-import type { ClientConstellation } from "@/index.js"
+import { générerClient, type ClientConstellation } from "@/index.js"
 
 import {
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typesClients } from "./ressources/utils.js";
+
 
 import { expect } from "aegir/chai";
 
@@ -20,10 +22,11 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
-          1,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient
+        }));
         client = clients[0];
       });
 

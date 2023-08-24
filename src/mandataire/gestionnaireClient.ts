@@ -32,11 +32,14 @@ export default class GestionnaireClient {
   constructor(
     fMessage: (m: MessageDeTravailleur) => void,
     fErreur: (e: string, idRequète?: string) => void,
-    opts: optsConstellation = {}
+    opts: optsConstellation | ClientConstellation = {}
   ) {
     this.fMessage = fMessage;
     this.fErreur = fErreur;
-    this.opts = opts;
+    
+    this.opts = opts instanceof(ClientConstellation) ? {} : opts;
+    if (opts instanceof(ClientConstellation)) this.ipa = opts;
+
     this.dicFRetourSuivi = {};
 
     this.prêt = false;

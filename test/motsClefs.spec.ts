@@ -1,13 +1,15 @@
 import { expect } from "aegir/chai";
 
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 import {
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typesClients } from "./ressources/utils.js";
+
 
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
@@ -17,10 +19,11 @@ typesClients.forEach((type) => {
       let client: ClientConstellation;
 
       before("Préparer clients", async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
-          1,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient
+        }));
         client = clients[0];
       });
 

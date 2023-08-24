@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier, schémaStatut, TYPES_STATUT } from "@/types.js";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 
@@ -10,7 +10,9 @@ import {
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typesClients } from "./ressources/utils.js";
+
 
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
@@ -51,10 +53,11 @@ typesClients.forEach((type) => {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
-          1,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient
+        }));
         client = clients[0];
       });
 
@@ -516,10 +519,11 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          ({ fOublier: fOublierClients, clients } = await générerClients(
-            2,
-            type
-          ));
+          ({ fOublier: fOublierClients, clients } = await générerClients({
+            n: 2,
+            type,
+            générerClient
+          }));
           client = clients[0];
         });
 
@@ -740,10 +744,11 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          ({ fOublier: fOublierClients, clients } = await générerClients(
-            2,
-            type
-          ));
+          ({ fOublier: fOublierClients, clients } = await générerClients({
+            n: 2,
+            type,
+            générerClient
+          }));
           client = clients[0];
         });
 

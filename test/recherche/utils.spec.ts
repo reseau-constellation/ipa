@@ -18,12 +18,11 @@ import {
   rechercherTous,
 } from "@/recherche/utils.js";
 
-import { client as utilsClientTest } from "@constl/utils-tests";
-const { générerClients } = utilsClientTest;
 
 import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";
+import {générerClientsInternes} from "../ressources/utils.js"
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;
@@ -32,7 +31,7 @@ describe("Utils recherche", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClients(1));
+      await générerClientsInternes({ n: 1 }));
     client = clients[0];
   });
 

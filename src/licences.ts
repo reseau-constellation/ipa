@@ -19,6 +19,7 @@ import {
   type பிணையம்_பரிந்துரை,
 } from "@lassi-js/kili";
 import EventEmitter from "events";
+import { mandatairifier } from "./mandataire/index.js";
 
 // https://github.com/github/choosealicense.com
 enum conditions {
@@ -442,7 +443,8 @@ export default class Licences {
       ID_NUÉE_LICENCES
     ) {
       this.perroquet = new கிளி({
-        விண்மீன்: this.client,
+        // À faire: arranger types
+        விண்மீன்: mandatairifier(this.client) as unknown as ConstructorParameters<typeof கிளி<InfoLicenceAvecCode>>[0]["விண்மீன்"],
         அட்டவணை_சாபி: CLEF_TABLEAU_LICENCES_APPROUVÉES,
         குழு_அடையாளம்: ID_NUÉE_LICENCES,
         வார்ப்புரு: SCHÉMA_BD_LICENCES,

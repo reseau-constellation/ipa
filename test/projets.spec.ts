@@ -2,7 +2,7 @@ import type XLSX from "xlsx";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier } from "@/types.js";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 
@@ -11,7 +11,9 @@ import {
   attente as utilsTestAttente,
   dossiers as utilsTestDossiers,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typesClients } from "./ressources/utils.js";
+
 
 const { dossierTempoTests, obtDirTempoPourTest } = utilsTestDossiers;
 
@@ -29,10 +31,11 @@ typesClients.forEach((type) => {
       let idProjet: string;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
-          1,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient
+        }));
         client = clients[0];
       });
 

@@ -15,7 +15,7 @@ import GestionnaireClient from "@/mandataire/gestionnaireClient.js";
 export class MandataireClientProc extends ClientMandatairifiable {
   client: GestionnaireClient;
 
-  constructor(opts: optsConstellation = {}) {
+  constructor(opts: optsConstellation | ClientConstellation = {}) {
     super();
 
     this.client = new GestionnaireClient(

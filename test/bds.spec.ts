@@ -10,11 +10,13 @@ import {
   attente as utilsTestAttente,
   dossiers as utilsTestDossiers,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typesClients } from "./ressources/utils.js";
+
 
 const { dossierTempoTests } = utilsTestDossiers;
 
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { adresseOrbiteValide, uneFois } from "@constl/utils-ipa";
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
@@ -44,10 +46,11 @@ typesClients.forEach((type) => {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients<ClientConstellation>(
-          1,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient
+        }));
         client = clients[0];
       });
 

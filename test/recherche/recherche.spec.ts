@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import type { statutMembre } from "@/reseau.js";
 import type {
   schémaFonctionOublier,
@@ -14,9 +14,10 @@ import {
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { générerClients, typesClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
 
 import { expect } from "aegir/chai";
+import { typesClients } from "../ressources/utils.js";
 import { isElectronMain, isNode } from "wherearewe";
 
 const vérifierRecherche = (
@@ -78,7 +79,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients(3, type));
+              await générerClients({n: 3, type, générerClient }));
             idsComptes = await Promise.all(
               clients.map(async (c) => await c.obtIdCompte())
             );
@@ -318,7 +319,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients(2, type));
+              await générerClients({n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -453,7 +454,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients(2, type));
+              await générerClients({n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -651,7 +652,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients(2, type));
+              await générerClients({n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -968,7 +969,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients(2, type));
+              await générerClients({n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -1286,7 +1287,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients(2, type));
+              await générerClients({n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -1680,7 +1681,7 @@ typesClients.forEach((type) => {
 
       before(async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
-          await générerClients(5, type));
+          await générerClients({n: 5, type, générerClient }));
         client = clients[0];
         for (const [i, c] of clients.entries()) {
           idsComptes.push(await c.obtIdCompte());

@@ -10,7 +10,9 @@ import {
   attente as utilsTestAttente,
   dossiers as utilsTestDossiers,
 } from "@constl/utils-tests";
-const { typesClients, générerClients } = utilsClientTest;
+const { générerClients } = utilsClientTest;
+import { typesClients } from "./ressources/utils.js";
+
 
 const { dossierTempoTests, obtDirTempoPourTest } = utilsTestDossiers;
 
@@ -31,7 +33,7 @@ import type {
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
-import type { ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 
 import { expect } from "aegir/chai";
 
@@ -137,10 +139,11 @@ typesClients.forEach((type) => {
       let baseDossierTempo: string;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients(
-          1,
-          type
-        ));
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient
+        }));
         client = clients[0];
         ({ dossier: baseDossierTempo, fEffacer: fEffacerDossier } =
           await dossierTempoTests());

@@ -3,17 +3,14 @@ import toBuffer from "it-to-buffer";
 
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import { adresseOrbiteValide, faisRien } from "@constl/utils-ipa";
+import { adresseOrbiteValide, faisRien, suivreBdDeFonction } from "@constl/utils-ipa";
 
 import type KeyValueStore from "orbit-db-kvstore";
 
-import { suivreBdDeFonction } from "@constl/utils-ipa";
 import {
-  client as utilsClientTest,
   attente as utilsTestAttente,
   peutÉcrire,
 } from "@constl/utils-tests";
-const { générerClients } = utilsClientTest;
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
@@ -23,6 +20,7 @@ import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
 import FeedStore from "orbit-db-feedstore";
+import { générerClientsInternes } from "./ressources/utils.js";
 
 describe("adresseOrbiteValide", function () {
   it("adresse orbite est valide", () => {
@@ -61,7 +59,7 @@ if (isNode || isElectronMain) {
     const mesDispositifs = new utilsTestAttente.AttendreRésultat<string[]>();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClients(3));
+      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({n: 3}));
       [client, client2, client3] = clients;
 
       idCompte1 = await client.obtIdCompte();
@@ -195,7 +193,7 @@ if (isNode || isElectronMain) {
     let idCompte2: string;
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClients(2));
+      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({n: 2 }));
       [client, client2] = clients;
 
       idCompte2 = await client2.obtIdCompte();

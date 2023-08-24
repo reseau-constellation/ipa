@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/index.js";
+import { type ClientConstellation } from "@/index.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -16,12 +16,11 @@ import {
   rechercherBdsSelonNomMotClef,
   rechercherBdsSelonNomVariable,
 } from "@/recherche/bd.js";
-
 import {
-  client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
-const { générerClients } = utilsClientTest;
+
+import {générerClientsInternes} from "../ressources/utils.js"
 
 import { expect } from "aegir/chai";
 
@@ -32,7 +31,7 @@ describe("Rechercher bds", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClients(1));
+      await générerClientsInternes({ n: 1 }));
     client = clients[0];
   });
 
