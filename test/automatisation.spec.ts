@@ -31,7 +31,7 @@ import type {
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
-import type { ClientConstellation } from "./ressources/utils.js";
+import type { ClientConstellation } from "@/index.js";
 
 import { expect } from "aegir/chai";
 
@@ -177,8 +177,8 @@ typesClients.forEach((type) => {
             nom: "testImporterBd",
           });
 
-          const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          idTableau = await client.bds!.ajouterTableauBd({ idBd });
+          const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+          idTableau = await client.bds.ajouterTableauBd({ idBd });
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
@@ -548,13 +548,13 @@ typesClients.forEach((type) => {
             nom: "testExporterBd",
           });
 
-          idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          await client.bds!.sauvegarderNomsBd({
+          idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+          await client.bds.sauvegarderNomsBd({
             idBd,
             noms: { fr: "Ma bd", es: "Mi bd" },
           });
 
-          idTableau = await client.bds!.ajouterTableauBd({ idBd });
+          idTableau = await client.bds.ajouterTableauBd({ idBd });
           await client.tableaux!.sauvegarderNomsTableau({
             idTableau,
             noms: {
@@ -814,7 +814,7 @@ typesClients.forEach((type) => {
             licence: "ODbl-1_0",
           });
 
-          idBd = await client.bds!.créerBdDeSchéma({ schéma });
+          idBd = await client.bds.créerBdDeSchéma({ schéma });
         });
 
         after(async () => {
@@ -844,7 +844,7 @@ typesClients.forEach((type) => {
           fsOublier.push(() => attenteModifié.annuler());
 
           const avant = Date.now();
-          await client.bds!.ajouterÉlémentÀTableauParClef({
+          await client.bds.ajouterÉlémentÀTableauParClef({
             idBd,
             clefTableau,
             vals: { [idColonneNumérique]: 123 },
@@ -894,13 +894,13 @@ typesClients.forEach((type) => {
             })
           );
 
-          idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          await client.bds!.sauvegarderNomsBd({
+          idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+          await client.bds.sauvegarderNomsBd({
             idBd,
             noms: { fr: "Ma bd", es: "Mi bd" },
           });
 
-          idTableau = await client.bds!.ajouterTableauBd({ idBd });
+          idTableau = await client.bds.ajouterTableauBd({ idBd });
           await client.tableaux!.sauvegarderNomsTableau({
             idTableau,
             noms: {
@@ -1096,7 +1096,7 @@ typesClients.forEach((type) => {
             nom: "testExporterBd",
           });
 
-          const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+          const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.tableaux!.créerTableau({ idBd });
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",

@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "./ressources/utils.js";
+import type { ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier, schémaStatut, TYPES_STATUT } from "@/types.js";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 
@@ -590,7 +590,7 @@ typesClients.forEach((type) => {
               idNuée,
               licence: "ODbl-1_0",
             });
-            empreinte = await clients[1].bds!.ajouterÉlémentÀTableauUnique({
+            empreinte = await clients[1].bds.ajouterÉlémentÀTableauUnique({
               schémaBd: schémaNuée,
               idNuéeUnique: idNuée,
               clefTableau: "principal",
@@ -679,7 +679,7 @@ typesClients.forEach((type) => {
               });
             fsOublier.push(fOublierChezLesAutres);
 
-            empreinte = await clients[1].bds!.ajouterÉlémentÀTableauUnique({
+            empreinte = await clients[1].bds.ajouterÉlémentÀTableauUnique({
               schémaBd,
               idNuéeUnique: idNuée,
               clefTableau: "principal",
@@ -805,7 +805,7 @@ typesClients.forEach((type) => {
           });
 
           it("Bds de membres autorisés", async () => {
-            idBdMembreAutorisé = await client.bds!.créerBdDeSchéma({
+            idBdMembreAutorisé = await client.bds.créerBdDeSchéma({
               schéma: schémaNuée,
             });
             const val = await résultat.attendreQue((x) => x.length > 0);
@@ -813,7 +813,7 @@ typesClients.forEach((type) => {
           });
 
           it("Bd non autorisée - incluse dans les miennes", async () => {
-            idBdMembreNonAutorisé = await clients[1].bds!.créerBdDeSchéma({
+            idBdMembreNonAutorisé = await clients[1].bds.créerBdDeSchéma({
               schéma: schémaNuée,
             });
             const val = await résultat.attendreQue((x) => x.length > 1);
@@ -866,7 +866,7 @@ typesClients.forEach((type) => {
           });
 
           it("Bds de membres autorisés", async () => {
-            idBd = await clients[1].bds!.créerBdDeSchéma({
+            idBd = await clients[1].bds.créerBdDeSchéma({
               schéma: schémaNuée,
             });
             const val = await résultat.attendreQue((x) => x.length > 0);
@@ -927,14 +927,14 @@ typesClients.forEach((type) => {
     réfNoms,
     { த: "பொழிவு" }
   );
-  await client.bds!.sauvegarderNomBd({
+  await client.bds.sauvegarderNomBd({
     id: idBdCopieLiée,
     langue: "த",
     nom: "பொழிவு",
   });
 
   expect(nomsLiés).to.deep.equal(réfNomsLiés);
-  await client.bds!.sauvegarderNomBd({
+  await client.bds.sauvegarderNomBd({
     id: idBdOrig,
     langue: "fr",
     nom: "précipitation",
@@ -950,14 +950,14 @@ it("Les descriptions sont liées", async () => {
     réfNoms,
     { த: "தினசரி பொழிவு" }
   );
-  await client.bds!.sauvegarderDescrBd({
+  await client.bds.sauvegarderDescrBd({
     id: idBdCopieLiée,
     langue: "த",
     descr: "தினசரி பொழிவு",
   });
 
   expect(descrsLiées).to.deep.equal(réfDescrsLiées);
-  await client.bds!.sauvegarderDescrBd({
+  await client.bds.sauvegarderDescrBd({
     id: idBdOrig,
     langue: "fr",
     descr: "Précipitation journalière",

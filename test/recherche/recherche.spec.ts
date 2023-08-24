@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/index.js";
 import type { statutMembre } from "@/reseau.js";
 import type {
   schémaFonctionOublier,
@@ -665,7 +665,7 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              idBd = await clients[1].bds!.créerBd({ licence: "ODbl-1_0" });
+              idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
 
               ({ fOublier } = await clients[0].recherche!.rechercherBdsSelonId({
                 idBd,
@@ -735,7 +735,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].bds!.sauvegarderNomsBd({
+              await clients[1].bds.sauvegarderNomsBd({
                 idBd,
                 noms: { fr: "météorologie" },
               });
@@ -780,7 +780,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].bds!.sauvegarderDescriptionsBd({
+              await clients[1].bds.sauvegarderDescriptionsBd({
                 idBd,
                 descriptions: {
                   fr: "Météorologie de la région de Montpellier.",
@@ -815,7 +815,7 @@ typesClients.forEach((type) => {
               const idVariable = await clients[1].variables!.créerVariable({
                 catégorie: "numérique",
               });
-              const idTableau = await clients[1].bds!.ajouterTableauBd({
+              const idTableau = await clients[1].bds.ajouterTableauBd({
                 idBd,
               });
               await clients[1].tableaux!.ajouterColonneTableau({
@@ -879,7 +879,7 @@ typesClients.forEach((type) => {
 
             it("Nouveau mot-clef détecté", async () => {
               const idMotClef = await clients[1].motsClefs!.créerMotClef();
-              await clients[1].bds!.ajouterMotsClefsBd({
+              await clients[1].bds.ajouterMotsClefsBd({
                 idBd,
                 idsMotsClefs: idMotClef,
               });
@@ -948,7 +948,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].bds!.sauvegarderNomsBd({
+              await clients[1].bds.sauvegarderNomsBd({
                 idBd,
                 noms: {
                   fr: "Météorologie de la région de Montpellier.",
@@ -1438,7 +1438,7 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              idBd = await clients[1].bds!.créerBd({ licence: "ODbl-1_0" });
+              idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
               await clients[1].projets!.ajouterBdProjet({ idProjet, idBd });
 
               ({ fOublier } =
@@ -1458,7 +1458,7 @@ typesClients.forEach((type) => {
               const idVariable = await clients[1].variables!.créerVariable({
                 catégorie: "numérique",
               });
-              const idTableau = await clients[1].bds!.ajouterTableauBd({
+              const idTableau = await clients[1].bds.ajouterTableauBd({
                 idBd,
               });
               await clients[1].tableaux!.ajouterColonneTableau({
@@ -1507,7 +1507,7 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              idBd = await clients[1].bds!.créerBd({ licence: "ODbl-1_0" });
+              idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
               await clients[1].projets!.ajouterBdProjet({ idProjet, idBd });
 
               ({ fOublier } =
@@ -1525,7 +1525,7 @@ typesClients.forEach((type) => {
 
             it("Nouveau mot-clef sur la bd détecté", async () => {
               const idMotClef = await clients[1].motsClefs!.créerMotClef();
-              await clients[1].bds!.ajouterMotsClefsBd({
+              await clients[1].bds.ajouterMotsClefsBd({
                 idBd,
                 idsMotsClefs: idMotClef,
               });
@@ -1613,7 +1613,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].bds!.sauvegarderNomsBd({
+              await clients[1].bds.sauvegarderNomsBd({
                 idBd,
                 noms: { es: "Mi base de datos meteorológicos" },
               });

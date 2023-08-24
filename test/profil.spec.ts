@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "./ressources/utils.js";
+import type { ClientConstellation } from "@/index.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/types.js";
 

@@ -40,7 +40,7 @@ Et c'est tout ! Vous pouvez maintenant utiliser Constellation dans l'ensemble d
 <script setup lang="ts">
 // composantes/MonCompte.vue
 import { ref, inject, onMounted, onUnmounted } from 'vue';
-import type ClientConstellation from "@constl/ipa";
+import type { ClientConstellation } from "@constl/ipa";
 
 const constellation = inject<ClientConstellation>('constl');
 const idCompte = ref<string>();

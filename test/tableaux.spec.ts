@@ -1,6 +1,6 @@
 import type XLSX from "xlsx";
 
-import type { ClientConstellation } from "./ressources/utils.js";
+import type { ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier, élémentsBd } from "@/types.js";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 
@@ -49,7 +49,7 @@ typesClients.forEach((type) => {
           type
         ));
         client = clients[0];
-        idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+        idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
       });
 
       after(async () => {

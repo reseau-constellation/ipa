@@ -1,5 +1,5 @@
 import { MODÉRATEUR, MEMBRE } from "@/accès/consts.js";
-import type { ClientConstellation } from "./ressources/utils.js";
+
 import {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
@@ -7,6 +7,8 @@ import {
   infoAuteur,
 } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
+
+import type { ClientConstellation } from "@/index.js";
 import type { ÉlémentFavorisAvecObjet } from "@/favoris.js";
 import type {
   élémentDeMembre,
@@ -640,8 +642,8 @@ typesClients.forEach((type) => {
             });
 
             it("Ajout coauteur BD détecté", async () => {
-              idBd = await clients[0].bds!.créerBd({ licence: "ODbl-1_0" });
-              await clients[0].bds!.inviterAuteur({
+              idBd = await clients[0].bds.créerBd({ licence: "ODbl-1_0" });
+              await clients[0].bds.inviterAuteur({
                 idBd,
                 idCompteAuteur: idsBdCompte[1],
                 rôle: MEMBRE,
@@ -662,7 +664,7 @@ typesClients.forEach((type) => {
             });
 
             it("Enlever bd détecté", async () => {
-              await clients[0].bds!.effacerBd({ idBd });
+              await clients[0].bds.effacerBd({ idBd });
               const valPropres = await relationsPropres.attendreExiste();
               expect(valPropres.length).to.equal(0);
 
@@ -1411,7 +1413,7 @@ typesClients.forEach((type) => {
               })
             );
 
-            idBd = await clients[0].bds!.créerBd({ licence: "ODbl-1_0" });
+            idBd = await clients[0].bds.créerBd({ licence: "ODbl-1_0" });
             fsOublier.push(
               await clients[0].réseau!.suivreAuteursBd({
                 idBd,
@@ -1620,7 +1622,7 @@ typesClients.forEach((type) => {
                 rôle: MEMBRE,
               },
             ];
-            await clients[0].bds!.inviterAuteur({
+            await clients[0].bds.inviterAuteur({
               idBd,
               idCompteAuteur: idsBdCompte[1],
               rôle: MEMBRE,
@@ -1643,7 +1645,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await clients[1].bds!.ajouterÀMesBds({ idBd });
+            await clients[1].bds.ajouterÀMesBds({ idBd });
             const val = await résBds.attendreQue((x) =>
               Boolean(
                 !!x && x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
@@ -1666,7 +1668,7 @@ typesClients.forEach((type) => {
               },
             ];
 
-            await clients[1].bds!.enleverDeMesBds({ idBd });
+            await clients[1].bds.enleverDeMesBds({ idBd });
             const val = await résBds.attendreQue(
               (x) =>
                 !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté
@@ -1675,7 +1677,7 @@ typesClients.forEach((type) => {
             expect(val).to.have.deep.members(réf);
           });
           it("Bds : Promotion à modérateur", async () => {
-            await clients[0].bds!.inviterAuteur({
+            await clients[0].bds.inviterAuteur({
               idBd,
               idCompteAuteur: idsBdCompte[1],
               rôle: MODÉRATEUR,
@@ -2007,14 +2009,14 @@ typesClients.forEach((type) => {
           });
 
           it("Mes BDs détectées", async () => {
-            const idBd = await clients[1].bds!.créerBd({ licence: "ODbl-1_0" });
+            const idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
 
             const val = await résPropres.attendreQue((x) => !!x && !!x.length);
             expect(val).to.contain(idBd);
           });
 
           it("BD d'un autre membre détectée", async () => {
-            const idBd = await clients[0].bds!.créerBd({ licence: "ODbl-1_0" });
+            const idBd = await clients[0].bds.créerBd({ licence: "ODbl-1_0" });
             const val = await résAutres.attendreQue((x) => !!x && !!x.length);
             expect(val).to.contain(idBd);
           });
@@ -2250,7 +2252,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ idsBdCompte, idsOrbite, clients, fOublierClients } =
               await toutPréparer(2, type));
-            idBd = await clients[0].bds!.créerBd({ licence: "ODbl-1_0" });
+            idBd = await clients[0].bds.créerBd({ licence: "ODbl-1_0" });
             fsOublier.push(
               (
                 await clients[0].réseau!.suivreRéplications({
@@ -2377,14 +2379,14 @@ typesClients.forEach((type) => {
               ],
             };
 
-            idBd1 = await clients[0].bds!.créerBdDeSchéma({ schéma });
-            idBd2 = await clients[1].bds!.créerBdDeSchéma({ schéma });
+            idBd1 = await clients[0].bds.créerBdDeSchéma({ schéma });
+            idBd2 = await clients[1].bds.créerBdDeSchéma({ schéma });
 
-            await clients[0].bds!.rejoindreNuées({
+            await clients[0].bds.rejoindreNuées({
               idsNuées: idNuée,
               idBd: idBd1,
             });
-            await clients[1].bds!.rejoindreNuées({
+            await clients[1].bds.rejoindreNuées({
               idsNuées: idNuée,
               idBd: idBd2,
             });
@@ -2394,7 +2396,7 @@ typesClients.forEach((type) => {
                 async (
                   fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
                 ): Promise<schémaFonctionOublier> => {
-                  return await clients[0].bds!.suivreTableauxBd({
+                  return await clients[0].bds.suivreTableauxBd({
                     idBd: idBd1,
                     f: fSuivi,
                   });
@@ -2407,7 +2409,7 @@ typesClients.forEach((type) => {
                 async (
                   fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
                 ): Promise<schémaFonctionOublier> => {
-                  return await clients[1].bds!.suivreTableauxBd({
+                  return await clients[1].bds.suivreTableauxBd({
                     idBd: idBd2,
                     f: fSuivi,
                   });

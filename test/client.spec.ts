@@ -4,7 +4,6 @@ import toBuffer from "it-to-buffer";
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { adresseOrbiteValide, faisRien } from "@constl/utils-ipa";
-import type { ClientConstellation as typeClientConstellation } from "./ressources/utils.js";
 
 import type KeyValueStore from "orbit-db-kvstore";
 
@@ -43,10 +42,10 @@ describe("adresseOrbiteValide", function () {
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: typeClientConstellation[];
-    let client: typeClientConstellation,
-      client2: typeClientConstellation,
-      client3: typeClientConstellation;
+    let clients: ClientConstellation[];
+    let client: ClientConstellation,
+      client2: ClientConstellation,
+      client3: ClientConstellation;
 
     let fOublierDispositifs: schémaFonctionOublier;
     let fOublieridCompte: schémaFonctionOublier;
@@ -190,8 +189,8 @@ if (isNode || isElectronMain) {
 
   describe("Fonctionalités client", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: typeClientConstellation[];
-    let client: typeClientConstellation, client2: typeClientConstellation;
+    let clients: ClientConstellation[];
+    let client: ClientConstellation, client2: ClientConstellation;
 
     let idCompte2: string;
 

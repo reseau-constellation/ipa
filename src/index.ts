@@ -25,34 +25,38 @@ import type { optsConstellation } from "@/client.js";
 import type { optsIpaTravailleur } from "@/mandataire/ipaTravailleur.js";
 import type { MandataireClientConstellation } from "@constl/mandataire";
 
+import type { ClientConstellation as _ClientConstellation } from "@/client.js";
+export type ClientConstellation = MandataireClientConstellation<_ClientConstellation>;
+
+
 function générerClient({
   opts,
   mandataire,
 }: {
   opts: optsConstellation;
   mandataire: "proc";
-}): MandataireClientConstellation;
+}): ClientConstellation;
 function générerClient({
   opts,
   mandataire,
 }: {
   opts: optsIpaTravailleur;
   mandataire: "travailleur";
-}): MandataireClientConstellation;
+}): ClientConstellation;
 function générerClient({
   opts,
   mandataire,
 }: {
   opts: optsConstellation;
   mandataire?: "proc";
-}): MandataireClientConstellation;
+}): ClientConstellation;
 function générerClient({
   opts,
   mandataire = "proc",
 }: {
   opts: optsConstellation | optsIpaTravailleur;
   mandataire?: "proc" | "travailleur";
-}): MandataireClientConstellation {
+}): ClientConstellation {
   switch (mandataire) {
     case "proc":
       return ipa.générerMandataireProc(opts);
@@ -66,4 +70,4 @@ function générerClient({
 }
 
 export { générerClient };
-export default générerClient;
+

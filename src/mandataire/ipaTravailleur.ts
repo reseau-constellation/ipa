@@ -1,4 +1,4 @@
-import type { optsConstellation } from "@/client.js";
+import type { ClientConstellation, optsConstellation } from "@/client.js";
 
 import {
   générerMandataire,
@@ -46,6 +46,6 @@ export interface optsIpaTravailleur extends optsConstellation {
 
 export default (
   opts: optsIpaTravailleur = {}
-): MandataireClientConstellation => {
+): MandataireClientConstellation<ClientConstellation> => {
   return générerMandataire(new MandataireClientTravailleur(opts));
 };

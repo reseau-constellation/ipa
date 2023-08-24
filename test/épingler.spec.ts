@@ -1,7 +1,7 @@
 import pkg from "lodash";
 const { isSet } = pkg;
 
-import type { ClientConstellation } from "./ressources/utils.js";
+import type { ClientConstellation } from "@/index.js";
 
 import {
   client as utilsClientTest,

@@ -149,7 +149,7 @@ export default class GestionnaireClient {
       default: {
         this.fErreur(
           `Type de requète ${type} non reconnu dans message ${message}`,
-          message.id
+          (message as MessagePourTravailleur).id
         );
         break;
       }

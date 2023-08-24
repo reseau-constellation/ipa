@@ -1,8 +1,8 @@
 import { isElectronMain, isNode } from "wherearewe";
 
-import type { ClientConstellation } from "./ressources/utils.js";
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/types.js";
+import type { ClientConstellation } from "@/index.js"
 
 import {
   client as utilsClientTest,
@@ -89,7 +89,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+          idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
           fsOublier.push(
             await client.favoris!.suivreFavoris({
@@ -155,7 +155,7 @@ typesClients.forEach((type) => {
         it("Ajouter un favori avec fichiers", async () => {
           const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ";
 
-          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+          const idTableau = await client.bds.ajouterTableauBd({ idBd });
           const idVarPhoto = await client.variables!.créerVariable({
             catégorie: "image",
           });

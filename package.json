@@ -1,5 +1,5 @@
 {
-  "version": "0.8.1",
+  "version": "0.8.2",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@constl/orbit-db-types": "^1.1.0",
-    "@constl/utils-tests": "^0.1.1",
+    "@constl/utils-tests": "^0.1.2",
     "@libp2p/interface-connection-manager": "^3.0.1",
     "@libp2p/interface-pubsub": "^4.0.1",
     "@types/crypto-js": "^4.1.1",
@@ -90,7 +90,7 @@
     "@chainsafe/libp2p-noise": "^11.0.4",
     "@chriscdn/promise-semaphore": "^2.0.1",
     "@constl/electron-webrtc-relay": "^0.2.1",
-    "@constl/mandataire": "^0.1.13",
+    "@constl/mandataire": "^0.1.14",
     "@constl/utils-ipa": "^0.1.1",
     "@lassi-js/kili": "^0.2.2",
     "@libp2p/interface-transport": "^4.0.3",

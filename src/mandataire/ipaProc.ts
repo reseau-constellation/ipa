@@ -1,4 +1,4 @@
-import type { optsConstellation } from "@/client.js";
+import type { ClientConstellation, optsConstellation } from "@/client.js";
 
 import {
   générerMandataire,
@@ -41,7 +41,7 @@ export class MandataireClientProc extends ClientMandatairifiable {
 
 export const générerMandataireProc = (
   opts: optsConstellation = {}
-): MandataireClientConstellation => {
+): MandataireClientConstellation<ClientConstellation> => {
   return générerMandataire(new MandataireClientProc(opts));
 };
 

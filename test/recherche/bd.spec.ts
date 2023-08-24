@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/index.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -48,7 +48,7 @@ describe("Rechercher bds", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
       const fRecherche = rechercherBdsSelonNom("Météo");
       fOublier = await fRecherche(client, idBd, (r) => résultat.mettreÀJour(r));
@@ -63,7 +63,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.bds!.sauvegarderNomsBd({
+      await client.bds.sauvegarderNomsBd({
         idBd,
         noms: {
           fr: "Météorologie",
@@ -94,7 +94,7 @@ describe("Rechercher bds", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
       const fRecherche = rechercherBdsSelonDescr("Météo");
       fOublier = await fRecherche(client, idBd, (r) => résultat.mettreÀJour(r));
@@ -109,7 +109,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout description détecté", async () => {
-      await client.bds!.sauvegarderDescriptionsBd({
+      await client.bds.sauvegarderDescriptionsBd({
         idBd,
         descriptions: {
           fr: "Météo historique pour la région de Montréal",
@@ -148,7 +148,7 @@ describe("Rechercher bds", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
       idMotClef = await client.motsClefs!.créerMotClef();
 
       const fRechercheNom = rechercherBdsSelonNomMotClef("Météo");
@@ -178,7 +178,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout mot-clef détecté", async () => {
-      await client.bds!.ajouterMotsClefsBd({
+      await client.bds.ajouterMotsClefsBd({
         idBd,
         idsMotsClefs: idMotClef,
       });
@@ -257,7 +257,7 @@ describe("Rechercher bds", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
       idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
@@ -291,7 +291,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout variable détecté", async () => {
-      const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+      const idTableau = await client.bds.ajouterTableauBd({ idBd });
       await client.tableaux!.ajouterColonneTableau({
         idTableau,
         idVariable,
@@ -387,7 +387,7 @@ describe("Rechercher bds", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
       const fRechercheNom = rechercherBdsSelonTexte("Hydrologie");
       fsOublier.push(
@@ -439,7 +439,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.bds!.sauvegarderNomsBd({
+      await client.bds.sauvegarderNomsBd({
         idBd,
         noms: { fr: "Hydrologie" },
       });
@@ -459,7 +459,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.bds!.sauvegarderDescriptionsBd({
+      await client.bds.sauvegarderDescriptionsBd({
         idBd,
         descriptions: {
           fr: "Hydrologie de Montréal",
@@ -484,7 +484,7 @@ describe("Rechercher bds", function () {
       const idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
-      const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+      const idTableau = await client.bds.ajouterTableauBd({ idBd });
       await client.tableaux!.ajouterColonneTableau({
         idTableau,
         idVariable,
@@ -517,7 +517,7 @@ describe("Rechercher bds", function () {
 
     it("Résultat mot-clef détecté", async () => {
       const idMotClef = await client.motsClefs!.créerMotClef();
-      await client.bds!.ajouterMotsClefsBd({
+      await client.bds.ajouterMotsClefsBd({
         idBd,
         idsMotsClefs: idMotClef,
       });

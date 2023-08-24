@@ -1,38 +1,32 @@
-export interface MessageDeTravailleur {
-  type: "suivre" | "suivrePrêt" | "action" | "erreur";
-  id?: string;
-}
+export type MessageDeTravailleur = MessageSuivreDeTravailleur | MessageSuivrePrêtDeTravailleur | MessageActionDeTravailleur | MessageErreurDeTravailleur;
 
-export interface MessageSuivreDeTravailleur extends MessageDeTravailleur {
+export interface MessageSuivreDeTravailleur {
   type: "suivre";
   id: string;
   données: unknown;
 }
 
-export interface MessageSuivrePrêtDeTravailleur extends MessageDeTravailleur {
+export interface MessageSuivrePrêtDeTravailleur {
   type: "suivrePrêt";
   id: string;
   fonctions?: string[];
 }
 
-export interface MessageActionDeTravailleur extends MessageDeTravailleur {
+export interface MessageActionDeTravailleur {
   type: "action";
   id: string;
   résultat: unknown;
 }
 
-export interface MessageErreurDeTravailleur extends MessageDeTravailleur {
+export interface MessageErreurDeTravailleur {
   type: "erreur";
   id?: string;
   erreur: string;
 }
 
-export interface MessagePourTravailleur {
-  type: "retour" | "suivre" | "action";
-  id?: string;
-}
+export type MessagePourTravailleur = MessageSuivrePourTravailleur | MessageActionPourTravailleur | MessageRetourPourTravailleur;
 
-export interface MessageSuivrePourTravailleur extends MessagePourTravailleur {
+export interface MessageSuivrePourTravailleur {
   type: "suivre";
   id: string;
   fonction: string[];
@@ -40,14 +34,14 @@ export interface MessageSuivrePourTravailleur extends MessagePourTravailleur {
   nomArgFonction: string;
 }
 
-export interface MessageActionPourTravailleur extends MessagePourTravailleur {
+export interface MessageActionPourTravailleur {
   type: "action";
   id: string;
   fonction: string[];
   args: { [key: string]: unknown };
 }
 
-export interface MessageRetourPourTravailleur extends MessagePourTravailleur {
+export interface MessageRetourPourTravailleur {
   type: "retour";
   id: string;
   fonction: string;

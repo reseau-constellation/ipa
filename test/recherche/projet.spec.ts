@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/index.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -266,7 +266,7 @@ describe("Rechercher projets", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idProjet = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      idProjet = await client.bds.créerBd({ licence: "ODbl-1_0" });
       idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
@@ -302,10 +302,10 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout variable détecté", async () => {
-      const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
       await client.projets!.ajouterBdProjet({ idProjet, idBd });
 
-      const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+      const idTableau = await client.bds.ajouterTableauBd({ idBd });
       await client.tableaux!.ajouterColonneTableau({
         idTableau,
         idVariable,
@@ -417,7 +417,7 @@ describe("Rechercher projets", function () {
 
     before(async () => {
       idProjet = await client.projets!.créerProjet();
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
       const fRechercheNom = rechercherProjetsSelonBd("Hydrologie");
       fsOublier.push(
@@ -482,7 +482,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.bds!.sauvegarderNomsBd({
+      await client.bds.sauvegarderNomsBd({
         idBd,
         noms: { fr: "Hydrologie" },
       });
@@ -512,7 +512,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.bds!.sauvegarderDescriptionsBd({
+      await client.bds.sauvegarderDescriptionsBd({
         idBd,
         descriptions: {
           fr: "Hydrologie de Montréal",
@@ -546,7 +546,7 @@ describe("Rechercher projets", function () {
       const idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
-      const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+      const idTableau = await client.bds.ajouterTableauBd({ idBd });
       await client.tableaux!.ajouterColonneTableau({
         idTableau,
         idVariable,
@@ -589,7 +589,7 @@ describe("Rechercher projets", function () {
 
     it("Résultat mot-clef détecté", async () => {
       const idMotClef = await client.motsClefs!.créerMotClef();
-      await client.bds!.ajouterMotsClefsBd({
+      await client.bds.ajouterMotsClefsBd({
         idBd,
         idsMotsClefs: idMotClef,
       });
@@ -687,7 +687,7 @@ describe("Rechercher projets", function () {
 
     before(async () => {
       idProjet = await client.projets!.créerProjet();
-      idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
       const fRechercheNom = rechercherProjetsSelonTexte("Hydrologie");
       fsOublier.push(
@@ -818,7 +818,7 @@ describe("Rechercher projets", function () {
       const idVariable = await client.variables!.créerVariable({
         catégorie: "numérique",
       });
-      const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+      const idTableau = await client.bds.ajouterTableauBd({ idBd });
       await client.tableaux!.ajouterColonneTableau({
         idTableau,
         idVariable,

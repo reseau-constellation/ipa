@@ -9,7 +9,6 @@ import ClientConstellation from "@/client.js";
 import { faisRien } from "@constl/utils-ipa";
 import {
   CLEF_TABLEAU_LICENCES_APPROUVÉES,
-  ID_BD_LICENCES_APPROUVÉES,
   ID_NUÉE_LICENCES,
   SCHÉMA_BD_LICENCES,
 } from "@/const.js";
@@ -439,19 +438,14 @@ export default class Licences {
   async initialiser() {
     if (
       SCHÉMA_BD_LICENCES &&
-      ID_BD_LICENCES_APPROUVÉES &&
       CLEF_TABLEAU_LICENCES_APPROUVÉES &&
       ID_NUÉE_LICENCES
     ) {
       this.perroquet = new கிளி({
-        // @ts-ignore
         விண்மீன்: this.client,
-        மாறிலிகள்: {
-          தரவுத்தள_அடையாளம்: ID_BD_LICENCES_APPROUVÉES,
-          அட்டவணை_சாபி: CLEF_TABLEAU_LICENCES_APPROUVÉES,
-          குழு_அடையாளம்: ID_NUÉE_LICENCES,
-          வார்ப்புரு: SCHÉMA_BD_LICENCES,
-        },
+        அட்டவணை_சாபி: CLEF_TABLEAU_LICENCES_APPROUVÉES,
+        குழு_அடையாளம்: ID_NUÉE_LICENCES,
+        வார்ப்புரு: SCHÉMA_BD_LICENCES,
       });
     }
     this.prêt = true;

@@ -2,7 +2,7 @@ import type XLSX from "xlsx";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
-import type { ClientConstellation } from "./ressources/utils.js";
+import type { ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier } from "@/types.js";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 
@@ -290,7 +290,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajout d'une BD", async () => {
-          idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+          idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
           expect(Array.isArray(bds)).to.be.true();
           expect(bds.length).to.equal(1);
@@ -299,7 +299,7 @@ typesClients.forEach((type) => {
 
         it("Mots-clefs BD détectés", async () => {
           const idMotClef = await client.motsClefs!.créerMotClef();
-          await client.bds!.ajouterMotsClefsBd({
+          await client.bds.ajouterMotsClefsBd({
             idBd,
             idsMotsClefs: idMotClef,
           });
@@ -315,7 +315,7 @@ typesClients.forEach((type) => {
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
-          const idTableau = await client.bds!.ajouterTableauBd({ idBd });
+          const idTableau = await client.bds.ajouterTableauBd({ idBd });
 
           await client.tableaux!.ajouterColonneTableau({
             idTableau,
@@ -375,7 +375,7 @@ typesClients.forEach((type) => {
             idsMotsClefs: idMotClef,
           });
 
-          idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
+          idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           await client.projets!.ajouterBdProjet({
             idProjet: idProjetOrig,
             idBd,
@@ -445,15 +445,15 @@ typesClients.forEach((type) => {
 
         before(async () => {
           idProjet = await client.projets!.créerProjet();
-          const idBd = await client.bds!.créerBd({ licence: "ODbl-1_0" });
-          await client.bds!.sauvegarderNomsBd({
+          const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+          await client.bds.sauvegarderNomsBd({
             idBd,
             noms: { fr: "Ma BD" },
           });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
 
-          const idTableau1 = await client.bds!.ajouterTableauBd({ idBd });
-          const idTableau2 = await client.bds!.ajouterTableauBd({ idBd });
+          const idTableau1 = await client.bds.ajouterTableauBd({ idBd });
+          const idTableau2 = await client.bds.ajouterTableauBd({ idBd });
 
           const idVarNum = await client.variables!.créerVariable({
             catégorie: "numérique",

@@ -1,6 +1,6 @@
 import { expect } from "aegir/chai";
 
-import type { ClientConstellation } from "./ressources/utils.js";
+import type { ClientConstellation } from "@/index.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 import {
