@@ -5,7 +5,12 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'src/'
+      - 'src/**'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'src/**'
 
 jobs:
   deploy:

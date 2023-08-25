@@ -5,7 +5,13 @@ on:
       - main
     paths-ignore:
       - '**.md'
-      - 'docu/*'
+      - 'docu/**'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+        - '**.md'
+        - 'docu/**'
 
 jobs:
   test-ipa-nodejs:
