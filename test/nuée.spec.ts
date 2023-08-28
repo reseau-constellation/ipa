@@ -756,7 +756,7 @@ typesClients.forEach((type) => {
           if (fOublierClients) await fOublierClients();
           await Promise.all(fsOublier.map((f) => f()));
         });
-        describe("CJPI", function () {
+        describe.only("CJPI", function () {
           let idNuée: string;
           let schémaNuée: schémaSpécificationBd;
           let idBdMembreAutorisé: string;
@@ -775,7 +775,7 @@ typesClients.forEach((type) => {
             ({ idNuée } = await générerNuéeTest(client, {
               autorisation: "CJPI",
             }));
-            console.log("ici 1");
+            console.log("ici 1", { idNuée });
             schémaNuée = await client.nuées!.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",

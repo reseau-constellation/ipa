@@ -2652,7 +2652,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     ): Promise<schémaFonctionOublier> => {
       return await this.client.bds!.rechercherBdsParNuée({
         idNuée,
-        f: async (x) => {console.log("suivreBdsDeNuée", x); return await f(x)},
+        f: async (x) => {console.log("suivreBdsDeNuée fBranche", x); return await f(x)},
         idCompte,
       });
     };
@@ -2661,7 +2661,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreComptesRéseauEtEnLigne({
-        f: (résultats) => fSuivreRacine(résultats.map((r) => r.idCompte)),
+        f: async (résultats) => {console.log({suivreBdsDeNuée: résultats}); return await fSuivreRacine(résultats.map((r) => r.idCompte))},
         profondeur: nRésultatsDésirés,
       });
     };
