@@ -2652,7 +2652,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     ): Promise<schémaFonctionOublier> => {
       return await this.client.bds!.rechercherBdsParNuée({
         idNuée,
-        f,
+        f: async (x) => {console.log("suivreBdsDeNuée", x); return await f(x)},
         idCompte,
       });
     };
