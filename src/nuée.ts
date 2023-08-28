@@ -2188,7 +2188,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
         return await this.client.réseau!.suivreBdsDeNuée({
           idNuée,
-          f: fSuivreRacine,
+          f: async (x) => {console.log("fListe suivre bds nuée", x); return await fSuivreRacine(x)},
           nRésultatsDésirés,
         });
       };
