@@ -862,12 +862,9 @@ export default class BDs extends ComposanteClientListe<string> {
           schémaBd,
           idNuéeUnique,
           clefTableau,
-          f: (id?: string) => {
-            if (id) fSuivi(id);
-          },
+          f: ignorerNonDéfinis(fSuivi),
         });
       },
-      (x) => !!x
     );
     return await this.client.tableaux!.ajouterÉlément({
       idTableau: idTableau,
