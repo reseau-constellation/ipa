@@ -1061,6 +1061,7 @@ export class ClientConstellation extends EventEmitter {
     clef,
     f,
     fSuivre,
+    type,
   }: {
     id: string;
     clef: string;
@@ -1069,6 +1070,7 @@ export class ClientConstellation extends EventEmitter {
       id: string;
       fSuivreBd: schémaFonctionSuivi<T>;
     }) => Promise<schémaFonctionOublier>;
+    type?: "kvstore" | "keyvalue" | "feed";
   }): Promise<schémaFonctionOublier> {
     const fRacine = async ({
       fSuivreRacine,
@@ -1127,7 +1129,7 @@ export class ClientConstellation extends EventEmitter {
     }) => {
       return await this.suivreBdDic({ id, schéma, f: fSuivreBd });
     };
-    return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre });
+    return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre, type: "keyvalue" });
   }
 
   static obtObjetdeBdDic<T extends { [clef: string]: unknown }>({
@@ -1215,7 +1217,7 @@ export class ClientConstellation extends EventEmitter {
         });
       };
 
-      return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre });
+      return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre, type: "feed" });
     } else {
       const fFinale = async (valeurs?: LogEntry<T>[]) => {
         await f(valeurs || []);
@@ -1248,6 +1250,7 @@ export class ClientConstellation extends EventEmitter {
           id: string;
           fSuivreBd: schémaFonctionSuivi<élémentsBd[]>;
         }) => Promise<schémaFonctionOublier>,
+        type: "feed",
       });
     }
   }

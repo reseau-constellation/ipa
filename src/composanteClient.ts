@@ -183,10 +183,15 @@ export class ComposanteClientDic<
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdDic<structureBdCompte>({
+        return await this.client.suivreBd({
           id,
-          f: async (données) => {
-            const idBd = données[this.clef];
+          type: "keyvalue",
+          f: async (bd) => {
+            const idBd = await this.client.obtIdBd({
+              nom: this.clef,
+              racine: bd,
+              type: "kvstore",
+            });
             return await fSuivreBd(idBd);
           },
         });
