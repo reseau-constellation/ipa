@@ -2203,7 +2203,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         const fFinaleSuivreBranche = async (
           auteurs: infoAuteur[]
         ): Promise<void> => {
-          console.log("ici", {idBd, auteurs})
+          console.log("ici", {idBd, auteurs: JSON.stringify(auteurs, undefined, 2)})
           await fSuivreBranche({
             idBd,
             auteurs: auteurs

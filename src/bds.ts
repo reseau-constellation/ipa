@@ -603,7 +603,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBds({ f: fSuivreRacine, idCompte });
+      return await this.suivreBds({ f: async (x) => {console.log({"bds de nuée": x}); return await fSuivreRacine(x)}, idCompte });
     };
 
     const fCondition = async (
@@ -613,7 +613,7 @@ export default class BDs extends ComposanteClientListe<string> {
       const fFinaleSuivreCondition = (nuéesBd?: string[]) => {
         fSuivreCondition(!!nuéesBd && nuéesBd.includes(idNuée));
       };
-      return await this.suivreNuéesBd({ idBd: id, f: fFinaleSuivreCondition });
+      return await this.suivreNuéesBd({ idBd: id, f: async (x) => {console.log("nuées de la bd," x); return await fFinaleSuivreCondition(x)} });
     };
     return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
   }
