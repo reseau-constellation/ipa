@@ -1,5 +1,4 @@
 import type { Browser } from "playwright";
-import path from "path";
 import {
   changerLangue,
   déjàGénérés,
