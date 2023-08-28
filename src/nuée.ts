@@ -2111,6 +2111,7 @@ export default class Nuée extends ComposanteClientListe<string> {
 
       const fFinale = async (): Promise<void> => {
         const { philoAutorisation, membres, bds } = info;
+        console.log("fFinale", info)
 
         if (!bds) return;
 
@@ -2202,6 +2203,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         const fFinaleSuivreBranche = async (
           auteurs: infoAuteur[]
         ): Promise<void> => {
+          console.log("ici", {idBd, auteurs})
           await fSuivreBranche({
             idBd,
             auteurs: auteurs
@@ -2209,7 +2211,7 @@ export default class Nuée extends ComposanteClientListe<string> {
               .map((x) => x.idCompte),
           });
         };
-
+        console.log("ici", {idBd})
         return await this.client.réseau!.suivreAuteursBd({
           idBd,
           f: fFinaleSuivreBranche,

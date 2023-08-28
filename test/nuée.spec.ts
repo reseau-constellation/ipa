@@ -44,7 +44,7 @@ const générerNuéeTest = async (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("Nuées : Tests individuels", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -771,13 +771,16 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
+            console.log("ici 0");
             ({ idNuée } = await générerNuéeTest(client, {
               autorisation: "CJPI",
             }));
+            console.log("ici 1");
             schémaNuée = await client.nuées!.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
             });
+            console.log("ici 2");
             const { fOublier: fOublierRésultat } =
               await clients[1].nuées!.suivreBdsCorrespondantes({
                 idNuée,
@@ -785,6 +788,7 @@ typesClients.forEach((type) => {
                 nRésultatsDésirés: 100,
               });
             fsOublier.push(fOublierRésultat);
+            console.log("ici 3");
 
             const { fOublier: fOublierRésultatSansVérification } =
               await client.nuées!.suivreBdsCorrespondantes({
@@ -794,6 +798,7 @@ typesClients.forEach((type) => {
                 vérifierAutorisation: false,
               });
             fsOublier.push(fOublierRésultatSansVérification);
+            console.log("ici 4");
 
             const { fOublier: fOublierRésultatSansInclureLesMiennes } =
               await clients[1].nuées!.suivreBdsCorrespondantes({
@@ -803,6 +808,7 @@ typesClients.forEach((type) => {
                 toujoursInclureLesMiennes: false,
               });
             fsOublier.push(fOublierRésultatSansInclureLesMiennes);
+            console.log("ici avant terminé");
           });
 
           after(async () => {
@@ -810,10 +816,13 @@ typesClients.forEach((type) => {
           });
 
           it("Bds de membres autorisés", async () => {
+            console.log("ici test 0");
             idBdMembreAutorisé = await client.bds.créerBdDeSchéma({
               schéma: schémaNuée,
             });
+            console.log("ici test 1");
             const val = await résultat.attendreQue((x) => x.length > 0);
+            console.log("ici test 2");
             expect(val[0]).to.equal(idBdMembreAutorisé);
           });
 
