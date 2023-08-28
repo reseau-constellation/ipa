@@ -141,9 +141,10 @@ if (isNode || isElectronMain) {
       });
 
       it("Le nouveau dispositif suit mon profil", async () => {
-        const val = await résNom.attendreQue((x) =>
-          Object.keys(x).includes("fr")
-        );
+        // Pour une drôle de raison, il faut accéder la BD avant qu'elle ne s'actualise...
+        await client.profil!.effacerNom({langue: "de"});
+
+        const val = await résNom.attendreQue((x) => Object.keys(x).includes("fr"));
         expect(val.fr).to.equal("Julien Malard-Adam");
       });
     });
