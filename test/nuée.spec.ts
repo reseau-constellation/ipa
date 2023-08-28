@@ -756,7 +756,7 @@ typesClients.forEach((type) => {
           if (fOublierClients) await fOublierClients();
           await Promise.all(fsOublier.map((f) => f()));
         });
-        describe.only("CJPI", function () {
+        describe("CJPI", function () {
           let idNuée: string;
           let schémaNuée: schémaSpécificationBd;
           let idBdMembreAutorisé: string;
