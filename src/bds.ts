@@ -613,7 +613,7 @@ export default class BDs extends ComposanteClientListe<string> {
       const fFinaleSuivreCondition = (nuéesBd?: string[]) => {
         fSuivreCondition(!!nuéesBd && nuéesBd.includes(idNuée));
       };
-      return await this.suivreNuéesBd({ idBd: id, f: async (x) => {console.log("nuées de la bd," x); return await fFinaleSuivreCondition(x)} });
+      return await this.suivreNuéesBd({ idBd: id, f: async (x) => {console.log("nuées de la bd,", x); return await fFinaleSuivreCondition(x)} });
     };
     return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
   }
