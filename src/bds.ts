@@ -603,7 +603,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBds({ f: async (x) => {console.log({"nuées du compte": x}); return await fSuivreRacine(x)}, idCompte });
+      return await this.suivreBds({ f: async (x) => {console.log({"nuées du compte": x, idCompte}); return await fSuivreRacine(x)}, idCompte });
     };
 
     const fCondition = async (
@@ -612,12 +612,12 @@ export default class BDs extends ComposanteClientListe<string> {
     ): Promise<schémaFonctionOublier> => {
       console.log("fCondition", {id});
       const fFinaleSuivreCondition = async (nuéesBd?: string[]) => {
-        console.log("condition", {nuéesBd})
+        console.log("condition", {nuéesBd, idNuée, val: !!nuéesBd && nuéesBd.includes(idNuée)})
         fSuivreCondition(!!nuéesBd && nuéesBd.includes(idNuée));
       };
       return await this.suivreNuéesBd({ idBd: id, f: async (x) => {console.log("nuées de la bd,", x); return await fFinaleSuivreCondition(x)} });
     };
-    return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
+    return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f: async (x) => {console.log("nuées finales", x); return await f(x)} });
   }
 
   async combinerBds({
