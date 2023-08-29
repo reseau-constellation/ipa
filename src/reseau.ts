@@ -2668,7 +2668,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     return await this.client.suivreBdsDeFonctionRecherche({
       fListe,
-      f,
+      f: async (x: string[]) => {console.log("bds de nuée finales", x); return await f(x)},
       fBranche,
     });
   }
