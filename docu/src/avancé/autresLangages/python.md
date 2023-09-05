@@ -207,8 +207,7 @@ with Serveur():
 
 ### IPA asynchrone
 
-L'IPA asynchrone doit être utilisée avec [trio](https://trio.readthedocs.io/). Il a les mêmes fonctions que l'IPA
-synchrone, mais dois être invoqué dans un bloc `async with ouvrir_client() as client:`
+L'IPA asynchrone doit être utilisée avec [trio](https://trio.readthedocs.io/). Il a les mêmes fonctions que l'IPA synchrone, mais dois être invoqué dans un bloc `async with ouvrir_client() as client:`
 
 ```python
 import trio
@@ -231,8 +230,7 @@ trio.run(principale)
 
 #### Fonctions de suivi et `une_fois`
 
-Tel que mentionné ci-dessus, la majorité des fonctions utiles de Constellation sont des fonctions de suivi. Nous devons
-les appeler avec une fonction qui sera invoquée à chaque fois que le résultat sera mis à jour.
+Tel que mentionné ci-dessus, la majorité des fonctions utiles de Constellation sont des fonctions de suivi. Nous devons les appeler avec une fonction qui sera invoquée à chaque fois que le résultat sera mis à jour.
 
 ```python
 import trio
@@ -247,7 +245,9 @@ async def principale():
         async with ouvrir_client() as client:
             # Suivre les données du réseau pour 15 secondes, et imprimer les résultats au fur et à mesure
             # qu'ils nous parviennent du réseau
-            oublier_données = await client.tableaux.suivre_données(id_tableau=id_tableau, f=print)
+            oublier_données = await client.tableaux.suivre_données(
+                id_tableau=id_tableau, f=print
+            )
             await trio.sleep(15)
 
             oublier_données()  # Maintenant on ne recevra plus les mises à jour des données
@@ -324,9 +324,7 @@ trio.run(principale)
 print(résultats)
 ```
 
-Ceci peut aussi être utile avec
-les [canaux](https://trio.readthedocs.io/en/stable/reference-core.html#using-channels-to-pass-values-between-tasks)
-de `trio` pour communiquer entre les coroutines :
+Ceci peut aussi être utile avec les [canaux](https://trio.readthedocs.io/en/stable/reference-core.html#using-channels-to-pass-values-between-tasks) de `trio` pour communiquer entre les coroutines :
 
 ```python
 import trio
