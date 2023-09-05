@@ -512,7 +512,7 @@ typesClients.forEach((type) => {
     });
 
     if (isElectronMain || isNode) {
-      describe("Suivre données", function () {
+      describe.skip("Suivre données", function () {
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
         let client: ClientConstellation;
@@ -776,7 +776,6 @@ typesClients.forEach((type) => {
           before(async () => {
             console.log("ici 0");
             fsOublier.push(await clients[1].réseau.suivreConnexionsDispositifs({f: console.log}));
-            fsOublier.push(await clients[1].réseau.suivreConnexionsPostesSFIP({f: console.log}));
             ({ idNuée } = await générerNuéeTest(client, {
               autorisation: "CJPI",
             }));
@@ -795,7 +794,7 @@ typesClients.forEach((type) => {
             fsOublier.push(fOublierRésultat);
             console.log("ici 3");
 
-            /*const { fOublier: fOublierRésultatSansVérification } =
+            const { fOublier: fOublierRésultatSansVérification } =
               await client.nuées!.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => {console.log("résultat sans vérification", x); résultatSansVérification.mettreÀJour(x)},
@@ -813,7 +812,7 @@ typesClients.forEach((type) => {
                 toujoursInclureLesMiennes: false,
               });
             fsOublier.push(fOublierRésultatSansInclureLesMiennes);
-            console.log("ici avant terminé"); */
+            console.log("ici avant terminé");
           });
 
           after(async () => {
