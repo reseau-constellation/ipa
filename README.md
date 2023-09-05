@@ -46,7 +46,9 @@ Une fois l'IPA installé, vous pouvez importer Constellation et l'utiliser dans 
 projets.
 
 ```TypeScript
-import { client } from "@constl/ipa";
+import { générerClient } from "@constl/ipa";
+
+const client = générerClient();
 ...
 
 ```
