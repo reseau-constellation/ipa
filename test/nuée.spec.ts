@@ -729,7 +729,7 @@ typesClients.forEach((type) => {
         it.skip("Inviter membre");
       });
 
-      describe("Autorisations nuée", function () {
+      describe.skip("Autorisations nuée", function () {
         it.skip("Créer Nuée avec gestionnaire existant");
         it.skip("Changer philosophie");
         it.skip("Accepter membre");
