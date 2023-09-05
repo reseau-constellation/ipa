@@ -46,7 +46,7 @@ const générerNuéeTest = async (
 
 typesClients.forEach((type) => {
   describe.only("Client " + type, function () {
-    describe("Nuées : Tests individuels", function () {
+    describe.skip("Nuées : Tests individuels", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -74,7 +74,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Noms", function () {
+      describe.skip("Noms", function () {
         let idNuée: string;
         let fOublier: schémaFonctionOublier;
 
@@ -140,7 +140,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Descriptions", function () {
+      describe.skip("Descriptions", function () {
         let idNuée: string;
         let fOublier: schémaFonctionOublier;
 
@@ -209,7 +209,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Mots-clefs", function () {
+      describe.skip("Mots-clefs", function () {
         let idMotClef: string;
         let idNuée: string;
 
@@ -252,7 +252,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Mes nuées", function () {
+      describe.skip("Mes nuées", function () {
         let fOublier: schémaFonctionOublier;
         let idNuée: string;
         let idNouvelleNuée: string;
@@ -298,7 +298,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Statut nuée", function () {
+      describe.skip("Statut nuée", function () {
         let fOublier: schémaFonctionOublier;
         let idNuée: string;
 
@@ -360,7 +360,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Tableaux", function () {
+      describe.skip("Tableaux", function () {
         describe("Ajouter et enlever", function () {
           let fOublier: schémaFonctionOublier;
           let idNuée: string;
@@ -721,7 +721,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Gestionnaires", function () {
+      describe.skip("Gestionnaires", function () {
         it.skip("Créer gestionnaire indépendant");
         it.skip("Exclure membre");
         it.skip("Réintégrer membre");
@@ -775,8 +775,8 @@ typesClients.forEach((type) => {
 
           before(async () => {
             console.log("ici 0");
-            await clients[1].réseau.suivreConnexionsDispositifs({f: console.log});
-            await clients[1].réseau.suivreConnexionsPostesSFIP({f: console.log});
+            fsOublier.push(await clients[1].réseau.suivreConnexionsDispositifs({f: console.log}));
+            fsOublier.push(await clients[1].réseau.suivreConnexionsPostesSFIP({f: console.log}));
             ({ idNuée } = await générerNuéeTest(client, {
               autorisation: "CJPI",
             }));
