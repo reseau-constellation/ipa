@@ -784,16 +784,16 @@ typesClients.forEach((type) => {
             const { fOublier: fOublierRésultat } =
               await clients[1].nuées!.suivreBdsCorrespondantes({
                 idNuée,
-                f: (x) => résultat.mettreÀJour(x),
+                f: (x) => {console.log("résultat 1 test", x); résultat.mettreÀJour(x)},
                 nRésultatsDésirés: 100,
               });
             fsOublier.push(fOublierRésultat);
             console.log("ici 3");
 
-            const { fOublier: fOublierRésultatSansVérification } =
+            /*const { fOublier: fOublierRésultatSansVérification } =
               await client.nuées!.suivreBdsCorrespondantes({
                 idNuée,
-                f: (x) => résultatSansVérification.mettreÀJour(x),
+                f: (x) => {console.log("résultat sans vérification", x); résultatSansVérification.mettreÀJour(x)},
                 nRésultatsDésirés: 100,
                 vérifierAutorisation: false,
               });
@@ -803,12 +803,12 @@ typesClients.forEach((type) => {
             const { fOublier: fOublierRésultatSansInclureLesMiennes } =
               await clients[1].nuées!.suivreBdsCorrespondantes({
                 idNuée,
-                f: (x) => résultatSansInclureLesMiennes.mettreÀJour(x),
+                f: (x) => {console.log("résultat sans inclure les miennes", x); résultatSansInclureLesMiennes.mettreÀJour(x)},
                 nRésultatsDésirés: 100,
                 toujoursInclureLesMiennes: false,
               });
             fsOublier.push(fOublierRésultatSansInclureLesMiennes);
-            console.log("ici avant terminé");
+            console.log("ici avant terminé"); */
           });
 
           after(async () => {
