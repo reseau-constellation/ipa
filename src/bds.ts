@@ -603,7 +603,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBds({ f: async (x) => {console.log({"nuées du compte": x, idCompte}); return await fSuivreRacine(x)}, idCompte });
+      return await this.suivreBds({ f: async (x) => {console.log({"bds du compte": x, idCompte}); return await fSuivreRacine(x)}, idCompte });
     };
 
     const fCondition = async (

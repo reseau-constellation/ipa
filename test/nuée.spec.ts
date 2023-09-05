@@ -7,6 +7,7 @@ import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 
 import {
+  clientsConnectés,
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
@@ -749,6 +750,8 @@ typesClients.forEach((type) => {
             type,
             générerClient
           }));
+          // @ts-ignore
+          await clientsConnectés(...clients)
           client = clients[0];
         });
 
@@ -772,6 +775,8 @@ typesClients.forEach((type) => {
 
           before(async () => {
             console.log("ici 0");
+            await clients[1].réseau.suivreConnexionsDispositifs({f: console.log});
+            await clients[1].réseau.suivreConnexionsPostesSFIP({f: console.log});
             ({ idNuée } = await générerNuéeTest(client, {
               autorisation: "CJPI",
             }));
