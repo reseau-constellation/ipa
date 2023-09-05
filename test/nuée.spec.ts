@@ -750,8 +750,7 @@ typesClients.forEach((type) => {
             type,
             générerClient
           }));
-          // @ts-ignore
-          await clientsConnectés(...clients)
+
           client = clients[0];
         });
 
