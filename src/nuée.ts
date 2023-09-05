@@ -2179,6 +2179,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
 
       const fSuivreBds = async (bds: { idBd: string; auteurs: string[] }[]) => {
+        console.log("fSuivreBds", bds)
         info.bds = bds;
         await fFinale();
       };
@@ -2240,7 +2241,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     } else {
       return await this.client.réseau!.suivreBdsDeNuée({
         idNuée,
-        f,
+        f: async x => {console.log("suivreBdsDeNuée de suivreBdsCorresp", x); return await f(x)},
         nRésultatsDésirés,
       });
     }

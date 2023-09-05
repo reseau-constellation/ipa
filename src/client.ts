@@ -1569,11 +1569,11 @@ export class ClientConstellation extends EventEmitter {
     let prêt = false; // Afin d'éviter d'appeler fFinale() avant que toutes les branches aient été évaluées 1 fois
 
     const fFinale = async () => {
+      if (!prêt) return;
       const listeDonnées = Object.values(arbre)
         .map((x) => x.données)
         .filter((d) => d !== undefined) as U[];
       const réduits = fRéduction(listeDonnées);
-      if (!prêt) return;
       await f(réduits);
     };
     const verrou = new Semaphore();
@@ -1618,7 +1618,6 @@ export class ClientConstellation extends EventEmitter {
         const fOublier = arbre[d].fOublier;
         if (fOublier) await fOublier();
         delete arbre[d];
-        fFinale();
       }
 
       await Promise.all(
@@ -1628,7 +1627,7 @@ export class ClientConstellation extends EventEmitter {
           dictBranches[n] = élément;
 
           const idBdBranche = fIdBdDeBranche(élément);
-          const fSuivreBranche = (données: U) => {
+          const fSuivreBranche = async (données: U) => {
             arbre[n].données = données;
             fFinale();
           };
@@ -1638,7 +1637,7 @@ export class ClientConstellation extends EventEmitter {
       );
 
       prêt = true;
-      fFinale();
+      await fFinale();
 
       verrou.release("racine");
     };

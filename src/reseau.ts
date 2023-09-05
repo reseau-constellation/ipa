@@ -2692,7 +2692,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
         return await this.suivreBdsDeNuée({
           idNuée: idNuéeUnique,
-          f: fSuivreRacineListe,
+          f: async x => {console.log("suivreBdsDeNuée de suivreÉlémentsTablUniq", x); return await fSuivreRacineListe(x)},
           nRésultatsDésirés: nBds,
         });
       };
