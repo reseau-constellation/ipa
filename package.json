@@ -121,7 +121,7 @@
     "lodash": "^4.17.21",
     "merge-options": "^3.0.4",
     "multiformats": "9.9.0",
-    "orbit-db": "^0.28.7",
+    "orbit-db": "^0.29.0",
     "orbit-db-access-controllers": "^0.4.0",
     "prom-client": "^14.2.0",
     "rimraf": "^5.0.1",

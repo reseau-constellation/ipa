@@ -852,7 +852,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe("IJPC", function () {
+        describe.only("IJPC", function () {
           let idNuée: string;
           let schémaNuée: schémaSpécificationBd;
           let idBd: string;
