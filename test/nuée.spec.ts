@@ -793,7 +793,7 @@ typesClients.forEach((type) => {
             fsOublier.push(fOublierRésultat);
             console.log("ici 3");
 
-            const { fOublier: fOublierRésultatSansVérification } =
+            /*const { fOublier: fOublierRésultatSansVérification } =
               await client.nuées!.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => {console.log("résultat sans vérification", x); résultatSansVérification.mettreÀJour(x)},
@@ -811,7 +811,7 @@ typesClients.forEach((type) => {
                 toujoursInclureLesMiennes: false,
               });
             fsOublier.push(fOublierRésultatSansInclureLesMiennes);
-            console.log("ici avant terminé");
+            console.log("ici avant terminé");*/
           });
 
           after(async () => {
