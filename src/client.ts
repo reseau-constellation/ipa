@@ -637,13 +637,13 @@ export class ClientConstellation extends EventEmitter {
     await new Promise<void>((résoudre) => {
       const vérifierSiAutorisé = async () => {
         if (autorisé) {
-          clearInterval(x);
+          clearInterval(intervale);
           await oublierPermission();
           await fOublier();
           résoudre();
         }
       };
-      const x = setInterval(() => {
+      const intervale = setInterval(() => {
         vérifierSiAutorisé();
       }, 10);
       vérifierSiAutorisé();
@@ -1575,9 +1575,7 @@ export class ClientConstellation extends EventEmitter {
         .filter((d) => d !== undefined) as U[];
       const réduits = fRéduction(listeDonnées);
       console.log({réduits})
-      const chrono = setTimeout(()=>console.log("fFinale bloquée", réduits, fFinale), 2000)
       await f(réduits);
-      clearTimeout(chrono)
     };
     const verrou = new Semaphore();
 
@@ -1609,7 +1607,6 @@ export class ClientConstellation extends EventEmitter {
       nouveaux.push(...changés);
       nouveaux = [...new Set(nouveaux)];
       
-      const chronoC = setTimeout(()=>console.log("changés bloqués", changés), 2000)
       await Promise.all(
         changés.map(async c => {
           if (arbre[c]) {
@@ -1619,9 +1616,7 @@ export class ClientConstellation extends EventEmitter {
           }
         })
       )
-      clearTimeout(chronoC)
 
-      const chronoD = setTimeout(()=>console.log("disparus bloqués", disparus), 2000)
       await Promise.all(
         disparus.map(async d => {
           const fOublier = arbre[d].fOublier;
@@ -1629,9 +1624,7 @@ export class ClientConstellation extends EventEmitter {
           delete arbre[d];
         })
       )
-      clearTimeout(chronoD)
       
-      const chronoN = setTimeout(()=>console.log("nouveaux bloqués", nouveaux), 2000)
       await Promise.all(
         nouveaux.map(async (n: string) => {
           arbre[n] = { données: undefined };
@@ -1641,15 +1634,12 @@ export class ClientConstellation extends EventEmitter {
           const idBdBranche = fIdBdDeBranche(élément);
           const fSuivreBranche = async (données: U) => {
             arbre[n].données = données;
-            const chrono = setTimeout(()=>console.log("client avant fFinale", données), 2000)
             await fFinale();
-            clearTimeout(chrono);
           };
           const fOublier = await fBranche(idBdBranche, fSuivreBranche, élément);
           arbre[n].fOublier = fOublier;
         })
       );
-      clearTimeout(chronoN);
 
       prêt = true;
       await fFinale();
@@ -1781,7 +1771,7 @@ export class ClientConstellation extends EventEmitter {
       const bdsRecherchées = éléments
         .filter((él) => él.état)
         .map((él) => él.id);
-      await f(bdsRecherchées);
+      return await f(bdsRecherchées);
     };
 
     const fBranche = async (
@@ -1789,7 +1779,7 @@ export class ClientConstellation extends EventEmitter {
       fSuivreBranche: schémaFonctionSuivi<branche>
     ): Promise<schémaFonctionOublier> => {
       const fFinaleSuivreBranche = async (état: boolean) => {
-        await fSuivreBranche({ id, état });
+        return await fSuivreBranche({ id, état });
       };
       return await fCondition(id, fFinaleSuivreBranche);
     };

@@ -1150,8 +1150,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
   }: {
     clef?: string;
   }): Promise<string | null> {
-    const x = clef ? await this.client.obtDeStockageLocal({ clef }) : null;
-    return x;
+    return clef ? await this.client.obtDeStockageLocal({ clef }) : null;
   }
 
   async sauvegarderAdressePrivéeFichier({

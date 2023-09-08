@@ -2180,10 +2180,8 @@ export default class Nuée extends ComposanteClientListe<string> {
 
       const fSuivreBds = async (bds: { idBd: string; auteurs: string[] }[]) => {
         console.log("fSuivreBds", bds)
-        const chrono = setTimeout(()=>console.log("fSuivreBds bloquée", bds), 2000)
         info.bds = bds;
         await fFinale();
-        clearTimeout(chrono)
       };
 
       const fListe = async (
@@ -2193,9 +2191,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           idNuée,
           f: async (x) => {
             console.log("fListe suivre bds nuée", x); 
-            const chrono = setTimeout(()=>console.log("fListe suivre bds nuée bloquée", x), 2000)
-            await fSuivreRacine(x)
-            clearTimeout(chrono)
+            return await fSuivreRacine(x)
           },
           nRésultatsDésirés,
         });
@@ -2220,13 +2216,10 @@ export default class Nuée extends ComposanteClientListe<string> {
               .map((x) => x.idCompte),
           });
         };
-        const chrono = setTimeout(()=>console.log("suivre auteurs bd bloqué", idBd), 2000)
-        const x = await this.client.réseau!.suivreAuteursBd({
+        return await this.client.réseau!.suivreAuteursBd({
           idBd,
           f: fFinaleSuivreBranche,
         });
-        clearTimeout(chrono)
-        return x
       };
 
       const { fOublier: fOublierBds, fChangerProfondeur } =

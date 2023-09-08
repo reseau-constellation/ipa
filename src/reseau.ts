@@ -296,10 +296,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       })
     );
 
-    const x = setInterval(() => {
+    const intervale = setInterval(() => {
       this.direSalut({});
     }, INTERVALE_SALUT);
-    this.fsOublier.push(async () => clearInterval(x));
+    this.fsOublier.push(async () => clearInterval(intervale));
 
     await this.direSalut({});
   }
@@ -2197,10 +2197,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fListe = async (
       fSuivreRacine: (éléments: infoAccès[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
-      const chrono = setTimeout(()=>console.log("fliste suivre auteurs objet bloquée", {idObjet, clef}), 2000)
-      const x = await this.client.suivreAccèsBd({ id: idObjet, f: fSuivreRacine });
-      clearTimeout(chrono)
-      return x
+      return await this.client.suivreAccèsBd({ id: idObjet, f: fSuivreRacine });
     };
     const fBranche = async (
       idCompte: string,
@@ -2217,7 +2214,6 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           },
         ]);
       };
-      const chrono = setTimeout(()=>console.log("branche suivre auteurs objet bloquée", {idObjet, clef, idCompte}), 2000)
 
       let fOublierBranche: schémaFonctionOublier | undefined = undefined;
       switch (clef) {
@@ -2255,13 +2251,12 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           throw new Error(clef)
         
       }
-      clearTimeout(chrono)
+
       return fOublierBranche;
     };
     const fIdBdDeBranche = (x: infoAccès) => x.idCompte;
     const fCode = (x: infoAccès) => x.idCompte;
 
-    const chrono = setTimeout(()=>console.log("suivre auteurs objet bloqué", {idObjet, clef}), 2000)
     const fOublier = await this.client.suivreBdsDeFonctionListe({
       fListe,
       f,
@@ -2269,7 +2264,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fIdBdDeBranche,
       fCode,
     });
-    clearTimeout(chrono)
+
     return fOublier;
   }
 
