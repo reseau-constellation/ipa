@@ -617,7 +617,12 @@ export default class BDs extends ComposanteClientListe<string> {
       };
       return await this.suivreNuéesBd({ idBd: id, f: async (x) => {console.log("nuées de la bd,", x); return await fFinaleSuivreCondition(x)} });
     };
-    return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f: async (x) => {console.log("nuées finales", x); return await f(x)} });
+    return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f: async (x) => {
+      console.log("bds finales", x); 
+      const y = await f(x); 
+      console.log("bds finales terminé", x); 
+      return y;
+    }});
   }
 
   async combinerBds({

@@ -1574,7 +1574,10 @@ export class ClientConstellation extends EventEmitter {
         .map((x) => x.données)
         .filter((d) => d !== undefined) as U[];
       const réduits = fRéduction(listeDonnées);
+      console.log({réduits})
+      const chrono = setTimeout(()=>console.log("fFinale bloquée", réduits, fFinale), 2000)
       await f(réduits);
+      clearTimeout(chrono)
     };
     const verrou = new Semaphore();
 
@@ -1605,21 +1608,30 @@ export class ClientConstellation extends EventEmitter {
         .map((é) => é[0]);
       nouveaux.push(...changés);
       nouveaux = [...new Set(nouveaux)];
+      
+      const chronoC = setTimeout(()=>console.log("changés bloqués", changés), 2000)
+      await Promise.all(
+        changés.map(async c => {
+          if (arbre[c]) {
+            const fOublier = arbre[c].fOublier;
+            if (fOublier) await fOublier();
+            delete arbre[c];
+          }
+        })
+      )
+      clearTimeout(chronoC)
 
-      for (const c of changés) {
-        if (arbre[c]) {
-          const fOublier = arbre[c].fOublier;
+      const chronoD = setTimeout(()=>console.log("disparus bloqués", disparus), 2000)
+      await Promise.all(
+        disparus.map(async d => {
+          const fOublier = arbre[d].fOublier;
           if (fOublier) await fOublier();
-          delete arbre[c];
-        }
-      }
-
-      for (const d of disparus) {
-        const fOublier = arbre[d].fOublier;
-        if (fOublier) await fOublier();
-        delete arbre[d];
-      }
-
+          delete arbre[d];
+        })
+      )
+      clearTimeout(chronoD)
+      
+      const chronoN = setTimeout(()=>console.log("nouveaux bloqués", nouveaux), 2000)
       await Promise.all(
         nouveaux.map(async (n: string) => {
           arbre[n] = { données: undefined };
@@ -1629,12 +1641,15 @@ export class ClientConstellation extends EventEmitter {
           const idBdBranche = fIdBdDeBranche(élément);
           const fSuivreBranche = async (données: U) => {
             arbre[n].données = données;
-            fFinale();
+            const chrono = setTimeout(()=>console.log("client avant fFinale", données), 2000)
+            await fFinale();
+            clearTimeout(chrono);
           };
           const fOublier = await fBranche(idBdBranche, fSuivreBranche, élément);
           arbre[n].fOublier = fOublier;
         })
       );
+      clearTimeout(chronoN);
 
       prêt = true;
       await fFinale();
@@ -2171,29 +2186,31 @@ export class ClientConstellation extends EventEmitter {
     id: string;
     f: schémaFonctionSuivi<infoAccès[]>;
   }): Promise<schémaFonctionOublier> {
-    const { bd, fOublier } = await this.ouvrirBd({ id });
-    const accès = bd.access;
-    const typeAccès = (accès.constructor as unknown as AccessController).type;
-
-    if (typeAccès === "ipfs") {
-      const listeAccès: infoAccès[] = (accès as IPFSAccessController).write.map(
-        (id) => {
-          return {
-            idCompte: id,
-            rôle: MODÉRATEUR,
-          };
-        }
-      );
-      await f(listeAccès);
-    } else if (typeAccès === nomTypeContrôleurConstellation) {
-      const fOublierAutorisés = await (
-        accès as unknown as ContrôleurConstellation
-      ).suivreUtilisateursAutorisés(f);
-      await fOublier();
-      return fOublierAutorisés;
+    const fFinale = async (bd: Store) => {
+      const accès = bd.access;
+      const typeAccès = (accès.constructor as unknown as AccessController).type;
+      if (typeAccès === "ipfs") {
+        const listeAccès: infoAccès[] = (accès as IPFSAccessController).write.map(
+          (id) => {
+            return {
+              idCompte: id,
+              rôle: MODÉRATEUR,
+            };
+          }
+        );
+        await f(listeAccès);
+      } else if (typeAccès === nomTypeContrôleurConstellation) {
+        const fOublierAutorisés = await (
+          accès as unknown as ContrôleurConstellation
+        ).suivreUtilisateursAutorisés(f);
+        return fOublierAutorisés;
+      }
+      return faisRien;
     }
-    await fOublier();
-    return faisRien;
+    return await this.suivreBd({
+      id,
+      f: fFinale
+    });
   }
 
   @cacheSuivi

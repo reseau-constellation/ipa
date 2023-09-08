@@ -830,10 +830,13 @@ typesClients.forEach((type) => {
           });
 
           it("Bd non autorisée - incluse dans les miennes", async () => {
+            console.log("Bd non autorisée - incluse dans les miennes 0")
             idBdMembreNonAutorisé = await clients[1].bds.créerBdDeSchéma({
               schéma: schémaNuée,
             });
+            console.log("Bd non autorisée - incluse dans les miennes 1")
             const val = await résultat.attendreQue((x) => x.length > 1);
+            console.log("Bd non autorisée - incluse dans les miennes 2")
             expect(val.includes(idBdMembreNonAutorisé)).to.be.true();
           });
 
@@ -852,7 +855,7 @@ typesClients.forEach((type) => {
           });
         });
 
-        describe.only("IJPC", function () {
+        describe("IJPC", function () {
           let idNuée: string;
           let schémaNuée: schémaSpécificationBd;
           let idBd: string;
