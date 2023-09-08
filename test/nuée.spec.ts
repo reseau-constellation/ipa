@@ -783,6 +783,9 @@ typesClients.forEach((type) => {
               idNuée,
               licence: "ODbl-1_0",
             });
+            idBdMembreAutorisé = await client.bds.créerBdDeSchéma({
+              schéma: schémaNuée,
+            });
             console.log("ici 2");
             const { fOublier: fOublierRésultat } =
               await clients[1].nuées!.suivreBdsCorrespondantes({
@@ -820,9 +823,7 @@ typesClients.forEach((type) => {
 
           it("Bds de membres autorisés", async () => {
             console.log("ici test 0");
-            idBdMembreAutorisé = await client.bds.créerBdDeSchéma({
-              schéma: schémaNuée,
-            });
+
             console.log("ici test 1");
             const val = await résultat.attendreQue((x) => x.length > 0);
             console.log("ici test 2");
