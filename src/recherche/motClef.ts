@@ -83,10 +83,11 @@ export const rechercherMotsClefsSelonTexte = (
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherMotsClefsSelonNom(texte);
+    const fRechercherDescr = rechercherMotsClefsSelonDescr(texte);
     const fRechercherId = rechercherSelonId(texte);
 
     return await combinerRecherches(
-      { noms: fRechercherNoms, id: fRechercherId },
+      { noms: fRechercherNoms, id: fRechercherId, descr: fRechercherDescr },
       client,
       idCompte,
       fSuivreRecherche
