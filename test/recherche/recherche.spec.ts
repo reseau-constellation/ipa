@@ -11,6 +11,7 @@ import type {
 } from "@/types.js";
 
 import {
+  clientsConnectés,
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
@@ -71,7 +72,7 @@ const vérifierRecherche = (
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     if (isElectronMain || isNode) {
-      describe("Rechercher dans réseau", function () {
+      describe.only("Rechercher dans réseau", function () {
         describe("Profil", function () {
           let fOublierClients: () => Promise<void>;
           let clients: ClientConstellation[];
@@ -83,6 +84,8 @@ typesClients.forEach((type) => {
             idsComptes = await Promise.all(
               clients.map(async (c) => await c.obtIdCompte())
             );
+            // @ts-ignore
+            await clientsConnectés(...clients)
           });
 
           after(async () => {
