@@ -589,7 +589,7 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
         );
 
         // Adresse base des fichiers pour résoudre les entrées fichiers, si applicable. Fonctionne uniquement
-        // sur Node et Électron principal.
+        // sur Node et le processus principal d'Électron.
         const path = await import("path");
 
         let cheminBaseFichiers: string | undefined = undefined;
