@@ -709,6 +709,38 @@ typesClients.forEach((type) => {
           const attendreModifié = new utilsTestAttente.AttendreFichierModifié(
             fichier
           );
+          attendreModifié.attendre = async function attendre(tempsAvant, condition) {
+            await this.attendreExiste.attendre();
+            const chokidar = await import("chokidar");
+            const fs = await import("fs");
+            return new Promise((résoudre, rejeter) => {
+                const écouteur = chokidar.watch(this.fichier);
+                this.fsOublier.push(() => écouteur.close());
+                const vérifierModifié = async () => {
+                    try {
+                        const { mtime } = fs.statSync(this.fichier);
+                        const prêt = mtime.getTime() > tempsAvant;
+                        if (prêt && (!condition || await condition())) {
+                            await écouteur.close();
+                            console.log("salut !")
+                            clearInterval(intervale)
+                            résoudre();
+                        }
+                    }
+                    catch (e) {
+                        // Le fichier a été effacé
+                        écouteur.close();
+                        rejeter(e);
+                    }
+                };
+                écouteur.on("change", async (adresse) => {
+                    if (adresse !== this.fichier)
+                        return;
+                    await vérifierModifié();
+                });
+                const intervale = setInterval(vérifierModifié, 1000);
+            });
+        }
           fsOublier.push(() => attendreModifié.annuler());
           
           const avant = Date.now();
