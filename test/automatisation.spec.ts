@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import XLSX, { WorkBook } from "xlsx";
+import XLSX, { WorkBook, utils } from "xlsx";
 import JSZip from "jszip";
 import { isBrowser, isElectronRenderer } from "wherearewe";
 import axios from "axios";
@@ -706,19 +706,22 @@ typesClients.forEach((type) => {
             });
 
           await attente.attendre();
-
-          const attenteModifié = new utilsTestAttente.AttendreFichierModifié(
+          const attendreModifié = new utilsTestAttente.AttendreFichierModifié(
             fichier
           );
-          fsOublier.push(() => attenteModifié.annuler());
-
+          fsOublier.push(() => attendreModifié.annuler());
+          
           const avant = Date.now();
+          const attenteModifié = attendreModifié.attendre(avant, async () => {
+            const doc = XLSX.readFile(fichier);
+            return utils.sheet_to_json(doc.Sheets["météo"]).length >= 2
+          });
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 5 },
           });
 
-          await attenteModifié.attendre(avant);
+          await attenteModifié;
 
           vérifierDonnéesBd(fichier, {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
@@ -853,11 +856,15 @@ typesClients.forEach((type) => {
             vals: { [idColonneNumérique]: 123 },
           });
 
-          await attenteModifié.attendre(avant);
+          await attenteModifié.attendre(avant, async () => {
+            const doc = XLSX.readFile(fichier);
+            return Object.keys(utils.sheet_to_json(doc.Sheets["météo"])[0] || {}).length > 1
+          });
 
           vérifierDonnéesBd(fichier, {
             météo: [{ Précipitation: 123, auteur: await client.obtIdCompte() }],
           });
+
           await client.automatisations!.annulerAutomatisation({ id: idAuto });
         });
       });
