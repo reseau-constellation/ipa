@@ -714,16 +714,13 @@ typesClients.forEach((type) => {
           const avant = Date.now();
           const attenteModifié = attendreModifié.attendre(avant, async () => {
             const doc = XLSX.readFile(fichier);
-            console.log("ici", doc.Sheets["météo"])
             return utils.sheet_to_json(doc.Sheets["météo"]).length >= 2
           });
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 5 },
           });
-          console.log("on va attendre la modification")
           await attenteModifié;
-          console.log("modifié !")
 
           vérifierDonnéesBd(fichier, {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
