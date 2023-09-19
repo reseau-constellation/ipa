@@ -251,7 +251,7 @@ typesClients.forEach((type) => {
             });
 
             it("Ajout détecté", async () => {
-              await clients[1].profil!.sauvegarderCourriel({
+              await clients[1].profil.sauvegarderCourriel({
                 courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
               });
 
@@ -260,8 +260,8 @@ typesClients.forEach((type) => {
             });
 
             it("Changements détectés", async () => {
-              await clients[1].profil?.effacerCourriel();
-              await clients[1].profil!.sauvegarderCourriel({
+              await clients[1].profil.effacerCourriel();
+              await clients[1].profil.sauvegarderCourriel({
                 courriel: "julien.malard@mail.mcgill.ca",
               });
 
