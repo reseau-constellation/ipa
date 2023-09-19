@@ -10,6 +10,7 @@ import type KeyValueStore from "orbit-db-kvstore";
 import {
   attente as utilsTestAttente,
   peutÉcrire,
+  attente,
 } from "@constl/utils-tests";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
@@ -21,6 +22,7 @@ import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";
 import FeedStore from "orbit-db-feedstore";
 import { générerClientsInternes } from "./ressources/utils.js";
+import { statutDispositif } from "@/reseau.js";
 
 describe("adresseOrbiteValide", function () {
   it("adresse orbite est valide", () => {
@@ -38,7 +40,7 @@ describe("adresseOrbiteValide", function () {
 });
 
 if (isNode || isElectronMain) {
-  describe("Contrôle dispositifs", function () {
+  describe.only("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation,
@@ -153,9 +155,19 @@ if (isNode || isElectronMain) {
       let idBd: string;
 
       before(async () => {
+        const attendreConnectés = new attente.AttendreRésultat<statutDispositif[]>()
+        await client3.réseau!.suivreConnexionsDispositifs({
+          f: x => {console.log("connexion", x); return attendreConnectés.mettreÀJour(x)}
+        })
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
 
         const invitation = await client.générerInvitationRejoindreCompte();
+
+        const idClient1 = await client.obtIdCompte();
+        await attendreConnectés.attendreQue((x) => {
+          console.log({x})
+          return !!x.find(c=>c.infoDispositif.idCompte === idClient1)
+        })
         await client3.demanderEtPuisRejoindreCompte(invitation);
       });
 
