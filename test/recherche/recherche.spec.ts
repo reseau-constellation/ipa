@@ -9,6 +9,7 @@ import type {
   infoRésultatVide,
   résultatObjectifRecherche,
 } from "@/types.js";
+import { générerClientsInternes } from "../ressources/utils.js";
 
 import {
   client as utilsClientTest,
@@ -79,7 +80,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 2, type, générerClient }));
+              await générerClientsInternes({ n: 2 }));
           });
 
           after(async () => {
@@ -1434,7 +1435,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 3, type, générerClient }));
+              await générerClientsInternes({ n: 3 }));
             idsComptes = await Promise.all(
               clients.map(async (c) => await c.obtIdCompte())
             );
