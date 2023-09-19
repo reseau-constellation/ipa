@@ -101,7 +101,7 @@ dependencies:
     specifier: ^0.18.1
     version: 0.18.1
   iso-constants:
-    specifier: git+https://github.com/inverted-capital/iso-constants.git#patch-1
+    specifier: github:inverted-capital/iso-constants#patch-1
     version: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
   it-to-buffer:
     specifier: ^3.0.1
@@ -154,8 +154,8 @@ devDependencies:
     specifier: ^1.1.0
     version: 1.1.0
   '@constl/utils-tests':
-    specifier: ^0.1.7
-    version: 0.1.7(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
+    specifier: ^0.1.8
+    version: 0.1.8(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
   '@libp2p/interface-connection-manager':
     specifier: ^3.0.1
     version: 3.0.1
@@ -1455,8 +1455,8 @@ packages:
       - supports-color
     dev: false
 
-  /@constl/utils-tests@0.1.7(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7):
-    resolution: {integrity: sha512-l1PhSPEOeO3pF9CsAqATj3mLKrKwFcaQLozDEJ92r1yUsL26tQWSoEkJhPd8kEEw1l32AYD7wL0cyf9twD1ZpQ==}
+  /@constl/utils-tests@0.1.8(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7):
+    resolution: {integrity: sha512-MArYVrHPdeRGbHrXo1vYhC0UYkWwYzat0Mw+Ou73kmggTbk35ABw2diVhzih7L6QpCuIC+S/+TA9+mTdrdbaPw==}
     engines: {node: '>=20'}
     peerDependencies:
       wrtc: ^0.4.7
@@ -16784,8 +16784,6 @@ packages:
       node-pre-gyp: 0.13.0
     optionalDependencies:
       domexception: 1.0.1
-    transitivePeerDependencies:
-      - supports-color
     bundledDependencies:
       - node-pre-gyp
 
