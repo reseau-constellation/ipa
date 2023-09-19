@@ -601,7 +601,7 @@ typesClients.forEach((type) => {
               await clients[0].favoris!.désépinglerFavori({
                 idObjet: idMotClef2,
               });
-              const valPropres = await relationsPropres.attendreExiste();
+              const valPropres = await relationsPropres.attendreQue(x=>x && x.length === 0);
               expect(valPropres.length).to.equal(0);
 
               const valAutres = await relationsAutres.attendreQue(
