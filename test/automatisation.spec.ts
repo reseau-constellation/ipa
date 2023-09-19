@@ -721,8 +721,9 @@ typesClients.forEach((type) => {
             idTableau,
             vals: { [idCol]: 5 },
           });
-
+          console.log("on va attendre la modification")
           await attenteModifié;
+          console.log("modifié !")
 
           vérifierDonnéesBd(fichier, {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
