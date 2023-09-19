@@ -1,4 +1,4 @@
-import { générerClient, type ClientConstellation } from "@/index.js";
+import { type ClientConstellation } from "@/index.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
