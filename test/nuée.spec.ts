@@ -45,8 +45,8 @@ const générerNuéeTest = async (
 };
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
-    describe.skip("Nuées : Tests individuels", function () {
+  describe("Client " + type, function () {
+    describe("Nuées : Tests individuels", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -74,7 +74,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Noms", function () {
+      describe("Noms", function () {
         let idNuée: string;
         let fOublier: schémaFonctionOublier;
 
@@ -140,7 +140,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Descriptions", function () {
+      describe("Descriptions", function () {
         let idNuée: string;
         let fOublier: schémaFonctionOublier;
 
@@ -209,7 +209,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Mots-clefs", function () {
+      describe("Mots-clefs", function () {
         let idMotClef: string;
         let idNuée: string;
 
@@ -252,7 +252,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Mes nuées", function () {
+      describe("Mes nuées", function () {
         let fOublier: schémaFonctionOublier;
         let idNuée: string;
         let idNouvelleNuée: string;
@@ -298,7 +298,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Statut nuée", function () {
+      describe("Statut nuée", function () {
         let fOublier: schémaFonctionOublier;
         let idNuée: string;
 
@@ -360,7 +360,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Tableaux", function () {
+      describe("Tableaux", function () {
         describe("Ajouter et enlever", function () {
           let fOublier: schémaFonctionOublier;
           let idNuée: string;
@@ -512,7 +512,7 @@ typesClients.forEach((type) => {
     });
 
     if (isElectronMain || isNode) {
-      describe.skip("Suivre données", function () {
+      describe("Suivre données", function () {
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
         let client: ClientConstellation;
@@ -721,7 +721,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe.skip("Gestionnaires", function () {
+      describe("Gestionnaires", function () {
         it.skip("Créer gestionnaire indépendant");
         it.skip("Exclure membre");
         it.skip("Réintégrer membre");
@@ -729,7 +729,7 @@ typesClients.forEach((type) => {
         it.skip("Inviter membre");
       });
 
-      describe.skip("Autorisations nuée", function () {
+      describe("Autorisations nuée", function () {
         it.skip("Créer Nuée avec gestionnaire existant");
         it.skip("Changer philosophie");
         it.skip("Accepter membre");
@@ -773,12 +773,9 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            console.log("ici 0");
-            fsOublier.push(await clients[1].réseau.suivreConnexionsDispositifs({f: console.log}));
             ({ idNuée } = await générerNuéeTest(client, {
               autorisation: "CJPI",
             }));
-            console.log("ici 1", { idNuée });
             schémaNuée = await client.nuées!.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
@@ -786,35 +783,31 @@ typesClients.forEach((type) => {
             idBdMembreAutorisé = await client.bds.créerBdDeSchéma({
               schéma: schémaNuée,
             });
-            console.log("ici 2");
             const { fOublier: fOublierRésultat } =
               await clients[1].nuées!.suivreBdsCorrespondantes({
                 idNuée,
-                f: (x) => {console.log("résultat 1 test", x); résultat.mettreÀJour(x)},
+                f: (x) => résultat.mettreÀJour(x),
                 nRésultatsDésirés: 100,
               });
             fsOublier.push(fOublierRésultat);
-            console.log("ici 3");
 
             const { fOublier: fOublierRésultatSansVérification } =
               await client.nuées!.suivreBdsCorrespondantes({
                 idNuée,
-                f: (x) => {console.log("résultat sans vérification", x); résultatSansVérification.mettreÀJour(x)},
+                f: (x) => résultatSansVérification.mettreÀJour(x),
                 nRésultatsDésirés: 100,
                 vérifierAutorisation: false,
               });
             fsOublier.push(fOublierRésultatSansVérification);
-            console.log("ici 4");
 
             const { fOublier: fOublierRésultatSansInclureLesMiennes } =
               await clients[1].nuées!.suivreBdsCorrespondantes({
                 idNuée,
-                f: (x) => {console.log("résultat sans inclure les miennes", x); résultatSansInclureLesMiennes.mettreÀJour(x)},
+                f: (x) => résultatSansInclureLesMiennes.mettreÀJour(x),
                 nRésultatsDésirés: 100,
                 toujoursInclureLesMiennes: false,
               });
             fsOublier.push(fOublierRésultatSansInclureLesMiennes);
-            console.log("ici avant terminé");
           });
 
           after(async () => {
@@ -822,22 +815,15 @@ typesClients.forEach((type) => {
           });
 
           it("Bds de membres autorisés", async () => {
-            console.log("ici test 0");
-
-            console.log("ici test 1");
             const val = await résultat.attendreQue((x) => x.length > 0);
-            console.log("ici test 2");
             expect(val[0]).to.equal(idBdMembreAutorisé);
           });
 
           it("Bd non autorisée - incluse dans les miennes", async () => {
-            console.log("Bd non autorisée - incluse dans les miennes 0")
             idBdMembreNonAutorisé = await clients[1].bds.créerBdDeSchéma({
               schéma: schémaNuée,
             });
-            console.log("Bd non autorisée - incluse dans les miennes 1")
             const val = await résultat.attendreQue((x) => x.length > 1);
-            console.log("Bd non autorisée - incluse dans les miennes 2")
             expect(val.includes(idBdMembreNonAutorisé)).to.be.true();
           });
 

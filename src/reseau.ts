@@ -2193,7 +2193,6 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     clef: clefObjet;
     f: schémaFonctionSuivi<infoAuteur[]>;
   }): Promise<schémaFonctionOublier> {
-    console.log("suivre auteurs", {idObjet, clef});
     const fListe = async (
       fSuivreRacine: (éléments: infoAccès[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
@@ -2688,7 +2687,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     ): Promise<schémaFonctionOublier> => {
       return await this.client.bds!.rechercherBdsParNuée({
         idNuée,
-        f: async (x) => {console.log("suivreBdsDeNuée fBranche", x); return await f(x)},
+        f,
         idCompte,
       });
     };
@@ -2697,14 +2696,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreComptesRéseauEtEnLigne({
-        f: async (résultats) => {console.log({suivreBdsDeNuée: résultats}); return await fSuivreRacine(résultats.map((r) => r.idCompte))},
+        f: async (résultats) => await fSuivreRacine(résultats.map((r) => r.idCompte)),
         profondeur: nRésultatsDésirés,
       });
     };
 
     return await this.client.suivreBdsDeFonctionRecherche({
       fListe,
-      f: async (x: string[]) => {console.log("bds de nuée finales", x); return await f(x)},
+      f,
       fBranche,
     });
   }
@@ -2728,7 +2727,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
         return await this.suivreBdsDeNuée({
           idNuée: idNuéeUnique,
-          f: async x => {console.log("suivreBdsDeNuée de suivreÉlémentsTablUniq", x); return await fSuivreRacineListe(x)},
+          f: fSuivreRacineListe,
           nRésultatsDésirés: nBds,
         });
       };

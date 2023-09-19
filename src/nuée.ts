@@ -1654,8 +1654,8 @@ export default class Nuée extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<règleColonne[]>;
     catégories?: boolean;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (colonnes: règleColonne[][]) => {
-      await f(colonnes.flat());
+    const fFinale = async (règles: règleColonne[][]) => {
+      await f(règles.flat());
     };
 
     const fParents = async (
@@ -2209,7 +2209,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           auteurs: infoAuteur[]
         ): Promise<void> => {
           console.log("ici", {idBd, auteurs: JSON.stringify(auteurs, undefined, 2)})
-          await fSuivreBranche({
+          return await fSuivreBranche({
             idBd,
             auteurs: auteurs
               .filter((x) => x.accepté) // Uniquement considérer les auteurs qui ont accepté l'invitation.
@@ -2793,6 +2793,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         (x) => !!x && !!x.length
       );
     };
+
     const schéma: schémaSpécificationBd = {
       licence,
       nuées: [idNuée],
@@ -2817,7 +2818,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         })
       ),
     };
-
+  
     return schéma;
   }
 
