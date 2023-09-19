@@ -10,7 +10,6 @@ import {
 } from "@/recherche/motClef.js";
 
 import {
-  client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
 
