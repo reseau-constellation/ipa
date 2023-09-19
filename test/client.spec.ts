@@ -40,7 +40,7 @@ describe("adresseOrbiteValide", function () {
 });
 
 if (isNode || isElectronMain) {
-  describe.only("Contrôle dispositifs", function () {
+  describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation,
