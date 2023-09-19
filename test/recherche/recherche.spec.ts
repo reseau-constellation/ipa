@@ -11,7 +11,6 @@ import type {
 } from "@/types.js";
 
 import {
-  clientsConnectés,
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
@@ -73,248 +72,6 @@ typesClients.forEach((type) => {
   describe("Client " + type, function () {
     if (isElectronMain || isNode) {
       describe.only("Rechercher dans réseau", function () {
-        describe("Profil", function () {
-          let fOublierClients: () => Promise<void>;
-          let clients: ClientConstellation[];
-          let idsComptes: string[];
-
-          before(async () => {
-            ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 3, type, générerClient }));
-            idsComptes = await Promise.all(
-              clients.map(async (c) => await c.obtIdCompte())
-            );
-            // @ts-ignore
-            await clientsConnectés(...clients)
-          });
-
-          after(async () => {
-            if (fOublierClients) await fOublierClients();
-          });
-
-          describe("selon nom", function () {
-            let fOublier: schémaFonctionOublier;
-            let fChangerN: (n: number) => Promise<void>;
-
-            let fOublier2: schémaFonctionOublier;
-            let fChangerN2: (n: number) => Promise<void>;
-
-            let réfClient2: résultatRecherche<infoRésultatTexte>;
-            let réfClient3: résultatRecherche<infoRésultatTexte>;
-
-            const rés = new utilsTestAttente.AttendreRésultat<
-              résultatRecherche<infoRésultatTexte>[]
-            >();
-            const rés2 = new utilsTestAttente.AttendreRésultat<
-              résultatRecherche<infoRésultatTexte>[]
-            >();
-
-            before(async () => {
-              ({ fOublier, fChangerN } =
-                await clients[0].recherche!.rechercherProfilsSelonNom({
-                  nom: "Julien",
-                  f: (membres) => rés.mettreÀJour(membres),
-                  nRésultatsDésirés: 2,
-                }));
-
-              ({ fOublier: fOublier2, fChangerN: fChangerN2 } =
-                await clients[0].recherche!.rechercherProfilsSelonNom({
-                  nom: "Julien",
-                  f: (membres) => rés2.mettreÀJour(membres),
-                  nRésultatsDésirés: 1,
-                }));
-
-              réfClient2 = {
-                id: idsComptes[1],
-                résultatObjectif: {
-                  score: 4 / 9,
-                  type: "résultat",
-                  de: "nom",
-                  clef: "fr",
-                  info: {
-                    type: "texte",
-                    texte: "Julien",
-                    début: 0,
-                    fin: 6,
-                  },
-                },
-              };
-              réfClient3 = {
-                id: idsComptes[2],
-                résultatObjectif: {
-                  score: 4 / 9,
-                  type: "résultat",
-                  de: "nom",
-                  clef: "es",
-                  info: {
-                    type: "texte",
-                    texte: "Julián",
-                    début: 0,
-                    fin: 6,
-                  },
-                },
-              };
-            });
-
-            after(async () => {
-              if (fOublier) await fOublier();
-              if (fOublier2) await fOublier2();
-              rés.toutAnnuler();
-              rés2.toutAnnuler();
-            });
-
-            it("Moins de résultats que demandé s'il n'y a vraiment rien", async () => {
-              await clients[1].profil!.sauvegarderNom({
-                langue: "fr",
-                nom: "Julien",
-              });
-
-              const val = await rés.attendreQue((x) => x.length > 0);
-              vérifierRecherche(val, [réfClient2]);
-            });
-
-            it("On suit les changements", async () => {
-              await clients[2].profil!.sauvegarderNom({
-                langue: "es",
-                nom: "Julián",
-              });
-
-              const val = await rés.attendreQue((x) => !!x && x.length > 1);
-              vérifierRecherche(val, [réfClient2, réfClient3]);
-            });
-
-            it("Diminuer N désiré", async () => {
-              await fChangerN(1);
-
-              const val = await rés.attendreQue((x) => !!x && x.length === 1);
-              vérifierRecherche(val, [réfClient2]);
-            });
-
-            it("Augmenter N désiré", async () => {
-              await fChangerN(2);
-
-              const val = await rés.attendreQue((x) => !!x && x.length > 1);
-              vérifierRecherche(val, [réfClient2, réfClient3]);
-            });
-
-            it("Augmenter N désiré d'abord", async () => {
-              await fChangerN2(2);
-
-              const val = await rés2.attendreQue((x) => !!x && x.length > 1);
-              vérifierRecherche(val, [réfClient2, réfClient3]);
-            });
-
-            it("Et ensuite diminuer N désiré", async () => {
-              await fChangerN2(1);
-
-              const val = await rés2.attendreQue((x) => !!x && x.length === 1);
-              vérifierRecherche(val, [réfClient2]);
-            });
-          });
-
-          describe("selon courriel", function () {
-            let fOublier: schémaFonctionOublier;
-            let réfClient2: résultatRecherche<infoRésultatTexte>;
-
-            const rés = new utilsTestAttente.AttendreRésultat<
-              résultatRecherche<infoRésultatTexte>[]
-            >();
-
-            before(async () => {
-              ({ fOublier } =
-                await clients[0].recherche!.rechercherProfilsSelonCourriel({
-                  courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-                  f: (membres) => rés.mettreÀJour(membres),
-                  nRésultatsDésirés: 2,
-                }));
-              réfClient2 = {
-                id: idsComptes[1],
-                résultatObjectif: {
-                  score: 0,
-                  type: "résultat",
-                  de: "courriel",
-                  info: {
-                    type: "texte",
-                    texte: "தொடர்பு@லஸ்ஸி.இந்தியா",
-                    début: 0,
-                    fin: 21,
-                  },
-                },
-              };
-            });
-
-            after(async () => {
-              if (fOublier) await fOublier();
-              rés.toutAnnuler();
-            });
-
-            it("Rien pour commencer détecté", async () => {
-              const val = await rés.attendreExiste();
-              expect(val).to.be.empty();
-            });
-
-            it("Ajout détecté", async () => {
-              await clients[1].profil.sauvegarderCourriel({
-                courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
-              });
-
-              const val = await rés.attendreQue((x) => x.length > 0);
-              vérifierRecherche(val, [réfClient2]);
-            });
-
-            it("Changements détectés", async () => {
-              await clients[1].profil.effacerCourriel();
-              await clients[1].profil.sauvegarderCourriel({
-                courriel: "julien.malard@mail.mcgill.ca",
-              });
-
-              const val = await rés.attendreQue((x) => !x.length);
-              expect(val.length).to.equal(0);
-            });
-          });
-
-          describe("selon id", () => {
-            let fOublier: schémaFonctionOublier;
-            let réfClient2: résultatRecherche<infoRésultatTexte>;
-
-            const rés = new utilsTestAttente.AttendreRésultat<
-              résultatRecherche<infoRésultatTexte>[]
-            >();
-
-            before(async () => {
-              ({ fOublier } =
-                await clients[0].recherche!.rechercherProfilsSelonId({
-                  idCompte: await clients[1].obtIdCompte(),
-                  f: (membres) => rés.mettreÀJour(membres),
-                  nRésultatsDésirés: 2,
-                }));
-              réfClient2 = {
-                id: idsComptes[1],
-                résultatObjectif: {
-                  score: 0,
-                  type: "résultat",
-                  de: "id",
-                  info: {
-                    type: "texte",
-                    texte: idsComptes[1],
-                    début: 0,
-                    fin: idsComptes[1].length,
-                  },
-                },
-              };
-            });
-
-            after(async () => {
-              if (fOublier) await fOublier();
-              rés.toutAnnuler();
-            });
-
-            it("Membre détecté", async () => {
-              const val = await rés.attendreQue((x) => x.length > 0);
-              vérifierRecherche(val, [réfClient2]);
-            });
-          });
-        });
 
         describe("Mots-clefs", () => {
           let fOublierClients: () => Promise<void>;
@@ -1669,6 +1426,248 @@ typesClients.forEach((type) => {
             });
           });
         });
+
+        describe("Profil", function () {
+          let fOublierClients: () => Promise<void>;
+          let clients: ClientConstellation[];
+          let idsComptes: string[];
+
+          before(async () => {
+            ({ fOublier: fOublierClients, clients: clients as unknown } =
+              await générerClients({n: 3, type, générerClient }));
+            idsComptes = await Promise.all(
+              clients.map(async (c) => await c.obtIdCompte())
+            );
+          });
+
+          after(async () => {
+            if (fOublierClients) await fOublierClients();
+          });
+
+          describe("selon nom", function () {
+            let fOublier: schémaFonctionOublier;
+            let fChangerN: (n: number) => Promise<void>;
+
+            let fOublier2: schémaFonctionOublier;
+            let fChangerN2: (n: number) => Promise<void>;
+
+            let réfClient2: résultatRecherche<infoRésultatTexte>;
+            let réfClient3: résultatRecherche<infoRésultatTexte>;
+
+            const rés = new utilsTestAttente.AttendreRésultat<
+              résultatRecherche<infoRésultatTexte>[]
+            >();
+            const rés2 = new utilsTestAttente.AttendreRésultat<
+              résultatRecherche<infoRésultatTexte>[]
+            >();
+
+            before(async () => {
+              ({ fOublier, fChangerN } =
+                await clients[0].recherche!.rechercherProfilsSelonNom({
+                  nom: "Julien",
+                  f: (membres) => rés.mettreÀJour(membres),
+                  nRésultatsDésirés: 2,
+                }));
+
+              ({ fOublier: fOublier2, fChangerN: fChangerN2 } =
+                await clients[0].recherche!.rechercherProfilsSelonNom({
+                  nom: "Julien",
+                  f: (membres) => rés2.mettreÀJour(membres),
+                  nRésultatsDésirés: 1,
+                }));
+
+              réfClient2 = {
+                id: idsComptes[1],
+                résultatObjectif: {
+                  score: 4 / 9,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "fr",
+                  info: {
+                    type: "texte",
+                    texte: "Julien",
+                    début: 0,
+                    fin: 6,
+                  },
+                },
+              };
+              réfClient3 = {
+                id: idsComptes[2],
+                résultatObjectif: {
+                  score: 4 / 9,
+                  type: "résultat",
+                  de: "nom",
+                  clef: "es",
+                  info: {
+                    type: "texte",
+                    texte: "Julián",
+                    début: 0,
+                    fin: 6,
+                  },
+                },
+              };
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              if (fOublier2) await fOublier2();
+              rés.toutAnnuler();
+              rés2.toutAnnuler();
+            });
+
+            it("Moins de résultats que demandé s'il n'y a vraiment rien", async () => {
+              await clients[1].profil!.sauvegarderNom({
+                langue: "fr",
+                nom: "Julien",
+              });
+
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réfClient2]);
+            });
+
+            it("On suit les changements", async () => {
+              await clients[2].profil!.sauvegarderNom({
+                langue: "es",
+                nom: "Julián",
+              });
+
+              const val = await rés.attendreQue((x) => !!x && x.length > 1);
+              vérifierRecherche(val, [réfClient2, réfClient3]);
+            });
+
+            it("Diminuer N désiré", async () => {
+              await fChangerN(1);
+
+              const val = await rés.attendreQue((x) => !!x && x.length === 1);
+              vérifierRecherche(val, [réfClient2]);
+            });
+
+            it("Augmenter N désiré", async () => {
+              await fChangerN(2);
+
+              const val = await rés.attendreQue((x) => !!x && x.length > 1);
+              vérifierRecherche(val, [réfClient2, réfClient3]);
+            });
+
+            it("Augmenter N désiré d'abord", async () => {
+              await fChangerN2(2);
+
+              const val = await rés2.attendreQue((x) => !!x && x.length > 1);
+              vérifierRecherche(val, [réfClient2, réfClient3]);
+            });
+
+            it("Et ensuite diminuer N désiré", async () => {
+              await fChangerN2(1);
+
+              const val = await rés2.attendreQue((x) => !!x && x.length === 1);
+              vérifierRecherche(val, [réfClient2]);
+            });
+          });
+
+          describe("selon courriel", function () {
+            let fOublier: schémaFonctionOublier;
+            let réfClient2: résultatRecherche<infoRésultatTexte>;
+
+            const rés = new utilsTestAttente.AttendreRésultat<
+              résultatRecherche<infoRésultatTexte>[]
+            >();
+
+            before(async () => {
+              ({ fOublier } =
+                await clients[0].recherche!.rechercherProfilsSelonCourriel({
+                  courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
+                  f: (membres) => rés.mettreÀJour(membres),
+                  nRésultatsDésirés: 2,
+                }));
+              réfClient2 = {
+                id: idsComptes[1],
+                résultatObjectif: {
+                  score: 0,
+                  type: "résultat",
+                  de: "courriel",
+                  info: {
+                    type: "texte",
+                    texte: "தொடர்பு@லஸ்ஸி.இந்தியா",
+                    début: 0,
+                    fin: 21,
+                  },
+                },
+              };
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              rés.toutAnnuler();
+            });
+
+            it("Rien pour commencer détecté", async () => {
+              const val = await rés.attendreExiste();
+              expect(val).to.be.empty();
+            });
+
+            it("Ajout détecté", async () => {
+              await clients[1].profil.sauvegarderCourriel({
+                courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
+              });
+
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réfClient2]);
+            });
+
+            it("Changements détectés", async () => {
+              await clients[1].profil.effacerCourriel();
+              await clients[1].profil.sauvegarderCourriel({
+                courriel: "julien.malard@mail.mcgill.ca",
+              });
+
+              const val = await rés.attendreQue((x) => !x.length);
+              expect(val.length).to.equal(0);
+            });
+          });
+
+          describe("selon id", () => {
+            let fOublier: schémaFonctionOublier;
+            let réfClient2: résultatRecherche<infoRésultatTexte>;
+
+            const rés = new utilsTestAttente.AttendreRésultat<
+              résultatRecherche<infoRésultatTexte>[]
+            >();
+
+            before(async () => {
+              ({ fOublier } =
+                await clients[0].recherche!.rechercherProfilsSelonId({
+                  idCompte: await clients[1].obtIdCompte(),
+                  f: (membres) => rés.mettreÀJour(membres),
+                  nRésultatsDésirés: 2,
+                }));
+              réfClient2 = {
+                id: idsComptes[1],
+                résultatObjectif: {
+                  score: 0,
+                  type: "résultat",
+                  de: "id",
+                  info: {
+                    type: "texte",
+                    texte: idsComptes[1],
+                    début: 0,
+                    fin: idsComptes[1].length,
+                  },
+                },
+              };
+            });
+
+            after(async () => {
+              if (fOublier) await fOublier();
+              rés.toutAnnuler();
+            });
+
+            it("Membre détecté", async () => {
+              const val = await rés.attendreQue((x) => x.length > 0);
+              vérifierRecherche(val, [réfClient2]);
+            });
+          });
+        });
+
       });
     }
   });
