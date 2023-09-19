@@ -154,21 +154,28 @@ if (isNode || isElectronMain) {
     describe("Automatiser ajout dispositif", function () {
       let idBd: string;
 
+      const fsOublier: schémaFonctionOublier[] = []
+
       before(async () => {
         const attendreConnectés = new attente.AttendreRésultat<statutDispositif[]>()
-        await client3.réseau!.suivreConnexionsDispositifs({
-          f: x => {console.log("connexion", x); return attendreConnectés.mettreÀJour(x)}
+        const fOublierConnexions = await client3.réseau!.suivreConnexionsDispositifs({
+          f: x => attendreConnectés.mettreÀJour(x)
         })
+        fsOublier.push(fOublierConnexions);
+
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
 
         const invitation = await client.générerInvitationRejoindreCompte();
 
         const idClient1 = await client.obtIdCompte();
         await attendreConnectés.attendreQue((x) => {
-          console.log({x})
           return !!x.find(c=>c.infoDispositif.idCompte === idClient1)
         })
         await client3.demanderEtPuisRejoindreCompte(invitation);
+      });
+
+      after(async () => {
+        await Promise.all(fsOublier.map(f=>f()));
       });
 
       it("Nouveau dispositif ajouté au compte", async () => {
