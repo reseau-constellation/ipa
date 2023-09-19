@@ -42,6 +42,7 @@ import {
   schémaFonctionOublier,
   schémaRetourFonctionRechercheParProfondeur,
   élémentsBd,
+  PasNondéfini,
 } from "@/types.js";
 import {
   adresseOrbiteValide,
@@ -1458,8 +1459,8 @@ export class ClientConstellation extends EventEmitter {
     idBd: string;
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
-    const obtTêteBd = (bd: Store): string | undefined => {
-      const tête = bd._oplog.heads[bd._oplog.heads.length - 1]?.hash;
+    const obtTêteBd = (bd: Store): string => {
+      const tête = bd._oplog.heads[bd._oplog.heads.length - 1]?.hash || '';
       return tête;
     };
     const calculerEmpreinte = (texte: string) => Base64.stringify(md5(texte));
@@ -1485,7 +1486,7 @@ export class ClientConstellation extends EventEmitter {
         id,
         f: async (bd) => {
           const tête = obtTêteBd(bd);
-          if (tête) await fSuivreBranche(tête);
+          await fSuivreBranche(tête);
         },
       });
     };
@@ -1534,7 +1535,7 @@ export class ClientConstellation extends EventEmitter {
 
   async suivreBdsDeFonctionListe<
     T extends élémentsBd,
-    U,
+    U extends PasNondéfini,
     V,
     W extends
       | schémaFonctionOublier
@@ -1561,6 +1562,7 @@ export class ClientConstellation extends EventEmitter {
   }): Promise<W> {
     interface InterfaceBranches {
       données?: U;
+      déjàÉvaluée: boolean;
       fOublier?: schémaFonctionOublier;
     }
     const arbre: { [key: string]: InterfaceBranches } = {};
@@ -1570,11 +1572,14 @@ export class ClientConstellation extends EventEmitter {
 
     const fFinale = async () => {
       if (!prêt) return;
+
+      // Arrêter si aucune des branches n'a encore donnée son premier résultat
+      if (Object.values(arbre).length && Object.values(arbre).every(x => !x.déjàÉvaluée)) return;
+
       const listeDonnées = Object.values(arbre)
         .map((x) => x.données)
         .filter((d) => d !== undefined) as U[];
       const réduits = fRéduction(listeDonnées);
-      console.log({réduits})
       await f(réduits);
     };
     const verrou = new Semaphore();
@@ -1627,13 +1632,16 @@ export class ClientConstellation extends EventEmitter {
       
       await Promise.all(
         nouveaux.map(async (n: string) => {
-          arbre[n] = { données: undefined };
+          arbre[n] = { 
+            déjàÉvaluée: false,
+          };
           const élément = dictÉléments[n];
           dictBranches[n] = élément;
 
           const idBdBranche = fIdBdDeBranche(élément);
           const fSuivreBranche = async (données: U) => {
             arbre[n].données = données;
+            arbre[n].déjàÉvaluée = true;
             await fFinale();
           };
           const fOublier = await fBranche(idBdBranche, fSuivreBranche, élément);

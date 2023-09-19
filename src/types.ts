@@ -114,3 +114,5 @@ export const schémaStructureBdMétadonnées: JSONSchemaType<structureBdMétadon
     additionalProperties: true,
     required: [],
   };
+
+export type PasNondéfini<T=unknown> = T extends undefined ? never : T;
