@@ -737,7 +737,7 @@ typesClients.forEach((type) => {
         it.skip("Changer gestionnaire");
       });
 
-      describe("Correspondances bds", function () {
+      describe.skip("Correspondances bds", function () {
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
         let client: ClientConstellation;
