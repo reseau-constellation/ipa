@@ -130,7 +130,7 @@ const comparerDonnéesTableau = (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("Automatisation", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -714,6 +714,7 @@ typesClients.forEach((type) => {
           const avant = Date.now();
           const attenteModifié = attendreModifié.attendre(avant, async () => {
             const doc = XLSX.readFile(fichier);
+            console.log("ici", doc.Sheets["météo"])
             return utils.sheet_to_json(doc.Sheets["météo"]).length >= 2
           });
           await client.tableaux!.ajouterÉlément({
