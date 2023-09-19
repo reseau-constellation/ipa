@@ -94,7 +94,9 @@ export class CacheSuivi {
       };
       const fFinale = async (x: unknown) => {
         if (!this._cacheSuivi[codeCache]) return;  // Si on a déjà annulé la requète
-        if (deepEqual(this._cacheSuivi[codeCache].val, x)) return;  // Ignorer si c'est la même valeur qu'avant
+        if (
+          Object.keys(this._cacheSuivi[codeCache]).includes("val") && deepEqual(this._cacheSuivi[codeCache].val, x, { strict: true })
+        ) return;  // Ignorer si c'est la même valeur qu'avant
         this._cacheSuivi[codeCache].val = x;
         const fsSuivis = Object.values(this._cacheSuivi[codeCache].requètes);
         await Promise.all(fsSuivis.map((f_) => f_(x)));
@@ -103,7 +105,10 @@ export class CacheSuivi {
 
       const fOublier = await fOriginale.apply(ceciOriginal, [argsAvecF]);
       this._cacheSuivi[codeCache].fOublier = fOublier;
+      this.verrou.release(codeCache);
     } else {
+      this.verrou.release(codeCache);
+
       // Sinon, ajouter f à la liste de fonctions de rappel
       this._cacheSuivi[codeCache].requètes[idRequète] = f;
       if (Object.keys(this._cacheSuivi[codeCache]).includes("val"))
@@ -113,7 +118,6 @@ export class CacheSuivi {
     const fOublierRequète = async () => {
       await this.oublierSuivi({ codeCache, idRequète });
     };
-    this.verrou.release(codeCache);
 
     return fOublierRequète;
   }
