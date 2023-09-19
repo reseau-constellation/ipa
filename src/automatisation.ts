@@ -460,13 +460,10 @@ const générerFExportation = (
       }
 
       case "bd": {
-        console.log("exportation bd 0")
         const donnéesExp = await client.bds!.exporterDonnées({
           idBd: spéc.idObjet,
           langues: spéc.langues,
         });
-        console.log("exportation bd 1")
-        console.log(donnéesExp.doc.Sheets[donnéesExp.doc.SheetNames[0]])
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
@@ -476,7 +473,6 @@ const générerFExportation = (
           dossier,
           inclureFichiersSFIP: spéc.inclureFichiersSFIP,
         });
-        console.log("exportation bd 2")
         break;
       }
 
@@ -762,7 +758,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
         } else {
           const fOublier = await client.suivreEmpreinteTêtesBdRécursive({
             idBd: spéc.idObjet,
-            f: async (x) => {console.log("empreinte bd", x); return await fAutoAvecÉtats(x)},
+            f: fAutoAvecÉtats,
           });
           return fOublier;
         }
