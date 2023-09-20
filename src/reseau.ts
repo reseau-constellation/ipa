@@ -419,6 +419,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     try {
       await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
     } catch (e) {
+      console.log("erreur");
+      console.log(e)
+      console.log(e.toString())
+      console.log("fin erreur")
       if (!e.toString().includes("PublishError.InsufficientPeersError")) {
         throw e;
       }
@@ -1303,8 +1307,15 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fFinale = async () => {
       const connexions = await this.client.sfip!.swarm.peers();
+
       // Enlever les doublons (pas trop sûr ce qu'ils font ici)
       const connexionsUniques = dédédoublerConnexions(connexions);
+      console.log(connexionsUniques.map((c) => {
+        return {
+          adresse: c.addr.toString(),
+          pair: c.peer.toCID().toString(),
+        };
+      }))
       return await f(
         connexionsUniques.map((c) => {
           return {
