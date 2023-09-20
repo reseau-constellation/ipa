@@ -215,6 +215,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 2, type, générerClient }));
+            await new Promise(résoudre => setTimeout(résoudre, 2000))
           });
 
           after(async () => {
@@ -233,12 +234,14 @@ typesClients.forEach((type) => {
               const idVariable = await clients[1].variables!.créerVariable({
                 catégorie: "numérique",
               });
+              await new Promise(résoudre => setTimeout(résoudre, 2000));
               ({ fOublier } =
                 await clients[0].recherche!.rechercherVariablesSelonId({
                   idVariable,
                   f: (motsClefs) => rés.mettreÀJour(motsClefs),
                   nRésultatsDésirés: 2,
                 }));
+              await new Promise(résoudre => setTimeout(résoudre, 2000));
               réfClient2 = {
                 id: idVariable,
                 résultatObjectif: {
