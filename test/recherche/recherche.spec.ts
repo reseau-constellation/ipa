@@ -81,7 +81,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 3, type, générerClient }));
-            await new Promise(résoudre => setTimeout(résoudre, 9000));
+
             idsComptes = await Promise.all(
               clients.map(async (c) => await c.obtIdCompte())
             );

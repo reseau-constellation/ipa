@@ -4,9 +4,10 @@ import type { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
 import OrbitDB from "orbit-db";
-import Store from "orbit-db-store";
+
+import type Store from "orbit-db-store";
 import type FeedStore from "orbit-db-feedstore";
-import KeyValueStore from "orbit-db-kvstore";
+import type KeyValueStore from "orbit-db-kvstore";
 
 import type AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
 import type IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
