@@ -343,7 +343,7 @@ typesClients.forEach((type) => {
               ({ fOublier } =
                 await clients[0].recherche!.rechercherMotsClefsSelonId({
                   idMotClef,
-                  f: (motsClefs) => {console.log({motsClefs}); rés.mettreÀJour(motsClefs)},
+                  f: (motsClefs) => rés.mettreÀJour(motsClefs),
                   nRésultatsDésirés: 2,
                 }));
               
