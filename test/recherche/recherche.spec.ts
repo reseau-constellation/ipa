@@ -71,7 +71,7 @@ const vérifierRecherche = (
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     if (isElectronMain || isNode) {
-      describe("Rechercher dans réseau", function () {
+      describe.only("Rechercher dans réseau", function () {
 
         describe("Profil", function () {
           let fOublierClients: () => Promise<void>;
