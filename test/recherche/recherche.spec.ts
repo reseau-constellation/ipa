@@ -105,7 +105,7 @@ typesClients.forEach((type) => {
                   f: (motsClefs) => {console.log({motsClefs}); rés.mettreÀJour(motsClefs)},
                   nRésultatsDésirés: 2,
                 }));
-              await new Promise(résoudre => setTimeout(résoudre, 2000));
+              
               réfClient2 = {
                 id: idMotClef,
                 résultatObjectif: {
