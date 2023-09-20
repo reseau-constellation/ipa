@@ -23,8 +23,8 @@ dependencies:
     specifier: ^2.0.7
     version: 2.0.7
   '@constl/electron-webrtc-relay':
-    specifier: ^0.2.1
-    version: 0.2.1
+    specifier: ^0.2.3
+    version: 0.2.3
   '@constl/mandataire':
     specifier: ^0.1.14
     version: 0.1.14
@@ -1353,8 +1353,8 @@ packages:
     engines: {node: '>=0.1.90'}
     dev: true
 
-  /@constl/electron-webrtc-relay@0.2.1:
-    resolution: {integrity: sha512-ZzZw8CtCVvkCo9j/SSxblK3I5Fks5S+lHPvcvfMujCuNQbCkwHRYZgLEMHSXSsNbwubuM9teroapuF/6nQBzCg==}
+  /@constl/electron-webrtc-relay@0.2.3:
+    resolution: {integrity: sha512-0r/C0gGdy3aH2UZ0oU4t3fcJqaBfw8a6Wy1VoZq4Nn/2eD0nRDbIHfavXy1+V/yEMzi6W9DIGgqqsF3lgU9f5A==}
     engines: {node: '>=12'}
     dependencies:
       debug: 4.3.4(supports-color@8.1.1)
@@ -1373,7 +1373,7 @@ packages:
       '@chainsafe/libp2p-gossipsub': 7.0.0
       '@chainsafe/libp2p-noise': 11.0.4
       '@chriscdn/promise-semaphore': 2.0.7
-      '@constl/electron-webrtc-relay': 0.2.1
+      '@constl/electron-webrtc-relay': 0.2.3
       '@constl/mandataire': 0.1.14
       '@constl/utils-ipa': 0.1.2(wrtc@0.4.7)
       '@lassi-js/kili': 0.2.3(@constl/ipa@0.8.2)(wrtc@0.4.7)
@@ -1990,7 +1990,7 @@ packages:
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.7.10
-      '@types/node': 18.17.17
+      '@types/node': 18.17.18
 
   /@grpc/proto-loader@0.7.10:
     resolution: {integrity: sha512-CAqDfoaQ8ykFd9zqBDn4k6iWT9loLAlc2ETmDFS9JCD70gDcnA4L3AFEo2iV7KyAtAAHFW9ftq1Fz+Vsgq80RQ==}
@@ -3145,6 +3145,8 @@ packages:
       '@libp2p/interface': 0.1.2
       multiformats: 12.1.1
       uint8arrays: 4.0.6
+    transitivePeerDependencies:
+      - supports-color
 
   /@libp2p/peer-record@5.0.4:
     resolution: {integrity: sha512-e+AArf7pwMLqF24mehTe1OYjr1v0SOKshVrI1E9YH/Cb1F3ZZuK3smyGmnLaS4JlqsarRCMSe3V50tRkqMFY7g==}
@@ -4296,6 +4298,9 @@ packages:
 
   /@types/node@18.17.17:
     resolution: {integrity: sha512-cOxcXsQ2sxiwkykdJqvyFS+MLQPLvIdwh5l6gNg8qF6s+C7XSkEWOZjK+XhUZd+mYvHV/180g2cnCcIl4l06Pw==}
+
+  /@types/node@18.17.18:
+    resolution: {integrity: sha512-/4QOuy3ZpV7Ya1GTRz5CYSz3DgkKpyUptXuQ5PPce7uuyJAOR7r9FhkmxJfvcNUXyklbC63a+YvB3jxy7s9ngw==}
 
   /@types/node@20.6.2:
     resolution: {integrity: sha512-Y+/1vGBHV/cYk6OI1Na/LHzwnlNCAfU3ZNGrc1LdRe/LAIbdDPTTv/HU3M7yXN448aTVDq3eKRm2cg7iKLb8gw==}
@@ -15377,7 +15382,7 @@ packages:
     resolution: {integrity: sha512-kN9dJbvnySHULIluDHy32WHRUu3Og7B9sbY7tsFLctQkIqnMh3hErYgdMjTYuqmcXX+lK5T1lnUt3G7zNswmZA==}
     dependencies:
       spdx-expression-parse: 3.0.1
-      spdx-license-ids: 3.0.14
+      spdx-license-ids: 3.0.15
     dev: true
 
   /spdx-exceptions@2.3.0:
@@ -15393,6 +15398,10 @@ packages:
 
   /spdx-license-ids@3.0.14:
     resolution: {integrity: sha512-U0eS5wcpu/O2/QZk6PcAMOA8H3ZuvRe4mFHA3Q+LNl1SRDmfQ+mD3RoD6tItqnvqubJ32m/zV2Z/ikSmxccD1Q==}
+    dev: true
+
+  /spdx-license-ids@3.0.15:
+    resolution: {integrity: sha512-lpT8hSQp9jAKp9mhtBU4Xjon8LPGBvLIuBiSVhMEtmLecTh2mO0tlqrAMp47tBXzMr13NJMQ2lf7RpQGLJ3HsQ==}
     dev: true
 
   /speedometer@0.1.4:
