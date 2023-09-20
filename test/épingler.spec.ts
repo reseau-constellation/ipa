@@ -10,7 +10,6 @@ import {
 const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
 
-
 import { expect } from "aegir/chai";
 import { schémaFonctionOublier } from "@/types.js";
 
@@ -25,7 +24,7 @@ typesClients.forEach((type) => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
           n: 1,
           type,
-          générerClient
+          générerClient,
         }));
         client = clients[0];
       });

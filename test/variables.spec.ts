@@ -16,7 +16,6 @@ const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
 import { générerClient } from "@/index.js";
 
-
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Variables", function () {
@@ -26,7 +25,7 @@ typesClients.forEach((type) => {
 
       before("Préparer clients", async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
-          await générerClients({n: 1, type, générerClient }));
+          await générerClients({ n: 1, type, générerClient }));
         client = clients[0];
       });
 

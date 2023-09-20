@@ -10,7 +10,6 @@ import {
 const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
 
-
 typesClients.forEach((type) => {
   describe("Client " + type, function () {
     describe("Mots-clefs", function () {
@@ -22,7 +21,7 @@ typesClients.forEach((type) => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
           n: 1,
           type,
-          générerClient
+          générerClient,
         }));
         client = clients[0];
       });

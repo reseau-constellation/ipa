@@ -1,1 +1,1 @@
-declare module '@orbitdb/core';
+declare module "@orbitdb/core";

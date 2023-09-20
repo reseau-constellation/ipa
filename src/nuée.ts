@@ -2199,7 +2199,6 @@ export default class Nuée extends ComposanteClientListe<string> {
           auteurs: string[];
         }>
       ): Promise<schémaFonctionOublier> => {
-
         const fFinaleSuivreBranche = async (
           auteurs: infoAuteur[]
         ): Promise<void> => {
@@ -2812,7 +2811,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         })
       ),
     };
-  
+
     return schéma;
   }
 

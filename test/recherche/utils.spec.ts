@@ -18,11 +18,10 @@ import {
   rechercherTous,
 } from "@/recherche/utils.js";
 
-
 import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";
-import {générerClientsInternes} from "../ressources/utils.js"
+import { générerClientsInternes } from "../ressources/utils.js";
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;

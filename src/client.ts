@@ -1131,7 +1131,13 @@ export class ClientConstellation extends EventEmitter {
     }) => {
       return await this.suivreBdDic({ id, schéma, f: fSuivreBd });
     };
-    return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre, type: "keyvalue" });
+    return await this.suivreBdDeClef({
+      id,
+      clef,
+      f: fFinale,
+      fSuivre,
+      type: "keyvalue",
+    });
   }
 
   static obtObjetdeBdDic<T extends { [clef: string]: unknown }>({
@@ -1219,7 +1225,13 @@ export class ClientConstellation extends EventEmitter {
         });
       };
 
-      return await this.suivreBdDeClef({ id, clef, f: fFinale, fSuivre, type: "feed" });
+      return await this.suivreBdDeClef({
+        id,
+        clef,
+        f: fFinale,
+        fSuivre,
+        type: "feed",
+      });
     } else {
       const fFinale = async (valeurs?: LogEntry<T>[]) => {
         await f(valeurs || []);
@@ -1461,7 +1473,7 @@ export class ClientConstellation extends EventEmitter {
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
     const obtTêteBd = (bd: Store): string => {
-      const tête = bd._oplog.heads[bd._oplog.heads.length - 1]?.hash || '';
+      const tête = bd._oplog.heads[bd._oplog.heads.length - 1]?.hash || "";
       return tête;
     };
     const calculerEmpreinte = (texte: string) => Base64.stringify(md5(texte));
@@ -1575,7 +1587,11 @@ export class ClientConstellation extends EventEmitter {
       if (!prêt) return;
 
       // Arrêter si aucune des branches n'a encore donnée son premier résultat
-      if (Object.values(arbre).length && Object.values(arbre).every(x => !x.déjàÉvaluée)) return;
+      if (
+        Object.values(arbre).length &&
+        Object.values(arbre).every((x) => !x.déjàÉvaluée)
+      )
+        return;
 
       const listeDonnées = Object.values(arbre)
         .map((x) => x.données)
@@ -1612,28 +1628,28 @@ export class ClientConstellation extends EventEmitter {
         .map((é) => é[0]);
       nouveaux.push(...changés);
       nouveaux = [...new Set(nouveaux)];
-      
+
       await Promise.all(
-        changés.map(async c => {
+        changés.map(async (c) => {
           if (arbre[c]) {
             const fOublier = arbre[c].fOublier;
             if (fOublier) await fOublier();
             delete arbre[c];
           }
         })
-      )
+      );
 
       await Promise.all(
-        disparus.map(async d => {
+        disparus.map(async (d) => {
           const fOublier = arbre[d].fOublier;
           if (fOublier) await fOublier();
           delete arbre[d];
         })
-      )
-      
+      );
+
       await Promise.all(
         nouveaux.map(async (n: string) => {
-          arbre[n] = { 
+          arbre[n] = {
             déjàÉvaluée: false,
           };
           const élément = dictÉléments[n];
@@ -2189,14 +2205,14 @@ export class ClientConstellation extends EventEmitter {
       const accès = bd.access;
       const typeAccès = (accès.constructor as unknown as AccessController).type;
       if (typeAccès === "ipfs") {
-        const listeAccès: infoAccès[] = (accès as IPFSAccessController).write.map(
-          (id) => {
-            return {
-              idCompte: id,
-              rôle: MODÉRATEUR,
-            };
-          }
-        );
+        const listeAccès: infoAccès[] = (
+          accès as IPFSAccessController
+        ).write.map((id) => {
+          return {
+            idCompte: id,
+            rôle: MODÉRATEUR,
+          };
+        });
         await f(listeAccès);
       } else if (typeAccès === nomTypeContrôleurConstellation) {
         const fOublierAutorisés = await (
@@ -2205,10 +2221,10 @@ export class ClientConstellation extends EventEmitter {
         return fOublierAutorisés;
       }
       return faisRien;
-    }
+    };
     return await this.suivreBd({
       id,
-      f: fFinale
+      f: fFinale,
     });
   }
 

@@ -13,7 +13,6 @@ import {
 const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
 
-
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 
@@ -56,7 +55,7 @@ typesClients.forEach((type) => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
           n: 1,
           type,
-          générerClient
+          générerClient,
         }));
         client = clients[0];
       });
@@ -522,7 +521,7 @@ typesClients.forEach((type) => {
           ({ fOublier: fOublierClients, clients } = await générerClients({
             n: 2,
             type,
-            générerClient
+            générerClient,
           }));
           client = clients[0];
         });
@@ -747,7 +746,7 @@ typesClients.forEach((type) => {
           ({ fOublier: fOublierClients, clients } = await générerClients({
             n: 2,
             type,
-            générerClient
+            générerClient,
           }));
 
           client = clients[0];

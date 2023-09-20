@@ -1908,7 +1908,6 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
-
     if (!toutLeRéseau) {
       // Il y a probablement une meilleure façon de faire ça, mais pour l'instant ça passe
       const fObjectifFinal =
@@ -2235,30 +2234,29 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         case "variables":
           fOublierBranche = await this.client.variables?.suivreVariables({
             f: fFinaleSuivreBranche,
-            idCompte
-          })
+            idCompte,
+          });
           break;
         case "bds":
           fOublierBranche = await this.client.bds?.suivreBds({
             f: fFinaleSuivreBranche,
-            idCompte
+            idCompte,
           });
           break;
         case "nuées":
           fOublierBranche = await this.client.nuées?.suivreNuées({
             f: fFinaleSuivreBranche,
-            idCompte
+            idCompte,
           });
           break;
         case "projets":
           fOublierBranche = await this.client.projets?.suivreProjets({
             f: fFinaleSuivreBranche,
-            idCompte
+            idCompte,
           });
           break;
         default:
-          throw new Error(clef)
-        
+          throw new Error(clef);
       }
 
       return fOublierBranche;
@@ -2706,7 +2704,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreComptesRéseauEtEnLigne({
-        f: async (résultats) => await fSuivreRacine(résultats.map((r) => r.idCompte)),
+        f: async (résultats) =>
+          await fSuivreRacine(résultats.map((r) => r.idCompte)),
         profondeur: nRésultatsDésirés,
       });
     };

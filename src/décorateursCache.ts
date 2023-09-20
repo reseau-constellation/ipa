@@ -93,10 +93,12 @@ export class CacheSuivi {
         requètes: { [idRequète]: f },
       };
       const fFinale = async (x: unknown) => {
-        if (!this._cacheSuivi[codeCache]) return;  // Si on a déjà annulé la requète
+        if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requète
         if (
-          Object.keys(this._cacheSuivi[codeCache]).includes("val") && deepEqual(this._cacheSuivi[codeCache].val, x, { strict: true })
-        ) return;  // Ignorer si c'est la même valeur qu'avant
+          Object.keys(this._cacheSuivi[codeCache]).includes("val") &&
+          deepEqual(this._cacheSuivi[codeCache].val, x, { strict: true })
+        )
+          return; // Ignorer si c'est la même valeur qu'avant
         this._cacheSuivi[codeCache].val = x;
         const fsSuivis = Object.values(this._cacheSuivi[codeCache].requètes);
         await Promise.all(fsSuivis.map((f_) => f_(x)));

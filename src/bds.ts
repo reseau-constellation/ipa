@@ -864,7 +864,7 @@ export default class BDs extends ComposanteClientListe<string> {
           clefTableau,
           f: ignorerNonDéfinis(fSuivi),
         });
-      },
+      }
     );
     return await this.client.tableaux!.ajouterÉlément({
       idTableau: idTableau,

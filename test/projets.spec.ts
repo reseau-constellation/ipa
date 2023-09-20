@@ -14,7 +14,6 @@ import {
 const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
 
-
 const { dossierTempoTests, obtDirTempoPourTest } = utilsTestDossiers;
 
 import { obtRessourceTest } from "./ressources/index.js";
@@ -34,7 +33,7 @@ typesClients.forEach((type) => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
           n: 1,
           type,
-          générerClient
+          générerClient,
         }));
         client = clients[0];
       });

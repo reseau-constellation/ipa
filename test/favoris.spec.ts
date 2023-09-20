@@ -2,7 +2,7 @@ import { isElectronMain, isNode } from "wherearewe";
 
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/types.js";
-import { générerClient, type ClientConstellation } from "@/index.js"
+import { générerClient, type ClientConstellation } from "@/index.js";
 
 import {
   client as utilsClientTest,
@@ -10,7 +10,6 @@ import {
 } from "@constl/utils-tests";
 const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
-
 
 import { expect } from "aegir/chai";
 
@@ -25,7 +24,7 @@ typesClients.forEach((type) => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
           n: 1,
           type,
-          générerClient
+          générerClient,
         }));
         client = clients[0];
       });

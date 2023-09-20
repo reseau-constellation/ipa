@@ -444,7 +444,11 @@ export default class Licences {
     ) {
       this.perroquet = new கிளி({
         // À faire: arranger types
-        விண்மீன்: mandatairifier(this.client) as unknown as ConstructorParameters<typeof கிளி<InfoLicenceAvecCode>>[0]["விண்மீன்"],
+        விண்மீன்: mandatairifier(
+          this.client
+        ) as unknown as ConstructorParameters<
+          typeof கிளி<InfoLicenceAvecCode>
+        >[0]["விண்மீன்"],
         அட்டவணை_சாபி: CLEF_TABLEAU_LICENCES_APPROUVÉES,
         குழு_அடையாளம்: ID_NUÉE_LICENCES,
         வார்ப்புரு: SCHÉMA_BD_LICENCES,

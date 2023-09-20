@@ -72,7 +72,6 @@ typesClients.forEach((type) => {
   describe("Client " + type, function () {
     if (isElectronMain || isNode) {
       describe("Rechercher dans réseau", function () {
-
         describe("Profil", function () {
           let fOublierClients: () => Promise<void>;
           let clients: ClientConstellation[];
@@ -80,7 +79,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 3, type, générerClient }));
+              await générerClients({ n: 3, type, générerClient }));
 
             idsComptes = await Promise.all(
               clients.map(async (c) => await c.obtIdCompte())
@@ -321,7 +320,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 2, type, générerClient }));
+              await générerClients({ n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -337,16 +336,15 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              
               const idMotClef = await clients[1].motsClefs!.créerMotClef();
-              
+
               ({ fOublier } =
                 await clients[0].recherche!.rechercherMotsClefsSelonId({
                   idMotClef,
                   f: (motsClefs) => rés.mettreÀJour(motsClefs),
                   nRésultatsDésirés: 2,
                 }));
-              
+
               réfClient2 = {
                 id: idMotClef,
                 résultatObjectif: {
@@ -459,7 +457,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 2, type, générerClient }));
+              await générerClients({ n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -486,7 +484,7 @@ typesClients.forEach((type) => {
                   nRésultatsDésirés: 2,
                 }));
 
-                réfClient2 = {
+              réfClient2 = {
                 id: idVariable,
                 résultatObjectif: {
                   score: 0,
@@ -659,7 +657,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 2, type, générerClient }));
+              await générerClients({ n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -976,7 +974,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 2, type, générerClient }));
+              await générerClients({ n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -1294,7 +1292,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClients({n: 2, type, générerClient }));
+              await générerClients({ n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -1673,7 +1671,6 @@ typesClients.forEach((type) => {
             });
           });
         });
-
       });
     }
   });
@@ -1689,7 +1686,7 @@ typesClients.forEach((type) => {
 
       before(async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
-          await générerClients({n: 5, type, générerClient }));
+          await générerClients({ n: 5, type, générerClient }));
         client = clients[0];
         for (const [i, c] of clients.entries()) {
           idsComptes.push(await c.obtIdCompte());
