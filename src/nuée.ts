@@ -55,7 +55,7 @@ import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
 import { JSONSchemaType } from "ajv";
-import OrbitDB from "orbit-db";
+import type {OrbitDB} from "@orbitdb/core";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets

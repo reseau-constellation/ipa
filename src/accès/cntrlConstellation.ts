@@ -1,6 +1,6 @@
 import AccessControllers from "orbit-db-access-controllers";
 
-import OrbitDB from "orbit-db";
+import {isValidAddress, type OrbitDB} from "@orbitdb/core";
 import type FeedStore from "orbit-db-feedstore";
 import type { IdentityProvider } from "orbit-db-identity-provider";
 import { v4 as uuidv4 } from "uuid";
@@ -192,7 +192,7 @@ export default class ContrôleurConstellation extends AccessControllers.AccessCo
   }
 
   async load(adresse: string): Promise<void> {
-    const addresseValide = OrbitDB.isValidAddress(adresse);
+    const addresseValide = isValidAddress(adresse);
 
     let adresseFinale: string;
     if (addresseValide) {

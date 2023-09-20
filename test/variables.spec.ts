@@ -25,6 +25,7 @@ typesClients.forEach((type) => {
 
       before("Préparer clients", async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
+          // @ts-ignore
           await générerClients({ n: 1, type, générerClient }));
         client = clients[0];
       });
