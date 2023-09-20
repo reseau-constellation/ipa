@@ -33,8 +33,8 @@ devDependencies:
     specifier: 1.0.0-rc.15
     version: 1.0.0-rc.15(@algolia/client-search@4.19.1)(search-insights@2.7.0)
   xml2js:
-    specifier: ^0.4.23
-    version: 0.4.23
+    specifier: ^0.6.0
+    version: 0.6.2
   yaml:
     specifier: ^2.2.1
     version: 2.2.1
@@ -9896,14 +9896,6 @@ packages:
   /xml-name-validator@4.0.0:
     resolution: {integrity: sha512-ICP2e+jsHvAj2E2lIHxa5tjXRlKDJo4IdvPvCXbXQGdzSfmSpNVyIKMvoZHjDY9DP0zV17iI85o90vRFXNccRw==}
     engines: {node: '>=12'}
-    dev: true
-
-  /xml2js@0.4.23:
-    resolution: {integrity: sha512-ySPiMjM0+pLDftHgXY4By0uswI3SPKLDw/i3UXbnO8M/p28zqexCUoPmQFrYD+/1BzhGJSs2i1ERWKJAtiLrug==}
-    engines: {node: '>=4.0.0'}
-    dependencies:
-      sax: 1.2.4
-      xmlbuilder: 11.0.1
     dev: true
 
   /xml2js@0.5.0:
