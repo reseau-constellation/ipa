@@ -80,7 +80,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 2, type, générerClient }));
-
+            await new Promise(résoudre => setTimeout(résoudre, 6000));
           });
 
           after(async () => {
@@ -98,7 +98,7 @@ typesClients.forEach((type) => {
             before(async () => {
               
               const idMotClef = await clients[1].motsClefs!.créerMotClef();
-              await new Promise(résoudre => setTimeout(résoudre, 2000));
+              
               ({ fOublier } =
                 await clients[0].recherche!.rechercherMotsClefsSelonId({
                   idMotClef,
