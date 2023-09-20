@@ -70,6 +70,8 @@ if (isNode || isElectronMain) {
       idDispositif2 = await client2.obtIdDispositif();
       idDispositif3 = await client3.obtIdDispositif();
 
+      await new Promise(résoudre => setTimeout(résoudre, 9000))
+
       fOublierDispositifs = await client.suivreDispositifs({
         f: (dispositifs) => mesDispositifs.mettreÀJour(dispositifs),
       });
@@ -169,6 +171,7 @@ if (isNode || isElectronMain) {
 
         const idClient1 = await client.obtIdCompte();
         await attendreConnectés.attendreQue((x) => {
+          console.log({x});
           return !!x.find(c=>c.infoDispositif.idCompte === idClient1)
         })
         await client3.demanderEtPuisRejoindreCompte(invitation);
