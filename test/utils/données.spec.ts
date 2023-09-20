@@ -53,11 +53,11 @@ describe("Utils : données", function () {
         const fichiersSFIP = [
           {
             nom: "fichierSFIP1.txt",
-            octets: Buffer.from("Je le fichier SFIP no. 1."),
+            octets: Buffer.from("Je suis le fichier SFIP no. 1."),
           },
           {
             nom: "fichierSFIP2.txt",
-            octets: Buffer.from("Je le fichier SFIP no. 2."),
+            octets: Buffer.from("Je suis le fichier SFIP no. 2."),
           },
         ];
 
@@ -83,12 +83,12 @@ describe("Utils : données", function () {
         const contenuFichierSFIP1 = await zip.files[
           path.join("sfip", "fichierSFIP1.txt")
         ].async("string");
-        expect(contenuFichierSFIP1).to.equal("Je le fichier SFIP no. 1.");
+        expect(contenuFichierSFIP1).to.equal("Je suis le fichier SFIP no. 1.");
 
         const contenuFichierSFIP2 = await zip.files[
           path.join("sfip", "fichierSFIP2.txt")
         ].async("string");
-        expect(contenuFichierSFIP2).to.equal("Je le fichier SFIP no. 2.");
+        expect(contenuFichierSFIP2).to.equal("Je suis le fichier SFIP no. 2.");
       });
     });
   }

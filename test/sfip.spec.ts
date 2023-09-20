@@ -12,7 +12,7 @@ describe("SFIP", function () {
       const fs = await import("fs");
       const path = await import("path");
       const os = await import("os");
-      dossier = fs.mkdtempSync(path.join(os.tmpdir(), "constl-ipa"));
+      dossier = fs.mkdtempSync(path.join(os.tmpdir(), "constl-ipa-"));
     }
     sfip = await initSFIP(dossier);
   });
@@ -39,9 +39,11 @@ describe("SFIP", function () {
     }
   });
   after(async () => {
-    if (sfip) sfip.stop();
+    // Ça coince pour toujours avec Électron principal. Peut-être que ça sera mieux avec Hélia...
+    if (!isElectronMain) await sfip.stop();
     if (dossier) {
-      if (isNode || isElectronMain) {
+      if (isNode) {
+        // Pas pour Électron principal parce que nous n'avons pas appellé sfip.stop() ci-dessus
         const { sync } = await import("rimraf");
         sync(dossier);
       }

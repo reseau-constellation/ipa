@@ -1,7 +1,7 @@
 import { cidValide } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 
-describe("Utils", function () {
+describe("Utils : SFIP", function () {
   describe("cidValide", function () {
     it("valide", () => {
       const valide = cidValide(
