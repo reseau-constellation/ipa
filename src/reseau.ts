@@ -1307,12 +1307,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
       // Enlever les doublons (pas trop sûr ce qu'ils font ici)
       const connexionsUniques = dédédoublerConnexions(connexions);
-      console.log(connexionsUniques.map((c) => {
-        return {
-          adresse: c.addr.toString(),
-          pair: c.peer.toCID().toString(),
-        };
-      }))
+
       return await f(
         connexionsUniques.map((c) => {
           return {
@@ -1913,7 +1908,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
-    console.log({idCompte: this.client.idCompte})
+
     if (!toutLeRéseau) {
       // Il y a probablement une meilleure façon de faire ça, mais pour l'instant ça passe
       const fObjectifFinal =
@@ -1949,18 +1944,15 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         propres: [],
         favoris: [],
       };
-      console.log({idCompte, résultats})
 
       const fFinale = async () => {
         const tous = [...new Set([...résultats.propres, ...résultats.favoris])];
-        console.log("fFinale", idCompte, tous)
         await fSuivi(tous);
       };
 
       const fOublierPropres = await fRecherche({
         idCompte,
         f: async (propres) => {
-          console.log({idCompte, propres})
           résultats.propres = propres || [];
           await fFinale();
         },
@@ -1969,7 +1961,6 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       const fOublierFavoris = await this.suivreFavorisMembre({
         idCompte,
         f: async (favoris) => {
-          console.log({idCompte, favoris})
           résultats.favoris = favoris ? Object.keys(favoris) : [];
           await fFinale();
         },
@@ -1985,7 +1976,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       id: string,
       f: schémaFonctionSuivi<number>
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreConfianceAuteurs({ idItem: id, clef, f: async (x) => {console.log({id, confianceAuteurs: x}); return await f(x)} });
+      return await this.suivreConfianceAuteurs({ idItem: id, clef, f });
     };
 
     return await this.rechercher({
@@ -2139,7 +2130,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     ) => {
       return await this.client.motsClefs!.suivreQualitéMotClef({
         idMotClef: id,
-        f: async (x) => {console.log({qualitéMotClef: x}); return await fSuivreQualité(x)},
+        f: fSuivreQualité,
       });
     };
 
@@ -2147,7 +2138,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> =>
       await this.client.motsClefs!.suivreMotsClefs({
-        f: async (x) => {console.log({mesMotsClefs: x}); return await fSuivreRacine(x)},
+        f: fSuivreRacine,
       });
 
     return await this.rechercherObjets({

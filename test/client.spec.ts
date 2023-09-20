@@ -171,7 +171,6 @@ if (isNode || isElectronMain) {
 
         const idClient1 = await client.obtIdCompte();
         await attendreConnectés.attendreQue((x) => {
-          console.log({x});
           return !!x.find(c=>c.infoDispositif.idCompte === idClient1)
         })
         await client3.demanderEtPuisRejoindreCompte(invitation);

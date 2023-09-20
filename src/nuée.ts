@@ -2111,7 +2111,6 @@ export default class Nuée extends ComposanteClientListe<string> {
 
       const fFinale = async (): Promise<void> => {
         const { philoAutorisation, membres, bds } = info;
-        console.log("fFinale", info)
 
         if (!bds) return;
 
@@ -2179,7 +2178,6 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
 
       const fSuivreBds = async (bds: { idBd: string; auteurs: string[] }[]) => {
-        console.log("fSuivreBds", bds)
         info.bds = bds;
         await fFinale();
       };
@@ -2189,10 +2187,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
         return await this.client.réseau!.suivreBdsDeNuée({
           idNuée,
-          f: async (x) => {
-            console.log("fListe suivre bds nuée", x); 
-            return await fSuivreRacine(x)
-          },
+          f: fSuivreRacine,
           nRésultatsDésirés,
         });
       };
@@ -2204,11 +2199,10 @@ export default class Nuée extends ComposanteClientListe<string> {
           auteurs: string[];
         }>
       ): Promise<schémaFonctionOublier> => {
-        console.log("ici", {idBd})
+
         const fFinaleSuivreBranche = async (
           auteurs: infoAuteur[]
         ): Promise<void> => {
-          console.log("ici", {idBd, auteurs: JSON.stringify(auteurs, undefined, 2)})
           return await fSuivreBranche({
             idBd,
             auteurs: auteurs
@@ -2244,7 +2238,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     } else {
       return await this.client.réseau!.suivreBdsDeNuée({
         idNuée,
-        f: async x => {console.log("suivreBdsDeNuée de suivreBdsCorresp", x); return await f(x)},
+        f,
         nRésultatsDésirés,
       });
     }
