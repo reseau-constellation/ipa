@@ -299,7 +299,7 @@ export default class RÃ©seau extends ComposanteClientDic<structureBdPrincipaleRÃ
     const intervale = setInterval(() => {
       this.direSalut({});
     }, INTERVALE_SALUT);
-    this.fsOublier.push(async () => clearInterval(intervale));
+    this.fsOublier.unshift(async () => clearInterval(intervale));
 
     await this.direSalut({});
   }
