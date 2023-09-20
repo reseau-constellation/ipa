@@ -1,4 +1,4 @@
-import OrbitDB from "orbit-db";
+import type {OrbitDB} from "@orbitdb/core";
 
 import type { PeersResult } from "ipfs-core-types/src/swarm";
 import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { WorkBook, utils } from "xlsx";
 import type FeedStore from "orbit-db-feedstore";
-import OrbitDB from "orbit-db";
+import type {OrbitDB} from "@orbitdb/core";
 
 import ClientConstellation from "@/client.js";
 import {

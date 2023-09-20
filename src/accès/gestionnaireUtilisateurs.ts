@@ -1,4 +1,4 @@
-import OrbitDB from "orbit-db";
+import {isValidAddress, type OrbitDB} from "@orbitdb/core";
 import type FeedStore from "orbit-db-feedstore";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
@@ -139,7 +139,7 @@ export default class GestionnaireAccès extends EventEmitter {
       éléments.map(async (élément) => {
         const { rôle, id } = élément;
 
-        if (OrbitDB.isValidAddress(id)) {
+        if (isValidAddress(id)) {
           if (!this._rôlesUtilisateurs[rôle][id]) {
             const objAccèsUtilisateur = new AccèsUtilisateur(this.orbite, id);
             objAccèsUtilisateur.on("misÀJour", () => this._mettreRôlesÀJour());

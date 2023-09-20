@@ -5,13 +5,15 @@ import Store from "orbit-db-store";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 
 import { v4 as uuidv4 } from "uuid";
-import OrbitDB from "orbit-db";
-import AccessControllers from "@/accès/index.js";
+import {createOrbitDB, type OrbitDB} from "@orbitdb/core";
+import {enregistrerContrôleurs} from "@/accès/index.js";
 import { isElectronMain, isNode } from "wherearewe";
 import Ajv, { type JSONSchemaType, type ValidateFunction } from "ajv";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import Semaphore from "@chriscdn/promise-semaphore";
 import { OptionsContrôleurConstellation } from "./accès/cntrlConstellation.js";
+
+enregistrerContrôleurs();
 
 const ajv = new Ajv();
 
@@ -30,9 +32,9 @@ export default async function initOrbite({
     dossierOrbiteFinal = dossierOrbite || "./orbite";
   }
 
-  return await OrbitDB.createInstance(sfip, {
+  return await createOrbitDB({
+    ipfs: sfip,
     directory: dossierOrbiteFinal,
-    AccessControllers,
   });
 }
 export function vérifierTypesBdOrbite<T extends élémentsBd>({

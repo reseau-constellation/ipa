@@ -3,7 +3,7 @@ import type { IDResult } from "ipfs-core-types/src/root";
 import type { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
-import OrbitDB from "orbit-db";
+import {type OrbitDB} from "@orbitdb/core";
 
 import type Store from "orbit-db-store";
 import type FeedStore from "orbit-db-feedstore";
@@ -72,6 +72,11 @@ import {
 } from "@/orbite.js";
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
+
+const estOrbiteDB = (x: unknown): x is OrbitDB => {
+  const xCommeOrbite = (x as OrbitDB)
+  return xCommeOrbite.id && xCommeOrbite.open && xCommeOrbite.stop && xCommeOrbite.ipfs
+}
 
 export type infoAccès = {
   idCompte: string;
@@ -275,9 +280,9 @@ export class ClientConstellation extends EventEmitter {
     };
 
     if (orbite) {
-      if (orbite instanceof OrbitDB) {
+      if (estOrbiteDB(orbite)) {
         this._sfipExterne = this._orbiteExterne = true;
-        sfipFinale = orbite._ipfs;
+        sfipFinale = orbite.ipfs;
         orbiteFinale = orbite;
       } else {
         // Éviter d'importer la configuration BD Orbite si pas nécessaire
@@ -1855,7 +1860,7 @@ export class ClientConstellation extends EventEmitter {
     let dossierOrbite: string | undefined;
 
     const optsOrbite = this._opts.orbite;
-    if (optsOrbite instanceof OrbitDB) {
+    if (estOrbiteDB(optsOrbite)) {
       dossierOrbite = optsOrbite.directory;
     } else {
       dossierOrbite = optsOrbite?.dossier || this.orbite?.orbite.directory;
@@ -1867,7 +1872,7 @@ export class ClientConstellation extends EventEmitter {
     let dossierSFIP: string | undefined;
 
     const optsOrbite = this._opts.orbite;
-    if (!(optsOrbite instanceof OrbitDB)) {
+    if (!estOrbiteDB(optsOrbite)) {
       dossierSFIP = optsOrbite?.sfip?.dossier;
     }
     return dossierSFIP;
