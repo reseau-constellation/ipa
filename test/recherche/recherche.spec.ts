@@ -80,7 +80,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 2, type, générerClient }));
-            await new Promise(résoudre => setTimeout(résoudre, 2000))
+
           });
 
           after(async () => {
