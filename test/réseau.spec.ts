@@ -60,7 +60,7 @@ async function toutPréparer(n: number, type: typeClient) {
 }
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     if (isNode || isElectronMain) {
       describe("Réseau", function () {
         describe("Suivre en ligne", function () {
