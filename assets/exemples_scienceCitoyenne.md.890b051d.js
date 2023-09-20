@@ -1,0 +1,275 @@
+import{_ as s,o as n,c as a,Q as l}from"./chunks/framework.a9d1f0e8.js";const F=JSON.parse('{"title":"Science citoyenne","description":"","frontmatter":{},"headers":[],"relativePath":"exemples/scienceCitoyenne.md","filePath":"exemples/scienceCitoyenne.md"}'),e={name:"exemples/scienceCitoyenne.md"},p=l(`<h1 id="science-citoyenne" tabindex="-1">Science citoyenne <a class="header-anchor" href="#science-citoyenne" aria-label="Permalink to &quot;Science citoyenne&quot;">​</a></h1><p>Nous y travaillons... revenez plus tard, ou, encore mieux, <a href="mailto:julien.malard@mail.mcgill.ca" target="_blank" rel="noreferrer">contactez-nous !</a></p><h2 id="le-projet" tabindex="-1">Le projet <a class="header-anchor" href="#le-projet" aria-label="Permalink to &quot;Le projet&quot;">​</a></h2><p>Présentation du but du projet</p><p>Qu&#39;est-ce qu&#39;une nuée</p><p>Autorisations</p><h2 id="les-donnees" tabindex="-1">Les données <a class="header-anchor" href="#les-donnees" aria-label="Permalink to &quot;Les données&quot;">​</a></h2><p>Maintenant, nous allons choisir la structure de nos données.</p><table><thead><tr><th>Date</th><th>Endroit</th><th>Niveau d&#39;eau</th><th>Image</th></tr></thead><tbody><tr><td>01 - 01 -2023</td><td>A</td><td>40</td><td>photo325.jpeg</td></tr></tbody></table><p>Ensuite, pour garder compte de l&#39;information sur nos zônes d&#39;observation, nous allons créer un second tableau. Comme ça, nous ne dédoublons pas l&#39;information de latitude, longitude et altitude à chaque observation dans le tableau ci-dessus.</p><table><thead><tr><th>Endroit</th><th>Latitude</th><th>Longitude</th><th>Altitude</th></tr></thead><tbody><tr><td>A</td><td>1</td><td>2</td><td>3</td></tr></tbody></table><div class="tip custom-block"><p class="custom-block-title">CONSEIL</p><p>Nous avons deux possibilités pour le tableau des informations de site. Nous pouvions soit préciser les endroits permis pour l&#39;entrée de données et ainsi limiter les contributions à des endroits géographiques que nous aurions pré-choisis, soit inclure le tableau des endroits d&#39;observation dans notre nuée et ainsi permettre aux utilisatrices d&#39;ajouter ou de définir leurs propres endroits d&#39;observation. Pour ce tutoriel, nous avons choisi la seconde option.</p></div><p>Chaque personne qui participe au projet de science citoyenne aura sa propre copie des données ci-dessus. Celles-ci seront regroupées par notre nuées, qui définira les règles de participation et de contribution de données.</p><p>Nous avons donc sept variables, dont 1 date, 3 numériques, 1 image et 1 chaîne (texte).</p><h3 id="creation-des-variables" tabindex="-1">Création des variables <a class="header-anchor" href="#creation-des-variables" aria-label="Permalink to &quot;Création des variables&quot;">​</a></h3><p>Nous allons maintenant construire notre structure de données selon le schéma que nous avons établit ci-dessus. Nous allons ajouter deux tableaux à notre nuée et spécifier leurs colonnes et variables. Pour le premier tableau, vous pouvez spécifier les colonnes de date et d&#39;endroit en tant que colonnes indexes, et, pour le deuxième, la colonne endroit.</p><div class="info custom-block"><p class="custom-block-title">INFO</p><p>Une colonne indexe est une colonne (ou un groupe de colonnes) dont les valeurs ne peuvent être répétées dans le tableau. Dans notre cas, chaque endroit, à un moment précis, ne peut avoir qu&#39;une observation.</p></div><p>[Image à inclure]</p><p>Et voici l&#39;équivalent en code :</p><div class="language-ts vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">ts</span><pre class="shiki github-dark vp-code-dark"><code><span class="line"><span style="color:#F97583;">import</span><span style="color:#E1E4E8;"> { générerClient } </span><span style="color:#F97583;">from</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&quot;@constl/ipa&quot;</span><span style="color:#E1E4E8;">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">client</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">générerClient</span><span style="color:#E1E4E8;">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idVarDate</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.variables.</span><span style="color:#B392F0;">créerVariable</span><span style="color:#E1E4E8;">({ catégorie: </span><span style="color:#9ECBFF;">&quot;horoDatage&quot;</span><span style="color:#E1E4E8;"> });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Il s&#39;agit d&#39;un code unique pour chaque endroit, donc pas de traductions</span></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idVarEndroit</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.variables.</span><span style="color:#B392F0;">créerVariable</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    catégorie: </span><span style="color:#9ECBFF;">&quot;chaîneNonTraduisible&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idVarNiveauDEau</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.variables.</span><span style="color:#B392F0;">créerVariable</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    catégorie: </span><span style="color:#9ECBFF;">&quot;numérique&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idVarImage</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.variables.</span><span style="color:#B392F0;">créerVariable</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    catégorie: </span><span style="color:#9ECBFF;">&quot;image&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Continuer pour les autre variables...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Ajouter noms</span></span>
+<span class="line"><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.variables.</span><span style="color:#B392F0;">sauvegarderNomVariable</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    idVariable: idVarNiveauDEau,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    langue: </span><span style="color:#9ECBFF;">&quot;fr&quot;</span><span style="color:#E1E4E8;">,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    nom: </span><span style="color:#9ECBFF;">&quot;Niveau d&#39;eau&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">})</span></span>
+<span class="line"><span style="color:#6A737D;">// ...continuer pour les autres variables aussi</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Créer nuée</span></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idNuée</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.nuées.</span><span style="color:#B392F0;">créerNuée</span><span style="color:#E1E4E8;">({});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Créer tableaux nuée</span></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idTableauObs</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.nuées.</span><span style="color:#B392F0;">ajouterTableauNuée</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    idNuée,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    clefTableau: </span><span style="color:#9ECBFF;">&quot;observations&quot;</span><span style="color:#E1E4E8;">  </span><span style="color:#6A737D;">// Une clef unique pour le tableau</span></span>
+<span class="line"><span style="color:#E1E4E8;">});</span></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idTableauEndroits</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.nuées.</span><span style="color:#B392F0;">ajouterTableauNuée</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    idNuée,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    clefTableau: </span><span style="color:#9ECBFF;">&quot;endroits&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Ajouter les variables au tableau d&#39;observation</span></span>
+<span class="line"><span style="color:#F97583;">for</span><span style="color:#E1E4E8;"> (idVariable </span><span style="color:#F97583;">of</span><span style="color:#E1E4E8;"> [idVarEndroit, idVarDate, idVarNiveauDEau, idVarImage]) {</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.nuées.</span><span style="color:#B392F0;">ajouterColonneTableauNuée</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">        idTableau: idTableauObs,</span></span>
+<span class="line"><span style="color:#E1E4E8;">        idVariable,</span></span>
+<span class="line"><span style="color:#E1E4E8;">        </span><span style="color:#6A737D;">// Indexer les données selon l&#39;endroit et la date</span></span>
+<span class="line"><span style="color:#E1E4E8;">        index: [idVarEndroit, idVarDate].</span><span style="color:#B392F0;">includes</span><span style="color:#E1E4E8;">(idVariable),</span></span>
+<span class="line"><span style="color:#E1E4E8;">    })</span></span>
+<span class="line"><span style="color:#E1E4E8;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// ... et faire de même pour le tableau des endroits d&#39;observation</span></span></code></pre><pre class="shiki github-light vp-code-light"><code><span class="line"><span style="color:#D73A49;">import</span><span style="color:#24292E;"> { générerClient } </span><span style="color:#D73A49;">from</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&quot;@constl/ipa&quot;</span><span style="color:#24292E;">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">client</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">générerClient</span><span style="color:#24292E;">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idVarDate</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.variables.</span><span style="color:#6F42C1;">créerVariable</span><span style="color:#24292E;">({ catégorie: </span><span style="color:#032F62;">&quot;horoDatage&quot;</span><span style="color:#24292E;"> });</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Il s&#39;agit d&#39;un code unique pour chaque endroit, donc pas de traductions</span></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idVarEndroit</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.variables.</span><span style="color:#6F42C1;">créerVariable</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    catégorie: </span><span style="color:#032F62;">&quot;chaîneNonTraduisible&quot;</span></span>
+<span class="line"><span style="color:#24292E;">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idVarNiveauDEau</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.variables.</span><span style="color:#6F42C1;">créerVariable</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    catégorie: </span><span style="color:#032F62;">&quot;numérique&quot;</span></span>
+<span class="line"><span style="color:#24292E;">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idVarImage</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.variables.</span><span style="color:#6F42C1;">créerVariable</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    catégorie: </span><span style="color:#032F62;">&quot;image&quot;</span></span>
+<span class="line"><span style="color:#24292E;">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Continuer pour les autre variables...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Ajouter noms</span></span>
+<span class="line"><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.variables.</span><span style="color:#6F42C1;">sauvegarderNomVariable</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    idVariable: idVarNiveauDEau,</span></span>
+<span class="line"><span style="color:#24292E;">    langue: </span><span style="color:#032F62;">&quot;fr&quot;</span><span style="color:#24292E;">,</span></span>
+<span class="line"><span style="color:#24292E;">    nom: </span><span style="color:#032F62;">&quot;Niveau d&#39;eau&quot;</span></span>
+<span class="line"><span style="color:#24292E;">})</span></span>
+<span class="line"><span style="color:#6A737D;">// ...continuer pour les autres variables aussi</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Créer nuée</span></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idNuée</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.nuées.</span><span style="color:#6F42C1;">créerNuée</span><span style="color:#24292E;">({});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Créer tableaux nuée</span></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idTableauObs</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.nuées.</span><span style="color:#6F42C1;">ajouterTableauNuée</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    idNuée,</span></span>
+<span class="line"><span style="color:#24292E;">    clefTableau: </span><span style="color:#032F62;">&quot;observations&quot;</span><span style="color:#24292E;">  </span><span style="color:#6A737D;">// Une clef unique pour le tableau</span></span>
+<span class="line"><span style="color:#24292E;">});</span></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idTableauEndroits</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.nuées.</span><span style="color:#6F42C1;">ajouterTableauNuée</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    idNuée,</span></span>
+<span class="line"><span style="color:#24292E;">    clefTableau: </span><span style="color:#032F62;">&quot;endroits&quot;</span></span>
+<span class="line"><span style="color:#24292E;">})</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// Ajouter les variables au tableau d&#39;observation</span></span>
+<span class="line"><span style="color:#D73A49;">for</span><span style="color:#24292E;"> (idVariable </span><span style="color:#D73A49;">of</span><span style="color:#24292E;"> [idVarEndroit, idVarDate, idVarNiveauDEau, idVarImage]) {</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.nuées.</span><span style="color:#6F42C1;">ajouterColonneTableauNuée</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">        idTableau: idTableauObs,</span></span>
+<span class="line"><span style="color:#24292E;">        idVariable,</span></span>
+<span class="line"><span style="color:#24292E;">        </span><span style="color:#6A737D;">// Indexer les données selon l&#39;endroit et la date</span></span>
+<span class="line"><span style="color:#24292E;">        index: [idVarEndroit, idVarDate].</span><span style="color:#6F42C1;">includes</span><span style="color:#24292E;">(idVariable),</span></span>
+<span class="line"><span style="color:#24292E;">    })</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;">// ... et faire de même pour le tableau des endroits d&#39;observation</span></span></code></pre></div><h3 id="validation" tabindex="-1">Validation <a class="header-anchor" href="#validation" aria-label="Permalink to &quot;Validation&quot;">​</a></h3><p>[Image à inclure]</p><div class="language-ts vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">ts</span><pre class="shiki github-dark vp-code-dark"><code><span class="line"><span style="color:#F97583;">import</span><span style="color:#E1E4E8;"> { générerClient } </span><span style="color:#F97583;">from</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&quot;@constl/ipa&quot;</span><span style="color:#E1E4E8;">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">client</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">générerClient</span><span style="color:#E1E4E8;">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.nuées.</span><span style="color:#B392F0;">ajouterRègleTableauNuée</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    idTableau: idTableauObs,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    idColonne: idColNiveauDEau,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    règle: {</span></span>
+<span class="line"><span style="color:#E1E4E8;">        typeRègle: </span><span style="color:#9ECBFF;">&quot;bornes&quot;</span><span style="color:#E1E4E8;">,</span></span>
+<span class="line"><span style="color:#E1E4E8;">        détails: {</span></span>
+<span class="line"><span style="color:#E1E4E8;">            type: </span><span style="color:#9ECBFF;">&quot;fixe&quot;</span><span style="color:#E1E4E8;">;</span></span>
+<span class="line"><span style="color:#E1E4E8;">            val: </span><span style="color:#79B8FF;">0</span><span style="color:#E1E4E8;">,</span></span>
+<span class="line"><span style="color:#E1E4E8;">            op: </span><span style="color:#9ECBFF;">&quot;&gt;=&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">        }</span></span>
+<span class="line"><span style="color:#E1E4E8;">    },</span></span>
+<span class="line"><span style="color:#E1E4E8;">});</span></span></code></pre><pre class="shiki github-light vp-code-light"><code><span class="line"><span style="color:#D73A49;">import</span><span style="color:#24292E;"> { générerClient } </span><span style="color:#D73A49;">from</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&quot;@constl/ipa&quot;</span><span style="color:#24292E;">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">client</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">générerClient</span><span style="color:#24292E;">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.nuées.</span><span style="color:#6F42C1;">ajouterRègleTableauNuée</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    idTableau: idTableauObs,</span></span>
+<span class="line"><span style="color:#24292E;">    idColonne: idColNiveauDEau,</span></span>
+<span class="line"><span style="color:#24292E;">    règle: {</span></span>
+<span class="line"><span style="color:#24292E;">        typeRègle: </span><span style="color:#032F62;">&quot;bornes&quot;</span><span style="color:#24292E;">,</span></span>
+<span class="line"><span style="color:#24292E;">        détails: {</span></span>
+<span class="line"><span style="color:#24292E;">            type: </span><span style="color:#032F62;">&quot;fixe&quot;</span><span style="color:#24292E;">;</span></span>
+<span class="line"><span style="color:#24292E;">            val: </span><span style="color:#005CC5;">0</span><span style="color:#24292E;">,</span></span>
+<span class="line"><span style="color:#24292E;">            op: </span><span style="color:#032F62;">&quot;&gt;=&quot;</span></span>
+<span class="line"><span style="color:#24292E;">        }</span></span>
+<span class="line"><span style="color:#24292E;">    },</span></span>
+<span class="line"><span style="color:#24292E;">});</span></span></code></pre></div><h2 id="autorisations" tabindex="-1">Autorisations <a class="header-anchor" href="#autorisations" aria-label="Permalink to &quot;Autorisations&quot;">​</a></h2><p>Nous pouvons également changer les autorisations de la nuée. Vous pouvez rendre une nuée prive publique et vice-versa, ou bien inviter ou exclure des personnes.</p><p>[Image à inclure]</p><div class="language-ts vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">ts</span><pre class="shiki github-dark vp-code-dark"><code><span class="line"><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.nuées.</span><span style="color:#B392F0;">exclureMembreDeNuée</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    idNuée,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    idCompte: </span><span style="color:#9ECBFF;">&quot;id du compte de quelqu&#39;un que je n&#39;aime pas&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">});</span></span></code></pre><pre class="shiki github-light vp-code-light"><code><span class="line"><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.nuées.</span><span style="color:#6F42C1;">exclureMembreDeNuée</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    idNuée,</span></span>
+<span class="line"><span style="color:#24292E;">    idCompte: </span><span style="color:#032F62;">&quot;id du compte de quelqu&#39;un que je n&#39;aime pas&quot;</span></span>
+<span class="line"><span style="color:#24292E;">});</span></span></code></pre></div><h2 id="collecte-de-donnees" tabindex="-1">Collecte de données <a class="header-anchor" href="#collecte-de-donnees" aria-label="Permalink to &quot;Collecte de données&quot;">​</a></h2><p>Les participants à votre projet peuvent maintenant collecter des données. Il suffit pour eux d&#39;ouvrir le lien vers votre nuée sur leur propre compte Constellation, de choisir l&#39;option « Créer une base de données » et d&#39;entrer leurs données - soit manuellement, soit d&#39;un fichier existant - dans la nouvelle base de données.</p><p>[Image à inclure]</p><p>Cependant, ce n&#39;est peut-être pas l&#39;expérience que vous désirez pour vous scientifiques citoyens. L&#39;interface de Constellation est conçue pour des chercheuses, avec beaucoup d&#39;options et de boutons, et il serait mieux d&#39;avoir une interface plus simple et dirigée à votre projet. Constellation vous donne donc l&#39;option de créer, automagiquement, une application spécifique à votre projet. Vous pouvez ensuite la distribuer à vos utilisateurs, et leurs contributions apparaîtront directement sur votre tableau de bord.</p><p>[Image à inclure]</p><h2 id="visualisation" tabindex="-1">Visualisation <a class="header-anchor" href="#visualisation" aria-label="Permalink to &quot;Visualisation&quot;">​</a></h2><p>Nous pouvons maintenant visualiser les données dans l&#39;interface Constellation. Créez une base de données sur le gabarit de votre nuée et puis ajoutez-y des données. En retournant sur la page de la nuée, vous verrez que vos données apparaissent dans la nuée.</p><p>Si vous avez une amie dans les parages, partagez-lui l&#39;identifiant de votre nuée et demandez-lui de créer sa propre base de données et d&#39;y ajouter des données. Elles apparaîteront dans la nuée !</p><p>[Image à inclure]</p><p>Vous pouvez également accéder aux données programmatiquement en TypeScript ou JavaScript :</p><div class="language-ts vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">ts</span><pre class="shiki github-dark vp-code-dark"><code><span class="line"><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">données</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.nuées.</span><span style="color:#B392F0;">suivreDonnéesTableauNuée</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">    idNuée,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    clefTableau: </span><span style="color:#9ECBFF;">&quot;observations&quot;</span><span style="color:#E1E4E8;">,</span></span>
+<span class="line"><span style="color:#E1E4E8;">    f: console.log,  </span><span style="color:#6A737D;">// Ou quelque chose de plus intelligent</span></span>
+<span class="line"><span style="color:#E1E4E8;">    nRésultatsDésirés: </span><span style="color:#79B8FF;">1000</span><span style="color:#E1E4E8;">,</span></span>
+<span class="line"><span style="color:#E1E4E8;">})</span></span></code></pre><pre class="shiki github-light vp-code-light"><code><span class="line"><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">données</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.nuées.</span><span style="color:#6F42C1;">suivreDonnéesTableauNuée</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">    idNuée,</span></span>
+<span class="line"><span style="color:#24292E;">    clefTableau: </span><span style="color:#032F62;">&quot;observations&quot;</span><span style="color:#24292E;">,</span></span>
+<span class="line"><span style="color:#24292E;">    f: console.log,  </span><span style="color:#6A737D;">// Ou quelque chose de plus intelligent</span></span>
+<span class="line"><span style="color:#24292E;">    nRésultatsDésirés: </span><span style="color:#005CC5;">1000</span><span style="color:#24292E;">,</span></span>
+<span class="line"><span style="color:#24292E;">})</span></span></code></pre></div><h2 id="sauvegardes-automatisees" tabindex="-1">Sauvegardes automatisées <a class="header-anchor" href="#sauvegardes-automatisees" aria-label="Permalink to &quot;Sauvegardes automatisées&quot;">​</a></h2><h2 id="acces-programmatique" tabindex="-1">Accès programmatique <a class="header-anchor" href="#acces-programmatique" aria-label="Permalink to &quot;Accès programmatique&quot;">​</a></h2><p>Mais ce n&#39;est pas tout ! Vous pouvez également analyser vos données de science citoyenne dans un autre logiciel et faire des analyses en temps réel.</p><p>Tout d&#39;abord, nous allons activer le nœud local Constellation sur l&#39;interface et noter le numéro de port. Ceci nous permettra d&#39;accéder Constellation à partir de notre code Python.</p><div class="tip custom-block"><p class="custom-block-title">CONSEIL</p><p>Vous devrez installer <code>constellationPy</code> et <code>trio</code> pour suivre l&#39;exemple ci-dessous. Nous vous recommandons <strong>fortement</strong> l&#39;utilisation de <a href="https://python-poetry.org/" target="_blank" rel="noreferrer">poetry</a> pour gérer vos dépendances Python.</p></div><p>[Image à inclure]</p><p>Voici un exemple de code Python qui vous permettra d&#39;accéder à vos donneés de science citoyenne.</p><div class="tip custom-block"><p class="custom-block-title">CONSEIL</p><p>Avions-nous dit que nous recommandons <strong>fortement</strong> l&#39;utilisation de <a href="https://python-poetry.org/" target="_blank" rel="noreferrer">poetry</a> ?</p></div><div class="language-py vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">py</span><pre class="shiki github-dark vp-code-dark"><code><span class="line"><span style="color:#F97583;">import</span><span style="color:#E1E4E8;"> trio</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">from</span><span style="color:#E1E4E8;"> constellationPy </span><span style="color:#F97583;">import</span><span style="color:#E1E4E8;"> Serveur, ouvrir_client</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Copier l&#39;identifiant de la nuée que vous avez créée</span></span>
+<span class="line"><span style="color:#E1E4E8;">id_nuée </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&quot;/orbitdb/zdpu...&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">clef_tableau </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&quot;&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Le numéro de port que l&#39;interface de Constellation vous a donné</span></span>
+<span class="line"><span style="color:#E1E4E8;">port </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">5004</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Cette fonction sera appelée chaque fois que des nouvelles données sont disponibles sur la nuée</span></span>
+<span class="line"><span style="color:#F97583;">def</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">ma_fonction_danalyse</span><span style="color:#E1E4E8;">(données):</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#79B8FF;">print</span><span style="color:#E1E4E8;">(données)</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#6A737D;"># Executer votre brillante analyse ici</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#6A737D;"># ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583;">async</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">def</span><span style="color:#E1E4E8;"> </span><span style="color:#B392F0;">principale</span><span style="color:#E1E4E8;">():</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#F97583;">async</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">with</span><span style="color:#E1E4E8;"> ouvrir_client(port) </span><span style="color:#F97583;">as</span><span style="color:#E1E4E8;"> client:</span></span>
+<span class="line"><span style="color:#E1E4E8;">        données </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.suivre_données_tableau_nuée(</span></span>
+<span class="line"><span style="color:#E1E4E8;">            </span><span style="color:#FFAB70;">id_nuée</span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;">id_nuée,</span></span>
+<span class="line"><span style="color:#E1E4E8;">            </span><span style="color:#FFAB70;">clef_tableau</span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;">clef_tableau,</span></span>
+<span class="line"><span style="color:#E1E4E8;">            </span><span style="color:#FFAB70;">f</span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;">ma_fonction_danalyse</span></span>
+<span class="line"><span style="color:#E1E4E8;">        )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8;">trio.run(principale)</span></span></code></pre><pre class="shiki github-light vp-code-light"><code><span class="line"><span style="color:#D73A49;">import</span><span style="color:#24292E;"> trio</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">from</span><span style="color:#24292E;"> constellationPy </span><span style="color:#D73A49;">import</span><span style="color:#24292E;"> Serveur, ouvrir_client</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Copier l&#39;identifiant de la nuée que vous avez créée</span></span>
+<span class="line"><span style="color:#24292E;">id_nuée </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&quot;/orbitdb/zdpu...&quot;</span></span>
+<span class="line"><span style="color:#24292E;">clef_tableau </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&quot;&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Le numéro de port que l&#39;interface de Constellation vous a donné</span></span>
+<span class="line"><span style="color:#24292E;">port </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">5004</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Cette fonction sera appelée chaque fois que des nouvelles données sont disponibles sur la nuée</span></span>
+<span class="line"><span style="color:#D73A49;">def</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">ma_fonction_danalyse</span><span style="color:#24292E;">(données):</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#005CC5;">print</span><span style="color:#24292E;">(données)</span></span>
+<span class="line"><span style="color:#24292E;">    </span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#6A737D;"># Executer votre brillante analyse ici</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#6A737D;"># ...</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49;">async</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">def</span><span style="color:#24292E;"> </span><span style="color:#6F42C1;">principale</span><span style="color:#24292E;">():</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#D73A49;">async</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">with</span><span style="color:#24292E;"> ouvrir_client(port) </span><span style="color:#D73A49;">as</span><span style="color:#24292E;"> client:</span></span>
+<span class="line"><span style="color:#24292E;">        données </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.suivre_données_tableau_nuée(</span></span>
+<span class="line"><span style="color:#24292E;">            </span><span style="color:#E36209;">id_nuée</span><span style="color:#D73A49;">=</span><span style="color:#24292E;">id_nuée,</span></span>
+<span class="line"><span style="color:#24292E;">            </span><span style="color:#E36209;">clef_tableau</span><span style="color:#D73A49;">=</span><span style="color:#24292E;">clef_tableau,</span></span>
+<span class="line"><span style="color:#24292E;">            </span><span style="color:#E36209;">f</span><span style="color:#D73A49;">=</span><span style="color:#24292E;">ma_fonction_danalyse</span></span>
+<span class="line"><span style="color:#24292E;">        )</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;">trio.run(principale)</span></span></code></pre></div><p>Si vous n&#39;êtes pas très très Python, vous pouvez aussi faire la même chose en R ou bien en Julia.</p><div class="language-r vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">r</span><pre class="shiki github-dark vp-code-dark"><code><span class="line"><span style="color:#79B8FF;">library</span><span style="color:#E1E4E8;">(</span><span style="color:#9ECBFF;">&quot;constellationR&quot;</span><span style="color:#E1E4E8;">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Copier l&#39;identifiant de la nuée que vous avez créée</span></span>
+<span class="line"><span style="color:#FFAB70;">id_nuée</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&quot;/orbitdb/zdpu...&quot;</span></span>
+<span class="line"><span style="color:#FFAB70;">clef_tableau</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&quot;&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Le numéro de port que l&#39;interface de Constellation vous a donné</span></span>
+<span class="line"><span style="color:#E1E4E8;">port </span><span style="color:#F97583;">&lt;-</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">5004</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0;">analyserDonnées</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">&lt;-</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">function</span><span style="color:#E1E4E8;">(données) {</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#79B8FF;">print</span><span style="color:#E1E4E8;">(données)</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#6A737D;"># Faire le reste de votre analyse...</span></span>
+<span class="line"><span style="color:#E1E4E8;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#FFAB70;">avecClient</span><span style="color:#E1E4E8;">(</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#F97583;">function</span><span style="color:#E1E4E8;">(client) {</span></span>
+<span class="line"><span style="color:#E1E4E8;">        données </span><span style="color:#F97583;">&lt;-</span><span style="color:#E1E4E8;"> client</span><span style="color:#F97583;">$</span><span style="color:#FFAB70;">obtDonnéesNuée</span><span style="color:#E1E4E8;">(</span></span>
+<span class="line"><span style="color:#E1E4E8;">            </span><span style="color:#FFAB70;">idNuée</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> idNuée, </span><span style="color:#FFAB70;">clefTableau</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> clefTableau</span></span>
+<span class="line"><span style="color:#E1E4E8;">        )</span></span>
+<span class="line"><span style="color:#E1E4E8;">        </span><span style="color:#FFAB70;">analyserDonnées</span><span style="color:#E1E4E8;">(données)</span></span>
+<span class="line"><span style="color:#E1E4E8;">    },</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#FFAB70;">port</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> port</span></span>
+<span class="line"><span style="color:#E1E4E8;">)</span></span></code></pre><pre class="shiki github-light vp-code-light"><code><span class="line"><span style="color:#005CC5;">library</span><span style="color:#24292E;">(</span><span style="color:#032F62;">&quot;constellationR&quot;</span><span style="color:#24292E;">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Copier l&#39;identifiant de la nuée que vous avez créée</span></span>
+<span class="line"><span style="color:#E36209;">id_nuée</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&quot;/orbitdb/zdpu...&quot;</span></span>
+<span class="line"><span style="color:#E36209;">clef_tableau</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&quot;&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Le numéro de port que l&#39;interface de Constellation vous a donné</span></span>
+<span class="line"><span style="color:#24292E;">port </span><span style="color:#D73A49;">&lt;-</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">5004</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6F42C1;">analyserDonnées</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">&lt;-</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">function</span><span style="color:#24292E;">(données) {</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#005CC5;">print</span><span style="color:#24292E;">(données)</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#6A737D;"># Faire le reste de votre analyse...</span></span>
+<span class="line"><span style="color:#24292E;">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E36209;">avecClient</span><span style="color:#24292E;">(</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#D73A49;">function</span><span style="color:#24292E;">(client) {</span></span>
+<span class="line"><span style="color:#24292E;">        données </span><span style="color:#D73A49;">&lt;-</span><span style="color:#24292E;"> client</span><span style="color:#D73A49;">$</span><span style="color:#E36209;">obtDonnéesNuée</span><span style="color:#24292E;">(</span></span>
+<span class="line"><span style="color:#24292E;">            </span><span style="color:#E36209;">idNuée</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> idNuée, </span><span style="color:#E36209;">clefTableau</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> clefTableau</span></span>
+<span class="line"><span style="color:#24292E;">        )</span></span>
+<span class="line"><span style="color:#24292E;">        </span><span style="color:#E36209;">analyserDonnées</span><span style="color:#24292E;">(données)</span></span>
+<span class="line"><span style="color:#24292E;">    },</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#E36209;">port</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> port</span></span>
+<span class="line"><span style="color:#24292E;">)</span></span></code></pre></div><p>Et en Julia !</p><div class="language-julia vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang">julia</span><pre class="shiki github-dark vp-code-dark"><code><span class="line"><span style="color:#F97583;">import</span><span style="color:#E1E4E8;"> Constellation</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># L&#39;identifiant de la nuée et du tableau d&#39;intérêt</span></span>
+<span class="line"><span style="color:#E1E4E8;">idNuée </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&quot;/orbitdb/zdpu...&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8;">clefTableau </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#9ECBFF;">&quot;&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Le numéro de port que l&#39;interface de Constellation vous a donné</span></span>
+<span class="line"><span style="color:#E1E4E8;">port </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">5004</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8;">Constellation</span><span style="color:#F97583;">.</span><span style="color:#79B8FF;">avecClient</span><span style="color:#E1E4E8;">(port) </span><span style="color:#F97583;">do</span><span style="color:#E1E4E8;"> client</span></span>
+<span class="line"><span style="color:#E1E4E8;">    </span><span style="color:#6A737D;"># Obtenir les données, en français si possible, sinon en alemand</span></span>
+<span class="line"><span style="color:#E1E4E8;">    donnéesRéseau </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> Constellation</span><span style="color:#F97583;">.</span><span style="color:#79B8FF;">obtDonnéesNuée</span><span style="color:#E1E4E8;">(</span></span>
+<span class="line"><span style="color:#E1E4E8;">        client, idNuée, clefTableau, [</span><span style="color:#9ECBFF;">&quot;fr&quot;</span><span style="color:#E1E4E8;">, </span><span style="color:#9ECBFF;">&quot;de&quot;</span><span style="color:#E1E4E8;">]</span></span>
+<span class="line"><span style="color:#E1E4E8;">    )</span></span>
+<span class="line"><span style="color:#F97583;">end</span></span></code></pre><pre class="shiki github-light vp-code-light"><code><span class="line"><span style="color:#D73A49;">import</span><span style="color:#24292E;"> Constellation</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># L&#39;identifiant de la nuée et du tableau d&#39;intérêt</span></span>
+<span class="line"><span style="color:#24292E;">idNuée </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&quot;/orbitdb/zdpu...&quot;</span></span>
+<span class="line"><span style="color:#24292E;">clefTableau </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#032F62;">&quot;&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D;"># Le numéro de port que l&#39;interface de Constellation vous a donné</span></span>
+<span class="line"><span style="color:#24292E;">port </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">5004</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E;">Constellation</span><span style="color:#D73A49;">.</span><span style="color:#005CC5;">avecClient</span><span style="color:#24292E;">(port) </span><span style="color:#D73A49;">do</span><span style="color:#24292E;"> client</span></span>
+<span class="line"><span style="color:#24292E;">    </span><span style="color:#6A737D;"># Obtenir les données, en français si possible, sinon en alemand</span></span>
+<span class="line"><span style="color:#24292E;">    donnéesRéseau </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> Constellation</span><span style="color:#D73A49;">.</span><span style="color:#005CC5;">obtDonnéesNuée</span><span style="color:#24292E;">(</span></span>
+<span class="line"><span style="color:#24292E;">        client, idNuée, clefTableau, [</span><span style="color:#032F62;">&quot;fr&quot;</span><span style="color:#24292E;">, </span><span style="color:#032F62;">&quot;de&quot;</span><span style="color:#24292E;">]</span></span>
+<span class="line"><span style="color:#24292E;">    )</span></span>
+<span class="line"><span style="color:#D73A49;">end</span></span></code></pre></div><p>Pour plus d&#39;information, voir la section sur les <a href="./../avancé/autresLangages/introduction.html">autres langages</a>.</p>`,52),o=[p];function t(c,r,i,E,y,u){return n(),a("div",null,o)}const b=s(e,[["render",t]]);export{F as __pageData,b as default};

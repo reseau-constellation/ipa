@@ -1,1 +1,0 @@
-import{_ as s,o as a,c as n,V as o}from"./chunks/framework.b1ba171e.js";const C=JSON.parse('{"title":"Projets","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/projets.md","filePath":"ipa/projets.md"}'),e={name:"ipa/projets.md"},l=o("",242),t=[l];function p(r,c,i,D,y,F){return a(),n("div",null,t)}const A=s(e,[["render",p]]);export{C as __pageData,A as default};

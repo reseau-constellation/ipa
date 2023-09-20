@@ -1,1 +1,0 @@
-import{_ as s,o as a,c as n,V as o}from"./chunks/framework.b1ba171e.js";const C=JSON.parse('{"title":"Client","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/client.md","filePath":"ipa/client.md"}'),e={name:"ipa/client.md"},l=o("",138),t=[l];function p(r,c,i,D,y,F){return a(),n("div",null,t)}const A=s(e,[["render",p]]);export{C as __pageData,A as default};

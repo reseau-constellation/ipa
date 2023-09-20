@@ -1,1 +1,0 @@
-import{_ as s,o as a,c as n,V as l}from"./chunks/framework.b1ba171e.js";const C=JSON.parse('{"title":"Bases de données","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/bds.md","filePath":"ipa/bds.md"}'),e={name:"ipa/bds.md"},o=l("",364),t=[o];function p(c,r,D,i,y,d){return a(),n("div",null,t)}const A=s(e,[["render",p]]);export{C as __pageData,A as default};
