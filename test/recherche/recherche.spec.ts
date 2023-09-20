@@ -80,7 +80,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 2, type, générerClient }));
-            
+            await new Promise(résoudre => setTimeout(résoudre, 6000));
           });
 
           after(async () => {
@@ -96,9 +96,9 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              await new Promise(résoudre => setTimeout(résoudre, 2000));
+              
               const idMotClef = await clients[1].motsClefs!.créerMotClef();
-              await new Promise(résoudre => setTimeout(résoudre, 2000));
+              
               ({ fOublier } =
                 await clients[0].recherche!.rechercherMotsClefsSelonId({
                   idMotClef,
@@ -219,7 +219,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 2, type, générerClient }));
-            await new Promise(résoudre => setTimeout(résoudre, 2000))
+            await new Promise(résoudre => setTimeout(résoudre, 6000));
           });
 
           after(async () => {
@@ -238,15 +238,15 @@ typesClients.forEach((type) => {
               const idVariable = await clients[1].variables!.créerVariable({
                 catégorie: "numérique",
               });
-              await new Promise(résoudre => setTimeout(résoudre, 2000));
+
               ({ fOublier } =
                 await clients[0].recherche!.rechercherVariablesSelonId({
                   idVariable,
                   f: (motsClefs) => rés.mettreÀJour(motsClefs),
                   nRésultatsDésirés: 2,
                 }));
-              await new Promise(résoudre => setTimeout(résoudre, 2000));
-              réfClient2 = {
+
+                réfClient2 = {
                 id: idVariable,
                 résultatObjectif: {
                   score: 0,
@@ -420,6 +420,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 2, type, générerClient }));
+            await new Promise(résoudre => setTimeout(résoudre, 6000));
           });
 
           after(async () => {
@@ -737,6 +738,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 2, type, générerClient }));
+            await new Promise(résoudre => setTimeout(résoudre, 6000));
           });
 
           after(async () => {
@@ -1055,6 +1057,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 2, type, générerClient }));
+            await new Promise(résoudre => setTimeout(résoudre, 6000));
           });
 
           after(async () => {
@@ -1442,6 +1445,7 @@ typesClients.forEach((type) => {
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
               await générerClients({n: 3, type, générerClient }));
+            await new Promise(résoudre => setTimeout(résoudre, 6000));
             idsComptes = await Promise.all(
               clients.map(async (c) => await c.obtIdCompte())
             );
