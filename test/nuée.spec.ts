@@ -7,7 +7,6 @@ import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 
 import {
-  clientsConnectés,
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
@@ -45,7 +44,7 @@ const générerNuéeTest = async (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("Nuées : Tests individuels", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -737,7 +736,7 @@ typesClients.forEach((type) => {
         it.skip("Changer gestionnaire");
       });
 
-      describe.skip("Correspondances bds", function () {
+      describe("Correspondances bds", function () {
         let fOublierClients: () => Promise<void>;
         let clients: ClientConstellation[];
         let client: ClientConstellation;
