@@ -419,11 +419,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     try {
       await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
     } catch (e) {
-      console.log("erreur");
-      console.log(e)
-      console.log(e.toString())
-      console.log("fin erreur")
-      if (!e.toString().includes("PublishError.InsufficientPeersError")) {
+      if (!e.toString().includes("PublishError.InsufficientPeers")) {
         throw e;
       }
     }
