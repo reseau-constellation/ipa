@@ -419,6 +419,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     try {
       await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
     } catch (e) {
+      // On peut avoir cette erreur si l'autre poste s'est déconnecté entre-temps
       if (!e.toString().includes("PublishError.InsufficientPeers")) {
         throw e;
       }
