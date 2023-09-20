@@ -19,10 +19,8 @@ import {
   rechercherProjetsSelonTexte,
 } from "@/recherche/projet.js";
 
-import {
-  attente as utilsTestAttente,
-} from "@constl/utils-tests";
-import {générerClientsInternes} from "../ressources/utils.js";
+import { attente as utilsTestAttente } from "@constl/utils-tests";
+import { générerClientsInternes } from "../ressources/utils.js";
 
 import { expect } from "aegir/chai";
 

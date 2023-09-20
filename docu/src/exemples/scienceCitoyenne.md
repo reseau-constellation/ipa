@@ -162,6 +162,9 @@ const données = await client.nuées.suivreDonnéesTableauNuée({
 })
 ```
 
+## Sauvegardes automatisées
+
+
 ## Accès programmatique
 Mais ce n'est pas tout ! Vous pouvez également analyser vos données de science citoyenne dans un autre logiciel et faire des analyses en temps réel.
 

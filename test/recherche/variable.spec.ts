@@ -10,12 +10,10 @@ import {
   rechercherVariablesSelonTexte,
 } from "@/recherche/variable.js";
 
-import {
-  attente as utilsTestAttente,
-} from "@constl/utils-tests";
+import { attente as utilsTestAttente } from "@constl/utils-tests";
 
 import { expect } from "aegir/chai";
-import {générerClientsInternes} from "../ressources/utils.js"
+import { générerClientsInternes } from "../ressources/utils.js";
 
 describe("Rechercher variables", function () {
   let fOublierClients: () => Promise<void>;

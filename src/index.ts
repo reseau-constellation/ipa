@@ -16,7 +16,7 @@ export * as motsClefs from "@/motsClefs.js";
 export * as projets from "@/projets.js";
 export * as réseau from "@/reseau.js";
 export * as tableaux from "@/tableaux.js";
-export * as types from "@/types.js"
+export * as types from "@/types.js";
 export * as valid from "@/valid.js";
 export * as variables from "@/variables.js";
 
@@ -26,8 +26,8 @@ import type { optsIpaTravailleur } from "@/mandataire/ipaTravailleur.js";
 import type { MandataireClientConstellation } from "@constl/mandataire";
 
 import type { ClientConstellation as _ClientConstellation } from "@/client.js";
-export type ClientConstellation = MandataireClientConstellation<_ClientConstellation>;
-
+export type ClientConstellation =
+  MandataireClientConstellation<_ClientConstellation>;
 
 function générerClient({
   opts,
@@ -77,4 +77,3 @@ function générerClient({
 }
 
 export { générerClient };
-

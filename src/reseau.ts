@@ -209,7 +209,7 @@ const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> =
   required: [],
 };
 
-const INTERVALE_SALUT = 1000 * 60;
+const INTERVALE_SALUT = 1000 * 10;
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
 const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
 const CONFIANCE_DE_COAUTEUR = 0.9;
@@ -299,7 +299,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const intervale = setInterval(() => {
       this.direSalut({});
     }, INTERVALE_SALUT);
-    this.fsOublier.push(async () => clearInterval(intervale));
+    this.fsOublier.unshift(async () => clearInterval(intervale));
 
     await this.direSalut({});
   }
@@ -416,7 +416,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         valeur,
       },
     };
-    await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
+    try {
+      await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
+    } catch (e) {
+      // On peut avoir cette erreur si l'autre poste s'est déconnecté entre-temps
+      if (!e.toString().includes("PublishError.InsufficientPeers")) {
+        throw e;
+      }
+    }
   }
 
   async envoyerDemandeRejoindreCompte({
@@ -1297,8 +1304,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fFinale = async () => {
       const connexions = await this.client.sfip!.swarm.peers();
+
       // Enlever les doublons (pas trop sûr ce qu'ils font ici)
       const connexionsUniques = dédédoublerConnexions(connexions);
+
       return await f(
         connexionsUniques.map((c) => {
           return {
@@ -2225,30 +2234,29 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         case "variables":
           fOublierBranche = await this.client.variables?.suivreVariables({
             f: fFinaleSuivreBranche,
-            idCompte
-          })
+            idCompte,
+          });
           break;
         case "bds":
           fOublierBranche = await this.client.bds?.suivreBds({
             f: fFinaleSuivreBranche,
-            idCompte
+            idCompte,
           });
           break;
         case "nuées":
           fOublierBranche = await this.client.nuées?.suivreNuées({
             f: fFinaleSuivreBranche,
-            idCompte
+            idCompte,
           });
           break;
         case "projets":
           fOublierBranche = await this.client.projets?.suivreProjets({
             f: fFinaleSuivreBranche,
-            idCompte
+            idCompte,
           });
           break;
         default:
-          throw new Error(clef)
-        
+          throw new Error(clef);
       }
 
       return fOublierBranche;
@@ -2696,7 +2704,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreComptesRéseauEtEnLigne({
-        f: async (résultats) => await fSuivreRacine(résultats.map((r) => r.idCompte)),
+        f: async (résultats) =>
+          await fSuivreRacine(résultats.map((r) => r.idCompte)),
         profondeur: nRésultatsDésirés,
       });
     };

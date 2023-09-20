@@ -13,7 +13,6 @@ import {
 const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
 
-
 const { dossierTempoTests } = utilsTestDossiers;
 
 import { générerClient, type ClientConstellation } from "@/index.js";
@@ -49,7 +48,7 @@ typesClients.forEach((type) => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
           n: 1,
           type,
-          générerClient
+          générerClient,
         }));
         client = clients[0];
       });
@@ -1160,8 +1159,9 @@ typesClients.forEach((type) => {
             },
           });
 
-          ({ doc, fichiersSFIP, nomFichier } =
-            await client.bds.exporterDonnées({ idBd, langues: ["fr"] }));
+          ({ doc, fichiersSFIP, nomFichier } = await client.bds.exporterDonnées(
+            { idBd, langues: ["fr"] }
+          ));
         });
 
         it("Doc créé avec tous les tableaux", () => {

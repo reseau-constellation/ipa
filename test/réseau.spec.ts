@@ -31,7 +31,6 @@ import {
 const { générerClients } = utilsClientTest;
 import { typeClient, typesClients } from "./ressources/utils.js";
 
-
 import { obtRessourceTest } from "./ressources/index.js";
 
 import { isNode, isElectronMain } from "wherearewe";
@@ -39,7 +38,11 @@ import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";
 
 async function toutPréparer(n: number, type: typeClient) {
-  const { fOublier: fOublierClients, clients } = await générerClients({n, type, générerClient});
+  const { fOublier: fOublierClients, clients } = await générerClients({
+    n,
+    type,
+    générerClient,
+  });
   const idsNodesSFIP = await Promise.all(
     clients.map(async (c) => (await c.obtIdSFIP()).id.toCID().toString())
   );
@@ -49,6 +52,7 @@ async function toutPréparer(n: number, type: typeClient) {
   const idsBdCompte = await Promise.all(
     clients.map(async (c) => await c.obtIdCompte())
   );
+
   return {
     clients,
     fOublierClients,
@@ -601,7 +605,9 @@ typesClients.forEach((type) => {
               await clients[0].favoris!.désépinglerFavori({
                 idObjet: idMotClef2,
               });
-              const valPropres = await relationsPropres.attendreExiste();
+              const valPropres = await relationsPropres.attendreQue(
+                (x) => x && x.length === 0
+              );
               expect(valPropres.length).to.equal(0);
 
               const valAutres = await relationsAutres.attendreQue(

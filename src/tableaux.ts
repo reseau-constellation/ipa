@@ -1550,7 +1550,7 @@ export default class Tableaux {
       clef: "colonnes",
       f: fFinale,
       fSuivre: fSuivreBdColonnes,
-      type: "feed"
+      type: "feed",
     });
   }
 

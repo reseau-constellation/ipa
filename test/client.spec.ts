@@ -3,13 +3,18 @@ import toBuffer from "it-to-buffer";
 
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import { adresseOrbiteValide, faisRien, suivreBdDeFonction } from "@constl/utils-ipa";
+import {
+  adresseOrbiteValide,
+  faisRien,
+  suivreBdDeFonction,
+} from "@constl/utils-ipa";
 
 import type KeyValueStore from "orbit-db-kvstore";
 
 import {
   attente as utilsTestAttente,
   peutÉcrire,
+  attente,
 } from "@constl/utils-tests";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
@@ -21,6 +26,7 @@ import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";
 import FeedStore from "orbit-db-feedstore";
 import { générerClientsInternes } from "./ressources/utils.js";
+import { statutDispositif } from "@/reseau.js";
 
 describe("adresseOrbiteValide", function () {
   it("adresse orbite est valide", () => {
@@ -59,7 +65,9 @@ if (isNode || isElectronMain) {
     const mesDispositifs = new utilsTestAttente.AttendreRésultat<string[]>();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({n: 3}));
+      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+        n: 3,
+      }));
       [client, client2, client3] = clients;
 
       idCompte1 = await client.obtIdCompte();
@@ -67,6 +75,8 @@ if (isNode || isElectronMain) {
       idDispositif1 = await client.obtIdDispositif();
       idDispositif2 = await client2.obtIdDispositif();
       idDispositif3 = await client3.obtIdDispositif();
+
+      await new Promise((résoudre) => setTimeout(résoudre, 9000));
 
       fOublierDispositifs = await client.suivreDispositifs({
         f: (dispositifs) => mesDispositifs.mettreÀJour(dispositifs),
@@ -142,9 +152,11 @@ if (isNode || isElectronMain) {
 
       it("Le nouveau dispositif suit mon profil", async () => {
         // Pour une drôle de raison, il faut accéder la BD avant qu'elle ne s'actualise...
-        await client.profil!.effacerNom({langue: "de"});
+        await client.profil!.effacerNom({ langue: "de" });
 
-        const val = await résNom.attendreQue((x) => Object.keys(x).includes("fr"));
+        const val = await résNom.attendreQue((x) =>
+          Object.keys(x).includes("fr")
+        );
         expect(val.fr).to.equal("Julien Malard-Adam");
       });
     });
@@ -152,11 +164,31 @@ if (isNode || isElectronMain) {
     describe("Automatiser ajout dispositif", function () {
       let idBd: string;
 
+      const fsOublier: schémaFonctionOublier[] = [];
+
       before(async () => {
+        const attendreConnectés = new attente.AttendreRésultat<
+          statutDispositif[]
+        >();
+        const fOublierConnexions =
+          await client3.réseau!.suivreConnexionsDispositifs({
+            f: (x) => attendreConnectés.mettreÀJour(x),
+          });
+        fsOublier.push(fOublierConnexions);
+
         idBd = await client.créerBdIndépendante({ type: "kvstore" });
 
         const invitation = await client.générerInvitationRejoindreCompte();
+
+        const idClient1 = await client.obtIdCompte();
+        await attendreConnectés.attendreQue((x) => {
+          return !!x.find((c) => c.infoDispositif.idCompte === idClient1);
+        });
         await client3.demanderEtPuisRejoindreCompte(invitation);
+      });
+
+      after(async () => {
+        await Promise.all(fsOublier.map((f) => f()));
       });
 
       it("Nouveau dispositif ajouté au compte", async () => {
@@ -194,7 +226,9 @@ if (isNode || isElectronMain) {
     let idCompte2: string;
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({n: 2 }));
+      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+        n: 2,
+      }));
       [client, client2] = clients;
 
       idCompte2 = await client2.obtIdCompte();

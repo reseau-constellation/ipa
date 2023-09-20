@@ -1,4 +1,8 @@
-export type MessageDeTravailleur = MessageSuivreDeTravailleur | MessageSuivrePrêtDeTravailleur | MessageActionDeTravailleur | MessageErreurDeTravailleur;
+export type MessageDeTravailleur =
+  | MessageSuivreDeTravailleur
+  | MessageSuivrePrêtDeTravailleur
+  | MessageActionDeTravailleur
+  | MessageErreurDeTravailleur;
 
 export interface MessageSuivreDeTravailleur {
   type: "suivre";
@@ -24,7 +28,10 @@ export interface MessageErreurDeTravailleur {
   erreur: string;
 }
 
-export type MessagePourTravailleur = MessageSuivrePourTravailleur | MessageActionPourTravailleur | MessageRetourPourTravailleur;
+export type MessagePourTravailleur =
+  | MessageSuivrePourTravailleur
+  | MessageActionPourTravailleur
+  | MessageRetourPourTravailleur;
 
 export interface MessageSuivrePourTravailleur {
   type: "suivre";

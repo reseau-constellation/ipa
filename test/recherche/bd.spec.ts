@@ -16,11 +16,9 @@ import {
   rechercherBdsSelonNomMotClef,
   rechercherBdsSelonNomVariable,
 } from "@/recherche/bd.js";
-import {
-  attente as utilsTestAttente,
-} from "@constl/utils-tests";
+import { attente as utilsTestAttente } from "@constl/utils-tests";
 
-import {générerClientsInternes} from "../ressources/utils.js"
+import { générerClientsInternes } from "../ressources/utils.js";
 
 import { expect } from "aegir/chai";
 

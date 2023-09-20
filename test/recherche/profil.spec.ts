@@ -12,10 +12,8 @@ import {
   rechercherProfilsSelonCourriel,
 } from "@/recherche/profil.js";
 
-import {
-  attente as utilsTestAttente,
-} from "@constl/utils-tests";
-import {générerClientsInternes} from "../ressources/utils.js"
+import { attente as utilsTestAttente } from "@constl/utils-tests";
+import { générerClientsInternes } from "../ressources/utils.js";
 import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";

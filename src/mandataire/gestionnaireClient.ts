@@ -36,9 +36,9 @@ export default class GestionnaireClient {
   ) {
     this.fMessage = fMessage;
     this.fErreur = fErreur;
-    
-    this.opts = opts instanceof(ClientConstellation) ? {} : opts;
-    if (opts instanceof(ClientConstellation)) this.ipa = opts;
+
+    this.opts = opts instanceof ClientConstellation ? {} : opts;
+    if (opts instanceof ClientConstellation) this.ipa = opts;
 
     this.dicFRetourSuivi = {};
 

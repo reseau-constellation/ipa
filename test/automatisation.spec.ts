@@ -13,7 +13,6 @@ import {
 const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
 
-
 const { dossierTempoTests, obtDirTempoPourTest } = utilsTestDossiers;
 
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
@@ -142,7 +141,7 @@ typesClients.forEach((type) => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
           n: 1,
           type,
-          générerClient
+          générerClient,
         }));
         client = clients[0];
         ({ dossier: baseDossierTempo, fEffacer: fEffacerDossier } =
@@ -710,17 +709,16 @@ typesClients.forEach((type) => {
             fichier
           );
           fsOublier.push(() => attendreModifié.annuler());
-          
+
           const avant = Date.now();
           const attenteModifié = attendreModifié.attendre(avant, async () => {
             const doc = XLSX.readFile(fichier);
-            return utils.sheet_to_json(doc.Sheets["météo"]).length >= 2
+            return utils.sheet_to_json(doc.Sheets["météo"]).length >= 2;
           });
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 5 },
           });
-
           await attenteModifié;
 
           vérifierDonnéesBd(fichier, {
@@ -858,7 +856,10 @@ typesClients.forEach((type) => {
 
           await attenteModifié.attendre(avant, async () => {
             const doc = XLSX.readFile(fichier);
-            return Object.keys(utils.sheet_to_json(doc.Sheets["météo"])[0] || {}).length > 1
+            return (
+              Object.keys(utils.sheet_to_json(doc.Sheets["météo"])[0] || {})
+                .length > 1
+            );
           });
 
           vérifierDonnéesBd(fichier, {
