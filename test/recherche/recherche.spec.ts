@@ -9,7 +9,6 @@ import type {
   infoRésultatVide,
   résultatObjectifRecherche,
 } from "@/types.js";
-import { générerClientsInternes } from "../ressources/utils.js";
 
 import {
   client as utilsClientTest,
@@ -80,7 +79,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClientsInternes({ n: 2 }));
+              await générerClients({n: 2, type, générerClient }));
           });
 
           after(async () => {
@@ -100,7 +99,7 @@ typesClients.forEach((type) => {
               ({ fOublier } =
                 await clients[0].recherche!.rechercherMotsClefsSelonId({
                   idMotClef,
-                  f: (motsClefs) => rés.mettreÀJour(motsClefs),
+                  f: (motsClefs) => {console.log({motsClefs}); rés.mettreÀJour(motsClefs)},
                   nRésultatsDésirés: 2,
                 }));
               réfClient2 = {
@@ -1435,7 +1434,7 @@ typesClients.forEach((type) => {
 
           before(async () => {
             ({ fOublier: fOublierClients, clients: clients as unknown } =
-              await générerClientsInternes({ n: 3 }));
+              await générerClients({n: 3, type, générerClient }));
             idsComptes = await Promise.all(
               clients.map(async (c) => await c.obtIdCompte())
             );
