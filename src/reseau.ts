@@ -209,7 +209,7 @@ const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> =
   required: [],
 };
 
-const INTERVALE_SALUT = 1000 * 60;
+const INTERVALE_SALUT = 1000 * 10;
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
 const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
 const CONFIANCE_DE_COAUTEUR = 0.9;
@@ -416,7 +416,13 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         valeur,
       },
     };
-    await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
+    try {
+      await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
+    } catch (e) {
+      if (!e.toString().includes("PublishError.InsufficientPeersError")) {
+        throw e;
+      }
+    }
   }
 
   async envoyerDemandeRejoindreCompte({
