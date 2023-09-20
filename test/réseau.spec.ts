@@ -49,6 +49,9 @@ async function toutPréparer(n: number, type: typeClient) {
   const idsBdCompte = await Promise.all(
     clients.map(async (c) => await c.obtIdCompte())
   );
+  if (n > 1) {
+    await new Promise(résoudre => setTimeout(résoudre, n * 3000))
+  }
   return {
     clients,
     fOublierClients,
@@ -59,7 +62,7 @@ async function toutPréparer(n: number, type: typeClient) {
 }
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     if (isNode || isElectronMain) {
       describe("Réseau", function () {
         describe("Suivre en ligne", function () {
