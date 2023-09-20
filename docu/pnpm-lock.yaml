@@ -9,8 +9,8 @@ devDependencies:
     specifier: ^21.1.0
     version: 21.1.0
   '@types/marked':
-    specifier: ^4.0.8
-    version: 4.0.8
+    specifier: ^5.0.0
+    version: 5.0.1
   '@types/xml2js':
     specifier: ^0.4.11
     version: 0.4.11
@@ -2840,8 +2840,8 @@ packages:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
     dev: true
 
-  /@types/marked@4.0.8:
-    resolution: {integrity: sha512-HVNzMT5QlWCOdeuBsgXP8EZzKUf0+AXzN+sLmjvaB3ZlLqO+e4u0uXrdw9ub69wBKFs+c6/pA4r9sy6cCDvImw==}
+  /@types/marked@5.0.1:
+    resolution: {integrity: sha512-Y3pAUzHKh605fN6fvASsz5FDSWbZcs/65Q6xYRmnIP9ZIYz27T4IOmXfH9gWJV1dpi7f1e7z7nBGUTx/a0ptpA==}
     dev: true
 
   /@types/minimatch@3.0.5:
