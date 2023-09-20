@@ -98,7 +98,7 @@ typesClients.forEach((type) => {
             before(async () => {
               await new Promise(résoudre => setTimeout(résoudre, 2000))
               const idMotClef = await clients[1].motsClefs!.créerMotClef();
-              await new Promise(résoudre => setTimeout(résoudre, 2000));
+
               ({ fOublier } =
                 await clients[0].recherche!.rechercherMotsClefsSelonId({
                   idMotClef,
