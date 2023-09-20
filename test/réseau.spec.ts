@@ -49,9 +49,7 @@ async function toutPréparer(n: number, type: typeClient) {
   const idsBdCompte = await Promise.all(
     clients.map(async (c) => await c.obtIdCompte())
   );
-  if (n > 1) {
-    await new Promise(résoudre => setTimeout(résoudre, n * 3000))
-  }
+
   return {
     clients,
     fOublierClients,
