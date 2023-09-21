@@ -1063,7 +1063,6 @@ export class ClientConstellation extends EventEmitter {
     clef,
     f,
     fSuivre,
-    type,
   }: {
     id: string;
     clef: string;
@@ -1072,7 +1071,6 @@ export class ClientConstellation extends EventEmitter {
       id: string;
       fSuivreBd: schémaFonctionSuivi<T>;
     }) => Promise<schémaFonctionOublier>;
-    type?: "kvstore" | "keyvalue" | "feed";
   }): Promise<schémaFonctionOublier> {
     const fRacine = async ({
       fSuivreRacine,
@@ -1136,7 +1134,6 @@ export class ClientConstellation extends EventEmitter {
       clef,
       f: fFinale,
       fSuivre,
-      type: "keyvalue",
     });
   }
 
@@ -1230,7 +1227,6 @@ export class ClientConstellation extends EventEmitter {
         clef,
         f: fFinale,
         fSuivre,
-        type: "feed",
       });
     } else {
       const fFinale = async (valeurs?: LogEntry<T>[]) => {
@@ -1264,7 +1260,6 @@ export class ClientConstellation extends EventEmitter {
           id: string;
           fSuivreBd: schémaFonctionSuivi<élémentsBd[]>;
         }) => Promise<schémaFonctionOublier>,
-        type: "feed",
       });
     }
   }

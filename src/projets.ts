@@ -779,7 +779,6 @@ export default class Projets extends ComposanteClientListe<string> {
       clef: "bds",
       f: fFinale,
       fSuivre: fSuivreBds,
-      type: "feed",
     });
   }
 

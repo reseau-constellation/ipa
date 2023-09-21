@@ -1510,7 +1510,6 @@ export default class Tableaux {
         clef: "colonnes",
         f: fFinale,
         fSuivre: fSuivreBdColonnes,
-        type: "feed",
       });
     } else {
       return await this.client.suivreBdListeDeClef({
@@ -1550,7 +1549,6 @@ export default class Tableaux {
       clef: "colonnes",
       f: fFinale,
       fSuivre: fSuivreBdColonnes,
-      type: "feed",
     });
   }
 
