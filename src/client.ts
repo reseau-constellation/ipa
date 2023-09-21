@@ -936,48 +936,40 @@ export class ClientConstellation extends EventEmitter {
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
     type: "kvstore" | "keyvalue";
     schéma?: JSONSchemaType<U>;
-    événements?: string[];
   }): Promise<schémaFonctionOublier>;
   async suivreBd<U extends élémentsBd = élémentsBd, T = FeedStore<U>>({
     id,
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
     type: "feed";
     schéma?: JSONSchemaType<U>;
-    événements?: string[];
   }): Promise<schémaFonctionOublier>;
   async suivreBd({
     id,
     f,
-    événements = ["write", "replicated", "ready"],
   }: {
     id: string;
     f: schémaFonctionSuivi<Store>;
-    événements?: string[];
   }): Promise<schémaFonctionOublier>;
   async suivreBd<U, T extends Store>({
     id,
     f,
     type,
     schéma,
-    événements = ["write", "replicated", "ready"],
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
     type?: "kvstore" | "keyvalue" | "feed";
     schéma?: JSONSchemaType<U>;
-    événements?: string[];
   }): Promise<schémaFonctionOublier> {
     if (!adresseOrbiteValide(id))
       throw new Error(`Adresse "${id}" non valide.`);
@@ -1025,20 +1017,18 @@ export class ClientConstellation extends EventEmitter {
             }
           };
 
-          for (const é of événements) {
-            bd.events.on(é, fFinale);
-            fsOublier.push(async () => {
-              bd.events.off(é, fFinale);
-            });
+          bd.events.on("update", fFinale);
+          fsOublier.push(async () => {
+            bd.events.off("update", fFinale);
+          });
 
-            /* if (
-              é === "write" &&
-              bd.events.listenerCount("write") > bd.events.getMaxListeners()
-            ) {
-              console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
-              console.log({f})
-            } */
-          }
+          /* if (
+            é === "write" &&
+            bd.events.listenerCount("write") > bd.events.getMaxListeners()
+          ) {
+            console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
+            console.log({f})
+          } */
 
           fFinale();
         })
