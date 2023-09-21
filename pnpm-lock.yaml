@@ -256,8 +256,8 @@ devDependencies:
     specifier: ^0.14.1
     version: 0.14.1
   it-all:
-    specifier: ^2.0.1
-    version: 2.0.1
+    specifier: ^3.0.0
+    version: 3.0.3
   keyv:
     specifier: ^4.5.3
     version: 4.5.3
@@ -10846,6 +10846,10 @@ packages:
   /it-all@2.0.1:
     resolution: {integrity: sha512-9UuJcCRZsboz+HBQTNOau80Dw+ryGaHYFP/cPYzFBJBFcfDathMYnhHk4t52en9+fcyDGPTdLB+lFc1wzQIroA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+
+  /it-all@3.0.3:
+    resolution: {integrity: sha512-LwEVD1d0b1O5mDwumnZk+80jSBn5sXDxQ41xiD6j6l2lRiWH6lBLdxXx1C6mlKrXQwRHzUQagOZUmqttDUwb0A==}
+    dev: true
 
   /it-batch@1.0.9:
     resolution: {integrity: sha512-7Q7HXewMhNFltTsAMdSz6luNhyhkhEtGGbYek/8Xb/GiqYMtwUmopE1ocPSiJKKp3rM4Dt045sNFoUu+KZGNyA==}
