@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import type OrbitDB from "orbit-db";
+import type {OrbitDB} from "@orbitdb/core";
 import type identityProvider from "orbit-db-identity-provider";
 
 import GestionnaireAccès from "@/accès/gestionnaireUtilisateurs.js";
