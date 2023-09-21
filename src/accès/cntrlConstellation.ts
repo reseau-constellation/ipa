@@ -58,7 +58,23 @@ interface OptionsInitContrôleurConstellation
   nom: string;
 }
 
-export default class ContrôleurConstellation extends AccessControllers.AccessController {
+const ContrôleurConstellation = ({}: {}) => async ({ orbitdb: OrbitDB, identities, address, name }) => {
+  const canAppend = async (entry) => {
+
+  }
+  
+  return {
+    type: nomType,
+    address,
+    write,
+    canAppend
+  }
+}
+
+ContrôleurConstellation.type = nomType;
+export default ContrôleurConstellation;
+
+class ContrôleurConstellation_ extends AccessControllers.AccessController {
   bd?: FeedStore<élémentBdAccès>;
   _gestionnaireOrbite: GestionnaireOrbite;
   fOublierBd?: schémaFonctionOublier;
