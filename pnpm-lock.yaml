@@ -107,8 +107,8 @@ dependencies:
     specifier: git+https://github.com/inverted-capital/iso-constants.git#patch-1
     version: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
   it-to-buffer:
-    specifier: ^3.0.1
-    version: 3.0.1
+    specifier: ^4.0.0
+    version: 4.0.3
   jszip:
     specifier: ^3.10.1
     version: 3.10.1
@@ -11092,6 +11092,12 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       uint8arrays: 4.0.6
+
+  /it-to-buffer@4.0.3:
+    resolution: {integrity: sha512-/xdI2hD/LvK7tzS/9DY9oKATmUZ9rg9uG7IfQRBAokM/LLujJ179fqRGneluqwKpXOtCpMRo43LJZXr8aibv6Q==}
+    dependencies:
+      uint8arrays: 4.0.6
+    dev: false
 
   /it-to-stream@1.0.0:
     resolution: {integrity: sha512-pLULMZMAB/+vbdvbZtebC0nWBTbG581lk6w8P7DfIIIKUfa8FbY7Oi0FxZcFPbxvISs7A9E+cMpLDBc1XhpAOA==}
