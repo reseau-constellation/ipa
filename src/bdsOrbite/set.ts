@@ -4,7 +4,6 @@ import { AccessController } from 'orbit-db-access-controllers';
 
 const type = 'set'
 
-
 const Set = () => async ({ 
     ipfs, 
     identity, 
@@ -46,15 +45,6 @@ const Set = () => async ({
     return addOperation({ op: 'DEL', key: null, value })
   }
 
-  /**
-   * Iterates over keyvalue pairs.
-   * @function
-   * @param {Object} [filters={}] Various filters to apply to the iterator.
-   * @param {string} [filters.amount=-1] The number of results to fetch.
-   * @yields [string, string, string] The next key/value as key/value/hash.
-   * @memberof module:Databases.Databases-KeyValue
-   * @instance
-   */
   const iterator = async function * ({ amount }: { amount?: number } = {}) {
     const vals: {[val: string]: any} = {}
     let count = 0
@@ -70,7 +60,7 @@ const Set = () => async ({
       } else if (op === 'DEL' && !vals[key]) {
         vals[key] = true
       }
-      if (amount && count >= amount) {
+      if (amount !== undefined && count >= amount) {
         break
       }
     }
