@@ -6,17 +6,17 @@
  *
  * @augments module:Databases~Database
  */
-import { type AccessController, Database, type Identity }from '@orbitdb/core'
+import { type AccessController, Database, type Identity } from '@orbitdb/core'
 import type { IPFS } from 'ipfs-core';
 
-const type = 'liste'
+const type = 'list'
 
 /**
- * Defines an List database.
+ * Defines a List database.
  * @return {module:Databases.Databases-List} A List function.
  * @memberof module:Databases
  */
-const KeyValue = () => async ({ 
+const List = () => async ({ 
     ipfs, 
     identity, 
     address, 
@@ -72,7 +72,7 @@ const KeyValue = () => async ({
       } else if (op === 'DEL' && !vals[hash]) {
         vals[hash] = true
       }
-      if (amount && count >= amount) {
+      if (amount !== undefined && count >= amount) {
         break
       }
     }
@@ -99,6 +99,6 @@ const KeyValue = () => async ({
   }
 }
 
-KeyValue.type = type
+List.type = type
 
-export default KeyValue
+export default List
