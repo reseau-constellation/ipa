@@ -14,6 +14,7 @@ import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
 import path from "path";
 import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
+import { EventEmitter } from "events";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License
@@ -59,8 +60,51 @@ interface OptionsInitContrôleurConstellation
 }
 
 const ContrôleurConstellation = ({}: {}) => async ({ orbitdb: OrbitDB, identities, address, name }) => {
-  const canAppend = async (entry) => {
 
+  const événements = new EventEmitter();
+
+  const gestRôles = new GestionnaireAccès(orbitdb);
+  gestRôles.on("misÀJour", () => événements.emit("misÀJour"));
+  
+  const estAutorisé = async (id: string): Promise<boolean> => {
+    return await gestRôles.estAutorisé(id);
+  }
+  const canAppend = async (
+    entry: LogEntry<élémentBdAccès>,
+    identityProvider: typeof IdentityProvider
+  ): Promise<boolean> => {
+    const vraiSiSigValide = async () =>
+      await identityProvider.verifyIdentity(entry.identity);
+
+    const autorisé = await estAutorisé(entry.identity.id);
+
+    if (autorisé) {
+      // Pour implémenter la révocation des permissions, garder compte ici
+      // des entrées approuvées par utilisatrice
+      return await vraiSiSigValide();
+    }
+    return false;
+  }
+
+  const grant = async (rôle: (typeof rôles)[number], id: string): Promise<void> => {
+    if (!rôles.includes(rôle)) {
+      throw new Error(`Erreur: Le rôle ${rôle} n'existe pas.`);
+    }
+    if (gestRôles._rôles[rôle].includes(id)) {
+      return;
+    }
+    try {
+      const entry: élémentBdAccès = { rôle, id };
+      await bd!.add(entry);
+    } catch (_e) {
+      const e = _e as Error;
+      if (e.toString().includes("not append entry")) {
+        throw new Error(
+          `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`
+        );
+      }
+      throw e;
+    }
   }
   
   return {
@@ -83,7 +127,6 @@ class ContrôleurConstellation_ extends AccessControllers.AccessController {
   _premierMod: string;
   _adresseBd?: string;
   idRequète: string;
-  gestRôles: GestionnaireAccès;
 
   constructor(orbitdb: OrbitDB, options: OptionsInitContrôleurConstellation) {
     super();
@@ -97,8 +140,6 @@ class ContrôleurConstellation_ extends AccessControllers.AccessController {
     this.nom = options.nom;
 
     this.idRequète = uuidv4();
-    this.gestRôles = new GestionnaireAccès(this._orbitdb);
-    this.gestRôles.on("misÀJour", () => this.emit("misÀJour"));
   }
 
   static get type(): string {
@@ -118,9 +159,6 @@ class ContrôleurConstellation_ extends AccessControllers.AccessController {
     return await this.gestRôles.estUnModérateur(id);
   }
 
-  async estAutorisé(id: string): Promise<boolean> {
-    return await this.gestRôles.estAutorisé(id);
-  }
 
   async suivreUtilisateursAutorisés(
     f: schémaFonctionSuivi<infoUtilisateur[]>
@@ -174,22 +212,6 @@ class ContrôleurConstellation_ extends AccessControllers.AccessController {
     return fOublier;
   }
 
-  async canAppend(
-    entry: LogEntry<élémentBdAccès>,
-    identityProvider: typeof IdentityProvider
-  ): Promise<boolean> {
-    const vraiSiSigValide = async () =>
-      await identityProvider.verifyIdentity(entry.identity);
-
-    const estAutorisé = await this.estAutorisé(entry.identity.id);
-
-    if (estAutorisé) {
-      // Pour implémenter la révocation des permissions, garder compte ici
-      // des entrées approuvées par utilisatrice
-      return await vraiSiSigValide();
-    }
-    return false;
-  }
 
   async _miseÀJourBdAccès(): Promise<void> {
     let éléments = this.bd!.iterator({ limit: -1 })
@@ -262,26 +284,7 @@ class ContrôleurConstellation_ extends AccessControllers.AccessController {
     return manifest;
   }
 
-  async grant(rôle: (typeof rôles)[number], id: string): Promise<void> {
-    if (!rôles.includes(rôle)) {
-      throw new Error(`Erreur: Le rôle ${rôle} n'existe pas.`);
-    }
-    if (this.gestRôles._rôles[rôle].includes(id)) {
-      return;
-    }
-    try {
-      const entry: élémentBdAccès = { rôle, id };
-      await this.bd!.add(entry);
-    } catch (_e) {
-      const e = _e as Error;
-      if (e.toString().includes("not append entry")) {
-        throw new Error(
-          `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`
-        );
-      }
-      throw e;
-    }
-  }
+
 
   async revoke(rôle: (typeof rôles)[number], id: string): Promise<void> {
     // Pour implémenter la révocation des permissions, ajouter une
