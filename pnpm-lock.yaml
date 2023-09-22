@@ -31,9 +31,12 @@ dependencies:
   '@constl/utils-ipa':
     specifier: ^0.1.2
     version: 0.1.2(wrtc@0.4.7)
+  '@ipld/dag-cbor':
+    specifier: ^9.0.5
+    version: 9.0.5
   '@lassi-js/kili':
     specifier: ^0.2.3
-    version: 0.2.3(@constl/ipa@)(wrtc@0.4.7)
+    version: 0.2.3(@constl/ipa@0.8.3)(wrtc@0.4.7)
   '@libp2p/interface-transport':
     specifier: ^4.0.3
     version: 4.0.3
@@ -87,7 +90,7 @@ dependencies:
     version: 2.1.0
   ennikkai:
     specifier: ^2.2.0
-    version: 2.2.0(@constl/ipa@)(wrtc@0.4.7)
+    version: 2.2.0(@constl/ipa@0.8.3)(wrtc@0.4.7)
   events:
     specifier: ^3.3.0
     version: 3.3.0
@@ -1360,6 +1363,71 @@ packages:
       - supports-color
     dev: false
 
+  /@constl/ipa@0.8.3(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7):
+    resolution: {integrity: sha512-21dax0KKKaUBAbolw0ixQmYhJ4vb4z4grcKFRf6dH1hPnDQFQk+t25TmBhUD0f0m7I6ubilTqcFANY1Wdv783w==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      wrtc: ^0.4.7
+    dependencies:
+      '@achingbrain/nat-port-mapper': 1.0.8
+      '@chainsafe/libp2p-gossipsub': 7.0.0
+      '@chainsafe/libp2p-noise': 11.0.4
+      '@chriscdn/promise-semaphore': 2.0.7
+      '@constl/electron-webrtc-relay': 0.2.3
+      '@constl/mandataire': 0.1.14
+      '@constl/utils-ipa': 0.1.2(wrtc@0.4.7)
+      '@lassi-js/kili': 0.2.3(@constl/ipa@0.8.3)(wrtc@0.4.7)
+      '@libp2p/interface-transport': 4.0.3
+      '@libp2p/mplex': 8.0.4
+      '@libp2p/tcp': 7.0.3
+      '@libp2p/webrtc-direct': 6.0.0
+      '@libp2p/webrtc-star': 7.0.0
+      '@libp2p/websockets': 5.0.10
+      '@libp2p/webtransport': 1.0.11
+      '@localfirst/auth': 1.0.1
+      '@orbitdb/core': 1.0.0
+      ajv: 8.12.0
+      approx-string-match: 2.0.0
+      axios: 1.5.0
+      browser-fs-access: 0.34.1
+      chokidar: 3.5.3
+      crypto-js: 4.1.1
+      deep-equal: 2.2.2
+      deepcopy: 2.1.0
+      ennikkai: 2.2.0(@constl/ipa@0.8.3)(wrtc@0.4.7)
+      events: 3.3.0
+      genversion: 3.1.1
+      geojson-validation: 1.0.2
+      indexed-db-stream: 1.0.0
+      ipfs-core: 0.18.1
+      iso-constants: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
+      it-to-buffer: 3.0.1
+      jszip: 3.10.1
+      lodash: 4.17.21
+      merge-options: 3.0.4
+      multiformats: 9.9.0
+      orbit-db: 0.29.0(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)
+      orbit-db-access-controllers: 0.4.0(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)
+      prom-client: 14.2.0
+      rimraf: 5.0.1
+      ssim: 0.0.0
+      tslib: 2.6.2
+      uint8arrays: 4.0.6
+      uuid: 9.0.1
+      wherearewe: 2.0.1
+      wrtc: 0.4.7
+      xlsx: '@cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz'
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - encoding
+      - go-ipfs
+      - ipfs
+      - ipfsd-ctl
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@constl/mandataire@0.1.14:
     resolution: {integrity: sha512-o/eOcpQZFVHuLsNIkpDUdw9yAGdntAiueX6KAcHExCVgVGPY6Mzn8puX3+ZWK2sP7PpH/e6PHEsICOebI+C5ig==}
     dependencies:
@@ -2458,12 +2526,12 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@lassi-js/kili@0.2.3(@constl/ipa@)(wrtc@0.4.7):
+  /@lassi-js/kili@0.2.3(@constl/ipa@0.8.3)(wrtc@0.4.7):
     resolution: {integrity: sha512-l7S2At9Ci+Y1mfXJ0PrI3RaXFmyna1hKoSmdAcChUvklMNZHwcazGcdmpETnc0DGdcrIxEh3v9VIVisqfk0jlA==}
     peerDependencies:
       '@constl/ipa': ^0.8.1
     dependencies:
-      '@constl/ipa': 'link:'
+      '@constl/ipa': 0.8.3(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
       '@constl/utils-ipa': 0.1.2(wrtc@0.4.7)
       deepcopy: 2.1.0
     transitivePeerDependencies:
@@ -7354,13 +7422,13 @@ packages:
     resolution: {integrity: sha512-9JktcM3u18nU9N2Lz3bWeBgxVgOKpw7yhRaoxQA3FUDZzzw+9WlA6p4G4u0RixNkg14fH7EfEc/RhpurtiROTQ==}
     engines: {node: '>=10.0.0'}
 
-  /ennikkai@2.2.0(@constl/ipa@)(wrtc@0.4.7):
+  /ennikkai@2.2.0(@constl/ipa@0.8.3)(wrtc@0.4.7):
     resolution: {integrity: sha512-o2snPeh/83TLbHufOkl1Q1x99nM4u/qbZDZuKL+KzYZdgZ6cMaS2MV1prCV3u+E8WD/oko5FaUCRKsnWL67SEg==}
     peerDependencies:
       '@constl/ipa': ^0.8.1
     dependencies:
-      '@constl/ipa': 'link:'
-      '@lassi-js/kili': 0.2.3(@constl/ipa@)(wrtc@0.4.7)
+      '@constl/ipa': 0.8.3(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
+      '@lassi-js/kili': 0.2.3(@constl/ipa@0.8.3)(wrtc@0.4.7)
       deepmerge: 4.3.1
       events: 3.3.0
     transitivePeerDependencies:

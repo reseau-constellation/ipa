@@ -59,7 +59,11 @@ interface OptionsInitContrôleurConstellation
   nom: string;
 }
 
-const ContrôleurConstellation = ({}: {}) => async ({ orbitdb: OrbitDB, identities, address, name }) => {
+const ContrôleurConstellation = ({ write }: { write?: string }) => async ({ 
+  orbitdb, identities, address 
+}: { 
+  orbitdb: OrbitDB, identities, address?: string 
+}) => {
 
   const événements = new EventEmitter();
 
@@ -111,6 +115,7 @@ const ContrôleurConstellation = ({}: {}) => async ({ orbitdb: OrbitDB, identiti
     type: nomType,
     address,
     write,
+    grant,
     canAppend
   }
 }
