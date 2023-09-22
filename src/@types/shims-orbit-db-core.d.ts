@@ -3,7 +3,7 @@ declare module "@orbitdb/core" {
     
     export type OrbitDB = {
         id: string,
-        open,
+        open: (address: string, OrbitDBDatabaseOptions) => Awaited<ReturnType<Database>>,
         stop,
         ipfs,
         directory,
@@ -58,4 +58,9 @@ declare module "@orbitdb/core" {
     export function IPFSBlockStorage({ipfs: IPFS, pin: boolean}): Promise<Storage>;
     export function LRUStorage({size: number}): Promise<Storage>;
     export function ComposedStorage(...args: Storage[]): Promise<Storage>;
+    
+    export type OrbitDBDatabaseOptions = {
+        type: string,
+        AccessController: AccessController
+    };
 };

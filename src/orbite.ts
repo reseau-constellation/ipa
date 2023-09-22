@@ -5,7 +5,7 @@ import Store from "orbit-db-store";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 
 import { v4 as uuidv4 } from "uuid";
-import {createOrbitDB, type OrbitDB} from "@orbitdb/core";
+import {createOrbitDB, OrbitDBDatabaseOptions, type OrbitDB} from "@orbitdb/core";
 import {enregistrerContrôleurs} from "@/accès/index.js";
 import { isElectronMain, isNode } from "wherearewe";
 import Ajv, { type JSONSchemaType, type ValidateFunction } from "ajv";
@@ -271,24 +271,29 @@ export class GestionnaireOrbite {
     id,
     type,
     schéma,
+    options,
   }: {
     id: string;
     type: "kvstore" | "keyvalue";
+    options?: OrbitDBDatabaseOptions;
     schéma?: JSONSchemaType<U>;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<U extends élémentsBd, T = FeedStore<U>>({
     id,
     type,
     schéma,
+    options,
   }: {
     id: string;
     type: "feed";
+    options?: OrbitDBDatabaseOptions;
     schéma?: JSONSchemaType<U>;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
   }: {
     id: string;
+    options?: OrbitDBDatabaseOptions;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<
     U,
@@ -300,10 +305,12 @@ export class GestionnaireOrbite {
     id,
     type,
     schéma,
+    options,
   }: {
     id: string;
     schéma?: JSONSchemaType<U>;
     type?: "kvstore" | "keyvalue" | "feed";
+    options?: OrbitDBDatabaseOptions;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<
     U,
@@ -315,10 +322,12 @@ export class GestionnaireOrbite {
     id,
     type,
     schéma,
+    options,
   }: {
     id: string;
     schéma?: JSONSchemaType<U>;
     type?: "kvstore" | "keyvalue" | "feed";
+    options?: OrbitDBDatabaseOptions;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
     if (!adresseOrbiteValide(id))
       throw new Error(`Adresse "${id}" non valide.`);
@@ -411,21 +420,20 @@ export class GestionnaireOrbite {
 
   async créerBdIndépendante({
     type,
-    optionsAccès,
+    options,
     nom,
   }: {
     type: TStoreType;
-    optionsAccès: OptionsContrôleurConstellation;
+    options: OrbitDBDatabaseOptions;
     nom?: string;
   }): Promise<string> {
-    const options = {
-      accessController: optionsAccès,
-    };
-    const bd: Store = await this.orbite![type as keyof OrbitDB](
+    const bd: Store = await this.orbite.open(
       nom || uuidv4(),
-      options
+      {
+        type,
+        options,
+      }
     );
-    await bd.load();
     const { id } = bd;
 
     this._bdsOrbite[id] = { bd, idsRequètes: new Set() };
