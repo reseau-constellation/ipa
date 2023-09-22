@@ -43,7 +43,7 @@ const ContrôleurAccès = ({ write, storage } : { write?: string, storage?: Stor
     await LRUStorage({ size: 1000 }),
     await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
   )
-  write = write || [orbitdb.identity.id]
+  write = write || orbitdb.identity.id
 
   let dernierAppel = Date.now();
   const gestAccès = new GestionnaireAccès(orbitdb);
@@ -53,7 +53,7 @@ const ContrôleurAccès = ({ write, storage } : { write?: string, storage?: Stor
     const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
     write = value.write
   } else {
-    address = await AccessControlList({ storage, type, params: { write } })
+    address = await PremierModérateur({ storage, type, params: { write } })
     address = pathJoin('/', type, address)
   }
 
