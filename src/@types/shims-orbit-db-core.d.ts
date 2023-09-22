@@ -35,8 +35,11 @@ declare module "@orbitdb/core" {
         syncAutomatically?: boolean,
         onUpdate?: () => void,
     }): Promise<{
-        addOperation: (args: { op: string, key: string | null, value: any }) => Promise<string>;
+        addOperation: (args: { op: string, key: string | null, value: unknown }) => Promise<string>;
+        address: string;
         log: Log;
+        close(): Promise<void>;
+        drop(): Promise<void>;
     }>;
     export type Identity = {
         id: string,

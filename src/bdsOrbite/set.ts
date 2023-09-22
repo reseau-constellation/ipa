@@ -1,8 +1,8 @@
-import { Database, type Identity } from '@orbitdb/core'
+import { Database, type Identity, type Storage } from '@orbitdb/core'
 import type { IPFS } from 'ipfs-core';
 import { AccessController } from 'orbit-db-access-controllers';
 
-const type = 'set'
+const type = 'set' as const
 
 const Set = () => async ({ 
     ipfs, 
@@ -37,16 +37,19 @@ const Set = () => async ({
 
   const { addOperation, log } = database
 
-  const put = async (value: any): Promise<string> => {
+  const put = async (value: unknown): Promise<string> => {
     return addOperation({ op: 'PUT', key: null, value })
   }
 
-  const del = async (value: any): Promise<string> => {
+  const del = async (value: unknown): Promise<string> => {
     return addOperation({ op: 'DEL', key: null, value })
   }
 
-  const iterator = async function * ({ amount }: { amount?: number } = {}) {
-    const vals: {[val: string]: any} = {}
+  const iterator = async function * ({ amount }: { amount?: number } = {}): AsyncGenerator<{
+    value: unknown;
+    hash: string;
+  }, void, unknown> {
+    const vals: {[val: string]: unknown} = {}
     let count = 0
     for await (const entry of log.traverse()) {
       const { op, value } = entry.payload
@@ -67,8 +70,8 @@ const Set = () => async ({
   }
 
   const all = async (): Promise<{
-    value: any;
-    hash: any;
+    value: unknown;
+    hash: string;
   }[]> => {
     const values = []
     for await (const entry of iterator()) {
