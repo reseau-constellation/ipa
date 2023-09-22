@@ -374,7 +374,7 @@ export class GestionnaireOrbite {
       }
     }
     try {
-      const bd = await this.orbite!.open(id);
+      const bd = await this.orbite!.open(id, options);
 
       this._bdsOrbite[id] = { bd, idsRequètes: new Set([idRequète]) };
       await bd.load();

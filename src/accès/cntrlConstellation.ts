@@ -1,8 +1,5 @@
-import AccessControllers from "orbit-db-access-controllers";
-
-import {isValidAddress, type OrbitDB} from "@orbitdb/core";
+import {type OrbitDB, IPFSBlockStorage, LRUStorage, ComposedStorage, Identities, Storage } from "@orbitdb/core";
 import type FeedStore from "orbit-db-feedstore";
-import type { IdentityProvider } from "orbit-db-identity-provider";
 import { v4 as uuidv4 } from "uuid";
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -16,10 +13,10 @@ import GestionnaireAccès, {
 
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
-import path from "path";
-import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
+import { gestionnaireOrbiteGénéral } from "@/orbite.js";
 import { EventEmitter } from "events";
 import ContrôleurAccès from "./cntrlMod.js";
+import { pathJoin } from "./utils.js";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License
@@ -45,11 +42,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const ensureAddress = (address: string) => {
-  const suffix = address.toString().split("/").pop();
-  return suffix === "_access" ? address : path.join(address, "/_access");
-};
-
 export const nomType = "controlleur-constellation";
 
 export interface OptionsContrôleurConstellation {
@@ -58,16 +50,15 @@ export interface OptionsContrôleurConstellation {
   nom?: string;
 }
 
-interface OptionsInitContrôleurConstellation
-  extends OptionsContrôleurConstellation {
-  premierMod: string;
-  nom: string;
-}
 const codec = dagCbor
 const hasher = sha256
 const hashStringEncoding = base58btc
 
-const ManifestContrôleurConstellation = async ({ storage, type, params }) => {
+const ManifestContrôleurConstellation = async ({ 
+  storage, type, params 
+} : { 
+  storage: Storage, type: string, params: { nom: string, adresseBdAccès: string, write: string } 
+}) => {
   const manifest = {
     type,
     ...params
@@ -78,10 +69,12 @@ const ManifestContrôleurConstellation = async ({ storage, type, params }) => {
   return hash
 }
 
-const ContrôleurConstellation = ({ write, nom, storage }: { write?: string, nom?: string, storage?: Storage }) => async ({ 
+const ContrôleurConstellation = ({ write, nom, storage }: { 
+  write?: string, nom?: string, storage?: Storage 
+}) => async ({ 
   orbitdb, identities, address 
 }: { 
-  orbitdb: OrbitDB, identities, address?: string 
+  orbitdb: OrbitDB, identities: Identities, address?: string 
 }) => {
 
   write = write || orbitdb.identity.id;
@@ -102,11 +95,9 @@ const ContrôleurConstellation = ({ write, nom, storage }: { write?: string, nom
   let fOublierBd: schémaFonctionOublier;
 
   if (address) {
-    const manifestBytes = await storage.get(address.replaceAll('/controlleur-constellation/', ''))
-    const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
-    write = value.write;
-    nom = value.nom;
-    adresseBdAccès = value.adresseBdAccès;
+    const manifestBytes = await storage!.get(address.replaceAll('/controlleur-constellation/', ''))
+    const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher });
+    ({write, nom, adresseBdAccès} = value as {write: string, nom: string, adresseBdAccès: string});
     ({bd, fOublier: fOublierBd} = await gestionnaireOrbite.ouvrirBd<élémentBdAccès>({
       id: adresseBdAccès,
       type: "feed",
@@ -118,7 +109,7 @@ const ContrôleurConstellation = ({ write, nom, storage }: { write?: string, nom
       AccessController: ContrôleurAccès({ write })
     }));
     adresseBdAccès = bd.id;
-    address = await ManifestContrôleurConstellation({ storage, type: nomType, params: { write, nom, adresseBdAccès } })
+    address = await ManifestContrôleurConstellation({ storage, type: nomType, params: { write: write!, nom, adresseBdAccès } })
     address = pathJoin('/', nomType, address)
   }
 
@@ -134,7 +125,7 @@ const ContrôleurConstellation = ({ write, nom, storage }: { write?: string, nom
     let éléments = bd.all
       .map((x: LogEntry<élémentBdAccès>) => x.payload.value);
 
-    éléments = [{ rôle: MODÉRATEUR, id: write }, ...éléments];
+    éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
 
     await gestRôles.ajouterÉléments(éléments);
   }
@@ -145,17 +136,20 @@ const ContrôleurConstellation = ({ write, nom, storage }: { write?: string, nom
 
   const canAppend = async (
     entry: LogEntry<élémentBdAccès>,
-    identityProvider: typeof IdentityProvider
   ): Promise<boolean> => {
-    const vraiSiSigValide = async () =>
-      await identityProvider.verifyIdentity(entry.identity);
+    const writerIdentity = await identities.getIdentity(entry.identity)
+    if (!writerIdentity) {
+      return false
+    }
 
-    const autorisé = await estAutorisé(entry.identity.id);
+    const { id } = writerIdentity
+
+    const autorisé = await estAutorisé(id);
 
     if (autorisé) {
       // Pour implémenter la révocation des permissions, garder compte ici
       // des entrées approuvées par utilisatrice
-      return await vraiSiSigValide();
+      return identities.verifyIdentity(writerIdentity);
     }
     return false;
   }
