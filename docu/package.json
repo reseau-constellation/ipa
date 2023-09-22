@@ -22,7 +22,7 @@
     "@types/marked": "^5.0.0",
     "@types/xml2js": "^0.4.11",
     "cross-env": "^7.0.3",
-    "jsdom": "^21.1.0",
+    "jsdom": "^22.0.0",
     "marked": "^4.2.12",
     "nuchabal": "^3.1.0",
     "postcss-rtl": "^2.0.0",
