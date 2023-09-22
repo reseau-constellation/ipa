@@ -1,4 +1,6 @@
 declare module "@orbitdb/core" {
+    import type { IPFS }from "ipfs-core";
+    
     export type OrbitDB = {
         id: string,
         open,
@@ -45,4 +47,15 @@ declare module "@orbitdb/core" {
         verify: () => boolean,
     };
     export class AccessController {};
+    export class Identities {
+        getIdentity;
+        verifyIdentity: (identity) => boolean;
+    };
+    export class Storage {
+        put;
+        get;
+    };
+    export function IPFSBlockStorage({ipfs: IPFS, pin: boolean}): Promise<Storage>;
+    export function LRUStorage({size: number}): Promise<Storage>;
+    export function ComposedStorage(...args: Storage[]): Promise<Storage>;
 };

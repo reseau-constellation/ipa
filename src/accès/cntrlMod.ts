@@ -1,5 +1,4 @@
-import type {OrbitDB} from "@orbitdb/core";
-import type identityProvider from "orbit-db-identity-provider";
+import {IPFSBlockStorage, ComposedStorage, LRUStorage, type Storage, type Identities, type OrbitDB, } from "@orbitdb/core";
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
@@ -8,6 +7,7 @@ import { base58btc } from 'multiformats/bases/base58'
 import GestionnaireAccès from "@/accès/gestionnaireUtilisateurs.js";
 import { MODÉRATEUR, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès } from "@/accès/types.js";
+import { pathJoin } from "./utils.js";
 
 const type = "controlleur-accès-constellation";
 
@@ -19,12 +19,8 @@ export interface OptionsContrôleurAccèsConstellation {
   premierMod?: string;
 }
 
-interface OptionsInitContrôleurAccèsConstellation
-  extends OptionsContrôleurAccèsConstellation {
-  premierMod: string;
-}
 
-const PremierModérateur = async ({ storage, type, params }) => {
+const PremierModérateur = async ({ storage, type, params } : { storage: Storage, type: string, params: { write: string } }) => {
   const manifest = {
     type,
     ...params
@@ -37,7 +33,7 @@ const PremierModérateur = async ({ storage, type, params }) => {
 
 const ContrôleurAccès = ({ write, storage } : { write?: string, storage?: Storage } = { }) => async ({ 
   orbitdb, identities, address 
-}: { orbitdb: OrbitDB, identities, address?: string}) => {
+}: { orbitdb: OrbitDB, identities: Identities, address?: string}) => {
 
   storage = storage || await ComposedStorage(
     await LRUStorage({ size: 1000 }),
@@ -50,31 +46,33 @@ const ContrôleurAccès = ({ write, storage } : { write?: string, storage?: Stor
 
   if (address) {
     const manifestBytes = await storage.get(address.replaceAll('/controlleur-accès-constellation/', ''))
-    const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher })
-    write = value.write
+    const { value } = await Block.decode({ bytes: manifestBytes, codec, hasher });
+    ({write} = value as { write: string })
   } else {
-    address = await PremierModérateur({ storage, type, params: { write } })
+    address = await PremierModérateur({ storage, type, params: { write: write! } })
     address = pathJoin('/', type, address)
   }
 
   // Ajouter le premier modérateur
   await gestAccès.ajouterÉléments([
-    { id: write, rôle: MODÉRATEUR },
+    { id: write!, rôle: MODÉRATEUR },
   ]);
 
   const canAppend = async (
     entry: LogEntry<élémentBdAccès>,
-    identityProvider: identityProvider
   ): Promise<boolean> => {
-    const idÉlément = entry.identity.id;
     const { rôle, id: idAjout } = entry.payload.value;
-    const estUnMod = estUnModérateurPatient(idÉlément);
+
     const rôleValide = rôles.includes(rôle);
+    
+    const writerIdentity = await identities.getIdentity(entry.identity)
+    if (!writerIdentity) {
+      return false
+    }
+    const { id } = writerIdentity
+    const estUnMod = estUnModérateurPatient(id);
 
-    const validSig = async () =>
-      identityProvider.verifyIdentity(entry.identity);
-
-    if (rôleValide && (await estUnMod) && (await validSig())) {
+    if (rôleValide && (await estUnMod) && identities.verifyIdentity(writerIdentity)) {
       if (rôle === MODÉRATEUR) {
         await gestAccès.ajouterÉléments([
           { id: idAjout, rôle: MODÉRATEUR },
