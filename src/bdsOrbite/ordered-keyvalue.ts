@@ -6,10 +6,10 @@
  *
  * @augments module:Databases~Database
  */
-import { type AccessController, Database, type Identity } from '@orbitdb/core'
+import { type AccessController, Database, type Identity, type Storage } from '@orbitdb/core'
 import type { IPFS } from 'ipfs-core';
 
-const type = 'ordered-keyvalue'
+const type = 'ordered-keyvalue' as const
 
 /**
  * Defines an OrderedKeyValue database.
@@ -58,7 +58,7 @@ const OrderedKeyValue = () => async ({
    * @memberof module:Databases.Databases-OrderedKeyValue
    * @instance
    */
-  const put = async (key: string, value: any, position?: number): Promise<string> => {
+  const put = async (key: string, value: unknown, position?: number): Promise<string> => {
     return addOperation({ op: 'PUT', key, value: { value, position } })
   }
 
@@ -85,7 +85,7 @@ const OrderedKeyValue = () => async ({
    * @memberof module:Databases.Databases-OrderedKeyValue
    * @instance
    */
-  const get = async (key: string): Promise<{value: any, position: number} | undefined> => {
+  const get = async (key: string): Promise<{value: unknown, position: number} | undefined> => {
     for await (const entry of log.traverse()) {
       const { op, key: k, value } = entry.payload
       if (op === 'PUT' && k === key) {
@@ -105,7 +105,12 @@ const OrderedKeyValue = () => async ({
    * @memberof module:Databases.Databases-OrderedKeyValue
    * @instance
    */
-  const iterator = async function * ({ amount } : { amount?: number} = { }) {
+  const iterator = async function * ({ amount } : { amount?: number} = { }): AsyncGenerator<{
+    key: string;
+    value: unknown;
+    position: number;
+    hash: string;
+  }, void, unknown> {
     const keys: {[key: string]: boolean} = {}
     const positions: {[key: string]: number} = {}
 
@@ -143,7 +148,7 @@ const OrderedKeyValue = () => async ({
    * @instance
    */
   const all = async () => {
-    const values: {key: string, value: any, hash: string}[] = []
+    const values: {key: string, value: unknown, hash: string}[] = []
     for await (const entry of iterator()) {
       const { position, key, value, hash } = entry;
       values.splice(position, 0, { key, value, hash })

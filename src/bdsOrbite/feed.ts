@@ -1,22 +1,17 @@
 /**
- * @namespace Databases-List
+ * @namespace Databases-Feed
  * @memberof module:Databases
  * @description
- * List database.
+ * Feed database.
  *
  * @augments module:Databases~Database
  */
-import { type AccessController, Database, type Identity } from '@orbitdb/core'
+import { type AccessController, Database, type Identity, type Storage } from '@orbitdb/core'
 import type { IPFS } from 'ipfs-core';
 
-const type = 'list'
+const type = 'feed' as const
 
-/**
- * Defines a List database.
- * @return {module:Databases.Databases-List} A List function.
- * @memberof module:Databases
- */
-const List = () => async ({ 
+const Feed = () => async ({ 
     ipfs, 
     identity, 
     address, 
@@ -49,7 +44,7 @@ const List = () => async ({
 
   const { addOperation, log } = database
 
-  const add = async (value: any): Promise<string> => {
+  const add = async (value: unknown): Promise<string> => {
     return addOperation({ op: 'ADD', key: null, value })
   }
 
@@ -58,8 +53,11 @@ const List = () => async ({
     return addOperation({ op: 'DEL', key: null, value: hash })
   }
 
-  const iterator = async function * ({ amount }: { amount?: number } = {}) {
-    const vals: {[val: string]: any} = {}
+  const iterator = async function * ({ amount }: { amount?: number } = {}): AsyncGenerator<{
+    value: unknown;
+    hash: string;
+}, void, unknown> {
+    const vals: {[val: string]: boolean} = {}
     let count = 0
     for await (const entry of log.traverse()) {
       const { op, hash, value } = entry.payload
@@ -79,8 +77,8 @@ const List = () => async ({
   }
 
   const all = async (): Promise<{
-    value: any;
-    hash: any;
+    value: unknown;
+    hash: string;
   }[]> => {
     const values = []
     for await (const entry of iterator()) {
@@ -99,6 +97,6 @@ const List = () => async ({
   }
 }
 
-List.type = type
+Feed.type = type
 
-export default List
+export default Feed

@@ -1,7 +1,4 @@
 import type { IPFS } from "ipfs-core";
-import type KeyValueStore from "orbit-db-kvstore";
-import FeedStore from "orbit-db-feedstore";
-import Store from "orbit-db-store";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 
 import { v4 as uuidv4 } from "uuid";
@@ -11,7 +8,64 @@ import { isElectronMain, isNode } from "wherearewe";
 import Ajv, { type JSONSchemaType, type ValidateFunction } from "ajv";
 import { adresseOrbiteValide } from "@constl/utils-ipa";
 import Semaphore from "@chriscdn/promise-semaphore";
-import { OptionsContrôleurConstellation } from "./accès/cntrlConstellation.js";
+import type Feed from "./bdsOrbite/feed.js";
+import type SetDatabase from "./bdsOrbite/set.js";
+import OrderedKeyValue from "./bdsOrbite/ordered-keyvalue.js";
+
+type Store = FeedStore | SetStore | KeyValueStore | OrderedKeyValueStore;
+
+type FeedStore = Awaited<ReturnType<ReturnType<typeof Feed>>>
+type FeedStoreTypé<T> = Omit<FeedStore, "add" | "all" > & {
+  add: (value: T) => Promise<string>;
+  all: () => Promise<{
+    value: T;
+    hash: string;
+  }[]>
+}
+
+type SetStore = Awaited<ReturnType<ReturnType<typeof SetDatabase>>>
+type SetStoreTypé<T> = Omit<SetStore, "put" | "set" | "del" | "all"> & {
+  put: (value: T) => Promise<string>;
+  set: SetStoreTypé<T>["put"];
+  del: (value: T) => Promise<string>;
+  all: () => Promise<{
+    value: T;
+    hash: string;
+  }[]>
+}
+
+type OrderedKeyValueStore = Awaited<ReturnType<ReturnType<typeof OrderedKeyValue>>>
+type OrderedKeyValueStoreTypé<T> = Omit<OrderedKeyValueStore, "put" | "set" | "del" | "move" | "get" | "all"> & {
+  put: <K extends keyof T>(key: K, value: T[K], position?: number) => Promise<string>;
+  set: OrderedKeyValueStoreTypé<T>["put"];
+  del: <K extends keyof T>(key: K) => Promise<string>;
+  move: <K extends keyof T>(key: K, position: number) => Promise<string>;
+  get: <K extends keyof T>(key: K) => Promise<T[K] | undefined>;
+  all: () => Promise<{
+    key: keyof T;
+    value: T[keyof T];
+    hash: string;
+}[]>
+}
+
+type KeyValueStore = {
+  type: "keyvalue";
+  address: string;
+  put(key: string, value: unknown): Promise<string>;
+  set: KeyValueStore["put"];
+  del(key: string): Promise<string>;
+  get(key: string): Promise<unknown | undefined>;
+  all(): Promise<{key: string, value: unknown, hash: string}[]>,
+  close(): Promise<void>;
+  drop(): Promise<void>;
+}
+type KeyValueStoreTypé<T extends {[clef: string]: unknown}> = Omit<KeyValueStore, "put" | "set" | "del" | "get" | "all"> & {
+  put<K extends keyof T>(key: K, value: T[K]): Promise<string>;
+  set: KeyValueStoreTypé<T>["put"];
+  del<K extends keyof T>(key: K): Promise<string>;
+  get<K extends keyof T>(key: K): Promise<T[K] | undefined>;
+  all(): Promise<T>,
+}
 
 enregistrerContrôleurs();
 
@@ -37,52 +91,11 @@ export default async function initOrbite({
     directory: dossierOrbiteFinal,
   });
 }
-export function vérifierTypesBdOrbite<T extends élémentsBd>({
-  bd,
-  schéma,
-}: {
-  bd: FeedStore<T>;
-  schéma?: JSONSchemaType<T>;
-}): FeedStore<T>;
-export function vérifierTypesBdOrbite<
-  T extends { [clef: string]: élémentsBd }
->({
-  bd,
-  schéma,
-}: {
-  bd: KeyValueStore<T>;
-  schéma?: JSONSchemaType<T>;
-}): KeyValueStore<T>;
-export function vérifierTypesBdOrbite<
-  T extends { [clef: string]: élémentsBd } | élémentsBd
->({ bd, schéma }: { bd: Store; schéma?: JSONSchemaType<T> }): Store {
-  if (!schéma) return bd;
-  if (bd.type === "feed") {
-    const bdListe = bd as FeedStore<T>;
-    return validerTypesListeOrbite({ bd: bdListe, schéma });
-  } else if (bd.type === "keyvalue") {
-    const bdDic = bd as KeyValueStore<
-      Extract<T, { [clef: string]: élémentsBd }>
-    >;
-    return validerTypesDicOrbite({
-      bd: bdDic,
-      schéma: schéma as JSONSchemaType<
-        Extract<T, { [clef: string]: élémentsBd }>
-      >,
-    });
-  }
-  return bd;
-}
 
-const validerTypesListeOrbite = <T extends élémentsBd>({
-  bd,
-  schéma,
-}: {
-  bd: FeedStore<T>;
-  schéma: JSONSchemaType<T>;
-}): FeedStore<T> => {
+
+const typerFeedStore = <T extends élémentsBd>({ bd, schéma }: {bd: FeedStore, schéma: JSONSchemaType<T>}): FeedStoreTypé<T> => {
   const validateur = ajv.compile(schéma);
-  const valider = (v: unknown) => {
+  const valider = (v: unknown): v is T => {
     const valid = validateur(v);
     if (valid) return true;
     else console.error(v, JSON.stringify(validateur.errors, undefined, 2));
@@ -92,7 +105,11 @@ const validerTypesListeOrbite = <T extends élémentsBd>({
   return new Proxy(bd, {
     get(target, prop) {
       if (prop === "all") {
-        return target[prop].filter((x) => valider(x.payload.value));
+        return async (): Promise<{ value: T, hash: string }[]> => {
+          const tous = await target[prop]()
+          const valides = tous.filter((x) => valider(x.value)) as { value: T, hash: string }[]
+          return valides
+        };
       } else if (prop === "add") {
         return async (data: T): Promise<string> => {
           const valide = valider(data);
@@ -103,68 +120,20 @@ const validerTypesListeOrbite = <T extends élémentsBd>({
             data.toString() + JSON.stringify(validateur.errors, undefined, 2)
           );
         };
-      } else if (prop === "get") {
-        return (hash: string): LogEntry<T> => {
-          const données = target.get(hash);
-          const valide = valider(données.payload.value);
-          if (valide) {
-            return données;
-          }
-          throw new Error(JSON.stringify(validateur.errors, undefined, 2));
-        };
-      } else if (prop === "iterator") {
-        return (options?: {
-          gt?: string;
-          gte?: string;
-          lt?: string;
-          lte?: string;
-          limit?: number;
-          reverse?: boolean;
-        }): {
-          [Symbol.iterator](): Iterator<LogEntry<T>>;
-          next(): { value?: LogEntry<T>; done: boolean };
-          collect(): LogEntry<T>[];
-        } => {
-          const itérateurBd = target.iterator(options);
-
-          const itérateurType = {
-            *[Symbol.iterator](): Iterator<LogEntry<T>> {
-              for (const x of itérateurBd) {
-                if (valider(x.payload.value)) {
-                  yield x;
-                }
-              }
-            },
-            next(): { value?: LogEntry<T>; done: boolean } {
-              let suivant = itérateurBd.next();
-              while (!valider(suivant.value.payload.value)) {
-                if (suivant.done) return { done: true };
-                suivant = itérateurBd.next();
-              }
-              return suivant;
-            },
-            collect(): LogEntry<T>[] {
-              return itérateurBd
-                .collect()
-                .filter((x) => valider(x.payload.value));
-            },
-          };
-          return itérateurType;
-        };
       } else {
         return target[prop as keyof typeof target];
       }
     },
-  });
-};
+  }) as FeedStoreTypé<T>;
+}
 
-const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
+const typerKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
   bd,
   schéma,
 }: {
-  bd: KeyValueStore<T>;
+  bd: KeyValueStore;
   schéma: JSONSchemaType<Partial<T>>;
-}): KeyValueStore<Partial<T>> => {
+}): KeyValueStoreTypé<T> => {
   const validateur = ajv.compile(schéma);
   const compilerSchémaClef = (
     s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"]
@@ -195,32 +164,32 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
     ? compilerSchémaClef(schéma.additionalProperties)
     : () => false;
 
-  const valider = (v: unknown, clef?: string) => {
-    const vld = clef
-      ? validateurs[clef] || validPropriétésAditionnelles
-      : validateur;
-    const valid = vld(v);
-    return valid;
+  const validerClef = (v: unknown, clef: string): v is T[typeof clef] => {
+    const vld = validateurs[clef] || validPropriétésAditionnelles;
+    return vld(v);
+  };
+
+  const valider = (v: unknown): v is T => {
+    return validateur(v);
   };
 
   return new Proxy(bd, {
     get(target, prop) {
       if (prop === "get") {
-        return (key: Extract<keyof T, string>): T[typeof key] | undefined => {
-          const val = target.get(key);
+        return async (key: Extract<keyof T, string>): Promise<T[typeof key] | undefined> => {
+          const val = await target.get(key);
           if (val === undefined) return val;
-          const valide = valider(val, key);
-          if (valide) return val;
+          const valide = validerClef(val, key);
+          if (valide) return val as T[typeof key];
           else return undefined;
         };
       } else if (prop === "put" || prop === "set") {
         return async (
           key: Extract<keyof T, string>,
           value: T[typeof key],
-          options?: object
         ): Promise<string> => {
-          const valide = valider(value, key); // validateurs[key]?.(value);
-          if (valide) return await target.put(key, value, options);
+          const valide = validerClef(value, key);
+          if (valide) return await target.put(key, value);
           else
             throw new Error(
               validateurs[key]
@@ -229,19 +198,89 @@ const validerTypesDicOrbite = <T extends { [clef: string]: élémentsBd }>({
             );
         };
       } else if (prop === "all") {
-        const données = target.all;
-        const valide = valider(données); // validateur(données)
-        if (valide) {
-          return données;
-        } else {
-          throw new Error(JSON.stringify(validateur.errors, undefined, 2));
+        return async () => {
+          const tous = await target.all();
+          const données = Object.fromEntries(tous.map(x => [x.key, x.value]));
+          const valide = valider(données);
+          if (valide) {
+            return données;
+          } else {
+            throw new Error(JSON.stringify(validateur.errors, undefined, 2));
+          }
         }
       } else {
         return target[prop as keyof typeof target];
       }
     },
-  });
-};
+  }) as unknown as KeyValueStoreTypé<T>;
+}
+
+const typerSetStore = <T extends élémentsBd>({ bd, schéma }: {bd: SetStore, schéma: JSONSchemaType<T>}): SetStoreTypé<T> => {
+  const validateur = ajv.compile(schéma);
+  const valider = (v: unknown): v is T => {
+    const valid = validateur(v);
+    if (valid) return true;
+    else console.error(v, JSON.stringify(validateur.errors, undefined, 2));
+    return false;
+  };
+
+  return new Proxy(bd, {
+    get(target, prop) {
+      if (prop === "all") {
+        return async (): Promise<{ value: T, hash: string }[]> => {
+          const tous = await target[prop]()
+          const valides = tous.filter((x) => valider(x.value)) as { value: T, hash: string }[]
+          return valides
+        };
+      } else if (prop === "put" || prop === "set") {
+        return async (data: T): Promise<string> => {
+          const valide = valider(data);
+          if (valide) {
+            return await target.put(data);
+          }
+          throw new Error(
+            data.toString() + JSON.stringify(validateur.errors, undefined, 2)
+          );
+        };
+      } else {
+        return target[prop as keyof typeof target];
+      }
+    },
+  }) as SetStoreTypé<T>;
+}
+
+type Typer<T extends Store> = T extends KeyValueStore ? KeyValueStoreTypé<{ [clef: string]: élémentsBd }> : (
+  T extends FeedStore ? FeedStoreTypé<élémentsBd> : (
+    T extends SetStore ? SetStoreTypé<élémentsBd> : (
+      T extends OrderedKeyValueStore ?  OrderedKeyValueStoreTypé<{[clef: string]: élémentsBd }> : never
+    )
+  )
+); 
+
+const typerBd = <T extends Store, U>({ bd, schéma } : { bd: Store, schéma: JSONSchemaType<U> }): Typer<T> => {
+  switch (bd.type) {
+    case "feed":
+      return typerFeedStore({ bd, schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>})
+
+    case "set":
+      return typerSetStore({ bd, schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>});
+
+    case "keyvalue":
+      return typerKeyValueStore({
+          bd,
+          schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
+        });
+
+    case "ordered-keyvalue":
+      return typeOrderedKeyValueStore({
+          bd,
+          schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
+        });
+
+    default:
+      throw new Error("Type de bd non reconnu.");
+  }
+}
 
 type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string> };
 
@@ -266,7 +305,7 @@ export class GestionnaireOrbite {
 
   async ouvrirBd<
     U extends { [clef: string]: élémentsBd },
-    T = KeyValueStore<U>
+    T = KeyValueStore
   >({
     id,
     type,
@@ -274,11 +313,11 @@ export class GestionnaireOrbite {
     options,
   }: {
     id: string;
-    type: "kvstore" | "keyvalue";
+    type: "keyvalue";
     options?: OrbitDBDatabaseOptions;
     schéma?: JSONSchemaType<U>;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<U extends élémentsBd, T = FeedStore<U>>({
+  async ouvrirBd<U extends élémentsBd, T = FeedStore>({
     id,
     type,
     schéma,
@@ -286,6 +325,28 @@ export class GestionnaireOrbite {
   }: {
     id: string;
     type: "feed";
+    options?: OrbitDBDatabaseOptions;
+    schéma?: JSONSchemaType<U>;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<U extends élémentsBd, T = SetStore>({
+    id,
+    type,
+    schéma,
+    options,
+  }: {
+    id: string;
+    type: "set";
+    options?: OrbitDBDatabaseOptions;
+    schéma?: JSONSchemaType<U>;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<U extends { [clef: string]: élémentsBd }, T = KeyValueStore>({
+    id,
+    type,
+    schéma,
+    options,
+  }: {
+    id: string;
+    type: "ordered-keyvalue";
     options?: OrbitDBDatabaseOptions;
     schéma?: JSONSchemaType<U>;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
@@ -297,10 +358,7 @@ export class GestionnaireOrbite {
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<
     U,
-    T extends
-      | Store
-      | KeyValueStore<{ [clef: string]: élémentsBd }>
-      | FeedStore<élémentsBd>
+    T extends Store
   >({
     id,
     type,
@@ -309,15 +367,12 @@ export class GestionnaireOrbite {
   }: {
     id: string;
     schéma?: JSONSchemaType<U>;
-    type?: "kvstore" | "keyvalue" | "feed";
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
     options?: OrbitDBDatabaseOptions;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<
     U,
-    T extends
-      | Store
-      | KeyValueStore<{ [clef: string]: élémentsBd }>
-      | FeedStore<élémentsBd>
+    T extends Store
   >({
     id,
     type,
@@ -326,9 +381,12 @@ export class GestionnaireOrbite {
   }: {
     id: string;
     schéma?: JSONSchemaType<U>;
-    type?: "kvstore" | "keyvalue" | "feed";
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
     options?: OrbitDBDatabaseOptions;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
+  }): Promise<{ 
+    bd: typeof schéma extends undefined ? T : Typer<T>; 
+    fOublier: schémaFonctionOublier 
+  }> {
     if (!adresseOrbiteValide(id))
       throw new Error(`Adresse "${id}" non valide.`);
 
@@ -336,7 +394,6 @@ export class GestionnaireOrbite {
     const vérifierTypeBd = (bd: Store): bd is T => {
       const { type: typeBd } = bd;
       if (type === undefined) return true;
-      if (typeBd === "keyvalue" && type === "kvstore") return true;
       return typeBd === type;
     };
 
@@ -361,27 +418,10 @@ export class GestionnaireOrbite {
         throw new Error(
           `La bd est de type ${existante.bd.type}, et non ${type}.`
         );
-      if (existante.bd.type === "feed") {
-        return {
-          bd: vérifierTypesBdOrbite({
-            bd: existante.bd as Extract<T, FeedStore<U>>,
-            schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
-          }) as T,
-          fOublier,
-        };
-      } else {
-        return {
-          bd: vérifierTypesBdOrbite({
-            bd: existante.bd as Extract<
-              T,
-              KeyValueStore<Extract<{ [clef: string]: élémentsBd }, U>>
-            >,
-            schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
-          }) as T,
-          fOublier,
-        };
-      }
+      return { bd: schéma ? typerBd({ bd: existante.bd, schéma }) : existante.bd, fOublier }
+      
     }
+
     try {
       const bd = await this.orbite!.open(id, options);
 
@@ -398,20 +438,10 @@ export class GestionnaireOrbite {
       }
 
       return {
-        bd: (bd.type === "feed"
-          ? vérifierTypesBdOrbite({
-              bd: bd as Extract<T, FeedStore<U>>,
-              schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
-            })
-          : vérifierTypesBdOrbite({
-              bd: bd as Extract<
-                T,
-                KeyValueStore<Extract<{ [clef: string]: élémentsBd }, U>>
-              >,
-              schéma: schéma as JSONSchemaType<Extract<élémentsBd, U>>,
-            })) as T,
+        bd: schéma ? typerBd({ bd, schéma }) : bd,
         fOublier,
       };
+
     } catch (e) {
       console.error((e as Error).toString());
       throw e;
@@ -434,11 +464,11 @@ export class GestionnaireOrbite {
         options,
       }
     );
-    const { id } = bd;
+    const { address } = bd;
 
-    this._bdsOrbite[id] = { bd, idsRequètes: new Set() };
+    this._bdsOrbite[address] = { bd, idsRequètes: new Set() };
 
-    return id;
+    return address;
   }
 
   async effacerBd({ id }: { id: string }): Promise<void> {
