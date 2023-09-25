@@ -7,14 +7,15 @@ import {
   OrbitDBDatabaseOptions,
   type OrbitDB,
   AccessController,
+  useDatabaseType,
   type Log,
 } from "@orbitdb/core";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import { isElectronMain, isNode } from "wherearewe";
 import Ajv, { type JSONSchemaType, type ValidateFunction } from "ajv";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
+
 import Semaphore from "@chriscdn/promise-semaphore";
-import type Feed from "./bdsOrbite/feed.js";
+import Feed from "./bdsOrbite/feed.js";
 import type SetDatabase from "./bdsOrbite/set.js";
 import OrderedKeyValue from "./bdsOrbite/ordered-keyvalue.js";
 import EventEmitter from "events";
@@ -116,12 +117,15 @@ export default async function initOrbite({
     dossierOrbiteFinal = dossierOrbite || "./orbite";
   }
 
+  enregistrerContrôleurs();
+  useDatabaseType(Feed);
+
   const orbite = await createOrbitDB({
     ipfs: sfip,
     directory: dossierOrbiteFinal,
   });
 
-  enregistrerContrôleurs();
+
   return orbite;
 }
 
@@ -533,9 +537,6 @@ export class GestionnaireOrbite {
     bd: T;
     fOublier: schémaFonctionOublier;
   }> {
-    if (!adresseOrbiteValide(id))
-      throw new Error(`Adresse "${id}" non valide.`);
-
     // Nous avons besoin d'un verrou afin d'éviter la concurrence
     await this.verrouOuvertureBd.acquire(id);
     const existante = this._bdsOrbite[id];

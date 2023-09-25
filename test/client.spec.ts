@@ -4,10 +4,10 @@ import toBuffer from "it-to-buffer";
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import {
-  adresseOrbiteValide,
   faisRien,
   suivreBdDeFonction,
 } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 
 import {
   attente as utilsTestAttente,
@@ -48,20 +48,6 @@ const schémaKVChaîne: JSONSchemaType<{ [clef: string]: string }> = {
 const schémaListeNumérique: JSONSchemaType<number> = { type: "number" } 
 const schémaListeChaîne: JSONSchemaType<string> = { type: "string" } 
 
-describe("adresseOrbiteValide", function () {
-  it("adresse orbite est valide", () => {
-    const valide = adresseOrbiteValide(
-      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e"
-    );
-    expect(valide).to.be.true();
-  });
-  it("CID SFIP n'est pas valide", () => {
-    const valide = adresseOrbiteValide(
-      "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ"
-    );
-    expect(valide).to.be.false();
-  });
-});
 
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
@@ -1349,7 +1335,7 @@ if (isNode || isElectronMain) {
       it("On obtient la BD", async () => {
         const { bd, fOublier } = await client.orbite!.ouvrirBd({ id: idBd });
         fsOublier.push(fOublier);
-        expect(adresseOrbiteValide(bd.address.toString())).to.be.true();
+        expect(isValidAddress(bd.address.toString())).to.be.true();
       });
       it("On évite la concurrence", async () => {
         const bds = await Promise.all(
@@ -1423,7 +1409,7 @@ if (isNode || isElectronMain) {
           racine: bdRacine,
           type: "feed",
         });
-        expect(adresseOrbiteValide(idBdRetrouvée)).to.be.true();
+        expect(isValidAddress(idBdRetrouvée)).to.be.true();
       });
 
       it("Mais on ne crée pas la BD on n'a pas la permission sur la BD racine", async () => {
@@ -1497,7 +1483,7 @@ if (isNode || isElectronMain) {
 
       it("La BD est crée", async () => {
         const idBd = await client.créerBdIndépendante({ type: "keyvalue" });
-        expect(adresseOrbiteValide(idBd)).to.be.true();
+        expect(isValidAddress(idBd)).to.be.true();
       });
       it("Avec sa propre bd accès utilisateur", async () => {
         const optionsAccès: OptionsContrôleurConstellation = {

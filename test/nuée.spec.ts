@@ -1,6 +1,6 @@
 import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier, schémaStatut, TYPES_STATUT } from "@/types.js";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 
 import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
@@ -68,7 +68,7 @@ typesClients.forEach((type) => {
       describe("Création", function () {
         it("Nuée", async () => {
           const idNuée = await client.nuées!.créerNuée({});
-          expect(adresseOrbiteValide(idNuée)).to.be.true();
+          expect(isValidAddress(idNuée)).to.be.true();
         });
       });
 

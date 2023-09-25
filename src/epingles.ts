@@ -4,8 +4,8 @@ import {
   élémentsBd,
   schémaFonctionSuivi,
 } from "@/types.js";
-import { adresseOrbiteValide, cidValide } from "@constl/utils-ipa";
-
+import { cidValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 import { EventEmitter } from "events";
 
 interface RequèteÉpingle {
@@ -134,7 +134,7 @@ export default class Épingles {
         } else if (typeof vals === "string") {
           l_vals = [vals];
         }
-        const idsOrbite = l_vals.filter((v) => adresseOrbiteValide(v));
+        const idsOrbite = l_vals.filter((v) => isValidAddress(v));
 
         if (fichiers) {
           // Épingler les fichiers si nécessaire

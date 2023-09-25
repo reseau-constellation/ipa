@@ -100,6 +100,8 @@ declare module "@orbitdb/core" {
     canAppend: (entry: Entry) => Promise<boolean>;
   }
 
+  export function useDatabaseType(type: {type: string}): void;
+
   export function IPFSAccessController(args: {
     write: string[];
     storage: Storage;

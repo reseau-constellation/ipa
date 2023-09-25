@@ -7,6 +7,7 @@ import {
   type IPFSAccessController as générerIPFSAccessController,
   type OrbitDB,
   AccessController,
+  isValidAddress,
 } from "@orbitdb/core";
 
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
@@ -18,7 +19,6 @@ import indexedDbStream from "indexed-db-stream";
 
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
 import Épingles from "@/epingles.js";
 import Profil from "@/profil.js";
 import BDs from "@/bds.js";
@@ -44,7 +44,6 @@ import {
   PasNondéfini,
 } from "@/types.js";
 import {
-  adresseOrbiteValide,
   faisRien,
   uneFois,
   toBuffer,
@@ -224,7 +223,7 @@ export class ClientConstellation extends EventEmitter {
 
   constructor(opts: optsConstellation = {}) {
     super();
-    enregistrerContrôleurs();
+
     this._opts = opts;
 
     this.prêt = false;
@@ -649,7 +648,7 @@ export class ClientConstellation extends EventEmitter {
   }
 
   async rejoindreCompte({ idCompte }: { idCompte: string }): Promise<void> {
-    if (!adresseOrbiteValide(idCompte)) {
+    if (!isValidAddress(idCompte)) {
       throw new Error(`Adresse compte "${idCompte}" non valide`);
     }
 
@@ -701,7 +700,7 @@ export class ClientConstellation extends EventEmitter {
     identité: string;
     rôle: keyof objRôles;
   }): Promise<void> {
-    if (!adresseOrbiteValide(identité)) {
+    if (!isValidAddress(identité)) {
       throw new Error(`Identité "${identité}" non valide.`);
     }
 
@@ -882,7 +881,7 @@ export class ClientConstellation extends EventEmitter {
         continue;
       } else if (valBdBase === undefined) {
         await bdBase.put(c, v as T[typeof c]);
-      } else if (adresseOrbiteValide(valBdBase) && adresseOrbiteValide(v)) {
+      } else if (isValidAddress(valBdBase) && isValidAddress(v)) {
         await this.combinerBds({
           idBdBase: valBdBase as string,
           idBd2: v as string,
@@ -948,7 +947,7 @@ export class ClientConstellation extends EventEmitter {
               if (combiné[c] === undefined) {
                 combiné[c] = v;
               } else if (!deepEqual(combiné[c], v)) {
-                if (adresseOrbiteValide(combiné[c]) && adresseOrbiteValide(v)) {
+                if (isValidAddress(combiné[c]) && isValidAddress(v)) {
                   await this.combinerBds({
                     idBdBase: combiné[c] as string,
                     idBd2: v as string,
@@ -1011,7 +1010,7 @@ export class ClientConstellation extends EventEmitter {
     type?: "keyvalue" | "feed";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier> {
-    if (!adresseOrbiteValide(id))
+    if (!isValidAddress(id))
       throw new Error(`Adresse "${id}" non valide.`);
     const fsOublier: schémaFonctionOublier[] = [];
     const promesses: { [clef: string]: Promise<void> | void } = {};
@@ -2190,7 +2189,7 @@ export class ClientConstellation extends EventEmitter {
             return [];
           })
           .flat()
-          .filter((v) => adresseOrbiteValide(v)) as string[];
+          .filter((v) => isValidAddress(v)) as string[];
       };
 
       const fSuivreBd = async (
