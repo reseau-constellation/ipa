@@ -124,9 +124,6 @@ dependencies:
   multiformats:
     specifier: 9.9.0
     version: 9.9.0
-  orbit-db-access-controllers:
-    specifier: ^0.4.0
-    version: 0.4.0(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)
   prom-client:
     specifier: ^14.2.0
     version: 14.2.0
@@ -153,9 +150,6 @@ dependencies:
     version: '@cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz'
 
 devDependencies:
-  '@constl/orbit-db-types':
-    specifier: ^1.1.0
-    version: 1.1.0
   '@constl/utils-tests':
     specifier: ^0.1.8
     version: 0.1.8(go-ipfs@0.22.0)(ipfs@0.66.1)(ipfsd-ctl@13.0.0)(wrtc@0.4.7)
@@ -1434,10 +1428,6 @@ packages:
       events: 3.3.0
       uuid: 9.0.1
     dev: false
-
-  /@constl/orbit-db-types@1.1.0:
-    resolution: {integrity: sha512-4N3iQvhR5AF54EqllWieAP6Q5+1qru/7671XnBp6+/cCU9P0FU8MJxEdZbXFyXkFEmWylMjs3X7H0YEUexpBiA==}
-    dev: true
 
   /@constl/utils-ipa@0.1.2(wrtc@0.4.7):
     resolution: {integrity: sha512-RjdzN4b3Yy2+S6bWrybQk+ZybKWItRuEZu2GFFkeiN21JKpkEPTL2bt312/eF58V91t31rNzvngQ6GgicbUXxg==}

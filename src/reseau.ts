@@ -1,4 +1,4 @@
-import type {OrbitDB} from "@orbitdb/core";
+import { isValidAddress } from "@orbitdb/core";
 
 import type { PeersResult } from "ipfs-core-types/src/swarm";
 import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";
@@ -8,7 +8,7 @@ import { EventEmitter } from "events";
 import sum from "lodash/sum.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import ClientConstellation, {
   Signature,
   infoAccès,
@@ -49,8 +49,11 @@ import { v4 as uuidv4 } from "uuid";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
+import { estUnContrôleurConstellation } from "./accès/utils.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
+
+type ContrôleurConstellation = Awaited<ReturnType<ReturnType<typeof générerContrôleurConstellation>>>;
 
 export type infoDispositif = {
   idSFIP: string;
@@ -397,7 +400,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         idDispositif: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
-        idCompte: this.client.bdCompte!.id,
+        idCompte: await this.client.obtIdCompte(),
       },
     };
     if (this.client.encryption) {
@@ -582,13 +585,13 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       message: clefPublique + signatures.id,
     });
 
-    if (!OrbitDB.isValidAddress(idCompte)) return false;
-    const { bd: bdCompte, fOublier } = await this.client.ouvrirBd({
+    if (!isValidAddress(idCompte)) return false;
+    const { bd: bdCompte, fOublier } = await this.client.orbite!.ouvrirBd({
       id: idCompte,
     });
 
-    if (!(bdCompte.access instanceof ContrôleurConstellation)) return false;
-    const bdCompteValide = bdCompte.access.estAutorisé(idDispositif);
+    if (estUnContrôleurConstellation(bdCompte.access)) return false;
+    const bdCompteValide = (bdCompte.access as ContrôleurConstellation).estAutorisé(idDispositif);
 
     await fOublier();
     return sigIdValide && sigClefPubliqueValide && bdCompteValide;
@@ -611,10 +614,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
     if (
-      Object.keys(ClientConstellation.obtObjetdeBdDic({ bd })).includes(
-        idCompte
-      ) &&
-      bd.get(idCompte) === "FIABLE"
+      Object.keys(await bd.all()).includes(idCompte) &&
+      (await bd.get(idCompte)) === "FIABLE"
     ) {
       await bd.del(idCompte);
     }
@@ -689,10 +690,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   async débloquerMembre({ idCompte }: { idCompte: string }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
     if (
-      Object.keys(ClientConstellation.obtObjetdeBdDic({ bd })).includes(
-        idCompte
-      ) &&
-      bd.get(idCompte) === "BLOQUÉ"
+      Object.keys(await bd.all()).includes(idCompte) &&
+      (await bd.get(idCompte)) === "BLOQUÉ"
     ) {
       await bd.del(idCompte);
     }

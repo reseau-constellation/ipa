@@ -1,5 +1,4 @@
-import {isValidAddress, type OrbitDB} from "@orbitdb/core";
-import type FeedStore from "orbit-db-feedstore";
+import { isValidAddress, type OrbitDB } from "@orbitdb/core";
 import { EventEmitter, once } from "events";
 import { v4 as uuidv4 } from "uuid";
 
@@ -8,32 +7,31 @@ import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, objRôles } from "@/accès/types.js";
 
-import type { default as ContrôleurConstellation } from "./cntrlConstellation.js";
-import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
+import type générerContrôleurConstellation from "./cntrlConstellation.js";
+import {
+  FeedStoreTypé,
+  GestionnaireOrbite,
+  gestionnaireOrbiteGénéral,
+} from "@/orbite.js";
 
-const événementsSuiviBd = ["ready", "write", "replicated"];
+type ContrôleurConstellation = Awaited<
+  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
+>;
 
 export const suivreBdAccès = async (
-  bd: FeedStore<élémentBdAccès>,
+  bd: FeedStoreTypé<élémentBdAccès>,
   f: schémaFonctionSuivi<élémentBdAccès[]>
 ): Promise<schémaFonctionOublier> => {
   const fFinale = async () => {
-    const éléments: élémentBdAccès[] = bd
-      .iterator({ limit: -1 })
-      .collect()
-      .map((e) => e.payload.value);
-    await f(éléments);
+    const éléments = await bd.all();
+    await f(éléments.map((é) => é.value));
   };
 
   bd.events.setMaxListeners(100);
-  for (const é of événementsSuiviBd) {
-    bd.events.on(é, fFinale);
-  }
+  bd.events.on("update", fFinale);
   await fFinale();
   const oublier = async () => {
-    événementsSuiviBd.forEach((é) => {
-      bd.events.off(é, fFinale);
-    });
+    bd.events.off("update", fFinale);
   };
   return oublier;
 };
@@ -43,7 +41,7 @@ class AccèsUtilisateur extends EventEmitter {
   idBd: string;
 
   idBdAccès?: string;
-  bdAccès?: FeedStore<élémentBdAccès>;
+  bdAccès?: FeedStoreTypé<élémentBdAccès>;
   fOublierBd?: schémaFonctionOublier;
   oublierSuivi?: schémaFonctionOublier;
   autorisés: string[];
@@ -65,9 +63,9 @@ class AccèsUtilisateur extends EventEmitter {
     const { bd, fOublier } = await this.orbite.ouvrirBd({ id: this.idBd });
     this.fOublierBd = fOublier;
 
-    this.accès = bd.access as unknown as ContrôleurConstellation;
+    this.accès = bd.access as ContrôleurConstellation;
     this.bdAccès = this.accès.bd!;
-    this.idBdAccès = this.bdAccès.id;
+    this.idBdAccès = this.bdAccès?.address;
 
     this.oublierSuivi = await suivreBdAccès(this.bdAccès, async (éléments) => {
       await this._miseÀJour(éléments);
@@ -79,7 +77,7 @@ class AccèsUtilisateur extends EventEmitter {
     const autorisés: string[] = [];
     éléments = [
       {
-        id: this.accès!._premierMod,
+        id: this.accès!.write!,
         rôle: MODÉRATEUR,
       },
       ...éléments,

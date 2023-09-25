@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import type FeedStore from "orbit-db-feedstore";
+
 import * as XLSX from "xlsx";
 
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -19,7 +19,7 @@ import type { conversionDonnées } from "@/tableaux.js";
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
-import { JSONSchemaType } from "ajv";
+import type { JSONSchemaType } from "ajv";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));
@@ -907,7 +907,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
   }
 
   async initialiser(): Promise<void> {
-    this.fOublier = await this.suivreBdPrincipaleBrute({
+    this.fOublier = await this.suivreBdPrincipale({
       f: (autos) => this.mettreAutosÀJour(autos),
     });
   }
@@ -920,32 +920,25 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
     });
   }
 
-  async mettreAutosÀJour(
-    autos: LogEntry<SpécificationAutomatisation>[]
-  ): Promise<void> {
+  async mettreAutosÀJour(autos: SpécificationAutomatisation[]): Promise<void> {
     await verrou.acquire("miseÀJour");
     const automatisationsDavant = Object.keys(this.automatisations);
 
     for (const id of automatisationsDavant) {
-      if (!autos.find((a) => a.payload.value.id === id))
-        await this.fermerAuto(id);
+      if (!autos.find((a) => a.id === id)) await this.fermerAuto(id);
     }
 
     for (const a of autos) {
-      const {
-        payload: { value },
-      } = a;
-
-      if (activePourCeDispositif(value, this.client.orbite!.identity.id)) {
-        if (!Object.keys(this.automatisations).includes(value.id)) {
-          const auto = new AutomatisationActive(value, value.id, this.client);
+      if (activePourCeDispositif(a, this.client.orbite!.identity.id)) {
+        if (!Object.keys(this.automatisations).includes(a.id)) {
+          const auto = new AutomatisationActive(a, a.id, this.client);
           auto.on("misÀJour", () => this.événements.emit("misÀJour"));
-          this.automatisations[value.id] = auto;
+          this.automatisations[a.id] = auto;
         }
       } else {
-        const autoActif = this.automatisations[value.id];
+        const autoActif = this.automatisations[a.id];
         if (autoActif) {
-          await this.fermerAuto(value.id);
+          await this.fermerAuto(a.id);
         }
       }
     }
@@ -1075,9 +1068,11 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
         delete élément[clef as keyof SpécificationExporter];
       }
     });
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      FeedStore<SpécificationAutomatisation>
-    >({ id: await this.obtIdBd() });
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: await this.obtIdBd(),
+      type: "feed",
+      schéma: schémaSpécificationAutomatisation,
+    });
     await bd.add(élément);
 
     await fOublier();
@@ -1098,9 +1093,11 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
     fréquence?: fréquence;
     dispositif?: string;
   }): Promise<string> {
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      FeedStore<SpécificationAutomatisation>
-    >({ id: await this.obtIdBd() });
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: await this.obtIdBd(),
+      type: "feed",
+      schéma: schémaSpécificationAutomatisation,
+    });
 
     dispositif = dispositif || this.client.orbite!.identity.id;
     const id = uuidv4();
@@ -1135,12 +1132,14 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
   }
 
   async annulerAutomatisation({ id }: { id: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<
-      FeedStore<SpécificationAutomatisation>
-    >({ id: await this.obtIdBd() });
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: await this.obtIdBd(),
+      type: "feed",
+      schéma: schémaSpécificationAutomatisation,
+    });
     await this.client.effacerÉlémentDeBdListe({
       bd,
-      élément: (é) => é.payload.value.id === id,
+      élément: (é) => é.value.id === id,
     });
     await fOublier();
   }
