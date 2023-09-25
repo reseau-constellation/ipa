@@ -1,10 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
-import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import type OrbitDB from "orbit-db";
-import type KeyValueStore from "orbit-db-kvstore";
+import type { OrbitDB }from "@orbitdb/core";
 
 import {
   attendreSync,
@@ -15,6 +13,13 @@ const { générerOrbites } = utilsClientTest;
 
 import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";
+import { KeyValueStore } from "@/orbite";
+import ContrôleurConstellation from "@/accès/cntrlConstellation";
+import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+
+type ContrôleurConstellation = Awaited<
+  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
+>;
 
 describe("Contrôleur Constellation", function () {
   if (isNode || isElectronMain) {
@@ -23,20 +28,20 @@ describe("Contrôleur Constellation", function () {
         let fOublierOrbites: () => Promise<void>;
         let orbites: OrbitDB[];
         let orbitdb1: OrbitDB, orbitdb2: OrbitDB;
-        let bd: KeyValueStore<{ test: number }>;
+        let bd: KeyValueStore;
 
         before(async () => {
           ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(2));
           [orbitdb1, orbitdb2] = orbites;
 
-          bd = await orbitdb1.kvstore(uuidv4(), {
-            accessController: {
-              type: "controlleur-constellation",
-              // @ts-expect-error Contrôleur personalisé
-              premierMod: orbitdb1.identity.id,
-            },
-          });
-          await bd.load();
+          bd = await orbitdb1.open(uuidv4(), {
+            type: "keyvalue",
+            AccessController: ContrôleurConstellation(
+              {
+                write: orbitdb1.identity.id,
+              }
+            )
+          }) as unknown as KeyValueStore;
         });
 
         after(async () => {
@@ -50,10 +55,7 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
-          const bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<{
-            test: number;
-          }>;
-          await bdOrbite2.load();
+          const bdOrbite2 = (await orbitdb2.open(bd.address, { type: "keyvalue" })) as unknown as KeyValueStore;
 
           const autorisé = await peutÉcrire(bdOrbite2);
 
@@ -62,12 +64,9 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("...mais on peut l'inviter !", async () => {
-          await bd.access.grant(MEMBRE, orbitdb2.identity.id);
+          await (bd.access as ContrôleurConstellation).grant(MEMBRE, orbitdb2.identity.id);
 
-          const bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<{
-            test: number;
-          }>;
-          await bdOrbite2.load();
+          const bdOrbite2 = (await orbitdb2.open(bd.address)) as unknown as KeyValueStore;
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
 
@@ -84,41 +83,41 @@ describe("Contrôleur Constellation", function () {
           orbitdb3: OrbitDB,
           orbitdb4: OrbitDB;
 
-        let bdRacine: KeyValueStore<{ [clef: string]: string }>;
-        let bdRacine2: KeyValueStore<{ [clef: string]: string }>;
-        let bd: KeyValueStore<{ test: number }>;
-        let bdOrbite2: KeyValueStore<{ test: number }>;
+        let bdRacine: KeyValueStore;
+        let bdRacine2: KeyValueStore;
+        let bd: KeyValueStore;
+        let bdOrbite2: KeyValueStore;
 
         before(async () => {
           ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(4));
           [orbitdb1, orbitdb2, orbitdb3, orbitdb4] = orbites;
 
-          bdRacine = await orbitdb1.kvstore(uuidv4(), {
-            accessController: {
-              type: "controlleur-constellation",
-              // @ts-expect-error Contrôleur personalisé
-              premierMod: orbitdb1.identity.id,
-            },
-          });
-          await bdRacine.load();
+          bdRacine = await orbitdb1.open(uuidv4(), {
+            type: "keyvalue",
+            AccessController: ContrôleurConstellation(
+              {
+                write: orbitdb1.identity.id,
+              }
+            )
+          }) as unknown as KeyValueStore;
 
-          bdRacine2 = await orbitdb2.kvstore(uuidv4(), {
-            accessController: {
-              type: "controlleur-constellation",
-              // @ts-expect-error Contrôleur personalisé
-              premierMod: orbitdb2.identity.id,
-            },
-          });
-          await bdRacine2.load();
+          bdRacine2 = await orbitdb2.open(uuidv4(), {
+            type: "keyvalue",
+            AccessController: ContrôleurConstellation(
+              {
+                write: orbitdb1.identity.id,
+              }
+            )
+          }) as unknown as KeyValueStore;
 
-          bd = await orbitdb1.kvstore(uuidv4(), {
-            accessController: {
-              type: "controlleur-constellation",
-              // @ts-expect-error Contrôleur personalisé
-              premierMod: bdRacine.id,
-            },
-          });
-          await bd.load();
+          bd = await orbitdb1.open(uuidv4(), {
+            type: "keyvalue",
+            AccessController: ContrôleurConstellation(
+              {
+                write: bdRacine.address,
+              }
+            )
+          }) as unknown as KeyValueStore;
         });
 
         after(async () => {
@@ -133,10 +132,7 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
-          bdOrbite2 = (await orbitdb2.open(bd.id)) as KeyValueStore<{
-            test: number;
-          }>;
-          await bdOrbite2.load();
+          bdOrbite2 = (await orbitdb2.open(bd.address)) as unknown as KeyValueStore;
           attendreSync(bdOrbite2);
 
           const autorisé = await peutÉcrire(bdOrbite2);
@@ -144,7 +140,7 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("...mais on peut toujours l'inviter !", async () => {
-          await bd.access.grant(MEMBRE, bdRacine2.id);
+          await (bd.access as ContrôleurConstellation).grant(MEMBRE, bdRacine2.address);
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
 
@@ -153,18 +149,14 @@ describe("Contrôleur Constellation", function () {
 
         it("Un membre ne peut pas inviter d'autres personnes", async () => {
           await expect(
-            bdOrbite2.access.grant(MEMBRE, orbitdb3.identity.id)
+            (bdOrbite2.access as ContrôleurConstellation).grant(MEMBRE, orbitdb3.identity.id)
           ).rejected();
         });
 
         it("Mais un membre peut s'inviter lui-même", async () => {
-          // await tousConnecter([orbitdb1._ipfs, orbitdb2._ipfs, orbitdb3._ipfs, orbitdb4._ipfs])
-          await bdRacine2.access.grant(MODÉRATEUR, orbitdb3.identity.id);
+          await (bdRacine2.access as ContrôleurConstellation).grant(MODÉRATEUR, orbitdb3.identity.id);
 
-          const bdOrbite3 = (await orbitdb3.open(bd.id)) as KeyValueStore<{
-            test: number;
-          }>;
-          await bdOrbite3.load();
+          const bdOrbite3 = (await orbitdb3.open(bd.address, { type: "keyvalue" })) as unknown as KeyValueStore;
 
           const autorisé = await peutÉcrire(bdOrbite3, orbitdb3);
 
@@ -173,20 +165,17 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("On peut inviter un modérateur", async () => {
-          const accès = bd.access as unknown as ContrôleurConstellation;
-          await accès.grant(MODÉRATEUR, bdRacine2.id);
+          const accès = bd.access as ContrôleurConstellation;
+          await accès.grant(MODÉRATEUR, bdRacine2.address);
           const estUnMod = await accès.estUnModérateur(orbitdb2.identity.id);
           expect(estUnMod).to.be.true();
         });
 
         it("Un modérateur peut inviter d'autres membres", async () => {
-          const accès = bdOrbite2.access as unknown as ContrôleurConstellation;
+          const accès = bdOrbite2.access as ContrôleurConstellation;
           await accès.grant(MEMBRE, orbitdb4.identity.id);
 
-          const bdOrbite4 = (await orbitdb4.open(bd.id)) as KeyValueStore<{
-            test: number;
-          }>;
-          await bdOrbite4.load();
+          const bdOrbite4 = (await orbitdb4.open(bd.address, { type: "keyvalue" })) as unknown as KeyValueStore;
 
           const autorisé = await peutÉcrire(bdOrbite4, orbitdb4);
 
@@ -195,19 +184,18 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Un modérateur peut inviter d'autres modérateurs", async () => {
-          const accès = bdOrbite2.access as unknown as ContrôleurConstellation;
+          const accès = bdOrbite2.access as ContrôleurConstellation;
           await accès.grant(MODÉRATEUR, orbitdb4.identity.id);
 
           const estUnMod = await accès.estUnModérateur(orbitdb4.identity.id);
           expect(estUnMod).to.be.true();
         });
 
-        it("Invitations transitives lors de bd.load()", async () => {
+        it("Invitations transitives", async () => {
           await bd.close();
-          bd = (await orbitdb1.open(bd.id)) as KeyValueStore<{ test: number }>;
-          await bd.load();
+          bd = (await orbitdb1.open(bd.address, { type: "keyvalue" })) as unknown as KeyValueStore;
 
-          const accès = bd.access as unknown as ContrôleurConstellation;
+          const accès = bd.access as ContrôleurConstellation;
           for (const o of [orbitdb1, orbitdb2, orbitdb3, orbitdb4]) {
             const estAutorisé = await accès.estAutorisé(o.identity.id);
             expect(estAutorisé).to.be.true();

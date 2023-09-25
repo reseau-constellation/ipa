@@ -113,7 +113,7 @@ export default class Épingles {
   }): Promise<void> {
     if (await this.épingléeParParent({ id, parent })) return;
 
-    const { bd, fOublier } = await this.client.ouvrirBd({ id });
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBd({ id });
     this.requètes.push({ id, parent, fOublier });
     this.événements.emit("changement épingles");
 

@@ -6,10 +6,14 @@ import {
 import type { objRôles } from "@/accès/types.js";
 
 import ClientConstellation from "@/client.js";
-import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
+
+import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+
+type ContrôleurConstellation = Awaited<ReturnType<ReturnType<typeof générerContrôleurConstellation>>>;
 
 const schémaBdPrincipale: JSONSchemaType<string> = { type: "string" };
 
@@ -55,19 +59,19 @@ export default class MotsClefs extends ComposanteClientListe<string> {
 
   async créerMotClef(): Promise<string> {
     const idMotClef = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        premierMod: this.client.bdCompte!.id,
+        premierMod: this.client.bdCompte!.address,
       },
     });
 
     await this.ajouterÀMesMotsClefs({ idMotClef });
 
     const { bd: bdMotClef, fOublier: fOublierMotClef } =
-      await this.client.ouvrirBd<structureBdMotClef>({
+      await this.client.orbite!.ouvrirBdTypée({
         id: idMotClef,
-        type: "kvstore",
+        type: "keyvalue",
         schéma: schémaBdMotClef,
       });
 
@@ -77,13 +81,13 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     await bdMotClef.set("type", "motClef");
 
     const idBdNoms = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdMotClef.set("noms", idBdNoms);
 
     const idBdDescriptions = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdMotClef.set("descriptions", idBdDescriptions);
@@ -107,9 +111,10 @@ export default class MotsClefs extends ComposanteClientListe<string> {
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({
+    const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
       type: "feed",
+      schéma: schémaBdPrincipale,
     });
     await this.client.effacerÉlémentDeBdListe({
       bd: bdRacine,
@@ -119,38 +124,37 @@ export default class MotsClefs extends ComposanteClientListe<string> {
   }
 
   async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
-    const { bd: bdBase, fOublier: fOublierBase } = await this.client.ouvrirBd({
-      id: idMotClef,
-      type: "keyvalue",
-      schéma: schémaBdMotClef,
-    });
+    const { bd: bdBase, fOublier: fOublierBase } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idMotClef,
+        type: "keyvalue",
+        schéma: schémaBdMotClef,
+      });
 
     const idNouveauMotClef = await this.créerMotClef();
 
-    const idBdNoms = bdBase.get("noms");
+    const idBdNoms = await bdBase.get("noms");
     if (idBdNoms) {
       const { bd: bdNoms, fOublier: fOublierNoms } =
-        await this.client.ouvrirBd<structureBdMotClef>({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdNoms,
           type: "keyvalue",
+          schéma: schémaStructureBdNoms,
         });
-      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms }) as {
-        [key: string]: string;
-      };
+      const noms = await bdNoms.all();
       await this.sauvegarderNomsMotClef({ idMotClef: idNouveauMotClef, noms });
       await fOublierNoms();
     }
 
-    const idBdDescriptions = bdBase.get("descriptions");
+    const idBdDescriptions = await bdBase.get("descriptions");
     if (idBdDescriptions) {
       const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
-        await this.client.ouvrirBd<{ [langue: string]: string }>({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdDescriptions,
           type: "keyvalue",
+          schéma: schémaStructureBdNoms,
         });
-      const descriptions = ClientConstellation.obtObjetdeBdDic({
-        bd: bdDescriptions,
-      });
+      const descriptions = await bdDescriptions.all();
       await this.sauvegarderDescriptionsMotClef({
         idMotClef: idNouveauMotClef,
         descriptions,
@@ -188,7 +192,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -196,9 +200,11 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdNoms, type: "keyvalue" });
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
     }
@@ -217,7 +223,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -225,9 +231,11 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdNoms, type: "keyvalue" });
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdNoms.set(langue, nom);
     await fOublier();
   }
@@ -242,7 +250,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -250,9 +258,11 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdNoms, type: "keyvalue" });
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdNoms.del(langue);
     await fOublier();
   }
@@ -283,7 +293,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idMotClef,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdDescriptions) {
       throw new Error(
@@ -291,9 +301,12 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdDescriptions, type: "keyvalue" });
+    const { bd: bdDescriptions, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdDescriptions,
+        type: "keyvalue",
+        schéma: schémaStructureBdNoms,
+      });
     for (const lng in descriptions) {
       await bdDescriptions.set(lng, descriptions[lng]);
     }
@@ -312,7 +325,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idMotClef,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdDescriptions) {
       throw new Error(
@@ -320,9 +333,12 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdDescriptions, type: "keyvalue" });
+    const { bd: bdDescriptions, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdDescriptions,
+        type: "keyvalue",
+        schéma: schémaStructureBdNoms,
+      });
     await bdDescriptions.set(langue, description);
     await fOublier();
   }
@@ -337,7 +353,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
       racine: id,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdDescriptions) {
       throw new Error(
@@ -345,9 +361,12 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdDescriptions, type: "keyvalue" });
+    const { bd: bdDescriptions, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdDescriptions,
+        type: "keyvalue",
+        schéma: schémaStructureBdNoms,
+      });
     await bdDescriptions.del(langue);
     await fOublier();
   }

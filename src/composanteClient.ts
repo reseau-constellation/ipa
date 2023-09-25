@@ -9,9 +9,8 @@ import { suivreBdDeFonction } from "@constl/utils-ipa";
 import { cacheSuivi } from "./décorateursCache.js";
 import { faisRien, ignorerNonDéfinis } from "@constl/utils-ipa";
 
-import KeyValueStore from "orbit-db-kvstore";
-import FeedStore from "orbit-db-feedstore";
 import { JSONSchemaType } from "ajv";
+import { FeedStoreTypé, KeyValueStoreTypé } from "./orbite.js";
 
 // Obtenu de https://stackoverflow.com/a/54520829
 type KeysMatching<T, V> = {
@@ -21,7 +20,7 @@ type KeysMatching<T, V> = {
 export class ComposanteClient {
   client: ClientConstellation;
   clef: KeysMatching<structureBdCompte, string | undefined>;
-  typeBd: "kvstore" | "feed";
+  typeBd: "keyvalue" | "feed";
 
   constructor({
     client,
@@ -30,7 +29,7 @@ export class ComposanteClient {
   }: {
     client: ClientConstellation;
     clef: KeysMatching<structureBdCompte, string | undefined>;
-    typeBd: "kvstore" | "feed";
+    typeBd: "keyvalue" | "feed";
   }) {
     this.client = client;
     this.clef = clef;
@@ -65,19 +64,19 @@ export class ComposanteClientDic<
     super({
       client,
       clef,
-      typeBd: "kvstore",
+      typeBd: "keyvalue",
     });
     this.schémaBdPrincipale = schémaBdPrincipale;
   }
 
   async obtBd(): Promise<{
-    bd: KeyValueStore<T>;
+    bd: KeyValueStoreTypé<T>;
     fOublier: schémaFonctionOublier;
   }> {
     const id = await this.obtIdBd();
     if (!id) throw new Error("Initialisation " + this.clef);
 
-    return await this.client.ouvrirBd<T>({
+    return await this.client.orbite!.ouvrirBdTypée({
       id,
       type: "keyvalue",
       schéma: this.schémaBdPrincipale,
@@ -190,7 +189,7 @@ export class ComposanteClientDic<
             const idBd = await this.client.obtIdBd({
               nom: this.clef,
               racine: bd,
-              type: "kvstore",
+              type: "keyvalue",
             });
             return await fSuivreBd(idBd);
           },
@@ -223,13 +222,13 @@ export class ComposanteClientListe<
   }
 
   async obtBd(): Promise<{
-    bd: FeedStore<T>;
+    bd: FeedStoreTypé<T>;
     fOublier: schémaFonctionOublier;
   }> {
     const id = await this.obtIdBd();
     if (!id) throw new Error("Initialisation " + this.clef);
 
-    return await this.client.ouvrirBd({
+    return await this.client.orbite!.ouvrirBdTypée({
       id,
       type: "feed",
       schéma: this.schémaBdPrincipale,
@@ -255,30 +254,6 @@ export class ComposanteClientListe<
           f: fSuivreBd,
           schéma: this.schémaBdPrincipale,
           renvoyerValeur: true,
-        });
-      },
-    });
-  }
-
-  @cacheSuivi
-  async suivreBdPrincipaleBrute({
-    idCompte,
-    f,
-  }: {
-    idCompte?: string;
-    f: schémaFonctionSuivi<LogEntry<T>[]>;
-  }): Promise<schémaFonctionOublier> {
-    return await suivreBdDeFonction({
-      fRacine: async ({ fSuivreRacine }) => {
-        return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
-      },
-      f: ignorerNonDéfinis(f),
-      fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBdListe({
-          id,
-          f: fSuivreBd,
-          schéma: this.schémaBdPrincipale,
-          renvoyerValeur: false,
         });
       },
     });

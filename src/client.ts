@@ -3,14 +3,12 @@ import type { IDResult } from "ipfs-core-types/src/root";
 import type { ImportCandidate } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
-import {type OrbitDB} from "@orbitdb/core";
+import {
+  type IPFSAccessController as générerIPFSAccessController,
+  type OrbitDB,
+  AccessController,
+} from "@orbitdb/core";
 
-import type Store from "orbit-db-store";
-import type FeedStore from "orbit-db-feedstore";
-import type KeyValueStore from "orbit-db-kvstore";
-
-import type AccessController from "orbit-db-access-controllers/src/access-controller-interface.js";
-import type IPFSAccessController from "orbit-db-access-controllers/src/ipfs-access-controller.js";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import Licences from "@/licences.js";
 import { EventEmitter, once } from "events";
@@ -54,7 +52,7 @@ import {
   sauvegarderFichierZip,
 } from "@constl/utils-ipa";
 import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
-import ContrôleurConstellation, {
+import générerContrôleurConstellation, {
   OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
@@ -69,14 +67,33 @@ import { JSONSchemaType } from "ajv";
 import {
   gestionnaireOrbiteGénéral,
   type GestionnaireOrbite,
+  KeyValueStoreTypé,
+  FeedStoreTypé,
+  Store,
+  KeyValueStore,
+  FeedStore,
 } from "@/orbite.js";
+import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+
+type IPFSAccessController = Awaited<
+  ReturnType<ReturnType<typeof générerIPFSAccessController>>
+>;
 
 type schémaFonctionRéduction<T, U> = (branches: T) => U;
 
+type ContrôleurConstellation = Awaited<
+  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
+>;
+
 const estOrbiteDB = (x: unknown): x is OrbitDB => {
-  const xCommeOrbite = (x as OrbitDB)
-  return xCommeOrbite.id && xCommeOrbite.open && xCommeOrbite.stop && xCommeOrbite.ipfs
-}
+  const xCommeOrbite = x as OrbitDB;
+  return (
+    xCommeOrbite.id &&
+    typeof xCommeOrbite.open === "function" &&
+    typeof xCommeOrbite.stop === "function" &&
+    xCommeOrbite.ipfs
+  );
+};
 
 export type infoAccès = {
   idCompte: string;
@@ -176,7 +193,7 @@ const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 export class ClientConstellation extends EventEmitter {
   _opts: optsConstellation;
   optionsAccès?: { [key: string]: unknown };
-  bdCompte?: KeyValueStore<structureBdCompte>;
+  bdCompte?: KeyValueStoreTypé<structureBdCompte>;
   orbite?: GestionnaireOrbite;
   sfip?: SFIP;
   idNodeSFIP?: IDResult;
@@ -231,7 +248,7 @@ export class ClientConstellation extends EventEmitter {
     this.idNodeSFIP = await this.sfip!.id();
 
     const optionsAccèsRacine = {
-      type: "controlleur-constellation",
+      type: "contrôleur-constellation",
       premierMod: this.orbite!.identity.id,
       nom: "racine",
     };
@@ -245,7 +262,7 @@ export class ClientConstellation extends EventEmitter {
       undefined;
     if (!this.idCompte) {
       this.idCompte = await this.créerBdIndépendante({
-        type: "kvstore",
+        type: "keyvalue",
         optionsAccès: optionsAccèsRacine,
         nom: "racine",
       });
@@ -303,33 +320,34 @@ export class ClientConstellation extends EventEmitter {
   }
 
   async initialiserCompte(): Promise<void> {
-    const { bd } = await this.ouvrirBd<structureBdCompte>({
+    const { bd } = await this.orbite!.ouvrirBdTypée({
       id: this.idCompte!,
-      type: "kvstore",
+      type: "keyvalue",
       schéma: schémaStructureBdCompte,
     });
     this.bdCompte = bd;
 
-    const accès = this.bdCompte.access as unknown as ContrôleurConstellation;
+    const accès = this.bdCompte.access as ContrôleurConstellation;
     this.optionsAccès = {
-      type: "controlleur-constellation",
-      address: accès.bd!.id,
+      type: "contrôleur-constellation",
+      address: accès.address,
     };
 
     // Protocoles
     const idBdProtocoles = await this.obtIdBd({
       nom: "protocoles",
       racine: this.bdCompte,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (idBdProtocoles) {
       const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } =
-        await this.ouvrirBd<{ [clef: string]: string[] }>({
+        await this.orbite!.ouvrirBdTypée({
           id: idBdProtocoles,
-          type: "kvstore",
+          type: "keyvalue",
+          schéma: schémaStructureBdProtocoles,
         });
       const idDispositif = await this.obtIdDispositif();
-      const protocolesExistants = bdProtocoles.get(idDispositif) || [];
+      const protocolesExistants = (await bdProtocoles.get(idDispositif)) || [];
       const listesÉgales = (a: Array<string>, b: Array<string>) =>
         a.length === b.length && [...a].every((v) => b.includes(v));
       if (
@@ -392,7 +410,7 @@ export class ClientConstellation extends EventEmitter {
 
   async signer({ message }: { message: string }): Promise<Signature> {
     const id = this.orbite!.identity;
-    const signature = await this.orbite!.identity.provider.sign(id, message);
+    const signature = await this.orbite!.identity.sign(id, message);
     const clefPublique = this.orbite!.identity.publicKey;
     return { signature, clefPublique };
   }
@@ -407,7 +425,7 @@ export class ClientConstellation extends EventEmitter {
     if (!signature || !signature.clefPublique || !signature.signature) {
       return false;
     }
-    return await this.orbite!.identity.provider.verify(
+    return await this.orbite!.identity.verify(
       signature.signature,
       signature.clefPublique,
       message
@@ -428,7 +446,11 @@ export class ClientConstellation extends EventEmitter {
       id: string;
       fSuivreBd: schémaFonctionSuivi<string[] | undefined>;
     }): Promise<schémaFonctionOublier> => {
-      const { bd, fOublier } = await this.ouvrirBd({ id, type: "kvstore" });
+      const { bd, fOublier } = await this.orbite!.ouvrirBdTypée({
+        id,
+        type: "keyvalue",
+        schéma: schémaStructureBdCompte,
+      });
       const accès = bd.access;
 
       const typeAccès = (accès.constructor as unknown as AccessController).type;
@@ -436,16 +458,16 @@ export class ClientConstellation extends EventEmitter {
         await f((accès as IPFSAccessController).write);
         await fOublier();
         return faisRien;
-      } else if (typeAccès === "controlleur-constellation") {
+      } else if (typeAccès === "contrôleur-constellation") {
+        const contrôleurConstellation = accès as ContrôleurConstellation;
         const fFinale = async () => {
-          const mods = (accès as unknown as ContrôleurConstellation).gestRôles
-            ._rôles[MODÉRATEUR];
+          const mods = contrôleurConstellation.gestRôles._rôles[MODÉRATEUR];
           await f(mods);
         };
-        accès.on("misÀJour", fFinale);
+        contrôleurConstellation.gestRôles.on("misÀJour", fFinale);
         fFinale();
         return async () => {
-          accès.off("misÀJour", fFinale);
+          contrôleurConstellation.gestRôles.off("misÀJour", fFinale);
           await fOublier();
         };
       } else {
@@ -485,11 +507,14 @@ export class ClientConstellation extends EventEmitter {
     const idBdNomsDispositifs = await this.obtIdBd({
       nom: "nomsDispositifs",
       racine: await this.obtIdCompte(),
-      type: "kvstore",
+      type: "keyvalue",
     });
-    const { bd: bdNomsDispositifs, fOublier } = await this.ouvrirBd<{
-      [clef: string]: { nom: string; type: string };
-    }>({ id: idBdNomsDispositifs!, type: "kvstore" });
+    const { bd: bdNomsDispositifs, fOublier } =
+      await this.orbite!.ouvrirBdTypée({
+        id: idBdNomsDispositifs!,
+        type: "keyvalue",
+        schéma: schémaStructureNomsDispositifs,
+      });
     await bdNomsDispositifs.set(idDispositifFinal, { nom, type });
     await fOublier();
   }
@@ -610,7 +635,7 @@ export class ClientConstellation extends EventEmitter {
     idDispositif: string;
   }): Promise<void> {
     if (!this.bdCompte) await once(this, "prêt");
-    const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
+    const accès = this.bdCompte!.access as ContrôleurConstellation;
     accès.grant(MODÉRATEUR, idDispositif);
   }
 
@@ -620,7 +645,7 @@ export class ClientConstellation extends EventEmitter {
     idDispositif: string;
   }): Promise<void> {
     if (!this.bdCompte) await once(this, "prêt");
-    const accès = this.bdCompte!.access as unknown as ContrôleurConstellation;
+    const accès = this.bdCompte!.access as ContrôleurConstellation;
     await accès.revoke(MODÉRATEUR, idDispositif);
   }
 
@@ -631,12 +656,12 @@ export class ClientConstellation extends EventEmitter {
 
     // Attendre de recevoir la permission d'écrire à idCompte
     let autorisé: boolean;
-    const { bd, fOublier } = await this.ouvrirBd({
+    const { bd, fOublier } = await this.orbite!.ouvrirBdTypée({
       id: idCompte,
-      type: "kvstore",
+      type: "keyvalue",
       schéma: schémaStructureBdCompte,
     });
-    const accès = bd.access as unknown as ContrôleurConstellation;
+    const accès = bd.access as ContrôleurConstellation;
     const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
       (autorisés: string[]) =>
         (autorisé = autorisés.includes(this.orbite!.identity.id))
@@ -681,11 +706,11 @@ export class ClientConstellation extends EventEmitter {
       throw new Error(`Identité "${identité}" non valide.`);
     }
 
-    const { bd, fOublier } = await this.ouvrirBd({ id: idBd, type: "kvstore" });
+    const { bd, fOublier } = await this.orbite!.ouvrirBd({ id: idBd });
     const accès = bd.access;
     const typeAccès = (accès.constructor as unknown as AccessController).type;
     if (typeAccès === nomTypeContrôleurConstellation) {
-      (accès as unknown as ContrôleurConstellation).grant(rôle, identité);
+      (accès as ContrôleurConstellation).grant(rôle, identité);
     }
     await fOublier();
   }
@@ -730,18 +755,22 @@ export class ClientConstellation extends EventEmitter {
     bdBase,
     nouvelleBd,
     clef,
+    schéma,
   }: {
-    bdBase: KeyValueStore<T>;
-    nouvelleBd: KeyValueStore<T>;
+    bdBase: KeyValueStoreTypé<T>;
+    nouvelleBd: KeyValueStoreTypé<T>;
     clef: string;
+    schéma: JSONSchemaType<T>;
   }): Promise<void> {
     const idBdListeInit = bdBase.get(clef);
     if (typeof idBdListeInit !== "string") return;
 
-    const { bd: bdListeInit, fOublier: fOublierInit } = await this.ouvrirBd<T>({
-      id: idBdListeInit,
-      type: "feed",
-    });
+    const { bd: bdListeInit, fOublier: fOublierInit } =
+      await this.orbite!.ouvrirBdTypée({
+        id: idBdListeInit,
+        type: "feed",
+        schéma,
+      });
 
     const idNouvelleBdListe = nouvelleBd.get(clef);
     if (!idNouvelleBdListe) throw new Error("La nouvelle BD n'existait pas.");
@@ -749,11 +778,13 @@ export class ClientConstellation extends EventEmitter {
       throw new Error(`${idNouvelleBdListe} n'est pas une adresse Orbite.`);
 
     const { bd: nouvelleBdListe, fOublier: fOublierNouvelle } =
-      await this.ouvrirBd<T>({ id: idNouvelleBdListe, type: "feed" });
+      await this.orbite!.ouvrirBdTypée({
+        id: idNouvelleBdListe,
+        type: "feed",
+        schéma,
+      });
 
-    const données = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdListeInit,
-    });
+    const données = (await bdListeInit.all()).map((x) => x.value);
     await Promise.all(
       données.map(async (d) => {
         await nouvelleBdListe.add(d);
@@ -771,19 +802,19 @@ export class ClientConstellation extends EventEmitter {
     idBd2: string;
   }): Promise<void> {
     // Extraire le type
-    const { bd, fOublier } = await this.ouvrirBd({ id: idBdBase });
+    const { bd, fOublier } = await this.orbite!.ouvrirBd({ id: idBdBase });
     const type = bd.type;
     await fOublier();
 
     // Un peu dupliqué, à cause de TypeScript
     switch (type) {
-      case "kvstore":
       case "keyvalue": {
-        const { bd: bdBase, fOublier: fOublierBase } = await this.ouvrirBd({
-          id: idBdBase,
-          type: "keyvalue",
-        });
-        const { bd: bd2, fOublier: fOublier2 } = await this.ouvrirBd({
+        const { bd: bdBase, fOublier: fOublierBase } =
+          await this.orbite!.ouvrirBd({
+            id: idBdBase,
+            type: "keyvalue",
+          });
+        const { bd: bd2, fOublier: fOublier2 } = await this.orbite!.ouvrirBd({
           id: idBd2,
           type: "keyvalue",
         });
@@ -796,11 +827,12 @@ export class ClientConstellation extends EventEmitter {
         break;
       }
       case "feed": {
-        const { bd: bdBase, fOublier: fOublierBase } = await this.ouvrirBd({
-          id: idBdBase,
-          type: "feed",
-        });
-        const { bd: bd2, fOublier: fOublier2 } = await this.ouvrirBd({
+        const { bd: bdBase, fOublier: fOublierBase } =
+          await this.orbite!.ouvrirBd({
+            id: idBdBase,
+            type: "feed",
+          });
+        const { bd: bd2, fOublier: fOublier2 } = await this.orbite!.ouvrirBd({
           id: idBd2,
           type: "feed",
         });
@@ -818,19 +850,35 @@ export class ClientConstellation extends EventEmitter {
     }
   }
 
-  async combinerBdsDict<
-    T extends { [clef: string]: élémentsBd } = { [clef: string]: élémentsBd }
-  >({
+  async combinerBdsDict({
     bdBase,
     bd2,
   }: {
-    bdBase: KeyValueStore<T>;
-    bd2: KeyValueStore<T>;
+    bdBase: KeyValueStore;
+    bd2: KeyValueStore;
+  }): Promise<void>;
+  async combinerBdsDict<T extends { [clef: string]: unknown }>({
+    bdBase,
+    bd2,
+  }: {
+    bdBase: KeyValueStoreTypé<T>;
+    bd2: KeyValueStoreTypé<T>;
+  }): Promise<void>;
+  async combinerBdsDict<T extends { [clef: string]: unknown }>({
+    bdBase,
+    bd2,
+  }: {
+    bdBase: KeyValueStoreTypé<T> | KeyValueStore;
+    bd2: KeyValueStoreTypé<T> | KeyValueStore;
   }): Promise<void> {
-    const contenuBd2 = ClientConstellation.obtObjetdeBdDic({ bd: bd2 });
+    let contenuBd2 = await bd2.all();
+    if (Array.isArray(contenuBd2))
+      contenuBd2 = Object.fromEntries(
+        contenuBd2.map((x) => [x.key, x.value])
+      ) as T;
 
     for (const [c, v] of Object.entries(contenuBd2)) {
-      const valBdBase = bdBase.get(c);
+      const valBdBase = await bdBase.get(c);
       if (valBdBase === v) {
         continue;
       } else if (valBdBase === undefined) {
@@ -844,54 +892,47 @@ export class ClientConstellation extends EventEmitter {
     }
   }
 
-  async combinerBdsListe<T extends élémentsBd = élémentsBd>({
+  async combinerBdsListe<T extends élémentsBd>({
+    bdBase,
+    bd2,
+  }: {
+    bdBase: FeedStoreTypé<T> | FeedStore;
+    bd2: FeedStoreTypé<T> | FeedStore;
+  }): Promise<void>;
+  async combinerBdsListe<T extends { [key: string]: élémentsBd }>({
     bdBase,
     bd2,
     index,
   }: {
-    bdBase: FeedStore<{ [key: string]: T }>;
-    bd2: FeedStore<{ [key: string]: T }>;
+    bdBase: FeedStoreTypé<T> | FeedStore;
+    bd2: FeedStoreTypé<T> | FeedStore;
     index: string[];
   }): Promise<void>;
-  async combinerBdsListe<T extends élémentsBd = élémentsBd>({
-    bdBase,
-    bd2,
-  }: {
-    bdBase: FeedStore<T>;
-    bd2: FeedStore<T>;
-  }): Promise<void>;
-  async combinerBdsListe<T extends élémentsBd = élémentsBd>({
+  async combinerBdsListe<T extends élémentsBd | { [key: string]: élémentsBd }>({
     bdBase,
     bd2,
     index,
   }: {
-    bdBase: FeedStore<{ [key: string]: T }>;
-    bd2: FeedStore<{ [key: string]: T }>;
+    bdBase: FeedStoreTypé<{ [key: string]: élémentsBd } | élémentsBd> | FeedStore;
+    bd2: FeedStoreTypé<{ [key: string]: élémentsBd } | élémentsBd> | FeedStore;
     index?: string[];
   }): Promise<void> {
-    const contenuBdBase = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdBase,
-      renvoyerValeur: false,
-    });
-    const contenuBd2 = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bd2,
-      renvoyerValeur: false,
-    });
-    type élémentBdObjet = { [key: string]: T };
+    const contenuBdBase = await bdBase.all();
+    const contenuBd2 = await bd2.all();
 
     for (const é of contenuBd2) {
-      const valBd2 = é.payload.value;
+      const valBd2 = é.value as T;  // Note : peut-être existe-t-il une solution plus sécuritaire ?
 
       if (index) {
         if (typeof valBd2 !== "object")
           throw new Error(`Erreur combinaison listes : ${typeof valBd2}`);
         const existant = contenuBdBase.find(
           (x) =>
-            typeof x.payload.value === "object" &&
+            typeof x.value === "object" &&
             index.every(
               (i) =>
-                (x as LogEntry<élémentBdObjet>).payload.value[i] ===
-                (valBd2 as élémentBdObjet)[i]
+                (x.value as Record<string, unknown>)[i] ===
+                (valBd2 as Record<string, unknown>)[i]
             )
         );
 
@@ -899,11 +940,11 @@ export class ClientConstellation extends EventEmitter {
           // Si pas d'existant, ajouter le nouvel élément
           await bdBase.add(valBd2);
         } else {
-          const valExistant = existant.payload.value;
+          const valExistant = existant.value;
 
           // Si existant, combiner et mettre à jour seulement si différents
           if (!deepEqual(valExistant, valBd2)) {
-            const combiné = Object.assign({}, valExistant);
+            const combiné = Object.assign({}, valExistant) as {[clef: string]: élémentsBd};
             for (const [c, v] of Object.entries(valBd2)) {
               if (combiné[c] === undefined) {
                 combiné[c] = v;
@@ -921,7 +962,7 @@ export class ClientConstellation extends EventEmitter {
           }
         }
       } else {
-        if (!contenuBdBase.some((x) => deepEqual(x.payload.value, valBd2))) {
+        if (!contenuBdBase.some((x) => deepEqual(x.value, valBd2))) {
           await bdBase.add(valBd2);
         }
       }
@@ -930,7 +971,7 @@ export class ClientConstellation extends EventEmitter {
 
   async suivreBd<
     U extends { [clef: string]: élémentsBd },
-    T = KeyValueStore<U>
+    T = KeyValueStoreTypé<U>
   >({
     id,
     f,
@@ -939,10 +980,10 @@ export class ClientConstellation extends EventEmitter {
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
-    type: "kvstore" | "keyvalue";
+    type: "keyvalue";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier>;
-  async suivreBd<U extends élémentsBd = élémentsBd, T = FeedStore<U>>({
+  async suivreBd<U extends élémentsBd = élémentsBd, T = FeedStoreTypé<U>>({
     id,
     f,
     type,
@@ -968,7 +1009,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
-    type?: "kvstore" | "keyvalue" | "feed";
+    type?: "keyvalue" | "feed";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier> {
     if (!adresseOrbiteValide(id))
@@ -981,20 +1022,20 @@ export class ClientConstellation extends EventEmitter {
     const lancerSuivi = () => {
       // Alambiqué, mais apparemment nécessaire pour TypeScript !
       (type === "feed"
-        ? this.ouvrirBd({
+        ? this.orbite!.ouvrirBdTypée({
             id,
             type,
             schéma: schéma as JSONSchemaType<Extract<U, élémentsBd>>,
           })
         : type
-        ? this.ouvrirBd({
+        ? this.orbite!.ouvrirBdTypée({
             id,
             type,
             schéma: schéma as JSONSchemaType<
               Extract<U, { [clef: string]: élémentsBd }>
             >,
           })
-        : this.ouvrirBd({
+        : this.orbite!.ouvrirBd({
             id,
           })
       )
@@ -1073,9 +1114,9 @@ export class ClientConstellation extends EventEmitter {
       fSuivreRacine: (nouvelIdBdCible: string | undefined) => Promise<void>;
     }): Promise<schémaFonctionOublier> => {
       const fSuivreBdRacine = async (
-        bd: KeyValueStore<Record<typeof clef, string>>
+        bd: KeyValueStoreTypé<Record<typeof clef, string>>
       ) => {
-        const nouvelIdBdCible = bd.get(clef);
+        const nouvelIdBdCible = await bd.get(clef);
         return await fSuivreRacine(nouvelIdBdCible);
       };
       return await this.suivreBd({ id, f: fSuivreBdRacine, type: "keyvalue" });
@@ -1092,10 +1133,8 @@ export class ClientConstellation extends EventEmitter {
     schéma?: JSONSchemaType<T>;
     f: schémaFonctionSuivi<T>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: KeyValueStore<T>) => {
-      const valeurs = bd
-        ? ClientConstellation.obtObjetdeBdDic<T>({ bd })
-        : ({} as T);
+    const fFinale = async (bd: KeyValueStoreTypé<T>) => {
+      const valeurs = bd ? await bd.all() : ({} as T);
       await f(valeurs);
     };
     return await this.suivreBd({ id, type: "keyvalue", schéma, f: fFinale });
@@ -1132,19 +1171,6 @@ export class ClientConstellation extends EventEmitter {
     });
   }
 
-  static obtObjetdeBdDic<T extends { [clef: string]: unknown }>({
-    bd,
-  }: {
-    bd: KeyValueStore<T>;
-  }): T {
-    const valeurs = bd.all;
-    return Object.fromEntries(
-      Object.keys(valeurs).map((x) => {
-        return [x, valeurs[x]];
-      })
-    ) as T;
-  }
-
   async suivreBdListeDeClef<T extends élémentsBd>({
     id,
     clef,
@@ -1154,7 +1180,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     id: string;
     clef: string;
-    f: schémaFonctionSuivi<LogEntry<T>[]>;
+    f: schémaFonctionSuivi<{ value: T; hash: string }[]>;
     schéma?: JSONSchemaType<T>;
     renvoyerValeur: false;
   }): Promise<schémaFonctionOublier>;
@@ -1180,7 +1206,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     id: string;
     clef: string;
-    f: schémaFonctionSuivi<T[] | LogEntry<T>[]>;
+    f: schémaFonctionSuivi<T[] | { value: T; hash: string }[]>;
     schéma?: JSONSchemaType<T>;
     renvoyerValeur?: true;
   }): Promise<schémaFonctionOublier>;
@@ -1193,7 +1219,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     id: string;
     clef: string;
-    f: schémaFonctionSuivi<T[] | LogEntry<T>[]>;
+    f: schémaFonctionSuivi<T[] | { value: T; hash: string }[]>;
     schéma?: JSONSchemaType<T>;
     renvoyerValeur?: boolean;
   }): Promise<schémaFonctionOublier> {
@@ -1224,7 +1250,7 @@ export class ClientConstellation extends EventEmitter {
         fSuivre,
       });
     } else {
-      const fFinale = async (valeurs?: LogEntry<T>[]) => {
+      const fFinale = async (valeurs?: { value: T; hash: string }[]) => {
         await f(valeurs || []);
       };
       const fSuivre = async ({
@@ -1232,7 +1258,7 @@ export class ClientConstellation extends EventEmitter {
         fSuivreBd,
       }: {
         id: string;
-        fSuivreBd: schémaFonctionSuivi<LogEntry<T>[]>;
+        fSuivreBd: schémaFonctionSuivi<{ value: T; hash: string }[]>;
       }) => {
         return await this.suivreBdListe({
           id,
@@ -1278,7 +1304,7 @@ export class ClientConstellation extends EventEmitter {
     renvoyerValeur,
   }: {
     id: string;
-    f: schémaFonctionSuivi<LogEntry<T>[]>;
+    f: schémaFonctionSuivi<{ value: T; hash: string }[]>;
     schéma?: JSONSchemaType<T>;
     renvoyerValeur: false;
   }): Promise<schémaFonctionOublier>;
@@ -1290,7 +1316,7 @@ export class ClientConstellation extends EventEmitter {
     renvoyerValeur = true,
   }: {
     id: string;
-    f: schémaFonctionSuivi<T[] | LogEntry<T>[]>;
+    f: schémaFonctionSuivi<T[] | { value: T; hash: string }[]>;
     schéma?: JSONSchemaType<T>;
     renvoyerValeur?: boolean;
   }): Promise<schémaFonctionOublier> {
@@ -1299,83 +1325,35 @@ export class ClientConstellation extends EventEmitter {
       type: "feed",
       schéma,
       f: async (bd) => {
-        const éléments = ClientConstellation.obtÉlémentsDeBdListe({
-          bd,
-          renvoyerValeur,
-        });
+        const éléments = renvoyerValeur
+          ? (await bd.all()).map((x) => x.value)
+          : await bd.all();
         await f(éléments);
       },
     });
   }
 
-  static obtÉlémentsDeBdListe<T extends élémentsBd>({
-    bd,
-    renvoyerValeur,
-  }: {
-    bd: FeedStore<T>;
-    renvoyerValeur?: true;
-  }): T[];
-
-  static obtÉlémentsDeBdListe<T extends élémentsBd>({
-    bd,
-    renvoyerValeur,
-  }: {
-    bd: FeedStore<T>;
-    renvoyerValeur: false;
-  }): LogEntry<T>[];
-
-  static obtÉlémentsDeBdListe<T extends élémentsBd>({
-    bd,
-    renvoyerValeur,
-  }: {
-    bd: FeedStore<T>;
-    renvoyerValeur?: boolean;
-  }): T[] | LogEntry<T>[];
-
-  static obtÉlémentsDeBdListe<T extends élémentsBd>({
-    bd,
-    renvoyerValeur = true,
-  }: {
-    bd: FeedStore<T>;
-    renvoyerValeur?: boolean;
-  }): T[] | LogEntry<T>[] {
-    const éléments = bd.iterator({ limit: -1 }).collect();
-    if (renvoyerValeur) {
-      return éléments.map((e: LogEntry<T>) => e.payload.value);
-    } else {
-      return éléments;
-    }
-  }
-
-  obtÉlémentBdListeSelonEmpreinte<T extends élémentsBd>({
+  async obtÉlémentBdListeSelonEmpreinte<T extends élémentsBd>({
     bd,
     empreinte,
   }: {
-    bd: FeedStore<T>;
+    bd: FeedStoreTypé<T>;
     empreinte: string;
-  }): élémentsBd | undefined {
-    const élément = bd
-      .iterator({ limit: -1 })
-      .collect()
-      .find((e: LogEntry<T>) => e.hash === empreinte);
-    return élément?.payload.value;
+  }): Promise<T | undefined> {
+    const élément = (await bd.all()).find((e) => e.hash === empreinte);
+    return élément?.value;
   }
 
   async effacerÉlémentDeBdListe<T extends élémentsBd>({
     bd,
     élément,
   }: {
-    bd: FeedStore<T>;
-    élément: T | ((e: LogEntry<T>) => boolean);
+    bd: FeedStoreTypé<T>;
+    élément: T | ((e: { value: T; hash: string }) => boolean);
   }): Promise<void> {
-    const retrouvé = bd
-      .iterator({ limit: -1 })
-      .collect()
-      .find((e: LogEntry<T>) =>
-        typeof élément === "function"
-          ? élément(e)
-          : deepEqual(e.payload.value, élément)
-      );
+    const retrouvé = (await bd.all()).find((e) =>
+      typeof élément === "function" ? élément(e) : deepEqual(e.value, élément)
+    );
 
     if (retrouvé) await bd.remove(retrouvé.hash);
   }
@@ -1384,21 +1362,19 @@ export class ClientConstellation extends EventEmitter {
     bd,
     élément,
   }: {
-    bd: FeedStore<T>;
-    élément: T | ((e: LogEntry<T>) => boolean);
+    bd: FeedStoreTypé<T>;
+    élément: T | ((e: { value: T; hash: string }) => boolean);
   }): Promise<void> {
+    const tous = await bd.all();
     await Promise.all(
-      bd
-        .iterator({ limit: -1 })
-        .collect()
-        .map(async (e: LogEntry<T>) => {
-          const àEffacer =
-            typeof élément === "function"
-              ? élément(e)
-              : deepEqual(e.payload.value, élément);
-          if (àEffacer) return await bd.remove(e.hash);
-          return Promise.resolve();
-        })
+      tous.map(async (e: { value: T; hash: string }) => {
+        const àEffacer =
+          typeof élément === "function"
+            ? élément(e)
+            : deepEqual(e.value, élément);
+        if (àEffacer) return await bd.remove(e.hash);
+        return Promise.resolve();
+      })
     );
   }
 
@@ -1462,8 +1438,9 @@ export class ClientConstellation extends EventEmitter {
     idBd: string;
     f: schémaFonctionSuivi<string>;
   }): Promise<schémaFonctionOublier> {
-    const obtTêteBd = (bd: Store): string => {
-      const tête = bd._oplog.heads[bd._oplog.heads.length - 1]?.hash || "";
+    const obtTêteBd = async (bd: Store): Promise<string> => {
+      const éléments = await bd.log.heads();
+      const tête = éléments[éléments.length - 1]?.hash || "";
       return tête;
     };
     const calculerEmpreinte = (texte: string) => Base64.stringify(md5(texte));
@@ -1488,7 +1465,7 @@ export class ClientConstellation extends EventEmitter {
       return await this.suivreBd({
         id,
         f: async (bd) => {
-          const tête = obtTêteBd(bd);
+          const tête = await obtTêteBd(bd);
           await fSuivreBranche(tête);
         },
       });
@@ -1809,15 +1786,20 @@ export class ClientConstellation extends EventEmitter {
   async rechercherBdListe<T extends élémentsBd>({
     id,
     f,
+    schéma,
   }: {
     id: string;
-    f: (e: LogEntry<T>) => boolean;
-  }): Promise<LogEntry<T> | undefined> {
-    const { bd, fOublier } = await this.ouvrirBd<T>({ id, type: "feed" });
-    const élément = bd
-      .iterator({ limit: -1 })
-      .collect()
-      .find((e: LogEntry<T>) => f(e));
+    f: (e: { value: T; hash: string }) => boolean;
+    schéma: JSONSchemaType<T>;
+  }): Promise<{ value: T; hash: string } | undefined> {
+    const { bd, fOublier } = await this.orbite!.ouvrirBdTypée<T>({
+      id,
+      type: "feed",
+      schéma,
+    });
+    const élément = (await bd.all()).find((e: { value: T; hash: string }) =>
+      f(e)
+    );
 
     await fOublier();
     return élément;
@@ -1925,65 +1907,6 @@ export class ClientConstellation extends EventEmitter {
     );
   }
 
-  async ouvrirBd<
-    U extends { [clef: string]: élémentsBd },
-    T = KeyValueStore<U>
-  >({
-    id,
-    type,
-    schéma,
-  }: {
-    id: string;
-    type: "kvstore" | "keyvalue";
-    schéma?: JSONSchemaType<U>;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<U extends élémentsBd, T = FeedStore<U>>({
-    id,
-    type,
-    schéma,
-  }: {
-    id: string;
-    type: "feed";
-    schéma?: JSONSchemaType<U>;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<T extends Store>({
-    id,
-  }: {
-    id: string;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<
-    U,
-    T extends
-      | Store
-      | KeyValueStore<{ [clef: string]: élémentsBd }>
-      | FeedStore<élémentsBd>
-  >({
-    id,
-    type,
-    schéma,
-  }: {
-    id: string;
-    schéma?: JSONSchemaType<U>;
-    type?: "kvstore" | "keyvalue" | "feed";
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<
-    U,
-    T extends
-      | Store
-      | KeyValueStore<{ [clef: string]: élémentsBd }>
-      | FeedStore<élémentsBd>
-  >({
-    id,
-    type,
-    schéma,
-  }: {
-    id: string;
-    schéma?: JSONSchemaType<U>;
-    type?: "kvstore" | "keyvalue" | "feed";
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
-    return await this.orbite!.ouvrirBd({ id, type, schéma });
-  }
-
   async obtIdBd<K extends string>({
     nom,
     racine,
@@ -1992,51 +1915,43 @@ export class ClientConstellation extends EventEmitter {
     nom: K;
     racine:
       | string
-      | KeyValueStore<Partial<Record<K, string>> & { [clef: string]: unknown }>;
-    type?: "feed" | "keyvalue" | "kvstore";
-  }): Promise<string | undefined>;
-  async obtIdBd<K extends string>({
-    nom,
-    racine,
-    type,
-  }: {
-    nom: K;
-    racine:
-      | string
-      | KeyValueStore<Partial<Record<K, string>> & { [clef: string]: unknown }>;
-    type?: "feed" | "keyvalue" | "kvstore";
-  }): Promise<string>;
-  async obtIdBd<K extends string>({
-    nom,
-    racine,
-    type,
-  }: {
-    nom: K;
-    racine:
-      | string
-      | KeyValueStore<Partial<Record<K, string>> & { [clef: string]: unknown }>;
-    type?: "feed" | "keyvalue" | "kvstore";
+      | KeyValueStoreTypé<
+        Partial<{[k in K]: string} & {[clef: string]: unknown}>
+        >;
+    type?: "feed" | "keyvalue" | "ordered-keyvalue" | "set";
   }): Promise<string | undefined> {
-    let bdRacine: KeyValueStore<Partial<Record<K, string>>>;
+    let bdRacine: KeyValueStoreTypé<
+      Partial<{[k in K]: string} & {[clef: string]: unknown}>
+    >;
     let fOublier: schémaFonctionOublier | undefined;
 
+    const schémaBdRacine: JSONSchemaType<{[k in K]: string} & {[clef: string]: unknown}> = {
+      type: "object",
+      properties: {
+        [nom]: "string"
+      },
+      additionalProperties: true,
+      required: []
+    }
+
     if (typeof racine === "string") {
-      ({ bd: bdRacine, fOublier } = await this.ouvrirBd<Record<K, string>>({
+      ({ bd: bdRacine, fOublier } = await this.orbite!.ouvrirBdTypée({
         id: racine,
-        type: "kvstore",
+        type: "keyvalue",
+        schéma: schémaBdRacine
       }));
     } else {
       bdRacine = racine;
     }
 
-    const clefRequète = bdRacine.id + ":" + nom;
+    const clefRequète = bdRacine.address + ":" + nom;
     await this.verrouObtIdBd.acquire(clefRequète);
 
-    let idBd = bdRacine.get(nom);
+    let idBd = (await bdRacine.get(nom)) as string | undefined;
 
     const idBdPrécédente = await this.obtDeStockageLocal({ clef: clefRequète });
 
-    if (idBd && idBdPrécédente && idBd !== idBdPrécédente) {
+    if (typeof idBd === "string" && idBdPrécédente && idBd !== idBdPrécédente) {
       try {
         await this.combinerBds({
           idBdBase: idBd,
@@ -2051,9 +1966,9 @@ export class ClientConstellation extends EventEmitter {
     }
 
     // Nous devons confirmer que la base de données spécifiée était du bon genre
-    if (idBd && type) {
+    if (typeof idBd === "string" && type) {
       try {
-        const { fOublier } = await this.ouvrirBd({ id: idBd, type });
+        const { fOublier } = await this.orbite!.ouvrirBd({ id: idBd, type });
         await fOublier();
 
         this.verrouObtIdBd.release(clefRequète);
@@ -2065,7 +1980,7 @@ export class ClientConstellation extends EventEmitter {
     }
 
     if (!idBd && type) {
-      const accès = bdRacine.access as unknown as ContrôleurConstellation;
+      const accès = bdRacine.access as ContrôleurConstellation;
       const permission = await uneFois((f: schémaFonctionSuivi<boolean>) =>
         accès.suivreIdsOrbiteAutoriséesÉcriture(
           async (autorisés: string[]) =>
@@ -2075,20 +1990,23 @@ export class ClientConstellation extends EventEmitter {
 
       if (permission) {
         const optionsAccès = await this.obtOpsAccès({
-          idBd: bdRacine.id,
+          idBd: bdRacine.address,
         });
         idBd = await this.créerBdIndépendante({ type, optionsAccès });
+        if (!idBd) throw new Error("Bd non générée")
+        
+        // @ts-expect-error  Aucune idée pourquoi ça fonctionne pas
         await bdRacine.set(nom, idBd);
-      }
+      }      
     }
 
-    if (idBd)
+    if (typeof idBd === "string")
       await this.sauvegarderAuStockageLocal({ clef: clefRequète, val: idBd });
 
     if (fOublier) await fOublier();
 
     this.verrouObtIdBd.release(clefRequète);
-    return idBd;
+    return typeof idBd === "string" ? idBd : undefined;
   }
 
   async créerBdIndépendante({
@@ -2096,14 +2014,18 @@ export class ClientConstellation extends EventEmitter {
     optionsAccès,
     nom,
   }: {
-    type: TStoreType;
+    type: "feed" | "set" | "keyvalue" | "ordered-keyvalue";
     optionsAccès?: OptionsContrôleurConstellation;
     nom?: string;
   }): Promise<string> {
     return await this.orbite!.créerBdIndépendante({
       type,
-      optionsAccès: Object.assign({}, this.optionsAccès, optionsAccès || {}),
       nom,
+      options: {
+        AccessController: ContrôleurConstellation(
+          Object.assign({}, this.optionsAccès, optionsAccès || {})
+        ),
+      },
     });
   }
 
@@ -2116,13 +2038,13 @@ export class ClientConstellation extends EventEmitter {
   }: {
     idBd: string;
   }): Promise<OptionsContrôleurConstellation> {
-    const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
-    const accès = bd.access as unknown as ContrôleurConstellation;
+    const { bd, fOublier } = await this.orbite!.ouvrirBd({ id: idBd });
+    const accès = bd.access as ContrôleurConstellation;
 
     await fOublier();
     return {
-      address: accès.bd!.id,
-      premierMod: accès._premierMod,
+      address: accès.bd!.address,
+      premierMod: accès.write,
     };
   }
 
@@ -2134,7 +2056,7 @@ export class ClientConstellation extends EventEmitter {
     idObjet: string;
     f: schémaFonctionSuivi<(typeof rôles)[number] | undefined>;
   }): Promise<schémaFonctionOublier> {
-    const { bd, fOublier } = await this.ouvrirBd({ id: idObjet });
+    const { bd, fOublier } = await this.orbite!.ouvrirBd({ id: idObjet });
     const accès = bd.access;
     const typeAccès = (accès.constructor as unknown as AccessController).type;
 
@@ -2158,7 +2080,7 @@ export class ClientConstellation extends EventEmitter {
         await f(rôlePlusPuissant);
       };
       const fOublierSuivreAccès = await (
-        accès as unknown as ContrôleurConstellation
+        accès as ContrôleurConstellation
       ).suivreUtilisateursAutorisés(fFinale);
       return async () => {
         await fOublierSuivreAccès();
@@ -2206,7 +2128,7 @@ export class ClientConstellation extends EventEmitter {
         await f(listeAccès);
       } else if (typeAccès === nomTypeContrôleurConstellation) {
         const fOublierAutorisés = await (
-          accès as unknown as ContrôleurConstellation
+          accès as ContrôleurConstellation
         ).suivreUtilisateursAutorisés(f);
         return fOublierAutorisés;
       }
@@ -2318,7 +2240,7 @@ export class ClientConstellation extends EventEmitter {
         return;
       }
 
-      const { bd, fOublier } = await this.ouvrirBd({ id });
+      const { bd, fOublier } = await this.orbite!.ouvrirBd({ id });
       const { type } = bd;
       await fOublier();
 

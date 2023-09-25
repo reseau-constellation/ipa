@@ -1,5 +1,3 @@
-import type FeedStore from "orbit-db-feedstore";
-
 import type { ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
@@ -22,6 +20,7 @@ import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";
 import { générerClientsInternes } from "../ressources/utils.js";
+import { JSONSchemaType } from "ajv";
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;
@@ -315,8 +314,10 @@ describe("Utils recherche", function () {
     });
 
     it("Ajout variable détecté", async () => {
-      const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
+      const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
         id: idBd,
+        type: "feed",
+        schéma: { type: "string" } as JSONSchemaType<string>
       });
       await bd.add("precipitation");
       await fOublier();
@@ -344,9 +345,13 @@ describe("Utils recherche", function () {
     });
 
     it("Ajout meilleure variable détecté", async () => {
-      const { bd, fOublier } = await client.ouvrirBd<FeedStore<string>>({
-        id: idBd,
-      });
+      const { bd, fOublier } = await client.orbite!.ouvrirBdTypée(
+        {
+          id: idBd,
+          type: "feed",
+          schéma: { type: "string" } as JSONSchemaType<string>
+        }
+      );
       await bd.add("précipitation");
       await fOublier();
 

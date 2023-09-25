@@ -1,7 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 import { WorkBook, utils } from "xlsx";
-import type FeedStore from "orbit-db-feedstore";
-import type {OrbitDB} from "@orbitdb/core";
 
 import ClientConstellation from "@/client.js";
 import {
@@ -17,7 +15,7 @@ import {
   adresseOrbiteValide,
 } from "@constl/utils-ipa";
 
-import type { donnéesBdExportées } from "@/bds.js";
+import { type donnéesBdExportées } from "@/bds.js";
 import {
   erreurValidation,
   erreurRègle,
@@ -41,11 +39,14 @@ import type {
   catégorieVariables,
 } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { cholqij } from "@/dates.js";
 
 import { isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
+import { isValidAddress } from "@orbitdb/core";
+
+type ContrôleurConstellation = Awaited<ReturnType<ReturnType<typeof générerContrôleurConstellation>>>;
 
 export interface élémentDonnées<
   T extends élémentBdListeDonnées = élémentBdListeDonnées
@@ -118,8 +119,11 @@ const schémaInfoColAvecCatégorie: JSONSchemaType<InfoColAvecCatégorie> = {
 
 const schémaDonnéesTableau: JSONSchemaType<{ [clef: string]: élémentsBd }> = {
   type: "object",
+  properties: {
+    id: { type: "string" }
+  },
   additionalProperties: true,
-  required: [],
+  required: ["id"],
 };
 
 export function élémentsÉgaux(
@@ -202,19 +206,21 @@ export default class Tableaux {
     const optionsAccès = await this.client.obtOpsAccès({ idBd });
 
     const idBdTableau = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
-    const { bd: bdTableau, fOublier } = await this.client.ouvrirBd({
-      id: idBdTableau,
-      type: "keyvalue",
-      schéma: schémaStructureBdTableau,
-    });
+    const { bd: bdTableau, fOublier } = await this.client.orbite!.ouvrirBdTypée(
+      {
+        id: idBdTableau,
+        type: "keyvalue",
+        schéma: schémaStructureBdTableau,
+      }
+    );
 
     await bdTableau.set("type", "tableau");
 
     const idBdNoms = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdTableau.set("noms", idBdNoms);
@@ -251,32 +257,29 @@ export default class Tableaux {
     idBd: string;
     copierDonnées?: boolean;
   }): Promise<string> {
-    const { bd: bdBase, fOublier } = await this.client.ouvrirBd({
+    const { bd: bdBase, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id,
       type: "keyvalue",
       schéma: schémaStructureBdTableau,
     });
     const idNouveauTableau = await this.créerTableau({ idBd });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
-      await this.client.ouvrirBd({
+      await this.client.orbite!.ouvrirBdTypée({
         id: idNouveauTableau,
         type: "keyvalue",
         schéma: schémaStructureBdTableau,
       });
 
     // Copier les noms
-    const idBdNoms = bdBase.get("noms");
+    const idBdNoms = await bdBase.get("noms");
     if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd(
-        {
+      const { bd: bdNoms, fOublier: fOublierNoms } =
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdNoms,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
-        }
-      );
-      const noms = ClientConstellation.obtObjetdeBdDic({
-        bd: bdNoms,
-      });
+        });
+      const noms = await bdNoms.all();
       await fOublierNoms();
       await this.sauvegarderNomsTableau({ idTableau: idNouveauTableau, noms });
     }
@@ -286,6 +289,7 @@ export default class Tableaux {
       bdBase,
       nouvelleBd,
       clef: "colonnes",
+      schéma: schémaInfoColAvecCatégorie,
     });
 
     // Copier les règles
@@ -293,6 +297,7 @@ export default class Tableaux {
       bdBase,
       nouvelleBd,
       clef: "règles",
+      schéma: schémaRègleColonne,
     });
 
     if (copierDonnées) {
@@ -301,6 +306,7 @@ export default class Tableaux {
         bdBase,
         nouvelleBd,
         clef: "données",
+        schéma: schémaDonnéesTableau,
       });
     }
 
@@ -419,18 +425,18 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdColonnes });
-    const éléments = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdColonnes,
-      renvoyerValeur: false,
-    });
-    const élémentCol = éléments.find((x) => x.payload.value.id === idColonne);
+    const { bd: bdColonnes, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdColonnes,
+        type: "feed",
+        schéma: schémaInfoColAvecCatégorie,
+      });
+    const éléments = await bdColonnes.all();
+    const élémentCol = éléments.find((x) => x.value.id === idColonne);
 
     // Changer uniquement si la colonne existe et était déjà sous le même statut que `val`
-    if (élémentCol && Boolean(élémentCol.payload.value.index) !== val) {
-      const { value } = élémentCol.payload;
+    if (élémentCol && Boolean(élémentCol.value.index) !== val) {
+      const { value } = élémentCol;
       const nouvelÉlément: InfoCol = Object.assign(value, { index: val });
       await bdColonnes.remove(élémentCol.hash);
       await bdColonnes.add(nouvelÉlément);
@@ -465,7 +471,7 @@ export default class Tableaux {
     clefsSelonVariables?: boolean;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      données?: LogEntry<T>[];
+      données?: { value: T; hash: string }[];
       colonnes?: { [key: string]: string };
     } = {};
 
@@ -476,7 +482,7 @@ export default class Tableaux {
         const donnéesFinales: élémentDonnées<T>[] = données.map(
           (x): élémentDonnées<T> => {
             const empreinte = x.hash;
-            const élément = x.payload.value;
+            const élément = x.value;
 
             const données: T = clefsSelonVariables
               ? Object.keys(élément).reduce((acc: T, elem: string) => {
@@ -506,7 +512,7 @@ export default class Tableaux {
       catégories: false,
     });
 
-    const fSuivreDonnées = async (données: LogEntry<T>[]) => {
+    const fSuivreDonnées = async (données: { value: T; hash: string }[]) => {
       info.données = données;
       await fFinale();
     };
@@ -707,9 +713,11 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
-      FeedStore<T>
-    >({ id: idBdDonnées });
+    const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdDonnées,
+      type: "feed",
+      schéma: schémaDonnéesTableau
+    });
     vals = await this.vérifierClefsÉlément({ idTableau, élément: vals });
     const id = uuidv4();
     const empreinte = await bdDonnées.add({ ...vals, id });
@@ -739,14 +747,16 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
-      FeedStore<élémentBdListeDonnées>
-    >({ id: idBdDonnées });
+    const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdDonnées,
+      type: "feed",
+      schéma: schémaDonnéesTableau,
+    });
 
-    const précédent = this.client.obtÉlémentBdListeSelonEmpreinte({
+    const précédent = (await this.client.obtÉlémentBdListeSelonEmpreinte({
       bd: bdDonnées,
       empreinte: empreintePrécédente,
-    }) as { [key: string]: élémentsBd };
+    })) as { [key: string]: élémentsBd };
 
     let élément = Object.assign({}, précédent, vals);
 
@@ -786,13 +796,15 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdColonnes });
-    const idsColonnes: string[] = bdColonnes
-      .iterator({ limit: -1 })
-      .collect()
-      .map((e) => e.payload.value.id);
+    const { bd: bdColonnes, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdColonnes,
+        type: "feed",
+        schéma: schémaInfoColAvecCatégorie,
+      });
+    const idsColonnes: string[] = (await bdColonnes.all()).map(
+      (e) => e.value.id
+    );
     const clefsPermises = [...idsColonnes, "id"];
     const clefsFinales = Object.keys(élément).filter((x: string) =>
       clefsPermises.includes(x)
@@ -822,9 +834,11 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdDonnées });
+    const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdDonnées,
+      type: "feed",
+      schéma: schémaDonnéesTableau,
+    });
     await bdDonnées.remove(empreinte);
     await fOublier();
   }
@@ -972,12 +986,12 @@ export default class Tableaux {
       if (cacheRechercheIdOrbite[langue]?.[val])
         return cacheRechercheIdOrbite[langue][val];
       for (const id of idsOrbiteColsChaîne) {
-        const { bd, fOublier } = await this.client.ouvrirBd({
+        const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
           id,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-        const valLangue = bd.get(langue);
+        const valLangue = await bd.get(langue);
         await fOublier();
         if (valLangue === val) {
           if (!cacheRechercheIdOrbite[langue])
@@ -997,7 +1011,7 @@ export default class Tableaux {
       langue: string;
     }): Promise<string> => {
       const { bd: bdNuée, fOublier: fOublierBdTableau } =
-        await this.client.ouvrirBd({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idTableau,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -1007,11 +1021,11 @@ export default class Tableaux {
       const optionsAccès = { address: accès.address };
       await fOublierBdTableau();
       const idOrbite = await this.client.créerBdIndépendante({
-        type: "kvstore",
+        type: "keyvalue",
         optionsAccès,
       });
 
-      const { bd, fOublier } = await this.client.ouvrirBd({
+      const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
         id: idOrbite,
         type: "keyvalue",
         schéma: schémaStructureBdNoms,
@@ -1272,7 +1286,7 @@ export default class Tableaux {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1280,7 +1294,7 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -1304,7 +1318,7 @@ export default class Tableaux {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1312,7 +1326,7 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -1331,7 +1345,7 @@ export default class Tableaux {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1339,7 +1353,7 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -1385,9 +1399,12 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdColonnes });
+    const { bd: bdColonnes, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdColonnes,
+        type: "feed",
+        schéma: schémaInfoColAvecCatégorie,
+      });
     const entrée: InfoCol = {
       id: idColonne || uuidv4(),
       variable: idVariable,
@@ -1416,12 +1433,15 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdColonnes });
+    const { bd: bdColonnes, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdColonnes,
+        type: "feed",
+        schéma: schémaInfoColAvecCatégorie,
+      });
     await this.client.effacerÉlémentDeBdListe({
       bd: bdColonnes,
-      élément: (x) => x.payload.value.id === idColonne,
+      élément: (x) => x.value.id === idColonne,
     });
 
     await fOublier();
@@ -1530,7 +1550,7 @@ export default class Tableaux {
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (variables?: string[]) => {
-      await f((variables || []).filter((v) => v && OrbitDB.isValidAddress(v)));
+      await f((variables || []).filter((v) => v && isValidAddress(v)));
     };
     const fSuivreBdColonnes = async ({
       id,
@@ -1572,9 +1592,11 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
-      FeedStore<règleColonne>
-    >({ id: idBdRègles });
+    const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdRègles,
+      type: "feed",
+      schéma: schémaRègleColonne,
+    });
 
     const id = uuidv4();
     const règleAvecId: règleVariableAvecId<R> = {
@@ -1613,13 +1635,15 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
-      FeedStore<règleColonne>
-    >({ id: idBdRègles });
+    const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdRègles,
+      type: "feed",
+      schéma: schémaRègleColonne,
+    });
 
     await this.client.effacerÉlémentDeBdListe({
       bd: bdRègles,
-      élément: (é) => é.payload.value.règle.id === idRègle,
+      élément: (é) => é.value.règle.id === idRègle,
     });
 
     await fOublier();
