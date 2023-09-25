@@ -39,7 +39,7 @@ import type {
   catégorieVariables,
 } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { cholqij } from "@/dates.js";
 
 import { isElectronMain, isNode } from "wherearewe";

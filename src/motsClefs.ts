@@ -11,7 +11,7 @@ import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 
-import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 type ContrôleurConstellation = Awaited<ReturnType<ReturnType<typeof générerContrôleurConstellation>>>;
 

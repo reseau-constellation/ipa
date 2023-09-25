@@ -35,7 +35,7 @@ import {
   ignorerNonDéfinis,
 } from "@constl/utils-ipa";
 import type { objRôles } from "@/accès/types.js";
-import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 

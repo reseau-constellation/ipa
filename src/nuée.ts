@@ -22,7 +22,7 @@ import {
   traduire,
 } from "@constl/utils-ipa";
 
-import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";

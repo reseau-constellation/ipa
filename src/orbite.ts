@@ -99,8 +99,6 @@ export type KeyValueStoreTypé<T extends { [clef: string]: unknown }> = Omit<
   all(): Promise<T>;
 };
 
-enregistrerContrôleurs();
-
 const ajv = new Ajv();
 
 export default async function initOrbite({
@@ -118,10 +116,13 @@ export default async function initOrbite({
     dossierOrbiteFinal = dossierOrbite || "./orbite";
   }
 
-  return await createOrbitDB({
+  const orbite = await createOrbitDB({
     ipfs: sfip,
     directory: dossierOrbiteFinal,
   });
+
+  enregistrerContrôleurs();
+  return orbite;
 }
 
 const typerFeedStore = <T extends élémentsBd>({
