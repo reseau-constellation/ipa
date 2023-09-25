@@ -4,7 +4,7 @@ import { isElectronMain, isNode } from "wherearewe";
 
 import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier } from "@/types.js";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 
 import {
   client as utilsClientTest,
@@ -44,7 +44,7 @@ typesClients.forEach((type) => {
 
       it("Création", async () => {
         idProjet = await client.projets!.créerProjet();
-        expect(adresseOrbiteValide(idProjet)).to.be.true();
+        expect(isValidAddress(idProjet)).to.be.true();
       });
 
       describe("Mes projets", function () {

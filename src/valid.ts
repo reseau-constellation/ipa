@@ -1,7 +1,7 @@
 import gjv from "geojson-validation";
 
 import { élémentsBd } from "@/types.js";
-import { cidValide, adresseOrbiteValide } from "@constl/utils-ipa";
+import { cidValide } from "@constl/utils-ipa";
 import type {
   catégorieBaseVariables,
   catégorieVariables,
@@ -9,6 +9,7 @@ import type {
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import { cholqij } from "@/dates.js";
 import { JSONSchemaType } from "ajv";
+import { isValidAddress } from "@orbitdb/core";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle =
@@ -440,7 +441,7 @@ const validerCatégorieBase = ({
       if (val.length !== 2) return false;
       return val.every((d) => estUnHoroDatage(d));
     case "chaîne":
-      return adresseOrbiteValide(val);
+      return isValidAddress(val);
     case "chaîneNonTraductible":
       return typeof val === "string";
     case "booléen":

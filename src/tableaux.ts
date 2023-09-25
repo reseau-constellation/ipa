@@ -12,7 +12,6 @@ import {
   uneFois,
   faisRien,
   traduire,
-  adresseOrbiteValide,
 } from "@constl/utils-ipa";
 
 import { type donnéesBdExportées } from "@/bds.js";
@@ -579,7 +578,7 @@ export default class Tableaux {
         case "number":
           return v;
         case "string":
-          if (catégorie === "chaîne" && adresseOrbiteValide(v)) {
+          if (catégorie === "chaîne" && isValidAddress(v)) {
             return await extraireTraduction({ adresseBdTrads: v, langues });
           }
           return v;
@@ -1174,7 +1173,7 @@ export default class Tableaux {
 
         case "chaîne": {
           if (typeof val !== "string") return val;
-          if (adresseOrbiteValide(val)) return val;
+          if (isValidAddress(val)) return val;
           else {
             if (conversion?.type === "chaîne") {
               const { langue } = conversion;

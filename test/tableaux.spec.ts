@@ -2,7 +2,7 @@ import type XLSX from "xlsx";
 
 import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier, élémentsBd } from "@/types.js";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 
 import type {
   InfoCol,
@@ -76,7 +76,7 @@ typesClients.forEach((type) => {
           await Promise.all(fsOublier.map((f) => f()));
         });
         it("Créé", () => {
-          expect(adresseOrbiteValide(idTableau)).to.be.true;
+          expect(isValidAddress(idTableau)).to.be.true;
         });
         it("Accès", async () => {
           expect(accès).to.be.true;
@@ -1183,7 +1183,7 @@ typesClients.forEach((type) => {
         });
 
         it("Tableau créé", () => {
-          expect(adresseOrbiteValide(idTableau)).to.be.true;
+          expect(isValidAddress(idTableau)).to.be.true;
         });
         it("Suivre variables", () => {
           expect(variables).to.deep.equal([idVarChaîne]);
@@ -1319,7 +1319,7 @@ typesClients.forEach((type) => {
         });
 
         it("Le tableau est copié", async () => {
-          expect(adresseOrbiteValide(idTableauCopie)).to.be.true;
+          expect(isValidAddress(idTableauCopie)).to.be.true;
         });
 
         it("Les noms sont copiés", async () => {

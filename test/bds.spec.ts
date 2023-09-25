@@ -17,7 +17,9 @@ const { dossierTempoTests } = utilsTestDossiers;
 
 import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import { adresseOrbiteValide, uneFois } from "@constl/utils-ipa";
+import { uneFois } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
+
 import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import type {
   infoScore,
@@ -60,7 +62,7 @@ typesClients.forEach((type) => {
 
       it("Création", async () => {
         idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-        expect(adresseOrbiteValide(idBd)).to.be.true();
+        expect(isValidAddress(idBd)).to.be.true();
       });
       it("Accès", async () => {
         fsOublier.push(
@@ -325,7 +327,7 @@ typesClients.forEach((type) => {
             idBd,
             clefTableau: "abc",
           });
-          expect(adresseOrbiteValide(idTableau)).to.be.true();
+          expect(isValidAddress(idTableau)).to.be.true();
           expect(Array.isArray(tableaux)).to.be.true();
           expect(tableaux.length).to.equal(1);
           expect(tableaux).to.have.deep.members([
@@ -798,7 +800,7 @@ typesClients.forEach((type) => {
         });
 
         it("Tableaux unique détectable", async () => {
-          expect(adresseOrbiteValide(tableauUnique)).to.be.true();
+          expect(isValidAddress(tableauUnique)).to.be.true();
         });
       });
 
@@ -867,7 +869,7 @@ typesClients.forEach((type) => {
         });
         it("La BD est créée lorsqu'elle n'existe pas", async () => {
           await rés.attendreExiste();
-          expect(adresseOrbiteValide(rés.val)).to.be.true();
+          expect(isValidAddress(rés.val)).to.be.true();
         });
         it.skip("Gestion de la concurrence entre dispositifs");
         it.skip("Gestion de concurrence entre 2+ BDs");
@@ -964,7 +966,7 @@ typesClients.forEach((type) => {
 
         it("Tableau unique détecté", async () => {
           await rés.attendreExiste();
-          expect(adresseOrbiteValide(rés.val)).to.be.true();
+          expect(isValidAddress(rés.val)).to.be.true();
         });
       });
 
