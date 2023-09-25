@@ -103,7 +103,7 @@ const ContrôleurConstellation =
     write?: string;
     nom?: string;
     storage?: Storage;
-  }) =>
+  } = {}) =>
   async ({
     orbitdb,
     identities,
@@ -114,6 +114,7 @@ const ContrôleurConstellation =
     address?: string;
   }) => {
     write = write || orbitdb.identity.id;
+
     nom = nom || uuidv4();
     storage =
       storage ||
@@ -206,14 +207,9 @@ const ContrôleurConstellation =
 
       const { id } = writerIdentity;
 
-      const autorisé = await estAutorisé(id);
-
-      if (autorisé) {
-        // Pour implémenter la révocation des permissions, garder compte ici
-        // des entrées approuvées par utilisatrice
-        return identities.verifyIdentity(writerIdentity);
-      }
-      return false;
+      // Pour implémenter la révocation des permissions, garder compte ici
+      // des entrées approuvées par utilisatrice
+      return identities.verifyIdentity(writerIdentity) && await estAutorisé(id);
     };
 
     const grant = async (

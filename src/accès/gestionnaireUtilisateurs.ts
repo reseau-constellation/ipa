@@ -24,6 +24,7 @@ export const suivreBdAccès = async (
 ): Promise<schémaFonctionOublier> => {
   const fFinale = async () => {
     const éléments = await bd.all();
+
     await f(éléments.map((é) => é.value));
   };
 
@@ -67,9 +68,11 @@ class AccèsUtilisateur extends EventEmitter {
     this.bdAccès = this.accès.bd!;
     this.idBdAccès = this.bdAccès?.address;
 
+    await this._miseÀJour([]);
     this.oublierSuivi = await suivreBdAccès(this.bdAccès, async (éléments) => {
       await this._miseÀJour(éléments);
     });
+
     this.prêt = true;
   }
 
@@ -119,6 +122,7 @@ export default class GestionnaireAccès extends EventEmitter {
 
   async estUnMembre(id: string): Promise<boolean> {
     if (this._miseÀJourEnCours) await once(this, "misÀJour");
+    console.log("vérification membre", id, this._rôles[MEMBRE].includes(id))
     return this._rôles[MEMBRE].includes(id);
   }
 
@@ -133,6 +137,7 @@ export default class GestionnaireAccès extends EventEmitter {
 
   async ajouterÉléments(éléments: élémentBdAccès[]): Promise<void> {
     this._miseÀJourEnCours = true;
+
     await Promise.all(
       éléments.map(async (élément) => {
         const { rôle, id } = élément;
