@@ -52,10 +52,11 @@ import {
   sauvegarderFichierZip,
 } from "@constl/utils-ipa";
 import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
-import générerContrôleurConstellation, {
-  OptionsContrôleurConstellation,
+import {
+  type OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
+import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import Base64 from "crypto-js/enc-base64.js";
