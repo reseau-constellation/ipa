@@ -94,7 +94,7 @@ const ContrôleurAccès =
       entry: Entry<élémentBdAccès>
     ): Promise<boolean> => {
       // Pour l'instant, on ne peut qu'ajouter des membres
-      if (entry.payload.op !== "PUT" || !entry.payload.value) return false;
+      if (entry.payload.op !== "ADD" || !entry.payload.value) return false;
 
       const { rôle, id: idAjout } = entry.payload.value;
 
@@ -106,7 +106,7 @@ const ContrôleurAccès =
       }
       const { id } = writerIdentity;
       const estUnMod = estUnModérateurPatient(id);
-
+      console.log(entry.payload, {de: id, mod: await estUnMod, rôles: gestAccès._rôles})
       if (
         rôleValide &&
         (await estUnMod) &&

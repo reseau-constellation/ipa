@@ -23,6 +23,19 @@ type TypeContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
 >;
 
+const attendreEstUnMod = (accès: TypeContrôleurConstellation, idOrbite: string) => {
+  return new Promise<void>(résoudre => {
+    const fTesterModérateur = async () => {
+      if (await accès.estUnModérateur(idOrbite)) {
+        clearInterval(intervale);
+        résoudre();
+      }
+    }
+    const intervale = setInterval(fTesterModérateur, 200)
+    fTesterModérateur();
+  })
+}
+
 describe("Contrôleur Constellation", function () {
   if (isNode || isElectronMain) {
     describe("Accès utilisateur", function () {
@@ -111,7 +124,7 @@ describe("Contrôleur Constellation", function () {
             type: "keyvalue",
             AccessController: générerContrôleurConstellation(
               {
-                write: orbitdb1.identity.id,
+                write: orbitdb2.identity.id,
               }
             )
           }) as unknown as KeyValueStore;
@@ -146,6 +159,12 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("...mais on peut toujours l'inviter !", async () => {
+          console.log({
+            compte1: bdRacine.address,
+            idOrbite1: orbitdb1.identity.id,
+            compte2: bdRacine2.address,
+            idOrbite2: orbitdb2.identity.id,
+          })
           await (bd.access as TypeContrôleurConstellation).grant(MEMBRE, bdRacine2.address);
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
@@ -173,6 +192,8 @@ describe("Contrôleur Constellation", function () {
         it("On peut inviter un modérateur", async () => {
           const accès = bd.access as TypeContrôleurConstellation;
           await accès.grant(MODÉRATEUR, bdRacine2.address);
+          await attendreEstUnMod(accès, orbitdb2.identity.id);
+          
           const estUnMod = await accès.estUnModérateur(orbitdb2.identity.id);
           expect(estUnMod).to.be.true();
         });
@@ -193,6 +214,7 @@ describe("Contrôleur Constellation", function () {
           const accès = bdOrbite2.access as TypeContrôleurConstellation;
           await accès.grant(MODÉRATEUR, orbitdb4.identity.id);
 
+          await attendreEstUnMod(accès, orbitdb4.identity.id);
           const estUnMod = await accès.estUnModérateur(orbitdb4.identity.id);
           expect(estUnMod).to.be.true();
         });
