@@ -52,11 +52,10 @@ import {
   sauvegarderFichierZip,
 } from "@constl/utils-ipa";
 import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
-import {
+import générerContrôleurConstellation, {
   type OptionsContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
-import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import Base64 from "crypto-js/enc-base64.js";
@@ -74,7 +73,6 @@ import {
   KeyValueStore,
   FeedStore,
 } from "@/orbite.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -2023,7 +2021,7 @@ export class ClientConstellation extends EventEmitter {
       type,
       nom,
       options: {
-        AccessController: ContrôleurConstellation(
+        AccessController: générerContrôleurConstellation(
           Object.assign({}, this.optionsAccès, optionsAccès || {})
         ),
       },
