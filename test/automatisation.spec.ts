@@ -129,7 +129,7 @@ const comparerDonnéesTableau = (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("Automatisation", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -178,12 +178,15 @@ typesClients.forEach((type) => {
             base: baseDossierTempo,
             nom: "testImporterBd",
           });
-
+          console.log("test auto, ", 0)
           const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+          console.log("test auto, ", {idBd})
           idTableau = await client.bds.ajouterTableauBd({ idBd });
+          console.log("test auto, ", {idTableau})
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
+          console.log("test auto, ", {idVar1})
           const idVar2 = await client.variables!.créerVariable({
             catégorie: "chaîneNonTraductible",
           });

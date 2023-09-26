@@ -159,12 +159,6 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("...mais on peut toujours l'inviter !", async () => {
-          console.log({
-            compte1: bdRacine.address,
-            idOrbite1: orbitdb1.identity.id,
-            compte2: bdRacine2.address,
-            idOrbite2: orbitdb2.identity.id,
-          })
           await (bd.access as TypeContrôleurConstellation).grant(MEMBRE, bdRacine2.address);
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
@@ -186,6 +180,7 @@ describe("Contrôleur Constellation", function () {
           const autorisé = await peutÉcrire(bdOrbite3, orbitdb3);
 
           await bdOrbite3.close();
+
           expect(autorisé).to.be.true();
         });
 
@@ -219,7 +214,7 @@ describe("Contrôleur Constellation", function () {
           expect(estUnMod).to.be.true();
         });
 
-        it("Invitations transitives", async () => {
+        it("Invitations transitives après fermeture de la bd", async () => {
           await bd.close();
           bd = (await orbitdb1.open(bd.address, { type: "keyvalue" })) as unknown as KeyValueStore;
 

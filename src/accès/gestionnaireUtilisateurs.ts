@@ -122,7 +122,6 @@ export default class GestionnaireAccès extends EventEmitter {
 
   async estUnMembre(id: string): Promise<boolean> {
     if (this._miseÀJourEnCours) await once(this, "misÀJour");
-    console.log("vérification membre", id, this._rôles[MEMBRE].includes(id))
     return this._rôles[MEMBRE].includes(id);
   }
 

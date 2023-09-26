@@ -132,7 +132,8 @@ declare module "@orbitdb/core" {
 
   export type OrbitDBDatabaseOptions = {
     type: string;
-    AccessController: AccessControllerGenerator;
+    AccessController?: AccessControllerGenerator;
+    syncAutomatically?: boolean;
   };
 
   export type Clock = {

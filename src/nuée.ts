@@ -170,7 +170,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        premierMod: this.client.bdCompte!.address,
+        write: this.client.bdCompte!.address,
       },
     });
     if (ajouter) await this.ajouterÀMesNuées({ idNuée: idBdNuée });
@@ -1016,7 +1016,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        premierMod: this.client.bdCompte!.address,
+        write: this.client.bdCompte!.address,
       },
     });
 

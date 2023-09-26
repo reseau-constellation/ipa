@@ -242,12 +242,12 @@ export class ClientConstellation extends EventEmitter {
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
-
+    console.log("initialisation")
     this.idNodeSFIP = await this.sfip!.id();
 
     const optionsAccèsRacine = {
-      type: "contrôleur-constellation",
-      premierMod: this.orbite!.identity.id,
+      type: nomTypeContrôleurConstellation,
+      write: this.orbite!.identity.id,
       nom: "racine",
     };
 
@@ -264,16 +264,18 @@ export class ClientConstellation extends EventEmitter {
         optionsAccès: optionsAccèsRacine,
         nom: "racine",
       });
+      console.log({idCompte: this.idCompte})
       await this.sauvegarderAuStockageLocal({
         clef: "idCompte",
         val: this.idCompte,
         parCompte: false,
       });
     }
+    console.log("ici")
     this.épingles = new Épingles({ client: this });
 
     await this.initialiserCompte();
-
+    console.log("compte initialisé")
     this.prêt = true;
     this.emit("prêt");
   }
@@ -324,6 +326,7 @@ export class ClientConstellation extends EventEmitter {
       schéma: schémaStructureBdCompte,
     });
     this.bdCompte = bd;
+    console.log("bd compte ouverte")
 
     const accès = this.bdCompte.access as ContrôleurConstellation;
     this.optionsAccès = {
@@ -337,6 +340,7 @@ export class ClientConstellation extends EventEmitter {
       racine: this.bdCompte,
       type: "keyvalue",
     });
+    console.log({idBdProtocoles})
     if (idBdProtocoles) {
       const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } =
         await this.orbite!.ouvrirBdTypée({
@@ -377,7 +381,9 @@ export class ClientConstellation extends EventEmitter {
     this.nuées = new Nuées({ client: this });
 
     this.réseau = new Réseau({ client: this });
+    console.log("avant réseau")
     await this.réseau.initialiser();
+    console.log("réseau initalisé")
 
     this.favoris = new Favoris({ client: this });
 
@@ -387,6 +393,7 @@ export class ClientConstellation extends EventEmitter {
 
     this.licences = new Licences({ client: this });
     await this.épingler();
+    console.log("épinglé")
   }
 
   async épingler() {
@@ -2016,6 +2023,7 @@ export class ClientConstellation extends EventEmitter {
     optionsAccès?: OptionsContrôleurConstellation;
     nom?: string;
   }): Promise<string> {
+    console.log("options", Object.assign({}, this.optionsAccès, optionsAccès || {}))
     return await this.orbite!.créerBdIndépendante({
       type,
       nom,
@@ -2042,7 +2050,7 @@ export class ClientConstellation extends EventEmitter {
     await fOublier();
     return {
       address: accès.bd!.address,
-      premierMod: accès.write,
+      write: accès.write,
     };
   }
 

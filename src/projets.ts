@@ -118,7 +118,7 @@ export default class Projets extends ComposanteClientListe<string> {
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        premierMod: this.client.bdCompte!.address,
+        write: this.client.bdCompte!.address,
       },
     });
 
