@@ -23,10 +23,6 @@ const codec = dagCbor;
 const hasher = sha256;
 const hashStringEncoding = base58btc;
 
-export interface OptionsContrôleurAccèsConstellation {
-  premierMod?: string;
-}
-
 const PremierModérateur = async ({
   storage,
   type,
@@ -105,11 +101,10 @@ const ContrôleurAccès =
         return false;
       }
       const { id } = writerIdentity;
-      const estUnMod = estUnModérateurPatient(id);
-      console.log(entry.payload, {de: id, mod: await estUnMod, rôles: gestAccès._rôles})
+
       if (
         rôleValide &&
-        (await estUnMod) &&
+        (await estUnModérateurPatient(id)) &&
         identities.verifyIdentity(writerIdentity)
       ) {
         if (rôle === MODÉRATEUR) {

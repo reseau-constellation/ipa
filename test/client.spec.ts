@@ -1488,7 +1488,7 @@ if (isNode || isElectronMain) {
       it("Avec sa propre bd accès utilisateur", async () => {
         const optionsAccès: OptionsContrôleurConstellation = {
           address: undefined,
-          premierMod: client.bdCompte!.address,
+          write: client.bdCompte!.address,
         };
         const idBd = await client.créerBdIndépendante({
           type: "keyvalue",
@@ -1506,7 +1506,7 @@ if (isNode || isElectronMain) {
         expect(autorisé).to.be.true();
       });
       it("Avec accès personalisé", async () => {
-        const optionsAccès = { premierMod: client2.orbite!.identity.id };
+        const optionsAccès = { write: client2.orbite!.identity.id };
         const idBd = await client.créerBdIndépendante({
           type: "keyvalue",
           optionsAccès,
@@ -1799,7 +1799,7 @@ if (isNode || isElectronMain) {
           type: "keyvalue",
           optionsAccès: {
             address: undefined,
-            premierMod: client.bdCompte!.address,
+            write: client.bdCompte!.address,
           },
         });
 
@@ -1869,7 +1869,7 @@ if (isNode || isElectronMain) {
           type: "keyvalue",
           optionsAccès: {
             address: undefined,
-            premierMod: client.bdCompte!.address,
+            write: client.bdCompte!.address,
           },
         });
         const f = (accès: infoAccès[]) => {
@@ -1937,7 +1937,7 @@ if (isNode || isElectronMain) {
       let idBdKv2: string;
 
       let cidTexte: string;
-      let interval: NodeJS.Timer | undefined = undefined;
+      let interval: NodeJS.Timeout | undefined = undefined;
 
       const fsOublier: schémaFonctionOublier[] = [];
 

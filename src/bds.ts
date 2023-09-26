@@ -227,13 +227,15 @@ export default class BDs extends ComposanteClientListe<string> {
     licenceContenu?: string;
     ajouter?: boolean;
   }): Promise<string> {
+    console.log("création bd")
     const idBdBd = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        premierMod: this.client.bdCompte!.address,
+        write: this.client.bdCompte!.address,
       },
     });
+    console.log({idBdBd})
 
     const { bd: bdBD, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdBd,

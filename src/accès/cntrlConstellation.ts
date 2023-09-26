@@ -53,7 +53,7 @@ SOFTWARE.
 export const nomType = "contrôleur-constellation";
 
 export interface OptionsContrôleurConstellation {
-  premierMod?: string;
+  write?: string;
   address?: string;
   nom?: string;
 }
@@ -151,6 +151,9 @@ const ContrôleurConstellation =
         id: adresseBdAccès,
         type: "feed",
         schéma: schémaBdAccès,
+        options: {
+          syncAutomatically: true
+        }
       }));
     } else {
       ({ bd, fOublier: fOublierBd } = await gestionnaireOrbite.ouvrirBdTypée({
@@ -159,6 +162,7 @@ const ContrôleurConstellation =
         schéma: schémaBdAccès,
         options: {
           AccessController: ContrôleurAccès({ write }),
+          syncAutomatically: true,
         },
       }));
       adresseBdAccès = bd.address;
@@ -172,18 +176,16 @@ const ContrôleurConstellation =
 
     const événements = new EventEmitter();
 
-    suivreBdAccès(bd, () => miseÀJourBdAccès());
-
     const gestRôles = new GestionnaireAccès(orbitdb);
     gestRôles.on("misÀJour", () => événements.emit("misÀJour"));
 
-    const miseÀJourBdAccès = async (): Promise<void> => {
-      let éléments = (await bd.all()).map((x) => x.value);
+    const miseÀJourBdAccès = async (éléments: élémentBdAccès[]): Promise<void> => {
 
       éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
 
       await gestRôles.ajouterÉléments(éléments);
     };
+    const fOublierSuiviBdAccès = await suivreBdAccès(bd, miseÀJourBdAccès);
 
     const estAutorisé = async (id: string): Promise<boolean> => {
       return await gestRôles.estAutorisé(id);
@@ -246,7 +248,8 @@ const ContrôleurConstellation =
     };
 
     const close = async () => {
-      await fOublierBd?.();
+      await fOublierSuiviBdAccès();
+      await fOublierBd();
 
       await gestRôles.fermer();
     };

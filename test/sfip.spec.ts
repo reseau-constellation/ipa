@@ -44,6 +44,7 @@ describe("SFIP", function () {
     if (dossier) {
       if (isNode) {
         // Pas pour Électron principal parce que nous n'avons pas appellé sfip.stop() ci-dessus
+        //@ts-ignore
         const { sync } = await import("rimraf");
         sync(dossier);
       }
