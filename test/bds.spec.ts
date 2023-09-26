@@ -84,7 +84,6 @@ typesClients.forEach((type) => {
           fOublier = await client.bds.suivreBds({
             f: (x) => bds.mettreÀJour(x),
           });
-          console.log("ici")
         });
         after(async () => {
           if (fOublier) await fOublier();
