@@ -182,13 +182,14 @@ typesClients.forEach((type) => {
       });
 
       describe("Descriptions", function () {
-        let descrs: { [key: string]: string };
         let fOublier: schémaFonctionOublier;
+
+        const attenteDescrs = new attente.AttendreRésultat<{ [key: string]: string }>();
 
         before(async () => {
           fOublier = await client.bds.suivreDescriptionsBd({
             idBd,
-            f: (d) => (descrs = d),
+            f: (d) => attenteDescrs.mettreÀJour(d),
           });
         });
 
@@ -197,6 +198,7 @@ typesClients.forEach((type) => {
         });
 
         it("Aucune description pour commencer", async () => {
+          const descrs = await attenteDescrs.attendreExiste();
           expect(Object.keys(descrs).length).to.equal(0);
         });
 
@@ -206,6 +208,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             description: "Alphabets",
           });
+          const descrs = await attenteDescrs.attendreQue(x=>!!x["fr"])
           expect(descrs.fr).to.equal("Alphabets");
         });
 
@@ -217,6 +220,7 @@ typesClients.forEach((type) => {
               हिं: "वर्णमाला",
             },
           });
+          const descrs = await attenteDescrs.attendreQue(x=>Object.keys(x).length > 2)
           expect(descrs).to.deep.equal({
             fr: "Alphabets",
             த: "எழுத்துகள்",
@@ -230,24 +234,27 @@ typesClients.forEach((type) => {
             langue: "fr",
             description: "Systèmes d'écriture",
           });
+          const descrs = await attenteDescrs.attendreQue(x=>x["fr"] !== "Alphabets")
           expect(descrs?.fr).to.equal("Systèmes d'écriture");
         });
 
         it("Effacer une description", async () => {
           await client.bds.effacerDescriptionBd({ idBd, langue: "fr" });
+          const descrs = await attenteDescrs.attendreQue(x=>!x["fr"])
           expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
       });
 
       describe("Mots-clefs", function () {
-        let motsClefs: string[];
         let fOublier: schémaFonctionOublier;
         let idMotClef: string;
+        
+        const attenteMotsClefs = new attente.AttendreRésultat<string[]>();
 
         before(async () => {
           fOublier = await client.bds.suivreMotsClefsBd({
             idBd,
-            f: (m) => (motsClefs = m),
+            f: (m) => attenteMotsClefs.mettreÀJour(m),
           });
         });
 
@@ -255,8 +262,8 @@ typesClients.forEach((type) => {
           if (fOublier) await fOublier();
         });
         it("Pas de mots-clefs pour commencer", async () => {
-          expect(Array.isArray(motsClefs)).to.be.true();
-          expect(motsClefs.length).to.equal(0);
+          const motsClefs = await attenteMotsClefs.attendreExiste();
+          expect(motsClefs).to.be.an.empty("array");
         });
         it("Ajout d'un mot-clef", async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
@@ -264,13 +271,16 @@ typesClients.forEach((type) => {
             idBd,
             idsMotsClefs: idMotClef,
           });
+          
+          const motsClefs = await attenteMotsClefs.attendreQue(x=>x.length > 0)
           expect(Array.isArray(motsClefs)).to.be.true();
           expect(motsClefs.length).to.equal(1);
         });
         it("Effacer un mot-clef", async () => {
           await client.bds.effacerMotClefBd({ idBd, idMotClef });
-          expect(Array.isArray(motsClefs)).to.be.true();
-          expect(motsClefs.length).to.equal(0);
+
+          const motsClefs = await attenteMotsClefs.attendreQue(x=>x.length === 0)
+          expect(motsClefs).to.be.an.empty("array");
         });
       });
 
