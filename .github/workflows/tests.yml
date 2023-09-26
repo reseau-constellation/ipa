@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - orbitedb-1.0
     paths-ignore:
       - '**.md'
       - 'docu/**'
