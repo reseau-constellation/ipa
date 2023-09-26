@@ -673,19 +673,14 @@ export class GestionnaireOrbite {
     options: Omit<OrbitDBDatabaseOptions, "type">;
     nom?: string;
   }): Promise<string> {
-    console.log("ici", nom || uuidv4(), {
-      type,
-      options,
-    })
+
     const bd = await this.orbite.open(nom || uuidv4(), {
       type,
-      options,
+      ...options,
     }) as Store;
     const { address } = bd;
-    console.log({address})
 
     this._bdsOrbite[address] = { bd, idsRequètes: new Set() };
-
     return address;
   }
 

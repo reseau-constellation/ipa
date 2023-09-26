@@ -3,7 +3,7 @@ import type {
   schémaFonctionSuivi,
   élémentsBd,
 } from "./types.js";
-import type { ClientConstellation, structureBdCompte } from "@/client.js";
+import { schémaStructureBdCompte, type ClientConstellation, type structureBdCompte } from "@/client.js";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 import { cacheSuivi } from "./décorateursCache.js";
@@ -281,6 +281,7 @@ export class ComposanteClientListe<
         return await this.client.suivreBd({
           id,
           type: "keyvalue",
+          schéma: schémaStructureBdCompte,
           f: async () => {
             const idBd = await this.client.obtIdBd({
               nom: this.clef,
