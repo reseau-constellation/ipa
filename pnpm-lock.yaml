@@ -29,8 +29,8 @@ dependencies:
     specifier: ^0.1.14
     version: 0.1.14
   '@constl/utils-ipa':
-    specifier: ^0.1.2
-    version: 0.1.2(wrtc@0.4.7)
+    specifier: ^0.2.0
+    version: 0.2.0(wrtc@0.4.7)
   '@lassi-js/kili':
     specifier: ^0.2.3
     version: 0.2.3(@constl/ipa@)(wrtc@0.4.7)
@@ -1381,6 +1381,27 @@ packages:
       wrtc: ^0.4.7
     dependencies:
       '@achingbrain/nat-port-mapper': 1.0.8
+      browser-fs-access: 0.34.1
+      events: 3.3.0
+      genversion: 3.1.1
+      jszip: 3.10.1
+      multiformats: 9.9.0
+      rimraf: 5.0.1
+      uint8arrays: 4.0.6
+      wherearewe: 2.0.1
+      wrtc: 0.4.7
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@constl/utils-ipa@0.2.0(wrtc@0.4.7):
+    resolution: {integrity: sha512-7MPk9MXp/85JxAr7wPkOaPjePHr4JUzMJwokh+10Ezu+lYuvSVGe84ryqjbcM6QELKmdE1dHSnceGpBvvK5ZgA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      wrtc: ^0.4.7
+    dependencies:
+      '@achingbrain/nat-port-mapper': 1.0.8
+      '@orbitdb/core': 1.0.0
       browser-fs-access: 0.34.1
       events: 3.3.0
       genversion: 3.1.1
@@ -17228,7 +17249,7 @@ packages:
     dev: true
 
   '@cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz':
-    resolution: {tarball: https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz}
+    resolution: {registry: https://registry.npmjs.org/, tarball: https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz}
     name: xlsx
     version: 0.19.1
     engines: {node: '>=0.8'}

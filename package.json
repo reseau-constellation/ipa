@@ -91,7 +91,7 @@
     "@chriscdn/promise-semaphore": "^2.0.7",
     "@constl/electron-webrtc-relay": "^0.2.3",
     "@constl/mandataire": "^0.1.14",
-    "@constl/utils-ipa": "^0.1.2",
+    "@constl/utils-ipa": "^0.2.0",
     "@lassi-js/kili": "^0.2.3",
     "@libp2p/interface-transport": "^4.0.3",
     "@libp2p/mplex": "^8.0.4",
