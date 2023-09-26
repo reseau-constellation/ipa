@@ -8,6 +8,7 @@ import {
   type OrbitDB,
   AccessController,
   isValidAddress,
+  useDatabaseType,
 } from "@orbitdb/core";
 
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
@@ -45,7 +46,6 @@ import {
 } from "@/types.js";
 import {
   faisRien,
-  uneFois,
   toBuffer,
   ignorerNonDéfinis,
   sauvegarderFichierZip,
@@ -72,6 +72,7 @@ import {
   KeyValueStore,
   FeedStore,
 } from "@/orbite.js";
+import Feed from "./bdsOrbite/feed.js";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -242,7 +243,7 @@ export class ClientConstellation extends EventEmitter {
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
-    console.log("initialisation")
+
     this.idNodeSFIP = await this.sfip!.id();
 
     const optionsAccèsRacine = {
@@ -264,24 +265,25 @@ export class ClientConstellation extends EventEmitter {
         optionsAccès: optionsAccèsRacine,
         nom: "racine",
       });
-      console.log({idCompte: this.idCompte})
+
       await this.sauvegarderAuStockageLocal({
         clef: "idCompte",
         val: this.idCompte,
         parCompte: false,
       });
     }
-    console.log("ici")
+
     this.épingles = new Épingles({ client: this });
 
     await this.initialiserCompte();
-    console.log("compte initialisé")
+
     this.prêt = true;
     this.emit("prêt");
   }
 
   async _générerSFIPetOrbite(): Promise<{ sfip: SFIP; orbite: OrbitDB }> {
     const { orbite } = this._opts;
+    useDatabaseType(Feed)
 
     let sfipFinale: SFIP;
     let orbiteFinale: OrbitDB;
@@ -314,7 +316,7 @@ export class ClientConstellation extends EventEmitter {
       sfipFinale = await _générerSFIP();
       const initOrbite = (await import("@/orbite.js")).default;
       orbiteFinale = await initOrbite({ sfip: sfipFinale });
-    }
+    };
 
     return { sfip: sfipFinale, orbite: orbiteFinale };
   }
@@ -326,7 +328,6 @@ export class ClientConstellation extends EventEmitter {
       schéma: schémaStructureBdCompte,
     });
     this.bdCompte = bd;
-    console.log("bd compte ouverte")
 
     const accès = this.bdCompte.access as ContrôleurConstellation;
     this.optionsAccès = {
@@ -340,7 +341,7 @@ export class ClientConstellation extends EventEmitter {
       racine: this.bdCompte,
       type: "keyvalue",
     });
-    console.log({idBdProtocoles})
+
     if (idBdProtocoles) {
       const { bd: bdProtocoles, fOublier: fOublierBdProtocoles } =
         await this.orbite!.ouvrirBdTypée({
@@ -381,9 +382,8 @@ export class ClientConstellation extends EventEmitter {
     this.nuées = new Nuées({ client: this });
 
     this.réseau = new Réseau({ client: this });
-    console.log("avant réseau")
+
     await this.réseau.initialiser();
-    console.log("réseau initalisé")
 
     this.favoris = new Favoris({ client: this });
 
@@ -393,7 +393,6 @@ export class ClientConstellation extends EventEmitter {
 
     this.licences = new Licences({ client: this });
     await this.épingler();
-    console.log("épinglé")
   }
 
   async épingler() {
@@ -1026,13 +1025,13 @@ export class ClientConstellation extends EventEmitter {
 
     const lancerSuivi = () => {
       // Alambiqué, mais apparemment nécessaire pour TypeScript !
-      (type === "feed"
+      const promesseBd = schéma ? (type === "feed"
         ? this.orbite!.ouvrirBdTypée({
             id,
             type,
             schéma: schéma as JSONSchemaType<Extract<U, élémentsBd>>,
           })
-        : type
+        : type === "keyvalue"
         ? this.orbite!.ouvrirBdTypée({
             id,
             type,
@@ -1042,9 +1041,12 @@ export class ClientConstellation extends EventEmitter {
           })
         : this.orbite!.ouvrirBd({
             id,
+            type,
           })
-      )
-        .then(({ bd, fOublier }) => {
+      ) : this.orbite!.ouvrirBd({
+        id,
+      })
+      promesseBd.then(({ bd, fOublier }) => {
           fsOublier.push(fOublier);
 
           const fFinale = () => {
@@ -1083,6 +1085,7 @@ export class ClientConstellation extends EventEmitter {
             if (String(e).includes("ipfs unable to find")) {
               lancerSuivi();
             } else {
+              console.error(e)
               throw new Error(e);
             }
           }
@@ -1933,7 +1936,7 @@ export class ClientConstellation extends EventEmitter {
     const schémaBdRacine: JSONSchemaType<{[k in K]: string} & {[clef: string]: unknown}> = {
       type: "object",
       properties: {
-        [nom]: "string"
+        [nom]: {type: "string"}
       },
       additionalProperties: true,
       required: []
@@ -1986,12 +1989,8 @@ export class ClientConstellation extends EventEmitter {
 
     if (!idBd && type) {
       const accès = bdRacine.access as ContrôleurConstellation;
-      const permission = await uneFois((f: schémaFonctionSuivi<boolean>) =>
-        accès.suivreIdsOrbiteAutoriséesÉcriture(
-          async (autorisés: string[]) =>
-            await f(autorisés.includes(this.orbite!.identity.id))
-        )
-      );
+
+      const permission = await accès.estAutorisé(this.orbite!.identity.id);
 
       if (permission) {
         const optionsAccès = await this.obtOpsAccès({
@@ -2023,7 +2022,6 @@ export class ClientConstellation extends EventEmitter {
     optionsAccès?: OptionsContrôleurConstellation;
     nom?: string;
   }): Promise<string> {
-    console.log("options", Object.assign({}, this.optionsAccès, optionsAccès || {}))
     return await this.orbite!.créerBdIndépendante({
       type,
       nom,
@@ -2064,7 +2062,7 @@ export class ClientConstellation extends EventEmitter {
   }): Promise<schémaFonctionOublier> {
     const { bd, fOublier } = await this.orbite!.ouvrirBd({ id: idObjet });
     const accès = bd.access;
-    const typeAccès = (accès.constructor as unknown as AccessController).type;
+    const typeAccès = accès.type;
 
     if (typeAccès === "ipfs") {
       const moi = this.orbite!.identity.id;

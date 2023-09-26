@@ -33,9 +33,10 @@ import { expect } from "aegir/chai";
 import JSZip from "jszip";
 import { obtRessourceTest } from "./ressources/index.js";
 import { isElectronMain, isNode } from "wherearewe";
+import { attente } from "@constl/utils-tests";
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("BDs", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -81,8 +82,9 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fOublier = await client.bds.suivreBds({
-            f: (_bds) => bds.mettreÀJour(_bds),
+            f: (x) => bds.mettreÀJour(x),
           });
+          console.log("ici")
         });
         after(async () => {
           if (fOublier) await fOublier();
@@ -116,13 +118,14 @@ typesClients.forEach((type) => {
       });
 
       describe("Noms", function () {
-        let noms: { [key: string]: string };
         let fOublier: schémaFonctionOublier;
+
+        const attenteNoms = new attente.AttendreRésultat<{[langue: string]: string}>();
 
         before(async () => {
           fOublier = await client.bds.suivreNomsBd({
             idBd,
-            f: (n) => (noms = n),
+            f: (n) => attenteNoms.mettreÀJour(n),
           });
         });
 
@@ -131,6 +134,7 @@ typesClients.forEach((type) => {
         });
 
         it("Pas de noms pour commencer", async () => {
+          const noms = await attenteNoms.attendreExiste();
           expect(Object.keys(noms).length).to.equal(0);
         });
 
@@ -140,6 +144,7 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Alphabets",
           });
+          const noms = await attenteNoms.attendreQue(n=>Object.keys(n).length > 0)
           expect(noms.fr).to.equal("Alphabets");
         });
 
@@ -151,6 +156,7 @@ typesClients.forEach((type) => {
               हिं: "वर्णमाला",
             },
           });
+          const noms = await attenteNoms.attendreQue(n=>Object.keys(n).length > 2)
           expect(noms).to.deep.equal({
             fr: "Alphabets",
             த: "எழுத்துகள்",
@@ -164,11 +170,13 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Systèmes d'écriture",
           });
+          const noms = await attenteNoms.attendreQue(n=>n["fr"] !== "Alphabets")
           expect(noms?.fr).to.equal("Systèmes d'écriture");
         });
 
         it("Effacer un nom", async () => {
           await client.bds.effacerNomBd({ idBd, langue: "fr" });
+          const noms = await attenteNoms.attendreQue(n=>!n["fr"]);
           expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
       });

@@ -94,8 +94,8 @@ const Feed =
           const hash = entry.hash;
           vals[hash] = true;
           yield { value, hash };
-        } else if (op === "DEL" && !vals[hash]) {
-          vals[hash] = true;
+        } else if (op === "DEL" && !vals[value as string]) {
+          vals[value as string] = true;
         }
         if (amount !== undefined && count >= amount) {
           break;
