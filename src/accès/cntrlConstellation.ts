@@ -183,7 +183,6 @@ const ContrôleurConstellation =
       éléments: élémentBdAccès[],
     ): Promise<void> => {
       éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
-      console.log("ici", éléments);
 
       await gestRôles.ajouterÉléments(éléments);
     };

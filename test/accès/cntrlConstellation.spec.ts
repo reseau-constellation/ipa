@@ -40,7 +40,7 @@ const attendreEstUnMod = (
 
 describe("Contrôleur Constellation", function () {
   if (isNode || isElectronMain) {
-    describe.only("Accès utilisateur", function () {
+    describe("Accès utilisateur", function () {
       describe("Accès par id Orbite", function () {
         let fOublierOrbites: () => Promise<void>;
         let orbites: OrbitDB[];

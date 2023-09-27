@@ -535,7 +535,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     this.événements.emit("membreVu");
-    this._sauvegarderDispositifsEnLigne();
+    await this._sauvegarderDispositifsEnLigne();
   }
 
   _nettoyerDispositifsEnLigne(): void {
@@ -592,7 +592,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       id: idCompte,
     });
 
-    if (estUnContrôleurConstellation(bdCompte.access)) return false;
+    if (!estUnContrôleurConstellation(bdCompte.access)) return false;
     const bdCompteValide = (
       bdCompte.access as ContrôleurConstellation
     ).estAutorisé(idDispositif);

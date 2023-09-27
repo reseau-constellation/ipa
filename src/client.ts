@@ -178,7 +178,7 @@ const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 
 export class ClientConstellation extends EventEmitter {
   _opts: optsConstellation;
-  optionsAccès?: { [key: string]: unknown };
+
   bdCompte?: KeyValueStoreTypé<structureBdCompte>;
   orbite?: GestionnaireOrbite;
   sfip?: SFIP;
@@ -263,7 +263,7 @@ export class ClientConstellation extends EventEmitter {
 
     this.épingles = new Épingles({ client: this });
 
-    await this.initialiserCompte();
+    await this.initialiserCompte({ idCompte: this.idCompte });
 
     // Bds orbite internes
     this.profil = new Profil({ client: this });
@@ -344,19 +344,20 @@ export class ClientConstellation extends EventEmitter {
     return { sfip: sfipFinale, orbite: orbiteFinale };
   }
 
-  async initialiserCompte(): Promise<void> {
+  async initialiserCompte({idCompte}:{idCompte: string}): Promise<void> {
     const { bd } = await this.orbite!.ouvrirBdTypée({
-      id: this.idCompte!,
+      id: idCompte,
       type: "keyvalue",
       schéma: schémaStructureBdCompte,
     });
     this.bdCompte = bd;
+  }
 
-    const accès = this.bdCompte.access as ContrôleurConstellation;
-    this.optionsAccès = {
-      type: "contrôleur-constellation",
-      address: accès.address,
-    };
+  async obtOptionsAccès(): Promise<OptionsContrôleurConstellation> {
+    if (!this.bdCompte) await once(this, "prêt");
+    return {
+      write: this.bdCompte!.address
+    }
   }
 
   async épingler() {
@@ -657,7 +658,7 @@ export class ClientConstellation extends EventEmitter {
       parCompte: false,
     });
     
-    await this.initialiserCompte();
+    await this.initialiserCompte({ idCompte });
 
     this.emit("compteChangé");
   }
@@ -1994,12 +1995,13 @@ export class ClientConstellation extends EventEmitter {
     optionsAccès?: OptionsContrôleurConstellation;
     nom?: string;
   }): Promise<string> {
+    optionsAccès = optionsAccès || await this.obtOptionsAccès()
     return await this.orbite!.créerBdIndépendante({
       type,
       nom,
       options: {
         AccessController: générerContrôleurConstellation(
-          Object.assign({}, this.optionsAccès, optionsAccès || {}),
+          optionsAccès,
         ),
       },
     });
