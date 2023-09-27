@@ -72,8 +72,6 @@ import {
   FeedStore,
   préparerOrbite,
 } from "@/orbite.js";
-import Feed from "./bdsOrbite/feed.js";
-import { enregistrerContrôleurs } from "./accès/index.js";
 import Protocoles from "./protocoles.js";
 
 type IPFSAccessController = Awaited<

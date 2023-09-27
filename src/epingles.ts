@@ -169,7 +169,8 @@ export default class Épingles {
       };
 
       if (bd.type === "keyvalue") {
-        const fOublierBd = await this.client.suivreBdDic({ id, f: fSuivre });
+        // @ts-ignore
+        const fOublierBd = await this.client.suivreBdDic({ id, f: async (x : {key: string, value: élémentsBd, hash: string}[]) => await fSuivre(Object.fromEntries(x.map(y=>[y.key, y.value]))) });
         this.fsOublier[id] = fOublierBd;
       } else if (bd.type === "feed") {
         const fOublierBd = await this.client.suivreBdListe({ id, f: fSuivre });
