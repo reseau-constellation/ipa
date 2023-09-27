@@ -41,7 +41,7 @@ describe("Utils recherche", function () {
     it("Recherche exacte", () => {
       const résultat = rechercherDansTexte(
         "வணக்கம்",
-        "வணக்கம், சாப்பிட்டீர்களா?"
+        "வணக்கம், சாப்பிட்டீர்களா?",
       );
       expect(résultat).to.deep.equal({
         type: "texte",
@@ -54,7 +54,7 @@ describe("Utils recherche", function () {
     it("Recherche approximative", () => {
       const résultat = rechercherDansTexte(
         "வணக்கம்",
-        "வணககம், சாப்பிட்டீர்களா?"
+        "வணககம், சாப்பிட்டீர்களா?",
       );
       expect(résultat).to.deep.equal({
         type: "texte",
@@ -211,7 +211,7 @@ describe("Utils recherche", function () {
       fOublier = await fRecherche(
         client,
         "voici mon id",
-        (rés) => (résultat = rés)
+        (rés) => (résultat = rés),
       );
     });
     after(async () => {
@@ -249,7 +249,7 @@ describe("Utils recherche", function () {
         },
         client,
         "abcdefghij",
-        (rés) => (résultat = rés)
+        (rés) => (résultat = rés),
       );
     });
     after(async () => {
@@ -283,7 +283,7 @@ describe("Utils recherche", function () {
       idBd = await client.créerBdIndépendante({ type: "feed" });
 
       const fListe = async (
-        fSuivreRacine: (idsVariables: string[]) => void
+        fSuivreRacine: (idsVariables: string[]) => void,
       ): Promise<schémaFonctionOublier> => {
         return await client.suivreBdListe({ id: idBd, f: fSuivreRacine });
       };
@@ -292,7 +292,7 @@ describe("Utils recherche", function () {
       const fSuivreRecherche = (
         rés?: résultatObjectifRecherche<
           infoRésultatRecherche<infoRésultatTexte>
-        >
+        >,
       ) => {
         résultat = rés;
       };
@@ -303,8 +303,8 @@ describe("Utils recherche", function () {
           fListe,
           fRechercher,
           client,
-          fSuivreRecherche
-        )
+          fSuivreRecherche,
+        ),
       );
     });
     after(async () => await Promise.all(fsOublier.map((f) => f())));
@@ -317,7 +317,7 @@ describe("Utils recherche", function () {
       const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
         id: idBd,
         type: "feed",
-        schéma: { type: "string" } as JSONSchemaType<string>
+        schéma: { type: "string" } as JSONSchemaType<string>,
       });
       await bd.add("precipitation");
       await fOublier();
@@ -345,13 +345,11 @@ describe("Utils recherche", function () {
     });
 
     it("Ajout meilleure variable détecté", async () => {
-      const { bd, fOublier } = await client.orbite!.ouvrirBdTypée(
-        {
-          id: idBd,
-          type: "feed",
-          schéma: { type: "string" } as JSONSchemaType<string>
-        }
-      );
+      const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
+        id: idBd,
+        type: "feed",
+        schéma: { type: "string" } as JSONSchemaType<string>,
+      });
       await bd.add("précipitation");
       await fOublier();
 

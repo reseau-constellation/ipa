@@ -53,7 +53,9 @@ import { estUnContrôleurConstellation } from "./accès/utils.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
-type ContrôleurConstellation = Awaited<ReturnType<ReturnType<typeof générerContrôleurConstellation>>>;
+type ContrôleurConstellation = Awaited<
+  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
+>;
 
 export type infoDispositif = {
   idSFIP: string;
@@ -269,7 +271,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           console.error(e.toString());
           console.error(e.stack.toString());
         }
-      }
+      },
     );
     this.fsOublier.push(async () => {
       await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau);
@@ -296,7 +298,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     this.fsOublier.push(
       ...événements.map((é) => {
         return async () => libp2p.removeEventListener(é, fSuivreConnexions);
-      })
+      }),
     );
 
     const intervale = setInterval(() => {
@@ -356,7 +358,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       .filter((d) => d.vuÀ && maintenant - d.vuÀ < INTERVALE_SALUT + 1000 * 30);
     if (!dispositifsMembre.length)
       throw new Error(
-        `Aucun dispositif présentement en ligne pour membre ${idCompte}`
+        `Aucun dispositif présentement en ligne pour membre ${idCompte}`,
       );
     await Promise.all(
       dispositifsMembre.map(async (d) => {
@@ -388,7 +390,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             idSFIP,
           });
         }
-      })
+      }),
     );
   }
 
@@ -466,7 +468,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             message: (messageJSON as MessageEncrypté).données,
             clefPubliqueExpéditeur: (messageJSON as MessageEncrypté)
               .clefPubliqueExpéditeur,
-          })
+          }),
         )
       : messageJSON.données;
 
@@ -540,7 +542,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const maintenant = new Date().getTime();
     const effaçables = Object.values(this.dispositifsEnLigne)
       .filter(
-        (d) => maintenant - (d.vuÀ || 0) > DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE
+        (d) => maintenant - (d.vuÀ || 0) > DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE,
       )
       .sort((a, b) => ((a.vuÀ || 0) < (b.vuÀ || 0) ? -1 : 1))
       .map((d) => d.infoDispositif.idDispositif);
@@ -591,7 +593,9 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     });
 
     if (estUnContrôleurConstellation(bdCompte.access)) return false;
-    const bdCompteValide = (bdCompte.access as ContrôleurConstellation).estAutorisé(idDispositif);
+    const bdCompteValide = (
+      bdCompte.access as ContrôleurConstellation
+    ).estAutorisé(idDispositif);
 
     await fOublier();
     return sigIdValide && sigClefPubliqueValide && bdCompteValide;
@@ -634,7 +638,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       [key: string]: statutConfianceMembre;
     }): Promise<void> => {
       const fiables = Object.keys(membres).filter(
-        (m) => membres[m] === "FIABLE"
+        (m) => membres[m] === "FIABLE",
       );
       return await f(fiables);
     };
@@ -651,7 +655,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     });
     if (bloquésPrivésChaîne) {
       JSON.parse(bloquésPrivésChaîne).forEach((b: string) =>
-        this.bloquésPrivés.add(b)
+        this.bloquésPrivés.add(b),
       );
       this.événements.emit("changementMembresBloqués");
     }
@@ -716,7 +720,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       [key: string]: statutConfianceMembre;
     }): Promise<void> => {
       const bloqués = Object.keys(membres).filter(
-        (m) => membres[m] === "BLOQUÉ"
+        (m) => membres[m] === "BLOQUÉ",
       );
       return await f(bloqués);
     };
@@ -761,7 +765,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           return await fFinale();
         },
         idCompte,
-      })
+      }),
     );
 
     if (idCompte === undefined || idCompte === this.client.idCompte) {
@@ -843,7 +847,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           await fFinale();
         },
         idCompte: idCompte,
-      })
+      }),
     );
 
     fsOublier.push(
@@ -859,15 +863,15 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             });
           return await fFinale();
         },
-      })
+      }),
     );
 
     const inscrireSuiviAuteurs = async (
       fListe: (
-        fSuivreRacine: (é: string[]) => Promise<void>
+        fSuivreRacine: (é: string[]) => Promise<void>,
       ) => Promise<schémaFonctionOublier>,
       clef: keyof typeof comptes,
-      confiance: number
+      confiance: number,
     ) => {
       fsOublier.push(
         await this.client.suivreBdsDeFonctionListe({
@@ -880,23 +884,23 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           },
           fBranche: async (
             id: string,
-            fSuivi: schémaFonctionSuivi<string[]>
+            fSuivi: schémaFonctionSuivi<string[]>,
           ) => {
             return await this.client.suivreAccèsBd({
               id,
               // Enlever nous-même de la liste des coauteurs
               f: (accès: infoAccès[]) =>
                 fSuivi(
-                  accès.map((a) => a.idCompte).filter((id) => id !== idCompte)
+                  accès.map((a) => a.idCompte).filter((id) => id !== idCompte),
                 ),
             });
           },
-        })
+        }),
       );
     };
 
     const fSuivreFavoris = async (
-      fSuivreRacine: (é: string[]) => Promise<void>
+      fSuivreRacine: (é: string[]) => Promise<void>,
     ) => {
       return await this.suivreFavorisMembre({
         idCompte: idCompte!,
@@ -908,7 +912,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     await inscrireSuiviAuteurs(fSuivreFavoris, "favoris", CONFIANCE_DE_FAVORIS);
 
     const fSuivreBds = async (
-      fSuivreRacine: (é: string[]) => Promise<void>
+      fSuivreRacine: (é: string[]) => Promise<void>,
     ) => {
       return await this.suivreBdsMembre({
         idCompte: idCompte!,
@@ -918,11 +922,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     await inscrireSuiviAuteurs(
       fSuivreBds,
       "coauteursBds",
-      CONFIANCE_DE_COAUTEUR
+      CONFIANCE_DE_COAUTEUR,
     );
 
     const fSuivreProjets = async (
-      fSuivreRacine: (é: string[]) => Promise<void>
+      fSuivreRacine: (é: string[]) => Promise<void>,
     ) => {
       return await this.suivreProjetsMembre({
         idCompte: idCompte!,
@@ -932,11 +936,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     await inscrireSuiviAuteurs(
       fSuivreProjets,
       "coauteursProjets",
-      CONFIANCE_DE_COAUTEUR
+      CONFIANCE_DE_COAUTEUR,
     );
 
     const fSuivreVariables = async (
-      fSuivreRacine: (é: string[]) => Promise<void>
+      fSuivreRacine: (é: string[]) => Promise<void>,
     ) => {
       return await this.suivreVariablesMembre({
         idCompte: idCompte!,
@@ -946,11 +950,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     await inscrireSuiviAuteurs(
       fSuivreVariables,
       "coauteursVariables",
-      CONFIANCE_DE_COAUTEUR
+      CONFIANCE_DE_COAUTEUR,
     );
 
     const fSuivreMotsClefs = async (
-      fSuivreRacine: (é: string[]) => Promise<void>
+      fSuivreRacine: (é: string[]) => Promise<void>,
     ) => {
       return await this.suivreMotsClefsMembre({
         idCompte: idCompte!,
@@ -960,7 +964,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     await inscrireSuiviAuteurs(
       fSuivreMotsClefs,
       "coauteursMotsClefs",
-      CONFIANCE_DE_COAUTEUR
+      CONFIANCE_DE_COAUTEUR,
     );
 
     return async () => {
@@ -989,7 +993,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const connectéPar = (id: string): string[] => {
       return Object.entries(dicRelations)
         .filter(([_, info]) =>
-          info.relations.map((r) => r.idCompte).includes(id)
+          info.relations.map((r) => r.idCompte).includes(id),
         )
         .map(([de, _]) => de);
     };
@@ -1041,7 +1045,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const suivreRelationsImmédiates = async (
-      idCompte: string
+      idCompte: string,
     ): Promise<void> => {
       dicRelations[idCompte] = { relations: [] };
       const fOublierRelationsImmédiates = await this.suivreRelationsImmédiates({
@@ -1057,7 +1061,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const oublierRelationsImmédiates = async (
-      idCompte: string
+      idCompte: string,
     ): Promise<void> => {
       await dicOublierRelations[idCompte]();
       delete dicOublierRelations[idCompte];
@@ -1069,14 +1073,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       await verrou.acquire("modification");
 
       const àOublier: string[] = Object.keys(dicRelations).filter(
-        (r) => calcProfondeurCompte(r) >= profondeur
+        (r) => calcProfondeurCompte(r) >= profondeur,
       );
       const àSuivre: string[] = [
         ...new Set(
           Object.entries(dicRelations)
             .filter(([de, _]) => calcProfondeurCompte(de) + 1 < profondeur)
             .map(([_, info]) => info.relations.map((r) => r.idCompte))
-            .flat()
+            .flat(),
         ),
       ].filter((id) => !Object.keys(dicRelations).includes(id));
       await Promise.all(àOublier.map((id) => oublierRelationsImmédiates(id)));
@@ -1149,7 +1153,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
                 (r) =>
                   1 +
                   r.confiance *
-                    Math.pow(FACTEUR_ATÉNUATION_BLOQUÉS, r.profondeur - 1)
+                    Math.pow(FACTEUR_ATÉNUATION_BLOQUÉS, r.profondeur - 1),
               )
               .reduce((total, c) => c * total, 1);
 
@@ -1160,7 +1164,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
                 (r) =>
                   1 -
                   r.confiance *
-                    Math.pow(FACTEUR_ATÉNUATION_CONFIANCE, r.profondeur - 1)
+                    Math.pow(FACTEUR_ATÉNUATION_CONFIANCE, r.profondeur - 1),
               )
               .reduce((total, c) => c * total, 1) -
             coûtNégatif;
@@ -1170,7 +1174,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             profondeur: profondeurCompte,
             confiance,
           };
-        }
+        },
       );
 
       return await f(comptes);
@@ -1285,7 +1289,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     f: schémaFonctionSuivi<{ adresse: string; pair: string }[]>;
   }): Promise<schémaFonctionOublier> {
     const dédédoublerConnexions = (
-      connexions: PeersResult[]
+      connexions: PeersResult[],
     ): PeersResult[] => {
       const adrDéjàVues: string[] = [];
       const dédupliquées: PeersResult[] = [];
@@ -1313,7 +1317,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             adresse: c.addr.toString(),
             pair: c.peer.toCID().toString(),
           };
-        })
+        }),
       );
     };
 
@@ -1359,7 +1363,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       vuÀ?: number;
     };
     const fListe = async (
-      fSuivreRacine: (éléments: statutMembreSansProtocoles[]) => Promise<void>
+      fSuivreRacine: (éléments: statutMembreSansProtocoles[]) => Promise<void>,
     ) => {
       const fFinaleDispositifs = async (dispositifs: statutDispositif[]) => {
         const membres: { [key: string]: statutMembreSansProtocoles } = {};
@@ -1390,7 +1394,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fBranche = async (
       id: string,
       fSuivreBranche: schémaFonctionSuivi<statutMembre>,
-      branche: statutMembreSansProtocoles
+      branche: statutMembreSansProtocoles,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreProtocolesMembre({
         idCompte: id,
@@ -1450,7 +1454,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       return await this.suivreConnexionsDispositifs({
         f: async (dispositifs) => {
           const dispositif = dispositifs.find(
-            (d) => d.infoDispositif.idDispositif === idDispositifFinal
+            (d) => d.infoDispositif.idDispositif === idDispositifFinal,
           );
           if (dispositif) {
             const { idCompte } = dispositif.infoDispositif;
@@ -1562,7 +1566,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         },
         {} as {
           [key: string]: résultatRecherche<T>[];
-        }
+        },
       );
 
       const lParProfondeur = Object.entries(parProfondeur)
@@ -1571,14 +1575,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
       const nScoresInclusParProfondeur = lParProfondeur.map(
         (rs) =>
-          rs.filter((r) => r.résultatObjectif.score >= pireScoreInclus).length
+          rs.filter((r) => r.résultatObjectif.score >= pireScoreInclus).length,
       );
 
       const dernierTrois = nScoresInclusParProfondeur.slice(
-        nScoresInclusParProfondeur.length - 3
+        nScoresInclusParProfondeur.length - 3,
       );
       const dernierQuatre = nScoresInclusParProfondeur.slice(
-        nScoresInclusParProfondeur.length - 4
+        nScoresInclusParProfondeur.length - 4,
       );
       const nouvelleProfondeur = Math.max(
         3,
@@ -1586,13 +1590,13 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           ? profondeur + 1
           : sum(dernierQuatre)
           ? profondeur
-          : profondeur - 1
+          : profondeur - 1,
       );
 
       if (nouvelleProfondeur > profondeur) {
         annulerRebours = setTimeout(
           () => ajusterProfondeur(nouvelleProfondeur),
-          délai
+          délai,
         );
       } else if (nouvelleProfondeur < profondeur) {
         ajusterProfondeur(nouvelleProfondeur);
@@ -1601,24 +1605,24 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fFinale = async () => {
       const résultats: résultatRecherche<T>[] = Object.values(
-        résultatsParMembre
+        résultatsParMembre,
       )
         .map((listeRésultats) => listeRésultats.résultats)
         .flat();
       const résultatsOrdonnés = résultats.sort((a, b) =>
-        a.résultatObjectif.score < b.résultatObjectif.score ? 1 : -1
+        a.résultatObjectif.score < b.résultatObjectif.score ? 1 : -1,
       );
       await f(résultatsOrdonnés.slice(0, nRésultatsDésirés));
       débuterReboursAjusterProfondeur();
     };
 
     const suivreRésultatsMembre = async (
-      membre: infoMembreRéseau
+      membre: infoMembreRéseau,
     ): Promise<void> => {
       const { idCompte } = membre;
 
       const fListe = async (
-        fSuivreRacine: (éléments: string[]) => Promise<void>
+        fSuivreRacine: (éléments: string[]) => Promise<void>,
       ): Promise<schémaFonctionOublier> => {
         return await fRecherche({
           idCompte: membre.idCompte,
@@ -1633,7 +1637,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
       const fBranche = async (
         id: string,
-        fSuivreBranche: schémaFonctionSuivi<résultatRecherche<T> | undefined>
+        fSuivreBranche: schémaFonctionSuivi<résultatRecherche<T> | undefined>,
       ): Promise<schémaFonctionOublier> => {
         const rés: {
           id: string;
@@ -1666,7 +1670,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         const fOublierObjectif = await fObjectif!(
           this.client,
           id,
-          fSuivreObjectif
+          fSuivreObjectif,
         );
 
         const fSuivreConfiance = async (confiance?: number) => {
@@ -1718,7 +1722,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const verrou = new Semaphore();
 
     const fSuivreComptes = async (
-      comptes: infoMembreRéseau[]
+      comptes: infoMembreRéseau[],
     ): Promise<void> => {
       await verrou.acquire("rechercher");
 
@@ -1726,7 +1730,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
       const nouveaux = comptes.filter((c) => !résultatsParMembre[c.idCompte]);
       const clefsObsolètes = Object.keys(résultatsParMembre).filter(
-        (m) => !comptes.find((c) => c.idCompte === m)
+        (m) => !comptes.find((c) => c.idCompte === m),
       );
       const changés = comptes.filter((c) => {
         const avant = résultatsParMembre[c.idCompte];
@@ -1740,8 +1744,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       await Promise.all(nouveaux.map(suivreRésultatsMembre));
       await Promise.all(
         changés.map(
-          async (c) => await résultatsParMembre[c.idCompte].mettreÀJour(c)
-        )
+          async (c) => await résultatsParMembre[c.idCompte].mettreÀJour(c),
+        ),
       );
 
       await Promise.all(clefsObsolètes.map((o) => oublierRésultatsMembre(o)));
@@ -1769,7 +1773,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       if (annulerRebours) clearTimeout(annulerRebours);
       await fOublierSuivreComptes();
       await Promise.all(
-        Object.values(fsOublierRechercheMembres).map((f) => f())
+        Object.values(fsOublierRechercheMembres).map((f) => f()),
       );
     };
 
@@ -1787,7 +1791,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fConfiance = async (
       idCompte: string,
-      fSuivi: schémaFonctionSuivi<number>
+      fSuivi: schémaFonctionSuivi<number>,
     ) => {
       const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
         idCompte: idCompte,
@@ -1810,7 +1814,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fQualité = async (
       idCompte: string,
-      fSuivi: schémaFonctionSuivi<number>
+      fSuivi: schémaFonctionSuivi<number>,
     ): Promise<schémaFonctionOublier> => {
       const fRechercherSelonActivité = rechercherProfilsSelonActivité();
       return await fRechercherSelonActivité(
@@ -1818,7 +1822,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         idCompte,
         (résultat) => {
           fSuivi(résultat?.score || 0);
-        }
+        },
       );
     };
 
@@ -1842,7 +1846,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     f: schémaFonctionSuivi<number>;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
-      fSuivreRacine: (auteurs: string[]) => Promise<void>
+      fSuivreRacine: (auteurs: string[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreAuteursObjet({
         idObjet: idItem,
@@ -1858,7 +1862,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fBranche = async (
       idAuteur: string,
-      fSuivreBranche: schémaFonctionSuivi<number>
+      fSuivreBranche: schémaFonctionSuivi<number>,
     ): Promise<schémaFonctionOublier> => {
       const { fOublier } = await this.suivreConfianceMonRéseauPourMembre({
         idCompte: idAuteur,
@@ -1901,7 +1905,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       f: (bds: string[] | undefined) => void;
     }) => Promise<schémaFonctionOublier>;
     fRechercheLesMiens: (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (éléments: string[]) => Promise<void>,
     ) => Promise<schémaFonctionOublier>;
     fQualité: schémaFonctionSuivreQualitéRecherche;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
@@ -1915,7 +1919,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
       return await this.client.suivreBdsDeFonctionListe({
         fListe: async (
-          fSuivreRacine: (éléments: string[]) => Promise<void>
+          fSuivreRacine: (éléments: string[]) => Promise<void>,
         ): Promise<schémaRetourFonctionRechercheParN> => {
           return {
             fOublier: await fRechercheLesMiens(fSuivreRacine),
@@ -1925,7 +1929,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         f,
         fBranche: async (
           id: string,
-          fSuivreBranche: schémaFonctionSuiviRecherche<T>
+          fSuivreBranche: schémaFonctionSuiviRecherche<T>,
         ): Promise<schémaFonctionOublier> =>
           await fObjectifFinal(this.client, id, fSuivreBranche),
       });
@@ -1972,7 +1976,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fConfiance = async (
       id: string,
-      f: schémaFonctionSuivi<number>
+      f: schémaFonctionSuivi<number>,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreConfianceAuteurs({ idItem: id, clef, f });
     };
@@ -2001,7 +2005,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fRecherche = this.suivreNuéesMembre.bind(this);
     const fQualité = async (
       id: string,
-      fSuivreQualité: schémaFonctionSuivi<number>
+      fSuivreQualité: schémaFonctionSuivi<number>,
     ) => {
       return await this.client.nuées!.suivreQualitéNuée({
         idNuée: id,
@@ -2009,7 +2013,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       });
     };
     const fRechercheLesMiens = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (éléments: string[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> =>
       await this.client.nuées!.suivreNuées({ f: fSuivreRacine });
 
@@ -2039,7 +2043,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fRecherche = this.suivreBdsMembre.bind(this);
     const fQualité = async (
       id: string,
-      fSuivreQualité: schémaFonctionSuivi<number>
+      fSuivreQualité: schémaFonctionSuivi<number>,
     ) => {
       const fFinaleSuivreQualité = async (score: infoScore) => {
         return await fSuivreQualité(score.total);
@@ -2051,7 +2055,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fRechercheLesMiens = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (éléments: string[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> =>
       await this.client.bds!.suivreBds({ f: fSuivreRacine });
 
@@ -2082,7 +2086,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fQualité = async (
       id: string,
-      fSuivreQualité: schémaFonctionSuivi<number>
+      fSuivreQualité: schémaFonctionSuivi<number>,
     ) => {
       return await this.client.variables!.suivreQualitéVariable({
         idVariable: id,
@@ -2091,7 +2095,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fRechercheLesMiens = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (éléments: string[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> =>
       await this.client.variables!.suivreVariables({
         f: fSuivreRacine,
@@ -2124,7 +2128,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fQualité = async (
       id: string,
-      fSuivreQualité: schémaFonctionSuivi<number>
+      fSuivreQualité: schémaFonctionSuivi<number>,
     ) => {
       return await this.client.motsClefs!.suivreQualitéMotClef({
         idMotClef: id,
@@ -2133,7 +2137,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fRechercheLesMiens = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (éléments: string[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> =>
       await this.client.motsClefs!.suivreMotsClefs({
         f: fSuivreRacine,
@@ -2166,7 +2170,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fQualité = async (
       id: string,
-      fSuivreQualité: schémaFonctionSuivi<number>
+      fSuivreQualité: schémaFonctionSuivi<number>,
     ) => {
       return await this.client.projets!.suivreQualitéProjet({
         idProjet: id,
@@ -2175,7 +2179,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fRechercheLesMiens = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (éléments: string[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> =>
       await this.client.projets!.suivreProjets({ f: fSuivreRacine });
 
@@ -2202,14 +2206,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     f: schémaFonctionSuivi<infoAuteur[]>;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
-      fSuivreRacine: (éléments: infoAccès[]) => Promise<void>
+      fSuivreRacine: (éléments: infoAccès[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> => {
       return await this.client.suivreAccèsBd({ id: idObjet, f: fSuivreRacine });
     };
     const fBranche = async (
       idCompte: string,
       fSuivreBranche: schémaFonctionSuivi<infoAuteur[]>,
-      branche: infoAccès
+      branche: infoAccès,
     ) => {
       const fFinaleSuivreBranche = async (objetsMembre?: string[]) => {
         objetsMembre = objetsMembre || [];
@@ -2333,7 +2337,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }: {
     idCompte: string;
     fListeObjets: (
-      fSuivreRacine: (ids: string[]) => Promise<void>
+      fSuivreRacine: (ids: string[]) => Promise<void>,
     ) => Promise<schémaFonctionOublier>;
     fSuivi: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
@@ -2341,13 +2345,13 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       fListe: fListeObjets,
       fCondition: async (
         id: string,
-        fSuivreCondition: schémaFonctionSuivi<boolean>
+        fSuivreCondition: schémaFonctionSuivi<boolean>,
       ): Promise<schémaFonctionOublier> => {
         return await this.client.suivreAccèsBd({
           id,
           f: (autorisés: infoAccès[]) =>
             fSuivreCondition(
-              autorisés.map((a) => a.idCompte).includes(idCompte)
+              autorisés.map((a) => a.idCompte).includes(idCompte),
             ),
         });
       },
@@ -2472,14 +2476,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     profondeur: number;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = async (
-      favoris: (ÉlémentFavoris & { idObjet: string; idCompte: string })[]
+      favoris: (ÉlémentFavoris & { idObjet: string; idCompte: string })[],
     ) => {
       const favorisDIntérêt = favoris.filter((f) => f.idObjet === idObjet);
       await f(favorisDIntérêt);
     };
 
     const fListe = async (
-      fSuivreRacine: (membres: string[]) => Promise<void>
+      fSuivreRacine: (membres: string[]) => Promise<void>,
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       const fSuivreComptes = async (infosMembres: infoMembreRéseau[]) => {
         // On s'ajoute à la liste des favoris
@@ -2500,7 +2504,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       idCompte: string,
       fSuivreBranche: schémaFonctionSuivi<
         (ÉlémentFavoris & { idObjet: string; idCompte: string })[] | undefined
-      >
+      >,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreFavorisMembre({
         idCompte: idCompte,
@@ -2510,7 +2514,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
               ? favoris.map((fav) => {
                   return { idCompte, ...fav };
                 })
-              : undefined
+              : undefined,
           ),
       });
     };
@@ -2544,7 +2548,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       const { connexionsMembres, favoris } = résultats;
       const idsMembres = favoris.map((fav) => fav.favoris.idCompte);
       const membres = connexionsMembres.filter((c) =>
-        idsMembres.includes(c.infoMembre.idCompte)
+        idsMembres.includes(c.infoMembre.idCompte),
       );
 
       const dispositifs: (épingleDispositif & {
@@ -2558,10 +2562,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
             return await Promise.all(
               dispositifs.map(async (d) => {
                 const vuÀ = résultats.connexionsDispositifs.find(
-                  (c) => c.infoDispositif.idDispositif === d
+                  (c) => c.infoDispositif.idDispositif === d,
                 )?.vuÀ;
                 const idCompte = résultats.connexionsDispositifs.find(
-                  (c) => c.infoDispositif.idDispositif === d
+                  (c) => c.infoDispositif.idDispositif === d,
                 )?.infoDispositif.idCompte;
 
                 const dispositifsRéplication: épingleDispositif & {
@@ -2584,9 +2588,9 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
                   vuÀ,
                 };
                 return dispositifsRéplication;
-              })
+              }),
             );
-          })
+          }),
         )
       ).flat();
       const réplications: infoRéplications = {
@@ -2615,7 +2619,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       favoris: {
         favoris: ÉlémentFavoris & { idObjet: string; idCompte: string };
         dispositifs: string[];
-      }[]
+      }[],
     ) => {
       résultats.favoris = favoris;
       return await fFinale();
@@ -2623,8 +2627,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fListeFavoris = async (
       fSuivreRacine: (
-        favoris: (ÉlémentFavoris & { idObjet: string; idCompte: string })[]
-      ) => void
+        favoris: (ÉlémentFavoris & { idObjet: string; idCompte: string })[],
+      ) => void,
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreFavorisObjet({
         idObjet,
@@ -2639,7 +2643,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         favoris: ÉlémentFavoris & { idObjet: string; idCompte: string };
         dispositifs: string[];
       }>,
-      branche: ÉlémentFavoris & { idObjet: string; idCompte: string }
+      branche: ÉlémentFavoris & { idObjet: string; idCompte: string },
     ): Promise<schémaFonctionOublier> => {
       const fSuivreDispositifsMembre = async (dispositifs: string[]) => {
         return await fSuivreBranche({ favoris: branche, dispositifs });
@@ -2656,7 +2660,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fIdBdDeBranche = (
-      x: ÉlémentFavoris & { idObjet: string; idCompte: string }
+      x: ÉlémentFavoris & { idObjet: string; idCompte: string },
     ) => x.idCompte;
     const fCode = (x: ÉlémentFavoris & { idObjet: string; idCompte: string }) =>
       x.idCompte;
@@ -2690,7 +2694,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fBranche = async (
       idCompte: string,
-      f: schémaFonctionSuivi<string[]>
+      f: schémaFonctionSuivi<string[]>,
     ): Promise<schémaFonctionOublier> => {
       return await this.client.bds!.rechercherBdsParNuée({
         idNuée,
@@ -2700,7 +2704,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (éléments: string[]) => Promise<void>,
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreComptesRéseauEtEnLigne({
         f: async (résultats) =>
@@ -2728,10 +2732,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     nBds?: number;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fListe = async (
-      fSuivreRacine: (bds: bdDeMembre[]) => Promise<void>
+      fSuivreRacine: (bds: bdDeMembre[]) => Promise<void>,
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       const fListeListe = async (
-        fSuivreRacineListe: (bds: string[]) => Promise<void>
+        fSuivreRacineListe: (bds: string[]) => Promise<void>,
       ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
         return await this.suivreBdsDeNuée({
           idNuée: idNuéeUnique,
@@ -2742,7 +2746,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
       const fBrancheListe = async (
         idBd: string,
-        f: schémaFonctionSuivi<bdDeMembre | undefined>
+        f: schémaFonctionSuivi<bdDeMembre | undefined>,
       ): Promise<schémaFonctionOublier> => {
         return await this.suivreAuteursBd({
           idBd,
@@ -2768,7 +2772,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fBranche = async (
       idBd: string,
       f: schémaFonctionSuivi<élémentDeMembre<T>[]>,
-      branche: bdDeMembre
+      branche: bdDeMembre,
     ): Promise<schémaFonctionOublier> => {
       const { idCompte } = branche;
 
@@ -2794,7 +2798,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         fSuivreBd: schémaFonctionSuivi<élémentDeMembre<T>[]>;
       }) => {
         const fSuivreDonnéesTableauFinale = async (
-          données: élémentDonnées<T>[]
+          données: élémentDonnées<T>[],
         ) => {
           const donnéesMembre: élémentDeMembre<T>[] = données.map((d) => {
             return {

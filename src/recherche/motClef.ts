@@ -13,12 +13,12 @@ import {
 } from "@/recherche/utils.js";
 
 export const rechercherMotsClefsSelonNom = (
-  nomMotClef: string
+  nomMotClef: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idMotClef: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = async (noms: { [key: string]: string }) => {
       const corresp = similTexte(nomMotClef, noms);
@@ -44,12 +44,12 @@ export const rechercherMotsClefsSelonNom = (
 };
 
 export const rechercherMotsClefsSelonDescr = (
-  desrcMotClef: string
+  desrcMotClef: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idMotClef: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = async (noms: { [key: string]: string }) => {
       const corresp = similTexte(desrcMotClef, noms);
@@ -75,12 +75,12 @@ export const rechercherMotsClefsSelonDescr = (
 };
 
 export const rechercherMotsClefsSelonTexte = (
-  texte: string
+  texte: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherMotsClefsSelonNom(texte);
     const fRechercherDescr = rechercherMotsClefsSelonDescr(texte);
@@ -90,7 +90,7 @@ export const rechercherMotsClefsSelonTexte = (
       { noms: fRechercherNoms, id: fRechercherId, descr: fRechercherDescr },
       client,
       idCompte,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };

@@ -39,7 +39,7 @@ import { expect } from "aegir/chai";
 const vérifierDonnéesTableau = (
   doc: string | WorkBook,
   tableau: string,
-  données: { [key: string]: string | number }[]
+  données: { [key: string]: string | number }[],
 ): void => {
   if (typeof doc === "string") {
     expect(fs.existsSync(doc)).to.be.true();
@@ -56,7 +56,7 @@ const vérifierDonnéesTableau = (
 
 const vérifierDonnéesBd = (
   doc: string | WorkBook,
-  données: { [key: string]: { [key: string]: string | number }[] }
+  données: { [key: string]: { [key: string]: string | number }[] },
 ): void => {
   if (typeof doc === "string") {
     expect(fs.existsSync(doc));
@@ -71,7 +71,7 @@ const vérifierDonnéesProjet = async (
   doc: string,
   données: {
     [key: string]: { [key: string]: { [key: string]: string | number }[] };
-  }
+  },
 ): Promise<void> => {
   // Il faut essayer plusieurs fois parce que le fichier ZIP peut
   // être créé avant la fin de l'écriture du fichier (ce qui cause
@@ -102,13 +102,13 @@ const vérifierDonnéesProjet = async (
         const contenu = await élémentZip.async("nodebuffer");
         fs.writeFileSync(adresseAbsolue, contenu);
       }
-    })
+    }),
   );
 
   for (const fichierBd of Object.keys(données)) {
     vérifierDonnéesBd(
       path.join(dossierFichierExtrait, fichierBd),
-      données[fichierBd]
+      données[fichierBd],
     );
   }
 
@@ -117,11 +117,11 @@ const vérifierDonnéesProjet = async (
 
 const comparerDonnéesTableau = (
   données: élémentDonnées<élémentBdListeDonnées>[],
-  réf: élémentBdListeDonnées[]
+  réf: élémentBdListeDonnées[],
 ): void => {
   const enleverId = (x: élémentBdListeDonnées): élémentBdListeDonnées => {
     return Object.fromEntries(
-      Object.entries(x).filter(([clef, _val]) => clef !== "id")
+      Object.entries(x).filter(([clef, _val]) => clef !== "id"),
     );
   };
   expect(données.length).to.equal(réf.length);
@@ -204,7 +204,7 @@ typesClients.forEach((type) => {
             await client.tableaux!.suivreDonnées({
               idTableau,
               f: (données) => rés.mettreÀJour(données),
-            })
+            }),
           );
         });
 
@@ -413,14 +413,14 @@ typesClients.forEach((type) => {
           expect(
             val
               .map((r) => r.données[idCol2])
-              .every((n) => typeof n === "string")
+              .every((n) => typeof n === "string"),
           ).to.be.true();
 
           // Longitude
           expect(
             val
               .map((r) => r.données[idCol1] as number)
-              .every((n: number) => -180 <= n && n <= 180)
+              .every((n: number) => -180 <= n && n <= 180),
           ).to.be.true();
         });
 
@@ -600,17 +600,19 @@ typesClients.forEach((type) => {
         after(async () => {
           const automatisations = await uneFois(
             async (
-              fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>
+              fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>,
             ) =>
-              await client.automatisations!.suivreAutomatisations({ f: fSuivi })
+              await client.automatisations!.suivreAutomatisations({
+                f: fSuivi,
+              }),
           );
           await Promise.all(
             automatisations.map(
               async (a) =>
                 await client.automatisations!.annulerAutomatisation({
                   id: a.id,
-                })
-            )
+                }),
+            ),
           );
           fsOublier.forEach((f) => f());
         });
@@ -709,7 +711,7 @@ typesClients.forEach((type) => {
 
           await attente.attendre();
           const attendreModifié = new utilsTestAttente.AttendreFichierModifié(
-            fichier
+            fichier,
           );
           fsOublier.push(() => attendreModifié.annuler());
 
@@ -756,7 +758,7 @@ typesClients.forEach((type) => {
           const avantAjout = Date.now();
 
           const attenteModifié = new utilsTestAttente.AttendreFichierModifié(
-            fichier
+            fichier,
           );
           fsOublier.push(() => attenteModifié.annuler());
           const modifié = attenteModifié.attendre(avantAjout);
@@ -846,7 +848,7 @@ typesClients.forEach((type) => {
             });
           await attendreExiste;
           const attenteModifié = new utilsTestAttente.AttendreFichierModifié(
-            fichier
+            fichier,
           );
           fsOublier.push(() => attenteModifié.annuler());
 
@@ -900,12 +902,12 @@ typesClients.forEach((type) => {
               f: (états) => {
                 résÉtats.mettreÀJour(états);
               },
-            })
+            }),
           );
           fsOublier.push(
             await client.automatisations!.suivreAutomatisations({
               f: (autos) => résAutos.mettreÀJour(autos),
-            })
+            }),
           );
 
           idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
@@ -950,17 +952,19 @@ typesClients.forEach((type) => {
           await Promise.all(fsOublier.map((f) => f()));
           const automatisations = await uneFois(
             async (
-              fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>
+              fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>,
             ) =>
-              await client.automatisations!.suivreAutomatisations({ f: fSuivi })
+              await client.automatisations!.suivreAutomatisations({
+                f: fSuivi,
+              }),
           );
           await Promise.all(
             automatisations.map(
               async (a) =>
                 await client.automatisations!.annulerAutomatisation({
                   id: a.id,
-                })
-            )
+                }),
+            ),
           );
         });
 
@@ -969,7 +973,7 @@ typesClients.forEach((type) => {
 
           const attendreFichierExiste =
             new utilsTestAttente.AttendreFichierExiste(
-              path.join(dossier, "Ma bd.ods")
+              path.join(dossier, "Ma bd.ods"),
             );
           fsOublier.push(() => attendreFichierExiste.annuler());
 
@@ -991,7 +995,7 @@ typesClients.forEach((type) => {
 
           const avantAjout = Date.now();
           const attendre = résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto] && x[idAuto].type === "sync")
+            (x) => !!(x && x[idAuto] && x[idAuto].type === "sync"),
           );
           await client.tableaux!.ajouterÉlément({
             idTableau,
@@ -1008,7 +1012,7 @@ typesClients.forEach((type) => {
 
           const attendreFichierExiste =
             new utilsTestAttente.AttendreFichierExiste(
-              path.join(dossier, "Ma bd.ods")
+              path.join(dossier, "Ma bd.ods"),
             );
           fsOublier.push(() => attendreFichierExiste.annuler());
 
@@ -1029,7 +1033,7 @@ typesClients.forEach((type) => {
           await attendreFichierExiste.attendre();
 
           const val = await résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto]?.type === "programmée")
+            (x) => !!(x && x[idAuto]?.type === "programmée"),
           );
 
           const état = val[idAuto] as ÉtatProgrammée;
@@ -1059,7 +1063,7 @@ typesClients.forEach((type) => {
             });
 
           const val = await résÉtats.attendreQue(
-            (x) => x[idAuto]?.type === "erreur"
+            (x) => x[idAuto]?.type === "erreur",
           );
 
           const après = Date.now();
@@ -1068,13 +1072,13 @@ typesClients.forEach((type) => {
           const état = val[idAuto] as ÉtatErreur;
 
           expect(JSON.parse(état.erreur).message).to.equal(
-            "Unrecognized bookType |ods!|"
+            "Unrecognized bookType |ods!|",
           );
           expect(état.prochaineProgramméeÀ).to.be.lessThanOrEqual(
-            après + 1000 * 60 * 60 * 24 * 7
+            après + 1000 * 60 * 60 * 24 * 7,
           );
           expect(état.prochaineProgramméeÀ).to.be.greaterThanOrEqual(
-            avant + 1000 * 60 * 60 * 24 * 7
+            avant + 1000 * 60 * 60 * 24 * 7,
           );
         });
       });
@@ -1097,12 +1101,12 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
               f: (états) => résÉtats.mettreÀJour(états),
-            })
+            }),
           );
           fsOublier.push(
             await client.automatisations!.suivreAutomatisations({
               f: (autos) => résAutos.mettreÀJour(autos),
-            })
+            }),
           );
 
           dossier = await obtDirTempoPourTest({
@@ -1170,7 +1174,7 @@ typesClients.forEach((type) => {
             });
 
           const val = await résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto]?.type === "écoute")
+            (x) => !!(x && x[idAuto]?.type === "écoute"),
           );
 
           expect(val[idAuto]).to.deep.equal({
@@ -1181,7 +1185,7 @@ typesClients.forEach((type) => {
 
           const avantAjout = Date.now();
           const attendre = résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto]?.type === "sync")
+            (x) => !!(x && x[idAuto]?.type === "sync"),
           );
           fs.writeFileSync(fichierJSON, JSON.stringify(données));
 
@@ -1230,7 +1234,7 @@ typesClients.forEach((type) => {
             });
 
           const val = await résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto]?.type === "programmée")
+            (x) => !!(x && x[idAuto]?.type === "programmée"),
           );
 
           const maintenant = Date.now();
@@ -1282,7 +1286,7 @@ typesClients.forEach((type) => {
             });
 
           await résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto]?.type === "erreur")
+            (x) => !!(x && x[idAuto]?.type === "erreur"),
           );
 
           const après = Date.now();
@@ -1292,10 +1296,10 @@ typesClients.forEach((type) => {
 
           expect(état.erreur).to.contain("introuvable.");
           expect(état.prochaineProgramméeÀ).to.be.lessThanOrEqual(
-            après + 1000 * 60 * 3
+            après + 1000 * 60 * 3,
           );
           expect(état.prochaineProgramméeÀ).to.be.greaterThanOrEqual(
-            avant + 1000 * 60 * 3
+            avant + 1000 * 60 * 3,
           );
         });
       });

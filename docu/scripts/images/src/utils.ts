@@ -53,7 +53,7 @@ export const déjàGénérés = ({
   obtCheminImage: schémaFObtCheminImage;
 }) => {
   const fichiers = images.map((nomImage) =>
-    obtCheminImage({ nomImage, langue })
+    obtCheminImage({ nomImage, langue }),
   );
   return fichiers.every((fichier) => fs.existsSync(fichier));
 };

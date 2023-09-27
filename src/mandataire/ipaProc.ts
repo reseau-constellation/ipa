@@ -30,7 +30,7 @@ export class MandataireClientProc extends ClientMandatairifiable {
         };
         this.événements.emit("message", messageErreur);
       },
-      opts
+      opts,
     );
   }
 
@@ -40,7 +40,7 @@ export class MandataireClientProc extends ClientMandatairifiable {
 }
 
 export const générerMandataireProc = (
-  opts: optsConstellation = {}
+  opts: optsConstellation = {},
 ): MandataireClientConstellation<ClientConstellation> => {
   return générerMandataire(new MandataireClientProc(opts));
 };

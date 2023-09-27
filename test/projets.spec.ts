@@ -265,19 +265,19 @@ typesClients.forEach((type) => {
             await client.projets!.suivreBdsProjet({
               idProjet,
               f: (b) => (bds = b),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreMotsClefsProjet({
               idProjet,
               f: (m) => rés.mettreÀJour(m),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreVariablesProjet({
               idProjet,
               f: (v) => (variables = v),
-            })
+            }),
           );
         });
 
@@ -391,25 +391,25 @@ typesClients.forEach((type) => {
             await client.projets!.suivreNomsProjet({
               idProjet: idProjetCopie,
               f: (x) => (noms = x),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreDescriptionsProjet({
               idProjet: idProjetCopie,
               f: (x) => (descrs = x),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreMotsClefsProjet({
               idProjet: idProjetCopie,
               f: (x) => (motsClefs = x),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreBdsProjet({
               idProjet: idProjetCopie,
               f: (x) => (bds = x),
-            })
+            }),
           );
         });
 

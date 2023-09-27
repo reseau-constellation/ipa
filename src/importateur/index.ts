@@ -11,7 +11,7 @@ export async function importerJSONdURL(url: string): Promise<DonnéesJSON> {
 
 export async function importerFeuilleCalculDURL(
   url: string,
-  options?: ParsingOptions
+  options?: ParsingOptions,
 ): Promise<WorkBook> {
   const réponse = await axios.get<string>(url, { responseType: "arraybuffer" });
   const données = réponse.data;
@@ -22,7 +22,7 @@ export async function importerFeuilleCalculDURL(
   };
   const optsXLSX: ParsingOptions = Object.assign(
     optionsParDéfault,
-    options || {}
+    options || {},
   );
   return readXLSX(données, optsXLSX);
 }

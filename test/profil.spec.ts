@@ -49,7 +49,7 @@ typesClients.forEach((type) => {
 
         it("Pas de courriel pour commencer", async () => {
           const courriel = await résultatCourriel.attendreQue(
-            (c) => c !== undefined
+            (c) => c !== undefined,
           );
           expect(courriel).to.be.null();
         });
@@ -171,7 +171,7 @@ typesClients.forEach((type) => {
           expect(
             client.profil!.sauvegarderImage({
               image: Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 }),
-            })
+            }),
           ).to.be.rejected();
         });
       });

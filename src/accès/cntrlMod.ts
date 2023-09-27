@@ -57,7 +57,7 @@ const ContrôleurAccès =
       storage ||
       (await ComposedStorage(
         await LRUStorage({ size: 1000 }),
-        await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
+        await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true }),
       ));
     write = write || orbitdb.identity.id;
 
@@ -66,7 +66,7 @@ const ContrôleurAccès =
 
     if (address) {
       const manifestBytes = await storage.get(
-        address.replaceAll("/contrôleur-accès-constellation/", "")
+        address.replaceAll("/contrôleur-accès-constellation/", ""),
       );
       const { value } = await Block.decode({
         bytes: manifestBytes,
@@ -87,7 +87,7 @@ const ContrôleurAccès =
     await gestAccès.ajouterÉléments([{ id: write!, rôle: MODÉRATEUR }]);
 
     const canAppend = async (
-      entry: Entry<élémentBdAccès>
+      entry: Entry<élémentBdAccès>,
     ): Promise<boolean> => {
       // Pour l'instant, on ne peut qu'ajouter des membres
       if (entry.payload.op !== "ADD" || !entry.payload.value) return false;

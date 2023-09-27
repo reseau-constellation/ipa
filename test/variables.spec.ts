@@ -209,7 +209,7 @@ typesClients.forEach((type) => {
             description: "la quantité de précipitation quotidienne",
           });
           expect(descrs.fr).to.equal(
-            "la quantité de précipitation quotidienne"
+            "la quantité de précipitation quotidienne",
           );
         });
 
@@ -235,7 +235,7 @@ typesClients.forEach((type) => {
             description: "La quantité de précipitation quotidienne",
           });
           expect(descrs?.fr).to.equal(
-            "La quantité de précipitation quotidienne"
+            "La quantité de précipitation quotidienne",
           );
         });
 
@@ -380,7 +380,7 @@ typesClients.forEach((type) => {
             catégorie: "horoDatage",
           });
           const règleCatégorie = règles.find(
-            (r) => r.règle.typeRègle === "catégorie"
+            (r) => r.règle.typeRègle === "catégorie",
           ) as règleVariableAvecId<règleCatégorie> | undefined;
           expect(règleCatégorie).to.exist();
           expect(règleCatégorie?.règle.détails.catégorie).to.deep.equal({
@@ -414,7 +414,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.variables!.suivreVariables({
               f: (x) => (variables = x),
-            })
+            }),
           );
 
           const idVariable = await client.variables!.créerVariable({
@@ -448,31 +448,31 @@ typesClients.forEach((type) => {
             await client.variables!.suivreNomsVariable({
               idVariable: idVariable2,
               f: (x) => (noms = x),
-            })
+            }),
           );
           fsOublier.push(
             await client.variables!.suivreDescriptionsVariable({
               idVariable: idVariable2,
               f: (x) => (descrs = x),
-            })
+            }),
           );
           fsOublier.push(
             await client.variables!.suivreRèglesVariable({
               idVariable: idVariable2,
               f: (r) => (règles = r),
-            })
+            }),
           );
           fsOublier.push(
             await client.variables!.suivreCatégorieVariable({
               idVariable: idVariable2,
               f: (c) => (catégorie = c),
-            })
+            }),
           );
           fsOublier.push(
             await client.variables!.suivreUnitésVariable({
               idVariable: idVariable2,
               f: (u) => (unités = u),
-            })
+            }),
           );
         });
 

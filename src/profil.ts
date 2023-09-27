@@ -115,7 +115,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdContacts) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`
+        `Permission de modification refusée pour BD ${idBdProfil}.`,
       );
     }
 
@@ -143,7 +143,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdContacts) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`
+        `Permission de modification refusée pour BD ${idBdProfil}.`,
       );
     }
 
@@ -200,7 +200,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`
+        `Permission de modification refusée pour BD ${idBdProfil}.`,
       );
     }
 
@@ -224,7 +224,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`
+        `Permission de modification refusée pour BD ${idBdProfil}.`,
       );
     }
 

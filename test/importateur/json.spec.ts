@@ -161,7 +161,7 @@ describe("JSON", function () {
           nouveauxCas: ["data", "new_cases"],
           totalCas: ["data", "total_cases"],
           nouveauxVaccinés: ["data", "new_vaccinations"],
-        }
+        },
       );
     });
 

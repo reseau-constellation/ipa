@@ -13,7 +13,9 @@ import { JSONSchemaType } from "ajv";
 
 import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
-type ContrôleurConstellation = Awaited<ReturnType<ReturnType<typeof générerContrôleurConstellation>>>;
+type ContrôleurConstellation = Awaited<
+  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
+>;
 
 const schémaBdPrincipale: JSONSchemaType<string> = { type: "string" };
 
@@ -196,7 +198,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`,
       );
     }
 
@@ -227,7 +229,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`,
       );
     }
 
@@ -254,7 +256,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`,
       );
     }
 
@@ -297,7 +299,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     });
     if (!idBdDescriptions) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`,
       );
     }
 
@@ -329,7 +331,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     });
     if (!idBdDescriptions) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`
+        `Permission de modification refusée pour mot clef ${idMotClef}.`,
       );
     }
 
@@ -357,7 +359,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     });
     if (!idBdDescriptions) {
       throw new Error(
-        `Permission de modification refusée pour mot clef ${id}.`
+        `Permission de modification refusée pour mot clef ${id}.`,
       );
     }
 

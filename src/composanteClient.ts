@@ -3,7 +3,11 @@ import type {
   schémaFonctionSuivi,
   élémentsBd,
 } from "./types.js";
-import { schémaStructureBdCompte, type ClientConstellation, type structureBdCompte } from "@/client.js";
+import {
+  schémaStructureBdCompte,
+  type ClientConstellation,
+  type structureBdCompte,
+} from "@/client.js";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 import { cacheSuivi } from "./décorateursCache.js";
@@ -48,7 +52,7 @@ export class ComposanteClient {
 }
 
 export class ComposanteClientDic<
-  T extends { [clef: string]: élémentsBd }
+  T extends { [clef: string]: élémentsBd },
 > extends ComposanteClient {
   schémaBdPrincipale: JSONSchemaType<T>;
 
@@ -200,7 +204,7 @@ export class ComposanteClientDic<
 }
 
 export class ComposanteClientListe<
-  T extends élémentsBd
+  T extends élémentsBd,
 > extends ComposanteClient {
   schémaBdPrincipale: JSONSchemaType<T>;
 

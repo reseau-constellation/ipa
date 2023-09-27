@@ -43,10 +43,10 @@ declare module "@orbitdb/core" {
     verify: (
       signature: string,
       publicKey: string,
-      data: string
+      data: string,
     ) => Promise<boolean>;
   };
-  
+
   export type OrbitDB = {
     id: string;
     open: (
@@ -67,7 +67,6 @@ declare module "@orbitdb/core" {
 
   export function useAccessController(accessController: { type: string }): void;
   export function isValidAddress(address: unknown): boolean;
-
 
   export type Log = {
     id;
@@ -100,7 +99,7 @@ declare module "@orbitdb/core" {
     canAppend: (entry: Entry) => Promise<boolean>;
   }
 
-  export function useDatabaseType(type: {type: string}): void;
+  export function useDatabaseType(type: { type: string }): void;
 
   export function IPFSAccessController(args: {
     write: string[];

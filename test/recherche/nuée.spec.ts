@@ -51,7 +51,7 @@ describe("Client ", function () {
 
       const fRecherche = rechercherNuéesSelonNom("Météo");
       fOublier = await fRecherche(client, idNuée, (r) =>
-        résultat.mettreÀJour(r)
+        résultat.mettreÀJour(r),
       );
     });
 
@@ -99,7 +99,7 @@ describe("Client ", function () {
 
       const fRecherche = rechercherNuéesSelonDescr("Météo");
       fOublier = await fRecherche(client, idNuée, (r) =>
-        résultat.mettreÀJour(r)
+        résultat.mettreÀJour(r),
       );
     });
 
@@ -156,19 +156,21 @@ describe("Client ", function () {
 
       const fRechercheNom = rechercherNuéesSelonNomMotClef("Météo");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r))
+        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r)),
       );
 
       const fRechercheId = rechercherNuéesSelonIdMotClef(
-        idMotClef.slice(0, 15)
+        idMotClef.slice(0, 15),
       );
       fsOublier.push(
-        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r))
+        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r)),
       );
 
       const fRechercheTous = rechercherNuéesSelonMotClef("Météo");
       fsOublier.push(
-        await fRechercheTous(client, idNuée, (r) => résultatTous.mettreÀJour(r))
+        await fRechercheTous(client, idNuée, (r) =>
+          résultatTous.mettreÀJour(r),
+        ),
       );
     });
 
@@ -269,19 +271,21 @@ describe("Client ", function () {
 
       const fRechercheNom = rechercherNuéesSelonNomVariable("Précip");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r))
+        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r)),
       );
 
       const fRechercheId = rechercherNuéesSelonIdVariable(
-        idVariable.slice(0, 15)
+        idVariable.slice(0, 15),
       );
       fsOublier.push(
-        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r))
+        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r)),
       );
 
       const fRechercheTous = rechercherNuéesSelonVariable("Précip");
       fsOublier.push(
-        await fRechercheTous(client, idNuée, (r) => résultatTous.mettreÀJour(r))
+        await fRechercheTous(client, idNuée, (r) =>
+          résultatTous.mettreÀJour(r),
+        ),
       );
     });
 
@@ -411,33 +415,33 @@ describe("Client ", function () {
 
       const fRechercheNom = rechercherNuéesSelonTexte("Hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r))
+        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r)),
       );
 
       const fRechercheId = rechercherNuéesSelonTexte(idNuée.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r))
+        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r)),
       );
 
       const fRechercheDescr = rechercherNuéesSelonTexte("Montréal");
       fsOublier.push(
         await fRechercheDescr(client, idNuée, (r) =>
-          résultatDescr.mettreÀJour(r)
-        )
+          résultatDescr.mettreÀJour(r),
+        ),
       );
 
       const fRechercheVariables = rechercherNuéesSelonTexte("Température");
       fsOublier.push(
         await fRechercheVariables(client, idNuée, (r) =>
-          résultatVariable.mettreÀJour(r)
-        )
+          résultatVariable.mettreÀJour(r),
+        ),
       );
 
       const fRechercheMotsClef = rechercherNuéesSelonTexte("Météo");
       fsOublier.push(
         await fRechercheMotsClef(client, idNuée, (r) =>
-          résultatMotClef.mettreÀJour(r)
-        )
+          résultatMotClef.mettreÀJour(r),
+        ),
       );
     });
 
