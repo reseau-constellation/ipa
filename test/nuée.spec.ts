@@ -384,7 +384,7 @@ typesClients.forEach((type) => {
               idNuée,
               clefTableau: "abc",
             });
-            const val = await tableaux.attendreExiste();
+            const val = await tableaux.attendreQue(x=>x.length > 0);
             expect(val).to.have.deep.members([
               {
                 clef: "abc",
@@ -633,7 +633,7 @@ typesClients.forEach((type) => {
           let empreinte: string;
 
           const idNuée =
-            "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/tuNeMeTrouverasPas";
+            "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";  // tuNeMeTrouverasPas
           const idCol = "colonne numérique";
           const fsOublier: schémaFonctionOublier[] = [];
           const résultatChezMoi = new utilsTestAttente.AttendreRésultat<

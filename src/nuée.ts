@@ -940,8 +940,9 @@ export default class Nuée extends ComposanteClientListe<string> {
     return await this.client.suivreBdDic({
       id: idNuée,
       f: async (x) => {
-        if (x["statut"]) return await f(x["statut"] as unknown as schémaStatut);
+        if (x["statut"]) return await f(x["statut"] as schémaStatut);
       },
+      schéma: schémaStructureBdNuée
     });
   }
 
