@@ -14,7 +14,7 @@ import { expect } from "aegir/chai";
 import { schémaFonctionOublier } from "@/types.js";
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("Épingles", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
