@@ -2,7 +2,7 @@ import type XLSX from "xlsx";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
-import { générerClient, type ClientConstellation, variables } from "@/index.js";
+import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
 
