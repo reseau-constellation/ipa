@@ -93,7 +93,7 @@ class AccèsUtilisateur extends EventEmitter {
   }
 
   async fermer() {
-    if (this.oublierSuivi) this.oublierSuivi();
+    if (this.oublierSuivi) await this.oublierSuivi();
     await this.fOublierBd?.();
   }
 }
