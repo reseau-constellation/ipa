@@ -241,8 +241,8 @@ typesClients.forEach((type) => {
             await clients[0].réseau!.nePlusFaireConfianceAuMembre({
               idCompte: idsBdCompte[1],
             });
-            const val = await fiablesPropres.attendreExiste();
-            expect(val.length).to.equal(0);
+            const val = await fiablesPropres.attendreQue(x=>x.length === 0);
+            expect(val).to.be.an.empty("array");
           });
         });
 
@@ -377,7 +377,7 @@ typesClients.forEach((type) => {
             await clients[0].réseau!.débloquerMembre({
               idCompte: idsBdCompte[1],
             });
-            const val = await bloquésPubliques.attendreExiste();
+            const val = await bloquésPubliques.attendreQue(x=>x.length === 0);
             expect(val.length).to.equal(0);
           });
 
@@ -385,7 +385,7 @@ typesClients.forEach((type) => {
             await clients[0].réseau!.débloquerMembre({
               idCompte: idsBdCompte[2],
             });
-            const val = await bloquésTous.attendreExiste();
+            const val = await bloquésTous.attendreQue(x=>x.length === 0);
             expect(val.length).to.equal(0);
           });
 
