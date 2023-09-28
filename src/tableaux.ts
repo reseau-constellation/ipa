@@ -869,10 +869,11 @@ export default class Tableaux {
         return await this.suivreColonnesTableau({
           idTableau: idTableauBase,
           f: fSuivi,
+          catégories: false,
         });
       },
       // Il faut attendre que toutes les colonnes soient présentes
-      colonnes => [...new Set(donnéesTableauBase.map(d=>Object.keys(d.données).filter(c=>c!=="id")).flat())].length === colonnes?.length
+      colonnes => colonnes !== undefined && [...new Set(donnéesTableauBase.map(d=>Object.keys(d.données).filter(c=>c!=="id")).flat())].length <= colonnes.length
     );
 
     const donnéesTableau2 = await uneFois(
