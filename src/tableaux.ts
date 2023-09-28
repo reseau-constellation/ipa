@@ -853,15 +853,6 @@ export default class Tableaux {
     idTableauBase: string;
     idTableau2: string;
   }): Promise<void> {
-    const colsTableauBase = await uneFois(
-      async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
-        return await this.suivreColonnesTableau({
-          idTableau: idTableauBase,
-          f: fSuivi,
-        });
-      },
-    );
-
     const donnéesTableauBase = await uneFois(
       async (
         fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
@@ -871,6 +862,17 @@ export default class Tableaux {
           f: fSuivi,
         });
       },
+    );
+
+    const colsTableauBase = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
+        return await this.suivreColonnesTableau({
+          idTableau: idTableauBase,
+          f: fSuivi,
+        });
+      },
+      // Il faut attendre que toutes les colonnes soient présentes
+      colonnes => [...new Set(donnéesTableauBase.map(d=>Object.keys(d.données).filter(c=>c!=="id")).flat())].length === colonnes?.length
     );
 
     const donnéesTableau2 = await uneFois(
@@ -886,6 +888,7 @@ export default class Tableaux {
       const existant = donnéesTableauBase.find((d) =>
         indexÉlémentsÉgaux(d.données, nouvelÉlément.données, indexes),
       );
+
       if (existant) {
         const àAjouter: { [key: string]: élémentsBd } = {};
         for (const col of colsTableauBase) {
@@ -896,6 +899,7 @@ export default class Tableaux {
             àAjouter[col.id] = nouvelÉlément.données[col.id];
           }
         }
+
         if (Object.keys(àAjouter).length) {
           await this.effacerÉlément({
             idTableau: idTableauBase,
