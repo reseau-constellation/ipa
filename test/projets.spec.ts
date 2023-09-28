@@ -2,11 +2,12 @@ import type XLSX from "xlsx";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
-import { générerClient, type ClientConstellation } from "@/index.js";
+import { générerClient, type ClientConstellation, variables } from "@/index.js";
 import { schémaFonctionOublier } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
 
 import {
+  attente,
   client as utilsClientTest,
   attente as utilsTestAttente,
   dossiers as utilsTestDossiers,
@@ -49,52 +50,58 @@ typesClients.forEach((type) => {
 
       describe("Mes projets", function () {
         let idNouveauProjet: string;
-        let mesProjets: string[] = [];
         let fOublier: schémaFonctionOublier;
-
+        
+        const mesProjets = new attente.AttendreRésultat<string[]>();
         before(async () => {
           idNouveauProjet = await client.projets!.créerProjet();
           fOublier = await client.projets!.suivreProjets({
-            f: (ps) => (mesProjets = ps),
+            f: (ps) => mesProjets.mettreÀJour(ps),
           });
         });
 
         after(async () => {
           if (fOublier) await fOublier();
+          mesProjets.toutAnnuler();
         });
 
         it("Le projet est déjà ajouté", async () => {
-          expect(mesProjets).to.contain(idNouveauProjet);
+          const val = await mesProjets.attendreQue(x=>x.includes(idNouveauProjet))
+          expect(val).to.contain(idNouveauProjet);
         });
 
         it("Enlever de mes projets", async () => {
           await client.projets!.enleverDeMesProjets({
             idProjet: idNouveauProjet,
           });
-          expect(mesProjets).not.to.contain(idNouveauProjet);
+          const val = await mesProjets.attendreQue(x=>!x.includes(idNouveauProjet))
+          expect(val).not.to.contain(idNouveauProjet);
         });
 
         it("Ajouter à mes projets", async () => {
           await client.projets!.ajouterÀMesProjets({
             idProjet: idNouveauProjet,
           });
-          expect(mesProjets).to.contain(idNouveauProjet);
+          const val = await mesProjets.attendreQue(x=>x.includes(idNouveauProjet))
+          expect(val).to.contain(idNouveauProjet);
         });
 
         it("On peut aussi l'effacer", async () => {
           await client.projets!.effacerProjet({ idProjet: idNouveauProjet });
-          expect(mesProjets).not.to.contain(idNouveauProjet);
+
+          const val = await mesProjets.attendreQue(x=>!x.includes(idNouveauProjet))
+          expect(val).not.to.contain(idNouveauProjet);
         });
       });
 
       describe("Noms", function () {
-        let noms: { [key: string]: string };
         let fOublier: schémaFonctionOublier;
-
+        
+        const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
         before(async () => {
           fOublier = await client.projets!.suivreNomsProjet({
             idProjet,
-            f: (n) => (noms = n),
+            f: (n) => (noms.mettreÀJour(n)),
           });
         });
 
@@ -103,7 +110,8 @@ typesClients.forEach((type) => {
         });
 
         it("Pas de noms pour commencer", async () => {
-          expect(Object.keys(noms).length).to.equal(0);
+          const val = await noms.attendreExiste();
+          expect(Object.keys(val).length).to.equal(0);
         });
 
         it("Ajouter un nom", async () => {
@@ -112,7 +120,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Alphabets",
           });
-          expect(noms.fr).to.equal("Alphabets");
+          const val = await noms.attendreQue(x=>!!x["fr"])
+          expect(val.fr).to.equal("Alphabets");
         });
 
         it("Ajouter des noms", async () => {
@@ -123,7 +132,8 @@ typesClients.forEach((type) => {
               हिं: "वर्णमाला",
             },
           });
-          expect(noms).to.deep.equal({
+          const val = await noms.attendreQue(x=>Object.keys(x).length > 2)
+          expect(val).to.deep.equal({
             fr: "Alphabets",
             த: "எழுத்துகள்",
             हिं: "वर्णमाला",
@@ -136,7 +146,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Systèmes d'écriture",
           });
-          expect(noms?.fr).to.equal("Systèmes d'écriture");
+          const val = await noms.attendreQue(x=>x.fr !== "Alphabets")
+          expect(val.fr).to.equal("Systèmes d'écriture");
         });
 
         it("Effacer un nom", async () => {
@@ -144,18 +155,19 @@ typesClients.forEach((type) => {
             idProjet,
             langue: "fr",
           });
-          expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+          const val = await noms.attendreQue(x=>!x["fr"]);
+          expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
       });
 
       describe("Descriptions", function () {
-        let descrs: { [key: string]: string };
         let fOublier: schémaFonctionOublier;
-
+        
+        const descrs = new attente.AttendreRésultat<{ [key: string]: string }>();
         before(async () => {
           fOublier = await client.projets!.suivreDescriptionsProjet({
             idProjet,
-            f: (d) => (descrs = d),
+            f: (d) => (descrs.mettreÀJour(d)),
           });
         });
 
@@ -164,7 +176,8 @@ typesClients.forEach((type) => {
         });
 
         it("Aucune description pour commencer", async () => {
-          expect(Object.keys(descrs).length).to.equal(0);
+          const vals = await descrs.attendreExiste();
+          expect(Object.keys(vals).length).to.equal(0);
         });
 
         it("Ajouter une description", async () => {
@@ -173,7 +186,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             description: "Alphabets",
           });
-          expect(descrs.fr).to.equal("Alphabets");
+          const val = await descrs.attendreQue(x=>!!x["fr"])
+          expect(val.fr).to.equal("Alphabets");
         });
 
         it("Ajouter des descriptions", async () => {
@@ -184,7 +198,8 @@ typesClients.forEach((type) => {
               हिं: "वर्णमाला",
             },
           });
-          expect(descrs).to.deep.equal({
+          const val = await descrs.attendreQue(x=>Object.keys(x).length > 2)
+          expect(val).to.deep.equal({
             fr: "Alphabets",
             த: "எழுத்துகள்",
             हिं: "वर्णमाला",
@@ -197,7 +212,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             description: "Systèmes d'écriture",
           });
-          expect(descrs?.fr).to.equal("Systèmes d'écriture");
+          const val = await descrs.attendreQue(x=>x.fr !== "Alphabets")
+          expect(val.fr).to.equal("Systèmes d'écriture");
         });
 
         it("Effacer une description", async () => {
@@ -205,19 +221,20 @@ typesClients.forEach((type) => {
             idProjet,
             langue: "fr",
           });
-          expect(descrs).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+          const val = await descrs.attendreQue(x=>!x["fr"]);
+          expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
       });
 
       describe("Mots-clefs", function () {
-        let motsClefs: { source: "projet" | "bds"; idMotClef: string }[];
         let fOublier: schémaFonctionOublier;
         let idMotClef: string;
-
+        
+        const motsClefs = new attente.AttendreRésultat<{ source: "projet" | "bds"; idMotClef: string }[]>();
         before(async () => {
           fOublier = await client.projets!.suivreMotsClefsProjet({
             idProjet: idProjet,
-            f: (m) => (motsClefs = m),
+            f: (m) => (motsClefs.mettreÀJour(m)),
           });
         });
 
@@ -225,8 +242,8 @@ typesClients.forEach((type) => {
           if (fOublier) await fOublier();
         });
         it("Pas de mots-clefs pour commencer", async () => {
-          expect(Array.isArray(motsClefs)).to.be.true();
-          expect(motsClefs.length).to.equal(0);
+          const val = await motsClefs.attendreExiste();
+          expect(val).to.be.an.empty("array");
         });
         it("Ajout d'un mot-clef", async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
@@ -234,13 +251,14 @@ typesClients.forEach((type) => {
             idProjet,
             idsMotsClefs: idMotClef,
           });
-          expect(Array.isArray(motsClefs)).to.be.true();
-          expect(motsClefs.length).to.equal(1);
+          const val = await motsClefs.attendreQue(x=>x.length > 0)
+          expect(val).to.be.an('array').with.lengthOf(1);
         });
         it("Effacer un mot-clef", async () => {
           await client.projets!.effacerMotClefProjet({ idProjet, idMotClef });
-          expect(Array.isArray(motsClefs)).to.be.true();
-          expect(motsClefs.length).to.equal(0);
+
+          const val = await motsClefs.attendreQue(x=>x.length === 0)
+          expect(val).to.be.an.empty("array");
         });
       });
 
@@ -251,10 +269,10 @@ typesClients.forEach((type) => {
       describe("BDs", function () {
         let idBd: string;
 
-        let bds: string[];
-        let variables: string[];
+        const bds = new attente.AttendreRésultat<string[]>();
+        const variables = new attente.AttendreRésultat<string[]>();
 
-        const rés = new utilsTestAttente.AttendreRésultat<
+        const motsClefs = new utilsTestAttente.AttendreRésultat<
           { source: "projet" | "bds"; idMotClef: string }[]
         >();
 
@@ -264,39 +282,43 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.projets!.suivreBdsProjet({
               idProjet,
-              f: (b) => (bds = b),
+              f: (b) => (bds.mettreÀJour(b)),
             }),
           );
           fsOublier.push(
             await client.projets!.suivreMotsClefsProjet({
               idProjet,
-              f: (m) => rés.mettreÀJour(m),
+              f: (m) => motsClefs.mettreÀJour(m),
             }),
           );
           fsOublier.push(
             await client.projets!.suivreVariablesProjet({
               idProjet,
-              f: (v) => (variables = v),
+              f: (v) => (variables.mettreÀJour(v)),
             }),
           );
         });
 
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
-          rés.toutAnnuler();
+          variables.toutAnnuler();
+          bds.toutAnnuler();
+          motsClefs.toutAnnuler();
         });
 
         it("Pas de BDs pour commencer", async () => {
-          expect(Array.isArray(bds)).to.be.true();
-          expect(bds.length).to.equal(0);
+          const val = await bds.attendreExiste();
+          expect(val).to.be.an.empty("array");
         });
 
         it("Ajout d'une BD", async () => {
           idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           await client.projets!.ajouterBdProjet({ idProjet, idBd });
-          expect(Array.isArray(bds)).to.be.true();
-          expect(bds.length).to.equal(1);
-          expect(bds[0]).to.equal(idBd);
+
+          const val = await bds.attendreQue(x=>x.length > 0)
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
+          expect(val[0]).to.equal(idBd);
         });
 
         it("Mots-clefs BD détectés", async () => {
@@ -306,13 +328,13 @@ typesClients.forEach((type) => {
             idsMotsClefs: idMotClef,
           });
 
-          const val = await rés.attendreQue((x) => !!x && x.length > 0);
+          const val = await motsClefs.attendreQue((x) => !!x && x.length > 0);
           expect(val).to.have.deep.members([{ source: "bds", idMotClef }]);
         });
 
         it("Variables BD détectées", async () => {
-          expect(Array.isArray(variables)).to.be.true();
-          expect(variables.length).to.equal(0);
+          let val = await variables.attendreExiste()
+          expect(val).to.be.an.empty("array");
 
           const idVariable = await client.variables!.créerVariable({
             catégorie: "numérique",
@@ -323,15 +345,18 @@ typesClients.forEach((type) => {
             idTableau,
             idVariable,
           });
-          expect(Array.isArray(variables)).to.be.true();
-          expect(variables.length).to.equal(1);
-          expect(variables[0]).to.equal(idVariable);
+
+          val = await variables.attendreQue(x=>x.length > 0)
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
+          expect(val[0]).to.equal(idVariable);
         });
 
         it("Effacer une BD", async () => {
           await client.projets!.effacerBdProjet({ idProjet, idBd });
-          expect(Array.isArray(bds)).to.be.true();
-          expect(bds.length).to.equal(0);
+
+          const val = await bds.attendreQue(x=>!x.length);
+          expect(val).to.be.an.empty("array");
         });
       });
 
@@ -342,11 +367,10 @@ typesClients.forEach((type) => {
         let idMotClef: string;
         let idBd: string;
 
-        let noms: { [key: string]: string };
-        let descrs: { [key: string]: string };
-
-        let motsClefs: { source: "projet" | "bds"; idMotClef: string }[];
-        let bds: string[];
+        const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
+        const descrs = new attente.AttendreRésultat<{ [key: string]: string }>();
+        const motsClefs = new attente.AttendreRésultat<{ source: "projet" | "bds"; idMotClef: string }[]>();
+        const bds = new attente.AttendreRésultat<string[]>();
 
         const réfNoms = {
           த: "மழை",
@@ -390,47 +414,55 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.projets!.suivreNomsProjet({
               idProjet: idProjetCopie,
-              f: (x) => (noms = x),
+              f: (x) => (noms.mettreÀJour(x)),
             }),
           );
           fsOublier.push(
             await client.projets!.suivreDescriptionsProjet({
               idProjet: idProjetCopie,
-              f: (x) => (descrs = x),
+              f: (x) => (descrs.mettreÀJour(x)),
             }),
           );
           fsOublier.push(
             await client.projets!.suivreMotsClefsProjet({
               idProjet: idProjetCopie,
-              f: (x) => (motsClefs = x),
+              f: (x) => (motsClefs.mettreÀJour(x)),
             }),
           );
           fsOublier.push(
             await client.projets!.suivreBdsProjet({
               idProjet: idProjetCopie,
-              f: (x) => (bds = x),
+              f: (x) => (bds.mettreÀJour(x)),
             }),
           );
         });
 
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          noms.toutAnnuler();
+          descrs.toutAnnuler();
+          motsClefs.toutAnnuler();
+          bds.toutAnnuler();
         });
 
         it("Les noms sont copiés", async () => {
-          expect(noms).to.deep.equal(réfNoms);
+          const val = await noms.attendreExiste();
+          expect(val).to.deep.equal(réfNoms);
         });
         it("Les descriptions sont copiées", async () => {
-          expect(descrs).to.deep.equal(réfDescrs);
+          const val = await descrs.attendreExiste()
+          expect(val).to.deep.equal(réfDescrs);
         });
         it("Les mots-clefs sont copiés", async () => {
-          expect(motsClefs).to.have.deep.members([
+          const val = await motsClefs.attendreExiste()
+          expect(val).to.have.deep.members([
             { source: "projet", idMotClef },
           ]);
         });
         it("Les BDs sont copiées", async () => {
-          expect(Array.isArray(bds)).to.be.true();
-          expect(bds.length).to.equal(1);
+          const val = await bds.attendreQue(x=>x.length > 0)
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
         });
       });
 
