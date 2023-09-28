@@ -617,7 +617,7 @@ typesClients.forEach((type) => {
         let idTableau1: string;
         let idTableau2: string;
 
-        let données1: élémentDonnées<élémentBdListeDonnées>[];
+        const données1 = new attente.AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -719,7 +719,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreDonnées({
               idTableau: idTableau1,
-              f: (d) => (données1 = d),
+              f: (d) => données1.mettreÀJour(d),
               clefsSelonVariables: true,
             }),
           );
@@ -729,10 +729,12 @@ typesClients.forEach((type) => {
 
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          données1.toutAnnuler();
         });
 
         it("Les données sont copiées", async () => {
-          const donnéesCombinées = données1.map((d) => d.données);
+          const val = await données1.attendreQue(x=>x.length > 2 && x.every(y=>Object.keys(y.données).length > 2 ))
+          const donnéesCombinées = val.map((d) => d.données);
           const donnéesSansId = donnéesCombinées.map((d) => {
             delete d.id;
             return d;
@@ -757,8 +759,8 @@ typesClients.forEach((type) => {
 
         let idBd: string;
 
-        let tableaux: infoTableauAvecId[];
-        let tableauUnique: string | undefined;
+        const tableaux = new attente.AttendreRésultat<infoTableauAvecId[]>();
+        const tableauUnique = new attente.AttendreRésultat<string | undefined>();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -810,14 +812,14 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.bds.suivreTableauxBd({
               idBd,
-              f: (t) => (tableaux = t),
+              f: (t) => (tableaux.mettreÀJour(t)),
             }),
           );
           fsOublier.push(
             await client.bds.suivreIdTableauParClef({
               idBd,
               clef: "tableau trads",
-              f: (t) => (tableauUnique = t),
+              f: (t) => (tableauUnique.mettreÀJour(t)),
             }),
           );
         });
@@ -827,20 +829,24 @@ typesClients.forEach((type) => {
         });
 
         it("Les tableaux sont créés", async () => {
-          expect(Array.isArray(tableaux)).to.be.true();
-          expect(tableaux.length).to.equal(2);
+          const val = await tableaux.attendreQue(x=>x.length>1)
+          
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(2);
         });
 
         it("Colonnes", async () => {
+          const val = await tableaux.attendreExiste()
           const colonnes = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>,
             ): Promise<schémaFonctionOublier> => {
               return await client.tableaux!.suivreColonnesTableau({
-                idTableau: tableaux[0].id,
+                idTableau: val[0].id,
                 f: fSuivi,
               });
             },
+            c => c !== undefined && c.length > 1
           );
 
           const idsColonnes = colonnes.map((c) => c.id);
@@ -868,12 +874,13 @@ typesClients.forEach((type) => {
         });
 
         it("Index colonne", async () => {
+          const val = await tableaux.attendreExiste()
           const indexes = await uneFois(
             async (
               fSuivi: schémaFonctionSuivi<string[]>,
             ): Promise<schémaFonctionOublier> => {
               return await client.tableaux!.suivreIndex({
-                idTableau: tableaux[0].id,
+                idTableau: val[0].id,
                 f: fSuivi,
               });
             },
@@ -885,7 +892,9 @@ typesClients.forEach((type) => {
         });
 
         it("Tableaux unique détectable", async () => {
-          expect(isValidAddress(tableauUnique)).to.be.true();
+          const val = await tableauUnique.attendreExiste();
+
+          expect(isValidAddress(val)).to.be.true();
         });
       });
 
@@ -1065,7 +1074,7 @@ typesClients.forEach((type) => {
         let idColNumérique: string;
         let idColNumérique2: string;
 
-        let score: infoScore;
+        const attenteScore = new attente.AttendreRésultat<infoScore>();
 
         let fOublier: schémaFonctionOublier;
 
@@ -1085,7 +1094,7 @@ typesClients.forEach((type) => {
 
           fOublier = await client.bds.suivreQualitéBd({
             idBd,
-            f: (s) => (score = s),
+            f: (s) => (attenteScore.mettreÀJour(s)),
           });
         });
 
@@ -1099,6 +1108,7 @@ typesClients.forEach((type) => {
 
         describe("Score couverture tests", function () {
           it("`undefined` lorsque aucune colonne", async () => {
+            const score = await attenteScore.attendreExiste();
             expect(score.couverture).to.be.undefined();
           });
 
@@ -1115,6 +1125,7 @@ typesClients.forEach((type) => {
               idTableau,
               idVariable: idVarChaîne,
             });
+            const score = await attenteScore.attendreQue(s=>s.couverture !== undefined)
             expect(score.couverture).to.equal(0);
           });
 
@@ -1128,6 +1139,7 @@ typesClients.forEach((type) => {
               idColonne: idColNumérique,
               règle: règleNumérique,
             });
+            let score = await attenteScore.attendreQue(s=>!!s.couverture && s.couverture > 0)
             expect(score.couverture).to.equal(0.5);
 
             await client.tableaux!.ajouterRègleTableau({
@@ -1135,6 +1147,7 @@ typesClients.forEach((type) => {
               idColonne: idColNumérique2,
               règle: règleNumérique,
             });
+            score = await attenteScore.attendreQue(s=>!!s.couverture && s.couverture > 0.5)
             expect(score.couverture).to.equal(1);
           });
         });
@@ -1143,6 +1156,7 @@ typesClients.forEach((type) => {
           let empreinteÉlément: string;
 
           it("`undefined` pour commencer", async () => {
+            const score = await attenteScore.attendreExiste();
             expect(score.valide).to.be.undefined();
           });
 
@@ -1154,6 +1168,7 @@ typesClients.forEach((type) => {
                 [idColNumérique2]: 1,
               },
             });
+            let score = await attenteScore.attendreQue(s=>!!s.valide && s.valide == 0.5)
             expect(score.valide).to.equal(0.5);
             await client.tableaux!.ajouterÉlément({
               idTableau,
@@ -1161,6 +1176,7 @@ typesClients.forEach((type) => {
                 [idColNumérique]: 1,
               },
             });
+            score = await attenteScore.attendreQue(s=>!!s.valide && s.valide > 0.5)
             expect(score.valide).to.equal(2 / 3);
           });
 
@@ -1170,12 +1186,14 @@ typesClients.forEach((type) => {
               vals: { [idColNumérique]: 12 },
               empreintePrécédente: empreinteÉlément,
             });
+            const score = await attenteScore.attendreQue(s=>!!s.valide && s.valide > 2/3)
             expect(score.valide).to.equal(1);
           });
         });
 
         describe("Score total", function () {
           it("Calcul du score total", async () => {
+            const score = await attenteScore.attendreExiste();
             const total =
               ((score.accès || 0) +
                 (score.couverture || 0) +
@@ -1308,17 +1326,17 @@ typesClients.forEach((type) => {
       });
 
       describe("Rechercher BDs par mot-clef", function () {
-        let résultats: string[];
         let fOublier: schémaFonctionOublier;
         let idMotClef: string;
         let idBdRechercheMotsClefs: string;
-
+        
+        const résultats = new attente.AttendreRésultat<string[]>();
         before(async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
 
           fOublier = await client.bds.rechercherBdsParMotsClefs({
             motsClefs: [idMotClef],
-            f: (r) => (résultats = r),
+            f: (r) => (résultats.mettreÀJour(r)),
           });
 
           idBdRechercheMotsClefs = await client.bds.créerBd({
@@ -1331,8 +1349,8 @@ typesClients.forEach((type) => {
         });
 
         it("Pas de résultats pour commencer", async () => {
-          expect(Array.isArray(résultats)).to.be.true();
-          expect(résultats.length).to.equal(0);
+          const val = await résultats.attendreExiste();
+          expect(val).to.be.an.empty("array");
         });
 
         it("Ajout d'un mot-clef détecté", async () => {
@@ -1340,9 +1358,11 @@ typesClients.forEach((type) => {
             idBd: idBdRechercheMotsClefs,
             idsMotsClefs: [idMotClef],
           });
-          expect(Array.isArray(résultats)).to.be.true();
-          expect(résultats.length).to.equal(1);
-          expect(résultats[0]).to.equal(idBdRechercheMotsClefs);
+
+          const val = await résultats.attendreQue(x=>x.length>0)
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
+          expect(val[0]).to.equal(idBdRechercheMotsClefs);
         });
       });
     });
