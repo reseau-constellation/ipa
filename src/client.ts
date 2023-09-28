@@ -730,7 +730,8 @@ export class ClientConstellation extends EventEmitter {
     clef: string;
     schéma: JSONSchemaType<T>;
   }): Promise<void> {
-    const idBdListeInit = bdBase.get(clef);
+    const idBdListeInit = await bdBase.get(clef);
+
     if (typeof idBdListeInit !== "string") return;
 
     const { bd: bdListeInit, fOublier: fOublierInit } =
@@ -740,7 +741,7 @@ export class ClientConstellation extends EventEmitter {
         schéma,
       });
 
-    const idNouvelleBdListe = nouvelleBd.get(clef);
+    const idNouvelleBdListe = await nouvelleBd.get(clef);
     if (!idNouvelleBdListe) throw new Error("La nouvelle BD n'existait pas.");
     if (typeof idNouvelleBdListe !== "string")
       throw new Error(`${idNouvelleBdListe} n'est pas une adresse Orbite.`);
@@ -753,6 +754,7 @@ export class ClientConstellation extends EventEmitter {
       });
 
     const données = (await bdListeInit.all()).map((x) => x.value);
+
     await Promise.all(
       données.map(async (d) => {
         await nouvelleBdListe.add(d);
