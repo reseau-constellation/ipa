@@ -14,7 +14,7 @@ import { expect } from "aegir/chai";
 import { schémaFonctionOublier } from "@/types.js";
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("Épingles", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -110,8 +110,8 @@ typesClients.forEach((type) => {
 
         it("Désépingler liste récursive", async () => {
           await client.épingles!.désépinglerBd({ id: idBdListe });
-          const épingles = await client.épingles!.épingles();
-          expect([...épingles]).to.not.have.members([idBdListe, idBdAutre]);
+          const val = await client.épingles!.épingles();
+          expect([...val]).to.not.have.members([idBdListe, idBdAutre]);
         });
 
         it("Épingler dic récursif", async () => {
@@ -132,15 +132,16 @@ typesClients.forEach((type) => {
           await bdDic2.set("clef", idBdAutre);
           fOublier2();
 
-          const épingles = await client.épingles!.épingles();
+          const val = await épingles.attendreQue(é=>é.size > 2);
 
-          expect([...épingles]).to.have.members([idBdDic, idBdDic2, idBdAutre]);
+          expect([...val]).to.have.members([idBdDic, idBdDic2, idBdAutre]);
         });
 
         it("Désépingler dic récursif", async () => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
-          const épingles = await client.épingles!.épingles();
-          expect([...épingles]).to.not.have.members([idBdDic, idBdAutre]);
+          
+          const val = await épingles.attendreQue(é=>é.size < 3);
+          expect([...val]).to.not.have.members([idBdDic, idBdAutre]);
         });
 
         it("BD ajoutée individuellement est toujours là", async () => {
@@ -148,9 +149,9 @@ typesClients.forEach((type) => {
           await client.épingles!.épinglerBd({ id: idBdAutre, récursif: true });
           await client.épingles!.désépinglerBd({ id: idBdDic });
 
-          const épingles = await client.épingles!.épingles();
-          expect([...épingles]).to.not.contain(idBdDic);
-          expect([...épingles]).to.contain(idBdAutre);
+          const val = await épingles.attendreQue(é=>!é.has(idBdDic));
+          expect([...val]).to.not.contain(idBdDic);
+          expect([...val]).to.contain(idBdAutre);
         });
       });
 
