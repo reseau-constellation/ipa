@@ -5,6 +5,7 @@ import type { schémaFonctionOublier } from "@/types.js";
 import { générerClient, type ClientConstellation } from "@/index.js";
 
 import {
+  attente,
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
@@ -86,7 +87,7 @@ typesClients.forEach((type) => {
         const favoris = new utilsTestAttente.AttendreRésultat<
           ÉlémentFavorisAvecObjet[]
         >();
-        let épingleBd: épingleDispositif;
+        const épingleBd = new attente.AttendreRésultat<épingleDispositif>();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -101,7 +102,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.favoris!.suivreEstÉpingléSurDispositif({
               idObjet: idBd,
-              f: (épingle) => (épingleBd = épingle),
+              f: (épingle) => (épingleBd.mettreÀJour(épingle)),
             }),
           );
         });
@@ -133,7 +134,9 @@ typesClients.forEach((type) => {
               idObjet: idBd,
             },
           ]);
-          expect(épingleBd).to.deep.equal({
+
+          const valÉpingleBd = await épingleBd.attendreQue(x=>x.bd)
+          expect(valÉpingleBd).to.deep.equal({
             idObjet: idBd,
             bd: true,
             fichiers: isElectronMain || isNode,
@@ -144,9 +147,11 @@ typesClients.forEach((type) => {
         it("Enlever un favori", async () => {
           await client.favoris!.désépinglerFavori({ idObjet: idBd });
 
-          const val = await favoris.attendreExiste();
+          const val = await favoris.attendreQue(x=>x.length === 0);
           expect(val.length).to.equal(0);
-          expect(épingleBd).to.deep.equal({
+
+          const valÉpingleBd = await épingleBd.attendreQue(x=>!x.bd)
+          expect(valÉpingleBd).to.deep.equal({
             idObjet: idBd,
             bd: false,
             fichiers: false,
