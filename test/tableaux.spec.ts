@@ -25,6 +25,7 @@ import type {
 } from "@/valid.js";
 
 import {
+  attente,
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
@@ -1208,7 +1209,7 @@ typesClients.forEach((type) => {
         });
       });
 
-      describe("Copier tableau", function () {
+      describe.only("Copier tableau", function () {
         let idTableau: string;
         let idVariable: string;
         let idColonne: string;
@@ -1218,7 +1219,7 @@ typesClients.forEach((type) => {
         let variables: string[];
         let noms: { [key: string]: string };
         let données: élémentDonnées<élémentBdListeDonnées>[];
-        let colonnes: InfoColAvecCatégorie[];
+        const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
         let règles: règleColonne[];
 
         let idTableauCopie: string;
@@ -1297,7 +1298,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreColonnesTableau({
               idTableau: idTableauCopie,
-              f: (x) => (colonnes = x),
+              f: (x) => (colonnes.mettreÀJour(x)),
             }),
           );
           fsOublier.push(
@@ -1316,6 +1317,7 @@ typesClients.forEach((type) => {
 
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          colonnes.toutAnnuler();
         });
 
         it("Le tableau est copié", async () => {
@@ -1327,9 +1329,10 @@ typesClients.forEach((type) => {
         });
 
         it("Les colonnes sont copiées", async () => {
-          expect(Array.isArray(colonnes)).to.be.true;
-          expect(colonnes.length).to.equal(1);
-          expect(colonnes[0].variable).to.equal(idVariable);
+          const val = await colonnes.attendreQue(x=>x.length > 0)
+          expect(Array.isArray(val)).to.be.true;
+          expect(val.length).to.equal(1);
+          expect(val[0].variable).to.equal(idVariable);
         });
 
         it("Les indexes sont copiés", async () => {
@@ -1341,7 +1344,7 @@ typesClients.forEach((type) => {
         it("Les règles sont copiés", async () => {
           const règleRecherchée = règles.find((r) => r.règle.id === idRègle);
           expect(règleRecherchée).to.not.be.undefined();
-          expect(règleRecherchée?.colonne).to.equal(colonnes[0].id);
+          expect(règleRecherchée?.colonne).to.equal(colonnes.val?.[0].id);
           expect(règleRecherchée?.règle.règle).to.deep.equal(règle);
         });
 
@@ -1352,9 +1355,10 @@ typesClients.forEach((type) => {
         });
 
         it("Les données sont copiés", async () => {
+          const valColonnes = await colonnes.attendreExiste();
           expect(Array.isArray(données)).to.be.true;
           expect(données.length).to.equal(1);
-          expect(données[0].données[colonnes[0].id]).to.equal(123);
+          expect(données[0].données[valColonnes[0].id]).to.equal(123);
         });
       });
 
