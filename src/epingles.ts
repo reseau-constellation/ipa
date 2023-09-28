@@ -61,6 +61,7 @@ export default class Épingles {
         }
       }),
     );
+    this.événements.emit("changement épingles")
   }
 
   async épinglée({ id }: { id: string }): Promise<boolean> {
