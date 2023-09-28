@@ -443,6 +443,7 @@ export default class BDs extends ComposanteClientListe<string> {
           schéma: schémaBdTableauxDeBd,
         });
       const tableaux = await bdTableaux.all();
+
       await fOublierBdTableaux();
       for (const idTableau of Object.keys(tableaux)) {
         const idNouveauTableau: string =
