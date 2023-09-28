@@ -225,7 +225,7 @@ if (isNode || isElectronMain) {
     });
   });
 
-  describe.only("Fonctionalités client", function () {
+  describe("Fonctionalités client", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation, client2: ClientConstellation;
