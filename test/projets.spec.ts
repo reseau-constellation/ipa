@@ -602,7 +602,7 @@ typesClients.forEach((type) => {
 
             it("Les fichiers SFIP existent", async () => {
               const path = await import("path");
-              const contenu = zip.files[path.join("sfip", cid + ".svg")];
+              const contenu = zip.files[path.join("sfip", cid.replace("/", "-"))];
               expect(contenu).to.exist();
             });
           });
