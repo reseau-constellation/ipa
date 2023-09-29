@@ -183,9 +183,9 @@ export default class Épingles {
       };
 
       if (bd.type === "keyvalue") {
-        // @ts-ignore
         const fOublierBd = await this.client.suivreBdDic({
           id,
+          // @ts-ignore
           f: async (x: { key: string; value: élémentsBd; hash: string }[]) =>
             await fSuivre(Object.fromEntries(x.map((y) => [y.key, y.value]))),
         });
