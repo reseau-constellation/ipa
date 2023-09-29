@@ -1,4 +1,4 @@
-import type { ImportCandidate } from "ipfs-core-types/src/utils";
+import type { ToFile } from "ipfs-core-types/src/utils";
 
 import type { default as ClientConstellation } from "@/client.js";
 import {
@@ -237,14 +237,17 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     await fOublier();
   }
 
-  async sauvegarderImage({ image }: { image: ImportCandidate }): Promise<void> {
-    let contenu: ImportCandidate;
+  async sauvegarderImage({ image }: { image: ToFile & { path: string } }): Promise<void> {
+    let contenu: ToFile & { path: string };
 
-    if ((image as File).size !== undefined) {
-      if ((image as File).size > MAX_TAILLE_IMAGE) {
+    if ((image.content as File).size !== undefined) {
+      if ((image.content as File).size > MAX_TAILLE_IMAGE) {
         throw new Error("Taille maximale excédée");
       }
-      contenu = await (image as File).arrayBuffer();
+      contenu = {
+        path: (image.path),
+        content: await (image.content as File).arrayBuffer()
+      };
     } else {
       contenu = image;
     }

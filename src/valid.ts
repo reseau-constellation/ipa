@@ -368,12 +368,19 @@ export const formatsFichiers = {
 };
 
 function validFichier(val: unknown, exts?: string[]): boolean {
-  if (typeof val !== "object") return false;
-  const { cid, ext } = val as { cid: string; ext: string };
-  if (!cidValide(cid)) return false;
-  if (typeof ext !== "string") return false;
+  if (typeof val !== "string") return false;
+  let id: string;
+  let fichier: string;
+  try {
+    ([id, fichier] = val.split("/"));
+  } catch {
+    return false;
+  }
+  if (!fichier) return false;
+  if (!cidValide(id)) return false;
   if (exts) {
-    return exts.includes(ext.replace(".", ""));
+    const ext = fichier.split(".")[1]
+    return exts.includes(ext);
   }
   return true;
 }

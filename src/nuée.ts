@@ -1,6 +1,6 @@
 import ClientConstellation from "@/client.js";
 
-import type { ImportCandidate } from "ipfs-core-types/src/utils";
+import type { ToFile } from "ipfs-core-types/src/utils";
 
 import {
   schémaFonctionSuivi,
@@ -765,15 +765,18 @@ export default class Nuée extends ComposanteClientListe<string> {
     image,
   }: {
     idNuée: string;
-    image: ImportCandidate;
+    image: ToFile & { path: string };
   }): Promise<void> {
-    let contenu: ImportCandidate;
+    let contenu: ToFile & { path: string };
 
-    if ((image as File).size !== undefined) {
-      if ((image as File).size > MAX_TAILLE_IMAGE) {
+    if ((image.content as File).size !== undefined) {
+      if ((image.content as File).size > MAX_TAILLE_IMAGE) {
         throw new Error("Taille maximale excédée");
       }
-      contenu = await (image as File).arrayBuffer();
+      contenu = {
+        path: image.path,
+        content: await (image.content as File).arrayBuffer()
+      };
     } else {
       contenu = image;
     }
@@ -2556,7 +2559,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     nRésultatsDésirés: number;
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
-    const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
+    const fichiersSFIP: Set<string> = new Set();
 
     const infosTableaux = await uneFois(
       (f: schémaFonctionSuivi<infoTableauAvecId[]>) =>

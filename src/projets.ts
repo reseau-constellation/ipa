@@ -1,4 +1,4 @@
-import type { ImportCandidate } from "ipfs-core-types/src/utils";
+import type { ToFile } from "ipfs-core-types/src/utils";
 
 import { WorkBook, BookType, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
@@ -35,7 +35,7 @@ const schémaStuctureBdsDeProjet: JSONSchemaType<string> = { type: "string" };
 
 export interface donnéesProjetExportées {
   docs: { doc: WorkBook; nom: string }[];
-  fichiersSFIP: Set<{ cid: string; ext: string }>;
+  fichiersSFIP: Set<string>;
   nomFichier: string;
 }
 
@@ -605,15 +605,18 @@ export default class Projets extends ComposanteClientListe<string> {
     image,
   }: {
     idProjet: string;
-    image: ImportCandidate;
+    image: ToFile & { path: string };
   }): Promise<void> {
-    let contenu: ImportCandidate;
+    let contenu: ToFile & { path: string };
 
-    if ((image as File).size !== undefined) {
-      if ((image as File).size > MAX_TAILLE_IMAGE) {
+    if ((image.content as File).size !== undefined) {
+      if ((image.content as File).size > MAX_TAILLE_IMAGE) {
         throw new Error("Taille maximale excédée");
       }
-      contenu = await (image as File).arrayBuffer();
+      contenu = {
+        path: (image.path),
+        content: await (image.content as File).arrayBuffer()
+      };
     } else {
       contenu = image;
     }
@@ -931,9 +934,9 @@ export default class Projets extends ComposanteClientListe<string> {
       ? await Promise.all(
           [...fichiersSFIP].map(async (fichier) => {
             return {
-              nom: `${fichier.cid}.${fichier.ext}`,
+              nom: fichier.split("/")[1],
               octets: await toBuffer(
-                this.client.obtItérableAsyncSFIP({ id: fichier.cid }),
+                this.client.obtItérableAsyncSFIP({ id: fichier }),
               ),
             };
           }),

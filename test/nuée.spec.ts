@@ -593,12 +593,12 @@ typesClients.forEach((type) => {
               idNuée,
               licence: "ODbl-1_0",
             });
-            empreinte = await clients[1].bds.ajouterÉlémentÀTableauUnique({
+            empreinte = (await clients[1].bds.ajouterÉlémentÀTableauUnique({
               schémaBd: schémaNuée,
               idNuéeUnique: idNuée,
               clefTableau: "principal",
               vals: { [idCol]: 3 },
-            });
+            }))[0];
           });
 
           after(async () => {
@@ -682,12 +682,12 @@ typesClients.forEach((type) => {
               });
             fsOublier.push(fOublierChezLesAutres);
 
-            empreinte = await clients[1].bds.ajouterÉlémentÀTableauUnique({
+            empreinte = (await clients[1].bds.ajouterÉlémentÀTableauUnique({
               schémaBd,
               idNuéeUnique: idNuée,
               clefTableau: "principal",
               vals: { [idCol]: 3 },
-            });
+            }))[0];
           });
 
           after(async () => {

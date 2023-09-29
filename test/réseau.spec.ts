@@ -1860,7 +1860,7 @@ typesClients.forEach((type) => {
           });
 
           it("Image détectée", async () => {
-            await clients[0].profil!.sauvegarderImage({ image: IMAGE });
+            await clients[0].profil!.sauvegarderImage({ image: { content: IMAGE, path: "image.svg"} });
 
             const val = await résImage.attendreExiste();
             expect(val).to.deep.equal(new Uint8Array(IMAGE));
@@ -2444,18 +2444,18 @@ typesClients.forEach((type) => {
               ).fOublier,
             );
 
-            empreinte1 = await clients[0].tableaux!.ajouterÉlément({
+            empreinte1 = (await clients[0].tableaux!.ajouterÉlément({
               idTableau: idTableau1,
               vals: données1,
-            });
-            empreinte2 = await clients[0].tableaux!.ajouterÉlément({
+            }))[0];
+            empreinte2 = (await clients[0].tableaux!.ajouterÉlément({
               idTableau: idTableau1,
               vals: données2,
-            });
-            empreinte3 = await clients[1].tableaux!.ajouterÉlément({
+            }))[0];
+            empreinte3 = (await clients[1].tableaux!.ajouterÉlément({
               idTableau: idTableau2,
               vals: données3,
-            });
+            }))[0];
           });
 
           after(async () => {

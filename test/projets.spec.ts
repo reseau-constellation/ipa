@@ -469,7 +469,7 @@ typesClients.forEach((type) => {
       describe("Exporter données", function () {
         let idProjet: string;
         let docs: { doc: XLSX.WorkBook; nom: string }[];
-        let fichiersSFIP: Set<{ cid: string; ext: string }>;
+        let fichiersSFIP: Set<string>;
         let nomFichier: string;
 
         let cid: string;
@@ -508,15 +508,12 @@ typesClients.forEach((type) => {
             nomFichier: "logo.svg",
             optsAxios: { responseType: "arraybuffer" },
           });
-          cid = await client.ajouterÀSFIP({ fichier: OCTETS });
+          cid = await client.ajouterÀSFIP({ fichier: { content: OCTETS, path: "logo.svg" } });
 
           await client.tableaux!.ajouterÉlément({
             idTableau: idTableau2,
             vals: {
-              [idColFichier]: {
-                cid,
-                ext: "svg",
-              },
+              [idColFichier]: cid,
             },
           });
 
