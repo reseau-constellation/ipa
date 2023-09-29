@@ -1,4 +1,4 @@
-import type { ImportCandidate } from "ipfs-core-types/src/utils";
+import type { ToFile } from "ipfs-core-types/src/utils";
 
 import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
@@ -71,7 +71,7 @@ export interface infoScore {
 
 export interface donnéesBdExportées {
   doc: WorkBook;
-  fichiersSFIP: Set<{ cid: string; ext: string }>;
+  fichiersSFIP: Set<string>;
   nomFichier: string;
 }
 
@@ -871,8 +871,8 @@ export default class BDs extends ComposanteClientListe<string> {
     schémaBd: schémaSpécificationBd;
     idNuéeUnique: string;
     clefTableau: string;
-    vals: T;
-  }): Promise<string> {
+    vals: T | T[];
+  }): Promise<string[]> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClefDeBdUnique({
@@ -987,8 +987,8 @@ export default class BDs extends ComposanteClientListe<string> {
   }: {
     idBd: string;
     clefTableau: string;
-    vals: T;
-  }): Promise<string> {
+    vals: T | T[];
+  }): Promise<string[]> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClef({
@@ -1688,15 +1688,18 @@ export default class BDs extends ComposanteClientListe<string> {
     image,
   }: {
     idBd: string;
-    image: ImportCandidate;
+    image: ToFile & { path: string };
   }): Promise<void> {
-    let contenu: ImportCandidate;
+    let contenu: ToFile & { path: string };
 
-    if ((image as File).size !== undefined) {
-      if ((image as File).size > MAX_TAILLE_IMAGE) {
+    if ((image.content as File).size !== undefined) {
+      if ((image.content as File).size > MAX_TAILLE_IMAGE) {
         throw new Error("Taille maximale excédée");
       }
-      contenu = await (image as File).arrayBuffer();
+      contenu = {
+        path: (image.path),
+        content: await (image.content as File).arrayBuffer()
+      };
     } else {
       contenu = image;
     }
@@ -2162,7 +2165,7 @@ export default class BDs extends ComposanteClientListe<string> {
     nomFichier?: string;
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
-    const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
+    const fichiersSFIP: Set<string> = new Set();
 
     const infosTableaux = await uneFois(
       (f: schémaFonctionSuivi<infoTableauAvecId[]>) =>
@@ -2177,7 +2180,7 @@ export default class BDs extends ComposanteClientListe<string> {
           langues,
           doc,
         });
-      fichiersSFIPTableau.forEach((f: { cid: string; ext: string }) =>
+      fichiersSFIPTableau.forEach((f) =>
         fichiersSFIP.add(f),
       );
     }
@@ -2230,9 +2233,9 @@ export default class BDs extends ComposanteClientListe<string> {
       const fichiersDeSFIP = await Promise.all(
         [...fichiersSFIP].map(async (fichier) => {
           return {
-            nom: `${fichier.cid}.${fichier.ext}`,
+            nom: fichier.replace("/", "-"),
             octets: await toBuffer(
-              this.client.obtItérableAsyncSFIP({ id: fichier.cid }),
+              this.client.obtItérableAsyncSFIP({ id: fichier }),
             ),
           };
         }),

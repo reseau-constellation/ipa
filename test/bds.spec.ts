@@ -884,6 +884,7 @@ typesClients.forEach((type) => {
                 f: fSuivi,
               });
             },
+            x => !!x && x.length > 0
           );
           expect(Array.isArray(indexes)).to.be.true();
 
@@ -1161,13 +1162,13 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout d'éléments", async () => {
-            empreinteÉlément = await client.tableaux!.ajouterÉlément({
+            empreinteÉlément = (await client.tableaux!.ajouterÉlément({
               idTableau,
               vals: {
                 [idColNumérique]: -1,
                 [idColNumérique2]: 1,
               },
-            });
+            }))[0];
             let score = await attenteScore.attendreQue(s=>!!s.valide && s.valide == 0.5)
             expect(score.valide).to.equal(0.5);
             await client.tableaux!.ajouterÉlément({
@@ -1207,7 +1208,7 @@ typesClients.forEach((type) => {
       describe("Exporter données", function () {
         let idBd: string;
         let doc: XLSX.WorkBook;
-        let fichiersSFIP: Set<{ cid: string; ext: string }>;
+        let fichiersSFIP: Set<string>;
         let nomFichier: string;
         let cid: string;
 
@@ -1239,15 +1240,12 @@ typesClients.forEach((type) => {
             nomFichier: "logo.svg",
             optsAxios: { responseType: "arraybuffer" },
           });
-          cid = await client.ajouterÀSFIP({ fichier: octets });
+          cid = await client.ajouterÀSFIP({ fichier: {content:  octets, path:  "logo.svg"} });
 
           await client.tableaux!.ajouterÉlément({
             idTableau: idTableau2,
             vals: {
-              [idColFichier]: {
-                cid,
-                ext: "svg",
-              },
+              [idColFichier]: cid,
             },
           });
 
@@ -1276,7 +1274,7 @@ typesClients.forEach((type) => {
         it("Fichiers SFIP retrouvés de tous les tableaux", () => {
           expect(isSet(fichiersSFIP)).to.be.true();
           expect(fichiersSFIP.size).to.equal(1);
-          expect([...fichiersSFIP]).to.have.deep.members([{ cid, ext: "svg" }]);
+          expect([...fichiersSFIP]).to.have.deep.members([cid]);
         });
 
         describe("Exporter document données", function () {
@@ -1318,7 +1316,7 @@ typesClients.forEach((type) => {
             });
 
             it("Les fichiers SFIP existent", () => {
-              const contenu = zip.files[path.join("sfip", cid + ".svg")];
+              const contenu = zip.files[path.join("sfip", cid.replace("/", "-"))];
               expect(contenu).to.exist();
             });
           }
