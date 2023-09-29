@@ -1369,7 +1369,11 @@ if (isNode || isElectronMain) {
       let cid: string;
       const texte = "வணக்கம்";
       it("On ajoute un fichier au SFIP", async () => {
-        cid = await client.ajouterÀSFIP({ fichier: texte });
+        cid = await client.ajouterÀSFIP({ fichier: {
+          path: "texte.txt",
+          content: texte,
+        } });
+        console.log({cid})
       });
       it("On télécharge le fichier du SFIP", async () => {
         const données = await client.obtFichierSFIP({ id: cid });

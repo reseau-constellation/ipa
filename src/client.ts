@@ -1,6 +1,6 @@
 import type { IPFS as SFIP } from "ipfs-core";
 import type { IDResult } from "ipfs-core-types/src/root";
-import type { ImportCandidate } from "ipfs-core-types/src/utils";
+import type { ToFile } from "ipfs-core-types/src/utils";
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
 import {
@@ -1791,7 +1791,7 @@ export class ClientConstellation extends EventEmitter {
     id: string;
     max?: number;
   }): Promise<Uint8Array | null> {
-    return await toBuffer(this.sfip!.cat(id), max);
+    return await toBuffer(this.obtItérableAsyncSFIP({id}), max);
   }
 
   obtItérableAsyncSFIP({ id }: { id: string }): AsyncIterable<Uint8Array> {
@@ -1801,10 +1801,12 @@ export class ClientConstellation extends EventEmitter {
   async ajouterÀSFIP({
     fichier,
   }: {
-    fichier: ImportCandidate;
+    fichier: ToFile;
   }): Promise<string> {
+    const nomFichier = fichier.path;
+    fichier.path = "/base/" + nomFichier;
     const résultat = await this.sfip!.add(fichier);
-    return résultat.cid.toString();
+    return résultat.cid.toString() + "/" + nomFichier;
   }
 
   dossierOrbite(): string | undefined {
