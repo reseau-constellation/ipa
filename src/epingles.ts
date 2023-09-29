@@ -14,6 +14,19 @@ interface RequèteÉpingle {
   parent?: string;
 }
 
+export const cidEtFichierValide = (val: string) => {
+  let cid: string;
+  let fichier: string;
+  try {
+    ([cid, fichier] = val.split("/"));
+  } catch {
+    return false;
+  }
+  if (!fichier) return false;
+  if (!cidValide(cid)) return false;
+  return {cid, fichier}
+}
+
 export default class Épingles {
   client: ClientConstellation;
   requètes: RequèteÉpingle[];
@@ -140,7 +153,7 @@ export default class Épingles {
         if (fichiers) {
           // Épingler les fichiers si nécessaire
           const cids = l_vals.filter(
-            (v) => cidValide(v) && !idsOrbite.includes(v),
+            (v) => cidEtFichierValide(v) && !idsOrbite.includes(v),
           );
 
           cids.forEach((id_) => {
