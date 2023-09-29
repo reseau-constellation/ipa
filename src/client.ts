@@ -2206,8 +2206,8 @@ export class ClientConstellation extends EventEmitter {
 
         await Promise.all(
           obsolètes.map(async (o) => {
-            dicBds[o].requètes.delete(id);
-            if (!dicBds[o].requètes.size) await dicBds[o].fOublier();
+            dicBds[o]?.requètes.delete(id);
+            if (!dicBds[o]?.requètes.size) await dicBds[o].fOublier();
           }),
         );
         await Promise.all(
