@@ -550,7 +550,7 @@ typesClients.forEach((type) => {
 
         it("Fichiers SFIP retrouvés de tous les tableaux", () => {
           expect(fichiersSFIP.size).to.equal(1);
-          expect([...fichiersSFIP]).to.have.deep.members([{ cid, ext: "svg" }]);
+          expect([...fichiersSFIP]).to.have.deep.members([cid]);
         });
 
         if (isElectronMain || isNode) {
