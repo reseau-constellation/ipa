@@ -159,7 +159,7 @@ export default class Épingles {
           cids.forEach((id_) => {
             // Pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
             // (Sinon ça bloquerait tout le programme en attendant de trouver le contenu sur le réseau SFIP !)
-            this.client.sfip!.pin.add(id_);
+            this.client.sfip!.pin.add(id_.split("/")[0]);
 
             const fOublier_ = async () => {
               // rm par contre peut être async
