@@ -55,7 +55,7 @@ typesClients.forEach((type) => {
           idMotClef = await client.motsClefs!.créerMotClef();
           const val = await motsClefs.attendreQue((x) => !!x.length);
 
-          expect(Array.isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(1);
         });
         it("Effacer un mot-clef", async () => {
@@ -229,7 +229,7 @@ typesClients.forEach((type) => {
         });
 
         it("Le mot-clef est copié", async () => {
-          expect(Array.isArray(motsClefs)).to.be.true;
+          expect(Array.isArray(motsClefs)).to.be.true();
           expect(motsClefs).to.contain(idMotClef2);
         });
 
