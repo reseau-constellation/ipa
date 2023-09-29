@@ -1373,7 +1373,6 @@ if (isNode || isElectronMain) {
           path: "texte.txt",
           content: texte,
         } });
-        console.log({cid})
       });
       it("On télécharge le fichier du SFIP", async () => {
         const données = await client.obtFichierSFIP({ id: cid });
@@ -2045,7 +2044,7 @@ if (isNode || isElectronMain) {
         await bdListe.add(idBdKv2);
 
         cidTexte = (await client2.sfip!.add("Bonjour !")).cid.toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
-        await bdListe.add(cidTexte);
+        await bdListe.add(cidTexte+"/text.txt");
 
         await client.épingles!.épinglerBd({ id: idBdKv, récursif: true });
       });
