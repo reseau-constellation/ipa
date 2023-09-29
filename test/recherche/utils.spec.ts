@@ -21,6 +21,7 @@ import { obtRessourceTest } from "../ressources/index.js";
 import { expect } from "aegir/chai";
 import { générerClientsInternes } from "../ressources/utils.js";
 import { JSONSchemaType } from "ajv";
+import { attente } from "@constl/utils-tests";
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;
@@ -202,7 +203,7 @@ describe("Utils recherche", function () {
   });
 
   describe("Rechercher selon id", function () {
-    let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    const résultat = new attente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte> | undefined>();
     let fOublier: schémaFonctionOublier;
 
     const fRecherche = rechercherSelonId("id");
@@ -211,13 +212,13 @@ describe("Utils recherche", function () {
       fOublier = await fRecherche(
         client,
         "voici mon id",
-        (rés) => (résultat = rés),
+        (rés) => (résultat.mettreÀJour(rés)),
       );
     });
     after(async () => {
       if (fOublier) await fOublier();
     });
-    it("Résultat détecté", () => {
+    it("Résultat détecté", async () => {
       const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
         type: "résultat",
         de: "id",
@@ -229,13 +230,13 @@ describe("Utils recherche", function () {
         },
         score: 1,
       };
-
-      expect(résultat).to.deep.equal(réfRés);
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal(réfRés);
     });
   });
 
   describe("Combiner recherches", function () {
-    let résultat: résultatObjectifRecherche<infoRésultatTexte> | undefined;
+    const résultat = new attente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte> | undefined>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -249,13 +250,13 @@ describe("Utils recherche", function () {
         },
         client,
         "abcdefghij",
-        (rés) => (résultat = rés),
+        (rés) => (résultat.mettreÀJour(rés)),
       );
     });
     after(async () => {
       if (fOublier) await fOublier();
     });
-    it("Résultat détecté", () => {
+    it("Résultat détecté", async () => {
       const réfRés: résultatObjectifRecherche<infoRésultatTexte> = {
         type: "résultat",
         de: "id",
@@ -267,15 +268,16 @@ describe("Utils recherche", function () {
         },
         score: 1,
       };
-      expect(résultat).to.deep.equal(réfRés);
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal(réfRés);
     });
   });
 
   describe("Sous-recherche", function () {
     let idBd: string;
-    let résultat:
-      | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
-      | undefined;
+    const résultat = new attente.AttendreRésultat<
+    résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      | undefined>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -294,7 +296,7 @@ describe("Utils recherche", function () {
           infoRésultatRecherche<infoRésultatTexte>
         >,
       ) => {
-        résultat = rés;
+        résultat.mettreÀJour(rés);
       };
 
       fsOublier.push(
@@ -310,7 +312,7 @@ describe("Utils recherche", function () {
     after(async () => await Promise.all(fsOublier.map((f) => f())));
 
     it("Rien pour commencer", () => {
-      expect(résultat).to.be.undefined();
+      expect(résultat.val).to.be.undefined();
     });
 
     it("Ajout variable détecté", async () => {
@@ -341,7 +343,8 @@ describe("Utils recherche", function () {
         score: 0.5,
       };
 
-      expect(résultat).to.deep.equal(réfRés);
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal(réfRés);
     });
 
     it("Ajout meilleure variable détecté", async () => {
@@ -371,30 +374,31 @@ describe("Utils recherche", function () {
         score: 1,
         type: "résultat",
       };
-
-      expect(résultat).to.deep.equal(réfRés);
+      const val = await résultat.attendreQue(x=>x?.clef === "précipitation")
+      expect(val).to.deep.equal(réfRés);
     });
   });
 
   describe("Rechercher tous égaux", function () {
-    let résultat: résultatObjectifRecherche<infoRésultatVide> | undefined;
+    const résultat = new attente.AttendreRésultat<résultatObjectifRecherche<infoRésultatVide> | undefined>();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
       const fRecherche = rechercherTous();
-      fOublier = await fRecherche(client, "abc", (rés) => (résultat = rés));
+      fOublier = await fRecherche(client, "abc", (rés) => (résultat.mettreÀJour(rés)));
     });
     after(async () => {
       if (fOublier) await fOublier();
     });
-    it("Tous ont le même score", () => {
+    it("Tous ont le même score", async () => {
       const réfRés: résultatObjectifRecherche<infoRésultatVide> = {
         type: "résultat",
         score: 1,
         de: "*",
         info: { type: "vide" },
       };
-      expect(résultat).to.deep.equal(réfRés);
+      const val = await résultat.attendreExiste();
+      expect(val).to.deep.equal(réfRés);
     });
   });
 });
