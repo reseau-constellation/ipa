@@ -180,10 +180,13 @@ typesClients.forEach((type) => {
           });
 
           const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+
           idTableau = await client.bds.ajouterTableauBd({ idBd });
+
           const idVar1 = await client.variables!.créerVariable({
             catégorie: "numérique",
           });
+
           const idVar2 = await client.variables!.créerVariable({
             catégorie: "chaîneNonTraductible",
           });
@@ -599,7 +602,9 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>
             ) =>
-              await client.automatisations!.suivreAutomatisations({ f: fSuivi })
+              await client.automatisations!.suivreAutomatisations({
+                f: fSuivi,
+              })
           );
           await Promise.all(
             automatisations.map(
@@ -949,7 +954,9 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>
             ) =>
-              await client.automatisations!.suivreAutomatisations({ f: fSuivi })
+              await client.automatisations!.suivreAutomatisations({
+                f: fSuivi,
+              })
           );
           await Promise.all(
             automatisations.map(

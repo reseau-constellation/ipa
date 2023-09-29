@@ -1,7 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 import { WorkBook, utils } from "xlsx";
-import type FeedStore from "orbit-db-feedstore";
-import OrbitDB from "orbit-db";
 
 import ClientConstellation from "@/client.js";
 import {
@@ -10,14 +8,9 @@ import {
   élémentsBd,
   schémaStructureBdNoms,
 } from "@/types.js";
-import {
-  uneFois,
-  faisRien,
-  traduire,
-  adresseOrbiteValide,
-} from "@constl/utils-ipa";
+import { uneFois, faisRien, traduire } from "@constl/utils-ipa";
 
-import type { donnéesBdExportées } from "@/bds.js";
+import { type donnéesBdExportées } from "@/bds.js";
 import {
   erreurValidation,
   erreurRègle,
@@ -41,11 +34,17 @@ import type {
   catégorieVariables,
 } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { cholqij } from "@/dates.js";
 
 import { isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
+import { isValidAddress } from "@orbitdb/core";
+import { cidEtFichierValide } from "@/epingles.js";
+
+type ContrôleurConstellation = Awaited<
+  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
+>;
 
 export interface élémentDonnées<
   T extends élémentBdListeDonnées = élémentBdListeDonnées
@@ -118,8 +117,11 @@ const schémaInfoColAvecCatégorie: JSONSchemaType<InfoColAvecCatégorie> = {
 
 const schémaDonnéesTableau: JSONSchemaType<{ [clef: string]: élémentsBd }> = {
   type: "object",
+  properties: {
+    id: { type: "string" },
+  },
   additionalProperties: true,
-  required: [],
+  required: ["id"],
 };
 
 export function élémentsÉgaux(
@@ -202,19 +204,21 @@ export default class Tableaux {
     const optionsAccès = await this.client.obtOpsAccès({ idBd });
 
     const idBdTableau = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
-    const { bd: bdTableau, fOublier } = await this.client.ouvrirBd({
-      id: idBdTableau,
-      type: "keyvalue",
-      schéma: schémaStructureBdTableau,
-    });
+    const { bd: bdTableau, fOublier } = await this.client.orbite!.ouvrirBdTypée(
+      {
+        id: idBdTableau,
+        type: "keyvalue",
+        schéma: schémaStructureBdTableau,
+      }
+    );
 
     await bdTableau.set("type", "tableau");
 
     const idBdNoms = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdTableau.set("noms", idBdNoms);
@@ -251,32 +255,29 @@ export default class Tableaux {
     idBd: string;
     copierDonnées?: boolean;
   }): Promise<string> {
-    const { bd: bdBase, fOublier } = await this.client.ouvrirBd({
+    const { bd: bdBase, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id,
       type: "keyvalue",
       schéma: schémaStructureBdTableau,
     });
     const idNouveauTableau = await this.créerTableau({ idBd });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
-      await this.client.ouvrirBd({
+      await this.client.orbite!.ouvrirBdTypée({
         id: idNouveauTableau,
         type: "keyvalue",
         schéma: schémaStructureBdTableau,
       });
 
     // Copier les noms
-    const idBdNoms = bdBase.get("noms");
+    const idBdNoms = await bdBase.get("noms");
     if (idBdNoms) {
-      const { bd: bdNoms, fOublier: fOublierNoms } = await this.client.ouvrirBd(
-        {
+      const { bd: bdNoms, fOublier: fOublierNoms } =
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdNoms,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
-        }
-      );
-      const noms = ClientConstellation.obtObjetdeBdDic({
-        bd: bdNoms,
-      });
+        });
+      const noms = await bdNoms.all();
       await fOublierNoms();
       await this.sauvegarderNomsTableau({ idTableau: idNouveauTableau, noms });
     }
@@ -286,6 +287,7 @@ export default class Tableaux {
       bdBase,
       nouvelleBd,
       clef: "colonnes",
+      schéma: schémaInfoColAvecCatégorie,
     });
 
     // Copier les règles
@@ -293,6 +295,7 @@ export default class Tableaux {
       bdBase,
       nouvelleBd,
       clef: "règles",
+      schéma: schémaRègleColonne,
     });
 
     if (copierDonnées) {
@@ -301,6 +304,7 @@ export default class Tableaux {
         bdBase,
         nouvelleBd,
         clef: "données",
+        schéma: schémaDonnéesTableau,
       });
     }
 
@@ -419,18 +423,18 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdColonnes });
-    const éléments = ClientConstellation.obtÉlémentsDeBdListe({
-      bd: bdColonnes,
-      renvoyerValeur: false,
-    });
-    const élémentCol = éléments.find((x) => x.payload.value.id === idColonne);
+    const { bd: bdColonnes, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdColonnes,
+        type: "feed",
+        schéma: schémaInfoColAvecCatégorie,
+      });
+    const éléments = await bdColonnes.all();
+    const élémentCol = éléments.find((x) => x.value.id === idColonne);
 
     // Changer uniquement si la colonne existe et était déjà sous le même statut que `val`
-    if (élémentCol && Boolean(élémentCol.payload.value.index) !== val) {
-      const { value } = élémentCol.payload;
+    if (élémentCol && Boolean(élémentCol.value.index) !== val) {
+      const { value } = élémentCol;
       const nouvelÉlément: InfoCol = Object.assign(value, { index: val });
       await bdColonnes.remove(élémentCol.hash);
       await bdColonnes.add(nouvelÉlément);
@@ -465,7 +469,7 @@ export default class Tableaux {
     clefsSelonVariables?: boolean;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      données?: LogEntry<T>[];
+      données?: { value: T; hash: string }[];
       colonnes?: { [key: string]: string };
     } = {};
 
@@ -476,7 +480,7 @@ export default class Tableaux {
         const donnéesFinales: élémentDonnées<T>[] = données.map(
           (x): élémentDonnées<T> => {
             const empreinte = x.hash;
-            const élément = x.payload.value;
+            const élément = x.value;
 
             const données: T = clefsSelonVariables
               ? Object.keys(élément).reduce((acc: T, elem: string) => {
@@ -506,7 +510,7 @@ export default class Tableaux {
       catégories: false,
     });
 
-    const fSuivreDonnées = async (données: LogEntry<T>[]) => {
+    const fSuivreDonnées = async (données: { value: T; hash: string }[]) => {
       info.données = données;
       await fFinale();
     };
@@ -532,7 +536,7 @@ export default class Tableaux {
   }: {
     é: élémentBdListeDonnées;
     colonnes: InfoColAvecCatégorie[];
-    fichiersSFIP: Set<{ cid: string; ext: string }>;
+    fichiersSFIP: Set<string>;
     langues?: string[];
   }): Promise<élémentBdListeDonnées> {
     const extraireTraduction = async ({
@@ -558,22 +562,18 @@ export default class Tableaux {
     ): Promise<string | number | undefined> => {
       switch (typeof v) {
         case "object": {
-          if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
-            const { cid, ext } = v as { cid: string; ext: string };
-            if (!cid || !ext) return;
-            fichiersSFIP.add({ cid, ext });
-
-            return `${cid}.${ext}`;
-          } else {
-            return JSON.stringify(v);
-          }
+          return JSON.stringify(v);
         }
         case "boolean":
           return v.toString();
         case "number":
           return v;
         case "string":
-          if (catégorie === "chaîne" && adresseOrbiteValide(v)) {
+          if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
+            fichiersSFIP.add(v);
+
+            return v;
+          } else if (catégorie === "chaîne" && isValidAddress(v)) {
             return await extraireTraduction({ adresseBdTrads: v, langues });
           }
           return v;
@@ -621,7 +621,7 @@ export default class Tableaux {
   }): Promise<donnéesBdExportées> {
     /* Créer le document si nécessaire */
     doc = doc || utils.book_new();
-    const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
+    const fichiersSFIP: Set<string> = new Set();
 
     let nomTableau: string;
     const idCourtTableau = idTableau.split("/").pop()!;
@@ -636,14 +636,24 @@ export default class Tableaux {
       nomTableau = idCourtTableau;
     }
 
-    const colonnes = await uneFois(
-      (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
-        this.suivreColonnesTableau({ idTableau, f })
-    );
-
     const données = await uneFois(
       (f: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) =>
         this.suivreDonnées({ idTableau, f })
+    );
+
+    const colonnes = await uneFois(
+      (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
+        this.suivreColonnesTableau({ idTableau, f }),
+      (c) =>
+        !!c &&
+        c.length >=
+          [
+            ...new Set(
+              données
+                .map((d) => Object.keys(d.données).filter((x) => x !== "id"))
+                .flat()
+            ),
+          ].length
     );
 
     let donnéesPourXLSX = await Promise.all(
@@ -667,7 +677,15 @@ export default class Tableaux {
           (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
             this.client.variables!.suivreNomsVariable({ idVariable: idVar, f })
         );
-        const idCol = colonnes.find((c) => c.variable === idVar)!.id!;
+        const idCol = colonnes.find((c) => c.variable === idVar)?.id;
+        if (!idCol)
+          throw new Error(
+            `Colonnne pour variable ${idVar} non trouvée parmis les colonnnes :\n${JSON.stringify(
+              colonnes,
+              undefined,
+              2
+            )}.`
+          );
         nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
       }
       donnéesPourXLSX = donnéesPourXLSX.map((d) =>
@@ -694,8 +712,12 @@ export default class Tableaux {
     vals,
   }: {
     idTableau: string;
-    vals: T;
-  }): Promise<string> {
+    vals: T | T[];
+  }): Promise<string[]> {
+    if (!Array.isArray(vals)) {
+      vals = [vals];
+    }
+
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
@@ -707,16 +729,23 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
-      FeedStore<T>
-    >({ id: idBdDonnées });
-    vals = await this.vérifierClefsÉlément({ idTableau, élément: vals });
-    const id = uuidv4();
-    const empreinte = await bdDonnées.add({ ...vals, id });
+    const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée(
+      {
+        id: idBdDonnées,
+        type: "feed",
+        schéma: schémaDonnéesTableau,
+      }
+    );
+
+    const empreintes: string[] = [];
+    for (const val of vals) {
+      const id = uuidv4();
+      empreintes.push(await bdDonnées.add({ ...val, id }));
+    }
 
     await fOublier();
 
-    return empreinte;
+    return empreintes;
   }
 
   async modifierÉlément({
@@ -739,21 +768,24 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
-      FeedStore<élémentBdListeDonnées>
-    >({ id: idBdDonnées });
+    const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée(
+      {
+        id: idBdDonnées,
+        type: "feed",
+        schéma: schémaDonnéesTableau,
+      }
+    );
 
-    const précédent = this.client.obtÉlémentBdListeSelonEmpreinte({
+    const précédent = (await this.client.obtÉlémentBdListeSelonEmpreinte({
       bd: bdDonnées,
       empreinte: empreintePrécédente,
-    }) as { [key: string]: élémentsBd };
+    })) as { [key: string]: élémentsBd };
 
-    let élément = Object.assign({}, précédent, vals);
+    const élément = Object.assign({}, précédent, vals);
 
     Object.keys(vals).map((c: string) => {
       if (vals[c] === undefined) delete élément[c];
     });
-    élément = await this.vérifierClefsÉlément({ idTableau, élément });
 
     if (!élémentsÉgaux(élément, précédent)) {
       const résultat = await Promise.all([
@@ -786,13 +818,15 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdColonnes });
-    const idsColonnes: string[] = bdColonnes
-      .iterator({ limit: -1 })
-      .collect()
-      .map((e) => e.payload.value.id);
+    const { bd: bdColonnes, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdColonnes,
+        type: "feed",
+        schéma: schémaInfoColAvecCatégorie,
+      });
+    const idsColonnes: string[] = (await bdColonnes.all()).map(
+      (e) => e.value.id
+    );
     const clefsPermises = [...idsColonnes, "id"];
     const clefsFinales = Object.keys(élément).filter((x: string) =>
       clefsPermises.includes(x)
@@ -822,9 +856,13 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdDonnées, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdDonnées });
+    const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée(
+      {
+        id: idBdDonnées,
+        type: "feed",
+        schéma: schémaDonnéesTableau,
+      }
+    );
     await bdDonnées.remove(empreinte);
     await fOublier();
   }
@@ -836,15 +874,6 @@ export default class Tableaux {
     idTableauBase: string;
     idTableau2: string;
   }): Promise<void> {
-    const colsTableauBase = await uneFois(
-      async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
-        return await this.suivreColonnesTableau({
-          idTableau: idTableauBase,
-          f: fSuivi,
-        });
-      }
-    );
-
     const donnéesTableauBase = await uneFois(
       async (
         fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
@@ -854,6 +883,26 @@ export default class Tableaux {
           f: fSuivi,
         });
       }
+    );
+
+    const colsTableauBase = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
+        return await this.suivreColonnesTableau({
+          idTableau: idTableauBase,
+          f: fSuivi,
+          catégories: false,
+        });
+      },
+      // Il faut attendre que toutes les colonnes soient présentes
+      (colonnes) =>
+        colonnes !== undefined &&
+        [
+          ...new Set(
+            donnéesTableauBase
+              .map((d) => Object.keys(d.données).filter((c) => c !== "id"))
+              .flat()
+          ),
+        ].length <= colonnes.length
     );
 
     const donnéesTableau2 = await uneFois(
@@ -869,6 +918,7 @@ export default class Tableaux {
       const existant = donnéesTableauBase.find((d) =>
         indexÉlémentsÉgaux(d.données, nouvelÉlément.données, indexes)
       );
+
       if (existant) {
         const àAjouter: { [key: string]: élémentsBd } = {};
         for (const col of colsTableauBase) {
@@ -879,6 +929,7 @@ export default class Tableaux {
             àAjouter[col.id] = nouvelÉlément.données[col.id];
           }
         }
+
         if (Object.keys(àAjouter).length) {
           await this.effacerÉlément({
             idTableau: idTableauBase,
@@ -898,19 +949,21 @@ export default class Tableaux {
     }
   }
 
-  async convertirDonnées({
+  async convertirDonnées<T extends élémentBdListeDonnées[]>({
     idTableau,
     données,
-    conversions,
+    conversions = {},
+    importerFichiers,
     cheminBaseFichiers,
     donnéesExistantes,
   }: {
     idTableau: string;
-    données: élémentBdListeDonnées[];
-    conversions: { [col: string]: conversionDonnées };
+    données: T;
+    conversions?: { [col: string]: conversionDonnées };
+    importerFichiers: boolean;
     cheminBaseFichiers?: string;
     donnéesExistantes?: élémentBdListeDonnées[];
-  }): Promise<élémentBdListeDonnées[]> {
+  }): Promise<T> {
     const colonnes = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
         return await this.suivreColonnesTableau({ idTableau, f: fSuivi });
@@ -930,18 +983,18 @@ export default class Tableaux {
     );
 
     const fichiersDéjàAjoutés: {
-      [chemin: string]: { cid: string; ext: string };
+      [chemin: string]: string;
     } = {};
+
     const ajouterFichierÀSFIP = async ({
       chemin,
     }: {
       chemin: string;
-    }): Promise<{ ext: string; cid: string } | undefined> => {
+    }): Promise<string | undefined> => {
       if (isNode || isElectronMain) {
         const fs = await import("fs");
         const path = await import("path");
 
-        const ext = chemin.split(".").pop() || "";
         const cheminAbsolut = cheminBaseFichiers
           ? path.resolve(cheminBaseFichiers, chemin)
           : chemin;
@@ -951,10 +1004,15 @@ export default class Tableaux {
           return fichiersDéjàAjoutés[cheminAbsolut];
 
         const contenuFichier = fs.readFileSync(cheminAbsolut);
-        const cid = await this.client.ajouterÀSFIP({ fichier: contenuFichier });
-        fichiersDéjàAjoutés[chemin] = { ext, cid };
+        const cid = await this.client.ajouterÀSFIP({
+          fichier: {
+            path: path.basename(cheminAbsolut),
+            content: contenuFichier,
+          },
+        });
+        fichiersDéjàAjoutés[chemin] = cid;
 
-        return { ext, cid };
+        return cid;
       }
       return undefined;
     };
@@ -972,12 +1030,12 @@ export default class Tableaux {
       if (cacheRechercheIdOrbite[langue]?.[val])
         return cacheRechercheIdOrbite[langue][val];
       for (const id of idsOrbiteColsChaîne) {
-        const { bd, fOublier } = await this.client.ouvrirBd({
+        const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
           id,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-        const valLangue = bd.get(langue);
+        const valLangue = await bd.get(langue);
         await fOublier();
         if (valLangue === val) {
           if (!cacheRechercheIdOrbite[langue])
@@ -997,7 +1055,7 @@ export default class Tableaux {
       langue: string;
     }): Promise<string> => {
       const { bd: bdNuée, fOublier: fOublierBdTableau } =
-        await this.client.ouvrirBd({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idTableau,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -1007,11 +1065,11 @@ export default class Tableaux {
       const optionsAccès = { address: accès.address };
       await fOublierBdTableau();
       const idOrbite = await this.client.créerBdIndépendante({
-        type: "kvstore",
+        type: "keyvalue",
         optionsAccès,
       });
 
-      const { bd, fOublier } = await this.client.ouvrirBd({
+      const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
         id: idOrbite,
         type: "keyvalue",
         schéma: schémaStructureBdNoms,
@@ -1036,13 +1094,11 @@ export default class Tableaux {
         case "image":
         case "vidéo":
         case "fichier": {
-          if (typeof val === "string") {
-            try {
-              return JSON.parse(val);
-            } catch {
-              const infoFichier = await ajouterFichierÀSFIP({ chemin: val });
-              return infoFichier || val;
-            }
+          if (typeof val === "string" && importerFichiers) {
+            if (cidEtFichierValide(val)) return val;
+
+            const infoFichier = await ajouterFichierÀSFIP({ chemin: val });
+            return infoFichier || val;
           }
           return val;
         }
@@ -1160,7 +1216,7 @@ export default class Tableaux {
 
         case "chaîne": {
           if (typeof val !== "string") return val;
-          if (adresseOrbiteValide(val)) return val;
+          if (isValidAddress(val)) return val;
           else {
             if (conversion?.type === "chaîne") {
               const { langue } = conversion;
@@ -1184,20 +1240,20 @@ export default class Tableaux {
       }
     };
 
-    for (const file of données) {
+    for (const élément of données) {
       for (const c of colonnes) {
         if (c.catégorie) {
           const { type, catégorie } = c.catégorie;
-          const val = file[c.id];
+          const val = élément[c.id];
           if (val === undefined) continue;
 
           const conversion = conversions[c.id];
 
           if (type === "simple") {
-            file[c.id] = await convertir({ val, catégorie, conversion });
+            élément[c.id] = await convertir({ val, catégorie, conversion });
           } else {
             const valListe = typeof val === "string" ? JSON.parse(val) : val;
-            file[c.id] = Array.isArray(valListe)
+            élément[c.id] = Array.isArray(valListe)
               ? await Promise.all(
                   valListe.map(
                     async (v) =>
@@ -1235,6 +1291,7 @@ export default class Tableaux {
       idTableau,
       données,
       conversions,
+      importerFichiers: true,
       cheminBaseFichiers,
       donnéesExistantes: donnéesTableau.map((x) => x.données),
     });
@@ -1253,12 +1310,12 @@ export default class Tableaux {
       }
     }
 
-    for (const n of nouveaux) {
-      await this.ajouterÉlément({ idTableau, vals: n });
-    }
-
     for (const e of àEffacer) {
       await this.effacerÉlément({ idTableau, empreinte: e });
+    }
+
+    for (const n of nouveaux) {
+      await this.ajouterÉlément({ idTableau, vals: n });
     }
   }
 
@@ -1272,7 +1329,7 @@ export default class Tableaux {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1280,7 +1337,7 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -1304,7 +1361,7 @@ export default class Tableaux {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1312,7 +1369,7 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -1331,7 +1388,7 @@ export default class Tableaux {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -1339,7 +1396,7 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd({
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -1385,9 +1442,12 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdColonnes });
+    const { bd: bdColonnes, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdColonnes,
+        type: "feed",
+        schéma: schémaInfoColAvecCatégorie,
+      });
     const entrée: InfoCol = {
       id: idColonne || uuidv4(),
       variable: idVariable,
@@ -1416,12 +1476,15 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBd<
-      FeedStore<InfoCol>
-    >({ id: idBdColonnes });
+    const { bd: bdColonnes, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdColonnes,
+        type: "feed",
+        schéma: schémaInfoColAvecCatégorie,
+      });
     await this.client.effacerÉlémentDeBdListe({
       bd: bdColonnes,
-      élément: (x) => x.payload.value.id === idColonne,
+      élément: (x) => x.value.id === idColonne,
     });
 
     await fOublier();
@@ -1530,7 +1593,7 @@ export default class Tableaux {
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (variables?: string[]) => {
-      await f((variables || []).filter((v) => v && OrbitDB.isValidAddress(v)));
+      await f((variables || []).filter((v) => v && isValidAddress(v)));
     };
     const fSuivreBdColonnes = async ({
       id,
@@ -1572,9 +1635,11 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
-      FeedStore<règleColonne>
-    >({ id: idBdRègles });
+    const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdRègles,
+      type: "feed",
+      schéma: schémaRègleColonne,
+    });
 
     const id = uuidv4();
     const règleAvecId: règleVariableAvecId<R> = {
@@ -1613,13 +1678,15 @@ export default class Tableaux {
       );
     }
 
-    const { bd: bdRègles, fOublier } = await this.client.ouvrirBd<
-      FeedStore<règleColonne>
-    >({ id: idBdRègles });
+    const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdRègles,
+      type: "feed",
+      schéma: schémaRègleColonne,
+    });
 
     await this.client.effacerÉlémentDeBdListe({
       bd: bdRègles,
-      élément: (é) => é.payload.value.règle.id === idRègle,
+      élément: (é) => é.value.règle.id === idRègle,
     });
 
     await fOublier();

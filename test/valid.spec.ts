@@ -25,10 +25,12 @@ const catégories: {
     invalides: [false, "abc", { a: 2 }],
   },
   chaîne: {
-    valides: [
-      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e",
+    valides: ["/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"],
+    invalides: [
+      123,
+      "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX",
+      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e", // orbit-db < v1.0
     ],
-    invalides: [123, "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"],
   },
   chaîneNonTraductible: {
     valides: ["abc", "வணக்கம்", ""],
@@ -97,37 +99,25 @@ const catégories: {
   },
   fichier: {
     valides: [
-      { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".பை" },
+      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/text.txt",
+      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/கோப்பு.பை",
     ],
     invalides: [
-      { cid: "Je ne suis pas un cid", ext: ".பை" },
-      { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP" },
-      { ext: ".பை" },
+      "Je ne suis pas un cid/fichier.txt",
+      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP",
     ],
   },
   vidéo: {
-    valides: [
-      { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".mp4" },
-    ],
-    invalides: [
-      { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".jpg" },
-    ],
+    valides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.mp4"],
+    invalides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.jpg"],
   },
   audio: {
-    valides: [
-      { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".mp3" },
-    ],
-    invalides: [
-      { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".ts" },
-    ],
+    valides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.mp3"],
+    invalides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.ts"],
   },
   image: {
-    valides: [
-      { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".jpg" },
-    ],
-    invalides: [
-      { cid: "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP", ext: ".பை" },
-    ],
+    valides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.jpg"],
+    invalides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.பை"],
   },
 };
 
@@ -144,7 +134,7 @@ describe("Validation", function () {
                 catégorie: cat as catégorieBaseVariables,
               },
             });
-            expect(valide).to.be.true;
+            expect(valide).to.be.true();
           });
         });
       });
@@ -158,7 +148,7 @@ describe("Validation", function () {
                 catégorie: cat as catégorieBaseVariables,
               },
             });
-            expect(valide).to.be.false;
+            expect(valide).to.be.false();
           });
         });
       });
@@ -187,7 +177,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(0);
       });
       it("Valeure manquante", () => {
@@ -197,7 +187,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -228,7 +218,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(0);
       });
       it("Catérogie invalide", () => {
@@ -238,7 +228,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -265,7 +255,7 @@ describe("Validation", function () {
         const erreurs = fonc([
           { données: { "une autre colonne": 1 }, empreinte: uuidv4() },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(0);
       });
 
@@ -304,7 +294,7 @@ describe("Validation", function () {
                   empreinte,
                 },
               ]);
-              expect(Array.isArray(erreurs)).to.be.true;
+              expect(Array.isArray(erreurs)).to.be.true();
               expect(erreurs.length).to.equal(0);
             });
           });
@@ -316,7 +306,7 @@ describe("Validation", function () {
                   empreinte,
                 },
               ]);
-              expect(Array.isArray(erreurs)).to.be.true;
+              expect(Array.isArray(erreurs)).to.be.true();
               expect(erreurs.length).to.equal(1);
               expect(erreurs[0].empreinte).to.equal(empreinte);
               expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -351,19 +341,19 @@ describe("Validation", function () {
 
         it("Pas d'erreur si la colonne n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp min": 1 }, empreinte }]);
-          expect(Array.isArray(erreurs)).to.be.true;
+          expect(Array.isArray(erreurs)).to.be.true();
           expect(erreurs.length).to.equal(0);
         });
         it("Pas d'erreur si tout est valide", () => {
           const erreurs = fonc([
             { données: { "temp min": 10, "temp max": 20 }, empreinte },
           ]);
-          expect(Array.isArray(erreurs)).to.be.true;
+          expect(Array.isArray(erreurs)).to.be.true();
           expect(erreurs.length).to.equal(0);
         });
         it("Pas d'erreur si la colonne référence n'existe pas", () => {
           const erreurs = fonc([{ données: { "temp max": 20 }, empreinte }]);
-          expect(Array.isArray(erreurs)).to.be.true;
+          expect(Array.isArray(erreurs)).to.be.true();
           expect(erreurs.length).to.equal(0);
         });
         it("Erreur si non valide", () => {
@@ -371,7 +361,7 @@ describe("Validation", function () {
             { données: { "temp max": 20, "temp min": 25 }, empreinte },
           ]);
 
-          expect(Array.isArray(erreurs)).to.be.true;
+          expect(Array.isArray(erreurs)).to.be.true();
           expect(erreurs.length).to.equal(1);
           expect(erreurs[0].empreinte).to.equal(empreinte);
           expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -403,19 +393,19 @@ describe("Validation", function () {
         const erreurs = fonc([
           { données: { "une autre colonne": 2 }, empreinte },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(0);
       });
       it("Pas d'erreur si tout valide", () => {
         const erreurs = fonc([{ données: { "col chaîne": "a" }, empreinte }]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(0);
       });
 
       it("Erreur si non valide", () => {
         const erreurs = fonc([{ données: { "col chaîne": "d" }, empreinte }]);
 
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règle);
@@ -467,7 +457,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(0);
       });
       it("Catérogie invalide", () => {
@@ -477,7 +467,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règleCat);
@@ -489,7 +479,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(0);
       });
       it("Valeur invalide", () => {
@@ -499,7 +489,7 @@ describe("Validation", function () {
             empreinte,
           },
         ]);
-        expect(Array.isArray(erreurs)).to.be.true;
+        expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(1);
         expect(erreurs[0].empreinte).to.equal(empreinte);
         expect(erreurs[0].erreur.règle).to.equal(règleVal);

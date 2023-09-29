@@ -1,9 +1,17 @@
-import AccessControllers from "orbit-db-access-controllers";
-
-import OrbitDB from "orbit-db";
-import type FeedStore from "orbit-db-feedstore";
-import type { IdentityProvider } from "orbit-db-identity-provider";
+import {
+  type OrbitDB,
+  IPFSBlockStorage,
+  LRUStorage,
+  ComposedStorage,
+  Identities,
+  Storage,
+  Entry,
+} from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
+import * as Block from "multiformats/block";
+import * as dagCbor from "@ipld/dag-cbor";
+import { sha256 } from "multiformats/hashes/sha2";
+import { base58btc } from "multiformats/bases/base58";
 
 import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import GestionnaireAccès, {
@@ -12,8 +20,11 @@ import GestionnaireAccès, {
 
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
-import path from "path";
-import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
+import { FeedStoreTypé, gestionnaireOrbiteGénéral } from "@/orbite.js";
+import { EventEmitter } from "events";
+import ContrôleurAccès from "./cntrlMod.js";
+import { pathJoin } from "./utils.js";
+import { JSONSchemaType } from "ajv";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License
@@ -39,261 +50,285 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-const ensureAddress = (address: string) => {
-  const suffix = address.toString().split("/").pop();
-  return suffix === "_access" ? address : path.join(address, "/_access");
-};
-
-export const nomType = "controlleur-constellation";
+export const nomType = "contrôleur-constellation";
 
 export interface OptionsContrôleurConstellation {
-  premierMod?: string;
+  write?: string;
   address?: string;
   nom?: string;
 }
 
-interface OptionsInitContrôleurConstellation
-  extends OptionsContrôleurConstellation {
-  premierMod: string;
-  nom: string;
-}
+const codec = dagCbor;
+const hasher = sha256;
+const hashStringEncoding = base58btc;
 
-export default class ContrôleurConstellation extends AccessControllers.AccessController {
-  bd?: FeedStore<élémentBdAccès>;
-  _gestionnaireOrbite: GestionnaireOrbite;
-  fOublierBd?: schémaFonctionOublier;
-  nom: string;
-  _orbitdb: OrbitDB;
-  _premierMod: string;
-  _adresseBd?: string;
-  idRequète: string;
-  gestRôles: GestionnaireAccès;
+const schémaBdAccès: JSONSchemaType<élémentBdAccès> = {
+  type: "object",
+  properties: {
+    rôle: {
+      type: "string",
+    },
+    id: {
+      type: "string",
+    },
+  },
+  required: ["rôle", "id"],
+};
 
-  constructor(orbitdb: OrbitDB, options: OptionsInitContrôleurConstellation) {
-    super();
-    this._orbitdb = orbitdb;
-    this._gestionnaireOrbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({
+const ManifestContrôleurConstellation = async ({
+  storage,
+  type,
+  params,
+}: {
+  storage: Storage;
+  type: string;
+  params: { nom: string; adresseBdAccès: string; write: string };
+}) => {
+  const manifest = {
+    type,
+    ...params,
+  };
+  const { cid, bytes } = await Block.encode({ value: manifest, codec, hasher });
+  const hash = cid.toString(hashStringEncoding);
+  await storage.put(hash, bytes);
+  return hash;
+};
+
+const ContrôleurConstellation =
+  ({
+    write,
+    nom,
+    storage,
+  }: {
+    write?: string;
+    nom?: string;
+    storage?: Storage;
+  } = {}) =>
+  async ({
+    orbitdb,
+    identities,
+    address,
+  }: {
+    orbitdb: OrbitDB;
+    identities: Identities;
+    address?: string;
+  }) => {
+    write = write || orbitdb.identity.id;
+
+    nom = nom || uuidv4();
+    storage =
+      storage ||
+      (await ComposedStorage(
+        await LRUStorage({ size: 1000 }),
+        await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
+      ));
+
+    // À faire : vérifier si toujours nécessaire avec bd-orbite 1,0
+    const gestionnaireOrbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({
       orbite: orbitdb,
     });
 
-    this._premierMod = options.premierMod;
-    this._adresseBd = options.address;
-    this.nom = options.nom;
+    let adresseBdAccès: string;
 
-    this.idRequète = uuidv4();
-    this.gestRôles = new GestionnaireAccès(this._orbitdb);
-    this.gestRôles.on("misÀJour", () => this.emit("misÀJour"));
-  }
+    let bd: FeedStoreTypé<élémentBdAccès>;
+    let fOublierBd: schémaFonctionOublier;
 
-  static get type(): string {
-    return nomType;
-  }
-
-  // return address of AC (in this case orbitdb address of AC)
-  get address(): string {
-    return this.bd!.id;
-  }
-
-  async estUnMembre(id: string): Promise<boolean> {
-    return await this.gestRôles.estUnMembre(id);
-  }
-
-  async estUnModérateur(id: string): Promise<boolean> {
-    return await this.gestRôles.estUnModérateur(id);
-  }
-
-  async estAutorisé(id: string): Promise<boolean> {
-    return await this.gestRôles.estAutorisé(id);
-  }
-
-  async suivreUtilisateursAutorisés(
-    f: schémaFonctionSuivi<infoUtilisateur[]>
-  ): Promise<schémaFonctionOublier> {
-    const fFinale = async () => {
-      const mods: infoUtilisateur[] = Object.keys(
-        this.gestRôles._rôlesUtilisateurs[MODÉRATEUR]
-      ).map((m) => {
-        return {
-          idCompte: m,
-          rôle: MODÉRATEUR,
-        };
+    if (address) {
+      const manifestBytes = await storage!.get(
+        address.replaceAll(`/${nomType}/`, "")
+      );
+      const { value } = await Block.decode({
+        bytes: manifestBytes,
+        codec,
+        hasher,
       });
-      const idsMods = mods.map((m) => m.idCompte);
-      const membres: infoUtilisateur[] = Object.keys(
-        this.gestRôles._rôlesUtilisateurs[MEMBRE]
-      )
-        .map((m) => {
-          return {
-            idCompte: m,
-            rôle: MEMBRE,
-          } as infoUtilisateur;
-        })
-        .filter((m) => !idsMods.includes(m.idCompte));
+      ({ write, nom, adresseBdAccès } = value as {
+        write: string;
+        nom: string;
+        adresseBdAccès: string;
+      });
+      ({ bd, fOublier: fOublierBd } = await gestionnaireOrbite.ouvrirBdTypée({
+        id: adresseBdAccès,
+        type: "feed",
+        schéma: schémaBdAccès,
+        options: {
+          syncAutomatically: true,
+        },
+      }));
+    } else {
+      ({ bd, fOublier: fOublierBd } = await gestionnaireOrbite.ouvrirBdTypée({
+        id: nom, // Je pense qu'on peut faire ça, tant que le nom reste unique...
+        type: "feed",
+        schéma: schémaBdAccès,
+        options: {
+          AccessController: ContrôleurAccès({ write }),
+          syncAutomatically: true,
+        },
+      }));
+      adresseBdAccès = bd.address;
+      address = await ManifestContrôleurConstellation({
+        storage,
+        type: nomType,
+        params: { write: write!, nom, adresseBdAccès },
+      });
+      address = pathJoin("/", nomType, address);
+    }
 
-      const utilisateurs: infoUtilisateur[] = [...mods, ...membres];
-      await f(utilisateurs);
+    const événements = new EventEmitter();
+
+    const gestRôles = new GestionnaireAccès(orbitdb);
+    gestRôles.on("misÀJour", () => événements.emit("misÀJour"));
+
+    const miseÀJourBdAccès = async (
+      éléments: élémentBdAccès[]
+    ): Promise<void> => {
+      éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
+
+      await gestRôles.ajouterÉléments(éléments);
     };
-    this.gestRôles.on("misÀJour", fFinale);
-    await fFinale();
-    const fOublier = async () => {
-      this.gestRôles.off("misÀJour", fFinale);
+    const fOublierSuiviBdAccès = await suivreBdAccès(bd, miseÀJourBdAccès);
+
+    const estAutorisé = async (id: string): Promise<boolean> => {
+      return await gestRôles.estAutorisé(id);
     };
-    return fOublier;
-  }
 
-  async suivreIdsOrbiteAutoriséesÉcriture(
-    f: schémaFonctionSuivi<string[]>
-  ): Promise<schémaFonctionOublier> {
-    const fFinale = async () => {
-      await f([
-        ...this.gestRôles._rôles.MEMBRE,
-        ...this.gestRôles._rôles.MODÉRATEUR,
-      ]);
+    const estUnModérateur = async (id: string): Promise<boolean> => {
+      return await gestRôles.estUnModérateur(id);
     };
-    this.gestRôles.on("misÀJour", fFinale);
-    await fFinale();
-    const fOublier = async () => {
-      this.gestRôles.off("misÀJour", fFinale);
+
+    const estUnMembre = async (id: string): Promise<boolean> => {
+      return await gestRôles.estUnMembre(id);
     };
-    return fOublier;
-  }
 
-  async canAppend(
-    entry: LogEntry<élémentBdAccès>,
-    identityProvider: typeof IdentityProvider
-  ): Promise<boolean> {
-    const vraiSiSigValide = async () =>
-      await identityProvider.verifyIdentity(entry.identity);
+    const canAppend = async (
+      entry: Entry<élémentBdAccès>
+    ): Promise<boolean> => {
+      const writerIdentity = await identities.getIdentity(entry.identity);
+      if (!writerIdentity) {
+        return false;
+      }
 
-    const estAutorisé = await this.estAutorisé(entry.identity.id);
+      const { id } = writerIdentity;
 
-    if (estAutorisé) {
       // Pour implémenter la révocation des permissions, garder compte ici
       // des entrées approuvées par utilisatrice
-      return await vraiSiSigValide();
-    }
-    return false;
-  }
-
-  async _miseÀJourBdAccès(): Promise<void> {
-    let éléments = this.bd!.iterator({ limit: -1 })
-      .collect()
-      .map((x: LogEntry<élémentBdAccès>) => x.payload.value);
-
-    éléments = [{ rôle: MODÉRATEUR, id: this._premierMod }, ...éléments];
-
-    await this.gestRôles.ajouterÉléments(éléments);
-  }
-
-  async close(): Promise<void> {
-    await this.fOublierBd?.();
-
-    await this.gestRôles.fermer();
-  }
-
-  async load(adresse: string): Promise<void> {
-    const addresseValide = OrbitDB.isValidAddress(adresse);
-
-    let adresseFinale: string;
-    if (addresseValide) {
-      adresseFinale = adresse;
-    } else {
-      adresseFinale = (
-        await this._orbitdb.determineAddress(
-          ensureAddress(adresse),
-          "feed",
-          this._createOrbitOpts(addresseValide)
-        )
-      ).toString();
-    }
-
-    const { bd, fOublier } =
-      await this._gestionnaireOrbite.ouvrirBd<élémentBdAccès>({
-        id: adresseFinale,
-        type: "feed",
-      });
-    this.bd = bd;
-    this.fOublierBd = fOublier;
-
-    suivreBdAccès(this.bd, () => this._miseÀJourBdAccès());
-  }
-
-  _createOrbitOpts(loadByAddress = false): {
-    [key: string]: string | { [key: string]: string };
-  } {
-    const contrôleurAccès = {
-      type: "controlleur-accès-constellation",
-      premierMod: this._premierMod,
-    };
-
-    return loadByAddress ? {} : { accessController: contrôleurAccès };
-  }
-
-  async save(): Promise<{ [key: string]: string }> {
-    const adresse =
-      this._adresseBd ||
-      (await this._orbitdb.determineAddress(
-        `${this.nom}/_access`,
-        "feed",
-        this._createOrbitOpts()
-      ));
-
-    const manifest = {
-      address: adresse.toString(),
-      premierMod: this._premierMod,
-      nom: this.nom,
-    };
-    return manifest;
-  }
-
-  async grant(rôle: (typeof rôles)[number], id: string): Promise<void> {
-    if (!rôles.includes(rôle)) {
-      throw new Error(`Erreur: Le rôle ${rôle} n'existe pas.`);
-    }
-    if (this.gestRôles._rôles[rôle].includes(id)) {
-      return;
-    }
-    try {
-      const entry: élémentBdAccès = { rôle, id };
-      await this.bd!.add(entry);
-    } catch (_e) {
-      const e = _e as Error;
-      if (e.toString().includes("not append entry")) {
-        throw new Error(
-          `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`
-        );
-      }
-      throw e;
-    }
-  }
-
-  async revoke(rôle: (typeof rôles)[number], id: string): Promise<void> {
-    // Pour implémenter la révocation des permissions, ajouter une
-    // mention des modifications déjà autorisées par la personne nouvellement
-    // bloquée
-    const élément = this.bd!.iterator({ limit: -1 })
-      .collect()
-      .find(
-        (e: LogEntry<élémentBdAccès>) =>
-          e.payload.value.rôle === rôle && e.payload.value.id === id
+      return (
+        identities.verifyIdentity(writerIdentity) && (await estAutorisé(id))
       );
-    if (!élément) {
-      throw new Error(`Erreur : Le rôle ${rôle} n'existait pas pour ${id}.`);
-    }
-    const empreinte = élément.hash;
-    await this.bd!.remove(empreinte);
-  }
+    };
 
-  /* Factory */
-  static async create(
-    orbitdb: OrbitDB,
-    options: OptionsContrôleurConstellation
-  ): Promise<ContrôleurConstellation> {
-    if (!options.premierMod) options.premierMod = orbitdb.identity.id;
-    options.nom = options.nom || uuidv4();
-    return new ContrôleurConstellation(
-      orbitdb,
-      options as OptionsInitContrôleurConstellation
-    );
-  }
-}
+    const grant = async (
+      rôle: (typeof rôles)[number],
+      id: string
+    ): Promise<void> => {
+      if (!rôles.includes(rôle)) {
+        throw new Error(`Erreur: Le rôle ${rôle} n'existe pas.`);
+      }
+      if (gestRôles._rôles[rôle].includes(id)) {
+        return;
+      }
+      try {
+        const entry: élémentBdAccès = { rôle, id };
+        await bd.add(entry);
+      } catch (_e) {
+        const e = _e as Error;
+        if (e.toString().includes("not append entry")) {
+          throw new Error(
+            `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`
+          );
+        }
+        throw e;
+      }
+    };
+
+    const revoke = async (
+      _rôle: (typeof rôles)[number],
+      _id: string
+    ): Promise<void> => {
+      throw new Error(
+        "C'est très difficile à implémenter...avez-vous des idées ?"
+      );
+    };
+
+    const close = async () => {
+      await fOublierSuiviBdAccès();
+      await fOublierBd();
+
+      await gestRôles.fermer();
+    };
+
+    const drop = async () => {
+      await bd.drop();
+    };
+
+    const suivreUtilisateursAutorisés = async (
+      f: schémaFonctionSuivi<infoUtilisateur[]>
+    ): Promise<schémaFonctionOublier> => {
+      const fFinale = async () => {
+        const mods: infoUtilisateur[] = Object.keys(
+          gestRôles._rôlesUtilisateurs[MODÉRATEUR]
+        ).map((m) => {
+          return {
+            idCompte: m,
+            rôle: MODÉRATEUR,
+          };
+        });
+        const idsMods = mods.map((m) => m.idCompte);
+        const membres: infoUtilisateur[] = Object.keys(
+          gestRôles._rôlesUtilisateurs[MEMBRE]
+        )
+          .map((m) => {
+            return {
+              idCompte: m,
+              rôle: MEMBRE,
+            } as infoUtilisateur;
+          })
+          .filter((m) => !idsMods.includes(m.idCompte));
+
+        const utilisateurs: infoUtilisateur[] = [...mods, ...membres];
+        await f(utilisateurs);
+      };
+      gestRôles.on("misÀJour", fFinale);
+      await fFinale();
+      const fOublier = async () => {
+        gestRôles.off("misÀJour", fFinale);
+      };
+      return fOublier;
+    };
+
+    const suivreIdsOrbiteAutoriséesÉcriture = async (
+      f: schémaFonctionSuivi<string[]>
+    ): Promise<schémaFonctionOublier> => {
+      const fFinale = async () => {
+        await f([...gestRôles._rôles.MEMBRE, ...gestRôles._rôles.MODÉRATEUR]);
+      };
+      gestRôles.on("misÀJour", fFinale);
+      await fFinale();
+      const fOublier = async () => {
+        gestRôles.off("misÀJour", fFinale);
+      };
+      return fOublier;
+    };
+
+    return {
+      type: nomType,
+      address,
+      adresseBdAccès,
+      write,
+      grant,
+      revoke,
+      canAppend,
+      close,
+      drop,
+      suivreUtilisateursAutorisés,
+      suivreIdsOrbiteAutoriséesÉcriture,
+      gestRôles,
+      estAutorisé,
+      estUnMembre,
+      estUnModérateur,
+      bd,
+    };
+  };
+
+ContrôleurConstellation.type = nomType;
+export default ContrôleurConstellation;

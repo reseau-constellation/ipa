@@ -1,4 +1,4 @@
-import type { ImportCandidate } from "ipfs-core-types/src/utils";
+import type { ToFile } from "ipfs-core-types/src/utils";
 
 import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
@@ -35,9 +35,13 @@ import {
   ignorerNonDéfinis,
 } from "@constl/utils-ipa";
 import type { objRôles } from "@/accès/types.js";
-import type { default as ContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
+
+type ContrôleurConstellation = Awaited<
+  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
+>;
 
 export interface schémaSpécificationBd {
   licence: string;
@@ -67,7 +71,7 @@ export interface infoScore {
 
 export interface donnéesBdExportées {
   doc: WorkBook;
-  fichiersSFIP: Set<{ cid: string; ext: string }>;
+  fichiersSFIP: Set<string>;
   nomFichier: string;
 }
 
@@ -181,6 +185,8 @@ export const schémaBdTableauxDeBd: JSONSchemaType<{
 };
 
 const schémaBdPrincipale: JSONSchemaType<string> = { type: "string" };
+const schémaStructureBdMotsClefs: JSONSchemaType<string> = { type: "string" };
+const schémaStructureBdNuées: JSONSchemaType<string> = { type: "string" };
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
@@ -222,44 +228,45 @@ export default class BDs extends ComposanteClientListe<string> {
     ajouter?: boolean;
   }): Promise<string> {
     const idBdBd = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        premierMod: this.client.bdCompte!.id,
+        write: this.client.bdCompte!.address,
       },
     });
 
-    const { bd: bdBD, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd: bdBD, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdBd,
-      type: "kvstore",
+      type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     await bdBD.set("type", "bd");
     await bdBD.set("licence", licence);
     if (licenceContenu) await bdBD.set("licenceContenu", licenceContenu);
 
-    const accès = bdBD.access as unknown as ContrôleurConstellation;
+    const accès = bdBD.access as ContrôleurConstellation;
     const optionsAccès = { address: accès.address };
 
     const idBdMétadonnées = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdBD.set("métadonnées", idBdMétadonnées);
 
     const idBdNoms = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdBD.set("noms", idBdNoms);
 
     const idBdDescr = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdBD.set("descriptions", idBdDescr);
 
     const idBdTableaux = await this.client.créerBdIndépendante({
-      type: "kvstore",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdBD.set("tableaux", idBdTableaux);
@@ -280,9 +287,10 @@ export default class BDs extends ComposanteClientListe<string> {
 
     if (ajouter) {
       const { bd: bdRacine, fOublier: fOublierRacine } =
-        await this.client.ouvrirBd<string>({
+        await this.client.orbite!.ouvrirBdTypée({
           id: await this.obtIdBd(),
           type: "feed",
+          schéma: schémaBdPrincipale,
         });
       await bdRacine.add(idBdBd);
       fOublierRacine();
@@ -294,18 +302,20 @@ export default class BDs extends ComposanteClientListe<string> {
   }
 
   async ajouterÀMesBds({ idBd }: { idBd: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<string>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
       type: "feed",
+      schéma: schémaBdPrincipale,
     });
     await bd.add(idBd);
     await fOublier();
   }
 
   async enleverDeMesBds({ idBd }: { idBd: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<string>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
       type: "feed",
+      schéma: schémaBdPrincipale,
     });
     await this.client.effacerÉlémentDeBdListe({ bd, élément: idBd });
     await fOublier();
@@ -320,12 +330,13 @@ export default class BDs extends ComposanteClientListe<string> {
     ajouterÀMesBds?: boolean;
     copierDonnées?: boolean;
   }): Promise<string> {
-    const { bd: bdBase, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd: bdBase, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
-      type: "kvstore",
+      type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
-    const licence = bdBase.get("licence");
-    const licenceContenu = bdBase.get("licenceContenu");
+    const licence = await bdBase.get("licence");
+    const licenceContenu = await bdBase.get("licenceContenu");
     if (!licence)
       throw new Error(`Aucune licence trouvée sur la BD source ${idBd}.`);
     const idNouvelleBd = await this.créerBd({
@@ -334,47 +345,47 @@ export default class BDs extends ComposanteClientListe<string> {
       ajouter: ajouterÀMesBds,
     });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
-      await this.client.ouvrirBd<structureBdBd>({
+      await this.client.orbite!.ouvrirBdTypée({
         id: idNouvelleBd,
-        type: "kvstore",
+        type: "keyvalue",
+        schéma: schémaStructureBdBd,
       });
 
-    const idBdMétadonnées = bdBase.get("métadonnées");
+    const idBdMétadonnées = await bdBase.get("métadonnées");
     if (idBdMétadonnées) {
       const { bd: bdMétadonnées, fOublier: fOublierBdNoms } =
-        await this.client.ouvrirBd<{ [clef: string]: élémentsBd }>({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdMétadonnées,
-          type: "kvstore",
+          type: "keyvalue",
+          schéma: schémaStructureBdMétadonnées,
         });
-      const métadonnées = ClientConstellation.obtObjetdeBdDic({
-        bd: bdMétadonnées,
-      });
+      const métadonnées = await bdMétadonnées.all();
       await fOublierBdNoms();
       await this.sauvegarderMétadonnéesBd({ idBd: idNouvelleBd, métadonnées });
     }
 
-    const idBdNoms = bdBase.get("noms");
+    const idBdNoms = await bdBase.get("noms");
     if (idBdNoms) {
       const { bd: bdNoms, fOublier: fOublierBdNoms } =
-        await this.client.ouvrirBd<{ [langue: string]: string }>({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdNoms,
-          type: "kvstore",
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
         });
-      const noms = ClientConstellation.obtObjetdeBdDic({ bd: bdNoms });
+      const noms = await bdNoms.all();
       await fOublierBdNoms();
       await this.sauvegarderNomsBd({ idBd: idNouvelleBd, noms });
     }
 
-    const idBdDescr = bdBase.get("descriptions");
+    const idBdDescr = await bdBase.get("descriptions");
     if (idBdDescr) {
       const { bd: bdDescr, fOublier: fOublierBdDescr } =
-        await this.client.ouvrirBd<{ [langue: string]: string }>({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdDescr,
-          type: "kvstore",
+          type: "keyvalue",
+          schéma: schémaStructureBdNoms,
         });
-      const descriptions = ClientConstellation.obtObjetdeBdDic({
-        bd: bdDescr,
-      });
+      const descriptions = await bdDescr.all();
       await fOublierBdDescr();
       await this.sauvegarderDescriptionsBd({
         idBd: idNouvelleBd,
@@ -382,13 +393,15 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     }
 
-    const idBdMotsClefs = bdBase.get("motsClefs");
+    const idBdMotsClefs = await bdBase.get("motsClefs");
     if (idBdMotsClefs) {
       const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
-        await this.client.ouvrirBd<string>({ id: idBdMotsClefs, type: "feed" });
-      const motsClefs = ClientConstellation.obtÉlémentsDeBdListe({
-        bd: bdMotsClefs,
-      });
+        await this.client.orbite!.ouvrirBdTypée({
+          id: idBdMotsClefs,
+          type: "feed",
+          schéma: schémaStructureBdMotsClefs,
+        });
+      const motsClefs = (await bdMotsClefs.all()).map((x) => x.value);
       await fOublierBdMotsClefs();
       await this.ajouterMotsClefsBd({
         idBd: idNouvelleBd,
@@ -396,13 +409,15 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     }
 
-    const idBdNuées = bdBase.get("nuées");
+    const idBdNuées = await bdBase.get("nuées");
     if (idBdNuées) {
       const { bd: bdNuées, fOublier: fOublierBdNuées } =
-        await this.client.ouvrirBd<string>({ id: idBdNuées, type: "feed" });
-      const nuées = ClientConstellation.obtÉlémentsDeBdListe({
-        bd: bdNuées,
-      });
+        await this.client.orbite!.ouvrirBdTypée({
+          id: idBdNuées,
+          type: "feed",
+          schéma: schémaStructureBdNuées,
+        });
+      const nuées = (await bdNuées.all()).map((x) => x.value);
       await fOublierBdNuées();
       await this.rejoindreNuées({
         idBd: idNouvelleBd,
@@ -410,24 +425,25 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     }
 
-    const idBdTableaux = bdBase.get("tableaux");
-    const idNouvelleBdTableaux = nouvelleBd.get("tableaux");
+    const idBdTableaux = await bdBase.get("tableaux");
+    const idNouvelleBdTableaux = await nouvelleBd.get("tableaux");
     if (!idNouvelleBdTableaux) throw new Error("Erreur d'initialisation.");
 
     const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
-      await this.client.ouvrirBd<{ [tbl: string]: infoTableau }>({
+      await this.client.orbite!.ouvrirBdTypée({
         id: idNouvelleBdTableaux,
-        type: "kvstore",
+        type: "keyvalue",
+        schéma: schémaBdTableauxDeBd,
       });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
-        await this.client.ouvrirBd<{ [tbl: string]: infoTableau }>({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdTableaux,
-          type: "kvstore",
+          type: "keyvalue",
+          schéma: schémaBdTableauxDeBd,
         });
-      const tableaux = ClientConstellation.obtObjetdeBdDic({
-        bd: bdTableaux,
-      });
+      const tableaux = await bdTableaux.all();
+
       await fOublierBdTableaux();
       for (const idTableau of Object.keys(tableaux)) {
         const idNouveauTableau: string =
@@ -440,10 +456,12 @@ export default class BDs extends ComposanteClientListe<string> {
       }
     }
 
-    const statut = bdBase.get("statut") || { statut: TYPES_STATUT.ACTIVE };
+    const statut = (await bdBase.get("statut")) || {
+      statut: TYPES_STATUT.ACTIVE,
+    };
     await nouvelleBd.set("statut", statut);
 
-    const image = bdBase.get("image");
+    const image = await bdBase.get("image");
     if (image) await nouvelleBd.set("image", image);
 
     await nouvelleBd.set("copiéDe", { id: idBd });
@@ -534,7 +552,7 @@ export default class BDs extends ComposanteClientListe<string> {
     return await this.client.suivreBd({
       id: idBd,
       f: async (bd) => {
-        const copiéDe = bd.get("copiéDe");
+        const copiéDe = await bd.get("copiéDe");
         await f(copiéDe);
       },
       type: "keyvalue",
@@ -854,8 +872,8 @@ export default class BDs extends ComposanteClientListe<string> {
     schémaBd: schémaSpécificationBd;
     idNuéeUnique: string;
     clefTableau: string;
-    vals: T;
-  }): Promise<string> {
+    vals: T | T[];
+  }): Promise<string[]> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClefDeBdUnique({
@@ -970,8 +988,8 @@ export default class BDs extends ComposanteClientListe<string> {
   }: {
     idBd: string;
     clefTableau: string;
-    vals: T;
-  }): Promise<string> {
+    vals: T | T[];
+  }): Promise<string[]> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClef({
@@ -1048,14 +1066,17 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdMétadonnées)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd<{
-      [clef: string]: élémentsBd;
-    }>({ id: idBdMétadonnées, type: "kvstore" });
+    const { bd: bdMétadonnées, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdMétadonnées,
+        type: "keyvalue",
+        schéma: schémaStructureBdMétadonnées,
+      });
 
     for (const clef in métadonnées) {
       await bdMétadonnées.set(clef, métadonnées[clef]);
@@ -1075,14 +1096,17 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdMétadonnées)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd<{
-      [clef: string]: string;
-    }>({ id: idBdMétadonnées, type: "kvstore" });
+    const { bd: bdMétadonnées, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdMétadonnées,
+        type: "keyvalue",
+        schéma: schémaStructureBdMétadonnées,
+      });
     await bdMétadonnées.set(clef, métadonnée);
     await fOublier();
   }
@@ -1097,14 +1121,17 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdMétadonnées)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdMétadonnées, type: "kvstore" });
+    const { bd: bdMétadonnées, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdMétadonnées,
+        type: "keyvalue",
+        schéma: schémaStructureBdMétadonnées,
+      });
     await bdMétadonnées.del(clef);
     await fOublier();
   }
@@ -1135,14 +1162,16 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdNoms, type: "kvstore" });
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
 
     for (const lng in noms) {
       await bdNoms.set(lng, noms[lng]);
@@ -1162,14 +1191,16 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdNoms, type: "kvstore" });
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdNoms.set(langue, nom);
     await fOublier();
   }
@@ -1184,14 +1215,16 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdNoms, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdNoms, type: "kvstore" });
+    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdNoms,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdNoms.del(langue);
     await fOublier();
   }
@@ -1206,14 +1239,16 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdDescr, type: "kvstore" });
+    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdDescr,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     for (const lng in descriptions) {
       await bdDescr.set(lng, descriptions[lng]);
     }
@@ -1232,14 +1267,16 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdDescr, type: "kvstore" });
+    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdDescr,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdDescr.set(langue, description);
     await fOublier();
   }
@@ -1254,14 +1291,16 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.ouvrirBd<{
-      [langue: string]: string;
-    }>({ id: idBdDescr, type: "keyvalue" });
+    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+      id: idBdDescr,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdDescr.del(langue);
     await fOublier();
   }
@@ -1273,9 +1312,10 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     licence: string;
   }): Promise<void> {
-    const { bd: bdBd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd: bdBd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     await bdBd.set("licence", licence);
     await fOublier();
@@ -1288,9 +1328,10 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     licenceContenu?: string;
   }): Promise<void> {
-    const { bd: bdBd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd: bdBd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     if (licenceContenu) {
       await bdBd.set("licenceContenu", licenceContenu);
@@ -1317,14 +1358,14 @@ export default class BDs extends ComposanteClientListe<string> {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
-    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<string>({
-      id: idBdMotsClefs,
-      type: "feed",
-    });
-    for (const id of idsMotsClefs) {
-      const motsClefsExistants = ClientConstellation.obtÉlémentsDeBdListe({
-        bd: bdMotsClefs,
+    const { bd: bdMotsClefs, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdMotsClefs,
+        type: "feed",
+        schéma: schémaStructureBdMotsClefs,
       });
+    for (const id of idsMotsClefs) {
+      const motsClefsExistants = (await bdMotsClefs.all()).map((x) => x.value);
       if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
     }
     await fOublier();
@@ -1346,10 +1387,12 @@ export default class BDs extends ComposanteClientListe<string> {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
-    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBd<string>({
-      id: idBdMotsClefs,
-      type: "feed",
-    });
+    const { bd: bdMotsClefs, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdMotsClefs,
+        type: "feed",
+        schéma: schémaStructureBdMotsClefs,
+      });
 
     await this.client.effacerÉlémentDeBdListe({
       bd: bdMotsClefs,
@@ -1376,14 +1419,13 @@ export default class BDs extends ComposanteClientListe<string> {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
-    const { bd: bdNuées, fOublier } = await this.client.ouvrirBd<string>({
+    const { bd: bdNuées, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNuées,
       type: "feed",
+      schéma: schémaStructureBdNuées,
     });
     for (const id of idsNuées) {
-      const nuéesExistantes = ClientConstellation.obtÉlémentsDeBdListe({
-        bd: bdNuées,
-      });
+      const nuéesExistantes = (await bdNuées.all()).map((x) => x.value);
       if (!nuéesExistantes.includes(id)) await bdNuées.add(id);
     }
     await fOublier();
@@ -1405,9 +1447,10 @@ export default class BDs extends ComposanteClientListe<string> {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
-    const { bd: bdNuées, fOublier } = await this.client.ouvrirBd<string>({
+    const { bd: bdNuées, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNuées,
       type: "feed",
+      schéma: schémaStructureBdNuées,
     });
 
     await this.client.effacerÉlémentDeBdListe({
@@ -1428,15 +1471,18 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdTableaux) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
-    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<{
-      [tbl: string]: infoTableau;
-    }>({ id: idBdTableaux, type: "keyvalue" });
+    const { bd: bdTableaux, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdTableaux,
+        type: "keyvalue",
+        schéma: schémaBdTableauxDeBd,
+      });
 
     clefTableau = clefTableau || uuidv4();
     const idTableau = await this.client.tableaux!.créerTableau({ idBd });
@@ -1460,15 +1506,18 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdTableaux) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
     }
 
-    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<{
-      [tbl: string]: infoTableau;
-    }>({ id: idBdTableaux, type: "keyvalue" });
+    const { bd: bdTableaux, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdTableaux,
+        type: "keyvalue",
+        schéma: schémaBdTableauxDeBd,
+      });
     await bdTableaux.del(idTableau);
     await fOublier();
 
@@ -1488,14 +1537,17 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdTableaux) throw new Error("Id Bd Tableau non obtenable.");
-    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBd<{
-      [tbl: string]: infoTableau;
-    }>({ id: idBdTableaux, type: "keyvalue" });
+    const { bd: bdTableaux, fOublier } =
+      await this.client.orbite!.ouvrirBdTypée({
+        id: idBdTableaux,
+        type: "keyvalue",
+        schéma: schémaBdTableauxDeBd,
+      });
 
-    const infoExistante = bdTableaux.get(idTableau);
+    const infoExistante = await bdTableaux.get(idTableau);
     if (infoExistante) {
       infoExistante.clef = clef;
       bdTableaux.set(idTableau, infoExistante);
@@ -1511,9 +1563,10 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     statut: schémaStatut;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     bd.set("statut", statut);
     await fOublier();
@@ -1542,36 +1595,40 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idNouvelle?: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
     await fOublier();
   }
 
   async marquerActive({ idBd }: { idBd: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     bd.set("statut", { statut: TYPES_STATUT.ACTIVE });
     await fOublier();
   }
 
   async marquerBêta({ idBd }: { idBd: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     bd.set("statut", { statut: TYPES_STATUT.BÊTA });
     await fOublier();
   }
 
   async marquerInterne({ idBd }: { idBd: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     bd.set("statut", { statut: TYPES_STATUT.INTERNE });
     await fOublier();
@@ -1590,7 +1647,7 @@ export default class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
       f: async (bd) => {
-        const licence = bd.get("licence");
+        const licence = await bd.get("licence");
         if (licence) await f(licence);
       },
     });
@@ -1609,7 +1666,7 @@ export default class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
       f: async (bd) => {
-        const licenceContenu = bd.get("licenceContenu");
+        const licenceContenu = await bd.get("licenceContenu");
         await f(licenceContenu);
       },
     });
@@ -1632,31 +1689,36 @@ export default class BDs extends ComposanteClientListe<string> {
     image,
   }: {
     idBd: string;
-    image: ImportCandidate;
+    image: ToFile & { path: string };
   }): Promise<void> {
-    let contenu: ImportCandidate;
+    let contenu: ToFile & { path: string };
 
-    if ((image as File).size !== undefined) {
-      if ((image as File).size > MAX_TAILLE_IMAGE) {
+    if ((image.content as File).size !== undefined) {
+      if ((image.content as File).size > MAX_TAILLE_IMAGE) {
         throw new Error("Taille maximale excédée");
       }
-      contenu = await (image as File).arrayBuffer();
+      contenu = {
+        path: image.path,
+        content: await (image.content as File).arrayBuffer(),
+      };
     } else {
       contenu = image;
     }
     const idImage = await this.client.ajouterÀSFIP({ fichier: contenu });
-    const { bd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     await bd.set("image", idImage);
     await fOublier();
   }
 
   async effacerImage({ idBd }: { idBd: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.ouvrirBd<structureBdBd>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBd,
-      type: "kvstore",
+      type: "keyvalue",
+      schéma: schémaStructureBdBd,
     });
     await bd.del("image");
     await fOublier();
@@ -1675,7 +1737,7 @@ export default class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
       f: async (bd) => {
-        const idImage = bd.get("image");
+        const idImage = await bd.get("image");
         if (!idImage) {
           await f(null);
         } else {
@@ -2104,7 +2166,7 @@ export default class BDs extends ComposanteClientListe<string> {
     nomFichier?: string;
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
-    const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
+    const fichiersSFIP: Set<string> = new Set();
 
     const infosTableaux = await uneFois(
       (f: schémaFonctionSuivi<infoTableauAvecId[]>) =>
@@ -2119,9 +2181,7 @@ export default class BDs extends ComposanteClientListe<string> {
           langues,
           doc,
         });
-      fichiersSFIPTableau.forEach((f: { cid: string; ext: string }) =>
-        fichiersSFIP.add(f)
-      );
+      fichiersSFIPTableau.forEach((f) => fichiersSFIP.add(f));
     }
 
     if (!nomFichier) {
@@ -2172,9 +2232,9 @@ export default class BDs extends ComposanteClientListe<string> {
       const fichiersDeSFIP = await Promise.all(
         [...fichiersSFIP].map(async (fichier) => {
           return {
-            nom: `${fichier.cid}.${fichier.ext}`,
+            nom: fichier.replace("/", "-"),
             octets: await toBuffer(
-              this.client.obtItérableAsyncSFIP({ id: fichier.cid })
+              this.client.obtItérableAsyncSFIP({ id: fichier })
             ),
           };
         })
@@ -2195,9 +2255,10 @@ export default class BDs extends ComposanteClientListe<string> {
 
   async effacerBd({ idBd }: { idBd: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBd<string>({
+    const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
       type: "feed",
+      schéma: schémaBdPrincipale,
     });
     await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idBd });
     await fOublier();
@@ -2213,13 +2274,14 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =
-        await this.client.ouvrirBd<infoTableau>({
+        await this.client.orbite!.ouvrirBdTypée({
           id: idBdTableaux,
           type: "keyvalue",
+          schéma: schémaBdTableauxDeBd,
         });
       const tableaux: string[] = Object.keys(bdTableaux.all);
       for (const t of tableaux) {

@@ -1,7 +1,7 @@
 import gjv from "geojson-validation";
 
 import { élémentsBd } from "@/types.js";
-import { cidValide, adresseOrbiteValide } from "@constl/utils-ipa";
+import { cidValide } from "@constl/utils-ipa";
 import type {
   catégorieBaseVariables,
   catégorieVariables,
@@ -9,6 +9,7 @@ import type {
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import { cholqij } from "@/dates.js";
 import { JSONSchemaType } from "ajv";
+import { isValidAddress } from "@orbitdb/core";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle =
@@ -367,12 +368,19 @@ export const formatsFichiers = {
 };
 
 function validFichier(val: unknown, exts?: string[]): boolean {
-  if (typeof val !== "object") return false;
-  const { cid, ext } = val as { cid: string; ext: string };
-  if (!cidValide(cid)) return false;
-  if (typeof ext !== "string") return false;
+  if (typeof val !== "string") return false;
+  let id: string;
+  let fichier: string;
+  try {
+    [id, fichier] = val.split("/");
+  } catch {
+    return false;
+  }
+  if (!fichier) return false;
+  if (!cidValide(id)) return false;
   if (exts) {
-    return exts.includes(ext.replace(".", ""));
+    const ext = fichier.split(".")[1];
+    return exts.includes(ext);
   }
   return true;
 }
@@ -440,7 +448,7 @@ const validerCatégorieBase = ({
       if (val.length !== 2) return false;
       return val.every((d) => estUnHoroDatage(d));
     case "chaîne":
-      return adresseOrbiteValide(val);
+      return isValidAddress(val);
     case "chaîneNonTraductible":
       return typeof val === "string";
     case "booléen":

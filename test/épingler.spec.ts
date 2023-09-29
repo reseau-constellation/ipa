@@ -37,7 +37,7 @@ typesClients.forEach((type) => {
         let idBd: string;
 
         before(async () => {
-          idBd = await client!.créerBdIndépendante({ type: "kvstore" });
+          idBd = await client!.créerBdIndépendante({ type: "keyvalue" });
           await client.épingles!.toutDésépingler();
         });
 
@@ -77,11 +77,11 @@ typesClients.forEach((type) => {
         before(async () => {
           await client.épingles!.toutDésépingler();
 
-          idBdDic = await client!.créerBdIndépendante({ type: "kvstore" });
+          idBdDic = await client!.créerBdIndépendante({ type: "keyvalue" });
           idBdListe = await client!.créerBdIndépendante({ type: "feed" });
 
-          idBdDic2 = await client!.créerBdIndépendante({ type: "kvstore" });
-          idBdAutre = await client!.créerBdIndépendante({ type: "kvstore" });
+          idBdDic2 = await client!.créerBdIndépendante({ type: "keyvalue" });
+          idBdAutre = await client!.créerBdIndépendante({ type: "keyvalue" });
           fOublierÉpingles = await client.épingles!.suivreÉpingles({
             f: (x) => épingles.mettreÀJour(x),
           });
@@ -95,7 +95,7 @@ typesClients.forEach((type) => {
         it("Épingler liste récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe, récursif: true });
 
-          const { bd, fOublier } = await client.ouvrirBd<string>({
+          const { bd, fOublier } = await client.orbite!.ouvrirBd({
             id: idBdListe,
             type: "feed",
           });
@@ -110,40 +110,38 @@ typesClients.forEach((type) => {
 
         it("Désépingler liste récursive", async () => {
           await client.épingles!.désépinglerBd({ id: idBdListe });
-          const épingles = await client.épingles!.épingles();
-          expect([...épingles]).to.not.have.members([idBdListe, idBdAutre]);
+          const val = await client.épingles!.épingles();
+          expect([...val]).to.not.have.members([idBdListe, idBdAutre]);
         });
 
         it("Épingler dic récursif", async () => {
           await client.épingles!.épinglerBd({ id: idBdDic, récursif: true });
 
-          const { bd, fOublier } = await client.ouvrirBd<{
-            [clef: string]: string;
-          }>({
+          const { bd, fOublier } = await client.orbite!.ouvrirBd({
             id: idBdDic,
             type: "keyvalue",
           });
           await bd.set("clef", idBdDic2);
           await fOublier();
 
-          const { bd: bdDic2, fOublier: fOublier2 } = await client.ouvrirBd<{
-            [clef: string]: string;
-          }>({
-            id: idBdDic2,
-            type: "keyvalue",
-          });
+          const { bd: bdDic2, fOublier: fOublier2 } =
+            await client.orbite!.ouvrirBd({
+              id: idBdDic2,
+              type: "keyvalue",
+            });
           await bdDic2.set("clef", idBdAutre);
           fOublier2();
 
-          const épingles = await client.épingles!.épingles();
+          const val = await épingles.attendreQue((é) => é.size > 2);
 
-          expect([...épingles]).to.have.members([idBdDic, idBdDic2, idBdAutre]);
+          expect([...val]).to.have.members([idBdDic, idBdDic2, idBdAutre]);
         });
 
         it("Désépingler dic récursif", async () => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
-          const épingles = await client.épingles!.épingles();
-          expect([...épingles]).to.not.have.members([idBdDic, idBdAutre]);
+
+          const val = await épingles.attendreQue((é) => é.size < 3);
+          expect([...val]).to.not.have.members([idBdDic, idBdAutre]);
         });
 
         it("BD ajoutée individuellement est toujours là", async () => {
@@ -151,9 +149,9 @@ typesClients.forEach((type) => {
           await client.épingles!.épinglerBd({ id: idBdAutre, récursif: true });
           await client.épingles!.désépinglerBd({ id: idBdDic });
 
-          const épingles = await client.épingles!.épingles();
-          expect([...épingles]).to.not.contain(idBdDic);
-          expect([...épingles]).to.contain(idBdAutre);
+          const val = await épingles.attendreQue((é) => !é.has(idBdDic));
+          expect([...val]).to.not.contain(idBdDic);
+          expect([...val]).to.contain(idBdAutre);
         });
       });
 
@@ -168,8 +166,8 @@ typesClients.forEach((type) => {
         before(async () => {
           await client.épingles!.toutDésépingler();
 
-          idBd = await client.créerBdIndépendante({ type: "kvstore" });
-          idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
+          idBd = await client.créerBdIndépendante({ type: "keyvalue" });
+          idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
           idBdListe = await client.créerBdIndépendante({ type: "feed" });
         });
 
@@ -178,19 +176,19 @@ typesClients.forEach((type) => {
         });
 
         it("Fichier épinglé", async () => {
-          const { bd, fOublier } = await client.ouvrirBd<{
-            [clef: string]: string;
-          }>({ id: idBd, type: "keyvalue" });
+          const { bd, fOublier } = await client.orbite!.ouvrirBd({
+            id: idBd,
+            type: "keyvalue",
+          });
           await bd.set("clef", idc);
           await bd.set("clef2", idc2);
           await fOublier();
 
-          const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<{
-            [clef: string]: string;
-          }>({
-            id: idBd2,
-            type: "keyvalue",
-          });
+          const { bd: bd2, fOublier: fOublier2 } =
+            await client.orbite!.ouvrirBd({
+              id: idBd2,
+              type: "keyvalue",
+            });
           await bd2.set("clef2", idc2);
           fOublier2();
 
@@ -218,7 +216,7 @@ typesClients.forEach((type) => {
         it("Fichier épinglé dans BD récursive", async () => {
           await client.épingles!.épinglerBd({ id: idBdListe });
 
-          const { bd, fOublier } = await client.ouvrirBd<string>({
+          const { bd, fOublier } = await client.orbite!.ouvrirBd({
             id: idBdListe,
             type: "feed",
           });

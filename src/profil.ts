@@ -1,4 +1,4 @@
-import type { ImportCandidate } from "ipfs-core-types/src/utils";
+import type { ToFile } from "ipfs-core-types/src/utils";
 
 import type { default as ClientConstellation } from "@/client.js";
 import {
@@ -119,7 +119,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdContacts,
       type: "feed",
       schéma: schémaContactProfil,
@@ -147,10 +147,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd<{
-      type: string;
-      contact: string;
-    }>({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdContacts,
       type: "feed",
       schéma: schémaContactProfil,
@@ -158,8 +155,8 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     this.client.effacerÉlémentsDeBdListe({
       bd,
       élément: (x) =>
-        x.payload.value.type === type &&
-        (contact === undefined || x.payload.value.contact === contact),
+        x.value.type === type &&
+        (contact === undefined || x.value.contact === contact),
     });
     await fOublier();
   }
@@ -199,7 +196,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBdProfil,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -207,9 +204,9 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNoms,
-      type: "kvstore",
+      type: "keyvalue",
       schéma: schémaStructureBdNoms,
     });
     for (const [langue, nom] of Object.entries(noms)) {
@@ -223,7 +220,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBdProfil,
-      type: "kvstore",
+      type: "keyvalue",
     });
     if (!idBdNoms) {
       throw new Error(
@@ -231,23 +228,30 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.ouvrirBd({
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNoms,
-      type: "kvstore",
+      type: "keyvalue",
       schéma: schémaStructureBdNoms,
     });
     await bd.del(langue);
     await fOublier();
   }
 
-  async sauvegarderImage({ image }: { image: ImportCandidate }): Promise<void> {
-    let contenu: ImportCandidate;
+  async sauvegarderImage({
+    image,
+  }: {
+    image: ToFile & { path: string };
+  }): Promise<void> {
+    let contenu: ToFile & { path: string };
 
-    if ((image as File).size !== undefined) {
-      if ((image as File).size > MAX_TAILLE_IMAGE) {
+    if ((image.content as File).size !== undefined) {
+      if ((image.content as File).size > MAX_TAILLE_IMAGE) {
         throw new Error("Taille maximale excédée");
       }
-      contenu = await (image as File).arrayBuffer();
+      contenu = {
+        path: image.path,
+        content: await (image.content as File).arrayBuffer(),
+      };
     } else {
       contenu = image;
     }
@@ -282,7 +286,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
           type: "keyvalue",
           schéma: schémaStructureBdProfil,
           f: async (bd) => {
-            const idImage = bd.get("image");
+            const idImage = await bd.get("image");
             if (!idImage) {
               return await fSuivreBd(null);
             } else {

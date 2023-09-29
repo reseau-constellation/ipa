@@ -4,8 +4,8 @@ import {
   élémentsBd,
   schémaFonctionSuivi,
 } from "@/types.js";
-import { adresseOrbiteValide, cidValide } from "@constl/utils-ipa";
-
+import { cidValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 import { EventEmitter } from "events";
 
 interface RequèteÉpingle {
@@ -13,6 +13,19 @@ interface RequèteÉpingle {
   fOublier: schémaFonctionOublier | (() => Promise<void>);
   parent?: string;
 }
+
+export const cidEtFichierValide = (val: string) => {
+  let cid: string;
+  let fichier: string;
+  try {
+    [cid, fichier] = val.split("/");
+  } catch {
+    return false;
+  }
+  if (!fichier) return false;
+  if (!cidValide(cid)) return false;
+  return { cid, fichier };
+};
 
 export default class Épingles {
   client: ClientConstellation;
@@ -61,6 +74,7 @@ export default class Épingles {
         }
       })
     );
+    this.événements.emit("changement épingles");
   }
 
   async épinglée({ id }: { id: string }): Promise<boolean> {
@@ -113,7 +127,7 @@ export default class Épingles {
   }): Promise<void> {
     if (await this.épingléeParParent({ id, parent })) return;
 
-    const { bd, fOublier } = await this.client.ouvrirBd({ id });
+    const { bd, fOublier } = await this.client.orbite!.ouvrirBd({ id });
     this.requètes.push({ id, parent, fOublier });
     this.événements.emit("changement épingles");
 
@@ -134,18 +148,18 @@ export default class Épingles {
         } else if (typeof vals === "string") {
           l_vals = [vals];
         }
-        const idsOrbite = l_vals.filter((v) => adresseOrbiteValide(v));
+        const idsOrbite = l_vals.filter((v) => isValidAddress(v));
 
         if (fichiers) {
           // Épingler les fichiers si nécessaire
           const cids = l_vals.filter(
-            (v) => cidValide(v) && !idsOrbite.includes(v)
+            (v) => cidEtFichierValide(v) && !idsOrbite.includes(v)
           );
 
           cids.forEach((id_) => {
             // Pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
             // (Sinon ça bloquerait tout le programme en attendant de trouver le contenu sur le réseau SFIP !)
-            this.client.sfip!.pin.add(id_);
+            this.client.sfip!.pin.add(id_.split("/")[0]);
 
             const fOublier_ = async () => {
               // rm par contre peut être async
@@ -169,7 +183,12 @@ export default class Épingles {
       };
 
       if (bd.type === "keyvalue") {
-        const fOublierBd = await this.client.suivreBdDic({ id, f: fSuivre });
+        const fOublierBd = await this.client.suivreBdDic({
+          id,
+          // @ts-ignore
+          f: async (x: { key: string; value: élémentsBd; hash: string }[]) =>
+            await fSuivre(Object.fromEntries(x.map((y) => [y.key, y.value]))),
+        });
         this.fsOublier[id] = fOublierBd;
       } else if (bd.type === "feed") {
         const fOublierBd = await this.client.suivreBdListe({ id, f: fSuivre });

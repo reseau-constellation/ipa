@@ -4,6 +4,7 @@ import { générerClient, type ClientConstellation } from "@/index.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 import {
+  attente,
   client as utilsClientTest,
   attente as utilsTestAttente,
 } from "@constl/utils-tests";
@@ -54,7 +55,7 @@ typesClients.forEach((type) => {
           idMotClef = await client.motsClefs!.créerMotClef();
           const val = await motsClefs.attendreQue((x) => !!x.length);
 
-          expect(Array.isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(1);
         });
         it("Effacer un mot-clef", async () => {
@@ -180,16 +181,21 @@ typesClients.forEach((type) => {
 
       describe("Copier mots-clefs", function () {
         let motsClefs: string[];
-        let noms: { [key: string]: string };
 
         let idMotClef2: string;
-        let fOublier: schémaFonctionOublier;
-        let fOublier2: schémaFonctionOublier;
+
+        const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
+        const descriptions = new attente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
+        const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          fOublier = await client.motsClefs!.suivreMotsClefs({
-            f: (x) => (motsClefs = x),
-          });
+          fsOublier.push(
+            await client.motsClefs!.suivreMotsClefs({
+              f: (x) => (motsClefs = x),
+            })
+          );
 
           const idMotClef = await client.motsClefs!.créerMotClef();
           await client.motsClefs!.sauvegarderNomsMotClef({
@@ -200,27 +206,53 @@ typesClients.forEach((type) => {
             },
           });
 
+          await client.motsClefs!.sauvegarderDescriptionsMotClef({
+            idMotClef,
+            descriptions: {
+              த: "நீரியலுக்காக ஒரு சிறப்பு சொலு",
+              हिं: "जल विज्ञान के आँकड़ों के लिये",
+            },
+          });
+
           idMotClef2 = await client.motsClefs!.copierMotClef({
             idMotClef,
           });
-          fOublier2 = await client.motsClefs!.suivreNomsMotClef({
-            idMotClef: idMotClef2,
-            f: (x) => (noms = x),
-          });
+          fsOublier.push(
+            await client.motsClefs!.suivreNomsMotClef({
+              idMotClef: idMotClef2,
+              f: (x) => noms.mettreÀJour(x),
+            })
+          );
+          fsOublier.push(
+            await client.motsClefs!.suivreDescriptionsMotClef({
+              idMotClef: idMotClef2,
+              f: (x) => descriptions.mettreÀJour(x),
+            })
+          );
         });
 
         after(async () => {
-          if (fOublier) await fOublier();
-          if (fOublier2) fOublier2();
+          await Promise.all(fsOublier.map((f) => f()));
+          noms.toutAnnuler();
+          descriptions.toutAnnuler();
         });
 
         it("Le mot-clef est copié", async () => {
-          expect(Array.isArray(motsClefs)).to.be.true;
+          expect(Array.isArray(motsClefs)).to.be.true();
           expect(motsClefs).to.contain(idMotClef2);
         });
 
         it("Les noms sont copiés", async () => {
-          expect(noms).to.deep.equal({ த: "நீரியல்", हिं: "जल विज्ञान" });
+          const val = await noms.attendreExiste();
+          expect(val).to.deep.equal({ த: "நீரியல்", हिं: "जल विज्ञान" });
+        });
+
+        it("Les descriptions sont copiés", async () => {
+          const val = await descriptions.attendreExiste();
+          expect(val).to.deep.equal({
+            த: "நீரியலுக்காக ஒரு சிறப்பு சொலு",
+            हिं: "जल विज्ञान के आँकड़ों के लिये",
+          });
         });
       });
     });

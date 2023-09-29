@@ -76,7 +76,9 @@ describe("Rechercher profil", function () {
         optsAxios: { responseType: "arraybuffer" },
       });
 
-      await client.profil!.sauvegarderImage({ image: IMAGE });
+      await client.profil!.sauvegarderImage({
+        image: { content: IMAGE, path: "logo.png" },
+      });
       const val = await rés.attendreQue(
         (x: résultatObjectifRecherche<infoRésultatVide> | undefined) =>
           x?.score === 1

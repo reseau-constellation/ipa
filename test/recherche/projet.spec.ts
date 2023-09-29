@@ -852,7 +852,7 @@ describe("Rechercher projets", function () {
         score: 1,
       };
 
-      const val = await résultatVariable.attendreExiste();
+      const val = await résultatVariable.attendreQue((x) => x.de === "bd");
       expect(val).to.deep.equal(résRéf);
     });
 

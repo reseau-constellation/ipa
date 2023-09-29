@@ -278,18 +278,18 @@ Suit les variables associées au tableau.
 Ces fonctions vous permettent d'observer et de modifier les données d'un tableau.
 
 ### `client.tableaux.ajouterÉlément({ idTableau, vals })`
-Ajoute un élément à un tableau.
+Ajoute un ou plusieurs éléments à un tableau.
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idTableau` | `string` | L'identifiant du tableau. |
-| `vals` | [`élémentBdListeDonnées`](#types-donnees) | Les données à ajouter. |
+| `vals` | [`élémentBdListeDonnées[]`](#types-donnees) | Les données à ajouter. |
 
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<string>` | L'empreinte (identifiant unique) de l'élément ajouté. |
+| `Promise<string[]>` | Les empreintes (identifiants uniques) des éléments ajoutés. |
 
 #### Exemple
 ```ts
@@ -326,7 +326,7 @@ const idColTempérature = await client.tableaux.ajouterColonneTableau({
 });
 
 // Enfin, ajouter les données
-const empreinteDonnées = await client.tableaux.ajouterÉlément({ 
+const empreintesDonnées = await client.tableaux.ajouterÉlément({ 
   schémaBd, 
   idNuéeUnique, 
   clefTableau: CLEF_TABLEAU,

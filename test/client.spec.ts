@@ -3,19 +3,10 @@ import toBuffer from "it-to-buffer";
 
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import {
-  adresseOrbiteValide,
-  faisRien,
-  suivreBdDeFonction,
-} from "@constl/utils-ipa";
+import { faisRien, suivreBdDeFonction } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 
-import type KeyValueStore from "orbit-db-kvstore";
-
-import {
-  attente as utilsTestAttente,
-  peutÉcrire,
-  attente,
-} from "@constl/utils-tests";
+import { peutÉcrire, attente } from "@constl/utils-tests";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
@@ -24,24 +15,30 @@ import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellatio
 import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
-import FeedStore from "orbit-db-feedstore";
+
 import { générerClientsInternes } from "./ressources/utils.js";
 import { statutDispositif } from "@/reseau.js";
+import { FeedStoreTypé, KeyValueStoreTypé } from "@/orbite.js";
+import { JSONSchemaType } from "ajv";
 
-describe("adresseOrbiteValide", function () {
-  it("adresse orbite est valide", () => {
-    const valide = adresseOrbiteValide(
-      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e"
-    );
-    expect(valide).to.be.true();
-  });
-  it("CID SFIP n'est pas valide", () => {
-    const valide = adresseOrbiteValide(
-      "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ"
-    );
-    expect(valide).to.be.false();
-  });
-});
+const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
+  type: "object",
+  additionalProperties: {
+    type: "number",
+  },
+  required: [],
+};
+
+const schémaKVChaîne: JSONSchemaType<{ [clef: string]: string }> = {
+  type: "object",
+  additionalProperties: {
+    type: "string",
+  },
+  required: [],
+};
+
+const schémaListeNumérique: JSONSchemaType<number> = { type: "number" };
+const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
 
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
@@ -62,7 +59,7 @@ if (isNode || isElectronMain) {
 
     let idCompte2EnDirecte: string | undefined;
 
-    const mesDispositifs = new utilsTestAttente.AttendreRésultat<string[]>();
+    const mesDispositifs = new attente.AttendreRésultat<string[]>();
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
@@ -101,7 +98,7 @@ if (isNode || isElectronMain) {
       let idBd: string;
 
       const fsOublier: schémaFonctionOublier[] = [];
-      const résNom = new utilsTestAttente.AttendreRésultat<{
+      const résNom = new attente.AttendreRésultat<{
         [lng: string]: string;
       }>();
 
@@ -119,7 +116,7 @@ if (isNode || isElectronMain) {
 
         await client.ajouterDispositif({ idDispositif: idDispositif2 });
         await client2.rejoindreCompte({ idCompte: idCompte1 });
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
       });
 
       after(async () => {
@@ -142,9 +139,12 @@ if (isNode || isElectronMain) {
       });
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
-        const { bd: bd_orbite2, fOublier } = await client2.ouvrirBd<{
-          test: number;
-        }>({ id: idBd, type: "kvstore" });
+        const { bd: bd_orbite2, fOublier } =
+          await client2.orbite!.ouvrirBdTypée({
+            id: idBd,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
         fsOublier.push(fOublier);
         const autorisé = await peutÉcrire(bd_orbite2, client2.orbite?.orbite);
         expect(autorisé).to.be.true();
@@ -176,7 +176,7 @@ if (isNode || isElectronMain) {
           });
         fsOublier.push(fOublierConnexions);
 
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
 
         const invitation = await client.générerInvitationRejoindreCompte();
 
@@ -206,9 +206,12 @@ if (isNode || isElectronMain) {
       });
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
-        const { bd: bd_orbite3, fOublier } = await client3.ouvrirBd<{
-          test: number;
-        }>({ id: idBd, type: "keyvalue" });
+        const { bd: bd_orbite3, fOublier } =
+          await client3.orbite!.ouvrirBdTypée({
+            id: idBd,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
         const autorisé = await peutÉcrire(bd_orbite3, client3.orbite?.orbite);
         await fOublier();
         expect(autorisé).to.be.true();
@@ -268,24 +271,32 @@ if (isNode || isElectronMain) {
     describe("Suivre BD", function () {
       let idBd: string;
       let fOublier: schémaFonctionOublier;
-      let bd: KeyValueStore<{ [clef: string]: number }>;
+      let bd: KeyValueStoreTypé<{ [clef: string]: number }>;
       let fOublierBd: schémaFonctionOublier;
-      let données: { [key: string]: number | undefined };
+
+      const attendreDonnées = new attente.AttendreRésultat<{
+        [key: string]: number | undefined;
+      }>();
 
       before(async () => {
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
-        ({ bd, fOublier: fOublierBd } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({ id: idBd, type: "keyvalue" }));
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
+        ({ bd, fOublier: fOublierBd } = await client.orbite!.ouvrirBdTypée({
+          id: idBd,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        }));
         await bd.put("a", 1);
-        const fSuivre = (_bd: KeyValueStore<{ [clef: string]: number }>) => {
-          const d = _bd.all;
-          données = d;
+        const fSuivre = async (
+          _bd: KeyValueStoreTypé<{ [clef: string]: number }>
+        ) => {
+          const d = await _bd.all();
+          attendreDonnées.mettreÀJour(d);
         };
         const fOublierSuivre = await client.suivreBd({
           id: idBd,
           f: fSuivre,
           type: "keyvalue",
+          schéma: schémaKVNumérique,
         });
         fOublier = async () => {
           await fOublierBd();
@@ -298,11 +309,14 @@ if (isNode || isElectronMain) {
       });
 
       it("Les données initiales sont détectées", async () => {
+        const données = await attendreDonnées.attendreQue((x) => !!x["a"]);
         expect(données.a).to.equal(1);
       });
 
       it("Les changements sont détectés", async () => {
         await bd.put("b", 2);
+
+        const données = await attendreDonnées.attendreQue((x) => !!x["b"]);
         expect(données.b).to.equal(2);
       });
     });
@@ -310,14 +324,14 @@ if (isNode || isElectronMain) {
     describe("Suivre BD de fonction", function () {
       let idBd: string;
       let idBd2: string;
-      let bd: KeyValueStore<{ [clef: string]: number }>;
-      let bd2: KeyValueStore<{ [clef: string]: number }>;
+      let bd: KeyValueStoreTypé<{ [clef: string]: number }>;
+      let bd2: KeyValueStoreTypé<{ [clef: string]: number }>;
       let fOublierBd: schémaFonctionOublier;
       let fOublierBd2: schémaFonctionOublier;
       let fSuivre: (id: string) => Promise<void>;
       let fOublier: schémaFonctionOublier;
 
-      const données = new utilsTestAttente.AttendreRésultat<{
+      const données = new attente.AttendreRésultat<{
         [key: string]: number;
       }>();
 
@@ -325,17 +339,19 @@ if (isNode || isElectronMain) {
         await fSuivre(id);
       };
       before(async () => {
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
-        idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
-        ({ bd, fOublier: fOublierBd } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({ id: idBd, type: "keyvalue" }));
-        ({ bd: bd2, fOublier: fOublierBd2 } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({
-          id: idBd2,
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
+        idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
+        ({ bd, fOublier: fOublierBd } = await client.orbite!.ouvrirBdTypée({
+          id: idBd,
           type: "keyvalue",
+          schéma: schémaKVNumérique,
         }));
+        ({ bd: bd2, fOublier: fOublierBd2 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBd2,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          }));
         const fRacine = async ({
           fSuivreRacine,
         }: {
@@ -354,7 +370,11 @@ if (isNode || isElectronMain) {
           id: string;
           fSuivreBd: schémaFonctionSuivi<{ [key: string]: number }>;
         }): Promise<schémaFonctionOublier> => {
-          return await client.suivreBdDic({ id, f: fSuivreBd });
+          return await client.suivreBdDic({
+            id,
+            f: fSuivreBd,
+            schéma: schémaKVNumérique,
+          });
         };
         const fOublierSuivre = await suivreBdDeFonction({
           fRacine,
@@ -380,7 +400,7 @@ if (isNode || isElectronMain) {
         await changerBd(idBd);
         await bd.put("a", 1);
 
-        const val = await données.attendreExiste();
+        const val = await données.attendreQue((x) => !!x["a"]);
         expect(val.a).to.equal(1);
       });
       it("Les changements à l'id de la BD suivie sont détectés", async () => {
@@ -394,10 +414,10 @@ if (isNode || isElectronMain) {
 
     describe("Suivre BD de clef", function () {
       let idBdBase: string;
-      let bdBase: KeyValueStore<{ [clef: string]: string }>;
+      let bdBase: KeyValueStoreTypé<{ [clef: string]: string }>;
       let idBd: string | undefined;
 
-      const données = new utilsTestAttente.AttendreRésultat<{
+      const données = new attente.AttendreRésultat<{
         [key: string]: number;
       }>();
 
@@ -405,10 +425,12 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBdBase = await client.créerBdIndépendante({ type: "kvstore" });
-        const { bd: bd_, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({ id: idBdBase, type: "keyvalue" });
+        idBdBase = await client.créerBdIndépendante({ type: "keyvalue" });
+        const { bd: bd_, fOublier } = await client.orbite!.ouvrirBdTypée({
+          id: idBdBase,
+          type: "keyvalue",
+          schéma: schémaKVChaîne,
+        });
         bdBase = bd_;
         fsOublier.push(fOublier);
 
@@ -422,7 +444,11 @@ if (isNode || isElectronMain) {
           id: string;
           fSuivreBd: schémaFonctionSuivi<{ [key: string]: number }>;
         }): Promise<schémaFonctionOublier> => {
-          return await client.suivreBdDic({ id, f: fSuivreBd });
+          return await client.suivreBdDic({
+            id,
+            f: fSuivreBd,
+            schéma: schémaKVNumérique,
+          });
         };
         fsOublier.push(
           await client.suivreBdDeClef({ id: idBdBase, clef: CLEF, f, fSuivre })
@@ -442,28 +468,26 @@ if (isNode || isElectronMain) {
         idBd = await client.obtIdBd({
           nom: CLEF,
           racine: idBdBase,
-          type: "kvstore",
+          type: "keyvalue",
         });
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd!,
           type: "keyvalue",
+          schéma: schémaKVNumérique,
         });
         fsOublier.push(fOublier);
 
         await bd.put("a", 1);
-        const val = await données.attendreExiste();
+        const val = await données.attendreQue((x) => !!x["a"]);
         expect(val.a).to.equal(1);
       });
 
       it("Les changements à la clef sont détectés", async () => {
-        const idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({
+        const idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd2,
           type: "keyvalue",
+          schéma: schémaKVNumérique,
         });
         fsOublier.push(fOublier);
 
@@ -479,15 +503,15 @@ if (isNode || isElectronMain) {
       let idBd: string;
 
       const CLEF = "clef";
-      const données = new utilsTestAttente.AttendreRésultat<{
+      const données = new attente.AttendreRésultat<{
         [key: string]: number;
       }>();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBdBase = await client.créerBdIndépendante({ type: "kvstore" });
+        idBdBase = await client.créerBdIndépendante({ type: "keyvalue" });
 
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
 
         const fSuivre = (d: { [key: string]: number }) =>
           données.mettreÀJour(d);
@@ -501,6 +525,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
+        données.toutAnnuler();
       });
 
       it("`{}` est retourné si la clef n'existe pas", async () => {
@@ -509,20 +534,22 @@ if (isNode || isElectronMain) {
       });
 
       it("Les données sont retournés en format objet", async () => {
-        const { bd: bdBase, fOublier: fOublierBase } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({ id: idBdBase, type: "keyvalue" });
+        const { bd: bdBase, fOublier: fOublierBase } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdBase,
+            type: "keyvalue",
+            schéma: schémaKVChaîne,
+          });
         fsOublier.push(fOublierBase);
         await bdBase.put(CLEF, idBd);
 
         const val1 = await données.attendreExiste();
         expect(Object.keys(val1).length).to.equal(0);
 
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVNumérique,
         });
         fsOublier.push(fOublier);
         await bd.put("a", 1);
@@ -536,82 +563,104 @@ if (isNode || isElectronMain) {
     describe("Suivre BD liste de clef", function () {
       let idBdBase: string;
       let idBd: string;
-      let donnéesValeur: number[];
-      let données: LogEntry<number>[];
 
       const CLEF = "clef";
+      const données = new attente.AttendreRésultat<
+        { value: number; hash: string }[]
+      >();
+      const donnéesValeur = new attente.AttendreRésultat<number[]>();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBdBase = await client.créerBdIndépendante({ type: "kvstore" });
+        idBdBase = await client.créerBdIndépendante({ type: "keyvalue" });
 
         idBd = await client.créerBdIndépendante({ type: "feed" });
 
-        const fSuivreValeur = (d: number[]) => (donnéesValeur = d);
-        const fSuivre = (d: LogEntry<number>[]) => (données = d);
+        const fSuivreValeur = (d: number[]) => donnéesValeur.mettreÀJour(d);
+        const fSuivre = (d: { value: number; hash: string }[]) =>
+          données.mettreÀJour(d);
         await client.suivreBdListeDeClef({
           id: idBdBase,
           clef: CLEF,
           f: fSuivreValeur,
+          schéma: schémaListeNumérique,
           renvoyerValeur: true,
         });
         await client.suivreBdListeDeClef({
           id: idBdBase,
           clef: CLEF,
           f: fSuivre,
+          schéma: schémaListeNumérique,
           renvoyerValeur: false,
         });
       });
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
+        donnéesValeur.toutAnnuler();
+        données.toutAnnuler();
       });
       it("`[]` est retourné si la clef n'existe pas", async () => {
-        expect(Array.isArray(donnéesValeur)).to.be.true();
-        expect(donnéesValeur.length).to.equal(0);
-        expect(Array.isArray(données)).to.be.true();
-        expect(données.length).to.equal(0);
+        const val = await donnéesValeur.attendreExiste();
+        expect(val).to.be.an.empty("array");
+
+        const valDonnées = await données.attendreExiste();
+        expect(valDonnées).to.be.an.empty("array");
       });
       it("Avec renvoyer valeur", async () => {
-        const { bd: bdBase, fOublier: fOublierBase } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({ id: idBdBase, type: "keyvalue" });
+        const { bd: bdBase, fOublier: fOublierBase } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdBase,
+            type: "keyvalue",
+            schéma: schémaKVChaîne,
+          });
         fsOublier.push(fOublierBase);
 
         await bdBase.put(CLEF, idBd);
-        expect(donnéesValeur.length).to.equal(0);
+        let val = await donnéesValeur.attendreExiste();
+        expect(val.length).to.equal(0);
 
-        const { bd, fOublier } = await client.ouvrirBd<number>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "feed",
+          schéma: schémaListeNumérique,
         });
         fsOublier.push(fOublier);
 
         await bd.add(1);
         await bd.add(2);
-        expect(donnéesValeur).to.have.members([1, 2]);
+
+        val = await donnéesValeur.attendreQue((x) => x.length > 1);
+        expect(val).to.have.members([1, 2]);
       });
       it("Sans renvoyer valeur", async () => {
-        expect(données.length).to.equal(2);
-        expect(données.map((d) => d.payload.value)).to.have.members([1, 2]);
+        const val = await données.attendreQue((x) => x.length > 1);
+
+        expect(val.length).to.equal(2);
+        expect(val.map((d) => d.value)).to.have.members([1, 2]);
       });
     });
 
     describe("Suivre BD liste", function () {
       let idBd: string;
-      let donnéesValeur: number[];
-      let données: LogEntry<number>[];
+      const attenteDonnéesValeur = new attente.AttendreRésultat<number[]>();
+      const attenteDonnées = new attente.AttendreRésultat<
+        { value: number; hash: string }[]
+      >();
 
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "feed" });
 
-        const fSuivreValeur = (d: number[]) => (donnéesValeur = d);
-        const fSuivre = (d: LogEntry<number>[]) => (données = d);
+        const fSuivreValeur = (d: number[]) =>
+          attenteDonnéesValeur.mettreÀJour(d);
+        const fSuivre = (d: { value: number; hash: string }[]) =>
+          attenteDonnées.mettreÀJour(d);
         fsOublier.push(
           await client.suivreBdListe({
             id: idBd,
             f: fSuivreValeur,
+            schéma: schémaListeNumérique,
             renvoyerValeur: true,
           })
         );
@@ -619,6 +668,7 @@ if (isNode || isElectronMain) {
           await client.suivreBdListe({
             id: idBd,
             f: fSuivre,
+            schéma: schémaListeNumérique,
             renvoyerValeur: false,
           })
         );
@@ -626,12 +676,15 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
+        attenteDonnées.toutAnnuler();
+        attenteDonnéesValeur.toutAnnuler();
       });
 
       it("Avec renvoyer valeur", async () => {
+        let donnéesValeur = await attenteDonnéesValeur.attendreExiste();
         expect(donnéesValeur.length).to.equal(0);
 
-        const { bd, fOublier } = await client.ouvrirBd<number>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBd({
           id: idBd,
           type: "feed",
         });
@@ -639,12 +692,18 @@ if (isNode || isElectronMain) {
 
         await bd.add(1);
         await bd.add(2);
+
+        donnéesValeur = await attenteDonnéesValeur.attendreQue(
+          (x) => x.length > 1
+        );
         expect(donnéesValeur).to.have.members([1, 2]);
       });
 
       it("Sans renvoyer valeur", async () => {
+        const données = await attenteDonnées.attendreQue((x) => x.length > 1);
+
         expect(données.length).to.equal(2);
-        expect(données.map((d) => d.payload.value)).to.have.members([1, 2]);
+        expect(données.map((d) => d.value)).to.have.members([1, 2]);
       });
     });
 
@@ -654,10 +713,10 @@ if (isNode || isElectronMain) {
       let idBd2: string;
       let fOublier: schémaFonctionOublier;
 
-      const rés = new utilsTestAttente.AttendreRésultat<string[]>();
+      const rés = new attente.AttendreRésultat<string[]>();
 
       before(async () => {
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
         idBdListe = await client.créerBdIndépendante({ type: "feed" });
         idBd2 = await client.créerBdIndépendante({ type: "feed" });
 
@@ -673,11 +732,10 @@ if (isNode || isElectronMain) {
       });
 
       it("Ajout idBd", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         await bd.set("clef", idBd2);
         await fOublier();
@@ -687,11 +745,10 @@ if (isNode || isElectronMain) {
       });
 
       it("Enlever idBd", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         await bd.del("clef");
         await fOublier();
@@ -701,17 +758,19 @@ if (isNode || isElectronMain) {
       });
 
       it("Ajout récursif", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         await bd.set("clef", idBdListe);
         await fOublier();
 
         const { bd: bdListe, fOublier: fOublierBdListe } =
-          await client.ouvrirBd<string>({ id: idBdListe, type: "feed" });
+          await client.orbite!.ouvrirBd({
+            id: idBdListe,
+            type: "feed",
+          });
         await bdListe.add(idBd2);
         fOublierBdListe();
 
@@ -721,7 +780,11 @@ if (isNode || isElectronMain) {
 
       it("Enlever récursif", async () => {
         const { bd: bdListe, fOublier: fOublierBdListe } =
-          await client.ouvrirBd<string>({ id: idBdListe, type: "feed" });
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdListe,
+            type: "feed",
+            schéma: schémaListeChaîne,
+          });
         await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: idBd2 });
         fOublierBdListe();
 
@@ -731,7 +794,7 @@ if (isNode || isElectronMain) {
 
       it("Ajouter dictionnaire à liste", async () => {
         const { bd: bdListe, fOublier: fOublierBdListe } =
-          await client.ouvrirBd<string | { [key: string]: string }>({
+          await client.orbite!.ouvrirBd({
             id: idBdListe,
             type: "feed",
           });
@@ -743,16 +806,30 @@ if (isNode || isElectronMain) {
       });
 
       it("Enlever dictionnaire de liste", async () => {
+        const schémaListe: JSONSchemaType<string | { [clef: string]: string }> =
+          {
+            anyOf: [
+              {
+                type: "string",
+              },
+              {
+                type: "object",
+                additionalProperties: {
+                  type: "string",
+                },
+                required: [],
+              },
+            ],
+          };
         const { bd: bdListe, fOublier: fOublierBdListe } =
-          await client.ouvrirBd<string | { [key: string]: string }>({
+          await client.orbite!.ouvrirBdTypée({
             id: idBdListe,
             type: "feed",
+            schéma: schémaListe,
           });
         await client.effacerÉlémentDeBdListe({
           bd: bdListe,
-          élément: (x) =>
-            typeof x.payload.value !== "string" &&
-            x.payload.value.maBd === idBd2,
+          élément: (x) => typeof x.value !== "string" && x.value.maBd === idBd2,
         });
         fOublierBdListe();
 
@@ -761,11 +838,10 @@ if (isNode || isElectronMain) {
       });
 
       it("Ajout clef dictionnaire", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         await bd.set(idBd2, "je suis là !");
         await fOublier();
@@ -775,11 +851,10 @@ if (isNode || isElectronMain) {
       });
 
       it("Enlever clef dictionnaire", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         await bd.del(idBd2);
         await fOublier();
@@ -795,10 +870,10 @@ if (isNode || isElectronMain) {
       let idBd2: string;
       let fOublier: schémaFonctionOublier;
 
-      const rés = new utilsTestAttente.AttendreRésultat<string>();
+      const rés = new attente.AttendreRésultat<string>();
 
       before(async () => {
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
         idBdListe = await client.créerBdIndépendante({ type: "feed" });
         idBd2 = await client.créerBdIndépendante({ type: "feed" });
 
@@ -816,11 +891,10 @@ if (isNode || isElectronMain) {
       it("Ajout élément", async () => {
         const empreinteAvant = await rés.attendreExiste();
 
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         await bd.set("clef", idBd2);
         await fOublier();
@@ -831,11 +905,10 @@ if (isNode || isElectronMain) {
       it("Enlever élément", async () => {
         const empreinteAvant = await rés.attendreExiste();
 
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         await bd.del("clef");
         await fOublier();
@@ -844,11 +917,10 @@ if (isNode || isElectronMain) {
       });
 
       it("Ajout récursif", async () => {
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         await bd.set("clef", idBdListe);
         await fOublier();
@@ -856,7 +928,11 @@ if (isNode || isElectronMain) {
         const empreinteDébut = await rés.attendreExiste();
 
         const { bd: bdListe, fOublier: fOublierBdListe } =
-          await client.ouvrirBd<string>({ id: idBdListe, type: "feed" });
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdListe,
+            type: "feed",
+            schéma: schémaListeChaîne,
+          });
         await bdListe.add(idBd2);
         fOublierBdListe();
 
@@ -865,7 +941,11 @@ if (isNode || isElectronMain) {
         );
 
         const { bd: bd2, fOublier: fOublierBd2 } =
-          await client.ouvrirBd<string>({ id: idBd2, type: "feed" });
+          await client.orbite!.ouvrirBdTypée({
+            id: idBd2,
+            type: "feed",
+            schéma: schémaListeChaîne,
+          });
         await bd2.add("abc");
         fOublierBd2();
 
@@ -876,7 +956,11 @@ if (isNode || isElectronMain) {
         const empreinteAvant = await rés.attendreExiste();
 
         const { bd: bdListe, fOublier: fOublierBdListe } =
-          await client.ouvrirBd<string>({ id: idBdListe, type: "feed" });
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdListe,
+            type: "feed",
+            schéma: schémaListeChaîne,
+          });
         await client.effacerÉlémentDeBdListe({ bd: bdListe, élément: idBd2 });
         fOublierBdListe();
 
@@ -886,14 +970,15 @@ if (isNode || isElectronMain) {
 
     describe("Rechercher élément BD liste selon empreinte", function () {
       let idBd: string;
-      let bd: FeedStore<string>;
+      let bd: FeedStoreTypé<string>;
       let fOublier: schémaFonctionOublier;
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "feed" });
-        ({ bd, fOublier } = await client.ouvrirBd<string>({
+        ({ bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "feed",
+          schéma: schémaListeChaîne,
         }));
         await bd.add("abc");
       });
@@ -903,23 +988,25 @@ if (isNode || isElectronMain) {
       });
 
       it("On retrouve le bon élément", async () => {
-        const fRecherche = (e: LogEntry<string>): boolean => {
-          return e.payload.value === "abc";
+        const fRecherche = (e: { value: string; hash: string }): boolean => {
+          return e.value === "abc";
         };
         const résultat = await client.rechercherBdListe({
           id: idBd,
           f: fRecherche,
+          schéma: schémaListeChaîne,
         });
-        expect(résultat?.payload.value).to.equal("abc");
+        expect(résultat?.value).to.equal("abc");
       });
 
       it("`undefined` est retourné si l'empreinte n'existe pas", async () => {
-        const fRecherche = (e: LogEntry<string>): boolean => {
-          return e.payload.value === "def";
+        const fRecherche = (e: { value: string; hash: string }): boolean => {
+          return e.value === "def";
         };
         const résultat = await client.rechercherBdListe({
           id: idBd,
           f: fRecherche,
+          schéma: schémaListeChaîne,
         });
         expect(résultat).to.be.undefined();
       });
@@ -931,14 +1018,16 @@ if (isNode || isElectronMain) {
       let idBd2: string;
 
       type branche = { [key: string]: number | undefined };
-      let données: branche[];
+
+      const attenteDonnées = new attente.AttendreRésultat<branche[]>();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
         idBdListe = await client.créerBdIndépendante({ type: "feed" });
-        const { bd: bdListe, fOublier } = await client.ouvrirBd<string>({
+        const { bd: bdListe, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBdListe,
           type: "feed",
+          schéma: schémaListeChaîne,
         });
         fsOublier.push(fOublier);
 
@@ -949,11 +1038,12 @@ if (isNode || isElectronMain) {
           return await client.suivreBd<{ [clef: string]: number }>({
             id,
             type: "keyvalue",
-            f: (_bd) => f(_bd.all),
+            schéma: schémaKVNumérique,
+            f: async (_bd) => f(await _bd.all()),
           });
         };
         const fSuivi = (x: branche[]) => {
-          données = x;
+          attenteDonnées.mettreÀJour(x);
         };
         fsOublier.push(
           await client.suivreBdsDeBdListe({
@@ -963,21 +1053,21 @@ if (isNode || isElectronMain) {
           })
         );
 
-        idBd1 = await client.créerBdIndépendante({ type: "kvstore" });
-        idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
-        const { bd: bd1, fOublier: fOublier1 } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({
-          id: idBd1,
-          type: "keyvalue",
-        });
+        idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
+        idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
+        const { bd: bd1, fOublier: fOublier1 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBd1,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
         fsOublier.push(fOublier1);
-        const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({
-          id: idBd2,
-          type: "keyvalue",
-        });
+        const { bd: bd2, fOublier: fOublier2 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBd2,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
         fsOublier.push(fOublier2);
 
         await bd1.put("a", 1);
@@ -988,8 +1078,10 @@ if (isNode || isElectronMain) {
       });
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
+        attenteDonnées.toutAnnuler();
       });
       it("Les éléments sont retournés", async () => {
+        const données = await attenteDonnées.attendreQue((x) => x.length > 1);
         expect(Array.isArray(données)).to.be.true();
         expect(données).to.have.deep.members([{ a: 1 }, { b: 2 }]);
       });
@@ -998,10 +1090,10 @@ if (isNode || isElectronMain) {
     describe("Suivre BDs de fonction", function () {
       describe("De liste ids BDs", function () {
         let fSuivre: (ids: string[]) => Promise<void>;
-        let résultats: number[];
         let idBd1: string;
         let idBd2: string;
 
+        const attendre = new attente.AttendreRésultat<number[]>();
         const fsOublier: schémaFonctionOublier[] = [];
 
         const changerBds = async (ids: string[]) => {
@@ -1009,15 +1101,21 @@ if (isNode || isElectronMain) {
         };
 
         before(async () => {
-          idBd1 = await client.créerBdIndépendante({ type: "kvstore" });
-          idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
-          const { bd: bd1, fOublier: fOublier1 } = await client.ouvrirBd<{
-            [clef: string]: number;
-          }>({ id: idBd1, type: "keyvalue" });
+          idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
+          idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
+          const { bd: bd1, fOublier: fOublier1 } =
+            await client.orbite!.ouvrirBdTypée({
+              id: idBd1,
+              type: "keyvalue",
+              schéma: schémaKVNumérique,
+            });
           fsOublier.push(fOublier1);
-          const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<{
-            [clef: string]: number;
-          }>({ id: idBd2, type: "keyvalue" });
+          const { bd: bd2, fOublier: fOublier2 } =
+            await client.orbite!.ouvrirBdTypée({
+              id: idBd2,
+              type: "keyvalue",
+              schéma: schémaKVNumérique,
+            });
           fsOublier.push(fOublier2);
 
           await bd1.put("a", 1);
@@ -1030,7 +1128,7 @@ if (isNode || isElectronMain) {
             fSuivre = fSuivreRacine;
             return faisRien;
           };
-          const f = (x: number[]) => (résultats = x);
+          const f = (x: number[]) => attendre.mettreÀJour(x);
           const fBranche = async (
             id: string,
             f: schémaFonctionSuivi<number[]>
@@ -1038,9 +1136,10 @@ if (isNode || isElectronMain) {
             return await client.suivreBd({
               id,
               type: "keyvalue",
-              f: (bd: { [clef: string]: number }) => {
-                const vals: number[] = Object.values(bd.all);
-                f(vals);
+              schéma: schémaKVNumérique,
+              f: async (bd) => {
+                const vals: number[] = Object.values(await bd.all());
+                await f(vals);
               },
             });
           };
@@ -1050,19 +1149,24 @@ if (isNode || isElectronMain) {
         });
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          attendre.toutAnnuler();
         });
 
         it("Sans branches", async () => {
-          expect(résultats).to.be.undefined();
+          expect(attendre.val).to.be.undefined();
         });
         it("Ajout d'une branche ou deux", async () => {
           await changerBds([idBd1, idBd2]);
+
+          const résultats = await attendre.attendreQue((x) => x.length > 2);
           expect(Array.isArray(résultats)).to.be.true();
           expect(résultats.length).to.equal(3);
           expect(résultats).to.have.members([1, 2, 3]);
         });
         it("Enlever une branche", async () => {
           await changerBds([idBd1]);
+
+          const résultats = await attendre.attendreQue((x) => x.length < 3);
           expect(Array.isArray(résultats)).to.be.true();
           expect(résultats.length).to.equal(2);
           expect(résultats).to.have.members([1, 2]);
@@ -1076,11 +1180,10 @@ if (isNode || isElectronMain) {
         };
         let fSuivre: (ids: branche[]) => Promise<void>;
 
-        let résultats: number[];
-
         let idBd1: string;
         let idBd2: string;
 
+        const attendre = new attente.AttendreRésultat<number[]>();
         const fsOublier: schémaFonctionOublier[] = [];
 
         const fListe = async (
@@ -1089,7 +1192,7 @@ if (isNode || isElectronMain) {
           fSuivre = fSuivreRacine;
           return faisRien;
         };
-        const f = (x: number[]) => (résultats = x);
+        const f = (x: number[]) => attendre.mettreÀJour(x);
         const fBranche = async (
           id: string,
           f: schémaFonctionSuivi<number[]>
@@ -1097,9 +1200,10 @@ if (isNode || isElectronMain) {
           return await client.suivreBd({
             id,
             type: "keyvalue",
-            f: (bd: { [clef: string]: number }) => {
-              const vals: number[] = Object.values(bd.all);
-              f(vals);
+            schéma: schémaKVNumérique,
+            f: async (bd) => {
+              const vals: number[] = Object.values(await bd.all());
+              return await f(vals);
             },
           });
         };
@@ -1115,16 +1219,22 @@ if (isNode || isElectronMain) {
           );
         };
         before(async () => {
-          idBd1 = await client.créerBdIndépendante({ type: "kvstore" });
-          idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
+          idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
+          idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
-          const { bd: bd1, fOublier: fOublier1 } = await client.ouvrirBd<{
-            [clef: string]: number;
-          }>({ id: idBd1, type: "keyvalue" });
+          const { bd: bd1, fOublier: fOublier1 } =
+            await client.orbite!.ouvrirBdTypée({
+              id: idBd1,
+              type: "keyvalue",
+              schéma: schémaKVNumérique,
+            });
           fsOublier.push(fOublier1);
-          const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<{
-            [clef: string]: number;
-          }>({ id: idBd2, type: "keyvalue" });
+          const { bd: bd2, fOublier: fOublier2 } =
+            await client.orbite!.ouvrirBdTypée({
+              id: idBd2,
+              type: "keyvalue",
+              schéma: schémaKVNumérique,
+            });
           fsOublier.push(fOublier2);
 
           await bd1.put("a", 1);
@@ -1144,9 +1254,11 @@ if (isNode || isElectronMain) {
         });
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
+          attendre.toutAnnuler();
         });
 
         it("Ajout d'une branche ou deux", async () => {
+          const résultats = await attendre.attendreQue((x) => x.length > 2);
           expect(Array.isArray(résultats)).to.be.true();
           expect(résultats.length).to.equal(3);
           expect(résultats).to.have.members([1, 2, 3]);
@@ -1205,32 +1317,37 @@ if (isNode || isElectronMain) {
       let idBd1: string;
       let idBd2: string;
 
-      let sélectionnées: string[];
+      const sélectionnées = new attente.AttendreRésultat<string[]>();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBd1 = await client.créerBdIndépendante({ type: "kvstore" });
-        idBd2 = await client.créerBdIndépendante({ type: "kvstore" });
+        idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
+        idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
         const fListe = async (
           fSuivreRacine: (ids: string[]) => Promise<void>
         ): Promise<schémaFonctionOublier> => {
-          fSuivreRacine([idBd1, idBd2]);
+          await fSuivreRacine([idBd1, idBd2]);
           return faisRien;
         };
         const fCondition = async (
           id: string,
           fSuivreCondition: (état: boolean) => void
         ): Promise<schémaFonctionOublier> => {
-          const f = (bd: { [clef: string]: number }) =>
-            fSuivreCondition(Object.keys(bd.all).length > 0);
-          return await client.suivreBd({ id, type: "keyvalue", f });
+          const f = async (bd: KeyValueStoreTypé<{ [clef: string]: number }>) =>
+            fSuivreCondition(Object.keys(await bd.all()).length > 0);
+          return await client.suivreBd({
+            id,
+            type: "keyvalue",
+            f,
+            schéma: schémaKVNumérique,
+          });
         };
         fsOublier.push(
           await client.suivreBdsSelonCondition({
             fListe,
             fCondition,
-            f: (idsBds) => (sélectionnées = idsBds),
+            f: (idsBds) => sélectionnées.mettreÀJour(idsBds),
           })
         );
       });
@@ -1238,27 +1355,33 @@ if (isNode || isElectronMain) {
         await Promise.all(fsOublier.map((f) => f()));
       });
       it("Seules les bonnes BDs sont retournées", async () => {
-        expect(Array.isArray(sélectionnées));
-        expect(sélectionnées.length).to.equal(0);
+        const val = await sélectionnées.attendreExiste();
+        expect(val).to.be.an.empty("array");
 
-        const { bd: bd1, fOublier: fOublier1 } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({ id: idBd1, type: "keyvalue" });
+        const { bd: bd1, fOublier: fOublier1 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBd1,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
         fsOublier.push(fOublier1);
         await bd1.put("a", 1);
 
-        expect(Array.isArray(sélectionnées));
-        expect(sélectionnées.length).to.equal(1);
-        expect(sélectionnées).to.have.members([idBd1]);
+        const val2 = await sélectionnées.attendreQue((x) => x.length > 0);
+        expect(val2).to.be.an("array").with.length(1).and.members([idBd1]);
       });
       it("Les changements aux conditions sont détectés", async () => {
-        const { bd: bd2, fOublier: fOublier2 } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({ id: idBd2, type: "keyvalue" });
+        const { bd: bd2, fOublier: fOublier2 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBd2,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
         fsOublier.push(fOublier2);
 
         await bd2.put("a", 1);
-        expect(sélectionnées).to.have.members([idBd1, idBd2]);
+        const val = await sélectionnées.attendreQue((x) => x.length > 1);
+        expect(val).to.have.members([idBd1, idBd2]);
       });
     });
 
@@ -1266,7 +1389,12 @@ if (isNode || isElectronMain) {
       let cid: string;
       const texte = "வணக்கம்";
       it("On ajoute un fichier au SFIP", async () => {
-        cid = await client.ajouterÀSFIP({ fichier: texte });
+        cid = await client.ajouterÀSFIP({
+          fichier: {
+            path: "texte.txt",
+            content: texte,
+          },
+        });
       });
       it("On télécharge le fichier du SFIP", async () => {
         const données = await client.obtFichierSFIP({ id: cid });
@@ -1284,7 +1412,7 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
       });
 
       after(async () => {
@@ -1292,14 +1420,16 @@ if (isNode || isElectronMain) {
       });
 
       it("On obtient la BD", async () => {
-        const { bd, fOublier } = await client.ouvrirBd({ id: idBd });
+        const { bd, fOublier } = await client.orbite!.ouvrirBd({ id: idBd });
         fsOublier.push(fOublier);
-        expect(adresseOrbiteValide(bd.address.toString())).to.be.true();
+        expect(isValidAddress(bd.address.toString())).to.be.true();
       });
       it("On évite la concurrence", async () => {
         const bds = await Promise.all(
           [1, 2].map(async () => {
-            const { bd, fOublier } = await client.ouvrirBd({ id: idBd });
+            const { bd, fOublier } = await client.orbite!.ouvrirBd({
+              id: idBd,
+            });
             fsOublier.push(fOublier);
             return bd;
           })
@@ -1312,16 +1442,15 @@ if (isNode || isElectronMain) {
       let idRacine: string;
       let idBd: string;
 
-      let bdRacine: KeyValueStore<{ [clef: string]: string }>;
+      let bdRacine: KeyValueStoreTypé<{ [clef: string]: string }>;
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idRacine = await client.créerBdIndépendante({ type: "kvstore" });
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        idRacine = await client.créerBdIndépendante({ type: "keyvalue" });
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idRacine,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
         bdRacine = bd;
         fsOublier.push(fOublier);
@@ -1356,7 +1485,7 @@ if (isNode || isElectronMain) {
           client.obtIdBd({
             nom: "clef",
             racine: bdRacine,
-            type: "kvstore",
+            type: "keyvalue",
           })
         ).rejected();
       });
@@ -1367,7 +1496,7 @@ if (isNode || isElectronMain) {
           racine: bdRacine,
           type: "feed",
         });
-        expect(adresseOrbiteValide(idBdRetrouvée)).to.be.true();
+        expect(isValidAddress(idBdRetrouvée)).to.be.true();
       });
 
       it("Mais on ne crée pas la BD on n'a pas la permission sur la BD racine", async () => {
@@ -1389,7 +1518,7 @@ if (isNode || isElectronMain) {
         });
         expect(idNouvelleBd).to.be.a("string");
 
-        const { bd, fOublier } = await client.ouvrirBd<string>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBd({
           id: idNouvelleBd!,
           type: "feed",
         });
@@ -1403,7 +1532,11 @@ if (isNode || isElectronMain) {
           type: "feed",
         });
         const { bd: bdConcurrent, fOublier: fOublierConcurrente } =
-          await client.ouvrirBd<string>({ id: idBdConcurrente, type: "feed" });
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdConcurrente,
+            type: "feed",
+            schéma: schémaListeChaîne,
+          });
         fsOublier.push(fOublierConcurrente);
 
         await bdConcurrent.add("કેમ છો");
@@ -1416,12 +1549,14 @@ if (isNode || isElectronMain) {
           type: "feed",
         });
         const { bd: bdRetrouvée, fOublier: fOublierRetrouvée } =
-          await client.ouvrirBd<string>({ id: idBdRetrouvée!, type: "feed" });
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdRetrouvée!,
+            type: "feed",
+            schéma: schémaListeChaîne,
+          });
         fsOublier.push(fOublierRetrouvée);
 
-        const éléments = ClientConstellation.obtÉlémentsDeBdListe({
-          bd: bdRetrouvée,
-        });
+        const éléments = (await bdRetrouvée.all()).map((x) => x.value);
         expect(éléments).to.have.members(["Salut !", "வணக்கம்!", "કેમ છો"]);
       });
     });
@@ -1434,22 +1569,22 @@ if (isNode || isElectronMain) {
       });
 
       it("La BD est crée", async () => {
-        const idBd = await client.créerBdIndépendante({ type: "kvstore" });
-        expect(adresseOrbiteValide(idBd)).to.be.true();
+        const idBd = await client.créerBdIndépendante({ type: "keyvalue" });
+        expect(isValidAddress(idBd)).to.be.true();
       });
       it("Avec sa propre bd accès utilisateur", async () => {
         const optionsAccès: OptionsContrôleurConstellation = {
-          address: undefined,
-          premierMod: client.bdCompte!.id,
+          write: client.bdCompte!.address,
         };
         const idBd = await client.créerBdIndépendante({
-          type: "kvstore",
+          type: "keyvalue",
           optionsAccès,
         });
 
-        const { bd, fOublier } = await client.ouvrirBd<{ test: number }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVNumérique,
         });
         fsOublier.push(fOublier);
 
@@ -1457,15 +1592,19 @@ if (isNode || isElectronMain) {
         expect(autorisé).to.be.true();
       });
       it("Avec accès personalisé", async () => {
-        const optionsAccès = { premierMod: client2.orbite!.identity.id };
+        const optionsAccès = { write: client2.orbite!.identity.id };
+
         const idBd = await client.créerBdIndépendante({
-          type: "kvstore",
+          type: "keyvalue",
           optionsAccès,
         });
 
-        const { bd: bd_orbite2, fOublier } = await client2.ouvrirBd<{
-          test: number;
-        }>({ id: idBd, type: "keyvalue" });
+        const { bd: bd_orbite2, fOublier } =
+          await client2.orbite!.ouvrirBdTypée({
+            id: idBd,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
         fsOublier.push(fOublier);
 
         const autorisé = await peutÉcrire(bd_orbite2, client2.orbite?.orbite);
@@ -1482,15 +1621,21 @@ if (isNode || isElectronMain) {
       });
 
       it("Combiner BD dic", async () => {
-        const idBdDic1 = await client.créerBdIndépendante({ type: "kvstore" });
-        const idBdDic2 = await client.créerBdIndépendante({ type: "kvstore" });
+        const idBdDic1 = await client.créerBdIndépendante({ type: "keyvalue" });
+        const idBdDic2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
-        const { bd: bdDic1, fOublier: fOublierDic1 } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({ id: idBdDic1, type: "keyvalue" });
-        const { bd: bdDic2, fOublier: fOublierDic2 } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({ id: idBdDic2, type: "keyvalue" });
+        const { bd: bdDic1, fOublier: fOublierDic1 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdDic1,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
+        const { bd: bdDic2, fOublier: fOublierDic2 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdDic2,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
 
         fsOublier.push(fOublierDic1);
         fsOublier.push(fOublierDic2);
@@ -1501,7 +1646,7 @@ if (isNode || isElectronMain) {
         await bdDic2.put("clef 3", 3);
 
         await client.combinerBdsDict({ bdBase: bdDic1, bd2: bdDic2 });
-        const données = bdDic1.all;
+        const données = await bdDic1.all();
 
         expect(données).to.deep.equal({
           "clef 1": 1,
@@ -1515,9 +1660,17 @@ if (isNode || isElectronMain) {
         const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
         const { bd: bdListe1, fOublier: fOublierListe1 } =
-          await client.ouvrirBd<number>({ id: idBdListe1, type: "feed" });
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdListe1,
+            type: "feed",
+            schéma: schémaListeNumérique,
+          });
         const { bd: bdListe2, fOublier: fOublierListe2 } =
-          await client.ouvrirBd<number>({ id: idBdListe2, type: "feed" });
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdListe2,
+            type: "feed",
+            schéma: schémaListeNumérique,
+          });
 
         fsOublier.push(fOublierListe1);
         fsOublier.push(fOublierListe2);
@@ -1528,28 +1681,34 @@ if (isNode || isElectronMain) {
         await bdListe2.add(3);
 
         await client.combinerBdsListe({ bdBase: bdListe1, bd2: bdListe2 });
-        const données = ClientConstellation.obtÉlémentsDeBdListe({
-          bd: bdListe1,
-        });
+        const données = (await bdListe1.all()).map((x) => x.value);
 
         expect(Array.isArray(données)).to.be.true();
         expect(données.length).to.equal(3);
         expect(données).to.have.members([1, 2, 3]);
       });
 
-      it("Combiner BD liste avec indexe", async () => {
+      it("Combiner BD liste avec index", async () => {
         const idBdListe1 = await client.créerBdIndépendante({ type: "feed" });
         const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
+        const schéma: JSONSchemaType<{ temps: number; val: number }> = {
+          type: "object",
+          properties: { temps: { type: "number" }, val: { type: "number" } },
+          required: ["temps", "val"],
+        };
+
         const { bd: bdListe1, fOublier: fOublierListe1 } =
-          await client.ouvrirBd<{ temps: number; val: number }>({
+          await client.orbite!.ouvrirBdTypée({
             id: idBdListe1,
             type: "feed",
+            schéma,
           });
         const { bd: bdListe2, fOublier: fOublierListe2 } =
-          await client.ouvrirBd<{ temps: number; val: number }>({
+          await client.orbite!.ouvrirBdTypée({
             id: idBdListe2,
             type: "feed",
+            schéma,
           });
 
         fsOublier.push(fOublierListe1);
@@ -1565,9 +1724,7 @@ if (isNode || isElectronMain) {
           bd2: bdListe2,
           index: ["temps"],
         });
-        const données = ClientConstellation.obtÉlémentsDeBdListe({
-          bd: bdListe1,
-        });
+        const données = (await bdListe1.all()).map((x) => x.value);
 
         expect(Array.isArray(données)).to.be.true();
         expect(données.length).to.equal(3);
@@ -1579,21 +1736,21 @@ if (isNode || isElectronMain) {
       });
 
       it("Combiner BD dic récursif", async () => {
-        const idBdDic1 = await client.créerBdIndépendante({ type: "kvstore" });
-        const idBdDic2 = await client.créerBdIndépendante({ type: "kvstore" });
+        const idBdDic1 = await client.créerBdIndépendante({ type: "keyvalue" });
+        const idBdDic2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
-        const { bd: bdDic1, fOublier: fOublierDic1 } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
-          id: idBdDic1,
-          type: "keyvalue",
-        });
-        const { bd: bdDic2, fOublier: fOublierDic2 } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
-          id: idBdDic2,
-          type: "keyvalue",
-        });
+        const { bd: bdDic1, fOublier: fOublierDic1 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdDic1,
+            type: "keyvalue",
+            schéma: schémaKVChaîne,
+          });
+        const { bd: bdDic2, fOublier: fOublierDic2 } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdDic2,
+            type: "keyvalue",
+            schéma: schémaKVChaîne,
+          });
 
         fsOublier.push(fOublierDic1);
         fsOublier.push(fOublierDic2);
@@ -1602,9 +1759,9 @@ if (isNode || isElectronMain) {
         const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
         const { bd: bdListe1, fOublier: fOublierListe1 } =
-          await client.ouvrirBd<number>({ id: idBdListe1, type: "feed" });
+          await client.orbite!.ouvrirBd({ id: idBdListe1, type: "feed" });
         const { bd: bdListe2, fOublier: fOublierListe2 } =
-          await client.ouvrirBd<number>({ id: idBdListe2, type: "feed" });
+          await client.orbite!.ouvrirBd({ id: idBdListe2, type: "feed" });
 
         fsOublier.push(fOublierListe1);
         fsOublier.push(fOublierListe2);
@@ -1618,16 +1775,14 @@ if (isNode || isElectronMain) {
 
         await client.combinerBdsDict({ bdBase: bdDic1, bd2: bdDic2 });
 
-        const idBdListeFinale = bdDic1.get("clef");
+        const idBdListeFinale = await bdDic1.get("clef");
         if (!idBdListeFinale) throw new Error("idBdListeFinale non définie");
         const { bd: bdListeFinale, fOublier: fOublierBdListeFinale } =
-          await client.ouvrirBd<number>({ id: idBdListeFinale, type: "feed" });
+          await client.orbite!.ouvrirBd({ id: idBdListeFinale, type: "feed" });
 
         fsOublier.push(fOublierBdListeFinale);
 
-        const données = ClientConstellation.obtÉlémentsDeBdListe({
-          bd: bdListeFinale,
-        });
+        const données = (await bdListeFinale.all()).map((x) => x.value);
 
         expect(Array.isArray(données)).to.be.true();
         expect(données.length).to.equal(2);
@@ -1635,18 +1790,33 @@ if (isNode || isElectronMain) {
       });
 
       it("Combiner BD liste récursif", async () => {
+        const schéma: JSONSchemaType<élément> = {
+          type: "object",
+          properties: {
+            index: {
+              type: "number",
+            },
+            idBd: {
+              type: "string",
+            },
+          },
+          required: ["index", "idBd"],
+        };
+
         const idBdListe1 = await client.créerBdIndépendante({ type: "feed" });
         const idBdListe2 = await client.créerBdIndépendante({ type: "feed" });
 
         const { bd: bdListe1, fOublier: fOublierBdListe1 } =
-          await client.ouvrirBd<{ indexe: number; idBd: string }>({
+          await client.orbite!.ouvrirBdTypée({
             id: idBdListe1,
             type: "feed",
+            schéma,
           });
         const { bd: bdListe2, fOublier: fOublierBdListe2 } =
-          await client.ouvrirBd<{ indexe: number; idBd: string }>({
+          await client.orbite!.ouvrirBdTypée({
             id: idBdListe2,
             type: "feed",
+            schéma,
           });
 
         fsOublier.push(fOublierBdListe1);
@@ -1656,9 +1826,9 @@ if (isNode || isElectronMain) {
         const idSubBd2 = await client.créerBdIndépendante({ type: "feed" });
 
         const { bd: subBd1, fOublier: fOublierSubBd1 } =
-          await client.ouvrirBd<number>({ id: idSubBd1, type: "feed" });
+          await client.orbite!.ouvrirBd({ id: idSubBd1, type: "feed" });
         const { bd: subBd2, fOublier: fOublierSubBd2 } =
-          await client.ouvrirBd<number>({ id: idSubBd2, type: "feed" });
+          await client.orbite!.ouvrirBd({ id: idSubBd2, type: "feed" });
 
         fsOublier.push(fOublierSubBd1);
         fsOublier.push(fOublierSubBd2);
@@ -1667,30 +1837,29 @@ if (isNode || isElectronMain) {
         await subBd2.add(1);
         await subBd2.add(2);
 
-        type élément = { indexe: number; idBd: string };
-        await bdListe1.add({ indexe: 1, idBd: idSubBd1 });
-        await bdListe2.add({ indexe: 1, idBd: idSubBd2 });
+        type élément = { index: number; idBd: string };
+        await bdListe1.add({ index: 1, idBd: idSubBd1 });
+        await bdListe2.add({ index: 1, idBd: idSubBd2 });
 
         await client.combinerBdsListe({
           bdBase: bdListe1,
           bd2: bdListe2,
-          index: ["indexe"],
+          index: ["index"],
         });
 
-        const donnéesBdListe: élément[] =
-          ClientConstellation.obtÉlémentsDeBdListe({ bd: bdListe1 });
+        const donnéesBdListe: élément[] = (await bdListe1.all()).map(
+          (x) => x.value
+        );
         expect(Array.isArray(donnéesBdListe)).to.be.true();
         expect(donnéesBdListe.length).to.equal(1);
 
         const idBdListeFinale = donnéesBdListe[0]!.idBd;
         const { bd: subBdFinale, fOublier: fOublierSubBdFinale } =
-          await client.ouvrirBd<number>({ id: idBdListeFinale, type: "feed" });
+          await client.orbite!.ouvrirBd({ id: idBdListeFinale, type: "feed" });
 
         fsOublier.push(fOublierSubBdFinale);
 
-        const données = ClientConstellation.obtÉlémentsDeBdListe({
-          bd: subBdFinale,
-        });
+        const données = (await subBdFinale.all()).map((x) => x.value);
 
         expect(Array.isArray(données)).to.be.true();
         expect(données.length).to.equal(2);
@@ -1703,17 +1872,15 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBd = await client.créerBdIndépendante({ type: "kvstore" });
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: number;
-        }>({
+        idBd = await client.créerBdIndépendante({ type: "keyvalue" });
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVNumérique,
         });
         fsOublier.push(fOublier);
 
         await bd.put("test", 123);
-        await bd.close();
       });
 
       after(async () => {
@@ -1722,33 +1889,32 @@ if (isNode || isElectronMain) {
 
       it("Les données n'existent plus", async () => {
         await client.effacerBd({ id: idBd });
-        const { bd, fOublier } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({
+        const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVChaîne,
         });
 
         fsOublier.push(fOublier);
 
-        const val = bd.get("test");
+        const val = await bd.get("test");
 
         expect(val).to.be.undefined();
       });
     });
 
     describe("Suivre mes permissions", function () {
-      const rés = new utilsTestAttente.AttendreRésultat<string>();
+      const rés = new attente.AttendreRésultat<string>();
       let idBd: string;
 
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
         idBd = await client.créerBdIndépendante({
-          type: "kvstore",
+          type: "keyvalue",
           optionsAccès: {
             address: undefined,
-            premierMod: client.bdCompte!.id,
+            write: client.bdCompte!.address,
           },
         });
 
@@ -1778,9 +1944,10 @@ if (isNode || isElectronMain) {
       });
 
       it("Le nouveau membre peut modifier la BD", async () => {
-        const { bd, fOublier } = await client2.ouvrirBd<{ test: number }>({
+        const { bd, fOublier } = await client2.orbite!.ouvrirBdTypée({
           id: idBd,
           type: "keyvalue",
+          schéma: schémaKVNumérique,
         });
 
         fsOublier.push(fOublier);
@@ -1806,7 +1973,7 @@ if (isNode || isElectronMain) {
 
       let lAccès: infoAccès[];
       let idBd: string;
-      const résultatPermission = new utilsTestAttente.AttendreRésultat<
+      const résultatPermission = new attente.AttendreRésultat<
         typeof MODÉRATEUR | typeof MEMBRE
       >();
 
@@ -1814,10 +1981,10 @@ if (isNode || isElectronMain) {
 
       before(async () => {
         idBd = await client.créerBdIndépendante({
-          type: "kvstore",
+          type: "keyvalue",
           optionsAccès: {
             address: undefined,
-            premierMod: client.bdCompte!.id,
+            write: client.bdCompte!.address,
           },
         });
         const f = (accès: infoAccès[]) => {
@@ -1885,31 +2052,37 @@ if (isNode || isElectronMain) {
       let idBdKv2: string;
 
       let cidTexte: string;
-      let interval: NodeJS.Timer | undefined = undefined;
+      let interval: NodeJS.Timeout | undefined = undefined;
 
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idBdKv = await client.créerBdIndépendante({ type: "kvstore" });
-        const { bd: bdKv, fOublier: fOublierKv } = await client.ouvrirBd<{
-          [clef: string]: string;
-        }>({ id: idBdKv, type: "keyvalue" });
+        idBdKv = await client.créerBdIndépendante({ type: "keyvalue" });
+        const { bd: bdKv, fOublier: fOublierKv } =
+          await client.orbite!.ouvrirBdTypée({
+            id: idBdKv,
+            type: "keyvalue",
+            schéma: schémaKVChaîne,
+          });
 
         fsOublier.push(fOublierKv);
 
         idBdListe = await client.créerBdIndépendante({ type: "feed" });
         const { bd: bdListe, fOublier: fOublierBdListe } =
-          await client.ouvrirBd<string>({ id: idBdListe, type: "feed" });
+          await client.orbite!.ouvrirBd({
+            id: idBdListe,
+            type: "feed",
+          });
 
         fsOublier.push(fOublierBdListe);
 
-        idBdKv2 = await client.créerBdIndépendante({ type: "kvstore" });
+        idBdKv2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
         await bdKv.put("ma bd liste", idBdListe);
         await bdListe.add(idBdKv2);
 
         cidTexte = (await client2.sfip!.add("Bonjour !")).cid.toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
-        await bdListe.add(cidTexte);
+        await bdListe.add(cidTexte + "/text.txt");
 
         await client.épingles!.épinglerBd({ id: idBdKv, récursif: true });
       });

@@ -156,7 +156,9 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter une image", async () => {
-          await client.profil!.sauvegarderImage({ image: IMAGE });
+          await client.profil!.sauvegarderImage({
+            image: { content: IMAGE, path: "logo.svg" },
+          });
           const val = await rés.attendreExiste();
           expect(val).to.deep.equal(new Uint8Array(IMAGE));
         });
@@ -170,7 +172,12 @@ typesClients.forEach((type) => {
         it("Ajouter une image trop grande", async () => {
           expect(
             client.profil!.sauvegarderImage({
-              image: Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 }),
+              image: {
+                content: Object.assign({}, IMAGE, {
+                  size: MAX_TAILLE_IMAGE + 1,
+                }),
+                path: "moi.png",
+              },
             })
           ).to.be.rejected();
         });

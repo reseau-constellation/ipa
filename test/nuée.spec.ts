@@ -1,6 +1,6 @@
 import { générerClient, type ClientConstellation } from "@/index.js";
 import { schémaFonctionOublier, schémaStatut, TYPES_STATUT } from "@/types.js";
-import { adresseOrbiteValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
 
 import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
@@ -68,7 +68,7 @@ typesClients.forEach((type) => {
       describe("Création", function () {
         it("Nuée", async () => {
           const idNuée = await client.nuées!.créerNuée({});
-          expect(adresseOrbiteValide(idNuée)).to.be.true();
+          expect(isValidAddress(idNuée)).to.be.true();
         });
       });
 
@@ -384,7 +384,7 @@ typesClients.forEach((type) => {
               idNuée,
               clefTableau: "abc",
             });
-            const val = await tableaux.attendreExiste();
+            const val = await tableaux.attendreQue((x) => x.length > 0);
             expect(val).to.have.deep.members([
               {
                 clef: "abc",
@@ -593,12 +593,14 @@ typesClients.forEach((type) => {
               idNuée,
               licence: "ODbl-1_0",
             });
-            empreinte = await clients[1].bds.ajouterÉlémentÀTableauUnique({
-              schémaBd: schémaNuée,
-              idNuéeUnique: idNuée,
-              clefTableau: "principal",
-              vals: { [idCol]: 3 },
-            });
+            empreinte = (
+              await clients[1].bds.ajouterÉlémentÀTableauUnique({
+                schémaBd: schémaNuée,
+                idNuéeUnique: idNuée,
+                clefTableau: "principal",
+                vals: { [idCol]: 3 },
+              })
+            )[0];
           });
 
           after(async () => {
@@ -633,7 +635,7 @@ typesClients.forEach((type) => {
           let empreinte: string;
 
           const idNuée =
-            "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/tuNeMeTrouverasPas";
+            "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"; // tuNeMeTrouverasPas
           const idCol = "colonne numérique";
           const fsOublier: schémaFonctionOublier[] = [];
           const résultatChezMoi = new utilsTestAttente.AttendreRésultat<
@@ -682,12 +684,14 @@ typesClients.forEach((type) => {
               });
             fsOublier.push(fOublierChezLesAutres);
 
-            empreinte = await clients[1].bds.ajouterÉlémentÀTableauUnique({
-              schémaBd,
-              idNuéeUnique: idNuée,
-              clefTableau: "principal",
-              vals: { [idCol]: 3 },
-            });
+            empreinte = (
+              await clients[1].bds.ajouterÉlémentÀTableauUnique({
+                schémaBd,
+                idNuéeUnique: idNuée,
+                clefTableau: "principal",
+                vals: { [idCol]: 3 },
+              })
+            )[0];
           });
 
           after(async () => {
