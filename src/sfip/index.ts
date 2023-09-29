@@ -26,7 +26,7 @@ const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
     configPlateforme = (await import("@/sfip/configNode.js")).default;
   } else {
     console.warn(
-      "Plateforme non reconnue. On utilisera la configuration navigateur.",
+      "Plateforme non reconnue. On utilisera la configuration navigateur."
     );
     configPlateforme = (await import("@/sfip/configNavigateur.js")).default;
   }
@@ -55,7 +55,7 @@ export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
 
   const configFinale: Parameters<typeof create>[0] = mergeOptions(
     config,
-    configPlateforme,
+    configPlateforme
   );
   return await create(configFinale);
 }

@@ -70,18 +70,18 @@ class LocalStorage {
 }
 
 export const obtStockageLocal = async (
-  dossierOrbite?: string,
+  dossierOrbite?: string
 ): Promise<Storage | LocalStorage> => {
   if (typeof localStorage === "undefined" || localStorage === null) {
     if (!dossierOrbite)
       throw new Error(
-        "Orbite n'est pas encore initialisée, et aucun dossier ne fut spécifié dans la configuration d'initialisation de Constellation.",
+        "Orbite n'est pas encore initialisée, et aucun dossier ne fut spécifié dans la configuration d'initialisation de Constellation."
       );
 
     const dossierStockageLocal = path.join(dossierOrbite, "_stockageLocal");
     if (!stockagesLocaux[dossierStockageLocal]) {
       stockagesLocaux[dossierStockageLocal] = new LocalStorage(
-        dossierStockageLocal,
+        dossierStockageLocal
       );
     }
     return stockagesLocaux[dossierStockageLocal];

@@ -60,7 +60,7 @@ export type OrderedKeyValueStoreTypé<T extends { [clef: string]: unknown }> =
     put: <K extends keyof T>(
       key: K,
       value: T[K],
-      position?: number,
+      position?: number
     ) => Promise<string>;
     set: OrderedKeyValueStoreTypé<T>["put"];
     del: <K extends keyof T>(key: K) => Promise<string>;
@@ -165,7 +165,7 @@ const typerFeedStore = <T extends élémentsBd>({
             return await target.add(data);
           }
           throw new Error(
-            data.toString() + JSON.stringify(validateur.errors, undefined, 2),
+            data.toString() + JSON.stringify(validateur.errors, undefined, 2)
           );
         };
       } else {
@@ -184,7 +184,7 @@ const typerKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
 }): KeyValueStoreTypé<T> => {
   const validateur = ajv.compile(schéma);
   const compilerSchémaClef = (
-    s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"],
+    s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"]
   ) => {
     // Apparemment nécessaire pour éviter que AJV donne une erreur si `nullable: true` et la valeur est `undefined`
     if (s === true) {
@@ -204,9 +204,9 @@ const typerKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
     (
       Object.entries(schéma.properties || {}) as [
         keyof T,
-        JSONSchemaType<T[keyof T]>,
+        JSONSchemaType<T[keyof T]>
       ][]
-    ).map(([c, p]) => [c, compilerSchémaClef(p)]),
+    ).map(([c, p]) => [c, compilerSchémaClef(p)])
   ) as { [clef in keyof T]: ValidateFunction<T[clef]> };
   const validPropriétésAditionnelles = schéma.additionalProperties
     ? compilerSchémaClef(schéma.additionalProperties)
@@ -225,7 +225,7 @@ const typerKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
     get(target, prop) {
       if (prop === "get") {
         return async (
-          key: Extract<keyof T, string>,
+          key: Extract<keyof T, string>
         ): Promise<T[typeof key] | undefined> => {
           const val = await target.get(key);
           if (val === undefined) return val;
@@ -235,7 +235,7 @@ const typerKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
       } else if (prop === "put" || prop === "set") {
         return async (
           key: Extract<keyof T, string>,
-          value: T[typeof key],
+          value: T[typeof key]
         ): Promise<string> => {
           const valide = validerClef(value, key);
           if (valide) return await target.put(key, value);
@@ -243,7 +243,7 @@ const typerKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
             throw new Error(
               validateurs[key]
                 ? JSON.stringify(validateurs[key].errors, undefined, 2)
-                : `Clef ${key} non supportée.`,
+                : `Clef ${key} non supportée.`
             );
         };
       } else if (prop === "all") {
@@ -273,7 +273,7 @@ const typerOrderedKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
 }): OrderedKeyValueStoreTypé<T> => {
   const validateur = ajv.compile(schéma);
   const compilerSchémaClef = (
-    s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"],
+    s: JSONSchemaType<T[keyof T]> | JSONSchemaType<T[keyof T]>["properties"]
   ) => {
     // Apparemment nécessaire pour éviter que AJV donne une erreur si `nullable: true` et la valeur est `undefined`
     if (s === true) {
@@ -293,9 +293,9 @@ const typerOrderedKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
     (
       Object.entries(schéma.properties || {}) as [
         keyof T,
-        JSONSchemaType<T[keyof T]>,
+        JSONSchemaType<T[keyof T]>
       ][]
-    ).map(([c, p]) => [c, compilerSchémaClef(p)]),
+    ).map(([c, p]) => [c, compilerSchémaClef(p)])
   ) as { [clef in keyof T]: ValidateFunction<T[clef]> };
   const validPropriétésAditionnelles = schéma.additionalProperties
     ? compilerSchémaClef(schéma.additionalProperties)
@@ -314,7 +314,7 @@ const typerOrderedKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
     get(target, prop) {
       if (prop === "get") {
         return async (
-          key: Extract<keyof T, string>,
+          key: Extract<keyof T, string>
         ): Promise<{ value: T[typeof key]; position: number } | undefined> => {
           const val = await target.get(key);
           if (val === undefined) return val;
@@ -327,7 +327,7 @@ const typerOrderedKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
         return async (
           key: Extract<keyof T, string>,
           value: T[typeof key],
-          position?: number,
+          position?: number
         ): Promise<string> => {
           const valide = validerClef(value, key);
           if (valide) return await target.put(key, value, position);
@@ -335,7 +335,7 @@ const typerOrderedKeyValueStore = <T extends { [clef: string]: élémentsBd }>({
             throw new Error(
               validateurs[key]
                 ? JSON.stringify(validateurs[key].errors, undefined, 2)
-                : `Clef ${key} non supportée.`,
+                : `Clef ${key} non supportée.`
             );
         };
       } else if (prop === "all") {
@@ -389,7 +389,7 @@ const typerSetStore = <T extends élémentsBd>({
             return await target.put(data);
           }
           throw new Error(
-            data.toString() + JSON.stringify(validateur.errors, undefined, 2),
+            data.toString() + JSON.stringify(validateur.errors, undefined, 2)
           );
         };
       } else {
@@ -403,7 +403,7 @@ type Typer<
   T extends Store,
   U extends T extends KeyValueStore | OrderedKeyValueStore
     ? { [clef: string]: élémentsBd }
-    : élémentsBd,
+    : élémentsBd
 > = T extends KeyValueStore
   ? KeyValueStoreTypé<Extract<U, { [clef: string]: élémentsBd }>>
   : T extends FeedStore
@@ -418,7 +418,7 @@ const typerBd = <
   T extends Store,
   U extends T extends KeyValueStore | OrderedKeyValueStore
     ? { [clef: string]: élémentsBd }
-    : élémentsBd,
+    : élémentsBd
 >({
   bd,
   schéma,
@@ -567,7 +567,7 @@ export class GestionnaireOrbite {
 
       if (!vérifierTypeBd(existante.bd))
         throw new Error(
-          `La bd est de type ${existante.bd.type}, et non ${type}.`,
+          `La bd est de type ${existante.bd.type}, et non ${type}.`
         );
 
       return {
@@ -596,7 +596,7 @@ export class GestionnaireOrbite {
 
   async ouvrirBdTypée<
     U extends { [clef: string]: élémentsBd },
-    T = KeyValueStoreTypé<U>,
+    T = KeyValueStoreTypé<U>
   >({
     id,
     type,
@@ -632,7 +632,7 @@ export class GestionnaireOrbite {
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<
     U extends { [clef: string]: élémentsBd },
-    T = OrderedKeyValueStoreTypé<U>,
+    T = OrderedKeyValueStoreTypé<U>
   >({
     id,
     type,
@@ -701,7 +701,7 @@ export class GestionnaireOrbite {
             delete this._bdsOrbite[id];
             await bd.close();
           }
-        }),
+        })
       );
     };
     const i = setInterval(fNettoyer, 1000 * 60 * 5);

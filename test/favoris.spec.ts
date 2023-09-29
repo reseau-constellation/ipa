@@ -97,13 +97,13 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.favoris!.suivreFavoris({
               f: (favs) => favoris.mettreÀJour(favs),
-            }),
+            })
           );
           fsOublier.push(
             await client.favoris!.suivreEstÉpingléSurDispositif({
               idObjet: idBd,
-              f: (épingle) => (épingleBd.mettreÀJour(épingle)),
-            }),
+              f: (épingle) => épingleBd.mettreÀJour(épingle),
+            })
           );
         });
 
@@ -135,7 +135,7 @@ typesClients.forEach((type) => {
             },
           ]);
 
-          const valÉpingleBd = await épingleBd.attendreQue(x=>x.bd)
+          const valÉpingleBd = await épingleBd.attendreQue((x) => x.bd);
           expect(valÉpingleBd).to.deep.equal({
             idObjet: idBd,
             bd: true,
@@ -147,10 +147,10 @@ typesClients.forEach((type) => {
         it("Enlever un favori", async () => {
           await client.favoris!.désépinglerFavori({ idObjet: idBd });
 
-          const val = await favoris.attendreQue(x=>x.length === 0);
+          const val = await favoris.attendreQue((x) => x.length === 0);
           expect(val.length).to.equal(0);
 
-          const valÉpingleBd = await épingleBd.attendreQue(x=>!x.bd)
+          const valÉpingleBd = await épingleBd.attendreQue((x) => !x.bd);
           expect(valÉpingleBd).to.deep.equal({
             idObjet: idBd,
             bd: false,

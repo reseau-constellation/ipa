@@ -23,10 +23,10 @@ import { isElectronMain, isNode } from "wherearewe";
 const vérifierRecherche = (
   résultats: résultatRecherche<infoRésultat>[],
   réf: résultatRecherche<infoRésultat>[],
-  scores: { [key: string]: (x: number) => void } = {},
+  scores: { [key: string]: (x: number) => void } = {}
 ) => {
   const scoresRésultat = Object.fromEntries(
-    résultats.map((r) => [r.id, r.résultatObjectif.score]),
+    résultats.map((r) => [r.id, r.résultatObjectif.score])
   );
   const résultatsSansScore = résultats.map((r) => {
     const sansScore: {
@@ -35,7 +35,7 @@ const vérifierRecherche = (
     } = {
       id: r.id,
       résultatObjectif: Object.fromEntries(
-        Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score"),
+        Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score")
       ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">,
     };
     return sansScore;
@@ -48,7 +48,7 @@ const vérifierRecherche = (
     } = {
       id: r.id,
       résultatObjectif: Object.fromEntries(
-        Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score"),
+        Object.entries(r.résultatObjectif).filter((x) => x[0] !== "score")
       ) as Omit<résultatObjectifRecherche<infoRésultat>, "score">,
     };
     return sansScore;
@@ -82,7 +82,7 @@ typesClients.forEach((type) => {
               await générerClients({ n: 3, type, générerClient }));
 
             idsComptes = await Promise.all(
-              clients.map(async (c) => await c.obtIdCompte()),
+              clients.map(async (c) => await c.obtIdCompte())
             );
           });
 
@@ -716,7 +716,7 @@ typesClients.forEach((type) => {
                   nomBd: "météo",
                   f: (bds) => rés.mettreÀJour(bds),
                   nRésultatsDésirés: 2,
-                },
+                }
               ));
             });
 
@@ -1720,7 +1720,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.réseau!.suivreConnexionsMembres({
               f: (m) => résMembresEnLigne.mettreÀJour(m),
-            }),
+            })
           );
           await résMembresEnLigne.attendreQue((x) => !!x && x.length === 5);
 
@@ -1816,7 +1816,7 @@ typesClients.forEach((type) => {
           }
 
           const val = await résMotsClefs.attendreQue(
-            (x) => !!x && x.length >= 5,
+            (x) => !!x && x.length >= 5
           );
           vérifierRecherche(val, réf);
         });
@@ -1851,7 +1851,7 @@ typesClients.forEach((type) => {
           }
 
           const val = await résMotsClefs.attendreQue(
-            (x) => x.length > 0 && x.length <= 4,
+            (x) => x.length > 0 && x.length <= 4
           );
           vérifierRecherche(val, réf);
         });
@@ -1881,7 +1881,7 @@ typesClients.forEach((type) => {
           }
 
           const val = await résMotsClefs.attendreQue(
-            (x) => !!x && x.length <= 3,
+            (x) => !!x && x.length <= 3
           );
           vérifierRecherche(val, réf);
         });
@@ -1913,7 +1913,7 @@ typesClients.forEach((type) => {
           }
 
           const val = await résMotsClefs.attendreQue(
-            (x) => !!x && x.length >= 4,
+            (x) => !!x && x.length >= 4
           );
           vérifierRecherche(val, réf);
         });

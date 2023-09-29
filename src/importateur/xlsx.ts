@@ -19,7 +19,7 @@ export default class ImportateurFeuilleCalcul {
 
   obtDonnées(
     nomTableau: string,
-    cols: { [key: string]: string } | string[],
+    cols: { [key: string]: string } | string[]
   ): { [key: string]: string | number }[] {
     const feuille = this.doc.Sheets[nomTableau];
     const données = utils.sheet_to_json(feuille) as {
@@ -30,19 +30,19 @@ export default class ImportateurFeuilleCalcul {
         Object.fromEntries(
           Object.keys(d)
             .filter((c) => cols.includes(c))
-            .map((c) => [c, d[c]]),
-        ),
+            .map((c) => [c, d[c]])
+        )
       );
     } else {
       const colsInversées = Object.fromEntries(
-        Object.entries(cols).map(([c, v]) => [v, c]),
+        Object.entries(cols).map(([c, v]) => [v, c])
       );
       return données.map((d) =>
         Object.fromEntries(
           Object.keys(d)
             .filter((c) => Object.keys(colsInversées).includes(c))
-            .map((c) => [colsInversées[c], d[c]]),
-        ),
+            .map((c) => [colsInversées[c], d[c]])
+        )
       );
     }
   }

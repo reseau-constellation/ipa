@@ -132,15 +132,15 @@ typesClients.forEach((type) => {
           await bdDic2.set("clef", idBdAutre);
           fOublier2();
 
-          const val = await épingles.attendreQue(é=>é.size > 2);
+          const val = await épingles.attendreQue((é) => é.size > 2);
 
           expect([...val]).to.have.members([idBdDic, idBdDic2, idBdAutre]);
         });
 
         it("Désépingler dic récursif", async () => {
           await client.épingles!.désépinglerBd({ id: idBdDic });
-          
-          const val = await épingles.attendreQue(é=>é.size < 3);
+
+          const val = await épingles.attendreQue((é) => é.size < 3);
           expect([...val]).to.not.have.members([idBdDic, idBdAutre]);
         });
 
@@ -149,7 +149,7 @@ typesClients.forEach((type) => {
           await client.épingles!.épinglerBd({ id: idBdAutre, récursif: true });
           await client.épingles!.désépinglerBd({ id: idBdDic });
 
-          const val = await épingles.attendreQue(é=>!é.has(idBdDic));
+          const val = await épingles.attendreQue((é) => !é.has(idBdDic));
           expect([...val]).to.not.contain(idBdDic);
           expect([...val]).to.contain(idBdAutre);
         });

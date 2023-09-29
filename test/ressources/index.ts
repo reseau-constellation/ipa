@@ -17,7 +17,7 @@ export const obtRessourceTest = async ({
 
     const cheminFichier = path.join(
       url.fileURLToPath(new URL(".", import.meta.url)).replace("dist/", ""),
-      nomFichier,
+      nomFichier
     );
 
     const rés = fs.readFileSync(cheminFichier);
@@ -28,7 +28,7 @@ export const obtRessourceTest = async ({
   } else {
     const rés = await axios.get(
       `http://localhost:3000/fichier/${encodeURIComponent(nomFichier)}`,
-      optsAxios,
+      optsAxios
     );
     return rés.data;
   }

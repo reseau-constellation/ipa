@@ -5,7 +5,7 @@ export type spécificationHoroDatage = {
   format?: string;
 };
 export const estSpécificationHoroDatage = (
-  val: unknown,
+  val: unknown
 ): val is spécificationHoroDatage => {
   return (
     !!val &&

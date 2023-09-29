@@ -445,7 +445,7 @@ export default class Licences {
       this.perroquet = new கிளி({
         // À faire: arranger types
         விண்மீன்: mandatairifier(
-          this.client,
+          this.client
         ) as unknown as ConstructorParameters<
           typeof கிளி<InfoLicenceAvecCode>
         >[0]["விண்மீன்"],
@@ -480,7 +480,7 @@ export default class Licences {
     await this.attendrePrêt();
     if (this.perroquet) {
       const fFinale = async (
-        licences: அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை<InfoLicenceAvecCode>[],
+        licences: அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை<InfoLicenceAvecCode>[]
       ) => {
         return await f(Object.fromEntries(licences.map((l) => [l.code, l])));
       };

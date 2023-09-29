@@ -18,14 +18,14 @@ export const cidEtFichierValide = (val: string) => {
   let cid: string;
   let fichier: string;
   try {
-    ([cid, fichier] = val.split("/"));
+    [cid, fichier] = val.split("/");
   } catch {
     return false;
   }
   if (!fichier) return false;
   if (!cidValide(cid)) return false;
-  return {cid, fichier}
-}
+  return { cid, fichier };
+};
 
 export default class Épingles {
   client: ClientConstellation;
@@ -58,7 +58,7 @@ export default class Épingles {
     await Promise.all(
       this.requètes
         .filter((r) => r.id === id)
-        .map(async (r) => await r.fOublier()),
+        .map(async (r) => await r.fOublier())
     );
     const dépendants = this.requètes.filter((r) => r.parent === id);
 
@@ -72,9 +72,9 @@ export default class Épingles {
         ) {
           await this.désépinglerBd({ id: d.id });
         }
-      }),
+      })
     );
-    this.événements.emit("changement épingles")
+    this.événements.emit("changement épingles");
   }
 
   async épinglée({ id }: { id: string }): Promise<boolean> {
@@ -138,10 +138,10 @@ export default class Épingles {
         let l_vals: string[] = [];
         if (typeof vals === "object") {
           l_vals = Object.values(vals).filter(
-            (v) => typeof v === "string",
+            (v) => typeof v === "string"
           ) as string[];
           l_vals.push(
-            ...Object.keys(vals).filter((v) => typeof v === "string"),
+            ...Object.keys(vals).filter((v) => typeof v === "string")
           );
         } else if (Array.isArray(vals)) {
           l_vals = vals;
@@ -153,7 +153,7 @@ export default class Épingles {
         if (fichiers) {
           // Épingler les fichiers si nécessaire
           const cids = l_vals.filter(
-            (v) => cidEtFichierValide(v) && !idsOrbite.includes(v),
+            (v) => cidEtFichierValide(v) && !idsOrbite.includes(v)
           );
 
           cids.forEach((id_) => {
@@ -177,14 +177,18 @@ export default class Épingles {
         await Promise.all(
           idsOrbite.map(
             async (id_) =>
-              await this._épingler({ id: id_, récursif, fichiers, parent: id }),
-          ),
+              await this._épingler({ id: id_, récursif, fichiers, parent: id })
+          )
         );
       };
 
       if (bd.type === "keyvalue") {
         // @ts-ignore
-        const fOublierBd = await this.client.suivreBdDic({ id, f: async (x : {key: string, value: élémentsBd, hash: string}[]) => await fSuivre(Object.fromEntries(x.map(y=>[y.key, y.value]))) });
+        const fOublierBd = await this.client.suivreBdDic({
+          id,
+          f: async (x: { key: string; value: élémentsBd; hash: string }[]) =>
+            await fSuivre(Object.fromEntries(x.map((y) => [y.key, y.value]))),
+        });
         this.fsOublier[id] = fOublierBd;
       } else if (bd.type === "feed") {
         const fOublierBd = await this.client.suivreBdListe({ id, f: fSuivre });
@@ -198,7 +202,7 @@ export default class Épingles {
     await Promise.all(
       [...épingles].map(async (id) => {
         await this.désépinglerBd({ id });
-      }),
+      })
     );
   }
 

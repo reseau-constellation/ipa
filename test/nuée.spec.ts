@@ -22,7 +22,7 @@ const générerNuéeTest = async (
     nuéeParent?: string;
     autorisation?: string | "IJPC" | "CJPI";
     ajouter?: boolean;
-  } = {},
+  } = {}
 ): Promise<{ idNuée: string; idTableau: string }> => {
   const idNuée = await client.nuées!.créerNuée(opts);
   const clefTableau = "principal";
@@ -243,7 +243,7 @@ typesClients.forEach((type) => {
         it("Effacer un mot-clef", async () => {
           await client.nuées!.effacerMotClefNuée({ idNuée, idMotClef });
           const val = await motsClefs.attendreQue(
-            (x) => !x.includes(idMotClef),
+            (x) => !x.includes(idMotClef)
           );
 
           expect(val).to.be.an.empty("array");
@@ -281,7 +281,7 @@ typesClients.forEach((type) => {
         it("On peut l'ajouter ensuite à mes bds", async () => {
           await client.nuées!.ajouterÀMesNuées({ idNuée: idNouvelleNuée });
           const val = await nuées.attendreQue((x) =>
-            x.includes(idNouvelleNuée),
+            x.includes(idNouvelleNuée)
           );
 
           expect(val).to.be.an("array").and.to.contain(idNouvelleNuée);
@@ -290,7 +290,7 @@ typesClients.forEach((type) => {
         it("On peut aussi l'effacer", async () => {
           await client.nuées!.effacerNuée({ idNuée: idNouvelleNuée });
           const val = await nuées.attendreQue(
-            (x) => !x.includes(idNouvelleNuée),
+            (x) => !x.includes(idNouvelleNuée)
           );
           expect(val).to.be.an("array").and.to.not.contain(idNouvelleNuée);
         });
@@ -316,7 +316,7 @@ typesClients.forEach((type) => {
         it("Marquer bêta", async () => {
           await client.nuées?.marquerBêta({ idNuée });
           const val = await statut.attendreQue(
-            (x) => x.statut === TYPES_STATUT.BÊTA,
+            (x) => x.statut === TYPES_STATUT.BÊTA
           );
           expect(val).to.deep.equal({
             statut: TYPES_STATUT.BÊTA,
@@ -326,7 +326,7 @@ typesClients.forEach((type) => {
         it("Marquer interne", async () => {
           await client.nuées?.marquerInterne({ idNuée });
           const val = await statut.attendreQue(
-            (x) => x.statut === TYPES_STATUT.INTERNE,
+            (x) => x.statut === TYPES_STATUT.INTERNE
           );
           expect(val).to.deep.equal({
             statut: TYPES_STATUT.INTERNE,
@@ -339,7 +339,7 @@ typesClients.forEach((type) => {
             idNouvelle: "Une nouvelle bd.",
           }); //  Pour une vraie application, utiliser un id Nuée valide, bien entendu.
           const val = await statut.attendreQue(
-            (x) => x.statut === TYPES_STATUT.OBSOLÈTE,
+            (x) => x.statut === TYPES_STATUT.OBSOLÈTE
           );
           expect(val).to.deep.equal({
             statut: TYPES_STATUT.OBSOLÈTE,
@@ -350,7 +350,7 @@ typesClients.forEach((type) => {
         it("Marquer active", async () => {
           await client.nuées?.marquerActive({ idNuée });
           const val = await statut.attendreQue(
-            (x) => x.statut === TYPES_STATUT.ACTIVE,
+            (x) => x.statut === TYPES_STATUT.ACTIVE
           );
           expect(val).to.deep.equal({
             statut: TYPES_STATUT.ACTIVE,
@@ -384,7 +384,7 @@ typesClients.forEach((type) => {
               idNuée,
               clefTableau: "abc",
             });
-            const val = await tableaux.attendreQue(x=>x.length > 0);
+            const val = await tableaux.attendreQue((x) => x.length > 0);
             expect(val).to.have.deep.members([
               {
                 clef: "abc",
@@ -593,12 +593,14 @@ typesClients.forEach((type) => {
               idNuée,
               licence: "ODbl-1_0",
             });
-            empreinte = (await clients[1].bds.ajouterÉlémentÀTableauUnique({
-              schémaBd: schémaNuée,
-              idNuéeUnique: idNuée,
-              clefTableau: "principal",
-              vals: { [idCol]: 3 },
-            }))[0];
+            empreinte = (
+              await clients[1].bds.ajouterÉlémentÀTableauUnique({
+                schémaBd: schémaNuée,
+                idNuéeUnique: idNuée,
+                clefTableau: "principal",
+                vals: { [idCol]: 3 },
+              })
+            )[0];
           });
 
           after(async () => {
@@ -607,7 +609,7 @@ typesClients.forEach((type) => {
 
           it("Mes données aparaissent chez moi", async () => {
             const val = await résultatChezMoi.attendreQue(
-              (x) => x && x.length > 0,
+              (x) => x && x.length > 0
             );
             const réf: élémentDeMembreAvecValid<élémentBdListeDonnées> = {
               idCompte: await clients[1].obtIdCompte(),
@@ -633,7 +635,7 @@ typesClients.forEach((type) => {
           let empreinte: string;
 
           const idNuée =
-            "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX";  // tuNeMeTrouverasPas
+            "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"; // tuNeMeTrouverasPas
           const idCol = "colonne numérique";
           const fsOublier: schémaFonctionOublier[] = [];
           const résultatChezMoi = new utilsTestAttente.AttendreRésultat<
@@ -682,12 +684,14 @@ typesClients.forEach((type) => {
               });
             fsOublier.push(fOublierChezLesAutres);
 
-            empreinte = (await clients[1].bds.ajouterÉlémentÀTableauUnique({
-              schémaBd,
-              idNuéeUnique: idNuée,
-              clefTableau: "principal",
-              vals: { [idCol]: 3 },
-            }))[0];
+            empreinte = (
+              await clients[1].bds.ajouterÉlémentÀTableauUnique({
+                schémaBd,
+                idNuéeUnique: idNuée,
+                clefTableau: "principal",
+                vals: { [idCol]: 3 },
+              })
+            )[0];
           });
 
           after(async () => {
@@ -696,7 +700,7 @@ typesClients.forEach((type) => {
 
           it("Mes données aparaissent chez moi", async () => {
             const val = await résultatChezMoi.attendreQue(
-              (x) => x && x.length > 0,
+              (x) => x && x.length > 0
             );
             const réf: élémentDeMembreAvecValid<élémentBdListeDonnées> = {
               idCompte: await clients[1].obtIdCompte(),
@@ -827,14 +831,14 @@ typesClients.forEach((type) => {
 
           it("Bd non autorisée - non incluse pour les autres", async () => {
             const val2 = await résultatSansInclureLesMiennes.attendreQue(
-              (x) => x.length > 0,
+              (x) => x.length > 0
             );
             expect(val2.includes(idBdMembreNonAutorisé)).to.be.false();
           });
 
           it("Bd non autorisée - incluse sans vérification", async () => {
             const val3 = await résultatSansVérification.attendreQue(
-              (x) => x.length > 1,
+              (x) => x.length > 1
             );
             expect(val3.includes(idBdMembreNonAutorisé)).to.be.true();
           });

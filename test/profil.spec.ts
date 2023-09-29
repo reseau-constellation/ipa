@@ -49,7 +49,7 @@ typesClients.forEach((type) => {
 
         it("Pas de courriel pour commencer", async () => {
           const courriel = await résultatCourriel.attendreQue(
-            (c) => c !== undefined,
+            (c) => c !== undefined
           );
           expect(courriel).to.be.null();
         });
@@ -156,7 +156,9 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter une image", async () => {
-          await client.profil!.sauvegarderImage({ image: {content: IMAGE, path: "logo.svg" } });
+          await client.profil!.sauvegarderImage({
+            image: { content: IMAGE, path: "logo.svg" },
+          });
           const val = await rés.attendreExiste();
           expect(val).to.deep.equal(new Uint8Array(IMAGE));
         });
@@ -170,8 +172,13 @@ typesClients.forEach((type) => {
         it("Ajouter une image trop grande", async () => {
           expect(
             client.profil!.sauvegarderImage({
-              image: {content: Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 }), path: "moi.png"},
-            }),
+              image: {
+                content: Object.assign({}, IMAGE, {
+                  size: MAX_TAILLE_IMAGE + 1,
+                }),
+                path: "moi.png",
+              },
+            })
           ).to.be.rejected();
         });
       });

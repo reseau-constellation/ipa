@@ -20,7 +20,7 @@ type ContrôleurConstellation = Awaited<
 
 export const suivreBdAccès = async (
   bd: FeedStoreTypé<élémentBdAccès>,
-  f: schémaFonctionSuivi<élémentBdAccès[]>,
+  f: schémaFonctionSuivi<élémentBdAccès[]>
 ): Promise<schémaFonctionOublier> => {
   const fFinale = async () => {
     const éléments = await bd.all();
@@ -154,7 +154,7 @@ export default class GestionnaireAccès extends EventEmitter {
             this._mettreRôlesÀJour();
           }
         }
-      }),
+      })
     );
 
     this._miseÀJourEnCours = false;

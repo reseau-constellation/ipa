@@ -152,7 +152,7 @@ typesClients.forEach((type) => {
               हिं: "बारिश",
             },
           });
-          const val = await noms.attendreQue(x=>Object.keys(x).length > 2)
+          const val = await noms.attendreQue((x) => Object.keys(x).length > 2);
           expect(val).to.deep.equal({
             த: "மழை",
             हिं: "बारिश",
@@ -175,15 +175,17 @@ typesClients.forEach((type) => {
             idVariable,
             langue: "fr",
           });
-          const val = await noms.attendreQue(x=>!x["fr"]);
+          const val = await noms.attendreQue((x) => !x["fr"]);
           expect(val).to.deep.equal({ த: "மழை", हिं: "बारिश" });
         });
       });
 
       describe("Descriptions", function () {
         let idVariable: string;
-        
-        const descrs = new attente.AttendreRésultat<{ [key: string]: string }>();
+
+        const descrs = new attente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
         let fOublier: schémaFonctionOublier;
 
         before("Préparer clients", async () => {
@@ -192,7 +194,7 @@ typesClients.forEach((type) => {
           });
           fOublier = await client.variables!.suivreDescriptionsVariable({
             idVariable,
-            f: (d) => (descrs.mettreÀJour(d)),
+            f: (d) => descrs.mettreÀJour(d),
           });
         });
 
@@ -211,10 +213,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             description: "la quantité de précipitation quotidienne",
           });
-          const val = await descrs.attendreQue(x=>!!x["fr"])
-          expect(val.fr).to.equal(
-            "la quantité de précipitation quotidienne",
-          );
+          const val = await descrs.attendreQue((x) => !!x["fr"]);
+          expect(val.fr).to.equal("la quantité de précipitation quotidienne");
         });
 
         it("Ajouter des descriptions", async () => {
@@ -225,7 +225,9 @@ typesClients.forEach((type) => {
               हिं: "दैनिक बारिश",
             },
           });
-          const val = await descrs.attendreQue(x=>Object.keys(x).length > 2)
+          const val = await descrs.attendreQue(
+            (x) => Object.keys(x).length > 2
+          );
           expect(val).to.deep.equal({
             த: "தினசரி மழை",
             हिं: "दैनिक बारिश",
@@ -239,10 +241,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             description: "La quantité de précipitation quotidienne",
           });
-          const val = await descrs.attendreQue(x=>x["fr"].startsWith("L"))
-          expect(val.fr).to.equal(
-            "La quantité de précipitation quotidienne",
-          );
+          const val = await descrs.attendreQue((x) => x["fr"].startsWith("L"));
+          expect(val.fr).to.equal("La quantité de précipitation quotidienne");
         });
 
         it("Effacer une description", async () => {
@@ -250,7 +250,7 @@ typesClients.forEach((type) => {
             idVariable,
             langue: "fr",
           });
-          const val = await descrs.attendreQue(x=>!x["fr"])
+          const val = await descrs.attendreQue((x) => !x["fr"]);
           expect(val).to.deep.equal({
             த: "தினசரி மழை",
             हिं: "दैनिक बारिश",
@@ -270,7 +270,7 @@ typesClients.forEach((type) => {
           });
           fOublier = await client.variables!.suivreCatégorieVariable({
             idVariable,
-            f: (c) => (catégorie.mettreÀJour(c)),
+            f: (c) => catégorie.mettreÀJour(c),
           });
         });
 
@@ -283,7 +283,9 @@ typesClients.forEach((type) => {
             idVariable,
             catégorie: "chaîne",
           });
-          const val = await catégorie.attendreQue(x=>x.catégorie !== "numérique")
+          const val = await catégorie.attendreQue(
+            (x) => x.catégorie !== "numérique"
+          );
           expect(val).to.deep.equal({
             type: "simple",
             catégorie: "chaîne",
@@ -339,7 +341,7 @@ typesClients.forEach((type) => {
           });
           fOublier = await client.variables!.suivreRèglesVariable({
             idVariable,
-            f: (r) => (règles.mettreÀJour(r)),
+            f: (r) => règles.mettreÀJour(r),
           });
         });
 
@@ -348,7 +350,7 @@ typesClients.forEach((type) => {
         });
 
         it("Règle générique de catégorie pour commencer", async () => {
-          const val = await règles.attendreQue(x=>!!x.length)
+          const val = await règles.attendreQue((x) => !!x.length);
           expect(Array.isArray(val)).to.be.true();
           expect(val).to.have.lengthOf(1);
           expect(val[0].règle.typeRègle).to.equal("catégorie");
@@ -368,14 +370,14 @@ typesClients.forEach((type) => {
             règle,
           });
 
-          const val = await règles.attendreQue(x=>x.length > 1)
+          const val = await règles.attendreQue((x) => x.length > 1);
           expect(val).to.have.lengthOf(2);
           expect(val.filter((r) => r.id === idRègle)).to.have.lengthOf(1);
         });
 
         it("Effacer une règle", async () => {
           await client.variables!.effacerRègleVariable({ idVariable, idRègle });
-          const val = await règles.attendreQue(x=>x.length < 2);
+          const val = await règles.attendreQue((x) => x.length < 2);
           expect(val).to.have.lengthOf(1);
         });
 
@@ -394,9 +396,15 @@ typesClients.forEach((type) => {
             idVariable,
             catégorie: "horoDatage",
           });
-          const val = await règles.attendreQue(x=>x.some((r) => (r.règle.typeRègle === "catégorie") && r.règle.détails.catégorie.catégorie === "horoDatage"));
+          const val = await règles.attendreQue((x) =>
+            x.some(
+              (r) =>
+                r.règle.typeRègle === "catégorie" &&
+                r.règle.détails.catégorie.catégorie === "horoDatage"
+            )
+          );
           const règleCatégorie = val.find(
-            (r) => r.règle.typeRègle === "catégorie",
+            (r) => r.règle.typeRègle === "catégorie"
           ) as règleVariableAvecId<règleCatégorie> | undefined;
           expect(règleCatégorie).to.exist();
           expect(règleCatégorie?.règle.détails.catégorie).to.deep.equal({
@@ -409,7 +417,9 @@ typesClients.forEach((type) => {
       describe("Copier variable", function () {
         const variables = new attente.AttendreRésultat<string[]>();
         const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
-        const descrs = new attente.AttendreRésultat<{ [key: string]: string }>();
+        const descrs = new attente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
         const catégorie = new attente.AttendreRésultat<catégorieVariables>();
         const règles = new attente.AttendreRésultat<règleVariableAvecId[]>();
         const unités = new attente.AttendreRésultat<string | null>();
@@ -429,8 +439,8 @@ typesClients.forEach((type) => {
         before("Préparer clients", async () => {
           fsOublier.push(
             await client.variables!.suivreVariables({
-              f: (x) => (variables.mettreÀJour(x)),
-            }),
+              f: (x) => variables.mettreÀJour(x),
+            })
           );
 
           const idVariable = await client.variables!.créerVariable({
@@ -463,32 +473,32 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.variables!.suivreNomsVariable({
               idVariable: idVariable2,
-              f: (x) => (noms.mettreÀJour(x)),
-            }),
+              f: (x) => noms.mettreÀJour(x),
+            })
           );
           fsOublier.push(
             await client.variables!.suivreDescriptionsVariable({
               idVariable: idVariable2,
-              f: (x) => (descrs.mettreÀJour(x)),
-            }),
+              f: (x) => descrs.mettreÀJour(x),
+            })
           );
           fsOublier.push(
             await client.variables!.suivreRèglesVariable({
               idVariable: idVariable2,
-              f: (r) => (règles.mettreÀJour(r)),
-            }),
+              f: (r) => règles.mettreÀJour(r),
+            })
           );
           fsOublier.push(
             await client.variables!.suivreCatégorieVariable({
               idVariable: idVariable2,
-              f: (c) => (catégorie.mettreÀJour(c)),
-            }),
+              f: (c) => catégorie.mettreÀJour(c),
+            })
           );
           fsOublier.push(
             await client.variables!.suivreUnitésVariable({
               idVariable: idVariable2,
-              f: (u) => (unités.mettreÀJour(u)),
-            }),
+              f: (u) => unités.mettreÀJour(u),
+            })
           );
         });
 
@@ -497,18 +507,20 @@ typesClients.forEach((type) => {
         });
 
         it("La variable est copiée", async () => {
-          const val = await variables.attendreQue(x=>x.length > 0);
+          const val = await variables.attendreQue((x) => x.length > 0);
           expect(Array.isArray(val)).to.be.true();
           expect(val).to.contain(idVariable2);
         });
 
         it("Les noms sont copiés", async () => {
-          const val = await noms.attendreQue(x=>Object.keys(x).length > 1)
+          const val = await noms.attendreQue((x) => Object.keys(x).length > 1);
           expect(val).to.deep.equal({ த: "மழை", हिं: "बारिश" });
         });
 
         it("Les descriptions sont copiés", async () => {
-          const val = await descrs.attendreQue(x=>Object.keys(x).length > 1)
+          const val = await descrs.attendreQue(
+            (x) => Object.keys(x).length > 1
+          );
           expect(val).to.deep.equal({
             த: "தினசரி மழை",
             हिं: "दैनिक बारिश",
@@ -522,7 +534,7 @@ typesClients.forEach((type) => {
               catégorie: { type: "simple", catégorie: "numérique" },
             },
           };
-          const val = await règles.attendreQue(x=>x.length > 1)
+          const val = await règles.attendreQue((x) => x.length > 1);
           expect(val.map((r) => r.règle)).to.have.deep.members([
             règle,
             règleCatégorie,

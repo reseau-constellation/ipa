@@ -76,10 +76,12 @@ describe("Rechercher profil", function () {
         optsAxios: { responseType: "arraybuffer" },
       });
 
-      await client.profil!.sauvegarderImage({ image: {content: IMAGE, path: "logo.png"} });
+      await client.profil!.sauvegarderImage({
+        image: { content: IMAGE, path: "logo.png" },
+      });
       const val = await rés.attendreQue(
         (x: résultatObjectifRecherche<infoRésultatVide> | undefined) =>
-          x?.score === 1,
+          x?.score === 1
       );
 
       expect(val.score).to.equal(1);
@@ -215,14 +217,14 @@ describe("Rechercher profil", function () {
       idCompte = await client.obtIdCompte();
       const fRechercheNom = rechercherProfilsSelonTexte("Julien Malard");
       fsOublier.push(
-        await fRechercheNom(client, idCompte, (r) => résNom.mettreÀJour(r)),
+        await fRechercheNom(client, idCompte, (r) => résNom.mettreÀJour(r))
       );
 
       const fRechercherCourriel = rechercherProfilsSelonTexte("julien.");
       fsOublier.push(
         await fRechercherCourriel(client, idCompte, (r) =>
-          résCourriel.mettreÀJour(r),
-        ),
+          résCourriel.mettreÀJour(r)
+        )
       );
     });
 
@@ -278,7 +280,7 @@ describe("Rechercher profil", function () {
       });
 
       const val = await résCourriel.attendreQue((x) =>
-        Boolean(x && x.score > 1 / 3),
+        Boolean(x && x.score > 1 / 3)
       );
       expect(val).to.deep.equal({
         type: "résultat",

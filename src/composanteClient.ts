@@ -52,7 +52,7 @@ export class ComposanteClient {
 }
 
 export class ComposanteClientDic<
-  T extends { [clef: string]: élémentsBd },
+  T extends { [clef: string]: élémentsBd }
 > extends ComposanteClient {
   schémaBdPrincipale: JSONSchemaType<T>;
 
@@ -204,7 +204,7 @@ export class ComposanteClientDic<
 }
 
 export class ComposanteClientListe<
-  T extends élémentsBd,
+  T extends élémentsBd
 > extends ComposanteClient {
   schémaBdPrincipale: JSONSchemaType<T>;
 

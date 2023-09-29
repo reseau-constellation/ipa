@@ -43,7 +43,7 @@ declare module "@orbitdb/core" {
     verify: (
       signature: string,
       publicKey: string,
-      data: string,
+      data: string
     ) => Promise<boolean>;
   };
 
@@ -51,7 +51,7 @@ declare module "@orbitdb/core" {
     id: string;
     open: (
       address: string,
-      OrbitDBDatabaseOptions?,
+      OrbitDBDatabaseOptions?
     ) => ReturnType<typeof Database>;
     stop;
     ipfs;

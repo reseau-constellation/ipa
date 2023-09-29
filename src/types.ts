@@ -81,21 +81,21 @@ export interface résultatRecherche<T extends infoRésultat> {
 export type schémaFonctionSuivreObjectifRecherche<T extends infoRésultat> = (
   client: ClientConstellation,
   id: string,
-  f: schémaFonctionSuiviRecherche<T>,
+  f: schémaFonctionSuiviRecherche<T>
 ) => Promise<schémaFonctionOublier>;
 
 export type schémaFonctionSuiviRecherche<T extends infoRésultat> = (
-  résultat?: résultatObjectifRecherche<T>,
+  résultat?: résultatObjectifRecherche<T>
 ) => void;
 
 export type schémaFonctionSuivreConfianceRecherche = (
   id: string,
-  f: schémaFonctionSuivi<number>,
+  f: schémaFonctionSuivi<number>
 ) => Promise<schémaFonctionOublier>;
 
 export type schémaFonctionSuivreQualitéRecherche = (
   id: string,
-  f: schémaFonctionSuivi<number>,
+  f: schémaFonctionSuivi<number>
 ) => Promise<schémaFonctionOublier>;
 
 export type structureBdNoms = { [langue: string]: string };

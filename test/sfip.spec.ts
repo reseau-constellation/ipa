@@ -29,7 +29,7 @@ describe("SFIP", function () {
         sfip.libp2p.addEventListener("peer:connect", async () => {
           const pairs = await sfip.swarm.peers();
           const trouvé = pairs.find((p) =>
-            p.addr.toString().includes("p2p-webrtc-star"),
+            p.addr.toString().includes("p2p-webrtc-star")
           );
           if (trouvé) {
             résoudre();

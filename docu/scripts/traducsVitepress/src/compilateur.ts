@@ -48,7 +48,7 @@ export class Compilateur {
   }) {
     this.languePrincipale = languePrincipale;
     this.languesCibles = languesCibles.filter(
-      (lng) => lng !== languePrincipale,
+      (lng) => lng !== languePrincipale
     ); // Au cas où
     this.racineProjet = path.resolve(racineProjet);
     this.dossierSource = path.join(this.racineProjet, dossierSource);
@@ -79,7 +79,7 @@ export class Compilateur {
   obtTraductions({ langue }: { langue: string }) {
     const fichierTraducsLangue = path.join(
       this.dossierTraductions,
-      langue + ".json",
+      langue + ".json"
     );
     return fs.existsSync(fichierTraducsLangue)
       ? JSON.parse(fs.readFileSync(fichierTraducsLangue).toString())
@@ -132,7 +132,7 @@ export class Compilateur {
           this.extraireTexteDict({
             dict: x,
             racineClef: racineClef + String(i),
-          }),
+          })
         )
         .flat();
     } else if (typeof dict === "object") {
@@ -191,7 +191,7 @@ export class Compilateur {
     const messagesJSON: { [clef: string]: string } = Object.fromEntries(
       messages.map(({ clef, valeur }) => {
         return [clef + "." + empreinte(valeur), valeur];
-      }),
+      })
     );
     if (
       !fs.existsSync(this.dossierTraductions) ||
@@ -201,7 +201,7 @@ export class Compilateur {
     }
     const fichierTraducs = path.join(
       this.dossierTraductions,
-      this.languePrincipale + ".json",
+      this.languePrincipale + ".json"
     );
     fs.writeFileSync(fichierTraducs, JSON.stringify(messagesJSON, null, 4));
 
@@ -209,11 +209,11 @@ export class Compilateur {
       const traducsLangue = this.obtTraductions({ langue });
       const fichierTraducsLangue = path.join(
         this.dossierTraductions,
-        langue + ".json",
+        langue + ".json"
       );
       fs.writeFileSync(
         fichierTraducsLangue,
-        JSON.stringify(traducsLangue, null, 2) + "\n",
+        JSON.stringify(traducsLangue, null, 2) + "\n"
       );
     }
   }
@@ -246,12 +246,12 @@ export class Compilateur {
 
         const composantesAdresseFichier = path.relative(
           this.dossierSource,
-          fichier,
+          fichier
         );
         const fichierSourceTraduite = path.join(
           this.dossierSource,
           langue,
-          composantesAdresseFichier,
+          composantesAdresseFichier
         );
 
         const dossierSourceTraduite = fichierSourceTraduite
@@ -307,7 +307,7 @@ export class Compilateur {
               }),
             ];
           }
-        }),
+        })
       );
     } else {
       return config;
@@ -361,7 +361,7 @@ export class Compilateur {
               }),
             },
           ];
-        }),
+        })
       ),
     };
 
@@ -382,17 +382,17 @@ export class Compilateur {
     const déjàLà: string[] = [];
     const dossierSourceRelatif = path.relative(
       this.racineProjet,
-      this.dossierSource,
+      this.dossierSource
     );
     for (const l of lignes) {
       const existe = this.languesCibles.find(
-        (lng) => l === `${dossierSourceRelatif}/${lng}`,
+        (lng) => l === `${dossierSourceRelatif}/${lng}`
       );
       if (existe) déjàLà.push(existe);
     }
     let modifié = false;
     for (const lng of this.languesCibles.filter(
-      (lng) => !déjàLà.includes(lng),
+      (lng) => !déjàLà.includes(lng)
     )) {
       lignes.push(`${dossierSourceRelatif}/${lng}`);
       modifié = true;

@@ -21,7 +21,7 @@ export const rechercherProfilsSelonActivité =
     return async (
       client: ClientConstellation,
       idCompte: string,
-      fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
+      fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
     ): Promise<schémaFonctionOublier> => {
       const infosCompte: {
         noms?: { [key: string]: string };
@@ -86,12 +86,12 @@ export const rechercherProfilsSelonActivité =
   };
 
 export const rechercherProfilsSelonNom = (
-  nom: string,
+  nom: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = (noms: { [key: string]: string }) => {
       const corresp = similTexte(nom, noms);
@@ -117,12 +117,12 @@ export const rechercherProfilsSelonNom = (
 };
 
 export const rechercherProfilsSelonCourriel = (
-  courriel: string,
+  courriel: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = (courrielProfil: string | null | undefined) => {
       const corresp = courrielProfil
@@ -150,12 +150,12 @@ export const rechercherProfilsSelonCourriel = (
 };
 
 export const rechercherProfilsSelonTexte = (
-  texte: string,
+  texte: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherProfilsSelonNom(texte);
     const fRechercherCourriel = rechercherProfilsSelonCourriel(texte);
@@ -169,18 +169,18 @@ export const rechercherProfilsSelonTexte = (
       },
       client,
       idCompte,
-      fSuivreRecherche,
+      fSuivreRecherche
     );
   };
 };
 
 export const rechercherProfilsSelonImage = (
-  image: Uint8Array,
+  image: Uint8Array
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = (imageCompte: Uint8Array | null) => {
       const score = similImages(image, imageCompte);

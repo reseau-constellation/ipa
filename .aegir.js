@@ -84,7 +84,7 @@ const options = {
                 callback(new Error("Not allowed by CORS"));
               }
             },
-          }),
+          })
         );
         appliExpress.get("/fichier/:nomFichier", function (req, res) {
           const { nomFichier } = req.params;
@@ -93,7 +93,7 @@ const options = {
             url.fileURLToPath(new URL(".", import.meta.url)),
             "test",
             "ressources",
-            decodeURIComponent(nomFichier),
+            decodeURIComponent(nomFichier)
           );
 
           res.sendFile(cheminFichier);

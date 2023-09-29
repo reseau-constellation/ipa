@@ -181,17 +181,21 @@ typesClients.forEach((type) => {
 
       describe("Copier mots-clefs", function () {
         let motsClefs: string[];
-        
+
         let idMotClef2: string;
-        
+
         const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
-        const descriptions = new attente.AttendreRésultat<{ [key: string]: string }>();
+        const descriptions = new attente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
         const fsOublier: schémaFonctionOublier[] = [];
-        
+
         before(async () => {
-          fsOublier.push(await client.motsClefs!.suivreMotsClefs({
-            f: (x) => (motsClefs = x),
-          }));
+          fsOublier.push(
+            await client.motsClefs!.suivreMotsClefs({
+              f: (x) => (motsClefs = x),
+            })
+          );
 
           const idMotClef = await client.motsClefs!.créerMotClef();
           await client.motsClefs!.sauvegarderNomsMotClef({
@@ -204,26 +208,31 @@ typesClients.forEach((type) => {
 
           await client.motsClefs!.sauvegarderDescriptionsMotClef({
             idMotClef,
-            descriptions: { த: "நீரியலுக்காக ஒரு சிறப்பு சொலு", हिं: "जल विज्ञान के आँकड़ों के लिये" }
-          })
+            descriptions: {
+              த: "நீரியலுக்காக ஒரு சிறப்பு சொலு",
+              हिं: "जल विज्ञान के आँकड़ों के लिये",
+            },
+          });
 
           idMotClef2 = await client.motsClefs!.copierMotClef({
             idMotClef,
           });
-          fsOublier.push(await client.motsClefs!.suivreNomsMotClef({
-            idMotClef: idMotClef2,
-            f: (x) => (noms.mettreÀJour(x)),
-          }));
+          fsOublier.push(
+            await client.motsClefs!.suivreNomsMotClef({
+              idMotClef: idMotClef2,
+              f: (x) => noms.mettreÀJour(x),
+            })
+          );
           fsOublier.push(
             await client.motsClefs!.suivreDescriptionsMotClef({
               idMotClef: idMotClef2,
-              f: x=>descriptions.mettreÀJour(x)
+              f: (x) => descriptions.mettreÀJour(x),
             })
-          )
+          );
         });
 
         after(async () => {
-          await Promise.all(fsOublier.map(f=>f()))
+          await Promise.all(fsOublier.map((f) => f()));
           noms.toutAnnuler();
           descriptions.toutAnnuler();
         });
@@ -240,7 +249,10 @@ typesClients.forEach((type) => {
 
         it("Les descriptions sont copiés", async () => {
           const val = await descriptions.attendreExiste();
-          expect(val).to.deep.equal({ த: "நீரியலுக்காக ஒரு சிறப்பு சொலு", हिं: "जल विज्ञान के आँकड़ों के लिये" });
+          expect(val).to.deep.equal({
+            த: "நீரியலுக்காக ஒரு சிறப்பு சொலு",
+            हिं: "जल विज्ञान के आँकड़ों के लिये",
+          });
         });
       });
     });

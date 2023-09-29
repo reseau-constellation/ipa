@@ -115,7 +115,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdContacts) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`,
+        `Permission de modification refusée pour BD ${idBdProfil}.`
       );
     }
 
@@ -143,7 +143,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdContacts) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`,
+        `Permission de modification refusée pour BD ${idBdProfil}.`
       );
     }
 
@@ -200,7 +200,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`,
+        `Permission de modification refusée pour BD ${idBdProfil}.`
       );
     }
 
@@ -224,7 +224,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`,
+        `Permission de modification refusée pour BD ${idBdProfil}.`
       );
     }
 
@@ -237,7 +237,11 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     await fOublier();
   }
 
-  async sauvegarderImage({ image }: { image: ToFile & { path: string } }): Promise<void> {
+  async sauvegarderImage({
+    image,
+  }: {
+    image: ToFile & { path: string };
+  }): Promise<void> {
     let contenu: ToFile & { path: string };
 
     if ((image.content as File).size !== undefined) {
@@ -245,8 +249,8 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
         throw new Error("Taille maximale excédée");
       }
       contenu = {
-        path: (image.path),
-        content: await (image.content as File).arrayBuffer()
+        path: image.path,
+        content: await (image.content as File).arrayBuffer(),
       };
     } else {
       contenu = image;

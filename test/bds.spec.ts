@@ -70,7 +70,7 @@ typesClients.forEach((type) => {
           await client.suivrePermissionÉcrire({
             id: idBd,
             f: (x) => (accèsBd = x),
-          }),
+          })
         );
         expect(accèsBd).to.be.true();
       });
@@ -147,7 +147,7 @@ typesClients.forEach((type) => {
             nom: "Alphabets",
           });
           const noms = await attenteNoms.attendreQue(
-            (n) => Object.keys(n).length > 0,
+            (n) => Object.keys(n).length > 0
           );
           expect(noms.fr).to.equal("Alphabets");
         });
@@ -161,7 +161,7 @@ typesClients.forEach((type) => {
             },
           });
           const noms = await attenteNoms.attendreQue(
-            (n) => Object.keys(n).length > 2,
+            (n) => Object.keys(n).length > 2
           );
           expect(noms).to.deep.equal({
             fr: "Alphabets",
@@ -177,7 +177,7 @@ typesClients.forEach((type) => {
             nom: "Systèmes d'écriture",
           });
           const noms = await attenteNoms.attendreQue(
-            (n) => n["fr"] !== "Alphabets",
+            (n) => n["fr"] !== "Alphabets"
           );
           expect(noms?.fr).to.equal("Systèmes d'écriture");
         });
@@ -232,7 +232,7 @@ typesClients.forEach((type) => {
             },
           });
           const descrs = await attenteDescrs.attendreQue(
-            (x) => Object.keys(x).length > 2,
+            (x) => Object.keys(x).length > 2
           );
           expect(descrs).to.deep.equal({
             fr: "Alphabets",
@@ -248,7 +248,7 @@ typesClients.forEach((type) => {
             description: "Systèmes d'écriture",
           });
           const descrs = await attenteDescrs.attendreQue(
-            (x) => x["fr"] !== "Alphabets",
+            (x) => x["fr"] !== "Alphabets"
           );
           expect(descrs?.fr).to.equal("Systèmes d'écriture");
         });
@@ -289,7 +289,7 @@ typesClients.forEach((type) => {
           });
 
           const motsClefs = await attenteMotsClefs.attendreQue(
-            (x) => x.length > 0,
+            (x) => x.length > 0
           );
           expect(Array.isArray(motsClefs)).to.be.true();
           expect(motsClefs.length).to.equal(1);
@@ -298,7 +298,7 @@ typesClients.forEach((type) => {
           await client.bds.effacerMotClefBd({ idBd, idMotClef });
 
           const motsClefs = await attenteMotsClefs.attendreQue(
-            (x) => x.length === 0,
+            (x) => x.length === 0
           );
           expect(motsClefs).to.be.an.empty("array");
         });
@@ -332,7 +332,7 @@ typesClients.forEach((type) => {
           await client.bds.changerLicenceBd({ idBd, licence: "ODC-BY-1_0" });
 
           const licence = await attenteLicence.attendreQue(
-            (l) => l !== "ODbl-1_0",
+            (l) => l !== "ODbl-1_0"
           );
           expect(licence).to.equal("ODC-BY-1_0");
         });
@@ -356,7 +356,7 @@ typesClients.forEach((type) => {
             await client.bds.suivreTableauxBd({
               idBd,
               f: (t) => attenteTableaux.mettreÀJour(t),
-            }),
+            })
           );
         });
 
@@ -377,7 +377,7 @@ typesClients.forEach((type) => {
           expect(isValidAddress(idTableau)).to.be.true();
 
           const tableaux = await attenteTableaux.attendreQue(
-            (t) => t.length > 0,
+            (t) => t.length > 0
           );
           expect(Array.isArray(tableaux)).to.be.true();
           expect(tableaux.length).to.equal(1);
@@ -395,7 +395,7 @@ typesClients.forEach((type) => {
             await client.suivrePermissionÉcrire({
               id: idTableau,
               f: (x) => (accèsTableau = x),
-            }),
+            })
           );
           expect(accèsTableau).to.be.true();
         });
@@ -404,7 +404,7 @@ typesClients.forEach((type) => {
           await client.bds.effacerTableauBd({ idBd, idTableau });
 
           const tableaux = await attenteTableaux.attendreQue(
-            (t) => t.length === 0,
+            (t) => t.length === 0
           );
           expect(tableaux).to.be.an.empty("array");
         });
@@ -446,7 +446,7 @@ typesClients.forEach((type) => {
           });
 
           const variables = await attenteVariables.attendreQue(
-            (v) => v.length > 0,
+            (v) => v.length > 0
           );
           expect(Array.isArray(variables)).to.be.true();
           expect(variables.length).to.equal(1);
@@ -459,7 +459,7 @@ typesClients.forEach((type) => {
             idColonne,
           });
           const variables = await attenteVariables.attendreQue(
-            (v) => v.length === 0,
+            (v) => v.length === 0
           );
           expect(variables).to.be.an.empty("array");
         });
@@ -532,37 +532,37 @@ typesClients.forEach((type) => {
             await client.bds.suivreNomsBd({
               idBd: idBdCopie,
               f: (x) => attenteNoms.mettreÀJour(x),
-            }),
+            })
           );
           fsOublier.push(
             await client.bds.suivreDescriptionsBd({
               idBd: idBdCopie,
               f: (x) => attenteDescrs.mettreÀJour(x),
-            }),
+            })
           );
           fsOublier.push(
             await client.bds.suivreLicenceBd({
               idBd: idBdCopie,
               f: (x) => attenteLicence.mettreÀJour(x),
-            }),
+            })
           );
           fsOublier.push(
             await client.bds.suivreMotsClefsBd({
               idBd: idBdCopie,
               f: (x) => attenteMotsClefs.mettreÀJour(x),
-            }),
+            })
           );
           fsOublier.push(
             await client.bds.suivreVariablesBd({
               idBd: idBdCopie,
               f: (x) => attenteVariables.mettreÀJour(x),
-            }),
+            })
           );
           fsOublier.push(
             await client.bds.suivreTableauxBd({
               idBd: idBdCopie,
               f: (x) => attenteTableaux.mettreÀJour(x),
-            }),
+            })
           );
         });
 
@@ -594,14 +594,14 @@ typesClients.forEach((type) => {
         });
         it("Les tableaux sont copiés", async () => {
           const tableaux = await attenteTableaux.attendreQue(
-            (t) => t.length > 0,
+            (t) => t.length > 0
           );
           expect(Array.isArray(tableaux)).to.be.true();
           expect(tableaux.length).to.equal(1);
         });
         it("Les variables sont copiées", async () => {
           const variables = await attenteVariables.attendreQue(
-            (v) => v.length > 0,
+            (v) => v.length > 0
           );
           expect(variables).to.have.members([idVariable]);
         });
@@ -617,7 +617,9 @@ typesClients.forEach((type) => {
         let idTableau1: string;
         let idTableau2: string;
 
-        const données1 = new attente.AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
+        const données1 = new attente.AttendreRésultat<
+          élémentDonnées<élémentBdListeDonnées>[]
+        >();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -655,25 +657,25 @@ typesClients.forEach((type) => {
           idTableau1 = (
             await uneFois(
               async (
-                fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
+                fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
               ): Promise<schémaFonctionOublier> => {
                 return await client.bds.suivreTableauxBd({
                   idBd: idBd1,
                   f: fSuivi,
                 });
-              },
+              }
             )
           )[0].id;
           idTableau2 = (
             await uneFois(
               async (
-                fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
+                fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
               ): Promise<schémaFonctionOublier> => {
                 return await client.bds.suivreTableauxBd({
                   idBd: idBd2,
                   f: fSuivi,
                 });
-              },
+              }
             )
           )[0].id;
 
@@ -721,7 +723,7 @@ typesClients.forEach((type) => {
               idTableau: idTableau1,
               f: (d) => données1.mettreÀJour(d),
               clefsSelonVariables: true,
-            }),
+            })
           );
 
           await client.bds.combinerBds({ idBdBase: idBd1, idBd2 });
@@ -733,7 +735,10 @@ typesClients.forEach((type) => {
         });
 
         it("Les données sont copiées", async () => {
-          const val = await données1.attendreQue(x=>x.length > 2 && x.every(y=>Object.keys(y.données).length > 2 ))
+          const val = await données1.attendreQue(
+            (x) =>
+              x.length > 2 && x.every((y) => Object.keys(y.données).length > 2)
+          );
           const donnéesCombinées = val.map((d) => d.données);
           const donnéesSansId = donnéesCombinées.map((d) => {
             delete d.id;
@@ -760,7 +765,9 @@ typesClients.forEach((type) => {
         let idBd: string;
 
         const tableaux = new attente.AttendreRésultat<infoTableauAvecId[]>();
-        const tableauUnique = new attente.AttendreRésultat<string | undefined>();
+        const tableauUnique = new attente.AttendreRésultat<
+          string | undefined
+        >();
 
         const fsOublier: schémaFonctionOublier[] = [];
 
@@ -812,15 +819,15 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.bds.suivreTableauxBd({
               idBd,
-              f: (t) => (tableaux.mettreÀJour(t)),
-            }),
+              f: (t) => tableaux.mettreÀJour(t),
+            })
           );
           fsOublier.push(
             await client.bds.suivreIdTableauParClef({
               idBd,
               clef: "tableau trads",
-              f: (t) => (tableauUnique.mettreÀJour(t)),
-            }),
+              f: (t) => tableauUnique.mettreÀJour(t),
+            })
           );
         });
 
@@ -829,24 +836,24 @@ typesClients.forEach((type) => {
         });
 
         it("Les tableaux sont créés", async () => {
-          const val = await tableaux.attendreQue(x=>x.length>1)
-          
+          const val = await tableaux.attendreQue((x) => x.length > 1);
+
           expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(2);
         });
 
         it("Colonnes", async () => {
-          const val = await tableaux.attendreExiste()
+          const val = await tableaux.attendreExiste();
           const colonnes = await uneFois(
             async (
-              fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>,
+              fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>
             ): Promise<schémaFonctionOublier> => {
               return await client.tableaux!.suivreColonnesTableau({
                 idTableau: val[0].id,
                 f: fSuivi,
               });
             },
-            c => c !== undefined && c.length > 1
+            (c) => c !== undefined && c.length > 1
           );
 
           const idsColonnes = colonnes.map((c) => c.id);
@@ -859,13 +866,13 @@ typesClients.forEach((type) => {
         it("Mots clefs", async () => {
           const motsClefs = await uneFois(
             async (
-              fSuivi: schémaFonctionSuivi<string[]>,
+              fSuivi: schémaFonctionSuivi<string[]>
             ): Promise<schémaFonctionOublier> => {
               return await client.bds.suivreMotsClefsBd({
                 idBd,
                 f: fSuivi,
               });
-            },
+            }
           );
           expect(Array.isArray(motsClefs)).to.be.true();
 
@@ -874,17 +881,17 @@ typesClients.forEach((type) => {
         });
 
         it("Index colonne", async () => {
-          const val = await tableaux.attendreExiste()
+          const val = await tableaux.attendreExiste();
           const indexes = await uneFois(
             async (
-              fSuivi: schémaFonctionSuivi<string[]>,
+              fSuivi: schémaFonctionSuivi<string[]>
             ): Promise<schémaFonctionOublier> => {
               return await client.tableaux!.suivreIndex({
                 idTableau: val[0].id,
                 f: fSuivi,
               });
             },
-            x => !!x && x.length > 0
+            (x) => !!x && x.length > 0
           );
           expect(Array.isArray(indexes)).to.be.true();
 
@@ -1095,7 +1102,7 @@ typesClients.forEach((type) => {
 
           fOublier = await client.bds.suivreQualitéBd({
             idBd,
-            f: (s) => (attenteScore.mettreÀJour(s)),
+            f: (s) => attenteScore.mettreÀJour(s),
           });
         });
 
@@ -1126,7 +1133,9 @@ typesClients.forEach((type) => {
               idTableau,
               idVariable: idVarChaîne,
             });
-            const score = await attenteScore.attendreQue(s=>s.couverture !== undefined)
+            const score = await attenteScore.attendreQue(
+              (s) => s.couverture !== undefined
+            );
             expect(score.couverture).to.equal(0);
           });
 
@@ -1140,7 +1149,9 @@ typesClients.forEach((type) => {
               idColonne: idColNumérique,
               règle: règleNumérique,
             });
-            let score = await attenteScore.attendreQue(s=>!!s.couverture && s.couverture > 0)
+            let score = await attenteScore.attendreQue(
+              (s) => !!s.couverture && s.couverture > 0
+            );
             expect(score.couverture).to.equal(0.5);
 
             await client.tableaux!.ajouterRègleTableau({
@@ -1148,7 +1159,9 @@ typesClients.forEach((type) => {
               idColonne: idColNumérique2,
               règle: règleNumérique,
             });
-            score = await attenteScore.attendreQue(s=>!!s.couverture && s.couverture > 0.5)
+            score = await attenteScore.attendreQue(
+              (s) => !!s.couverture && s.couverture > 0.5
+            );
             expect(score.couverture).to.equal(1);
           });
         });
@@ -1162,14 +1175,18 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout d'éléments", async () => {
-            empreinteÉlément = (await client.tableaux!.ajouterÉlément({
-              idTableau,
-              vals: {
-                [idColNumérique]: -1,
-                [idColNumérique2]: 1,
-              },
-            }))[0];
-            let score = await attenteScore.attendreQue(s=>!!s.valide && s.valide == 0.5)
+            empreinteÉlément = (
+              await client.tableaux!.ajouterÉlément({
+                idTableau,
+                vals: {
+                  [idColNumérique]: -1,
+                  [idColNumérique2]: 1,
+                },
+              })
+            )[0];
+            let score = await attenteScore.attendreQue(
+              (s) => !!s.valide && s.valide == 0.5
+            );
             expect(score.valide).to.equal(0.5);
             await client.tableaux!.ajouterÉlément({
               idTableau,
@@ -1177,7 +1194,9 @@ typesClients.forEach((type) => {
                 [idColNumérique]: 1,
               },
             });
-            score = await attenteScore.attendreQue(s=>!!s.valide && s.valide > 0.5)
+            score = await attenteScore.attendreQue(
+              (s) => !!s.valide && s.valide > 0.5
+            );
             expect(score.valide).to.equal(2 / 3);
           });
 
@@ -1187,7 +1206,9 @@ typesClients.forEach((type) => {
               vals: { [idColNumérique]: 12 },
               empreintePrécédente: empreinteÉlément,
             });
-            const score = await attenteScore.attendreQue(s=>!!s.valide && s.valide > 2/3)
+            const score = await attenteScore.attendreQue(
+              (s) => !!s.valide && s.valide > 2 / 3
+            );
             expect(score.valide).to.equal(1);
           });
         });
@@ -1240,7 +1261,9 @@ typesClients.forEach((type) => {
             nomFichier: "logo.svg",
             optsAxios: { responseType: "arraybuffer" },
           });
-          cid = await client.ajouterÀSFIP({ fichier: {content:  octets, path:  "logo.svg"} });
+          cid = await client.ajouterÀSFIP({
+            fichier: { content: octets, path: "logo.svg" },
+          });
 
           await client.tableaux!.ajouterÉlément({
             idTableau: idTableau2,
@@ -1263,7 +1286,7 @@ typesClients.forEach((type) => {
           });
 
           ({ doc, fichiersSFIP, nomFichier } = await client.bds.exporterDonnées(
-            { idBd, langues: ["fr"] },
+            { idBd, langues: ["fr"] }
           ));
         });
 
@@ -1316,7 +1339,8 @@ typesClients.forEach((type) => {
             });
 
             it("Les fichiers SFIP existent", () => {
-              const contenu = zip.files[path.join("sfip", cid.replace("/", "-"))];
+              const contenu =
+                zip.files[path.join("sfip", cid.replace("/", "-"))];
               expect(contenu).to.exist();
             });
           }
@@ -1327,14 +1351,14 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
         let idMotClef: string;
         let idBdRechercheMotsClefs: string;
-        
+
         const résultats = new attente.AttendreRésultat<string[]>();
         before(async () => {
           idMotClef = await client.motsClefs!.créerMotClef();
 
           fOublier = await client.bds.rechercherBdsParMotsClefs({
             motsClefs: [idMotClef],
-            f: (r) => (résultats.mettreÀJour(r)),
+            f: (r) => résultats.mettreÀJour(r),
           });
 
           idBdRechercheMotsClefs = await client.bds.créerBd({
@@ -1357,7 +1381,7 @@ typesClients.forEach((type) => {
             idsMotsClefs: [idMotClef],
           });
 
-          const val = await résultats.attendreQue(x=>x.length>0)
+          const val = await résultats.attendreQue((x) => x.length > 0);
           expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(1);
           expect(val[0]).to.equal(idBdRechercheMotsClefs);

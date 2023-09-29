@@ -82,7 +82,7 @@ const OrderedKeyValue =
     const put = async (
       key: string,
       value: unknown,
-      position?: number,
+      position?: number
     ): Promise<string> => {
       return addOperation({ op: "PUT", key, value: { value, position } });
     };
@@ -111,7 +111,7 @@ const OrderedKeyValue =
      * @instance
      */
     const get = async (
-      key: string,
+      key: string
     ): Promise<{ value: unknown; position: number } | undefined> => {
       for await (const entry of log.traverse()) {
         const { op, key: k, value } = entry.payload;

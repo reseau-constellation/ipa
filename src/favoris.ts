@@ -99,15 +99,15 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
               fichiers: épinglerFichiers,
             });
           nouvelles.push(id);
-        }),
+        })
       );
 
       const àOublier = précédentes.filter((id) => !nouvelles.includes(id));
 
       await Promise.all(
         àOublier.map(
-          async (id) => await this.client.épingles!.désépinglerBd({ id }),
-        ),
+          async (id) => await this.client.épingles!.désépinglerBd({ id })
+        )
       );
 
       précédentes = nouvelles;
@@ -135,7 +135,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
             idObjet,
             ...élément,
           };
-        },
+        }
       );
       await f(favorisFinaux);
     };

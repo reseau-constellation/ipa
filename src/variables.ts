@@ -168,7 +168,7 @@ export default class Variables extends ComposanteClientListe<string> {
 
     await bdVariable.set(
       "catégorie",
-      this.standardiserCatégorieVariable(catégorie),
+      this.standardiserCatégorieVariable(catégorie)
     );
 
     await this.établirStatut({
@@ -283,7 +283,7 @@ export default class Variables extends ComposanteClientListe<string> {
             idVariable: idNouvelleBd,
             règle: r.règle,
           });
-        }),
+        })
       );
     }
 
@@ -327,7 +327,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
     if (!idBdNoms)
       throw new Error(
-        `Permission de modification refusée pour Variable ${idVariable}.`,
+        `Permission de modification refusée pour Variable ${idVariable}.`
       );
 
     const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
@@ -357,7 +357,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
     if (!idBdNoms)
       throw new Error(
-        `Permission de modification refusée pour variable ${idVariable}.`,
+        `Permission de modification refusée pour variable ${idVariable}.`
       );
 
     const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
@@ -383,7 +383,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
     if (!idBdNoms)
       throw new Error(
-        `Permission de modification refusée pour Variable ${idVariable}.`,
+        `Permission de modification refusée pour Variable ${idVariable}.`
       );
 
     const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
@@ -409,7 +409,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
     if (!idBdDescr)
       throw new Error(
-        `Permission de modification refusée pour Variable ${idVariable}.`,
+        `Permission de modification refusée pour Variable ${idVariable}.`
       );
 
     const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
@@ -439,7 +439,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
     if (!idBdDescr)
       throw new Error(
-        `Permission de modification refusée pour Variable ${idVariable}.`,
+        `Permission de modification refusée pour Variable ${idVariable}.`
       );
 
     const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
@@ -466,7 +466,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
     if (!idBdDescr)
       throw new Error(
-        `Permission de modification refusée pour Variable ${idVariable}.`,
+        `Permission de modification refusée pour Variable ${idVariable}.`
       );
 
     const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
@@ -494,14 +494,14 @@ export default class Variables extends ComposanteClientListe<string> {
       });
     await bdVariable.set(
       "catégorie",
-      this.standardiserCatégorieVariable(catégorie),
+      this.standardiserCatégorieVariable(catégorie)
     );
 
     await fOublier();
   }
 
   standardiserCatégorieVariable(
-    catégorie: catégorieBaseVariables | catégorieVariables,
+    catégorie: catégorieBaseVariables | catégorieVariables
   ): catégorieVariables {
     return typeof catégorie === "string"
       ? { type: "simple", catégorie }
@@ -542,7 +542,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
     if (!idBdRègles) {
       throw new Error(
-        `Permission de modification refusée pour variable ${idVariable}.`,
+        `Permission de modification refusée pour variable ${idVariable}.`
       );
     }
 
@@ -577,7 +577,7 @@ export default class Variables extends ComposanteClientListe<string> {
     });
     if (!idBdRègles) {
       throw new Error(
-        `Permission de modification refusée pour variable ${idVariable}.`,
+        `Permission de modification refusée pour variable ${idVariable}.`
       );
     }
     const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
@@ -659,7 +659,7 @@ export default class Variables extends ComposanteClientListe<string> {
         const catégorie = await bd.get("catégorie");
         if (catégorie && catégorie.catégorie && catégorie.type)
           await f(
-            this.standardiserCatégorieVariable(catégorie as catégorieVariables),
+            this.standardiserCatégorieVariable(catégorie as catégorieVariables)
           );
       },
     });

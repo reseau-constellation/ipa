@@ -23,7 +23,7 @@ const estUneListe = (x: unknown): boolean => Array.isArray(x);
 
 const extraireBranches = (
   données: DonnéesJSON,
-  clefs: clefsExtractionNonNul,
+  clefs: clefsExtractionNonNul
 ) => {
   let branches: élémentListe;
 
@@ -35,7 +35,7 @@ const extraireBranches = (
   }
   const avantDernière = extraireDonnées(
     données,
-    clefs.slice(0, clefs.length - 1),
+    clefs.slice(0, clefs.length - 1)
   );
   const dernièreClef = clefs[clefs.length - 1];
   let conteneurBranches: élément;
@@ -76,7 +76,7 @@ const extraireBranches = (
 const injecterBranche = (
   base: élément,
   clefs: clefsExtractionNonNul,
-  branche: valsJSON,
+  branche: valsJSON
 ) => {
   if (!clefs.length) {
     Object.assign(base, branche);
@@ -107,7 +107,7 @@ export const aplatirDonnées = (
   données: DonnéesJSON,
   clefs: clefsExtraction = [],
   _base?: DonnéesJSON,
-  _élémentsFinaux: élément[] = [],
+  _élémentsFinaux: élément[] = []
 ): élément[] => {
   if (clefs[clefs.length - 1] !== -1) clefs.push(-1);
 
@@ -117,7 +117,7 @@ export const aplatirDonnées = (
 
   const { base, branches } = extraireBranches(
     données,
-    clefsAvant as clefsExtractionNonNul,
+    clefsAvant as clefsExtractionNonNul
   );
 
   for (const branche of branches) {
@@ -136,7 +136,7 @@ export const aplatirDonnées = (
 
 export const extraireDonnées = (
   données: DonnéesJSON,
-  clefs: clefsExtraction,
+  clefs: clefsExtraction
 ): valsJSON => {
   let donnéesFinales: valsJSON = données;
   for (const c of clefs) {
@@ -170,20 +170,20 @@ export default class ImportateurDonnéesJSON {
   obtDonnées(
     clefsRacine: clefsExtraction,
     clefsÉléments: clefsExtraction,
-    cols: { [key: string]: clefsExtraction },
+    cols: { [key: string]: clefsExtraction }
   ): élémentDic[] {
     let données: élémentDic[] = [];
 
     let racineDonnéesJSON = extraireDonnées(this.donnéesJSON, clefsRacine);
     if (typeof racineDonnéesJSON !== "object") {
       throw new Error(
-        `Type de données erroné : ${racineDonnéesJSON.toString()}`, // eslint-disable-line no-irregular-whitespace
+        `Type de données erroné : ${racineDonnéesJSON.toString()}` // eslint-disable-line no-irregular-whitespace
       );
     }
 
     racineDonnéesJSON = aplatirDonnées(
       racineDonnéesJSON as élémentListe | élémentDic,
-      clefsÉléments,
+      clefsÉléments
     );
 
     for (const élémentJSON of racineDonnéesJSON) {
@@ -202,7 +202,7 @@ export default class ImportateurDonnéesJSON {
 
             return [c, val];
           })
-          .filter((x) => x[1] !== undefined),
+          .filter((x) => x[1] !== undefined)
       );
       données = [élément, ...données];
     }

@@ -16,16 +16,16 @@ import { faisRien } from "@constl/utils-ipa";
 
 export const rechercherDansTexte = (
   schéma: string,
-  texte: string,
+  texte: string
 ): { type: "texte"; score: number; début: number; fin: number } | undefined => {
   // Une alternative - https://www.npmjs.com/package/js-levenshtein
   const correspondances = correspTexte(
     texte,
     schéma,
-    Math.ceil(schéma.length / 4),
+    Math.ceil(schéma.length / 4)
   );
   const meilleure = correspondances.sort((a, b) =>
-    a.errors > b.errors ? 1 : -1,
+    a.errors > b.errors ? 1 : -1
   )[0];
   if (meilleure) {
     const score = 1 / (meilleure.errors + 1);
@@ -36,7 +36,7 @@ export const rechercherDansTexte = (
 
 export const similTexte = (
   texte: string,
-  possibilités: { [key: string]: string } | string[],
+  possibilités: { [key: string]: string } | string[]
 ): { score: number; clef: string; info: infoRésultatTexte } | undefined => {
   if (Array.isArray(possibilités)) {
     possibilités = Object.fromEntries(possibilités.map((x) => [x, x]));
@@ -68,7 +68,7 @@ export const similTexte = (
 
 export const similImages = (
   image: Uint8Array,
-  imageRef: Uint8Array | null,
+  imageRef: Uint8Array | null
 ): number => {
   if (!imageRef) {
     return 0;
@@ -81,7 +81,7 @@ export const combinerRecherches = async <T extends infoRésultat>(
   fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche<T> },
   client: ClientConstellation,
   id: string,
-  fSuivreRecherche: schémaFonctionSuiviRecherche<T>,
+  fSuivreRecherche: schémaFonctionSuiviRecherche<T>
 ): Promise<schémaFonctionOublier> => {
   const fsOublier: schémaFonctionOublier[] = [];
 
@@ -102,7 +102,7 @@ export const combinerRecherches = async <T extends infoRésultat>(
         fSuivreFinale();
       };
       fsOublier.push(await fRecherche(client, id, fSuivre));
-    }),
+    })
   );
 
   return async () => {
@@ -113,29 +113,29 @@ export const combinerRecherches = async <T extends infoRésultat>(
 export const sousRecherche = async <T extends infoRésultat>(
   de: string,
   fListe: (
-    fSuivreRacine: (ids: string[]) => void,
+    fSuivreRacine: (ids: string[]) => void
   ) => Promise<schémaFonctionOublier>,
   fRechercher: schémaFonctionSuivreObjectifRecherche<T>,
   client: ClientConstellation,
-  fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<T>>,
+  fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<T>>
 ): Promise<schémaFonctionOublier> => {
   const fBranche = async (
     idBd: string,
-    f: (x: { id: string; résultat: résultatObjectifRecherche<T> }) => void,
+    f: (x: { id: string; résultat: résultatObjectifRecherche<T> }) => void
   ): Promise<schémaFonctionOublier> => {
     return await fRechercher(
       client,
       idBd,
       (résultat?: résultatObjectifRecherche<T>) => {
         if (résultat) f({ id: idBd, résultat });
-      },
+      }
     );
   };
   const fFinale = async (
     résultats: {
       id: string;
       résultat: résultatObjectifRecherche<T>;
-    }[],
+    }[]
   ) => {
     const meilleur = meilleurRésultat<T>(résultats);
 
@@ -168,7 +168,7 @@ export const sousRecherche = async <T extends infoRésultat>(
 
 const aMieuxQueB = <T extends infoRésultat>(
   a: résultatObjectifRecherche<T>,
-  b: résultatObjectifRecherche<T>,
+  b: résultatObjectifRecherche<T>
 ): boolean => {
   const xPlusLongQueY = (x: infoRésultat, y: infoRésultat): boolean => {
     while (x.type === "résultat") x = x.info;
@@ -195,7 +195,7 @@ const aMieuxQueB = <T extends infoRésultat>(
 };
 
 const meilleurRésultat = <T extends infoRésultat>(
-  résultats: { id: string; résultat: résultatObjectifRecherche<T> }[],
+  résultats: { id: string; résultat: résultatObjectifRecherche<T> }[]
 ): { id: string; résultat: résultatObjectifRecherche<T> } | undefined => {
   const meilleur = Object.values(résultats)
     .filter((x) => x)
@@ -204,12 +204,12 @@ const meilleurRésultat = <T extends infoRésultat>(
 };
 
 export const rechercherSelonId = (
-  idRecherché: string,
+  idRecherché: string
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     _client: ClientConstellation,
     id: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
   ): Promise<schémaFonctionOublier> => {
     const résultat = rechercherDansTexte(idRecherché, id);
     if (résultat) {
@@ -238,7 +238,7 @@ export const rechercherTous =
     return async (
       _client: ClientConstellation,
       _id: string,
-      fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
+      fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>
     ): Promise<schémaFonctionOublier> => {
       await fSuivreRecherche({
         type: "résultat",

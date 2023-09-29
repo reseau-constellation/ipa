@@ -33,7 +33,7 @@ export const générerClientsInternes = async ({
       return await ClientConstellationInterne.créer({
         orbite: orbites[i],
       });
-    }),
+    })
   );
 
   const fOublier = async () => {

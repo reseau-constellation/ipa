@@ -158,7 +158,7 @@ export type différenceBDTableauSupplémentaire = {
 };
 
 export type différenceTableauxBds<
-  T extends différenceTableaux = différenceTableaux,
+  T extends différenceTableaux = différenceTableaux
 > = {
   type: "tableau";
   sévère: T["sévère"];
@@ -587,14 +587,14 @@ export default class BDs extends ComposanteClientListe<string> {
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
+      fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBds({ f: fSuivreRacine, idCompte });
     };
 
     const fCondition = async (
       id: string,
-      fSuivreCondition: (état: boolean) => void,
+      fSuivreCondition: (état: boolean) => void
     ): Promise<schémaFonctionOublier> => {
       const fFinaleSuivreCondition = (motsClefsBd: string[]) => {
         const état = motsClefs.every((m) => motsClefsBd.includes(m));
@@ -619,14 +619,14 @@ export default class BDs extends ComposanteClientListe<string> {
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
+      fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBds({ f: fSuivreRacine, idCompte });
     };
 
     const fCondition = async (
       id: string,
-      fSuivreCondition: (état: boolean) => void,
+      fSuivreCondition: (état: boolean) => void
     ): Promise<schémaFonctionOublier> => {
       const fFinaleSuivreCondition = async (nuéesBd?: string[]) => {
         fSuivreCondition(!!nuéesBd && nuéesBd.includes(idNuée));
@@ -646,10 +646,10 @@ export default class BDs extends ComposanteClientListe<string> {
     const obtTableaux = async (idBd: string): Promise<infoTableauAvecId[]> => {
       return await uneFois(
         async (
-          fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
+          fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>
         ): Promise<schémaFonctionOublier> => {
           return await this.suivreTableauxBd({ idBd, f: fSuivi });
-        },
+        }
       );
     };
 
@@ -659,8 +659,9 @@ export default class BDs extends ComposanteClientListe<string> {
     for (const info of tableauxBd2) {
       const { id: idTableau, clef } = info;
       if (clef) {
-        const idTableauBaseCorresp = tableauxBase.find((t) => t.clef === clef)
-          ?.id;
+        const idTableauBaseCorresp = tableauxBase.find(
+          (t) => t.clef === clef
+        )?.id;
 
         if (idTableauBaseCorresp) {
           await this.client.tableaux!.combinerDonnées({
@@ -881,7 +882,7 @@ export default class BDs extends ComposanteClientListe<string> {
           clefTableau,
           f: ignorerNonDéfinis(fSuivi),
         });
-      },
+      }
     );
     return await this.client.tableaux!.ajouterÉlément({
       idTableau: idTableau,
@@ -913,7 +914,7 @@ export default class BDs extends ComposanteClientListe<string> {
           },
         });
       },
-      (x) => !!x,
+      (x) => !!x
     );
 
     return await this.client.tableaux!.modifierÉlément({
@@ -945,7 +946,7 @@ export default class BDs extends ComposanteClientListe<string> {
           },
         });
       },
-      (x) => !!x,
+      (x) => !!x
     );
 
     return await this.client.tableaux!.effacerÉlément({
@@ -972,7 +973,7 @@ export default class BDs extends ComposanteClientListe<string> {
           f: ignorerNonDéfinis(fSuivi),
         });
       },
-      (x) => !!x,
+      (x) => !!x
     );
     return await this.client!.tableaux!.suivreDonnées({
       idTableau,
@@ -996,7 +997,7 @@ export default class BDs extends ComposanteClientListe<string> {
           clef: clefTableau,
           f: ignorerNonDéfinis(fSuivi),
         });
-      },
+      }
     );
     return await this.client.tableaux!.ajouterÉlément({
       idTableau,
@@ -1022,7 +1023,7 @@ export default class BDs extends ComposanteClientListe<string> {
           clef: clefTableau,
           f: ignorerNonDéfinis(fSuivi),
         });
-      },
+      }
     );
     return await this.client.tableaux!.modifierÉlément({
       idTableau,
@@ -1047,7 +1048,7 @@ export default class BDs extends ComposanteClientListe<string> {
           clef: clefTableau,
           f: ignorerNonDéfinis(fSuivi),
         });
-      },
+      }
     );
     this.client.tableaux!.effacerÉlément({
       idTableau,
@@ -1697,8 +1698,8 @@ export default class BDs extends ComposanteClientListe<string> {
         throw new Error("Taille maximale excédée");
       }
       contenu = {
-        path: (image.path),
-        content: await (image.content as File).arrayBuffer()
+        path: image.path,
+        content: await (image.content as File).arrayBuffer(),
       };
     } else {
       contenu = image;
@@ -1813,7 +1814,7 @@ export default class BDs extends ComposanteClientListe<string> {
             id,
             ...info,
           };
-        },
+        }
       );
       await f(tableaux);
     };
@@ -1851,18 +1852,18 @@ export default class BDs extends ComposanteClientListe<string> {
     const fFinale = async (branches: scoreTableau[]) => {
       const numérateur = branches.reduce(
         (a: number, b: scoreTableau) => a + b.numérateur,
-        0,
+        0
       );
       const dénominateur = branches.reduce(
         (a: number, b: scoreTableau) => a + b.dénominateur,
-        0,
+        0
       );
       await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
     };
 
     const fBranche = async (
       idTableau: string,
-      f: schémaFonctionSuivi<scoreTableau>,
+      f: schémaFonctionSuivi<scoreTableau>
     ): Promise<schémaFonctionOublier> => {
       const info: { cols?: InfoColAvecCatégorie[]; règles?: règleColonne[] } =
         {};
@@ -1874,15 +1875,15 @@ export default class BDs extends ComposanteClientListe<string> {
           const colsÉligibles = cols.filter(
             (c) =>
               c.catégorie &&
-              ["numérique", "catégorique"].includes(c.catégorie.catégorie),
+              ["numérique", "catégorique"].includes(c.catégorie.catégorie)
           );
 
           const dénominateur = colsÉligibles.length;
           const numérateur = colsÉligibles.filter((c) =>
             règles.some(
               (r) =>
-                r.règle.règle.typeRègle !== "catégorie" && r.colonne === c.id,
-            ),
+                r.règle.règle.typeRègle !== "catégorie" && r.colonne === c.id
+            )
           ).length;
           await f({ numérateur, dénominateur });
         }
@@ -1911,7 +1912,7 @@ export default class BDs extends ComposanteClientListe<string> {
     };
 
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
+      fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreTableauxBd({
         idBd,
@@ -1939,18 +1940,18 @@ export default class BDs extends ComposanteClientListe<string> {
     const fFinale = async (branches: scoreTableau[]) => {
       const numérateur = branches.reduce(
         (a: number, b: scoreTableau) => a + b.numérateur,
-        0,
+        0
       );
       const dénominateur = branches.reduce(
         (a: number, b: scoreTableau) => a + b.dénominateur,
-        0,
+        0
       );
       await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
     };
 
     const fBranche = async (
       idTableau: string,
-      f: schémaFonctionSuivi<scoreTableau>,
+      f: schémaFonctionSuivi<scoreTableau>
     ): Promise<schémaFonctionOublier> => {
       const info: {
         données?: élémentDonnées<élémentBdListeDonnées>[];
@@ -1968,7 +1969,7 @@ export default class BDs extends ComposanteClientListe<string> {
           const colsÉligibles = cols.filter(
             (c) =>
               c.catégorie &&
-              ["numérique", "catégorique"].includes(c.catégorie.catégorie),
+              ["numérique", "catégorique"].includes(c.catégorie.catégorie)
           );
 
           const déjàVus: { empreinte: string; idColonne: string }[] = [];
@@ -1982,7 +1983,7 @@ export default class BDs extends ComposanteClientListe<string> {
             .filter((x) => {
               const déjàVu = déjàVus.find(
                 (y) =>
-                  y.empreinte === x.empreinte && y.idColonne === x.idColonne,
+                  y.empreinte === x.empreinte && y.idColonne === x.idColonne
               );
               if (déjàVu) {
                 return false;
@@ -1996,7 +1997,7 @@ export default class BDs extends ComposanteClientListe<string> {
             .map(
               (d) =>
                 colsÉligibles.filter((c) => d.données[c.id] !== undefined)
-                  .length,
+                  .length
             )
             .reduce((a, b) => a + b, 0);
 
@@ -2039,7 +2040,7 @@ export default class BDs extends ComposanteClientListe<string> {
     };
 
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
+      fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreTableauxBd({
         idBd,
@@ -2134,13 +2135,13 @@ export default class BDs extends ComposanteClientListe<string> {
 
     const fBranche = async (
       id: string,
-      f: schémaFonctionSuivi<string[]>,
+      f: schémaFonctionSuivi<string[]>
     ): Promise<schémaFonctionOublier> => {
       return await this.client.tableaux!.suivreVariables({ idTableau: id, f });
     };
 
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
+      fSuivreRacine: (éléments: string[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreTableauxBd({
         idBd,
@@ -2169,7 +2170,7 @@ export default class BDs extends ComposanteClientListe<string> {
 
     const infosTableaux = await uneFois(
       (f: schémaFonctionSuivi<infoTableauAvecId[]>) =>
-        this.suivreTableauxBd({ idBd, f }),
+        this.suivreTableauxBd({ idBd, f })
     );
 
     for (const tableau of infosTableaux) {
@@ -2180,15 +2181,13 @@ export default class BDs extends ComposanteClientListe<string> {
           langues,
           doc,
         });
-      fichiersSFIPTableau.forEach((f) =>
-        fichiersSFIP.add(f),
-      );
+      fichiersSFIPTableau.forEach((f) => fichiersSFIP.add(f));
     }
 
     if (!nomFichier) {
       const nomsBd = await uneFois(
         (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.suivreNomsBd({ idBd, f }),
+          this.suivreNomsBd({ idBd, f })
       );
       const idCourt = idBd.split("/").pop()!;
 
@@ -2235,15 +2234,15 @@ export default class BDs extends ComposanteClientListe<string> {
           return {
             nom: fichier.replace("/", "-"),
             octets: await toBuffer(
-              this.client.obtItérableAsyncSFIP({ id: fichier }),
+              this.client.obtItérableAsyncSFIP({ id: fichier })
             ),
           };
-        }),
+        })
       );
       await zipper(
         [fichierDoc],
         fichiersDeSFIP,
-        path.join(dossier, nomFichier),
+        path.join(dossier, nomFichier)
       );
       return path.join(dossier, `${nomFichier}.zip`);
     } else {

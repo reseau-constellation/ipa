@@ -9,7 +9,7 @@ type ContrôleurConstellation = Awaited<
 >;
 
 export const estUnContrôleurConstellation = (
-  x: unknown,
+  x: unknown
 ): x is ContrôleurConstellation => {
   return (x as ContrôleurConstellation).type === nomType;
 };

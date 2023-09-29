@@ -120,7 +120,7 @@ const ContrôleurConstellation =
       storage ||
       (await ComposedStorage(
         await LRUStorage({ size: 1000 }),
-        await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true }),
+        await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
       ));
 
     // À faire : vérifier si toujours nécessaire avec bd-orbite 1,0
@@ -135,7 +135,7 @@ const ContrôleurConstellation =
 
     if (address) {
       const manifestBytes = await storage!.get(
-        address.replaceAll(`/${nomType}/`, ""),
+        address.replaceAll(`/${nomType}/`, "")
       );
       const { value } = await Block.decode({
         bytes: manifestBytes,
@@ -180,7 +180,7 @@ const ContrôleurConstellation =
     gestRôles.on("misÀJour", () => événements.emit("misÀJour"));
 
     const miseÀJourBdAccès = async (
-      éléments: élémentBdAccès[],
+      éléments: élémentBdAccès[]
     ): Promise<void> => {
       éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
 
@@ -201,7 +201,7 @@ const ContrôleurConstellation =
     };
 
     const canAppend = async (
-      entry: Entry<élémentBdAccès>,
+      entry: Entry<élémentBdAccès>
     ): Promise<boolean> => {
       const writerIdentity = await identities.getIdentity(entry.identity);
       if (!writerIdentity) {
@@ -219,7 +219,7 @@ const ContrôleurConstellation =
 
     const grant = async (
       rôle: (typeof rôles)[number],
-      id: string,
+      id: string
     ): Promise<void> => {
       if (!rôles.includes(rôle)) {
         throw new Error(`Erreur: Le rôle ${rôle} n'existe pas.`);
@@ -234,7 +234,7 @@ const ContrôleurConstellation =
         const e = _e as Error;
         if (e.toString().includes("not append entry")) {
           throw new Error(
-            `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`,
+            `Erreur : Le rôle ${rôle} ne peut pas être octroyé à ${id}.`
           );
         }
         throw e;
@@ -243,10 +243,10 @@ const ContrôleurConstellation =
 
     const revoke = async (
       _rôle: (typeof rôles)[number],
-      _id: string,
+      _id: string
     ): Promise<void> => {
       throw new Error(
-        "C'est très difficile à implémenter...avez-vous des idées ?",
+        "C'est très difficile à implémenter...avez-vous des idées ?"
       );
     };
 
@@ -262,11 +262,11 @@ const ContrôleurConstellation =
     };
 
     const suivreUtilisateursAutorisés = async (
-      f: schémaFonctionSuivi<infoUtilisateur[]>,
+      f: schémaFonctionSuivi<infoUtilisateur[]>
     ): Promise<schémaFonctionOublier> => {
       const fFinale = async () => {
         const mods: infoUtilisateur[] = Object.keys(
-          gestRôles._rôlesUtilisateurs[MODÉRATEUR],
+          gestRôles._rôlesUtilisateurs[MODÉRATEUR]
         ).map((m) => {
           return {
             idCompte: m,
@@ -275,7 +275,7 @@ const ContrôleurConstellation =
         });
         const idsMods = mods.map((m) => m.idCompte);
         const membres: infoUtilisateur[] = Object.keys(
-          gestRôles._rôlesUtilisateurs[MEMBRE],
+          gestRôles._rôlesUtilisateurs[MEMBRE]
         )
           .map((m) => {
             return {
@@ -297,7 +297,7 @@ const ContrôleurConstellation =
     };
 
     const suivreIdsOrbiteAutoriséesÉcriture = async (
-      f: schémaFonctionSuivi<string[]>,
+      f: schémaFonctionSuivi<string[]>
     ): Promise<schémaFonctionOublier> => {
       const fFinale = async () => {
         await f([...gestRôles._rôles.MEMBRE, ...gestRôles._rôles.MODÉRATEUR]);

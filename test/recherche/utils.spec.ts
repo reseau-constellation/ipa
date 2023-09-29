@@ -42,7 +42,7 @@ describe("Utils recherche", function () {
     it("Recherche exacte", () => {
       const résultat = rechercherDansTexte(
         "வணக்கம்",
-        "வணக்கம், சாப்பிட்டீர்களா?",
+        "வணக்கம், சாப்பிட்டீர்களா?"
       );
       expect(résultat).to.deep.equal({
         type: "texte",
@@ -55,7 +55,7 @@ describe("Utils recherche", function () {
     it("Recherche approximative", () => {
       const résultat = rechercherDansTexte(
         "வணக்கம்",
-        "வணககம், சாப்பிட்டீர்களா?",
+        "வணககம், சாப்பிட்டீர்களா?"
       );
       expect(résultat).to.deep.equal({
         type: "texte",
@@ -203,16 +203,16 @@ describe("Utils recherche", function () {
   });
 
   describe("Rechercher selon id", function () {
-    const résultat = new attente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte> | undefined>();
+    const résultat = new attente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatTexte> | undefined
+    >();
     let fOublier: schémaFonctionOublier;
 
     const fRecherche = rechercherSelonId("id");
 
     before(async () => {
-      fOublier = await fRecherche(
-        client,
-        "voici mon id",
-        (rés) => (résultat.mettreÀJour(rés)),
+      fOublier = await fRecherche(client, "voici mon id", (rés) =>
+        résultat.mettreÀJour(rés)
       );
     });
     after(async () => {
@@ -236,7 +236,9 @@ describe("Utils recherche", function () {
   });
 
   describe("Combiner recherches", function () {
-    const résultat = new attente.AttendreRésultat<résultatObjectifRecherche<infoRésultatTexte> | undefined>();
+    const résultat = new attente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatTexte> | undefined
+    >();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
@@ -250,7 +252,7 @@ describe("Utils recherche", function () {
         },
         client,
         "abcdefghij",
-        (rés) => (résultat.mettreÀJour(rés)),
+        (rés) => résultat.mettreÀJour(rés)
       );
     });
     after(async () => {
@@ -276,8 +278,9 @@ describe("Utils recherche", function () {
   describe("Sous-recherche", function () {
     let idBd: string;
     const résultat = new attente.AttendreRésultat<
-    résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
-      | undefined>();
+      | résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
+      | undefined
+    >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -285,7 +288,7 @@ describe("Utils recherche", function () {
       idBd = await client.créerBdIndépendante({ type: "feed" });
 
       const fListe = async (
-        fSuivreRacine: (idsVariables: string[]) => void,
+        fSuivreRacine: (idsVariables: string[]) => void
       ): Promise<schémaFonctionOublier> => {
         return await client.suivreBdListe({ id: idBd, f: fSuivreRacine });
       };
@@ -294,7 +297,7 @@ describe("Utils recherche", function () {
       const fSuivreRecherche = (
         rés?: résultatObjectifRecherche<
           infoRésultatRecherche<infoRésultatTexte>
-        >,
+        >
       ) => {
         résultat.mettreÀJour(rés);
       };
@@ -305,8 +308,8 @@ describe("Utils recherche", function () {
           fListe,
           fRechercher,
           client,
-          fSuivreRecherche,
-        ),
+          fSuivreRecherche
+        )
       );
     });
     after(async () => await Promise.all(fsOublier.map((f) => f())));
@@ -374,18 +377,24 @@ describe("Utils recherche", function () {
         score: 1,
         type: "résultat",
       };
-      const val = await résultat.attendreQue(x=>x?.clef === "précipitation")
+      const val = await résultat.attendreQue(
+        (x) => x?.clef === "précipitation"
+      );
       expect(val).to.deep.equal(réfRés);
     });
   });
 
   describe("Rechercher tous égaux", function () {
-    const résultat = new attente.AttendreRésultat<résultatObjectifRecherche<infoRésultatVide> | undefined>();
+    const résultat = new attente.AttendreRésultat<
+      résultatObjectifRecherche<infoRésultatVide> | undefined
+    >();
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
       const fRecherche = rechercherTous();
-      fOublier = await fRecherche(client, "abc", (rés) => (résultat.mettreÀJour(rés)));
+      fOublier = await fRecherche(client, "abc", (rés) =>
+        résultat.mettreÀJour(rés)
+      );
     });
     after(async () => {
       if (fOublier) await fOublier();

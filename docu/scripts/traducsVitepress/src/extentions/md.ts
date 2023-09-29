@@ -24,7 +24,7 @@ export class ExtentionMd extends Extention {
             clef: "",
             valeur: composante.tokens
               .map((t) =>
-                this.analyserComposante({ composante: t }).map((x) => x.valeur),
+                this.analyserComposante({ composante: t }).map((x) => x.valeur)
               )
               .join(""),
           },
@@ -35,7 +35,7 @@ export class ExtentionMd extends Extention {
           .map((e) =>
             e.tokens
               .map((j) => this.analyserComposante({ composante: j }).flat())
-              .flat(),
+              .flat()
           )
           .flat();
         const files = composante.rows
@@ -44,9 +44,9 @@ export class ExtentionMd extends Extention {
               .map((c) =>
                 c.tokens
                   .map((j) => this.analyserComposante({ composante: j }).flat())
-                  .flat(),
+                  .flat()
               )
-              .flat(),
+              .flat()
           )
           .flat();
         return [...entête, ...files];
@@ -114,7 +114,7 @@ export class ExtentionMd extends Extention {
                 fichier,
                 traducs,
                 langue,
-              }),
+              })
             )
             .join("") +
           "\n"
@@ -130,9 +130,9 @@ export class ExtentionMd extends Extention {
                     fichier,
                     traducs,
                     langue,
-                  }),
+                  })
                 )
-                .join(""),
+                .join("")
             )
             .join(" | ") +
           "\n" +
@@ -163,22 +163,22 @@ export class ExtentionMd extends Extention {
                         fichier,
                         traducs,
                         langue,
-                      }),
+                      })
                     )
-                    .join(""),
+                    .join("")
                 )
-                .join(" | "),
+                .join(" | ")
             )
             .join("\n") +
           "\n"
         );
       case "link":
         return `[${obtTrad(composante.text)}](${traduireLien(
-          composante.href,
+          composante.href
         )})`;
       case "image":
         return `![${obtTrad(composante.text)}](${traduireLien(
-          composante.href,
+          composante.href
         )})`;
       case "paragraph":
         return composante.tokens
@@ -188,7 +188,7 @@ export class ExtentionMd extends Extention {
               fichier,
               traducs,
               langue,
-            }),
+            })
           )
           .join("");
       case "text":
@@ -226,7 +226,7 @@ export class ExtentionMd extends Extention {
     const lexée = marked.lexer(texte);
     for (const composante of lexée) {
       texteFinal.push(
-        this.reconstruireComposante({ composante, fichier, traducs, langue }),
+        this.reconstruireComposante({ composante, fichier, traducs, langue })
       );
     }
     return texteFinal.join("") + "\n";

@@ -25,12 +25,11 @@ const catégories: {
     invalides: [false, "abc", { a: 2 }],
   },
   chaîne: {
-    valides: [
-      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX",
-    ],
+    valides: ["/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"],
     invalides: [
-      123, "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX",
-      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e"  // orbit-db < v1.0
+      123,
+      "zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX",
+      "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX/7e0cde32-7fee-487c-ad6e-4247f627488e", // orbit-db < v1.0
     ],
   },
   chaîneNonTraductible: {
@@ -104,33 +103,21 @@ const catégories: {
       "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/கோப்பு.பை",
     ],
     invalides: [
-      "Je ne suis pas un cid/fichier.txt" ,
+      "Je ne suis pas un cid/fichier.txt",
       "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP",
     ],
   },
   vidéo: {
-    valides: [
-      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.mp4",
-    ],
-    invalides: [
-      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.jpg",
-    ],
+    valides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.mp4"],
+    invalides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.jpg"],
   },
   audio: {
-    valides: [
-      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.mp3",
-    ],
-    invalides: [
-      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.ts",
-    ],
+    valides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.mp3"],
+    invalides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.ts"],
   },
   image: {
-    valides: [
-      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.jpg",
-    ],
-    invalides: [
-      "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.பை",
-    ],
+    valides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.jpg"],
+    invalides: ["QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP/fichier.பை"],
   },
 };
 
