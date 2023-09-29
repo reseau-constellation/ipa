@@ -170,7 +170,7 @@ typesClients.forEach((type) => {
         it("Ajouter une image trop grande", async () => {
           expect(
             client.profil!.sauvegarderImage({
-              image: Object.assign({}, {content: IMAGE, path: "moi.png"}, { size: MAX_TAILLE_IMAGE + 1 }),
+              image: {content: Object.assign({}, IMAGE, { size: MAX_TAILLE_IMAGE + 1 }), path: "moi.png"},
             }),
           ).to.be.rejected();
         });
