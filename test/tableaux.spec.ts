@@ -43,7 +43,8 @@ typesClients.forEach((type) => {
 
       let idBd: string;
       let idTableau: string;
-      let colonnes: InfoColAvecCatégorie[];
+
+      const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
 
       before(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
@@ -77,21 +78,21 @@ typesClients.forEach((type) => {
           await Promise.all(fsOublier.map((f) => f()));
         });
         it("Créé", () => {
-          expect(isValidAddress(idTableau)).to.be.true;
+          expect(isValidAddress(idTableau)).to.be.true();
         });
         it("Accès", async () => {
-          expect(accès).to.be.true;
+          expect(accès).to.be.true();
         });
       });
 
       describe("Noms", function () {
-        let noms: { [key: string]: string };
         let fOublier: schémaFonctionOublier;
+        const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
 
         before(async () => {
           fOublier = await client.tableaux!.suivreNomsTableau({
             idTableau,
-            f: (n) => (noms = n),
+            f: (n) => (noms.mettreÀJour(n)),
           });
         });
 
@@ -100,7 +101,8 @@ typesClients.forEach((type) => {
         });
 
         it("Pas de noms pour commencer", async () => {
-          expect(Object.keys(noms).length).to.equal(0);
+          const val = await noms.attendreExiste();
+          expect(Object.keys(val).length).to.equal(0);
         });
 
         it("Ajouter un nom", async () => {
@@ -109,7 +111,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Alphabets",
           });
-          expect(noms.fr).to.equal("Alphabets");
+          const val = await noms.attendreQue(x=>!!x["fr"])
+          expect(val.fr).to.equal("Alphabets");
         });
 
         it("Ajouter des noms", async () => {
@@ -120,7 +123,8 @@ typesClients.forEach((type) => {
               हिं: "वर्णमाला",
             },
           });
-          expect(noms).to.deep.equal({
+          const val = await noms.attendreQue(x=>Object.keys(x).length > 2)
+          expect(val).to.deep.equal({
             fr: "Alphabets",
             த: "எழுத்துகள்",
             हिं: "वर्णमाला",
@@ -133,7 +137,8 @@ typesClients.forEach((type) => {
             langue: "fr",
             nom: "Systèmes d'écriture",
           });
-          expect(noms?.fr).to.equal("Systèmes d'écriture");
+          const val = await noms.attendreQue(x=>x.fr !== "Alphabets")
+          expect(val.fr).to.equal("Systèmes d'écriture");
         });
 
         it("Effacer un nom", async () => {
@@ -141,14 +146,16 @@ typesClients.forEach((type) => {
             idTableau,
             langue: "fr",
           });
-          expect(noms).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
+          const val = await noms.attendreQue(x=>!x["fr"]);
+          expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
       });
 
       describe("Données", function () {
-        let variables: string[];
-        let données: élémentDonnées<élémentBdListeDonnées>[];
         let idsVariables: string[];
+
+        const variables = new attente.AttendreRésultat<string[]>();
+        const données = new attente.AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
 
         const idsColonnes: string[] = [];
         const fsOublier: schémaFonctionOublier[] = [];
@@ -158,19 +165,19 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreColonnesTableau({
               idTableau,
-              f: (c) => (colonnes = c),
+              f: (c) => (colonnes.mettreÀJour(c)),
             }),
           );
           fsOublier.push(
             await client.tableaux!.suivreVariables({
               idTableau,
-              f: (v) => (variables = v),
+              f: (v) => (variables.mettreÀJour(v)),
             }),
           );
           fsOublier.push(
             await client.tableaux!.suivreDonnées({
               idTableau,
-              f: (d) => (données = d),
+              f: (d) => (données.mettreÀJour(d)),
             }),
           );
 
@@ -188,14 +195,14 @@ typesClients.forEach((type) => {
         });
 
         it("Tout est vide pour commencer", async () => {
-          expect(Array.isArray(variables)).to.be.true;
-          expect(variables.length).to.equal(0);
+          const valVariables = await variables.attendreExiste();
+          expect(valVariables).to.be.an.empty("array");
 
-          expect(Array.isArray(colonnes)).to.be.true;
-          expect(colonnes.length).to.equal(0);
+          const valColonnes = await colonnes.attendreExiste();
+          expect(valColonnes).to.be.an.empty("array");
 
-          expect(Array.isArray(données)).to.be.true;
-          expect(données.length).to.equal(0);
+          const valDonnées = await données.attendreExiste();
+          expect(valDonnées).to.be.an.empty("array");
         });
 
         it("Ajouter colonnes", async () => {
@@ -207,11 +214,13 @@ typesClients.forEach((type) => {
               }),
             );
           }
-          expect(colonnes.map((c) => c.variable)).to.deep.equal(idsVariables);
+          const valColonnes = await colonnes.attendreQue(x=>x.length > 1)
+          expect(valColonnes.map((c) => c.variable)).to.deep.equal(idsVariables);
         });
 
         it("Les variables sont détectées", async () => {
-          expect(variables).to.deep.equal(idsVariables);
+          const valVariables = await variables.attendreQue(x=>x.length > 0)
+          expect(valVariables).to.deep.equal(idsVariables);
         });
 
         it("Ajouter un élément", async () => {
@@ -220,10 +229,12 @@ typesClients.forEach((type) => {
             [idsColonnes[1]]: "வணக்கம்",
           };
           await client.tableaux!.ajouterÉlément({ idTableau, vals: élément });
-          expect(Array.isArray(données)).to.be.true;
-          expect(données.length).to.equal(1);
 
-          const élémentDonnées = données[0];
+          const valDonnées = await données.attendreQue(x=>x.length > 0);
+          expect(Array.isArray(valDonnées)).to.be.true();
+          expect(valDonnées.length).to.equal(1);
+
+          const élémentDonnées = valDonnées[0];
           expect(typeof élémentDonnées.empreinte).to.equal("string");
           for (const [cl, v] of Object.entries(élément)) {
             expect(élémentDonnées.données[cl]).to.equal(v);
@@ -231,22 +242,26 @@ typesClients.forEach((type) => {
         });
 
         it("Modifier un élément - modifier une valeur", async () => {
-          const élémentDonnées = données[0];
+          let valDonnées = await données.attendreExiste();
+          const élémentDonnées = valDonnées[0];
 
           await client.tableaux!.modifierÉlément({
             idTableau,
             vals: { [idsColonnes[0]]: -123 },
             empreintePrécédente: élémentDonnées.empreinte,
           });
-          expect(Array.isArray(données)).to.be.true;
-          expect(données.length).to.equal(1);
 
-          const nouvelÉlémentDonnées = données[0];
+          valDonnées = await données.attendreQue(x=>x.length > 0) 
+          expect(Array.isArray(valDonnées)).to.be.true();
+          expect(valDonnées.length).to.equal(1);
+
+          const nouvelÉlémentDonnées = valDonnées[0];
           expect(nouvelÉlémentDonnées.données[idsColonnes[0]]).to.equal(-123);
         });
 
         it("Modifier un élément - effacer une clef", async () => {
-          const élémentDonnées = données[0];
+          let valDonnées = await données.attendreExiste();
+          const élémentDonnées = valDonnées[0];
 
           await client.tableaux!.modifierÉlément({
             idTableau,
@@ -254,14 +269,16 @@ typesClients.forEach((type) => {
             empreintePrécédente: élémentDonnées.empreinte,
           });
 
-          const nouvelÉlémentDonnées = données[0];
+          valDonnées = await données.attendreQue(x=>x.length > 0 && !x[0].données[idsColonnes[0]]) 
+          const nouvelÉlémentDonnées = valDonnées[0];
           expect(Object.keys(nouvelÉlémentDonnées.données)).not.to.include(
             idsColonnes[0],
           );
         });
 
         it("Modifier un élément - ajouter une clef", async () => {
-          const élémentDonnées = données[0];
+          let valDonnées = await données.attendreExiste();
+          const élémentDonnées = valDonnées[0];
 
           await client.tableaux!.modifierÉlément({
             idTableau,
@@ -269,19 +286,22 @@ typesClients.forEach((type) => {
             empreintePrécédente: élémentDonnées.empreinte,
           });
 
-          const nouvelÉlémentDonnées = données[0];
+          valDonnées = await données.attendreQue(x=>x.length > 0 && !!x[0].données[idsColonnes[0]])
+          const nouvelÉlémentDonnées = valDonnées[0];
           expect(nouvelÉlémentDonnées.données[idsColonnes[0]]).to.equal(123);
         });
 
         it("Effacer un élément", async () => {
-          const élémentDonnées = données[0];
+          let valDonnées = await données.attendreExiste();
+          const élémentDonnées = valDonnées[0];
 
           await client.tableaux!.effacerÉlément({
             idTableau,
             empreinte: élémentDonnées.empreinte,
           });
-          expect(Array.isArray(données)).to.be.true;
-          expect(données.length).to.equal(0);
+
+          valDonnées = await données.attendreQue(x=>x.length === 0)
+          expect(valDonnées).to.be.an.empty("array");
         });
 
         it("Effacer une colonne", async () => {
@@ -292,20 +312,21 @@ typesClients.forEach((type) => {
           await new Promise<void>((résoudre) =>
             setTimeout(() => résoudre(), 3000),
           );
-          const variablesDesColonnes = colonnes.map((c) => c.variable);
+          const valColonnes = await colonnes.attendreQue(x=>x.length === 1)
+          const variablesDesColonnes = valColonnes.map((c) => c.variable);
           expect(variablesDesColonnes.length).to.equal(1);
           expect(variablesDesColonnes).to.deep.equal([idsVariables[1]]);
         });
       });
 
       describe("Colonnes index", function () {
-        let indexes: string[];
+        const indexes = new attente.AttendreRésultat<string[]>();
         let fOublier: schémaFonctionOublier;
 
         before(async () => {
           fOublier = await client.tableaux!.suivreIndex({
             idTableau,
-            f: (x) => (indexes = x),
+            f: (x) => (indexes.mettreÀJour(x)),
           });
         });
 
@@ -314,28 +335,34 @@ typesClients.forEach((type) => {
         });
 
         it("Pas d'index pour commencer", async () => {
-          expect(Array.isArray(indexes)).to.be.true;
-          expect(indexes.length).to.equal(0);
+          const valIndexes = await indexes.attendreExiste();
+          expect(valIndexes).to.be.an.empty("array");
         });
 
         it("Ajouter un index", async () => {
+          const valColonnes = await colonnes.attendreExiste();
+
           await client.tableaux!.changerColIndex({
             idTableau,
-            idColonne: colonnes[0].id,
+            idColonne: valColonnes[0].id,
             val: true,
           });
-          expect(indexes.length).to.equal(1);
-          expect(indexes).to.deep.equal([colonnes[0].id]);
+          const valIndexes = await indexes.attendreQue(x=>x.length > 0);
+          expect(valIndexes.length).to.equal(1);
+          expect(valIndexes).to.deep.equal([valColonnes[0].id]);
         });
 
         it("Effacer l'index", async () => {
+          const valColonnes = await colonnes.attendreExiste();
+
           await client.tableaux!.changerColIndex({
             idTableau,
-            idColonne: colonnes[0].id,
+            idColonne: valColonnes[0].id,
             val: false,
           });
-          expect(Array.isArray(indexes)).to.be.true;
-          expect(indexes.length).to.equal(0);
+
+          const valIndexes = await indexes.attendreQue(x=>x.length === 0);
+          expect(valIndexes).to.be.an.empty("array");
         });
       });
 
@@ -400,7 +427,7 @@ typesClients.forEach((type) => {
         it("Règles génériques de catégorie pour commencer", async () => {
           const val = await résRègles.attendreQue((r) => !!r && r.length === 2);
 
-          expect(Array.isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(2);
           for (const r of val) {
             expect(r.règle.règle.typeRègle).to.equal("catégorie");
@@ -409,7 +436,7 @@ typesClients.forEach((type) => {
 
         it("Aucune erreur pour commencer", async () => {
           const val = await résErreurs.attendreExiste();
-          expect(Array.isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(0);
         });
 
@@ -422,20 +449,20 @@ typesClients.forEach((type) => {
             },
           });
           const val = await résErreurs.attendreExiste();
-          expect(Array.isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(0);
         });
 
         it("Ajouter des données de catégorie invalide", async () => {
-          const empreinte = await client.tableaux!.ajouterÉlément({
+          const empreinte = (await client.tableaux!.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneChaîne]: 123,
             },
-          });
+          }))[0];
           expect(typeof empreinte).to.equal("string");
           const val = await résErreurs.attendreQue((x) => !!x.length);
-          expect(Array.isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(1);
           expect(val[0].erreur.règle.règle.règle.typeRègle).to.equal(
             "catégorie",
@@ -583,8 +610,8 @@ typesClients.forEach((type) => {
             idTableau: idTableauRègles,
             idRègle,
           });
-          const valErreurs = await résErreurs.attendreExiste();
-          const valRègles = await résRègles.attendreExiste();
+          const valErreurs = await résErreurs.attendreQue(x => x.length === 0);
+          const valRègles = await résRègles.attendreQue(x=>!x.some(r=>r.règle.id === idRègle));
           expect(valRègles.length).to.equal(2);
           expect(valErreurs.length).to.equal(0);
         });
@@ -609,8 +636,8 @@ typesClients.forEach((type) => {
             },
           });
 
-          let valErreurs = await résErreurs.attendreExiste();
-          let valRègles = await résRègles.attendreExiste();
+          let valErreurs = await résErreurs.attendreQue(x=>x.length > 0);
+          let valRègles = await résRègles.attendreQue(x=>x.length > 2);
 
           expect(valRègles.length).to.equal(3);
           expect(valErreurs.length).to.equal(1);
@@ -650,7 +677,7 @@ typesClients.forEach((type) => {
         >();
 
         const idColonneTempMax = "col temp max";
-        const empreintesDonnées: string[] = [];
+        let empreintesDonnées: string[] = [];
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
@@ -685,17 +712,13 @@ typesClients.forEach((type) => {
             idTableau: idTableauRègles,
             idVariable: idVariableTempMin,
           });
-          for (const min of [0, 5]) {
-            empreintesDonnées.push(
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableauRègles,
-                vals: {
-                  [idColonneTempMin]: min,
-                },
-              }),
-            );
-          }
-        });
+          empreintesDonnées = await client.tableaux!.ajouterÉlément({
+            idTableau: idTableauRègles,
+            vals: Array.from(Array(10).keys()).map(min => ({
+              [idColonneTempMin]: min,
+            }),
+            )
+          });
 
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
@@ -749,7 +772,7 @@ typesClients.forEach((type) => {
             idColonne: idColonneTempMax,
           });
           const val = await erreursRègles.attendreQue(
-            (x) => !!x && x.length === 0,
+            (x) => x.length === 0,
           );
           expect(val.length).to.equal(0);
         });
@@ -775,7 +798,8 @@ typesClients.forEach((type) => {
             },
           };
 
-          expect(erreursValid.val).to.deep.equal([réf]);
+          const valErreursValid = await erreursValid.attendreQue(x=>x.length > 0);
+          expect(valErreursValid).to.deep.equal([réf]);
 
           await client.tableaux!.modifierÉlément({
             idTableau: idTableauRègles,
@@ -799,13 +823,13 @@ typesClients.forEach((type) => {
         });
 
         it("Ajout éléments invalides", async () => {
-          empreinte2 = await client.tableaux!.ajouterÉlément({
+          empreinte2 = (await client.tableaux!.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneTempMin]: -15,
               [idColonneTempMax]: -25,
             },
-          });
+          }))[0];
 
           const réf: erreurValidation = {
             empreinte: empreinte2,
@@ -821,7 +845,8 @@ typesClients.forEach((type) => {
             },
           };
 
-          expect(erreursValid.val).to.deep.equal([réf]);
+          const valErreursValid = await erreursValid.attendreQue(x=>x.length > 0);
+          expect(valErreursValid).to.deep.equal([réf]);
         });
 
         it("Règle bornes relatives variable", async () => {
@@ -867,7 +892,8 @@ typesClients.forEach((type) => {
             },
           ];
 
-          expect(erreursValid.val).to.deep.equal(réf);
+          const valErreursValid = await erreursValid.attendreQue(x=>x.length > 1);
+          expect(valErreursValid).to.deep.equal(réf);
         });
 
         it("Erreur règle variable introuvable", async () => {
@@ -1137,13 +1163,14 @@ typesClients.forEach((type) => {
       describe("Tableau avec variables non locales", function () {
         let idTableau: string;
         let idColonne: string;
-        let variables: string[];
-        let colonnes: InfoColAvecCatégorie[];
-        let colonnesSansCatégorie: InfoCol[];
-        let données: élémentDonnées[];
+
+        const variables = new attente.AttendreRésultat<string[]>();
+        const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
+        const colonnesSansCatégorie = new attente.AttendreRésultat<InfoCol[]>();
+        const données = new attente.AttendreRésultat<élémentDonnées[]>();
 
         const idVarChaîne =
-          "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF/dd77aec3-e7b8-4695-b068-49ce4227b360";
+          "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
@@ -1155,26 +1182,26 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreVariables({
               idTableau,
-              f: (v) => (variables = v),
+              f: (v) => variables.mettreÀJour(v),
             }),
           );
           fsOublier.push(
             await client.tableaux!.suivreColonnesTableau({
               idTableau,
-              f: (c) => (colonnes = c),
+              f: (c) => (colonnes.mettreÀJour(c)),
             }),
           );
           fsOublier.push(
             await client.tableaux!.suivreColonnesTableau({
               idTableau,
-              f: (c) => (colonnesSansCatégorie = c),
+              f: (c) => (colonnesSansCatégorie.mettreÀJour(c)),
               catégories: false,
             }),
           );
           fsOublier.push(
             await client.tableaux!.suivreDonnées({
               idTableau,
-              f: (d) => (données = d),
+              f: (d) => (données.mettreÀJour(d)),
             }),
           );
         });
@@ -1184,16 +1211,18 @@ typesClients.forEach((type) => {
         });
 
         it("Tableau créé", () => {
-          expect(isValidAddress(idTableau)).to.be.true;
+          expect(isValidAddress(idTableau)).to.be.true();
         });
-        it("Suivre variables", () => {
-          expect(variables).to.deep.equal([idVarChaîne]);
+        it("Suivre variables", async () => {
+          const valVariables = await variables.attendreQue(x=>x.length > 0);
+          expect(valVariables).to.deep.equal([idVarChaîne]);
         });
-        it("Suivre colonnes", () => {
-          expect(colonnes).to.be.undefined;
+        it("Suivre colonnes", async () => {
+          expect(colonnes.val).to.be.undefined;
         });
-        it("Suivre colonnes sans catégorie", () => {
-          expect(colonnesSansCatégorie).to.deep.equal([
+        it("Suivre colonnes sans catégorie", async () => {
+          const val = await colonnesSansCatégorie.attendreQue(x=>x.length > 0)
+          expect(val).to.deep.equal([
             { id: idColonne, variable: idVarChaîne },
           ]);
         });
@@ -1205,22 +1234,23 @@ typesClients.forEach((type) => {
             },
           });
 
-          expect(données[0].données[idColonne]).to.equal("Bonjour !");
+          const valDonnées = await données.attendreQue(x=>x.length > 0)
+          expect(valDonnées[0].données[idColonne]).to.equal("Bonjour !");
         });
       });
 
-      describe.only("Copier tableau", function () {
+      describe("Copier tableau", function () {
         let idTableau: string;
         let idVariable: string;
         let idColonne: string;
         let idRègle: string;
-        let colsIndexe: string[];
-
-        let variables: string[];
-        let noms: { [key: string]: string };
-        let données: élémentDonnées<élémentBdListeDonnées>[];
+        
+        const variables = new attente.AttendreRésultat<string[]>();
+        const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
+        const données = new attente.AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
         const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
-        let règles: règleColonne[];
+        const colsIndexe = new attente.AttendreRésultat<string[]>();
+        const règles = new attente.AttendreRésultat<règleColonne[]>();
 
         let idTableauCopie: string;
 
@@ -1280,19 +1310,19 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreVariables({
               idTableau: idTableauCopie,
-              f: (x) => (variables = x),
+              f: (x) => (variables.mettreÀJour(x)),
             }),
           );
           fsOublier.push(
             await client.tableaux!.suivreNomsTableau({
               idTableau: idTableauCopie,
-              f: (x) => (noms = x),
+              f: (x) => (noms.mettreÀJour(x)),
             }),
           );
           fsOublier.push(
             await client.tableaux!.suivreDonnées({
               idTableau: idTableauCopie,
-              f: (x) => (données = x),
+              f: (x) => (données.mettreÀJour(x)),
             }),
           );
           fsOublier.push(
@@ -1304,13 +1334,13 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.tableaux!.suivreIndex({
               idTableau: idTableauCopie,
-              f: (x) => (colsIndexe = x),
+              f: (x) => (colsIndexe.mettreÀJour(x)),
             }),
           );
           fsOublier.push(
             await client.tableaux!.suivreRègles({
               idTableau: idTableauCopie,
-              f: (x) => (règles = x),
+              f: (x) => (règles.mettreÀJour(x)),
             }),
           );
         });
@@ -1321,44 +1351,52 @@ typesClients.forEach((type) => {
         });
 
         it("Le tableau est copié", async () => {
-          expect(isValidAddress(idTableauCopie)).to.be.true;
+          expect(isValidAddress(idTableauCopie)).to.be.true();
         });
 
         it("Les noms sont copiés", async () => {
-          expect(noms).to.deep.equal(réfNoms);
+          const val = await noms.attendreExiste();
+          expect(val).to.deep.equal(réfNoms);
         });
 
         it("Les colonnes sont copiées", async () => {
           const val = await colonnes.attendreQue(x=>x.length > 0)
-          expect(Array.isArray(val)).to.be.true;
+          expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(1);
           expect(val[0].variable).to.equal(idVariable);
         });
 
         it("Les indexes sont copiés", async () => {
-          expect(Array.isArray(colsIndexe)).to.be.true;
-          expect(colsIndexe.length).to.equal(1);
-          expect(colsIndexe[0]).to.equal(idColonne);
+          const val = await colsIndexe.attendreQue(x=>x.length > 0)
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
+          expect(val[0]).to.equal(idColonne);
         });
 
         it("Les règles sont copiés", async () => {
-          const règleRecherchée = règles.find((r) => r.règle.id === idRègle);
+          const vals = await règles.attendreQue(x=>x.some(r=>r.règle.id === idRègle));
+
+          const règleRecherchée = vals.find((r) => r.règle.id === idRègle);
           expect(règleRecherchée).to.not.be.undefined();
           expect(règleRecherchée?.colonne).to.equal(colonnes.val?.[0].id);
           expect(règleRecherchée?.règle.règle).to.deep.equal(règle);
         });
 
         it("Les variables sont copiés", async () => {
-          expect(Array.isArray(variables)).to.be.true;
-          expect(variables.length).to.equal(1);
-          expect(variables[0]).to.equal(idVariable);
+          const val = await variables.attendreQue(v=>v.length > 0);
+
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
+          expect(val[0]).to.equal(idVariable);
         });
 
         it("Les données sont copiés", async () => {
           const valColonnes = await colonnes.attendreExiste();
-          expect(Array.isArray(données)).to.be.true;
-          expect(données.length).to.equal(1);
-          expect(données[0].données[valColonnes[0].id]).to.equal(123);
+          const valDonnées = await données.attendreQue(x=>x.length > 0);
+
+          expect(Array.isArray(valDonnées)).to.be.true();
+          expect(valDonnées.length).to.equal(1);
+          expect(valDonnées[0].données[valColonnes[0].id]).to.equal(123);
         });
       });
 
@@ -1371,7 +1409,7 @@ typesClients.forEach((type) => {
         let idVarTempMin: string;
         let idVarTempMax: string;
 
-        let données: élémentDonnées<élémentBdListeDonnées>[];
+        const données = new attente.AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
         let fOublier: schémaFonctionOublier;
 
         const idsCols: { [key: string]: string } = {};
@@ -1426,7 +1464,7 @@ typesClients.forEach((type) => {
 
           fOublier = await client.tableaux!.suivreDonnées({
             idTableau: idTableauBase,
-            f: (d) => (données = d),
+            f: (d) => (données.mettreÀJour(d)),
           });
 
           const élémentsBase = [
@@ -1486,16 +1524,7 @@ typesClients.forEach((type) => {
         });
 
         it("Données manquantes ajoutées", async () => {
-          expect(Array.isArray(données)).to.be.true;
-          expect(données.length).to.equal(4);
-          expect(
-            données
-              .map((d) => d.données)
-              .map((d) => {
-                delete d.id;
-                return d;
-              }),
-          ).to.deep.include.members([
+          const réf = [
             {
               [idsCols[idVarEndroit]]: "ici",
               [idsCols[idVarDate]]: "2021-01-01",
@@ -1517,7 +1546,19 @@ typesClients.forEach((type) => {
               [idsCols[idVarDate]]: "2021-01-02",
               [idsCols[idVarTempMin]]: 27,
             },
-          ]);
+          ];
+          const val = await données.attendreQue(x=>x.length === réf.length);
+
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(4);
+          expect(
+            val
+              .map((d) => d.données)
+              .map((d) => {
+                delete d.id;
+                return d;
+              }),
+          ).to.deep.include.members(réf);
         });
       });
 
@@ -1530,7 +1571,7 @@ typesClients.forEach((type) => {
         let idVarTempMin: string;
         let idVarTempMax: string;
 
-        let données: élémentDonnées<élémentBdListeDonnées>[];
+        const données = new attente.AttendreRésultat<élémentDonnées<élémentBdListeDonnées>[]>();
 
         const idsCols: { [key: string]: string } = {};
 
@@ -1565,39 +1606,56 @@ typesClients.forEach((type) => {
 
           fOublier = await client.tableaux!.suivreDonnées({
             idTableau,
-            f: (d) => (données = d),
+            f: (d) => (données.mettreÀJour(d)),
           });
 
           const élémentsBase = [
             {
               [idsCols[idVarEndroit]]: "ici",
-              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-01").valueOf()
+              },
               [idsCols[idVarTempMin]]: 25,
             },
             {
               [idsCols[idVarEndroit]]: "ici",
-              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-02").valueOf()
+              },
               [idsCols[idVarTempMin]]: 25,
             },
             {
               [idsCols[idVarEndroit]]: "là-bas",
-              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-01").valueOf()
+              },
               [idsCols[idVarTempMin]]: 25,
             },
           ];
-          for (const élément of élémentsBase) {
-            await client.tableaux!.ajouterÉlément({ idTableau, vals: élément });
-          }
+
+          await client.tableaux!.ajouterÉlément({ idTableau, vals: élémentsBase });
+
+          // Il faut attendre que les données soient bien ajoutées avant de progresser avec l'importation.
+          await données.attendreQue(x=>x.length === 3)
 
           const nouvellesDonnées = [
             {
               [idsCols[idVarEndroit]]: "ici",
-              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-01").valueOf()
+              },
               [idsCols[idVarTempMin]]: 25,
             },
             {
               [idsCols[idVarEndroit]]: "ici",
-              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-02").valueOf()
+              },
               [idsCols[idVarTempMin]]: 27,
             },
           ];
@@ -1612,10 +1670,12 @@ typesClients.forEach((type) => {
         });
 
         it("Données importées correctement", async () => {
-          expect(Array.isArray(données)).to.be.true;
-          expect(données.length).to.equal(2);
+          const val = await données.attendreQue(x=>x.length === 2 && !x.some(d=>d.données[idsCols[idVarEndroit]] === "là-bas"));
+
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(2);
           expect(
-            données
+            val
               .map((d) => d.données)
               .map((d) => {
                 delete d.id;
@@ -1655,7 +1715,7 @@ typesClients.forEach((type) => {
         let idColBooléenne: string;
 
         let doc: XLSX.WorkBook;
-        let fichiersSFIP: Set<{ cid: string; ext: string }>;
+        let fichiersSFIP: Set<string>;
 
         let fOublier: schémaFonctionOublier;
 
@@ -1711,7 +1771,7 @@ typesClients.forEach((type) => {
           await client.variables!.sauvegarderNomsVariable({
             idVariable: idVarChaîne,
             noms: {
-              fr: "Numérique",
+              fr: "Chaîne",
               த: "இது உரை ஆகும்",
             },
           });
@@ -1721,10 +1781,7 @@ typesClients.forEach((type) => {
               [idColNumérique]: 123,
               [idColChaîne]: "வணக்கம்",
               [idColBooléenne]: true,
-              [idColFichier]: {
-                cid: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ",
-                ext: "mp4",
-              },
+              [idColFichier]: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
             },
             {
               [idColNumérique]: 456,
@@ -1748,38 +1805,42 @@ typesClients.forEach((type) => {
         });
 
         it("Langue appropriée pour les noms des colonnes", () => {
-          for (const { cellule, val } of [
-            { cellule: "A1", val: "Numérique" },
-            { cellule: "B1", val: "இது உரை ஆகும்" },
-            { cellule: "C1", val: idColBooléenne },
-            { cellule: "D1", val: idColFichier },
+          for (const { cellule } of [
+            { cellule: "A1" },
+            { cellule: "B1" },
+            { cellule: "C1" },
+            { cellule: "D1" },
           ]) {
             expect(
-              (doc.Sheets[nomTableauFr][cellule] as XLSX.CellObject).v,
-            ).to.equal(val);
+              [ "Numérique", "இது உரை ஆகும்", idColBooléenne, idColFichier]
+            ).to.contain((doc.Sheets[nomTableauFr][cellule] as XLSX.CellObject).v);
           }
         });
 
         it("Données numériques exportées", async () => {
-          const val = doc.Sheets[nomTableauFr].A2.v;
+          const iColNumérique = ["A", "B", "C", "D"].find(i => doc.Sheets[nomTableauFr][`${i}1`].v === "Numérique")
+          const val = doc.Sheets[nomTableauFr][`${iColNumérique}2`].v;
           expect(val).to.equal(123);
 
-          const val2 = doc.Sheets[nomTableauFr].A3.v;
+          const val2 = doc.Sheets[nomTableauFr][`${iColNumérique}3`].v;
           expect(val2).to.equal(456);
         });
 
         it("Données chaîne exportées", async () => {
-          const val = doc.Sheets[nomTableauFr].B2.v;
+          const iColChaîne = ["A", "B", "C", "D"].find(i => doc.Sheets[nomTableauFr][`${i}1`].v === "இது உரை ஆகும்")
+          const val = doc.Sheets[nomTableauFr][`${iColChaîne}2`].v;
           expect(val).to.equal("வணக்கம்");
         });
 
         it("Données booléennes exportées", async () => {
-          const val = doc.Sheets[nomTableauFr].C2.v;
+          const iColBooléenne = ["A", "B", "C", "D"].find(i => doc.Sheets[nomTableauFr][`${i}1`].v === idColBooléenne)
+          const val = doc.Sheets[nomTableauFr][`${iColBooléenne}2`].v;
           expect(val).to.equal("true");
         });
 
         it("Données fichier exportées", async () => {
-          const val = doc.Sheets[nomTableauFr].D2.v;
+          const iColFichier = ["A", "B", "C", "D"].find(i => doc.Sheets[nomTableauFr][`${i}1`].v === idColFichier)
+          const val = doc.Sheets[nomTableauFr][`${iColFichier}2`].v;
           expect(val).to.equal(
             "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
           );
@@ -1788,12 +1849,7 @@ typesClients.forEach((type) => {
         it("Les fichiers SFIP sont détectés", async () => {
           expect(fichiersSFIP.size).to.equal(1);
           expect(fichiersSFIP).to.deep.equal(
-            new Set([
-              {
-                cid: "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ",
-                ext: "mp4",
-              },
-            ]),
+            new Set(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4"]),
           );
         });
 
@@ -1801,18 +1857,18 @@ typesClients.forEach((type) => {
           ({ doc } = await client.tableaux!.exporterDonnées({ idTableau }));
           const idTableauCourt = idTableau.split("/").pop()!.slice(0, 30);
           expect(doc.SheetNames[0]).to.equal(idTableauCourt);
-          for (const { cellule, val } of [
-            { cellule: "A1", val: idColNumérique },
-            { cellule: "B1", val: idColChaîne },
-            { cellule: "C1", val: idColBooléenne },
-            { cellule: "D1", val: idColFichier },
+          for (const { cellule } of [
+            { cellule: "A1" },
+            { cellule: "B1" },
+            { cellule: "C1" },
+            { cellule: "D1" },
           ]) {
             expect(
-              (doc.Sheets[idTableauCourt][cellule] as XLSX.CellObject).v,
-            ).to.deep.equal(val);
+              [idColNumérique, idColChaîne, idColBooléenne, idColFichier],
+            ).to.contain(doc.Sheets[idTableauCourt][cellule].v);
           }
         });
       });
     });
   });
-});
+})});

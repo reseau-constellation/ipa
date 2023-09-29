@@ -40,6 +40,7 @@ import { cholqij } from "@/dates.js";
 import { isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
 import { isValidAddress } from "@orbitdb/core";
+import { cidEtFichierValide } from "@/epingles.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -535,7 +536,7 @@ export default class Tableaux {
   }: {
     é: élémentBdListeDonnées;
     colonnes: InfoColAvecCatégorie[];
-    fichiersSFIP: Set<{ cid: string; ext: string }>;
+    fichiersSFIP: Set<string>;
     langues?: string[];
   }): Promise<élémentBdListeDonnées> {
     const extraireTraduction = async ({
@@ -561,22 +562,18 @@ export default class Tableaux {
     ): Promise<string | number | undefined> => {
       switch (typeof v) {
         case "object": {
-          if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
-            const { cid, ext } = v as { cid: string; ext: string };
-            if (!cid || !ext) return;
-            fichiersSFIP.add({ cid, ext });
-
-            return `${cid}.${ext}`;
-          } else {
-            return JSON.stringify(v);
-          }
+          return JSON.stringify(v);
         }
         case "boolean":
           return v.toString();
         case "number":
           return v;
         case "string":
-          if (catégorie === "chaîne" && isValidAddress(v)) {
+          if (["audio", "image", "vidéo", "fichier"].includes(catégorie)) {
+            fichiersSFIP.add(v);
+
+            return v;
+          } else if (catégorie === "chaîne" && isValidAddress(v)) {
             return await extraireTraduction({ adresseBdTrads: v, langues });
           }
           return v;
@@ -624,7 +621,7 @@ export default class Tableaux {
   }): Promise<donnéesBdExportées> {
     /* Créer le document si nécessaire */
     doc = doc || utils.book_new();
-    const fichiersSFIP: Set<{ cid: string; ext: string }> = new Set();
+    const fichiersSFIP: Set<string> = new Set();
 
     let nomTableau: string;
     const idCourtTableau = idTableau.split("/").pop()!;
@@ -638,15 +635,16 @@ export default class Tableaux {
     } else {
       nomTableau = idCourtTableau;
     }
+    
+    const données = await uneFois(
+      (f: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) =>
+      this.suivreDonnées({ idTableau, f }),
+    );
 
     const colonnes = await uneFois(
       (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
         this.suivreColonnesTableau({ idTableau, f }),
-    );
-
-    const données = await uneFois(
-      (f: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) =>
-        this.suivreDonnées({ idTableau, f }),
+      c => !!c && c.length >= [...new Set(données.map(d=>Object.keys(d.données).filter(x=>x!=="id")).flat())].length
     );
 
     let donnéesPourXLSX = await Promise.all(
@@ -670,7 +668,10 @@ export default class Tableaux {
           (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
             this.client.variables!.suivreNomsVariable({ idVariable: idVar, f }),
         );
-        const idCol = colonnes.find((c) => c.variable === idVar)!.id!;
+        const idCol = colonnes.find((c) => c.variable === idVar)?.id;
+        if(!idCol) throw new Error(
+          `Colonnne pour variable ${idVar} non trouvée parmis les colonnnes :\n${JSON.stringify(colonnes, undefined, 2)}.`
+          );
         nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
       }
       donnéesPourXLSX = donnéesPourXLSX.map((d) =>
@@ -697,8 +698,12 @@ export default class Tableaux {
     vals,
   }: {
     idTableau: string;
-    vals: T;
-  }): Promise<string> {
+    vals: T | T[];
+  }): Promise<string[]> {
+    if (!Array.isArray(vals)) {
+      vals = [vals]
+    }
+
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
@@ -717,13 +722,16 @@ export default class Tableaux {
         schéma: schémaDonnéesTableau,
       },
     );
-    vals = await this.vérifierClefsÉlément({ idTableau, élément: vals });
-    const id = uuidv4();
-    const empreinte = await bdDonnées.add({ ...vals, id });
+    
+    const empreintes: string[] = []
+    for (const val of vals) {
+      const id = uuidv4();
+      empreintes.push(await bdDonnées.add({ ...val, id }));
+    }
 
     await fOublier();
 
-    return empreinte;
+    return empreintes;
   }
 
   async modifierÉlément({
@@ -735,6 +743,7 @@ export default class Tableaux {
     vals: { [key: string]: élémentsBd | undefined };
     empreintePrécédente: string;
   }): Promise<string> {
+
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
@@ -759,12 +768,11 @@ export default class Tableaux {
       empreinte: empreintePrécédente,
     })) as { [key: string]: élémentsBd };
 
-    let élément = Object.assign({}, précédent, vals);
+    const élément = Object.assign({}, précédent, vals);
 
     Object.keys(vals).map((c: string) => {
       if (vals[c] === undefined) delete élément[c];
     });
-    élément = await this.vérifierClefsÉlément({ idTableau, élément });
 
     if (!élémentsÉgaux(élément, précédent)) {
       const résultat = await Promise.all([
@@ -920,19 +928,21 @@ export default class Tableaux {
     }
   }
 
-  async convertirDonnées({
+  async convertirDonnées<T extends élémentBdListeDonnées[]>({
     idTableau,
     données,
-    conversions,
+    conversions = {},
+    importerFichiers,
     cheminBaseFichiers,
     donnéesExistantes,
   }: {
     idTableau: string;
-    données: élémentBdListeDonnées[];
-    conversions: { [col: string]: conversionDonnées };
+    données: T;
+    conversions?: { [col: string]: conversionDonnées };
+    importerFichiers: boolean;
     cheminBaseFichiers?: string;
     donnéesExistantes?: élémentBdListeDonnées[];
-  }): Promise<élémentBdListeDonnées[]> {
+  }): Promise<T> {
     const colonnes = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
         return await this.suivreColonnesTableau({ idTableau, f: fSuivi });
@@ -952,18 +962,19 @@ export default class Tableaux {
     );
 
     const fichiersDéjàAjoutés: {
-      [chemin: string]: { cid: string; ext: string };
+      [chemin: string]: string;
     } = {};
+
     const ajouterFichierÀSFIP = async ({
       chemin,
     }: {
       chemin: string;
-    }): Promise<{ ext: string; cid: string } | undefined> => {
+    }): Promise<string | undefined> => {
       if (isNode || isElectronMain) {
         const fs = await import("fs");
         const path = await import("path");
 
-        const ext = chemin.split(".").pop() || "";
+
         const cheminAbsolut = cheminBaseFichiers
           ? path.resolve(cheminBaseFichiers, chemin)
           : chemin;
@@ -973,10 +984,13 @@ export default class Tableaux {
           return fichiersDéjàAjoutés[cheminAbsolut];
 
         const contenuFichier = fs.readFileSync(cheminAbsolut);
-        const cid = await this.client.ajouterÀSFIP({ fichier: contenuFichier });
-        fichiersDéjàAjoutés[chemin] = { ext, cid };
+        const cid = await this.client.ajouterÀSFIP({ fichier: {
+          path: path.basename(cheminAbsolut),
+          content: contenuFichier
+        } });
+        fichiersDéjàAjoutés[chemin] = cid;
 
-        return { ext, cid };
+        return cid;
       }
       return undefined;
     };
@@ -1058,13 +1072,11 @@ export default class Tableaux {
         case "image":
         case "vidéo":
         case "fichier": {
-          if (typeof val === "string") {
-            try {
-              return JSON.parse(val);
-            } catch {
-              const infoFichier = await ajouterFichierÀSFIP({ chemin: val });
-              return infoFichier || val;
-            }
+          if (typeof val === "string" && importerFichiers) {
+            if (cidEtFichierValide(val)) return val;
+
+            const infoFichier = await ajouterFichierÀSFIP({ chemin: val });
+            return infoFichier || val;
           }
           return val;
         }
@@ -1206,20 +1218,20 @@ export default class Tableaux {
       }
     };
 
-    for (const file of données) {
+    for (const élément of données) {
       for (const c of colonnes) {
         if (c.catégorie) {
           const { type, catégorie } = c.catégorie;
-          const val = file[c.id];
+          const val = élément[c.id];
           if (val === undefined) continue;
 
           const conversion = conversions[c.id];
 
           if (type === "simple") {
-            file[c.id] = await convertir({ val, catégorie, conversion });
+            élément[c.id] = await convertir({ val, catégorie, conversion });
           } else {
             const valListe = typeof val === "string" ? JSON.parse(val) : val;
-            file[c.id] = Array.isArray(valListe)
+            élément[c.id] = Array.isArray(valListe)
               ? await Promise.all(
                   valListe.map(
                     async (v) =>
@@ -1257,6 +1269,7 @@ export default class Tableaux {
       idTableau,
       données,
       conversions,
+      importerFichiers: true,
       cheminBaseFichiers,
       donnéesExistantes: donnéesTableau.map((x) => x.données),
     });
@@ -1275,13 +1288,14 @@ export default class Tableaux {
       }
     }
 
+    for (const e of àEffacer) {
+      await this.effacerÉlément({ idTableau, empreinte: e });
+    }
+
     for (const n of nouveaux) {
       await this.ajouterÉlément({ idTableau, vals: n });
     }
 
-    for (const e of àEffacer) {
-      await this.effacerÉlément({ idTableau, empreinte: e });
-    }
   }
 
   async sauvegarderNomsTableau({
