@@ -934,7 +934,7 @@ export default class Projets extends ComposanteClientListe<string> {
       ? await Promise.all(
           [...fichiersSFIP].map(async (fichier) => {
             return {
-              nom: fichier.split("/")[1],
+              nom: fichier.replace("/", "-"),
               octets: await toBuffer(
                 this.client.obtItérableAsyncSFIP({ id: fichier }),
               ),
