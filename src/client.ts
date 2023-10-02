@@ -1112,8 +1112,8 @@ export class ClientConstellation extends EventEmitter {
     schéma?: JSONSchemaType<T>;
     f: schémaFonctionSuivi<T>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: TypedKeyValue<T>) => {
-      const valeurs = bd ? await bd.allAsJSON() : ({} as T);
+    const fFinale = async (bd: KeyValue) => {
+      const valeurs = (bd ? Object.fromEntries((await bd.all()).map(x=>[x.key, x.value])) : {}) as T;
       await f(valeurs);
     };
     return await this.suivreBd({ id, type: "keyvalue", schéma, f: fFinale });

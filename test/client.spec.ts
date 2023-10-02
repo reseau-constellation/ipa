@@ -1035,7 +1035,7 @@ if (isNode || isElectronMain) {
           id: string,
           f: schémaFonctionSuivi<branche>
         ) => {
-          return await client.suivreBd<{ [clef: string]: number }>({
+          return await client.suivreBd({
             id,
             type: "keyvalue",
             schéma: schémaKVNumérique,
