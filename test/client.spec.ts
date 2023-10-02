@@ -1335,7 +1335,7 @@ if (isNode || isElectronMain) {
           fSuivreCondition: (état: boolean) => void
         ): Promise<schémaFonctionOublier> => {
           const f = async (bd: TypedKeyValue<{ [clef: string]: number }>) =>
-            fSuivreCondition(Object.keys(await bd.all()).length > 0);
+            fSuivreCondition(Object.keys(await bd.allAsJSON()).length > 0);
           return await client.suivreBd({
             id,
             type: "keyvalue",
@@ -1646,7 +1646,7 @@ if (isNode || isElectronMain) {
         await bdDic2.put("clef 3", 3);
 
         await client.combinerBdsDict({ bdBase: bdDic1, bd2: bdDic2 });
-        const données = await bdDic1.all();
+        const données = await bdDic1.allAsJSON();
 
         expect(données).to.deep.equal({
           "clef 1": 1,
