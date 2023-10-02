@@ -70,11 +70,11 @@ import {
   préparerOrbite,
 } from "@/orbite.js";
 import {
-  TypedFeed,
-  TypedKeyValue
+  TypedKeyValue,
+  TypedSet
 } from "@constl/bohr-db";
 import {
-  FeedDatabaseType
+  SetDatabaseType
 } from "@constl/orbit-db-kuiper"
 import Protocoles from "./protocoles.js";
 
@@ -723,7 +723,7 @@ export class ClientConstellation extends EventEmitter {
     return this.idCompte!;
   }
 
-  async copierContenuBdListe<T extends { [clef: string]: élémentsBd }>({
+  async copierContenuBdDic<T extends { [clef: string]: élémentsBd }>({
     bdBase,
     nouvelleBd,
     clef,
@@ -734,34 +734,34 @@ export class ClientConstellation extends EventEmitter {
     clef: string;
     schéma: JSONSchemaType<T>;
   }): Promise<void> {
-    const idBdListeInit = await bdBase.get(clef);
+    const idBdDicInit = await bdBase.get(clef);
 
-    if (typeof idBdListeInit !== "string") return;
+    if (typeof idBdDicInit !== "string") return;
 
-    const { bd: bdListeInit, fOublier: fOublierInit } =
+    const { bd: bdDicInit, fOublier: fOublierInit } =
       await this.orbite!.ouvrirBdTypée({
-        id: idBdListeInit,
-        type: "feed",
+        id: idBdDicInit,
+        type: "keyvalue",
         schéma,
       });
 
-    const idNouvelleBdListe = await nouvelleBd.get(clef);
-    if (!idNouvelleBdListe) throw new Error("La nouvelle BD n'existait pas.");
-    if (typeof idNouvelleBdListe !== "string")
-      throw new Error(`${idNouvelleBdListe} n'est pas une adresse Orbite.`);
+    const idNouvelleBdDic = await nouvelleBd.get(clef);
+    if (!idNouvelleBdDic) throw new Error("La nouvelle BD n'existait pas.");
+    if (typeof idNouvelleBdDic !== "string")
+      throw new Error(`${idNouvelleBdDic} n'est pas une adresse Orbite.`);
 
-    const { bd: nouvelleBdListe, fOublier: fOublierNouvelle } =
+    const { bd: nouvelleBdDic, fOublier: fOublierNouvelle } =
       await this.orbite!.ouvrirBdTypée({
-        id: idNouvelleBdListe,
-        type: "feed",
+        id: idNouvelleBdDic,
+        type: "keyvalue",
         schéma,
       });
 
-    const données = (await bdListeInit.all()).map((x) => x.value);
+    const données = await bdDicInit.all();
 
     await Promise.all(
       données.map(async (d) => {
-        await nouvelleBdListe.add(d);
+        await nouvelleBdDic.put(d.key, d.value);
       })
     );
     fOublierInit();
@@ -800,17 +800,17 @@ export class ClientConstellation extends EventEmitter {
         await fOublier2();
         break;
       }
-      case "feed": {
+      case "set": {
         const { bd: bdBase, fOublier: fOublierBase } =
           await this.orbite!.ouvrirBd({
             id: idBdBase,
-            type: "feed",
+            type: "set",
           });
         const { bd: bd2, fOublier: fOublier2 } = await this.orbite!.ouvrirBd({
           id: idBd2,
-          type: "feed",
+          type: "set",
         });
-        await this.combinerBdsListe({
+        await this.combinerBdsEnsemble({
           bdBase,
           bd2,
         });
@@ -862,31 +862,31 @@ export class ClientConstellation extends EventEmitter {
     }
   }
 
-  async combinerBdsListe<T extends élémentsBd>({
+  async combinerBdsEnsemble<T extends élémentsBd>({
     bdBase,
     bd2,
   }: {
-    bdBase: TypedFeed<T> | FeedDatabaseType;
-    bd2: TypedFeed<T> | FeedDatabaseType;
+    bdBase: TypedSet<T> | SetDatabaseType;
+    bd2: TypedSet<T> | SetDatabaseType;
   }): Promise<void>;
-  async combinerBdsListe<T extends { [key: string]: élémentsBd }>({
+  async combinerBdsEnsemble<T extends { [key: string]: élémentsBd }>({
     bdBase,
     bd2,
     index,
   }: {
-    bdBase: TypedFeed<T> | FeedDatabaseType;
-    bd2: TypedFeed<T> | FeedDatabaseType;
+    bdBase: TypedSet<T> | SetDatabaseType;
+    bd2: TypedSet<T> | SetDatabaseType;
     index: string[];
   }): Promise<void>;
-  async combinerBdsListe<T extends élémentsBd | { [key: string]: élémentsBd }>({
+  async combinerBdsEnsemble<T extends élémentsBd | { [key: string]: élémentsBd }>({
     bdBase,
     bd2,
     index,
   }: {
     bdBase:
-      | TypedFeed<{ [key: string]: élémentsBd } | élémentsBd>
-      | FeedDatabaseType;
-    bd2: TypedFeed<{ [key: string]: élémentsBd } | élémentsBd> | FeedDatabaseType;
+      | TypedSet<{ [key: string]: élémentsBd } | élémentsBd>
+      | SetDatabaseType;
+    bd2: TypedSet<{ [key: string]: élémentsBd } | élémentsBd> | SetDatabaseType;
     index?: string[];
   }): Promise<void> {
     const contenuBdBase = await bdBase.all();
@@ -897,7 +897,7 @@ export class ClientConstellation extends EventEmitter {
 
       if (index) {
         if (typeof valBd2 !== "object")
-          throw new Error(`Erreur combinaison listes : ${typeof valBd2}`);
+          throw new Error(`Erreur combinaison ensembles : ${typeof valBd2}`);
         const existant = contenuBdBase.find(
           (x) =>
             typeof x.value === "object" &&
@@ -931,7 +931,7 @@ export class ClientConstellation extends EventEmitter {
                 }
               }
             }
-            await bdBase.remove(existant.hash);
+            await bdBase.del(existant.value as T);
             await bdBase.add(combiné);
           }
         }
@@ -957,7 +957,7 @@ export class ClientConstellation extends EventEmitter {
     type: "keyvalue";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier>;
-  async suivreBd<U extends élémentsBd = élémentsBd, T = TypedFeed<U>>({
+  async suivreBd<U extends élémentsBd = élémentsBd, T = TypedSet<U>>({
     id,
     f,
     type,
@@ -965,7 +965,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
-    type: "feed";
+    type: "set";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier>;
   async suivreBd({
@@ -983,7 +983,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
-    type?: "keyvalue" | "feed";
+    type?: "keyvalue" | "set";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier> {
     if (!isValidAddress(id)) throw new Error(`Adresse "${id}" non valide.`);
@@ -995,7 +995,7 @@ export class ClientConstellation extends EventEmitter {
     const lancerSuivi = () => {
       // Alambiqué, mais apparemment nécessaire pour TypeScript !
       const promesseBd = schéma
-        ? type === "feed"
+        ? type === "set"
           ? this.orbite!.ouvrirBdTypée({
               id,
               type,
@@ -1301,7 +1301,7 @@ export class ClientConstellation extends EventEmitter {
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBd({
       id,
-      type: "feed",
+      type: "set",
       schéma,
       f: async (bd) => {
         const éléments = renvoyerValeur
@@ -1310,51 +1310,6 @@ export class ClientConstellation extends EventEmitter {
         await f(éléments);
       },
     });
-  }
-
-  async obtÉlémentBdListeSelonEmpreinte<T extends élémentsBd>({
-    bd,
-    empreinte,
-  }: {
-    bd: TypedFeed<T>;
-    empreinte: string;
-  }): Promise<T | undefined> {
-    const élément = (await bd.all()).find((e) => e.hash === empreinte);
-    return élément?.value;
-  }
-
-  async effacerÉlémentDeBdListe<T extends élémentsBd>({
-    bd,
-    élément,
-  }: {
-    bd: TypedFeed<T>;
-    élément: T | ((e: { value: T; hash: string }) => boolean);
-  }): Promise<void> {
-    const retrouvé = (await bd.all()).find((e) =>
-      typeof élément === "function" ? élément(e) : deepEqual(e.value, élément)
-    );
-
-    if (retrouvé) await bd.remove(retrouvé.hash);
-  }
-
-  async effacerÉlémentsDeBdListe<T extends élémentsBd>({
-    bd,
-    élément,
-  }: {
-    bd: TypedFeed<T>;
-    élément: T | ((e: { value: T; hash: string }) => boolean);
-  }): Promise<void> {
-    const tous = await bd.all();
-    await Promise.all(
-      tous.map(async (e: { value: T; hash: string }) => {
-        const àEffacer =
-          typeof élément === "function"
-            ? élément(e)
-            : deepEqual(e.value, élément);
-        if (àEffacer) return await bd.remove(e.hash);
-        return Promise.resolve();
-      })
-    );
   }
 
   async suivreTypeObjet({
@@ -1760,28 +1715,6 @@ export class ClientConstellation extends EventEmitter {
       f: fFinale,
       fBranche,
     });
-  }
-
-  async rechercherBdListe<T extends élémentsBd>({
-    id,
-    f,
-    schéma,
-  }: {
-    id: string;
-    f: (e: { value: T; hash: string }) => boolean;
-    schéma: JSONSchemaType<T>;
-  }): Promise<{ value: T; hash: string } | undefined> {
-    const { bd, fOublier } = await this.orbite!.ouvrirBdTypée<T>({
-      id,
-      type: "feed",
-      schéma,
-    });
-    const élément = (await bd.all()).find((e: { value: T; hash: string }) =>
-      f(e)
-    );
-
-    await fOublier();
-    return élément;
   }
 
   async obtFichierSFIP({
@@ -2222,7 +2155,7 @@ export class ClientConstellation extends EventEmitter {
       let fOublierSuiviBd: schémaFonctionOublier;
       if (type === "keyvalue") {
         fOublierSuiviBd = await this.suivreBdDic({ id, f: fSuivreBd });
-      } else if (type === "feed") {
+      } else if (type === "set") {
         fOublierSuiviBd = await this.suivreBdListe({ id, f: fSuivreBd });
       } else {
         fOublierSuiviBd = faisRien; // Rien à suivre mais il faut l'inclure quand même !

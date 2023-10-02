@@ -33,7 +33,6 @@ import {
   type différenceBDTableauSupplémentaire,
   type différenceTableauxBds,
   type donnéesBdExportées,
-  type infoTableau,
   type infoTableauAvecId,
   type schémaSpécificationBd,
   schémaBdTableauxDeBd,
@@ -230,7 +229,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     await bdNuée.set("métadonnées", idBdMétadonnées);
 
     const idBdMotsClefs = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "set",
       optionsAccès,
     });
     await bdNuée.set("motsClefs", idBdMotsClefs);
@@ -252,10 +251,7 @@ export default class Nuée extends ComposanteClientListe<string> {
 
   async enleverDeMesNuées({ idNuée }: { idNuée: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.obtBd();
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdRacine,
-      élément: idNuée,
-    });
+    await bdRacine.del(idNuée);
     await fOublier();
   }
 
@@ -333,7 +329,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdMotsClefs,
-          type: "feed",
+          type: "set",
           schéma: schémaBdMotsClefsNuée,
         });
       const motsClefs = (await bdMotsClefs.all()).map((x) => x.value);
@@ -838,7 +834,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idNuée,
-      type: "feed",
+      type: "set",
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
@@ -847,7 +843,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const { bd: bdMotsClefs, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdMotsClefs,
-        type: "feed",
+        type: "set",
         schéma: schémaBdMotsClefsNuée,
       });
     for (const id of idsMotsClefs) {
@@ -867,7 +863,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idNuée,
-      type: "feed",
+      type: "set",
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
@@ -876,14 +872,11 @@ export default class Nuée extends ComposanteClientListe<string> {
     const { bd: bdMotsClefs, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdMotsClefs,
-        type: "feed",
+        type: "set",
         schéma: schémaBdMotsClefsNuée,
       });
 
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdMotsClefs,
-      élément: idMotClef,
-    });
+    await  bdMotsClefs.del(idMotClef);
 
     await fOublier();
   }
@@ -1327,16 +1320,13 @@ export default class Nuée extends ComposanteClientListe<string> {
     }
 
     const { bd: bdTableaux, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée<{
-        [tbl: string]: infoTableau;
-      }>({ id: idBdTableaux, type: "keyvalue", schéma: schémaBdTableauxDeBd });
+      await this.client.orbite!.ouvrirBdTypée({ id: idBdTableaux, type: "keyvalue", schéma: schémaBdTableauxDeBd });
 
     clefTableau = clefTableau || uuidv4();
     const idTableau = await this.client.tableaux!.créerTableau({
       idBd: idNuée,
     });
     await bdTableaux.set(idTableau, {
-      position: Object.keys(bdTableaux.all).length,
       clef: clefTableau,
     });
 
@@ -1391,7 +1381,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       id: string,
       fSuivreBranche: schémaFonctionSuivi<infoTableauAvecId[]>
     ) => {
-      const fFinaleTableaux = (infos: { [clef: string]: infoTableau }) => {
+      const fFinaleTableaux = (infos: { [id: string]: {clef: string} }) => {
         const tableaux: infoTableauAvecId[] = Object.entries(infos).map(
           ([idTableau, info]) => {
             return {
@@ -2424,7 +2414,7 @@ export default class Nuée extends ComposanteClientListe<string> {
                 idCompte: auteur,
                 élément: d,
                 valid: erreursÉléments.filter(
-                  (e) => e.empreinte == d.empreinte
+                  (e) => e.id == d.id
                 ),
               };
             })
@@ -2844,10 +2834,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   async effacerNuée({ idNuée }: { idNuée: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs
     const { bd: bdRacine, fOublier } = await this.obtBd();
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdRacine,
-      élément: idNuée,
-    });
+    await bdRacine.del(idNuée);
     await fOublier();
 
     // Et puis maintenant aussi effacer les tableaux et la Nuée elle-même

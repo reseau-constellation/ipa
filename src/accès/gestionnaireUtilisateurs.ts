@@ -12,13 +12,13 @@ import {
   GestionnaireOrbite,
   gestionnaireOrbiteGénéral,
 } from "@/orbite.js";
-import { TypedFeed } from "@constl/bohr-db";
+import { TypedSet } from "@constl/bohr-db";
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
 >;
 
 export const suivreBdAccès = async (
-  bd: TypedFeed<élémentBdAccès>,
+  bd: TypedSet<élémentBdAccès>,
   f: schémaFonctionSuivi<élémentBdAccès[]>
 ): Promise<schémaFonctionOublier> => {
   const fFinale = async () => {
@@ -41,7 +41,7 @@ class AccèsUtilisateur extends EventEmitter {
   idBd: string;
 
   idBdAccès?: string;
-  bdAccès?: TypedFeed<élémentBdAccès>;
+  bdAccès?: TypedSet<élémentBdAccès>;
   fOublierBd?: schémaFonctionOublier;
   oublierSuivi?: schémaFonctionOublier;
   autorisés: string[];

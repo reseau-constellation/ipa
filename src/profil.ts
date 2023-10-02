@@ -111,7 +111,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     const idBdContacts = await this.client.obtIdBd({
       nom: "contacts",
       racine: idBdProfil,
-      type: "feed",
+      type: "set",
     });
     if (!idBdContacts) {
       throw new Error(
@@ -121,7 +121,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
 
     const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdContacts,
-      type: "feed",
+      type: "set",
       schéma: schémaContactProfil,
     });
     await bd.add({ type, contact });
@@ -139,7 +139,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     const idBdContacts = await this.client.obtIdBd({
       nom: "contacts",
       racine: idBdProfil,
-      type: "feed",
+      type: "set",
     });
     if (!idBdContacts) {
       throw new Error(
@@ -149,15 +149,18 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
 
     const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdContacts,
-      type: "feed",
+      type: "set",
       schéma: schémaContactProfil,
     });
-    this.client.effacerÉlémentsDeBdListe({
-      bd,
-      élément: (x) =>
-        x.value.type === type &&
-        (contact === undefined || x.value.contact === contact),
-    });
+    const tous = await bd.all();
+    const àEffacer = tous.filter((x) =>
+      x.value.type === type &&
+      (contact === undefined || x.value.contact === contact)
+    )
+    await Promise.all(
+      àEffacer.map(async (c) => await bd.del(c.value))
+    );
+
     await fOublier();
   }
 

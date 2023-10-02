@@ -21,26 +21,6 @@ export type règleVariableAvecId<T extends règleVariable = règleVariable> = {
   règle: T;
 };
 
-export const schémaRègleVariableAvecId: JSONSchemaType<règleVariableAvecId> = {
-  type: "object",
-  properties: {
-    id: { type: "string" },
-    règle: {
-      type: "object",
-      properties: {
-        typeRègle: { type: "string" },
-        détails: {
-          type: "object",
-          required: [],
-          additionalProperties: true,
-        },
-      },
-      required: ["détails", "typeRègle"],
-    },
-  },
-  required: ["id", "règle"],
-};
-
 export type règleVariable =
   | règleExiste
   | règleBornes
@@ -56,40 +36,6 @@ export type règleColonne<T extends règleVariable = règleVariable> = {
   règle: règleVariableAvecId<T>;
   source: sourceRègle;
   colonne: string;
-};
-
-export const schémaRègleColonne: JSONSchemaType<règleColonne> = {
-  type: "object",
-  properties: {
-    colonne: { type: "string" },
-    source: {
-      type: "object",
-      properties: {
-        id: { type: "string" },
-        type: { type: "string" },
-      },
-      required: ["id", "type"],
-    },
-    règle: {
-      type: "object",
-      properties: {
-        id: { type: "string" },
-        règle: {
-          type: "object",
-          properties: {
-            détails: {
-              type: "object",
-              required: [],
-            },
-            typeRègle: { type: "string" },
-          },
-          required: ["détails", "typeRègle"],
-        },
-      },
-      required: ["id", "règle"],
-    },
-  },
-  required: ["colonne", "règle", "source"],
 };
 
 export type détailsRègleVariable =
@@ -169,7 +115,7 @@ export type Erreur<T extends règleVariable = règleVariable> = {
 };
 
 export type erreurValidation<T extends règleVariable = règleVariable> = {
-  empreinte: string;
+  id: string;
   erreur: Erreur<T>;
 };
 
@@ -221,9 +167,9 @@ export function générerFonctionRègle<
       return (vals: élémentDonnées<T>[]): erreurValidation<R>[] => {
         const nonValides = vals.filter((v) => v.données[colonne] === undefined);
         return nonValides.map((v: élémentDonnées<T>) => {
-          const { empreinte } = v;
+          const { id } = v;
           const erreur: erreurValidation<R> = {
-            empreinte,
+            id,
             erreur: { règle },
           };
           return erreur;
@@ -239,9 +185,9 @@ export function générerFonctionRègle<
           (v) => !validerCatégorieVal({ val: v.données[colonne], catégorie })
         );
         return nonValides.map((v: élémentDonnées<T>) => {
-          const { empreinte } = v;
+          const { id } = v;
           const erreur: erreurValidation<R> = {
-            empreinte,
+            id,
             erreur: { règle },
           };
           return erreur;
@@ -307,9 +253,9 @@ export function générerFonctionRègle<
           (v) => !validerBorneVal({ val: v, fComp })
         );
         return nonValides.map((v: élémentDonnées<T>) => {
-          const { empreinte } = v;
+          const { id } = v;
           const erreur: erreurValidation<R> = {
-            empreinte,
+            id,
             erreur: { règle },
           };
           return erreur;
@@ -335,9 +281,9 @@ export function générerFonctionRègle<
             !options.includes(v.données[colonne])
         );
         return nonValides.map((v: élémentDonnées<T>) => {
-          const { empreinte } = v;
+          const { id } = v;
           return {
-            empreinte,
+            id,
             colonne,
             erreur: { règle },
           };

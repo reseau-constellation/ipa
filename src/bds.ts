@@ -135,11 +135,6 @@ const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
   ],
 };
 
-export type infoTableau = {
-  clef: string;
-  position: number;
-};
-
 export type différenceBds =
   | différenceBDTableauSupplémentaire
   | différenceBDTableauManquant
@@ -166,18 +161,17 @@ export type différenceTableauxBds<
   différence: T;
 };
 
-export type infoTableauAvecId = infoTableau & { id: string };
+export type infoTableauAvecId = { clef: string, id: string };
 
-export const schémaInfoTableau: JSONSchemaType<infoTableau> = {
+export const schémaInfoTableau: JSONSchemaType<{clef: string}> = {
   type: "object",
   properties: {
     clef: { type: "string" },
-    position: { type: "integer" },
   },
-  required: ["clef", "position"],
+  required: ["clef"],
 };
 export const schémaBdTableauxDeBd: JSONSchemaType<{
-  [idTableau: string]: infoTableau;
+  [idTableau: string]: {clef: string};
 }> = {
   type: "object",
   additionalProperties: schémaInfoTableau,
@@ -266,19 +260,19 @@ export default class BDs extends ComposanteClientListe<string> {
     await bdBD.set("descriptions", idBdDescr);
 
     const idBdTableaux = await this.client.créerBdIndépendante({
-      type: "keyvalue",
+      type: "ordered-keyvalue",
       optionsAccès,
     });
     await bdBD.set("tableaux", idBdTableaux);
 
     const idBdMotsClefs = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "set",
       optionsAccès,
     });
     await bdBD.set("motsClefs", idBdMotsClefs);
 
     const idBdNuées = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "set",
       optionsAccès,
     });
     await bdBD.set("nuées", idBdNuées);
@@ -289,7 +283,7 @@ export default class BDs extends ComposanteClientListe<string> {
       const { bd: bdRacine, fOublier: fOublierRacine } =
         await this.client.orbite!.ouvrirBdTypée({
           id: await this.obtIdBd(),
-          type: "feed",
+          type: "set",
           schéma: schémaBdPrincipale,
         });
       await bdRacine.add(idBdBd);
@@ -304,7 +298,7 @@ export default class BDs extends ComposanteClientListe<string> {
   async ajouterÀMesBds({ idBd }: { idBd: string }): Promise<void> {
     const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
-      type: "feed",
+      type: "set",
       schéma: schémaBdPrincipale,
     });
     await bd.add(idBd);
@@ -314,10 +308,10 @@ export default class BDs extends ComposanteClientListe<string> {
   async enleverDeMesBds({ idBd }: { idBd: string }): Promise<void> {
     const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
-      type: "feed",
+      type: "set",
       schéma: schémaBdPrincipale,
     });
-    await this.client.effacerÉlémentDeBdListe({ bd, élément: idBd });
+    await bd.del(idBd);
     await fOublier();
   }
 
@@ -398,7 +392,7 @@ export default class BDs extends ComposanteClientListe<string> {
       const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdMotsClefs,
-          type: "feed",
+          type: "set",
           schéma: schémaStructureBdMotsClefs,
         });
       const motsClefs = (await bdMotsClefs.all()).map((x) => x.value);
@@ -414,7 +408,7 @@ export default class BDs extends ComposanteClientListe<string> {
       const { bd: bdNuées, fOublier: fOublierBdNuées } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdNuées,
-          type: "feed",
+          type: "set",
           schéma: schémaStructureBdNuées,
         });
       const nuées = (await bdNuées.all()).map((x) => x.value);
@@ -432,27 +426,27 @@ export default class BDs extends ComposanteClientListe<string> {
     const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idNouvelleBdTableaux,
-        type: "keyvalue",
+        type: "ordered-keyvalue",
         schéma: schémaBdTableauxDeBd,
       });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdTableaux,
-          type: "keyvalue",
+          type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
-      const tableaux = await bdTableaux.allAsJSON();
+      const tableaux = await bdTableaux.all();
 
       await fOublierBdTableaux();
-      for (const idTableau of Object.keys(tableaux)) {
+      for (const {key: idTableau, value: tableau} of tableaux) {
         const idNouveauTableau: string =
           await this.client.tableaux!.copierTableau({
             id: idTableau,
             idBd: idNouvelleBd,
             copierDonnées,
           });
-        await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
+        await nouvelleBdTableaux.set(idNouveauTableau, tableau);
       }
     }
 
@@ -895,14 +889,14 @@ export default class BDs extends ComposanteClientListe<string> {
     schémaBd,
     idNuéeUnique,
     clefTableau,
-    empreintePrécédente,
+    idÉlément,
   }: {
     vals: { [key: string]: élémentsBd | undefined };
     schémaBd: schémaSpécificationBd;
     idNuéeUnique: string;
     clefTableau: string;
-    empreintePrécédente: string;
-  }): Promise<string> {
+    idÉlément: string;
+  }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClefDeBdUnique({
@@ -920,7 +914,7 @@ export default class BDs extends ComposanteClientListe<string> {
     return await this.client.tableaux!.modifierÉlément({
       idTableau: idTableau,
       vals,
-      empreintePrécédente,
+      idÉlément,
     });
   }
 
@@ -928,12 +922,12 @@ export default class BDs extends ComposanteClientListe<string> {
     schémaBd,
     idNuéeUnique,
     clefTableau,
-    empreinte,
+    idÉlément,
   }: {
     schémaBd: schémaSpécificationBd;
     idNuéeUnique: string;
     clefTableau: string;
-    empreinte: string;
+    idÉlément: string;
   }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
@@ -951,7 +945,7 @@ export default class BDs extends ComposanteClientListe<string> {
 
     return await this.client.tableaux!.effacerÉlément({
       idTableau: idTableau,
-      empreinte,
+      id: idÉlément,
     });
   }
 
@@ -1008,14 +1002,14 @@ export default class BDs extends ComposanteClientListe<string> {
   async modifierÉlémentDeTableauParClef({
     idBd,
     clefTableau,
-    empreinteÉlément,
+    idÉlément,
     vals,
   }: {
     idBd: string;
     clefTableau: string;
-    empreinteÉlément: string;
+    idÉlément: string;
     vals: { [key: string]: élémentsBd | undefined };
-  }): Promise<string> {
+  }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreIdTableauParClef({
@@ -1028,18 +1022,18 @@ export default class BDs extends ComposanteClientListe<string> {
     return await this.client.tableaux!.modifierÉlément({
       idTableau,
       vals,
-      empreintePrécédente: empreinteÉlément,
+      idÉlément,
     });
   }
 
   async effacerÉlémentDeTableauParClef({
     idBd,
     clefTableau,
-    empreinteÉlément,
+    idÉlément,
   }: {
     idBd: string;
     clefTableau: string;
-    empreinteÉlément: string;
+    idÉlément: string;
   }): Promise<void> {
     const idTableau = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
@@ -1052,7 +1046,7 @@ export default class BDs extends ComposanteClientListe<string> {
     );
     this.client.tableaux!.effacerÉlément({
       idTableau,
-      empreinte: empreinteÉlément,
+      id: idÉlément,
     });
   }
 
@@ -1352,7 +1346,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idBd,
-      type: "feed",
+      type: "set",
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1361,7 +1355,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const { bd: bdMotsClefs, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdMotsClefs,
-        type: "feed",
+        type: "set",
         schéma: schémaStructureBdMotsClefs,
       });
     for (const id of idsMotsClefs) {
@@ -1381,7 +1375,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idBd,
-      type: "feed",
+      type: "set",
     });
     if (!idBdMotsClefs) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1390,14 +1384,11 @@ export default class BDs extends ComposanteClientListe<string> {
     const { bd: bdMotsClefs, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdMotsClefs,
-        type: "feed",
+        type: "set",
         schéma: schémaStructureBdMotsClefs,
       });
-
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdMotsClefs,
-      élément: idMotClef,
-    });
+    
+    await bdMotsClefs.del(idMotClef);
 
     await fOublier();
   }
@@ -1413,7 +1404,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdNuées = await this.client.obtIdBd({
       nom: "nuées",
       racine: idBd,
-      type: "feed",
+      type: "set",
     });
     if (!idBdNuées) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1421,7 +1412,7 @@ export default class BDs extends ComposanteClientListe<string> {
 
     const { bd: bdNuées, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNuées,
-      type: "feed",
+      type: "set",
       schéma: schémaStructureBdNuées,
     });
     for (const id of idsNuées) {
@@ -1441,7 +1432,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdNuées = await this.client.obtIdBd({
       nom: "nuée",
       racine: idBd,
-      type: "feed",
+      type: "set",
     });
     if (!idBdNuées) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1449,14 +1440,11 @@ export default class BDs extends ComposanteClientListe<string> {
 
     const { bd: bdNuées, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdNuées,
-      type: "feed",
+      type: "set",
       schéma: schémaStructureBdNuées,
     });
 
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdNuées,
-      élément: idNuée,
-    });
+    await bdNuées.del(idNuée);
 
     await fOublier();
   }
@@ -1471,7 +1459,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
     if (!idBdTableaux) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1480,14 +1468,13 @@ export default class BDs extends ComposanteClientListe<string> {
     const { bd: bdTableaux, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdTableaux,
-        type: "keyvalue",
+        type: "ordered-keyvalue",
         schéma: schémaBdTableauxDeBd,
       });
 
     clefTableau = clefTableau || uuidv4();
     const idTableau = await this.client.tableaux!.créerTableau({ idBd });
     await bdTableaux.set(idTableau, {
-      position: Object.keys(bdTableaux.all).length,
       clef: clefTableau,
     });
 
@@ -1807,7 +1794,7 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     f: schémaFonctionSuivi<infoTableauAvecId[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (infos: { [clef: string]: infoTableau }) => {
+    const fFinale = async (infos: { [id: string]: {clef: string} }) => {
       const tableaux: infoTableauAvecId[] = Object.entries(infos).map(
         ([id, info]) => {
           return {
@@ -1972,18 +1959,18 @@ export default class BDs extends ComposanteClientListe<string> {
               ["numérique", "catégorique"].includes(c.catégorie.catégorie)
           );
 
-          const déjàVus: { empreinte: string; idColonne: string }[] = [];
+          const déjàVus: { id: string; idColonne: string }[] = [];
           const nCellulesÉrronnées = erreurs
             .map((e) => {
               return {
-                empreinte: e.empreinte,
+                id: e.id,
                 idColonne: e.erreur.règle.colonne,
               };
             })
             .filter((x) => {
               const déjàVu = déjàVus.find(
                 (y) =>
-                  y.empreinte === x.empreinte && y.idColonne === x.idColonne
+                  y.id === x.id && y.idColonne === x.idColonne
               );
               if (déjàVu) {
                 return false;
@@ -2257,10 +2244,10 @@ export default class BDs extends ComposanteClientListe<string> {
     // D'abord effacer l'entrée dans notre liste de BDs
     const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
-      type: "feed",
+      type: "set",
       schéma: schémaBdPrincipale,
     });
-    await this.client.effacerÉlémentDeBdListe({ bd: bdRacine, élément: idBd });
+    await bdRacine.del(idBd);
     await fOublier();
 
     // Et puis maintenant aussi effacer les données et la BD elle-même
@@ -2274,13 +2261,13 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdTableaux,
-          type: "keyvalue",
+          type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
       const tableaux: string[] = Object.keys(bdTableaux.all);

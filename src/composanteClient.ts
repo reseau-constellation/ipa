@@ -14,7 +14,7 @@ import { cacheSuivi } from "./décorateursCache.js";
 import { faisRien, ignorerNonDéfinis } from "@constl/utils-ipa";
 
 import { JSONSchemaType } from "ajv";
-import { TypedFeed, TypedKeyValue } from "@constl/bohr-db";
+import { TypedSet, TypedKeyValue } from "@constl/bohr-db";
 
 // Obtenu de https://stackoverflow.com/a/54520829
 type KeysMatching<T, V> = {
@@ -24,7 +24,7 @@ type KeysMatching<T, V> = {
 export class ComposanteClient {
   client: ClientConstellation;
   clef: KeysMatching<structureBdCompte, string | undefined>;
-  typeBd: "keyvalue" | "feed";
+  typeBd: "keyvalue" | "set";
 
   constructor({
     client,
@@ -33,7 +33,7 @@ export class ComposanteClient {
   }: {
     client: ClientConstellation;
     clef: KeysMatching<structureBdCompte, string | undefined>;
-    typeBd: "keyvalue" | "feed";
+    typeBd: "keyvalue" | "set";
   }) {
     this.client = client;
     this.clef = clef;
@@ -220,13 +220,13 @@ export class ComposanteClientListe<
     super({
       client,
       clef,
-      typeBd: "feed",
+      typeBd: "set",
     });
     this.schémaBdPrincipale = schémaBdPrincipale;
   }
 
   async obtBd(): Promise<{
-    bd: TypedFeed<T>;
+    bd: TypedSet<T>;
     fOublier: schémaFonctionOublier;
   }> {
     const id = await this.obtIdBd();
@@ -234,7 +234,7 @@ export class ComposanteClientListe<
 
     return await this.client.orbite!.ouvrirBdTypée({
       id,
-      type: "feed",
+      type: "set",
       schéma: this.schémaBdPrincipale,
     });
   }
@@ -290,7 +290,7 @@ export class ComposanteClientListe<
             const idBd = await this.client.obtIdBd({
               nom: this.clef,
               racine: id,
-              type: "feed",
+              type: "set",
             });
             return await fSuivreBd(idBd);
           },

@@ -546,7 +546,7 @@ typesClients.forEach((type) => {
         describe("Toujours inclure les miennes", function () {
           let idNuée: string;
           let idCol: string;
-          let empreinte: string;
+          let id: string;
 
           const fsOublier: schémaFonctionOublier[] = [];
           const résultatChezMoi = new utilsTestAttente.AttendreRésultat<
@@ -593,7 +593,7 @@ typesClients.forEach((type) => {
               idNuée,
               licence: "ODbl-1_0",
             });
-            empreinte = (
+            id = (
               await clients[1].bds.ajouterÉlémentÀTableauUnique({
                 schémaBd: schémaNuée,
                 idNuéeUnique: idNuée,
@@ -618,7 +618,7 @@ typesClients.forEach((type) => {
                   [idCol]: 3,
                   id: val[0].élément.données["id"],
                 },
-                empreinte,
+                id,
               },
               valid: [],
             };
@@ -632,7 +632,7 @@ typesClients.forEach((type) => {
         });
 
         describe("Toujours inclure les miennes - idNuée non rejoignable", function () {
-          let empreinte: string;
+          let id: string;
 
           const idNuée =
             "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"; // tuNeMeTrouverasPas
@@ -684,7 +684,7 @@ typesClients.forEach((type) => {
               });
             fsOublier.push(fOublierChezLesAutres);
 
-            empreinte = (
+            id = (
               await clients[1].bds.ajouterÉlémentÀTableauUnique({
                 schémaBd,
                 idNuéeUnique: idNuée,
@@ -709,7 +709,7 @@ typesClients.forEach((type) => {
                   [idCol]: 3,
                   id: val[0].élément.données["id"],
                 },
-                empreinte,
+                id,
               },
               valid: [],
             };

@@ -188,7 +188,7 @@ export default class Épingles {
           f: fSuivre,
         });
         this.fsOublier[id] = fOublierBd;
-      } else if (bd.type === "feed") {
+      } else if (bd.type === "set") {
         const fOublierBd = await this.client.suivreBdListe({ id, f: fSuivre });
         this.fsOublier[id] = fOublierBd;
       }

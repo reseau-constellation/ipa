@@ -36,7 +36,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { attente } from "@constl/utils-tests";
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("BDs", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -1167,7 +1167,7 @@ typesClients.forEach((type) => {
         });
 
         describe("Score validité", function () {
-          let empreinteÉlément: string;
+          let idÉlément: string;
 
           it("`undefined` pour commencer", async () => {
             const score = await attenteScore.attendreExiste();
@@ -1175,7 +1175,7 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout d'éléments", async () => {
-            empreinteÉlément = (
+            idÉlément = (
               await client.tableaux!.ajouterÉlément({
                 idTableau,
                 vals: {
@@ -1204,7 +1204,7 @@ typesClients.forEach((type) => {
             await client.tableaux!.modifierÉlément({
               idTableau,
               vals: { [idColNumérique]: 12 },
-              empreintePrécédente: empreinteÉlément,
+              idÉlément,
             });
             const score = await attenteScore.attendreQue(
               (s) => !!s.valide && s.valide > 2 / 3
