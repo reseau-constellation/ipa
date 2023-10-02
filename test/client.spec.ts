@@ -18,7 +18,7 @@ import { expect } from "aegir/chai";
 
 import { générerClientsInternes } from "./ressources/utils.js";
 import { statutDispositif } from "@/reseau.js";
-import { FeedStoreTypé, KeyValueStoreTypé } from "@/orbite.js";
+import { TypedFeed, TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
@@ -271,7 +271,7 @@ if (isNode || isElectronMain) {
     describe("Suivre BD", function () {
       let idBd: string;
       let fOublier: schémaFonctionOublier;
-      let bd: KeyValueStoreTypé<{ [clef: string]: number }>;
+      let bd: TypedKeyValue<{ [clef: string]: number }>;
       let fOublierBd: schémaFonctionOublier;
 
       const attendreDonnées = new attente.AttendreRésultat<{
@@ -287,9 +287,9 @@ if (isNode || isElectronMain) {
         }));
         await bd.put("a", 1);
         const fSuivre = async (
-          _bd: KeyValueStoreTypé<{ [clef: string]: number }>
+          _bd: TypedKeyValue<{ [clef: string]: number }>
         ) => {
-          const d = await _bd.all();
+          const d = await _bd.allAsJSON();
           attendreDonnées.mettreÀJour(d);
         };
         const fOublierSuivre = await client.suivreBd({
@@ -324,8 +324,8 @@ if (isNode || isElectronMain) {
     describe("Suivre BD de fonction", function () {
       let idBd: string;
       let idBd2: string;
-      let bd: KeyValueStoreTypé<{ [clef: string]: number }>;
-      let bd2: KeyValueStoreTypé<{ [clef: string]: number }>;
+      let bd: TypedKeyValue<{ [clef: string]: number }>;
+      let bd2: TypedKeyValue<{ [clef: string]: number }>;
       let fOublierBd: schémaFonctionOublier;
       let fOublierBd2: schémaFonctionOublier;
       let fSuivre: (id: string) => Promise<void>;
@@ -414,7 +414,7 @@ if (isNode || isElectronMain) {
 
     describe("Suivre BD de clef", function () {
       let idBdBase: string;
-      let bdBase: KeyValueStoreTypé<{ [clef: string]: string }>;
+      let bdBase: TypedKeyValue<{ [clef: string]: string }>;
       let idBd: string | undefined;
 
       const données = new attente.AttendreRésultat<{
@@ -970,7 +970,7 @@ if (isNode || isElectronMain) {
 
     describe("Rechercher élément BD liste selon empreinte", function () {
       let idBd: string;
-      let bd: FeedStoreTypé<string>;
+      let bd: TypedFeed<string>;
       let fOublier: schémaFonctionOublier;
 
       before(async () => {
@@ -1039,7 +1039,7 @@ if (isNode || isElectronMain) {
             id,
             type: "keyvalue",
             schéma: schémaKVNumérique,
-            f: async (_bd) => f(await _bd.all()),
+            f: async (_bd) => f(await _bd.allAsJSON()),
           });
         };
         const fSuivi = (x: branche[]) => {
@@ -1138,7 +1138,7 @@ if (isNode || isElectronMain) {
               type: "keyvalue",
               schéma: schémaKVNumérique,
               f: async (bd) => {
-                const vals: number[] = Object.values(await bd.all());
+                const vals: number[] = Object.values(await bd.allAsJSON());
                 await f(vals);
               },
             });
@@ -1202,7 +1202,7 @@ if (isNode || isElectronMain) {
             type: "keyvalue",
             schéma: schémaKVNumérique,
             f: async (bd) => {
-              const vals: number[] = Object.values(await bd.all());
+              const vals: number[] = Object.values(await bd.allAsJSON());
               return await f(vals);
             },
           });
@@ -1334,7 +1334,7 @@ if (isNode || isElectronMain) {
           id: string,
           fSuivreCondition: (état: boolean) => void
         ): Promise<schémaFonctionOublier> => {
-          const f = async (bd: KeyValueStoreTypé<{ [clef: string]: number }>) =>
+          const f = async (bd: TypedKeyValue<{ [clef: string]: number }>) =>
             fSuivreCondition(Object.keys(await bd.all()).length > 0);
           return await client.suivreBd({
             id,
@@ -1442,7 +1442,7 @@ if (isNode || isElectronMain) {
       let idRacine: string;
       let idBd: string;
 
-      let bdRacine: KeyValueStoreTypé<{ [clef: string]: string }>;
+      let bdRacine: TypedKeyValue<{ [clef: string]: string }>;
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {

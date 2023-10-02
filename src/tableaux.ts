@@ -277,7 +277,7 @@ export default class Tableaux {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const noms = await bdNoms.all();
+      const noms = await bdNoms.allAsJSON();
       await fOublierNoms();
       await this.sauvegarderNomsTableau({ idTableau: idNouveauTableau, noms });
     }

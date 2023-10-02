@@ -3,7 +3,7 @@ import {
   ComposedStorage,
   LRUStorage,
   type Storage,
-  type Identities,
+  type IdentitiesType,
   type OrbitDB,
   Entry,
 } from "@orbitdb/core";
@@ -50,7 +50,7 @@ const ContrôleurAccès =
     address,
   }: {
     orbitdb: OrbitDB;
-    identities: Identities;
+    identities: IdentitiesType;
     address?: string;
   }) => {
     storage =
@@ -87,12 +87,12 @@ const ContrôleurAccès =
     await gestAccès.ajouterÉléments([{ id: write!, rôle: MODÉRATEUR }]);
 
     const canAppend = async (
-      entry: Entry<élémentBdAccès>
+      entry: Entry
     ): Promise<boolean> => {
       // Pour l'instant, on ne peut qu'ajouter des membres
       if (entry.payload.op !== "ADD" || !entry.payload.value) return false;
 
-      const { rôle, id: idAjout } = entry.payload.value;
+      const { rôle, id: idAjout } = entry.payload.value as élémentBdAccès;
 
       const rôleValide = rôles.includes(rôle);
 

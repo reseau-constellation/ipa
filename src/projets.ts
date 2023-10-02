@@ -25,7 +25,7 @@ import { traduire, zipper, uneFois } from "@constl/utils-ipa";
 import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import { schémaCopiéDe } from "./bds.js";
-import { FeedStoreTypé, KeyValueStoreTypé } from "./orbite.js";
+import { TypedFeed, TypedKeyValue } from "@constl/bohr-db";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
@@ -195,7 +195,7 @@ export default class Projets extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const noms = await bdNoms.all();
+      const noms = await bdNoms.allAsJSON();
       await fOublierNoms();
       await this.sauvegarderNomsProjet({ idProjet: idNouveauProjet, noms });
     }
@@ -208,7 +208,7 @@ export default class Projets extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const descriptions = await bdDescr.all();
+      const descriptions = await bdDescr.allAsJSON();
       await fOublierDescr();
       await this.sauvegarderDescriptionsProjet({
         idProjet: idNouveauProjet,
@@ -303,7 +303,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async _obtBdNoms({ idProjet }: { idProjet: string }): Promise<{
-    bd: KeyValueStoreTypé<structureBdNoms>;
+    bd: TypedKeyValue<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
     const idBdNoms = await this.client.obtIdBd({
@@ -365,7 +365,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async _obtBdDescr({ idProjet }: { idProjet: string }): Promise<{
-    bd: KeyValueStoreTypé<structureBdNoms>;
+    bd: TypedKeyValue<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
     const idBdDescr = await this.client.obtIdBd({
@@ -430,7 +430,7 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet,
   }: {
     idProjet: string;
-  }): Promise<{ bd: FeedStoreTypé<string>; fOublier: schémaFonctionOublier }> {
+  }): Promise<{ bd: TypedFeed<string>; fOublier: schémaFonctionOublier }> {
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idProjet,
@@ -494,7 +494,7 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet,
   }: {
     idProjet: string;
-  }): Promise<{ bd: FeedStoreTypé<string>; fOublier: schémaFonctionOublier }> {
+  }): Promise<{ bd: TypedFeed<string>; fOublier: schémaFonctionOublier }> {
     const idBdBds = await this.client.obtIdBd({
       nom: "bds",
       racine: idProjet,

@@ -8,6 +8,7 @@ import {
   type OrbitDB,
   AccessController,
   isValidAddress,
+  KeyValue
 } from "@orbitdb/core";
 
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
@@ -65,13 +66,16 @@ import { JSONSchemaType } from "ajv";
 import {
   gestionnaireOrbiteGénéral,
   type GestionnaireOrbite,
-  KeyValueStoreTypé,
-  FeedStoreTypé,
   Store,
-  KeyValueStore,
-  FeedStore,
   préparerOrbite,
 } from "@/orbite.js";
+import {
+  TypedFeed,
+  TypedKeyValue
+} from "@constl/bohr-db";
+import {
+  FeedDatabaseType
+} from "@constl/orbit-db-kuiper"
 import Protocoles from "./protocoles.js";
 
 type IPFSAccessController = Awaited<
@@ -177,7 +181,7 @@ const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 export class ClientConstellation extends EventEmitter {
   _opts: optsConstellation;
 
-  bdCompte?: KeyValueStoreTypé<structureBdCompte>;
+  bdCompte?: TypedKeyValue<structureBdCompte>;
   orbite?: GestionnaireOrbite;
   sfip?: SFIP;
   idNodeSFIP?: IDResult;
@@ -725,8 +729,8 @@ export class ClientConstellation extends EventEmitter {
     clef,
     schéma,
   }: {
-    bdBase: KeyValueStoreTypé<T>;
-    nouvelleBd: KeyValueStoreTypé<T>;
+    bdBase: TypedKeyValue<T>;
+    nouvelleBd: TypedKeyValue<T>;
     clef: string;
     schéma: JSONSchemaType<T>;
   }): Promise<void> {
@@ -824,28 +828,24 @@ export class ClientConstellation extends EventEmitter {
     bdBase,
     bd2,
   }: {
-    bdBase: KeyValueStore;
-    bd2: KeyValueStore;
+    bdBase: KeyValue;
+    bd2: KeyValue;
   }): Promise<void>;
   async combinerBdsDict<T extends { [clef: string]: unknown }>({
     bdBase,
     bd2,
   }: {
-    bdBase: KeyValueStoreTypé<T>;
-    bd2: KeyValueStoreTypé<T>;
+    bdBase: TypedKeyValue<T>;
+    bd2: TypedKeyValue<T>;
   }): Promise<void>;
   async combinerBdsDict<T extends { [clef: string]: unknown }>({
     bdBase,
     bd2,
   }: {
-    bdBase: KeyValueStoreTypé<T> | KeyValueStore;
-    bd2: KeyValueStoreTypé<T> | KeyValueStore;
+    bdBase: TypedKeyValue<T> | KeyValue;
+    bd2: TypedKeyValue<T> | KeyValue;
   }): Promise<void> {
-    let contenuBd2 = await bd2.all();
-    if (Array.isArray(contenuBd2))
-      contenuBd2 = Object.fromEntries(
-        contenuBd2.map((x) => [x.key, x.value])
-      ) as T;
+    const contenuBd2 = Object.fromEntries((await bd2.all()).map((x) => [x.key, x.value]));
 
     for (const [c, v] of Object.entries(contenuBd2)) {
       const valBdBase = await bdBase.get(c);
@@ -866,16 +866,16 @@ export class ClientConstellation extends EventEmitter {
     bdBase,
     bd2,
   }: {
-    bdBase: FeedStoreTypé<T> | FeedStore;
-    bd2: FeedStoreTypé<T> | FeedStore;
+    bdBase: TypedFeed<T> | FeedDatabaseType;
+    bd2: TypedFeed<T> | FeedDatabaseType;
   }): Promise<void>;
   async combinerBdsListe<T extends { [key: string]: élémentsBd }>({
     bdBase,
     bd2,
     index,
   }: {
-    bdBase: FeedStoreTypé<T> | FeedStore;
-    bd2: FeedStoreTypé<T> | FeedStore;
+    bdBase: TypedFeed<T> | FeedDatabaseType;
+    bd2: TypedFeed<T> | FeedDatabaseType;
     index: string[];
   }): Promise<void>;
   async combinerBdsListe<T extends élémentsBd | { [key: string]: élémentsBd }>({
@@ -884,9 +884,9 @@ export class ClientConstellation extends EventEmitter {
     index,
   }: {
     bdBase:
-      | FeedStoreTypé<{ [key: string]: élémentsBd } | élémentsBd>
-      | FeedStore;
-    bd2: FeedStoreTypé<{ [key: string]: élémentsBd } | élémentsBd> | FeedStore;
+      | TypedFeed<{ [key: string]: élémentsBd } | élémentsBd>
+      | FeedDatabaseType;
+    bd2: TypedFeed<{ [key: string]: élémentsBd } | élémentsBd> | FeedDatabaseType;
     index?: string[];
   }): Promise<void> {
     const contenuBdBase = await bdBase.all();
@@ -945,7 +945,7 @@ export class ClientConstellation extends EventEmitter {
 
   async suivreBd<
     U extends { [clef: string]: élémentsBd },
-    T = KeyValueStoreTypé<U>
+    T = TypedKeyValue<U>
   >({
     id,
     f,
@@ -957,7 +957,7 @@ export class ClientConstellation extends EventEmitter {
     type: "keyvalue";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier>;
-  async suivreBd<U extends élémentsBd = élémentsBd, T = FeedStoreTypé<U>>({
+  async suivreBd<U extends élémentsBd = élémentsBd, T = TypedFeed<U>>({
     id,
     f,
     type,
@@ -1093,7 +1093,7 @@ export class ClientConstellation extends EventEmitter {
       fSuivreRacine: (nouvelIdBdCible: string | undefined) => Promise<void>;
     }): Promise<schémaFonctionOublier> => {
       const fSuivreBdRacine = async (
-        bd: KeyValueStoreTypé<Record<typeof clef, string>>
+        bd: TypedKeyValue<Record<typeof clef, string>>
       ) => {
         const nouvelIdBdCible = await bd.get(clef);
         return await fSuivreRacine(nouvelIdBdCible);
@@ -1112,8 +1112,8 @@ export class ClientConstellation extends EventEmitter {
     schéma?: JSONSchemaType<T>;
     f: schémaFonctionSuivi<T>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: KeyValueStoreTypé<T>) => {
-      const valeurs = bd ? await bd.all() : ({} as T);
+    const fFinale = async (bd: TypedKeyValue<T>) => {
+      const valeurs = bd ? await bd.allAsJSON() : ({} as T);
       await f(valeurs);
     };
     return await this.suivreBd({ id, type: "keyvalue", schéma, f: fFinale });
@@ -1316,7 +1316,7 @@ export class ClientConstellation extends EventEmitter {
     bd,
     empreinte,
   }: {
-    bd: FeedStoreTypé<T>;
+    bd: TypedFeed<T>;
     empreinte: string;
   }): Promise<T | undefined> {
     const élément = (await bd.all()).find((e) => e.hash === empreinte);
@@ -1327,7 +1327,7 @@ export class ClientConstellation extends EventEmitter {
     bd,
     élément,
   }: {
-    bd: FeedStoreTypé<T>;
+    bd: TypedFeed<T>;
     élément: T | ((e: { value: T; hash: string }) => boolean);
   }): Promise<void> {
     const retrouvé = (await bd.all()).find((e) =>
@@ -1341,7 +1341,7 @@ export class ClientConstellation extends EventEmitter {
     bd,
     élément,
   }: {
-    bd: FeedStoreTypé<T>;
+    bd: TypedFeed<T>;
     élément: T | ((e: { value: T; hash: string }) => boolean);
   }): Promise<void> {
     const tous = await bd.all();
@@ -1892,15 +1892,11 @@ export class ClientConstellation extends EventEmitter {
     nom: K;
     racine:
       | string
-      | KeyValueStoreTypé<
+      | TypedKeyValue<
           Partial<{ [k in K]: string } & { [clef: string]: unknown }>
         >;
     type?: "feed" | "keyvalue" | "ordered-keyvalue" | "set";
   }): Promise<string | undefined> {
-    let bdRacine: KeyValueStoreTypé<
-      Partial<{ [k in K]: string } & { [clef: string]: unknown }>
-    >;
-    let fOublier: schémaFonctionOublier | undefined;
 
     const schémaBdRacine: JSONSchemaType<
       { [k in K]: string } & { [clef: string]: unknown }
@@ -1913,15 +1909,11 @@ export class ClientConstellation extends EventEmitter {
       required: [],
     };
 
-    if (typeof racine === "string") {
-      ({ bd: bdRacine, fOublier } = await this.orbite!.ouvrirBdTypée({
-        id: racine,
-        type: "keyvalue",
-        schéma: schémaBdRacine,
-      }));
-    } else {
-      bdRacine = racine;
-    }
+    const {bd: bdRacine, fOublier } = typeof racine === "string" ? await this.orbite!.ouvrirBdTypée({
+      id: racine,
+      type: "keyvalue",
+      schéma: schémaBdRacine,
+    }) : {bd: racine, fOublier: faisRien}
 
     const clefRequète = bdRacine.address + ":" + nom;
     await this.verrouObtIdBd.acquire(clefRequète);
@@ -1947,8 +1939,8 @@ export class ClientConstellation extends EventEmitter {
     // Nous devons confirmer que la base de données spécifiée était du bon genre
     if (typeof idBd === "string" && type) {
       try {
-        const { fOublier } = await this.orbite!.ouvrirBd({ id: idBd, type });
-        await fOublier();
+        const { fOublier: fOublierBd } = await this.orbite!.ouvrirBd({ id: idBd, type });
+        await fOublierBd();
 
         this.verrouObtIdBd.release(clefRequète);
         return idBd;

@@ -618,7 +618,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
     if (
-      Object.keys(await bd.all()).includes(idCompte) &&
+      Object.keys(await bd.allAsJSON()).includes(idCompte) &&
       (await bd.get(idCompte)) === "FIABLE"
     ) {
       await bd.del(idCompte);
@@ -694,7 +694,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   async débloquerMembre({ idCompte }: { idCompte: string }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
     if (
-      Object.keys(await bd.all()).includes(idCompte) &&
+      Object.keys(await bd.allAsJSON()).includes(idCompte) &&
       (await bd.get(idCompte)) === "BLOQUÉ"
     ) {
       await bd.del(idCompte);

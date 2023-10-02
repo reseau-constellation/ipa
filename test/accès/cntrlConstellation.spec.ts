@@ -13,9 +13,9 @@ const { générerOrbites } = utilsClientTest;
 
 import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";
-import type { KeyValueStore } from "@/orbite.js";
+import type { KeyValue } from "@orbitdb/core";
 import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import Feed from "@/bdsOrbite/feed.js";
+import {Feed} from "@constl/orbit-db-kuiper";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 
 type TypeContrôleurConstellation = Awaited<
@@ -45,7 +45,7 @@ describe("Contrôleur Constellation", function () {
         let fOublierOrbites: () => Promise<void>;
         let orbites: OrbitDB[];
         let orbitdb1: OrbitDB, orbitdb2: OrbitDB;
-        let bd: KeyValueStore;
+        let bd: KeyValue;
 
         before(async () => {
           enregistrerContrôleurs();
@@ -58,7 +58,7 @@ describe("Contrôleur Constellation", function () {
             AccessController: générerContrôleurConstellation({
               write: orbitdb1.identity.id,
             }),
-          })) as unknown as KeyValueStore;
+          })) as unknown as KeyValue;
         });
 
         after(async () => {
@@ -74,7 +74,7 @@ describe("Contrôleur Constellation", function () {
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
           const bdOrbite2 = (await orbitdb2.open(bd.address, {
             type: "keyvalue",
-          })) as unknown as KeyValueStore;
+          })) as unknown as KeyValue;
 
           const autorisé = await peutÉcrire(bdOrbite2);
 
@@ -90,7 +90,7 @@ describe("Contrôleur Constellation", function () {
 
           const bdOrbite2 = (await orbitdb2.open(
             bd.address
-          )) as unknown as KeyValueStore;
+          )) as unknown as KeyValue;
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
 
@@ -107,10 +107,10 @@ describe("Contrôleur Constellation", function () {
           orbitdb3: OrbitDB,
           orbitdb4: OrbitDB;
 
-        let bdRacine: KeyValueStore;
-        let bdRacine2: KeyValueStore;
-        let bd: KeyValueStore;
-        let bdOrbite2: KeyValueStore;
+        let bdRacine: KeyValue;
+        let bdRacine2: KeyValue;
+        let bd: KeyValue;
+        let bdOrbite2: KeyValue;
 
         before(async () => {
           enregistrerContrôleurs();
@@ -123,21 +123,21 @@ describe("Contrôleur Constellation", function () {
             AccessController: générerContrôleurConstellation({
               write: orbitdb1.identity.id,
             }),
-          })) as unknown as KeyValueStore;
+          })) as unknown as KeyValue;
 
           bdRacine2 = (await orbitdb2.open(uuidv4(), {
             type: "keyvalue",
             AccessController: générerContrôleurConstellation({
               write: orbitdb2.identity.id,
             }),
-          })) as unknown as KeyValueStore;
+          })) as unknown as KeyValue;
 
           bd = (await orbitdb1.open(uuidv4(), {
             type: "keyvalue",
             AccessController: générerContrôleurConstellation({
               write: bdRacine.address,
             }),
-          })) as unknown as KeyValueStore;
+          })) as unknown as KeyValue;
         });
 
         after(async () => {
@@ -154,7 +154,7 @@ describe("Contrôleur Constellation", function () {
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
           bdOrbite2 = (await orbitdb2.open(
             bd.address
-          )) as unknown as KeyValueStore;
+          )) as unknown as KeyValue;
           attendreSync(bdOrbite2);
 
           const autorisé = await peutÉcrire(bdOrbite2);
@@ -189,7 +189,7 @@ describe("Contrôleur Constellation", function () {
 
           const bdOrbite3 = (await orbitdb3.open(bd.address, {
             type: "keyvalue",
-          })) as unknown as KeyValueStore;
+          })) as unknown as KeyValue;
 
           const autorisé = await peutÉcrire(bdOrbite3, orbitdb3);
 
@@ -213,7 +213,7 @@ describe("Contrôleur Constellation", function () {
 
           const bdOrbite4 = (await orbitdb4.open(bd.address, {
             type: "keyvalue",
-          })) as unknown as KeyValueStore;
+          })) as unknown as KeyValue;
 
           const autorisé = await peutÉcrire(bdOrbite4, orbitdb4);
 
@@ -234,7 +234,7 @@ describe("Contrôleur Constellation", function () {
           await bd.close();
           bd = (await orbitdb1.open(bd.address, {
             type: "keyvalue",
-          })) as unknown as KeyValueStore;
+          })) as unknown as KeyValue;
 
           const accès = bd.access as TypeContrôleurConstellation;
           for (const o of [orbitdb1, orbitdb2, orbitdb3, orbitdb4]) {

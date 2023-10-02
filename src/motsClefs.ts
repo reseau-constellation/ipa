@@ -143,7 +143,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const noms = await bdNoms.all();
+      const noms = await bdNoms.allAsJSON();
       await this.sauvegarderNomsMotClef({ idMotClef: idNouveauMotClef, noms });
       await fOublierNoms();
     }
@@ -156,7 +156,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const descriptions = await bdDescriptions.all();
+      const descriptions = await bdDescriptions.allAsJSON();
       await this.sauvegarderDescriptionsMotClef({
         idMotClef: idNouveauMotClef,
         descriptions,

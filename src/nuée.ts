@@ -56,7 +56,7 @@ import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
 import { JSONSchemaType } from "ajv";
 import { isValidAddress } from "@orbitdb/core";
-import { KeyValueStoreTypé } from "./orbite.js";
+import { TypedKeyValue } from "@constl/bohr-db";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -291,7 +291,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const métadonnées = await bdMétadonnées.all();
+      const métadonnées = await bdMétadonnées.allAsJSON();
       await fOublierBdMétadonnées();
       await this.sauvegarderMétadonnéesNuée({
         idNuée: idNouvelleNuée,
@@ -307,7 +307,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const noms = await bdNoms.all();
+      const noms = await bdNoms.allAsJSON();
       await fOublierBdNoms();
       await this.sauvegarderNomsNuée({ idNuée: idNouvelleNuée, noms });
     }
@@ -320,7 +320,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const descriptions = await bdDescr.all();
+      const descriptions = await bdDescr.allAsJSON();
       await fOublierBdDescr();
       await this.sauvegarderDescriptionsNuée({
         idNuée: idNouvelleNuée,
@@ -361,7 +361,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
-      const tableaux = await bdTableaux.all();
+      const tableaux = await bdTableaux.allAsJSON();
       await fOublierBdTableaux();
       for (const idTableau of Object.keys(tableaux)) {
         const idNouveauTableau = await this.client.tableaux!.copierTableau({
@@ -1068,7 +1068,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<"IJPC" | "CJPI">;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (
-      bd?: KeyValueStoreTypé<structureBdAuthorisation>
+      bd?: TypedKeyValue<structureBdAuthorisation>
     ) => {
       if (!bd) return;
       const philosophie = await bd.get("philosophie");
@@ -1094,7 +1094,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     }: {
       id: string;
       fSuivreBd: schémaFonctionSuivi<
-        KeyValueStoreTypé<structureBdAuthorisation> | undefined
+        TypedKeyValue<structureBdAuthorisation> | undefined
       >;
     }) => {
       return await this.client.suivreBd({

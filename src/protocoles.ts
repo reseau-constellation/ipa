@@ -39,7 +39,7 @@ export default class Protocoles extends ComposanteClientDic<structureBdProtocole
     const { bd, fOublier } = await this.obtBd();
 
     if (protocoles) {
-      const existants = (await bd.all())[idDispositif];
+      const existants = (await bd.allAsJSON())[idDispositif];
       if (
         protocoles.some((p) => !existants.includes(p)) ||
         existants.some((p) => !protocoles.includes(p))
