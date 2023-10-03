@@ -145,7 +145,7 @@ const schéma = await client.nuées.générerSchémaBdNuée({
 Inviter une autre utilisatrice à modifier une nuée qui vous appartient. Attention ! Une fois invitée, une personne ne peut pas être désinvitée.
 
 :::tip CONSEIL
-Cette action autorise la modification de la spécification de la nuée. Les auteurs que vous invitez ainsi pourront modifier la nuée elle-même, donc son nom, sa structure et ses règles de contribution de données. Si vous voulez au contraire uniquement autoriser (ou non) quelque à contribuer des données à la nuée, voir la section [accès et permissions](#acces-et-permissions) à la place.
+Cette action autorise la modification de la spécification de la nuée. Les auteurs que vous invitez ainsi pourront modifier la nuée elle-même, donc son nom, sa structure et ses règles de contribution de données. Si vous voulez au contraire uniquement autoriser (ou non) quelqu'un à contribuer des données à la nuée, voir la section [accès et permissions](#acces-et-permissions) à la place.
 :::
 
 #### Paramètres
@@ -679,15 +679,134 @@ Les tableaux des nuées se comportent comme les [tableaux](./tableaux.md) des ba
 ### `client.nuées.suivreColonnesTableauNuée`
 
 ## Règles
-Vous pouvez ajouter des règles de validation de données aux nuées. Ces règles seront appliquées pour valider les données contribuées par les différents participants. Pour plus d'information sur les possibilités de validation, voir la section [règles](./règles.md) de la documentation..
+Vous pouvez ajouter des règles de validation de données aux nuées. Ces règles seront appliquées pour valider les données contribuées par les différents participants. Pour plus d'information sur les possibilités de validation, voir la section [règles](./règles.md) de la documentation.
 
-### `client.nuées.ajouterRègleTableauNuée`
-### `client.nuées.effacerRègleTableauNuée`
-### `client.nuées.suivreRèglesTableauNuée`
+### `client.nuées.ajouterRègleTableauNuée({ idTableau, idColonne, règle })`
+Ajoute une règle de validation à un tableau d'une nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idTableau` | `string` | L'identifiant du tableau de la nuée. |
+| `idColonne` | `string` | L'identifiant de la colonne. |
+| `règle` | [`valid.règleVariable`](./règles.md) | La règle à ajouter. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<string>` | L'identifiant unique de la nouvelle règle. |
+
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { générerClient } from "@constl/ipa";
+
+const client = générerClient({});
+
+const clefTableau = "mon tableau principal";
+
+const idNuée = await client.nuées.créerNuée({});
+const idTableau = await client.nuées.ajouterTableauNuée({ idNuée, clefTableau });
+const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
+
+const idColonne = await client.nuées.ajouterColonneTableauNuée({ idTableau, idVariable });
+
+const règle: valid.règleBornes = {
+    typeRègle: "bornes",
+    détails: {
+        type: "fixe",
+        val: 0,
+        op: ">=",
+    },
+};
+const idRègle = await client.nuées.ajouterRègleTableauNuée({ idTableau, idColonne, règle })
+
+```
+
+### `client.nuées.effacerRègleTableauNuée({ idTableau, idRègle })`
+Ajoute une règle de validation à un tableau d'une nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idTableau` | `string` | L'identifiant du tableau. |
+| `idColonne` | `string` | L'identifiant de la règle à effacer. |
+
+#### Exemple
+```ts
+// ...continuant de ci-dessus...
+await client.nuées.effacerRègleTableauNuée({ idTableau, idRègle })
+
+```
+
+### `client.nuées.suivreRèglesTableauNuée({ idNuée, clefTableau, f })`
+Suit les règles associées au tableau d'une nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `clefTableau` | `string` | La clef du tableau. |
+| `f` | `(règles:` [`valid.règleColonne`](./règles.md#types)` []) => void` | Une fonction qui sera appelée avec les règles du tableau chaque fois que celles-ci changent.|
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+#### Exemple
+```ts
+// ...continuant de ci-dessus...
+
+const règles = ref<valid.règleColonne[]>();
+
+const fOublierRègles = await client.nuées.suivreRèglesTableauNuée({ 
+    idNuée,
+    clefTableau,
+    f: x => règles.value = x,
+});
+
+```
 
 ## Données
 
-### `client.nuées.suivreDonnéesTableauNuée`
+### `client.nuées.suivreDonnéesTableauNuée({ idNuée, clefTableau, f, ... })`
+Suit les données d'un tableau d'une nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `clefTableau` | `string` | La clef du tableau. |
+| `f` | `(données:` [`élémentDeMembreAvecValid`](#types-donnees)` []) => void` | La fonction qui sera appellée avec les données chaque fois que celles-ci changent. |
+| `nRésultatsDésirés` | `number` | Le nombre de résultats désiré. |
+| `ignorerErreursFormatBd` | `boolean` | Ignorer les erreurs de structure des bases de données faisant parti de la nuée. Vrai par défaut. |
+| `ignorerErreursFormatTableau` | `boolean` | Ignorer les erreurs de structure des tableaux faisant parti de la nuée. Faux par défaut. |
+| `ignorerErreursDonnéesTableau` | `boolean` | Ignorer les erreurs des données faisant parti de la nuée. Vrai par défaut (les données avec des erreurs de validation seront présentes dans les résultats, mais les erreurs seront elles aussi signalées). |
+| `licencesPermises` | `string[] \| undefined` | Une liste de licences permises. Si spécifiée, uniquement les bases de données ayant une licence présente dans la liste seront incluses dans les résultats. |
+| `toujoursInclureLesMiennes` | `boolean` |  |
+| `clefsSelonVariables` | `boolean \| undefined` | Si nous voulons utiliser les identifiants des variables (au lieu de l'identifiant des colonnes) pour les clefs des valeurs. Faux par défaut. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+
+#### Exemple
+```ts
+// ...continuant de ci-dessus...
+
+const données = ref<réseau.élémentDeMembreAvecValid[]>();
+const fOublierDonnées = await clientnuées.suivreDonnéesTableauNuée({ 
+    idNuée,
+    clefTableau,
+    f: x => données.value = x,
+ });
+
+```
+
 
 ## Bds
 ### `client.nuées.suivreBdsCorrespondantes`
@@ -853,4 +972,21 @@ const {
 
 await fChangerNParents(3);  // On veut 3 résultats maximum
 await fOublierParents();  // Arrêter le suivi
+```
+
+## Types
+
+### Types données
+
+```ts
+export type élémentDeMembre<T extends élémentBdListeDonnées> = {
+  idCompte: string;
+  élément: élémentDonnées<T>;
+};
+
+export type élémentDeMembreAvecValid<T extends élémentBdListeDonnées> =
+  élémentDeMembre<T> & {
+    valid: erreurValidation[];
+  };
+
 ```

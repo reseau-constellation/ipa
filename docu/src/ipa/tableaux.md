@@ -392,7 +392,7 @@ Suit les données d'un tableau.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idTableau` | `string` | L'identifiant du tableau. |
-| `f` | `(données:`[`élémentDonnées`](./tableaux.md#types-donnees)`[]) => void` | La clef du tableau dont nous voulons suivre les données. Doit exister dans `schémaBd`. |
+| `f` | `(données:`[`élémentDonnées`](./tableaux.md#types-donnees)`[]) => void` | La fonction qui sera appellée avec les données chaque fois que celles-ci changent. |
 | `clefsSelonVariables` | `boolean \| undefined` | Si nous voulons utiliser les identifiants des variables (au lieu de l'identifiant des colonnes) pour les clefs des valeurs. Faux par défaut. |
 
 #### Retour
