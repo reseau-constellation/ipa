@@ -71,9 +71,11 @@ import {
 } from "@/orbite.js";
 import {
   TypedKeyValue,
+  TypedOrderedKeyValue,
   TypedSet
 } from "@constl/bohr-db";
 import {
+  OrderedKeyValueDatabaseType,
   SetDatabaseType
 } from "@constl/orbit-db-kuiper"
 import Protocoles from "./protocoles.js";
@@ -968,6 +970,20 @@ export class ClientConstellation extends EventEmitter {
     type: "set";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier>;
+  async suivreBd<
+    U extends { [clef: string]: élémentsBd },
+    T = TypedOrderedKeyValue<U>
+  >({
+    id,
+    f,
+    type,
+    schéma,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<T>;
+    type: "ordered-keyvalue";
+    schéma?: JSONSchemaType<U>;
+  }): Promise<schémaFonctionOublier>;
   async suivreBd({
     id,
     f,
@@ -983,7 +999,7 @@ export class ClientConstellation extends EventEmitter {
   }: {
     id: string;
     f: schémaFonctionSuivi<T>;
-    type?: "keyvalue" | "set";
+    type?: "keyvalue" | "set" | "ordered-keyvalue";
     schéma?: JSONSchemaType<U>;
   }): Promise<schémaFonctionOublier> {
     if (!isValidAddress(id)) throw new Error(`Adresse "${id}" non valide.`);
@@ -1009,6 +1025,14 @@ export class ClientConstellation extends EventEmitter {
                 Extract<U, { [clef: string]: élémentsBd }>
               >,
             })
+          : type === "ordered-keyvalue" 
+          ? this.orbite!.ouvrirBdTypée({
+            id,
+            type,
+            schéma: schéma as JSONSchemaType<
+              Extract<U, { [clef: string]: élémentsBd }>
+            >,
+          }) 
           : this.orbite!.ouvrirBd({
               id,
               type,
@@ -1119,6 +1143,31 @@ export class ClientConstellation extends EventEmitter {
     return await this.suivreBd({ id, type: "keyvalue", schéma, f: fFinale });
   }
 
+  async suivreBdDicOrdonnée<T extends { [clef: string]: élémentsBd }>({
+    id,
+    schéma,
+    f,
+  }: {
+    id: string;
+    schéma?: JSONSchemaType<T>;
+    f: schémaFonctionSuivi<{
+      key: Extract<keyof T, "string">;
+      value: T[keyof T];
+      hash: string;
+  }[]>;
+  }): Promise<schémaFonctionOublier> {
+    // À faire : différention entre schéma présent ou absent
+    const fFinale = async (bd: OrderedKeyValueDatabaseType) => {
+      const valeurs = await bd.all() as {
+        key: Extract<keyof T, "string">;
+        value: T[keyof T];
+        hash: string;
+    }[];
+      await f(valeurs);
+    };
+    return await this.suivreBd({ id, type: "ordered-keyvalue", schéma, f: fFinale });
+  }
+
   async suivreBdDicDeClef<T extends { [key: string]: élémentsBd }>({
     id,
     clef,
@@ -1141,6 +1190,41 @@ export class ClientConstellation extends EventEmitter {
       fSuivreBd: schémaFonctionSuivi<T>;
     }) => {
       return await this.suivreBdDic({ id, schéma, f: fSuivreBd });
+    };
+    return await this.suivreBdDeClef({
+      id,
+      clef,
+      f: fFinale,
+      fSuivre,
+    });
+  }
+
+  async suivreBdDicOrdonnéeDeClef<T extends {[clef: string]: élémentsBd}>({
+    id,
+    clef,
+    schéma,
+    f,
+  }: {
+    id: string;
+    clef: string;
+    schéma: JSONSchemaType<T>;
+    f: schémaFonctionSuivi<{key: string, value: T[keyof T]}[]>;
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = async (valeurs?: {key: string, value: T[keyof T]}[]) => {
+      await f(valeurs || []);
+    };
+    const fSuivre = async ({
+      id,
+      fSuivreBd,
+    }: {
+      id: string;
+      fSuivreBd: schémaFonctionSuivi<{
+          key: string;
+          value: T[keyof T];
+          hash: string;
+      }[]>;
+    }) => {
+      return await this.suivreBdDicOrdonnée({ id, schéma, f: fSuivreBd });
     };
     return await this.suivreBdDeClef({
       id,
@@ -1436,6 +1520,43 @@ export class ClientConstellation extends EventEmitter {
       fSuivreRacine: (éléments: T[]) => Promise<void>
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBdListe({ id, f: fSuivreRacine });
+    };
+    return await this.suivreBdsDeFonctionListe({
+      fListe,
+      f,
+      fBranche,
+      fIdBdDeBranche,
+      fRéduction,
+      fCode,
+    });
+  }
+
+  async suivreBdsDeBdDic<T extends élémentsBd, U, V>({
+    id,
+    f,
+    fBranche,
+    fIdBdDeBranche = (b) => b as string,
+    fRéduction = (branches: U[]) =>
+      [...new Set(branches.flat())] as unknown as V[],
+    fCode = (é) => é as string,
+  }: {
+    id: string;
+    f: schémaFonctionSuivi<V[]>;
+    fBranche: (
+      id: string,
+      f: schémaFonctionSuivi<U>,
+      branche: T
+    ) => Promise<schémaFonctionOublier | undefined>;
+    fIdBdDeBranche?: (b: T) => string;
+    fRéduction?: schémaFonctionRéduction<U[], V[]>;
+    fCode?: (é: T) => string;
+  }): Promise<schémaFonctionOublier> {
+    const fListe = async (
+      fSuivreRacine: (éléments: T[]) => Promise<void>
+    ): Promise<schémaFonctionOublier> => {
+      return await this.suivreBd({ id, f: async (bd) => {
+        return await fSuivreRacine((await bd.all()).map(x=>x.value) as T[])
+      } });
     };
     return await this.suivreBdsDeFonctionListe({
       fListe,
@@ -2155,6 +2276,8 @@ export class ClientConstellation extends EventEmitter {
       let fOublierSuiviBd: schémaFonctionOublier;
       if (type === "keyvalue") {
         fOublierSuiviBd = await this.suivreBdDic({ id, f: fSuivreBd });
+      } else if (type === "ordered-keyvalue") {
+        fOublierSuiviBd = await this.suivreBdDicOrdonnée({ id, f: fSuivreBd });
       } else if (type === "set") {
         fOublierSuiviBd = await this.suivreBdListe({ id, f: fSuivreBd });
       } else {

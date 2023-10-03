@@ -24,8 +24,8 @@ dependencies:
     specifier: ^2.0.7
     version: 2.0.7
   '@constl/bohr-db':
-    specifier: ^0.0.2
-    version: 0.0.2
+    specifier: ^0.0.6
+    version: 0.0.6
   '@constl/electron-webrtc-relay':
     specifier: ^0.2.3
     version: 0.2.3
@@ -1357,10 +1357,10 @@ packages:
     engines: {node: '>=0.1.90'}
     dev: true
 
-  /@constl/bohr-db@0.0.2:
-    resolution: {integrity: sha512-aVySVL4jEwrGHJowvJx7W4g2icfbgCcmmfXtf8y89qQw7DGJIRFa65CbjBh/W8tGovfcOCcwQFA8dWjTQEFkuA==}
+  /@constl/bohr-db@0.0.6:
+    resolution: {integrity: sha512-DZ0SsKyq1S/1msbq52TGBmz9ELP4MbLFlnFXwVHCVKe/+guZzQeCaeWlJ0YuwcbAAfYdcWCDbQgGZK/tSPgFCQ==}
     dependencies:
-      '@constl/orbit-db-kuiper': 0.0.1
+      '@constl/orbit-db-kuiper': 0.0.2
       '@orbitdb/core': github.com/julienmalard/orbit-db/fbac4ee0b0c1590bf47a2562565ba4ee83158bae
       ajv: 8.12.0
       events: 3.3.0
@@ -1452,20 +1452,6 @@ packages:
     dependencies:
       events: 3.3.0
       uuid: 9.0.1
-    dev: false
-
-  /@constl/orbit-db-kuiper@0.0.1:
-    resolution: {integrity: sha512-L9PnO0dlg8R6pT66N8lFB05337xYviGP31dKSH7jX9jbkZWmPE8Iup397VHKWu3HCeA4Pj15cSJ6qBgrlawLcQ==}
-    dependencies:
-      '@orbitdb/core': github.com/julienmalard/orbit-db/fbac4ee0b0c1590bf47a2562565ba4ee83158bae
-      events: 3.3.0
-      ipfs-core: 0.18.1
-      uuid: 9.0.1
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - utf-8-validate
     dev: false
 
   /@constl/orbit-db-kuiper@0.0.2:
@@ -2083,12 +2069,12 @@ packages:
       '@ethersproject/strings': 5.7.0
     dev: false
 
-  /@grpc/grpc-js@1.9.4:
-    resolution: {integrity: sha512-oEnzYiDuEsBydZBtP84BkpduLsE1nSAO4KrhTLHRzNrIQE647fhchmosTQsJdCo8X9zBBt+l5+fNk+m/yCFJ/Q==}
+  /@grpc/grpc-js@1.9.5:
+    resolution: {integrity: sha512-iouYNlPxRAwZ2XboDT+OfRKHuaKHiqjB5VFYZ0NFrHkbEF+AV3muIUY9olQsp8uxU4VvRCMiRk9ftzFDGb61aw==}
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.7.10
-      '@types/node': 20.8.0
+      '@types/node': 20.8.2
     dev: false
 
   /@grpc/proto-loader@0.7.10:
@@ -2607,6 +2593,14 @@ packages:
       cborg: 4.0.3
       multiformats: 12.1.1
 
+  /@ipld/dag-cbor@9.0.6:
+    resolution: {integrity: sha512-3kNab5xMppgWw6DVYx2BzmFq8t7I56AGWfp5kaU1fIPkwHVpBRglJJTYsGtbVluCi/s/q97HZM3bC+aDW4sxbQ==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    dependencies:
+      cborg: 4.0.3
+      multiformats: 12.1.2
+    dev: false
+
   /@ipld/dag-json@10.1.4:
     resolution: {integrity: sha512-Vgm739qPQ7P8cstna60oYx19tzJzep+Uy7yWi80dzIOygibfVaaRZ07M6qbHP+C9BJl81GNFaXy2Plr0y7poBA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
@@ -2614,11 +2608,26 @@ packages:
       cborg: 4.0.3
       multiformats: 12.1.1
 
+  /@ipld/dag-json@10.1.5:
+    resolution: {integrity: sha512-AIIDRGPgIqVG2K1O42dPDzNOfP0YWV/suGApzpF+YWZLwkwdGVsxjmXcJ/+rwOhRGdjpuq/xQBKPCu1Ao6rdOQ==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    dependencies:
+      cborg: 4.0.3
+      multiformats: 12.1.2
+    dev: false
+
   /@ipld/dag-pb@4.0.5:
     resolution: {integrity: sha512-El2Jhmv6bWuakhvnw1dl6xOhqLeVhlY8DIAJ06NtZRAoDcOzeGzvOtPzMCszVgCT0EQz+LOctyfgQ5Oszba19A==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
       multiformats: 12.1.1
+
+  /@ipld/dag-pb@4.0.6:
+    resolution: {integrity: sha512-wOij3jfDKZsb9yjhQeHp+TQy0pu1vmUkGv324xciFFZ7xGbDfAGTQW03lSA5aJ/7HBBNYgjEE0nvHmNW1Qjfag==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    dependencies:
+      multiformats: 12.1.2
+    dev: false
 
   /@isaacs/cliui@8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -2735,7 +2744,7 @@ packages:
       '@libp2p/interface': 0.1.2
       '@noble/curves': 1.2.0
       '@noble/hashes': 1.3.2
-      multiformats: 12.1.1
+      multiformats: 12.1.2
       node-forge: 1.3.1
       protons-runtime: 5.0.2(uint8arraylist@2.4.3)
       uint8arraylist: 2.4.3
@@ -3303,8 +3312,6 @@ packages:
       '@libp2p/interface': 0.1.2
       multiformats: 12.1.1
       uint8arrays: 4.0.6
-    transitivePeerDependencies:
-      - supports-color
 
   /@libp2p/peer-record@5.0.4:
     resolution: {integrity: sha512-e+AArf7pwMLqF24mehTe1OYjr1v0SOKshVrI1E9YH/Cb1F3ZZuK3smyGmnLaS4JlqsarRCMSe3V50tRkqMFY7g==}
@@ -4444,8 +4451,8 @@ packages:
   /@types/node@20.7.0:
     resolution: {integrity: sha512-zI22/pJW2wUZOVyguFaUL1HABdmSVxpXrzIqkjsHmyUjNhPoWM1CKfvVuXfetHhIok4RY573cqS0mZ1SJEnoTg==}
 
-  /@types/node@20.8.0:
-    resolution: {integrity: sha512-LzcWltT83s1bthcvjBmiBvGJiiUe84NWRHkw+ZV6Fr41z2FbIzvc815dk2nQ3RAKMuN2fkenM/z3Xv2QzEpYxQ==}
+  /@types/node@20.8.2:
+    resolution: {integrity: sha512-Vvycsc9FQdwhxE3y3DzeIxuEJbWGDsnrxvMADzTDF/lcdR9/K+AQIeAghTQsHtotg/q0j3WEOYS/jQgSdWue3w==}
     dev: false
 
   /@types/node@8.10.66:
@@ -10008,9 +10015,9 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     deprecated: js-IPFS has been deprecated in favour of Helia - please see https://github.com/ipfs/js-ipfs/issues/4336 for details
     dependencies:
-      '@ipld/dag-cbor': 9.0.5
-      '@ipld/dag-json': 10.1.4
-      '@ipld/dag-pb': 4.0.5
+      '@ipld/dag-cbor': 9.0.6
+      '@ipld/dag-json': 10.1.5
+      '@ipld/dag-pb': 4.0.6
       '@libp2p/logger': 2.1.1
       '@libp2p/peer-id': 2.0.4
       '@multiformats/mafmt': 11.1.2
@@ -10245,7 +10252,7 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     deprecated: js-IPFS has been deprecated in favour of Helia - please see https://github.com/ipfs/js-ipfs/issues/4336 for details
     dependencies:
-      '@grpc/grpc-js': 1.9.4
+      '@grpc/grpc-js': 1.9.5
       '@libp2p/logger': 2.1.1
       '@libp2p/peer-id': 2.0.4
       '@multiformats/multiaddr': 11.6.1
@@ -10345,7 +10352,7 @@ packages:
       '@hapi/boom': 9.1.4
       '@hapi/content': 5.0.2
       '@hapi/hapi': 20.3.0
-      '@ipld/dag-pb': 4.0.5
+      '@ipld/dag-pb': 4.0.6
       '@libp2p/interface-dht': 2.0.3
       '@libp2p/interfaces': 3.3.2
       '@libp2p/logger': 2.1.1
@@ -13162,6 +13169,10 @@ packages:
     resolution: {integrity: sha512-GBSToTmri2vJYs8wqcZQ8kB21dCaeTOzHTIAlr8J06C1eL6UbzqURXFZ5Fl0EYm9GAFz1IlYY8SxGOs9G9NJRg==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
+  /multiformats@12.1.2:
+    resolution: {integrity: sha512-6mRIsrZXyw5xNPO31IGBMmxgDXBSgCGDsBAtazkZ02ip4hMwZNrQvfxXZtytRoBSWuzSq5f9VmMnXj76fIz5FQ==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+
   /multiformats@9.9.0:
     resolution: {integrity: sha512-HoMUjhH9T8DDBNT+6xzkrd9ga/XiBI4xLr58LJACwK6G3HTOPeMz4nB4KJs33L2BelrIJa7P0VuNaVF3hMYfjg==}
     dev: false
@@ -13904,8 +13915,8 @@ packages:
       ipfs: '*'
       ipfsd-ctl: '*'
     dependencies:
-      '@ipld/dag-cbor': 9.0.5
-      '@ipld/dag-pb': 4.0.5
+      '@ipld/dag-cbor': 9.0.6
+      '@ipld/dag-pb': 4.0.6
       go-ipfs: 0.22.0
       ipfs: 0.66.1
       ipfsd-ctl: 13.0.0
@@ -17731,7 +17742,7 @@ packages:
       it-pipe: 3.0.1
       level: 8.0.0
       lru: 3.1.0
-      multiformats: 12.1.1
+      multiformats: 12.1.2
       p-queue: 7.4.1
       timeout-abort-controller: 3.0.0
       uint8arrays: 4.0.6

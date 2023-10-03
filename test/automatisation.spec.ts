@@ -900,6 +900,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.automatisations!.suivreÉtatAutomatisations({
               f: (états) => {
+                console.log(états)
                 résÉtats.mettreÀJour(états);
               },
             })
@@ -976,7 +977,7 @@ typesClients.forEach((type) => {
               path.join(dossier, "Ma bd.ods")
             );
           fsOublier.push(() => attendreFichierExiste.annuler());
-
+          console.log("ici 0")
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
@@ -986,8 +987,11 @@ typesClients.forEach((type) => {
               dossier,
               langues: ["fr"],
             });
+            console.log("ici 1", idAuto)
           await attendreFichierExiste.attendre();
+          console.log("ici 2")
           await résÉtats.attendreQue((x) => !!(x && x[idAuto]));
+          console.log("ici 3")
 
           expect(résÉtats.val![idAuto]).to.deep.equal({
             type: "écoute",
@@ -995,14 +999,16 @@ typesClients.forEach((type) => {
 
           const avantAjout = Date.now();
           const attendre = résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto] && x[idAuto].type === "sync")
+            (x) => !!(x && x[idAuto]?.type === "sync")
           );
           await client.tableaux!.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 4 },
           });
+          console.log("ici 4")
 
           const { type, depuis } = (await attendre)[idAuto] as ÉtatEnSync;
+          console.log("ici 5")
           expect(type).to.equal("sync");
           expect(depuis).to.be.greaterThanOrEqual(avantAjout);
         });

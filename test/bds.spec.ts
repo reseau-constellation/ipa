@@ -36,7 +36,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { attente } from "@constl/utils-tests";
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("BDs", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -385,7 +385,6 @@ typesClients.forEach((type) => {
             {
               id: idTableau,
               clef: "abc",
-              position: 0,
             },
           ]);
         });
@@ -737,13 +736,9 @@ typesClients.forEach((type) => {
         it("Les données sont copiées", async () => {
           const val = await données1.attendreQue(
             (x) =>
-              x.length > 2 && x.every((y) => Object.keys(y.données).length > 2)
+              x.length > 2 && x.every((y) => Object.keys(y.données).length > 1)
           );
-          const donnéesCombinées = val.map((d) => d.données);
-          const donnéesSansId = donnéesCombinées.map((d) => {
-            delete d.id;
-            return d;
-          });
+          const donnéesSansId = val.map((d) => d.données);
           expect(Array.isArray(donnéesSansId)).to.be.true();
 
           expect(donnéesSansId.length).to.equal(3);

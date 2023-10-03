@@ -1220,9 +1220,9 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
     };
   }
 
-  async fermerAuto(empreinte: string): Promise<void> {
-    await this.automatisations[empreinte].fermer();
-    delete this.automatisations[empreinte];
+  async fermerAuto(id: string): Promise<void> {
+    await this.automatisations[id].fermer();
+    delete this.automatisations[id];
   }
 
   async fermer(): Promise<void> {

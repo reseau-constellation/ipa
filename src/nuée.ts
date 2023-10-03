@@ -217,7 +217,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     await bdNuée.set("descriptions", idBdDescr);
 
     const idBdTableaux = await this.client.créerBdIndépendante({
-      type: "keyvalue",
+      type: "ordered-keyvalue",
       optionsAccès,
     });
     await bdNuée.set("tableaux", idBdTableaux);
@@ -348,24 +348,24 @@ export default class Nuée extends ComposanteClientListe<string> {
       const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idNouvelleBdTableaux,
-          type: "keyvalue",
+          type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
       const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdTableaux,
-          type: "keyvalue",
+          type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
-      const tableaux = await bdTableaux.allAsJSON();
+      const tableaux = await bdTableaux.all();
       await fOublierBdTableaux();
-      for (const idTableau of Object.keys(tableaux)) {
+      for (const tableau of tableaux) {
         const idNouveauTableau = await this.client.tableaux!.copierTableau({
-          id: idTableau,
+          id: tableau.key,
           idBd: idNouvelleNuée,
           copierDonnées: false,
         });
-        await nouvelleBdTableaux.set(idNouveauTableau, tableaux[idTableau]);
+        await nouvelleBdTableaux.set(idNouveauTableau, tableau.value);
       }
       await fOublierNouvelleTableaux();
     }
@@ -790,7 +790,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
-      schéma: schémaStructureBdMétadonnées,
+      schéma: schémaStructureBdNuée,
     });
     await bd.del("image");
     await fOublier();
@@ -1012,7 +1012,6 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdAutorisation = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
-        address: undefined,
         write: this.client.bdCompte!.address,
       },
     });
@@ -1311,7 +1310,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idNuée,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
     if (!idBdTableaux) {
       throw new Error(
@@ -1320,7 +1319,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     }
 
     const { bd: bdTableaux, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({ id: idBdTableaux, type: "keyvalue", schéma: schémaBdTableauxDeBd });
+      await this.client.orbite!.ouvrirBdTypée({ id: idBdTableaux, type: "ordered-keyvalue", schéma: schémaBdTableauxDeBd });
 
     clefTableau = clefTableau || uuidv4();
     const idTableau = await this.client.tableaux!.créerTableau({
@@ -1345,7 +1344,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idNuée,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
     if (!idBdTableaux) {
       throw new Error(
@@ -1356,7 +1355,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const { bd: bdTableaux, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdTableaux,
-        type: "keyvalue",
+        type: "ordered-keyvalue",
         schéma: schémaBdTableauxDeBd,
       });
     await bdTableaux.del(idTableau);
@@ -1381,18 +1380,23 @@ export default class Nuée extends ComposanteClientListe<string> {
       id: string,
       fSuivreBranche: schémaFonctionSuivi<infoTableauAvecId[]>
     ) => {
-      const fFinaleTableaux = (infos: { [id: string]: {clef: string} }) => {
-        const tableaux: infoTableauAvecId[] = Object.entries(infos).map(
-          ([idTableau, info]) => {
+      const fFinaleTableaux = (infos: {
+        key: string;
+        value: {
+            clef: string;
+        };
+    }[]) => {
+        const tableaux: infoTableauAvecId[] = infos.map(
+          (info) => {
             return {
-              id: idTableau,
-              ...info,
+              id: info.key,
+              ...info.value,
             };
           }
         );
         fSuivreBranche(tableaux);
       };
-      return await this.client.suivreBdDicDeClef({
+      return await this.client.suivreBdDicOrdonnéeDeClef({
         id,
         clef: "tableaux",
         schéma: schémaBdTableauxDeBd,
@@ -2848,13 +2852,13 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idNuée,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdTableaux,
-          type: "keyvalue",
+          type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
       const tableaux: string[] = Object.keys(bdTableaux.all);

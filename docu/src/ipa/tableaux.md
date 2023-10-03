@@ -289,7 +289,7 @@ Ajoute un ou plusieurs éléments à un tableau.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<string[]>` | Les empreintes (identifiants uniques) des éléments ajoutés. |
+| `Promise<string[]>` | Les identifiants uniques des éléments ajoutés. |
 
 #### Exemple
 ```ts
@@ -326,7 +326,7 @@ const idColTempérature = await client.tableaux.ajouterColonneTableau({
 });
 
 // Enfin, ajouter les données
-const empreintesDonnées = await client.tableaux.ajouterÉlément({ 
+const idsÉléments = await client.tableaux.ajouterÉlément({ 
   schémaBd, 
   idNuéeUnique, 
   clefTableau: CLEF_TABLEAU,
@@ -338,7 +338,7 @@ const empreintesDonnées = await client.tableaux.ajouterÉlément({
 });
 ```
 
-### `client.tableaux.modifierÉlément({ idTableau, vals, empreintePrécédente })`
+### `client.tableaux.modifierÉlément({ idTableau, vals, idÉlément })`
 Modifie un élément d'un tableau.
 
 #### Paramètres
@@ -346,12 +346,12 @@ Modifie un élément d'un tableau.
 | --- | ---- | ----------- |
 | `idTableau` | `string` | L'identifiant du tableau. |
 | `vals` | { [idColonne: string]: [`élémentsBd`](./tableaux.md#types-donnees) \| undefined } | Les données à jour. Si une colonne n'apparaît pas sur `vals`, elle ne sera pas modifiée. Si, au contraire, elle est égale à `undefined`, la valeur correspondante sera effacée. |
-| `empreintePrécédente` | `string` | L'empreinte de l'élément à modifier. |
+| `idÉlément` | `string` | L'identifiant de l'élément à modifier. |
 
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<string>` | L'empreinte (identifiant unique) de l'élément modifié. |
+| `Promise<string>` | L'identifiant unique de l'élément modifié. |
 
 #### Exemple
 ```ts
@@ -362,25 +362,25 @@ await client.tableaux.modifierÉlément({
   vals: {
     [idColTempérature]: 38.2 ,
   },
-  empreintePrécédente: empreinteDonnées,
+  idsÉléments[0],
 });
 ```
 
-### `client.tableaux.effacerÉlément({ idTableau, empreinte })`
+### `client.tableaux.effacerÉlément({ idTableau, idÉlément })`
 Efface un élément d'un tableau.
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idTableau` | `string` | L'identifiant du tableau. |
-| `empreinte` | `string` | L'empreinte de la rangée à effacer. |
+| `idÉlément` | `string` | L'identifiant de la rangée à effacer. |
 
 #### Exemple
 ```ts
 // ...continuant de ci-dessus...
 await client.tableaux.effacerÉlément({ 
   idTableau, 
-  empreinte: empreinteDonnées,
+  idÉlément: idsÉléments[0],
 });
 ```
 
@@ -693,7 +693,7 @@ interface élémentDonnées<
   T extends élémentBdListeDonnées = élémentBdListeDonnées
 > {
   données: T;
-  empreinte: string;  // Identifiant unique de la rangé de données
+  id: string;  // Identifiant unique de la rangé de données
 }
 
 type élémentBdListeDonnées = {

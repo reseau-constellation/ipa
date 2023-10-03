@@ -255,7 +255,7 @@ typesClients.forEach((type) => {
             idÉlément: élémentDonnées.id,
           });
 
-          valDonnées = await données.attendreQue((x) => x.length > 0);
+          valDonnées = await données.attendreQue((x) => x.length > 0 && x[0].données[idsColonnes[0]] !== 123.456);
           expect(Array.isArray(valDonnées)).to.be.true();
           expect(valDonnées.length).to.equal(1);
 
@@ -305,7 +305,7 @@ typesClients.forEach((type) => {
 
           await client.tableaux!.effacerÉlément({
             idTableau,
-            id: élémentDonnées.id,
+            idÉlément: élémentDonnées.id,
           });
 
           valDonnées = await données.attendreQue((x) => x.length === 0);

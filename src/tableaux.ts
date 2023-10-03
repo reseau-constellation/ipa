@@ -122,11 +122,8 @@ const schémaBdDonnéesTableau: JSONSchemaType<{[id: string]: { [clef: string]: 
   type: "object",
   additionalProperties: {
     type: "object",
-    properties: {
-      id: { type: "string" },
-    },
     additionalProperties: true,
-    required: ["id"],
+    required: [],
   },
   required: [],
 };
@@ -874,10 +871,10 @@ export default class Tableaux {
 
   async effacerÉlément({
     idTableau,
-    id,
+    idÉlément,
   }: {
     idTableau: string;
-    id: string;
+    idÉlément: string;
   }): Promise<void> {
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
@@ -897,7 +894,7 @@ export default class Tableaux {
         schéma: schémaBdDonnéesTableau,
       }
     );
-    await bdDonnées.del(id);
+    await bdDonnées.del(idÉlément);
     await fOublier();
   }
 
@@ -967,7 +964,7 @@ export default class Tableaux {
         if (Object.keys(àAjouter).length) {
           await this.effacerÉlément({
             idTableau: idTableauBase,
-            id: existant.id,
+            idÉlément: existant.id,
           });
           await this.ajouterÉlément({
             idTableau: idTableauBase,
@@ -1345,7 +1342,7 @@ export default class Tableaux {
     }
 
     for (const id of àEffacer) {
-      await this.effacerÉlément({ idTableau, id });
+      await this.effacerÉlément({ idTableau, idÉlément: id });
     }
 
     for (const n of nouveaux) {
@@ -1591,7 +1588,7 @@ export default class Tableaux {
       id: string;
       fSuivreBd: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
     }): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreBdsDeBdListe({
+      return await this.client.suivreBdsDeBdDic({
         id,
         f: fSuivreBd,
         fBranche,
@@ -1608,11 +1605,11 @@ export default class Tableaux {
         fSuivre: fSuivreBdColonnes,
       });
     } else {
-      return await this.client.suivreBdListeDeClef({
+      return await this.client.suivreBdDicDeClef({
         id: idTableau,
         clef: "colonnes",
         schéma: schémaBdInfoColAvecCatégorie,
-        f: fFinale,
+        f: async cols => fFinale(Object.values(cols)),
       });
     }
   }

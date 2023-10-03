@@ -266,7 +266,7 @@ Ces types sont associés aux erreurs de validation des données et des règles e
 
 ```ts
 type erreurValidation<T extends règleVariable = règleVariable> = {
-  empreinte: string;
+  id: string;
   erreur: {
     règle: règleColonne<T>;
   };

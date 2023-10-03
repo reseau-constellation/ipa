@@ -1937,7 +1937,6 @@ if (isNode || isElectronMain) {
         idBd = await client.créerBdIndépendante({
           type: "keyvalue",
           optionsAccès: {
-            address: undefined,
             write: client.bdCompte!.address,
           },
         });

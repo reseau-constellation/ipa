@@ -388,7 +388,6 @@ typesClients.forEach((type) => {
             expect(val).to.have.deep.members([
               {
                 clef: "abc",
-                position: 0,
                 id: idTableau,
               },
             ]);
@@ -616,7 +615,6 @@ typesClients.forEach((type) => {
               élément: {
                 données: {
                   [idCol]: 3,
-                  id: val[0].élément.données["id"],
                 },
                 id,
               },
@@ -707,7 +705,6 @@ typesClients.forEach((type) => {
               élément: {
                 données: {
                   [idCol]: 3,
-                  id: val[0].élément.données["id"],
                 },
                 id,
               },

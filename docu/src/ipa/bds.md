@@ -1276,12 +1276,12 @@ Ajoute un élément à un tableau d'une base de données unique.
 | `schémaBd` | [`schémaSpécificationBd`](#schema-bd) | Le schéma de spécification de la base de données. Il sera utilisé pour créer la base de données si elle n'existe pas encore. |
 | `idNuéeUnique` | `string` | L'identifiant de la nuée à laquelle une seule base de données par compte peut appartenir. Doit exister dans `schémaBd`. |
 | `clefTableau` | `string` | La clef du tableau auquel nous voulons ajouter des données. Doit exister dans `schémaBd`. |
-| `vals` | [`élémentBdListeDonnées`](./tableaux.md#types-donnees) | Les données à ajouter. |
+| `vals` | [`élémentBdListeDonnées | élémentBdListeDonnées`](./tableaux.md#types-donnees) `[]` | Les données à ajouter. |
 
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<string>` | L'empreinte (identifiant unique) de l'élément ajouté. |
+| `Promise<string[]>` | Les identifiants unique des éléments ajoutés. |
 
 #### Exemple
 ```ts
@@ -1290,11 +1290,11 @@ Ajoute un élément à un tableau d'une base de données unique.
 const image = ref<File>()  // L'image sera sélectionnée par l'utilisateur dans l'interface
 const site = ref<string>() // Pareil pour le site de l'observation
 
-const empreinteDonnées = ref<string>();
+const idsÉléments = ref<string[]>();
 
 const sauvegarderDonnées = async () => {
     if (!image.value || !site.value) return  // Arrêter ici si l'image ou le site n'ont pas encore été sélectionnés
-    empreinteDonnées.value = await client.bds.ajouterÉlémentÀTableauUnique({ 
+    idsÉléments.value = await client.bds.ajouterÉlémentÀTableauUnique({ 
         schémaBd, 
         idNuéeUnique, 
         clefTableau: CLEF_TABLEAU,
@@ -1307,7 +1307,7 @@ const sauvegarderDonnées = async () => {
 };
 ```
 
-### `client.bds.modifierÉlémentDeTableauUnique({ schémaBd, idNuéeUnique, clefTableau, vals, empreintePrécédente })`
+### `client.bds.modifierÉlémentDeTableauUnique({ schémaBd, idNuéeUnique, clefTableau, vals, idÉlément })`
 Modifie un élément d'un tableau d'une base de données unique.
 
 #### Paramètres
@@ -1317,12 +1317,12 @@ Modifie un élément d'un tableau d'une base de données unique.
 | `idNuéeUnique` | `string` | L'identifiant de la nuée à laquelle une seule base de données par compte peut appartenir. Doit exister dans `schémaBd`. |
 | `clefTableau` | `string` | La clef du tableau dont nous voulons modifier des données. Doit exister dans `schémaBd`. |
 | `vals` | { [idColonne: string]: [`élémentsBd`](./tableaux.md#types-donnees) \| undefined } | Les données à jour. Si une colonne n'apparaît pas sur `vals`, elle ne sera pas modifiée. Si, au contraire, elle est égale à `undefined`, la valeur correspondante sera effacée. |
-| `empreintePrécédente` | `string` | L'empreinte de l'élément à modifier. |
+| `idÉlément` | `string` | L'identifiant de l'élément à modifier. |
 
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<string>` | L'empreinte (identifiant unique) de l'élément modifié. |
+| `Promise<string>` | L'identifiant de l'élément modifié. |
 
 #### Exemple
 ```ts
@@ -1339,12 +1339,12 @@ const modifierImage = async () => {
         vals: {
             "image": nouvelleImage.value ,
         },
-        empreintePrécédente: empreinteDonnées.value,
+        idÉlément: idsÉléments.value[0],
     });
 };
 ```
 
-### `client.bds.effacerÉlémentDeTableauUnique({ schémaBd, idNuéeUnique, clefTableau, empreinte })`
+### `client.bds.effacerÉlémentDeTableauUnique({ schémaBd, idNuéeUnique, clefTableau, idÉlément })`
 Efface un élément d'un tableau d'une base de données unique.
 
 #### Paramètres
@@ -1353,7 +1353,7 @@ Efface un élément d'un tableau d'une base de données unique.
 | `schémaBd` | [`schémaSpécificationBd`](#schema-bd) | Le schéma de spécification de la base de données. Il sera utilisé pour créer la base de données si elle n'existe pas encore. |
 | `idNuéeUnique` | `string` | L'identifiant de la nuée à laquelle une seule base de données par compte peut appartenir. Doit exister dans `schémaBd`. |
 | `clefTableau` | `string` | La clef du tableau dont nous voulons effacer des données. Doit exister dans `schémaBd`. |
-| `empreinte` | `string` | L'empreinte de la rangée à effacer. |
+| `idÉlément` | `string` | L'identifiant de la rangée à effacer. |
 
 #### Exemple
 ```ts
@@ -1364,7 +1364,7 @@ const effacerDonnées = async () => {
         schémaBd, 
         idNuéeUnique, 
         clefTableau: CLEF_TABLEAU,
-        empreinte: empreinteDonnées.value,
+        idÉlément: idsÉléments.value[0],
     });
 };
 ```

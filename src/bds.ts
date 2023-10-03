@@ -945,7 +945,7 @@ export default class BDs extends ComposanteClientListe<string> {
 
     return await this.client.tableaux!.effacerÉlément({
       idTableau: idTableau,
-      id: idÉlément,
+      idÉlément,
     });
   }
 
@@ -1046,7 +1046,7 @@ export default class BDs extends ComposanteClientListe<string> {
     );
     this.client.tableaux!.effacerÉlément({
       idTableau,
-      id: idÉlément,
+      idÉlément,
     });
   }
 
@@ -1493,7 +1493,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
     if (!idBdTableaux) {
       throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
@@ -1502,7 +1502,7 @@ export default class BDs extends ComposanteClientListe<string> {
     const { bd: bdTableaux, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdTableaux,
-        type: "keyvalue",
+        type: "ordered-keyvalue",
         schéma: schémaBdTableauxDeBd,
       });
     await bdTableaux.del(idTableau);
@@ -1524,20 +1524,20 @@ export default class BDs extends ComposanteClientListe<string> {
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
     if (!idBdTableaux) throw new Error("Id Bd Tableau non obtenable.");
     const { bd: bdTableaux, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdTableaux,
-        type: "keyvalue",
+        type: "ordered-keyvalue",
         schéma: schémaBdTableauxDeBd,
       });
 
-    const infoExistante = await bdTableaux.get(idTableau);
+      const infoExistante = await bdTableaux.get(idTableau);
     if (infoExistante) {
-      infoExistante.clef = clef;
-      bdTableaux.set(idTableau, infoExistante);
+      infoExistante.value.clef = clef;
+      bdTableaux.set(idTableau, infoExistante.value);
     }
 
     await fOublier();
@@ -1794,18 +1794,21 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     f: schémaFonctionSuivi<infoTableauAvecId[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (infos: { [id: string]: {clef: string} }) => {
-      const tableaux: infoTableauAvecId[] = Object.entries(infos).map(
-        ([id, info]) => {
+    const fFinale = async (infos: { key: string; value: { clef: string; }; }[]) => {
+      const tableaux: infoTableauAvecId[] = (infos).map(
+        (info) => {
           return {
-            id,
-            ...info,
+            id: info.key,
+            ...info.value,
           };
         }
       );
       await f(tableaux);
     };
-    return await this.client.suivreBdDicDeClef({
+
+    return await this.client.suivreBdDicOrdonnéeDeClef<{
+      [idTableau: string]: {clef: string};
+    }>({
       id: idBd,
       clef: "tableaux",
       schéma: schémaBdTableauxDeBd,
