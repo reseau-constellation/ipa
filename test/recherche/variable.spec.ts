@@ -69,7 +69,7 @@ describe("Rechercher variables", function () {
       await client.variables!.sauvegarderNomsVariable({
         idVariable,
         noms: {
-          es: "Radiación solar",
+          cst: "Radiación solar",
         },
       });
 
@@ -148,7 +148,7 @@ describe("Rechercher variables", function () {
       await client.variables!.sauvegarderDescriptionsVariable({
         idVariable,
         descriptions: {
-          es: "Radiación solar",
+          cst: "Radiación solar",
         },
       });
 

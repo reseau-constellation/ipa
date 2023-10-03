@@ -892,7 +892,7 @@ typesClients.forEach((type) => {
               await clients[1].motsClefs!.sauvegarderNomsMotClef({
                 idMotClef,
                 noms: {
-                  es: "Meteorología",
+                  cst: "Meteorología",
                 },
               });
 
@@ -1209,7 +1209,7 @@ typesClients.forEach((type) => {
               await clients[1].motsClefs!.sauvegarderNomsMotClef({
                 idMotClef,
                 noms: {
-                  es: "Meteorología",
+                  cst: "Meteorología",
                 },
               });
 
@@ -1538,7 +1538,7 @@ typesClients.forEach((type) => {
               await clients[1].motsClefs!.sauvegarderNomsMotClef({
                 idMotClef,
                 noms: {
-                  es: "Meteorología",
+                  cst: "Meteorología",
                 },
               });
 
@@ -1621,7 +1621,7 @@ typesClients.forEach((type) => {
               };
               await clients[1].bds.sauvegarderNomsBd({
                 idBd,
-                noms: { es: "Mi base de datos meteorológicos" },
+                noms: { cst: "Mi base de datos meteorológicos" },
               });
 
               const val = await rés.attendreQue((x) => x.length > 0);

@@ -85,7 +85,7 @@ describe("Utils recherche", function () {
     it("exacte", () => {
       const textes = {
         fr: "hydrologie",
-        es: "hidrología",
+        cst: "hidrología",
         த: "நீரியல்",
       };
 
@@ -104,7 +104,7 @@ describe("Utils recherche", function () {
     });
     it("approx", () => {
       const textes = {
-        es: "hidrología",
+        cst: "hidrología",
         த: "நீரியல்",
       };
 
@@ -124,7 +124,7 @@ describe("Utils recherche", function () {
     it("meilleure", () => {
       const textes = {
         fr: "hydrologie",
-        es: "hidrología",
+        cst: "hidrología",
         த: "நீரியல்",
       };
 
@@ -144,7 +144,7 @@ describe("Utils recherche", function () {
     it("aucune", () => {
       const textes = {
         fr: "hydrologie",
-        es: "hidrología",
+        cst: "hidrología",
         த: "நீரியல்",
       };
 

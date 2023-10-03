@@ -556,7 +556,7 @@ typesClients.forEach((type) => {
           idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           await client.bds.sauvegarderNomsBd({
             idBd,
-            noms: { fr: "Ma bd", es: "Mi bd" },
+            noms: { fr: "Ma bd", cst: "Mi bd" },
           });
 
           idTableau = await client.bds.ajouterTableauBd({ idBd });
@@ -913,7 +913,7 @@ typesClients.forEach((type) => {
           idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           await client.bds.sauvegarderNomsBd({
             idBd,
-            noms: { fr: "Ma bd", es: "Mi bd" },
+            noms: { fr: "Ma bd", cst: "Mi bd" },
           });
 
           idTableau = await client.bds.ajouterTableauBd({ idBd });
