@@ -76,7 +76,7 @@ describe("Rechercher variables", function () {
       const val = await résultat.attendreExiste();
       expect(val).to.deep.equal({
         type: "résultat",
-        clef: "es",
+        clef: "cst",
         de: "nom",
         info: {
           type: "texte",
@@ -155,7 +155,7 @@ describe("Rechercher variables", function () {
       const val = await résultat.attendreExiste();
       expect(val).to.deep.equal({
         type: "résultat",
-        clef: "es",
+        clef: "cst",
         de: "descr",
         info: {
           type: "texte",

@@ -340,7 +340,7 @@ export class Compilateur {
       },
       ...Object.fromEntries(
         this.languesCibles.map((langue) => {
-          const écriture = nuchabäl.rutzibChabäl({ runuk: langue }) || "";
+          const écriture = nuchabäl.rutzibanemChabäl({ runuk: langue }) || "";
           return [
             langue,
             {

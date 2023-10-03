@@ -919,7 +919,7 @@ const {
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
-  langue: "es",
+  langue: "cst",
   nom: "agronomía"
 })
 
@@ -1020,7 +1020,7 @@ const {
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
-  langue: "es",
+  langue: "cst",
   nom: "agronomía"
 })
 
@@ -1428,7 +1428,7 @@ const {
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
-  langue: "es",
+  langue: "cst",
   nom: "agronomía"
 })
 
@@ -1532,7 +1532,7 @@ const {
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
-  langue: "es",
+  langue: "cst",
   nom: "agronomía"
 })
 
@@ -2043,7 +2043,7 @@ const {
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
-  langue: "es",
+  langue: "cst",
   nom: "agronomía"
 })
 
@@ -2144,7 +2144,7 @@ const {
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
-  langue: "es",
+  langue: "cst",
   nom: "agronomía"
 })
 

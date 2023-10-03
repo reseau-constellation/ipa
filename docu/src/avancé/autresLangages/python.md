@@ -170,7 +170,7 @@ id_tableau = "/orbitdb/zdpu..."
 
 with Serveur():
     client = ClientSync()
-    données = client.obt_données_tableau(id_tableau=id_tableau, langues=["fr", "es"], formatDonnées="pandas")
+    données = client.obt_données_tableau(id_tableau=id_tableau, langues=["fr", "cst"], formatDonnées="pandas")
 ```
 
 **Quelques points importants**

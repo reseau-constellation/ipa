@@ -111,7 +111,7 @@ describe("Utils recherche", function () {
       const résultat = similTexte("hydrologie", textes);
       expect(résultat).to.deep.equal({
         type: "résultat",
-        clef: "es",
+        clef: "cst",
         info: {
           type: "texte",
           début: 0,

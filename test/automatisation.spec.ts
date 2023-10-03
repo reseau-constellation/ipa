@@ -747,7 +747,7 @@ typesClients.forEach((type) => {
               formatDoc: "ods",
               inclureFichiersSFIP: false,
               dossier,
-              langues: ["es"],
+              langues: ["cst"],
               fréquence: {
                 unités: "secondes",
                 n: 0.3,

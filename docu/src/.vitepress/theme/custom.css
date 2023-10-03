@@ -6,3 +6,9 @@
   --vp-c-brand-light: #7bc6ff;
   --vp-c-brand-lightest: #aeddff;
 }
+
+.VPHero .VPImage.image-src {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%) scale(1.5, 1.5);
+}

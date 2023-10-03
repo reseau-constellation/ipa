@@ -143,7 +143,7 @@ typesClients.forEach((type) => {
                   score: 4 / 9,
                   type: "résultat",
                   de: "nom",
-                  clef: "es",
+                  clef: "cst",
                   info: {
                     type: "texte",
                     texte: "Julián",
@@ -173,7 +173,7 @@ typesClients.forEach((type) => {
 
             it("On suit les changements", async () => {
               await clients[2].profil!.sauvegarderNom({
-                langue: "es",
+                langue: "cst",
                 nom: "Julián",
               });
 
@@ -908,7 +908,7 @@ typesClients.forEach((type) => {
                   info: {
                     type: "résultat",
                     de: "nom",
-                    clef: "es",
+                    clef: "cst",
                     info: {
                       type: "texte",
                       texte: "Meteorología",
@@ -1225,7 +1225,7 @@ typesClients.forEach((type) => {
                   info: {
                     type: "résultat",
                     de: "nom",
-                    clef: "es",
+                    clef: "cst",
                     info: {
                       type: "texte",
                       texte: "Meteorología",
@@ -1554,7 +1554,7 @@ typesClients.forEach((type) => {
                   info: {
                     type: "résultat",
                     de: "nom",
-                    clef: "es",
+                    clef: "cst",
                     info: {
                       type: "texte",
                       texte: "Meteorología",
@@ -1609,7 +1609,7 @@ typesClients.forEach((type) => {
                   info: {
                     type: "résultat",
                     de: "nom",
-                    clef: "es",
+                    clef: "cst",
                     info: {
                       type: "texte",
                       texte: nouveauNom,

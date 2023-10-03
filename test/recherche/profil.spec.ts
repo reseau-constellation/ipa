@@ -119,12 +119,12 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.profil!.sauvegarderNom({ langue: "es", nom: "Julián" });
+      await client.profil!.sauvegarderNom({ langue: "cst", nom: "Julián" });
       await rés.attendreQue((x) => !!x && x.score > 0);
 
       expect(rés.val).to.deep.equal({
         type: "résultat",
-        clef: "es",
+        clef: "cst",
         score: 0.5,
         de: "nom",
         info: { type: "texte", texte: "Julián", début: 0, fin: 6 },
