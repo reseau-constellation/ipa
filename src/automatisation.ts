@@ -18,7 +18,7 @@ import type { conversionDonnées } from "@/tableaux.js";
 
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
-import { ComposanteClientListe } from "@/composanteClient.js";
+import { ComposanteClientDic } from "@/composanteClient.js";
 import type { JSONSchemaType } from "ajv";
 
 if (isElectronMain || isNode) {
@@ -50,8 +50,9 @@ export type SpécificationAutomatisation =
   | SpécificationExporter
   | SpécificationImporter;
 
-const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationAutomatisation> =
-  {
+const schémaBdAutomatisations: JSONSchemaType<{[id: string]: SpécificationAutomatisation}> = {
+  type: "object",
+  additionalProperties: {
     type: "object",
     anyOf: [
       {
@@ -139,7 +140,9 @@ const schémaSpécificationAutomatisation: JSONSchemaType<SpécificationAutomati
       },
     ],
     required: ["id", "type"],
-  };
+  },
+  required: []
+};
 
 export type copiesExportation = copiesExportationN | copiesExportationTemps;
 
@@ -887,7 +890,7 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
 
 const verrou = new Semaphore();
 
-export default class Automatisations extends ComposanteClientListe<SpécificationAutomatisation> {
+export default class Automatisations extends ComposanteClientDic<{[id: string]: SpécificationAutomatisation}> {
   automatisations: { [key: string]: AutomatisationActive };
   événements: EventEmitter;
 
@@ -897,7 +900,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
     super({
       client,
       clef: "automatisations",
-      schémaBdPrincipale: schémaSpécificationAutomatisation,
+      schémaBdPrincipale: schémaBdAutomatisations,
     });
 
     this.automatisations = {};
@@ -908,7 +911,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
 
   async initialiser(): Promise<void> {
     this.fOublier = await this.suivreBdPrincipale({
-      f: (autos) => this.mettreAutosÀJour(autos),
+      f: (autos) => this.mettreAutosÀJour(Object.values(autos)),
     });
   }
 
@@ -1068,12 +1071,8 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
         delete élément[clef as keyof SpécificationExporter];
       }
     });
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
-      id: await this.obtIdBd(),
-      type: "feed",
-      schéma: schémaSpécificationAutomatisation,
-    });
-    await bd.add(élément);
+    const { bd, fOublier } = await this.obtBd();
+    await bd.put(idAuto, élément);
 
     await fOublier();
 
@@ -1093,11 +1092,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
     fréquence?: fréquence;
     dispositif?: string;
   }): Promise<string> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
-      id: await this.obtIdBd(),
-      type: "feed",
-      schéma: schémaSpécificationAutomatisation,
-    });
+    const { bd, fOublier } = await this.obtBd();
 
     dispositif = dispositif || this.client.orbite!.identity.id;
     const id = uuidv4();
@@ -1124,7 +1119,7 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
       }
     });
 
-    await bd.add(élément);
+    await bd.put(id, élément);
 
     await fOublier();
 
@@ -1132,15 +1127,8 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
   }
 
   async annulerAutomatisation({ id }: { id: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
-      id: await this.obtIdBd(),
-      type: "feed",
-      schéma: schémaSpécificationAutomatisation,
-    });
-    await this.client.effacerÉlémentDeBdListe({
-      bd,
-      élément: (é) => é.value.id === id,
-    });
+    const { bd, fOublier } = await this.obtBd();
+    await bd.del(id);
     await fOublier();
   }
 
@@ -1169,9 +1157,9 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
     f: schémaFonctionSuivi<SpécificationAutomatisation[]>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (autos: SpécificationAutomatisation[]) => {
+    const fFinale = async (autos: {[id: string]: SpécificationAutomatisation}) => {
       const autosFinales = await Promise.all(
-        autos.map(async (a) => {
+        Object.values(autos).map(async (a) => {
           const autoFinale = deepcopy(a);
           if (
             autoFinale.type === "importation" &&
@@ -1232,9 +1220,9 @@ export default class Automatisations extends ComposanteClientListe<Spécificatio
     };
   }
 
-  async fermerAuto(empreinte: string): Promise<void> {
-    await this.automatisations[empreinte].fermer();
-    delete this.automatisations[empreinte];
+  async fermerAuto(id: string): Promise<void> {
+    await this.automatisations[id].fermer();
+    delete this.automatisations[id];
   }
 
   async fermer(): Promise<void> {

@@ -70,13 +70,13 @@ await client.licences.suggérerLicence({
 })
 ```
 
-### `client.licences.effacerSuggestionLicence({ empreinte })`
+### `client.licences.effacerSuggestionLicence({ idÉlément })`
 Efface une suggesion de nouvelle licence que vous aviez fait auparavant.
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
-| `empreinte` | `string` | L'identifiant unique de votre suggestion. |
+| `idÉlément` | `string` | L'identifiant unique de votre suggestion. |
 
 #### Exemple
 ```ts
@@ -85,7 +85,7 @@ import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
 await client.licences.effacerSuggestionLicence({
-    empreinte: "codeDeMaSuggestion"
+    idÉlément: "codeDeMaSuggestion"
 })
 ```
 

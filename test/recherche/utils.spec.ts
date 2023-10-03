@@ -285,7 +285,7 @@ describe("Utils recherche", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.créerBdIndépendante({ type: "feed" });
+      idBd = await client.créerBdIndépendante({ type: "set" });
 
       const fListe = async (
         fSuivreRacine: (idsVariables: string[]) => void
@@ -321,7 +321,7 @@ describe("Utils recherche", function () {
     it("Ajout variable détecté", async () => {
       const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
         id: idBd,
-        type: "feed",
+        type: "set",
         schéma: { type: "string" } as JSONSchemaType<string>,
       });
       await bd.add("precipitation");
@@ -353,7 +353,7 @@ describe("Utils recherche", function () {
     it("Ajout meilleure variable détecté", async () => {
       const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
         id: idBd,
-        type: "feed",
+        type: "set",
         schéma: { type: "string" } as JSONSchemaType<string>,
       });
       await bd.add("précipitation");

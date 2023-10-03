@@ -113,15 +113,8 @@ export default class MotsClefs extends ComposanteClientListe<string> {
   }: {
     idMotClef: string;
   }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
-      id: await this.obtIdBd(),
-      type: "feed",
-      schéma: schémaBdPrincipale,
-    });
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdRacine,
-      élément: idMotClef,
-    });
+    const { bd: bdRacine, fOublier } = await this.obtBd();
+    await bdRacine.del(idMotClef);
     await fOublier();
   }
 

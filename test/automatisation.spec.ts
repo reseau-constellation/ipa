@@ -976,7 +976,6 @@ typesClients.forEach((type) => {
               path.join(dossier, "Ma bd.ods")
             );
           fsOublier.push(() => attendreFichierExiste.annuler());
-
           const idAuto =
             await client.automatisations!.ajouterAutomatisationExporter({
               id: idBd,
@@ -995,7 +994,7 @@ typesClients.forEach((type) => {
 
           const avantAjout = Date.now();
           const attendre = résÉtats.attendreQue(
-            (x) => !!(x && x[idAuto] && x[idAuto].type === "sync")
+            (x) => !!(x && x[idAuto]?.type === "sync")
           );
           await client.tableaux!.ajouterÉlément({
             idTableau,

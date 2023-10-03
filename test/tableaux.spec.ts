@@ -239,7 +239,7 @@ typesClients.forEach((type) => {
           expect(valDonnées.length).to.equal(1);
 
           const élémentDonnées = valDonnées[0];
-          expect(typeof élémentDonnées.empreinte).to.equal("string");
+          expect(typeof élémentDonnées.id).to.equal("string");
           for (const [cl, v] of Object.entries(élément)) {
             expect(élémentDonnées.données[cl]).to.equal(v);
           }
@@ -252,10 +252,10 @@ typesClients.forEach((type) => {
           await client.tableaux!.modifierÉlément({
             idTableau,
             vals: { [idsColonnes[0]]: -123 },
-            empreintePrécédente: élémentDonnées.empreinte,
+            idÉlément: élémentDonnées.id,
           });
 
-          valDonnées = await données.attendreQue((x) => x.length > 0);
+          valDonnées = await données.attendreQue((x) => x.length > 0 && x[0].données[idsColonnes[0]] !== 123.456);
           expect(Array.isArray(valDonnées)).to.be.true();
           expect(valDonnées.length).to.equal(1);
 
@@ -270,7 +270,7 @@ typesClients.forEach((type) => {
           await client.tableaux!.modifierÉlément({
             idTableau,
             vals: { [idsColonnes[0]]: undefined },
-            empreintePrécédente: élémentDonnées.empreinte,
+            idÉlément: élémentDonnées.id,
           });
 
           valDonnées = await données.attendreQue(
@@ -289,7 +289,7 @@ typesClients.forEach((type) => {
           await client.tableaux!.modifierÉlément({
             idTableau,
             vals: { [idsColonnes[0]]: 123 },
-            empreintePrécédente: élémentDonnées.empreinte,
+            idÉlément: élémentDonnées.id,
           });
 
           valDonnées = await données.attendreQue(
@@ -305,7 +305,7 @@ typesClients.forEach((type) => {
 
           await client.tableaux!.effacerÉlément({
             idTableau,
-            empreinte: élémentDonnées.empreinte,
+            idÉlément: élémentDonnées.id,
           });
 
           valDonnées = await données.attendreQue((x) => x.length === 0);
@@ -462,7 +462,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des données de catégorie invalide", async () => {
-          const empreinte = (
+          const id = (
             await client.tableaux!.ajouterÉlément({
               idTableau: idTableauRègles,
               vals: {
@@ -470,7 +470,7 @@ typesClients.forEach((type) => {
               },
             })
           )[0];
-          expect(typeof empreinte).to.equal("string");
+          expect(typeof id).to.equal("string");
           const val = await résErreurs.attendreQue((x) => !!x.length);
           expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(1);
@@ -681,7 +681,7 @@ typesClients.forEach((type) => {
         let idRègle1: string;
         let idRègle2: string;
         let idRègle3: string;
-        let empreinte2: string;
+        let id2: string;
 
         const erreursValid = new utilsTestAttente.AttendreRésultat<
           erreurValidation[]
@@ -691,7 +691,7 @@ typesClients.forEach((type) => {
         >();
 
         const idColonneTempMax = "col temp max";
-        let empreintesDonnées: string[] = [];
+        let idsDonnées: string[] = [];
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
@@ -726,7 +726,7 @@ typesClients.forEach((type) => {
             idTableau: idTableauRègles,
             idVariable: idVariableTempMin,
           });
-          empreintesDonnées = await client.tableaux!.ajouterÉlément({
+          idsDonnées = await client.tableaux!.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: Array.from(Array(10).keys()).map((min) => ({
               [idColonneTempMin]: min,
@@ -789,14 +789,14 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout éléments colonne réf détecté", async () => {
-            empreintesDonnées[0] = await client.tableaux!.modifierÉlément({
+            await client.tableaux!.modifierÉlément({
               idTableau: idTableauRègles,
               vals: { [idColonneTempMax]: -1 },
-              empreintePrécédente: empreintesDonnées[0],
+              idÉlément: idsDonnées[0],
             });
 
             const réf: erreurValidation = {
-              empreinte: empreintesDonnées[0],
+              id: idsDonnées[0],
               erreur: {
                 règle: {
                   source: { type: "tableau", id: idTableauRègles },
@@ -817,7 +817,7 @@ typesClients.forEach((type) => {
             await client.tableaux!.modifierÉlément({
               idTableau: idTableauRègles,
               vals: { [idColonneTempMax]: 6 },
-              empreintePrécédente: empreintesDonnées[0],
+              idÉlément: idsDonnées[0],
             });
             const résValid = await erreursValid.attendreQue(
               (x) => x.length < 1
@@ -838,7 +838,7 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout éléments invalides", async () => {
-            empreinte2 = (
+            id2 = (
               await client.tableaux!.ajouterÉlément({
                 idTableau: idTableauRègles,
                 vals: {
@@ -849,7 +849,7 @@ typesClients.forEach((type) => {
             )[0];
 
             const réf: erreurValidation = {
-              empreinte: empreinte2,
+              id: id2,
               erreur: {
                 règle: {
                   source: { type: "tableau", id: idTableauRègles },
@@ -884,7 +884,7 @@ typesClients.forEach((type) => {
 
             const réf: erreurValidation[] = [
               {
-                empreinte: empreinte2,
+                id: id2,
                 erreur: {
                   règle: {
                     source: { type: "tableau", id: idTableauRègles },
@@ -897,7 +897,7 @@ typesClients.forEach((type) => {
                 },
               },
               {
-                empreinte: empreinte2,
+                id: id2,
                 erreur: {
                   règle: {
                     source: { type: "variable", id: idVariableTempMax },

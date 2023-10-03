@@ -25,7 +25,7 @@ import { traduire, zipper, uneFois } from "@constl/utils-ipa";
 import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import { schémaCopiéDe } from "./bds.js";
-import { TypedFeed, TypedKeyValue } from "@constl/bohr-db";
+import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
@@ -113,7 +113,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const { bd: bdRacine, fOublier: fOublierRacine } =
       await this.client.orbite!.ouvrirBdTypée({
         id: await this.obtIdBd(),
-        type: "feed",
+        type: "set",
         schéma: schémaBdPrincipale,
       });
     const idBdProjet = await this.client.créerBdIndépendante({
@@ -152,13 +152,13 @@ export default class Projets extends ComposanteClientListe<string> {
     await bdProjet.set("descriptions", idBdDescr);
 
     const idBdBds = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "set",
       optionsAccès,
     });
     await bdProjet.set("bds", idBdBds);
 
     const idBdMotsClefs = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "set",
       optionsAccès,
     });
     await bdProjet.set("motsClefs", idBdMotsClefs);
@@ -221,7 +221,7 @@ export default class Projets extends ComposanteClientListe<string> {
       const { bd: bdMotsClefs, fOublier: fOublierMotsClefs } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdMotsClefs,
-          type: "feed",
+          type: "set",
           schéma: schémaStructureBdMotsClefsdeProjet,
         });
       const idsMotsClefs = (await bdMotsClefs.all()).map((x) => x.value);
@@ -237,7 +237,7 @@ export default class Projets extends ComposanteClientListe<string> {
       const { bd: bdBds, fOublier: fOublierBds } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdBds,
-          type: "feed",
+          type: "set",
           schéma: schémaStuctureBdsDeProjet,
         });
       const bds = (await bdBds.all()).map((x) => x.value);
@@ -266,7 +266,7 @@ export default class Projets extends ComposanteClientListe<string> {
   async ajouterÀMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
-      type: "feed",
+      type: "set",
       schéma: schémaBdPrincipale,
     });
     await bdRacine.add(idProjet);
@@ -276,13 +276,10 @@ export default class Projets extends ComposanteClientListe<string> {
   async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: await this.obtIdBd(),
-      type: "feed",
+      type: "set",
       schéma: schémaBdPrincipale,
     });
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdRacine,
-      élément: idProjet,
-    });
+    await bdRacine.del(idProjet);
     await fOublier();
   }
 
@@ -430,11 +427,11 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet,
   }: {
     idProjet: string;
-  }): Promise<{ bd: TypedFeed<string>; fOublier: schémaFonctionOublier }> {
+  }): Promise<{ bd: TypedSet<string>; fOublier: schémaFonctionOublier }> {
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idProjet,
-      type: "feed",
+      type: "set",
     });
     if (!idBdMotsClefs) {
       throw new Error(
@@ -444,7 +441,7 @@ export default class Projets extends ComposanteClientListe<string> {
 
     return await this.client.orbite!.ouvrirBdTypée({
       id: idBdMotsClefs,
-      type: "feed",
+      type: "set",
       schéma: schémaStructureBdMotsClefsdeProjet,
     });
   }
@@ -483,10 +480,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const { bd: bdMotsClefs, fOublier } = await this._obtBdMotsClefs({
       idProjet,
     });
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdMotsClefs,
-      élément: idMotClef,
-    });
+    await bdMotsClefs.del(idMotClef);
     await fOublier();
   }
 
@@ -494,11 +488,11 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet,
   }: {
     idProjet: string;
-  }): Promise<{ bd: TypedFeed<string>; fOublier: schémaFonctionOublier }> {
+  }): Promise<{ bd: TypedSet<string>; fOublier: schémaFonctionOublier }> {
     const idBdBds = await this.client.obtIdBd({
       nom: "bds",
       racine: idProjet,
-      type: "feed",
+      type: "set",
     });
     if (!idBdBds)
       throw new Error(
@@ -507,7 +501,7 @@ export default class Projets extends ComposanteClientListe<string> {
 
     return await this.client.orbite!.ouvrirBdTypée({
       id: idBdBds,
-      type: "feed",
+      type: "set",
       schéma: schémaStructureBdMotsClefsdeProjet,
     });
   }
@@ -534,7 +528,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const { bd: bdBds, fOublier } = await this._obtBdBds({ idProjet });
 
     // Effacer l'entrée dans notre liste de bds (n'efface pas la BD elle-même)
-    await this.client.effacerÉlémentDeBdListe({ bd: bdBds, élément: idBd });
+    await bdBds.del(idBd);
     await fOublier();
   }
 

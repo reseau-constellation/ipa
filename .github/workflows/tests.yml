@@ -1,6 +1,8 @@
 name: Tests IPA
 on:
   push:
+    branches:
+      - main
     paths-ignore:
       - '**.md'
       - 'docu/**'

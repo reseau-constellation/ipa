@@ -78,7 +78,7 @@ typesClients.forEach((type) => {
           await client.épingles!.toutDésépingler();
 
           idBdDic = await client!.créerBdIndépendante({ type: "keyvalue" });
-          idBdListe = await client!.créerBdIndépendante({ type: "feed" });
+          idBdListe = await client!.créerBdIndépendante({ type: "set" });
 
           idBdDic2 = await client!.créerBdIndépendante({ type: "keyvalue" });
           idBdAutre = await client!.créerBdIndépendante({ type: "keyvalue" });
@@ -97,7 +97,7 @@ typesClients.forEach((type) => {
 
           const { bd, fOublier } = await client.orbite!.ouvrirBd({
             id: idBdListe,
-            type: "feed",
+            type: "set",
           });
           await bd.add(idBdAutre);
           await fOublier();
@@ -168,7 +168,7 @@ typesClients.forEach((type) => {
 
           idBd = await client.créerBdIndépendante({ type: "keyvalue" });
           idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
-          idBdListe = await client.créerBdIndépendante({ type: "feed" });
+          idBdListe = await client.créerBdIndépendante({ type: "set" });
         });
 
         it("Fichier non épinglé", async () => {
@@ -218,7 +218,7 @@ typesClients.forEach((type) => {
 
           const { bd, fOublier } = await client.orbite!.ouvrirBd({
             id: idBdListe,
-            type: "feed",
+            type: "set",
           });
           await bd.add(idBd);
           await fOublier();

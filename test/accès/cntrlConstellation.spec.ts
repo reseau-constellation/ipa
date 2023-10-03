@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
-import { useDatabaseType, type OrbitDB } from "@orbitdb/core";
+import { type OrbitDB } from "@orbitdb/core";
 
 import {
   attendreSync,
@@ -15,7 +15,7 @@ import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";
 import type { KeyValue } from "@orbitdb/core";
 import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import {Feed} from "@constl/orbit-db-kuiper";
+import { registerAll } from "@constl/orbit-db-kuiper";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 
 type TypeContrôleurConstellation = Awaited<
@@ -49,7 +49,7 @@ describe("Contrôleur Constellation", function () {
 
         before(async () => {
           enregistrerContrôleurs();
-          useDatabaseType(Feed);
+          registerAll();
           ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(2));
           [orbitdb1, orbitdb2] = orbites;
 
@@ -114,7 +114,7 @@ describe("Contrôleur Constellation", function () {
 
         before(async () => {
           enregistrerContrôleurs();
-          useDatabaseType(Feed);
+          registerAll();
           ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(4));
           [orbitdb1, orbitdb2, orbitdb3, orbitdb4] = orbites;
 

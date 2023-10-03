@@ -513,13 +513,13 @@ export default class Licences {
   }
 
   async effacerSuggestionLicence({
-    empreinte,
+    idÉlément,
   }: {
-    empreinte: string;
+    idÉlément: string;
   }): Promise<void> {
     await this.attendrePrêt();
     if (this.perroquet) {
-      await this.perroquet.பரிந்துரையை_நீக்கு({ கைரேகை: empreinte });
+      await this.perroquet.பரிந்துரையை_நீக்கு({ கைரேகை: idÉlément });
     }
   }
 

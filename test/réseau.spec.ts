@@ -2331,9 +2331,9 @@ typesClients.forEach((type) => {
           let idTableau1: string | undefined;
           let idTableau2: string | undefined;
 
-          let empreinte1: string;
-          let empreinte2: string;
-          let empreinte3: string;
+          let id1: string;
+          let id2: string;
+          let id3: string;
 
           const clefTableau = "tableau trads";
           const données1 = {
@@ -2448,19 +2448,19 @@ typesClients.forEach((type) => {
               ).fOublier
             );
 
-            empreinte1 = (
+            id1 = (
               await clients[0].tableaux!.ajouterÉlément({
                 idTableau: idTableau1,
                 vals: données1,
               })
             )[0];
-            empreinte2 = (
+            id2 = (
               await clients[0].tableaux!.ajouterÉlément({
                 idTableau: idTableau1,
                 vals: données2,
               })
             )[0];
-            empreinte3 = (
+            id3 = (
               await clients[1].tableaux!.ajouterÉlément({
                 idTableau: idTableau2,
                 vals: données3,
@@ -2496,21 +2496,21 @@ typesClients.forEach((type) => {
               {
                 idCompte: idsBdCompte[0],
                 élément: {
-                  empreinte: empreinte1,
+                  id: id1,
                   données: données1,
                 },
               },
               {
                 idCompte: idsBdCompte[0],
                 élément: {
-                  empreinte: empreinte2,
+                  id: id2,
                   données: données2,
                 },
               },
               {
                 idCompte: idsBdCompte[1],
                 élément: {
-                  empreinte: empreinte3,
+                  id: id3,
                   données: données3,
                 },
               },

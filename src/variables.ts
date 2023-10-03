@@ -3,10 +3,9 @@ import { v4 as uuidv4 } from "uuid";
 import ClientConstellation from "@/client.js";
 import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import {
-  type règleVariableAvecId,
   type règleVariable,
   type règleCatégorie,
-  schémaRègleVariableAvecId,
+  règleVariableAvecId,
 } from "@/valid.js";
 
 import type { objRôles } from "@/accès/types.js";
@@ -96,6 +95,24 @@ const schémaStructureBdVariable: JSONSchemaType<Partial<structureBdVariable>> =
     required: [],
   };
 
+export type structureBdRèglesVariable = {[idRègle: string]: règleVariable}
+export const schémaBdRèglesVariable: JSONSchemaType<structureBdRèglesVariable> = {
+  type: "object",
+  additionalProperties: {
+    type: "object",
+        properties: {
+          typeRègle: { type: "string" },
+          détails: {
+            type: "object",
+            required: [],
+            additionalProperties: true,
+          },
+        },
+        required: ["détails", "typeRègle"],
+  },
+  required: []
+};
+
 export default class Variables extends ComposanteClientListe<string> {
   constructor({ client }: { client: ClientConstellation }) {
     super({ client, clef: "variables", schémaBdPrincipale });
@@ -161,7 +178,7 @@ export default class Variables extends ComposanteClientListe<string> {
     await bdVariable.set("descriptions", idBdDescr);
 
     const idBdRègles = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdVariable.set("règles", idBdRègles);
@@ -186,11 +203,7 @@ export default class Variables extends ComposanteClientListe<string> {
   }: {
     idVariable: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
-      id: await this.obtIdBd(),
-      type: "feed",
-      schéma: schémaBdPrincipale,
-    });
+    const { bd, fOublier } = await this.obtBd();
     await bd.add(idVariable);
     await fOublier();
   }
@@ -200,15 +213,8 @@ export default class Variables extends ComposanteClientListe<string> {
   }: {
     idVariable: string;
   }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
-      id: await this.obtIdBd(),
-      type: "feed",
-      schéma: schémaBdPrincipale,
-    });
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdRacine,
-      élément: idVariable,
-    });
+    const { bd: bdRacine, fOublier } = await this.obtBd();
+    await bdRacine.del(idVariable);
     await fOublier();
   }
 
@@ -272,16 +278,17 @@ export default class Variables extends ComposanteClientListe<string> {
       const { bd: bdRègles, fOublier: fOublierBdRègles } =
         await this.client.orbite!.ouvrirBdTypée({
           id: idBdRègles,
-          type: "feed",
-          schéma: schémaRègleVariableAvecId,
+          type: "keyvalue",
+          schéma: schémaBdRèglesVariable,
         });
-      const règles = (await bdRègles.all()).map((x) => x.value);
+      const règles = await bdRègles.allAsJSON();
       await fOublierBdRègles();
       await Promise.all(
-        règles.map(async (r: règleVariableAvecId) => {
+        Object.entries(règles).map(async ([id, r]) => {
           await this.ajouterRègleVariable({
             idVariable: idNouvelleBd,
-            règle: r.règle,
+            règle: r,
+            idRègle: id,
           });
         })
       );
@@ -538,7 +545,7 @@ export default class Variables extends ComposanteClientListe<string> {
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idVariable,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdRègles) {
       throw new Error(
@@ -547,16 +554,13 @@ export default class Variables extends ComposanteClientListe<string> {
     }
 
     idRègle = idRègle || uuidv4();
-    const règleAvecId: règleVariableAvecId = {
-      id: idRègle,
-      règle,
-    };
+
     const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdRègles,
-      type: "feed",
-      schéma: schémaRègleVariableAvecId,
+      type: "keyvalue",
+      schéma: schémaBdRèglesVariable,
     });
-    await bdRègles.add(règleAvecId);
+    await bdRègles.put(idRègle, règle);
 
     await fOublier();
 
@@ -573,7 +577,7 @@ export default class Variables extends ComposanteClientListe<string> {
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idVariable,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdRègles) {
       throw new Error(
@@ -582,14 +586,11 @@ export default class Variables extends ComposanteClientListe<string> {
     }
     const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdRègles,
-      type: "feed",
-      schéma: schémaRègleVariableAvecId,
+      type: "keyvalue",
+      schéma: schémaBdRèglesVariable,
     });
 
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdRègles,
-      élément: (é) => é.value.id === idRègle,
-    });
+    await bdRègles.del(idRègle);
 
     await fOublier();
   }
@@ -693,25 +694,24 @@ export default class Variables extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<règleVariableAvecId[]>;
   }): Promise<schémaFonctionOublier> {
     const règles: {
-      catégorie: règleVariableAvecId[];
-      propres: règleVariableAvecId[];
+      catégorie: {[id: string]: règleVariable};
+      propres: {[id: string]: règleVariable};
     } = {
-      catégorie: [],
-      propres: [],
+      catégorie: {},
+      propres: {},
     };
     const fFinale = async () => {
-      await f([...règles.catégorie, ...règles.propres]);
+      await f(Object.entries(Object.assign({}, règles.catégorie, règles.propres)).map(([id, r]) => ({id, règle: r})));
     };
 
     const fSuivreCatégorie = async (catégorie: catégorieVariables) => {
-      const règleCat: règleVariableAvecId<règleCatégorie> = {
-        id: uuidv4(),
-        règle: {
+      const règleCat: {[id: string]: règleCatégorie} = {
+        [uuidv4()] : {
           typeRègle: "catégorie",
           détails: { catégorie },
         },
       };
-      règles.catégorie = [règleCat];
+      règles.catégorie = règleCat;
       await fFinale();
     };
     const fOublierCatégorie = await this.suivreCatégorieVariable({
@@ -719,15 +719,15 @@ export default class Variables extends ComposanteClientListe<string> {
       f: fSuivreCatégorie,
     });
 
-    const fSuivreRèglesPropres = async (rgls: règleVariableAvecId[]) => {
+    const fSuivreRèglesPropres = async (rgls: {[id: string]: règleVariable}) => {
       règles.propres = rgls;
       await fFinale();
     };
     const fOublierRèglesPropres =
-      await this.client.suivreBdListeDeClef<règleVariableAvecId>({
+      await this.client.suivreBdDicDeClef({
         id: idVariable,
         clef: "règles",
-        schéma: schémaRègleVariableAvecId,
+        schéma: schémaBdRèglesVariable,
         f: fSuivreRèglesPropres,
       });
 

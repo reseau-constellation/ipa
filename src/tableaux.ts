@@ -27,7 +27,6 @@ import {
   erreurRègleBornesVariableNonPrésente,
   erreurRègleCatégoriqueColonneInexistante,
   détailsRègleBornesDynamiqueColonne,
-  schémaRègleColonne,
 } from "@/valid.js";
 import type {
   catégorieBaseVariables,
@@ -50,7 +49,7 @@ export interface élémentDonnées<
   T extends élémentBdListeDonnées = élémentBdListeDonnées
 > {
   données: T;
-  empreinte: string;
+  id: string;
 }
 
 export type élémentBdListeDonnées = {
@@ -91,37 +90,81 @@ export type conversionDonnéesChaîne = {
   langue: string;
 };
 
-const schémaInfoColAvecCatégorie: JSONSchemaType<InfoColAvecCatégorie> = {
+const schémaBdInfoColAvecCatégorie: JSONSchemaType<{[id: string]: InfoColAvecCatégorie}> = {
   type: "object",
-  properties: {
-    catégorie: {
-      type: "object",
-      nullable: true,
-      properties: {
-        catégorie: { type: "string" },
-        type: { type: "string" },
+  additionalProperties: {
+    type: "object",
+    properties: {
+      catégorie: {
+        type: "object",
+        nullable: true,
+        properties: {
+          catégorie: { type: "string" },
+          type: { type: "string" },
+        },
+        required: ["catégorie", "type"],
       },
-      required: ["catégorie", "type"],
+      id: { type: "string" },
+      variable: {
+        type: "string",
+      },
+      index: {
+        type: "boolean",
+        nullable: true,
+      },
     },
-    id: { type: "string" },
-    variable: {
-      type: "string",
-    },
-    index: {
-      type: "boolean",
-      nullable: true,
-    },
+    required: ["id", "variable"],
   },
-  required: ["id", "variable"],
+  required: []
 };
 
-const schémaDonnéesTableau: JSONSchemaType<{ [clef: string]: élémentsBd }> = {
+const schémaBdDonnéesTableau: JSONSchemaType<{[id: string]: { [clef: string]: élémentsBd }}> = {
   type: "object",
-  properties: {
-    id: { type: "string" },
+  additionalProperties: {
+    type: "object",
+    additionalProperties: true,
+    required: [],
   },
-  additionalProperties: true,
-  required: ["id"],
+  required: [],
+};
+
+
+export const schémaBdRègles: JSONSchemaType<{[idRègle: string]: règleColonne}> = {
+  type: "object",
+  additionalProperties: {
+    type: "object",
+    properties: {
+      colonne: { type: "string" },
+      source: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          type: { type: "string" },
+        },
+        required: ["id", "type"],
+      },
+      règle: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          règle: {
+            type: "object",
+            properties: {
+              détails: {
+                type: "object",
+                required: [],
+              },
+              typeRègle: { type: "string" },
+            },
+            required: ["détails", "typeRègle"],
+          },
+        },
+        required: ["id", "règle"],
+      },
+    },
+    required: ["colonne", "règle", "source"],
+  },
+  required: []
 };
 
 export function élémentsÉgaux(
@@ -224,19 +267,19 @@ export default class Tableaux {
     await bdTableau.set("noms", idBdNoms);
 
     const idBdDonnées = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdTableau.set("données", idBdDonnées);
 
     const idBdColonnes = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdTableau.set("colonnes", idBdColonnes);
 
     const idBdRègles = await this.client.créerBdIndépendante({
-      type: "feed",
+      type: "keyvalue",
       optionsAccès,
     });
     await bdTableau.set("règles", idBdRègles);
@@ -283,28 +326,28 @@ export default class Tableaux {
     }
 
     // Copier les colonnes
-    await this.client.copierContenuBdListe({
+    await this.client.copierContenuBdDic({
       bdBase,
       nouvelleBd,
       clef: "colonnes",
-      schéma: schémaInfoColAvecCatégorie,
+      schéma: schémaBdInfoColAvecCatégorie,
     });
 
     // Copier les règles
-    await this.client.copierContenuBdListe({
+    await this.client.copierContenuBdDic({
       bdBase,
       nouvelleBd,
       clef: "règles",
-      schéma: schémaRègleColonne,
+      schéma: schémaBdRègles,
     });
 
     if (copierDonnées) {
       // Copier les données
-      await this.client.copierContenuBdListe({
+      await this.client.copierContenuBdDic({
         bdBase,
         nouvelleBd,
         clef: "données",
-        schéma: schémaDonnéesTableau,
+        schéma: schémaBdDonnéesTableau,
       });
     }
 
@@ -415,7 +458,7 @@ export default class Tableaux {
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdColonnes) {
       throw new Error(
@@ -426,18 +469,17 @@ export default class Tableaux {
     const { bd: bdColonnes, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdColonnes,
-        type: "feed",
-        schéma: schémaInfoColAvecCatégorie,
+        type: "keyvalue",
+        schéma: schémaBdInfoColAvecCatégorie,
       });
     const éléments = await bdColonnes.all();
     const élémentCol = éléments.find((x) => x.value.id === idColonne);
 
-    // Changer uniquement si la colonne existe et était déjà sous le même statut que `val`
+    // Changer uniquement si la colonne existe et n'était pas déjà sous le même statut que `val`
     if (élémentCol && Boolean(élémentCol.value.index) !== val) {
       const { value } = élémentCol;
       const nouvelÉlément: InfoCol = Object.assign(value, { index: val });
-      await bdColonnes.remove(élémentCol.hash);
-      await bdColonnes.add(nouvelÉlément);
+      await bdColonnes.put(idColonne, nouvelÉlément);
     }
 
     await fOublier();
@@ -469,7 +511,7 @@ export default class Tableaux {
     clefsSelonVariables?: boolean;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      données?: { value: T; hash: string }[];
+      données?: {[id: string]: T};
       colonnes?: { [key: string]: string };
     } = {};
 
@@ -477,10 +519,8 @@ export default class Tableaux {
       const { données, colonnes } = info;
 
       if (données && colonnes) {
-        const donnéesFinales: élémentDonnées<T>[] = données.map(
-          (x): élémentDonnées<T> => {
-            const empreinte = x.hash;
-            const élément = x.value;
+        const donnéesFinales: élémentDonnées<T>[] = Object.entries(données).map(
+          ([id, élément]): élémentDonnées<T> => {
 
             const données: T = clefsSelonVariables
               ? Object.keys(élément).reduce((acc: T, elem: string) => {
@@ -491,7 +531,7 @@ export default class Tableaux {
                 }, {} as T)
               : élément;
 
-            return { données, empreinte };
+            return { données, id };
           }
         );
         await f(donnéesFinales);
@@ -510,16 +550,15 @@ export default class Tableaux {
       catégories: false,
     });
 
-    const fSuivreDonnées = async (données: { value: T; hash: string }[]) => {
+    const fSuivreDonnées = async (données: {[id: string]: T}) => {
       info.données = données;
       await fFinale();
     };
-    const oublierDonnées = await this.client.suivreBdListeDeClef<T>({
+    const oublierDonnées = await this.client.suivreBdDicDeClef({
       id: idTableau,
       clef: "données",
       f: fSuivreDonnées,
-      schéma: schémaDonnéesTableau,
-      renvoyerValeur: false,
+      schéma: schémaBdDonnéesTableau,
     });
 
     return async () => {
@@ -721,7 +760,7 @@ export default class Tableaux {
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdDonnées) {
       throw new Error(
@@ -732,35 +771,36 @@ export default class Tableaux {
     const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée(
       {
         id: idBdDonnées,
-        type: "feed",
-        schéma: schémaDonnéesTableau,
+        type: "keyvalue",
+        schéma: schémaBdDonnéesTableau,
       }
     );
 
-    const empreintes: string[] = [];
+    const ids: string[] = [];
     for (const val of vals) {
       const id = uuidv4();
-      empreintes.push(await bdDonnées.add({ ...val, id }));
+      await bdDonnées.put(id, val)
+      ids.push(id);
     }
 
     await fOublier();
 
-    return empreintes;
+    return ids;
   }
 
   async modifierÉlément({
     idTableau,
     vals,
-    empreintePrécédente,
+    idÉlément,
   }: {
     idTableau: string;
     vals: { [key: string]: élémentsBd | undefined };
-    empreintePrécédente: string;
-  }): Promise<string> {
+    idÉlément: string;
+  }): Promise<void> {
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdDonnées) {
       throw new Error(
@@ -771,15 +811,13 @@ export default class Tableaux {
     const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée(
       {
         id: idBdDonnées,
-        type: "feed",
-        schéma: schémaDonnéesTableau,
+        type: "keyvalue",
+        schéma: schémaBdDonnéesTableau,
       }
     );
 
-    const précédent = (await this.client.obtÉlémentBdListeSelonEmpreinte({
-      bd: bdDonnées,
-      empreinte: empreintePrécédente,
-    })) as { [key: string]: élémentsBd };
+    const précédent = await bdDonnées.get(idÉlément);
+    if (!précédent) throw new Error(`Id élément ${idÉlément} n'existe pas.`)
 
     const élément = Object.assign({}, précédent, vals);
 
@@ -788,16 +826,9 @@ export default class Tableaux {
     });
 
     if (!élémentsÉgaux(élément, précédent)) {
-      const résultat = await Promise.all([
-        bdDonnées.remove(empreintePrécédente),
-        bdDonnées.add(élément),
-      ]);
-      await fOublier();
-      return résultat[1];
-    } else {
-      await fOublier();
-      return Promise.resolve(empreintePrécédente);
+      await bdDonnées.put(idÉlément, élément)
     }
+    await fOublier();
   }
 
   async vérifierClefsÉlément<T extends élémentBdListeDonnées>({
@@ -810,7 +841,7 @@ export default class Tableaux {
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdColonnes) {
       throw new Error(
@@ -821,8 +852,8 @@ export default class Tableaux {
     const { bd: bdColonnes, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdColonnes,
-        type: "feed",
-        schéma: schémaInfoColAvecCatégorie,
+        type: "keyvalue",
+        schéma: schémaBdInfoColAvecCatégorie,
       });
     const idsColonnes: string[] = (await bdColonnes.all()).map(
       (e) => e.value.id
@@ -840,15 +871,15 @@ export default class Tableaux {
 
   async effacerÉlément({
     idTableau,
-    empreinte,
+    idÉlément,
   }: {
     idTableau: string;
-    empreinte: string;
+    idÉlément: string;
   }): Promise<void> {
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdDonnées) {
       throw new Error(
@@ -859,11 +890,11 @@ export default class Tableaux {
     const { bd: bdDonnées, fOublier } = await this.client.orbite!.ouvrirBdTypée(
       {
         id: idBdDonnées,
-        type: "feed",
-        schéma: schémaDonnéesTableau,
+        type: "keyvalue",
+        schéma: schémaBdDonnéesTableau,
       }
     );
-    await bdDonnées.remove(empreinte);
+    await bdDonnées.del(idÉlément);
     await fOublier();
   }
 
@@ -933,7 +964,7 @@ export default class Tableaux {
         if (Object.keys(àAjouter).length) {
           await this.effacerÉlément({
             idTableau: idTableauBase,
-            empreinte: existant.empreinte,
+            idÉlément: existant.id,
           });
           await this.ajouterÉlément({
             idTableau: idTableauBase,
@@ -1306,12 +1337,12 @@ export default class Tableaux {
     const àEffacer: string[] = [];
     for (const élément of donnéesTableau) {
       if (!donnéesConverties.some((x) => élémentsÉgaux(x, élément.données))) {
-        àEffacer.push(élément.empreinte);
+        àEffacer.push(élément.id);
       }
     }
 
-    for (const e of àEffacer) {
-      await this.effacerÉlément({ idTableau, empreinte: e });
+    for (const id of àEffacer) {
+      await this.effacerÉlément({ idTableau, idÉlément: id });
     }
 
     for (const n of nouveaux) {
@@ -1434,7 +1465,7 @@ export default class Tableaux {
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdColonnes) {
       throw new Error(
@@ -1445,17 +1476,19 @@ export default class Tableaux {
     const { bd: bdColonnes, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdColonnes,
-        type: "feed",
-        schéma: schémaInfoColAvecCatégorie,
+        type: "keyvalue",
+        schéma: schémaBdInfoColAvecCatégorie,
       });
-    const entrée: InfoCol = {
-      id: idColonne || uuidv4(),
+    
+    idColonne = idColonne || uuidv4();
+    const élément: InfoCol = {
+      id: idColonne,
       variable: idVariable,
     };
-    await bdColonnes.add(entrée);
+    await bdColonnes.put(idColonne, élément);
 
     await fOublier();
-    return entrée.id;
+    return idColonne;
   }
 
   async effacerColonneTableau({
@@ -1468,7 +1501,7 @@ export default class Tableaux {
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdColonnes) {
       throw new Error(
@@ -1479,13 +1512,10 @@ export default class Tableaux {
     const { bd: bdColonnes, fOublier } =
       await this.client.orbite!.ouvrirBdTypée({
         id: idBdColonnes,
-        type: "feed",
-        schéma: schémaInfoColAvecCatégorie,
+        type: "keyvalue",
+        schéma: schémaBdInfoColAvecCatégorie,
       });
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdColonnes,
-      élément: (x) => x.value.id === idColonne,
-    });
+    await bdColonnes.del(idColonne);
 
     await fOublier();
   }
@@ -1558,7 +1588,7 @@ export default class Tableaux {
       id: string;
       fSuivreBd: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
     }): Promise<schémaFonctionOublier> => {
-      return await this.client.suivreBdsDeBdListe({
+      return await this.client.suivreBdsDeBdDic({
         id,
         f: fSuivreBd,
         fBranche,
@@ -1575,11 +1605,11 @@ export default class Tableaux {
         fSuivre: fSuivreBdColonnes,
       });
     } else {
-      return await this.client.suivreBdListeDeClef({
+      return await this.client.suivreBdDicDeClef({
         id: idTableau,
         clef: "colonnes",
-        schéma: schémaInfoColAvecCatégorie,
-        f: fFinale,
+        schéma: schémaBdInfoColAvecCatégorie,
+        f: async cols => fFinale(Object.values(cols)),
       });
     }
   }
@@ -1627,7 +1657,7 @@ export default class Tableaux {
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
     if (!idBdRègles) {
       throw new Error(
@@ -1637,8 +1667,8 @@ export default class Tableaux {
 
     const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdRègles,
-      type: "feed",
-      schéma: schémaRègleColonne,
+      type: "keyvalue",
+      schéma: schémaBdRègles,
     });
 
     const id = uuidv4();
@@ -1647,12 +1677,12 @@ export default class Tableaux {
       règle,
     };
 
-    const entrée: règleColonne = {
+    const élément: règleColonne = {
       règle: règleAvecId,
       source: { type: "tableau", id: idTableau },
       colonne: idColonne,
     };
-    await bdRègles.add(entrée);
+    await bdRègles.put(id, élément);
 
     await fOublier();
 
@@ -1669,7 +1699,7 @@ export default class Tableaux {
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idTableau,
-      type: "feed",
+      type: "keyvalue",
     });
 
     if (!idBdRègles) {
@@ -1680,14 +1710,11 @@ export default class Tableaux {
 
     const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
       id: idBdRègles,
-      type: "feed",
-      schéma: schémaRègleColonne,
+      type: "keyvalue",
+      schéma: schémaBdRègles,
     });
 
-    await this.client.effacerÉlémentDeBdListe({
-      bd: bdRègles,
-      élément: (é) => é.value.règle.id === idRègle,
-    });
+    await bdRègles.del(idRègle);
 
     await fOublier();
   }
@@ -1708,15 +1735,15 @@ export default class Tableaux {
     };
 
     // Suivre les règles spécifiées dans le tableau
-    const fFinaleRèglesTableau = async (règles: règleColonne[]) => {
-      dicRègles.tableau = règles;
+    const fFinaleRèglesTableau = async (règles: {[id: string]: règleColonne}) => {
+      dicRègles.tableau = Object.values(règles);
       return await fFinale();
     };
 
-    const oublierRèglesTableau = await this.client.suivreBdListeDeClef({
+    const oublierRèglesTableau = await this.client.suivreBdDicDeClef({
       id: idTableau,
       clef: "règles",
-      schéma: schémaRègleColonne,
+      schéma: schémaBdRègles,
       f: fFinaleRèglesTableau,
     });
 

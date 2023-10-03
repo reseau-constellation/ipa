@@ -21,7 +21,7 @@ import GestionnaireAccès, {
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
 import { gestionnaireOrbiteGénéral } from "@/orbite.js";
-import {TypedFeed} from "@constl/bohr-db"
+import {TypedSet} from "@constl/bohr-db"
 import { EventEmitter } from "events";
 import ContrôleurAccès from "./cntrlMod.js";
 import { pathJoin } from "./utils.js";
@@ -131,7 +131,7 @@ const ContrôleurConstellation =
 
     let adresseBdAccès: string;
 
-    let bd: TypedFeed<élémentBdAccès>;
+    let bd: TypedSet<élémentBdAccès>;
     let fOublierBd: schémaFonctionOublier;
 
     if (address) {
@@ -150,7 +150,7 @@ const ContrôleurConstellation =
       });
       ({ bd, fOublier: fOublierBd } = await gestionnaireOrbite.ouvrirBdTypée({
         id: adresseBdAccès,
-        type: "feed",
+        type: "set",
         schéma: schémaBdAccès,
         options: {
           syncAutomatically: true,
@@ -159,7 +159,7 @@ const ContrôleurConstellation =
     } else {
       ({ bd, fOublier: fOublierBd } = await gestionnaireOrbite.ouvrirBdTypée({
         id: nom, // Je pense qu'on peut faire ça, tant que le nom reste unique...
-        type: "feed",
+        type: "set",
         schéma: schémaBdAccès,
         options: {
           AccessController: ContrôleurAccès({ write }),
