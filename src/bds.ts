@@ -359,7 +359,7 @@ export default class BDs extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdMétadonnées,
         });
-      const métadonnées = await bdMétadonnées.all();
+      const métadonnées = await bdMétadonnées.allAsJSON();
       await fOublierBdNoms();
       await this.sauvegarderMétadonnéesBd({ idBd: idNouvelleBd, métadonnées });
     }
@@ -372,7 +372,7 @@ export default class BDs extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const noms = await bdNoms.all();
+      const noms = await bdNoms.allAsJSON();
       await fOublierBdNoms();
       await this.sauvegarderNomsBd({ idBd: idNouvelleBd, noms });
     }
@@ -385,7 +385,7 @@ export default class BDs extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const descriptions = await bdDescr.all();
+      const descriptions = await bdDescr.allAsJSON();
       await fOublierBdDescr();
       await this.sauvegarderDescriptionsBd({
         idBd: idNouvelleBd,
@@ -442,7 +442,7 @@ export default class BDs extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
-      const tableaux = await bdTableaux.all();
+      const tableaux = await bdTableaux.allAsJSON();
 
       await fOublierBdTableaux();
       for (const idTableau of Object.keys(tableaux)) {

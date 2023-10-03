@@ -3,7 +3,7 @@ import {
   IPFSBlockStorage,
   LRUStorage,
   ComposedStorage,
-  Identities,
+  IdentitiesType,
   Storage,
   Entry,
 } from "@orbitdb/core";
@@ -20,7 +20,8 @@ import GestionnaireAccès, {
 
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
-import { FeedStoreTypé, gestionnaireOrbiteGénéral } from "@/orbite.js";
+import { gestionnaireOrbiteGénéral } from "@/orbite.js";
+import {TypedFeed} from "@constl/bohr-db"
 import { EventEmitter } from "events";
 import ContrôleurAccès from "./cntrlMod.js";
 import { pathJoin } from "./utils.js";
@@ -110,7 +111,7 @@ const ContrôleurConstellation =
     address,
   }: {
     orbitdb: OrbitDB;
-    identities: Identities;
+    identities: IdentitiesType;
     address?: string;
   }) => {
     write = write || orbitdb.identity.id;
@@ -130,7 +131,7 @@ const ContrôleurConstellation =
 
     let adresseBdAccès: string;
 
-    let bd: FeedStoreTypé<élémentBdAccès>;
+    let bd: TypedFeed<élémentBdAccès>;
     let fOublierBd: schémaFonctionOublier;
 
     if (address) {
@@ -201,7 +202,7 @@ const ContrôleurConstellation =
     };
 
     const canAppend = async (
-      entry: Entry<élémentBdAccès>
+      entry: Entry<unknown>
     ): Promise<boolean> => {
       const writerIdentity = await identities.getIdentity(entry.identity);
       if (!writerIdentity) {

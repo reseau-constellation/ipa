@@ -9,17 +9,16 @@ import type { élémentBdAccès, objRôles } from "@/accès/types.js";
 
 import type générerContrôleurConstellation from "./cntrlConstellation.js";
 import {
-  FeedStoreTypé,
   GestionnaireOrbite,
   gestionnaireOrbiteGénéral,
 } from "@/orbite.js";
-
+import { TypedFeed } from "@constl/bohr-db";
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
 >;
 
 export const suivreBdAccès = async (
-  bd: FeedStoreTypé<élémentBdAccès>,
+  bd: TypedFeed<élémentBdAccès>,
   f: schémaFonctionSuivi<élémentBdAccès[]>
 ): Promise<schémaFonctionOublier> => {
   const fFinale = async () => {
@@ -42,7 +41,7 @@ class AccèsUtilisateur extends EventEmitter {
   idBd: string;
 
   idBdAccès?: string;
-  bdAccès?: FeedStoreTypé<élémentBdAccès>;
+  bdAccès?: TypedFeed<élémentBdAccès>;
   fOublierBd?: schémaFonctionOublier;
   oublierSuivi?: schémaFonctionOublier;
   autorisés: string[];

@@ -14,7 +14,7 @@ import { cacheSuivi } from "./décorateursCache.js";
 import { faisRien, ignorerNonDéfinis } from "@constl/utils-ipa";
 
 import { JSONSchemaType } from "ajv";
-import { FeedStoreTypé, KeyValueStoreTypé } from "./orbite.js";
+import { TypedFeed, TypedKeyValue } from "@constl/bohr-db";
 
 // Obtenu de https://stackoverflow.com/a/54520829
 type KeysMatching<T, V> = {
@@ -74,7 +74,7 @@ export class ComposanteClientDic<
   }
 
   async obtBd(): Promise<{
-    bd: KeyValueStoreTypé<T>;
+    bd: TypedKeyValue<T>;
     fOublier: schémaFonctionOublier;
   }> {
     const id = await this.obtIdBd();
@@ -226,7 +226,7 @@ export class ComposanteClientListe<
   }
 
   async obtBd(): Promise<{
-    bd: FeedStoreTypé<T>;
+    bd: TypedFeed<T>;
     fOublier: schémaFonctionOublier;
   }> {
     const id = await this.obtIdBd();

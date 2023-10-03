@@ -243,7 +243,7 @@ export default class Variables extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const noms = await bdNoms.all();
+      const noms = await bdNoms.allAsJSON();
       await fOublierBdNoms();
       await this.sauvegarderNomsVariable({ idVariable: idNouvelleBd, noms });
     }
@@ -256,7 +256,7 @@ export default class Variables extends ComposanteClientListe<string> {
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
         });
-      const descriptions = await bdDescr.all();
+      const descriptions = await bdDescr.allAsJSON();
       await fOublierBdDescr();
       await this.sauvegarderDescriptionsVariable({
         idVariable: idNouvelleBd,
