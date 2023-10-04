@@ -199,8 +199,8 @@ devDependencies:
     specifier: ^6.7.4
     version: 6.7.4(eslint@8.50.0)(typescript@5.2.2)
   aegir:
-    specifier: ^40.0.13
-    version: 40.0.13(@babel/core@7.23.0)(@typescript-eslint/parser@6.7.4)(eslint-plugin-n@16.1.0)
+    specifier: ^41.0.0
+    version: 41.0.0(@babel/core@7.23.0)(@typescript-eslint/parser@6.7.3)(eslint-plugin-n@16.1.0)
   bmp-js:
     specifier: ^0.1.0
     version: 0.1.0
@@ -1211,7 +1211,7 @@ packages:
       '@babel/helper-function-name': 7.23.0
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/parser': 7.22.5
+      '@babel/parser': 7.23.0
       '@babel/types': 7.23.0
       debug: 4.3.4(supports-color@8.1.1)
       globals: 11.12.0
@@ -4846,7 +4846,7 @@ packages:
   /@vue/compiler-core@3.3.4:
     resolution: {integrity: sha512-cquyDNvZ6jTbf/+x+AgM2Arrp6G4Dzbb0R64jiG804HRMfRiFXWI6kqUVqZ6ZR0bQhIoQjB4+2bhNtVwndW15g==}
     dependencies:
-      '@babel/parser': 7.22.5
+      '@babel/parser': 7.23.0
       '@vue/shared': 3.3.4
       estree-walker: 2.0.2
       source-map-js: 1.0.2
@@ -4862,7 +4862,7 @@ packages:
   /@vue/compiler-sfc@3.3.4:
     resolution: {integrity: sha512-6y/d8uw+5TkCuzBkgLS0v3lSM3hJDntFEiUORM11pQ/hKvkhSKZrXW6i69UyXlJQisJxuUEJKAWEqWbWsLeNKQ==}
     dependencies:
-      '@babel/parser': 7.22.5
+      '@babel/parser': 7.23.0
       '@vue/compiler-core': 3.3.4
       '@vue/compiler-dom': 3.3.4
       '@vue/compiler-ssr': 3.3.4
@@ -4884,7 +4884,7 @@ packages:
   /@vue/reactivity-transform@3.3.4:
     resolution: {integrity: sha512-MXgwjako4nu5WFLAjpBnCj/ieqcjE2aJBINUNQzkZQfzIZA4xn+0fV1tIYBJvvva3N3OvKGofRLvQIwEQPpaXw==}
     dependencies:
-      '@babel/parser': 7.22.5
+      '@babel/parser': 7.23.0
       '@vue/compiler-core': 3.3.4
       '@vue/shared': 3.3.4
       estree-walker: 2.0.2
@@ -4985,8 +4985,8 @@ packages:
     hasBin: true
     dev: true
 
-  /aegir@40.0.13(@babel/core@7.23.0)(@typescript-eslint/parser@6.7.4)(eslint-plugin-n@16.1.0):
-    resolution: {integrity: sha512-Z/rVx9RpSd0Bmj/0t56E5rcm23lss6WRqMVxO5bAfDPoEnb4Zrk+/JEjGM3Z9/8U7TP6KV3ioNJXy0N6rKi8Lg==}
+  /aegir@41.0.0(@babel/core@7.23.0)(@typescript-eslint/parser@6.7.3)(eslint-plugin-n@16.1.0):
+    resolution: {integrity: sha512-aEMmlQj3wzEveGcYM/rv+06wL5AZvhotfk2zicRw00plRLxovXUav8txzKExaR1AFvXlH5+ObexHX9TKNdtQ6A==}
     engines: {node: '>=18.0.0', npm: '>=8.6.0'}
     hasBin: true
     dependencies:
@@ -5022,7 +5022,7 @@ packages:
       env-paths: 3.0.0
       esbuild: 0.19.4
       eslint: 8.50.0
-      eslint-config-ipfs: 5.0.1(eslint-plugin-n@16.1.0)(eslint@8.50.0)(typescript@5.2.2)
+      eslint-config-ipfs: 6.0.0(eslint-plugin-n@16.1.0)(eslint@8.50.0)(typescript@5.2.2)
       eslint-plugin-etc: 2.0.3(eslint@8.50.0)(typescript@5.2.2)
       eslint-plugin-import: 2.28.1(@typescript-eslint/parser@6.7.4)(eslint@8.50.0)
       eslint-plugin-jsdoc: 46.8.2(eslint@8.50.0)
@@ -7826,8 +7826,8 @@ packages:
       semver: 6.3.1
     dev: true
 
-  /eslint-config-ipfs@5.0.1(eslint-plugin-n@16.1.0)(eslint@8.50.0)(typescript@5.2.2):
-    resolution: {integrity: sha512-rzMz44vDw4noJzFAz1gWT3/9VLFISGZsqg1o+svjiOQHzhee5GUK4yXXx89xNon77vQ/2tGvb6Qn/akIiNC1+g==}
+  /eslint-config-ipfs@6.0.0(eslint-plugin-n@16.1.0)(eslint@8.50.0)(typescript@5.2.2):
+    resolution: {integrity: sha512-8ZzsQFicC6Yu64KR923MmP7JHjGfQ2xvnQF3yC5WPGWVmGEOR+qNr53ak5D37wtc0/xNz5IdqdGJ9ZB6Qnso9w==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     peerDependencies:
       typescript: '*'
@@ -9226,6 +9226,17 @@ packages:
       jackspeak: 2.3.6
       minimatch: 9.0.3
       minipass: 7.0.4
+      path-scurry: 1.10.1
+
+  /glob@10.3.9:
+    resolution: {integrity: sha512-2tU/LKevAQvDVuVJ9pg9Yv9xcbSh+TqHuTaXTNbQwf+0kDl9Fm6bMovi4Nm5c8TVvfxo2LLcqCGtmO9KoJaGWg==}
+    engines: {node: '>=16 || 14 >=14.17'}
+    hasBin: true
+    dependencies:
+      foreground-child: 3.1.1
+      jackspeak: 2.3.5
+      minimatch: 9.0.3
+      minipass: 7.0.3
       path-scurry: 1.10.1
 
   /glob@7.2.0:
@@ -17640,7 +17651,7 @@ packages:
     dev: true
 
   '@cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz':
-    resolution: {tarball: https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz}
+    resolution: {registry: https://registry.npmjs.org/, tarball: https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz}
     name: xlsx
     version: 0.19.1
     engines: {node: '>=0.8'}
