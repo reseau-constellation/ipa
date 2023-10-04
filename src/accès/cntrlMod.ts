@@ -63,7 +63,6 @@ const ContrôleurAccès =
       ));
     write = write || orbitdb.identity.id;
 
-    let dernierAppel = Date.now();
     const gestAccès = new GestionnaireAccès(orbitdb);
 
     if (address) {
@@ -110,7 +109,6 @@ const ContrôleurAccès =
       ) {
         if (rôle === MODÉRATEUR) {
           await gestAccès.ajouterÉléments([{ id: idAjout, rôle: MODÉRATEUR }]);
-          dernierAppel = Date.now();
         }
         return true;
       }
