@@ -4,6 +4,7 @@ import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import ContrôleurAccès from "@/accès/cntrlMod.js";
 
 export const enregistrerContrôleurs = (): void => {
+  console.log("on enregistre les contrôleurs")
   useAccessController(ContrôleurConstellation);
   useAccessController(ContrôleurAccès);
 };

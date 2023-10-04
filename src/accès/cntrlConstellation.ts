@@ -6,6 +6,7 @@ import {
   IdentitiesType,
   Storage,
   Entry,
+  LogEntry,
 } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 import * as Block from "multiformats/block";
@@ -162,7 +163,7 @@ const ContrôleurConstellation =
         type: "set",
         schéma: schémaBdAccès,
         options: {
-          AccessController: ContrôleurAccès({ write }),
+          AccessController: ContrôleurAccès({ write, storage }),
           syncAutomatically: true,
         },
       }));
@@ -202,7 +203,7 @@ const ContrôleurConstellation =
     };
 
     const canAppend = async (
-      entry: Entry<unknown>
+      entry: LogEntry<unknown>
     ): Promise<boolean> => {
       const writerIdentity = await identities.getIdentity(entry.identity);
       if (!writerIdentity) {
