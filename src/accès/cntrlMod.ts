@@ -6,7 +6,9 @@ import {
   type IdentitiesType,
   type OrbitDB,
   Entry,
+  type LogEntry
 } from "@orbitdb/core";
+
 import * as Block from "multiformats/block";
 import * as dagCbor from "@ipld/dag-cbor";
 import { sha256 } from "multiformats/hashes/sha2";
@@ -61,7 +63,6 @@ const ContrôleurAccès =
       ));
     write = write || orbitdb.identity.id;
 
-    let dernierAppel = Date.now();
     const gestAccès = new GestionnaireAccès(orbitdb);
 
     if (address) {
@@ -87,7 +88,7 @@ const ContrôleurAccès =
     await gestAccès.ajouterÉléments([{ id: write!, rôle: MODÉRATEUR }]);
 
     const canAppend = async (
-      entry: Entry
+      entry: LogEntry
     ): Promise<boolean> => {
       // Pour l'instant, on ne peut qu'ajouter des membres
       if (entry.payload.op !== "ADD" || !entry.payload.value) return false;
@@ -102,45 +103,34 @@ const ContrôleurAccès =
       }
       const { id } = writerIdentity;
 
-      if (
-        rôleValide &&
-        (await estUnModérateurPatient(id)) &&
+      if (rôleValide &&
+        (await seraÉventuellementUnModérateur(id, entry)) &&
         identities.verifyIdentity(writerIdentity)
       ) {
         if (rôle === MODÉRATEUR) {
           await gestAccès.ajouterÉléments([{ id: idAjout, rôle: MODÉRATEUR }]);
-          dernierAppel = Date.now();
         }
         return true;
       }
       return false;
     };
 
-    // À faire : vérifier si toujours nécessaire sur bd-orbite 1,0
-    const estUnModérateurPatient = async (id: string): Promise<boolean> => {
-      const PATIENCE = 1000;
+    const seraÉventuellementUnModérateur = async (id: string, entry: LogEntry): Promise<boolean> => {
+      if(await gestAccès.estUnModérateur(id)) return true;
+      
+      const prochains = entry.next
 
-      if (await gestAccès.estUnModérateur(id)) return true;
+      for (const prochain of prochains) {
+        const octets = await storage?.get(prochain);
+        const prochaineEntrée = await Entry.decode(octets)
+        const prochaineValide = await canAppend(prochaineEntrée)
 
-      return new Promise((résoudre) => {
-        const partirCrono = () => {
-          setTimeout(async () => {
-            const estAutorisé = await gestAccès.estUnModérateur(id);
-            if (estAutorisé) {
-              résoudre(true);
-            } else {
-              const maintenant = Date.now();
-              if (maintenant - dernierAppel > PATIENCE) {
-                résoudre(false);
-              } else {
-                partirCrono();
-              }
-            }
-          }, 100);
-        };
-        partirCrono();
-      });
-    };
+        if (prochaineValide) {
+          if (await gestAccès.estUnModérateur(id)) return true;
+        }
+      }
+      return false;
+    }
 
     return {
       type,
