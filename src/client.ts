@@ -91,6 +91,7 @@ type ContrôleurConstellation = Awaited<
 >;
 
 const estOrbiteDB = (x: unknown): x is OrbitDB => {
+  if (!x) return false;
   const xCommeOrbite = x as OrbitDB;
   return (
     xCommeOrbite.id &&
