@@ -785,7 +785,7 @@ Suit les données d'un tableau d'une nuée.
 | `ignorerErreursFormatTableau` | `boolean` | Ignorer les erreurs de structure des tableaux faisant parti de la nuée. Faux par défaut. |
 | `ignorerErreursDonnéesTableau` | `boolean` | Ignorer les erreurs des données faisant parti de la nuée. Vrai par défaut (les données avec des erreurs de validation seront présentes dans les résultats, mais les erreurs seront elles aussi signalées). |
 | `licencesPermises` | `string[] \| undefined` | Une liste de licences permises. Si spécifiée, uniquement les bases de données ayant une licence présente dans la liste seront incluses dans les résultats. |
-| `toujoursInclureLesMiennes` | `boolean` |  |
+| `toujoursInclureLesMiennes` | `boolean` | Si nous incluons toujours les données provenant de notre propre compte dans les résultats, peu importe si nous sommes autorisés à contribuer à la nuée ou non. Vrai par défaut. |
 | `clefsSelonVariables` | `boolean \| undefined` | Si nous voulons utiliser les identifiants des variables (au lieu de l'identifiant des colonnes) pour les clefs des valeurs. Faux par défaut. |
 
 #### Retour
