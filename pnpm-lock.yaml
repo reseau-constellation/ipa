@@ -131,8 +131,8 @@ dependencies:
     specifier: 9.9.0
     version: 9.9.0
   prom-client:
-    specifier: ^14.2.0
-    version: 14.2.0
+    specifier: ^15.0.0
+    version: 15.0.0
   ssim:
     specifier: ^0.0.0
     version: 0.0.0
@@ -200,7 +200,7 @@ devDependencies:
     version: 6.7.4(eslint@8.50.0)(typescript@5.2.2)
   aegir:
     specifier: ^41.0.0
-    version: 41.0.0(@babel/core@7.23.0)(@typescript-eslint/parser@6.7.3)(eslint-plugin-n@16.1.0)
+    version: 41.0.0(@babel/core@7.23.0)(@typescript-eslint/parser@6.7.4)(eslint-plugin-n@16.1.0)
   bmp-js:
     specifier: ^0.1.0
     version: 0.1.0
@@ -3887,6 +3887,11 @@ packages:
       '@octokit/openapi-types': 19.0.0
     dev: true
 
+  /@opentelemetry/api@1.6.0:
+    resolution: {integrity: sha512-OWlrQAnWn9577PhVgqjUvMr1pg57Bc4jv0iL4w0PRuOSRvq67rvHW9Ie/dZVMvCzhSCB+UxhcY/PmCmFj33Q+g==}
+    engines: {node: '>=8.0.0'}
+    dev: false
+
   /@orbitdb/core@1.0.0:
     resolution: {integrity: sha512-shTUokJCZubKh3M1kqxeDdIlLAMMBnmGfmBA+/EpVgCPCD+CfGReYDPm2IDaeRqG0UV83+tb/BnxlJ2zTZyf0Q==}
     engines: {node: '>=16.0.0'}
@@ -4985,7 +4990,7 @@ packages:
     hasBin: true
     dev: true
 
-  /aegir@41.0.0(@babel/core@7.23.0)(@typescript-eslint/parser@6.7.3)(eslint-plugin-n@16.1.0):
+  /aegir@41.0.0(@babel/core@7.23.0)(@typescript-eslint/parser@6.7.4)(eslint-plugin-n@16.1.0):
     resolution: {integrity: sha512-aEMmlQj3wzEveGcYM/rv+06wL5AZvhotfk2zicRw00plRLxovXUav8txzKExaR1AFvXlH5+ObexHX9TKNdtQ6A==}
     engines: {node: '>=18.0.0', npm: '>=8.6.0'}
     hasBin: true
@@ -9226,17 +9231,6 @@ packages:
       jackspeak: 2.3.6
       minimatch: 9.0.3
       minipass: 7.0.4
-      path-scurry: 1.10.1
-
-  /glob@10.3.9:
-    resolution: {integrity: sha512-2tU/LKevAQvDVuVJ9pg9Yv9xcbSh+TqHuTaXTNbQwf+0kDl9Fm6bMovi4Nm5c8TVvfxo2LLcqCGtmO9KoJaGWg==}
-    engines: {node: '>=16 || 14 >=14.17'}
-    hasBin: true
-    dependencies:
-      foreground-child: 3.1.1
-      jackspeak: 2.3.5
-      minimatch: 9.0.3
-      minipass: 7.0.3
       path-scurry: 1.10.1
 
   /glob@7.2.0:
@@ -14787,6 +14781,14 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       tdigest: 0.1.2
+
+  /prom-client@15.0.0:
+    resolution: {integrity: sha512-UocpgIrKyA2TKLVZDSfm8rGkL13C19YrQBAiG3xo3aDFWcHedxRxI3z+cIcucoxpSO0h5lff5iv/SXoxyeopeA==}
+    engines: {node: ^16 || ^18 || >=20}
+    dependencies:
+      '@opentelemetry/api': 1.6.0
+      tdigest: 0.1.2
+    dev: false
 
   /prompt@1.3.0:
     resolution: {integrity: sha512-ZkaRWtaLBZl7KKAKndKYUL8WqNT+cQHKRZnT4RYYms48jQkFw3rrBL+/N5K/KtdEveHkxs982MX2BkDKub2ZMg==}
