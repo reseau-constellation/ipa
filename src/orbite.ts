@@ -374,6 +374,22 @@ export class GestionnaireOrbite {
     return async () => clearInterval(i);
   }
 
+  async appliquerFonctionBdOrbite({
+    idBd, fonction, args
+  }: {
+    idBd: string;
+    fonction: string;
+    args: unknown[];
+  }): Promise<unknown> {
+    const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
+    
+    // @ts-expect-error L'inférence de types marche mal ici
+    const résultat = await bd[fonction](args);
+
+    await fOublier();
+    return résultat
+  }
+
   async fermer({ arrêterOrbite }: { arrêterOrbite: boolean }): Promise<void> {
     if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
     if (arrêterOrbite) {
