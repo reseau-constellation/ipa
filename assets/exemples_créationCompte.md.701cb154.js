@@ -1,1 +1,0 @@
-import{_ as e,o as t,c as o}from"./chunks/framework.a7175731.js";const d=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"exemples/créationCompte.md","filePath":"exemples/créationCompte.md"}'),a={name:"exemples/créationCompte.md"};function r(c,n,s,p,m,i){return t(),o("div")}const l=e(a,[["render",r]]);export{d as __pageData,l as default};
