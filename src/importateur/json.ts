@@ -5,8 +5,8 @@ export type valsJSON =
   | valsJSON[]
   | { [key: string]: valsJSON };
 
-type élémentDic = { [key: string]: valsJSON };
-type élémentListe = valsJSON[];
+export type élémentDic = { [key: string]: valsJSON };
+export type élémentListe = valsJSON[];
 export type élément = élémentDic | élémentListe;
 export type DonnéesJSON = élément | élément[];
 

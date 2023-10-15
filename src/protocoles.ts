@@ -36,17 +36,18 @@ export default class Protocoles extends ComposanteClientDic<structureBdProtocole
     idDispositif?: string;
   }): Promise<void> {
     idDispositif = idDispositif || (await this.client.obtIdDispositif());
+
     const { bd, fOublier } = await this.obtBd();
 
+    const existants = (await bd.allAsJSON())[idDispositif];
     if (protocoles) {
-      const existants = (await bd.allAsJSON())[idDispositif];
       if (
         protocoles.some((p) => !existants.includes(p)) ||
         existants.some((p) => !protocoles.includes(p))
       ) {
         await bd.put(idDispositif, protocoles);
       }
-    } else {
+    } else if (existants?.length) {
       await bd.del(idDispositif);
     }
 

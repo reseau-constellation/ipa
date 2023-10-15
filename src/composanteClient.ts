@@ -78,7 +78,6 @@ export class ComposanteClientDic<
     fOublier: schémaFonctionOublier;
   }> {
     const id = await this.obtIdBd();
-    if (!id) throw new Error("Initialisation " + this.clef);
 
     return await this.client.orbite!.ouvrirBdTypée({
       id,
@@ -230,7 +229,6 @@ export class ComposanteClientListe<
     fOublier: schémaFonctionOublier;
   }> {
     const id = await this.obtIdBd();
-    if (!id) throw new Error("Initialisation " + this.clef);
 
     return await this.client.orbite!.ouvrirBdTypée({
       id,

@@ -965,6 +965,7 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
         switch (formatDonnées) {
           case "json": {
             const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
+            // À faire : inclure code pour importations "spéciales" comme epicollect, etc.
             const donnéesJson = await importerJSONdURL(url);
             const importateur = new ImportateurDonnéesJSON(donnéesJson);
             return importateur.obtDonnées(clefsRacine, clefsÉléments, cols);

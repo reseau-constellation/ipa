@@ -40,6 +40,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
 import { isValidAddress } from "@orbitdb/core";
 import { cidEtFichierValide } from "@/epingles.js";
+import axios from "axios";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -1022,6 +1023,24 @@ export default class Tableaux {
     }: {
       chemin: string;
     }): Promise<string | undefined> => {
+      try {
+        new URL(chemin);
+        if (fichiersDéjàAjoutés[chemin])
+          return fichiersDéjàAjoutés[chemin];
+        const contenuFichier = (await axios.get(chemin)).data;
+        const composantesUrl = chemin.split('/')
+        const nomFichier = composantesUrl.pop() || composantesUrl.pop()
+        const cid = await this.client.ajouterÀSFIP({
+          fichier: {
+            path: nomFichier,
+            content: contenuFichier,
+          },
+        });
+        fichiersDéjàAjoutés[chemin] = cid;
+      } catch {
+        // Rien à faire;  
+      }
+    
       if (isNode || isElectronMain) {
         const fs = await import("fs");
         const path = await import("path");
