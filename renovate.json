@@ -10,6 +10,10 @@
       "matchUpdateTypes": ["minor", "patch"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^actions/"],
+      "automerge": true
     }
   ]
 }
