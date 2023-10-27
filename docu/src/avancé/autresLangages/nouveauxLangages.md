@@ -8,6 +8,7 @@ Le client devra communiquer avec le nœud Constellation par l'entremise de WebSo
 
 ### Actions
 Pour invoquer une action Constellation, le client devra envoyer un message de la forme suivante :
+
 ```TypeScript
 interface MessageActionPourTravailleur extends MessagePourTravailleur {
   type: "action";
@@ -18,6 +19,7 @@ interface MessageActionPourTravailleur extends MessagePourTravailleur {
 ```
 
 Il recevra ensuite, du serveur, un message de la forme suivante :
+
 ```TypeScript
 interface MessageActionDeTravailleur extends MessageDeTravailleur {
   type: "action";
@@ -72,6 +74,7 @@ await fOublier();
 ```
 
 Pour invoquer la même fonction par le serveur, nous enverrons le message suivant :
+
 ```TypeScript
 import { v4 as uuidv4 } from 'uuid';
 
@@ -98,6 +101,7 @@ Et nous recevrons une réponse comme tel lorsque le suivi est amorcé :
 ```
 
 Et des messages suiveront avec les résultats en temps réel de la recherche :
+
 ```Json
 {
   "type": "suivre",
@@ -107,6 +111,7 @@ Et des messages suiveront avec les résultats en temps réel de la recherche :
 ```
 
 Pour annuler le suivi, envoyer le message suivant :
+
 ```TypeScript
 const message: MessageRetourPourTravailleur = {
   type: "retour",
@@ -139,6 +144,7 @@ await fOublier();
 ```
 
 Pour invoquer la même fonction par le serveur, nous enverrons le message suivant :
+
 ```TypeScript
 import { v4 as uuidv4 } from 'uuid';
 
@@ -156,6 +162,7 @@ const message: MessageSuivrePourTravailleur = {
 ```
 
 Et nous recevrons une réponse comme suit lorsque la recherche est amorcée :
+
 ```Json
 {
   "type": "suivrePrêt",
@@ -165,6 +172,7 @@ Et nous recevrons une réponse comme suit lorsque la recherche est amorcée :
 ```
 
 Pour changer le nombre de résultats désirés, il suffit d'envoyer un message comme suit :
+
 ```TypeScript
 const message: MessageRetourPourTravailleur = {
   type: "retour",
