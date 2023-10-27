@@ -1067,7 +1067,7 @@ export class ClientConstellation extends EventEmitter {
           });
 
           /* if (
-            é === "write" &&
+            é === "update" &&
             bd.events.listenerCount("write") > bd.events.getMaxListeners()
           ) {
             console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})

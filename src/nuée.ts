@@ -2112,14 +2112,14 @@ export default class Nuée extends ComposanteClientListe<string> {
   async suivreBdsCorrespondantes({
     idNuée,
     f,
-    vérifierAutorisation = true,
     nRésultatsDésirés,
+    vérifierAutorisation = true,
     toujoursInclureLesMiennes = true,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
-    vérifierAutorisation?: boolean;
     nRésultatsDésirés: number;
+    vérifierAutorisation?: boolean;
     toujoursInclureLesMiennes?: boolean;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     if (vérifierAutorisation) {

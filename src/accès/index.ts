@@ -1,12 +1,13 @@
 import { useAccessController } from "@orbitdb/core";
 
-import ContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import ContrôleurAccès from "@/accès/cntrlMod.js";
+import ContrôleurConstellation from "./cntrlConstellation.js";
+import ContrôleurAccès from "./cntrlMod.js";
 
 export const enregistrerContrôleurs = (): void => {
-  console.log("on enregistre les contrôleurs")
   useAccessController(ContrôleurConstellation);
   useAccessController(ContrôleurAccès);
 };
 
-export * from "@/accès/consts.js";
+export * from "./cntrlConstellation.js";
+export * from "./cntrlMod.js";
+export * from "./consts.js";
