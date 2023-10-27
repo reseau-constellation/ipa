@@ -506,7 +506,7 @@ typesClients.forEach((type) => {
                 idCompte: idsBdCompte[2],
               });
               const val = await relationsPropres.attendreQue(
-                (x) => !!x && x.length === 1
+                (x) => x.find(r=>r.idCompte === idsBdCompte[1])?.confiance !== -1
               );
               expect(val).to.have.deep.members(réf);
             });
