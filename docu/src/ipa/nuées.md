@@ -809,7 +809,35 @@ const fOublierDonnées = await clientnuées.suivreDonnéesTableauNuée({
 
 
 ## Bds
-### `client.nuées.suivreBdsCorrespondantes`
+### `client.nuées.suivreBdsCorrespondantes({ idNuée, f, ... })`
+Suit les bases de données (sur tout le réseau) qui sont associées à la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `f` | `(bds: string[]) => void` | La fonction qui sera appellée avec les identifiants des bases de données associées données chaque fois que ceux-ci changent. |
+| `nRésultatsDésirés` | `number` | Le nombre de résultats désiré. |
+| `vérifierAutorisation` | `boolean` | Si nous rapportons uniquement les bases de données autorisées à contribuer à la nuée. Vrai par défaut. |
+| `toujoursInclureLesMiennes` | `boolean` | S'il faut sauter la vérification d'autorisation pour les bases de données provenant de notre propre compte. Vrai par défaut. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+#### Exemple
+```ts
+// ...continuant de ci-dessus...
+
+const bdsConnexes = ref<string[]>();
+const fOublierBdss = await clientnuées.suivreBdsCorrespondantes({ 
+    idNuée,
+    f: x => bdsConnexes.value = x,
+    nRésultatsDésirés: 100,
+ });
+
+```
 
 ## Accès et permissions
 La stratégie d'accès à une nuée peut être soit « innocent jusqu'à ce que prouvé coupable », ou `"IJPC"` (tout le monde peut participer, jusqu'à ce qu'on les bloque), soit « coupable jusqu'à ce que prouvé innocent », ou `"CJPI"` (uniquement les personnes invitées peuvent participer).
@@ -834,13 +862,14 @@ Ces autorisations ne s'appliquent qu'au droit des personnes à contribuer des do
 Ces fonctions servent à comparer une base de donnée ou un tableau à leurs spécifications dans une nuée afin de vérifier s'ils sont compatibles ou non.
 
 ### `client.nuées.suivreCorrespondanceBd`
-Suit toutes les différences de structure entre une nuée et une base de données (y compris les différences entre leux tableaux).
+Suit toutes les différences de structure entre une base de données et les nuées auxquelles elle est associée (y compris les différences entre leux tableaux).
+
 
 ### `client.nuées.suivreDifférencesNuéeEtTableau`
 Suit différences de structure entre un tableaux d'un base de données et sa spécification correspondante dans une nuée.
 
 ### `client.nuées.suivreDifférencesNuéeEtBd`
-Suit différences de structure entre une base de données et la spécification d'une nuée (ignorant les différences éventuelles entre les tableaux).
+Suit différences de structure entre une base de données et la spécification d'une nuée.
 
 
 ## Exportation
@@ -977,6 +1006,7 @@ await fOublierParents();  // Arrêter le suivi
 ## Types
 
 ### Types données
+Ces types décrivent la structure des données d'une nuée.
 
 ```ts
 export type élémentDeMembre<T extends élémentBdListeDonnées> = {
@@ -988,5 +1018,76 @@ export type élémentDeMembreAvecValid<T extends élémentBdListeDonnées> =
   élémentDeMembre<T> & {
     valid: erreurValidation[];
   };
+```
+
+### Types différences
+Ces types décrivent les différences entre des tableaux ou bases de données et leurs spécifications correspondantes dans une nuée.
+
+```ts
+// Pour les tableaux
+export type différenceTableaux =
+  | différenceVariableColonne
+  | différenceIndexColonne
+  | différenceColonneManquante
+  | différenceColonneSupplémentaire;
+
+export type différenceVariableColonne = {
+  type: "variableColonne";
+  sévère: true;
+  idCol: string;
+  varColTableau: string;
+  varColTableauLiée: string;
+};
+
+export type différenceIndexColonne = {
+  type: "indexColonne";
+  sévère: true;
+  idCol: string;
+  colTableauIndexée: boolean;
+};
+
+export type différenceColonneManquante = {
+  type: "colonneManquante";
+  sévère: true;
+  idManquante: string;
+};
+
+export type différenceColonneSupplémentaire = {
+  type: "colonneSupplémentaire";
+  sévère: false;
+  idExtra: string;
+};
+
+// Pour les bases de données
+export type différenceBds =
+  | différenceBDTableauSupplémentaire
+  | différenceBDTableauManquant
+  | différenceTableauxBds;
+
+export type différenceBDTableauManquant = {
+  type: "tableauManquant";
+  sévère: true;
+  clefManquante: string;
+};
+
+export type différenceBDTableauSupplémentaire = {
+  type: "tableauSupplémentaire";
+  sévère: false;
+  clefExtra: string;
+};
+
+export type différenceTableauxBds<
+  T extends différenceTableaux = différenceTableaux
+> = {
+  type: "tableau";
+  sévère: T["sévère"];
+  idTableau: string;
+  différence: T;
+};
+
+export type correspondanceBdEtNuée = {
+  nuée: string;
+  différences: différenceBds[];
+};
 
 ```
