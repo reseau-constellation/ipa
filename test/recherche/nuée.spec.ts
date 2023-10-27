@@ -542,7 +542,7 @@ describe("Client ", function () {
         score: 1,
       };
 
-      const valRésultatVariable = await résultatVariable.attendreExiste();
+      const valRésultatVariable = await résultatVariable.attendreQue(x=>x.de === "variable");
       expect(valRésultatVariable).to.deep.equal(résRéf);
     });
 
@@ -579,7 +579,7 @@ describe("Client ", function () {
         score: 1,
       };
 
-      const val = await résultatMotClef.attendreExiste();
+      const val = await résultatMotClef.attendreQue(x=>x.de === "motClef");
       expect(val).to.deep.equal(résRéf);
     });
   });
