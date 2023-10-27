@@ -508,7 +508,7 @@ typesClients.forEach((type) => {
               const val = await relationsPropres.attendreQue(
                 (x) => x.find(r=>r.idCompte === idsBdCompte[1])?.confiance !== -1
               );
-              expect(val.find(r=>r.idCompte === idsBdCompte[1])).to.deep.equal(réf);
+              expect(val.find(r=>r.idCompte === idsBdCompte[1])).to.deep.equal(réf[0]);
             });
 
             it("Ajout membres au réseau d'un autre membre détecté", async () => {
