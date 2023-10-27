@@ -519,7 +519,7 @@ export default class Licences {
   }): Promise<void> {
     await this.attendrePrêt();
     if (this.perroquet) {
-      await this.perroquet.பரிந்துரையை_நீக்கு({ கைரேகை: idÉlément });
+      await this.perroquet.பரிந்துரையை_நீக்கு({ அடையாளம்: idÉlément });
     }
   }
 
