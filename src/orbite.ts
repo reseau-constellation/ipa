@@ -58,6 +58,7 @@ export default async function initOrbite({
 
   const orbite = await createOrbitDB({
     ipfs: sfip,
+    id: "constellation",
     directory: dossierOrbiteFinal,
   });
 
