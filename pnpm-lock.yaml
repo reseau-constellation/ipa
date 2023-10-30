@@ -154,8 +154,8 @@ dependencies:
 
 devDependencies:
   '@constl/orbit-db-types':
-    specifier: ^1.2.8
-    version: 1.2.8
+    specifier: ^1.2.9
+    version: 1.2.9
   '@constl/utils-tests':
     specifier: ^0.2.2
     version: 0.2.2
@@ -1437,8 +1437,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@constl/orbit-db-types@1.2.8:
-    resolution: {integrity: sha512-w41LviFLQCpmS6jzmBI/Xl7TCyegOmtlDF8DaBSr1X+hJ8NdJfI+H6N0EhCftWAr4bYJSgB/KUx576ud3lLfew==}
+  /@constl/orbit-db-types@1.2.9:
+    resolution: {integrity: sha512-Mv+xg2n60cv71f5EZ+X3ZWVwxZeIXBbnjJAnFoYzV0OmyUaJAWgIjvNdx7n3/hGni7Qu9AjstBd8Jff9UbGGwg==}
     dev: true
 
   /@constl/utils-ipa@0.2.1:

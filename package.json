@@ -32,7 +32,7 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/orbit-db-types": "^1.2.8",
+    "@constl/orbit-db-types": "^1.2.9",
     "@constl/utils-tests": "^0.2.2",
     "@libp2p/interface-connection-manager": "^3.0.1",
     "@libp2p/interface-pubsub": "^4.0.1",
