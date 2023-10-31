@@ -41,8 +41,8 @@ import { JSONSchemaType } from "ajv";
 import { isValidAddress } from "@orbitdb/core";
 import { cidEtFichierValide } from "@/epingles.js";
 import axios from "axios";
-import md5 from "crypto-js/md5";
-import Base64 from "crypto-js/enc-base64";
+import md5 from "crypto-js/md5.js";
+import Base64 from "crypto-js/enc-base64.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
