@@ -41,6 +41,8 @@ import { JSONSchemaType } from "ajv";
 import { isValidAddress } from "@orbitdb/core";
 import { cidEtFichierValide } from "@/epingles.js";
 import axios from "axios";
+import md5 from "crypto-js/md5";
+import Base64 from "crypto-js/enc-base64";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -777,9 +779,21 @@ export default class Tableaux {
       }
     );
 
+    // Éviter, autant que possible, de dédoubler des colonnes indexes
+    const colsIndexe = (await uneFois(
+      (f: schémaFonctionSuivi<InfoCol[]>) =>
+        this.suivreColonnesTableau({ idTableau, f, catégories: false })
+    )).filter(c=>c.index).map(c=>c.id)
+    const obtIdIndex = (v: T): string => {
+      const valsIndex = Object.fromEntries(
+        Object.entries(v).filter(x=>colsIndexe.includes(x[0]))
+      )
+      return Base64.stringify(md5(JSON.stringify(valsIndex)))
+    }
+
     const ids: string[] = [];
     for (const val of vals) {
-      const id = uuidv4();
+      const id = colsIndexe.length? uuidv4() : obtIdIndex(val);
       await bdDonnées.put(id, val)
       ids.push(id);
     }
