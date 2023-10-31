@@ -2305,6 +2305,7 @@ export class ClientConstellation extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
+    if (!this.prêt) await once(this, "prêt");
     await (await obtStockageLocal(this.dossierOrbite())).fermer?.();
     await this.fermerCompte();
     if (this.épingles) await this.épingles.fermer();
