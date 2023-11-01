@@ -20,6 +20,7 @@ import { générerClientsInternes } from "./ressources/utils.js";
 import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
+import { générerClient } from "@/index.js";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
@@ -39,6 +40,13 @@ const schémaKVChaîne: JSONSchemaType<{ [clef: string]: string }> = {
 
 const schémaListeNumérique: JSONSchemaType<number> = { type: "number" };
 const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
+
+describe("Fermeture sécuritaire", function () {
+  it("Fermeture immédiatement après ouverture", async () => {
+    const client = générerClient({opts: {}})
+    await client.fermer();
+  })
+});
 
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
