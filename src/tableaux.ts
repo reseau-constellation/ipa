@@ -518,10 +518,14 @@ export default class Tableaux {
       colonnes?: { [key: string]: string };
     } = {};
 
+    const toutesVariablesPrésentes = (colonnes: { [key: string]: string }): boolean => {
+      return !Object.values(colonnes).some(v => v === undefined)
+    }
+
     const fFinale = async () => {
       const { données, colonnes } = info;
 
-      if (données && colonnes) {
+      if (données && colonnes && toutesVariablesPrésentes(colonnes)) {
         const donnéesFinales: élémentDonnées<T>[] = Object.entries(données).map(
           ([id, élément]): élémentDonnées<T> => {
 
