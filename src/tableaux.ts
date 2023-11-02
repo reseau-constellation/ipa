@@ -518,14 +518,17 @@ export default class Tableaux {
       colonnes?: { [key: string]: string };
     } = {};
 
-    const toutesVariablesPrésentes = (colonnes: { [key: string]: string }): boolean => {
-      return !Object.values(colonnes).some(v => v === undefined)
+    const toutesColonnesPrésentes = (données: {
+      [id: string]: T;
+  }, colonnes: { [key: string]: string }): boolean => {
+      const listeCols = Object.keys(colonnes)
+      return Object.values(données).map(d=>Object.keys(d)).flat().every(c=>listeCols.includes(c))
     }
 
     const fFinale = async () => {
       const { données, colonnes } = info;
 
-      if (données && colonnes && toutesVariablesPrésentes(colonnes)) {
+      if (données && colonnes && toutesColonnesPrésentes(données, colonnes)) {
         const donnéesFinales: élémentDonnées<T>[] = Object.entries(données).map(
           ([id, élément]): élémentDonnées<T> => {
 
@@ -797,7 +800,7 @@ export default class Tableaux {
 
     const ids: string[] = [];
     for (const val of vals) {
-      const id = colsIndexe.length? uuidv4() : obtIdIndex(val);
+      const id = colsIndexe.length? obtIdIndex(val) : uuidv4();
       await bdDonnées.put(id, val)
       ids.push(id);
     }
