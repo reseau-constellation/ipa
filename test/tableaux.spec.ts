@@ -735,123 +735,159 @@ typesClients.forEach((type) => {
               [idColonneTempMin]: min,
             })),
           });
+        });
 
-          after(async () => {
-            await Promise.all(fsOublier.map((f) => f()));
-            erreursValid.toutAnnuler();
-            erreursRègles.toutAnnuler();
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+          erreursValid.toutAnnuler();
+          erreursRègles.toutAnnuler();
+        });
+
+        it("Erreur règle si la colonne n'existe pas", async () => {
+          règle1 = {
+            typeRègle: "bornes",
+            détails: {
+              type: "dynamiqueColonne",
+              val: idColonneTempMax,
+              op: "≤",
+            },
+          };
+
+          idRègle1 = await client.tableaux!.ajouterRègleTableau({
+            idTableau: idTableauRègles,
+            idColonne: idColonneTempMin,
+            règle: règle1,
           });
 
-          it("Erreur règle si la colonne n'existe pas", async () => {
-            règle1 = {
-              typeRègle: "bornes",
-              détails: {
-                type: "dynamiqueColonne",
-                val: idColonneTempMax,
-                op: "≤",
-              },
-            };
-
-            idRègle1 = await client.tableaux!.ajouterRègleTableau({
-              idTableau: idTableauRègles,
-              idColonne: idColonneTempMin,
-              règle: règle1,
-            });
-
-            const réf: erreurRègleBornesColonneInexistante[] = [
-              {
+          const réf: erreurRègleBornesColonneInexistante[] = [
+            {
+              règle: {
+                source: { type: "tableau", id: idTableauRègles },
+                colonne: idColonneTempMin,
                 règle: {
-                  source: { type: "tableau", id: idTableauRègles },
-                  colonne: idColonneTempMin,
-                  règle: {
-                    id: idRègle1,
-                    règle: règle1,
-                  },
-                },
-                détails: "colonneBornesInexistante",
-              },
-            ];
-
-            const résValid = await erreursValid.attendreExiste();
-            expect(résValid.length).to.equal(0);
-
-            const résRègles = await erreursRègles.attendreQue(
-              (x) => x.length > 0,
-            );
-            expect(résRègles).to.deep.equal(réf);
-          });
-
-          it("Ajout colonne réf détectée", async () => {
-            await client.tableaux!.ajouterColonneTableau({
-              idTableau: idTableauRègles,
-              idVariable: idVariableTempMax,
-              idColonne: idColonneTempMax,
-            });
-            const val = await erreursRègles.attendreQue((x) => x.length === 0);
-            expect(val.length).to.equal(0);
-          });
-
-          it("Ajout éléments colonne réf détecté", async () => {
-            await client.tableaux!.modifierÉlément({
-              idTableau: idTableauRègles,
-              vals: { [idColonneTempMax]: -1 },
-              idÉlément: idsDonnées[0],
-            });
-
-            const réf: erreurValidation = {
-              id: idsDonnées[0],
-              erreur: {
-                règle: {
-                  source: { type: "tableau", id: idTableauRègles },
-                  colonne: idColonneTempMin,
-                  règle: {
-                    id: idRègle1,
-                    règle: règle1,
-                  },
+                  id: idRègle1,
+                  règle: règle1,
                 },
               },
-            };
+              détails: "colonneBornesInexistante",
+            },
+          ];
 
-            const valErreursValid = await erreursValid.attendreQue(
-              (x) => x.length > 0,
-            );
-            expect(valErreursValid).to.deep.equal([réf]);
+          const résValid = await erreursValid.attendreExiste();
+          expect(résValid.length).to.equal(0);
 
-            await client.tableaux!.modifierÉlément({
-              idTableau: idTableauRègles,
-              vals: { [idColonneTempMax]: 6 },
-              idÉlément: idsDonnées[0],
-            });
-            const résValid = await erreursValid.attendreQue(
-              (x) => x.length < 1,
-            );
-            expect(résValid.length).to.equal(0);
+          const résRègles = await erreursRègles.attendreQue(
+            (x) => x.length > 0,
+          );
+          expect(résRègles).to.deep.equal(réf);
+        });
+
+        it("Ajout colonne réf détectée", async () => {
+          await client.tableaux!.ajouterColonneTableau({
+            idTableau: idTableauRègles,
+            idVariable: idVariableTempMax,
+            idColonne: idColonneTempMax,
+          });
+          const val = await erreursRègles.attendreQue((x) => x.length === 0);
+          expect(val.length).to.equal(0);
+        });
+
+        it("Ajout éléments colonne réf détecté", async () => {
+          await client.tableaux!.modifierÉlément({
+            idTableau: idTableauRègles,
+            vals: { [idColonneTempMax]: -1 },
+            idÉlément: idsDonnées[0],
           });
 
-          it("Ajout éléments valides", async () => {
+          const réf: erreurValidation = {
+            id: idsDonnées[0],
+            erreur: {
+              règle: {
+                source: { type: "tableau", id: idTableauRègles },
+                colonne: idColonneTempMin,
+                règle: {
+                  id: idRègle1,
+                  règle: règle1,
+                },
+              },
+            },
+          };
+
+          const valErreursValid = await erreursValid.attendreQue(
+            (x) => x.length > 0,
+          );
+          expect(valErreursValid).to.deep.equal([réf]);
+
+          await client.tableaux!.modifierÉlément({
+            idTableau: idTableauRègles,
+            vals: { [idColonneTempMax]: 6 },
+            idÉlément: idsDonnées[0],
+          });
+          const résValid = await erreursValid.attendreQue(
+            (x) => x.length < 1,
+          );
+          expect(résValid.length).to.equal(0);
+        });
+
+        it("Ajout éléments valides", async () => {
+          await client.tableaux!.ajouterÉlément({
+            idTableau: idTableauRègles,
+            vals: {
+              [idColonneTempMin]: -15,
+              [idColonneTempMax]: -5,
+            },
+          });
+          const résValid = await erreursValid.attendreExiste();
+          expect(résValid.length).to.equal(0);
+        });
+
+        it("Ajout éléments invalides", async () => {
+          id2 = (
             await client.tableaux!.ajouterÉlément({
               idTableau: idTableauRègles,
               vals: {
                 [idColonneTempMin]: -15,
-                [idColonneTempMax]: -5,
+                [idColonneTempMax]: -25,
               },
-            });
-            const résValid = await erreursValid.attendreExiste();
-            expect(résValid.length).to.equal(0);
+            })
+          )[0];
+
+          const réf: erreurValidation = {
+            id: id2,
+            erreur: {
+              règle: {
+                source: { type: "tableau", id: idTableauRègles },
+                colonne: idColonneTempMin,
+                règle: {
+                  id: idRègle1,
+                  règle: règle1,
+                },
+              },
+            },
+          };
+
+          const valErreursValid = await erreursValid.attendreQue(
+            (x) => x.length > 0,
+          );
+          expect(valErreursValid).to.deep.equal([réf]);
+        });
+
+        it("Règle bornes relatives variable", async () => {
+          règle2 = {
+            typeRègle: "bornes",
+            détails: {
+              type: "dynamiqueVariable",
+              val: idVariableTempMin,
+              op: ">=",
+            },
+          };
+          idRègle2 = await client.variables!.ajouterRègleVariable({
+            idVariable: idVariableTempMax,
+            règle: règle2,
           });
 
-          it("Ajout éléments invalides", async () => {
-            id2 = (
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableauRègles,
-                vals: {
-                  [idColonneTempMin]: -15,
-                  [idColonneTempMax]: -25,
-                },
-              })
-            )[0];
-
-            const réf: erreurValidation = {
+          const réf: erreurValidation[] = [
+            {
               id: id2,
               erreur: {
                 règle: {
@@ -863,1093 +899,1058 @@ typesClients.forEach((type) => {
                   },
                 },
               },
-            };
-
-            const valErreursValid = await erreursValid.attendreQue(
-              (x) => x.length > 0,
-            );
-            expect(valErreursValid).to.deep.equal([réf]);
-          });
-
-          it("Règle bornes relatives variable", async () => {
-            règle2 = {
-              typeRègle: "bornes",
-              détails: {
-                type: "dynamiqueVariable",
-                val: idVariableTempMin,
-                op: ">=",
-              },
-            };
-            idRègle2 = await client.variables!.ajouterRègleVariable({
-              idVariable: idVariableTempMax,
-              règle: règle2,
-            });
-
-            const réf: erreurValidation[] = [
-              {
-                id: id2,
-                erreur: {
-                  règle: {
-                    source: { type: "tableau", id: idTableauRègles },
-                    colonne: idColonneTempMin,
-                    règle: {
-                      id: idRègle1,
-                      règle: règle1,
-                    },
-                  },
-                },
-              },
-              {
-                id: id2,
-                erreur: {
-                  règle: {
-                    source: { type: "variable", id: idVariableTempMax },
-                    colonne: idColonneTempMax,
-                    règle: {
-                      id: idRègle2,
-                      règle: règle2,
-                    },
-                  },
-                },
-              },
-            ];
-
-            const valErreursValid = await erreursValid.attendreQue(
-              (x) => x.length > 1,
-            );
-            expect(valErreursValid).to.deep.equal(réf);
-          });
-
-          it("Erreur règle variable introuvable", async () => {
-            const règle: règleBornes<détailsRègleBornesDynamiqueVariable> = {
-              typeRègle: "bornes",
-              détails: {
-                type: "dynamiqueVariable",
-                val: idVariableTempMoyenne,
-                op: "<=",
-              },
-            };
-
-            idRègle3 = await client.tableaux!.ajouterRègleTableau({
-              idTableau: idTableauRègles,
-              idColonne: idColonneTempMin,
-              règle,
-            });
-
-            const réf: [erreurRègleBornesVariableNonPrésente] = [
-              {
-                détails: "variableBornesNonPrésente",
+            },
+            {
+              id: id2,
+              erreur: {
                 règle: {
-                  source: { type: "tableau", id: idTableauRègles },
-                  colonne: idColonneTempMin,
+                  source: { type: "variable", id: idVariableTempMax },
+                  colonne: idColonneTempMax,
                   règle: {
-                    id: idRègle3,
-                    règle,
+                    id: idRègle2,
+                    règle: règle2,
                   },
                 },
               },
-            ];
+            },
+          ];
 
-            const val1 = await erreursRègles.attendreQue(
-              (x) => !!x && x.length > 0,
-            );
-            expect(val1).to.deep.equal(réf);
-
-            await client.tableaux!.ajouterColonneTableau({
-              idTableau: idTableauRègles,
-              idVariable: idVariableTempMoyenne,
-            });
-            const val2 = await erreursRègles.attendreQue(
-              (x) => !!x && x.length === 0,
-            );
-            expect(val2.length).to.equal(0);
-          });
+          const valErreursValid = await erreursValid.attendreQue(
+            (x) => x.length > 1,
+          );
+          expect(valErreursValid).to.deep.equal(réf);
         });
 
-        describe("Règle valeur catégorique", function () {
-          describe("Catégories fixes", function () {
-            let idTableauRègles: string;
-            let idColonne: string;
-            let idVariable: string;
-
-            const erreurs = new utilsTestAttente.AttendreRésultat<
-              erreurValidation[]
-            >();
-
-            const fsOublier: schémaFonctionOublier[] = [];
-
-            before(async () => {
-              idTableauRègles = await client.tableaux!.créerTableau({ idBd });
-
-              fsOublier.push(
-                await client.tableaux!.suivreValidDonnées({
-                  idTableau: idTableauRègles,
-                  f: (e) => erreurs.mettreÀJour(e),
-                }),
-              );
-
-              idVariable = await client.variables!.créerVariable({
-                catégorie: "chaîneNonTraductible",
-              });
-              idColonne = await client.tableaux!.ajouterColonneTableau({
-                idTableau: idTableauRègles,
-                idVariable,
-              });
-
-              const règleCatégorique: règleValeurCatégorique = {
-                typeRègle: "valeurCatégorique",
-                détails: { type: "fixe", options: ["வணக்கம்", "សួស្តើ"] },
-              };
-
-              await client.tableaux!.ajouterRègleTableau({
-                idTableau: idTableauRègles,
-                idColonne,
-                règle: règleCatégorique,
-              });
-            });
-
-            after(async () => {
-              await Promise.all(fsOublier.map((f) => f()));
-              erreurs.toutAnnuler();
-            });
-
-            it("Ajout éléments valides", async () => {
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableauRègles,
-                vals: {
-                  [idColonne]: "வணக்கம்",
-                },
-              });
-              const rés = await erreurs.attendreExiste();
-              expect(rés.length).to.equal(0);
-            });
-            it("Ajout éléments invalides", async () => {
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableauRègles,
-                vals: {
-                  [idColonne]: "សូស្ដី",
-                },
-              });
-              const val = await erreurs.attendreQue((x) => !!x && x.length > 0);
-              expect(val.length).to.equal(1);
-            });
-          });
-
-          describe("Catégories d'une colonne d'un tableau", function () {
-            let idTableauÀTester: string;
-            let idColonneÀTester: string;
-            let idTableauCatégories: string;
-
-            let idVariable: string;
-            let idVariableRéf: string;
-            let idRègle: string;
-            let règleCatégorique: règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>;
-
-            const idColonneCatégories = "id colonne catégories";
-
-            const erreursValid = new utilsTestAttente.AttendreRésultat<
-              erreurValidation[]
-            >();
-            const erreursRègles = new utilsTestAttente.AttendreRésultat<
-              erreurRègle[]
-            >();
-
-            const fsOublier: schémaFonctionOublier[] = [];
-
-            before(async () => {
-              idTableauÀTester = await client.tableaux!.créerTableau({ idBd });
-
-              fsOublier.push(
-                await client.tableaux!.suivreValidDonnées({
-                  idTableau: idTableauÀTester,
-                  f: (e) => erreursValid.mettreÀJour(e),
-                }),
-              );
-
-              fsOublier.push(
-                await client.tableaux!.suivreValidRègles({
-                  idTableau: idTableauÀTester,
-                  f: (e) => erreursRègles.mettreÀJour(e),
-                }),
-              );
-
-              idVariable = await client.variables!.créerVariable({
-                catégorie: "chaîneNonTraductible",
-              });
-              idVariableRéf = await client.variables!.créerVariable({
-                catégorie: "chaîneNonTraductible",
-              });
-              idColonneÀTester = await client.tableaux!.ajouterColonneTableau({
-                idTableau: idTableauÀTester,
-                idVariable,
-              });
-
-              idTableauCatégories = await client.tableaux!.créerTableau({
-                idBd,
-              });
-
-              règleCatégorique = {
-                typeRègle: "valeurCatégorique",
-                détails: {
-                  type: "dynamique",
-                  tableau: idTableauCatégories,
-                  colonne: idColonneCatégories,
-                },
-              };
-
-              idRègle = await client.tableaux!.ajouterRègleTableau({
-                idTableau: idTableauÀTester,
-                idColonne: idColonneÀTester,
-                règle: règleCatégorique,
-              });
-            });
-
-            after(async () => {
-              await Promise.all(fsOublier.map((f) => f()));
-              erreursValid.toutAnnuler();
-              erreursRègles.toutAnnuler();
-            });
-
-            it("Pas d'erreur (ici, au moins) si la colonne n'existe pas", async () => {
-              const rés = await erreursValid.attendreExiste();
-              expect(rés.length).to.equal(0);
-            });
-
-            it("Mais on a une erreur au niveau de la règle", async () => {
-              const réf: erreurRègleCatégoriqueColonneInexistante = {
-                règle: {
-                  règle: {
-                    id: idRègle,
-                    règle: règleCatégorique,
-                  },
-                  source: { type: "tableau", id: idTableauÀTester },
-                  colonne: idColonneÀTester,
-                },
-                détails: "colonneCatégInexistante",
-              };
-              const val = await erreursRègles.attendreQue((x) => !!x?.length);
-              expect(val).to.deep.equal([réf]);
-            });
-
-            it("Ajout colonne réf", async () => {
-              await client.tableaux!.ajouterColonneTableau({
-                idTableau: idTableauCatégories,
-                idVariable: idVariableRéf,
-                idColonne: idColonneCatégories,
-              });
-              const val = await erreursRègles.attendreQue(
-                (x) => x?.length === 0,
-              );
-              expect(val.length).to.equal(0);
-            });
-
-            it("Ajout éléments colonne réf détecté", async () => {
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableauÀTester,
-                vals: {
-                  [idColonneÀTester]: "வணக்கம்",
-                },
-              });
-              let rés = await erreursValid.attendreQue((x) => x.length > 0);
-              expect(rés.length).to.equal(1);
-
-              for (const mot of ["வணக்கம்", "Ütz iwäch"]) {
-                await client.tableaux!.ajouterÉlément({
-                  idTableau: idTableauCatégories,
-                  vals: {
-                    [idColonneCatégories]: mot,
-                  },
-                });
-              }
-
-              rés = await erreursValid.attendreQue((x) => x.length < 1);
-              expect(rés.length).to.equal(0);
-            });
-            it("Ajout éléments valides", async () => {
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableauÀTester,
-                vals: {
-                  [idColonneÀTester]: "Ütz iwäch",
-                },
-              });
-              const rés = await erreursValid.attendreExiste();
-              expect(rés.length).to.equal(0);
-            });
-            it("Ajout éléments invalides", async () => {
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableauÀTester,
-                vals: {
-                  [idColonneÀTester]: "வணக்கம",
-                },
-              });
-              const rés = await erreursValid.attendreQue((x) => x.length > 0);
-              expect(rés.length).to.equal(1);
-            });
-          });
-        });
-
-        describe("Tableau avec variables non locales", function () {
-          let idTableau: string;
-          let idColonne: string;
-
-          const variables = new attente.AttendreRésultat<string[]>();
-          const colonnes = new attente.AttendreRésultat<
-            InfoColAvecCatégorie[]
-          >();
-          const colonnesSansCatégorie = new attente.AttendreRésultat<
-            InfoCol[]
-          >();
-          const données = new attente.AttendreRésultat<élémentDonnées[]>();
-
-          const idVarChaîne =
-            "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
-          const fsOublier: schémaFonctionOublier[] = [];
-
-          before(async () => {
-            idTableau = await client.tableaux!.créerTableau({ idBd });
-            idColonne = await client.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable: idVarChaîne,
-            });
-            fsOublier.push(
-              await client.tableaux!.suivreVariables({
-                idTableau,
-                f: (v) => variables.mettreÀJour(v),
-              }),
-            );
-            fsOublier.push(
-              await client.tableaux!.suivreColonnesTableau({
-                idTableau,
-                f: (c) => colonnes.mettreÀJour(c),
-                catégories: true,
-              }),
-            );
-            fsOublier.push(
-              await client.tableaux!.suivreColonnesTableau({
-                idTableau,
-                f: (c) => colonnesSansCatégorie.mettreÀJour(c),
-                catégories: false,
-              }),
-            );
-            fsOublier.push(
-              await client.tableaux!.suivreDonnées({
-                idTableau,
-                f: (d) => données.mettreÀJour(d),
-              }),
-            );
-          });
-
-          after(async () => {
-            await Promise.all(fsOublier.map((f) => f()));
-          });
-
-          it("Tableau créé", () => {
-            expect(isValidAddress(idTableau)).to.be.true();
-          });
-          it("Suivre variables", async () => {
-            const valVariables = await variables.attendreQue(
-              (x) => x.length > 0,
-            );
-            expect(valVariables).to.deep.equal([idVarChaîne]);
-          });
-          it("Suivre colonnes", async () => {
-            expect(colonnes.val).to.be.undefined;
-          });
-          it("Suivre colonnes sans catégorie", async () => {
-            const val = await colonnesSansCatégorie.attendreQue(
-              (x) => x.length > 0,
-            );
-            expect(val).to.deep.equal([
-              { id: idColonne, variable: idVarChaîne },
-            ]);
-          });
-          it("Ajouter données", async () => {
-            await client.tableaux!.ajouterÉlément({
-              idTableau,
-              vals: {
-                [idColonne]: "Bonjour !",
-              },
-            });
-
-            const valDonnées = await données.attendreQue((x) => x.length > 0);
-            expect(valDonnées[0].données[idColonne]).to.equal("Bonjour !");
-          });
-        });
-
-        describe("Copier tableau", function () {
-          let idTableau: string;
-          let idVariable: string;
-          let idColonne: string;
-          let idRègle: string;
-
-          const variables = new attente.AttendreRésultat<string[]>();
-          const noms = new attente.AttendreRésultat<{
-            [key: string]: string;
-          }>();
-          const données = new attente.AttendreRésultat<
-            élémentDonnées<élémentBdListeDonnées>[]
-          >();
-          const colonnes = new attente.AttendreRésultat<
-            InfoColAvecCatégorie[]
-          >();
-          const colsIndexe = new attente.AttendreRésultat<string[]>();
-          const règles = new attente.AttendreRésultat<règleColonne[]>();
-
-          let idTableauCopie: string;
-
-          const réfNoms = {
-            த: "மழை",
-            हिं: "बारिश",
-          };
-          const règle: règleBornes = {
+        it("Erreur règle variable introuvable", async () => {
+          const règle: règleBornes<détailsRègleBornesDynamiqueVariable> = {
             typeRègle: "bornes",
             détails: {
-              type: "fixe",
-              val: 0,
-              op: ">",
+              type: "dynamiqueVariable",
+              val: idVariableTempMoyenne,
+              op: "<=",
             },
           };
 
+          idRègle3 = await client.tableaux!.ajouterRègleTableau({
+            idTableau: idTableauRègles,
+            idColonne: idColonneTempMin,
+            règle,
+          });
+
+          const réf: [erreurRègleBornesVariableNonPrésente] = [
+            {
+              détails: "variableBornesNonPrésente",
+              règle: {
+                source: { type: "tableau", id: idTableauRègles },
+                colonne: idColonneTempMin,
+                règle: {
+                  id: idRègle3,
+                  règle,
+                },
+              },
+            },
+          ];
+
+          const val1 = await erreursRègles.attendreQue(
+            (x) => !!x && x.length > 0,
+          );
+          expect(val1).to.deep.equal(réf);
+
+          await client.tableaux!.ajouterColonneTableau({
+            idTableau: idTableauRègles,
+            idVariable: idVariableTempMoyenne,
+          });
+          const val2 = await erreursRègles.attendreQue(
+            (x) => !!x && x.length === 0,
+          );
+          expect(val2.length).to.equal(0);
+        });
+      });
+
+      describe("Règle valeur catégorique", function () {
+        describe("Catégories fixes", function () {
+          let idTableauRègles: string;
+          let idColonne: string;
+          let idVariable: string;
+
+          const erreurs = new utilsTestAttente.AttendreRésultat<
+            erreurValidation[]
+          >();
+
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idTableau = await client.tableaux!.créerTableau({ idBd });
-            await client.tableaux!.sauvegarderNomsTableau({
-              idTableau,
-              noms: réfNoms,
-            });
+            idTableauRègles = await client.tableaux!.créerTableau({ idBd });
+
+            fsOublier.push(
+              await client.tableaux!.suivreValidDonnées({
+                idTableau: idTableauRègles,
+                f: (e) => erreurs.mettreÀJour(e),
+              }),
+            );
 
             idVariable = await client.variables!.créerVariable({
-              catégorie: "numérique",
+              catégorie: "chaîneNonTraductible",
             });
             idColonne = await client.tableaux!.ajouterColonneTableau({
-              idTableau,
+              idTableau: idTableauRègles,
               idVariable,
             });
-            await client.tableaux!.changerColIndex({
-              idTableau,
+
+            const règleCatégorique: règleValeurCatégorique = {
+              typeRègle: "valeurCatégorique",
+              détails: { type: "fixe", options: ["வணக்கம்", "សួស្តើ"] },
+            };
+
+            await client.tableaux!.ajouterRègleTableau({
+              idTableau: idTableauRègles,
               idColonne,
-              val: true,
+              règle: règleCatégorique,
             });
-
-            await client.tableaux!.ajouterÉlément({
-              idTableau,
-              vals: {
-                [idColonne]: 123,
-              },
-            });
-
-            idRègle = await client.tableaux!.ajouterRègleTableau({
-              idTableau,
-              idColonne,
-              règle,
-            });
-
-            idTableauCopie = await client.tableaux!.copierTableau({
-              id: idTableau,
-              idBd,
-            });
-
-            fsOublier.push(
-              await client.tableaux!.suivreVariables({
-                idTableau: idTableauCopie,
-                f: (x) => variables.mettreÀJour(x),
-              }),
-            );
-            fsOublier.push(
-              await client.tableaux!.suivreNomsTableau({
-                idTableau: idTableauCopie,
-                f: (x) => noms.mettreÀJour(x),
-              }),
-            );
-            fsOublier.push(
-              await client.tableaux!.suivreDonnées({
-                idTableau: idTableauCopie,
-                f: (x) => données.mettreÀJour(x),
-              }),
-            );
-            fsOublier.push(
-              await client.tableaux!.suivreColonnesTableau({
-                idTableau: idTableauCopie,
-                f: (x) => colonnes.mettreÀJour(x),
-                catégories: true,
-              }),
-            );
-            fsOublier.push(
-              await client.tableaux!.suivreIndex({
-                idTableau: idTableauCopie,
-                f: (x) => colsIndexe.mettreÀJour(x),
-              }),
-            );
-            fsOublier.push(
-              await client.tableaux!.suivreRègles({
-                idTableau: idTableauCopie,
-                f: (x) => règles.mettreÀJour(x),
-              }),
-            );
           });
 
           after(async () => {
             await Promise.all(fsOublier.map((f) => f()));
-            colonnes.toutAnnuler();
+            erreurs.toutAnnuler();
           });
 
-          it("Le tableau est copié", async () => {
-            expect(isValidAddress(idTableauCopie)).to.be.true();
+          it("Ajout éléments valides", async () => {
+            await client.tableaux!.ajouterÉlément({
+              idTableau: idTableauRègles,
+              vals: {
+                [idColonne]: "வணக்கம்",
+              },
+            });
+            const rés = await erreurs.attendreExiste();
+            expect(rés.length).to.equal(0);
           });
-
-          it("Les noms sont copiés", async () => {
-            const val = await noms.attendreExiste();
-            expect(val).to.deep.equal(réfNoms);
-          });
-
-          it("Les colonnes sont copiées", async () => {
-            const val = await colonnes.attendreQue((x) => x.length > 0);
-            expect(Array.isArray(val)).to.be.true();
+          it("Ajout éléments invalides", async () => {
+            await client.tableaux!.ajouterÉlément({
+              idTableau: idTableauRègles,
+              vals: {
+                [idColonne]: "សូស្ដី",
+              },
+            });
+            const val = await erreurs.attendreQue((x) => !!x && x.length > 0);
             expect(val.length).to.equal(1);
-            expect(val[0].variable).to.equal(idVariable);
-          });
-
-          it("Les indexes sont copiés", async () => {
-            const val = await colsIndexe.attendreQue((x) => x.length > 0);
-            expect(Array.isArray(val)).to.be.true();
-            expect(val.length).to.equal(1);
-            expect(val[0]).to.equal(idColonne);
-          });
-
-          it("Les règles sont copiés", async () => {
-            const vals = await règles.attendreQue((x) =>
-              x.some((r) => r.règle.id === idRègle),
-            );
-
-            const règleRecherchée = vals.find((r) => r.règle.id === idRègle);
-            expect(règleRecherchée).to.not.be.undefined();
-            expect(règleRecherchée?.colonne).to.equal(colonnes.val?.[0].id);
-            expect(règleRecherchée?.règle.règle).to.deep.equal(règle);
-          });
-
-          it("Les variables sont copiés", async () => {
-            const val = await variables.attendreQue((v) => v.length > 0);
-
-            expect(Array.isArray(val)).to.be.true();
-            expect(val.length).to.equal(1);
-            expect(val[0]).to.equal(idVariable);
-          });
-
-          it("Les données sont copiés", async () => {
-            const valColonnes = await colonnes.attendreExiste();
-            const valDonnées = await données.attendreQue((x) => x.length > 0);
-
-            expect(Array.isArray(valDonnées)).to.be.true();
-            expect(valDonnées.length).to.equal(1);
-            expect(valDonnées[0].données[valColonnes[0].id]).to.equal(123);
           });
         });
 
-        describe("Combiner données tableaux", function () {
-          let idTableauBase: string;
-          let idTableau2: string;
+        describe("Catégories d'une colonne d'un tableau", function () {
+          let idTableauÀTester: string;
+          let idColonneÀTester: string;
+          let idTableauCatégories: string;
 
-          let idVarDate: string;
-          let idVarEndroit: string;
-          let idVarTempMin: string;
-          let idVarTempMax: string;
+          let idVariable: string;
+          let idVariableRéf: string;
+          let idRègle: string;
+          let règleCatégorique: règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>;
 
-          const données = new attente.AttendreRésultat<
-            élémentDonnées<élémentBdListeDonnées>[]
+          const idColonneCatégories = "id colonne catégories";
+
+          const erreursValid = new utilsTestAttente.AttendreRésultat<
+            erreurValidation[]
           >();
-          let fOublier: schémaFonctionOublier;
+          const erreursRègles = new utilsTestAttente.AttendreRésultat<
+            erreurRègle[]
+          >();
 
-          const idsCols: { [key: string]: string } = {};
+          const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idTableauBase = await client.tableaux!.créerTableau({ idBd });
-            idTableau2 = await client.tableaux!.créerTableau({ idBd });
+            idTableauÀTester = await client.tableaux!.créerTableau({ idBd });
 
-            idVarDate = await client.variables!.créerVariable({
-              catégorie: "horoDatage",
-            });
-            idVarEndroit = await client.variables!.créerVariable({
+            fsOublier.push(
+              await client.tableaux!.suivreValidDonnées({
+                idTableau: idTableauÀTester,
+                f: (e) => erreursValid.mettreÀJour(e),
+              }),
+            );
+
+            fsOublier.push(
+              await client.tableaux!.suivreValidRègles({
+                idTableau: idTableauÀTester,
+                f: (e) => erreursRègles.mettreÀJour(e),
+              }),
+            );
+
+            idVariable = await client.variables!.créerVariable({
               catégorie: "chaîneNonTraductible",
             });
-            idVarTempMin = await client.variables!.créerVariable({
-              catégorie: "numérique",
+            idVariableRéf = await client.variables!.créerVariable({
+              catégorie: "chaîneNonTraductible",
             });
-            idVarTempMax = await client.variables!.créerVariable({
-              catégorie: "numérique",
-            });
-
-            for (const idVar of [
-              idVarDate,
-              idVarEndroit,
-              idVarTempMin,
-              idVarTempMax,
-            ]) {
-              const idCol = await client.tableaux!.ajouterColonneTableau({
-                idTableau: idTableauBase,
-                idVariable: idVar,
-              });
-
-              idsCols[idVar] = idCol;
-              await client.tableaux!.ajouterColonneTableau({
-                idTableau: idTableau2,
-                idVariable: idVar,
-                idColonne: idCol,
-              });
-            }
-            for (const idVar of [idVarDate, idVarEndroit]) {
-              await client.tableaux!.changerColIndex({
-                idTableau: idTableauBase,
-                idColonne: idsCols[idVar],
-                val: true,
-              });
-              await client.tableaux!.changerColIndex({
-                idTableau: idTableau2,
-                idColonne: idsCols[idVar],
-                val: true,
-              });
-            }
-
-            fOublier = await client.tableaux!.suivreDonnées({
-              idTableau: idTableauBase,
-              f: (d) => données.mettreÀJour(d),
+            idColonneÀTester = await client.tableaux!.ajouterColonneTableau({
+              idTableau: idTableauÀTester,
+              idVariable,
             });
 
-            const élémentsBase = [
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: "2021-01-01",
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: "2021-01-02",
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "là-bas",
-                [idsCols[idVarDate]]: "2021-01-01",
-                [idsCols[idVarTempMin]]: 25,
-              },
-            ];
-            for (const élément of élémentsBase) {
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableauBase,
-                vals: élément,
-              });
-            }
+            idTableauCatégories = await client.tableaux!.créerTableau({
+              idBd,
+            });
 
-            const éléments2 = [
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: "2021-01-01",
-                [idsCols[idVarTempMin]]: 27,
-                [idsCols[idVarTempMax]]: 30,
+            règleCatégorique = {
+              typeRègle: "valeurCatégorique",
+              détails: {
+                type: "dynamique",
+                tableau: idTableauCatégories,
+                colonne: idColonneCatégories,
               },
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: "2021-01-02",
-                [idsCols[idVarTempMin]]: 27,
-              },
-              {
-                [idsCols[idVarEndroit]]: "là-bas",
-                [idsCols[idVarDate]]: "2021-01-02",
-                [idsCols[idVarTempMin]]: 27,
-              },
-            ];
-            for (const élément of éléments2) {
-              await client.tableaux!.ajouterÉlément({
-                idTableau: idTableau2,
-                vals: élément,
-              });
-            }
+            };
 
-            await client.tableaux!.combinerDonnées({
-              idTableauBase,
-              idTableau2,
+            idRègle = await client.tableaux!.ajouterRègleTableau({
+              idTableau: idTableauÀTester,
+              idColonne: idColonneÀTester,
+              règle: règleCatégorique,
             });
           });
 
           after(async () => {
-            if (fOublier) await fOublier();
+            await Promise.all(fsOublier.map((f) => f()));
+            erreursValid.toutAnnuler();
+            erreursRègles.toutAnnuler();
           });
 
-          it("Données manquantes ajoutées", async () => {
-            const réf = [
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: "2021-01-01",
-                [idsCols[idVarTempMin]]: 25,
-                [idsCols[idVarTempMax]]: 30,
-              },
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: "2021-01-02",
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "là-bas",
-                [idsCols[idVarDate]]: "2021-01-01",
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "là-bas",
-                [idsCols[idVarDate]]: "2021-01-02",
-                [idsCols[idVarTempMin]]: 27,
-              },
-            ];
-            const val = await données.attendreQue(
-              (x) => x.length === réf.length,
-            );
+          it("Pas d'erreur (ici, au moins) si la colonne n'existe pas", async () => {
+            const rés = await erreursValid.attendreExiste();
+            expect(rés.length).to.equal(0);
+          });
 
-            expect(Array.isArray(val)).to.be.true();
-            expect(val.length).to.equal(4);
-            expect(
-              val
-                .map((d) => d.données)
-                .map((d) => {
-                  delete d.id;
-                  return d;
-                }),
-            ).to.deep.include.members(réf);
+          it("Mais on a une erreur au niveau de la règle", async () => {
+            const réf: erreurRègleCatégoriqueColonneInexistante = {
+              règle: {
+                règle: {
+                  id: idRègle,
+                  règle: règleCatégorique,
+                },
+                source: { type: "tableau", id: idTableauÀTester },
+                colonne: idColonneÀTester,
+              },
+              détails: "colonneCatégInexistante",
+            };
+            const val = await erreursRègles.attendreQue((x) => !!x?.length);
+            expect(val).to.deep.equal([réf]);
+          });
+
+          it("Ajout colonne réf", async () => {
+            await client.tableaux!.ajouterColonneTableau({
+              idTableau: idTableauCatégories,
+              idVariable: idVariableRéf,
+              idColonne: idColonneCatégories,
+            });
+            const val = await erreursRègles.attendreQue(
+              (x) => x?.length === 0,
+            );
+            expect(val.length).to.equal(0);
+          });
+
+          it("Ajout éléments colonne réf détecté", async () => {
+            await client.tableaux!.ajouterÉlément({
+              idTableau: idTableauÀTester,
+              vals: {
+                [idColonneÀTester]: "வணக்கம்",
+              },
+            });
+            let rés = await erreursValid.attendreQue((x) => x.length > 0);
+            expect(rés.length).to.equal(1);
+
+            for (const mot of ["வணக்கம்", "Ütz iwäch"]) {
+              await client.tableaux!.ajouterÉlément({
+                idTableau: idTableauCatégories,
+                vals: {
+                  [idColonneCatégories]: mot,
+                },
+              });
+            }
+
+            rés = await erreursValid.attendreQue((x) => x.length < 1);
+            expect(rés.length).to.equal(0);
+          });
+          it("Ajout éléments valides", async () => {
+            await client.tableaux!.ajouterÉlément({
+              idTableau: idTableauÀTester,
+              vals: {
+                [idColonneÀTester]: "Ütz iwäch",
+              },
+            });
+            const rés = await erreursValid.attendreExiste();
+            expect(rés.length).to.equal(0);
+          });
+          it("Ajout éléments invalides", async () => {
+            await client.tableaux!.ajouterÉlément({
+              idTableau: idTableauÀTester,
+              vals: {
+                [idColonneÀTester]: "வணக்கம",
+              },
+            });
+            const rés = await erreursValid.attendreQue((x) => x.length > 0);
+            expect(rés.length).to.equal(1);
+          });
+        });
+      });
+
+      describe("Tableau avec variables non locales", function () {
+        let idTableau: string;
+        let idColonne: string;
+
+        const variables = new attente.AttendreRésultat<string[]>();
+        const colonnes = new attente.AttendreRésultat<
+          InfoColAvecCatégorie[]
+        >();
+        const colonnesSansCatégorie = new attente.AttendreRésultat<
+          InfoCol[]
+        >();
+        const données = new attente.AttendreRésultat<élémentDonnées[]>();
+
+        const idVarChaîne =
+          "/orbitdb/zdpuAximNmZyUWXGCaLmwSEGDeWmuqfgaoogA7KNSa1B2DAAF";
+        const fsOublier: schémaFonctionOublier[] = [];
+
+        before(async () => {
+          idTableau = await client.tableaux!.créerTableau({ idBd });
+          idColonne = await client.tableaux!.ajouterColonneTableau({
+            idTableau,
+            idVariable: idVarChaîne,
+          });
+          fsOublier.push(
+            await client.tableaux!.suivreVariables({
+              idTableau,
+              f: (v) => variables.mettreÀJour(v),
+            }),
+          );
+          fsOublier.push(
+            await client.tableaux!.suivreColonnesTableau({
+              idTableau,
+              f: (c) => colonnes.mettreÀJour(c),
+              catégories: true,
+            }),
+          );
+          fsOublier.push(
+            await client.tableaux!.suivreColonnesTableau({
+              idTableau,
+              f: (c) => colonnesSansCatégorie.mettreÀJour(c),
+              catégories: false,
+            }),
+          );
+          fsOublier.push(
+            await client.tableaux!.suivreDonnées({
+              idTableau,
+              f: (d) => données.mettreÀJour(d),
+            }),
+          );
+        });
+
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+        });
+
+        it("Tableau créé", () => {
+          expect(isValidAddress(idTableau)).to.be.true();
+        });
+        it("Suivre variables", async () => {
+          const valVariables = await variables.attendreQue(
+            (x) => x.length > 0,
+          );
+          expect(valVariables).to.deep.equal([idVarChaîne]);
+        });
+        it("Suivre colonnes", async () => {
+          expect(colonnes.val).to.be.undefined;
+        });
+        it("Suivre colonnes sans catégorie", async () => {
+          const val = await colonnesSansCatégorie.attendreQue(
+            (x) => x.length > 0,
+          );
+          expect(val).to.deep.equal([
+            { id: idColonne, variable: idVarChaîne },
+          ]);
+        });
+        it("Ajouter données", async () => {
+          await client.tableaux!.ajouterÉlément({
+            idTableau,
+            vals: {
+              [idColonne]: "Bonjour !",
+            },
+          });
+
+          const valDonnées = await données.attendreQue((x) => x.length > 0);
+          expect(valDonnées[0].données[idColonne]).to.equal("Bonjour !");
+        });
+      });
+
+      describe("Copier tableau", function () {
+        let idTableau: string;
+        let idVariable: string;
+        let idColonne: string;
+        let idRègle: string;
+
+        const variables = new attente.AttendreRésultat<string[]>();
+        const noms = new attente.AttendreRésultat<{
+          [key: string]: string;
+        }>();
+        const données = new attente.AttendreRésultat<
+          élémentDonnées<élémentBdListeDonnées>[]
+        >();
+        const colonnes = new attente.AttendreRésultat<
+          InfoColAvecCatégorie[]
+        >();
+        const colsIndexe = new attente.AttendreRésultat<string[]>();
+        const règles = new attente.AttendreRésultat<règleColonne[]>();
+
+        let idTableauCopie: string;
+
+        const réfNoms = {
+          த: "மழை",
+          हिं: "बारिश",
+        };
+        const règle: règleBornes = {
+          typeRègle: "bornes",
+          détails: {
+            type: "fixe",
+            val: 0,
+            op: ">",
+          },
+        };
+
+        const fsOublier: schémaFonctionOublier[] = [];
+
+        before(async () => {
+          idTableau = await client.tableaux!.créerTableau({ idBd });
+          await client.tableaux!.sauvegarderNomsTableau({
+            idTableau,
+            noms: réfNoms,
+          });
+
+          idVariable = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+          idColonne = await client.tableaux!.ajouterColonneTableau({
+            idTableau,
+            idVariable,
+          });
+          await client.tableaux!.changerColIndex({
+            idTableau,
+            idColonne,
+            val: true,
+          });
+
+          await client.tableaux!.ajouterÉlément({
+            idTableau,
+            vals: {
+              [idColonne]: 123,
+            },
+          });
+
+          idRègle = await client.tableaux!.ajouterRègleTableau({
+            idTableau,
+            idColonne,
+            règle,
+          });
+
+          idTableauCopie = await client.tableaux!.copierTableau({
+            id: idTableau,
+            idBd,
+          });
+
+          fsOublier.push(
+            await client.tableaux!.suivreVariables({
+              idTableau: idTableauCopie,
+              f: (x) => variables.mettreÀJour(x),
+            }),
+          );
+          fsOublier.push(
+            await client.tableaux!.suivreNomsTableau({
+              idTableau: idTableauCopie,
+              f: (x) => noms.mettreÀJour(x),
+            }),
+          );
+          fsOublier.push(
+            await client.tableaux!.suivreDonnées({
+              idTableau: idTableauCopie,
+              f: (x) => données.mettreÀJour(x),
+            }),
+          );
+          fsOublier.push(
+            await client.tableaux!.suivreColonnesTableau({
+              idTableau: idTableauCopie,
+              f: (x) => colonnes.mettreÀJour(x),
+              catégories: true,
+            }),
+          );
+          fsOublier.push(
+            await client.tableaux!.suivreIndex({
+              idTableau: idTableauCopie,
+              f: (x) => colsIndexe.mettreÀJour(x),
+            }),
+          );
+          fsOublier.push(
+            await client.tableaux!.suivreRègles({
+              idTableau: idTableauCopie,
+              f: (x) => règles.mettreÀJour(x),
+            }),
+          );
+        });
+
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+          colonnes.toutAnnuler();
+        });
+
+        it("Le tableau est copié", async () => {
+          expect(isValidAddress(idTableauCopie)).to.be.true();
+        });
+
+        it("Les noms sont copiés", async () => {
+          const val = await noms.attendreExiste();
+          expect(val).to.deep.equal(réfNoms);
+        });
+
+        it("Les colonnes sont copiées", async () => {
+          const val = await colonnes.attendreQue((x) => x.length > 0);
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
+          expect(val[0].variable).to.equal(idVariable);
+        });
+
+        it("Les indexes sont copiés", async () => {
+          const val = await colsIndexe.attendreQue((x) => x.length > 0);
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
+          expect(val[0]).to.equal(idColonne);
+        });
+
+        it("Les règles sont copiés", async () => {
+          const vals = await règles.attendreQue((x) =>
+            x.some((r) => r.règle.id === idRègle),
+          );
+
+          const règleRecherchée = vals.find((r) => r.règle.id === idRègle);
+          expect(règleRecherchée).to.not.be.undefined();
+          expect(règleRecherchée?.colonne).to.equal(colonnes.val?.[0].id);
+          expect(règleRecherchée?.règle.règle).to.deep.equal(règle);
+        });
+
+        it("Les variables sont copiés", async () => {
+          const val = await variables.attendreQue((v) => v.length > 0);
+
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(1);
+          expect(val[0]).to.equal(idVariable);
+        });
+
+        it("Les données sont copiés", async () => {
+          const valColonnes = await colonnes.attendreExiste();
+          const valDonnées = await données.attendreQue((x) => x.length > 0);
+
+          expect(Array.isArray(valDonnées)).to.be.true();
+          expect(valDonnées.length).to.equal(1);
+          expect(valDonnées[0].données[valColonnes[0].id]).to.equal(123);
+        });
+      });
+
+      describe("Combiner données tableaux", function () {
+        let idTableauBase: string;
+        let idTableau2: string;
+
+        let idVarDate: string;
+        let idVarEndroit: string;
+        let idVarTempMin: string;
+        let idVarTempMax: string;
+
+        const données = new attente.AttendreRésultat<
+          élémentDonnées<élémentBdListeDonnées>[]
+        >();
+        let fOublier: schémaFonctionOublier;
+
+        const idsCols: { [key: string]: string } = {};
+
+        before(async () => {
+          idTableauBase = await client.tableaux!.créerTableau({ idBd });
+          idTableau2 = await client.tableaux!.créerTableau({ idBd });
+
+          idVarDate = await client.variables!.créerVariable({
+            catégorie: "horoDatage",
+          });
+          idVarEndroit = await client.variables!.créerVariable({
+            catégorie: "chaîneNonTraductible",
+          });
+          idVarTempMin = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+          idVarTempMax = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+
+          for (const idVar of [
+            idVarDate,
+            idVarEndroit,
+            idVarTempMin,
+            idVarTempMax,
+          ]) {
+            const idCol = await client.tableaux!.ajouterColonneTableau({
+              idTableau: idTableauBase,
+              idVariable: idVar,
+            });
+
+            idsCols[idVar] = idCol;
+            await client.tableaux!.ajouterColonneTableau({
+              idTableau: idTableau2,
+              idVariable: idVar,
+              idColonne: idCol,
+            });
+          }
+          for (const idVar of [idVarDate, idVarEndroit]) {
+            await client.tableaux!.changerColIndex({
+              idTableau: idTableauBase,
+              idColonne: idsCols[idVar],
+              val: true,
+            });
+            await client.tableaux!.changerColIndex({
+              idTableau: idTableau2,
+              idColonne: idsCols[idVar],
+              val: true,
+            });
+          }
+
+          fOublier = await client.tableaux!.suivreDonnées({
+            idTableau: idTableauBase,
+            f: (d) => données.mettreÀJour(d),
+          });
+
+          const élémentsBase = [
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "là-bas",
+              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarTempMin]]: 25,
+            },
+          ];
+          for (const élément of élémentsBase) {
+            await client.tableaux!.ajouterÉlément({
+              idTableau: idTableauBase,
+              vals: élément,
+            });
+          }
+
+          const éléments2 = [
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarTempMin]]: 27,
+              [idsCols[idVarTempMax]]: 30,
+            },
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarTempMin]]: 27,
+            },
+            {
+              [idsCols[idVarEndroit]]: "là-bas",
+              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarTempMin]]: 27,
+            },
+          ];
+          for (const élément of éléments2) {
+            await client.tableaux!.ajouterÉlément({
+              idTableau: idTableau2,
+              vals: élément,
+            });
+          }
+
+          await client.tableaux!.combinerDonnées({
+            idTableauBase,
+            idTableau2,
           });
         });
 
-        describe("Importer données", function () {
-          let fOublier: schémaFonctionOublier;
-          let idTableau: string;
+        after(async () => {
+          if (fOublier) await fOublier();
+        });
 
-          let idVarDate: string;
-          let idVarEndroit: string;
-          let idVarTempMin: string;
-          let idVarTempMax: string;
+        it("Données manquantes ajoutées", async () => {
+          const réf = [
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarTempMin]]: 25,
+              [idsCols[idVarTempMax]]: 30,
+            },
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "là-bas",
+              [idsCols[idVarDate]]: "2021-01-01",
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "là-bas",
+              [idsCols[idVarDate]]: "2021-01-02",
+              [idsCols[idVarTempMin]]: 27,
+            },
+          ];
+          const val = await données.attendreQue(
+            (x) => x.length === réf.length,
+          );
 
-          const données = new attente.AttendreRésultat<
-            élémentDonnées<élémentBdListeDonnées>[]
-          >();
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(4);
+          expect(
+            val
+              .map((d) => d.données)
+              .map((d) => {
+                delete d.id;
+                return d;
+              }),
+          ).to.deep.include.members(réf);
+        });
+      });
 
-          const idsCols: { [key: string]: string } = {};
+      describe("Importer données", function () {
+        let fOublier: schémaFonctionOublier;
+        let idTableau: string;
 
-          before(async () => {
-            idTableau = await client.tableaux!.créerTableau({ idBd });
+        let idVarDate: string;
+        let idVarEndroit: string;
+        let idVarTempMin: string;
+        let idVarTempMax: string;
 
-            idVarDate = await client.variables!.créerVariable({
-              catégorie: "horoDatage",
-            });
-            idVarEndroit = await client.variables!.créerVariable({
-              catégorie: "chaîneNonTraductible",
-            });
-            idVarTempMin = await client.variables!.créerVariable({
-              catégorie: "numérique",
-            });
-            idVarTempMax = await client.variables!.créerVariable({
-              catégorie: "numérique",
-            });
+        const données = new attente.AttendreRésultat<
+          élémentDonnées<élémentBdListeDonnées>[]
+        >();
 
-            for (const idVar of [
-              idVarDate,
-              idVarEndroit,
-              idVarTempMin,
-              idVarTempMax,
-            ]) {
-              const idCol = await client.tableaux!.ajouterColonneTableau({
-                idTableau,
-                idVariable: idVar,
-              });
-              idsCols[idVar] = idCol;
-            }
+        const idsCols: { [key: string]: string } = {};
 
-            fOublier = await client.tableaux!.suivreDonnées({
+        before(async () => {
+          idTableau = await client.tableaux!.créerTableau({ idBd });
+
+          idVarDate = await client.variables!.créerVariable({
+            catégorie: "horoDatage",
+          });
+          idVarEndroit = await client.variables!.créerVariable({
+            catégorie: "chaîneNonTraductible",
+          });
+          idVarTempMin = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+          idVarTempMax = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+
+          for (const idVar of [
+            idVarDate,
+            idVarEndroit,
+            idVarTempMin,
+            idVarTempMax,
+          ]) {
+            const idCol = await client.tableaux!.ajouterColonneTableau({
               idTableau,
-              f: (d) => données.mettreÀJour(d),
+              idVariable: idVar,
             });
+            idsCols[idVar] = idCol;
+          }
 
-            const élémentsBase = [
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: {
-                  système: "dateJS",
-                  val: new Date("2021-01-01").valueOf(),
-                },
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: {
-                  système: "dateJS",
-                  val: new Date("2021-01-02").valueOf(),
-                },
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "là-bas",
-                [idsCols[idVarDate]]: {
-                  système: "dateJS",
-                  val: new Date("2021-01-01").valueOf(),
-                },
-                [idsCols[idVarTempMin]]: 25,
-              },
-            ];
+          fOublier = await client.tableaux!.suivreDonnées({
+            idTableau,
+            f: (d) => données.mettreÀJour(d),
+          });
 
+          const élémentsBase = [
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-01").valueOf(),
+              },
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-02").valueOf(),
+              },
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "là-bas",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-01").valueOf(),
+              },
+              [idsCols[idVarTempMin]]: 25,
+            },
+          ];
+
+          await client.tableaux!.ajouterÉlément({
+            idTableau,
+            vals: élémentsBase,
+          });
+
+          // Il faut attendre que les données soient bien ajoutées avant de progresser avec l'importation.
+          await données.attendreQue((x) => x.length === 3);
+
+          const nouvellesDonnées = [
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-01").valueOf(),
+              },
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-02").valueOf(),
+              },
+              [idsCols[idVarTempMin]]: 27,
+            },
+          ];
+          await client.tableaux!.importerDonnées({
+            idTableau,
+            données: nouvellesDonnées,
+          });
+        });
+
+        after(async () => {
+          if (fOublier) await fOublier();
+        });
+
+        it("Données importées correctement", async () => {
+          const val = await données.attendreQue(
+            (x) =>
+              x.length === 2 &&
+              !x.some((d) => d.données[idsCols[idVarEndroit]] === "là-bas"),
+          );
+
+          expect(Array.isArray(val)).to.be.true();
+          expect(val.length).to.equal(2);
+          expect(
+            val
+              .map((d) => d.données)
+              .map((d) => {
+                delete d.id;
+                return d;
+              }),
+          ).to.have.deep.members([
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-01").valueOf(),
+              },
+              [idsCols[idVarTempMin]]: 25,
+            },
+            {
+              [idsCols[idVarEndroit]]: "ici",
+              [idsCols[idVarDate]]: {
+                système: "dateJS",
+                val: new Date("2021-01-02").valueOf(),
+              },
+              [idsCols[idVarTempMin]]: 27,
+            },
+          ]);
+        });
+      });
+
+      describe("Exporter données", function () {
+        let idTableau: string;
+        let idVarNumérique: string;
+        let idVarChaîne: string;
+        let idVarFichier: string;
+        let idVarBooléenne: string;
+
+        let idColNumérique: string;
+        let idColChaîne: string;
+        let idColFichier: string;
+        let idColBooléenne: string;
+
+        let doc: XLSX.WorkBook;
+        let fichiersSFIP: Set<string>;
+
+        let fOublier: schémaFonctionOublier;
+
+        const nomTableauFr = "Tableau test";
+
+        before(async () => {
+          idTableau = await client.tableaux!.créerTableau({ idBd });
+          idVarNumérique = await client.variables!.créerVariable({
+            catégorie: "numérique",
+          });
+          idVarChaîne = await client.variables!.créerVariable({
+            catégorie: "chaîneNonTraductible",
+          });
+          idVarFichier = await client.variables!.créerVariable({
+            catégorie: "fichier",
+          });
+          idVarBooléenne = await client.variables!.créerVariable({
+            catégorie: "booléen",
+          });
+
+          idColNumérique = await client.tableaux!.ajouterColonneTableau({
+            idTableau,
+            idVariable: idVarNumérique,
+          });
+          idColChaîne = await client.tableaux!.ajouterColonneTableau({
+            idTableau,
+            idVariable: idVarChaîne,
+          });
+          idColBooléenne = await client.tableaux!.ajouterColonneTableau({
+            idTableau,
+            idVariable: idVarBooléenne,
+          });
+          idColFichier = await client.tableaux!.ajouterColonneTableau({
+            idTableau,
+            idVariable: idVarFichier,
+          });
+
+          await client.tableaux!.sauvegarderNomsTableau({
+            idTableau,
+            noms: {
+              fr: nomTableauFr,
+            },
+          });
+
+          await client.variables!.sauvegarderNomsVariable({
+            idVariable: idVarNumérique,
+            noms: {
+              fr: "Numérique",
+              हिं: "यह है संख्या",
+            },
+          });
+
+          await client.variables!.sauvegarderNomsVariable({
+            idVariable: idVarChaîne,
+            noms: {
+              fr: "Chaîne",
+              த: "இது உரை ஆகும்",
+            },
+          });
+
+          const éléments: { [key: string]: élémentsBd }[] = [
+            {
+              [idColNumérique]: 123,
+              [idColChaîne]: "வணக்கம்",
+              [idColBooléenne]: true,
+              [idColFichier]:
+                "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
+            },
+            {
+              [idColNumérique]: 456,
+            },
+          ];
+          for (const élément of éléments) {
             await client.tableaux!.ajouterÉlément({
               idTableau,
-              vals: élémentsBase,
+              vals: élément,
             });
-
-            // Il faut attendre que les données soient bien ajoutées avant de progresser avec l'importation.
-            await données.attendreQue((x) => x.length === 3);
-
-            const nouvellesDonnées = [
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: {
-                  système: "dateJS",
-                  val: new Date("2021-01-01").valueOf(),
-                },
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: {
-                  système: "dateJS",
-                  val: new Date("2021-01-02").valueOf(),
-                },
-                [idsCols[idVarTempMin]]: 27,
-              },
-            ];
-            await client.tableaux!.importerDonnées({
-              idTableau,
-              données: nouvellesDonnées,
-            });
-          });
-
-          after(async () => {
-            if (fOublier) await fOublier();
-          });
-
-          it("Données importées correctement", async () => {
-            const val = await données.attendreQue(
-              (x) =>
-                x.length === 2 &&
-                !x.some((d) => d.données[idsCols[idVarEndroit]] === "là-bas"),
-            );
-
-            expect(Array.isArray(val)).to.be.true();
-            expect(val.length).to.equal(2);
-            expect(
-              val
-                .map((d) => d.données)
-                .map((d) => {
-                  delete d.id;
-                  return d;
-                }),
-            ).to.have.deep.members([
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: {
-                  système: "dateJS",
-                  val: new Date("2021-01-01").valueOf(),
-                },
-                [idsCols[idVarTempMin]]: 25,
-              },
-              {
-                [idsCols[idVarEndroit]]: "ici",
-                [idsCols[idVarDate]]: {
-                  système: "dateJS",
-                  val: new Date("2021-01-02").valueOf(),
-                },
-                [idsCols[idVarTempMin]]: 27,
-              },
-            ]);
-          });
+          }
+          ({ doc, fichiersSFIP } = await client.tableaux!.exporterDonnées({
+            idTableau,
+            langues: ["த", "fr"],
+          }));
         });
 
-        describe("Exporter données", function () {
-          let idTableau: string;
-          let idVarNumérique: string;
-          let idVarChaîne: string;
-          let idVarFichier: string;
-          let idVarBooléenne: string;
+        after(async () => {
+          if (fOublier) await fOublier();
+        });
 
-          let idColNumérique: string;
-          let idColChaîne: string;
-          let idColFichier: string;
-          let idColBooléenne: string;
+        it("Langue appropriée pour le nom du tableau", () => {
+          expect(doc.SheetNames[0]).to.equal(nomTableauFr);
+        });
 
-          let doc: XLSX.WorkBook;
-          let fichiersSFIP: Set<string>;
-
-          let fOublier: schémaFonctionOublier;
-
-          const nomTableauFr = "Tableau test";
-
-          before(async () => {
-            idTableau = await client.tableaux!.créerTableau({ idBd });
-            idVarNumérique = await client.variables!.créerVariable({
-              catégorie: "numérique",
-            });
-            idVarChaîne = await client.variables!.créerVariable({
-              catégorie: "chaîneNonTraductible",
-            });
-            idVarFichier = await client.variables!.créerVariable({
-              catégorie: "fichier",
-            });
-            idVarBooléenne = await client.variables!.créerVariable({
-              catégorie: "booléen",
-            });
-
-            idColNumérique = await client.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable: idVarNumérique,
-            });
-            idColChaîne = await client.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable: idVarChaîne,
-            });
-            idColBooléenne = await client.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable: idVarBooléenne,
-            });
-            idColFichier = await client.tableaux!.ajouterColonneTableau({
-              idTableau,
-              idVariable: idVarFichier,
-            });
-
-            await client.tableaux!.sauvegarderNomsTableau({
-              idTableau,
-              noms: {
-                fr: nomTableauFr,
-              },
-            });
-
-            await client.variables!.sauvegarderNomsVariable({
-              idVariable: idVarNumérique,
-              noms: {
-                fr: "Numérique",
-                हिं: "यह है संख्या",
-              },
-            });
-
-            await client.variables!.sauvegarderNomsVariable({
-              idVariable: idVarChaîne,
-              noms: {
-                fr: "Chaîne",
-                த: "இது உரை ஆகும்",
-              },
-            });
-
-            const éléments: { [key: string]: élémentsBd }[] = [
-              {
-                [idColNumérique]: 123,
-                [idColChaîne]: "வணக்கம்",
-                [idColBooléenne]: true,
-                [idColFichier]:
-                  "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
-              },
-              {
-                [idColNumérique]: 456,
-              },
-            ];
-            for (const élément of éléments) {
-              await client.tableaux!.ajouterÉlément({
-                idTableau,
-                vals: élément,
-              });
-            }
-            ({ doc, fichiersSFIP } = await client.tableaux!.exporterDonnées({
-              idTableau,
-              langues: ["த", "fr"],
-            }));
-          });
-
-          after(async () => {
-            if (fOublier) await fOublier();
-          });
-
-          it("Langue appropriée pour le nom du tableau", () => {
-            expect(doc.SheetNames[0]).to.equal(nomTableauFr);
-          });
-
-          it("Langue appropriée pour les noms des colonnes", () => {
-            for (const { cellule } of [
-              { cellule: "A1" },
-              { cellule: "B1" },
-              { cellule: "C1" },
-              { cellule: "D1" },
-            ]) {
-              expect([
-                "Numérique",
-                "இது உரை ஆகும்",
-                idColBooléenne,
-                idColFichier,
-              ]).to.contain(
-                (doc.Sheets[nomTableauFr][cellule] as XLSX.CellObject).v,
-              );
-            }
-          });
-
-          it("Données numériques exportées", async () => {
-            const iColNumérique = ["A", "B", "C", "D"].find(
-              (i) => doc.Sheets[nomTableauFr][`${i}1`].v === "Numérique",
+        it("Langue appropriée pour les noms des colonnes", () => {
+          for (const { cellule } of [
+            { cellule: "A1" },
+            { cellule: "B1" },
+            { cellule: "C1" },
+            { cellule: "D1" },
+          ]) {
+            expect([
+              "Numérique",
+              "இது உரை ஆகும்",
+              idColBooléenne,
+              idColFichier,
+            ]).to.contain(
+              (doc.Sheets[nomTableauFr][cellule] as XLSX.CellObject).v,
             );
-            const val = doc.Sheets[nomTableauFr][`${iColNumérique}2`].v;
-            expect(val).to.equal(123);
+          }
+        });
 
-            const val2 = doc.Sheets[nomTableauFr][`${iColNumérique}3`].v;
-            expect(val2).to.equal(456);
-          });
+        it("Données numériques exportées", async () => {
+          const iColNumérique = ["A", "B", "C", "D"].find(
+            (i) => doc.Sheets[nomTableauFr][`${i}1`].v === "Numérique",
+          );
+          const val = doc.Sheets[nomTableauFr][`${iColNumérique}2`].v;
+          expect(val).to.equal(123);
 
-          it("Données chaîne exportées", async () => {
-            const iColChaîne = ["A", "B", "C", "D"].find(
-              (i) => doc.Sheets[nomTableauFr][`${i}1`].v === "இது உரை ஆகும்",
-            );
-            const val = doc.Sheets[nomTableauFr][`${iColChaîne}2`].v;
-            expect(val).to.equal("வணக்கம்");
-          });
+          const val2 = doc.Sheets[nomTableauFr][`${iColNumérique}3`].v;
+          expect(val2).to.equal(456);
+        });
 
-          it("Données booléennes exportées", async () => {
-            const iColBooléenne = ["A", "B", "C", "D"].find(
-              (i) => doc.Sheets[nomTableauFr][`${i}1`].v === idColBooléenne,
-            );
-            const val = doc.Sheets[nomTableauFr][`${iColBooléenne}2`].v;
-            expect(val).to.equal("true");
-          });
+        it("Données chaîne exportées", async () => {
+          const iColChaîne = ["A", "B", "C", "D"].find(
+            (i) => doc.Sheets[nomTableauFr][`${i}1`].v === "இது உரை ஆகும்",
+          );
+          const val = doc.Sheets[nomTableauFr][`${iColChaîne}2`].v;
+          expect(val).to.equal("வணக்கம்");
+        });
 
-          it("Données fichier exportées", async () => {
-            const iColFichier = ["A", "B", "C", "D"].find(
-              (i) => doc.Sheets[nomTableauFr][`${i}1`].v === idColFichier,
-            );
-            const val = doc.Sheets[nomTableauFr][`${iColFichier}2`].v;
-            expect(val).to.equal(
-              "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
-            );
-          });
+        it("Données booléennes exportées", async () => {
+          const iColBooléenne = ["A", "B", "C", "D"].find(
+            (i) => doc.Sheets[nomTableauFr][`${i}1`].v === idColBooléenne,
+          );
+          const val = doc.Sheets[nomTableauFr][`${iColBooléenne}2`].v;
+          expect(val).to.equal("true");
+        });
 
-          it("Les fichiers SFIP sont détectés", async () => {
-            expect(fichiersSFIP.size).to.equal(1);
-            expect(fichiersSFIP).to.deep.equal(
-              new Set(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4"]),
-            );
-          });
+        it("Données fichier exportées", async () => {
+          const iColFichier = ["A", "B", "C", "D"].find(
+            (i) => doc.Sheets[nomTableauFr][`${i}1`].v === idColFichier,
+          );
+          const val = doc.Sheets[nomTableauFr][`${iColFichier}2`].v;
+          expect(val).to.equal(
+            "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4",
+          );
+        });
 
-          it("Exporter avec ids des colonnes et du tableau", async () => {
-            ({ doc } = await client.tableaux!.exporterDonnées({ idTableau }));
-            const idTableauCourt = idTableau.split("/").pop()!.slice(0, 30);
-            expect(doc.SheetNames[0]).to.equal(idTableauCourt);
-            for (const { cellule } of [
-              { cellule: "A1" },
-              { cellule: "B1" },
-              { cellule: "C1" },
-              { cellule: "D1" },
-            ]) {
-              expect([
-                idColNumérique,
-                idColChaîne,
-                idColBooléenne,
-                idColFichier,
-              ]).to.contain(doc.Sheets[idTableauCourt][cellule].v);
-            }
-          });
+        it("Les fichiers SFIP sont détectés", async () => {
+          expect(fichiersSFIP.size).to.equal(1);
+          expect(fichiersSFIP).to.deep.equal(
+            new Set(["QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ.mp4"]),
+          );
+        });
+
+        it("Exporter avec ids des colonnes et du tableau", async () => {
+          ({ doc } = await client.tableaux!.exporterDonnées({ idTableau }));
+
+          const idTableauCourt = idTableau.split("/").pop()!.slice(0, 30);
+          expect(doc.SheetNames[0]).to.equal(idTableauCourt);
+          for (const { cellule } of [
+            { cellule: "A1" },
+            { cellule: "B1" },
+            { cellule: "C1" },
+            { cellule: "D1" },
+          ]) {
+            expect([
+              idColNumérique,
+              idColChaîne,
+              idColBooléenne,
+              idColFichier,
+            ]).to.contain(doc.Sheets[idTableauCourt][cellule].v);
+          }
         });
       });
     });

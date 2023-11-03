@@ -59,6 +59,12 @@ export type élémentBdListeDonnées = {
   [key: string]: élémentsBd;
 };
 
+export type donnéesTableauExportation = { 
+  nomTableau: string;
+  données: élémentBdListeDonnées[];
+  fichiersSFIP: Set<string>;
+};
+
 export type InfoCol = {
   id: string;
   variable: string;
@@ -92,6 +98,27 @@ export type conversionDonnéesChaîne = {
   type: "chaîne";
   langue: string;
 };
+
+export const attendreStabilité = <T>(n: number): (v: T) => Promise<boolean> => {
+  let déjàAppellé = false;
+  let val: string | undefined = undefined;
+  let annulerRebours: () => void = faisRien;
+
+  return (v: T) => new Promise<boolean>(résoudre => {
+    if (déjàAppellé && JSON.stringify(v) === val) return;
+    
+    déjàAppellé = true;
+    annulerRebours();
+    val = JSON.stringify(v);
+    console.log(val, n);
+
+    const crono = setTimeout(() => résoudre(true), n);
+    annulerRebours = () => {
+      clearTimeout(crono);
+      résoudre(false);
+    }
+  })
+}
 
 const schémaBdInfoColAvecCatégorie: JSONSchemaType<{
   [id: string]: InfoColAvecCatégorie;
@@ -651,8 +678,7 @@ export default class Tableaux {
           );
         }
       }
-
-      if (val !== undefined) élémentFinal[langues ? variable : col] = val;
+      if (val !== undefined) élémentFinal[variable] = val;
     }
 
     return élémentFinal;
@@ -665,11 +691,7 @@ export default class Tableaux {
   }: {
     idTableau: string;
     langues?: string[];
-    f: schémaFonctionSuivi<{
-      nomTableau: string;
-      données: élémentBdListeDonnées[];
-      fichiersSFIP: Set<string>;
-    }>;
+    f: schémaFonctionSuivi<donnéesTableauExportation>;
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsTableau?: { [clef: string]: string };
@@ -681,7 +703,8 @@ export default class Tableaux {
 
     const fFinale = async () => {
       const { colonnes, données, nomsTableau, nomsVariables } = info;
-      if (colonnes && données) {
+
+      if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
         const fichiersSFIP: Set<string> = new Set();
 
         let donnéesFormattées = await Promise.all(
@@ -714,16 +737,17 @@ export default class Tableaux {
             return acc;
           }, {}),
         );
+
         const idCourtTableau = idTableau.split("/").pop()!;
         const nomTableau =
           langues && nomsTableau
             ? traduire(nomsTableau, langues) || idCourtTableau
             : idCourtTableau;
 
-        await f({
-          nomTableau,
-          données: donnéesFormattées,
-          fichiersSFIP,
+            return await f({
+              nomTableau,
+              données: donnéesFormattées,
+              fichiersSFIP,
         });
       }
     };
@@ -801,90 +825,32 @@ export default class Tableaux {
   }): Promise<donnéesBdExportées> {
     /* Créer le document si nécessaire */
     doc = doc || utils.book_new();
-    const fichiersSFIP: Set<string> = new Set();
-
-    let nomTableau: string;
-    const idCourtTableau = idTableau.split("/").pop()!;
-    if (langues) {
-      const noms = await uneFois(
-        (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.suivreNomsTableau({ idTableau, f }),
-      );
-
-      nomTableau = traduire(noms, langues) || idCourtTableau;
-    } else {
-      nomTableau = idCourtTableau;
-    }
 
     const données = await uneFois(
-      (f: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) =>
-        this.suivreDonnées({ idTableau, f }),
-    );
-
-    const colonnes = await uneFois(
-      (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
-        this.suivreColonnesTableau({ idTableau, f, catégories: true }),
-      (c) =>
-        !!c &&
-        c.length >=
-          [
-            ...new Set(
-              données
-                .map((d) => Object.keys(d.données).filter((x) => x !== "id"))
-                .flat(),
-            ),
-          ].length,
-    );
-
-    let donnéesPourXLSX = await Promise.all(
-      données.map((d) =>
-        this.formaterÉlément({
-          é: d.données,
-          fichiersSFIP,
-          colonnes,
+      async (
+        fSuivi: schémaFonctionSuivi<{
+          nomTableau: string;
+          données: élémentBdListeDonnées[];
+          fichiersSFIP: Set<string>;
+        }>,
+      ): Promise<schémaFonctionOublier> => {
+        return await this.suivreDonnéesExportation({
+          idTableau,
           langues,
-        }),
-      ),
+          f: fSuivi,
+        });
+      },
+      attendreStabilité(1000)
     );
-
-    if (langues) {
-      const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
-        this.suivreVariables({ idTableau, f }),
-      );
-      const nomsVariables: { [key: string]: string } = {};
-      for (const idVar of variables) {
-        const nomsDisponibles = await uneFois(
-          (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-            this.client.variables!.suivreNomsVariable({ idVariable: idVar, f }),
-        );
-        const idCol = colonnes.find((c) => c.variable === idVar)?.id;
-        if (!idCol)
-          throw new Error(
-            `Colonnne pour variable ${idVar} non trouvée parmis les colonnnes :\n${JSON.stringify(
-              colonnes,
-              undefined,
-              2,
-            )}.`,
-          );
-        nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
-      }
-      donnéesPourXLSX = donnéesPourXLSX.map((d) =>
-        Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {
-          const nomVar = nomsVariables[elem];
-          acc[nomVar] = d[elem];
-          return acc;
-        }, {}),
-      );
-    }
 
     /* Créer le tableau */
-    const tableau = utils.json_to_sheet(donnéesPourXLSX);
+    const tableau = utils.json_to_sheet(données.données);
 
     /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-    utils.book_append_sheet(doc, tableau, nomTableau.slice(0, 30));
+    utils.book_append_sheet(doc, tableau, données.nomTableau.slice(0, 30));
 
-    nomFichier = nomFichier || nomTableau;
-    return { doc, fichiersSFIP, nomFichier };
+    nomFichier = nomFichier || données.nomTableau;
+    return { doc, fichiersSFIP: données.fichiersSFIP, nomFichier };
   }
 
   async ajouterÉlément<T extends élémentBdListeDonnées>({
@@ -1734,7 +1700,7 @@ export default class Tableaux {
     catégories = false,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<(InfoCol|InfoColAvecCatégorie)[]>;
+    f: schémaFonctionSuivi<(InfoCol | InfoColAvecCatégorie)[]>;
     catégories?: boolean;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (colonnes?: InfoColAvecCatégorie[]) => {

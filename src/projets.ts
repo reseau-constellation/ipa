@@ -1,6 +1,6 @@
 import type { ToFile } from "ipfs-core-types/src/utils";
 
-import { WorkBook, BookType, write as writeXLSX } from "xlsx";
+import { WorkBook, BookType, write as writeXLSX, utils } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
@@ -24,15 +24,20 @@ import {
 import { traduire, zipper, uneFois } from "@constl/utils-ipa";
 import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
-import { schémaCopiéDe } from "./bds.js";
+import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
 import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
+import { attendreStabilité } from "./tableaux.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
   type: "string",
 };
 const schémaStuctureBdsDeProjet: JSONSchemaType<string> = { type: "string" };
 
+export interface donnéesProjetExportation {
+  nomProjet: string;
+  bds: donnéesBdExportation[]
+};
 export interface donnéesProjetExportées {
   docs: { doc: WorkBook; nom: string }[];
   fichiersSFIP: Set<string>;
@@ -847,6 +852,75 @@ export default class Projets extends ComposanteClientListe<string> {
     });
   }
 
+  async suivreDonnéesExportation({
+    idProjet,
+    langues,
+    f,
+  }: {
+    idProjet: string;
+    langues?: string[];
+    f: schémaFonctionSuivi<donnéesProjetExportation>;
+  }): Promise<schémaFonctionOublier> {
+    const info: {
+      nomsProjet?: { [langue: string]: string };
+      données?: donnéesBdExportation[];
+    } = {};
+    const fsOublier: schémaFonctionOublier[] = [];
+
+    const fFinale = async () => {
+      const { nomsProjet, données } = info;
+      if (!données) return;
+
+      const idCourt = idProjet.split("/").pop()!;
+      const nomProjet =
+        nomsProjet && langues
+          ? traduire(nomsProjet, langues) || idCourt
+          : idCourt;
+      return await f({
+        nomProjet,
+        bds: données,
+      });
+    };
+
+    const fOublierDonnées = await this.client.suivreBdsDeFonctionListe({
+      fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
+        return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
+      },
+      f: async (
+        données: donnéesBdExportation[],
+      ) => {
+        info.données = données;
+        await fFinale();
+      },
+      fBranche: async (
+        id: string,
+        fSuivreBranche: schémaFonctionSuivi<donnéesBdExportation>,
+      ): Promise<schémaFonctionOublier> => {
+        return await this.client.bds!.suivreDonnéesExportation({
+          idBd: id,
+          langues,
+          f: fSuivreBranche,
+        });   
+      },
+    });
+    fsOublier.push(fOublierDonnées);
+
+    if (langues) {
+      const fOublierNomsProjet = await this.suivreNomsProjet({
+        idProjet,
+        f: async (noms) => {
+          info.nomsProjet = noms;
+          await fFinale();
+        },
+      });
+      fsOublier.push(fOublierNomsProjet);
+    }
+
+    return async () => {
+      await Promise.all(fsOublier.map((f) => f()));
+    };
+  }
+
   async exporterDonnées({
     idProjet,
     langues,
@@ -856,48 +930,43 @@ export default class Projets extends ComposanteClientListe<string> {
     langues?: string[];
     nomFichier?: string;
   }): Promise<donnéesProjetExportées> {
-    if (!nomFichier) {
-      const nomsBd = await uneFois(
-        (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.suivreNomsProjet({ idProjet, f }),
-      );
-      const idCourt = idProjet.split("/").pop()!;
+    const données = await uneFois(
+      async (
+        fSuivi: schémaFonctionSuivi<donnéesProjetExportation>,
+      ): Promise<schémaFonctionOublier> => {
+        return await this.suivreDonnéesExportation({
+          idProjet,
+          langues,
+          f: fSuivi,
+        });
+      },
+      attendreStabilité(1000)
+    );
 
-      nomFichier = langues ? traduire(nomsBd, langues) || idCourt : idCourt;
-    }
-    const données: donnéesProjetExportées = {
-      docs: [],
-      fichiersSFIP: new Set(),
+    nomFichier = nomFichier || données.nomProjet;
+
+    const fichiersSFIP = new Set<string>();
+    données.bds.forEach(bd=>{
+      bd.tableaux.forEach(
+        t => t.fichiersSFIP.forEach(x=>fichiersSFIP.add(x))
+      )
+    });
+
+    return {
+      docs: données.bds.map(donnéesBd => {
+        const doc = utils.book_new();
+        for (const tableau of donnéesBd.tableaux) {
+          /* Créer le tableau */
+          const tableauXLSX = utils.json_to_sheet(tableau.données);
+      
+          /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
+          utils.book_append_sheet(doc, tableauXLSX, tableau.nomTableau.slice(0, 30));
+        }
+        return { doc, nom: donnéesBd.nomBd }
+      }),
+      fichiersSFIP,
       nomFichier,
     };
-    const idsBds = await uneFois((f: schémaFonctionSuivi<string[]>) =>
-      this.suivreBdsProjet({ idProjet, f }),
-    );
-    for (const idBd of idsBds) {
-      const { doc, fichiersSFIP } = await this.client.bds!.exporterDonnées({
-        idBd,
-        langues,
-      });
-
-      let nom: string;
-      const idCourtBd = idBd.split("/").pop()!;
-      if (langues) {
-        const noms = await uneFois(
-          (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-            this.client.bds!.suivreNomsBd({ idBd, f }),
-        );
-
-        nom = traduire(noms, langues) || idCourtBd;
-      } else {
-        nom = idCourtBd;
-      }
-      données.docs.push({ doc, nom });
-
-      for (const fichier of fichiersSFIP) {
-        données.fichiersSFIP.add(fichier);
-      }
-    }
-    return données;
   }
 
   async exporterDocumentDonnées({

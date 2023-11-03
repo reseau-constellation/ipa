@@ -7,7 +7,7 @@ import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 
-import type { InfoColAvecCatégorie } from "@/tableaux.js";
+import { attendreStabilité, type InfoColAvecCatégorie } from "@/tableaux.js";
 import {
   schémaStatut,
   schémaStructureBdMétadonnées,
@@ -25,6 +25,7 @@ import type {
   élémentBdListeDonnées,
   différenceTableaux,
   élémentDonnées,
+  donnéesTableauExportation,
 } from "@/tableaux.js";
 import ClientConstellation from "@/client.js";
 import {
@@ -68,6 +69,11 @@ export interface infoScore {
   licence?: number;
   total: number;
 }
+
+export type donnéesBdExportation = {
+  nomBd: string;
+  tableaux: donnéesTableauExportation[];
+};
 
 export interface donnéesBdExportées {
   doc: WorkBook;
@@ -2153,22 +2159,11 @@ export default class BDs extends ComposanteClientListe<string> {
   }: {
     idBd: string;
     langues?: string[];
-    f: schémaFonctionSuivi<{
-      nomBd: string;
-      données: {
-        nomTableau: string;
-        données: élémentBdListeDonnées[];
-        fichiersSFIP: Set<string>;
-      }[];
-    }>;
+    f: schémaFonctionSuivi<donnéesBdExportation>;
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsBd?: { [langue: string]: string };
-      données?: {
-        nomTableau: string;
-        données: élémentBdListeDonnées[];
-        fichiersSFIP: Set<string>;
-      }[];
+      données?: donnéesTableauExportation[];
     } = {};
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -2181,7 +2176,7 @@ export default class BDs extends ComposanteClientListe<string> {
         nomsBd && langues ? traduire(nomsBd, langues) || idCourt : idCourt;
       await f({
         nomBd,
-        données,
+        tableaux: données,
       });
     };
 
@@ -2192,33 +2187,24 @@ export default class BDs extends ComposanteClientListe<string> {
         return await this.suivreTableauxBd({ idBd, f: fSuivreRacine });
       },
       f: async (
-        données: {
-          nomTableau: string;
-          données: élémentBdListeDonnées[];
-          fichiersSFIP: Set<string>;
-        }[],
+        données: donnéesTableauExportation[],
       ) => {
         info.données = données;
         await fFinale();
       },
       fBranche: async (
         id: string,
-        fSuivreBranche: schémaFonctionSuivi<{
-          idTableau: string;
-          données: {
-            nomTableau: string;
-            données: élémentBdListeDonnées[];
-            fichiersSFIP: Set<string>;
-          };
-        }>,
+        fSuivreBranche: schémaFonctionSuivi<donnéesTableauExportation>,
       ): Promise<schémaFonctionOublier> => {
         return await this.client.tableaux!.suivreDonnéesExportation({
           idTableau: id,
           langues,
-          f: async (données) =>
-            await fSuivreBranche({ idTableau: id, données }),
+          f: async (données) =>{
+            return await fSuivreBranche(données)},
         });
       },
+      fIdBdDeBranche: x => x.id,
+      fCode: (x) => x.id,
     });
     fsOublier.push(fOublierDonnées);
 
@@ -2248,34 +2234,33 @@ export default class BDs extends ComposanteClientListe<string> {
     nomFichier?: string;
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
-    const fichiersSFIP: Set<string> = new Set();
 
-    const infosTableaux = await uneFois(
-      (f: schémaFonctionSuivi<infoTableauAvecId[]>) =>
-        this.suivreTableauxBd({ idBd, f }),
-    );
-
-    for (const tableau of infosTableaux) {
-      const { id: idTableau } = tableau;
-      const { fichiersSFIP: fichiersSFIPTableau } =
-        await this.client.tableaux!.exporterDonnées({
-          idTableau,
+    const données = await uneFois(
+      async (
+        fSuivi: schémaFonctionSuivi<donnéesBdExportation>,
+      ): Promise<schémaFonctionOublier> => {
+        return await this.suivreDonnéesExportation({
+          idBd,
           langues,
-          doc,
+          f: fSuivi,
         });
-      fichiersSFIPTableau.forEach((f) => fichiersSFIP.add(f));
+      },
+      attendreStabilité(1000)
+    );
+    
+    nomFichier = nomFichier || données.nomBd;
+    
+    const fichiersSFIP = new Set<string>();
+    
+    for (const tableau of données.tableaux) {
+      tableau.fichiersSFIP.forEach(x=>fichiersSFIP.add(x))
+      
+      /* Créer le tableau */
+      const tableauXLSX = utils.json_to_sheet(tableau.données);
+  
+      /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
+      utils.book_append_sheet(doc, tableauXLSX, tableau.nomTableau.slice(0, 30));
     }
-
-    if (!nomFichier) {
-      const nomsBd = await uneFois(
-        (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.suivreNomsBd({ idBd, f }),
-      );
-      const idCourt = idBd.split("/").pop()!;
-
-      nomFichier = langues ? traduire(nomsBd, langues) || idCourt : idCourt;
-    }
-
     return { doc, fichiersSFIP, nomFichier };
   }
 
