@@ -67,7 +67,7 @@ typesClients.forEach((type) => {
 
         it("Le projet est déjà ajouté", async () => {
           const val = await mesProjets.attendreQue((x) =>
-            x.includes(idNouveauProjet)
+            x.includes(idNouveauProjet),
           );
           expect(val).to.contain(idNouveauProjet);
         });
@@ -77,7 +77,7 @@ typesClients.forEach((type) => {
             idProjet: idNouveauProjet,
           });
           const val = await mesProjets.attendreQue(
-            (x) => !x.includes(idNouveauProjet)
+            (x) => !x.includes(idNouveauProjet),
           );
           expect(val).not.to.contain(idNouveauProjet);
         });
@@ -87,7 +87,7 @@ typesClients.forEach((type) => {
             idProjet: idNouveauProjet,
           });
           const val = await mesProjets.attendreQue((x) =>
-            x.includes(idNouveauProjet)
+            x.includes(idNouveauProjet),
           );
           expect(val).to.contain(idNouveauProjet);
         });
@@ -96,7 +96,7 @@ typesClients.forEach((type) => {
           await client.projets!.effacerProjet({ idProjet: idNouveauProjet });
 
           const val = await mesProjets.attendreQue(
-            (x) => !x.includes(idNouveauProjet)
+            (x) => !x.includes(idNouveauProjet),
           );
           expect(val).not.to.contain(idNouveauProjet);
         });
@@ -209,7 +209,7 @@ typesClients.forEach((type) => {
             },
           });
           const val = await descrs.attendreQue(
-            (x) => Object.keys(x).length > 2
+            (x) => Object.keys(x).length > 2,
           );
           expect(val).to.deep.equal({
             fr: "Alphabets",
@@ -297,19 +297,19 @@ typesClients.forEach((type) => {
             await client.projets!.suivreBdsProjet({
               idProjet,
               f: (b) => bds.mettreÀJour(b),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreMotsClefsProjet({
               idProjet,
               f: (m) => motsClefs.mettreÀJour(m),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreVariablesProjet({
               idProjet,
               f: (v) => variables.mettreÀJour(v),
-            })
+            }),
           );
         });
 
@@ -433,25 +433,25 @@ typesClients.forEach((type) => {
             await client.projets!.suivreNomsProjet({
               idProjet: idProjetCopie,
               f: (x) => noms.mettreÀJour(x),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreDescriptionsProjet({
               idProjet: idProjetCopie,
               f: (x) => descrs.mettreÀJour(x),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreMotsClefsProjet({
               idProjet: idProjetCopie,
               f: (x) => motsClefs.mettreÀJour(x),
-            })
+            }),
           );
           fsOublier.push(
             await client.projets!.suivreBdsProjet({
               idProjet: idProjetCopie,
               f: (x) => bds.mettreÀJour(x),
-            })
+            }),
           );
         });
 

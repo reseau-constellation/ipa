@@ -1400,7 +1400,7 @@ interface schémaSpécificationBd {
       idVariable: string;
       idColonne: string;
       index?: boolean;
-      optionnel?: boolean;
+      optionnelle?: boolean;
     }[];
     clef: string;
   }[];

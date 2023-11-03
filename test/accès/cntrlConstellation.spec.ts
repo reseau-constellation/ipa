@@ -24,7 +24,7 @@ type TypeContrôleurConstellation = Awaited<
 
 const attendreEstUnMod = (
   accès: TypeContrôleurConstellation,
-  idOrbite: string
+  idOrbite: string,
 ) => {
   return new Promise<void>((résoudre) => {
     const fTesterModérateur = async () => {
@@ -85,11 +85,11 @@ describe("Contrôleur Constellation", function () {
         it("...mais on peut l'inviter !", async () => {
           await (bd.access as TypeContrôleurConstellation).grant(
             MEMBRE,
-            orbitdb2.identity.id
+            orbitdb2.identity.id,
           );
 
           const bdOrbite2 = (await orbitdb2.open(
-            bd.address
+            bd.address,
           )) as unknown as KeyValue;
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
@@ -152,9 +152,7 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
-          bdOrbite2 = (await orbitdb2.open(
-            bd.address
-          )) as unknown as KeyValue;
+          bdOrbite2 = (await orbitdb2.open(bd.address)) as unknown as KeyValue;
           attendreSync(bdOrbite2);
 
           const autorisé = await peutÉcrire(bdOrbite2);
@@ -164,7 +162,7 @@ describe("Contrôleur Constellation", function () {
         it("...mais on peut toujours l'inviter !", async () => {
           await (bd.access as TypeContrôleurConstellation).grant(
             MEMBRE,
-            bdRacine2.address
+            bdRacine2.address,
           );
 
           const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
@@ -176,15 +174,15 @@ describe("Contrôleur Constellation", function () {
           await expect(
             (bdOrbite2.access as TypeContrôleurConstellation).grant(
               MEMBRE,
-              orbitdb3.identity.id
-            )
+              orbitdb3.identity.id,
+            ),
           ).rejected();
         });
 
         it("Mais un membre peut s'inviter lui-même", async () => {
           await (bdRacine2.access as TypeContrôleurConstellation).grant(
             MODÉRATEUR,
-            orbitdb3.identity.id
+            orbitdb3.identity.id,
           );
 
           const bdOrbite3 = (await orbitdb3.open(bd.address, {

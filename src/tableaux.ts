@@ -49,7 +49,7 @@ type ContrôleurConstellation = Awaited<
 >;
 
 export interface élémentDonnées<
-  T extends élémentBdListeDonnées = élémentBdListeDonnées
+  T extends élémentBdListeDonnées = élémentBdListeDonnées,
 > {
   données: T;
   id: string;
@@ -93,7 +93,9 @@ export type conversionDonnéesChaîne = {
   langue: string;
 };
 
-const schémaBdInfoColAvecCatégorie: JSONSchemaType<{[id: string]: InfoColAvecCatégorie}> = {
+const schémaBdInfoColAvecCatégorie: JSONSchemaType<{
+  [id: string]: InfoColAvecCatégorie;
+}> = {
   type: "object",
   additionalProperties: {
     type: "object",
@@ -118,10 +120,12 @@ const schémaBdInfoColAvecCatégorie: JSONSchemaType<{[id: string]: InfoColAvecC
     },
     required: ["id", "variable"],
   },
-  required: []
+  required: [],
 };
 
-const schémaBdDonnéesTableau: JSONSchemaType<{[id: string]: { [clef: string]: élémentsBd }}> = {
+const schémaBdDonnéesTableau: JSONSchemaType<{
+  [id: string]: { [clef: string]: élémentsBd };
+}> = {
   type: "object",
   additionalProperties: {
     type: "object",
@@ -131,8 +135,9 @@ const schémaBdDonnéesTableau: JSONSchemaType<{[id: string]: { [clef: string]: 
   required: [],
 };
 
-
-export const schémaBdRègles: JSONSchemaType<{[idRègle: string]: règleColonne}> = {
+export const schémaBdRègles: JSONSchemaType<{
+  [idRègle: string]: règleColonne;
+}> = {
   type: "object",
   additionalProperties: {
     type: "object",
@@ -167,12 +172,12 @@ export const schémaBdRègles: JSONSchemaType<{[idRègle: string]: règleColonne
     },
     required: ["colonne", "règle", "source"],
   },
-  required: []
+  required: [],
 };
 
 export function élémentsÉgaux(
   élément1: { [key: string]: élémentsBd },
-  élément2: { [key: string]: élémentsBd }
+  élément2: { [key: string]: élémentsBd },
 ): boolean {
   const clefs1 = Object.keys(élément1).filter((x) => x !== "id");
   const clefs2 = Object.keys(élément2).filter((x) => x !== "id");
@@ -184,7 +189,7 @@ export function élémentsÉgaux(
 export function indexÉlémentsÉgaux(
   élément1: { [key: string]: élémentsBd },
   élément2: { [key: string]: élémentsBd },
-  index: string[]
+  index: string[],
 ): boolean {
   if (!index.every((x) => élément1[x] === élément2[x])) return false;
   return true;
@@ -258,7 +263,7 @@ export default class Tableaux {
         id: idBdTableau,
         type: "keyvalue",
         schéma: schémaStructureBdTableau,
-      }
+      },
     );
 
     await bdTableau.set("type", "tableau");
@@ -465,7 +470,7 @@ export default class Tableaux {
     });
     if (!idBdColonnes) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -500,7 +505,11 @@ export default class Tableaux {
       const indexes = cols.filter((c) => c.index).map((c) => c.id);
       await f(indexes);
     };
-    return await this.suivreColonnesTableau({ idTableau, f: fFinale });
+    return await this.suivreColonnesTableau({
+      idTableau,
+      f: fFinale,
+      catégories: false,
+    });
   }
 
   @cacheSuivi
@@ -514,24 +523,16 @@ export default class Tableaux {
     clefsSelonVariables?: boolean;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      données?: {[id: string]: T};
+      données?: { [id: string]: T };
       colonnes?: { [key: string]: string };
     } = {};
-
-    const toutesColonnesPrésentes = (données: {
-      [id: string]: T;
-  }, colonnes: { [key: string]: string }): boolean => {
-      const listeCols = Object.keys(colonnes)
-      return Object.values(données).map(d=>Object.keys(d)).flat().every(c=>listeCols.includes(c))
-    }
 
     const fFinale = async () => {
       const { données, colonnes } = info;
 
-      if (données && colonnes && toutesColonnesPrésentes(données, colonnes)) {
+      if (données && colonnes) {
         const donnéesFinales: élémentDonnées<T>[] = Object.entries(données).map(
           ([id, élément]): élémentDonnées<T> => {
-
             const données: T = clefsSelonVariables
               ? Object.keys(élément).reduce((acc: T, elem: string) => {
                   // Convertir au nom de la variable si souhaité
@@ -542,7 +543,7 @@ export default class Tableaux {
               : élément;
 
             return { données, id };
-          }
+          },
         );
         await f(donnéesFinales);
       }
@@ -550,7 +551,7 @@ export default class Tableaux {
 
     const fSuivreColonnes = async (colonnes: InfoCol[]) => {
       info.colonnes = Object.fromEntries(
-        colonnes.map((c) => [c.id, c.variable])
+        colonnes.map((c) => [c.id, c.variable]),
       );
       await fFinale();
     };
@@ -560,7 +561,7 @@ export default class Tableaux {
       catégories: false,
     });
 
-    const fSuivreDonnées = async (données: {[id: string]: T}) => {
+    const fSuivreDonnées = async (données: { [id: string]: T }) => {
       info.données = données;
       await fFinale();
     };
@@ -597,7 +598,7 @@ export default class Tableaux {
     }): Promise<string> => {
       const trads = await uneFois(
         (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.client.suivreBdDic({ id: adresseBdTrads, f })
+          this.client.suivreBdDic({ id: adresseBdTrads, f }),
       );
 
       return traduire(trads, langues || []) || adresseBdTrads;
@@ -607,7 +608,7 @@ export default class Tableaux {
 
     const formaterValeur = async (
       v: élémentsBd,
-      catégorie: catégorieBaseVariables
+      catégorie: catégorieBaseVariables,
     ): Promise<string | number | undefined> => {
       switch (typeof v) {
         case "object": {
@@ -645,8 +646,8 @@ export default class Tableaux {
         if (Array.isArray(élément)) {
           val = JSON.stringify(
             await Promise.all(
-              élément.map((x) => formaterValeur(x, catégorie.catégorie))
-            )
+              élément.map((x) => formaterValeur(x, catégorie.catégorie)),
+            ),
           );
         }
       }
@@ -655,6 +656,136 @@ export default class Tableaux {
     }
 
     return élémentFinal;
+  }
+
+  async suivreDonnéesExportation({
+    idTableau,
+    langues,
+    f,
+  }: {
+    idTableau: string;
+    langues?: string[];
+    f: schémaFonctionSuivi<{
+      nomTableau: string;
+      données: élémentBdListeDonnées[];
+      fichiersSFIP: Set<string>;
+    }>;
+  }): Promise<schémaFonctionOublier> {
+    const info: {
+      nomsTableau?: { [clef: string]: string };
+      nomsVariables?: { [idVar: string]: { [langue: string]: string } };
+      colonnes?: InfoColAvecCatégorie[];
+      données?: élémentDonnées<élémentBdListeDonnées>[];
+    } = {};
+    const fsOublier: schémaFonctionOublier[] = [];
+
+    const fFinale = async () => {
+      const { colonnes, données, nomsTableau, nomsVariables } = info;
+      if (colonnes && données) {
+        const fichiersSFIP: Set<string> = new Set();
+
+        let donnéesFormattées = await Promise.all(
+          données.map((d) =>
+            this.formaterÉlément({
+              é: d.données,
+              fichiersSFIP,
+              colonnes,
+              langues,
+            }),
+          ),
+        );
+
+        donnéesFormattées = donnéesFormattées.map((d) =>
+          Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {
+            const idCol = colonnes.find((c) => c.variable === elem)?.id;
+            if (!idCol)
+              throw new Error(
+                `Colonnne pour variable ${elem} non trouvée parmis les colonnnes :\n${JSON.stringify(
+                  colonnes,
+                  undefined,
+                  2,
+                )}.`,
+              );
+            const nomVar =
+              langues && nomsVariables
+                ? traduire(nomsVariables[elem], langues) || idCol
+                : idCol;
+            acc[nomVar] = d[elem];
+            return acc;
+          }, {}),
+        );
+        const idCourtTableau = idTableau.split("/").pop()!;
+        const nomTableau =
+          langues && nomsTableau
+            ? traduire(nomsTableau, langues) || idCourtTableau
+            : idCourtTableau;
+
+        await f({
+          nomTableau,
+          données: donnéesFormattées,
+          fichiersSFIP,
+        });
+      }
+    };
+    if (langues) {
+      const fOublierNomsTableaux = await this.suivreNomsTableau({
+        idTableau,
+        f: async (noms) => {
+          info.nomsTableau = noms;
+          await fFinale();
+        },
+      });
+      fsOublier.push(fOublierNomsTableaux);
+
+      const fOublierNomsVariables = await this.client.suivreBdsDeFonctionListe({
+        fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) =>
+          this.suivreVariables({ idTableau, f: fSuivreRacine }),
+        f: async (
+          noms: { idVar: string; noms: { [langue: string]: string } }[],
+        ) => {
+          info.nomsVariables = Object.fromEntries(
+            noms.map((n) => [n.idVar, n.noms]),
+          );
+          await fFinale();
+        },
+        fBranche: async (
+          id: string,
+          fSuivreBranche: schémaFonctionSuivi<{
+            idVar: string;
+            noms: { [langue: string]: string };
+          }>,
+        ): Promise<schémaFonctionOublier> => {
+          return await this.client.variables!.suivreNomsVariable({
+            idVariable: id,
+            f: async (noms) => await fSuivreBranche({ idVar: id, noms }),
+          });
+        },
+      });
+      fsOublier.push(fOublierNomsVariables);
+    }
+
+    const fOublierColonnes = await this.suivreColonnesTableau({
+      idTableau,
+      f: async (cols) => {
+        info.colonnes = cols;
+        await fFinale();
+      },
+      catégories: true,
+    });
+    fsOublier.push(fOublierColonnes);
+
+    const fOublierDonnées = await this.suivreDonnées({
+      idTableau,
+      f: async (données) => {
+        info.données = données;
+        await fFinale();
+      },
+    });
+    fsOublier.push(fOublierDonnées);
+
+    return async () => {
+      Promise.all(fsOublier.map((f) => f()));
+    };
   }
 
   async exporterDonnées({
@@ -677,7 +808,7 @@ export default class Tableaux {
     if (langues) {
       const noms = await uneFois(
         (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.suivreNomsTableau({ idTableau, f })
+          this.suivreNomsTableau({ idTableau, f }),
       );
 
       nomTableau = traduire(noms, langues) || idCourtTableau;
@@ -687,12 +818,12 @@ export default class Tableaux {
 
     const données = await uneFois(
       (f: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) =>
-        this.suivreDonnées({ idTableau, f })
+        this.suivreDonnées({ idTableau, f }),
     );
 
     const colonnes = await uneFois(
       (f: schémaFonctionSuivi<InfoColAvecCatégorie[]>) =>
-        this.suivreColonnesTableau({ idTableau, f }),
+        this.suivreColonnesTableau({ idTableau, f, catégories: true }),
       (c) =>
         !!c &&
         c.length >=
@@ -700,9 +831,9 @@ export default class Tableaux {
             ...new Set(
               données
                 .map((d) => Object.keys(d.données).filter((x) => x !== "id"))
-                .flat()
+                .flat(),
             ),
-          ].length
+          ].length,
     );
 
     let donnéesPourXLSX = await Promise.all(
@@ -712,19 +843,19 @@ export default class Tableaux {
           fichiersSFIP,
           colonnes,
           langues,
-        })
-      )
+        }),
+      ),
     );
 
     if (langues) {
       const variables = await uneFois((f: schémaFonctionSuivi<string[]>) =>
-        this.suivreVariables({ idTableau, f })
+        this.suivreVariables({ idTableau, f }),
       );
       const nomsVariables: { [key: string]: string } = {};
       for (const idVar of variables) {
         const nomsDisponibles = await uneFois(
           (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-            this.client.variables!.suivreNomsVariable({ idVariable: idVar, f })
+            this.client.variables!.suivreNomsVariable({ idVariable: idVar, f }),
         );
         const idCol = colonnes.find((c) => c.variable === idVar)?.id;
         if (!idCol)
@@ -732,8 +863,8 @@ export default class Tableaux {
             `Colonnne pour variable ${idVar} non trouvée parmis les colonnnes :\n${JSON.stringify(
               colonnes,
               undefined,
-              2
-            )}.`
+              2,
+            )}.`,
           );
         nomsVariables[idVar] = traduire(nomsDisponibles, langues) || idCol;
       }
@@ -742,7 +873,7 @@ export default class Tableaux {
           const nomVar = nomsVariables[elem];
           acc[nomVar] = d[elem];
           return acc;
-        }, {})
+        }, {}),
       );
     }
 
@@ -774,7 +905,7 @@ export default class Tableaux {
     });
     if (!idBdDonnées) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -783,25 +914,28 @@ export default class Tableaux {
         id: idBdDonnées,
         type: "keyvalue",
         schéma: schémaBdDonnéesTableau,
-      }
+      },
     );
 
     // Éviter, autant que possible, de dédoubler des colonnes indexes
-    const colsIndexe = (await uneFois(
-      (f: schémaFonctionSuivi<InfoCol[]>) =>
-        this.suivreColonnesTableau({ idTableau, f, catégories: false })
-    )).filter(c=>c.index).map(c=>c.id)
+    const colsIndexe = (
+      await uneFois((f: schémaFonctionSuivi<InfoCol[]>) =>
+        this.suivreColonnesTableau({ idTableau, f, catégories: false }),
+      )
+    )
+      .filter((c) => c.index)
+      .map((c) => c.id);
     const obtIdIndex = (v: T): string => {
       const valsIndex = Object.fromEntries(
-        Object.entries(v).filter(x=>colsIndexe.includes(x[0]))
-      )
-      return Base64.stringify(md5(JSON.stringify(valsIndex)))
-    }
+        Object.entries(v).filter((x) => colsIndexe.includes(x[0])),
+      );
+      return Base64.stringify(md5(JSON.stringify(valsIndex)));
+    };
 
     const ids: string[] = [];
     for (const val of vals) {
-      const id = colsIndexe.length? obtIdIndex(val) : uuidv4();
-      await bdDonnées.put(id, val)
+      const id = colsIndexe.length ? obtIdIndex(val) : uuidv4();
+      await bdDonnées.put(id, val);
       ids.push(id);
     }
 
@@ -826,7 +960,7 @@ export default class Tableaux {
     });
     if (!idBdDonnées) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -835,11 +969,11 @@ export default class Tableaux {
         id: idBdDonnées,
         type: "keyvalue",
         schéma: schémaBdDonnéesTableau,
-      }
+      },
     );
 
     const précédent = await bdDonnées.get(idÉlément);
-    if (!précédent) throw new Error(`Id élément ${idÉlément} n'existe pas.`)
+    if (!précédent) throw new Error(`Id élément ${idÉlément} n'existe pas.`);
 
     const élément = Object.assign({}, précédent, vals);
 
@@ -848,7 +982,7 @@ export default class Tableaux {
     });
 
     if (!élémentsÉgaux(élément, précédent)) {
-      await bdDonnées.put(idÉlément, élément)
+      await bdDonnées.put(idÉlément, élément);
     }
     await fOublier();
   }
@@ -867,7 +1001,7 @@ export default class Tableaux {
     });
     if (!idBdColonnes) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -878,16 +1012,16 @@ export default class Tableaux {
         schéma: schémaBdInfoColAvecCatégorie,
       });
     const idsColonnes: string[] = (await bdColonnes.all()).map(
-      (e) => e.value.id
+      (e) => e.value.id,
     );
     const clefsPermises = [...idsColonnes, "id"];
     const clefsFinales = Object.keys(élément).filter((x: string) =>
-      clefsPermises.includes(x)
+      clefsPermises.includes(x),
     );
 
     await fOublier();
     return Object.fromEntries(
-      clefsFinales.map((x: string) => [x, élément[x]])
+      clefsFinales.map((x: string) => [x, élément[x]]),
     ) as T;
   }
 
@@ -905,7 +1039,7 @@ export default class Tableaux {
     });
     if (!idBdDonnées) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -914,7 +1048,7 @@ export default class Tableaux {
         id: idBdDonnées,
         type: "keyvalue",
         schéma: schémaBdDonnéesTableau,
-      }
+      },
     );
     await bdDonnées.del(idÉlément);
     await fOublier();
@@ -929,13 +1063,13 @@ export default class Tableaux {
   }): Promise<void> {
     const donnéesTableauBase = await uneFois(
       async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
+        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
       ) => {
         return await this.suivreDonnées({
           idTableau: idTableauBase,
           f: fSuivi,
         });
-      }
+      },
     );
 
     const colsTableauBase = await uneFois(
@@ -953,23 +1087,23 @@ export default class Tableaux {
           ...new Set(
             donnéesTableauBase
               .map((d) => Object.keys(d.données).filter((c) => c !== "id"))
-              .flat()
+              .flat(),
           ),
-        ].length <= colonnes.length
+        ].length <= colonnes.length,
     );
 
     const donnéesTableau2 = await uneFois(
       async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
+        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
       ) => {
         return await this.suivreDonnées({ idTableau: idTableau2, f: fSuivi });
-      }
+      },
     );
 
     const indexes = colsTableauBase.filter((c) => c.index).map((c) => c.id);
     for (const nouvelÉlément of donnéesTableau2) {
       const existant = donnéesTableauBase.find((d) =>
-        indexÉlémentsÉgaux(d.données, nouvelÉlément.données, indexes)
+        indexÉlémentsÉgaux(d.données, nouvelÉlément.données, indexes),
       );
 
       if (existant) {
@@ -1019,8 +1153,12 @@ export default class Tableaux {
   }): Promise<T> {
     const colonnes = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
-        return await this.suivreColonnesTableau({ idTableau, f: fSuivi });
-      }
+        return await this.suivreColonnesTableau({
+          idTableau,
+          f: fSuivi,
+          catégories: true,
+        });
+      },
     );
 
     const idsOrbiteColsChaîne: Set<string> = new Set(
@@ -1032,7 +1170,7 @@ export default class Tableaux {
             .flat()
             .filter((x) => typeof x === "string") as string[];
         })
-        .flat() || []
+        .flat() || [],
     );
 
     const fichiersDéjàAjoutés: {
@@ -1046,11 +1184,10 @@ export default class Tableaux {
     }): Promise<string | undefined> => {
       try {
         new URL(chemin);
-        if (fichiersDéjàAjoutés[chemin])
-          return fichiersDéjàAjoutés[chemin];
+        if (fichiersDéjàAjoutés[chemin]) return fichiersDéjàAjoutés[chemin];
         const contenuFichier = (await axios.get(chemin)).data;
-        const composantesUrl = chemin.split('/')
-        const nomFichier = composantesUrl.pop() || composantesUrl.pop()
+        const composantesUrl = chemin.split("/");
+        const nomFichier = composantesUrl.pop() || composantesUrl.pop();
         const cid = await this.client.ajouterÀSFIP({
           fichier: {
             path: nomFichier,
@@ -1059,9 +1196,9 @@ export default class Tableaux {
         });
         fichiersDéjàAjoutés[chemin] = cid;
       } catch {
-        // Rien à faire;  
+        // Rien à faire;
       }
-    
+
       if (isNode || isElectronMain) {
         const fs = await import("fs");
         const path = await import("path");
@@ -1275,8 +1412,8 @@ export default class Tableaux {
                     val: v,
                     catégorie: "horoDatage",
                     conversion,
-                  })
-              )
+                  }),
+              ),
             );
           }
           return valObjet;
@@ -1328,8 +1465,8 @@ export default class Tableaux {
               ? await Promise.all(
                   valListe.map(
                     async (v) =>
-                      await convertir({ val: v, catégorie, conversion })
-                  )
+                      await convertir({ val: v, catégorie, conversion }),
+                  ),
                 )
               : [await convertir({ val: valListe, catégorie, conversion })];
           }
@@ -1352,10 +1489,10 @@ export default class Tableaux {
   }): Promise<void> {
     const donnéesTableau = await uneFois(
       async (
-        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>
+        fSuivi: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>,
       ) => {
         return await this.suivreDonnées({ idTableau, f: fSuivi });
-      }
+      },
     );
 
     const donnéesConverties = await this.convertirDonnées({
@@ -1404,7 +1541,7 @@ export default class Tableaux {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -1436,7 +1573,7 @@ export default class Tableaux {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -1463,7 +1600,7 @@ export default class Tableaux {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -1509,7 +1646,7 @@ export default class Tableaux {
     });
     if (!idBdColonnes) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -1519,7 +1656,7 @@ export default class Tableaux {
         type: "keyvalue",
         schéma: schémaBdInfoColAvecCatégorie,
       });
-    
+
     idColonne = idColonne || uuidv4();
     const élément: InfoCol = {
       id: idColonne,
@@ -1545,7 +1682,7 @@ export default class Tableaux {
     });
     if (!idBdColonnes) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idTableau}.`
+        `Permission de modification refusée pour BD ${idTableau}.`,
       );
     }
 
@@ -1567,7 +1704,7 @@ export default class Tableaux {
   }: {
     idTableau: string;
     f: schémaFonctionSuivi<T[]>;
-    catégories?: true;
+    catégories: true;
   }): Promise<schémaFonctionOublier>;
 
   suivreColonnesTableau<T = InfoCol>({
@@ -1594,10 +1731,10 @@ export default class Tableaux {
   async suivreColonnesTableau({
     idTableau,
     f,
-    catégories = true,
+    catégories = false,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
+    f: schémaFonctionSuivi<(InfoCol|InfoColAvecCatégorie)[]>;
     catégories?: boolean;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (colonnes?: InfoColAvecCatégorie[]) => {
@@ -1606,7 +1743,7 @@ export default class Tableaux {
     const fBranche = async (
       id: string,
       fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie>,
-      branche: InfoCol
+      branche: InfoCol,
     ): Promise<schémaFonctionOublier> => {
       if (!id) return faisRien;
 
@@ -1649,7 +1786,7 @@ export default class Tableaux {
         id: idTableau,
         clef: "colonnes",
         schéma: schémaBdInfoColAvecCatégorie,
-        f: async cols => fFinale(Object.values(cols)),
+        f: async (cols) => fFinale(Object.values(cols)),
       });
     }
   }
@@ -1701,7 +1838,7 @@ export default class Tableaux {
     });
     if (!idBdRègles) {
       throw new Error(
-        `Permission de modification refusée pour tableau ${idTableau}.`
+        `Permission de modification refusée pour tableau ${idTableau}.`,
       );
     }
 
@@ -1744,7 +1881,7 @@ export default class Tableaux {
 
     if (!idBdRègles) {
       throw new Error(
-        `Permission de modification refusée pour tableau ${idTableau}.`
+        `Permission de modification refusée pour tableau ${idTableau}.`,
       );
     }
 
@@ -1775,7 +1912,9 @@ export default class Tableaux {
     };
 
     // Suivre les règles spécifiées dans le tableau
-    const fFinaleRèglesTableau = async (règles: {[id: string]: règleColonne}) => {
+    const fFinaleRèglesTableau = async (règles: {
+      [id: string]: règleColonne;
+    }) => {
       dicRègles.tableau = Object.values(règles);
       return await fFinale();
     };
@@ -1789,9 +1928,13 @@ export default class Tableaux {
 
     // Suivre les règles spécifiées dans les variables
     const fListe = async (
-      fSuivreRacine: (éléments: InfoCol[]) => Promise<void>
+      fSuivreRacine: (éléments: InfoCol[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> => {
-      return await this.suivreColonnesTableau({ idTableau, f: fSuivreRacine });
+      return await this.suivreColonnesTableau({
+        idTableau,
+        f: fSuivreRacine,
+        catégories: false,
+      });
     };
 
     const fFinaleRèglesVariables = async (règles: règleColonne[]) => {
@@ -1802,10 +1945,10 @@ export default class Tableaux {
     const fBranche = async (
       idVariable: string,
       fSuivreBranche: schémaFonctionSuivi<règleColonne[]>,
-      branche: InfoCol
+      branche: InfoCol,
     ) => {
       const fFinaleSuivreBranche = (
-        règles: règleVariableAvecId<règleVariable>[]
+        règles: règleVariableAvecId<règleVariable>[],
       ) => {
         const règlesColonnes: règleColonne[] = règles.map((r) => {
           return {
@@ -1866,7 +2009,7 @@ export default class Tableaux {
       await f(erreurs);
     };
     const fFinaleRègles = async (
-      règles: { règle: règleColonne; donnéesCatégorie?: élémentsBd[] }[]
+      règles: { règle: règleColonne; donnéesCatégorie?: élémentsBd[] }[],
     ) => {
       if (info.varsÀColonnes) {
         info.règles = règles.map((r) =>
@@ -1874,7 +2017,7 @@ export default class Tableaux {
             règle: r.règle,
             varsÀColonnes: info.varsÀColonnes!,
             donnéesCatégorie: r.donnéesCatégorie,
-          })
+          }),
         );
         await fFinale();
       }
@@ -1888,15 +2031,16 @@ export default class Tableaux {
       f: async (cols) => {
         const varsÀColonnes = cols.reduce(
           (o, c) => ({ ...o, [c.variable]: c.id }),
-          {}
+          {},
         );
         info.varsÀColonnes = varsÀColonnes;
         await fFinale();
       },
+      catégories: false,
     });
 
     const fListeRègles = async (
-      fSuivreRacine: (règles: règleColonne[]) => Promise<void>
+      fSuivreRacine: (règles: règleColonne[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreRègles({ idTableau, f: fSuivreRacine });
     };
@@ -1907,7 +2051,7 @@ export default class Tableaux {
         règle: règleColonne;
         donnéesCatégorie?: élémentsBd[];
       }>,
-      règle: règleColonne
+      règle: règleColonne,
     ): Promise<schémaFonctionOublier> => {
       if (
         règle.règle.règle.typeRègle === "valeurCatégorique" &&
@@ -1964,7 +2108,7 @@ export default class Tableaux {
         règle: règleColonne<règleVariable>;
         colsTableauRéf?: InfoColAvecCatégorie[];
       }[];
-      colonnes?: InfoColAvecCatégorie[];
+      colonnes?: InfoCol[];
     } = {};
 
     const fFinale = async () => {
@@ -1975,21 +2119,21 @@ export default class Tableaux {
       const règlesTypeBornes = info.règles
         .map((r) => r.règle)
         .filter(
-          (r) => r.règle.règle.typeRègle === "bornes"
+          (r) => r.règle.règle.typeRègle === "bornes",
         ) as règleColonne<règleBornes>[];
 
       const règlesBornesColonnes = règlesTypeBornes.filter(
-        (r) => r.règle.règle.détails.type === "dynamiqueColonne"
+        (r) => r.règle.règle.détails.type === "dynamiqueColonne",
       ) as règleColonne<règleBornes<détailsRègleBornesDynamiqueColonne>>[];
 
       const règlesBornesVariables = règlesTypeBornes.filter(
-        (r) => r.règle.règle.détails.type === "dynamiqueVariable"
+        (r) => r.règle.règle.détails.type === "dynamiqueVariable",
       ) as règleColonne<règleBornes<détailsRègleBornesDynamiqueVariable>>[];
 
       const règlesCatégoriquesDynamiques = info.règles.filter(
         (r) =>
           r.règle.règle.règle.typeRègle === "valeurCatégorique" &&
-          r.règle.règle.règle.détails.type === "dynamique"
+          r.règle.règle.règle.détails.type === "dynamique",
       ) as {
         règle: règleColonne<
           règleValeurCatégorique<détailsRègleValeurCatégoriqueDynamique>
@@ -1999,7 +2143,7 @@ export default class Tableaux {
 
       for (const r of règlesBornesColonnes) {
         const colRéfRègle = info.colonnes.find(
-          (c) => c.id === r.règle.règle.détails.val
+          (c) => c.id === r.règle.règle.détails.val,
         );
         if (!colRéfRègle) {
           const erreur: erreurRègleBornesColonneInexistante = {
@@ -2012,7 +2156,7 @@ export default class Tableaux {
 
       for (const r of règlesBornesVariables) {
         const varRéfRègle = info.colonnes.find(
-          (c) => c.variable === r.règle.règle.détails.val
+          (c) => c.variable === r.règle.règle.détails.val,
         );
         if (!varRéfRègle) {
           const erreur: erreurRègleBornesVariableNonPrésente = {
@@ -2025,7 +2169,7 @@ export default class Tableaux {
 
       for (const r of règlesCatégoriquesDynamiques) {
         const colRéfRègle = r.colsTableauRéf?.find(
-          (c) => c.id === r.règle.règle.règle.détails.colonne
+          (c) => c.id === r.règle.règle.règle.détails.colonne,
         );
         if (!colRéfRègle) {
           const erreur: erreurRègleCatégoriqueColonneInexistante = {
@@ -2042,7 +2186,7 @@ export default class Tableaux {
       règles: {
         règle: règleColonne<règleVariable>;
         colsTableauRéf?: InfoColAvecCatégorie[];
-      }[]
+      }[],
     ) => {
       info.règles = règles;
       return await fFinale();
@@ -2054,10 +2198,11 @@ export default class Tableaux {
         info.colonnes = cols;
         return await fFinale();
       },
+      catégories: false,
     });
 
     const fListeRègles = async (
-      fSuivreRacine: (règles: règleColonne<règleVariable>[]) => Promise<void>
+      fSuivreRacine: (règles: règleColonne<règleVariable>[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreRègles({ idTableau, f: fSuivreRacine });
     };
@@ -2068,7 +2213,7 @@ export default class Tableaux {
         règle: règleColonne<règleVariable>;
         colsTableauRéf?: InfoCol[];
       }>,
-      règle: règleColonne<règleVariable>
+      règle: règleColonne<règleVariable>,
     ): Promise<schémaFonctionOublier> => {
       if (
         règle.règle.règle.typeRègle === "valeurCatégorique" &&
@@ -2082,6 +2227,7 @@ export default class Tableaux {
               règle,
               colsTableauRéf: cols,
             }),
+          catégories: false,
         });
       } else {
         await fSuivreBranche({ règle });

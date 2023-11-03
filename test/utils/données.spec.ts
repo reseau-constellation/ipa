@@ -42,7 +42,7 @@ describe("Utils : données", function () {
         ({ dossier, fEffacer } = await dossierTempoTests());
         nomFichier = path.join(dossier, "testZip.zip");
         attendreFichier = new utilsTestAttente.AttendreFichierExiste(
-          nomFichier
+          nomFichier,
         );
         const fichiersDocs = [
           {
@@ -80,14 +80,16 @@ describe("Utils : données", function () {
       });
       it("Les fichiers SFIP sont inclus", async () => {
         expect(zip.files["sfip/"].dir).to.be.true();
-        const contenuFichierSFIP1 = await zip.files[
-          path.join("sfip", "fichierSFIP1.txt")
-        ].async("string");
+        const contenuFichierSFIP1 =
+          await zip.files[path.join("sfip", "fichierSFIP1.txt")].async(
+            "string",
+          );
         expect(contenuFichierSFIP1).to.equal("Je suis le fichier SFIP no. 1.");
 
-        const contenuFichierSFIP2 = await zip.files[
-          path.join("sfip", "fichierSFIP2.txt")
-        ].async("string");
+        const contenuFichierSFIP2 =
+          await zip.files[path.join("sfip", "fichierSFIP2.txt")].async(
+            "string",
+          );
         expect(contenuFichierSFIP2).to.equal("Je suis le fichier SFIP no. 2.");
       });
     });

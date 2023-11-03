@@ -6,7 +6,7 @@ import {
   type IdentitiesType,
   type OrbitDB,
   Entry,
-  type LogEntry
+  type LogEntry,
 } from "@orbitdb/core";
 
 import * as Block from "multiformats/block";
@@ -59,7 +59,7 @@ const ContrôleurAccès =
       storage ||
       (await ComposedStorage(
         await LRUStorage({ size: 1000 }),
-        await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true })
+        await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true }),
       ));
     write = write || orbitdb.identity.id;
 
@@ -67,7 +67,7 @@ const ContrôleurAccès =
 
     if (address) {
       const manifestBytes = await storage.get(
-        address.replaceAll("/contrôleur-accès-constellation/", "")
+        address.replaceAll("/contrôleur-accès-constellation/", ""),
       );
       const { value } = await Block.decode({
         bytes: manifestBytes,
@@ -87,9 +87,7 @@ const ContrôleurAccès =
     // Ajouter le premier modérateur
     await gestAccès.ajouterÉléments([{ id: write!, rôle: MODÉRATEUR }]);
 
-    const canAppend = async (
-      entry: LogEntry
-    ): Promise<boolean> => {
+    const canAppend = async (entry: LogEntry): Promise<boolean> => {
       // Pour l'instant, on ne peut qu'ajouter des membres
       if (entry.payload.op !== "ADD" || !entry.payload.value) return false;
 
@@ -103,7 +101,8 @@ const ContrôleurAccès =
       }
       const { id } = writerIdentity;
 
-      if (rôleValide &&
+      if (
+        rôleValide &&
         (await seraÉventuellementUnModérateur(id, entry)) &&
         identities.verifyIdentity(writerIdentity)
       ) {
@@ -115,22 +114,25 @@ const ContrôleurAccès =
       return false;
     };
 
-    const seraÉventuellementUnModérateur = async (id: string, entry: LogEntry): Promise<boolean> => {
-      if(await gestAccès.estUnModérateur(id)) return true;
-      
-      const prochains = entry.next
+    const seraÉventuellementUnModérateur = async (
+      id: string,
+      entry: LogEntry,
+    ): Promise<boolean> => {
+      if (await gestAccès.estUnModérateur(id)) return true;
+
+      const prochains = entry.next;
 
       for (const prochain of prochains) {
         const octets = await storage?.get(prochain);
-        const prochaineEntrée = await Entry.decode(octets)
-        const prochaineValide = await canAppend(prochaineEntrée)
+        const prochaineEntrée = await Entry.decode(octets);
+        const prochaineValide = await canAppend(prochaineEntrée);
 
         if (prochaineValide) {
           if (await gestAccès.estUnModérateur(id)) return true;
         }
       }
       return false;
-    }
+    };
 
     return {
       type,

@@ -50,7 +50,9 @@ export type SpécificationAutomatisation =
   | SpécificationExporter
   | SpécificationImporter;
 
-const schémaBdAutomatisations: JSONSchemaType<{[id: string]: SpécificationAutomatisation}> = {
+const schémaBdAutomatisations: JSONSchemaType<{
+  [id: string]: SpécificationAutomatisation;
+}> = {
   type: "object",
   additionalProperties: {
     type: "object",
@@ -141,7 +143,7 @@ const schémaBdAutomatisations: JSONSchemaType<{[id: string]: SpécificationAuto
     ],
     required: ["id", "type"],
   },
-  required: []
+  required: [],
 };
 
 export type copiesExportation = copiesExportationN | copiesExportationTemps;
@@ -341,7 +343,7 @@ export type SourceDonnéesImportationURL<T extends infoImporter> = {
 };
 
 export type SourceDonnéesImportationFichierAdresseOptionel<
-  T extends infoImporter
+  T extends infoImporter,
 > = {
   typeSource: "fichier";
   adresseFichier?: string;
@@ -363,7 +365,7 @@ export type SpécificationImporter<T extends infoImporter = infoImporter> =
   };
 
 export type SpécificationImporterAvecFichier<
-  T extends infoImporter = infoImporter
+  T extends infoImporter = infoImporter,
 > = SpécificationImporter<T> & { source: SourceDonnéesImportation<T> };
 
 export type ÉtatAutomatisation =
@@ -426,7 +428,7 @@ const obtTempsInterval = (fréq: fréquence): number => {
 
 const générerFExportation = (
   spéc: SpécificationExporter,
-  client: ClientConstellation
+  client: ClientConstellation,
 ): (() => Promise<void>) => {
   return async () => {
     const os = await import("os");
@@ -548,7 +550,7 @@ const générerFExportation = (
             fichier,
           }));
           const fichiersOrdreModif = fichiersAvecTempsModif.sort((a, b) =>
-            a.temps > b.temps ? 1 : -1
+            a.temps > b.temps ? 1 : -1,
           );
           const àEffacer = fichiersOrdreModif
             .slice(enTrop)
@@ -560,7 +562,7 @@ const générerFExportation = (
         const { temps } = spéc.copies;
         const àEffacer = correspondants.filter((fichier) => {
           const dateModifFichier = new Date(
-            fs.statSync(fichier).mtime
+            fs.statSync(fichier).mtime,
           ).valueOf();
           return maintenant - dateModifFichier < obtTempsInterval(temps);
         });
@@ -572,13 +574,13 @@ const générerFExportation = (
 
 const générerFAuto = <T extends SpécificationAutomatisation>(
   spéc: T,
-  client: ClientConstellation
+  client: ClientConstellation,
 ): (() => Promise<void>) => {
   switch (spéc.type) {
     case "importation": {
       return async () => {
         const résoudreAdresse = async (
-          adresse?: string
+          adresse?: string,
         ): Promise<string | undefined> => {
           return (
             (await client.automatisations!.résoudreAdressePrivéeFichier({
@@ -588,7 +590,7 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
         };
         const données = await client.automatisations!.obtDonnéesImportation(
           spéc,
-          résoudreAdresse
+          résoudreAdresse,
         );
 
         // Adresse base des fichiers pour résoudre les entrées fichiers, si applicable. Fonctionne uniquement
@@ -601,7 +603,7 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
           spéc.source.adresseFichier
         ) {
           const fichierRésolu = await résoudreAdresse(
-            spéc.source.adresseFichier
+            spéc.source.adresseFichier,
           );
           if (fichierRésolu) cheminBaseFichiers = path.dirname(fichierRésolu);
         }
@@ -699,7 +701,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             cause: (e as Error).cause,
           },
           undefined,
-          2
+          2,
         ),
         prochaineProgramméeÀ: tempsInterval
           ? Date.now() + tempsInterval
@@ -736,7 +738,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     const tempsDepuisDernièreFois = maintenant - dernièreFois;
     const crono = setTimeout(
       fAutoAvecÉtatsRécursif,
-      Math.max(tempsInterval! - tempsDepuisDernièreFois, 0)
+      Math.max(tempsInterval! - tempsDepuisDernièreFois, 0),
     );
     dicFOublierIntervale.f = async () => clearTimeout(crono);
 
@@ -839,7 +841,7 @@ class AutomatisationActive extends EventEmitter {
   constructor(
     spéc: SpécificationAutomatisation,
     idSpéc: string,
-    client: ClientConstellation
+    client: ClientConstellation,
   ) {
     super();
 
@@ -872,7 +874,7 @@ class AutomatisationActive extends EventEmitter {
 
 const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   spéc: T,
-  monIdDispositif: string
+  monIdDispositif: string,
 ): boolean => {
   switch (spéc.type) {
     case "importation": {
@@ -890,7 +892,9 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
 
 const verrou = new Semaphore();
 
-export default class Automatisations extends ComposanteClientDic<{[id: string]: SpécificationAutomatisation}> {
+export default class Automatisations extends ComposanteClientDic<{
+  [id: string]: SpécificationAutomatisation;
+}> {
   automatisations: { [key: string]: AutomatisationActive };
   événements: EventEmitter;
 
@@ -950,11 +954,11 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
   }
 
   async obtDonnéesImportation<
-    T extends infoImporterJSON | infoImporterFeuilleCalcul
+    T extends infoImporterJSON | infoImporterFeuilleCalcul,
   >(
     spéc: SpécificationImporter<T>,
     résoudreAdresse: (x?: string) => Promise<string | undefined> = async (x) =>
-      x
+      x,
   ) {
     const { typeSource } = spéc.source;
     const { formatDonnées } = spéc.source.info;
@@ -996,7 +1000,7 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
             const { clefsRacine, clefsÉléments, cols } = spéc.source.info;
 
             const contenuFichier = await fs.promises.readFile(
-              adresseFichierRésolue
+              adresseFichierRésolue,
             );
             const donnéesJson = JSON.parse(contenuFichier.toString());
             const importateur = new ImportateurDonnéesJSON(donnéesJson);
@@ -1081,7 +1085,7 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
   }
 
   async ajouterAutomatisationImporter<
-    T extends infoImporterJSON | infoImporterFeuilleCalcul
+    T extends infoImporterJSON | infoImporterFeuilleCalcul,
   >({
     idTableau,
     source,
@@ -1158,7 +1162,9 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
     f: schémaFonctionSuivi<SpécificationAutomatisation[]>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (autos: {[id: string]: SpécificationAutomatisation}) => {
+    const fFinale = async (autos: {
+      [id: string]: SpécificationAutomatisation;
+    }) => {
       const autosFinales = await Promise.all(
         Object.values(autos).map(async (a) => {
           const autoFinale = deepcopy(a);
@@ -1191,7 +1197,7 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
             }
           }
           return autoFinale;
-        })
+        }),
       );
       await f(autosFinales);
     };
@@ -1211,7 +1217,7 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
         Object.fromEntries(
           Object.keys(this.automatisations)
             .map((a) => [a, this.automatisations[a].état])
-            .filter((x) => x[1])
+            .filter((x) => x[1]),
         );
       await f(étatsAuto);
     };
@@ -1230,7 +1236,7 @@ export default class Automatisations extends ComposanteClientDic<{[id: string]: 
     await Promise.all(
       Object.keys(this.automatisations).map((a) => {
         this.fermerAuto(a);
-      })
+      }),
     );
     await this.fOublier?.();
   }

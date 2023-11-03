@@ -115,7 +115,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdContacts) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`
+        `Permission de modification refusée pour BD ${idBdProfil}.`,
       );
     }
 
@@ -143,7 +143,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdContacts) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`
+        `Permission de modification refusée pour BD ${idBdProfil}.`,
       );
     }
 
@@ -153,13 +153,12 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       schéma: schémaContactProfil,
     });
     const tous = await bd.all();
-    const àEffacer = tous.filter((x) =>
-      x.value.type === type &&
-      (contact === undefined || x.value.contact === contact)
-    )
-    await Promise.all(
-      àEffacer.map(async (c) => await bd.del(c.value))
+    const àEffacer = tous.filter(
+      (x) =>
+        x.value.type === type &&
+        (contact === undefined || x.value.contact === contact),
     );
+    await Promise.all(àEffacer.map(async (c) => await bd.del(c.value)));
 
     await fOublier();
   }
@@ -203,7 +202,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`
+        `Permission de modification refusée pour BD ${idBdProfil}.`,
       );
     }
 
@@ -227,7 +226,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`
+        `Permission de modification refusée pour BD ${idBdProfil}.`,
       );
     }
 

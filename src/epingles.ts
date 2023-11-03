@@ -58,7 +58,7 @@ export default class Épingles {
     await Promise.all(
       this.requètes
         .filter((r) => r.id === id)
-        .map(async (r) => await r.fOublier())
+        .map(async (r) => await r.fOublier()),
     );
     const dépendants = this.requètes.filter((r) => r.parent === id);
 
@@ -72,7 +72,7 @@ export default class Épingles {
         ) {
           await this.désépinglerBd({ id: d.id });
         }
-      })
+      }),
     );
     this.événements.emit("changement épingles");
   }
@@ -138,10 +138,10 @@ export default class Épingles {
         let l_vals: string[] = [];
         if (typeof vals === "object") {
           l_vals = Object.values(vals).filter(
-            (v) => typeof v === "string"
+            (v) => typeof v === "string",
           ) as string[];
           l_vals.push(
-            ...Object.keys(vals).filter((v) => typeof v === "string")
+            ...Object.keys(vals).filter((v) => typeof v === "string"),
           );
         } else if (Array.isArray(vals)) {
           l_vals = vals;
@@ -153,7 +153,7 @@ export default class Épingles {
         if (fichiers) {
           // Épingler les fichiers si nécessaire
           const cids = l_vals.filter(
-            (v) => cidEtFichierValide(v) && !idsOrbite.includes(v)
+            (v) => cidEtFichierValide(v) && !idsOrbite.includes(v),
           );
 
           cids.forEach((id_) => {
@@ -177,8 +177,8 @@ export default class Épingles {
         await Promise.all(
           idsOrbite.map(
             async (id_) =>
-              await this._épingler({ id: id_, récursif, fichiers, parent: id })
-          )
+              await this._épingler({ id: id_, récursif, fichiers, parent: id }),
+          ),
         );
       };
 
@@ -206,7 +206,7 @@ export default class Épingles {
     await Promise.all(
       [...épingles].map(async (id) => {
         await this.désépinglerBd({ id });
-      })
+      }),
     );
   }
 

@@ -41,7 +41,7 @@ describe("Rechercher mots clefs", function () {
 
       const fRecherche = rechercherMotsClefsSelonNom("hydrologie");
       fOublier = await fRecherche(client, idMotClef, (r) =>
-        résultat.mettreÀJour(r)
+        résultat.mettreÀJour(r),
       );
     });
 
@@ -124,15 +124,15 @@ describe("Rechercher mots clefs", function () {
       const fRechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
       fsOublier.push(
         await fRechercheNom(client, idMotClef, (r) =>
-          résultatNom.mettreÀJour(r)
-        )
+          résultatNom.mettreÀJour(r),
+        ),
       );
 
       const fRechercheId = rechercherMotsClefsSelonTexte(
-        idMotClef.slice(0, 15)
+        idMotClef.slice(0, 15),
       );
       fsOublier.push(
-        await fRechercheId(client, idMotClef, (r) => résultatId.mettreÀJour(r))
+        await fRechercheId(client, idMotClef, (r) => résultatId.mettreÀJour(r)),
       );
 
       await client.motsClefs!.sauvegarderNomsMotClef({

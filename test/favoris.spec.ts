@@ -97,13 +97,13 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.favoris!.suivreFavoris({
               f: (favs) => favoris.mettreÀJour(favs),
-            })
+            }),
           );
           fsOublier.push(
             await client.favoris!.suivreEstÉpingléSurDispositif({
               idObjet: idBd,
               f: (épingle) => épingleBd.mettreÀJour(épingle),
-            })
+            }),
           );
         });
 

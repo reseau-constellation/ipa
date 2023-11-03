@@ -16,7 +16,16 @@ process.on("beforeExit", (code) => process.exit(code));
 const esbuild = {
   // this will inject all the named exports from 'node-globals.js' as globals
   inject: [path.join(__dirname, "./scripts/node-globals.js")],
-  external: ["fs", "path", "os", "chokidar", "url", "zlib", "rimraf", "electron"],
+  external: [
+    "fs",
+    "path",
+    "os",
+    "chokidar",
+    "url",
+    "zlib",
+    "rimraf",
+    "electron",
+  ],
   plugins: [
     {
       name: "node built ins", // this will make the bundler resolve node builtins to the respective browser polyfill
@@ -84,7 +93,7 @@ const options = {
                 callback(new Error("Not allowed by CORS"));
               }
             },
-          })
+          }),
         );
         appliExpress.get("/fichier/:nomFichier", function (req, res) {
           const { nomFichier } = req.params;
@@ -93,7 +102,7 @@ const options = {
             url.fileURLToPath(new URL(".", import.meta.url)),
             "test",
             "ressources",
-            decodeURIComponent(nomFichier)
+            decodeURIComponent(nomFichier),
           );
 
           res.sendFile(cheminFichier);

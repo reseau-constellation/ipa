@@ -82,7 +82,7 @@ export type détailsRègleBornesDynamiqueVariable = {
 };
 
 export type règleValeurCatégorique<
-  T extends détailsRègleValeurCatégorique = détailsRègleValeurCatégorique
+  T extends détailsRègleValeurCatégorique = détailsRègleValeurCatégorique,
 > = schémaRègleVariable<T> & {
   typeRègle: "valeurCatégorique";
 };
@@ -143,12 +143,12 @@ export type erreurRègleBornesVariableNonPrésente = {
 
 export type schémaFonctionValidation<
   T extends élémentBdListeDonnées,
-  R extends règleVariable = règleVariable
+  R extends règleVariable = règleVariable,
 > = (valeurs: élémentDonnées<T>[]) => erreurValidation<R>[];
 
 export function générerFonctionRègle<
   T extends élémentBdListeDonnées,
-  R extends règleVariable
+  R extends règleVariable,
 >({
   règle,
   varsÀColonnes,
@@ -182,7 +182,7 @@ export function générerFonctionRègle<
         const catégorie = (règleDeLaVariable.règle as règleCatégorie).détails
           .catégorie;
         const nonValides = vals.filter(
-          (v) => !validerCatégorieVal({ val: v.données[colonne], catégorie })
+          (v) => !validerCatégorieVal({ val: v.données[colonne], catégorie }),
         );
         return nonValides.map((v: élémentDonnées<T>) => {
           const { id } = v;
@@ -250,7 +250,7 @@ export function générerFonctionRègle<
 
       return (vals: élémentDonnées<T>[]) => {
         const nonValides = vals.filter(
-          (v) => !validerBorneVal({ val: v, fComp })
+          (v) => !validerBorneVal({ val: v, fComp }),
         );
         return nonValides.map((v: élémentDonnées<T>) => {
           const { id } = v;
@@ -278,7 +278,7 @@ export function générerFonctionRègle<
         const nonValides = vals.filter(
           (v: élémentDonnées<T>) =>
             v.données[colonne] !== undefined &&
-            !options.includes(v.données[colonne])
+            !options.includes(v.données[colonne]),
         );
         return nonValides.map((v: élémentDonnées<T>) => {
           const { id } = v;
@@ -345,7 +345,7 @@ export function validerCatégorieVal({
   } else {
     if (Array.isArray(val)) {
       return val.every((v) =>
-        validerCatégorieBase({ catégorie: catégorie.catégorie, val: v })
+        validerCatégorieBase({ catégorie: catégorie.catégorie, val: v }),
       );
     } else {
       return false;

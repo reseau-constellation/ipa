@@ -44,7 +44,7 @@ describe("Rechercher variables", function () {
 
       const fRecherche = rechercherVariablesSelonNom("Radiation solaire");
       fOublier = await fRecherche(client, idVariable, (r) =>
-        résultat.mettreÀJour(r)
+        résultat.mettreÀJour(r),
       );
     });
 
@@ -124,7 +124,7 @@ describe("Rechercher variables", function () {
 
       const fRecherche = rechercherVariablesSelonDescr("Radiation solaire");
       fOublier = await fRecherche(client, idVariable, (r) =>
-        résultat.mettreÀJour(r)
+        résultat.mettreÀJour(r),
       );
     });
 
@@ -208,15 +208,17 @@ describe("Rechercher variables", function () {
       const fRechercheNom = rechercherVariablesSelonTexte("précipitation");
       fsOublier.push(
         await fRechercheNom(client, idVariable, (r) =>
-          résultatNom.mettreÀJour(r)
-        )
+          résultatNom.mettreÀJour(r),
+        ),
       );
 
       const fRechercheId = rechercherVariablesSelonTexte(
-        idVariable.slice(0, 15)
+        idVariable.slice(0, 15),
       );
       fsOublier.push(
-        await fRechercheId(client, idVariable, (r) => résultatId.mettreÀJour(r))
+        await fRechercheId(client, idVariable, (r) =>
+          résultatId.mettreÀJour(r),
+        ),
       );
 
       await client.variables!.sauvegarderNomsVariable({

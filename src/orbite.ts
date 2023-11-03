@@ -6,14 +6,14 @@ import {
   createOrbitDB,
   OrbitDBDatabaseOptions,
   type OrbitDB,
-  KeyValue as KeyValueDatabaseType
+  KeyValue as KeyValueDatabaseType,
 } from "@orbitdb/core";
 
-import { 
+import {
   FeedDatabaseType,
   OrderedKeyValueDatabaseType,
   SetDatabaseType,
-  registerAll 
+  registerAll,
 } from "@constl/orbit-db-kuiper";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import { isElectronMain, isNode } from "wherearewe";
@@ -31,8 +31,11 @@ import {
 
 import Semaphore from "@chriscdn/promise-semaphore";
 
-
-export type Store = FeedDatabaseType | SetDatabaseType | KeyValueDatabaseType | OrderedKeyValueDatabaseType;
+export type Store =
+  | FeedDatabaseType
+  | SetDatabaseType
+  | KeyValueDatabaseType
+  | OrderedKeyValueDatabaseType;
 
 export const préparerOrbite = () => {
   enregistrerContrôleurs();
@@ -65,12 +68,11 @@ export default async function initOrbite({
   return orbite;
 }
 
-
 type Typer<
   T extends Store,
   U extends T extends KeyValueDatabaseType | OrderedKeyValueDatabaseType
     ? { [clef: string]: élémentsBd }
-    : élémentsBd
+    : élémentsBd,
 > = T extends KeyValueDatabaseType
   ? TypedKeyValue<Extract<U, { [clef: string]: élémentsBd }>>
   : T extends FeedDatabaseType
@@ -85,7 +87,7 @@ const typerBd = <
   T extends Store,
   U extends T extends KeyValueDatabaseType | OrderedKeyValueDatabaseType
     ? { [clef: string]: élémentsBd }
-    : élémentsBd
+    : élémentsBd,
 >({
   bd,
   schéma,
@@ -234,7 +236,7 @@ export class GestionnaireOrbite {
 
       if (!vérifierTypeBd(existante.bd))
         throw new Error(
-          `La bd est de type ${existante.bd.type}, et non ${type}.`
+          `La bd est de type ${existante.bd.type}, et non ${type}.`,
         );
 
       return {
@@ -263,7 +265,7 @@ export class GestionnaireOrbite {
 
   async ouvrirBdTypée<
     U extends { [clef: string]: élémentsBd },
-    T = TypedKeyValue<U>
+    T = TypedKeyValue<U>,
   >({
     id,
     type,
@@ -299,7 +301,7 @@ export class GestionnaireOrbite {
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<
     U extends { [clef: string]: élémentsBd },
-    T = TypedOrderedKeyValue<U>
+    T = TypedOrderedKeyValue<U>,
   >({
     id,
     type,
@@ -368,7 +370,7 @@ export class GestionnaireOrbite {
             delete this._bdsOrbite[id];
             await bd.close();
           }
-        })
+        }),
       );
     };
     const i = setInterval(fNettoyer, 1000 * 60 * 5);
@@ -376,19 +378,21 @@ export class GestionnaireOrbite {
   }
 
   async appliquerFonctionBdOrbite({
-    idBd, fonction, args
+    idBd,
+    fonction,
+    args,
   }: {
     idBd: string;
     fonction: string;
     args: unknown[];
   }): Promise<unknown> {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
-    
+
     // @ts-expect-error L'inférence de types marche mal ici
     const résultat = await bd[fonction](args);
 
     await fOublier();
-    return résultat
+    return résultat;
   }
 
   async fermer({ arrêterOrbite }: { arrêterOrbite: boolean }): Promise<void> {

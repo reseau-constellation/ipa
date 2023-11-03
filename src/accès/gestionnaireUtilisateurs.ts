@@ -8,10 +8,7 @@ import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, objRôles } from "@/accès/types.js";
 
 import type générerContrôleurConstellation from "./cntrlConstellation.js";
-import {
-  GestionnaireOrbite,
-  gestionnaireOrbiteGénéral,
-} from "@/orbite.js";
+import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
 import { TypedSet } from "@constl/bohr-db";
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -19,7 +16,7 @@ type ContrôleurConstellation = Awaited<
 
 export const suivreBdAccès = async (
   bd: TypedSet<élémentBdAccès>,
-  f: schémaFonctionSuivi<élémentBdAccès[]>
+  f: schémaFonctionSuivi<élémentBdAccès[]>,
 ): Promise<schémaFonctionOublier> => {
   const fFinale = async () => {
     const éléments = await bd.all();
@@ -153,7 +150,7 @@ export default class GestionnaireAccès extends EventEmitter {
             this._mettreRôlesÀJour();
           }
         }
-      })
+      }),
     );
 
     this._miseÀJourEnCours = false;

@@ -226,7 +226,7 @@ typesClients.forEach((type) => {
             },
           });
           const val = await descrs.attendreQue(
-            (x) => Object.keys(x).length > 2
+            (x) => Object.keys(x).length > 2,
           );
           expect(val).to.deep.equal({
             த: "தினசரி மழை",
@@ -284,7 +284,7 @@ typesClients.forEach((type) => {
             catégorie: "chaîne",
           });
           const val = await catégorie.attendreQue(
-            (x) => x.catégorie !== "numérique"
+            (x) => x.catégorie !== "numérique",
           );
           expect(val).to.deep.equal({
             type: "simple",
@@ -400,11 +400,11 @@ typesClients.forEach((type) => {
             x.some(
               (r) =>
                 r.règle.typeRègle === "catégorie" &&
-                r.règle.détails.catégorie.catégorie === "horoDatage"
-            )
+                r.règle.détails.catégorie.catégorie === "horoDatage",
+            ),
           );
           const règleCatégorie = val.find(
-            (r) => r.règle.typeRègle === "catégorie"
+            (r) => r.règle.typeRègle === "catégorie",
           ) as règleVariableAvecId<règleCatégorie> | undefined;
           expect(règleCatégorie).to.exist();
           expect(règleCatégorie?.règle.détails.catégorie).to.deep.equal({
@@ -440,7 +440,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.variables!.suivreVariables({
               f: (x) => variables.mettreÀJour(x),
-            })
+            }),
           );
 
           const idVariable = await client.variables!.créerVariable({
@@ -474,31 +474,31 @@ typesClients.forEach((type) => {
             await client.variables!.suivreNomsVariable({
               idVariable: idVariable2,
               f: (x) => noms.mettreÀJour(x),
-            })
+            }),
           );
           fsOublier.push(
             await client.variables!.suivreDescriptionsVariable({
               idVariable: idVariable2,
               f: (x) => descrs.mettreÀJour(x),
-            })
+            }),
           );
           fsOublier.push(
             await client.variables!.suivreRèglesVariable({
               idVariable: idVariable2,
               f: (r) => règles.mettreÀJour(r),
-            })
+            }),
           );
           fsOublier.push(
             await client.variables!.suivreCatégorieVariable({
               idVariable: idVariable2,
               f: (c) => catégorie.mettreÀJour(c),
-            })
+            }),
           );
           fsOublier.push(
             await client.variables!.suivreUnitésVariable({
               idVariable: idVariable2,
               f: (u) => unités.mettreÀJour(u),
-            })
+            }),
           );
         });
 
@@ -519,7 +519,7 @@ typesClients.forEach((type) => {
 
         it("Les descriptions sont copiés", async () => {
           const val = await descrs.attendreQue(
-            (x) => Object.keys(x).length > 1
+            (x) => Object.keys(x).length > 1,
           );
           expect(val).to.deep.equal({
             த: "தினசரி மழை",

@@ -390,9 +390,7 @@ describe("Validation", function () {
       const id = uuidv4();
 
       it("Pas d'erreur si la colonne n'existe pas", () => {
-        const erreurs = fonc([
-          { données: { "une autre colonne": 2 }, id },
-        ]);
+        const erreurs = fonc([{ données: { "une autre colonne": 2 }, id }]);
         expect(Array.isArray(erreurs)).to.be.true();
         expect(erreurs.length).to.equal(0);
       });

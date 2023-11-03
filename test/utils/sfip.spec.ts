@@ -5,7 +5,7 @@ describe("Utils : SFIP", function () {
   describe("cidValide", function () {
     it("valide", () => {
       const valide = cidValide(
-        "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ"
+        "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ",
       );
       expect(valide).to.be.true();
     });

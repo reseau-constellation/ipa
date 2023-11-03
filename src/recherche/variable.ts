@@ -13,12 +13,12 @@ import {
 } from "@/recherche/utils.js";
 
 export const rechercherVariablesSelonNom = (
-  nom: string
+  nom: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idVariable: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = async (nomsVariable: { [key: string]: string }) => {
       const résultat = similTexte(nom, nomsVariable);
@@ -44,12 +44,12 @@ export const rechercherVariablesSelonNom = (
 };
 
 export const rechercherVariablesSelonDescr = (
-  descr: string
+  descr: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idVariable: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = async (nomsVariable: { [key: string]: string }) => {
       const résultat = similTexte(descr, nomsVariable);
@@ -75,12 +75,12 @@ export const rechercherVariablesSelonDescr = (
 };
 
 export const rechercherVariablesSelonTexte = (
-  texte: string
+  texte: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherVariablesSelonNom(texte);
     const fRechercherDescr = rechercherVariablesSelonDescr(texte);
@@ -90,7 +90,7 @@ export const rechercherVariablesSelonTexte = (
       { noms: fRechercherNoms, descr: fRechercherDescr, id: fRechercherId },
       client,
       idCompte,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };

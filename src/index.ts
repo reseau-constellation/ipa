@@ -33,7 +33,7 @@ function générerClient({
   opts,
   mandataire,
 }: {
-  opts: optsConstellation;
+  opts?: optsConstellation;
   mandataire: "proc";
 }): ClientConstellation;
 function générerClient({
@@ -47,21 +47,21 @@ function générerClient({
   opts,
   mandataire,
 }: {
-  opts: optsConstellation;
+  opts?: optsConstellation;
   mandataire?: "proc";
 }): ClientConstellation;
 function générerClient({
   opts,
   mandataire = "proc",
 }: {
-  opts: optsConstellation | optsIpaTravailleur;
+  opts?: optsConstellation | optsIpaTravailleur;
   mandataire?: "proc" | "travailleur";
 }): ClientConstellation;
 function générerClient({
   opts,
   mandataire = "proc",
 }: {
-  opts: optsConstellation | optsIpaTravailleur;
+  opts?: optsConstellation | optsIpaTravailleur;
   mandataire?: "proc" | "travailleur";
 }): ClientConstellation {
   switch (mandataire) {
@@ -71,7 +71,7 @@ function générerClient({
       return ipaTravailleur.default(opts as optsIpaTravailleur);
     default:
       throw new Error(
-        `Mandataire de type ${mandataire} non reconnu (doit être "proc" ou "travailleur").`
+        `Mandataire de type ${mandataire} non reconnu (doit être "proc" ou "travailleur").`,
       );
   }
 }

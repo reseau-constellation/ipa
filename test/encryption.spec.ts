@@ -42,7 +42,7 @@ typesClients.forEach((type) => {
           encrypteur3.décrypter({
             message: messageEncrypté,
             clefPubliqueExpéditeur: encrypteur1.clefs.publique,
-          })
+          }),
         ).to.throw();
       });
     });

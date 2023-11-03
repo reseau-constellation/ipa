@@ -17,12 +17,12 @@ import {
 } from "@/recherche/utils.js";
 
 export const rechercherBdsSelonNom = (
-  nomBd: string
+  nomBd: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idBd: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = async (noms: { [key: string]: string }) => {
       const corresp = similTexte(nomBd, noms);
@@ -45,12 +45,12 @@ export const rechercherBdsSelonNom = (
 };
 
 export const rechercherBdsSelonDescr = (
-  descrBd: string
+  descrBd: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
     client: ClientConstellation,
     idBd: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
     const fSuivre = async (descrs: { [key: string]: string }) => {
       const corresp = similTexte(descrBd, descrs);
@@ -76,7 +76,7 @@ export const rechercherBdsSelonDescr = (
 };
 
 export const rechercherBdsSelonIdVariable = (
-  idVariable: string
+  idVariable: string,
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
 > => {
@@ -85,10 +85,10 @@ export const rechercherBdsSelonIdVariable = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
-    >
+    >,
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void
+      fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
       return await client.bds!.suivreVariablesBd({
         idBd,
@@ -103,13 +103,13 @@ export const rechercherBdsSelonIdVariable = (
       fListe,
       fRechercher,
       client,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };
 
 export const rechercherBdsSelonNomVariable = (
-  nomVariable: string
+  nomVariable: string,
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
 > => {
@@ -118,10 +118,10 @@ export const rechercherBdsSelonNomVariable = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
-    >
+    >,
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void
+      fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
       return await client.bds!.suivreVariablesBd({
         idBd,
@@ -136,13 +136,13 @@ export const rechercherBdsSelonNomVariable = (
       fListe,
       fRechercher,
       client,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };
 
 export const rechercherBdsSelonVariable = (
-  texte: string
+  texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
 > => {
@@ -151,7 +151,7 @@ export const rechercherBdsSelonVariable = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
-    >
+    >,
   ) => {
     return await combinerRecherches(
       {
@@ -160,13 +160,13 @@ export const rechercherBdsSelonVariable = (
       },
       client,
       idBd,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };
 
 export const rechercherBdsSelonIdMotClef = (
-  idMotClef: string
+  idMotClef: string,
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
 > => {
@@ -175,10 +175,10 @@ export const rechercherBdsSelonIdMotClef = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
-    >
+    >,
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void
+      fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
       return await client.bds!.suivreMotsClefsBd({
         idBd,
@@ -193,13 +193,13 @@ export const rechercherBdsSelonIdMotClef = (
       fListe,
       fRechercher,
       client,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };
 
 export const rechercherBdsSelonNomMotClef = (
-  nomMotClef: string
+  nomMotClef: string,
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
 > => {
@@ -208,10 +208,10 @@ export const rechercherBdsSelonNomMotClef = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
-    >
+    >,
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void
+      fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
       return await client.bds!.suivreMotsClefsBd({
         idBd,
@@ -226,13 +226,13 @@ export const rechercherBdsSelonNomMotClef = (
       fListe,
       fRechercher,
       client,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };
 
 export const rechercherBdsSelonMotClef = (
-  texte: string
+  texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte>
 > => {
@@ -241,7 +241,7 @@ export const rechercherBdsSelonMotClef = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
-    >
+    >,
   ) => {
     return await combinerRecherches(
       {
@@ -250,13 +250,13 @@ export const rechercherBdsSelonMotClef = (
       },
       client,
       idBd,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };
 
 export const rechercherBdsSelonTexte = (
-  texte: string
+  texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
 > => {
@@ -265,7 +265,7 @@ export const rechercherBdsSelonTexte = (
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
-    >
+    >,
   ) => {
     return await combinerRecherches<
       infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
@@ -279,7 +279,7 @@ export const rechercherBdsSelonTexte = (
       },
       client,
       idBd,
-      fSuivreRecherche
+      fSuivreRecherche,
     );
   };
 };

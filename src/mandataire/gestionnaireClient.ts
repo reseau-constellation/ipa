@@ -32,7 +32,7 @@ export default class GestionnaireClient {
   constructor(
     fMessage: (m: MessageDeTravailleur) => void,
     fErreur: (e: string, idRequète?: string) => void,
-    opts: optsConstellation | ClientConstellation = {}
+    opts: optsConstellation | ClientConstellation = {},
   ) {
     this.fMessage = fMessage;
     this.fErreur = fErreur;
@@ -152,7 +152,7 @@ export default class GestionnaireClient {
       default: {
         this.fErreur(
           `Type de requète ${type} non reconnu dans message ${message}`,
-          (message as MessagePourTravailleur).id
+          (message as MessagePourTravailleur).id,
         );
         break;
       }
@@ -161,10 +161,10 @@ export default class GestionnaireClient {
 
   extraireFonctionIPA(
     adresseFonction: string[],
-    idMessage: string
+    idMessage: string,
   ): ((...args: any[]) => unknown) | undefined {
     const erreur = `Fonction ClientConstellation.${adresseFonction.join(
-      "."
+      ".",
     )} n'existe pas ou n'est pas une fonction.`;
 
     let fonctionIPA:

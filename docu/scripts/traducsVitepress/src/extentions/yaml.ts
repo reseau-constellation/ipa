@@ -90,7 +90,7 @@ export class ExtentionYaml extends Extention {
           fichier,
           langue,
           adresse,
-        })
+        }),
       );
     } else {
       return Object.fromEntries(
@@ -103,7 +103,7 @@ export class ExtentionYaml extends Extention {
             langue,
             adresse: [...adresse, clef],
           }),
-        ])
+        ]),
       );
     }
   }
@@ -111,7 +111,7 @@ export class ExtentionYaml extends Extention {
   async extraireMessages({ texte }: { texte: string }): Promise<Message[]> {
     const texteYaml = texte.slice(
       texte.indexOf("---\n") + 4,
-      texte.indexOf("---\n", 1)
+      texte.indexOf("---\n", 1),
     );
     const yaml = parse(texteYaml) as DocYaml;
     return this.extraireComposanteYaml({ composante: yaml });
@@ -132,7 +132,7 @@ export class ExtentionYaml extends Extention {
 
     const texteYaml = texte.slice(
       texte.indexOf("---\n") + 4,
-      texte.indexOf("---\n", 1)
+      texte.indexOf("---\n", 1),
     );
     const yaml = parse(texteYaml) as DocYaml;
     const yamlTraduit = this.reconstruireComposanteYaml({

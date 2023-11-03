@@ -43,9 +43,9 @@ const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
 
 describe("Fermeture sécuritaire", function () {
   it("Fermeture immédiatement après ouverture", async () => {
-    const client = générerClient({opts: {}})
+    const client = générerClient({ opts: {} });
     await client.fermer();
-  })
+  });
 });
 
 if (isNode || isElectronMain) {
@@ -114,7 +114,7 @@ if (isNode || isElectronMain) {
         fsOublier.push(
           await client2.profil!.suivreNoms({
             f: (noms) => résNom.mettreÀJour(noms),
-          })
+          }),
         );
 
         await client.profil!.sauvegarderNom({
@@ -163,7 +163,7 @@ if (isNode || isElectronMain) {
         await client.profil!.effacerNom({ langue: "de" });
 
         const val = await résNom.attendreQue((x) =>
-          Object.keys(x).includes("fr")
+          Object.keys(x).includes("fr"),
         );
         expect(val.fr).to.equal("Julien Malard-Adam");
       });
@@ -295,7 +295,7 @@ if (isNode || isElectronMain) {
         }));
         await bd.put("a", 1);
         const fSuivre = async (
-          _bd: TypedKeyValue<{ [clef: string]: number }>
+          _bd: TypedKeyValue<{ [clef: string]: number }>,
         ) => {
           const d = await _bd.allAsJSON();
           attendreDonnées.mettreÀJour(d);
@@ -459,7 +459,7 @@ if (isNode || isElectronMain) {
           });
         };
         fsOublier.push(
-          await client.suivreBdDeClef({ id: idBdBase, clef: CLEF, f, fSuivre })
+          await client.suivreBdDeClef({ id: idBdBase, clef: CLEF, f, fSuivre }),
         );
       });
 
@@ -562,7 +562,7 @@ if (isNode || isElectronMain) {
         fsOublier.push(fOublier);
         await bd.put("a", 1);
         const val2 = await données.attendreQue(
-          (x) => Object.keys(x).length > 0
+          (x) => Object.keys(x).length > 0,
         );
         expect(val2.a).to.equal(1);
       });
@@ -670,7 +670,7 @@ if (isNode || isElectronMain) {
             f: fSuivreValeur,
             schéma: schémaListeNumérique,
             renvoyerValeur: true,
-          })
+          }),
         );
         fsOublier.push(
           await client.suivreBdListe({
@@ -678,7 +678,7 @@ if (isNode || isElectronMain) {
             f: fSuivre,
             schéma: schémaListeNumérique,
             renvoyerValeur: false,
-          })
+          }),
         );
       });
 
@@ -702,7 +702,7 @@ if (isNode || isElectronMain) {
         await bd.add(2);
 
         donnéesValeur = await attenteDonnéesValeur.attendreQue(
-          (x) => x.length > 1
+          (x) => x.length > 1,
         );
         expect(donnéesValeur).to.have.members([1, 2]);
       });
@@ -835,8 +835,12 @@ if (isNode || isElectronMain) {
             type: "set",
             schéma: schémaListe,
           });
-          (await bdListe.all()).find(x=>x.value)
-        await bdListe.del((await bdListe.all()).find(x=>typeof x.value !== "string" && x.value.maBd === idBd2)!.value);
+        (await bdListe.all()).find((x) => x.value);
+        await bdListe.del(
+          (await bdListe.all()).find(
+            (x) => typeof x.value !== "string" && x.value.maBd === idBd2,
+          )!.value,
+        );
         fOublierBdListe();
 
         const val = await rés.attendreQue((x) => !!x && x.length === 2);
@@ -943,7 +947,7 @@ if (isNode || isElectronMain) {
         fOublierBdListe();
 
         const empreinteAvant = await rés.attendreQue(
-          (x) => !!x && x !== empreinteDébut
+          (x) => !!x && x !== empreinteDébut,
         );
 
         const { bd: bd2, fOublier: fOublierBd2 } =
@@ -995,7 +999,7 @@ if (isNode || isElectronMain) {
 
         const fBranche = async (
           id: string,
-          f: schémaFonctionSuivi<branche>
+          f: schémaFonctionSuivi<branche>,
         ) => {
           return await client.suivreBd({
             id,
@@ -1012,7 +1016,7 @@ if (isNode || isElectronMain) {
             id: idBdListe,
             f: fSuivi,
             fBranche,
-          })
+          }),
         );
 
         idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
@@ -1085,7 +1089,7 @@ if (isNode || isElectronMain) {
           await bd2.put("c", 3);
 
           const fListe = async (
-            fSuivreRacine: (éléments: string[]) => Promise<void>
+            fSuivreRacine: (éléments: string[]) => Promise<void>,
           ): Promise<schémaFonctionOublier> => {
             fSuivre = fSuivreRacine;
             return faisRien;
@@ -1093,7 +1097,7 @@ if (isNode || isElectronMain) {
           const f = (x: number[]) => attendre.mettreÀJour(x);
           const fBranche = async (
             id: string,
-            f: schémaFonctionSuivi<number[]>
+            f: schémaFonctionSuivi<number[]>,
           ): Promise<schémaFonctionOublier> => {
             return await client.suivreBd({
               id,
@@ -1106,7 +1110,7 @@ if (isNode || isElectronMain) {
             });
           };
           fsOublier.push(
-            await client.suivreBdsDeFonctionListe({ fListe, f, fBranche })
+            await client.suivreBdsDeFonctionListe({ fListe, f, fBranche }),
           );
         });
         after(async () => {
@@ -1149,7 +1153,7 @@ if (isNode || isElectronMain) {
         const fsOublier: schémaFonctionOublier[] = [];
 
         const fListe = async (
-          fSuivreRacine: (éléments: branche[]) => Promise<void>
+          fSuivreRacine: (éléments: branche[]) => Promise<void>,
         ): Promise<schémaFonctionOublier> => {
           fSuivre = fSuivreRacine;
           return faisRien;
@@ -1157,7 +1161,7 @@ if (isNode || isElectronMain) {
         const f = (x: number[]) => attendre.mettreÀJour(x);
         const fBranche = async (
           id: string,
-          f: schémaFonctionSuivi<number[]>
+          f: schémaFonctionSuivi<number[]>,
         ): Promise<schémaFonctionOublier> => {
           return await client.suivreBd({
             id,
@@ -1177,7 +1181,7 @@ if (isNode || isElectronMain) {
           await fSuivre(
             ids.map((id) => {
               return { nom: "abc", id: id };
-            })
+            }),
           );
         };
         before(async () => {
@@ -1210,7 +1214,7 @@ if (isNode || isElectronMain) {
               fBranche,
               fIdBdDeBranche,
               fCode,
-            })
+            }),
           );
           await changerBds([idBd1, idBd2]);
         });
@@ -1239,7 +1243,7 @@ if (isNode || isElectronMain) {
               fIdBdDeBranche,
               fRéduction,
               fCode,
-            })
+            }),
           );
         });
       });
@@ -1252,7 +1256,7 @@ if (isNode || isElectronMain) {
         let fOublier: schémaFonctionOublier;
 
         const fListe = async (
-          fSuivreRacine: (éléments: branche[]) => Promise<void>
+          fSuivreRacine: (éléments: branche[]) => Promise<void>,
         ): Promise<schémaFonctionOublier> => {
           fSuivre = fSuivreRacine;
           return faisRien;
@@ -1287,14 +1291,14 @@ if (isNode || isElectronMain) {
         idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
         const fListe = async (
-          fSuivreRacine: (ids: string[]) => Promise<void>
+          fSuivreRacine: (ids: string[]) => Promise<void>,
         ): Promise<schémaFonctionOublier> => {
           await fSuivreRacine([idBd1, idBd2]);
           return faisRien;
         };
         const fCondition = async (
           id: string,
-          fSuivreCondition: (état: boolean) => void
+          fSuivreCondition: (état: boolean) => void,
         ): Promise<schémaFonctionOublier> => {
           const f = async (bd: TypedKeyValue<{ [clef: string]: number }>) =>
             fSuivreCondition(Object.keys(await bd.allAsJSON()).length > 0);
@@ -1310,7 +1314,7 @@ if (isNode || isElectronMain) {
             fListe,
             fCondition,
             f: (idsBds) => sélectionnées.mettreÀJour(idsBds),
-          })
+          }),
         );
       });
       after(async () => {
@@ -1394,7 +1398,7 @@ if (isNode || isElectronMain) {
             });
             fsOublier.push(fOublier);
             return bd;
-          })
+          }),
         );
         expect(bds[0] === bds[1]).to.be.true();
       });
@@ -1448,7 +1452,7 @@ if (isNode || isElectronMain) {
             nom: "clef",
             racine: bdRacine,
             type: "keyvalue",
-          })
+          }),
         ).rejected();
       });
 
@@ -1810,7 +1814,7 @@ if (isNode || isElectronMain) {
         });
 
         const donnéesBdListe: élément[] = (await bdListe1.all()).map(
-          (x) => x.value
+          (x) => x.value,
         );
         expect(Array.isArray(donnéesBdListe)).to.be.true();
         expect(donnéesBdListe.length).to.equal(1);
@@ -1886,7 +1890,7 @@ if (isNode || isElectronMain) {
             f: (p) => {
               rés.mettreÀJour(p);
             },
-          })
+          }),
         );
       });
 

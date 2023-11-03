@@ -8,7 +8,7 @@ export const enregistrerContrôleurs = (): void => {
   useAccessController(ContrôleurAccès);
 };
 
-export *  as cntrlConstellation from "./cntrlConstellation.js";
+export * as cntrlConstellation from "./cntrlConstellation.js";
 export * as cntrlMod from "./cntrlMod.js";
 
 export * from "./consts.js";

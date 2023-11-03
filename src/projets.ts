@@ -245,7 +245,7 @@ export default class Projets extends ComposanteClientListe<string> {
       await Promise.all(
         bds.map(async (idBd: string) => {
           await this.ajouterBdProjet({ idProjet: idNouveauProjet, idBd });
-        })
+        }),
       );
     }
 
@@ -310,7 +310,7 @@ export default class Projets extends ComposanteClientListe<string> {
     });
     if (!idBdNoms) {
       throw new Error(
-        `Permission de modification refusée pour Projet ${idProjet}.`
+        `Permission de modification refusée pour Projet ${idProjet}.`,
       );
     }
 
@@ -372,7 +372,7 @@ export default class Projets extends ComposanteClientListe<string> {
     });
     if (!idBdDescr) {
       throw new Error(
-        `Permission de modification refusée pour Projet ${idProjet}.`
+        `Permission de modification refusée pour Projet ${idProjet}.`,
       );
     }
 
@@ -435,7 +435,7 @@ export default class Projets extends ComposanteClientListe<string> {
     });
     if (!idBdMotsClefs) {
       throw new Error(
-        `Permission de modification refusée pour projet ${idProjet}.`
+        `Permission de modification refusée pour projet ${idProjet}.`,
       );
     }
 
@@ -461,11 +461,11 @@ export default class Projets extends ComposanteClientListe<string> {
     await Promise.all(
       idsMotsClefs.map(async (id: string) => {
         const motsClefsExistants = (await bdMotsClefs.all()).map(
-          (x) => x.value
+          (x) => x.value,
         );
 
         if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
-      })
+      }),
     );
     await fOublier();
   }
@@ -496,7 +496,7 @@ export default class Projets extends ComposanteClientListe<string> {
     });
     if (!idBdBds)
       throw new Error(
-        `Permission de modification refusée pour Projet ${idProjet}.`
+        `Permission de modification refusée pour Projet ${idProjet}.`,
       );
 
     return await this.client.orbite!.ouvrirBdTypée({
@@ -731,13 +731,13 @@ export default class Projets extends ComposanteClientListe<string> {
       return await fFinale();
     };
     const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>
+      fSuivreRacine: (éléments: string[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
     };
     const fBranche = async (
       idBd: string,
-      fSuivi: schémaFonctionSuivi<string[]>
+      fSuivi: schémaFonctionSuivi<string[]>,
     ): Promise<schémaFonctionOublier> => {
       return await this.client.bds!.suivreMotsClefsBd({ idBd, f: fSuivi });
     };
@@ -782,7 +782,7 @@ export default class Projets extends ComposanteClientListe<string> {
     };
     const fBranche = async (
       idBd: string,
-      f: schémaFonctionSuivi<string[]>
+      f: schémaFonctionSuivi<string[]>,
     ): Promise<schémaFonctionOublier> => {
       return await this.client.bds!.suivreVariablesBd({ idBd, f });
     };
@@ -819,17 +819,17 @@ export default class Projets extends ComposanteClientListe<string> {
       return await f(
         scoresBds.length
           ? scoresBds.reduce((a, b) => a + b, 0) / scoresBds.length
-          : 0
+          : 0,
       );
     };
     const fListe = async (
-      fSuiviListe: schémaFonctionSuivi<string[]>
+      fSuiviListe: schémaFonctionSuivi<string[]>,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBdsProjet({ idProjet, f: fSuiviListe });
     };
     const fBranche = async (
       idBd: string,
-      fSuiviBranche: schémaFonctionSuivi<number>
+      fSuiviBranche: schémaFonctionSuivi<number>,
     ): Promise<schémaFonctionOublier> => {
       return await this.client.bds!.suivreQualitéBd({
         idBd,
@@ -859,7 +859,7 @@ export default class Projets extends ComposanteClientListe<string> {
     if (!nomFichier) {
       const nomsBd = await uneFois(
         (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-          this.suivreNomsProjet({ idProjet, f })
+          this.suivreNomsProjet({ idProjet, f }),
       );
       const idCourt = idProjet.split("/").pop()!;
 
@@ -871,7 +871,7 @@ export default class Projets extends ComposanteClientListe<string> {
       nomFichier,
     };
     const idsBds = await uneFois((f: schémaFonctionSuivi<string[]>) =>
-      this.suivreBdsProjet({ idProjet, f })
+      this.suivreBdsProjet({ idProjet, f }),
     );
     for (const idBd of idsBds) {
       const { doc, fichiersSFIP } = await this.client.bds!.exporterDonnées({
@@ -884,7 +884,7 @@ export default class Projets extends ComposanteClientListe<string> {
       if (langues) {
         const noms = await uneFois(
           (f: schémaFonctionSuivi<{ [key: string]: string }>) =>
-            this.client.bds!.suivreNomsBd({ idBd, f })
+            this.client.bds!.suivreNomsBd({ idBd, f }),
         );
 
         nom = traduire(noms, langues) || idCourtBd;
@@ -930,10 +930,10 @@ export default class Projets extends ComposanteClientListe<string> {
             return {
               nom: fichier.replace("/", "-"),
               octets: await toBuffer(
-                this.client.obtItérableAsyncSFIP({ id: fichier })
+                this.client.obtItérableAsyncSFIP({ id: fichier }),
               ),
             };
-          })
+          }),
         )
       : [];
     await zipper(fichiersDocs, fichiersDeSFIP, path.join(dossier, nomFichier));

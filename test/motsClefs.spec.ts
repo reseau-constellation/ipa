@@ -194,7 +194,7 @@ typesClients.forEach((type) => {
           fsOublier.push(
             await client.motsClefs!.suivreMotsClefs({
               f: (x) => (motsClefs = x),
-            })
+            }),
           );
 
           const idMotClef = await client.motsClefs!.créerMotClef();
@@ -221,13 +221,13 @@ typesClients.forEach((type) => {
             await client.motsClefs!.suivreNomsMotClef({
               idMotClef: idMotClef2,
               f: (x) => noms.mettreÀJour(x),
-            })
+            }),
           );
           fsOublier.push(
             await client.motsClefs!.suivreDescriptionsMotClef({
               idMotClef: idMotClef2,
               f: (x) => descriptions.mettreÀJour(x),
-            })
+            }),
           );
         });
 
