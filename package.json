@@ -1,5 +1,5 @@
 {
-  "version": "0.9.11",
+  "version": "0.9.12",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -94,7 +94,7 @@
     "@constl/electron-webrtc-relay": "^0.2.3",
     "@constl/mandataire": "^0.1.15",
     "@constl/orbit-db-kuiper": "^0.0.2",
-    "@constl/utils-ipa": "^0.2.1",
+    "@constl/utils-ipa": "^0.2.2",
     "@ipld/dag-cbor": "^9.0.6",
     "@lassi-js/kili": "^0.3.1",
     "@libp2p/interface-transport": "^4.0.3",
