@@ -35,7 +35,7 @@ import { typesClients } from "./ressources/utils.js";
 import { expect } from "aegir/chai";
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("Tableaux", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
