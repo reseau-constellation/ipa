@@ -11,8 +11,8 @@ overrides:
 
 dependencies:
   '@achingbrain/nat-port-mapper':
-    specifier: 1.0.8
-    version: 1.0.8
+    specifier: 1.0.12
+    version: 1.0.12
   '@chainsafe/libp2p-gossipsub':
     specifier: ^7.0.0
     version: 7.0.0
@@ -42,7 +42,7 @@ dependencies:
     version: 9.0.6
   '@lassi-js/kili':
     specifier: ^0.3.1
-    version: 0.3.1(@constl/ipa@0.9.11)
+    version: 0.3.1(@constl/ipa@)
   '@libp2p/interface-transport':
     specifier: ^4.0.3
     version: 4.0.3
@@ -96,7 +96,7 @@ dependencies:
     version: 2.1.0
   ennikkai:
     specifier: ^2.2.2
-    version: 2.2.2(@constl/ipa@0.9.11)
+    version: 2.2.2(@constl/ipa@)
   events:
     specifier: ^3.3.0
     version: 3.3.0
@@ -327,6 +327,20 @@ packages:
       jsbn: 1.1.0
       sprintf-js: 1.1.2
 
+  /@achingbrain/nat-port-mapper@1.0.12:
+    resolution: {integrity: sha512-rU4G75TEOTIPlkeDnPEVwx/VmMMFta42kY2SMmVobRkrtNLnxtU08Yhriu6tSBc9oO0wXdfNNeuLnNnEnL7w/A==}
+    dependencies:
+      '@achingbrain/ssdp': 4.0.6
+      '@libp2p/logger': 3.0.4
+      default-gateway: 7.2.2
+      err-code: 3.0.1
+      it-first: 3.0.3
+      p-defer: 4.0.0
+      p-timeout: 6.1.2
+      xml2js: 0.6.2
+    transitivePeerDependencies:
+      - supports-color
+
   /@achingbrain/nat-port-mapper@1.0.8:
     resolution: {integrity: sha512-FKiV8cAfpjJd6GG4E+iuShnJIpj8Ro36lKlfyMlYepXlmID0q5h7pTG5ha61FHigpouT3CQc5ZTAwXiDsVCSCA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
@@ -341,6 +355,7 @@ packages:
       xml2js: 0.5.0
     transitivePeerDependencies:
       - supports-color
+    dev: false
 
   /@achingbrain/semantic-release-monorepo@8.0.2(@achingbrain/semantic-release@21.0.9):
     resolution: {integrity: sha512-W11uWo80azi3CrJWP+qPNUYo3crwTw0uMjVkBkyYPPjsu0FgRE9ApSllyzi9gSs5HJxeHZadzas6ppMLDPg/uw==}
@@ -1327,10 +1342,6 @@ packages:
     resolution: {integrity: sha512-xsa5SAYSBnYjqvGnzmaLca4X/RFeOl+ziCsIHl5iHkFBgE4NgWupB4z3A1rVMBM2I8TEKaah+5iu9Cm7gQu9JQ==}
     dev: false
 
-  /@chriscdn/promise-semaphore@2.0.8:
-    resolution: {integrity: sha512-fwu4EPO2ou1NCaFI72cyFWqESeN+TAcwayft2jWFaUA6uQFtrxkqL8MyFbckeSO9MHihEhWiEdsLhcC1KPApAg==}
-    dev: false
-
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
@@ -1359,69 +1370,6 @@ packages:
       get-browser-rtc: 1.1.0
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /@constl/ipa@0.9.11(wrtc@0.4.7):
-    resolution: {integrity: sha512-3QC1Adt8910t6nIpEhYGrfa+Nc1r5WAjdv5+c+PR0uyCautUnrkeCx35mzkd6G7vopDzzNFKUzmII51aW/6+wg==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      wrtc: ^0.4.7
-    dependencies:
-      '@achingbrain/nat-port-mapper': 1.0.8
-      '@chainsafe/libp2p-gossipsub': 7.0.0
-      '@chainsafe/libp2p-noise': 11.0.4
-      '@chriscdn/promise-semaphore': 2.0.8
-      '@constl/bohr-db': 0.0.6
-      '@constl/electron-webrtc-relay': 0.2.3
-      '@constl/mandataire': 0.1.15
-      '@constl/orbit-db-kuiper': 0.0.2
-      '@constl/utils-ipa': 0.2.2
-      '@ipld/dag-cbor': 9.0.6
-      '@lassi-js/kili': 0.3.2(@constl/ipa@0.9.11)
-      '@libp2p/interface-transport': 4.0.3
-      '@libp2p/mplex': 8.0.4
-      '@libp2p/tcp': 7.0.3
-      '@libp2p/webrtc-direct': 6.0.0
-      '@libp2p/webrtc-star': 7.0.0
-      '@libp2p/websockets': 5.0.10
-      '@libp2p/webtransport': 1.0.11
-      '@localfirst/auth': 1.0.1
-      '@orbitdb/core': 1.0.0
-      ajv: 8.12.0
-      approx-string-match: 2.0.0
-      axios: 1.6.0
-      browser-fs-access: 0.35.0
-      chokidar: 3.5.3
-      crypto-js: 4.2.0
-      deep-equal: 2.2.2
-      deepcopy: 2.1.0
-      ennikkai: 2.2.2(@constl/ipa@0.9.11)
-      events: 3.3.0
-      genversion: 3.1.1
-      geojson-validation: 1.0.2
-      indexed-db-stream: 1.0.0
-      ipfs-core: 0.18.1
-      iso-constants: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
-      it-to-buffer: 4.0.3
-      jszip: 3.10.1
-      lodash: 4.17.21
-      merge-options: 3.0.4
-      multiformats: 9.9.0
-      node-pre-gyp: 0.17.0
-      prom-client: 15.0.0
-      ssim: 0.0.0
-      tslib: 2.6.2
-      uint8arrays: 4.0.6
-      uuid: 9.0.1
-      wherearewe: 2.0.1
-      wrtc: 0.4.7
-      xlsx: '@cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz'
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - encoding
-      - supports-color
-      - utf-8-validate
     dev: false
 
   /@constl/mandataire@0.1.15:
@@ -1883,31 +1831,18 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@lassi-js/kili@0.3.1(@constl/ipa@0.9.11):
+  /@lassi-js/kili@0.3.1(@constl/ipa@):
     resolution: {integrity: sha512-qOJu7zzZyqLkYAAc7xJZBq+mQGwUhVLTPvOixUEV0qVRaHuDjhZMVtDTqoOgfTYIOCj3LagtO16TeTnv+rq+Fw==}
     peerDependencies:
       '@constl/ipa': ^0.9.3
     dependencies:
-      '@constl/ipa': 0.9.11(wrtc@0.4.7)
+      '@constl/ipa': 'link:'
       '@constl/utils-ipa': 0.2.2
       '@mapbox/node-pre-gyp': 1.0.11
       '@orbitdb/core': 1.0.0
       deepcopy: 2.1.0
     transitivePeerDependencies:
       - encoding
-      - supports-color
-    dev: false
-
-  /@lassi-js/kili@0.3.2(@constl/ipa@0.9.11):
-    resolution: {integrity: sha512-JjohpwAB7QbyZGL3oA7HurzkP/vf6MqGTf61BoBsbkCOQSTN+EfiagC6gyUCZjk6zeOU4gMqOwjq56w9IvGcCw==}
-    peerDependencies:
-      '@constl/ipa': ^0.9.6
-    dependencies:
-      '@constl/ipa': 0.9.11(wrtc@0.4.7)
-      '@constl/utils-ipa': 0.2.2
-      '@orbitdb/core': 1.0.0
-      deepcopy: 2.1.0
-    transitivePeerDependencies:
       - supports-color
     dev: false
 
@@ -2518,8 +2453,6 @@ packages:
       '@libp2p/interface': 0.1.4
       multiformats: 12.1.3
       uint8arrays: 4.0.6
-    transitivePeerDependencies:
-      - supports-color
 
   /@libp2p/peer-record@5.0.4:
     resolution: {integrity: sha512-e+AArf7pwMLqF24mehTe1OYjr1v0SOKshVrI1E9YH/Cb1F3ZZuK3smyGmnLaS4JlqsarRCMSe3V50tRkqMFY7g==}
@@ -6099,6 +6032,13 @@ packages:
     engines: {node: '>= 10'}
     dependencies:
       execa: 5.1.1
+    dev: false
+
+  /default-gateway@7.2.2:
+    resolution: {integrity: sha512-AD7TrdNNPXRZIGw63dw+lnGmT4v7ggZC5NHNJgAYWm5njrwoze1q5JSAW9YuLy2tjnoLUG/r8FEB93MCh9QJPg==}
+    engines: {node: '>= 16'}
+    dependencies:
+      execa: 7.2.0
 
   /default-require-extensions@3.0.1:
     resolution: {integrity: sha512-eXTJmRbm2TIt9MgWTsOH1wEuhew6XGZcMeGKCtLedIg/NCsg1iBePXkceTdK4Fii7pzmN9tGsZhKzZ4h7O/fxw==}
@@ -6355,6 +6295,7 @@ packages:
     requiresBuild: true
     dependencies:
       webidl-conversions: 4.0.2
+    dev: true
     optional: true
 
   /dot-prop@5.3.0:
@@ -6478,13 +6419,13 @@ packages:
     resolution: {integrity: sha512-9JktcM3u18nU9N2Lz3bWeBgxVgOKpw7yhRaoxQA3FUDZzzw+9WlA6p4G4u0RixNkg14fH7EfEc/RhpurtiROTQ==}
     engines: {node: '>=10.0.0'}
 
-  /ennikkai@2.2.2(@constl/ipa@0.9.11):
+  /ennikkai@2.2.2(@constl/ipa@):
     resolution: {integrity: sha512-Uo1BvmQVIpZoro7Qynvs+4BmibjVHdRb2HxpSeyQulT4/xY1BX2kiIb/YBNj16HCgs86V2I1hgjlT0rR0kIsgA==}
     peerDependencies:
       '@constl/ipa': ^0.9.6
     dependencies:
-      '@constl/ipa': 0.9.11(wrtc@0.4.7)
-      '@lassi-js/kili': 0.3.1(@constl/ipa@0.9.11)
+      '@constl/ipa': 'link:'
+      '@lassi-js/kili': 0.3.1(@constl/ipa@)
       deepmerge: 4.3.1
       events: 3.3.0
     transitivePeerDependencies:
@@ -7239,7 +7180,6 @@ packages:
       onetime: 6.0.0
       signal-exit: 3.0.7
       strip-final-newline: 3.0.0
-    dev: true
 
   /execa@8.0.1:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
@@ -8422,7 +8362,6 @@ packages:
   /human-signals@4.3.1:
     resolution: {integrity: sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==}
     engines: {node: '>=14.18.0'}
-    dev: true
 
   /human-signals@5.0.0:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
@@ -9320,7 +9259,6 @@ packages:
   /is-stream@3.0.0:
     resolution: {integrity: sha512-LnQR4bZ9IADDRSkvpqMGvt/tEJWclzklNgSw48V5EAaAeDd6qGvN8ei6k5p0tvxSR171VmGyHuTiAOfxAbr8kA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dev: true
 
   /is-string@1.0.7:
     resolution: {integrity: sha512-tE2UXzivje6ofPW7l23cjDOMa09gb7xlAqG6jG5ej6uPV32TlWP3NKPigtaGeHNu9fohccRYvIiZMfOOnOYUtg==}
@@ -10088,7 +10026,7 @@ packages:
     resolution: {integrity: sha512-arTOCJEEmAFw5HjlXdULVAFs7Y/dWZmgX/qN4SzuxtSkB0pa+fqn/DIbIfpBi2BuY+QozvnARPF1xJtSdqfqJQ==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dependencies:
-      '@achingbrain/nat-port-mapper': 1.0.8
+      '@achingbrain/nat-port-mapper': 1.0.12
       '@libp2p/crypto': 1.0.17
       '@libp2p/interface-address-manager': 2.0.5
       '@libp2p/interface-connection': 3.1.1
@@ -11088,7 +11026,6 @@ packages:
   /mimic-fn@4.0.0:
     resolution: {integrity: sha512-vqiC06CuhBTUdZH+RYl8sFrL096vA45Ok5ISO6sE/Mr1jRbGH4Csnhi8f3wKVl7x8mO4Au7Ir9D3Oyv1VYMFJw==}
     engines: {node: '>=12'}
-    dev: true
 
   /mimic-response@1.0.1:
     resolution: {integrity: sha512-j5EctnkH7amfV/q5Hgmoal1g2QHFJRraOtmx0JpIqkxhBhI/lJSl1nMpQ45hVarwNETOoWEimndZ4QK0RHxuxQ==}
@@ -11517,6 +11454,7 @@ packages:
       tar: 4.4.19
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /node-pre-gyp@0.17.0:
     resolution: {integrity: sha512-abzZt1hmOjkZez29ppg+5gGqdPLUuJeAEwVPtHYEJgx0qzttCbcKFpxrCQn2HYbwCv2c+7JwH4BgEzFkUGpn4A==}
@@ -11665,7 +11603,6 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       path-key: 4.0.0
-    dev: true
 
   /npm@9.9.0:
     resolution: {integrity: sha512-wkd7sjz4KmdmddYQcd0aTP73P1cEuPlekeulz4jTDeMVx/Zo5XZ5KQ1z3eUzV3Q/WZpEO0NJXTrD5FNFe6fhCA==}
@@ -11937,7 +11874,6 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       mimic-fn: 4.0.0
-    dev: true
 
   /open@7.4.2:
     resolution: {integrity: sha512-MVHddDVweXZF3awtlAS+6pgKLlm/JgxZ90+/NBurBoQctVOOB/zDdVjcyPzQ+0laDGbsWgrRkflI65sQeOgT9Q==}
@@ -12388,7 +12324,6 @@ packages:
   /path-key@4.0.0:
     resolution: {integrity: sha512-haREypq7xkM7ErfgIyA0z+Bj4AGKlMSdlQE2jvJo6huWD1EdkKYV+G/T4nq0YEF2vgTT8kqMFKo1uHn950r4SQ==}
     engines: {node: '>=12'}
-    dev: true
 
   /path-parse@1.0.7:
     resolution: {integrity: sha512-LDJzPVEEEPR+y48z93A0Ed0yXb8pAByGWo/k5YYdYgpY2/2EsOsksJrq7lOHxryrVOn1ejG6oAp8ahvOIQD8sw==}
@@ -13406,6 +13341,7 @@ packages:
   /semver@5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==}
     hasBin: true
+    dev: true
 
   /semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -13984,7 +13920,6 @@ packages:
   /strip-final-newline@3.0.0:
     resolution: {integrity: sha512-dOESqjYr96iWYylGObzd39EuNTa5VJxyvVAEm5Jnh7KGo75V43Hk1odPQkNDyXNmUR6k+gEiDVXnjB8HJ3crXw==}
     engines: {node: '>=12'}
-    dev: true
 
   /strip-indent@3.0.0:
     resolution: {integrity: sha512-laJTa3Jb+VQpaC6DseHhF7dXVqHTfJPCRDaEbid/drOhgitgYku/letMUqOXFoWV0zIIUbjpdH2t+tYj4bQMRQ==}
@@ -14899,6 +14834,7 @@ packages:
   /webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     requiresBuild: true
+    dev: true
     optional: true
 
   /whatwg-url@5.0.0:
@@ -14969,7 +14905,7 @@ packages:
   /wide-align@1.1.5:
     resolution: {integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==}
     dependencies:
-      string-width: 1.0.2
+      string-width: 4.2.3
 
   /widest-line@4.0.1:
     resolution: {integrity: sha512-o0cyEG0e8GPzT4iGHphIOh0cJOV8fivsXxddQasHPHfoZf1ZexrfeA21w2NaEN1RHE+fXlfISmOE8R9N3u3Qig==}
@@ -15057,6 +14993,7 @@ packages:
       domexception: 1.0.1
     transitivePeerDependencies:
       - supports-color
+    dev: true
     bundledDependencies:
       - node-pre-gyp
 
@@ -15095,6 +15032,7 @@ packages:
     dependencies:
       sax: 1.3.0
       xmlbuilder: 11.0.1
+    dev: false
 
   /xml2js@0.6.2:
     resolution: {integrity: sha512-T4rieHaC1EXcES0Kxxj4JWgaUQHDk+qwHcYOCFHfiwKz7tOVPLq7Hjq9dM1WCMhylqMEfP7hMcOIChvotiZegA==}
