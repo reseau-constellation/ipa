@@ -1,0 +1,1 @@
+import{_ as e,o as s,c as t}from"./chunks/framework.ed6abfc6.js";const i=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"ગુ/exemples/mesDonnées.md","filePath":"ગુ/exemples/mesDonnées.md"}'),n={name:"ગુ/exemples/mesDonnées.md"};function o(a,r,m,c,p,_){return s(),t("div")}const l=e(n,[["render",o]]);export{i as __pageData,l as default};

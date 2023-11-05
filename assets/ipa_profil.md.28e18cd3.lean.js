@@ -1,1 +1,0 @@
-import{_ as s,o as a,c as n,Q as l}from"./chunks/framework.8048b864.js";const h=JSON.parse('{"title":"Profil","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/profil.md","filePath":"ipa/profil.md"}'),o={name:"ipa/profil.md"},e=l("",90),p=[e];function t(r,c,i,y,E,d){return a(),n("div",null,p)}const m=s(o,[["render",t]]);export{h as __pageData,m as default};
