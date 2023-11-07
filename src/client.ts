@@ -301,13 +301,13 @@ export class ClientConstellation {
       });
     }
 
-    this.événements.emit("comptePrêt", { idCompte: this.idCompte });
-
+    
     await this.réseau.initialiser();
     await this.protocoles.établirProtocoles({
       protocoles: this._opts.protocoles,
     });
     await this.épingler();
+    this.événements.emit("comptePrêt", { idCompte: this.idCompte });
   }
 
   async attendreSfipEtOrbite(): Promise<{
