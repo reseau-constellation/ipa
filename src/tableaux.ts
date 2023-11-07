@@ -113,7 +113,6 @@ export const attendreStabilité = <T>(
       déjàAppellé = true;
       annulerRebours();
       val = JSON.stringify(v);
-      console.log(val, n);
 
       const crono = setTimeout(() => résoudre(true), n);
       annulerRebours = () => {
