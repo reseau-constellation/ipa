@@ -42,7 +42,7 @@ dependencies:
     version: 9.0.6
   '@lassi-js/kili':
     specifier: ^0.3.1
-    version: 0.3.1(@constl/ipa@0.9.11)
+    version: 0.3.1(@constl/ipa@)
   '@libp2p/interface-transport':
     specifier: ^4.0.3
     version: 4.0.3
@@ -96,7 +96,7 @@ dependencies:
     version: 2.1.0
   ennikkai:
     specifier: ^2.2.2
-    version: 2.2.2(@constl/ipa@0.9.11)
+    version: 2.2.2(@constl/ipa@)
   events:
     specifier: ^3.3.0
     version: 3.3.0
@@ -128,8 +128,8 @@ dependencies:
     specifier: ^3.0.4
     version: 3.0.4
   multiformats:
-    specifier: 9.9.0
-    version: 9.9.0
+    specifier: 12.1.3
+    version: 12.1.3
   node-pre-gyp:
     specifier: ^0.17.0
     version: 0.17.0
@@ -1330,10 +1330,6 @@ packages:
     resolution: {integrity: sha512-xsa5SAYSBnYjqvGnzmaLca4X/RFeOl+ziCsIHl5iHkFBgE4NgWupB4z3A1rVMBM2I8TEKaah+5iu9Cm7gQu9JQ==}
     dev: false
 
-  /@chriscdn/promise-semaphore@2.0.8:
-    resolution: {integrity: sha512-fwu4EPO2ou1NCaFI72cyFWqESeN+TAcwayft2jWFaUA6uQFtrxkqL8MyFbckeSO9MHihEhWiEdsLhcC1KPApAg==}
-    dev: false
-
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
@@ -1362,69 +1358,6 @@ packages:
       get-browser-rtc: 1.1.0
     transitivePeerDependencies:
       - supports-color
-    dev: false
-
-  /@constl/ipa@0.9.11(wrtc@0.4.7):
-    resolution: {integrity: sha512-3QC1Adt8910t6nIpEhYGrfa+Nc1r5WAjdv5+c+PR0uyCautUnrkeCx35mzkd6G7vopDzzNFKUzmII51aW/6+wg==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      wrtc: ^0.4.7
-    dependencies:
-      '@achingbrain/nat-port-mapper': 1.0.8
-      '@chainsafe/libp2p-gossipsub': 7.0.0
-      '@chainsafe/libp2p-noise': 11.0.4
-      '@chriscdn/promise-semaphore': 2.0.8
-      '@constl/bohr-db': 0.0.6
-      '@constl/electron-webrtc-relay': 0.2.3
-      '@constl/mandataire': 0.1.15
-      '@constl/orbit-db-kuiper': 0.0.2
-      '@constl/utils-ipa': 0.2.2
-      '@ipld/dag-cbor': 9.0.6
-      '@lassi-js/kili': 0.3.2(@constl/ipa@0.9.11)
-      '@libp2p/interface-transport': 4.0.3
-      '@libp2p/mplex': 8.0.4
-      '@libp2p/tcp': 7.0.3
-      '@libp2p/webrtc-direct': 6.0.0
-      '@libp2p/webrtc-star': 7.0.0
-      '@libp2p/websockets': 5.0.10
-      '@libp2p/webtransport': 1.0.11
-      '@localfirst/auth': 1.0.1
-      '@orbitdb/core': 1.0.0
-      ajv: 8.12.0
-      approx-string-match: 2.0.0
-      axios: 1.6.0
-      browser-fs-access: 0.35.0
-      chokidar: 3.5.3
-      crypto-js: 4.2.0
-      deep-equal: 2.2.2
-      deepcopy: 2.1.0
-      ennikkai: 2.2.2(@constl/ipa@0.9.11)
-      events: 3.3.0
-      genversion: 3.1.1
-      geojson-validation: 1.0.2
-      indexed-db-stream: 1.0.0
-      ipfs-core: 0.18.1
-      iso-constants: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
-      it-to-buffer: 4.0.3
-      jszip: 3.10.1
-      lodash: 4.17.21
-      merge-options: 3.0.4
-      multiformats: 9.9.0
-      node-pre-gyp: 0.17.0
-      prom-client: 15.0.0
-      ssim: 0.0.0
-      tslib: 2.6.2
-      uint8arrays: 4.0.6
-      uuid: 9.0.1
-      wherearewe: 2.0.1
-      wrtc: 0.4.7
-      xlsx: '@cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz'
-    transitivePeerDependencies:
-      - bufferutil
-      - debug
-      - encoding
-      - supports-color
-      - utf-8-validate
     dev: false
 
   /@constl/mandataire@0.1.15:
@@ -1886,31 +1819,18 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@lassi-js/kili@0.3.1(@constl/ipa@0.9.11):
+  /@lassi-js/kili@0.3.1(@constl/ipa@):
     resolution: {integrity: sha512-qOJu7zzZyqLkYAAc7xJZBq+mQGwUhVLTPvOixUEV0qVRaHuDjhZMVtDTqoOgfTYIOCj3LagtO16TeTnv+rq+Fw==}
     peerDependencies:
       '@constl/ipa': ^0.9.3
     dependencies:
-      '@constl/ipa': 0.9.11(wrtc@0.4.7)
+      '@constl/ipa': 'link:'
       '@constl/utils-ipa': 0.2.2
       '@mapbox/node-pre-gyp': 1.0.11
       '@orbitdb/core': 1.0.0
       deepcopy: 2.1.0
     transitivePeerDependencies:
       - encoding
-      - supports-color
-    dev: false
-
-  /@lassi-js/kili@0.3.2(@constl/ipa@0.9.11):
-    resolution: {integrity: sha512-JjohpwAB7QbyZGL3oA7HurzkP/vf6MqGTf61BoBsbkCOQSTN+EfiagC6gyUCZjk6zeOU4gMqOwjq56w9IvGcCw==}
-    peerDependencies:
-      '@constl/ipa': ^0.9.6
-    dependencies:
-      '@constl/ipa': 0.9.11(wrtc@0.4.7)
-      '@constl/utils-ipa': 0.2.2
-      '@orbitdb/core': 1.0.0
-      deepcopy: 2.1.0
-    transitivePeerDependencies:
       - supports-color
     dev: false
 
@@ -6356,6 +6276,7 @@ packages:
     requiresBuild: true
     dependencies:
       webidl-conversions: 4.0.2
+    dev: true
     optional: true
 
   /dot-prop@5.3.0:
@@ -6479,13 +6400,13 @@ packages:
     resolution: {integrity: sha512-9JktcM3u18nU9N2Lz3bWeBgxVgOKpw7yhRaoxQA3FUDZzzw+9WlA6p4G4u0RixNkg14fH7EfEc/RhpurtiROTQ==}
     engines: {node: '>=10.0.0'}
 
-  /ennikkai@2.2.2(@constl/ipa@0.9.11):
+  /ennikkai@2.2.2(@constl/ipa@):
     resolution: {integrity: sha512-Uo1BvmQVIpZoro7Qynvs+4BmibjVHdRb2HxpSeyQulT4/xY1BX2kiIb/YBNj16HCgs86V2I1hgjlT0rR0kIsgA==}
     peerDependencies:
       '@constl/ipa': ^0.9.6
     dependencies:
-      '@constl/ipa': 0.9.11(wrtc@0.4.7)
-      '@lassi-js/kili': 0.3.1(@constl/ipa@0.9.11)
+      '@constl/ipa': 'link:'
+      '@lassi-js/kili': 0.3.1(@constl/ipa@)
       deepmerge: 4.3.1
       events: 3.3.0
     transitivePeerDependencies:
@@ -11518,6 +11439,7 @@ packages:
       tar: 4.4.19
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /node-pre-gyp@0.17.0:
     resolution: {integrity: sha512-abzZt1hmOjkZez29ppg+5gGqdPLUuJeAEwVPtHYEJgx0qzttCbcKFpxrCQn2HYbwCv2c+7JwH4BgEzFkUGpn4A==}
@@ -13407,6 +13329,7 @@ packages:
   /semver@5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==}
     hasBin: true
+    dev: true
 
   /semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -14906,6 +14829,7 @@ packages:
   /webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
     requiresBuild: true
+    dev: true
     optional: true
 
   /whatwg-url@5.0.0:
@@ -15064,6 +14988,7 @@ packages:
       domexception: 1.0.1
     transitivePeerDependencies:
       - supports-color
+    dev: true
     bundledDependencies:
       - node-pre-gyp
 
