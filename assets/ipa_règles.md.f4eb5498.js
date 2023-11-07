@@ -141,7 +141,7 @@ import{_ as s,o as a,c as n,Q as l}from"./chunks/framework.ed6abfc6.js";const d=
 <span class="line"><span style="color:#E1E4E8;">    },</span></span>
 <span class="line"><span style="color:#E1E4E8;">};</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.tableaux</span><span style="color:#F97583;">!</span><span style="color:#E1E4E8;">.</span><span style="color:#B392F0;">ajouterRègleTableau</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.tableaux.</span><span style="color:#B392F0;">ajouterRègleTableau</span><span style="color:#E1E4E8;">({</span></span>
 <span class="line"><span style="color:#E1E4E8;">    idTableau,</span></span>
 <span class="line"><span style="color:#E1E4E8;">    idColonne: idColonneTempMax,</span></span>
 <span class="line"><span style="color:#E1E4E8;">    règle: règleTempMax,</span></span>
@@ -164,7 +164,7 @@ import{_ as s,o as a,c as n,Q as l}from"./chunks/framework.ed6abfc6.js";const d=
 <span class="line"><span style="color:#24292E;">    },</span></span>
 <span class="line"><span style="color:#24292E;">};</span></span>
 <span class="line"></span>
-<span class="line"><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.tableaux</span><span style="color:#D73A49;">!</span><span style="color:#24292E;">.</span><span style="color:#6F42C1;">ajouterRègleTableau</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.tableaux.</span><span style="color:#6F42C1;">ajouterRègleTableau</span><span style="color:#24292E;">({</span></span>
 <span class="line"><span style="color:#24292E;">    idTableau,</span></span>
 <span class="line"><span style="color:#24292E;">    idColonne: idColonneTempMax,</span></span>
 <span class="line"><span style="color:#24292E;">    règle: règleTempMax,</span></span>

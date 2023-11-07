@@ -412,7 +412,7 @@ import{_ as s,o as a,c as n,Q as l}from"./chunks/framework.ed6abfc6.js";const b=
 <span class="line"><span style="color:#E1E4E8;">  idVarTempMin,</span></span>
 <span class="line"><span style="color:#E1E4E8;">  idVarTempMax,</span></span>
 <span class="line"><span style="color:#E1E4E8;">]) {</span></span>
-<span class="line"><span style="color:#E1E4E8;">  </span><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idCol</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.tableaux</span><span style="color:#F97583;">!</span><span style="color:#E1E4E8;">.</span><span style="color:#B392F0;">ajouterColonneTableau</span><span style="color:#E1E4E8;">({</span></span>
+<span class="line"><span style="color:#E1E4E8;">  </span><span style="color:#F97583;">const</span><span style="color:#E1E4E8;"> </span><span style="color:#79B8FF;">idCol</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">=</span><span style="color:#E1E4E8;"> </span><span style="color:#F97583;">await</span><span style="color:#E1E4E8;"> client.tableaux.</span><span style="color:#B392F0;">ajouterColonneTableau</span><span style="color:#E1E4E8;">({</span></span>
 <span class="line"><span style="color:#E1E4E8;">    idTableau,</span></span>
 <span class="line"><span style="color:#E1E4E8;">    idVariable,</span></span>
 <span class="line"><span style="color:#E1E4E8;">  });</span></span>
@@ -475,7 +475,7 @@ import{_ as s,o as a,c as n,Q as l}from"./chunks/framework.ed6abfc6.js";const b=
 <span class="line"><span style="color:#24292E;">  idVarTempMin,</span></span>
 <span class="line"><span style="color:#24292E;">  idVarTempMax,</span></span>
 <span class="line"><span style="color:#24292E;">]) {</span></span>
-<span class="line"><span style="color:#24292E;">  </span><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idCol</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.tableaux</span><span style="color:#D73A49;">!</span><span style="color:#24292E;">.</span><span style="color:#6F42C1;">ajouterColonneTableau</span><span style="color:#24292E;">({</span></span>
+<span class="line"><span style="color:#24292E;">  </span><span style="color:#D73A49;">const</span><span style="color:#24292E;"> </span><span style="color:#005CC5;">idCol</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">=</span><span style="color:#24292E;"> </span><span style="color:#D73A49;">await</span><span style="color:#24292E;"> client.tableaux.</span><span style="color:#6F42C1;">ajouterColonneTableau</span><span style="color:#24292E;">({</span></span>
 <span class="line"><span style="color:#24292E;">    idTableau,</span></span>
 <span class="line"><span style="color:#24292E;">    idVariable,</span></span>
 <span class="line"><span style="color:#24292E;">  });</span></span>
