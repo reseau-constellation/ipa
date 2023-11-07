@@ -2502,6 +2502,7 @@ export class ClientConstellation {
   }
 
   async fermer(): Promise<void> {
+    await this.attendreInitialisée()
     const { orbite } = await this.attendreSfipEtOrbite();
     await (await obtStockageLocal(this.dossierOrbite())).fermer?.();
     await this.fermerCompte();
