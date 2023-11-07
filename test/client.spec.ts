@@ -41,7 +41,7 @@ const schémaKVChaîne: JSONSchemaType<{ [clef: string]: string }> = {
 const schémaListeNumérique: JSONSchemaType<number> = { type: "number" };
 const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
 
-describe.only("Fermeture sécuritaire", function () {
+describe("Fermeture sécuritaire", function () {
   it("Fermeture immédiatement après ouverture", async () => {
     const client = générerClient({ opts: {} });
     await client.fermer();
