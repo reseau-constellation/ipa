@@ -54,7 +54,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
 
   async épingler() {
     const idBdProfil = await this.obtIdBd();
-    await this.client.épingles?.épinglerBd({
+    await this.client.épingles.épinglerBd({
       id: idBdProfil,
       récursif: true,
       fichiers: true,
@@ -119,7 +119,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdContacts,
       type: "set",
       schéma: schémaContactProfil,
@@ -147,7 +147,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdContacts,
       type: "set",
       schéma: schémaContactProfil,
@@ -206,7 +206,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -230,7 +230,7 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       );
     }
 
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,

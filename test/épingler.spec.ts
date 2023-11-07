@@ -38,27 +38,27 @@ typesClients.forEach((type) => {
 
         before(async () => {
           idBd = await client!.créerBdIndépendante({ type: "keyvalue" });
-          await client.épingles!.toutDésépingler();
+          await client.épingles.toutDésépingler();
         });
 
         it("Pas d'épingles pour commencer", async () => {
-          const épingles = await client.épingles!.épingles();
+          const épingles = await client.épingles.épingles();
           expect(isSet(épingles)).to.be.true();
           expect(épingles.size).to.equal(0);
         });
         it("Ajouter une épingle", async () => {
-          await client.épingles!.épinglerBd({ id: idBd });
+          await client.épingles.épinglerBd({ id: idBd });
 
-          const épingles = await client.épingles!.épingles();
+          const épingles = await client.épingles.épingles();
           expect(isSet(épingles)).to.be.true();
 
           expect(épingles.size).to.equal(1);
           expect(épingles).to.contain(idBd);
         });
         it("Enlever une épingle", async () => {
-          await client.épingles!.désépinglerBd({ id: idBd });
+          await client.épingles.désépinglerBd({ id: idBd });
 
-          const épingles = await client.épingles!.épingles();
+          const épingles = await client.épingles.épingles();
           expect(isSet(épingles)).to.be.true();
           expect([...épingles]).to.not.contain(idBd);
         });
@@ -75,14 +75,14 @@ typesClients.forEach((type) => {
         const épingles = new utilsTestAttente.AttendreRésultat<Set<string>>();
 
         before(async () => {
-          await client.épingles!.toutDésépingler();
+          await client.épingles.toutDésépingler();
 
           idBdDic = await client!.créerBdIndépendante({ type: "keyvalue" });
           idBdListe = await client!.créerBdIndépendante({ type: "set" });
 
           idBdDic2 = await client!.créerBdIndépendante({ type: "keyvalue" });
           idBdAutre = await client!.créerBdIndépendante({ type: "keyvalue" });
-          fOublierÉpingles = await client.épingles!.suivreÉpingles({
+          fOublierÉpingles = await client.épingles.suivreÉpingles({
             f: (x) => épingles.mettreÀJour(x),
           });
         });
@@ -93,7 +93,7 @@ typesClients.forEach((type) => {
         });
 
         it("Épingler liste récursive", async () => {
-          await client.épingles!.épinglerBd({ id: idBdListe, récursif: true });
+          await client.épingles.épinglerBd({ id: idBdListe, récursif: true });
 
           const { bd, fOublier } = await client.orbite!.ouvrirBd({
             id: idBdListe,
@@ -109,13 +109,13 @@ typesClients.forEach((type) => {
         });
 
         it("Désépingler liste récursive", async () => {
-          await client.épingles!.désépinglerBd({ id: idBdListe });
-          const val = await client.épingles!.épingles();
+          await client.épingles.désépinglerBd({ id: idBdListe });
+          const val = await client.épingles.épingles();
           expect([...val]).to.not.have.members([idBdListe, idBdAutre]);
         });
 
         it("Épingler dic récursif", async () => {
-          await client.épingles!.épinglerBd({ id: idBdDic, récursif: true });
+          await client.épingles.épinglerBd({ id: idBdDic, récursif: true });
 
           const { bd, fOublier } = await client.orbite!.ouvrirBd({
             id: idBdDic,
@@ -138,16 +138,16 @@ typesClients.forEach((type) => {
         });
 
         it("Désépingler dic récursif", async () => {
-          await client.épingles!.désépinglerBd({ id: idBdDic });
+          await client.épingles.désépinglerBd({ id: idBdDic });
 
           const val = await épingles.attendreQue((é) => é.size < 3);
           expect([...val]).to.not.have.members([idBdDic, idBdAutre]);
         });
 
         it("BD ajoutée individuellement est toujours là", async () => {
-          await client.épingles!.épinglerBd({ id: idBdDic, récursif: true });
-          await client.épingles!.épinglerBd({ id: idBdAutre, récursif: true });
-          await client.épingles!.désépinglerBd({ id: idBdDic });
+          await client.épingles.épinglerBd({ id: idBdDic, récursif: true });
+          await client.épingles.épinglerBd({ id: idBdAutre, récursif: true });
+          await client.épingles.désépinglerBd({ id: idBdDic });
 
           const val = await épingles.attendreQue((é) => !é.has(idBdDic));
           expect([...val]).to.not.contain(idBdDic);
@@ -164,7 +164,7 @@ typesClients.forEach((type) => {
         const idc2 = "QmRZycUKy3MnRKRxkLu8jTzBEVHZovsYcbhdiwLQ221eBP";
 
         before(async () => {
-          await client.épingles!.toutDésépingler();
+          await client.épingles.toutDésépingler();
 
           idBd = await client.créerBdIndépendante({ type: "keyvalue" });
           idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
@@ -172,7 +172,7 @@ typesClients.forEach((type) => {
         });
 
         it("Fichier non épinglé", async () => {
-          expect(await client.épingles!.épinglée({ id: idc })).to.be.false();
+          expect(await client.épingles.épinglée({ id: idc })).to.be.false();
         });
 
         it("Fichier épinglé", async () => {
@@ -192,29 +192,29 @@ typesClients.forEach((type) => {
           await bd2.set("clef2", idc2);
           fOublier2();
 
-          await client.épingles!.épinglerBd({ id: idBd });
-          await client.épingles!.épinglerBd({ id: idBd2 });
+          await client.épingles.épinglerBd({ id: idBd });
+          await client.épingles.épinglerBd({ id: idBd2 });
 
-          expect(await client.épingles!.épinglée({ id: idc }));
-          expect(await client.épingles!.épinglée({ id: idc2 }));
+          expect(await client.épingles.épinglée({ id: idc }));
+          expect(await client.épingles.épinglée({ id: idc2 }));
         });
 
         it("Fichier désépinglé", async () => {
-          await client.épingles!.désépinglerBd({ id: idBd });
+          await client.épingles.désépinglerBd({ id: idBd });
 
-          expect(await client.épingles!.épinglée({ id: idc })).to.be.false();
+          expect(await client.épingles.épinglée({ id: idc })).to.be.false();
         });
 
         it("Fichier toujours épinglé si présent dans une autre BD", async () => {
-          expect(await client.épingles!.épinglée({ id: idc2 }));
+          expect(await client.épingles.épinglée({ id: idc2 }));
 
-          await client.épingles!.désépinglerBd({ id: idBd2 });
+          await client.épingles.désépinglerBd({ id: idBd2 });
 
-          expect(await client.épingles!.épinglée({ id: idc2 })).to.be.false();
+          expect(await client.épingles.épinglée({ id: idc2 })).to.be.false();
         });
 
         it("Fichier épinglé dans BD récursive", async () => {
-          await client.épingles!.épinglerBd({ id: idBdListe });
+          await client.épingles.épinglerBd({ id: idBdListe });
 
           const { bd, fOublier } = await client.orbite!.ouvrirBd({
             id: idBdListe,
@@ -224,13 +224,13 @@ typesClients.forEach((type) => {
           await fOublier();
 
           await new Promise((resolve) => setTimeout(resolve, 100));
-          expect(await client.épingles!.épinglée({ id: idc }));
+          expect(await client.épingles.épinglée({ id: idc }));
         });
 
         it("Fichier désépinglé dans BD récursive", async () => {
-          await client.épingles!.désépinglerBd({ id: idBdListe });
+          await client.épingles.désépinglerBd({ id: idBdListe });
 
-          expect(await client.épingles!.épinglée({ id: idc })).to.be.false();
+          expect(await client.épingles.épinglée({ id: idc })).to.be.false();
         });
       });
     });

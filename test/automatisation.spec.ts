@@ -183,25 +183,25 @@ typesClients.forEach((type) => {
 
           idTableau = await client.bds.ajouterTableauBd({ idBd });
 
-          const idVar1 = await client.variables!.créerVariable({
+          const idVar1 = await client.variables.créerVariable({
             catégorie: "numérique",
           });
 
-          const idVar2 = await client.variables!.créerVariable({
+          const idVar2 = await client.variables.créerVariable({
             catégorie: "chaîneNonTraductible",
           });
 
-          idCol1 = await client.tableaux!.ajouterColonneTableau({
+          idCol1 = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVar1,
           });
-          idCol2 = await client.tableaux!.ajouterColonneTableau({
+          idCol2 = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVar2,
           });
 
           fsOublier.push(
-            await client.tableaux!.suivreDonnées({
+            await client.tableaux.suivreDonnées({
               idTableau,
               f: (données) => rés.mettreÀJour(données),
             }),
@@ -245,12 +245,12 @@ typesClients.forEach((type) => {
           };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
             });
           fOublierAuto = async () =>
-            await client.automatisations!.annulerAutomatisation({
+            await client.automatisations.annulerAutomatisation({
               id: idAuto,
             });
 
@@ -295,12 +295,12 @@ typesClients.forEach((type) => {
             };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
             });
           fOublierAuto = async () =>
-            await client.automatisations!.annulerAutomatisation({ id: idAuto });
+            await client.automatisations.annulerAutomatisation({ id: idAuto });
 
           const val = await rés.attendreQue((x) => !!(x && x.length === 3));
 
@@ -341,7 +341,7 @@ typesClients.forEach((type) => {
             };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
               fréquence: {
@@ -350,7 +350,7 @@ typesClients.forEach((type) => {
               },
             });
           fOublierAuto = async () =>
-            await client.automatisations!.annulerAutomatisation({ id: idAuto });
+            await client.automatisations.annulerAutomatisation({ id: idAuto });
 
           const val = await rés.attendreQue((x) => x.length >= 10);
 
@@ -396,7 +396,7 @@ typesClients.forEach((type) => {
           };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
               fréquence: {
@@ -405,7 +405,7 @@ typesClients.forEach((type) => {
               },
             });
           fOublierAuto = async () =>
-            await client.automatisations!.annulerAutomatisation({ id: idAuto });
+            await client.automatisations.annulerAutomatisation({ id: idAuto });
 
           const val = await rés.attendreQue((x) => !!(x && x.length >= 8));
 
@@ -453,12 +453,12 @@ typesClients.forEach((type) => {
           };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
             });
           fOublierAuto = async () =>
-            await client.automatisations!.annulerAutomatisation({
+            await client.automatisations.annulerAutomatisation({
               id: idAuto,
             });
 
@@ -504,7 +504,7 @@ typesClients.forEach((type) => {
           };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
               fréquence: {
@@ -513,7 +513,7 @@ typesClients.forEach((type) => {
               },
             });
           fOublierAuto = async () =>
-            await client.automatisations!.annulerAutomatisation({
+            await client.automatisations.annulerAutomatisation({
               id: idAuto,
             });
           await rés.attendreQue((x) => x?.length === 3);
@@ -560,36 +560,36 @@ typesClients.forEach((type) => {
           });
 
           idTableau = await client.bds.ajouterTableauBd({ idBd });
-          await client.tableaux!.sauvegarderNomsTableau({
+          await client.tableaux.sauvegarderNomsTableau({
             idTableau,
             noms: {
               fr: "météo",
             },
           });
 
-          idVariable = await client.variables!.créerVariable({
+          idVariable = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          idCol = await client.tableaux!.ajouterColonneTableau({
+          idCol = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable,
           });
-          await client.variables!.sauvegarderNomsVariable({
+          await client.variables.sauvegarderNomsVariable({
             idVariable,
             noms: {
               fr: "précipitation",
             },
           });
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: {
               [idCol]: 3,
             },
           });
 
-          idProjet = await client.projets!.créerProjet();
-          await client.projets!.ajouterBdProjet({ idProjet, idBd });
-          await client.projets!.sauvegarderNomsProjet({
+          idProjet = await client.projets.créerProjet();
+          await client.projets.ajouterBdProjet({ idProjet, idBd });
+          await client.projets.sauvegarderNomsProjet({
             idProjet,
             noms: {
               fr: "Mon projet",
@@ -602,14 +602,14 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>,
             ) =>
-              await client.automatisations!.suivreAutomatisations({
+              await client.automatisations.suivreAutomatisations({
                 f: fSuivi,
               }),
           );
           await Promise.all(
             automatisations.map(
               async (a) =>
-                await client.automatisations!.annulerAutomatisation({
+                await client.automatisations.annulerAutomatisation({
                   id: a.id,
                 }),
             ),
@@ -626,7 +626,7 @@ typesClients.forEach((type) => {
           const attendreExiste = attente.attendre();
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idTableau,
               typeObjet: "tableau",
               formatDoc: "ods",
@@ -638,7 +638,7 @@ typesClients.forEach((type) => {
           await attendreExiste;
           vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
 
-          await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          await client.automatisations.annulerAutomatisation({ id: idAuto });
         });
 
         it("Exportation BD", async function () {
@@ -650,7 +650,7 @@ typesClients.forEach((type) => {
           fsOublier.push(() => attente.annuler());
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idBd,
               typeObjet: "bd",
               formatDoc: "ods",
@@ -661,7 +661,7 @@ typesClients.forEach((type) => {
 
           await attendreExiste;
           vérifierDonnéesBd(fichier, { météo: [{ précipitation: 3 }] });
-          await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          await client.automatisations.annulerAutomatisation({ id: idAuto });
         });
 
         it("Exportation projet", async function () {
@@ -673,7 +673,7 @@ typesClients.forEach((type) => {
           fsOublier.push(() => attente.annuler());
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idProjet,
               typeObjet: "projet",
               formatDoc: "ods",
@@ -688,7 +688,7 @@ typesClients.forEach((type) => {
             },
           });
 
-          await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          await client.automatisations.annulerAutomatisation({ id: idAuto });
         });
 
         it("Exportation selon changements", async function () {
@@ -700,7 +700,7 @@ typesClients.forEach((type) => {
           fsOublier.push(() => attente.annuler());
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idBd,
               typeObjet: "bd",
               formatDoc: "ods",
@@ -720,7 +720,7 @@ typesClients.forEach((type) => {
             const doc = XLSX.readFile(fichier);
             return utils.sheet_to_json(doc.Sheets["météo"]).length >= 2;
           });
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 5 },
           });
@@ -729,7 +729,7 @@ typesClients.forEach((type) => {
           vérifierDonnéesBd(fichier, {
             météo: [{ précipitation: 3 }, { précipitation: 5 }],
           });
-          await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          await client.automatisations.annulerAutomatisation({ id: idAuto });
         });
 
         it("Exportation selon fréquence", async function () {
@@ -741,7 +741,7 @@ typesClients.forEach((type) => {
           fsOublier.push(() => attente.annuler());
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idBd,
               typeObjet: "bd",
               formatDoc: "ods",
@@ -763,7 +763,7 @@ typesClients.forEach((type) => {
           fsOublier.push(() => attenteModifié.annuler());
           const modifié = attenteModifié.attendre(avantAjout);
 
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 7 },
           });
@@ -773,7 +773,7 @@ typesClients.forEach((type) => {
           const après = Date.now();
           expect(après - avantAttente).to.be.greaterThanOrEqual(0.3 * 1000);
 
-          await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          await client.automatisations.annulerAutomatisation({ id: idAuto });
         });
       });
 
@@ -792,33 +792,33 @@ typesClients.forEach((type) => {
             base: baseDossierTempo,
             nom: "testExporterBd",
           });
-          idNuée = await client.nuées!.créerNuée({});
-          await client.nuées!.sauvegarderNomsNuée({
+          idNuée = await client.nuées.créerNuée({});
+          await client.nuées.sauvegarderNomsNuée({
             idNuée,
             noms: { fr: "Science citoyenne" },
           });
-          const idTableau = await client.nuées!.ajouterTableauNuée({
+          const idTableau = await client.nuées.ajouterTableauNuée({
             idNuée,
             clefTableau,
           });
-          await client.tableaux?.sauvegarderNomTableau({
+          await client.tableaux.sauvegarderNomTableau({
             idTableau,
             langue: "fr",
             nom: "météo",
           });
-          const idVariable = await client.variables!.créerVariable({
+          const idVariable = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          await client.variables!.sauvegarderNomVariable({
+          await client.variables.sauvegarderNomVariable({
             idVariable,
             langue: "fr",
             nom: "Précipitation",
           });
-          idColonneNumérique = await client.nuées!.ajouterColonneTableauNuée({
+          idColonneNumérique = await client.nuées.ajouterColonneTableauNuée({
             idTableau,
             idVariable,
           });
-          const schéma = await client.nuées!.générerSchémaBdNuée({
+          const schéma = await client.nuées.générerSchémaBdNuée({
             idNuée,
             licence: "ODbl-1_0",
           });
@@ -838,7 +838,7 @@ typesClients.forEach((type) => {
           const attendreExiste = attente.attendre();
           fsOublier.push(() => attente.annuler());
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idNuée,
               typeObjet: "nuée",
               formatDoc: "ods",
@@ -871,7 +871,7 @@ typesClients.forEach((type) => {
             météo: [{ Précipitation: 123, auteur: await client.obtIdCompte() }],
           });
 
-          await client.automatisations!.annulerAutomatisation({ id: idAuto });
+          await client.automatisations.annulerAutomatisation({ id: idAuto });
         });
       });
 
@@ -898,14 +898,14 @@ typesClients.forEach((type) => {
           });
 
           fsOublier.push(
-            await client.automatisations!.suivreÉtatAutomatisations({
+            await client.automatisations.suivreÉtatAutomatisations({
               f: (états) => {
                 résÉtats.mettreÀJour(états);
               },
             }),
           );
           fsOublier.push(
-            await client.automatisations!.suivreAutomatisations({
+            await client.automatisations.suivreAutomatisations({
               f: (autos) => résAutos.mettreÀJour(autos),
             }),
           );
@@ -917,27 +917,27 @@ typesClients.forEach((type) => {
           });
 
           idTableau = await client.bds.ajouterTableauBd({ idBd });
-          await client.tableaux!.sauvegarderNomsTableau({
+          await client.tableaux.sauvegarderNomsTableau({
             idTableau,
             noms: {
               fr: "météo",
             },
           });
 
-          idVariable = await client.variables!.créerVariable({
+          idVariable = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          idCol = await client.tableaux!.ajouterColonneTableau({
+          idCol = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable,
           });
-          await client.variables!.sauvegarderNomsVariable({
+          await client.variables.sauvegarderNomsVariable({
             idVariable,
             noms: {
               fr: "précipitation",
             },
           });
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: {
               [idCol]: 3,
@@ -954,14 +954,14 @@ typesClients.forEach((type) => {
             async (
               fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>,
             ) =>
-              await client.automatisations!.suivreAutomatisations({
+              await client.automatisations.suivreAutomatisations({
                 f: fSuivi,
               }),
           );
           await Promise.all(
             automatisations.map(
               async (a) =>
-                await client.automatisations!.annulerAutomatisation({
+                await client.automatisations.annulerAutomatisation({
                   id: a.id,
                 }),
             ),
@@ -977,7 +977,7 @@ typesClients.forEach((type) => {
             );
           fsOublier.push(() => attendreFichierExiste.annuler());
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idBd,
               typeObjet: "bd",
               formatDoc: "ods",
@@ -996,7 +996,7 @@ typesClients.forEach((type) => {
           const attendre = résÉtats.attendreQue(
             (x) => !!(x && x[idAuto]?.type === "sync"),
           );
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: { [idCol]: 4 },
           });
@@ -1016,7 +1016,7 @@ typesClients.forEach((type) => {
           fsOublier.push(() => attendreFichierExiste.annuler());
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idBd,
               typeObjet: "bd",
               formatDoc: "ods",
@@ -1047,7 +1047,7 @@ typesClients.forEach((type) => {
           const avant = Date.now();
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationExporter({
+            await client.automatisations.ajouterAutomatisationExporter({
               id: idBd,
               typeObjet: "bd",
               // @ts-expect-error: on fait une erreur par exprès !
@@ -1098,12 +1098,12 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fsOublier.push(
-            await client.automatisations!.suivreÉtatAutomatisations({
+            await client.automatisations.suivreÉtatAutomatisations({
               f: (états) => résÉtats.mettreÀJour(états),
             }),
           );
           fsOublier.push(
-            await client.automatisations!.suivreAutomatisations({
+            await client.automatisations.suivreAutomatisations({
               f: (autos) => résAutos.mettreÀJour(autos),
             }),
           );
@@ -1114,19 +1114,19 @@ typesClients.forEach((type) => {
           });
 
           const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-          idTableau = await client.tableaux!.créerTableau({ idBd });
-          const idVar1 = await client.variables!.créerVariable({
+          idTableau = await client.tableaux.créerTableau({ idBd });
+          const idVar1 = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          const idVar2 = await client.variables!.créerVariable({
+          const idVar2 = await client.variables.créerVariable({
             catégorie: "chaîneNonTraductible",
           });
 
-          idCol1 = await client.tableaux!.ajouterColonneTableau({
+          idCol1 = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVar1,
           });
-          idCol2 = await client.tableaux!.ajouterColonneTableau({
+          idCol2 = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVar2,
           });
@@ -1167,7 +1167,7 @@ typesClients.forEach((type) => {
           };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
             });
@@ -1223,7 +1223,7 @@ typesClients.forEach((type) => {
           };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
               fréquence: {
@@ -1275,7 +1275,7 @@ typesClients.forEach((type) => {
           };
 
           const idAuto =
-            await client.automatisations!.ajouterAutomatisationImporter({
+            await client.automatisations.ajouterAutomatisationImporter({
               idTableau,
               source,
               fréquence: {

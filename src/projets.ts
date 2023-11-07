@@ -36,8 +36,8 @@ const schémaStuctureBdsDeProjet: JSONSchemaType<string> = { type: "string" };
 
 export interface donnéesProjetExportation {
   nomProjet: string;
-  bds: donnéesBdExportation[]
-};
+  bds: donnéesBdExportation[];
+}
 export interface donnéesProjetExportées {
   docs: { doc: WorkBook; nom: string }[];
   fichiersSFIP: Set<string>;
@@ -93,7 +93,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async épingler() {
-    await this.client.épingles?.épinglerBd({
+    await this.client.épingles.épinglerBd({
       id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
@@ -116,7 +116,7 @@ export default class Projets extends ComposanteClientListe<string> {
 
   async créerProjet(): Promise<string> {
     const { bd: bdRacine, fOublier: fOublierRacine } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: await this.obtIdBd(),
         type: "set",
         schéma: schémaBdPrincipale,
@@ -125,12 +125,12 @@ export default class Projets extends ComposanteClientListe<string> {
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        write: this.client.bdCompte!.address,
+        write: await this.client.obtIdCompte(),
       },
     });
 
     const { bd: bdProjet, fOublier: fOublierProjet } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idBdProjet,
         type: "keyvalue",
         schéma: schémaStructureBdProjet,
@@ -179,14 +179,14 @@ export default class Projets extends ComposanteClientListe<string> {
 
   async copierProjet({ idProjet }: { idProjet: string }): Promise<string> {
     const { bd: bdBase, fOublier: fOublierBase } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idProjet,
         type: "keyvalue",
         schéma: schémaStructureBdProjet,
       });
     const idNouveauProjet = await this.créerProjet();
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idNouveauProjet,
         type: "keyvalue",
         schéma: schémaStructureBdProjet,
@@ -195,7 +195,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const idBdNoms = await bdBase.get("noms");
     if (idBdNoms) {
       const { bd: bdNoms, fOublier: fOublierNoms } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdNoms,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -208,7 +208,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const idBdDescr = await bdBase.get("descriptions");
     if (idBdDescr) {
       const { bd: bdDescr, fOublier: fOublierDescr } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdDescr,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -224,7 +224,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const idBdMotsClefs = await bdBase.get("motsClefs");
     if (idBdMotsClefs) {
       const { bd: bdMotsClefs, fOublier: fOublierMotsClefs } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdMotsClefs,
           type: "set",
           schéma: schémaStructureBdMotsClefsdeProjet,
@@ -240,7 +240,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const idBdBds = await bdBase.get("bds");
     if (idBdBds) {
       const { bd: bdBds, fOublier: fOublierBds } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdBds,
           type: "set",
           schéma: schémaStuctureBdsDeProjet,
@@ -269,7 +269,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async ajouterÀMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBdTypée({
       id: await this.obtIdBd(),
       type: "set",
       schéma: schémaBdPrincipale,
@@ -279,7 +279,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async enleverDeMesProjets({ idProjet }: { idProjet: string }): Promise<void> {
-    const { bd: bdRacine, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdRacine, fOublier } = await this.client.ouvrirBdTypée({
       id: await this.obtIdBd(),
       type: "set",
       schéma: schémaBdPrincipale,
@@ -319,7 +319,7 @@ export default class Projets extends ComposanteClientListe<string> {
       );
     }
 
-    return await this.client.orbite!.ouvrirBdTypée({
+    return await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -381,7 +381,7 @@ export default class Projets extends ComposanteClientListe<string> {
       );
     }
 
-    return await this.client.orbite!.ouvrirBdTypée({
+    return await this.client.ouvrirBdTypée({
       id: idBdDescr,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -444,7 +444,7 @@ export default class Projets extends ComposanteClientListe<string> {
       );
     }
 
-    return await this.client.orbite!.ouvrirBdTypée({
+    return await this.client.ouvrirBdTypée({
       id: idBdMotsClefs,
       type: "set",
       schéma: schémaStructureBdMotsClefsdeProjet,
@@ -504,7 +504,7 @@ export default class Projets extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Projet ${idProjet}.`,
       );
 
-    return await this.client.orbite!.ouvrirBdTypée({
+    return await this.client.ouvrirBdTypée({
       id: idBdBds,
       type: "set",
       schéma: schémaStructureBdMotsClefsdeProjet,
@@ -544,7 +544,7 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet: string;
     idNouvelle?: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
@@ -560,7 +560,7 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet: string;
     statut: schémaStatut;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
@@ -570,7 +570,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async marquerActif({ idProjet }: { idProjet: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
@@ -580,7 +580,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async marquerBêta({ idProjet }: { idProjet: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
@@ -590,7 +590,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async marquerInterne({ idProjet }: { idProjet: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
@@ -620,7 +620,7 @@ export default class Projets extends ComposanteClientListe<string> {
       contenu = image;
     }
     const idImage = await this.client.ajouterÀSFIP({ fichier: contenu });
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
@@ -630,7 +630,7 @@ export default class Projets extends ComposanteClientListe<string> {
   }
 
   async effacerImage({ idProjet }: { idProjet: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
@@ -744,7 +744,7 @@ export default class Projets extends ComposanteClientListe<string> {
       idBd: string,
       fSuivi: schémaFonctionSuivi<string[]>,
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds!.suivreMotsClefsBd({ idBd, f: fSuivi });
+      return await this.client.bds.suivreMotsClefsBd({ idBd, f: fSuivi });
     };
     const fOublierMotsClefsBds = await this.client.suivreBdsDeFonctionListe({
       fListe,
@@ -789,7 +789,7 @@ export default class Projets extends ComposanteClientListe<string> {
       idBd: string,
       f: schémaFonctionSuivi<string[]>,
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds!.suivreVariablesBd({ idBd, f });
+      return await this.client.bds.suivreVariablesBd({ idBd, f });
     };
     const fSuivreBds = async ({
       id,
@@ -836,7 +836,7 @@ export default class Projets extends ComposanteClientListe<string> {
       idBd: string,
       fSuiviBranche: schémaFonctionSuivi<number>,
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds!.suivreQualitéBd({
+      return await this.client.bds.suivreQualitéBd({
         idBd,
         f: (score) => fSuiviBranche(score.total),
       });
@@ -886,9 +886,7 @@ export default class Projets extends ComposanteClientListe<string> {
       fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
         return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
       },
-      f: async (
-        données: donnéesBdExportation[],
-      ) => {
+      f: async (données: donnéesBdExportation[]) => {
         info.données = données;
         await fFinale();
       },
@@ -896,11 +894,11 @@ export default class Projets extends ComposanteClientListe<string> {
         id: string,
         fSuivreBranche: schémaFonctionSuivi<donnéesBdExportation>,
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreDonnéesExportation({
+        return await this.client.bds.suivreDonnéesExportation({
           idBd: id,
           langues,
           f: fSuivreBranche,
-        });   
+        });
       },
     });
     fsOublier.push(fOublierDonnées);
@@ -940,29 +938,33 @@ export default class Projets extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
-      attendreStabilité(1000)
+      attendreStabilité(1000),
     );
 
     nomFichier = nomFichier || données.nomProjet;
 
     const fichiersSFIP = new Set<string>();
-    données.bds.forEach(bd=>{
-      bd.tableaux.forEach(
-        t => t.fichiersSFIP.forEach(x=>fichiersSFIP.add(x))
-      )
+    données.bds.forEach((bd) => {
+      bd.tableaux.forEach((t) =>
+        t.fichiersSFIP.forEach((x) => fichiersSFIP.add(x)),
+      );
     });
 
     return {
-      docs: données.bds.map(donnéesBd => {
+      docs: données.bds.map((donnéesBd) => {
         const doc = utils.book_new();
         for (const tableau of donnéesBd.tableaux) {
           /* Créer le tableau */
           const tableauXLSX = utils.json_to_sheet(tableau.données);
-      
+
           /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-          utils.book_append_sheet(doc, tableauXLSX, tableau.nomTableau.slice(0, 30));
+          utils.book_append_sheet(
+            doc,
+            tableauXLSX,
+            tableau.nomTableau.slice(0, 30),
+          );
         }
-        return { doc, nom: donnéesBd.nomBd }
+        return { doc, nom: donnéesBd.nomBd };
       }),
       fichiersSFIP,
       nomFichier,

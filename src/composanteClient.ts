@@ -41,9 +41,10 @@ export class ComposanteClient {
   }
 
   async obtIdBd(): Promise<string> {
+    const { idCompte } = await this.client.attendreInitialisée();
     const idBd = await this.client.obtIdBd({
       nom: this.clef,
-      racine: this.client.bdCompte!,
+      racine: idCompte,
       type: this.typeBd,
     });
     if (!idBd) throw new Error("Mal initialisé");
@@ -79,7 +80,7 @@ export class ComposanteClientDic<
   }> {
     const id = await this.obtIdBd();
 
-    return await this.client.orbite!.ouvrirBdTypée({
+    return await this.client.ouvrirBdTypée({
       id,
       type: "keyvalue",
       schéma: this.schémaBdPrincipale,
@@ -230,7 +231,7 @@ export class ComposanteClientListe<
   }> {
     const id = await this.obtIdBd();
 
-    return await this.client.orbite!.ouvrirBdTypée({
+    return await this.client.ouvrirBdTypée({
       id,
       type: "set",
       schéma: this.schémaBdPrincipale,

@@ -66,7 +66,7 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          idTableau = await client.tableaux!.créerTableau({ idBd });
+          idTableau = await client.tableaux.créerTableau({ idBd });
           fsOublier.push(
             await client.suivrePermissionÉcrire({
               id: idTableau,
@@ -90,7 +90,7 @@ typesClients.forEach((type) => {
         const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
 
         before(async () => {
-          fOublier = await client.tableaux!.suivreNomsTableau({
+          fOublier = await client.tableaux.suivreNomsTableau({
             idTableau,
             f: (n) => noms.mettreÀJour(n),
           });
@@ -106,7 +106,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter un nom", async () => {
-          await client.tableaux!.sauvegarderNomTableau({
+          await client.tableaux.sauvegarderNomTableau({
             idTableau,
             langue: "fr",
             nom: "Alphabets",
@@ -116,7 +116,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.tableaux!.sauvegarderNomsTableau({
+          await client.tableaux.sauvegarderNomsTableau({
             idTableau,
             noms: {
               த: "எழுத்துகள்",
@@ -132,7 +132,7 @@ typesClients.forEach((type) => {
         });
 
         it("Changer un nom", async () => {
-          await client.tableaux!.sauvegarderNomTableau({
+          await client.tableaux.sauvegarderNomTableau({
             idTableau,
             langue: "fr",
             nom: "Systèmes d'écriture",
@@ -142,7 +142,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer un nom", async () => {
-          await client.tableaux!.effacerNomTableau({
+          await client.tableaux.effacerNomTableau({
             idTableau,
             langue: "fr",
           });
@@ -163,31 +163,31 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          idTableau = await client.tableaux!.créerTableau({ idBd });
+          idTableau = await client.tableaux.créerTableau({ idBd });
           fsOublier.push(
-            await client.tableaux!.suivreColonnesTableau({
+            await client.tableaux.suivreColonnesTableau({
               idTableau,
               f: (c) => colonnes.mettreÀJour(c),
               catégories: true,
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreVariables({
+            await client.tableaux.suivreVariables({
               idTableau,
               f: (v) => variables.mettreÀJour(v),
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreDonnées({
+            await client.tableaux.suivreDonnées({
               idTableau,
               f: (d) => données.mettreÀJour(d),
             }),
           );
 
-          const idVariable1 = await client.variables!.créerVariable({
+          const idVariable1 = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          const idVariable2 = await client.variables!.créerVariable({
+          const idVariable2 = await client.variables.créerVariable({
             catégorie: "chaîneNonTraductible",
           });
           idsVariables = [idVariable1, idVariable2];
@@ -211,7 +211,7 @@ typesClients.forEach((type) => {
         it("Ajouter colonnes", async () => {
           for (const idV of idsVariables) {
             idsColonnes.push(
-              await client.tableaux!.ajouterColonneTableau({
+              await client.tableaux.ajouterColonneTableau({
                 idTableau,
                 idVariable: idV,
               }),
@@ -233,7 +233,7 @@ typesClients.forEach((type) => {
             [idsColonnes[0]]: 123.456,
             [idsColonnes[1]]: "வணக்கம்",
           };
-          await client.tableaux!.ajouterÉlément({ idTableau, vals: élément });
+          await client.tableaux.ajouterÉlément({ idTableau, vals: élément });
 
           const valDonnées = await données.attendreQue((x) => x.length > 0);
           expect(Array.isArray(valDonnées)).to.be.true();
@@ -250,7 +250,7 @@ typesClients.forEach((type) => {
           let valDonnées = await données.attendreExiste();
           const élémentDonnées = valDonnées[0];
 
-          await client.tableaux!.modifierÉlément({
+          await client.tableaux.modifierÉlément({
             idTableau,
             vals: { [idsColonnes[0]]: -123 },
             idÉlément: élémentDonnées.id,
@@ -270,7 +270,7 @@ typesClients.forEach((type) => {
           let valDonnées = await données.attendreExiste();
           const élémentDonnées = valDonnées[0];
 
-          await client.tableaux!.modifierÉlément({
+          await client.tableaux.modifierÉlément({
             idTableau,
             vals: { [idsColonnes[0]]: undefined },
             idÉlément: élémentDonnées.id,
@@ -289,7 +289,7 @@ typesClients.forEach((type) => {
           let valDonnées = await données.attendreExiste();
           const élémentDonnées = valDonnées[0];
 
-          await client.tableaux!.modifierÉlément({
+          await client.tableaux.modifierÉlément({
             idTableau,
             vals: { [idsColonnes[0]]: 123 },
             idÉlément: élémentDonnées.id,
@@ -306,7 +306,7 @@ typesClients.forEach((type) => {
           let valDonnées = await données.attendreExiste();
           const élémentDonnées = valDonnées[0];
 
-          await client.tableaux!.effacerÉlément({
+          await client.tableaux.effacerÉlément({
             idTableau,
             idÉlément: élémentDonnées.id,
           });
@@ -316,7 +316,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer une colonne", async () => {
-          await client.tableaux!.effacerColonneTableau({
+          await client.tableaux.effacerColonneTableau({
             idTableau,
             idColonne: idsColonnes[0],
           });
@@ -335,7 +335,7 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
 
         before(async () => {
-          fOublier = await client.tableaux!.suivreIndex({
+          fOublier = await client.tableaux.suivreIndex({
             idTableau,
             f: (x) => indexes.mettreÀJour(x),
           });
@@ -353,7 +353,7 @@ typesClients.forEach((type) => {
         it("Ajouter un index", async () => {
           const valColonnes = await colonnes.attendreExiste();
 
-          await client.tableaux!.changerColIndex({
+          await client.tableaux.changerColIndex({
             idTableau,
             idColonne: valColonnes[0].id,
             val: true,
@@ -366,7 +366,7 @@ typesClients.forEach((type) => {
         it("Effacer l'index", async () => {
           const valColonnes = await colonnes.attendreExiste();
 
-          await client.tableaux!.changerColIndex({
+          await client.tableaux.changerColIndex({
             idTableau,
             idColonne: valColonnes[0].id,
             val: false,
@@ -397,32 +397,32 @@ typesClients.forEach((type) => {
         let fsOublier: schémaFonctionOublier[] = [];
 
         beforeEach(async () => {
-          idTableauRègles = await client.tableaux!.créerTableau({ idBd });
+          idTableauRègles = await client.tableaux.créerTableau({ idBd });
           fsOublier.push(
-            await client.tableaux!.suivreRègles({
+            await client.tableaux.suivreRègles({
               idTableau: idTableauRègles,
               f: (r) => résRègles.mettreÀJour(r),
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreValidDonnées({
+            await client.tableaux.suivreValidDonnées({
               idTableau: idTableauRègles,
               f: (e) => résErreurs.mettreÀJour(e),
             }),
           );
 
-          idVariableNumérique = await client.variables!.créerVariable({
+          idVariableNumérique = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          idVariableChaîne = await client.variables!.créerVariable({
+          idVariableChaîne = await client.variables.créerVariable({
             catégorie: "chaîneNonTraductible",
           });
 
-          idColonneNumérique = await client.tableaux!.ajouterColonneTableau({
+          idColonneNumérique = await client.tableaux.ajouterColonneTableau({
             idTableau: idTableauRègles,
             idVariable: idVariableNumérique,
           });
-          idColonneChaîne = await client.tableaux!.ajouterColonneTableau({
+          idColonneChaîne = await client.tableaux.ajouterColonneTableau({
             idTableau: idTableauRègles,
             idVariable: idVariableChaîne,
           });
@@ -452,7 +452,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des données valides", async () => {
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneChaîne]: "abc",
@@ -466,7 +466,7 @@ typesClients.forEach((type) => {
 
         it("Ajouter des données de catégorie invalide", async () => {
           const id = (
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableauRègles,
               vals: {
                 [idColonneChaîne]: 123,
@@ -491,7 +491,7 @@ typesClients.forEach((type) => {
               op: "<",
             },
           };
-          idRègle = await client.tableaux!.ajouterRègleTableau({
+          idRègle = await client.tableaux.ajouterRègleTableau({
             idTableau: idTableauRègles,
             idColonne: idColonneNumérique,
             règle,
@@ -515,7 +515,7 @@ typesClients.forEach((type) => {
               op: "<",
             },
           };
-          idRègle = await client.variables!.ajouterRègleVariable({
+          idRègle = await client.variables.ajouterRègleVariable({
             idVariable: idVariableNumérique,
             règle,
           });
@@ -533,13 +533,13 @@ typesClients.forEach((type) => {
               op: "<",
             },
           };
-          idRègle = await client.tableaux!.ajouterRègleTableau({
+          idRègle = await client.tableaux.ajouterRègleTableau({
             idTableau: idTableauRègles,
             idColonne: idColonneNumérique,
             règle,
           });
 
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneNumérique]: 123,
@@ -560,12 +560,12 @@ typesClients.forEach((type) => {
               op: "<",
             },
           };
-          idRègle = await client.variables!.ajouterRègleVariable({
+          idRègle = await client.variables.ajouterRègleVariable({
             idVariable: idVariableNumérique,
             règle,
           });
 
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneNumérique]: 123,
@@ -585,11 +585,11 @@ typesClients.forEach((type) => {
               op: "<",
             },
           };
-          idRègle = await client.variables!.ajouterRègleVariable({
+          idRègle = await client.variables.ajouterRègleVariable({
             idVariable: idVariableNumérique,
             règle,
           });
-          await client.tableaux!.effacerRègleTableau({
+          await client.tableaux.effacerRègleTableau({
             idTableau: idTableauRègles,
             idRègle,
           });
@@ -607,19 +607,19 @@ typesClients.forEach((type) => {
               op: "<",
             },
           };
-          idRègle = await client.tableaux!.ajouterRègleTableau({
+          idRègle = await client.tableaux.ajouterRègleTableau({
             idTableau: idTableauRègles,
             idColonne: idColonneNumérique,
             règle,
           });
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneNumérique]: 123,
             },
           });
 
-          await client.tableaux!.effacerRègleTableau({
+          await client.tableaux.effacerRègleTableau({
             idTableau: idTableauRègles,
             idRègle,
           });
@@ -642,11 +642,11 @@ typesClients.forEach((type) => {
               op: "<",
             },
           };
-          idRègle = await client.variables!.ajouterRègleVariable({
+          idRègle = await client.variables.ajouterRègleVariable({
             idVariable: idVariableNumérique,
             règle,
           });
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneNumérique]: 123,
@@ -659,7 +659,7 @@ typesClients.forEach((type) => {
           expect(valRègles.length).to.equal(3);
           expect(valErreurs.length).to.equal(1);
 
-          await client.variables!.effacerRègleVariable({
+          await client.variables.effacerRègleVariable({
             idVariable: idVariableNumérique,
             idRègle,
           });
@@ -698,38 +698,38 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          idTableauRègles = await client.tableaux!.créerTableau({ idBd });
+          idTableauRègles = await client.tableaux.créerTableau({ idBd });
 
           fsOublier.push(
-            await client.tableaux!.suivreValidDonnées({
+            await client.tableaux.suivreValidDonnées({
               idTableau: idTableauRègles,
               f: (e) => erreursValid.mettreÀJour(e),
             }),
           );
 
           fsOublier.push(
-            await client.tableaux!.suivreValidRègles({
+            await client.tableaux.suivreValidRègles({
               idTableau: idTableauRègles,
               f: (e) => erreursRègles.mettreÀJour(e),
             }),
           );
 
-          idVariableTempMin = await client.variables!.créerVariable({
+          idVariableTempMin = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          idVariableTempMax = await client.variables!.créerVariable({
-            catégorie: "numérique",
-          });
-
-          idVariableTempMoyenne = await client.variables!.créerVariable({
+          idVariableTempMax = await client.variables.créerVariable({
             catégorie: "numérique",
           });
 
-          idColonneTempMin = await client.tableaux!.ajouterColonneTableau({
+          idVariableTempMoyenne = await client.variables.créerVariable({
+            catégorie: "numérique",
+          });
+
+          idColonneTempMin = await client.tableaux.ajouterColonneTableau({
             idTableau: idTableauRègles,
             idVariable: idVariableTempMin,
           });
-          idsDonnées = await client.tableaux!.ajouterÉlément({
+          idsDonnées = await client.tableaux.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: Array.from(Array(10).keys()).map((min) => ({
               [idColonneTempMin]: min,
@@ -753,7 +753,7 @@ typesClients.forEach((type) => {
             },
           };
 
-          idRègle1 = await client.tableaux!.ajouterRègleTableau({
+          idRègle1 = await client.tableaux.ajouterRègleTableau({
             idTableau: idTableauRègles,
             idColonne: idColonneTempMin,
             règle: règle1,
@@ -783,7 +783,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajout colonne réf détectée", async () => {
-          await client.tableaux!.ajouterColonneTableau({
+          await client.tableaux.ajouterColonneTableau({
             idTableau: idTableauRègles,
             idVariable: idVariableTempMax,
             idColonne: idColonneTempMax,
@@ -793,7 +793,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajout éléments colonne réf détecté", async () => {
-          await client.tableaux!.modifierÉlément({
+          await client.tableaux.modifierÉlément({
             idTableau: idTableauRègles,
             vals: { [idColonneTempMax]: -1 },
             idÉlément: idsDonnées[0],
@@ -818,19 +818,17 @@ typesClients.forEach((type) => {
           );
           expect(valErreursValid).to.deep.equal([réf]);
 
-          await client.tableaux!.modifierÉlément({
+          await client.tableaux.modifierÉlément({
             idTableau: idTableauRègles,
             vals: { [idColonneTempMax]: 6 },
             idÉlément: idsDonnées[0],
           });
-          const résValid = await erreursValid.attendreQue(
-            (x) => x.length < 1,
-          );
+          const résValid = await erreursValid.attendreQue((x) => x.length < 1);
           expect(résValid.length).to.equal(0);
         });
 
         it("Ajout éléments valides", async () => {
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau: idTableauRègles,
             vals: {
               [idColonneTempMin]: -15,
@@ -843,7 +841,7 @@ typesClients.forEach((type) => {
 
         it("Ajout éléments invalides", async () => {
           id2 = (
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableauRègles,
               vals: {
                 [idColonneTempMin]: -15,
@@ -881,7 +879,7 @@ typesClients.forEach((type) => {
               op: ">=",
             },
           };
-          idRègle2 = await client.variables!.ajouterRègleVariable({
+          idRègle2 = await client.variables.ajouterRègleVariable({
             idVariable: idVariableTempMax,
             règle: règle2,
           });
@@ -931,7 +929,7 @@ typesClients.forEach((type) => {
             },
           };
 
-          idRègle3 = await client.tableaux!.ajouterRègleTableau({
+          idRègle3 = await client.tableaux.ajouterRègleTableau({
             idTableau: idTableauRègles,
             idColonne: idColonneTempMin,
             règle,
@@ -956,7 +954,7 @@ typesClients.forEach((type) => {
           );
           expect(val1).to.deep.equal(réf);
 
-          await client.tableaux!.ajouterColonneTableau({
+          await client.tableaux.ajouterColonneTableau({
             idTableau: idTableauRègles,
             idVariable: idVariableTempMoyenne,
           });
@@ -980,19 +978,19 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idTableauRègles = await client.tableaux!.créerTableau({ idBd });
+            idTableauRègles = await client.tableaux.créerTableau({ idBd });
 
             fsOublier.push(
-              await client.tableaux!.suivreValidDonnées({
+              await client.tableaux.suivreValidDonnées({
                 idTableau: idTableauRègles,
                 f: (e) => erreurs.mettreÀJour(e),
               }),
             );
 
-            idVariable = await client.variables!.créerVariable({
+            idVariable = await client.variables.créerVariable({
               catégorie: "chaîneNonTraductible",
             });
-            idColonne = await client.tableaux!.ajouterColonneTableau({
+            idColonne = await client.tableaux.ajouterColonneTableau({
               idTableau: idTableauRègles,
               idVariable,
             });
@@ -1002,7 +1000,7 @@ typesClients.forEach((type) => {
               détails: { type: "fixe", options: ["வணக்கம்", "សួស្តើ"] },
             };
 
-            await client.tableaux!.ajouterRègleTableau({
+            await client.tableaux.ajouterRègleTableau({
               idTableau: idTableauRègles,
               idColonne,
               règle: règleCatégorique,
@@ -1015,7 +1013,7 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout éléments valides", async () => {
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableauRègles,
               vals: {
                 [idColonne]: "வணக்கம்",
@@ -1025,7 +1023,7 @@ typesClients.forEach((type) => {
             expect(rés.length).to.equal(0);
           });
           it("Ajout éléments invalides", async () => {
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableauRègles,
               vals: {
                 [idColonne]: "សូស្ដី",
@@ -1058,34 +1056,34 @@ typesClients.forEach((type) => {
           const fsOublier: schémaFonctionOublier[] = [];
 
           before(async () => {
-            idTableauÀTester = await client.tableaux!.créerTableau({ idBd });
+            idTableauÀTester = await client.tableaux.créerTableau({ idBd });
 
             fsOublier.push(
-              await client.tableaux!.suivreValidDonnées({
+              await client.tableaux.suivreValidDonnées({
                 idTableau: idTableauÀTester,
                 f: (e) => erreursValid.mettreÀJour(e),
               }),
             );
 
             fsOublier.push(
-              await client.tableaux!.suivreValidRègles({
+              await client.tableaux.suivreValidRègles({
                 idTableau: idTableauÀTester,
                 f: (e) => erreursRègles.mettreÀJour(e),
               }),
             );
 
-            idVariable = await client.variables!.créerVariable({
+            idVariable = await client.variables.créerVariable({
               catégorie: "chaîneNonTraductible",
             });
-            idVariableRéf = await client.variables!.créerVariable({
+            idVariableRéf = await client.variables.créerVariable({
               catégorie: "chaîneNonTraductible",
             });
-            idColonneÀTester = await client.tableaux!.ajouterColonneTableau({
+            idColonneÀTester = await client.tableaux.ajouterColonneTableau({
               idTableau: idTableauÀTester,
               idVariable,
             });
 
-            idTableauCatégories = await client.tableaux!.créerTableau({
+            idTableauCatégories = await client.tableaux.créerTableau({
               idBd,
             });
 
@@ -1098,7 +1096,7 @@ typesClients.forEach((type) => {
               },
             };
 
-            idRègle = await client.tableaux!.ajouterRègleTableau({
+            idRègle = await client.tableaux.ajouterRègleTableau({
               idTableau: idTableauÀTester,
               idColonne: idColonneÀTester,
               règle: règleCatégorique,
@@ -1133,19 +1131,17 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout colonne réf", async () => {
-            await client.tableaux!.ajouterColonneTableau({
+            await client.tableaux.ajouterColonneTableau({
               idTableau: idTableauCatégories,
               idVariable: idVariableRéf,
               idColonne: idColonneCatégories,
             });
-            const val = await erreursRègles.attendreQue(
-              (x) => x?.length === 0,
-            );
+            const val = await erreursRègles.attendreQue((x) => x?.length === 0);
             expect(val.length).to.equal(0);
           });
 
           it("Ajout éléments colonne réf détecté", async () => {
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableauÀTester,
               vals: {
                 [idColonneÀTester]: "வணக்கம்",
@@ -1155,7 +1151,7 @@ typesClients.forEach((type) => {
             expect(rés.length).to.equal(1);
 
             for (const mot of ["வணக்கம்", "Ütz iwäch"]) {
-              await client.tableaux!.ajouterÉlément({
+              await client.tableaux.ajouterÉlément({
                 idTableau: idTableauCatégories,
                 vals: {
                   [idColonneCatégories]: mot,
@@ -1167,7 +1163,7 @@ typesClients.forEach((type) => {
             expect(rés.length).to.equal(0);
           });
           it("Ajout éléments valides", async () => {
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableauÀTester,
               vals: {
                 [idColonneÀTester]: "Ütz iwäch",
@@ -1177,7 +1173,7 @@ typesClients.forEach((type) => {
             expect(rés.length).to.equal(0);
           });
           it("Ajout éléments invalides", async () => {
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableauÀTester,
               vals: {
                 [idColonneÀTester]: "வணக்கம",
@@ -1194,12 +1190,8 @@ typesClients.forEach((type) => {
         let idColonne: string;
 
         const variables = new attente.AttendreRésultat<string[]>();
-        const colonnes = new attente.AttendreRésultat<
-          InfoColAvecCatégorie[]
-        >();
-        const colonnesSansCatégorie = new attente.AttendreRésultat<
-          InfoCol[]
-        >();
+        const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
+        const colonnesSansCatégorie = new attente.AttendreRésultat<InfoCol[]>();
         const données = new attente.AttendreRésultat<élémentDonnées[]>();
 
         const idVarChaîne =
@@ -1207,33 +1199,33 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          idTableau = await client.tableaux!.créerTableau({ idBd });
-          idColonne = await client.tableaux!.ajouterColonneTableau({
+          idTableau = await client.tableaux.créerTableau({ idBd });
+          idColonne = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVarChaîne,
           });
           fsOublier.push(
-            await client.tableaux!.suivreVariables({
+            await client.tableaux.suivreVariables({
               idTableau,
               f: (v) => variables.mettreÀJour(v),
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreColonnesTableau({
+            await client.tableaux.suivreColonnesTableau({
               idTableau,
               f: (c) => colonnes.mettreÀJour(c),
               catégories: true,
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreColonnesTableau({
+            await client.tableaux.suivreColonnesTableau({
               idTableau,
               f: (c) => colonnesSansCatégorie.mettreÀJour(c),
               catégories: false,
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreDonnées({
+            await client.tableaux.suivreDonnées({
               idTableau,
               f: (d) => données.mettreÀJour(d),
             }),
@@ -1248,9 +1240,7 @@ typesClients.forEach((type) => {
           expect(isValidAddress(idTableau)).to.be.true();
         });
         it("Suivre variables", async () => {
-          const valVariables = await variables.attendreQue(
-            (x) => x.length > 0,
-          );
+          const valVariables = await variables.attendreQue((x) => x.length > 0);
           expect(valVariables).to.deep.equal([idVarChaîne]);
         });
         it("Suivre colonnes", async () => {
@@ -1260,12 +1250,10 @@ typesClients.forEach((type) => {
           const val = await colonnesSansCatégorie.attendreQue(
             (x) => x.length > 0,
           );
-          expect(val).to.deep.equal([
-            { id: idColonne, variable: idVarChaîne },
-          ]);
+          expect(val).to.deep.equal([{ id: idColonne, variable: idVarChaîne }]);
         });
         it("Ajouter données", async () => {
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: {
               [idColonne]: "Bonjour !",
@@ -1290,9 +1278,7 @@ typesClients.forEach((type) => {
         const données = new attente.AttendreRésultat<
           élémentDonnées<élémentBdListeDonnées>[]
         >();
-        const colonnes = new attente.AttendreRésultat<
-          InfoColAvecCatégorie[]
-        >();
+        const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
         const colsIndexe = new attente.AttendreRésultat<string[]>();
         const règles = new attente.AttendreRésultat<règleColonne[]>();
 
@@ -1314,76 +1300,76 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          idTableau = await client.tableaux!.créerTableau({ idBd });
-          await client.tableaux!.sauvegarderNomsTableau({
+          idTableau = await client.tableaux.créerTableau({ idBd });
+          await client.tableaux.sauvegarderNomsTableau({
             idTableau,
             noms: réfNoms,
           });
 
-          idVariable = await client.variables!.créerVariable({
+          idVariable = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          idColonne = await client.tableaux!.ajouterColonneTableau({
+          idColonne = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable,
           });
-          await client.tableaux!.changerColIndex({
+          await client.tableaux.changerColIndex({
             idTableau,
             idColonne,
             val: true,
           });
 
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: {
               [idColonne]: 123,
             },
           });
 
-          idRègle = await client.tableaux!.ajouterRègleTableau({
+          idRègle = await client.tableaux.ajouterRègleTableau({
             idTableau,
             idColonne,
             règle,
           });
 
-          idTableauCopie = await client.tableaux!.copierTableau({
+          idTableauCopie = await client.tableaux.copierTableau({
             id: idTableau,
             idBd,
           });
 
           fsOublier.push(
-            await client.tableaux!.suivreVariables({
+            await client.tableaux.suivreVariables({
               idTableau: idTableauCopie,
               f: (x) => variables.mettreÀJour(x),
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreNomsTableau({
+            await client.tableaux.suivreNomsTableau({
               idTableau: idTableauCopie,
               f: (x) => noms.mettreÀJour(x),
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreDonnées({
+            await client.tableaux.suivreDonnées({
               idTableau: idTableauCopie,
               f: (x) => données.mettreÀJour(x),
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreColonnesTableau({
+            await client.tableaux.suivreColonnesTableau({
               idTableau: idTableauCopie,
               f: (x) => colonnes.mettreÀJour(x),
               catégories: true,
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreIndex({
+            await client.tableaux.suivreIndex({
               idTableau: idTableauCopie,
               f: (x) => colsIndexe.mettreÀJour(x),
             }),
           );
           fsOublier.push(
-            await client.tableaux!.suivreRègles({
+            await client.tableaux.suivreRègles({
               idTableau: idTableauCopie,
               f: (x) => règles.mettreÀJour(x),
             }),
@@ -1464,19 +1450,19 @@ typesClients.forEach((type) => {
         const idsCols: { [key: string]: string } = {};
 
         before(async () => {
-          idTableauBase = await client.tableaux!.créerTableau({ idBd });
-          idTableau2 = await client.tableaux!.créerTableau({ idBd });
+          idTableauBase = await client.tableaux.créerTableau({ idBd });
+          idTableau2 = await client.tableaux.créerTableau({ idBd });
 
-          idVarDate = await client.variables!.créerVariable({
+          idVarDate = await client.variables.créerVariable({
             catégorie: "horoDatage",
           });
-          idVarEndroit = await client.variables!.créerVariable({
+          idVarEndroit = await client.variables.créerVariable({
             catégorie: "chaîneNonTraductible",
           });
-          idVarTempMin = await client.variables!.créerVariable({
+          idVarTempMin = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          idVarTempMax = await client.variables!.créerVariable({
+          idVarTempMax = await client.variables.créerVariable({
             catégorie: "numérique",
           });
 
@@ -1486,32 +1472,32 @@ typesClients.forEach((type) => {
             idVarTempMin,
             idVarTempMax,
           ]) {
-            const idCol = await client.tableaux!.ajouterColonneTableau({
+            const idCol = await client.tableaux.ajouterColonneTableau({
               idTableau: idTableauBase,
               idVariable: idVar,
             });
 
             idsCols[idVar] = idCol;
-            await client.tableaux!.ajouterColonneTableau({
+            await client.tableaux.ajouterColonneTableau({
               idTableau: idTableau2,
               idVariable: idVar,
               idColonne: idCol,
             });
           }
           for (const idVar of [idVarDate, idVarEndroit]) {
-            await client.tableaux!.changerColIndex({
+            await client.tableaux.changerColIndex({
               idTableau: idTableauBase,
               idColonne: idsCols[idVar],
               val: true,
             });
-            await client.tableaux!.changerColIndex({
+            await client.tableaux.changerColIndex({
               idTableau: idTableau2,
               idColonne: idsCols[idVar],
               val: true,
             });
           }
 
-          fOublier = await client.tableaux!.suivreDonnées({
+          fOublier = await client.tableaux.suivreDonnées({
             idTableau: idTableauBase,
             f: (d) => données.mettreÀJour(d),
           });
@@ -1534,7 +1520,7 @@ typesClients.forEach((type) => {
             },
           ];
           for (const élément of élémentsBase) {
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableauBase,
               vals: élément,
             });
@@ -1559,13 +1545,13 @@ typesClients.forEach((type) => {
             },
           ];
           for (const élément of éléments2) {
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau: idTableau2,
               vals: élément,
             });
           }
 
-          await client.tableaux!.combinerDonnées({
+          await client.tableaux.combinerDonnées({
             idTableauBase,
             idTableau2,
           });
@@ -1599,9 +1585,7 @@ typesClients.forEach((type) => {
               [idsCols[idVarTempMin]]: 27,
             },
           ];
-          const val = await données.attendreQue(
-            (x) => x.length === réf.length,
-          );
+          const val = await données.attendreQue((x) => x.length === réf.length);
 
           expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(4);
@@ -1632,18 +1616,18 @@ typesClients.forEach((type) => {
         const idsCols: { [key: string]: string } = {};
 
         before(async () => {
-          idTableau = await client.tableaux!.créerTableau({ idBd });
+          idTableau = await client.tableaux.créerTableau({ idBd });
 
-          idVarDate = await client.variables!.créerVariable({
+          idVarDate = await client.variables.créerVariable({
             catégorie: "horoDatage",
           });
-          idVarEndroit = await client.variables!.créerVariable({
+          idVarEndroit = await client.variables.créerVariable({
             catégorie: "chaîneNonTraductible",
           });
-          idVarTempMin = await client.variables!.créerVariable({
+          idVarTempMin = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          idVarTempMax = await client.variables!.créerVariable({
+          idVarTempMax = await client.variables.créerVariable({
             catégorie: "numérique",
           });
 
@@ -1653,14 +1637,14 @@ typesClients.forEach((type) => {
             idVarTempMin,
             idVarTempMax,
           ]) {
-            const idCol = await client.tableaux!.ajouterColonneTableau({
+            const idCol = await client.tableaux.ajouterColonneTableau({
               idTableau,
               idVariable: idVar,
             });
             idsCols[idVar] = idCol;
           }
 
-          fOublier = await client.tableaux!.suivreDonnées({
+          fOublier = await client.tableaux.suivreDonnées({
             idTableau,
             f: (d) => données.mettreÀJour(d),
           });
@@ -1692,7 +1676,7 @@ typesClients.forEach((type) => {
             },
           ];
 
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: élémentsBase,
           });
@@ -1718,7 +1702,7 @@ typesClients.forEach((type) => {
               [idsCols[idVarTempMin]]: 27,
             },
           ];
-          await client.tableaux!.importerDonnées({
+          await client.tableaux.importerDonnées({
             idTableau,
             données: nouvellesDonnées,
           });
@@ -1785,45 +1769,45 @@ typesClients.forEach((type) => {
         const nomTableauFr = "Tableau test";
 
         before(async () => {
-          idTableau = await client.tableaux!.créerTableau({ idBd });
-          idVarNumérique = await client.variables!.créerVariable({
+          idTableau = await client.tableaux.créerTableau({ idBd });
+          idVarNumérique = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          idVarChaîne = await client.variables!.créerVariable({
+          idVarChaîne = await client.variables.créerVariable({
             catégorie: "chaîneNonTraductible",
           });
-          idVarFichier = await client.variables!.créerVariable({
+          idVarFichier = await client.variables.créerVariable({
             catégorie: "fichier",
           });
-          idVarBooléenne = await client.variables!.créerVariable({
+          idVarBooléenne = await client.variables.créerVariable({
             catégorie: "booléen",
           });
 
-          idColNumérique = await client.tableaux!.ajouterColonneTableau({
+          idColNumérique = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVarNumérique,
           });
-          idColChaîne = await client.tableaux!.ajouterColonneTableau({
+          idColChaîne = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVarChaîne,
           });
-          idColBooléenne = await client.tableaux!.ajouterColonneTableau({
+          idColBooléenne = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVarBooléenne,
           });
-          idColFichier = await client.tableaux!.ajouterColonneTableau({
+          idColFichier = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVarFichier,
           });
 
-          await client.tableaux!.sauvegarderNomsTableau({
+          await client.tableaux.sauvegarderNomsTableau({
             idTableau,
             noms: {
               fr: nomTableauFr,
             },
           });
 
-          await client.variables!.sauvegarderNomsVariable({
+          await client.variables.sauvegarderNomsVariable({
             idVariable: idVarNumérique,
             noms: {
               fr: "Numérique",
@@ -1831,7 +1815,7 @@ typesClients.forEach((type) => {
             },
           });
 
-          await client.variables!.sauvegarderNomsVariable({
+          await client.variables.sauvegarderNomsVariable({
             idVariable: idVarChaîne,
             noms: {
               fr: "Chaîne",
@@ -1852,12 +1836,12 @@ typesClients.forEach((type) => {
             },
           ];
           for (const élément of éléments) {
-            await client.tableaux!.ajouterÉlément({
+            await client.tableaux.ajouterÉlément({
               idTableau,
               vals: élément,
             });
           }
-          ({ doc, fichiersSFIP } = await client.tableaux!.exporterDonnées({
+          ({ doc, fichiersSFIP } = await client.tableaux.exporterDonnées({
             idTableau,
             langues: ["த", "fr"],
           }));
@@ -1934,7 +1918,7 @@ typesClients.forEach((type) => {
         });
 
         it("Exporter avec ids des colonnes et du tableau", async () => {
-          ({ doc } = await client.tableaux!.exporterDonnées({ idTableau }));
+          ({ doc } = await client.tableaux.exporterDonnées({ idTableau }));
 
           const idTableauCourt = idTableau.split("/").pop()!.slice(0, 30);
           expect(doc.SheetNames[0]).to.equal(idTableauCourt);

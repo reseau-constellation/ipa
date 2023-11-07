@@ -24,17 +24,17 @@ const générerNuéeTest = async (
     ajouter?: boolean;
   } = {},
 ): Promise<{ idNuée: string; idTableau: string }> => {
-  const idNuée = await client.nuées!.créerNuée(opts);
+  const idNuée = await client.nuées.créerNuée(opts);
   const clefTableau = "principal";
 
-  const idTableau = await client.nuées!.ajouterTableauNuée({
+  const idTableau = await client.nuées.ajouterTableauNuée({
     idNuée,
     clefTableau,
   });
-  const idVariableNumérique = await client.variables!.créerVariable({
+  const idVariableNumérique = await client.variables.créerVariable({
     catégorie: "numérique",
   });
-  await client.nuées!.ajouterColonneTableauNuée({
+  await client.nuées.ajouterColonneTableauNuée({
     idTableau,
     idVariable: idVariableNumérique,
     idColonne: "numérique",
@@ -43,7 +43,7 @@ const générerNuéeTest = async (
 };
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("Nuées : Tests individuels", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -67,7 +67,7 @@ typesClients.forEach((type) => {
 
       describe("Création", function () {
         it("Nuée", async () => {
-          const idNuée = await client.nuées!.créerNuée({});
+          const idNuée = await client.nuées.créerNuée({});
           expect(isValidAddress(idNuée)).to.be.true();
         });
       });
@@ -81,8 +81,8 @@ typesClients.forEach((type) => {
         }>();
 
         before(async () => {
-          idNuée = await client.nuées!.créerNuée({});
-          fOublier = await client.nuées!.suivreNomsNuée({
+          idNuée = await client.nuées.créerNuée({});
+          fOublier = await client.nuées.suivreNomsNuée({
             idNuée,
             f: (n) => noms.mettreÀJour(n),
           });
@@ -98,7 +98,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter un nom", async () => {
-          await client.nuées!.sauvegarderNomsNuée({
+          await client.nuées.sauvegarderNomsNuée({
             idNuée,
             noms: { fr: "Alphabets" },
           });
@@ -107,7 +107,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.nuées!.sauvegarderNomsNuée({
+          await client.nuées.sauvegarderNomsNuée({
             idNuée,
             noms: {
               த: "எழுத்துகள்",
@@ -123,7 +123,7 @@ typesClients.forEach((type) => {
         });
 
         it("Changer un nom", async () => {
-          await client.nuées!.sauvegarderNomsNuée({
+          await client.nuées.sauvegarderNomsNuée({
             idNuée,
             noms: { fr: "Systèmes d'écriture" },
           });
@@ -132,7 +132,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer un nom", async () => {
-          await client.nuées!.effacerNomNuée({ idNuée, langue: "fr" });
+          await client.nuées.effacerNomNuée({ idNuée, langue: "fr" });
           const val = await noms.attendreQue((x) => !x.fr);
           expect(val).to.deep.equal({ த: "எழுத்துகள்", हिं: "वर्णमाला" });
         });
@@ -147,8 +147,8 @@ typesClients.forEach((type) => {
         }>();
 
         before(async () => {
-          idNuée = await client.nuées!.créerNuée({});
-          fOublier = await client.nuées!.suivreDescriptionsNuée({
+          idNuée = await client.nuées.créerNuée({});
+          fOublier = await client.nuées.suivreDescriptionsNuée({
             idNuée,
             f: (n) => descr.mettreÀJour(n),
           });
@@ -164,7 +164,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter une description", async () => {
-          await client.nuées!.sauvegarderDescriptionsNuée({
+          await client.nuées.sauvegarderDescriptionsNuée({
             idNuée,
             descriptions: { fr: "Alphabets" },
           });
@@ -173,7 +173,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des descriptions", async () => {
-          await client.nuées!.sauvegarderDescriptionsNuée({
+          await client.nuées.sauvegarderDescriptionsNuée({
             idNuée,
             descriptions: {
               த: "எழுத்துகள்",
@@ -189,7 +189,7 @@ typesClients.forEach((type) => {
         });
 
         it("Changer une description", async () => {
-          await client.nuées!.sauvegarderDescriptionsNuée({
+          await client.nuées.sauvegarderDescriptionsNuée({
             idNuée,
             descriptions: { fr: "Systèmes d'écriture" },
           });
@@ -198,7 +198,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer une description", async () => {
-          await client.nuées!.effacerDescriptionNuée({
+          await client.nuées.effacerDescriptionNuée({
             idNuée,
             langue: "fr",
           });
@@ -216,8 +216,8 @@ typesClients.forEach((type) => {
         const motsClefs = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
-          idNuée = await client.nuées!.créerNuée({});
-          fOublier = await client.nuées!.suivreMotsClefsNuée({
+          idNuée = await client.nuées.créerNuée({});
+          fOublier = await client.nuées.suivreMotsClefsNuée({
             idNuée,
             f: (m) => motsClefs.mettreÀJour(m),
           });
@@ -231,8 +231,8 @@ typesClients.forEach((type) => {
           expect(val).to.be.an.empty("array");
         });
         it("Ajout d'un mot-clef", async () => {
-          idMotClef = await client.motsClefs!.créerMotClef();
-          await client.nuées!.ajouterMotsClefsNuée({
+          idMotClef = await client.motsClefs.créerMotClef();
+          await client.nuées.ajouterMotsClefsNuée({
             idNuée,
             idsMotsClefs: idMotClef,
           });
@@ -241,7 +241,7 @@ typesClients.forEach((type) => {
           expect(val).to.contain(idMotClef);
         });
         it("Effacer un mot-clef", async () => {
-          await client.nuées!.effacerMotClefNuée({ idNuée, idMotClef });
+          await client.nuées.effacerMotClefNuée({ idNuée, idMotClef });
           const val = await motsClefs.attendreQue(
             (x) => !x.includes(idMotClef),
           );
@@ -364,8 +364,8 @@ typesClients.forEach((type) => {
         const nuées = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
-          idNuée = await client.nuées!.créerNuée({});
-          fOublier = await client.nuées!.suivreNuées({
+          idNuée = await client.nuées.créerNuée({});
+          fOublier = await client.nuées.suivreNuées({
             f: (_nuées) => nuées.mettreÀJour(_nuées),
           });
         });
@@ -373,7 +373,7 @@ typesClients.forEach((type) => {
           if (fOublier) await fOublier();
         });
         it("On crée une autre nuée sans l'ajouter", async () => {
-          idNouvelleNuée = await client.nuées!.créerNuée({
+          idNouvelleNuée = await client.nuées.créerNuée({
             ajouter: false,
           });
           const val = await nuées.attendreExiste();
@@ -385,7 +385,7 @@ typesClients.forEach((type) => {
         });
 
         it("On peut l'ajouter ensuite à mes bds", async () => {
-          await client.nuées!.ajouterÀMesNuées({ idNuée: idNouvelleNuée });
+          await client.nuées.ajouterÀMesNuées({ idNuée: idNouvelleNuée });
           const val = await nuées.attendreQue((x) =>
             x.includes(idNouvelleNuée),
           );
@@ -394,7 +394,7 @@ typesClients.forEach((type) => {
         });
 
         it("On peut aussi l'effacer", async () => {
-          await client.nuées!.effacerNuée({ idNuée: idNouvelleNuée });
+          await client.nuées.effacerNuée({ idNuée: idNouvelleNuée });
           const val = await nuées.attendreQue(
             (x) => !x.includes(idNouvelleNuée),
           );
@@ -409,8 +409,8 @@ typesClients.forEach((type) => {
         const statut = new utilsTestAttente.AttendreRésultat<schémaStatut>();
 
         before(async () => {
-          idNuée = await client.nuées!.créerNuée({});
-          fOublier = await client.nuées!.suivreStatutNuée({
+          idNuée = await client.nuées.créerNuée({});
+          fOublier = await client.nuées.suivreStatutNuée({
             idNuée,
             f: (x) => statut.mettreÀJour(x),
           });
@@ -420,7 +420,7 @@ typesClients.forEach((type) => {
         });
 
         it("Marquer bêta", async () => {
-          await client.nuées?.marquerBêta({ idNuée });
+          await client.nuées.marquerBêta({ idNuée });
           const val = await statut.attendreQue(
             (x) => x.statut === TYPES_STATUT.BÊTA,
           );
@@ -430,7 +430,7 @@ typesClients.forEach((type) => {
         });
 
         it("Marquer interne", async () => {
-          await client.nuées?.marquerInterne({ idNuée });
+          await client.nuées.marquerInterne({ idNuée });
           const val = await statut.attendreQue(
             (x) => x.statut === TYPES_STATUT.INTERNE,
           );
@@ -440,7 +440,7 @@ typesClients.forEach((type) => {
         });
 
         it("Marquer obsolète", async () => {
-          await client.nuées?.marquerObsolète({
+          await client.nuées.marquerObsolète({
             idNuée,
             idNouvelle: "Une nouvelle bd.",
           }); //  Pour une vraie application, utiliser un id Nuée valide, bien entendu.
@@ -454,7 +454,7 @@ typesClients.forEach((type) => {
         });
 
         it("Marquer active", async () => {
-          await client.nuées?.marquerActive({ idNuée });
+          await client.nuées.marquerActive({ idNuée });
           const val = await statut.attendreQue(
             (x) => x.statut === TYPES_STATUT.ACTIVE,
           );
@@ -475,8 +475,8 @@ typesClients.forEach((type) => {
           >();
 
           before(async () => {
-            idNuée = await client.nuées!.créerNuée({});
-            fOublier = await client.nuées!.suivreTableauxNuée({
+            idNuée = await client.nuées.créerNuée({});
+            fOublier = await client.nuées.suivreTableauxNuée({
               idNuée,
               f: (x) => tableaux.mettreÀJour(x),
             });
@@ -486,7 +486,7 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout tableau", async () => {
-            idTableau = await client.nuées!.ajouterTableauNuée({
+            idTableau = await client.nuées.ajouterTableauNuée({
               idNuée,
               clefTableau: "abc",
             });
@@ -500,7 +500,7 @@ typesClients.forEach((type) => {
           });
 
           it("Effacer tableau", async () => {
-            await client.nuées!.effacerTableauNuée({
+            await client.nuées.effacerTableauNuée({
               idNuée,
               idTableau,
             });
@@ -519,12 +519,12 @@ typesClients.forEach((type) => {
           >();
 
           before(async () => {
-            idNuée = await client.nuées!.créerNuée({});
-            idTableau = await client.nuées!.ajouterTableauNuée({
+            idNuée = await client.nuées.créerNuée({});
+            idTableau = await client.nuées.ajouterTableauNuée({
               idNuée,
               clefTableau: "principal",
             });
-            fOublier = await client.nuées!.suivreColonnesTableauNuée({
+            fOublier = await client.nuées.suivreColonnesTableauNuée({
               idNuée,
               clefTableau: "principal",
               f: (x) => résultat.mettreÀJour(x),
@@ -536,10 +536,10 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout colonne", async () => {
-            const idVariable = await client.variables!.créerVariable({
+            const idVariable = await client.variables.créerVariable({
               catégorie: "chaîne",
             });
-            await client.nuées!.ajouterColonneTableauNuée({
+            await client.nuées.ajouterColonneTableauNuée({
               idTableau,
               idVariable,
             });
@@ -557,10 +557,10 @@ typesClients.forEach((type) => {
           const variables = new utilsTestAttente.AttendreRésultat<string[]>();
 
           before(async () => {
-            idNuée = await client.nuées!.créerNuée({});
-            idTableau = await client.nuées!.ajouterTableauNuée({ idNuée });
+            idNuée = await client.nuées.créerNuée({});
+            idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
 
-            fOublier = await client.nuées!.suivreVariablesNuée({
+            fOublier = await client.nuées.suivreVariablesNuée({
               idNuée,
               f: (x) => variables.mettreÀJour(x),
             });
@@ -576,11 +576,11 @@ typesClients.forEach((type) => {
           });
 
           it("Ajout d'une variable", async () => {
-            const idVariable = await client.variables!.créerVariable({
+            const idVariable = await client.variables.créerVariable({
               catégorie: "numérique",
             });
 
-            idColonne = await client.nuées!.ajouterColonneTableauNuée({
+            idColonne = await client.nuées.ajouterColonneTableauNuée({
               idTableau,
               idVariable,
             });
@@ -590,7 +590,7 @@ typesClients.forEach((type) => {
           });
 
           it("Effacer une variable", async () => {
-            await client.nuées!.effacerColonneTableauNuée({
+            await client.nuées.effacerColonneTableauNuée({
               idTableau,
               idColonne,
             });
@@ -662,22 +662,22 @@ typesClients.forEach((type) => {
           >();
 
           before(async () => {
-            idNuée = await client.nuées!.créerNuée({ autorisation: "CJPI" });
+            idNuée = await client.nuées.créerNuée({ autorisation: "CJPI" });
 
-            const idTableau = await client.nuées!.ajouterTableauNuée({
+            const idTableau = await client.nuées.ajouterTableauNuée({
               idNuée,
               clefTableau: "principal",
             });
-            const idVariableNumérique = await client.variables!.créerVariable({
+            const idVariableNumérique = await client.variables.créerVariable({
               catégorie: "numérique",
             });
-            idCol = await client.nuées!.ajouterColonneTableauNuée({
+            idCol = await client.nuées.ajouterColonneTableauNuée({
               idTableau,
               idVariable: idVariableNumérique,
               idColonne: "col numérique",
             });
             const { fOublier: fOublierChezMoi } =
-              await clients[1].nuées!.suivreDonnéesTableauNuée({
+              await clients[1].nuées.suivreDonnéesTableauNuée({
                 idNuée,
                 clefTableau: "principal",
                 f: async (x) => résultatChezMoi.mettreÀJour(x),
@@ -686,7 +686,7 @@ typesClients.forEach((type) => {
             fsOublier.push(fOublierChezMoi);
 
             const { fOublier: fOublierChezLesAutres } =
-              await client.nuées!.suivreDonnéesTableauNuée({
+              await client.nuées.suivreDonnéesTableauNuée({
                 idNuée,
                 clefTableau: "principal",
                 f: async (x) => résultatChezLesAutres.mettreÀJour(x),
@@ -694,7 +694,7 @@ typesClients.forEach((type) => {
               });
             fsOublier.push(fOublierChezLesAutres);
 
-            const schémaNuée = await client.nuées!.générerSchémaBdNuée({
+            const schémaNuée = await client.nuées.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
             });
@@ -750,7 +750,7 @@ typesClients.forEach((type) => {
           >();
 
           before(async () => {
-            const idVariableNumérique = await client.variables!.créerVariable({
+            const idVariableNumérique = await client.variables.créerVariable({
               catégorie: "numérique",
             });
 
@@ -771,7 +771,7 @@ typesClients.forEach((type) => {
             };
 
             const { fOublier: fOublierChezMoi } =
-              await clients[1].nuées!.suivreDonnéesTableauNuée({
+              await clients[1].nuées.suivreDonnéesTableauNuée({
                 idNuée,
                 clefTableau: "principal",
                 f: async (x) => résultatChezMoi.mettreÀJour(x),
@@ -780,7 +780,7 @@ typesClients.forEach((type) => {
             fsOublier.push(fOublierChezMoi);
 
             const { fOublier: fOublierChezLesAutres } =
-              await client.nuées!.suivreDonnéesTableauNuée({
+              await client.nuées.suivreDonnéesTableauNuée({
                 idNuée,
                 clefTableau: "principal",
                 f: async (x) => résultatChezLesAutres.mettreÀJour(x),
@@ -881,7 +881,7 @@ typesClients.forEach((type) => {
             ({ idNuée } = await générerNuéeTest(client, {
               autorisation: "CJPI",
             }));
-            schémaNuée = await client.nuées!.générerSchémaBdNuée({
+            schémaNuée = await client.nuées.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
             });
@@ -889,7 +889,7 @@ typesClients.forEach((type) => {
               schéma: schémaNuée,
             });
             const { fOublier: fOublierRésultat } =
-              await clients[1].nuées!.suivreBdsCorrespondantes({
+              await clients[1].nuées.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => résultat.mettreÀJour(x),
                 nRésultatsDésirés: 100,
@@ -897,7 +897,7 @@ typesClients.forEach((type) => {
             fsOublier.push(fOublierRésultat);
 
             const { fOublier: fOublierRésultatSansVérification } =
-              await client.nuées!.suivreBdsCorrespondantes({
+              await client.nuées.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => résultatSansVérification.mettreÀJour(x),
                 nRésultatsDésirés: 100,
@@ -906,7 +906,7 @@ typesClients.forEach((type) => {
             fsOublier.push(fOublierRésultatSansVérification);
 
             const { fOublier: fOublierRésultatSansInclureLesMiennes } =
-              await clients[1].nuées!.suivreBdsCorrespondantes({
+              await clients[1].nuées.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => résultatSansInclureLesMiennes.mettreÀJour(x),
                 nRésultatsDésirés: 100,
@@ -960,12 +960,12 @@ typesClients.forEach((type) => {
             ({ idNuée } = await générerNuéeTest(client, {
               autorisation: "IJPC",
             }));
-            schémaNuée = await client.nuées!.générerSchémaBdNuée({
+            schémaNuée = await client.nuées.générerSchémaBdNuée({
               idNuée,
               licence: "ODbl-1_0",
             });
             const { fOublier: fOublierRésultat } =
-              await client.nuées!.suivreBdsCorrespondantes({
+              await client.nuées.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => résultat.mettreÀJour(x),
                 nRésultatsDésirés: 100,
@@ -986,7 +986,7 @@ typesClients.forEach((type) => {
           });
 
           it("Bloquer membre", async () => {
-            await client.nuées?.exclureMembreDeNuée({
+            await client.nuées.exclureMembreDeNuée({
               idNuée,
               idCompte: await clients[1].obtIdCompte(),
             });

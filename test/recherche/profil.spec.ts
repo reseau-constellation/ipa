@@ -57,13 +57,13 @@ describe("Rechercher profil", function () {
     });
 
     it("On améliore le score en ajoutant notre nom", async () => {
-      await client.profil!.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
+      await client.profil.sauvegarderNom({ langue: "த", nom: "ஜூலீஎன்" });
       const val = await rés.attendreQue((x) => !!x && x.score > 0);
       expect(val.score).to.equal(1 / 3);
     });
 
     it("Encore mieux avec un courriel", async () => {
-      await client.profil!.sauvegarderCourriel({
+      await client.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
       const val = await rés.attendreQue((x) => !!x && x.score > 1 / 3);
@@ -76,7 +76,7 @@ describe("Rechercher profil", function () {
         optsAxios: { responseType: "arraybuffer" },
       });
 
-      await client.profil!.sauvegarderImage({
+      await client.profil.sauvegarderImage({
         image: { content: IMAGE, path: "logo.png" },
       });
       const val = await rés.attendreQue(
@@ -119,7 +119,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.profil!.sauvegarderNom({ langue: "cst", nom: "Julián" });
+      await client.profil.sauvegarderNom({ langue: "cst", nom: "Julián" });
       await rés.attendreQue((x) => !!x && x.score > 0);
 
       expect(rés.val).to.deep.equal({
@@ -132,7 +132,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Meilleur nom détecté", async () => {
-      await client.profil!.sauvegarderNom({ langue: "fr", nom: "Julien" });
+      await client.profil.sauvegarderNom({ langue: "fr", nom: "Julien" });
       await rés.attendreQue((x) => !!x && x.score > 0.5);
 
       expect(rés.val).to.deep.equal({
@@ -176,7 +176,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout courriel détecté", async () => {
-      await client.profil!.sauvegarderCourriel({
+      await client.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
 
@@ -241,7 +241,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.profil!.sauvegarderNom({
+      await client.profil.sauvegarderNom({
         langue: "fr",
         nom: "Julien Malard-Adam",
       });
@@ -275,7 +275,7 @@ describe("Rechercher profil", function () {
     });
 
     it("Ajout courriel détecté", async () => {
-      await client.profil!.sauvegarderCourriel({
+      await client.profil.sauvegarderCourriel({
         courriel: "julien.malard@mail.mcgill.ca",
       });
 

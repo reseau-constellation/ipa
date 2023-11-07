@@ -47,7 +47,7 @@ describe("Rechercher projets", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idProjet = await client.projets!.créerProjet();
+      idProjet = await client.projets.créerProjet();
 
       const fRecherche = rechercherProjetsSelonNom("Météo");
       fOublier = await fRecherche(client, idProjet, (r) =>
@@ -64,7 +64,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.projets!.sauvegarderNomsProjet({
+      await client.projets.sauvegarderNomsProjet({
         idProjet,
         noms: {
           fr: "Météorologie",
@@ -95,7 +95,7 @@ describe("Rechercher projets", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idProjet = await client.projets!.créerProjet();
+      idProjet = await client.projets.créerProjet();
 
       const fRecherche = rechercherProjetsSelonDescr("Météo");
       fOublier = await fRecherche(client, idProjet, (r) =>
@@ -112,7 +112,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout description détecté", async () => {
-      await client.projets!.sauvegarderDescriptionsProjet({
+      await client.projets.sauvegarderDescriptionsProjet({
         idProjet,
         descriptions: {
           fr: "Météo historique",
@@ -150,8 +150,8 @@ describe("Rechercher projets", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idProjet = await client.projets!.créerProjet();
-      idMotClef = await client.motsClefs!.créerMotClef();
+      idProjet = await client.projets.créerProjet();
+      idMotClef = await client.motsClefs.créerMotClef();
 
       const fRechercheNom = rechercherProjetsSelonNomMotClef("Météo");
       fsOublier.push(
@@ -186,7 +186,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout mot-clef détecté", async () => {
-      await client.projets!.ajouterMotsClefsProjet({
+      await client.projets.ajouterMotsClefsProjet({
         idProjet,
         idsMotsClefs: idMotClef,
       });
@@ -215,7 +215,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout nom mot-clef détecté", async () => {
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météo historique pour la région de Montréal",
@@ -266,7 +266,7 @@ describe("Rechercher projets", function () {
 
     before(async () => {
       idProjet = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      idVariable = await client.variables!.créerVariable({
+      idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
 
@@ -304,10 +304,10 @@ describe("Rechercher projets", function () {
 
     it("Ajout variable détecté", async () => {
       const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      await client.projets!.ajouterBdProjet({ idProjet, idBd });
+      await client.projets.ajouterBdProjet({ idProjet, idBd });
 
       const idTableau = await client.bds.ajouterTableauBd({ idBd });
-      await client.tableaux!.ajouterColonneTableau({
+      await client.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
@@ -336,7 +336,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Ajout nom variable détecté", async () => {
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Précipitation mensuelle",
@@ -417,7 +417,7 @@ describe("Rechercher projets", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idProjet = await client.projets!.créerProjet();
+      idProjet = await client.projets.créerProjet();
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
       const fRechercheNom = rechercherProjetsSelonBd("Hydrologie");
@@ -459,7 +459,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat id détecté", async () => {
-      await client.projets!.ajouterBdProjet({ idProjet, idBd });
+      await client.projets.ajouterBdProjet({ idProjet, idBd });
 
       const réfRés: résultatObjectifRecherche<
         infoRésultatRecherche<infoRésultatTexte>
@@ -546,15 +546,15 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat variable détecté", async () => {
-      const idVariable = await client.variables!.créerVariable({
+      const idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
       const idTableau = await client.bds.ajouterTableauBd({ idBd });
-      await client.tableaux!.ajouterColonneTableau({
+      await client.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Température maximale",
@@ -591,12 +591,12 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat mot-clef détecté", async () => {
-      const idMotClef = await client.motsClefs!.créerMotClef();
+      const idMotClef = await client.motsClefs.créerMotClef();
       await client.bds.ajouterMotsClefsBd({
         idBd,
         idsMotsClefs: idMotClef,
       });
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météorologie",
@@ -689,7 +689,7 @@ describe("Rechercher projets", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idProjet = await client.projets!.créerProjet();
+      idProjet = await client.projets.créerProjet();
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
       const fRechercheNom = rechercherProjetsSelonTexte("Hydrologie");
@@ -752,7 +752,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.projets!.sauvegarderNomsProjet({
+      await client.projets.sauvegarderNomsProjet({
         idProjet,
         noms: {
           fr: "Hydrologie",
@@ -775,7 +775,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.projets!.sauvegarderDescriptionsProjet({
+      await client.projets.sauvegarderDescriptionsProjet({
         idProjet,
         descriptions: {
           fr: "Hydrologie de Montréal",
@@ -798,7 +798,7 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat bd détecté", async () => {
-      await client.projets!.ajouterBdProjet({ idProjet, idBd });
+      await client.projets.ajouterBdProjet({ idProjet, idBd });
 
       const val = await résultatBd.attendreExiste();
       expect(val).to.deep.equal({
@@ -820,15 +820,15 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat variable détecté", async () => {
-      const idVariable = await client.variables!.créerVariable({
+      const idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
       const idTableau = await client.bds.ajouterTableauBd({ idBd });
-      await client.tableaux!.ajouterColonneTableau({
+      await client.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Température maximale",
@@ -865,14 +865,14 @@ describe("Rechercher projets", function () {
     });
 
     it("Résultat mot-clef détecté", async () => {
-      const idMotClef = await client.motsClefs!.créerMotClef();
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      const idMotClef = await client.motsClefs.créerMotClef();
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météorologie",
         },
       });
-      await client.projets!.ajouterMotsClefsProjet({
+      await client.projets.ajouterMotsClefsProjet({
         idProjet: idProjet,
         idsMotsClefs: idMotClef,
       });

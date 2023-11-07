@@ -86,9 +86,9 @@ const schémaBdAutorisations: JSONSchemaType<{
 };
 
 export type donnéesNuéeExportation = {
-  nomNuée: string,
-  tableaux: donnéesTableauExportation[],
-}
+  nomNuée: string;
+  tableaux: donnéesTableauExportation[];
+};
 
 export type structureBdNuée = {
   type: "nuée";
@@ -155,7 +155,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async épingler() {
-    await this.client.épingles?.épinglerBd({
+    await this.client.épingles.épinglerBd({
       id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
@@ -175,13 +175,13 @@ export default class Nuée extends ComposanteClientListe<string> {
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        write: this.client.bdCompte!.address,
+        write: await this.client.obtIdCompte(),
       },
     });
     if (ajouter) await this.ajouterÀMesNuées({ idNuée: idBdNuée });
 
     const { bd: bdNuée, fOublier: fOublierNuée } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idBdNuée,
         type: "keyvalue",
         schéma: schémaStructureBdNuée,
@@ -268,7 +268,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     ajouterÀMesNuées?: boolean;
   }): Promise<string> {
-    const { bd: bdBase, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdBase, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -279,7 +279,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ajouter: ajouterÀMesNuées,
     });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idNouvelleNuée,
         type: "keyvalue",
         schéma: schémaStructureBdNuée,
@@ -288,7 +288,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdMétadonnées = await bdBase.get("métadonnées");
     if (idBdMétadonnées) {
       const { bd: bdMétadonnées, fOublier: fOublierBdMétadonnées } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdMétadonnées,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -304,7 +304,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdNoms = await bdBase.get("noms");
     if (idBdNoms) {
       const { bd: bdNoms, fOublier: fOublierBdNoms } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdNoms,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -317,7 +317,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdDescr = await bdBase.get("descriptions");
     if (idBdDescr) {
       const { bd: bdDescr, fOublier: fOublierBdDescr } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdDescr,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -333,7 +333,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdMotsClefs = await bdBase.get("motsClefs");
     if (idBdMotsClefs) {
       const { bd: bdMotsClefs, fOublier: fOublierBdMotsClefs } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdMotsClefs,
           type: "set",
           schéma: schémaBdMotsClefsNuée,
@@ -352,13 +352,13 @@ export default class Nuée extends ComposanteClientListe<string> {
 
     if (idBdTableaux) {
       const { bd: nouvelleBdTableaux, fOublier: fOublierNouvelleTableaux } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idNouvelleBdTableaux,
           type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
       const { bd: bdTableaux, fOublier: fOublierBdTableaux } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdTableaux,
           type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
@@ -366,7 +366,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       const tableaux = await bdTableaux.all();
       await fOublierBdTableaux();
       for (const tableau of tableaux) {
-        const idNouveauTableau = await this.client.tableaux!.copierTableau({
+        const idNouveauTableau = await this.client.tableaux.copierTableau({
           id: tableau.key,
           idBd: idNouvelleNuée,
           copierDonnées: false,
@@ -449,12 +449,11 @@ export default class Nuée extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Nuée ${idNuée}.`,
       );
 
-    const { bd: bdMétadonnées, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdMétadonnées,
-        type: "keyvalue",
-        schéma: schémaStructureBdMétadonnées,
-      });
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdMétadonnées,
+      type: "keyvalue",
+      schéma: schémaStructureBdMétadonnées,
+    });
     await bdMétadonnées.set(clef, valeur);
     await fOublier();
   }
@@ -476,12 +475,11 @@ export default class Nuée extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Nuée ${idNuée}.`,
       );
 
-    const { bd: bdMétadonnées, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdMétadonnées,
-        type: "keyvalue",
-        schéma: schémaStructureBdMétadonnées,
-      });
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdMétadonnées,
+      type: "keyvalue",
+      schéma: schémaStructureBdMétadonnées,
+    });
 
     for (const clef in métadonnées) {
       await bdMétadonnées.set(clef, métadonnées[clef]);
@@ -506,12 +504,11 @@ export default class Nuée extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Nuée ${idNuée}.`,
       );
 
-    const { bd: bdMétadonnées, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdMétadonnées,
-        type: "keyvalue",
-        schéma: schémaStructureBdMétadonnées,
-      });
+    const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdMétadonnées,
+      type: "keyvalue",
+      schéma: schémaStructureBdMétadonnées,
+    });
     await bdMétadonnées.del(clef);
     await fOublier();
   }
@@ -563,7 +560,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Nuée ${idNuée}.`,
       );
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -589,7 +586,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Nuée ${idNuée}.`,
       );
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -618,7 +615,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Nuée ${idNuée}.`,
       );
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -674,7 +671,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Nuée ${idNuée}.`,
       );
 
-    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -698,7 +695,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -724,7 +721,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     if (!idBdDescr)
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
 
-    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -783,7 +780,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       contenu = image;
     }
     const idImage = await this.client.ajouterÀSFIP({ fichier: contenu });
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -793,7 +790,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async effacerImage({ idNuée }: { idNuée: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -846,12 +843,11 @@ export default class Nuée extends ComposanteClientListe<string> {
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
     }
 
-    const { bd: bdMotsClefs, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdMotsClefs,
-        type: "set",
-        schéma: schémaBdMotsClefsNuée,
-      });
+    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdMotsClefs,
+      type: "set",
+      schéma: schémaBdMotsClefsNuée,
+    });
     for (const id of idsMotsClefs) {
       const motsClefsExistants = (await bdMotsClefs.all()).map((x) => x.value);
       if (!motsClefsExistants.includes(id)) await bdMotsClefs.add(id);
@@ -875,12 +871,11 @@ export default class Nuée extends ComposanteClientListe<string> {
       throw new Error(`Permission de modification refusée pour BD ${idNuée}.`);
     }
 
-    const { bd: bdMotsClefs, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdMotsClefs,
-        type: "set",
-        schéma: schémaBdMotsClefsNuée,
-      });
+    const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdMotsClefs,
+      type: "set",
+      schéma: schémaBdMotsClefsNuée,
+    });
 
     await bdMotsClefs.del(idMotClef);
 
@@ -923,7 +918,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     statut: schémaStatut;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -955,7 +950,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     idNouvelle?: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -965,7 +960,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async marquerActive({ idNuée }: { idNuée: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -975,7 +970,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async marquerBêta({ idNuée }: { idNuée: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -985,7 +980,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   async marquerInterne({ idNuée }: { idNuée: string }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -1018,11 +1013,11 @@ export default class Nuée extends ComposanteClientListe<string> {
     const idBdAutorisation = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
-        write: this.client.bdCompte!.address,
+        write: await this.client.obtIdCompte(),
       },
     });
 
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdAutorisation,
       type: "keyvalue",
       schéma: schémaStructureBdAuthorisation,
@@ -1049,7 +1044,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idAutorisation: string;
     philosophie: "IJPC" | "CJPI";
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idAutorisation,
       type: "keyvalue",
       schéma: schémaStructureBdAuthorisation,
@@ -1125,7 +1120,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdMembres,
       type: "keyvalue",
       schéma: schémaBdAutorisations,
@@ -1168,7 +1163,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdMembres,
       type: "keyvalue",
       schéma: schémaBdAutorisations,
@@ -1218,7 +1213,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     idAutorisation: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",
       schéma: schémaStructureBdNuée,
@@ -1322,15 +1317,14 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdTableaux, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdTableaux,
-        type: "ordered-keyvalue",
-        schéma: schémaBdTableauxDeBd,
-      });
+    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdTableaux,
+      type: "ordered-keyvalue",
+      schéma: schémaBdTableauxDeBd,
+    });
 
     clefTableau = clefTableau || uuidv4();
-    const idTableau = await this.client.tableaux!.créerTableau({
+    const idTableau = await this.client.tableaux.créerTableau({
       idBd: idNuée,
     });
     await bdTableaux.set(idTableau, {
@@ -1360,17 +1354,16 @@ export default class Nuée extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdTableaux, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdTableaux,
-        type: "ordered-keyvalue",
-        schéma: schémaBdTableauxDeBd,
-      });
+    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdTableaux,
+      type: "ordered-keyvalue",
+      schéma: schémaBdTableauxDeBd,
+    });
     await bdTableaux.del(idTableau);
     await fOublier();
 
     // Enfin, effacer les données et le tableau lui-même
-    await this.client.tableaux!.effacerTableau({ idTableau });
+    await this.client.tableaux.effacerTableau({ idTableau });
   }
 
   async suivreTableauxNuée({
@@ -1425,7 +1418,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idTableau: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    return await this.client.tableaux!.sauvegarderNomsTableau({
+    return await this.client.tableaux.sauvegarderNomsTableau({
       idTableau,
       noms,
     });
@@ -1438,7 +1431,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idTableau: string;
     langue: string;
   }): Promise<void> {
-    return await this.client.tableaux!.effacerNomTableau({ idTableau, langue });
+    return await this.client.tableaux.effacerNomTableau({ idTableau, langue });
   }
 
   @cacheSuivi
@@ -1467,7 +1460,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         }: {
           fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
         }): Promise<schémaFonctionOublier> => {
-          return await this.client.bds!.suivreIdTableauParClef({
+          return await this.client.bds.suivreIdTableauParClef({
             idBd: idNuéeParent,
             clef: clefTableau,
             f: fSuivreRacine,
@@ -1481,7 +1474,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           id: string;
           fSuivreBd: schémaFonctionSuivi<{ [key: string]: string }>;
         }): Promise<schémaFonctionOublier> => {
-          return await this.client.tableaux!.suivreNomsTableau({
+          return await this.client.tableaux.suivreNomsTableau({
             idTableau,
             f: fSuivreBd,
           });
@@ -1506,7 +1499,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idColonne?: string;
     index?: boolean;
   }): Promise<string> {
-    const idColonneFinale = await this.client.tableaux!.ajouterColonneTableau({
+    const idColonneFinale = await this.client.tableaux.ajouterColonneTableau({
       idTableau,
       idVariable,
       idColonne,
@@ -1528,7 +1521,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idTableau: string;
     idColonne: string;
   }): Promise<void> {
-    return await this.client.tableaux!.effacerColonneTableau({
+    return await this.client.tableaux.effacerColonneTableau({
       idTableau,
       idColonne,
     });
@@ -1543,7 +1536,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idColonne: string;
     val: boolean;
   }): Promise<void> {
-    return await this.client.tableaux!.changerColIndex({
+    return await this.client.tableaux.changerColIndex({
       idTableau,
       idColonne,
       val,
@@ -1612,7 +1605,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         }: {
           fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
         }): Promise<schémaFonctionOublier> => {
-          return await this.client.bds!.suivreIdTableauParClef({
+          return await this.client.bds.suivreIdTableauParClef({
             idBd: idNuéeParent,
             clef: clefTableau,
             f: fSuivreRacine,
@@ -1626,7 +1619,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           id: string;
           fSuivreBd: schémaFonctionSuivi<T[]>;
         }): Promise<schémaFonctionOublier> => {
-          return await this.client.tableaux!.suivreColonnesTableau<T>({
+          return await this.client.tableaux.suivreColonnesTableau<T>({
             idTableau,
             f: fSuivreBd,
             catégories,
@@ -1651,7 +1644,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idColonne: string;
     règle: R;
   }): Promise<string> {
-    return await this.client.tableaux!.ajouterRègleTableau({
+    return await this.client.tableaux.ajouterRègleTableau({
       idTableau,
       idColonne,
       règle,
@@ -1665,7 +1658,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idTableau: string;
     idRègle: string;
   }): Promise<void> {
-    return await this.client.tableaux!.effacerRègleTableau({
+    return await this.client.tableaux.effacerRègleTableau({
       idTableau,
       idRègle,
     });
@@ -1696,7 +1689,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         }: {
           fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
         }): Promise<schémaFonctionOublier> => {
-          return await this.client.bds!.suivreIdTableauParClef({
+          return await this.client.bds.suivreIdTableauParClef({
             idBd: idNuéeParent,
             clef: clefTableau,
             f: fSuivreRacine,
@@ -1710,7 +1703,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           id: string;
           fSuivreBd: schémaFonctionSuivi<règleColonne[]>;
         }): Promise<schémaFonctionOublier> => {
-          return await this.client.tableaux!.suivreRègles({
+          return await this.client.tableaux.suivreRègles({
             idTableau,
             f: fSuivreBd,
           });
@@ -1739,7 +1732,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       id: string,
       f: schémaFonctionSuivi<string[]>,
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.tableaux!.suivreVariables({ idTableau: id, f });
+      return await this.client.tableaux.suivreVariables({ idTableau: id, f });
     };
 
     const fListe = async (
@@ -1830,7 +1823,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
     }): Promise<schémaFonctionOublier> => {
       // On peut traiter la nuée comme une BD
-      return await this.client.bds!.suivreIdTableauParClef({
+      return await this.client.bds.suivreIdTableauParClef({
         idBd: idNuée,
         clef: clefTableau,
         f: fSuivreRacine,
@@ -1844,7 +1837,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       id: string;
       fSuivreBd: schémaFonctionSuivi<différenceTableaux[]>;
     }): Promise<schémaFonctionOublier> => {
-      return await this.client.tableaux!.suivreDifférencesAvecTableau({
+      return await this.client.tableaux.suivreDifférencesAvecTableau({
         idTableau,
         idTableauRéf: id,
         f: fSuivreBd,
@@ -1907,7 +1900,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       await f(différences);
     };
 
-    const fOublierTableauxBd = await this.client.bds!.suivreTableauxBd({
+    const fOublierTableauxBd = await this.client.bds.suivreTableauxBd({
       idBd,
       f: (tableaux) => {
         info.tableauxBd = tableaux;
@@ -1940,7 +1933,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     const fSuivreNuéesDeBd = async (
       fSuivreRacine: (idsNuées: string[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds!.suivreNuéesBd({
+      return await this.client.bds.suivreNuéesBd({
         idBd,
         f: fSuivreRacine,
       });
@@ -1999,7 +1992,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           fListe: async (
             fSuivreRacine: (idsTableaux: infoTableauAvecId[]) => Promise<void>,
           ): Promise<schémaFonctionOublier> => {
-            return await this.client.bds!.suivreTableauxBd({
+            return await this.client.bds.suivreTableauxBd({
               idBd,
               f: fSuivreRacine,
             });
@@ -2040,14 +2033,14 @@ export default class Nuée extends ComposanteClientListe<string> {
     ) => {
       f(résultats.map((r) => r.id));
     };
-    return await this.client.réseau!.rechercherNuées({
+    return await this.client.réseau.rechercherNuées({
       f: fFinale,
       fObjectif: async (
         client: ClientConstellation,
         id: string,
         f: schémaFonctionSuiviRecherche<infoRésultatVide>,
       ): Promise<schémaFonctionOublier> => {
-        return await client.nuées!.suivreNuéesParents({
+        return await client.nuées.suivreNuéesParents({
           idNuée: id,
           f: (parents) => {
             f({
@@ -2214,7 +2207,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       const fListe = async (
         fSuivreRacine: (éléments: string[]) => Promise<void>,
       ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
-        return await this.client.réseau!.suivreBdsDeNuée({
+        return await this.client.réseau.suivreBdsDeNuée({
           idNuée,
           f: fSuivreRacine,
           nRésultatsDésirés,
@@ -2238,7 +2231,7 @@ export default class Nuée extends ComposanteClientListe<string> {
               .map((x) => x.idCompte),
           });
         };
-        return await this.client.réseau!.suivreAuteursBd({
+        return await this.client.réseau.suivreAuteursBd({
           idBd,
           f: fFinaleSuivreBranche,
         });
@@ -2264,7 +2257,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         fChangerProfondeur,
       };
     } else {
-      return await this.client.réseau!.suivreBdsDeNuée({
+      return await this.client.réseau.suivreBdsDeNuée({
         idNuée,
         f,
         nRésultatsDésirés,
@@ -2366,7 +2359,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         };
 
         if (licencesPermises) {
-          const fOublierLicence = await this.client.bds!.suivreLicenceBd({
+          const fOublierLicence = await this.client.bds.suivreLicenceBd({
             idBd,
             f: async (licence) => {
               conformes.licence = licencesPermises.includes(licence);
@@ -2456,7 +2449,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             await fSuivreBd({ données, erreurs });
           }
         };
-        const fOublierDonnnées = await this.client.tableaux!.suivreDonnées<T>({
+        const fOublierDonnnées = await this.client.tableaux.suivreDonnées<T>({
           idTableau: id,
           f: async (données) => {
             infoTableau.données = données;
@@ -2466,7 +2459,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         });
         fsOublier.push(fOublierDonnnées);
 
-        const fOublierErreurs = await this.client.tableaux!.suivreValidDonnées({
+        const fOublierErreurs = await this.client.tableaux.suivreValidDonnées({
           idTableau: id,
           f: async (erreurs) => {
             infoTableau.erreurs = erreurs;
@@ -2489,7 +2482,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             fRacine: async (
               fSuivreRacineListe: (id: string) => Promise<void>,
             ) => {
-              return await this.client.bds!.suivreIdTableauParClef({
+              return await this.client.bds.suivreIdTableauParClef({
                 idBd,
                 clef: clefTableau,
                 f: ignorerNonDéfinis(fSuivreRacineListe),
@@ -2527,7 +2520,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         fSuivre: fSuivreTableau,
       });
 
-      const fOublierAuteursBd = await this.client.réseau!.suivreAuteursBd({
+      const fOublierAuteursBd = await this.client.réseau.suivreAuteursBd({
         idBd,
         f: async (auteurs) => {
           info.auteurs = auteurs;
@@ -2557,7 +2550,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     clefTableau: string;
     idNuée: string;
     langues?: string[];
-    f: schémaFonctionSuivi<donnéesTableauExportation>,
+    f: schémaFonctionSuivi<donnéesTableauExportation>;
     nRésultatsDésirés: number;
   }): Promise<schémaFonctionOublier> {
     const info: {
@@ -2575,8 +2568,8 @@ export default class Nuée extends ComposanteClientListe<string> {
         const fichiersSFIP: Set<string> = new Set();
 
         let donnéesFormattées: élémentBdListeDonnées[] = await Promise.all(
-          données.map(async (d) =>{
-            const élémentFormatté = await this.client.tableaux!.formaterÉlément({
+          données.map(async (d) => {
+            const élémentFormatté = await this.client.tableaux.formaterÉlément({
               é: d.élément.données,
               colonnes,
               fichiersSFIP,
@@ -2605,10 +2598,10 @@ export default class Nuée extends ComposanteClientListe<string> {
             ? traduire(nomsTableau, langues) || idCourtTableau
             : idCourtTableau;
 
-            return await f({
-              nomTableau,
-              données: donnéesFormattées,
-              fichiersSFIP,
+        return await f({
+          nomTableau,
+          données: donnéesFormattées,
+          fichiersSFIP,
         });
       }
     };
@@ -2641,9 +2634,13 @@ export default class Nuée extends ComposanteClientListe<string> {
             noms: { [langue: string]: string };
           }>,
         ): Promise<schémaFonctionOublier> => {
-          return await this.client.variables!.suivreNomsVariable({
+          return await this.client.variables.suivreNomsVariable({
             idVariable: id,
-            f: async (noms) => await fSuivreBranche({ idVar: id, noms: { ...noms, auteur: "auteur" } }),
+            f: async (noms) =>
+              await fSuivreBranche({
+                idVar: id,
+                noms: { ...noms, auteur: "auteur" },
+              }),
           });
         },
       });
@@ -2661,7 +2658,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
     fsOublier.push(fOublierColonnes);
 
-    const {fOublier: fOublierDonnées} = await this.suivreDonnéesTableauNuée({
+    const { fOublier: fOublierDonnées } = await this.suivreDonnéesTableauNuée({
       idNuée,
       clefTableau,
       nRésultatsDésirés,
@@ -2713,9 +2710,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ) => {
         return await this.suivreTableauxNuée({ idNuée, f: fSuivreRacine });
       },
-      f: async (
-        données: donnéesTableauExportation[],
-      ) => {
+      f: async (données: donnéesTableauExportation[]) => {
         info.données = données;
         await fFinale();
       },
@@ -2729,27 +2724,31 @@ export default class Nuée extends ComposanteClientListe<string> {
           clefTableau: branche.clef,
           langues,
           nRésultatsDésirés,
-          f: async (données) =>{
-            return await fSuivreBranche(données)},
+          f: async (données) => {
+            return await fSuivreBranche(données);
+          },
         });
       },
-      fIdBdDeBranche: x => x.id,
+      fIdBdDeBranche: (x) => x.id,
       fCode: (x) => x.id,
     });
     fsOublier.push(fOublierTableaux);
 
     if (langues) {
-      const fOublierNomsNuée = await this.suivreNomsNuée({ idNuée, f: async noms => {
-        info.nomsNuée = noms;
-        await fFinale();
-      } });
+      const fOublierNomsNuée = await this.suivreNomsNuée({
+        idNuée,
+        f: async (noms) => {
+          info.nomsNuée = noms;
+          await fFinale();
+        },
+      });
       fsOublier.push(fOublierNomsNuée);
     }
 
     const fOublier = async () => {
-      await Promise.all(fsOublier.map(f=>f()))
-    }
-    return fOublier
+      await Promise.all(fsOublier.map((f) => f()));
+    };
+    return fOublier;
   }
 
   async exporterDonnéesNuée({
@@ -2777,19 +2776,23 @@ export default class Nuée extends ComposanteClientListe<string> {
           nRésultatsDésirés,
         });
       },
-      attendreStabilité(1000)
+      attendreStabilité(1000),
     );
-    
+
     nomFichier = nomFichier || données.nomNuée;
-        
+
     for (const tableau of données.tableaux) {
-      tableau.fichiersSFIP.forEach(x=>fichiersSFIP.add(x))
-      
+      tableau.fichiersSFIP.forEach((x) => fichiersSFIP.add(x));
+
       /* Créer le tableau */
       const tableauXLSX = utils.json_to_sheet(tableau.données);
-  
+
       /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-      utils.book_append_sheet(doc, tableauXLSX, tableau.nomTableau.slice(0, 30));
+      utils.book_append_sheet(
+        doc,
+        tableauXLSX,
+        tableau.nomTableau.slice(0, 30),
+      );
     }
     return { doc, fichiersSFIP, nomFichier };
   }
@@ -2802,7 +2805,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       async (
         fSuivi: schémaFonctionSuivi<{ [key: string]: string }>,
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreNomsBd({ idBd, f: fSuivi });
+        return await this.client.bds.suivreNomsBd({ idBd, f: fSuivi });
       },
     );
     await this.sauvegarderNomsNuée({
@@ -2815,7 +2818,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       async (
         fSuivi: schémaFonctionSuivi<{ [key: string]: string }>,
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreDescriptionsBd({ idBd, f: fSuivi });
+        return await this.client.bds.suivreDescriptionsBd({ idBd, f: fSuivi });
       },
     );
     await this.sauvegarderDescriptionsNuée({
@@ -2828,7 +2831,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       async (
         fSuivi: schémaFonctionSuivi<string[]>,
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreMotsClefsBd({
+        return await this.client.bds.suivreMotsClefsBd({
           idBd,
           f: fSuivi,
         });
@@ -2844,7 +2847,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       async (
         fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
       ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds!.suivreTableauxBd({ idBd, f: fSuivi });
+        return await this.client.bds.suivreTableauxBd({ idBd, f: fSuivi });
       },
     );
 
@@ -2860,7 +2863,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         async (
           fSuivi: schémaFonctionSuivi<InfoCol[]>,
         ): Promise<schémaFonctionOublier> => {
-          return await this.client.tableaux!.suivreColonnesTableau({
+          return await this.client.tableaux.suivreColonnesTableau({
             idTableau,
             f: fSuivi,
             catégories: false,
@@ -2887,7 +2890,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           async (
             fSuivi: schémaFonctionSuivi<règleColonne<règleVariable>[]>,
           ): Promise<schémaFonctionOublier> => {
-            return await this.client.tableaux!.suivreRègles({
+            return await this.client.tableaux.suivreRègles({
               idTableau,
               f: fSuivi,
             });
@@ -3007,14 +3010,14 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
     if (idBdTableaux) {
       const { bd: bdTableaux, fOublier: fOublierTableaux } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdTableaux,
           type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
       const tableaux: string[] = Object.keys(bdTableaux.all);
       for (const t of tableaux) {
-        await this.client.tableaux!.effacerTableau({ idTableau: t });
+        await this.client.tableaux.effacerTableau({ idTableau: t });
       }
       fOublierTableaux();
       await this.client.effacerBd({ id: idBdTableaux });

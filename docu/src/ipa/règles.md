@@ -127,7 +127,7 @@ const règleTempMax: valid.règleBornes<valid.détailsRègleBornesDynamiqueColon
     },
 };
 
-await client.tableaux!.ajouterRègleTableau({
+await client.tableaux.ajouterRègleTableau({
     idTableau,
     idColonne: idColonneTempMax,
     règle: règleTempMax,

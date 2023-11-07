@@ -35,7 +35,7 @@ export const rechercherMotsClefsSelonNom = (
         return await fSuivreRecherche();
       }
     };
-    const fOublier = await client.motsClefs!.suivreNomsMotClef({
+    const fOublier = await client.motsClefs.suivreNomsMotClef({
       idMotClef,
       f: fSuivre,
     });
@@ -66,7 +66,7 @@ export const rechercherMotsClefsSelonDescr = (
         return await fSuivreRecherche();
       }
     };
-    const fOublier = await client.motsClefs!.suivreDescriptionsMotClef({
+    const fOublier = await client.motsClefs.suivreDescriptionsMotClef({
       idMotClef,
       f: fSuivre,
     });

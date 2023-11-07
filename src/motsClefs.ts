@@ -41,7 +41,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
 
   async épingler() {
     const idBd = await this.obtIdBd();
-    await this.client.épingles?.épinglerBd({
+    await this.client.épingles.épinglerBd({
       id: idBd,
       récursif: false,
       fichiers: false,
@@ -64,14 +64,14 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        write: this.client.bdCompte!.address,
+        write: await this.client.obtIdCompte(),
       },
     });
 
     await this.ajouterÀMesMotsClefs({ idMotClef });
 
     const { bd: bdMotClef, fOublier: fOublierMotClef } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idMotClef,
         type: "keyvalue",
         schéma: schémaBdMotClef,
@@ -120,7 +120,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
 
   async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
     const { bd: bdBase, fOublier: fOublierBase } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idMotClef,
         type: "keyvalue",
         schéma: schémaBdMotClef,
@@ -131,7 +131,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idBdNoms = await bdBase.get("noms");
     if (idBdNoms) {
       const { bd: bdNoms, fOublier: fOublierNoms } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdNoms,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -144,7 +144,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
     const idBdDescriptions = await bdBase.get("descriptions");
     if (idBdDescriptions) {
       const { bd: bdDescriptions, fOublier: fOublierDescriptions } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdDescriptions,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -195,7 +195,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -226,7 +226,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -253,7 +253,7 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -296,12 +296,11 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdDescriptions,
-        type: "keyvalue",
-        schéma: schémaStructureBdNoms,
-      });
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdDescriptions,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     for (const lng in descriptions) {
       await bdDescriptions.set(lng, descriptions[lng]);
     }
@@ -328,12 +327,11 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdDescriptions,
-        type: "keyvalue",
-        schéma: schémaStructureBdNoms,
-      });
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdDescriptions,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdDescriptions.set(langue, description);
     await fOublier();
   }
@@ -356,12 +354,11 @@ export default class MotsClefs extends ComposanteClientListe<string> {
       );
     }
 
-    const { bd: bdDescriptions, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idBdDescriptions,
-        type: "keyvalue",
-        schéma: schémaStructureBdNoms,
-      });
+    const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdDescriptions,
+      type: "keyvalue",
+      schéma: schémaStructureBdNoms,
+    });
     await bdDescriptions.del(langue);
     await fOublier();
   }

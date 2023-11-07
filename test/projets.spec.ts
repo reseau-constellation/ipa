@@ -44,7 +44,7 @@ typesClients.forEach((type) => {
       });
 
       it("Création", async () => {
-        idProjet = await client.projets!.créerProjet();
+        idProjet = await client.projets.créerProjet();
         expect(isValidAddress(idProjet)).to.be.true();
       });
 
@@ -54,8 +54,8 @@ typesClients.forEach((type) => {
 
         const mesProjets = new attente.AttendreRésultat<string[]>();
         before(async () => {
-          idNouveauProjet = await client.projets!.créerProjet();
-          fOublier = await client.projets!.suivreProjets({
+          idNouveauProjet = await client.projets.créerProjet();
+          fOublier = await client.projets.suivreProjets({
             f: (ps) => mesProjets.mettreÀJour(ps),
           });
         });
@@ -73,7 +73,7 @@ typesClients.forEach((type) => {
         });
 
         it("Enlever de mes projets", async () => {
-          await client.projets!.enleverDeMesProjets({
+          await client.projets.enleverDeMesProjets({
             idProjet: idNouveauProjet,
           });
           const val = await mesProjets.attendreQue(
@@ -83,7 +83,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter à mes projets", async () => {
-          await client.projets!.ajouterÀMesProjets({
+          await client.projets.ajouterÀMesProjets({
             idProjet: idNouveauProjet,
           });
           const val = await mesProjets.attendreQue((x) =>
@@ -93,7 +93,7 @@ typesClients.forEach((type) => {
         });
 
         it("On peut aussi l'effacer", async () => {
-          await client.projets!.effacerProjet({ idProjet: idNouveauProjet });
+          await client.projets.effacerProjet({ idProjet: idNouveauProjet });
 
           const val = await mesProjets.attendreQue(
             (x) => !x.includes(idNouveauProjet),
@@ -107,7 +107,7 @@ typesClients.forEach((type) => {
 
         const noms = new attente.AttendreRésultat<{ [key: string]: string }>();
         before(async () => {
-          fOublier = await client.projets!.suivreNomsProjet({
+          fOublier = await client.projets.suivreNomsProjet({
             idProjet,
             f: (n) => noms.mettreÀJour(n),
           });
@@ -123,7 +123,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter un nom", async () => {
-          await client.projets!.sauvegarderNomProjet({
+          await client.projets.sauvegarderNomProjet({
             idProjet,
             langue: "fr",
             nom: "Alphabets",
@@ -133,7 +133,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.projets!.sauvegarderNomsProjet({
+          await client.projets.sauvegarderNomsProjet({
             idProjet,
             noms: {
               த: "எழுத்துகள்",
@@ -149,7 +149,7 @@ typesClients.forEach((type) => {
         });
 
         it("Changer un nom", async () => {
-          await client.projets!.sauvegarderNomProjet({
+          await client.projets.sauvegarderNomProjet({
             idProjet,
             langue: "fr",
             nom: "Systèmes d'écriture",
@@ -159,7 +159,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer un nom", async () => {
-          await client.projets!.effacerNomProjet({
+          await client.projets.effacerNomProjet({
             idProjet,
             langue: "fr",
           });
@@ -175,7 +175,7 @@ typesClients.forEach((type) => {
           [key: string]: string;
         }>();
         before(async () => {
-          fOublier = await client.projets!.suivreDescriptionsProjet({
+          fOublier = await client.projets.suivreDescriptionsProjet({
             idProjet,
             f: (d) => descrs.mettreÀJour(d),
           });
@@ -191,7 +191,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter une description", async () => {
-          await client.projets!.sauvegarderDescriptionProjet({
+          await client.projets.sauvegarderDescriptionProjet({
             idProjet,
             langue: "fr",
             description: "Alphabets",
@@ -201,7 +201,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des descriptions", async () => {
-          await client.projets!.sauvegarderDescriptionsProjet({
+          await client.projets.sauvegarderDescriptionsProjet({
             idProjet,
             descriptions: {
               த: "எழுத்துகள்",
@@ -219,7 +219,7 @@ typesClients.forEach((type) => {
         });
 
         it("Changer une description", async () => {
-          await client.projets!.sauvegarderDescriptionProjet({
+          await client.projets.sauvegarderDescriptionProjet({
             idProjet,
             langue: "fr",
             description: "Systèmes d'écriture",
@@ -229,7 +229,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer une description", async () => {
-          await client.projets!.effacerDescriptionProjet({
+          await client.projets.effacerDescriptionProjet({
             idProjet,
             langue: "fr",
           });
@@ -246,7 +246,7 @@ typesClients.forEach((type) => {
           { source: "projet" | "bds"; idMotClef: string }[]
         >();
         before(async () => {
-          fOublier = await client.projets!.suivreMotsClefsProjet({
+          fOublier = await client.projets.suivreMotsClefsProjet({
             idProjet: idProjet,
             f: (m) => motsClefs.mettreÀJour(m),
           });
@@ -260,8 +260,8 @@ typesClients.forEach((type) => {
           expect(val).to.be.an.empty("array");
         });
         it("Ajout d'un mot-clef", async () => {
-          idMotClef = await client.motsClefs!.créerMotClef();
-          await client.projets!.ajouterMotsClefsProjet({
+          idMotClef = await client.motsClefs.créerMotClef();
+          await client.projets.ajouterMotsClefsProjet({
             idProjet,
             idsMotsClefs: idMotClef,
           });
@@ -269,7 +269,7 @@ typesClients.forEach((type) => {
           expect(val).to.be.an("array").with.lengthOf(1);
         });
         it("Effacer un mot-clef", async () => {
-          await client.projets!.effacerMotClefProjet({ idProjet, idMotClef });
+          await client.projets.effacerMotClefProjet({ idProjet, idMotClef });
 
           const val = await motsClefs.attendreQue((x) => x.length === 0);
           expect(val).to.be.an.empty("array");
@@ -294,19 +294,19 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fsOublier.push(
-            await client.projets!.suivreBdsProjet({
+            await client.projets.suivreBdsProjet({
               idProjet,
               f: (b) => bds.mettreÀJour(b),
             }),
           );
           fsOublier.push(
-            await client.projets!.suivreMotsClefsProjet({
+            await client.projets.suivreMotsClefsProjet({
               idProjet,
               f: (m) => motsClefs.mettreÀJour(m),
             }),
           );
           fsOublier.push(
-            await client.projets!.suivreVariablesProjet({
+            await client.projets.suivreVariablesProjet({
               idProjet,
               f: (v) => variables.mettreÀJour(v),
             }),
@@ -327,7 +327,7 @@ typesClients.forEach((type) => {
 
         it("Ajout d'une BD", async () => {
           idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-          await client.projets!.ajouterBdProjet({ idProjet, idBd });
+          await client.projets.ajouterBdProjet({ idProjet, idBd });
 
           const val = await bds.attendreQue((x) => x.length > 0);
           expect(Array.isArray(val)).to.be.true();
@@ -336,7 +336,7 @@ typesClients.forEach((type) => {
         });
 
         it("Mots-clefs BD détectés", async () => {
-          const idMotClef = await client.motsClefs!.créerMotClef();
+          const idMotClef = await client.motsClefs.créerMotClef();
           await client.bds.ajouterMotsClefsBd({
             idBd,
             idsMotsClefs: idMotClef,
@@ -350,12 +350,12 @@ typesClients.forEach((type) => {
           let val = await variables.attendreExiste();
           expect(val).to.be.an.empty("array");
 
-          const idVariable = await client.variables!.créerVariable({
+          const idVariable = await client.variables.créerVariable({
             catégorie: "numérique",
           });
           const idTableau = await client.bds.ajouterTableauBd({ idBd });
 
-          await client.tableaux!.ajouterColonneTableau({
+          await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable,
           });
@@ -367,7 +367,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer une BD", async () => {
-          await client.projets!.effacerBdProjet({ idProjet, idBd });
+          await client.projets.effacerBdProjet({ idProjet, idBd });
 
           const val = await bds.attendreQue((x) => !x.length);
           expect(val).to.be.an.empty("array");
@@ -402,53 +402,53 @@ typesClients.forEach((type) => {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          idProjetOrig = await client.projets!.créerProjet();
+          idProjetOrig = await client.projets.créerProjet();
 
-          await client.projets!.sauvegarderNomsProjet({
+          await client.projets.sauvegarderNomsProjet({
             idProjet: idProjetOrig,
             noms: réfNoms,
           });
-          await client.projets!.sauvegarderDescriptionsProjet({
+          await client.projets.sauvegarderDescriptionsProjet({
             idProjet: idProjetOrig,
             descriptions: réfDescrs,
           });
 
-          idMotClef = await client.motsClefs!.créerMotClef();
-          await client.projets!.ajouterMotsClefsProjet({
+          idMotClef = await client.motsClefs.créerMotClef();
+          await client.projets.ajouterMotsClefsProjet({
             idProjet: idProjetOrig,
             idsMotsClefs: idMotClef,
           });
 
           idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-          await client.projets!.ajouterBdProjet({
+          await client.projets.ajouterBdProjet({
             idProjet: idProjetOrig,
             idBd,
           });
 
-          idProjetCopie = await client.projets!.copierProjet({
+          idProjetCopie = await client.projets.copierProjet({
             idProjet: idProjetOrig,
           });
 
           fsOublier.push(
-            await client.projets!.suivreNomsProjet({
+            await client.projets.suivreNomsProjet({
               idProjet: idProjetCopie,
               f: (x) => noms.mettreÀJour(x),
             }),
           );
           fsOublier.push(
-            await client.projets!.suivreDescriptionsProjet({
+            await client.projets.suivreDescriptionsProjet({
               idProjet: idProjetCopie,
               f: (x) => descrs.mettreÀJour(x),
             }),
           );
           fsOublier.push(
-            await client.projets!.suivreMotsClefsProjet({
+            await client.projets.suivreMotsClefsProjet({
               idProjet: idProjetCopie,
               f: (x) => motsClefs.mettreÀJour(x),
             }),
           );
           fsOublier.push(
-            await client.projets!.suivreBdsProjet({
+            await client.projets.suivreBdsProjet({
               idProjet: idProjetCopie,
               f: (x) => bds.mettreÀJour(x),
             }),
@@ -494,28 +494,28 @@ typesClients.forEach((type) => {
         const nomTableau2 = "Tableau 2";
 
         before(async () => {
-          idProjet = await client.projets!.créerProjet();
+          idProjet = await client.projets.créerProjet();
           const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           await client.bds.sauvegarderNomsBd({
             idBd,
             noms: { fr: "Ma BD" },
           });
-          await client.projets!.ajouterBdProjet({ idProjet, idBd });
+          await client.projets.ajouterBdProjet({ idProjet, idBd });
 
           const idTableau1 = await client.bds.ajouterTableauBd({ idBd });
           const idTableau2 = await client.bds.ajouterTableauBd({ idBd });
 
-          const idVarNum = await client.variables!.créerVariable({
+          const idVarNum = await client.variables.créerVariable({
             catégorie: "numérique",
           });
-          const idVarFichier = await client.variables!.créerVariable({
+          const idVarFichier = await client.variables.créerVariable({
             catégorie: "fichier",
           });
-          await client.tableaux!.ajouterColonneTableau({
+          await client.tableaux.ajouterColonneTableau({
             idTableau: idTableau1,
             idVariable: idVarNum,
           });
-          const idColFichier = await client.tableaux!.ajouterColonneTableau({
+          const idColFichier = await client.tableaux.ajouterColonneTableau({
             idTableau: idTableau2,
             idVariable: idVarFichier,
           });
@@ -528,20 +528,20 @@ typesClients.forEach((type) => {
             fichier: { content: OCTETS, path: "logo.svg" },
           });
 
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau: idTableau2,
             vals: {
               [idColFichier]: cid,
             },
           });
 
-          await client.tableaux!.sauvegarderNomsTableau({
+          await client.tableaux.sauvegarderNomsTableau({
             idTableau: idTableau1,
             noms: {
               fr: nomTableau1,
             },
           });
-          await client.tableaux!.sauvegarderNomsTableau({
+          await client.tableaux.sauvegarderNomsTableau({
             idTableau: idTableau2,
             noms: {
               fr: nomTableau2,
@@ -549,7 +549,7 @@ typesClients.forEach((type) => {
           });
 
           ({ docs, fichiersSFIP, nomFichier } =
-            await client.projets!.exporterDonnées({
+            await client.projets.exporterDonnées({
               idProjet,
               langues: ["fr"],
             }));
@@ -589,7 +589,7 @@ typesClients.forEach((type) => {
                 nom: "testExporterProjet",
               });
 
-              await client.projets!.exporterDocumentDonnées({
+              await client.projets.exporterDocumentDonnées({
                 données: { docs, fichiersSFIP, nomFichier },
                 formatDoc: "ods",
                 dossier: dossierZip,

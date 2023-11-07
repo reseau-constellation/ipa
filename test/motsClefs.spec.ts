@@ -38,7 +38,7 @@ typesClients.forEach((type) => {
         const motsClefs = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
-          fOublier = await client.motsClefs!.suivreMotsClefs({
+          fOublier = await client.motsClefs.suivreMotsClefs({
             f: (x) => motsClefs.mettreÀJour(x),
           });
         });
@@ -52,14 +52,14 @@ typesClients.forEach((type) => {
           expect(val).to.be.an.empty("array");
         });
         it("Créer des mots-clefs", async () => {
-          idMotClef = await client.motsClefs!.créerMotClef();
+          idMotClef = await client.motsClefs.créerMotClef();
           const val = await motsClefs.attendreQue((x) => !!x.length);
 
           expect(Array.isArray(val)).to.be.true();
           expect(val.length).to.equal(1);
         });
         it("Effacer un mot-clef", async () => {
-          await client.motsClefs!.effacerMotClef({ idMotClef });
+          await client.motsClefs.effacerMotClef({ idMotClef });
           const val = await motsClefs.attendreQue((x) => !x.length);
 
           expect(val).to.be.an.empty("array");
@@ -73,8 +73,8 @@ typesClients.forEach((type) => {
         const mesMotsClefs = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
-          idMotClef = await client.motsClefs!.créerMotClef();
-          fOublier = await client.motsClefs!.suivreMotsClefs({
+          idMotClef = await client.motsClefs.créerMotClef();
+          fOublier = await client.motsClefs.suivreMotsClefs({
             f: (mc) => mesMotsClefs.mettreÀJour(mc),
           });
         });
@@ -90,14 +90,14 @@ typesClients.forEach((type) => {
         });
 
         it("Enlever de mes mots-clefs", async () => {
-          await client.motsClefs!.enleverDeMesMotsClefs({ idMotClef });
+          await client.motsClefs.enleverDeMesMotsClefs({ idMotClef });
           const val = await mesMotsClefs.attendreQue((x) => !x.length);
 
           expect(val).not.to.contain(idMotClef);
         });
 
         it("Ajouter à mes mots-clefs", async () => {
-          await client.motsClefs!.ajouterÀMesMotsClefs({ idMotClef });
+          await client.motsClefs.ajouterÀMesMotsClefs({ idMotClef });
           const val = await mesMotsClefs.attendreQue((x) => !!x.length);
 
           expect(val).to.contain(idMotClef);
@@ -112,8 +112,8 @@ typesClients.forEach((type) => {
         let fOublier: schémaFonctionOublier;
 
         before(async () => {
-          idMotClef = await client.motsClefs!.créerMotClef();
-          fOublier = await client.motsClefs!.suivreNomsMotClef({
+          idMotClef = await client.motsClefs.créerMotClef();
+          fOublier = await client.motsClefs.suivreNomsMotClef({
             idMotClef,
             f: (n) => rés.mettreÀJour(n),
           });
@@ -130,7 +130,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter un nom", async () => {
-          await client.motsClefs!.sauvegarderNomMotClef({
+          await client.motsClefs.sauvegarderNomMotClef({
             idMotClef,
             langue: "fr",
             nom: "Hydrologie",
@@ -140,7 +140,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter des noms", async () => {
-          await client.motsClefs!.sauvegarderNomsMotClef({
+          await client.motsClefs.sauvegarderNomsMotClef({
             idMotClef,
             noms: {
               த: "நீரியல்",
@@ -156,7 +156,7 @@ typesClients.forEach((type) => {
         });
 
         it("Changer un nom", async () => {
-          await client.motsClefs!.sauvegarderNomMotClef({
+          await client.motsClefs.sauvegarderNomMotClef({
             idMotClef,
             langue: "fr",
             nom: "hydrologie",
@@ -167,7 +167,7 @@ typesClients.forEach((type) => {
         });
 
         it("Effacer un nom", async () => {
-          await client.motsClefs!.effacerNomMotClef({
+          await client.motsClefs.effacerNomMotClef({
             idMotClef,
             langue: "fr",
           });
@@ -192,13 +192,13 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fsOublier.push(
-            await client.motsClefs!.suivreMotsClefs({
+            await client.motsClefs.suivreMotsClefs({
               f: (x) => (motsClefs = x),
             }),
           );
 
-          const idMotClef = await client.motsClefs!.créerMotClef();
-          await client.motsClefs!.sauvegarderNomsMotClef({
+          const idMotClef = await client.motsClefs.créerMotClef();
+          await client.motsClefs.sauvegarderNomsMotClef({
             idMotClef,
             noms: {
               த: "நீரியல்",
@@ -206,7 +206,7 @@ typesClients.forEach((type) => {
             },
           });
 
-          await client.motsClefs!.sauvegarderDescriptionsMotClef({
+          await client.motsClefs.sauvegarderDescriptionsMotClef({
             idMotClef,
             descriptions: {
               த: "நீரியலுக்காக ஒரு சிறப்பு சொலு",
@@ -214,17 +214,17 @@ typesClients.forEach((type) => {
             },
           });
 
-          idMotClef2 = await client.motsClefs!.copierMotClef({
+          idMotClef2 = await client.motsClefs.copierMotClef({
             idMotClef,
           });
           fsOublier.push(
-            await client.motsClefs!.suivreNomsMotClef({
+            await client.motsClefs.suivreNomsMotClef({
               idMotClef: idMotClef2,
               f: (x) => noms.mettreÀJour(x),
             }),
           );
           fsOublier.push(
-            await client.motsClefs!.suivreDescriptionsMotClef({
+            await client.motsClefs.suivreDescriptionsMotClef({
               idMotClef: idMotClef2,
               f: (x) => descriptions.mettreÀJour(x),
             }),

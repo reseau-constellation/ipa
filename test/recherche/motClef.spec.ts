@@ -37,7 +37,7 @@ describe("Rechercher mots clefs", function () {
     >();
 
     before(async () => {
-      idMotClef = await client.motsClefs!.créerMotClef();
+      idMotClef = await client.motsClefs.créerMotClef();
 
       const fRecherche = rechercherMotsClefsSelonNom("hydrologie");
       fOublier = await fRecherche(client, idMotClef, (r) =>
@@ -53,7 +53,7 @@ describe("Rechercher mots clefs", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           த: "நீரியல்",
@@ -62,7 +62,7 @@ describe("Rechercher mots clefs", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Résultat si le mot-clef est presque exacte", async () => {
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Sciences hydrologiques",
@@ -84,7 +84,7 @@ describe("Rechercher mots clefs", function () {
       });
     });
     it("Résultat si le mot-clef est exacte", async () => {
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "hydrologie",
@@ -119,7 +119,7 @@ describe("Rechercher mots clefs", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idMotClef = await client.motsClefs!.créerMotClef();
+      idMotClef = await client.motsClefs.créerMotClef();
 
       const fRechercheNom = rechercherMotsClefsSelonTexte("hydrologie");
       fsOublier.push(
@@ -135,7 +135,7 @@ describe("Rechercher mots clefs", function () {
         await fRechercheId(client, idMotClef, (r) => résultatId.mettreÀJour(r)),
       );
 
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "hydrologie",

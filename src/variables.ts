@@ -120,7 +120,7 @@ export default class Variables extends ComposanteClientListe<string> {
   }
 
   async épingler() {
-    await this.client.épingles?.épinglerBd({
+    await this.client.épingles.épinglerBd({
       id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
@@ -147,13 +147,13 @@ export default class Variables extends ComposanteClientListe<string> {
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
-        write: this.client.bdCompte!.address,
+        write: await this.client.obtIdCompte(),
       },
     });
     await this.ajouterÀMesVariables({ idVariable: idBdVariable });
 
     const { bd: bdVariable, fOublier: fOublierVariable } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idBdVariable,
         type: "keyvalue",
         schéma: schémaStructureBdVariable,
@@ -225,7 +225,7 @@ export default class Variables extends ComposanteClientListe<string> {
     idVariable: string;
   }): Promise<string> {
     const { bd: bdBase, fOublier: fOublierBase } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idVariable,
         type: "keyvalue",
         schéma: schémaStructureBdVariable,
@@ -236,7 +236,7 @@ export default class Variables extends ComposanteClientListe<string> {
 
     const idNouvelleBd = await this.créerVariable({ catégorie });
     const { bd: bdNouvelle, fOublier: fOublierNouvelle } =
-      await this.client.orbite!.ouvrirBdTypée({
+      await this.client.ouvrirBdTypée({
         id: idNouvelleBd,
         type: "keyvalue",
         schéma: schémaStructureBdVariable,
@@ -245,7 +245,7 @@ export default class Variables extends ComposanteClientListe<string> {
     const idBdNoms = await bdBase.get("noms");
     if (idBdNoms) {
       const { bd: bdNoms, fOublier: fOublierBdNoms } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdNoms,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -258,7 +258,7 @@ export default class Variables extends ComposanteClientListe<string> {
     const idBdDescr = await bdBase.get("descriptions");
     if (idBdDescr) {
       const { bd: bdDescr, fOublier: fOublierBdDescr } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdDescr,
           type: "keyvalue",
           schéma: schémaStructureBdNoms,
@@ -277,7 +277,7 @@ export default class Variables extends ComposanteClientListe<string> {
     const idBdRègles = await bdBase.get("règles");
     if (idBdRègles) {
       const { bd: bdRègles, fOublier: fOublierBdRègles } =
-        await this.client.orbite!.ouvrirBdTypée({
+        await this.client.ouvrirBdTypée({
           id: idBdRègles,
           type: "keyvalue",
           schéma: schémaBdRèglesVariable,
@@ -338,7 +338,7 @@ export default class Variables extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Variable ${idVariable}.`,
       );
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -368,7 +368,7 @@ export default class Variables extends ComposanteClientListe<string> {
         `Permission de modification refusée pour variable ${idVariable}.`,
       );
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -394,7 +394,7 @@ export default class Variables extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Variable ${idVariable}.`,
       );
 
-    const { bd: bdNoms, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -420,7 +420,7 @@ export default class Variables extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Variable ${idVariable}.`,
       );
 
-    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -450,7 +450,7 @@ export default class Variables extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Variable ${idVariable}.`,
       );
 
-    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -477,7 +477,7 @@ export default class Variables extends ComposanteClientListe<string> {
         `Permission de modification refusée pour Variable ${idVariable}.`,
       );
 
-    const { bd: bdDescr, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
       type: "keyvalue",
       schéma: schémaStructureBdNoms,
@@ -494,12 +494,11 @@ export default class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     catégorie: catégorieVariables | catégorieBaseVariables;
   }): Promise<void> {
-    const { bd: bdVariable, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idVariable,
-        type: "keyvalue",
-        schéma: schémaStructureBdVariable,
-      });
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
+    });
     await bdVariable.set(
       "catégorie",
       this.standardiserCatégorieVariable(catégorie),
@@ -523,12 +522,11 @@ export default class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     idUnité: string;
   }): Promise<void> {
-    const { bd: bdVariable, fOublier } =
-      await this.client.orbite!.ouvrirBdTypée({
-        id: idVariable,
-        type: "keyvalue",
-        schéma: schémaStructureBdVariable,
-      });
+    const { bd: bdVariable, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
+    });
     await bdVariable.set("unités", idUnité);
 
     await fOublier();
@@ -556,7 +554,7 @@ export default class Variables extends ComposanteClientListe<string> {
 
     idRègle = idRègle || uuidv4();
 
-    const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdRègles, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdRègles,
       type: "keyvalue",
       schéma: schémaBdRèglesVariable,
@@ -585,7 +583,7 @@ export default class Variables extends ComposanteClientListe<string> {
         `Permission de modification refusée pour variable ${idVariable}.`,
       );
     }
-    const { bd: bdRègles, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd: bdRègles, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdRègles,
       type: "keyvalue",
       schéma: schémaBdRèglesVariable,
@@ -837,7 +835,7 @@ export default class Variables extends ComposanteClientListe<string> {
     id: string;
     statut: schémaStatut;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id,
       type: "keyvalue",
       schéma: schémaStructureBdVariable,
@@ -853,7 +851,7 @@ export default class Variables extends ComposanteClientListe<string> {
     id: string;
     idNouvelle?: string;
   }): Promise<void> {
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBdTypée({
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id,
       type: "keyvalue",
       schéma: schémaStructureBdVariable,

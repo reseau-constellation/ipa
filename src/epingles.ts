@@ -127,7 +127,7 @@ export default class Épingles {
   }): Promise<void> {
     if (await this.épingléeParParent({ id, parent })) return;
 
-    const { bd, fOublier } = await this.client.orbite!.ouvrirBd({ id });
+    const { bd, fOublier } = await this.client.ouvrirBd({ id });
     this.requètes.push({ id, parent, fOublier });
     this.événements.emit("changement épingles");
 
@@ -156,15 +156,16 @@ export default class Épingles {
             (v) => cidEtFichierValide(v) && !idsOrbite.includes(v),
           );
 
-          cids.forEach((id_) => {
+          const { sfip } = await this.client.attendreSfipEtOrbite();
+          cids.forEach(async (id_) => {
             // Pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
             // (Sinon ça bloquerait tout le programme en attendant de trouver le contenu sur le réseau SFIP !)
-            this.client.sfip!.pin.add(id_.split("/")[0]);
+            sfip.pin.add(id_.split("/")[0]);
 
             const fOublier_ = async () => {
               // rm par contre peut être async
               try {
-                await this.client.sfip!.pin.rm(id_);
+                await sfip.pin.rm(id_);
               } catch {
                 // Ignorer erreur si id_ n'était pas épinglé sur SFIP
               }

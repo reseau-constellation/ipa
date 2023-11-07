@@ -35,7 +35,7 @@ export const rechercherVariablesSelonNom = (
         return await fSuivreRecherche();
       }
     };
-    const fOublier = await client.variables!.suivreNomsVariable({
+    const fOublier = await client.variables.suivreNomsVariable({
       idVariable,
       f: fSuivre,
     });
@@ -66,7 +66,7 @@ export const rechercherVariablesSelonDescr = (
         return await fSuivreRecherche();
       }
     };
-    const fOublier = await client.variables!.suivreDescriptionsVariable({
+    const fOublier = await client.variables.suivreDescriptionsVariable({
       idVariable,
       f: fSuivre,
     });

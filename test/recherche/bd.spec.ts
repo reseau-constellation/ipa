@@ -146,7 +146,7 @@ describe("Rechercher bds", function () {
 
     before(async () => {
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      idMotClef = await client.motsClefs!.créerMotClef();
+      idMotClef = await client.motsClefs.créerMotClef();
 
       const fRechercheNom = rechercherBdsSelonNomMotClef("Météo");
       fsOublier.push(
@@ -204,7 +204,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout nom mot-clef détecté", async () => {
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météo historique pour la région de Montréal",
@@ -255,7 +255,7 @@ describe("Rechercher bds", function () {
 
     before(async () => {
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      idVariable = await client.variables!.créerVariable({
+      idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
 
@@ -289,7 +289,7 @@ describe("Rechercher bds", function () {
 
     it("Ajout variable détecté", async () => {
       const idTableau = await client.bds.ajouterTableauBd({ idBd });
-      await client.tableaux!.ajouterColonneTableau({
+      await client.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
@@ -318,7 +318,7 @@ describe("Rechercher bds", function () {
     });
 
     it("Ajout nom variable détecté", async () => {
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Précipitation mensuelle",
@@ -480,15 +480,15 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat variable détecté", async () => {
-      const idVariable = await client.variables!.créerVariable({
+      const idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
       const idTableau = await client.bds.ajouterTableauBd({ idBd });
-      await client.tableaux!.ajouterColonneTableau({
+      await client.tableaux.ajouterColonneTableau({
         idTableau,
         idVariable,
       });
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Température maximale",
@@ -515,12 +515,12 @@ describe("Rechercher bds", function () {
     });
 
     it("Résultat mot-clef détecté", async () => {
-      const idMotClef = await client.motsClefs!.créerMotClef();
+      const idMotClef = await client.motsClefs.créerMotClef();
       await client.bds.ajouterMotsClefsBd({
         idBd,
         idsMotsClefs: idMotClef,
       });
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météorologie",

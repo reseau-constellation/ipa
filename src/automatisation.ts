@@ -435,7 +435,7 @@ const générerFExportation = (
     const path = await import("path");
     const fs = await import("fs");
     const dossier = spéc.dossier
-      ? await client.automatisations!.résoudreAdressePrivéeFichier({
+      ? await client.automatisations.résoudreAdressePrivéeFichier({
           clef: spéc.dossier,
         })
       : path.join(os.homedir(), "constellation");
@@ -448,14 +448,14 @@ const générerFExportation = (
     };
     switch (spéc.typeObjet) {
       case "tableau": {
-        const donnéesExp = await client.tableaux!.exporterDonnées({
+        const donnéesExp = await client.tableaux.exporterDonnées({
           idTableau: spéc.idObjet,
           langues: spéc.langues,
         });
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await client.bds!.exporterDocumentDonnées({
+        await client.bds.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
@@ -465,14 +465,14 @@ const générerFExportation = (
       }
 
       case "bd": {
-        const donnéesExp = await client.bds!.exporterDonnées({
+        const donnéesExp = await client.bds.exporterDonnées({
           idBd: spéc.idObjet,
           langues: spéc.langues,
         });
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await client.bds!.exporterDocumentDonnées({
+        await client.bds.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
@@ -482,14 +482,14 @@ const générerFExportation = (
       }
 
       case "projet": {
-        const donnéesExp = await client.projets!.exporterDonnées({
+        const donnéesExp = await client.projets.exporterDonnées({
           idProjet: spéc.idObjet,
           langues: spéc.langues,
         });
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await client.projets!.exporterDocumentDonnées({
+        await client.projets.exporterDocumentDonnées({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
@@ -499,7 +499,7 @@ const générerFExportation = (
       }
 
       case "nuée": {
-        const donnéesNuée = await client.nuées!.exporterDonnéesNuée({
+        const donnéesNuée = await client.nuées.exporterDonnéesNuée({
           idNuée: spéc.idObjet,
           langues: spéc.langues,
           nRésultatsDésirés: spéc.nRésultatsDésirésNuée || 1000,
@@ -507,7 +507,7 @@ const générerFExportation = (
         nomFichier = donnéesNuée.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await client.bds!.exporterDocumentDonnées({
+        await client.bds.exporterDocumentDonnées({
           données: donnéesNuée,
           formatDoc: spéc.formatDoc,
           dossier,
@@ -583,12 +583,12 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
           adresse?: string,
         ): Promise<string | undefined> => {
           return (
-            (await client.automatisations!.résoudreAdressePrivéeFichier({
+            (await client.automatisations.résoudreAdressePrivéeFichier({
               clef: adresse,
             })) || undefined
           );
         };
-        const données = await client.automatisations!.obtDonnéesImportation(
+        const données = await client.automatisations.obtDonnéesImportation(
           spéc,
           résoudreAdresse,
         );
@@ -608,7 +608,7 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
           if (fichierRésolu) cheminBaseFichiers = path.dirname(fichierRésolu);
         }
 
-        await client.tableaux!.importerDonnées({
+        await client.tableaux.importerDonnées({
           idTableau: spéc.idTableau,
           données,
           conversions: spéc.conversions,
@@ -755,7 +755,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     switch (spéc.type) {
       case "exportation": {
         if (spéc.typeObjet === "nuée") {
-          const fOublier = await client.nuées!.suivreEmpreinteTêtesBdsNuée({
+          const fOublier = await client.nuées.suivreEmpreinteTêtesBdsNuée({
             idNuée: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
@@ -780,7 +780,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             const { adresseFichier } = spéc.source;
 
             const adresseFichierRésolue =
-              await client.automatisations!.résoudreAdressePrivéeFichier({
+              await client.automatisations.résoudreAdressePrivéeFichier({
                 clef: adresseFichier,
               });
             if (!adresseFichierRésolue || !fs.existsSync(adresseFichierRésolue))
@@ -920,7 +920,7 @@ export default class Automatisations extends ComposanteClientDic<{
   }
 
   async épingler() {
-    await this.client.épingles?.épinglerBd({
+    await this.client.épingles.épinglerBd({
       id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,

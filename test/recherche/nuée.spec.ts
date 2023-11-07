@@ -47,7 +47,7 @@ describe("Client ", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idNuée = await client.nuées!.créerNuée({});
+      idNuée = await client.nuées.créerNuée({});
 
       const fRecherche = rechercherNuéesSelonNom("Météo");
       fOublier = await fRecherche(client, idNuée, (r) =>
@@ -64,7 +64,7 @@ describe("Client ", function () {
     });
 
     it("Ajout nom détecté", async () => {
-      await client.nuées!.sauvegarderNomsNuée({
+      await client.nuées.sauvegarderNomsNuée({
         idNuée,
         noms: {
           fr: "Météorologie",
@@ -95,7 +95,7 @@ describe("Client ", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idNuée = await client.nuées!.créerNuée({});
+      idNuée = await client.nuées.créerNuée({});
 
       const fRecherche = rechercherNuéesSelonDescr("Météo");
       fOublier = await fRecherche(client, idNuée, (r) =>
@@ -112,7 +112,7 @@ describe("Client ", function () {
     });
 
     it("Ajout description détecté", async () => {
-      await client.nuées!.sauvegarderDescriptionsNuée({
+      await client.nuées.sauvegarderDescriptionsNuée({
         idNuée,
         descriptions: {
           fr: "Météo historique",
@@ -151,8 +151,8 @@ describe("Client ", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées!.créerNuée({});
-      idMotClef = await client.motsClefs!.créerMotClef();
+      idNuée = await client.nuées.créerNuée({});
+      idMotClef = await client.motsClefs.créerMotClef();
 
       const fRechercheNom = rechercherNuéesSelonNomMotClef("Météo");
       fsOublier.push(
@@ -185,7 +185,7 @@ describe("Client ", function () {
     });
 
     it("Ajout mot-clef détecté", async () => {
-      await client.nuées!.ajouterMotsClefsNuée({
+      await client.nuées.ajouterMotsClefsNuée({
         idNuée,
         idsMotsClefs: idMotClef,
       });
@@ -214,7 +214,7 @@ describe("Client ", function () {
     });
 
     it("Ajout nom mot-clef détecté", async () => {
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météo historique pour la région de Montréal",
@@ -264,8 +264,8 @@ describe("Client ", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées!.créerNuée({});
-      idVariable = await client.variables!.créerVariable({
+      idNuée = await client.nuées.créerNuée({});
+      idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
 
@@ -300,8 +300,8 @@ describe("Client ", function () {
     });
 
     it("Ajout variable détecté", async () => {
-      const idTableau = await client.nuées!.ajouterTableauNuée({ idNuée });
-      await client.nuées!.ajouterColonneTableauNuée({
+      const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
+      await client.nuées.ajouterColonneTableauNuée({
         idTableau,
         idVariable,
       });
@@ -330,7 +330,7 @@ describe("Client ", function () {
     });
 
     it("Ajout nom variable détecté", async () => {
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Précipitation mensuelle",
@@ -411,7 +411,7 @@ describe("Client ", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées!.créerNuée({});
+      idNuée = await client.nuées.créerNuée({});
 
       const fRechercheNom = rechercherNuéesSelonTexte("Hydrologie");
       fsOublier.push(
@@ -466,7 +466,7 @@ describe("Client ", function () {
     });
 
     it("Résultat nom détecté", async () => {
-      await client.nuées!.sauvegarderNomsNuée({
+      await client.nuées.sauvegarderNomsNuée({
         idNuée,
         noms: {
           fr: "Hydrologie",
@@ -489,7 +489,7 @@ describe("Client ", function () {
     });
 
     it("Résultat descr détecté", async () => {
-      await client.nuées!.sauvegarderDescriptionsNuée({
+      await client.nuées.sauvegarderDescriptionsNuée({
         idNuée,
         descriptions: {
           fr: "Hydrologie de Montréal",
@@ -511,15 +511,15 @@ describe("Client ", function () {
     });
 
     it("Résultat variable détecté", async () => {
-      const idVariable = await client.variables!.créerVariable({
+      const idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      const idTableau = await client.nuées!.ajouterTableauNuée({ idNuée });
-      await client.nuées!.ajouterColonneTableauNuée({
+      const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
+      await client.nuées.ajouterColonneTableauNuée({
         idTableau,
         idVariable,
       });
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Température maximale",
@@ -553,14 +553,14 @@ describe("Client ", function () {
     });
 
     it("Résultat mot-clef détecté", async () => {
-      const idMotClef = await client.motsClefs!.créerMotClef();
-      await client.motsClefs!.sauvegarderNomsMotClef({
+      const idMotClef = await client.motsClefs.créerMotClef();
+      await client.motsClefs.sauvegarderNomsMotClef({
         idMotClef,
         noms: {
           fr: "Météorologie",
         },
       });
-      await client.nuées!.ajouterMotsClefsNuée({
+      await client.nuées.ajouterMotsClefsNuée({
         idNuée: idNuée,
         idsMotsClefs: idMotClef,
       });

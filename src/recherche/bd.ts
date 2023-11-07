@@ -39,7 +39,7 @@ export const rechercherBdsSelonNom = (
         return await fSuivreRecherche();
       }
     };
-    const fOublier = await client.bds!.suivreNomsBd({ idBd, f: fSuivre });
+    const fOublier = await client.bds.suivreNomsBd({ idBd, f: fSuivre });
     return fOublier;
   };
 };
@@ -67,7 +67,7 @@ export const rechercherBdsSelonDescr = (
         return await fSuivreRecherche();
       }
     };
-    const fOublier = await client.bds!.suivreDescriptionsBd({
+    const fOublier = await client.bds.suivreDescriptionsBd({
       idBd,
       f: fSuivre,
     });
@@ -90,7 +90,7 @@ export const rechercherBdsSelonIdVariable = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
-      return await client.bds!.suivreVariablesBd({
+      return await client.bds.suivreVariablesBd({
         idBd,
         f: fSuivreRacine,
       });
@@ -123,7 +123,7 @@ export const rechercherBdsSelonNomVariable = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
-      return await client.bds!.suivreVariablesBd({
+      return await client.bds.suivreVariablesBd({
         idBd,
         f: fSuivreRacine,
       });
@@ -180,7 +180,7 @@ export const rechercherBdsSelonIdMotClef = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
-      return await client.bds!.suivreMotsClefsBd({
+      return await client.bds.suivreMotsClefsBd({
         idBd,
         f: fSuivreRacine,
       });
@@ -213,7 +213,7 @@ export const rechercherBdsSelonNomMotClef = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
-      return await client.bds!.suivreMotsClefsBd({
+      return await client.bds.suivreMotsClefsBd({
         idBd,
         f: fSuivreRacine,
       });

@@ -36,19 +36,19 @@ typesClients.forEach((type) => {
 
       describe("estÉpingléSurDispositif", function () {
         it("undefined", async () => {
-          const épinglé = await client.favoris!.estÉpingléSurDispositif({
+          const épinglé = await client.favoris.estÉpingléSurDispositif({
             dispositifs: undefined,
           });
           expect(épinglé).to.be.false();
         });
         it("tous", async () => {
-          const épinglé = await client.favoris!.estÉpingléSurDispositif({
+          const épinglé = await client.favoris.estÉpingléSurDispositif({
             dispositifs: "TOUS",
           });
           expect(épinglé).to.be.true();
         });
         it("installé", async () => {
-          const épinglé = await client.favoris!.estÉpingléSurDispositif({
+          const épinglé = await client.favoris.estÉpingléSurDispositif({
             dispositifs: "INSTALLÉ",
           });
           if (isNode || isElectronMain) {
@@ -59,7 +59,7 @@ typesClients.forEach((type) => {
         });
         it("installé, pour un autre dispositif", async () => {
           const idDispositifAutre = "abc";
-          const épinglé = await client.favoris!.estÉpingléSurDispositif({
+          const épinglé = await client.favoris.estÉpingléSurDispositif({
             dispositifs: "INSTALLÉ",
             idDispositif: idDispositifAutre,
           });
@@ -67,14 +67,14 @@ typesClients.forEach((type) => {
         });
         it("idDispositif", async () => {
           const idDispositif = await client.obtIdDispositif();
-          const épinglé = await client.favoris!.estÉpingléSurDispositif({
+          const épinglé = await client.favoris.estÉpingléSurDispositif({
             dispositifs: idDispositif,
           });
           expect(épinglé).to.be.true();
         });
         it("listeIdDispositif", async () => {
           const idDispositif = await client.obtIdDispositif();
-          const épinglé = await client.favoris!.estÉpingléSurDispositif({
+          const épinglé = await client.favoris.estÉpingléSurDispositif({
             dispositifs: [idDispositif],
           });
           expect(épinglé).to.be.true();
@@ -95,12 +95,12 @@ typesClients.forEach((type) => {
           idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
           fsOublier.push(
-            await client.favoris!.suivreFavoris({
+            await client.favoris.suivreFavoris({
               f: (favs) => favoris.mettreÀJour(favs),
             }),
           );
           fsOublier.push(
-            await client.favoris!.suivreEstÉpingléSurDispositif({
+            await client.favoris.suivreEstÉpingléSurDispositif({
               idObjet: idBd,
               f: (épingle) => épingleBd.mettreÀJour(épingle),
             }),
@@ -118,7 +118,7 @@ typesClients.forEach((type) => {
         });
 
         it("Ajouter un favori", async () => {
-          await client.favoris!.épinglerFavori({
+          await client.favoris.épinglerFavori({
             idObjet: idBd,
             dispositifs: "TOUS",
           });
@@ -145,7 +145,7 @@ typesClients.forEach((type) => {
         });
 
         it("Enlever un favori", async () => {
-          await client.favoris!.désépinglerFavori({ idObjet: idBd });
+          await client.favoris.désépinglerFavori({ idObjet: idBd });
 
           const val = await favoris.attendreQue((x) => x.length === 0);
           expect(val.length).to.equal(0);
@@ -163,21 +163,21 @@ typesClients.forEach((type) => {
           const idc = "QmNR2n4zywCV61MeMLB6JwPueAPqheqpfiA4fLPMxouEmQ";
 
           const idTableau = await client.bds.ajouterTableauBd({ idBd });
-          const idVarPhoto = await client.variables!.créerVariable({
+          const idVarPhoto = await client.variables.créerVariable({
             catégorie: "image",
           });
-          const idColPhoto = await client.tableaux!.ajouterColonneTableau({
+          const idColPhoto = await client.tableaux.ajouterColonneTableau({
             idTableau,
             idVariable: idVarPhoto,
           });
-          await client.tableaux!.ajouterÉlément({
+          await client.tableaux.ajouterÉlément({
             idTableau,
             vals: {
               [idColPhoto]: idc,
             },
           });
 
-          expect(await client.épingles!.épinglée({ id: idc }));
+          expect(await client.épingles.épinglée({ id: idc }));
         });
       });
     });

@@ -8,7 +8,6 @@ import type {
 } from "@/variables.js";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import { cholqij } from "@/dates.js";
-import { JSONSchemaType } from "ajv";
 import { isValidAddress } from "@orbitdb/core";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";

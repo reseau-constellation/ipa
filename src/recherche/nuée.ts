@@ -39,7 +39,7 @@ export const rechercherNuéesSelonNom = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.nuées!.suivreNomsNuée({ idNuée, f: fSuivre });
+    const fOublier = await client.nuées.suivreNomsNuée({ idNuée, f: fSuivre });
     return fOublier;
   };
 };
@@ -67,7 +67,7 @@ export const rechercherNuéesSelonDescr = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.nuées!.suivreDescriptionsNuée({
+    const fOublier = await client.nuées.suivreDescriptionsNuée({
       idNuée,
       f: fSuivre,
     });
@@ -90,7 +90,7 @@ export const rechercherNuéesSelonIdVariable = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
-      return await client.nuées!.suivreVariablesNuée({
+      return await client.nuées.suivreVariablesNuée({
         idNuée,
         f: fSuivreRacine,
       });
@@ -123,7 +123,7 @@ export const rechercherNuéesSelonNomVariable = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
-      return await client.nuées!.suivreVariablesNuée({
+      return await client.nuées.suivreVariablesNuée({
         idNuée,
         f: fSuivreRacine,
       });
@@ -180,7 +180,7 @@ export const rechercherNuéesSelonIdMotClef = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
-      return await client.nuées!.suivreMotsClefsNuée({
+      return await client.nuées.suivreMotsClefsNuée({
         idNuée,
         f: fSuivreRacine,
       });
@@ -213,7 +213,7 @@ export const rechercherNuéesSelonNomMotClef = (
     const fListe = async (
       fSuivreRacine: (idsVariables: string[]) => void,
     ): Promise<schémaFonctionOublier> => {
-      return await client.nuées!.suivreMotsClefsNuée({
+      return await client.nuées.suivreMotsClefsNuée({
         idNuée,
         f: fSuivreRacine,
       });

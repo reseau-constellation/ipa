@@ -109,14 +109,14 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier, fChangerN } =
-                await clients[0].recherche!.rechercherProfilsSelonNom({
+                await clients[0].recherche.rechercherProfilsSelonNom({
                   nom: "Julien",
                   f: (membres) => rés.mettreÀJour(membres),
                   nRésultatsDésirés: 2,
                 }));
 
               ({ fOublier: fOublier2, fChangerN: fChangerN2 } =
-                await clients[0].recherche!.rechercherProfilsSelonNom({
+                await clients[0].recherche.rechercherProfilsSelonNom({
                   nom: "Julien",
                   f: (membres) => rés2.mettreÀJour(membres),
                   nRésultatsDésirés: 1,
@@ -162,7 +162,7 @@ typesClients.forEach((type) => {
             });
 
             it("Moins de résultats que demandé s'il n'y a vraiment rien", async () => {
-              await clients[1].profil!.sauvegarderNom({
+              await clients[1].profil.sauvegarderNom({
                 langue: "fr",
                 nom: "Julien",
               });
@@ -172,7 +172,7 @@ typesClients.forEach((type) => {
             });
 
             it("On suit les changements", async () => {
-              await clients[2].profil!.sauvegarderNom({
+              await clients[2].profil.sauvegarderNom({
                 langue: "cst",
                 nom: "Julián",
               });
@@ -220,7 +220,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherProfilsSelonCourriel({
+                await clients[0].recherche.rechercherProfilsSelonCourriel({
                   courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
                   f: (membres) => rés.mettreÀJour(membres),
                   nRésultatsDésirés: 2,
@@ -281,7 +281,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherProfilsSelonId({
+                await clients[0].recherche.rechercherProfilsSelonId({
                   idCompte: await clients[1].obtIdCompte(),
                   f: (membres) => rés.mettreÀJour(membres),
                   nRésultatsDésirés: 2,
@@ -336,10 +336,10 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              const idMotClef = await clients[1].motsClefs!.créerMotClef();
+              const idMotClef = await clients[1].motsClefs.créerMotClef();
 
               ({ fOublier } =
-                await clients[0].recherche!.rechercherMotsClefsSelonId({
+                await clients[0].recherche.rechercherMotsClefsSelonId({
                   idMotClef,
                   f: (motsClefs) => rés.mettreÀJour(motsClefs),
                   nRésultatsDésirés: 2,
@@ -380,7 +380,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherMotsClefsSelonNom({
+                await clients[0].recherche.rechercherMotsClefsSelonNom({
                   nomMotClef: "hydro",
                   f: (motsClefs) => rés.mettreÀJour(motsClefs),
                   nRésultatsDésirés: 2,
@@ -398,7 +398,7 @@ typesClients.forEach((type) => {
             });
 
             it("Nouveau mot-clef détecté", async () => {
-              const idMotClef = await clients[1].motsClefs!.créerMotClef();
+              const idMotClef = await clients[1].motsClefs.créerMotClef();
               const réf: résultatRecherche<infoRésultatTexte> = {
                 id: idMotClef,
                 résultatObjectif: {
@@ -415,7 +415,7 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await clients[1].motsClefs!.sauvegarderNomsMotClef({
+              await clients[1].motsClefs.sauvegarderNomsMotClef({
                 idMotClef,
                 noms: {
                   fr: "hydrologie",
@@ -434,7 +434,7 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              ({ fOublier } = await clients[0].recherche!.rechercherMotsClefs({
+              ({ fOublier } = await clients[0].recherche.rechercherMotsClefs({
                 f: (motsClefs) => rés.mettreÀJour(motsClefs),
                 nRésultatsDésirés: 2,
               }));
@@ -473,12 +473,12 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              const idVariable = await clients[1].variables!.créerVariable({
+              const idVariable = await clients[1].variables.créerVariable({
                 catégorie: "numérique",
               });
 
               ({ fOublier } =
-                await clients[0].recherche!.rechercherVariablesSelonId({
+                await clients[0].recherche.rechercherVariablesSelonId({
                   idVariable,
                   f: (motsClefs) => rés.mettreÀJour(motsClefs),
                   nRésultatsDésirés: 2,
@@ -519,7 +519,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherVariablesSelonNom({
+                await clients[0].recherche.rechercherVariablesSelonNom({
                   nomVariable: "précip",
                   f: (variables) => rés.mettreÀJour(variables),
                   nRésultatsDésirés: 2,
@@ -537,7 +537,7 @@ typesClients.forEach((type) => {
             });
 
             it("Nouvelle variable détectée", async () => {
-              const idVariable = await clients[1].variables!.créerVariable({
+              const idVariable = await clients[1].variables.créerVariable({
                 catégorie: "numérique",
               });
               const réf: résultatRecherche<infoRésultatTexte> = {
@@ -556,7 +556,7 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await clients[1].variables!.sauvegarderNomsVariable({
+              await clients[1].variables.sauvegarderNomsVariable({
                 idVariable,
                 noms: {
                   fr: "précipitation",
@@ -576,7 +576,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherVariablesSelonDescr({
+                await clients[0].recherche.rechercherVariablesSelonDescr({
                   descrVariable: "précip",
                   f: (variables) => rés.mettreÀJour(variables),
                   nRésultatsDésirés: 2,
@@ -594,7 +594,7 @@ typesClients.forEach((type) => {
             });
 
             it("Nouvelle variable détectée", async () => {
-              const idVariable = await clients[1].variables!.créerVariable({
+              const idVariable = await clients[1].variables.créerVariable({
                 catégorie: "numérique",
               });
               const réf: résultatRecherche<infoRésultatTexte> = {
@@ -613,7 +613,7 @@ typesClients.forEach((type) => {
                 },
               };
 
-              await clients[1].variables!.sauvegarderDescriptionsVariable({
+              await clients[1].variables.sauvegarderDescriptionsVariable({
                 idVariable,
                 descriptions: {
                   fr: "précipitation",
@@ -632,7 +632,7 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              ({ fOublier } = await clients[0].recherche!.rechercherVariables({
+              ({ fOublier } = await clients[0].recherche.rechercherVariables({
                 f: (variables) => rés.mettreÀJour(variables),
                 nRésultatsDésirés: 2,
               }));
@@ -673,7 +673,7 @@ typesClients.forEach((type) => {
             before(async () => {
               idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
 
-              ({ fOublier } = await clients[0].recherche!.rechercherBdsSelonId({
+              ({ fOublier } = await clients[0].recherche.rechercherBdsSelonId({
                 idBd,
                 f: (bds) => rés.mettreÀJour(bds),
                 nRésultatsDésirés: 2,
@@ -711,13 +711,11 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              ({ fOublier } = await clients[0].recherche!.rechercherBdsSelonNom(
-                {
-                  nomBd: "météo",
-                  f: (bds) => rés.mettreÀJour(bds),
-                  nRésultatsDésirés: 2,
-                },
-              ));
+              ({ fOublier } = await clients[0].recherche.rechercherBdsSelonNom({
+                nomBd: "météo",
+                f: (bds) => rés.mettreÀJour(bds),
+                nRésultatsDésirés: 2,
+              }));
             });
 
             after(async () => {
@@ -758,7 +756,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherBdsSelonDescr({
+                await clients[0].recherche.rechercherBdsSelonDescr({
                   descrBd: "météo",
                   f: (bds) => rés.mettreÀJour(bds),
                   nRésultatsDésirés: 2,
@@ -805,7 +803,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherBdsSelonVariable({
+                await clients[0].recherche.rechercherBdsSelonVariable({
                   texte: "précipitation",
                   f: (bds) => rés.mettreÀJour(bds),
                   nRésultatsDésirés: 2,
@@ -818,17 +816,17 @@ typesClients.forEach((type) => {
             });
 
             it("Nouvelle variable détectée", async () => {
-              const idVariable = await clients[1].variables!.créerVariable({
+              const idVariable = await clients[1].variables.créerVariable({
                 catégorie: "numérique",
               });
               const idTableau = await clients[1].bds.ajouterTableauBd({
                 idBd,
               });
-              await clients[1].tableaux!.ajouterColonneTableau({
+              await clients[1].tableaux.ajouterColonneTableau({
                 idTableau,
                 idVariable,
               });
-              await clients[1].variables!.sauvegarderNomsVariable({
+              await clients[1].variables.sauvegarderNomsVariable({
                 idVariable,
                 noms: {
                   fr: "Précipitation",
@@ -871,7 +869,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherBdsSelonMotClef({
+                await clients[0].recherche.rechercherBdsSelonMotClef({
                   texte: "meteorología",
                   f: (bds) => rés.mettreÀJour(bds),
                   nRésultatsDésirés: 2,
@@ -884,12 +882,12 @@ typesClients.forEach((type) => {
             });
 
             it("Nouveau mot-clef détecté", async () => {
-              const idMotClef = await clients[1].motsClefs!.créerMotClef();
+              const idMotClef = await clients[1].motsClefs.créerMotClef();
               await clients[1].bds.ajouterMotsClefsBd({
                 idBd,
                 idsMotsClefs: idMotClef,
               });
-              await clients[1].motsClefs!.sauvegarderNomsMotClef({
+              await clients[1].motsClefs.sauvegarderNomsMotClef({
                 idMotClef,
                 noms: {
                   cst: "Meteorología",
@@ -931,7 +929,7 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              ({ fOublier } = await clients[0].recherche!.rechercherBds({
+              ({ fOublier } = await clients[0].recherche.rechercherBds({
                 f: (bds) => rés.mettreÀJour(bds),
                 nRésultatsDésirés: 2,
               }));
@@ -988,14 +986,15 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              idNuée = await clients[1].nuées!.créerNuée({});
+              idNuée = await clients[1].nuées.créerNuée({});
 
-              ({ fOublier } =
-                await clients[0].recherche!.rechercherNuéesSelonId({
+              ({ fOublier } = await clients[0].recherche.rechercherNuéesSelonId(
+                {
                   idNuée,
                   f: (nuées) => rés.mettreÀJour(nuées),
                   nRésultatsDésirés: 2,
-                }));
+                },
+              ));
             });
 
             after(async () => {
@@ -1030,7 +1029,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherNuéesSelonNom({
+                await clients[0].recherche.rechercherNuéesSelonNom({
                   nomNuée: "météo",
                   f: (nuées) => rés.mettreÀJour(nuées),
                   nRésultatsDésirés: 2,
@@ -1058,7 +1057,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].nuées!.sauvegarderNomsNuée({
+              await clients[1].nuées.sauvegarderNomsNuée({
                 idNuée,
                 noms: { fr: "météorologie" },
               });
@@ -1075,7 +1074,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherNuéesSelonDescr({
+                await clients[0].recherche.rechercherNuéesSelonDescr({
                   descrNuée: "météo",
                   f: (nuées) => rés.mettreÀJour(nuées),
                   nRésultatsDésirés: 2,
@@ -1103,7 +1102,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].nuées!.sauvegarderDescriptionsNuée({
+              await clients[1].nuées.sauvegarderDescriptionsNuée({
                 idNuée,
                 descriptions: {
                   fr: "Météorologie de la région de Montpellier.",
@@ -1122,7 +1121,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherNuéesSelonVariable({
+                await clients[0].recherche.rechercherNuéesSelonVariable({
                   texte: "précipitation",
                   f: (nuées) => rés.mettreÀJour(nuées),
                   nRésultatsDésirés: 2,
@@ -1135,17 +1134,17 @@ typesClients.forEach((type) => {
             });
 
             it("Nouvelle variable détectée", async () => {
-              const idVariable = await clients[1].variables!.créerVariable({
+              const idVariable = await clients[1].variables.créerVariable({
                 catégorie: "numérique",
               });
-              const idTableau = await clients[1].nuées!.ajouterTableauNuée({
+              const idTableau = await clients[1].nuées.ajouterTableauNuée({
                 idNuée,
               });
-              await clients[1].nuées!.ajouterColonneTableauNuée({
+              await clients[1].nuées.ajouterColonneTableauNuée({
                 idTableau,
                 idVariable,
               });
-              await clients[1].variables!.sauvegarderNomsVariable({
+              await clients[1].variables.sauvegarderNomsVariable({
                 idVariable,
                 noms: {
                   fr: "Précipitation",
@@ -1188,7 +1187,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherNuéesSelonMotClef({
+                await clients[0].recherche.rechercherNuéesSelonMotClef({
                   texte: "meteorología",
                   f: (nuées) => rés.mettreÀJour(nuées),
                   nRésultatsDésirés: 2,
@@ -1201,12 +1200,12 @@ typesClients.forEach((type) => {
             });
 
             it("Nouveau mot-clef détecté", async () => {
-              const idMotClef = await clients[1].motsClefs!.créerMotClef();
-              await clients[1].nuées!.ajouterMotsClefsNuée({
+              const idMotClef = await clients[1].motsClefs.créerMotClef();
+              await clients[1].nuées.ajouterMotsClefsNuée({
                 idNuée,
                 idsMotsClefs: idMotClef,
               });
-              await clients[1].motsClefs!.sauvegarderNomsMotClef({
+              await clients[1].motsClefs.sauvegarderNomsMotClef({
                 idMotClef,
                 noms: {
                   cst: "Meteorología",
@@ -1248,7 +1247,7 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              ({ fOublier } = await clients[0].recherche!.rechercherNuées({
+              ({ fOublier } = await clients[0].recherche.rechercherNuées({
                 f: (nuées) => rés.mettreÀJour(nuées),
                 nRésultatsDésirés: 2,
               }));
@@ -1271,7 +1270,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].nuées!.sauvegarderNomsNuée({
+              await clients[1].nuées.sauvegarderNomsNuée({
                 idNuée,
                 noms: {
                   fr: "Météorologie de la région de Montpellier.",
@@ -1306,10 +1305,10 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              idProjet = await clients[1].projets!.créerProjet();
+              idProjet = await clients[1].projets.créerProjet();
 
               ({ fOublier } =
-                await clients[0].recherche!.rechercherProjetsSelonId({
+                await clients[0].recherche.rechercherProjetsSelonId({
                   idProjet,
                   f: (x) => rés.mettreÀJour(x),
                   nRésultatsDésirés: 2,
@@ -1349,7 +1348,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherProjetsSelonNom({
+                await clients[0].recherche.rechercherProjetsSelonNom({
                   nomProjet: "météo",
                   f: (projets) => rés.mettreÀJour(projets),
                   nRésultatsDésirés: 2,
@@ -1377,7 +1376,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].projets!.sauvegarderNomsProjet({
+              await clients[1].projets.sauvegarderNomsProjet({
                 idProjet,
                 noms: {
                   fr: "météorologie",
@@ -1397,7 +1396,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherProjetsSelonDescr({
+                await clients[0].recherche.rechercherProjetsSelonDescr({
                   descrProjet: "météo",
                   f: (projets) => rés.mettreÀJour(projets),
                   nRésultatsDésirés: 2,
@@ -1425,7 +1424,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].projets!.sauvegarderDescriptionsProjet({
+              await clients[1].projets.sauvegarderDescriptionsProjet({
                 idProjet,
                 descriptions: {
                   fr: "Météorologie de la région de Montpellier.",
@@ -1445,10 +1444,10 @@ typesClients.forEach((type) => {
 
             before(async () => {
               idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
-              await clients[1].projets!.ajouterBdProjet({ idProjet, idBd });
+              await clients[1].projets.ajouterBdProjet({ idProjet, idBd });
 
               ({ fOublier } =
-                await clients[0].recherche!.rechercherProjetsSelonVariable({
+                await clients[0].recherche.rechercherProjetsSelonVariable({
                   texte: "précip",
                   f: (bds) => rés.mettreÀJour(bds),
                   nRésultatsDésirés: 2,
@@ -1461,17 +1460,17 @@ typesClients.forEach((type) => {
             });
 
             it("Nouvelle variable détectée", async () => {
-              const idVariable = await clients[1].variables!.créerVariable({
+              const idVariable = await clients[1].variables.créerVariable({
                 catégorie: "numérique",
               });
               const idTableau = await clients[1].bds.ajouterTableauBd({
                 idBd,
               });
-              await clients[1].tableaux!.ajouterColonneTableau({
+              await clients[1].tableaux.ajouterColonneTableau({
                 idTableau,
                 idVariable,
               });
-              await clients[1].variables!.sauvegarderNomsVariable({
+              await clients[1].variables.sauvegarderNomsVariable({
                 idVariable,
                 noms: {
                   fr: "Précipitation",
@@ -1514,10 +1513,10 @@ typesClients.forEach((type) => {
 
             before(async () => {
               idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
-              await clients[1].projets!.ajouterBdProjet({ idProjet, idBd });
+              await clients[1].projets.ajouterBdProjet({ idProjet, idBd });
 
               ({ fOublier } =
-                await clients[0].recherche!.rechercherProjetsSelonMotClef({
+                await clients[0].recherche.rechercherProjetsSelonMotClef({
                   texte: "meteorología",
                   f: (bds) => rés.mettreÀJour(bds),
                   nRésultatsDésirés: 2,
@@ -1530,12 +1529,12 @@ typesClients.forEach((type) => {
             });
 
             it("Nouveau mot-clef sur la bd détecté", async () => {
-              const idMotClef = await clients[1].motsClefs!.créerMotClef();
+              const idMotClef = await clients[1].motsClefs.créerMotClef();
               await clients[1].bds.ajouterMotsClefsBd({
                 idBd,
                 idsMotsClefs: idMotClef,
               });
-              await clients[1].motsClefs!.sauvegarderNomsMotClef({
+              await clients[1].motsClefs.sauvegarderNomsMotClef({
                 idMotClef,
                 noms: {
                   cst: "Meteorología",
@@ -1584,7 +1583,7 @@ typesClients.forEach((type) => {
 
             before(async () => {
               ({ fOublier } =
-                await clients[0].recherche!.rechercherProjetsSelonBd({
+                await clients[0].recherche.rechercherProjetsSelonBd({
                   texte: nouveauNom,
                   f: (projets) => rés.mettreÀJour(projets),
                   nRésultatsDésirés: 2,
@@ -1636,7 +1635,7 @@ typesClients.forEach((type) => {
             >();
 
             before(async () => {
-              ({ fOublier } = await clients[0].recherche!.rechercherProjets({
+              ({ fOublier } = await clients[0].recherche.rechercherProjets({
                 f: (projets) => rés.mettreÀJour(projets),
                 nRésultatsDésirés: 2,
               }));
@@ -1659,7 +1658,7 @@ typesClients.forEach((type) => {
                   },
                 },
               };
-              await clients[1].projets!.sauvegarderNomsProjet({
+              await clients[1].projets.sauvegarderNomsProjet({
                 idProjet,
                 noms: {
                   fr: "Météorologie de la région de Montpellier.",
@@ -1691,7 +1690,7 @@ typesClients.forEach((type) => {
         for (const [i, c] of clients.entries()) {
           idsComptes.push(await c.obtIdCompte());
           if (i < clients.length - 1) {
-            await c.réseau!.faireConfianceAuMembre({
+            await c.réseau.faireConfianceAuMembre({
               idCompte: await clients[i + 1].obtIdCompte(),
             });
           }
@@ -1718,28 +1717,28 @@ typesClients.forEach((type) => {
 
         before(async () => {
           fsOublier.push(
-            await client.réseau!.suivreConnexionsMembres({
+            await client.réseau.suivreConnexionsMembres({
               f: (m) => résMembresEnLigne.mettreÀJour(m),
             }),
           );
           await résMembresEnLigne.attendreQue((x) => !!x && x.length === 5);
 
           for (const c of clients) {
-            const idMotClef = await c.motsClefs!.créerMotClef();
+            const idMotClef = await c.motsClefs.créerMotClef();
             const idCompte = await c.obtIdCompte();
             motsClefs[idCompte] = idMotClef;
 
-            c.réseau!.recevoirSalut = async () => {
+            c.réseau.recevoirSalut = async () => {
               // Désactiver
             };
-            c.réseau!.dispositifsEnLigne = {};
-            c.réseau!.événements.emit("membreVu");
+            c.réseau.dispositifsEnLigne = {};
+            c.réseau.événements.emit("membreVu");
           }
 
           await résMembresEnLigne.attendreQue((x) => !!x && !x.length);
 
           ({ fOublier: fOublierRecherche, fChangerN } =
-            await client.recherche!.rechercherMotsClefsSelonNom({
+            await client.recherche.rechercherMotsClefsSelonNom({
               nomMotClef: "ភ្លៀង",
               f: (r) => résMotsClefs.mettreÀJour(r),
               nRésultatsDésirés: 5,
@@ -1773,7 +1772,7 @@ typesClients.forEach((type) => {
             },
           ];
 
-          await client.motsClefs!.sauvegarderNomsMotClef({
+          await client.motsClefs.sauvegarderNomsMotClef({
             idMotClef,
             noms: {
               ខ្មែរ: "ភ្លៀង",
@@ -1807,7 +1806,7 @@ typesClients.forEach((type) => {
             });
             if (c === client) continue;
 
-            await c.motsClefs!.sauvegarderNomsMotClef({
+            await c.motsClefs.sauvegarderNomsMotClef({
               idMotClef,
               noms: {
                 ខ្មែរ: "ភ្លៀង",
@@ -1823,7 +1822,7 @@ typesClients.forEach((type) => {
 
         it("Objet ne correspond plus", async () => {
           const idMotClef = motsClefs[idsComptes[4]];
-          await clients[4].motsClefs!.effacerNomMotClef({
+          await clients[4].motsClefs.effacerNomMotClef({
             idMotClef,
             langue: "ខ្មែរ",
           });

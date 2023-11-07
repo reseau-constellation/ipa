@@ -38,7 +38,7 @@ describe("Rechercher variables", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idVariable = await client.variables!.créerVariable({
+      idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
 
@@ -56,7 +56,7 @@ describe("Rechercher variables", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si le mot-clef n'a vraiment rien à voir", async () => {
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           த: "சூரிய கதிர்வீச்சு",
@@ -66,7 +66,7 @@ describe("Rechercher variables", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Résultat si la variable est presque exacte", async () => {
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           cst: "Radiación solar",
@@ -88,7 +88,7 @@ describe("Rechercher variables", function () {
       });
     });
     it("Résultat si le mot-clef est exacte", async () => {
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "Radiation solaire",
@@ -118,7 +118,7 @@ describe("Rechercher variables", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idVariable = await client.variables!.créerVariable({
+      idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
 
@@ -136,7 +136,7 @@ describe("Rechercher variables", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Pas de résultat si la description n'a vraiment rien à voir", async () => {
-      await client.variables!.sauvegarderDescriptionsVariable({
+      await client.variables.sauvegarderDescriptionsVariable({
         idVariable,
         descriptions: {
           த: "சூரிய கதிர்வீச்சு",
@@ -145,7 +145,7 @@ describe("Rechercher variables", function () {
       expect(résultat.val).to.be.undefined();
     });
     it("Résultat si la variable est presque exacte", async () => {
-      await client.variables!.sauvegarderDescriptionsVariable({
+      await client.variables.sauvegarderDescriptionsVariable({
         idVariable,
         descriptions: {
           cst: "Radiación solar",
@@ -167,7 +167,7 @@ describe("Rechercher variables", function () {
       });
     });
     it("Résultat si la description est exacte", async () => {
-      await client.variables!.sauvegarderDescriptionsVariable({
+      await client.variables.sauvegarderDescriptionsVariable({
         idVariable,
         descriptions: {
           fr: "Radiation solaire",
@@ -201,7 +201,7 @@ describe("Rechercher variables", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idVariable = await client.variables!.créerVariable({
+      idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
 
@@ -221,7 +221,7 @@ describe("Rechercher variables", function () {
         ),
       );
 
-      await client.variables!.sauvegarderNomsVariable({
+      await client.variables.sauvegarderNomsVariable({
         idVariable,
         noms: {
           fr: "précipitation",

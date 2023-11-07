@@ -60,15 +60,15 @@ export const rechercherProfilsSelonActivité =
         fSuivreRecherche(calculerScore());
       };
 
-      const fOublierNoms = await client.profil!.suivreNoms({
+      const fOublierNoms = await client.profil.suivreNoms({
         idCompte,
         f: fSuivreNoms,
       });
-      const fOublierImage = await client.profil!.suivreImage({
+      const fOublierImage = await client.profil.suivreImage({
         idCompte,
         f: fSuivreImage,
       });
-      const fOublierCourriel = await client.profil!.suivreCourriel({
+      const fOublierCourriel = await client.profil.suivreCourriel({
         idCompte,
         f: fSuivreCourriel,
       });
@@ -108,7 +108,7 @@ export const rechercherProfilsSelonNom = (
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.profil!.suivreNoms({
+    const fOublier = await client.profil.suivreNoms({
       idCompte,
       f: fSuivre,
     });
@@ -129,19 +129,19 @@ export const rechercherProfilsSelonCourriel = (
         ? rechercherDansTexte(courriel, courrielProfil)
         : undefined;
 
-      if (corresp) {
+      if (corresp && courrielProfil) {
         const { score, début, fin } = corresp;
         fSuivreRecherche({
           type: "résultat",
           score,
           de: "courriel",
-          info: { type: "texte", début, fin, texte: courrielProfil! },
+          info: { type: "texte", début, fin, texte: courrielProfil },
         });
       } else {
         fSuivreRecherche();
       }
     };
-    const fOublier = await client.profil!.suivreCourriel({
+    const fOublier = await client.profil.suivreCourriel({
       idCompte,
       f: fSuivre,
     });
@@ -191,7 +191,7 @@ export const rechercherProfilsSelonImage = (
         info: { type: "vide" },
       });
     };
-    const fOublier = await client.profil!.suivreImage({
+    const fOublier = await client.profil.suivreImage({
       idCompte,
       f: fSuivre,
     });

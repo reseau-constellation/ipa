@@ -607,7 +607,7 @@ for (const idVariable of [
   idVarTempMin,
   idVarTempMax,
 ]) {
-  const idCol = await client.tableaux!.ajouterColonneTableau({
+  const idCol = await client.tableaux.ajouterColonneTableau({
     idTableau,
     idVariable,
   });

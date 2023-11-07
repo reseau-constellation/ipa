@@ -71,7 +71,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }
 
   async épingler() {
-    await this.client.épingles?.épinglerBd({
+    await this.client.épingles.épinglerBd({
       id: await this.obtIdBd(),
       récursif: false,
       fichiers: false,
@@ -93,7 +93,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
             dispositifs: fav.dispositifsFichiers,
           });
           if (épinglerBd)
-            await this.client.épingles!.épinglerBd({
+            await this.client.épingles.épinglerBd({
               id,
               récursif: fav.récursif,
               fichiers: épinglerFichiers,
@@ -106,7 +106,7 @@ export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
 
       await Promise.all(
         àOublier.map(
-          async (id) => await this.client.épingles!.désépinglerBd({ id }),
+          async (id) => await this.client.épingles.désépinglerBd({ id }),
         ),
       );
 

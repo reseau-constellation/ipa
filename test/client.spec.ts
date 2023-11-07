@@ -112,12 +112,12 @@ if (isNode || isElectronMain) {
 
       before(async () => {
         fsOublier.push(
-          await client2.profil!.suivreNoms({
+          await client2.profil.suivreNoms({
             f: (noms) => résNom.mettreÀJour(noms),
           }),
         );
 
-        await client.profil!.sauvegarderNom({
+        await client.profil.sauvegarderNom({
           nom: "Julien Malard-Adam",
           langue: "fr",
         });
@@ -160,7 +160,7 @@ if (isNode || isElectronMain) {
 
       it("Le nouveau dispositif suit mon profil", async () => {
         // Pour une drôle de raison, il faut accéder la BD avant qu'elle ne s'actualise...
-        await client.profil!.effacerNom({ langue: "de" });
+        await client.profil.effacerNom({ langue: "de" });
 
         const val = await résNom.attendreQue((x) =>
           Object.keys(x).includes("fr"),
@@ -179,7 +179,7 @@ if (isNode || isElectronMain) {
           statutDispositif[]
         >();
         const fOublierConnexions =
-          await client3.réseau!.suivreConnexionsDispositifs({
+          await client3.réseau.suivreConnexionsDispositifs({
             f: (x) => attendreConnectés.mettreÀJour(x),
           });
         fsOublier.push(fOublierConnexions);
@@ -247,10 +247,6 @@ if (isNode || isElectronMain) {
 
     after(async () => {
       if (fOublierClients) await fOublierClients();
-    });
-
-    it("Le client devrait être initialisé", async () => {
-      expect(client.prêt).to.be.true();
     });
 
     describe("Signer", function () {
@@ -1540,7 +1536,7 @@ if (isNode || isElectronMain) {
       });
       it("Avec sa propre bd accès utilisateur", async () => {
         const optionsAccès: OptionsContrôleurConstellation = {
-          write: client.bdCompte!.address,
+          write: await client.obtIdCompte(),
         };
         const idBd = await client.créerBdIndépendante({
           type: "keyvalue",
@@ -1880,7 +1876,7 @@ if (isNode || isElectronMain) {
           type: "keyvalue",
           optionsAccès: {
             address: undefined,
-            write: client.bdCompte!.address,
+            write: await client.obtIdCompte(),
           },
         });
 
@@ -1949,7 +1945,7 @@ if (isNode || isElectronMain) {
         idBd = await client.créerBdIndépendante({
           type: "keyvalue",
           optionsAccès: {
-            write: client.bdCompte!.address,
+            write: await client.obtIdCompte(),
           },
         });
         const f = (accès: infoAccès[]) => {
@@ -2049,7 +2045,7 @@ if (isNode || isElectronMain) {
         cidTexte = (await client2.sfip!.add("Bonjour !")).cid.toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
         await bdListe.add(cidTexte + "/text.txt");
 
-        await client.épingles!.épinglerBd({ id: idBdKv, récursif: true });
+        await client.épingles.épinglerBd({ id: idBdKv, récursif: true });
       });
 
       after(async () => {

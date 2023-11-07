@@ -81,6 +81,7 @@
     "ts-patch": "^3.0.2",
     "tsconfig-paths": "^4.2.0",
     "tscpaths": "^0.0.9",
+    "typed-emitter": "^2.1.0",
     "typescript": "5.2.2",
     "typescript-transform-paths": "^3.4.6",
     "wrtc": "^0.4.7"
