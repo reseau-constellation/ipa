@@ -1,10 +1,7 @@
 import { configVitePress } from "./config.js";
 
 export const obtCompilateur = async () => {
-  const { Compilateur } = await import("./traducsVitepress/dist/index.js");
-  const { ExtentionImages } = await import(
-    "./traducsVitepress/dist/extentions/images.js"
-  );
+  const { Compilateur, extentions } = await import("@lassi-js/kilimukku-vitepress");
 
   const compilateur = new Compilateur({
     languePrincipale: "fr",
@@ -13,7 +10,7 @@ export const obtCompilateur = async () => {
     dossierTraductions: "traducs",
     configVitePress,
     extentions: [
-      new ExtentionImages({
+      new extentions.ExtentionImages({
         dossierImages: "traducsImages",
       }),
     ],

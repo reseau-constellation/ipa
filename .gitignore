@@ -9,13 +9,5 @@ node_modules
 /_stockageTemp
 /src/utilsTests/_tempo
 
-.yarn/*
-!.yarn/cache
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
 docu/src/.vitepress/dist
 docu/src/.vitepress/cache
