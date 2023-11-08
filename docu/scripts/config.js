@@ -41,6 +41,9 @@ export const configVitePress = defineConfig({
       {
         text: "Exemples",
         items: [
+          { text: "Démarrage", link: "/exemples/créationCompte" },
+          { text: "Gestion de compte", link: "/exemples/monCompte" },
+          { text: "Ajout de données", link: "/exemples/mesDonnées" },
           { text: "Science citoyenne", link: "/exemples/scienceCitoyenne" },
           { text: "Diffusion de données", link: "/exemples/diffusion" },
         ],

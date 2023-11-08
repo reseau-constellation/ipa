@@ -2,19 +2,21 @@
 
 Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
 
+[[toc]]
+
 ## Le projet
-Présentation du but du projet
+Nous allons utiliser comme exemple un projet (fictif) de science citoyenne de collecte d'information sur les niveaux d'eau dans un cours d'eau. L'idée est que différentes personnes contribueront toutes des données provenant de différents endroits sur le cours d'eau, tout en pouvoir visualiser les données des autres participants au projet.
 
-Qu'est-ce qu'une nuée
-
-Autorisations
+Pour ce faire, nous utilisersons une [`nuée`](../guide/concepts.md#nuee) Constellation pour regrouper toutes nos contributions, de même que pour contrôler l'accès à la contribution de données. (La lecture des données, par contre, sera ouverte à toutes.)
 
 ## Les données
-Maintenant, nous allons choisir la structure de nos données.
+En premier, nous allons choisir la structure de nos données. Pour chaque observation, nous voulous la date, l'endroit, le niveau d'eau et une photo du cours d'eau. Voici un exemple potentiel :
 
 | Date | Endroit | Niveau d'eau | Image |
 | --- | --- | --- | --- |
 | 01 - 01 -2023 | A | 40 | photo325.jpeg |
+| 03 - 01 -2023 | A | 37 | photo328.jpeg |
+| ... | ... | ... | ... |
 
 Ensuite, pour garder compte de l'information sur nos zônes d'observation, nous allons créer un second tableau. Comme ça, nous ne dédoublons pas l'information de latitude, longitude et altitude à chaque observation dans le tableau ci-dessus.
 
@@ -36,6 +38,10 @@ Pour le premier tableau, vous pouvez spécifier les colonnes de date et d'endroi
 
 :::info INFO
 Une colonne indexe est une colonne (ou un groupe de colonnes) dont les valeurs ne peuvent être répétées dans le tableau. Dans notre cas, chaque endroit, à un moment précis, ne peut avoir qu'une observation.
+:::
+
+:::tip CONSEIL
+Les actions ci-dessous n'ont besoin d'être effectuées **qu'une seule fois** (par vous, pas par vos utilisateurs), lors de la spécification de la nuée. La solution la plus facile est donc de l'effectuer avec votre compte dans l'interface Constellation, et puis d'inclure l'identifiant de la nuée ainsi générée dans le code de votre appli finale (voir ci-dessous). Cependant, nous incluons aussi le code Constellation pour générer la nuée selon les spécifications de l'exemple à titre d'information. Ce sont ces fonctions que l'interface de Constellation invoquera lorsque vous suivrez les instructions visuelles.
 :::
 
 [Image à inclure]
@@ -100,6 +106,7 @@ for (idVariable of [idVarEndroit, idVarDate, idVarNiveauDEau, idVarImage]) {
 ```
 
 ### Validation
+Nous allons maintenant ajouter des règles de validation pour les données. Nous garderons ça simple, et spécifierons uniquement que le niveau d'eau doit être positif. Pour plus d'informations sur les règles de validation disponibles dans Constellation, voir la [page dédiée](../ipa/règles.md).
 
 [Image à inclure]
 
@@ -163,20 +170,25 @@ const données = await client.nuées.suivreDonnéesTableauNuée({
 ```
 
 ## Sauvegardes automatisées
+Nous voudrons également créer des sauvegardes automatisées des données qui nous parviennent de nos utilisatrices (on ne sait jamais...tasses à café et égouts ouverts peuvent être catastrophiques pour les données sur un téléphone).
 
+[Image à inclure]
 
 ## Accès programmatique
 Mais ce n'est pas tout ! Vous pouvez également analyser vos données de science citoyenne dans un autre logiciel et faire des analyses en temps réel.
 
 Tout d'abord, nous allons activer le nœud local Constellation sur l'interface et noter le numéro de port. Ceci nous permettra d'accéder Constellation à partir de notre code Python.
 
+[Image à inclure]
+
+### Accès de Python
 :::tip CONSEIL
 Vous devrez installer `constellationPy` et `trio` pour suivre l'exemple ci-dessous. Nous vous recommandons **fortement** l'utilisation de [poetry](https://python-poetry.org/) pour gérer vos dépendances Python.
 :::
 
 [Image à inclure]
 
-Voici un exemple de code Python qui vous permettra d'accéder à vos donneés de science citoyenne.
+Voici un exemple de code Python qui vous permettra d'accéder à vos donneés de science citoyenne. Si vous n'êtes pas très très Python, vous pouvez aussi faire la même chose en R ou bien en Julia.
 
 :::tip CONSEIL
 Avions-nous dit que nous recommandons **fortement** l'utilisation de [poetry](https://python-poetry.org/) ?
@@ -203,16 +215,18 @@ def ma_fonction_danalyse(données):
 
 async def principale():
     async with ouvrir_client(port) as client:
-        données = await client.suivre_données_tableau_nuée(
+        oublier_données = await client.suivre_données_tableau_nuée(
             id_nuée=id_nuée,
             clef_tableau=clef_tableau,
             f=ma_fonction_danalyse
         )
 
+        # Appeler oublier_données() si vous avez fini. Sinon le code continuera d'attendre les nouvelles données du réseau.
+
 trio.run(principale)
 ```
 
-Si vous n'êtes pas très très Python, vous pouvez aussi faire la même chose en R ou bien en Julia.
+### Accès de R
 
 ```r
 library("constellationR")
@@ -240,6 +254,7 @@ avecClient(
 )
 ```
 
+### Accès de Julia
 Et en Julia !
 
 ```julia
