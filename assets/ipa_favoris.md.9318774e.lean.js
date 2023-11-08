@@ -1,0 +1,1 @@
+import{_ as s,o as a,c as n,Q as o}from"./chunks/framework.1baa841b.js";const f=JSON.parse('{"title":"Favoris","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/favoris.md","filePath":"ipa/favoris.md"}'),l={name:"ipa/favoris.md"},e=o("",49),p=[e];function t(r,c,i,y,E,d){return a(),n("div",null,p)}const v=s(l,[["render",t]]);export{f as __pageData,v as default};

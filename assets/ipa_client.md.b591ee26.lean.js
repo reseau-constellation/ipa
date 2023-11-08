@@ -1,1 +1,0 @@
-import{_ as s,o as a,c as n,Q as o}from"./chunks/framework.ed6abfc6.js";const h=JSON.parse('{"title":"Client","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/client.md","filePath":"ipa/client.md"}'),l={name:"ipa/client.md"},e=o("",138),p=[e];function t(r,c,i,y,E,d){return a(),n("div",null,p)}const m=s(l,[["render",t]]);export{h as __pageData,m as default};

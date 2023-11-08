@@ -1,1 +1,0 @@
-import{_ as s,o as a,c as n,Q as e}from"./chunks/framework.ed6abfc6.js";const m=JSON.parse('{"title":"Réseau","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/réseau.md","filePath":"ipa/réseau.md"}'),o={name:"ipa/réseau.md"},l=e("",198),p=[l];function t(r,c,i,E,y,d){return a(),n("div",null,p)}const F=s(o,[["render",t]]);export{m as __pageData,F as default};
