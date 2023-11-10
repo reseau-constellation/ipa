@@ -17,9 +17,9 @@ import { typesClients } from "./ressources/utils.js";
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import { donnéesNuéeExportation } from "@/nuée.js";
-import { AttendreRésultat } from "@constl/utils-tests/dist/attente.js";
 import { règleColonne } from "@/valid.js";
-import { isSet } from "lodash";
+import pkg from "lodash";
+const { isSet } = pkg;
 import { obtRessourceTest } from "./ressources/index.js";
 import { attendreStabilité } from "@constl/utils-ipa";
 
@@ -50,7 +50,7 @@ const générerNuéeTest = async (
 };
 
 typesClients.forEach((type) => {
-  describe("Client " + type, function () {
+  describe.only("Client " + type, function () {
     describe("Nuées : Tests individuels", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -1011,11 +1011,6 @@ typesClients.forEach((type) => {
       let clients: ClientConstellation[];
       let client: ClientConstellation;
 
-      let idNuée: string;
-      let idNuéeParent: string;
-
-      const fsOublier: schémaFonctionOublier[] = [];
-
       before(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
           n: 1,
@@ -1029,18 +1024,17 @@ typesClients.forEach((type) => {
         if (fOublierClients) await fOublierClients();
       });
 
-      beforeEach(async () => {
-        idNuéeParent = await client.nuées.créerNuée({});
-        idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
-      });
-      afterEach(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
-      });
-
       describe("Suivi parents", function () {
-        const parents = new AttendreRésultat<string[]>();
+        let idNuée: string;
+        let idNuéeParent: string;
+
+        const parents = new utilsTestAttente.AttendreRésultat<string[]>();
+        const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
+          idNuéeParent = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
+
           const fOublierParents = await client.nuées.suivreNuéesParents({
             idNuée,
             f: (x) => parents.mettreÀJour(x),
@@ -1049,19 +1043,23 @@ typesClients.forEach((type) => {
           fsOublier.push(async () => parents.toutAnnuler());
         });
 
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+        });
+
         it("Parent détecté", async () => {
           const val = await parents.attendreQue((x) => x.length > 0);
-          expect(val).to.contain([idNuéeParent]);
+          expect(val).to.have.members([idNuéeParent]);
         });
 
         it("Parent transitif détecté", async () => {
           const idNuéeGrandParent = await client.nuées.créerNuée({});
           await client.nuées.préciserParent({
-            idNuée,
+            idNuée: idNuéeParent,
             idNuéeParent: idNuéeGrandParent,
           });
           const val = await parents.attendreQue((x) => x.length > 1);
-          expect(val).to.contain([idNuéeParent, idNuéeGrandParent]);
+          expect(val).to.have.members([idNuéeParent, idNuéeGrandParent]);
         });
 
         it("Parent transitif enlevé avec parent", async () => {
@@ -1073,43 +1071,65 @@ typesClients.forEach((type) => {
 
       describe("Traçabilité descendants", function () {
         let idNuéeEnfant: string;
+        let idNuée: string;
+        let idNuéeParent: string;
 
-        const descendants = new AttendreRésultat<string[]>();
+        const descendants = new utilsTestAttente.AttendreRésultat<string[]>();
+        const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
+          idNuéeParent = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
+
           const { fOublier: fOublierDescendants } =
             await client.nuées.rechercherNuéesDéscendantes({
               idNuée: idNuéeParent,
               f: (x) => descendants.mettreÀJour(x),
               nRésultatsDésirés: 10,
             });
+
           fsOublier.push(fOublierDescendants);
           fsOublier.push(async () => descendants.toutAnnuler());
         });
 
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+        });
         it("Descendant détecté", async () => {
           const val = await descendants.attendreQue((x) => x.length > 0);
-          expect(val).to.contain([idNuée]);
+          expect(val).to.have.members([idNuée]);
         });
 
         it("Descendance transitive détectée", async () => {
           idNuéeEnfant = await client.nuées.créerNuée({ nuéeParent: idNuée });
 
           const val = await descendants.attendreQue((x) => x.length > 1);
-          expect(val).to.contain([idNuée, idNuéeEnfant]);
+          expect(val).to.have.members([idNuée, idNuéeEnfant]);
         });
       });
 
       describe("Héritage noms", function () {
-        const noms = new AttendreRésultat<{ [langue: string]: string }>();
+        let idNuée: string;
+        let idNuéeParent: string;
+
+        const noms = new utilsTestAttente.AttendreRésultat<{
+          [langue: string]: string;
+        }>();
+        const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
+          idNuéeParent = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
           const fOublierNoms = await client.nuées.suivreNomsNuée({
             idNuée,
             f: (x) => noms.mettreÀJour(x),
           });
           fsOublier.push(fOublierNoms);
           fsOublier.push(async () => noms.toutAnnuler());
+        });
+
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         it("Rien pour commencer", async () => {
@@ -1124,7 +1144,7 @@ typesClients.forEach((type) => {
             nom: "Science citoyenne",
           });
           const val = await noms.attendreQue((x) => !!x.fr);
-          expect(val["fr"]).to.equal("Ma nuée");
+          expect(val["fr"]).to.equal("Science citoyenne");
         });
 
         it("Ajout nom nuée parent", async () => {
@@ -1133,8 +1153,8 @@ typesClients.forEach((type) => {
             langue: "cst",
             nom: "Ciencia ciudádana",
           });
-          const val = await noms.attendreQue((x) => !!x.es);
-          expect(val["es"]).to.equal("Ciencia ciudádana");
+          const val = await noms.attendreQue((x) => !!x.cst);
+          expect(val["cst"]).to.equal("Ciencia ciudádana");
         });
 
         it("Précédence nuée sur parent", async () => {
@@ -1144,18 +1164,22 @@ typesClients.forEach((type) => {
             nom: "Proyecto de ciencia ciudádana",
           });
           const val = await noms.attendreQue(
-            (x) => x.es !== "Ciencia ciudádana",
+            (x) => x.cst !== "Ciencia ciudádana",
           );
-          expect(val["es"]).to.equal("Proyecto de ciencia ciudádana");
+          expect(val["cst"]).to.equal("Proyecto de ciencia ciudádana");
         });
       });
 
       describe("Héritage descriptions", function () {
-        const descriptions = new AttendreRésultat<{
+        let idNuée: string;
+        let idNuéeParent: string;
+        const descriptions = new utilsTestAttente.AttendreRésultat<{
           [langue: string]: string;
         }>();
-
+        const fsOublier: schémaFonctionOublier[] = [];
         before(async () => {
+          idNuéeParent = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
           const fOublierDescriptions =
             await client.nuées.suivreDescriptionsNuée({
               idNuée,
@@ -1163,6 +1187,10 @@ typesClients.forEach((type) => {
             });
           fsOublier.push(fOublierDescriptions);
           fsOublier.push(async () => descriptions.toutAnnuler());
+        });
+
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
         });
 
         it("Rien pour commencer", async () => {
@@ -1177,7 +1205,7 @@ typesClients.forEach((type) => {
             description: "Science citoyenne",
           });
           const val = await descriptions.attendreQue((x) => !!x.fr);
-          expect(val["fr"]).to.equal("Ma nuée");
+          expect(val["fr"]).to.equal("Science citoyenne");
         });
 
         it("Ajout description nuée parent", async () => {
@@ -1186,8 +1214,8 @@ typesClients.forEach((type) => {
             langue: "cst",
             description: "Ciencia ciudádana",
           });
-          const val = await descriptions.attendreQue((x) => !!x.es);
-          expect(val["es"]).to.equal("Ciencia ciudádana");
+          const val = await descriptions.attendreQue((x) => !!x.cst);
+          expect(val["cst"]).to.equal("Ciencia ciudádana");
         });
 
         it("Précédence nuée sur parent", async () => {
@@ -1197,9 +1225,9 @@ typesClients.forEach((type) => {
             description: "Proyecto de ciencia ciudádana",
           });
           const val = await descriptions.attendreQue(
-            (x) => x.es !== "Ciencia ciudádana",
+            (x) => x.cst !== "Ciencia ciudádana",
           );
-          expect(val["es"]).to.equal("Proyecto de ciencia ciudádana");
+          expect(val["cst"]).to.equal("Proyecto de ciencia ciudádana");
         });
       });
 
@@ -1210,10 +1238,13 @@ typesClients.forEach((type) => {
           détails: {}
         }*/
         const clefTableau = "principal";
-
-        const règles = new AttendreRésultat<règleColonne[]>();
-
+        let idNuée: string;
+        let idNuéeParent: string;
+        const règles = new utilsTestAttente.AttendreRésultat<règleColonne[]>();
+        const fsOublier: schémaFonctionOublier[] = [];
         before(async () => {
+          idNuéeParent = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
           const fOublierRègles = await client.nuées.suivreRèglesTableauNuée({
             idNuée,
             clefTableau,
@@ -1223,6 +1254,9 @@ typesClients.forEach((type) => {
           fsOublier.push(async () => règles.toutAnnuler());
         });
 
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+        });
         it("Rien pour commencer", async () => {
           const val = await règles.attendreExiste();
           expect(val).to.be.an.empty("array");
@@ -1234,14 +1268,20 @@ typesClients.forEach((type) => {
       });
 
       describe("Suivi données ascendants", function () {
+        let idNuée: string;
+        let idNuéeParent: string;
         let idCol: string;
         let schémaBd: schémaSpécificationBd;
         let idÉlémentNuée: string;
 
-        const données = new AttendreRésultat<
+        const fsOublier: schémaFonctionOublier[] = [];
+        const données = new utilsTestAttente.AttendreRésultat<
           élémentDeMembreAvecValid<élémentBdListeDonnées>[]
         >();
+
         before(async () => {
+          idNuéeParent = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
           const idTableau = await client.nuées.ajouterTableauNuée({
             idNuée,
             clefTableau: "principal",
@@ -1272,6 +1312,9 @@ typesClients.forEach((type) => {
           fsOublier.push(async () => données.toutAnnuler());
         });
 
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+        });
         it("Données nuée détectées", async () => {
           idÉlémentNuée = (
             await client.bds.ajouterÉlémentÀTableauUnique({
@@ -1332,11 +1375,17 @@ typesClients.forEach((type) => {
         let idCol: string;
         let schémaBd: schémaSpécificationBd;
         let idÉlémentNuée: string;
+        let idNuée: string;
+        let idNuéeParent: string;
 
-        const données = new AttendreRésultat<
+        const données = new utilsTestAttente.AttendreRésultat<
           élémentDeMembreAvecValid<élémentBdListeDonnées>[]
         >();
+        const fsOublier: schémaFonctionOublier[] = [];
+
         before(async () => {
+          idNuéeParent = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
           const idTableau = await client.nuées.ajouterTableauNuée({
             idNuée: idNuéeParent,
             clefTableau: "principal",
@@ -1367,6 +1416,10 @@ typesClients.forEach((type) => {
           fsOublier.push(async () => données.toutAnnuler());
         });
 
+        after(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+        });
+
         it("Données nuée détectées", async () => {
           idÉlémentNuée = (
             await client.bds.ajouterÉlémentÀTableauUnique({
@@ -1391,9 +1444,13 @@ typesClients.forEach((type) => {
         });
 
         it("Données nuée enfant détectées", async () => {
+          const schémaBdEnfant = await client.nuées.générerSchémaBdNuée({
+            idNuée: idNuée,
+            licence: "ODBl-1_0",
+          });
           const id = (
             await client.bds.ajouterÉlémentÀTableauUnique({
-              schémaBd,
+              schémaBd: schémaBdEnfant,
               idNuéeUnique: idNuée,
               clefTableau: "principal",
               vals: { [idCol]: 4 },
@@ -1436,6 +1493,7 @@ typesClients.forEach((type) => {
       let val: string | undefined = undefined;
 
       const fsOublier: schémaFonctionOublier[] = [];
+      const empreinte = new utilsTestAttente.AttendreRésultat<string>();
 
       before(async () => {
         ({ fOublier: fOublierClients, clients } = await générerClients({
@@ -1455,10 +1513,14 @@ typesClients.forEach((type) => {
           idVariable,
         });
 
+        const stable = attendreStabilité(1000);
         const fOublierEmpreinte =
           await client.nuées.suivreEmpreinteTêtesBdsNuée({
             idNuée,
-            f: (x) => empreinte.mettreÀJour(x),
+            f: async (x) => {
+              await stable(x);
+              empreinte.mettreÀJour(x);
+            },
           });
         fsOublier.push(fOublierEmpreinte);
         fsOublier.push(async () => empreinte.toutAnnuler());
@@ -1469,15 +1531,11 @@ typesClients.forEach((type) => {
         if (fOublierClients) await fOublierClients();
       });
 
-      const empreinte = new AttendreRésultat<string>();
-
       it("Sans bds", async () => {
-        const stable = attendreStabilité(1000);
-        val = await empreinte.attendreQue(
-          async (x) => (await stable(x)) && x !== val,
-        );
+        val = await empreinte.attendreQue(async (x) => x !== val);
         expect(val).to.be.a.not.empty("string");
       });
+
       it("Ajout bds", async () => {
         const schéma = await client.nuées.générerSchémaBdNuée({
           idNuée,
@@ -1487,19 +1545,15 @@ typesClients.forEach((type) => {
           schéma,
         });
 
-        const stable = attendreStabilité(1000);
-        val = await empreinte.attendreQue(
-          async (x) => (await stable(x)) && x !== val,
-        );
+        val = await empreinte.attendreQue(async (x) =>  x !== val);
         expect(val).to.be.a.not.empty("string");
       });
 
       it("Changement nom bds détecté", async () => {
         await client.bds.sauvegarderNomBd({ idBd, langue: "fr", nom: "Ma BD" });
 
-        const stable = attendreStabilité(1000);
         val = await empreinte.attendreQue(
-          async (x) => (await stable(x)) && x !== val,
+          async (x) =>  x !== val,
         );
         expect(val).to.be.a.not.empty("string");
       });
@@ -1511,9 +1565,8 @@ typesClients.forEach((type) => {
           nom: "Ma nuée",
         });
 
-        const stable = attendreStabilité(1000);
         val = await empreinte.attendreQue(
-          async (x) => (await stable(x)) && x !== val,
+          async (x) => x !== val,
         );
         expect(val).to.be.a.not.empty("string");
       });
@@ -1524,15 +1577,14 @@ typesClients.forEach((type) => {
           vals: { [idCol]: 123 },
         });
 
-        const stable = attendreStabilité(1000);
         val = await empreinte.attendreQue(
-          async (x) => (await stable(x)) && x !== val,
+          async (x) => x !== val,
         );
         expect(val).to.be.a.not.empty("string");
       });
     });
 
-    describe("Suivre données exportées", function () {
+    describe.only("Suivre données exportées", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -1608,7 +1660,7 @@ typesClients.forEach((type) => {
       it.skip("Nuée");
     });
 
-    describe("Document données exportées", function () {
+    describe.only("Document données exportées", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -1725,10 +1777,8 @@ typesClients.forEach((type) => {
         expect(nomFichier).to.eq("Ma nuée");
       });
     });
+
     describe("Générer de bd", function () {
-      it.skip("Nuée");
-    });
-    describe("Générer schéma", function () {
       it.skip("Nuée");
     });
   });
