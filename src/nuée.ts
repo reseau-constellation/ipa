@@ -2747,13 +2747,16 @@ export default class Nuée extends ComposanteClientListe<string> {
 
         donnéesFormattées = donnéesFormattées.map((d) =>
           Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {
-            const idCol = colonnes.find((c) => c.variable === elem)?.id;
-
-            const nomVar =
-              langues && nomsVariables
-                ? traduire(nomsVariables[elem], langues) || idCol || elem
-                : idCol || elem;
-            acc[nomVar] = d[elem];
+            if (elem === "auteur") {
+              acc[elem] = d[elem]
+            } else {
+              const idCol = colonnes.find((c) => c.variable === elem)?.id;
+              const nomVar =
+                langues && nomsVariables?.[elem]
+                  ? traduire(nomsVariables[elem], langues) || idCol || elem
+                  : idCol || elem;
+              acc[nomVar] = d[elem];
+            }
             return acc;
           }, {}),
         );
@@ -2886,11 +2889,10 @@ export default class Nuée extends ComposanteClientListe<string> {
       fBranche: async (
         id: string,
         fSuivreBranche: schémaFonctionSuivi<donnéesTableauExportation>,
-        branche: infoTableauAvecId,
       ): Promise<schémaFonctionOublier> => {
         return await this.suivreDonnéesExportationTableau({
           idNuée,
-          clefTableau: branche.clef,
+          clefTableau: id,
           langues,
           nRésultatsDésirés,
           héritage,
@@ -2899,8 +2901,8 @@ export default class Nuée extends ComposanteClientListe<string> {
           },
         });
       },
-      fIdBdDeBranche: (x) => x.id,
-      fCode: (x) => x.id,
+      fIdBdDeBranche: (x) => x.clef,
+      fCode: (x) => x.clef,
     });
     fsOublier.push(fOublierTableaux);
 

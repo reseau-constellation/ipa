@@ -50,7 +50,7 @@ const générerNuéeTest = async (
 };
 
 typesClients.forEach((type) => {
-  describe.only("Client " + type, function () {
+  describe("Client " + type, function () {
     describe("Nuées : Tests individuels", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
@@ -1584,7 +1584,7 @@ typesClients.forEach((type) => {
       });
     });
 
-    describe.only("Suivre données exportées", function () {
+    describe("Suivre données exportées", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -1651,16 +1651,17 @@ typesClients.forEach((type) => {
         const val = await résultat.attendreQue(
           (x) => x.tableaux.length > 0 && x.tableaux[0].données.length >= 3,
         );
-        expect(val.tableaux.map((t) => t.données)).to.deep.eq([
-          { numérique: 1 },
-          { numérique: 2 },
-          { numérique: 3 },
+        const auteur = await client.obtIdCompte()
+        expect(val.tableaux.map((t) => t.données).flat()).to.have.deep.members([
+          { numérique: 1, auteur },
+          { numérique: 2, auteur },
+          { numérique: 3, auteur },
         ]);
       });
-      it.skip("Nuée");
+
     });
 
-    describe.only("Document données exportées", function () {
+    describe("Document données exportées", function () {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
@@ -1731,7 +1732,7 @@ typesClients.forEach((type) => {
 
         await client.bds.ajouterÉlémentÀTableauParClef({
           idBd,
-          clefTableau: "tableau 1",
+          clefTableau: "tableau 2",
           vals: {
             [idColFichier]: cid,
           },
