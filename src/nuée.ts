@@ -2038,19 +2038,20 @@ export default class Nuée extends ComposanteClientListe<string> {
       fObjectif: async (
         client: ClientConstellation,
         id: string,
-        f: schémaFonctionSuiviRecherche<infoRésultatVide>,
+        fSuiviRésultats: schémaFonctionSuiviRecherche<infoRésultatVide>,
       ): Promise<schémaFonctionOublier> => {
         return await client.nuées.suivreNuéesParents({
           idNuée: id,
           f: (parents) => {
-            f({
-              type: "résultat",
-              score: parents.includes(idNuée) ? 1 : 0,
-              de: "*",
-              info: {
-                type: "vide",
-              },
-            });
+            if (parents.includes(idNuée))
+              fSuiviRésultats({
+                type: "résultat",
+                score: 1,
+                de: "*",
+                info: {
+                  type: "vide",
+                },
+              });
           },
         });
       },
@@ -2092,47 +2093,58 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
+    let annulé = false;
+    const ascendance: {
+      [nuée: string]: { parent: string; fOublier: schémaFonctionOublier };
+    } = {};
+
+    const fFinale = async () => {
+      await f(Object.values(Object.values(ascendance).map((a) => a.parent)));
+    };
     const suivreParent = async ({
       id,
-      ancêtres = [],
     }: {
       id: string;
-      ancêtres?: string[];
     }): Promise<schémaFonctionOublier> => {
-      let fOublierParent: schémaFonctionOublier | undefined;
-      let ancienParent: string;
-
-      const fOublier = await this.client.suivreBd({
+      return await this.client.suivreBd({
         id,
         type: "keyvalue",
         schéma: schémaStructureBdNuée,
         f: async (bd) => {
+          if (annulé) return;
+
           const parent = await bd.get("parent");
-          ancêtres = [...ancêtres];
-          if (parent) ancêtres.push(parent);
-          await f(ancêtres);
-          if (parent) {
-            if (parent !== ancienParent) {
-              if (fOublierParent) await fOublierParent();
-              if (!ancêtres.includes(parent)) {
-                // Éviter récursion infinie
-                fOublierParent = await suivreParent({ id: parent, ancêtres });
-              }
-              ancienParent = parent;
-            }
-          } else {
-            if (fOublierParent) await fOublierParent();
-            fOublierParent = undefined;
+          if (ascendance[id]?.parent === parent) {
+            if (!parent) await fFinale();
+            return;
           }
+
+          await ascendance[id]?.fOublier();
+          if (parent) {
+            const fOublierParent = await suivreParent({ id: parent });
+            ascendance[id] = {
+              parent,
+              fOublier: async () => {
+                await fOublierParent();
+                await ascendance[parent]?.fOublier();
+                delete ascendance[id];
+                await fFinale();
+              },
+            };
+          } else {
+            delete ascendance[id];
+          }
+
+          await fFinale();
         },
       });
-      return async () => {
-        await fOublier();
-        if (fOublierParent) await fOublierParent();
-      };
     };
-
-    return await suivreParent({ id: idNuée });
+    const fOublier = await suivreParent({ id: idNuée });
+    return async () => {
+      annulé = true;
+      await fOublier();
+      await Promise.all(Object.values(ascendance).map((a) => a.fOublier()));
+    };
   }
 
   @cacheRechercheParNRésultats
