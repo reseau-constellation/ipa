@@ -35,6 +35,7 @@ Cette fonction automatise une exportation.
 | `fréquence` | [`fréquence`](#types-frequence) `\| undefined` | La fréquence à laquelle les données devraient être exportées. Si non spécifiée, les données seront exportées chaque fois que Constellation y détecte des changements. |
 | `dispositifs` | `string[] \| undefined` | Les identifiants des dispositifs sur lesquels les données devraient être exportés. Si non spécifié, utilisera le dispositif présent. **Pas compatible avec `dossier`.** |
 | `nRésultatsDésirésNuée` | `number \| undefined` | **Uniquement pour les nuées:** combien d'entrées de données nous devrions rechercher du réseau (il peut être grand !) |
+| `héritage` | `("descendance"|"ascendance")[] \| undefined` | **Uniquement pour les nuées:** si nous incluons les données provenant des nuées dans l'ascendance et/ou la descendance de la nuée. |
 | `copie` | [`copiesExportation`](#types-copies) `\| undefined` | Le nombre de copies maximales des données en sauvegarde, ou bien la quantité de temps que les sauvegardes doivent être gardées. Si non spécifiée, chaque exportation plus récente remplacera la dernière exportation. |
 
 #### Retour
@@ -226,6 +227,7 @@ type SpécificationExporter = BaseSpécificationAutomatisation & {
   dispositifs: string[];
   inclureFichiersSFIP: boolean;
   nRésultatsDésirésNuée?: number;
+  héritage?: ("descendance"|"ascendance")[];
   copies?: copiesExportation;
 };
 

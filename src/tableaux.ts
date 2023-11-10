@@ -8,7 +8,12 @@ import {
   élémentsBd,
   schémaStructureBdNoms,
 } from "@/types.js";
-import { uneFois, faisRien, traduire } from "@constl/utils-ipa";
+import {
+  uneFois,
+  faisRien,
+  traduire,
+  attendreStabilité,
+} from "@constl/utils-ipa";
 
 import { type donnéesBdExportées } from "@/bds.js";
 import {
@@ -97,29 +102,6 @@ export type conversionDonnéesDate = {
 export type conversionDonnéesChaîne = {
   type: "chaîne";
   langue: string;
-};
-
-export const attendreStabilité = <T>(
-  n: number,
-): ((v: T) => Promise<boolean>) => {
-  let déjàAppellé = false;
-  let val: string | undefined = undefined;
-  let annulerRebours: () => void = faisRien;
-
-  return (v: T) =>
-    new Promise<boolean>((résoudre) => {
-      if (déjàAppellé && JSON.stringify(v) === val) return;
-
-      déjàAppellé = true;
-      annulerRebours();
-      val = JSON.stringify(v);
-
-      const crono = setTimeout(() => résoudre(true), n);
-      annulerRebours = () => {
-        clearTimeout(crono);
-        résoudre(false);
-      };
-    });
 };
 
 const schémaBdInfoColAvecCatégorie: JSONSchemaType<{

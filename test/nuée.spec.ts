@@ -5,6 +5,7 @@ import { isValidAddress } from "@orbitdb/core";
 import { élémentDeMembreAvecValid } from "@/reseau.js";
 import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
+import XLSX from "xlsx";
 
 import {
   client as utilsClientTest,
@@ -15,6 +16,12 @@ import { typesClients } from "./ressources/utils.js";
 
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
+import { donnéesNuéeExportation } from "@/nuée.js";
+import { AttendreRésultat } from "@constl/utils-tests/dist/attente.js";
+import { règleColonne } from "@/valid.js";
+import { isSet } from "lodash";
+import { obtRessourceTest } from "./ressources/index.js";
+import { attendreStabilité } from "@constl/utils-ipa";
 
 const générerNuéeTest = async (
   client: ClientConstellation,
@@ -847,8 +854,6 @@ typesClients.forEach((type) => {
         let clients: ClientConstellation[];
         let client: ClientConstellation;
 
-        const fsOublier: schémaFonctionOublier[] = [];
-
         before(async () => {
           ({ fOublier: fOublierClients, clients } = await générerClients({
             n: 2,
@@ -861,8 +866,8 @@ typesClients.forEach((type) => {
 
         after(async () => {
           if (fOublierClients) await fOublierClients();
-          await Promise.all(fsOublier.map((f) => f()));
         });
+
         describe("CJPI", function () {
           let idNuée: string;
           let schémaNuée: schémaSpécificationBd;
@@ -1002,27 +1007,723 @@ typesClients.forEach((type) => {
     });
 
     describe("Ascendance", function () {
-      describe("Héritage noms", function () {
-        it.skip("Nuée");
+      let fOublierClients: () => Promise<void>;
+      let clients: ClientConstellation[];
+      let client: ClientConstellation;
+
+      let idNuée: string;
+      let idNuéeParent: string;
+
+      const fsOublier: schémaFonctionOublier[] = [];
+
+      before(async () => {
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient,
+        }));
+        client = clients[0];
       });
-      describe("Héritage descriptions", function () {
-        it.skip("Nuée");
+
+      after(async () => {
+        if (fOublierClients) await fOublierClients();
       });
-      describe("Héritage règles", function () {
-        it.skip("Nuée");
+
+      beforeEach(async () => {
+        idNuéeParent = await client.nuées.créerNuée({});
+        idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
       });
+      afterEach(async () => {
+        await Promise.all(fsOublier.map((f) => f()));
+      });
+
+      describe("Suivi parents", function () {
+        const parents = new AttendreRésultat<string[]>();
+
+        before(async () => {
+          const fOublierParents = await client.nuées.suivreNuéesParents({
+            idNuée,
+            f: (x) => parents.mettreÀJour(x),
+          });
+          fsOublier.push(fOublierParents);
+          fsOublier.push(async () => parents.toutAnnuler());
+        });
+
+        it("Parent détecté", async () => {
+          const val = await parents.attendreQue((x) => x.length > 0);
+          expect(val).to.contain([idNuéeParent]);
+        });
+
+        it("Parent transitif détecté", async () => {
+          const idNuéeGrandParent = await client.nuées.créerNuée({});
+          await client.nuées.préciserParent({
+            idNuée,
+            idNuéeParent: idNuéeGrandParent,
+          });
+          const val = await parents.attendreQue((x) => x.length > 1);
+          expect(val).to.contain([idNuéeParent, idNuéeGrandParent]);
+        });
+
+        it("Parent transitif enlevé avec parent", async () => {
+          await client.nuées.enleverParent({ idNuée });
+          const val = await parents.attendreQue((x) => x.length === 0);
+          expect(val).to.be.an.empty("array");
+        });
+      });
+
       describe("Traçabilité descendants", function () {
-        it.skip("Nuée");
+        let idNuéeEnfant: string;
+
+        const descendants = new AttendreRésultat<string[]>();
+
+        before(async () => {
+          const { fOublier: fOublierDescendants } =
+            await client.nuées.rechercherNuéesDéscendantes({
+              idNuée: idNuéeParent,
+              f: (x) => descendants.mettreÀJour(x),
+              nRésultatsDésirés: 10,
+            });
+          fsOublier.push(fOublierDescendants);
+          fsOublier.push(async () => descendants.toutAnnuler());
+        });
+
+        it("Descendant détecté", async () => {
+          const val = await descendants.attendreQue((x) => x.length > 0);
+          expect(val).to.contain([idNuée]);
+        });
+
+        it("Descendance transitive détectée", async () => {
+          idNuéeEnfant = await client.nuées.créerNuée({ nuéeParent: idNuée });
+
+          const val = await descendants.attendreQue((x) => x.length > 1);
+          expect(val).to.contain([idNuée, idNuéeEnfant]);
+        });
       });
+
+      describe("Héritage noms", function () {
+        const noms = new AttendreRésultat<{ [langue: string]: string }>();
+
+        before(async () => {
+          const fOublierNoms = await client.nuées.suivreNomsNuée({
+            idNuée,
+            f: (x) => noms.mettreÀJour(x),
+          });
+          fsOublier.push(fOublierNoms);
+          fsOublier.push(async () => noms.toutAnnuler());
+        });
+
+        it("Rien pour commencer", async () => {
+          const val = await noms.attendreExiste();
+          expect(val).to.be.an.empty("object");
+        });
+
+        it("Ajout nom nuée", async () => {
+          await client.nuées.sauvegarderNomNuée({
+            idNuée,
+            langue: "fr",
+            nom: "Science citoyenne",
+          });
+          const val = await noms.attendreQue((x) => !!x.fr);
+          expect(val["fr"]).to.equal("Ma nuée");
+        });
+
+        it("Ajout nom nuée parent", async () => {
+          await client.nuées.sauvegarderNomNuée({
+            idNuée: idNuéeParent,
+            langue: "cst",
+            nom: "Ciencia ciudádana",
+          });
+          const val = await noms.attendreQue((x) => !!x.es);
+          expect(val["es"]).to.equal("Ciencia ciudádana");
+        });
+
+        it("Précédence nuée sur parent", async () => {
+          await client.nuées.sauvegarderNomNuée({
+            idNuée,
+            langue: "cst",
+            nom: "Proyecto de ciencia ciudádana",
+          });
+          const val = await noms.attendreQue(
+            (x) => x.es !== "Ciencia ciudádana",
+          );
+          expect(val["es"]).to.equal("Proyecto de ciencia ciudádana");
+        });
+      });
+
+      describe("Héritage descriptions", function () {
+        const descriptions = new AttendreRésultat<{
+          [langue: string]: string;
+        }>();
+
+        before(async () => {
+          const fOublierDescriptions =
+            await client.nuées.suivreDescriptionsNuée({
+              idNuée,
+              f: (x) => descriptions.mettreÀJour(x),
+            });
+          fsOublier.push(fOublierDescriptions);
+          fsOublier.push(async () => descriptions.toutAnnuler());
+        });
+
+        it("Rien pour commencer", async () => {
+          const val = await descriptions.attendreExiste();
+          expect(val).to.be.an.empty("object");
+        });
+
+        it("Ajout description nuée", async () => {
+          await client.nuées.sauvegarderDescriptionNuée({
+            idNuée,
+            langue: "fr",
+            description: "Science citoyenne",
+          });
+          const val = await descriptions.attendreQue((x) => !!x.fr);
+          expect(val["fr"]).to.equal("Ma nuée");
+        });
+
+        it("Ajout description nuée parent", async () => {
+          await client.nuées.sauvegarderDescriptionNuée({
+            idNuée: idNuéeParent,
+            langue: "cst",
+            description: "Ciencia ciudádana",
+          });
+          const val = await descriptions.attendreQue((x) => !!x.es);
+          expect(val["es"]).to.equal("Ciencia ciudádana");
+        });
+
+        it("Précédence nuée sur parent", async () => {
+          await client.nuées.sauvegarderDescriptionNuée({
+            idNuée,
+            langue: "cst",
+            description: "Proyecto de ciencia ciudádana",
+          });
+          const val = await descriptions.attendreQue(
+            (x) => x.es !== "Ciencia ciudádana",
+          );
+          expect(val["es"]).to.equal("Proyecto de ciencia ciudádana");
+        });
+      });
+
+      describe.skip("Héritage règles", function () {
+        // À faire: déterminer structure tableaux nuées entre idTableau et clefTableau
+        /*const règle: règleExiste = {
+          typeRègle: "existe",
+          détails: {}
+        }*/
+        const clefTableau = "principal";
+
+        const règles = new AttendreRésultat<règleColonne[]>();
+
+        before(async () => {
+          const fOublierRègles = await client.nuées.suivreRèglesTableauNuée({
+            idNuée,
+            clefTableau,
+            f: (x) => règles.mettreÀJour(x),
+          });
+          fsOublier.push(fOublierRègles);
+          fsOublier.push(async () => règles.toutAnnuler());
+        });
+
+        it("Rien pour commencer", async () => {
+          const val = await règles.attendreExiste();
+          expect(val).to.be.an.empty("array");
+        });
+
+        it("Ajout règle nuée");
+
+        it("Ajout règle nuée parent");
+      });
+
+      describe("Suivi données ascendants", function () {
+        let idCol: string;
+        let schémaBd: schémaSpécificationBd;
+        let idÉlémentNuée: string;
+
+        const données = new AttendreRésultat<
+          élémentDeMembreAvecValid<élémentBdListeDonnées>[]
+        >();
+        before(async () => {
+          const idTableau = await client.nuées.ajouterTableauNuée({
+            idNuée,
+            clefTableau: "principal",
+          });
+          const idVariableNumérique = await client.variables.créerVariable({
+            catégorie: "numérique",
+          });
+          idCol = await client.nuées.ajouterColonneTableauNuée({
+            idTableau,
+            idVariable: idVariableNumérique,
+            idColonne: "col numérique",
+          });
+
+          schémaBd = await client.nuées.générerSchémaBdNuée({
+            idNuée,
+            licence: "ODBl-1_0",
+          });
+
+          const { fOublier: fOublierDonnées } =
+            await client.nuées.suivreDonnéesTableauNuée({
+              idNuée,
+              clefTableau: "principal",
+              f: (x) => données.mettreÀJour(x),
+              nRésultatsDésirés: 100,
+              héritage: ["ascendance"],
+            });
+          fsOublier.push(fOublierDonnées);
+          fsOublier.push(async () => données.toutAnnuler());
+        });
+
+        it("Données nuée détectées", async () => {
+          idÉlémentNuée = (
+            await client.bds.ajouterÉlémentÀTableauUnique({
+              schémaBd,
+              idNuéeUnique: idNuée,
+              clefTableau: "principal",
+              vals: { [idCol]: 3 },
+            })
+          )[0];
+
+          const val = await données.attendreQue((x) => x.length > 0);
+          expect(val).to.have.deep.members([
+            {
+              idCompte: await client.obtIdCompte(),
+              élément: {
+                données: { [idCol]: 3 },
+                id: idÉlémentNuée,
+              },
+              valid: [],
+            },
+          ]);
+        });
+
+        it("Données nuée parent détectées", async () => {
+          const id = (
+            await client.bds.ajouterÉlémentÀTableauUnique({
+              schémaBd,
+              idNuéeUnique: idNuéeParent,
+              clefTableau: "principal",
+              vals: { [idCol]: 4 },
+            })
+          )[0];
+
+          const val = await données.attendreQue((x) => x.length > 1);
+          const idCompte = await client.obtIdCompte();
+          expect(val).to.have.deep.members([
+            {
+              idCompte,
+              élément: {
+                données: { [idCol]: 3 },
+                id: idÉlémentNuée,
+              },
+              valid: [],
+            },
+            {
+              idCompte,
+              élément: {
+                données: { [idCol]: 4 },
+                id,
+              },
+              valid: [],
+            },
+          ]);
+        });
+      });
+
       describe("Suivi données descendants", function () {
-        it.skip("Nuée");
+        let idCol: string;
+        let schémaBd: schémaSpécificationBd;
+        let idÉlémentNuée: string;
+
+        const données = new AttendreRésultat<
+          élémentDeMembreAvecValid<élémentBdListeDonnées>[]
+        >();
+        before(async () => {
+          const idTableau = await client.nuées.ajouterTableauNuée({
+            idNuée: idNuéeParent,
+            clefTableau: "principal",
+          });
+          const idVariableNumérique = await client.variables.créerVariable({
+            catégorie: "numérique",
+          });
+          idCol = await client.nuées.ajouterColonneTableauNuée({
+            idTableau,
+            idVariable: idVariableNumérique,
+            idColonne: "col numérique",
+          });
+
+          schémaBd = await client.nuées.générerSchémaBdNuée({
+            idNuée: idNuéeParent,
+            licence: "ODBl-1_0",
+          });
+
+          const { fOublier: fOublierDonnées } =
+            await client.nuées.suivreDonnéesTableauNuée({
+              idNuée: idNuéeParent,
+              clefTableau: "principal",
+              f: (x) => données.mettreÀJour(x),
+              nRésultatsDésirés: 100,
+              héritage: ["descendance"],
+            });
+          fsOublier.push(fOublierDonnées);
+          fsOublier.push(async () => données.toutAnnuler());
+        });
+
+        it("Données nuée détectées", async () => {
+          idÉlémentNuée = (
+            await client.bds.ajouterÉlémentÀTableauUnique({
+              schémaBd,
+              idNuéeUnique: idNuéeParent,
+              clefTableau: "principal",
+              vals: { [idCol]: 3 },
+            })
+          )[0];
+
+          const val = await données.attendreQue((x) => x.length > 0);
+          expect(val).to.have.deep.members([
+            {
+              idCompte: await client.obtIdCompte(),
+              élément: {
+                données: { [idCol]: 3 },
+                id: idÉlémentNuée,
+              },
+              valid: [],
+            },
+          ]);
+        });
+
+        it("Données nuée enfant détectées", async () => {
+          const id = (
+            await client.bds.ajouterÉlémentÀTableauUnique({
+              schémaBd,
+              idNuéeUnique: idNuée,
+              clefTableau: "principal",
+              vals: { [idCol]: 4 },
+            })
+          )[0];
+
+          const val = await données.attendreQue((x) => x.length > 1);
+          const idCompte = await client.obtIdCompte();
+          expect(val).to.have.deep.members([
+            {
+              idCompte,
+              élément: {
+                données: { [idCol]: 3 },
+                id: idÉlémentNuée,
+              },
+              valid: [],
+            },
+            {
+              idCompte,
+              élément: {
+                données: { [idCol]: 4 },
+                id,
+              },
+              valid: [],
+            },
+          ]);
+        });
       });
     });
-    describe("Suivre empreinte tête", function () {
+
+    describe("Suivre empreinte", function () {
+      let fOublierClients: () => Promise<void>;
+      let clients: ClientConstellation[];
+      let client: ClientConstellation;
+
+      let idNuée: string;
+      let idBd: string;
+      let idTableau: string;
+      let idCol: string;
+      let val: string | undefined = undefined;
+
+      const fsOublier: schémaFonctionOublier[] = [];
+
+      before(async () => {
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient,
+        }));
+        client = clients[0];
+
+        idNuée = await client.nuées.créerNuée({});
+        const idVariable = await client.variables.créerVariable({
+          catégorie: "audio",
+        });
+        idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
+        idCol = await client.nuées.ajouterColonneTableauNuée({
+          idTableau,
+          idVariable,
+        });
+
+        const fOublierEmpreinte =
+          await client.nuées.suivreEmpreinteTêtesBdsNuée({
+            idNuée,
+            f: (x) => empreinte.mettreÀJour(x),
+          });
+        fsOublier.push(fOublierEmpreinte);
+        fsOublier.push(async () => empreinte.toutAnnuler());
+      });
+
+      after(async () => {
+        await Promise.all(fsOublier.map((f) => f()));
+        if (fOublierClients) await fOublierClients();
+      });
+
+      const empreinte = new AttendreRésultat<string>();
+
+      it("Sans bds", async () => {
+        const stable = attendreStabilité(1000);
+        val = await empreinte.attendreQue(
+          async (x) => (await stable(x)) && x !== val,
+        );
+        expect(val).to.be.a.not.empty("string");
+      });
+      it("Ajout bds", async () => {
+        const schéma = await client.nuées.générerSchémaBdNuée({
+          idNuée,
+          licence: "ODBl-1_0",
+        });
+        idBd = await client.bds.créerBdDeSchéma({
+          schéma,
+        });
+
+        const stable = attendreStabilité(1000);
+        val = await empreinte.attendreQue(
+          async (x) => (await stable(x)) && x !== val,
+        );
+        expect(val).to.be.a.not.empty("string");
+      });
+
+      it("Changement nom bds détecté", async () => {
+        await client.bds.sauvegarderNomBd({ idBd, langue: "fr", nom: "Ma BD" });
+
+        const stable = attendreStabilité(1000);
+        val = await empreinte.attendreQue(
+          async (x) => (await stable(x)) && x !== val,
+        );
+        expect(val).to.be.a.not.empty("string");
+      });
+
+      it("Changement nom nuée détecté", async () => {
+        await client.nuées.sauvegarderNomNuée({
+          idNuée,
+          langue: "fr",
+          nom: "Ma nuée",
+        });
+
+        const stable = attendreStabilité(1000);
+        val = await empreinte.attendreQue(
+          async (x) => (await stable(x)) && x !== val,
+        );
+        expect(val).to.be.a.not.empty("string");
+      });
+
+      it("Changement données bds détecté", async () => {
+        await client.tableaux.ajouterÉlément({
+          idTableau,
+          vals: { [idCol]: 123 },
+        });
+
+        const stable = attendreStabilité(1000);
+        val = await empreinte.attendreQue(
+          async (x) => (await stable(x)) && x !== val,
+        );
+        expect(val).to.be.a.not.empty("string");
+      });
+    });
+
+    describe("Suivre données exportées", function () {
+      let fOublierClients: () => Promise<void>;
+      let clients: ClientConstellation[];
+      let client: ClientConstellation;
+
+      let idNuée: string;
+      let schémaNuée: schémaSpécificationBd;
+      let idBd: string;
+
+      const résultat =
+        new utilsTestAttente.AttendreRésultat<donnéesNuéeExportation>();
+
+      const fsOublier: schémaFonctionOublier[] = [];
+
+      before(async () => {
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 2,
+          type,
+          générerClient,
+        }));
+
+        client = clients[0];
+
+        ({ idNuée } = await générerNuéeTest(client));
+        schémaNuée = await client.nuées.générerSchémaBdNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+        const fOublierRésultat = await client.nuées.suivreDonnéesExportation({
+          idNuée,
+          langues: ["fr"],
+          f: (x) => résultat.mettreÀJour(x),
+          nRésultatsDésirés: 100,
+        });
+        fsOublier.push(fOublierRésultat);
+      });
+
+      after(async () => {
+        résultat.toutAnnuler();
+        await Promise.all(fsOublier.map((f) => f()));
+        if (fOublierClients) await fOublierClients();
+      });
+
+      it("Suivre noms", async () => {
+        await client.nuées.sauvegarderNomNuée({
+          idNuée,
+          langue: "fr",
+          nom: "Nuée test",
+        });
+        const val = await résultat.attendreQue(
+          (x) => !x.nomNuée.startsWith("zdpu"),
+        );
+        expect(val.nomNuée).to.eq("Nuée test");
+      });
+
+      it("Suivre tableaux", async () => {
+        idBd = await client.bds.créerBdDeSchéma({
+          schéma: schémaNuée,
+        });
+        await client.bds.ajouterÉlémentÀTableauParClef({
+          idBd,
+          clefTableau: "principal",
+          vals: [{ numérique: 1 }, { numérique: 2 }, { numérique: 3 }],
+        });
+        const val = await résultat.attendreQue(
+          (x) => x.tableaux.length > 0 && x.tableaux[0].données.length >= 3,
+        );
+        expect(val.tableaux.map((t) => t.données)).to.deep.eq([
+          { numérique: 1 },
+          { numérique: 2 },
+          { numérique: 3 },
+        ]);
+      });
       it.skip("Nuée");
     });
-    describe("Exporter données", function () {
-      it.skip("Nuée");
+
+    describe("Document données exportées", function () {
+      let fOublierClients: () => Promise<void>;
+      let clients: ClientConstellation[];
+      let client: ClientConstellation;
+
+      let idNuée: string;
+      let idBd: string;
+      let doc: XLSX.WorkBook;
+      let fichiersSFIP: Set<string>;
+      let nomFichier: string;
+      let cid: string;
+
+      const nomTableau1 = "Tableau 1";
+      const nomTableau2 = "Tableau 2";
+
+      before(async () => {
+        ({ fOublier: fOublierClients, clients } = await générerClients({
+          n: 1,
+          type,
+          générerClient,
+        }));
+
+        client = clients[0];
+
+        idNuée = await client.nuées.créerNuée({});
+        await client.nuées.sauvegarderNomNuée({
+          idNuée,
+          langue: "fr",
+          nom: "Ma nuée",
+        });
+
+        const idTableau1Nuée = await client.nuées.ajouterTableauNuée({
+          idNuée,
+          clefTableau: "tableau 1",
+        });
+        const idTableau2Nuée = await client.nuées.ajouterTableauNuée({
+          idNuée,
+          clefTableau: "tableau 2",
+        });
+
+        const idVarNum = await client.variables.créerVariable({
+          catégorie: "numérique",
+        });
+        const idVarFichier = await client.variables.créerVariable({
+          catégorie: "fichier",
+        });
+        await client.nuées.ajouterColonneTableauNuée({
+          idTableau: idTableau1Nuée,
+          idVariable: idVarNum,
+        });
+        const idColFichier = await client.nuées.ajouterColonneTableauNuée({
+          idTableau: idTableau2Nuée,
+          idVariable: idVarFichier,
+        });
+
+        const octets = await obtRessourceTest({
+          nomFichier: "logo.svg",
+          optsAxios: { responseType: "arraybuffer" },
+        });
+        cid = await client.ajouterÀSFIP({
+          fichier: { content: octets, path: "logo.svg" },
+        });
+
+        const schéma = await client.nuées.générerSchémaBdNuée({
+          idNuée,
+          licence: "ODbl-1_0",
+        });
+        idBd = await client.bds.créerBdDeSchéma({ schéma });
+
+        await client.bds.ajouterÉlémentÀTableauParClef({
+          idBd,
+          clefTableau: "tableau 1",
+          vals: {
+            [idColFichier]: cid,
+          },
+        });
+
+        await client.tableaux.sauvegarderNomsTableau({
+          idTableau: idTableau1Nuée,
+          noms: {
+            fr: nomTableau1,
+          },
+        });
+        await client.tableaux.sauvegarderNomsTableau({
+          idTableau: idTableau2Nuée,
+          noms: {
+            fr: nomTableau2,
+          },
+        });
+
+        ({ doc, fichiersSFIP, nomFichier } =
+          await client.nuées.exporterDonnéesNuée({
+            idNuée,
+            langues: ["fr"],
+            nRésultatsDésirés: 100,
+          }));
+      });
+
+      after(async () => {
+        if (fOublierClients) await fOublierClients();
+      });
+
+      it("Doc créé avec tous les tableaux", () => {
+        expect(Array.isArray(doc.SheetNames));
+        expect(doc.SheetNames).to.have.members([nomTableau1, nomTableau2]);
+      });
+
+      it("Fichiers SFIP retrouvés de tous les tableaux", () => {
+        expect(isSet(fichiersSFIP)).to.be.true();
+        expect(fichiersSFIP.size).to.equal(1);
+        expect([...fichiersSFIP]).to.have.deep.members([cid]);
+      });
+
+      it("Nom fichier", () => {
+        expect(nomFichier).to.eq("Ma nuée");
+      });
     });
     describe("Générer de bd", function () {
       it.skip("Nuée");
@@ -1032,55 +1733,3 @@ typesClients.forEach((type) => {
     });
   });
 });
-
-/*it("Les noms sont liés", async () => {
-  const réfNomsLiés: { [key: string]: string } = Object.assign(
-    {},
-    réfNoms,
-    { த: "பொழிவு" }
-  );
-  await client.bds.sauvegarderNomBd({
-    id: idBdCopieLiée,
-    langue: "த",
-    nom: "பொழிவு",
-  });
-
-  expect(nomsLiés).to.deep.equal(réfNomsLiés);
-  await client.bds.sauvegarderNomBd({
-    id: idBdOrig,
-    langue: "fr",
-    nom: "précipitation",
-  });
-
-  réfNomsLiés["fr"] = "précipitation";
-  expect(nomsLiés).to.deep.equal(réfNomsLiés);
-});
-
-it("Les descriptions sont liées", async () => {
-  const réfDescrsLiées: { [key: string]: string } = Object.assign(
-    {},
-    réfNoms,
-    { த: "தினசரி பொழிவு" }
-  );
-  await client.bds.sauvegarderDescrBd({
-    id: idBdCopieLiée,
-    langue: "த",
-    descr: "தினசரி பொழிவு",
-  });
-
-  expect(descrsLiées).to.deep.equal(réfDescrsLiées);
-  await client.bds.sauvegarderDescrBd({
-    id: idBdOrig,
-    langue: "fr",
-    descr: "Précipitation journalière",
-  });
-
-  réfDescrsLiées["fr"] = "précipitation";
-  expect(descrsLiées).to.deep.equal(réfDescrsLiées);
-});
-
-it.skip("Changement de tableaux détecté");
-it.skip("Changement de colonnes tableau détecté");
-it.skip("Changement propriétés de colonnes tableau détecté");
-it.skip("Changement de règles détecté");
-*/

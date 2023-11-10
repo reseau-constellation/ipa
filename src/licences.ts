@@ -542,7 +542,7 @@ export default class Licences {
   }): Promise<void> {
     await this.attendrePrêt();
     if (this.perroquet) {
-      return await this.perroquet.அங்கீகரி({ பரிந்துரை: suggestion });
+      await this.perroquet.அங்கீகரி({ பரிந்துரை: suggestion });
     }
   }
 }

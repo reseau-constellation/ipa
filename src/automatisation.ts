@@ -174,6 +174,7 @@ export type SpécificationExporter = BaseSpécificationAutomatisation & {
   dispositifs: string[];
   inclureFichiersSFIP: boolean;
   nRésultatsDésirésNuée?: number;
+  héritage?: ("descendance" | "ascendance")[];
   copies?: copiesExportation;
 };
 
@@ -503,6 +504,7 @@ const générerFExportation = (
           idNuée: spéc.idObjet,
           langues: spéc.langues,
           nRésultatsDésirés: spéc.nRésultatsDésirésNuée || 1000,
+          héritage: spéc.héritage,
         });
         nomFichier = donnéesNuée.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
@@ -1036,6 +1038,7 @@ export default class Automatisations extends ComposanteClientDic<{
     fréquence,
     dispositifs,
     nRésultatsDésirésNuée,
+    héritage,
     copies,
   }: {
     id: string;
@@ -1047,6 +1050,7 @@ export default class Automatisations extends ComposanteClientDic<{
     fréquence?: fréquence;
     dispositifs?: string[];
     nRésultatsDésirésNuée?: number;
+    héritage?: ("descendance" | "ascendance")[];
     copies?: copiesExportation;
   }): Promise<string> {
     dispositifs = dispositifs || [this.client.orbite!.identity.id];
@@ -1067,6 +1071,7 @@ export default class Automatisations extends ComposanteClientDic<{
       inclureFichiersSFIP,
       dossier: idDossier, // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier directement
       nRésultatsDésirésNuée,
+      héritage,
       copies,
     };
 

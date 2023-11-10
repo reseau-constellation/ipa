@@ -301,7 +301,6 @@ export class ClientConstellation {
       });
     }
 
-    
     await this.réseau.initialiser();
     await this.protocoles.établirProtocoles({
       protocoles: this._opts.protocoles,
@@ -2502,7 +2501,7 @@ export class ClientConstellation {
   }
 
   async fermer(): Promise<void> {
-    await this.attendreInitialisée()
+    await this.attendreInitialisée();
     const { orbite } = await this.attendreSfipEtOrbite();
     await (await obtStockageLocal(this.dossierOrbite())).fermer?.();
     await this.fermerCompte();

@@ -21,13 +21,17 @@ import {
   schémaStructureBdNoms,
   structureBdNoms,
 } from "@/types.js";
-import { traduire, zipper, uneFois } from "@constl/utils-ipa";
+import {
+  traduire,
+  zipper,
+  uneFois,
+  attendreStabilité,
+} from "@constl/utils-ipa";
 import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
 import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
-import { attendreStabilité } from "./tableaux.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
   type: "string",

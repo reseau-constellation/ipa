@@ -994,13 +994,50 @@ const {
   fOublier: fOublierParents, 
   fChangerN: fChangerNParents, 
 } = await client.nuées.suivreNuéesParents({
-  idNuéeSpécialisée,
+  idNuée: idNuéeSpécialisée,
   f: x => parents.value = x,
   nRésultatsDésirés: 10,
 });
 
 await fChangerNParents(3);  // On veut 3 résultats maximum
 await fOublierParents();  // Arrêter le suivi
+```
+
+### `client.nuées.préciserParent({ idNuée, idNuéeParent })`
+Spécifier une nuée parent.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée d'intérêt. |
+| `idNuéeParent` | `string` | L'identifiant de la nuée parent'. |
+
+
+#### Exemple
+```ts
+// ...continuant de ci-dessus...
+
+await client.nuées.préciserParent({ 
+  idNuée, 
+  idNuéeParent: idAutreNuée 
+});
+```
+
+### `client.nuées.enleverParent({ idNuée })`
+Enlever une nuée parent.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée d'intérêt. |
+
+#### Exemple
+```ts
+// ...continuant de ci-dessus...
+
+await client.nuées.enleverParent({ 
+  idNuée
+});
 ```
 
 ## Types

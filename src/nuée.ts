@@ -20,10 +20,11 @@ import {
   uneFois,
   ignorerNonDéfinis,
   traduire,
+  attendreStabilité,
+  suivreBdDeFonction,
 } from "@constl/utils-ipa";
 
 import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import { suivreBdDeFonction } from "@constl/utils-ipa";
 
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import type { objRôles } from "@/accès/types.js";
@@ -44,7 +45,6 @@ import type { élémentDeMembreAvecValid } from "@/reseau.js";
 import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/types.js";
 
 import {
-  attendreStabilité,
   type différenceTableaux,
   type InfoCol,
   type InfoColAvecCatégorie,
@@ -2058,6 +2058,32 @@ export default class Nuée extends ComposanteClientListe<string> {
     });
   }
 
+  async préciserParent({
+    idNuée,
+    idNuéeParent,
+  }: {
+    idNuée: string;
+    idNuéeParent: string;
+  }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idNuée,
+      type: "keyvalue",
+      schéma: schémaStructureBdNuée,
+    });
+    bd.set("parent", idNuéeParent);
+    await fOublier();
+  }
+
+  async enleverParent({ idNuée }: { idNuée: string }): Promise<void> {
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idNuée,
+      type: "keyvalue",
+      schéma: schémaStructureBdNuée,
+    });
+    bd.del("parent");
+    await fOublier();
+  }
+
   @cacheSuivi
   async suivreNuéesParents({
     idNuée,
@@ -2110,7 +2136,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }
 
   @cacheRechercheParNRésultats
-  async suivreBdsCorrespondantes({
+  async suivreBdsCorrespondantesDUneNuée({
     idNuée,
     f,
     nRésultatsDésirés,
@@ -2265,19 +2291,142 @@ export default class Nuée extends ComposanteClientListe<string> {
     }
   }
 
+  @cacheRechercheParNRésultats
+  async suivreBdsCorrespondantes({
+    idNuée,
+    f,
+    nRésultatsDésirés,
+    héritage,
+    vérifierAutorisation = true,
+    toujoursInclureLesMiennes = true,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<string[]>;
+    nRésultatsDésirés: number;
+    héritage?: ("descendance" | "ascendance")[];
+    vérifierAutorisation?: boolean;
+    toujoursInclureLesMiennes?: boolean;
+  }): Promise<schémaRetourFonctionRechercheParProfondeur> {
+    const info: {
+      ascendance?: string[];
+      descendance?: string[];
+      directes?: string[];
+    } = {};
+    const fsOublier: schémaFonctionOublier[] = [];
+
+    const fFinale = async () => {
+      if (!info.directes) return;
+      const finaux = [
+        ...new Set([
+          ...(info.ascendance || []),
+          ...(info.descendance || []),
+          ...info.directes,
+        ]),
+      ];
+      return await f(finaux);
+    };
+
+    if (héritage && héritage.includes("ascendance")) {
+      const fOublierAscendance = await this.suivreDeParents({
+        idNuée,
+        f: async (bds: string[][]) => {
+          const finales: string[] = [];
+          bds.forEach((l) =>
+            l.forEach((bd) => {
+              !finales.includes(bd) && finales.push(bd);
+            }),
+          );
+          info.ascendance = finales;
+          await fFinale();
+        },
+        fParents: async (
+          id: string,
+          fSuivreBranche: schémaFonctionSuivi<string[]>,
+        ): Promise<schémaFonctionOublier> => {
+          return (
+            await this.suivreBdsCorrespondantesDUneNuée({
+              idNuée: id,
+              f: fSuivreBranche,
+              nRésultatsDésirés,
+              vérifierAutorisation,
+              toujoursInclureLesMiennes,
+            })
+          ).fOublier;
+        },
+      });
+      fsOublier.push(fOublierAscendance);
+    }
+    if (héritage && héritage.includes("descendance")) {
+      const { fOublier: fOublierDescendance } =
+        await this.client.suivreBdsDeFonctionListe({
+          fListe: async (
+            fSuivreRacine: (parents: string[]) => Promise<void>,
+          ): Promise<schémaRetourFonctionRechercheParN> => {
+            return await this.rechercherNuéesDéscendantes({
+              idNuée,
+              f: (parents) => fSuivreRacine([idNuée, ...parents].reverse()),
+              nRésultatsDésirés: 1000,
+            });
+          },
+          f: async (bds: string[]) => {
+            info.descendance = bds;
+            await fFinale();
+          },
+          fBranche: async (
+            id: string,
+            fSuivreBranche: schémaFonctionSuivi<string[]>,
+          ): Promise<schémaFonctionOublier> => {
+            return (
+              await this.suivreBdsCorrespondantesDUneNuée({
+                idNuée: id,
+                f: fSuivreBranche,
+                nRésultatsDésirés,
+                vérifierAutorisation,
+                toujoursInclureLesMiennes,
+              })
+            ).fOublier;
+          },
+        });
+      fsOublier.push(fOublierDescendance);
+    }
+
+    const { fOublier: fOublierDirectes, fChangerProfondeur } =
+      await this.suivreBdsCorrespondantesDUneNuée({
+        idNuée,
+        f: async (bds) => {
+          info.directes = bds;
+          await fFinale();
+        },
+        nRésultatsDésirés,
+        vérifierAutorisation,
+        toujoursInclureLesMiennes,
+      });
+    fsOublier.push(fOublierDirectes);
+
+    return {
+      fOublier: async () => {
+        await Promise.all(fsOublier.map((f) => f()));
+      },
+      fChangerProfondeur,
+    };
+  }
+
   @cacheSuivi
   async suivreEmpreinteTêtesBdsNuée({
     idNuée,
     f,
+    héritage,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string>;
+    héritage?: ("descendance" | "ascendance")[];
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdsDeFonctionListe({
       fListe: async (fSuivreRacine: (éléments: string[]) => void) => {
         const { fOublier } = await this.suivreBdsCorrespondantes({
           idNuée,
-          f: fSuivreRacine,
+          f: async (bds) => fSuivreRacine([idNuée, ...bds]),
+          héritage,
           nRésultatsDésirés: 1000,
         });
         return fOublier;
@@ -2304,6 +2453,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     clefTableau,
     f,
     nRésultatsDésirés,
+    héritage,
     ignorerErreursFormatBd = true,
     ignorerErreursFormatTableau = false,
     ignorerErreursDonnéesTableau = true,
@@ -2315,6 +2465,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     clefTableau: string;
     f: schémaFonctionSuivi<élémentDeMembreAvecValid<T>[]>;
     nRésultatsDésirés: number;
+    héritage?: ("descendance" | "ascendance")[];
     ignorerErreursFormatBd?: boolean;
     ignorerErreursFormatTableau?: boolean;
     ignorerErreursDonnéesTableau?: boolean;
@@ -2336,6 +2487,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         idNuée,
         f: fSuivreRacine,
         nRésultatsDésirés,
+        héritage,
         toujoursInclureLesMiennes,
       });
     };
@@ -2546,12 +2698,14 @@ export default class Nuée extends ComposanteClientListe<string> {
     langues,
     f,
     nRésultatsDésirés,
+    héritage,
   }: {
     clefTableau: string;
     idNuée: string;
     langues?: string[];
     f: schémaFonctionSuivi<donnéesTableauExportation>;
     nRésultatsDésirés: number;
+    héritage?: ("descendance" | "ascendance")[];
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsTableau?: { [clef: string]: string };
@@ -2662,6 +2816,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       idNuée,
       clefTableau,
       nRésultatsDésirés,
+      héritage,
       f: async (données) => {
         info.données = données;
         await fFinale();
@@ -2679,11 +2834,13 @@ export default class Nuée extends ComposanteClientListe<string> {
     langues,
     f,
     nRésultatsDésirés,
+    héritage,
   }: {
     idNuée: string;
     langues?: string[];
     f: schémaFonctionSuivi<donnéesNuéeExportation>;
     nRésultatsDésirés: number;
+    héritage?: ("descendance" | "ascendance")[];
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsNuée?: { [langue: string]: string };
@@ -2724,6 +2881,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           clefTableau: branche.clef,
           langues,
           nRésultatsDésirés,
+          héritage,
           f: async (données) => {
             return await fSuivreBranche(données);
           },
@@ -2756,11 +2914,13 @@ export default class Nuée extends ComposanteClientListe<string> {
     langues,
     nomFichier,
     nRésultatsDésirés,
+    héritage,
   }: {
     idNuée: string;
     langues?: string[];
     nomFichier?: string;
     nRésultatsDésirés: number;
+    héritage?: ("descendance" | "ascendance")[];
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
     const fichiersSFIP: Set<string> = new Set();
@@ -2773,6 +2933,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           idNuée,
           langues,
           f: fSuivi,
+          héritage,
           nRésultatsDésirés,
         });
       },
@@ -2807,6 +2968,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ): Promise<schémaFonctionOublier> => {
         return await this.client.bds.suivreNomsBd({ idBd, f: fSuivi });
       },
+      attendreStabilité(1000),
     );
     await this.sauvegarderNomsNuée({
       idNuée,
@@ -2820,6 +2982,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ): Promise<schémaFonctionOublier> => {
         return await this.client.bds.suivreDescriptionsBd({ idBd, f: fSuivi });
       },
+      attendreStabilité(1000),
     );
     await this.sauvegarderDescriptionsNuée({
       idNuée,
@@ -2836,6 +2999,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
+      attendreStabilité(1000),
     );
     await this.ajouterMotsClefsNuée({
       idNuée,
@@ -2849,6 +3013,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ): Promise<schémaFonctionOublier> => {
         return await this.client.bds.suivreTableauxBd({ idBd, f: fSuivi });
       },
+      attendreStabilité(1000),
     );
 
     for (const tableau of tableaux) {
@@ -2869,6 +3034,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             catégories: false,
           });
         },
+        attendreStabilité(1000),
       );
       for (const col of colonnes) {
         await this.ajouterColonneTableauNuée({
@@ -2895,6 +3061,7 @@ export default class Nuée extends ComposanteClientListe<string> {
               f: fSuivi,
             });
           },
+          attendreStabilité(1000),
         );
         for (const règle of règles) {
           if (règle.source.type === "tableau") {
@@ -2925,6 +3092,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
+      attendreStabilité(1000),
     );
     const tableaux = await uneFois(
       async (fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>) => {
@@ -2933,6 +3101,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
+      attendreStabilité(1000),
     );
     const règles: { [clef: string]: règleColonne[] } = {};
     for (const t of tableaux) {
@@ -2944,20 +3113,18 @@ export default class Nuée extends ComposanteClientListe<string> {
             f: fSuivi,
           });
         },
+        attendreStabilité(1000),
       );
     }
     const générerCols = async (tableau: infoTableauAvecId) => {
-      return await uneFois(
-        async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
-          return await this.suivreColonnesTableauNuée({
-            idNuée,
-            clefTableau: tableau.clef,
-            f: fSuivi,
-            catégories: false,
-          });
-        },
-        (x) => !!x && !!x.length,
-      );
+      return await uneFois(async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
+        return await this.suivreColonnesTableauNuée({
+          idNuée,
+          clefTableau: tableau.clef,
+          f: fSuivi,
+          catégories: false,
+        });
+      }, attendreStabilité(1000));
     };
 
     const schéma: schémaSpécificationBd = {
