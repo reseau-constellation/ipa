@@ -29,7 +29,7 @@ import type {
   résultatRecherche,
   schémaFonctionSuiviRecherche,
 } from "@/types.js";
-import { faisRien } from "@constl/utils-ipa";
+import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import type { infoScore } from "@/bds.js";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
@@ -879,7 +879,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       confiance: number,
     ) => {
       fsOublier.push(
-        await this.client.suivreBdsDeFonctionListe({
+        await suivreBdsDeFonctionListe({
           fListe,
           f: async (membres: string[]) => {
             comptes[clef] = membres.map((idCompte) => {
@@ -1415,7 +1415,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       });
     };
 
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f,
       fBranche,
@@ -1708,7 +1708,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       };
 
       const fOublierRechercheMembre =
-        await this.client.suivreBdsDeFonctionListe({
+        await suivreBdsDeFonctionListe({
           fListe,
           f: fSuivi,
           fBranche,
@@ -1884,7 +1884,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const fRéduction = (branches: number[]) => branches.flat();
 
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -1922,7 +1922,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         fObjectif ||
         (rechercherTous() as schémaFonctionSuivreObjectifRecherche<T>);
 
-      return await this.client.suivreBdsDeFonctionListe({
+      return await suivreBdsDeFonctionListe({
         fListe: async (
           fSuivreRacine: (éléments: string[]) => Promise<void>,
         ): Promise<schémaRetourFonctionRechercheParN> => {
@@ -2272,7 +2272,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const fIdBdDeBranche = (x: infoAccès) => x.idCompte;
     const fCode = (x: infoAccès) => x.idCompte;
 
-    const fOublier = await this.client.suivreBdsDeFonctionListe({
+    const fOublier = await suivreBdsDeFonctionListe({
       fListe,
       f,
       fBranche,

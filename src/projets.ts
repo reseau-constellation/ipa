@@ -26,6 +26,7 @@ import {
   zipper,
   uneFois,
   attendreStabilité,
+  suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
@@ -750,7 +751,7 @@ export default class Projets extends ComposanteClientListe<string> {
     ): Promise<schémaFonctionOublier> => {
       return await this.client.bds.suivreMotsClefsBd({ idBd, f: fSuivi });
     };
-    const fOublierMotsClefsBds = await this.client.suivreBdsDeFonctionListe({
+    const fOublierMotsClefsBds = await suivreBdsDeFonctionListe({
       fListe,
       f: fFinaleBds,
       fBranche,
@@ -848,7 +849,7 @@ export default class Projets extends ComposanteClientListe<string> {
     const fRéduction = (scores: number[]) => {
       return scores.flat();
     };
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -886,7 +887,7 @@ export default class Projets extends ComposanteClientListe<string> {
       });
     };
 
-    const fOublierDonnées = await this.client.suivreBdsDeFonctionListe({
+    const fOublierDonnées = await suivreBdsDeFonctionListe({
       fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
         return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
       },

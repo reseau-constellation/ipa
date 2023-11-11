@@ -12,7 +12,7 @@ import type {
   infoRésultatRecherche,
   infoRésultat,
 } from "@/types.js";
-import { faisRien } from "@constl/utils-ipa";
+import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 
 export const rechercherDansTexte = (
   schéma: string,
@@ -158,7 +158,7 @@ export const sousRecherche = async <T extends infoRésultat>(
     }
   };
 
-  const fOublier = await client.suivreBdsDeFonctionListe({
+  const fOublier = await suivreBdsDeFonctionListe({
     fListe,
     f: fFinale,
     fBranche,

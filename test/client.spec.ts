@@ -3,7 +3,7 @@ import toBuffer from "it-to-buffer";
 
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import { faisRien, suivreBdDeFonction } from "@constl/utils-ipa";
+import { faisRien, suivreBdDeFonction, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 
 import { peutÉcrire, attente } from "@constl/utils-tests";
@@ -1106,7 +1106,7 @@ if (isNode || isElectronMain) {
             });
           };
           fsOublier.push(
-            await client.suivreBdsDeFonctionListe({ fListe, f, fBranche }),
+            await suivreBdsDeFonctionListe({ fListe, f, fBranche }),
           );
         });
         after(async () => {
@@ -1204,7 +1204,7 @@ if (isNode || isElectronMain) {
           await bd2.put("c", 3);
 
           fsOublier.push(
-            await client.suivreBdsDeFonctionListe({
+            await suivreBdsDeFonctionListe({
               fListe,
               f,
               fBranche,
@@ -1232,7 +1232,7 @@ if (isNode || isElectronMain) {
           ];
 
           fsOublier.push(
-            await client.suivreBdsDeFonctionListe({
+            await suivreBdsDeFonctionListe({
               fListe,
               f,
               fBranche,
@@ -1259,7 +1259,7 @@ if (isNode || isElectronMain) {
         };
 
         before(async () => {
-          fOublier = await client.suivreBdsDeFonctionListe({
+          fOublier = await suivreBdsDeFonctionListe({
             fListe,
             f: faisRien,
             fBranche: async () => faisRien,

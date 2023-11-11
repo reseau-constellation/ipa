@@ -21,7 +21,7 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import indexedDbStream from "indexed-db-stream";
 import type TypedEmitter from "typed-emitter";
 
-import { suivreBdDeFonction } from "@constl/utils-ipa";
+import { suivreBdDeFonction, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 
 import Épingles from "@/epingles.js";
 import Profil from "@/profil.js";
@@ -1670,7 +1670,7 @@ export class ClientConstellation {
       });
     };
 
-    return await this.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -1702,7 +1702,7 @@ export class ClientConstellation {
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreBdListe({ id, f: fSuivreRacine });
     };
-    return await this.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f,
       fBranche,
@@ -1744,7 +1744,7 @@ export class ClientConstellation {
         },
       });
     };
-    return await this.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f,
       fBranche,
@@ -1752,151 +1752,6 @@ export class ClientConstellation {
       fRéduction,
       fCode,
     });
-  }
-
-  async suivreBdsDeFonctionListe<
-    T extends élémentsBd,
-    U extends PasNondéfini,
-    V,
-    W extends
-      | schémaFonctionOublier
-      | ({ fOublier: schémaFonctionOublier } & { [key: string]: unknown }),
-  >({
-    fListe,
-    f,
-    fBranche,
-    fIdBdDeBranche = (b) => b as string,
-    fRéduction = (branches: U[]) =>
-      [...new Set(branches.flat())] as unknown as V[],
-    fCode = (é) => é as string,
-  }: {
-    fListe: (fSuivreRacine: (éléments: T[]) => Promise<void>) => Promise<W>;
-    f: schémaFonctionSuivi<V[]>;
-    fBranche: (
-      id: string,
-      fSuivreBranche: schémaFonctionSuivi<U>,
-      branche: T,
-    ) => Promise<schémaFonctionOublier | undefined>;
-    fIdBdDeBranche?: (b: T) => string;
-    fRéduction?: schémaFonctionRéduction<U[], V[]>;
-    fCode?: (é: T) => string;
-  }): Promise<W> {
-    interface InterfaceBranches {
-      données?: U;
-      déjàÉvaluée: boolean;
-      fOublier?: schémaFonctionOublier;
-    }
-    const arbre: { [key: string]: InterfaceBranches } = {};
-    const dictBranches: { [key: string]: T } = {};
-
-    let prêt = false; // Afin d'éviter d'appeler fFinale() avant que toutes les branches aient été évaluées 1 fois
-
-    const fFinale = async () => {
-      if (!prêt) return;
-
-      // Arrêter si aucune des branches n'a encore donnée son premier résultat
-      if (
-        Object.values(arbre).length &&
-        Object.values(arbre).every((x) => !x.déjàÉvaluée)
-      )
-        return;
-
-      const listeDonnées = Object.values(arbre)
-        .map((x) => x.données)
-        .filter((d) => d !== undefined) as U[];
-      const réduits = fRéduction(listeDonnées);
-      await f(réduits);
-    };
-    const verrou = new Semaphore();
-
-    const fSuivreRacine = async (éléments: Array<T>) => {
-      await verrou.acquire("racine");
-      if (éléments.some((x) => typeof fCode(x) !== "string")) {
-        console.error(
-          "Définir fCode si les éléments ne sont pas en format texte (chaînes).",
-        );
-        throw new Error(
-          "Définir fCode si les éléments ne sont pas en format texte (chaînes).",
-        );
-      }
-      const dictÉléments = Object.fromEntries(
-        éléments.map((é) => [fCode(é), é]),
-      );
-      const existants = Object.keys(arbre);
-      let nouveaux = Object.keys(dictÉléments).filter(
-        (é) => !existants.includes(é),
-      );
-      const disparus = existants.filter(
-        (é) => !Object.keys(dictÉléments).includes(é),
-      );
-      const changés = Object.entries(dictÉléments)
-        .filter((é) => {
-          return !deepEqual(dictBranches[é[0]], é[1]);
-        })
-        .map((é) => é[0]);
-      nouveaux.push(...changés);
-      nouveaux = [...new Set(nouveaux)];
-
-      await Promise.all(
-        changés.map(async (c) => {
-          if (arbre[c]) {
-            const fOublier = arbre[c].fOublier;
-            if (fOublier) await fOublier();
-            delete arbre[c];
-          }
-        }),
-      );
-
-      await Promise.all(
-        disparus.map(async (d) => {
-          const fOublier = arbre[d].fOublier;
-          if (fOublier) await fOublier();
-          delete arbre[d];
-        }),
-      );
-
-      await Promise.all(
-        nouveaux.map(async (n: string) => {
-          arbre[n] = {
-            déjàÉvaluée: false,
-          };
-          const élément = dictÉléments[n];
-          dictBranches[n] = élément;
-
-          const idBdBranche = fIdBdDeBranche(élément);
-          const fSuivreBranche = async (données: U) => {
-            arbre[n].données = données;
-            arbre[n].déjàÉvaluée = true;
-            await fFinale();
-          };
-          const fOublier = await fBranche(idBdBranche, fSuivreBranche, élément);
-          arbre[n].fOublier = fOublier;
-        }),
-      );
-
-      prêt = true;
-      await fFinale();
-
-      verrou.release("racine");
-    };
-
-    const retourRacine = await fListe(fSuivreRacine);
-
-    let oublierBdRacine: schémaFonctionOublier;
-
-    const fOublier = async () => {
-      await oublierBdRacine();
-      await Promise.all(
-        Object.values(arbre).map((x) => x.fOublier && x.fOublier()),
-      );
-    };
-    if (typeof retourRacine === "function") {
-      oublierBdRacine = retourRacine;
-      return fOublier as W;
-    } else {
-      oublierBdRacine = retourRacine.fOublier;
-      return Object.assign({}, retourRacine, { fOublier });
-    }
   }
 
   async suivreBdsDeFonctionRecherche<T extends élémentsBd, U, V>({
@@ -1936,7 +1791,7 @@ export class ClientConstellation {
       return fOublierL;
     };
 
-    const fOublier = await this.suivreBdsDeFonctionListe({
+    const fOublier = await suivreBdsDeFonctionListe({
       fListe: fListeFinale,
       f,
       fBranche,
@@ -2017,7 +1872,7 @@ export class ClientConstellation {
       return await fCondition(id, fFinaleSuivreBranche);
     };
 
-    return await this.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,

@@ -5,7 +5,7 @@ import toBuffer from "it-to-buffer";
 import path from "path";
 import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
-import { attendreStabilité, suivreBdDeFonction } from "@constl/utils-ipa";
+import { attendreStabilité, suivreBdDeFonction, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 
 import { type InfoColAvecCatégorie } from "@/tableaux.js";
 import {
@@ -1908,7 +1908,7 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     };
 
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -2037,7 +2037,7 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     };
 
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -2138,7 +2138,7 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     };
 
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -2173,7 +2173,7 @@ export default class BDs extends ComposanteClientListe<string> {
       });
     };
 
-    const fOublierDonnées = await this.client.suivreBdsDeFonctionListe({
+    const fOublierDonnées = await suivreBdsDeFonctionListe({
       fListe: async (
         fSuivreRacine: (éléments: infoTableauAvecId[]) => Promise<void>,
       ) => {

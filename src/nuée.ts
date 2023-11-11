@@ -22,6 +22,7 @@ import {
   traduire,
   attendreStabilité,
   suivreBdDeFonction,
+  suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
 import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
@@ -415,7 +416,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       fSuivreBranche: schémaFonctionSuivi<T>,
     ) => Promise<schémaFonctionOublier>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe: async (
         fSuivreRacine: (parents: string[]) => Promise<void>,
       ): Promise<schémaFonctionOublier> => {
@@ -1744,7 +1745,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       });
     };
 
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -1988,7 +1989,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       };
 
       const fOublierDifférencesTableaux =
-        await this.client.suivreBdsDeFonctionListe({
+        await suivreBdsDeFonctionListe({
           fListe: async (
             fSuivreRacine: (idsTableaux: infoTableauAvecId[]) => Promise<void>,
           ): Promise<schémaFonctionOublier> => {
@@ -2011,7 +2012,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       };
     };
 
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe: fSuivreNuéesDeBd,
       f,
       fBranche: fSuivreNuée,
@@ -2276,7 +2277,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       };
 
       const { fOublier: fOublierBds, fChangerProfondeur } =
-        await this.client.suivreBdsDeFonctionListe({
+        await suivreBdsDeFonctionListe({
           fListe,
           f: fSuivreBds,
           fBranche,
@@ -2370,7 +2371,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     }
     if (héritage && héritage.includes("descendance")) {
       const { fOublier: fOublierDescendance } =
-        await this.client.suivreBdsDeFonctionListe({
+        await suivreBdsDeFonctionListe({
           fListe: async (
             fSuivreRacine: (parents: string[]) => Promise<void>,
           ): Promise<schémaRetourFonctionRechercheParN> => {
@@ -2433,7 +2434,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<string>;
     héritage?: ("descendance" | "ascendance")[];
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe: async (fSuivreRacine: (éléments: string[]) => void) => {
         const { fOublier } = await this.suivreBdsCorrespondantes({
           idNuée,
@@ -2697,7 +2698,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       };
     };
 
-    return await this.client.suivreBdsDeFonctionListe({
+    return await suivreBdsDeFonctionListe({
       fListe: fSuivreBdsConformes,
       f: fFinale,
       fBranche,
@@ -2785,7 +2786,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       });
       fsOublier.push(fOublierNomsTableaux);
 
-      const fOublierNomsVariables = await this.client.suivreBdsDeFonctionListe({
+      const fOublierNomsVariables = await suivreBdsDeFonctionListe({
         fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) =>
           this.suivreVariablesNuée({ idNuée, f: fSuivreRacine }),
         f: async (
@@ -2876,7 +2877,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       });
     };
 
-    const fOublierTableaux = await this.client.suivreBdsDeFonctionListe({
+    const fOublierTableaux = await suivreBdsDeFonctionListe({
       fListe: async (
         fSuivreRacine: (éléments: infoTableauAvecId[]) => Promise<void>,
       ) => {

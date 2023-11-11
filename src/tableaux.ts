@@ -13,6 +13,7 @@ import {
   faisRien,
   traduire,
   attendreStabilité,
+  suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
 import { type donnéesBdExportées } from "@/bds.js";
@@ -742,7 +743,7 @@ export default class Tableaux {
       });
       fsOublier.push(fOublierNomsTableaux);
 
-      const fOublierNomsVariables = await this.client.suivreBdsDeFonctionListe({
+      const fOublierNomsVariables = await suivreBdsDeFonctionListe({
         fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) =>
           this.suivreVariables({ idTableau, f: fSuivreRacine }),
         f: async (
@@ -1906,7 +1907,7 @@ export default class Tableaux {
     const fIdBdDeBranche = (b: InfoCol) => b.variable;
     const fCode = (b: InfoCol) => b.id;
 
-    const oublierRèglesVariable = await this.client.suivreBdsDeFonctionListe({
+    const oublierRèglesVariable = await suivreBdsDeFonctionListe({
       fListe,
       f: fFinaleRèglesVariables,
       fBranche,
@@ -2013,7 +2014,7 @@ export default class Tableaux {
     const fIdDeBranche = (b: règleColonne) => b.règle.id;
     const fCode = (b: règleColonne) => b.règle.id;
 
-    const fOublierRègles = await this.client.suivreBdsDeFonctionListe({
+    const fOublierRègles = await suivreBdsDeFonctionListe({
       fListe: fListeRègles,
       f: fFinaleRègles,
       fBranche: fBrancheRègles,
@@ -2176,7 +2177,7 @@ export default class Tableaux {
     const fIdDeBranche = (b: règleColonne<règleVariable>) => b.règle.id;
     const fCode = (b: règleColonne<règleVariable>) => b.règle.id;
 
-    const fOublierRègles = await this.client.suivreBdsDeFonctionListe({
+    const fOublierRègles = await suivreBdsDeFonctionListe({
       fListe: fListeRègles,
       f: fFinaleRègles,
       fBranche: fBrancheRègles,
