@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
-import type ClientConstellation from "@/client.js";
-import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import ClientConstellation from "@/client.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import {
   type règleVariable,
   type règleCatégorie,

@@ -8,7 +8,7 @@ import { EventEmitter } from "events";
 import sum from "lodash/sum.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 import ClientConstellation, {
   Signature,
   infoAccès,

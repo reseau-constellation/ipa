@@ -5,13 +5,13 @@ import {
 } from "@/types.js";
 import type { objRôles } from "@/accès/types.js";
 
-import type ClientConstellation from "@/client.js";
+import ClientConstellation from "@/client.js";
 
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 
-import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

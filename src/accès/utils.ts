@@ -1,4 +1,4 @@
-import type générerContrôleurConstellation from "./cntrlConstellation.js";
+import générerContrôleurConstellation from "./cntrlConstellation.js";
 import { nomType } from "./cntrlConstellation.js";
 
 export const pathJoin = (...paths: string[]) =>
