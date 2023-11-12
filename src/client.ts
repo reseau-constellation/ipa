@@ -33,7 +33,7 @@ import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 import Favoris from "@/favoris.js";
 import Projets from "@/projets.js";
 import MotsClefs from "@/motsClefs.js";
-import Nuées from "@/nuée.js";
+import Nuées from "@/nuées.js";
 import Recherche from "@/recherche/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import Automatisations from "@/automatisation.js";

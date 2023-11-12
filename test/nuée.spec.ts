@@ -16,7 +16,7 @@ import { typesClients } from "./ressources/utils.js";
 
 import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
-import { donnéesNuéeExportation } from "@/nuée.js";
+import { donnéesNuéeExportation } from "@/nuées.js";
 import { règleColonne } from "@/valid.js";
 import pkg from "lodash";
 const { isSet } = pkg;
