@@ -5,7 +5,7 @@ import type {
 } from "@/types";
 
 import { cacheSuivi } from "@/décorateursCache.js";
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 import { faisRien } from "@constl/utils-ipa";
 import {
   CLEF_TABLEAU_LICENCES_APPROUVÉES,

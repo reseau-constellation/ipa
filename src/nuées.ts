@@ -1,4 +1,4 @@
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 
 import type { ToFile } from "ipfs-core-types/src/utils";
 
@@ -25,7 +25,7 @@ import {
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import type { objRôles } from "@/accès/types.js";
@@ -2610,8 +2610,8 @@ export default class Nuée extends ComposanteClientListe<string> {
 
         const fFinaleTableau = async () => {
           const { données, erreurs } = infoTableau;
-          if (données && erreurs) {
-            await fSuivreBd({ données, erreurs });
+          if (données) {
+            await fSuivreBd({ données, erreurs: erreurs || [] });
           }
         };
         const fOublierDonnnées = await this.client.tableaux.suivreDonnées<T>({

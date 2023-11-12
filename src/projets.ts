@@ -4,9 +4,9 @@ import { WorkBook, BookType, write as writeXLSX, utils } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import ClientConstellation from "@/client.js";
+import type ClientConstellation from "@/client.js";
 import type { objRôles } from "@/accès/types.js";
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import type générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
