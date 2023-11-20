@@ -701,21 +701,21 @@ export default class Tableaux {
         );
 
         donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {
-            const idCol = colonnes.find((c) => c.variable === elem)?.id;
+          Object.keys(d).reduce((acc: élémentBdListeDonnées, idVar: string) => {
+            const idCol = colonnes.find((c) => c.variable === idVar)?.id;
             if (!idCol)
               throw new Error(
-                `Colonnne pour variable ${elem} non trouvée parmis les colonnnes :\n${JSON.stringify(
+                `Colonnne pour variable ${idVar} non trouvée parmis les colonnnes :\n${JSON.stringify(
                   colonnes,
                   undefined,
                   2,
                 )}.`,
               );
             const nomVar =
-              langues && nomsVariables
-                ? traduire(nomsVariables[elem], langues) || idCol
+              langues && nomsVariables?.[idVar]
+                ? traduire(nomsVariables[idVar], langues) || idCol
                 : idCol;
-            acc[nomVar] = d[elem];
+            acc[nomVar] = d[idVar];
             return acc;
           }, {}),
         );
