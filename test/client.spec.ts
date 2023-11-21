@@ -12,7 +12,7 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import { isNode, isElectronMain } from "wherearewe";
+import { isNode, isElectronMain, isBrowser } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
@@ -41,12 +41,13 @@ const schémaKVChaîne: JSONSchemaType<{ [clef: string]: string }> = {
 const schémaListeNumérique: JSONSchemaType<number> = { type: "number" };
 const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
 
-describe("Fermeture sécuritaire", function () {
-  it("Fermeture immédiatement après ouverture", async () => {
-    const client = générerClient({ opts: {} });
-    await client.fermer();
+if (!isBrowser)  // Pour l'instant
+  describe("Fermeture sécuritaire", function () {
+    it("Fermeture immédiatement après ouverture", async () => {
+      const client = générerClient({ opts: {} });
+      await client.fermer();
+    });
   });
-});
 
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
