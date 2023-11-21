@@ -170,13 +170,33 @@ id_tableau = "/orbitdb/zdpu..."
 
 with Serveur():
     client = ClientSync()
-    données = client.obt_données_tableau(id_tableau=id_tableau, langues=["fr", "cst"], formatDonnées="pandas")
+    données = client.obt_données_tableau(
+        id_tableau=id_tableau, 
+        langues=["fr", "cst"]
+    )
 ```
+
+Nous pouvons également accéder aux données d'une nuée :
+
+```python
+from constellationPy import ClientSync, Serveur
+
+id_nuée = "/orbitdb/zdpu..."
+
+with Serveur():
+    client = ClientSync()
+    données = client.obt_données_tableau_nuée(
+        id_nuée=id_nuée, 
+        clef_tableau=clef_tableau,
+        n_résultats_désirés=100
+    )
+```
+
 
 **Quelques points importants**
 
 * Les fonctions plus obscures qui prennent plus qu'une autre fonction comme argument (p. ex. `client.suivreBdDeFonctionListe`) ne fonctionnent pas avec le client Python. Ne vous en faites pas. Elles sont obscures pour une raison. Laissez-les en paix. Vous avez amplement de quoi vous amuser avec le reste de l'IPA.
-* Vous **devez** utiliser des paramètres nommés (p. ex., `client.bds.créerBd(licence="ODbl-1_0")`). Si vous ne le faites pas (`client.bds.créerBd("ODbl-1_0")`), ça va vous créer des ennuis. Les noms des paramètres doivent être les mêmes que dans l'IPA Constellation JavaScript (p. ex., l'exemple précédent provient de la version JavaSCript `client.bds.créerBd({ licence: "ODbl-1_0" })`).
+* Vous **devez** utiliser des paramètres nommés (p. ex., `client.bds.créerBd(licence="ODbl-1_0")`). Si vous ne le faites pas (`client.bds.créerBd("ODbl-1_0")`), ça va vous créer des ennuis. Les noms des paramètres doivent être les mêmes que dans l'IPA Constellation JavaScript (p. ex., l'exemple précédent provient de la version JavaSCript `client.bds.créerBd({ licence: "ODbl-1_0" })`). Cela étant dit, vous pouvez utiliser le format original JavaScript chameau (`créerBd`) ou bien le format kebab Python (`créer_bd`) pour les noms des fonctions et de leurs paramètres.
 * Avec le client synchrone, les fonctions de suivi (voir ci-dessous) doivent être appelées avec une fonction vide (p. ex., `lambda: pass` ou bien tout simplement `fais_rien`) à la place de la fonction de suivi.
 * Vous vous demandez où trouver tous ces drôles de « id tableau » pour les bases de données qui vous intéressent ? Il s'agit de l'identifiant unique d'un tableau ou d'une base de données, que vous pouvez récupérer lorsque vous créez la base de données, ou bien visuellement avec l'[appli Constellation](https://reseau-constellation.github.io/constellation) (recherchez l'icône lien 🔗).
 
@@ -190,7 +210,9 @@ originale s'attendait à avoir la fonction de suivi. Par exemple, si l'on appell
 Constellation JavaScript,
 
 ```javascript
-const données = await client.tableaux.suivreDonnées({ idTableau: id_tableau, f: fSuivi });
+const données = await client.tableaux.suivreDonnées({ 
+    idTableau, f: fSuivi 
+});
 ```
 
 Ici, en Python, nous ferons ainsi :
@@ -202,7 +224,9 @@ id_tableau = "/orbitdb/zdpu..."
 with Serveur():
     client = ClientSync()
 
-    mes_données = client.tableaux.suivre_données(id_tableau=id_tableau, f=fais_rien)
+    mes_données = client.tableaux.suivre_données(
+        id_tableau=id_tableau, f=fais_rien
+    )
 ```
 
 ### IPA asynchrone
@@ -220,7 +244,9 @@ id_tableau = "/orbitdb/zdpu..."
 async def principale():
     with Serveur():
         async with ouvrir_client() as client:
-            données = await client.obt_données_tableau(id_tableau=id_tableau)
+            données = await client.obt_données_tableau(
+                id_tableau=id_tableau
+            )
             print(données)
             ...
 
@@ -243,7 +269,8 @@ id_tableau = "/orbitdb/zdpu..."
 async def principale():
     with Serveur():
         async with ouvrir_client() as client:
-            # Suivre les données du réseau pour 15 secondes, et imprimer les résultats au fur et à mesure
+            # Suivre les données du réseau pour 15 secondes, et 
+            # imprimer les résultats au fur et à mesure
             # qu'ils nous parviennent du réseau
             oublier_données = await client.tableaux.suivre_données(
                 id_tableau=id_tableau, f=print
@@ -274,7 +301,9 @@ async def principale():
             # On doit définir une fonction auxiliaire qui ne prend que la fonction de suivi
             # en tant qu'argument
             async def f_données(f):
-                return await client.tableaux.suivre_données(id_tableau=id_tableau, f=f)
+                return await client.tableaux.suivre_données(
+                    id_tableau=id_tableau, f=f
+                )
 
             # La fonction `une_fois` appellera `f_données`, attendra le premier résultat,
             # et nous renverra celui-ci.
@@ -289,9 +318,7 @@ print(mes_données)
 
 ## Utilisation avancée
 
-Voici un exemple un peu plus avancé. Si vous avez plusieurs coroutines Python que vous voulez exécuter en parallèle avec
-Constellation, vous pouvez créer une pouponnière `trio` et la réutiliser pour les deux coroutines en invoquant `Client`
-directement.
+Voici un exemple un peu plus avancé. Si vous avez plusieurs coroutines Python que vous voulez exécuter en parallèle avec Constellation, vous pouvez créer une pouponnière `trio` et la réutiliser pour les deux coroutines en invoquant `Client` directement.
 
 ```python
 import trio

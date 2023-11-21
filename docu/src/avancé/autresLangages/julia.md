@@ -183,3 +183,21 @@ Constellation.avecServeur() do port
     end
 end
 ```
+
+### Fonctions spéciales
+Le client Julia inclut également quelques fonctions spéciales pour faciliter l'accès aux données Constellation sous format [`DataFrames.DataFrame`](https://dataframes.juliadata.org/stable/).
+
+```Julia
+import Constellation
+
+# D'abord, lancer le nœud local
+Constellation.avecServeur() do port
+    Constellation.avecClient(port) do client
+        # Obtenir les données d'un tableau
+        donnéesTableau = Constellation.obtDonnéesTableau(client, idTableau, ["த", "fr"])
+
+        # Obtenir les données d'une nuée
+        donnéesRéseau = Constellation.obtDonnéesTableauNuée(client, idNuée, clefTableau, ["fr"])
+    end
+end
+```
