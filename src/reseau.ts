@@ -369,13 +369,15 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           // Arrêter si le dispositif n'a pas la même encryption que nous
           if (encryption?.type !== this.client.encryption.nom) return;
 
-          const msgEncrypté = this.client.encryption.encrypter({
+          const msgEncrypté = await this.client.encryption.encrypter({
             message: JSON.stringify(msgSigné),
             clefPubliqueDestinataire: encryption.clefPublique,
           });
+          const { publique: clefPubliqueExpéditeur } =
+            await this.client.encryption.obtClefs();
           const msgPourDispositif: MessageEncrypté = {
             encrypté: true,
-            clefPubliqueExpéditeur: this.client.encryption.clefs.publique,
+            clefPubliqueExpéditeur,
             données: msgEncrypté,
           };
           await this.envoyerMessageAuDispositif({
@@ -407,10 +409,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         idCompte: await this.client.obtIdCompte(),
       },
     };
+    const { publique: clefPublique } = await this.client.encryption.obtClefs();
     if (this.client.encryption) {
       valeur.contenu.encryption = {
         type: this.client.encryption.nom,
-        clefPublique: this.client.encryption.clefs.publique,
+        clefPublique,
       };
     }
     const signature = await this.client.signer({
@@ -469,7 +472,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const données: DonnéesMessage = encrypté
       ? JSON.parse(
-          this.client.encryption.décrypter({
+          await this.client.encryption.décrypter({
             message: (messageJSON as MessageEncrypté).données,
             clefPubliqueExpéditeur: (messageJSON as MessageEncrypté)
               .clefPubliqueExpéditeur,
@@ -1594,8 +1597,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         sum(dernierTrois)
           ? profondeur + 1
           : sum(dernierQuatre)
-          ? profondeur
-          : profondeur - 1,
+            ? profondeur
+            : profondeur - 1,
       );
 
       if (nouvelleProfondeur > profondeur) {
@@ -1707,12 +1710,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         mettreÀJour: fFinale,
       };
 
-      const fOublierRechercheMembre =
-        await suivreBdsDeFonctionListe({
-          fListe,
-          f: fSuivi,
-          fBranche,
-        });
+      const fOublierRechercheMembre = await suivreBdsDeFonctionListe({
+        fListe,
+        f: fSuivi,
+        fBranche,
+      });
 
       fsOublierRechercheMembres[idCompte] = fOublierRechercheMembre;
     };

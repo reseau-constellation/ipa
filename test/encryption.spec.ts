@@ -17,33 +17,40 @@ typesClients.forEach((type) => {
       });
 
       it("Encrypter et décrypter", async () => {
+        const clefs2 = await encrypteur2.obtClefs();
+
         const messageSecret = "போய்து வறேன்";
-        const messageEncrypté = encrypteur1.encrypter({
+        const messageEncrypté = await encrypteur1.encrypter({
           message: messageSecret,
-          clefPubliqueDestinataire: encrypteur2.clefs.publique,
+          clefPubliqueDestinataire: clefs2.publique,
         });
 
-        const messageDécrypté = encrypteur2.décrypter({
+        const clefs1 = await encrypteur1.obtClefs();
+
+        const messageDécrypté = await encrypteur2.décrypter({
           message: messageEncrypté,
-          clefPubliqueExpéditeur: encrypteur1.clefs.publique,
+          clefPubliqueExpéditeur: clefs1.publique,
         });
 
         expect(messageDécrypté).to.equal(messageSecret);
       });
 
       it("Quelqu'un d'autre ne peut pas décrypter", async () => {
+        const clefs1 = await encrypteur1.obtClefs();
+        const clefs2 = await encrypteur2.obtClefs();
+
         const messageSecret = "போய்து வறேன்";
-        const messageEncrypté = encrypteur1.encrypter({
+        const messageEncrypté = await encrypteur1.encrypter({
           message: messageSecret,
-          clefPubliqueDestinataire: encrypteur2.clefs.publique,
+          clefPubliqueDestinataire: clefs2.publique,
         });
 
-        expect(() =>
+        expect(
           encrypteur3.décrypter({
             message: messageEncrypté,
-            clefPubliqueExpéditeur: encrypteur1.clefs.publique,
+            clefPubliqueExpéditeur: clefs1.publique,
           }),
-        ).to.throw();
+        ).to.be.rejected();
       });
     });
   });

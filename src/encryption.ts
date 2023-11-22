@@ -1,16 +1,40 @@
-import { asymmetric } from "@localfirst/auth";
+import type { Base58 } from "@localfirst/auth";
+import type TypedEmitter from "typed-emitter";
+
+import Semaphore from "@chriscdn/promise-semaphore";
+import EventEmitter from "events";
+
+const importationAuth = import("@localfirst/auth");
+const importationCrypto = import("@localfirst/crypto")
+
+const verrouImportation = new Semaphore();
+let auth: Awaited<typeof importationAuth>
+const obtAuth = async (): Promise<Awaited<typeof importationAuth>> => {
+  await verrouImportation.acquire("auth")
+  if (!auth) auth = await importationAuth;
+  verrouImportation.release("auth")
+  return auth
+}
+
+let crypto: Awaited<typeof importationCrypto>
+const obtCrypto = async (): Promise<Awaited<typeof importationCrypto>> => {
+  await verrouImportation.acquire("crypto")
+  if (!crypto) crypto = await importationCrypto
+  verrouImportation.release("crypto")
+  return crypto
+}
 
 export interface Encryption {
-  clefs: { publique: string; secrète: string };
   nom: string;
 
+  obtClefs(): Promise<{ publique: string; secrète: string }>;
   encrypter({
     message,
     clefPubliqueDestinataire,
   }: {
     message: string;
     clefPubliqueDestinataire: string;
-  }): string;
+  }): Promise<string>;
 
   décrypter({
     message,
@@ -18,63 +42,81 @@ export interface Encryption {
   }: {
     message: string;
     clefPubliqueExpéditeur: string;
-  }): string;
+  }): Promise<string>;
 
-  clefAléatoire(): string;
+  clefAléatoire(): Promise<string>;
 
   // Nécessaire pour le mandataire
   obtNom(): Promise<string>;
-  obtClefs(): Promise<Encryption["clefs"]>;
+}
+
+type ÉvénementsEncryptionLocalFirst = {
+  clefs: (args: {secrète: Base58, publique: Base58}) => void;
 }
 
 export class EncryptionLocalFirst implements Encryption {
-  clefs: { publique: string; secrète: string };
-  nom = "défaut";
+  événements: TypedEmitter<ÉvénementsEncryptionLocalFirst>
+  clefs?: { publique: Base58; secrète: Base58 };
+  nom = "local-first-auth";
 
   constructor() {
-    const { publicKey, secretKey } = asymmetric.keyPair();
-    this.clefs = { publique: publicKey, secrète: secretKey };
+    this.événements = new EventEmitter() as TypedEmitter<ÉvénementsEncryptionLocalFirst>;
+
+    obtAuth().then(({asymmetric}) => {
+      const { publicKey, secretKey } = asymmetric.keyPair();
+      this.clefs =  { secrète: secretKey, publique: publicKey }
+      this.événements.emit("clefs", this.clefs );
+    })
   }
 
-  encrypter({
+  async obtClefs(): Promise<{ publique: Base58; secrète: Base58 }> {
+    const clefs = this.clefs || await new Promise<{ publique: Base58; secrète: Base58 }>((résoudre) => {
+      this.événements.once("clefs", résoudre);
+    });;
+    return clefs
+  }
+
+  async encrypter({
     message,
     clefPubliqueDestinataire,
   }: {
     message: string;
     clefPubliqueDestinataire: string;
-  }): string {
+  }): Promise<string> {
+    const { asymmetric } = await obtAuth();
+    const clefs = await this.obtClefs();
     return asymmetric
       .encrypt({
         secret: message,
-        recipientPublicKey: clefPubliqueDestinataire,
-        senderSecretKey: this.clefs.secrète,
+        recipientPublicKey: clefPubliqueDestinataire as Base58,
+        senderSecretKey: clefs.secrète as Base58,
       })
       .toString();
   }
 
-  décrypter({
+  async décrypter({
     message,
     clefPubliqueExpéditeur,
   }: {
     message: string;
     clefPubliqueExpéditeur: string;
-  }): string {
+  }): Promise<string> {
+    const { asymmetric } = await obtAuth();
+    const clefs = await this.obtClefs();
+
     return asymmetric.decrypt({
-      cipher: message,
-      recipientSecretKey: this.clefs.secrète,
-      senderPublicKey: clefPubliqueExpéditeur,
+      cipher: message as Base58,
+      recipientSecretKey: clefs.secrète as Base58,
+      senderPublicKey: clefPubliqueExpéditeur as Base58,
     });
   }
 
-  clefAléatoire(): string {
-    return Math.random().toString(); //randomKey();
+  async clefAléatoire(): Promise<string> {
+    const { randomKey } = await obtCrypto();
+    return randomKey();
   }
 
   async obtNom(): Promise<string> {
     return this.nom;
-  }
-
-  async obtClefs(): Promise<Encryption["clefs"]> {
-    return this.clefs;
   }
 }

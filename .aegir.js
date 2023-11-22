@@ -36,6 +36,9 @@ const esbuild = {
         build.onResolve({ filter: /^os$/ }, () => {
           return { path: require.resolve("os-browserify") };
         });
+        build.onResolve({ filter: /^node\:process$/ }, () => {
+          return { path: require.resolve("process/browser") };
+        });
         build.onResolve({ filter: /^crypto$/ }, () => {
           return { path: require.resolve("crypto-browserify") };
         });
