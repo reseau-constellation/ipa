@@ -5,7 +5,11 @@ import toBuffer from "it-to-buffer";
 import path from "path";
 import { isBrowser, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
-import { attendreStabilité, suivreBdDeFonction, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
+import {
+  attendreStabilité,
+  suivreBdDeFonction,
+  suivreBdsDeFonctionListe,
+} from "@constl/utils-ipa";
 
 import { type InfoColAvecCatégorie } from "@/tableaux.js";
 import {

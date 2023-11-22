@@ -1988,24 +1988,23 @@ export default class Nuée extends ComposanteClientListe<string> {
         });
       };
 
-      const fOublierDifférencesTableaux =
-        await suivreBdsDeFonctionListe({
-          fListe: async (
-            fSuivreRacine: (idsTableaux: infoTableauAvecId[]) => Promise<void>,
-          ): Promise<schémaFonctionOublier> => {
-            return await this.client.bds.suivreTableauxBd({
-              idBd,
-              f: fSuivreRacine,
-            });
-          },
-          f: async (diffs: différenceTableauxBds[]) => {
-            info.différencesTableaux = diffs;
-            await fFinaleNuée();
-          },
-          fBranche,
-          fCode: (t) => t.id,
-          fIdBdDeBranche: (t) => t.id,
-        });
+      const fOublierDifférencesTableaux = await suivreBdsDeFonctionListe({
+        fListe: async (
+          fSuivreRacine: (idsTableaux: infoTableauAvecId[]) => Promise<void>,
+        ): Promise<schémaFonctionOublier> => {
+          return await this.client.bds.suivreTableauxBd({
+            idBd,
+            f: fSuivreRacine,
+          });
+        },
+        f: async (diffs: différenceTableauxBds[]) => {
+          info.différencesTableaux = diffs;
+          await fFinaleNuée();
+        },
+        fBranche,
+        fCode: (t) => t.id,
+        fIdBdDeBranche: (t) => t.id,
+      });
 
       return async () => {
         await Promise.all([fOublierDifférencesBd, fOublierDifférencesTableaux]);
@@ -2370,36 +2369,35 @@ export default class Nuée extends ComposanteClientListe<string> {
       fsOublier.push(fOublierAscendance);
     }
     if (héritage && héritage.includes("descendance")) {
-      const { fOublier: fOublierDescendance } =
-        await suivreBdsDeFonctionListe({
-          fListe: async (
-            fSuivreRacine: (parents: string[]) => Promise<void>,
-          ): Promise<schémaRetourFonctionRechercheParN> => {
-            return await this.rechercherNuéesDéscendantes({
-              idNuée,
-              f: (parents) => fSuivreRacine([idNuée, ...parents].reverse()),
-              nRésultatsDésirés: 1000,
-            });
-          },
-          f: async (bds: string[]) => {
-            info.descendance = bds;
-            await fFinale();
-          },
-          fBranche: async (
-            id: string,
-            fSuivreBranche: schémaFonctionSuivi<string[]>,
-          ): Promise<schémaFonctionOublier> => {
-            return (
-              await this.suivreBdsCorrespondantesDUneNuée({
-                idNuée: id,
-                f: fSuivreBranche,
-                nRésultatsDésirés,
-                vérifierAutorisation,
-                toujoursInclureLesMiennes,
-              })
-            ).fOublier;
-          },
-        });
+      const { fOublier: fOublierDescendance } = await suivreBdsDeFonctionListe({
+        fListe: async (
+          fSuivreRacine: (parents: string[]) => Promise<void>,
+        ): Promise<schémaRetourFonctionRechercheParN> => {
+          return await this.rechercherNuéesDéscendantes({
+            idNuée,
+            f: (parents) => fSuivreRacine([idNuée, ...parents].reverse()),
+            nRésultatsDésirés: 1000,
+          });
+        },
+        f: async (bds: string[]) => {
+          info.descendance = bds;
+          await fFinale();
+        },
+        fBranche: async (
+          id: string,
+          fSuivreBranche: schémaFonctionSuivi<string[]>,
+        ): Promise<schémaFonctionOublier> => {
+          return (
+            await this.suivreBdsCorrespondantesDUneNuée({
+              idNuée: id,
+              f: fSuivreBranche,
+              nRésultatsDésirés,
+              vérifierAutorisation,
+              toujoursInclureLesMiennes,
+            })
+          ).fOublier;
+        },
+      });
       fsOublier.push(fOublierDescendance);
     }
 
@@ -2749,7 +2747,7 @@ export default class Nuée extends ComposanteClientListe<string> {
         donnéesFormattées = donnéesFormattées.map((d) =>
           Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {
             if (elem === "auteur") {
-              acc[elem] = d[elem]
+              acc[elem] = d[elem];
             } else {
               const idCol = colonnes.find((c) => c.variable === elem)?.id;
               const nomVar =

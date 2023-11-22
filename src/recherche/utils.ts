@@ -188,10 +188,10 @@ const aMieuxQueB = <T extends infoRésultat>(
   return a.score > b.score
     ? true
     : a.score < b.score
-    ? false
-    : xPlusLongQueY(a.info, b.info)
-    ? true
-    : false;
+      ? false
+      : xPlusLongQueY(a.info, b.info)
+        ? true
+        : false;
 };
 
 const meilleurRésultat = <T extends infoRésultat>(

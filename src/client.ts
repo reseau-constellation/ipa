@@ -21,7 +21,10 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import indexedDbStream from "indexed-db-stream";
 import type TypedEmitter from "typed-emitter";
 
-import { suivreBdDeFonction, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
+import {
+  suivreBdDeFonction,
+  suivreBdsDeFonctionListe,
+} from "@constl/utils-ipa";
 
 import Épingles from "@/epingles.js";
 import Profil from "@/profil.js";
@@ -45,7 +48,6 @@ import {
   schémaFonctionOublier,
   schémaRetourFonctionRechercheParProfondeur,
   élémentsBd,
-  PasNondéfini,
 } from "@/types.js";
 import {
   faisRien,
@@ -697,7 +699,7 @@ export class ClientConstellation {
     codeSecret: string;
   }> {
     const idCompte = await this.obtIdCompte();
-    const codeSecret = this.encryption.clefAléatoire();
+    const codeSecret = await this.encryption.clefAléatoire();
     this.motsDePasseRejoindreCompte[codeSecret] = Date.now();
     return { idCompte, codeSecret };
   }
@@ -1186,25 +1188,25 @@ export class ClientConstellation {
               schéma: schéma as JSONSchemaType<Extract<U, élémentsBd>>,
             })
           : type === "keyvalue"
-          ? this.ouvrirBdTypée({
-              id,
-              type,
-              schéma: schéma as JSONSchemaType<
-                Extract<U, { [clef: string]: élémentsBd }>
-              >,
-            })
-          : type === "ordered-keyvalue"
-          ? this.ouvrirBdTypée({
-              id,
-              type,
-              schéma: schéma as JSONSchemaType<
-                Extract<U, { [clef: string]: élémentsBd }>
-              >,
-            })
-          : this.ouvrirBd({
-              id,
-              type,
-            })
+            ? this.ouvrirBdTypée({
+                id,
+                type,
+                schéma: schéma as JSONSchemaType<
+                  Extract<U, { [clef: string]: élémentsBd }>
+                >,
+              })
+            : type === "ordered-keyvalue"
+              ? this.ouvrirBdTypée({
+                  id,
+                  type,
+                  schéma: schéma as JSONSchemaType<
+                    Extract<U, { [clef: string]: élémentsBd }>
+                  >,
+                })
+              : this.ouvrirBd({
+                  id,
+                  type,
+                })
         : this.ouvrirBd({
             id,
           });
@@ -2147,8 +2149,8 @@ export class ClientConstellation {
         const rôlePlusPuissant = mesRôles.includes(MODÉRATEUR)
           ? MODÉRATEUR
           : mesRôles.includes(MEMBRE)
-          ? MEMBRE
-          : undefined;
+            ? MEMBRE
+            : undefined;
         await f(rôlePlusPuissant);
       };
       const fOublierSuivreAccès = await (

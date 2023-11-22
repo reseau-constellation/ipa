@@ -76,12 +76,12 @@ type Typer<
 > = T extends KeyValueDatabaseType
   ? TypedKeyValue<Extract<U, { [clef: string]: élémentsBd }>>
   : T extends FeedDatabaseType
-  ? TypedFeed<U>
-  : T extends SetDatabaseType
-  ? TypedSet<U>
-  : T extends OrderedKeyValueDatabaseType
-  ? TypedOrderedKeyValue<Extract<U, { [clef: string]: élémentsBd }>>
-  : never;
+    ? TypedFeed<U>
+    : T extends SetDatabaseType
+      ? TypedSet<U>
+      : T extends OrderedKeyValueDatabaseType
+        ? TypedOrderedKeyValue<Extract<U, { [clef: string]: élémentsBd }>>
+        : never;
 
 const typerBd = <
   T extends Store,

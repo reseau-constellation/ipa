@@ -383,8 +383,8 @@ export const envelopper = ({
           nomArgTaille = nomArgTaille
             ? nomArgTaille
             : recherche === "profondeur"
-            ? "profondeur"
-            : "nRésultatsDésirés";
+              ? "profondeur"
+              : "nRésultatsDésirés";
           return cache.suivreRecherche({
             adresseFonction: this.constructor.name + "." + nom,
             idClient: client.idCompte,

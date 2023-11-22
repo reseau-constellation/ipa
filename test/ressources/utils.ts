@@ -9,8 +9,8 @@ export const typesClients: typeClient[] =
   process.env.MANDATAIRE === "TOUS"
     ? ["travailleur", "proc"]
     : process.env.MANDATAIRE === "TRAV"
-    ? ["travailleur"]
-    : ["proc"];
+      ? ["travailleur"]
+      : ["proc"];
 
 export const générerClientsInternes = async ({
   n,

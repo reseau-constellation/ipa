@@ -1545,16 +1545,14 @@ typesClients.forEach((type) => {
           schéma,
         });
 
-        val = await empreinte.attendreQue(async (x) =>  x !== val);
+        val = await empreinte.attendreQue(async (x) => x !== val);
         expect(val).to.be.a.not.empty("string");
       });
 
       it("Changement nom bds détecté", async () => {
         await client.bds.sauvegarderNomBd({ idBd, langue: "fr", nom: "Ma BD" });
 
-        val = await empreinte.attendreQue(
-          async (x) =>  x !== val,
-        );
+        val = await empreinte.attendreQue(async (x) => x !== val);
         expect(val).to.be.a.not.empty("string");
       });
 
@@ -1565,9 +1563,7 @@ typesClients.forEach((type) => {
           nom: "Ma nuée",
         });
 
-        val = await empreinte.attendreQue(
-          async (x) => x !== val,
-        );
+        val = await empreinte.attendreQue(async (x) => x !== val);
         expect(val).to.be.a.not.empty("string");
       });
 
@@ -1577,9 +1573,7 @@ typesClients.forEach((type) => {
           vals: { [idCol]: 123 },
         });
 
-        val = await empreinte.attendreQue(
-          async (x) => x !== val,
-        );
+        val = await empreinte.attendreQue(async (x) => x !== val);
         expect(val).to.be.a.not.empty("string");
       });
     });
@@ -1651,14 +1645,13 @@ typesClients.forEach((type) => {
         const val = await résultat.attendreQue(
           (x) => x.tableaux.length > 0 && x.tableaux[0].données.length >= 3,
         );
-        const auteur = await client.obtIdCompte()
+        const auteur = await client.obtIdCompte();
         expect(val.tableaux.map((t) => t.données).flat()).to.have.deep.members([
           { numérique: 1, auteur },
           { numérique: 2, auteur },
           { numérique: 3, auteur },
         ]);
       });
-
     });
 
     describe("Document données exportées", function () {

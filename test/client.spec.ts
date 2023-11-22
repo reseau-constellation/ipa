@@ -3,7 +3,11 @@ import toBuffer from "it-to-buffer";
 
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import { faisRien, suivreBdDeFonction, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
+import {
+  faisRien,
+  suivreBdDeFonction,
+  suivreBdsDeFonctionListe,
+} from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 
 import { peutÉcrire, attente } from "@constl/utils-tests";
@@ -41,7 +45,8 @@ const schémaKVChaîne: JSONSchemaType<{ [clef: string]: string }> = {
 const schémaListeNumérique: JSONSchemaType<number> = { type: "number" };
 const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
 
-if (!isBrowser)  // Pour l'instant
+if (!isBrowser)
+  // Pour l'instant
   describe("Fermeture sécuritaire", function () {
     it("Fermeture immédiatement après ouverture", async () => {
       const client = générerClient({ opts: {} });

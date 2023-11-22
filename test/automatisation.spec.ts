@@ -986,7 +986,9 @@ typesClients.forEach((type) => {
               langues: ["fr"],
             });
           await attendreFichierExiste.attendre();
-          await résÉtats.attendreQue((x) => !!(x && x[idAuto]?.type !== "sync"));
+          await résÉtats.attendreQue(
+            (x) => !!(x && x[idAuto]?.type !== "sync"),
+          );
 
           expect(résÉtats.val![idAuto]).to.deep.equal({
             type: "écoute",
