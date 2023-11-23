@@ -2950,7 +2950,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           nRésultatsDésirés,
         });
       },
-      attendreStabilité(1000),
+      attendreStabilité(500),
     );
 
     nomFichier = nomFichier || données.nomNuée;
@@ -2981,7 +2981,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ): Promise<schémaFonctionOublier> => {
         return await this.client.bds.suivreNomsBd({ idBd, f: fSuivi });
       },
-      attendreStabilité(1000),
+      attendreStabilité(500),
     );
     await this.sauvegarderNomsNuée({
       idNuée,
@@ -2995,7 +2995,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ): Promise<schémaFonctionOublier> => {
         return await this.client.bds.suivreDescriptionsBd({ idBd, f: fSuivi });
       },
-      attendreStabilité(1000),
+      attendreStabilité(500),
     );
     await this.sauvegarderDescriptionsNuée({
       idNuée,
@@ -3012,7 +3012,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
-      attendreStabilité(1000),
+      attendreStabilité(500),
     );
     await this.ajouterMotsClefsNuée({
       idNuée,
@@ -3026,7 +3026,7 @@ export default class Nuée extends ComposanteClientListe<string> {
       ): Promise<schémaFonctionOublier> => {
         return await this.client.bds.suivreTableauxBd({ idBd, f: fSuivi });
       },
-      attendreStabilité(1000),
+      attendreStabilité(500),
     );
 
     for (const tableau of tableaux) {
@@ -3047,7 +3047,7 @@ export default class Nuée extends ComposanteClientListe<string> {
             catégories: false,
           });
         },
-        attendreStabilité(1000),
+        attendreStabilité(500),
       );
       for (const col of colonnes) {
         await this.ajouterColonneTableauNuée({
@@ -3074,7 +3074,7 @@ export default class Nuée extends ComposanteClientListe<string> {
               f: fSuivi,
             });
           },
-          attendreStabilité(1000),
+          attendreStabilité(500),
         );
         for (const règle of règles) {
           if (règle.source.type === "tableau") {
@@ -3098,46 +3098,42 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     licence: string;
   }): Promise<schémaSpécificationBd> {
-    const idsMotsClefs = await uneFois(
-      async (fSuivi: schémaFonctionSuivi<string[]>) => {
+    const [idsMotsClefs, tableaux] = await Promise.all([
+      uneFois(async (fSuivi: schémaFonctionSuivi<string[]>) => {
         return await this.suivreMotsClefsNuée({
           idNuée,
           f: fSuivi,
         });
-      },
-      attendreStabilité(1000),
-    );
-    const tableaux = await uneFois(
-      async (fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>) => {
+      }, attendreStabilité(500)),
+      uneFois(async (fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>) => {
         return await this.suivreTableauxNuée({
           idNuée,
           f: fSuivi,
         });
-      },
-      attendreStabilité(1000),
-    );
-    const règles: { [clef: string]: règleColonne[] } = {};
-    for (const t of tableaux) {
-      règles[t.clef] = await uneFois(
+      }, attendreStabilité(500)),
+    ]);
+
+    const obtRèglesTableau = async (clefTableau: string) => {
+      return await uneFois(
         async (fSuivi: schémaFonctionSuivi<règleColonne[]>) => {
           return await this.suivreRèglesTableauNuée({
             idNuée,
-            clefTableau: t.clef,
+            clefTableau,
             f: fSuivi,
           });
         },
-        attendreStabilité(1000),
+        attendreStabilité(500),
       );
     }
-    const générerCols = async (tableau: infoTableauAvecId) => {
+    const générerCols = async (clefTableau: string) => {
       return await uneFois(async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
         return await this.suivreColonnesTableauNuée({
           idNuée,
-          clefTableau: tableau.clef,
+          clefTableau,
           f: fSuivi,
           catégories: false,
         });
-      }, attendreStabilité(1000));
+      }, attendreStabilité(500));
     };
 
     const schéma: schémaSpécificationBd = {
@@ -3146,10 +3142,11 @@ export default class Nuée extends ComposanteClientListe<string> {
       motsClefs: idsMotsClefs,
       tableaux: await Promise.all(
         tableaux.map(async (t) => {
-          const cols = await générerCols(t);
+          const [cols, règles] = await Promise.all([générerCols(t.clef), obtRèglesTableau(t.clef)]);
+
           return {
             cols: cols.map((c) => {
-              const obligatoire = règles[t.clef]?.some(
+              const obligatoire = règles.some(
                 (r) =>
                   r.colonne === c.id && r.règle.règle.typeRègle === "existe",
               );
