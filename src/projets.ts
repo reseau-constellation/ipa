@@ -928,10 +928,12 @@ export default class Projets extends ComposanteClientListe<string> {
     idProjet,
     langues,
     nomFichier,
+    patience = 500,
   }: {
     idProjet: string;
     langues?: string[];
     nomFichier?: string;
+    patience?: number;
   }): Promise<donnéesProjetExportées> {
     const données = await uneFois(
       async (
@@ -943,7 +945,7 @@ export default class Projets extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
-      attendreStabilité(500),
+      attendreStabilité(patience),
     );
 
     nomFichier = nomFichier || données.nomProjet;

@@ -799,11 +799,13 @@ export default class Tableaux {
     langues,
     doc,
     nomFichier,
+    patience = 500,
   }: {
     idTableau: string;
     langues?: string[];
     doc?: WorkBook;
     nomFichier?: string;
+    patience?: number;
   }): Promise<donnéesBdExportées> {
     /* Créer le document si nécessaire */
     doc = doc || utils.book_new();
@@ -822,7 +824,7 @@ export default class Tableaux {
           f: fSuivi,
         });
       },
-      attendreStabilité(500),
+      attendreStabilité(patience),
     );
 
     /* Créer le tableau */

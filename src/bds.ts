@@ -2224,10 +2224,12 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd,
     langues,
     nomFichier,
+    patience = 500,
   }: {
     idBd: string;
     langues?: string[];
     nomFichier?: string;
+    patience?: number;
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
 
@@ -2241,7 +2243,7 @@ export default class BDs extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
-      attendreStabilité(500),
+      attendreStabilité(patience),
     );
 
     nomFichier = nomFichier || données.nomBd;

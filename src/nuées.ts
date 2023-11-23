@@ -2928,12 +2928,14 @@ export default class Nuée extends ComposanteClientListe<string> {
     nomFichier,
     nRésultatsDésirés,
     héritage,
+    patience = 500,
   }: {
     idNuée: string;
     langues?: string[];
     nomFichier?: string;
     nRésultatsDésirés: number;
     héritage?: ("descendance" | "ascendance")[];
+    patience?: number;
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
     const fichiersSFIP: Set<string> = new Set();
@@ -2950,7 +2952,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           nRésultatsDésirés,
         });
       },
-      attendreStabilité(500),
+      attendreStabilité(patience),
     );
 
     nomFichier = nomFichier || données.nomNuée;
@@ -2971,122 +2973,138 @@ export default class Nuée extends ComposanteClientListe<string> {
     return { doc, fichiersSFIP, nomFichier };
   }
 
-  async générerDeBd({ idBd }: { idBd: string }): Promise<string> {
+  async générerDeBd({
+    idBd,
+    patience = 500,
+  }: {
+    idBd: string;
+    patience?: number;
+  }): Promise<string> {
     const idNuée = await this.créerNuée({});
 
-    // Noms
-    const noms = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<{ [key: string]: string }>,
-      ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds.suivreNomsBd({ idBd, f: fSuivi });
-      },
-      attendreStabilité(500),
-    );
-    await this.sauvegarderNomsNuée({
-      idNuée,
-      noms,
-    });
-
-    // Descriptions
-    const descriptions = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<{ [key: string]: string }>,
-      ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds.suivreDescriptionsBd({ idBd, f: fSuivi });
-      },
-      attendreStabilité(500),
-    );
-    await this.sauvegarderDescriptionsNuée({
-      idNuée,
-      descriptions,
-    });
-
-    // Mots-clefs
-    const idsMotsClefs = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<string[]>,
-      ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds.suivreMotsClefsBd({
-          idBd,
-          f: fSuivi,
-        });
-      },
-      attendreStabilité(500),
-    );
-    await this.ajouterMotsClefsNuée({
-      idNuée,
-      idsMotsClefs,
-    });
-
-    // Tableaux
-    const tableaux = await uneFois(
-      async (
-        fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
-      ): Promise<schémaFonctionOublier> => {
-        return await this.client.bds.suivreTableauxBd({ idBd, f: fSuivi });
-      },
-      attendreStabilité(500),
-    );
-
-    for (const tableau of tableaux) {
-      const idTableau = tableau.id;
-      const idTableauNuée = await this.ajouterTableauNuée({
-        idNuée,
-        clefTableau: tableau.clef,
-      });
-
-      // Colonnes
-      const colonnes = await uneFois(
+    const [noms, descriptions, idsMotsClefs, tableaux] = await Promise.all([
+      // Noms
+      uneFois(
         async (
-          fSuivi: schémaFonctionSuivi<InfoCol[]>,
+          fSuivi: schémaFonctionSuivi<{ [key: string]: string }>,
         ): Promise<schémaFonctionOublier> => {
-          return await this.client.tableaux.suivreColonnesTableau({
-            idTableau,
+          return await this.client.bds.suivreNomsBd({ idBd, f: fSuivi });
+        },
+        attendreStabilité(patience),
+      ),
+      // Descriptions
+      uneFois(
+        async (
+          fSuivi: schémaFonctionSuivi<{ [key: string]: string }>,
+        ): Promise<schémaFonctionOublier> => {
+          return await this.client.bds.suivreDescriptionsBd({
+            idBd,
             f: fSuivi,
-            catégories: false,
           });
         },
-        attendreStabilité(500),
-      );
-      for (const col of colonnes) {
-        await this.ajouterColonneTableauNuée({
-          idTableau: idTableauNuée,
-          idVariable: col.variable,
-          idColonne: col.id,
-          index: col.index,
+        attendreStabilité(patience),
+      ),
+
+      // Mots-clefs
+      uneFois(
+        async (
+          fSuivi: schémaFonctionSuivi<string[]>,
+        ): Promise<schémaFonctionOublier> => {
+          return await this.client.bds.suivreMotsClefsBd({
+            idBd,
+            f: fSuivi,
+          });
+        },
+        attendreStabilité(patience),
+      ),
+      // Tableaux
+      uneFois(
+        async (
+          fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
+        ): Promise<schémaFonctionOublier> => {
+          return await this.client.bds.suivreTableauxBd({ idBd, f: fSuivi });
+        },
+        attendreStabilité(patience),
+      ),
+    ]);
+
+    await Promise.all([
+      this.sauvegarderNomsNuée({
+        idNuée,
+        noms,
+      }),
+
+      await this.sauvegarderDescriptionsNuée({
+        idNuée,
+        descriptions,
+      }),
+
+      await this.ajouterMotsClefsNuée({
+        idNuée,
+        idsMotsClefs,
+      }),
+    ]);
+
+    await Promise.all(
+      tableaux.map(async (tableau) => {
+        const idTableau = tableau.id;
+        const idTableauNuée = await this.ajouterTableauNuée({
+          idNuée,
+          clefTableau: tableau.clef,
         });
 
-        // Indexes
-        await this.changerColIndexTableauNuée({
-          idTableau: idTableauNuée,
-          idColonne: col.id,
-          val: !!col.index,
-        });
-
-        // Règles
-        const règles = await uneFois(
+        // Colonnes
+        const colonnes = await uneFois(
           async (
-            fSuivi: schémaFonctionSuivi<règleColonne<règleVariable>[]>,
+            fSuivi: schémaFonctionSuivi<InfoCol[]>,
           ): Promise<schémaFonctionOublier> => {
-            return await this.client.tableaux.suivreRègles({
+            return await this.client.tableaux.suivreColonnesTableau({
               idTableau,
               f: fSuivi,
+              catégories: false,
             });
           },
-          attendreStabilité(500),
+          attendreStabilité(patience),
         );
-        for (const règle of règles) {
-          if (règle.source.type === "tableau") {
-            await this.ajouterRègleTableauNuée({
-              idTableau: idTableauNuée,
-              idColonne: col.id,
-              règle: règle.règle.règle,
-            });
+        for (const col of colonnes) {
+          await this.ajouterColonneTableauNuée({
+            idTableau: idTableauNuée,
+            idVariable: col.variable,
+            idColonne: col.id,
+            index: col.index,
+          });
+
+          // Indexes
+          await this.changerColIndexTableauNuée({
+            idTableau: idTableauNuée,
+            idColonne: col.id,
+            val: !!col.index,
+          });
+
+          // Règles
+          const règles = await uneFois(
+            async (
+              fSuivi: schémaFonctionSuivi<règleColonne<règleVariable>[]>,
+            ): Promise<schémaFonctionOublier> => {
+              return await this.client.tableaux.suivreRègles({
+                idTableau,
+                f: fSuivi,
+              });
+            },
+            attendreStabilité(patience),
+          );
+          for (const règle of règles) {
+            if (règle.source.type === "tableau") {
+              await this.ajouterRègleTableauNuée({
+                idTableau: idTableauNuée,
+                idColonne: col.id,
+                règle: règle.règle.règle,
+              });
+            }
           }
         }
-      }
-    }
+      }),
+    );
 
     return idNuée;
   }
@@ -3094,9 +3112,11 @@ export default class Nuée extends ComposanteClientListe<string> {
   async générerSchémaBdNuée({
     idNuée,
     licence,
+    patience = 500,
   }: {
     idNuée: string;
     licence: string;
+    patience?: number;
   }): Promise<schémaSpécificationBd> {
     const [idsMotsClefs, tableaux] = await Promise.all([
       uneFois(async (fSuivi: schémaFonctionSuivi<string[]>) => {
@@ -3104,13 +3124,13 @@ export default class Nuée extends ComposanteClientListe<string> {
           idNuée,
           f: fSuivi,
         });
-      }, attendreStabilité(500)),
+      }, attendreStabilité(patience)),
       uneFois(async (fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>) => {
         return await this.suivreTableauxNuée({
           idNuée,
           f: fSuivi,
         });
-      }, attendreStabilité(500)),
+      }, attendreStabilité(patience)),
     ]);
 
     const obtRèglesTableau = async (clefTableau: string) => {
@@ -3122,9 +3142,9 @@ export default class Nuée extends ComposanteClientListe<string> {
             f: fSuivi,
           });
         },
-        attendreStabilité(500),
+        attendreStabilité(patience),
       );
-    }
+    };
     const générerCols = async (clefTableau: string) => {
       return await uneFois(async (fSuivi: schémaFonctionSuivi<InfoCol[]>) => {
         return await this.suivreColonnesTableauNuée({
@@ -3133,7 +3153,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           f: fSuivi,
           catégories: false,
         });
-      }, attendreStabilité(500));
+      }, attendreStabilité(patience));
     };
 
     const schéma: schémaSpécificationBd = {
@@ -3142,7 +3162,10 @@ export default class Nuée extends ComposanteClientListe<string> {
       motsClefs: idsMotsClefs,
       tableaux: await Promise.all(
         tableaux.map(async (t) => {
-          const [cols, règles] = await Promise.all([générerCols(t.clef), obtRèglesTableau(t.clef)]);
+          const [cols, règles] = await Promise.all([
+            générerCols(t.clef),
+            obtRèglesTableau(t.clef),
+          ]);
 
           return {
             cols: cols.map((c) => {
