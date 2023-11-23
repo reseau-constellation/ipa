@@ -5,24 +5,24 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import EventEmitter from "events";
 
 const importationAuth = import("@localfirst/auth");
-const importationCrypto = import("@localfirst/crypto")
+const importationCrypto = import("@localfirst/crypto");
 
 const verrouImportation = new Semaphore();
-let auth: Awaited<typeof importationAuth>
+let auth: Awaited<typeof importationAuth>;
 const obtAuth = async (): Promise<Awaited<typeof importationAuth>> => {
-  await verrouImportation.acquire("auth")
+  await verrouImportation.acquire("auth");
   if (!auth) auth = await importationAuth;
-  verrouImportation.release("auth")
-  return auth
-}
+  verrouImportation.release("auth");
+  return auth;
+};
 
-let crypto: Awaited<typeof importationCrypto>
+let crypto: Awaited<typeof importationCrypto>;
 const obtCrypto = async (): Promise<Awaited<typeof importationCrypto>> => {
-  await verrouImportation.acquire("crypto")
-  if (!crypto) crypto = await importationCrypto
-  verrouImportation.release("crypto")
-  return crypto
-}
+  await verrouImportation.acquire("crypto");
+  if (!crypto) crypto = await importationCrypto;
+  verrouImportation.release("crypto");
+  return crypto;
+};
 
 export interface Encryption {
   nom: string;
@@ -51,29 +51,32 @@ export interface Encryption {
 }
 
 type ÉvénementsEncryptionLocalFirst = {
-  clefs: (args: {secrète: Base58, publique: Base58}) => void;
-}
+  clefs: (args: { secrète: Base58; publique: Base58 }) => void;
+};
 
 export class EncryptionLocalFirst implements Encryption {
-  événements: TypedEmitter<ÉvénementsEncryptionLocalFirst>
+  événements: TypedEmitter<ÉvénementsEncryptionLocalFirst>;
   clefs?: { publique: Base58; secrète: Base58 };
   nom = "local-first-auth";
 
   constructor() {
-    this.événements = new EventEmitter() as TypedEmitter<ÉvénementsEncryptionLocalFirst>;
+    this.événements =
+      new EventEmitter() as TypedEmitter<ÉvénementsEncryptionLocalFirst>;
 
-    obtAuth().then(({asymmetric}) => {
+    obtAuth().then(({ asymmetric }) => {
       const { publicKey, secretKey } = asymmetric.keyPair();
-      this.clefs =  { secrète: secretKey, publique: publicKey }
-      this.événements.emit("clefs", this.clefs );
-    })
+      this.clefs = { secrète: secretKey, publique: publicKey };
+      this.événements.emit("clefs", this.clefs);
+    });
   }
 
   async obtClefs(): Promise<{ publique: Base58; secrète: Base58 }> {
-    const clefs = this.clefs || await new Promise<{ publique: Base58; secrète: Base58 }>((résoudre) => {
-      this.événements.once("clefs", résoudre);
-    });;
-    return clefs
+    const clefs =
+      this.clefs ||
+      (await new Promise<{ publique: Base58; secrète: Base58 }>((résoudre) => {
+        this.événements.once("clefs", résoudre);
+      }));
+    return clefs;
   }
 
   async encrypter({
