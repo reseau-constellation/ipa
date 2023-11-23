@@ -943,7 +943,7 @@ export default class Projets extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
-      attendreStabilité(1000),
+      attendreStabilité(500),
     );
 
     nomFichier = nomFichier || données.nomProjet;

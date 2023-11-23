@@ -2241,7 +2241,7 @@ export default class BDs extends ComposanteClientListe<string> {
           f: fSuivi,
         });
       },
-      attendreStabilité(1000),
+      attendreStabilité(500),
     );
 
     nomFichier = nomFichier || données.nomBd;

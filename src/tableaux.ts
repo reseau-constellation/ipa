@@ -822,7 +822,7 @@ export default class Tableaux {
           f: fSuivi,
         });
       },
-      attendreStabilité(1000),
+      attendreStabilité(500),
     );
 
     /* Créer le tableau */
