@@ -9,6 +9,10 @@ Nous allons utiliser comme exemple un projet (fictif) de science citoyenne de co
 
 Pour ce faire, nous utilisersons une [`nuée`](../guide/concepts.md#nuee) Constellation pour regrouper toutes nos contributions, de même que pour contrôler l'accès à la contribution de données. (La lecture des données, par contre, sera ouverte à toutes.)
 
+::: tip CONSEIL
+Nous avons deux options pour structurer les contributions de nos participantes. L'une serait de créer une seule base de données et ensuite d'y donner accès à toutes les personnes qui participeront au projet. L'autre est de créer une structure type pour les données (une [`nuée`](../guide/concepts.md#nuee)) et puis d'inviter les participants à **créer leur propre base de données individuelle** suivant le schéma commun. Nous allons suivre la deuxième approche, car elle nous permet d'inviter mais aussi de désinviter les membres du groupe (les invitations à une base de donneés commune, au contraire, étant irréversibles), en plus d'être plus efficace en termes d'utilisation de mémoire.
+:::
+
 ## Les données
 En premier, nous allons choisir la structure de nos données. Pour chaque observation, nous voulous la date, l'endroit, le niveau d'eau et une photo du cours d'eau. Voici un exemple potentiel :
 
@@ -190,7 +194,7 @@ Vous devrez installer `constellationPy` et `trio` pour suivre l'exemple ci-desso
 
 Voici un exemple de code Python qui vous permettra d'accéder à vos donneés de science citoyenne. Si vous n'êtes pas très très Python, vous pouvez aussi faire la même chose en R ou bien en Julia.
 
-:::tip CONSEIL
+:::warning ATTENTION
 Avions-nous dit que nous recommandons **fortement** l'utilisation de [poetry](https://python-poetry.org/) ?
 :::
 
@@ -245,7 +249,7 @@ analyserDonnées <- function(données) {
 
 avecClient(
     function(client) {
-        données <- client$obtDonnéesNuée(
+        données <- client$obtDonnéesTableauNuée(
             idNuée = idNuée, clefTableau = clefTableau
         )
         analyserDonnées(données)
@@ -269,7 +273,7 @@ port = 5004
 
 Constellation.avecClient(port) do client
     # Obtenir les données, en français si possible, sinon en alemand
-    donnéesRéseau = Constellation.obtDonnéesNuée(
+    donnéesRéseau = Constellation.obtDonnéesTableauNuée(
         client, idNuée, clefTableau, ["fr", "de"]
     )
 end

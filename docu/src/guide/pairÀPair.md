@@ -7,7 +7,7 @@ Les systèmes pair à pair peuvent être **décentralisés** ou bien **distribu�
 
 Au contraire, dans un système distribué, tout les participants sont égaux les un aux autres. Certains peuvent être connectés avec des machines plus puissantes ou avec plus de mémoire, bien sûr, mais tous intéragissent d'égal à égal dans le réseau.
 
-::: info
+::: info INFO
 Constellation n'est **pas** une chaîne de bloques !
 
 Les systèmes pair à pair ont malheureusement une mauvaise réputation, peut-être parce que la majorité des premiers logiciels populaires étaient des platformes de partage de médias piratées. Ensuite sont arrivé les cryptomonnaies basées sur les chaînes de bloques, qui ont fréquemment bien mérité leur réputation en tant que [pyramides de Ponzi](https://web3isgoinggreat.com/) et trous noirs énergétiques [notoirement inefficaces](https://www.usenix.org/publications/loginonline/web3-fraud) pour toute application utile.
@@ -26,7 +26,7 @@ Donc oublions tout ça. Constellation fonctionne de manière complètement distr
 ## Comment ça fonctionne
 Lorsque vous sauvegardez des données sur Constellation, celles-ci sont sauvegardées sur votre appareil local, et y resteront toujours disponibles.
 
-::: tip
+::: tip CONSEIL
 Si vous sauvegardez vos données sur un système sur le « nuage » comme les documents Google, vous aurez peut-être remarqué que vos données n'apparaissent plus lorsque vous (ou Google !) est hors ligne. L'avantage d'un système local comme Constellation est que vous êtes toujours garanti d'avoir accès à vos données, parce qu'elles demeurent toujours sur votre dispositif.
 :::
 

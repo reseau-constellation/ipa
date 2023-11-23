@@ -6,7 +6,7 @@ Cette section offre des instructions détaillées sur l'utilisation de nuées Co
 ## Création de la nuée
 Vous devrez, avant tout, créer l'identifiant de la nuée qui regroupera toutes les données de votre projet.
 
-::: warning
+::: warning ATTENTION
 Prenez soin de créer la nuée sur le compte Constellation que vous entendez utiliser pour gérer votre projet. Celui-ci aura ainsi l'autorisation de modifier la nuée par la suite. 
 :::
 

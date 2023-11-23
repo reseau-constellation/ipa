@@ -460,7 +460,7 @@ await client.variables.sauvegarderCatégorieVariable({
 ## Règles
 Vous pouvez ajouter des règles à vos variables Constellation. Ces règles seront utilisées pour valider les données associées à ces variables. Les règles peuvent être ajoutées soit aux variables (décrit ci-dessous), soit directement aux [tableaux](./tableaux.md#regles) des bases de données. Dans ce premier cas, les règles s'appliqueront à tous les tableaux qui utilisent cette variable.
 
-::: tip
+::: tip CONSEIL
 Les règles peuvent être de différentes formes. Elles peuvent s'assurer qu'une variable numérique reste dans les bornes prévues - disons, que la latitude et la longitude restent bien sur la planète Terre - ou bien vérifier que les valeurs font partie d'une liste de valeurs catégoriques permises. Elles peuvent aussi être relatives (par exemple, que la température minimum ne peut être supérieure à la température maximum).
 
 Pour en apprendre plus sur les règles, voir la [section correspondante](./règles.md).
@@ -675,7 +675,7 @@ Les variables Constellation sont associées à l'une de plusieurs catégories de
 * `image` : Un fichier image.
 * `fichier` : Un fichier de type arbitraire.
 
-::: tip
+::: tip CONSEIL
 **Astuce de pro** : Pour d'autres catégories éventuelles qui ne correspondraient pas bien à l'une des catégories incluses avec Constellation ci-dessus (par exemple, des structures JSON propres à votre application), nous vous recommandons de sauvegarder les données sous format texte avec une variable de catégorie `chaîne`. Votre application pourra ensuite les accéder en tant que variable chaîne et les décoder comme convient.
 :::
 

@@ -22,7 +22,7 @@ $ poetry add constellationPy
 $ pip install constellationPy
 ```
 
-::: tip
+::: tip CONSEIL
 Si le serveur Constellation n'est pas déjà installé sur votre machine, ConstellationPy l'installera automatiquement pour
 vous. Pour ce faire, vous devrez au tout minimum avoir [Node.js](https://nodejs.org/fr/)
 installé localement.
@@ -37,7 +37,7 @@ Cependant, nous comprenons bien que la grande majorité des utilisatrices et uti
 ce qu'est la programmation asynchrone, ni aucun goût ou raison de l'apprendre. C'est pour cela que ConstellationPy vous
 offre également une IPA synchrone.
 
-::: tip
+::: tip CONSEIL
 Vous ne savez pas ce que « synchrone » ou « asynchrone » veulent dire ? Ne vous en faites pas et utilisez l'IPA synchrone. « Synchrone » est le terme technique pour le style de code « normal » Python que vous connaissez bien. Si vous voulez en savoir plus, [voici](https://adrienjoly.com/cours-nodejs/sync-vs-async.html) une belle présentation de la différence entre les deux (en JavaScript).
 :::
 
@@ -45,7 +45,7 @@ Vous ne savez pas ce que « synchrone » ou « asynchrone » veulent dire ? Ne v
 
 En premier lieu, nous devons lancer le serveur Constellation. C'est absolument nécessaire, à moins que vous n'aviez déjà lancé un serveur Constellation [manuellement](https://github.com/reseau-constellation/serveur-ws/blob/master/README.md#ligne-de-commande), lorsque, par exemple, vous voulez exécuter plusieurs codes Python qui utilisent Constellation en parallèle sans dupliquer le serveur (oui, c'est bien possible) !
 
-::: warning
+::: warning ATTENTION
 Attention ! L'IPA synchrone fonctionne bien pour des petites tâches (p. ex., récupérer un ou deux jeux de données), mais l'IPA asynchrone est beaucoup plus efficace si vous traitez de grands nombres de données ou de requêtes à Constellation. Si vous avez besoin d'accéder beaucoup de différentes bases de données Constellation, peut-être que ça vaudrait la peine, après tout, [d'apprendre](https://trio.readthedocs.io/en/stable/tutorial.html) comment utiliser ces drôles de `async` et `await` en Python.
 :::
 
@@ -79,7 +79,7 @@ il y se synchronisera automatiquement avec le réseau Constellation.
 Tout client pyConstellation que vous lancerez en même temps obtiendra ainsi les données les plus
 à jour disponibles.
 
-::: tip
+::: tip CONSEIL
 Note : pour installer Constellation pour la première fois, faites rouler le code suivant une seule fois sur votre ordinateur :
 
 ```python
@@ -107,7 +107,7 @@ client = ClientSync(port=5001)
 
 ```
 
-::: tip
+::: tip CONSEIL
 Note : vous pouvez également spécifier le port du client sur `Client` et `ouvrir_client` (voir ci-dessous).
 :::
 
@@ -116,7 +116,7 @@ Note : vous pouvez également spécifier le port du client sur `Client` et `ouvr
 Toutes* les fonctions de l'IPA (Interface de programmation
 d'application) [Constellation](https://github.com/reseau-constellation/ipa) sont disponibles.
 
-::: tip
+::: tip CONSEIL
 Note : vous pouvez appeler les fonctions Constellation en forme kebab (`ma_fonction`, style Python) ou bien chameau (`maFonction`, style JavaScript). À titre d'exemple :
 
 ```python

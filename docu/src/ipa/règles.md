@@ -37,7 +37,7 @@ await client.variables.ajouterRègleVariable({ idVariable, règle })
 ### 3. Bornes
 Les règles de type `bornes` limitent les valeurs possibles d'une variable numérique ou d'horodatage. Les bornes peuvent être relatives à une valeur fixe ou bien à une autre variable ou colonne dans le tableau.
 
-::: tip
+::: tip CONSEIL
 Chaque règle effectue une seule comparaison. Pour borner une variable des deux côtés, utiliser deux règles bornes.
 :::
 
