@@ -1,0 +1,1 @@
+import{_ as s,o as i,c as a,R as e}from"./chunks/framework.Eeo-33mw.js";const g=JSON.parse('{"title":"Bases de données","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/bds.md","filePath":"ipa/bds.md"}'),t={name:"ipa/bds.md"},n=e("",364),l=[n];function h(d,p,k,r,o,c){return i(),a("div",null,l)}const u=s(t,[["render",h]]);export{g as __pageData,u as default};

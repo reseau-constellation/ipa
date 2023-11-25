@@ -1,0 +1,1 @@
+import{_ as s,o as i,c as a,R as e}from"./chunks/framework.Eeo-33mw.js";const u=JSON.parse('{"title":"Réseau","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/réseau.md","filePath":"ipa/réseau.md"}'),t={name:"ipa/réseau.md"},n=e("",198),l=[n];function h(p,r,k,d,o,c){return i(),a("div",null,l)}const g=s(t,[["render",h]]);export{u as __pageData,g as default};

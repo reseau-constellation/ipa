@@ -1,0 +1,1 @@
+import{_ as s,o as i,c as a,R as e}from"./chunks/framework.Eeo-33mw.js";const g=JSON.parse('{"title":"Favoris","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/favoris.md","filePath":"ipa/favoris.md"}'),t={name:"ipa/favoris.md"},n=e("",49),l=[n];function h(p,r,d,o,k,c){return i(),a("div",null,l)}const u=s(t,[["render",h]]);export{g as __pageData,u as default};
