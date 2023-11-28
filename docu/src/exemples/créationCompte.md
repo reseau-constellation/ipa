@@ -3,5 +3,12 @@ Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](ma
 
 ![pageAccueil](/images/prisesdÉcran/pageAccueil.png)
 
+[[toc]]
+
 ## Comment changer la langue
 ![changerLangue](/images/prisesdÉcran/changerLangue.png)
+
+
+## Créer un nouveau compte
+
+## Rejoindre un compte existant

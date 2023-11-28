@@ -667,6 +667,8 @@ Les tableaux des nuées se comportent comme les [tableaux](./tableaux.md) des ba
 
 À part ce petit détail, les tableaux des nuées sont identiques ceux des bases de données - vous pouvez y ajouter des colonnes et des [règles de validation](#regles) des données.
 
+Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
+
 ### `client.nuées.ajouterTableauNuée`
 ### `client.nuées.effacerTableauNuée`
 ### `client.nuées.suivreTableauxNuée`
@@ -845,6 +847,8 @@ La stratégie d'accès à une nuée peut être soit « innocent jusqu'à ce que 
 :::tip CONSEIL
 Ces autorisations ne s'appliquent qu'au droit des personnes à contribuer des données à la nuée. Pour autoriser quelqu'un à modifier la nuée elle-même (soit sa structure, ses noms, et ces autorisations elles-mêmes), utiliser la fonction [`client.nuées.inviterAuteur`](#client-nuees-inviterauteur-idnuee-idcompteauteur-role).
 :::
+
+Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
 
 ### `client.nuées.changerPhisolophieAutorisation`
 ### `client.nuées.suivrePhilosophieAutorisation`

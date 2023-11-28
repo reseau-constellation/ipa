@@ -2,6 +2,10 @@
 
 Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
 
+Constellation peut servir de système de collecte de données de science citoyenne.
+
+[Schéma diffusion données à inclure]
+
 [[toc]]
 
 ## Le projet
