@@ -116,7 +116,7 @@ dependencies:
     specifier: ^0.18.1
     version: 0.18.1
   iso-constants:
-    specifier: github:inverted-capital/iso-constants#patch-1
+    specifier: git+https://github.com/inverted-capital/iso-constants.git#patch-1
     version: github.com/inverted-capital/iso-constants/2af6fdfb2cacaa03ebd58543703918783e62649f
   it-to-buffer:
     specifier: ^4.0.4
@@ -15459,6 +15459,8 @@ packages:
       node-pre-gyp: 0.13.0
     optionalDependencies:
       domexception: 1.0.1
+    transitivePeerDependencies:
+      - supports-color
     bundledDependencies:
       - node-pre-gyp
 
