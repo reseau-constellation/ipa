@@ -52,9 +52,9 @@ export default async function initOrbite({
   let dossierOrbiteFinal: string | undefined = dossierOrbite;
   if (isElectronMain || isNode) {
     const path = await import("path");
-    dossierOrbiteFinal = dossierOrbite || path.join(".", "orbite");
+    dossierOrbiteFinal = dossierOrbite || path.join(".", "constl", "orbite");
   } else {
-    dossierOrbiteFinal = dossierOrbite || "./orbite";
+    dossierOrbiteFinal = dossierOrbite || "./constl/orbite";
   }
 
   préparerOrbite();
