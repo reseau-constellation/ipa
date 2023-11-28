@@ -191,7 +191,7 @@ Tout d'abord, nous allons activer le nœud local Constellation sur l'interface e
 
 ### Accès de Python
 :::tip CONSEIL
-Vous devrez installer `constellationPy` et `trio` pour suivre l'exemple ci-dessous. Nous vous recommandons **fortement** l'utilisation de [poetry](https://python-poetry.org/) pour gérer vos dépendances Python.
+Vous devrez installer `constellationPy` et `trio` pour suivre l'exemple ci-dessous. Nous vous recommandons **fortement** l'utilisation d'un gestionnaire de paquets tel que [poetry](https://python-poetry.org/), [pdm](https://pdm-project.org/latest/) ou [hatch](https://hatch.pypa.io/latest/) pour gérer vos dépendances Python.
 :::
 
 [Image à inclure]
@@ -199,7 +199,7 @@ Vous devrez installer `constellationPy` et `trio` pour suivre l'exemple ci-desso
 Voici un exemple de code Python qui vous permettra d'accéder à vos donneés de science citoyenne. Si vous n'êtes pas très très Python, vous pouvez aussi faire la même chose en R ou bien en Julia.
 
 :::warning ATTENTION
-Avions-nous dit que nous recommandons **fortement** l'utilisation de [poetry](https://python-poetry.org/) ?
+Avions-nous dit que nous recommandons **fortement** l'utilisation de [poetry](https://python-poetry.org/), [pdm](https://pdm-project.org/latest/) ou [hatch](https://hatch.pypa.io/latest/) au lieu de pip ?
 :::
 
 ```py
