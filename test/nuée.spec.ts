@@ -323,7 +323,7 @@ typesClients.forEach((type) => {
         it("Mots-clefs inclus", async () => {
           expect(schéma.motsClefs).to.be.an("array").deep.equal(idsMotsClefs);
         });
-        it("Tableaux et colonnes inclus", async () => {
+        it("Tableaux et colonnes incluses", async () => {
           expect(schéma.tableaux).to.deep.equal([
             {
               cols: [
