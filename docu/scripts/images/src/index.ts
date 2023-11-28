@@ -3,7 +3,6 @@ import { chromium } from "playwright";
 import { générerFObtCheminImage } from "./utils.js";
 
 import { prisesAccueil } from "./accueil.js";
-import { prisesCréationCompte } from "./créationCompte.js";
 
 export const générerPrisesDÉcran = async ({
   langues,
