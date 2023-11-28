@@ -5,15 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  marked:
-    specifier: ^4.2.12
-    version: 4.2.12
   playwright:
     specifier: ^1.36.2
     version: 1.36.2
-  yaml:
-    specifier: ^2.2.1
-    version: 2.2.1
 
 devDependencies:
   typescript:
@@ -21,12 +15,6 @@ devDependencies:
     version: 5.2.2
 
 packages:
-
-  /marked@4.2.12:
-    resolution: {integrity: sha512-yr8hSKa3Fv4D3jdZmtMMPghgVt6TWbk86WQaWhDloQjRSQhMMYCAro7jP7VDJrjjdV8pxVxMssXS8B8Y5DZ5aw==}
-    engines: {node: '>= 12'}
-    hasBin: true
-    dev: false
 
   /playwright-core@1.36.2:
     resolution: {integrity: sha512-sQYZt31dwkqxOrP7xy2ggDfEzUxM1lodjhsQ3NMMv5uGTRDsLxU0e4xf4wwMkF2gplIxf17QMBCodSFgm6bFVQ==}
@@ -48,8 +36,3 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
-
-  /yaml@2.2.1:
-    resolution: {integrity: sha512-e0WHiYql7+9wr4cWMx3TVQrNwejKaEe7/rHNmQmqRjazfOP5W8PB6Jpebb5o6fIapbz9o9+2ipcaTM2ZwDI6lw==}
-    engines: {node: '>= 14'}
-    dev: false
