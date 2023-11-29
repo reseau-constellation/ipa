@@ -36,6 +36,7 @@ export const configVitePress = defineConfig({
           { text: "Installation", link: "/guide/installation" },
           { text: "Pair à pair", link: "/guide/pairÀPair" },
           { text: "Terminologie", link: "/guide/concepts" },
+          { text: "Questions fréquentes", link: "/guide/questions" },
         ],
       },
       {
