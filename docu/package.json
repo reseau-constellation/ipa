@@ -13,7 +13,7 @@
     "traducs": "node ./scripts/compilerTraducs.mjs",
     "prises": "cd ./scripts/images && pnpm compiler && cd ../.. && node ./scripts/générerPrisesdÉcran.mjs",
     "dev": "pnpm traducs && vitepress dev src",
-    "build": "pnpm traducs && pnpm prises && cross-env NODE_OPTIONS=--max-old-space-size=16384 vitepress build src",
+    "build": "pnpm prises && pnpm traducs && cross-env NODE_OPTIONS=--max-old-space-size=16384 vitepress build src",
     "preview": "pnpm build && vitepress preview src"
   },
   "license": "MIT",
