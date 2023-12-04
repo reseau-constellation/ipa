@@ -114,9 +114,9 @@ export class EncryptionLocalFirst implements Encryption {
     });
   }
 
-  async clefAléatoire(): Promise<string> {
+  async clefAléatoire(n: number = 6): Promise<string> {
     const { randomKey } = await obtCrypto();
-    return randomKey();
+    return randomKey(n);
   }
 
   async obtNom(): Promise<string> {
