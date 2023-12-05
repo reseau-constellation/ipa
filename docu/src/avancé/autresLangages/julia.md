@@ -5,6 +5,8 @@ Le client Julia vous permet d'accéder au réseau Constellation à partir d'un p
 
 [![Couverture](https://codecov.io/gh/reseau-constellation/Constellation.jl/branch/principale/graph/badge.svg?token=1HbFsyDC8y)](https://codecov.io/gh/reseau-constellation/Constellation.jl)
 
+[[toc]]
+
 ## Installation
 Vous pouvez installer le client Julia ainsi :
 

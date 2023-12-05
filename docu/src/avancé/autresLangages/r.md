@@ -2,7 +2,10 @@
 Le client R vous permet d'accéder au réseau Constellation à partir d'un programme en [R](https://www.r-project.org/).
 
 [![R-CMD-check](https://github.com/reseau-constellation/client-r/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/reseau-constellation/client-r/actions/workflows/R-CMD-check.yaml)
+
 [![codecov](https://codecov.io/github/reseau-constellation/client-r/graph/badge.svg?token=U2MUE2ZLGO)](https://codecov.io/github/reseau-constellation/client-r)
+
+[[toc]]
 
 ## Installation
 
@@ -14,6 +17,8 @@ devtools::install_github("reseau-constellation/client-r")
 ```
 
 ## Utilisation
+
+### Fonctions Constellation
 Vous pouvez effectuer des actions ainsi :
 
 ``` r
@@ -120,6 +125,53 @@ constellationR::avecClientEtServeur(
   }
 )
 ```
+
+### Fonctions spéciales
+Le client R inclut des fonctions spéciales pour obtenir des données de Constellation en format [tibble].
+
+Vous pouvez suivre les données d'un tableau quelconque :
+
+```r
+library(constellationR)
+
+constellationR::avecClientEtServeur(
+  function (client) {
+    f <- function(résultats) {
+      print(résultats)
+      # Analyser les données ici...
+    }
+
+    oublier <- client$obtDonnéesTableau(
+      f = f, 
+      idTableau = idTableau
+    )
+  }
+)
+```
+
+Vous pouvez aussi suivre les données d'une nuée ainsi :
+
+```r
+library(constellationR)
+
+constellationR::avecClientEtServeur(
+  function (client) {
+    f <- function(résultats) {
+      # `résultats` est un `tibble`
+      print(résultats)
+
+      # Analyser les données ici...
+    }
+
+    oublier <- client$obtDonnéesTableauNuée(
+      f=f,
+      idNuée=idNuée, clefTableau=clefTableau,
+      nRésultatsDésirés=100
+    )
+  }
+)
+```
+
 
 ### Serveur existant
 Si vous avez déjà lancé un serveur Constellation (p. ex., dans l'interface graphique ou bien à travers un autre processus), vous pouvez vous connecter directement à celui-ci.
