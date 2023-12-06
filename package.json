@@ -68,7 +68,7 @@
     "ipfs-core-types": "^0.14.1",
     "it-all": "^3.0.4",
     "keyv": "^4.5.4",
-    "libp2p": "^0.42.2",
+    "libp2p": "^1.0.0",
     "mocha": "^10.2.0",
     "os-browserify": "^0.3.0",
     "playwright": "^1.40.0",
