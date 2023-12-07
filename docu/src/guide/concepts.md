@@ -12,17 +12,29 @@ Le [profil](/ipa/profil.md) de Constellation organise les information du compte 
 ## Mots-clefs
 Les [mots-clefs](/ipa/motsClefs.md) servent à indexer les bases de données.
 
-## Bases de données
-L'unité centrale de Constellation est la [base de données](/ipa/bds.md).
-
 ## Tableaux
-Chaque base de données à un ou plusieurs [tableaux](/ipa/tableaux.md).
+Un [tableaux](/ipa/tableaux.md) est comme une feuille d'un document Excel, LibreOffice ou Google Sheets.
+
+| ![tableaux](/images/tableaux.svg) | 
+|:--:| 
+| **Exemple d'un tableau Constellation.** Chaque tableau a différentes colonnes, chacune associée à une variable. |
+## Bases de données
+L'unité centrale de Constellation est la [base de données](/ipa/bds.md), qui regroupe un ou plusieurs tableaux.
+
+| ![bds](/images/bds.svg) | 
+|:--:| 
+| **Une base de données Constellation.** Conceptuellement identiques à un document Excel, LibreOffice ou Google Sheets, les bases de données Constellation incluent un ou plusieurs tableaux. |
 
 ## Variables
 Chaque colonne d'un tableau est associée à une [variable](/ipa/variables.md).
 
 ## Projet
 Un [projet](/ipa/projets.md) regroupe plusieurs bases de données traitant du même sujet.
+
+| ![projet](/images/projet.svg) | 
+|:--:| 
+| **Exemple d'un projet Constellation.** Les données de chaque utilisatrice sont écrites sur leur propre base de données. Constellation se charge de toutes les retrouver et de les combiner au moment de la visualisation. |
+
 
 ## Réseau
 Le [réseau](/ipa/réseau.md) vous permet d'accéder aux informations des autres membres connectés.
