@@ -99,7 +99,7 @@
     "@ipld/dag-cbor": "^9.0.6",
     "@lassi-js/kili": "^0.3.4",
     "@libp2p/interface-transport": "^4.0.3",
-    "@libp2p/mplex": "^8.0.4",
+    "@libp2p/mplex": "^10.0.0",
     "@libp2p/tcp": "^7.0.3",
     "@libp2p/webrtc-direct": "^6.0.0",
     "@libp2p/webrtc-star": "^7.0.0",
