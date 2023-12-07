@@ -146,8 +146,8 @@ dependencies:
     specifier: ^2.6.2
     version: 2.6.2
   uint8arrays:
-    specifier: ^4.0.9
-    version: 4.0.9
+    specifier: ^5.0.0
+    version: 5.0.0
   uuid:
     specifier: ^9.0.1
     version: 9.0.1
@@ -14878,6 +14878,12 @@ packages:
     resolution: {integrity: sha512-iHU8XJJnfeijILZWzV7RgILdPHqe0mjJvyzY4mO8aUUtHsDbPa2Gc8/02Kc4zeokp2W6Qq8z9Ap1xkQ1HfbKwg==}
     dependencies:
       multiformats: 12.1.3
+
+  /uint8arrays@5.0.0:
+    resolution: {integrity: sha512-RWO7gR4x6syxnKDfZO8mDCsaaYs1/BqZCxlHgrcRge50E9GTnLmtoA4kwFSGIL4s3dQkryeTkvtG6oEFEya3yg==}
+    dependencies:
+      multiformats: 12.1.3
+    dev: false
 
   /unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
