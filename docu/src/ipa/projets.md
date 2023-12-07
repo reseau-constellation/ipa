@@ -755,7 +755,7 @@ Change le statut du projet.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idProjet` | `string` | L'identifiant du projet. |
-| `statut` | [`schémaStatut`](#statut-1) | Le statut du projet. |
+| `statut` | [`schémaStatut`](./bds.md#types-statut) | Le statut du projet. |
 
 #### Exemple
 ```ts
@@ -856,7 +856,7 @@ Suit le statut du projet.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idProjet` | `string` | L'identifiant du projet. |
-| `f` | `(statut:`[`schémaStatut`](#statut-1)`) => void` | Une fonction qui sera appelée avec le statut du projet chaque fois que celui-ci change. |
+| `f` | `(statut:`[`schémaStatut`](./bds.md#types-statut)`) => void` | Une fonction qui sera appelée avec le statut du projet chaque fois que celui-ci change. |
 
 #### Retour
 | Type | Description |

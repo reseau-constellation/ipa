@@ -584,7 +584,7 @@ Importer des données vers un tableau Constellation.
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
 
 const idVarDate = await client.variables.créerVariable({
@@ -669,7 +669,7 @@ Exporte des données d'un tableau Constellation, mais ne le sauvegarde pas immé
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.bds.ajouterTableauBd({ idBd });
 
 // ... ajouter des colonnes et des données ...

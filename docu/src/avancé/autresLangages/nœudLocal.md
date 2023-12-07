@@ -9,21 +9,17 @@ La librairie `@constl/serveur` vous permet de créer un nœud local Constellatio
 **N'exposez jamais le serveur WS Constellation sur un port publique.**
 :::
 
-## Installation
-Vous pouvez installer le serveur local Constellation ainsi :
-
-```shell
-$ pnpm add @constl/serveur
-```
 ## Utilisation
 Si vous voulez tout simplement utiliser Constellation avec Python ou R, veuillez installer les librairies respectives [constellation-py](https://github.com/reseau-constellation/client-python), [Constellation.jl](https://github.com/reseau-constellation/Consellation.jl) et [constellation-R](https://github.com/reseau-constellation/client-r) (en progrès). Celles-ci se chargeront automatiquement de lancer le serveur Constellation.
 
 ## Installation globale
 L'installation globale vous permet de lancer un nœud local Constellation de la ligne de commande. Si vous comptez simplement utiliser le serveur Constellation (y compris pour une analyse en Python, en R ou en Julia), installez-le comme suit :
 
-```shell
+::: code-group
+```bash [pnpm]
 $ pnpm add -g @constl/serveur @constl/ipa
 ```
+:::
 
 ### Ligne de commande
 Vous pourrez ensuite lancer le nœud local en spécifiant (ou non) le port, l'identifiant de compte, et les dossiers à utiliser pour sauvegarder les données de votre compte :
@@ -33,12 +29,12 @@ Vous pourrez ensuite lancer le nœud local en spécifiant (ou non) le port, l'id
 Si vous ne comprennez pas ce que font les options de compte ou de dossier, laissez-les vides et inquiétez-vous pas ; ça fonctionnera pareil.
 
 Pour obtenir le numéro de la version :
-```shell
+```bash
 $ constl version
 ```
 
 Pour obtenir de l'aide :
-```shell
+```bash
 $ constl -a
 ```
 
@@ -46,9 +42,14 @@ $ constl -a
 Si vous voulez incorporer le serveur Constellation dans une autre librairie
 JavaScript, vous pouvez l'installer ainsi :
 
-```shell
+::: code-group
+```bash [pnpm]
 $ pnpm add @constl/serveur
 ```
+```bash [npm]
+$ pnpm install @constl/serveur
+```
+:::
 
 Vous pourrez ensuite importer le serveur dans votre propre code et le lancer programmatiquement.
 

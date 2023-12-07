@@ -654,25 +654,227 @@ await client.tableaux.ajouterColonneTableauNuée({
 ```
 
 ## Statut
+Tout comme les [bases de données](./bds.md) et les [projets](./projets.md), les nuées peuvent être identifiées en tant qu'actives, bêta, obsolètes ou bien internes à une autre application.
 
-### `client.nuées.changerStatutNuée`
-### `client.nuées.suivreStatutNuée`
-### `client.nuées.marquerObsolète`
-### `client.nuées.marquerActive`
-### `client.nuées.marquerBêta`
-### `client.nuées.marquerInterne`
+### `client.nuées.changerStatutNuée({ idNuée, statut })`
+Change le statut de la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `statut` | [`schémaStatut`](./bds.md#types-statut) | Le statut de la nuée. |
+
+#### Exemple
+```ts
+import { générerClient } from "@constl/ipa";
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({});
+
+await client.nuées.changerStatutNuée({ 
+    idNuée, 
+    statut: {
+        statut: "interne"
+    }
+});
+```
+
+### `client.nuées.suivreStatutNuée({ idNuée, f })`
+Suit le statut de la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `f` | `(statut:`[`schémaStatut`](./bds.md#types-statut)`) => void` | Une fonction qui sera appelée avec le statut de la nuée chaque fois que celui-ci change. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+
+#### Exemple
+```ts
+import { générerClient, type utils } from "@constl/ipa";
+import { ref } from "vue";
+
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({});
+
+const statut = ref<utils.schémaStatut>();
+const fOublierStatut = await client.nuées.suivreStatutNuée({ 
+    idNuée,
+    f: x => statut.value = x,
+});
+
+const idTableau = await client.nuées.marquerBêta({ idNuée });
+
+```
+
+### `client.nuées.marquerObsolète({ idNuée, idNouvelle })`
+Indique que la nuée est maintenant obsolète.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `idNouvelle` | `string \| undefined` | L'identifiant (optionnel) d'une nouvelle nuée qui reprendra le rôle de la nuée obsolète. |
+
+#### Exemple
+```ts
+import { générerClient } from "@constl/ipa";
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({});
+
+const idNouvelle = await client.nuées.créerNuée({});
+await client.nuées.marquerObsolète({ 
+    idNuée, 
+    idNouvelle
+});
+```
+
+### `client.nuées.marquerActive({ idNuée })`
+Indique que la nuée est active (pas obsolète).
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+
+#### Exemple
+```ts
+import { générerClient } from "@constl/ipa";
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({});
+
+await client.nuées.marquerActive({ idNuée });
+```
+
+### `client.nuées.marquerBêta({ idNuée })`
+Indique que la nuée est en phase d'essaie (bêta).
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+
+#### Exemple
+```ts
+import { générerClient } from "@constl/ipa";
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({});
+
+await client.nuées.marquerBêta({ idNuée });
+```
+
+### `client.nuées.marquerInterne({ idNuée })`
+Indique que la nuée est une nuée interne pour une application tièrce et ne devrait probablement pas être directement visible à l'utilisateur ou bien modifiable à la main.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+
+#### Exemple
+```ts
+import { générerClient } from "@constl/ipa";
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({});
+
+await client.nuées.marquerInterne({ idNuée });
+```
 
 ## Tableaux
 Les tableaux des nuées se comportent comme les [tableaux](./tableaux.md) des bases de données, à l'exception que ces premiers **ne peuvent pas contenir des données**. En effet, les nuées ne contiennent pas leurs propres données, mais servent plutôt à [regrouper des données existantes](#donnees) (avec le même format) dans différentes bases de données appartenant à différentes personnes. Même si elles présentent les données sous la forme d'un seul tableau, derrière tout cela, il s'agit de multiples bases de données apartenant à différentes personnes (d'où le nom `nuée`). Pour cette raison, les tableaux des nuées servent uniquement à spécifier la structure des données qui seront ajoutées aux bases de données participantes, et non à sauvegarder les données elles-mêmes.
 
 À part ce petit détail, les tableaux des nuées sont identiques ceux des bases de données - vous pouvez y ajouter des colonnes et des [règles de validation](#regles) des données.
 
-Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
 
-### `client.nuées.ajouterTableauNuée`
-### `client.nuées.effacerTableauNuée`
-### `client.nuées.suivreTableauxNuée`
+### `client.nuées.ajouterTableauNuée({ idNuée, clefTableau })`
+Ajoute un nouveau tableau à la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `clefTableau` | `string \| undefined` | La clef du tableau. Si non spécifiée, Constellation en générera une de manière aléatoire. |
+
+#### Exemple
+```ts
+import { générerClient } from "@constl/ipa";
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({});
+const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
+
+```
+
+### `client.nuées.effacerTableauNuée({ idNuée, idTableau })`
+Enlève un tableau de la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `idTableau` | `string` | L'identifiant du tableau à enlever. |
+
+#### Exemple
+```ts
+// En continuant de ci-dessus...
+
+await client.nuées.effacerTableauNuée({ 
+    idNuée, 
+    idTableau
+});
+```
+### `client.nuées.suivreTableauxNuée({ idNuée, f })`
+Suit les tableaux associés à la nuée.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `f` | `(tableaux:`[`infoTableauAvecId`](#info-tableaux)[]`) => void` | Une fonction qui sera appelée avec la liste des tableaux de la nuée chaque fois que celle-ci change. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { générerClient, type bds } from "@constl/ipa";
+
+const client = générerClient({});
+
+const idNuée = await client.nuées.créerNuée({});
+
+const tableaux = ref<bds.infoTableauAvecId[]>();
+
+const fOublierTableaux = await client.nuées.suivreTableauxBd({ 
+    idNuée,
+    f: x => tableaux.value = x,
+});
+
+const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
+
+```
+
 ### `client.nuées.ajouterNomsTableauNuée`
+
+::: info NOTE
+Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
+:::
+
 ### `client.nuées.effacerNomsTableauNuée`
 ### `client.nuées.suivreNomsTableauNuée`
 ### `client.nuées.ajouterColonneTableauNuée`

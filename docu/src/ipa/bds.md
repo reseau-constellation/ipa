@@ -652,7 +652,7 @@ Ajoute des mots-clefs à la base de données.
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.sauvegarderNomMotClef({
@@ -795,7 +795,7 @@ Ajoute un nouveau tableau à la base de données.
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.bds.ajouterTableauBd({ idBd });
 
 ```
@@ -815,7 +815,7 @@ Change la clef identifiant un tableau de la base de données.
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.bds.ajouterTableauBd({ idBd });
 
 await client.bds.spécifierClefTableau({ 
@@ -911,7 +911,7 @@ Vous pouvez également [automatiser](./automatisations.md) ces actions !
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
 // ... créer des tableaux et ajouter des données ...
 
@@ -965,14 +965,14 @@ Change le statut de la base de données.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `statut` | [`schémaStatut`](#statut-1) | Le statut de la base de données. |
+| `statut` | [`schémaStatut`](#types-statut) | Le statut de la base de données. |
 
 #### Exemple
 ```ts
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
 await client.bds.changerStatutBd({ 
     idBd, 
@@ -996,9 +996,9 @@ Indique que la base de données est maintenant obsolète.
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
-const idNouvelle = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idNouvelle = await client.bds.créerBd(: "ODBl-1_0" });
 await client.bds.marquerObsolète({ 
     idBd, 
     idNouvelle
@@ -1018,7 +1018,7 @@ Indique que la base de données est active (pas obsolète).
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
 await client.bds.marquerActive({ idBd });
 ```
@@ -1036,7 +1036,7 @@ Indique que la base de données est en phase d'essaie (bêta).
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
 await client.bds.marquerBêta({ idBd });
 ```
@@ -1054,7 +1054,7 @@ Indique que la base de données est une base de données interne pour une applic
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
 await client.bds.marquerInterne({ idBd });
 ```
@@ -1066,7 +1066,7 @@ Suit le statut de la base de données.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `f` | `(statut:`[`schémaStatut`](#statut-1)`) => void` | Une fonction qui sera appelée avec le statut de la base de données chaque fois que celui-ci change. |
+| `f` | `(statut:`[`schémaStatut`](#types-statut)`) => void` | Une fonction qui sera appelée avec le statut de la base de données chaque fois que celui-ci change. |
 
 #### Retour
 | Type | Description |
@@ -1110,7 +1110,7 @@ Associer la base de données à des nuées.
 import { générerClient } from "@constl/ipa";
 const client = générerClient({});
 
-const idBd = await client.bds.créerBd({  licence: "ODBl-1_0" });
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
 const idNuée = await client.nuées.créerNuée();
 
@@ -1409,7 +1409,7 @@ interface schémaSpécificationBd {
 ```
 
 ### Types statut
-Les bases de données, de même que d'autres objets Constellation, peuvent avoi différents statuts de développement. La valeur par défaut est `active`.
+Les bases de données, de même que d'autres objets Constellation, peuvent avoir différents statuts de développement. La valeur par défaut est `active`.
 
 ```ts
 enum TYPES_STATUT {
