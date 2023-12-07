@@ -18,15 +18,16 @@ Un [tableaux](/ipa/tableaux.md) est comme une feuille d'un document Excel, Libre
 | ![tableaux](/images/tableaux.svg) | 
 |:--:| 
 | **Exemple d'un tableau Constellation.** Chaque tableau a différentes colonnes, chacune associée à une variable. |
+
+## Variables
+Chaque colonne d'un tableau est associée à une [variable](/ipa/variables.md).
+
 ## Bases de données
 L'unité centrale de Constellation est la [base de données](/ipa/bds.md), qui regroupe un ou plusieurs tableaux.
 
 | ![bds](/images/bds.svg) | 
 |:--:| 
 | **Une base de données Constellation.** Conceptuellement identiques à un document Excel, LibreOffice ou Google Sheets, les bases de données Constellation incluent un ou plusieurs tableaux. |
-
-## Variables
-Chaque colonne d'un tableau est associée à une [variable](/ipa/variables.md).
 
 ## Projet
 Un [projet](/ipa/projets.md) regroupe plusieurs bases de données traitant du même sujet.
@@ -38,6 +39,10 @@ Un [projet](/ipa/projets.md) regroupe plusieurs bases de données traitant du m�
 
 ## Réseau
 Le [réseau](/ipa/réseau.md) vous permet d'accéder aux informations des autres membres connectés.
+
+| ![réseau](/images/réseau.svg) | 
+|:--:| 
+| **Le réseau Constellation.** Constellation forme un réseau de personnes qui se connaissent et se font confiance (ou pas !) avec un modèle de confiance transitive. |
 
 ## Recherche
 Vous pouvez également [rechercher](/ipa/recherche.md) les données qui vous intéressent.
