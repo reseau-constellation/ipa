@@ -20,7 +20,7 @@ Un [tableaux](/ipa/tableaux.md) est comme une feuille d'un document Excel, Libre
 | **Exemple d'un tableau Constellation.** Chaque tableau a différentes colonnes, chacune associée à une variable. |
 
 ## Variables
-Chaque colonne d'un tableau est associée à une [variable](/ipa/variables.md).
+Chaque colonne d'un tableau est associée à une [variable](/ipa/variables.md). Les variables peuvent être de différents types (texte, numérique, dates, photos, audios...).
 
 ## Bases de données
 L'unité centrale de Constellation est la [base de données](/ipa/bds.md), qui regroupe un ou plusieurs tableaux.
@@ -34,7 +34,7 @@ Un [projet](/ipa/projets.md) regroupe plusieurs bases de données traitant du m�
 
 | ![projet](/images/projet.svg) | 
 |:--:| 
-| **Exemple d'un projet Constellation.** Les données de chaque utilisatrice sont écrites sur leur propre base de données. Constellation se charge de toutes les retrouver et de les combiner au moment de la visualisation. |
+| **Exemple d'un projet Constellation.** Les projets permettent de retrouver rapidement des données connexes (par exemple, hydrologie de l'Amérique latine, météorologie du Guatemala, pédologie de l'Afrique, ...). Une base de données peut être ajoutée à de multiples projets ! |
 
 
 ## Réseau
@@ -46,6 +46,10 @@ Le [réseau](/ipa/réseau.md) vous permet d'accéder aux informations des autres
 
 ## Recherche
 Vous pouvez également [rechercher](/ipa/recherche.md) les données qui vous intéressent.
+
+| ![recherche](/images/recherche.svg) | 
+|:--:| 
+| **Une recherche Constellation.** Le logiciel commencera avec vos contacts immédiats et recherchera de plus en plus loin si nécessaire. |
 
 ## Nuée
 Les [nuées](/ipa/nuées.md) vous permettent de créer des projets de science citoyenne et de regrouper toutes les contributions de vos participants à la même place. Elles permettent de combiner des données de différents utilisateurs, un peu comme le ferait une base de données commune dans un système centralisé.
