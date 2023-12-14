@@ -1,5 +1,5 @@
 {
-  "name": "documentation-constellation",
+  "name": "@constl/docu",
   "version": "0.0.1",
   "description": "Documentation du réseau distribué pour les données scientifiques",
   "main": "index.js",
@@ -18,7 +18,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@lassi-js/kilimukku-vitepress": "^0.0.2",
+    "@lassi-js/kilimukku-vitepress": "^0.0.4",
     "cross-env": "^7.0.3",
     "vitepress": "1.0.0-rc.31"
   }
