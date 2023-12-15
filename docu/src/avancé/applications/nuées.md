@@ -12,4 +12,6 @@ Prenez soin de créer la nuée sur le compte Constellation que vous entendez uti
 
 ## Génération du code
 
+:::tip NOTE
 Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
+:::

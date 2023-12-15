@@ -1,5 +1,7 @@
 # Diffusion de données
+:::tip NOTE
 Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
+:::
 
 Admettons-le, nous avons tous été coupables du « je-le-partagerai-plus-tardisme ». On a récolté une jolie base de données, et on va la partager dans un dépôt de données comme [Zenodo](https://zenodo.org/), mais plus tard, quand elle sera bien propre et netoyée...et puis ensuite on publie, on répond aux réviseurs, et on oublie notre base de données qu'on a toujours pas partagée.
 

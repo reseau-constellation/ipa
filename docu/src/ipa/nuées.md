@@ -1050,7 +1050,9 @@ La stratégie d'accès à une nuée peut être soit « innocent jusqu'à ce que 
 Ces autorisations ne s'appliquent qu'au droit des personnes à contribuer des données à la nuée. Pour autoriser quelqu'un à modifier la nuée elle-même (soit sa structure, ses noms, et ces autorisations elles-mêmes), utiliser la fonction [`client.nuées.inviterAuteur`](#client-nuees-inviterauteur-idnuee-idcompteauteur-role).
 :::
 
+:::tip NOTE
 Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)
+:::
 
 ### `client.nuées.changerPhisolophieAutorisation`
 ### `client.nuées.suivrePhilosophieAutorisation`
