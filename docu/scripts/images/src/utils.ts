@@ -59,7 +59,7 @@ export const déjàGénérés = ({
 };
 
 export const ouvrirConstellation = async ({ page }: { page: Page }) => {
-  await page.goto("https://reseau-constellation.github.io/iug/");
+  await page.goto("https://appli.réseau-constellation.ca");
   await page.getByRole("button", { name: /démarrer/i }).waitFor();
 };
 
