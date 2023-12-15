@@ -42,7 +42,7 @@ export const prisesAccueil = async ({
   });
 
   const btnLangues = await page.waitForSelector(".mdi-earth");
-  await btnLangues.hover();
+  await btnLangues.click();
 
   const nomLangue = nuchabäl.rubiChabäl({ runuk: langue });
   if (nomLangue) {
