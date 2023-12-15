@@ -103,7 +103,7 @@
     "@libp2p/tcp": "^7.0.3",
     "@libp2p/webrtc-direct": "^6.0.0",
     "@libp2p/webrtc-star": "^7.0.0",
-    "@libp2p/websockets": "^5.0.10",
+    "@libp2p/websockets": "^8.0.0",
     "@libp2p/webtransport": "^1.0.11",
     "@localfirst/auth": "^5.0.0",
     "@localfirst/crypto": "^5.0.0",
