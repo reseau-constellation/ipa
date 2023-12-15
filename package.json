@@ -87,7 +87,7 @@
     "wrtc": "^0.4.7"
   },
   "dependencies": {
-    "@achingbrain/nat-port-mapper": "1.0.8",
+    "@achingbrain/nat-port-mapper": "1.0.13",
     "@chainsafe/libp2p-gossipsub": "^7.0.0",
     "@chainsafe/libp2p-noise": "^11.0.4",
     "@chriscdn/promise-semaphore": "^2.0.8",
