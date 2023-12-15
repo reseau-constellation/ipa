@@ -73,7 +73,7 @@ export const changerLangue = async ({
   const nomLangue = nuchabäl.rubiChabäl({ runuk: langue });
 
   const btnLangues = await page.waitForSelector(".mdi-earth");
-  await btnLangues.hover();
+  await btnLangues.click();
 
   if (nomLangue) {
     // Donner 3 secondes maximum (si la langue n'est pas encore disponible, on ne la trouvera pas)
