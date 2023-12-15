@@ -8,9 +8,10 @@
 
 <p align="center">
   <a href="https://github.com/reseau-constellation/ipa/actions/workflows/tests.yml"><img src="https://github.com/reseau-constellation/ipa/actions/workflows/tests.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/reseau-constellation/ipa/actions/workflows/docu.yml"><img src="https://github.com/reseau-constellation/ipa/actions/workflows/docu.yml/badge.svg?branch=main"></a>
   <a href="https://codecov.io/gh/reseau-constellation/ipa" >
- <img src="https://codecov.io/gh/reseau-constellation/ipa/branch/main/graph/badge.svg?token=D41D2XBE0P"/>
- </a>
+    <img src="https://codecov.io/gh/reseau-constellation/ipa/branch/main/graph/badge.svg?token=D41D2XBE0P"/>
+  </a>
   <br>
 </p>
 
