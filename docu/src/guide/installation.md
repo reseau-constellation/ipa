@@ -1,5 +1,5 @@
 # Installation
-Constellation peut être installé soit
+Constellation peut être utilisé soit
 
 * **sur votre ordinateur**, en tant qu'appli locale [installable](https://réseau-constellation.ca/téléchargements), soit
 * **en ligne** sans installation, à travers l'[appli Internet](https://réseau-constellation.ca).
