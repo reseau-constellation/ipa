@@ -192,19 +192,24 @@ Tout d'abord, nous allons activer le nœud local Constellation sur l'interface e
 [Image à inclure]
 
 ### Accès de Python
-:::tip CONSEIL
-Vous devrez installer `constellationPy` et `trio` pour suivre l'exemple ci-dessous. Nous vous recommandons **fortement** l'utilisation d'un gestionnaire de paquets tel que [poetry](https://python-poetry.org/), [pdm](https://pdm-project.org/latest/) ou [hatch](https://hatch.pypa.io/latest/) pour gérer vos dépendances Python.
-:::
-
 [Image à inclure]
 
-Voici un exemple de code Python qui vous permettra d'accéder à vos donneés de science citoyenne. Si vous n'êtes pas très très Python, vous pouvez aussi faire la même chose en R ou bien en Julia.
+Voici un exemple de code en Python qui vous permettra d'accéder à vos donneés de science citoyenne. Si vous n'êtes pas très très Python, vous pouvez aussi faire la même chose en R ou bien en Julia.
 
-:::warning ATTENTION
-Avions-nous dit que nous recommandons **fortement** l'utilisation de [poetry](https://python-poetry.org/), [pdm](https://pdm-project.org/latest/) ou [hatch](https://hatch.pypa.io/latest/) au lieu de pip ?
+Pour installer:
+::: code-group
+```sh [python (pdm)]
+pdm add constellationPy trio
+```
+
+```r [R]
+# install.packages("devtools")
+devtools::install_github("reseau-constellation/client-r")
+```
 :::
 
-```py
+::: code-group
+```py [python]
 import trio
 
 from constellationPy import Serveur, ouvrir_client
@@ -236,9 +241,7 @@ async def principale():
 trio.run(principale)
 ```
 
-### Accès de R
-
-```r
+```r [R]
 library("constellationR")
 
 # Copier l'identifiant de la nuée que vous avez créée
@@ -264,9 +267,6 @@ avecClient(
 )
 ```
 
-### Accès de Julia
-Et en Julia !
-
 ```julia
 import Constellation
 
@@ -284,5 +284,8 @@ Constellation.avecClient(port) do client
     )
 end
 ```
+
+:::
+
 
 Pour plus d'information, voir la section sur les [autres langages](../avancé/autresLangages/introduction.md).
