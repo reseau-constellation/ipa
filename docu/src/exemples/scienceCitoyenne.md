@@ -28,6 +28,7 @@ En premier, nous allons choisir la structure de nos données. Pour chaque observ
 | 03 - 01 -2023 | A | 37 | photo328.jpeg |
 | ... | ... | ... | ... |
 
+
 Ensuite, pour garder compte de l'information sur nos zônes d'observation, nous allons créer un second tableau. Comme ça, nous ne dédoublons pas l'information de latitude, longitude et altitude à chaque observation dans le tableau ci-dessus.
 
 | Endroit | Latitude | Longitude | Altitude |
@@ -196,7 +197,8 @@ Tout d'abord, nous allons activer le nœud local Constellation sur l'interface e
 
 Voici un exemple de code en Python qui vous permettra d'accéder à vos donneés de science citoyenne. Si vous n'êtes pas très très Python, vous pouvez aussi faire la même chose en R ou bien en Julia.
 
-Pour installer:
+Pour installer Constellation :
+
 ::: code-group
 ```sh [python (pdm)]
 pdm add constellationPy trio
@@ -206,7 +208,13 @@ pdm add constellationPy trio
 # install.packages("devtools")
 devtools::install_github("reseau-constellation/client-r")
 ```
+
+```r [julia]
+pkg> add Constellation
+```
 :::
+
+Et pour accéder les données :
 
 ::: code-group
 ```py [python]
