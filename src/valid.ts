@@ -26,34 +26,24 @@ export type règleVariable =
   | règleValeurCatégorique
   | règleCatégorie;
 
-export type schémaRègleVariable<T extends détailsRègleVariable> = {
-  typeRègle: typeRègle;
-  détails: T;
-};
-
 export type règleColonne<T extends règleVariable = règleVariable> = {
   règle: règleVariableAvecId<T>;
   source: sourceRègle;
   colonne: string;
 };
 
-export type détailsRègleVariable =
-  | détailsRègleExiste
-  | détailsRègleBornes
-  | détailsRègleValeurCatégorique
-  | détailsRègleCatégorie;
-
 export type typeOp = ">" | "<" | ">=" | "<=" | "≥" | "≤";
 
-export type règleExiste = schémaRègleVariable<détailsRègleExiste> & {
+export type règleExiste = {
   typeRègle: "existe";
+  détails: détailsRègleExiste
 };
 
 export type détailsRègleExiste = Record<string, never>;
 
-export type règleBornes<T extends détailsRègleBornes = détailsRègleBornes> =
-  schémaRègleVariable<T> & {
+export type règleBornes<T extends détailsRègleBornes = détailsRègleBornes> = {
     typeRègle: "bornes";
+    détails: T;
   };
 
 // Peut être numérique ou bien l'id d'une autre variable ou l'id d'une colonne sur la même BD
@@ -82,8 +72,9 @@ export type détailsRègleBornesDynamiqueVariable = {
 
 export type règleValeurCatégorique<
   T extends détailsRègleValeurCatégorique = détailsRègleValeurCatégorique,
-> = schémaRègleVariable<T> & {
+> = {
   typeRègle: "valeurCatégorique";
+  détails: T
 };
 
 export type détailsRègleValeurCatégorique =
@@ -101,8 +92,9 @@ export type détailsRègleValeurCatégoriqueDynamique = {
   colonne: string;
 };
 
-export type règleCatégorie = schémaRègleVariable<détailsRègleCatégorie> & {
+export type règleCatégorie = {
   typeRègle: "catégorie";
+  détails: détailsRègleCatégorie;
 };
 
 export type détailsRègleCatégorie = {

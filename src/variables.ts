@@ -2,9 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 
 import ClientConstellation from "@/client.js";
 import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import {
-  type règleVariable,
-  type règleCatégorie,
+import type {
+  règleVariable,
+  règleCatégorie,
   règleVariableAvecId,
 } from "@/valid.js";
 
