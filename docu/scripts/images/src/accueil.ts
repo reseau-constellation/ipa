@@ -46,7 +46,9 @@ export const prisesAccueil = async ({
 
   const nomLangue = nuchabäl.rubiChabäl({ runuk: langue });
   if (nomLangue) {
-    await page.getByText(nomLangue).click();
+    await page.getByText(nomLangue).waitFor();
+    await page.getByText(nomLangue).hover();
+
     await page.screenshot({
       path: obtCheminImage({ nomImage: "changerLangue.png", langue }),
       ...optsPrises,

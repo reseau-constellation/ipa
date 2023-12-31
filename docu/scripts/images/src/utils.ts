@@ -8,6 +8,7 @@ const nuchabäl = new Nuchabäl({});
 
 export const optsPrises: Partial<PageScreenshotOptions> = {
   scale: "css",
+  animations: "disabled",
 };
 
 export type schémaFObtCheminImage = ({
