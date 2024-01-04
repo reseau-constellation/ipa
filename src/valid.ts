@@ -83,7 +83,7 @@ export type détailsRègleValeurCatégorique =
 
 export type détailsRègleValeurCatégoriqueFixe = {
   type: "fixe";
-  options: élémentsBd[];
+  options: (string | number | boolean)[];
 };
 
 export type détailsRègleValeurCatégoriqueDynamique = {
