@@ -80,7 +80,7 @@ import {
   TypedOrderedKeyValue,
   TypedSet,
 } from "@constl/bohr-db";
-import {
+import type {
   FeedDatabaseType,
   OrderedKeyValueDatabaseType,
   SetDatabaseType,
