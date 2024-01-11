@@ -2094,29 +2094,32 @@ export default class BDs extends ComposanteClientListe<string> {
 
     const oublierAccès = await this.suivreScoreAccèsBd({
       idBd,
-      f: (accès) => {
+      f: async (accès) => {
         info.accès = accès;
-        fFinale();
+        await fFinale();
       },
     });
     const oublierCouverture = await this.suivreScoreCouvertureBd({
       idBd,
-      f: (couverture) => {
+      f: async (couverture) => {
         info.couverture = couverture;
-        fFinale();
+        await fFinale();
       },
     });
     const oublierValide = await this.suivreScoreValideBd({
       idBd,
-      f: (valide) => {
+      f: async (valide) => {
         info.valide = valide;
-        fFinale();
+        await fFinale();
       },
     });
 
     const oublierLicence = await this.suivreLicenceBd({
       idBd,
-      f: (licence) => (info.licence = licence ? 1 : 0),
+      f: async (licence) => {
+        info.licence = licence ? 1 : 0;
+        await fFinale();
+      },
     });
     return async () => {
       await Promise.all([
