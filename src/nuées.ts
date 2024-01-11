@@ -2026,7 +2026,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fFinale = async (
       résultats: résultatRecherche<infoRésultatVide>[],
@@ -2157,7 +2157,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     vérifierAutorisation?: boolean;
     toujoursInclureLesMiennes?: boolean;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
@@ -2314,7 +2314,7 @@ export default class Nuée extends ComposanteClientListe<string> {
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
     vérifierAutorisation?: boolean;
     toujoursInclureLesMiennes?: boolean;
@@ -2475,7 +2475,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     clefTableau: string;
     f: schémaFonctionSuivi<élémentDeMembreAvecValid<T>[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
     ignorerErreursFormatBd?: boolean;
     ignorerErreursFormatTableau?: boolean;
@@ -2715,7 +2715,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     langues?: string[];
     f: schémaFonctionSuivi<donnéesTableauExportation>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
   }): Promise<schémaFonctionOublier> {
     const info: {
@@ -2853,7 +2853,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     langues?: string[];
     f: schémaFonctionSuivi<donnéesNuéeExportation>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
   }): Promise<schémaFonctionOublier> {
     const info: {
@@ -2933,7 +2933,7 @@ export default class Nuée extends ComposanteClientListe<string> {
     idNuée: string;
     langues?: string[];
     nomFichier?: string;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
     patience?: number;
   }): Promise<donnéesBdExportées> {

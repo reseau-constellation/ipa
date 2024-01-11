@@ -983,11 +983,11 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   @cacheRechercheParProfondeur
   async suivreRelationsConfiance({
     f,
-    profondeur,
+    profondeur = Infinity,
     idCompteDébut,
   }: {
     f: schémaFonctionSuivi<infoRelation[]>;
-    profondeur: number;
+    profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const idCompteDébutFinal =
@@ -1120,7 +1120,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     idCompteDébut,
   }: {
     f: schémaFonctionSuivi<infoMembreRéseau[]>;
-    profondeur: number;
+    profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fSuivi = async (relations: infoRelation[]) => {
@@ -1201,7 +1201,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     idCompteDébut,
   }: {
     f: schémaFonctionSuivi<infoMembreRéseau[]>;
-    profondeur: number;
+    profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     // Ne PAS mettre cette fonction en cache ! Ça ne fonctionne pas avec les
@@ -1502,7 +1502,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
   async rechercher<T extends infoRésultat>({
     f,
-    nRésultatsDésirés,
+    nRésultatsDésirés = Infinity,
     fRecherche,
     fConfiance,
     fQualité,
@@ -1510,16 +1510,17 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     fScore,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés: number;
     fRecherche: (args: {
       idCompte: string;
       fSuivi: (x: string[] | undefined) => Promise<void>;
     }) => Promise<schémaFonctionOublier>;
     fConfiance: schémaFonctionSuivreConfianceRecherche;
+    nRésultatsDésirés?: number;
     fQualité: schémaFonctionSuivreQualitéRecherche;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     fScore?: (r: résultatRechercheSansScore<T>) => number;
   }): Promise<schémaRetourFonctionRechercheParN> {
+
     if (!fScore) {
       fScore = (x: résultatRechercheSansScore<T>): number => {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
@@ -1562,7 +1563,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         .flat()
         .map((r) => r.résultatObjectif.score);
       const pireScoreInclus =
-        scores.length >= nRésultatsDésirés
+        (scores.length >= nRésultatsDésirés)
           ? Math.min(...scores.slice(0, nRésultatsDésirés))
           : 0;
 
@@ -1766,7 +1767,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         profondeur,
       });
 
-    const fChangerN = async (nouveauN: number) => {
+    const fChangerN = async (nouveauN: number = Infinity) => {
       const nDésirésAvant = nRésultatsDésirés;
       nRésultatsDésirés = nouveauN;
       if (nouveauN !== nDésirésAvant) {
@@ -1793,7 +1794,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     fObjectif,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fConfiance = async (
@@ -1906,7 +1907,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
     clef: clefObjet;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     fRecherche: (args: {
       idCompte: string;
       f: (bds: string[] | undefined) => void;
@@ -2005,7 +2006,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
@@ -2043,7 +2044,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
@@ -2085,7 +2086,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
@@ -2127,7 +2128,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
@@ -2169,7 +2170,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     toutLeRéseau = true,
   }: {
     f: schémaFonctionSuivi<résultatRecherche<T>[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
@@ -2697,7 +2698,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
-    nRésultatsDésirés: number;
+    nRésultatsDésirés?: number;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fBranche = async (
       idCompte: string,
