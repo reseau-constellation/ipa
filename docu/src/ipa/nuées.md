@@ -984,7 +984,7 @@ Suit les données d'un tableau d'une nuée.
 | `idNuée` | `string` | L'identifiant de la nuée. |
 | `clefTableau` | `string` | La clef du tableau. |
 | `f` | `(données:` [`élémentDeMembreAvecValid`](#types-donnees)` []) => void` | La fonction qui sera appellée avec les données chaque fois que celles-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désiré. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désiré. |
 | `ignorerErreursFormatBd` | `boolean` | Ignorer les erreurs de structure des bases de données faisant parti de la nuée. Vrai par défaut. |
 | `ignorerErreursFormatTableau` | `boolean` | Ignorer les erreurs de structure des tableaux faisant parti de la nuée. Faux par défaut. |
 | `ignorerErreursDonnéesTableau` | `boolean` | Ignorer les erreurs des données faisant parti de la nuée. Vrai par défaut (les données avec des erreurs de validation seront présentes dans les résultats, mais les erreurs seront elles aussi signalées). |
@@ -1021,7 +1021,7 @@ Suit les bases de données (sur tout le réseau) qui sont associées à la nuée
 | --- | ---- | ----------- |
 | `idNuée` | `string` | L'identifiant de la nuée. |
 | `f` | `(bds: string[]) => void` | La fonction qui sera appellée avec les identifiants des bases de données associées données chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désiré. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désiré. |
 | `vérifierAutorisation` | `boolean` | Si nous rapportons uniquement les bases de données autorisées à contribuer à la nuée. Vrai par défaut. |
 | `toujoursInclureLesMiennes` | `boolean` | S'il faut sauter la vérification d'autorisation pour les bases de données provenant de notre propre compte. Vrai par défaut. |
 
@@ -1038,7 +1038,6 @@ const bdsConnexes = ref<string[]>();
 const fOublierBdss = await clientnuées.suivreBdsCorrespondantes({ 
     idNuée,
     f: x => bdsConnexes.value = x,
-    nRésultatsDésirés: 100,
  });
 
 ```
@@ -1100,7 +1099,7 @@ Vous pouvez également [automatiser](./automatisations.md) les exportations selo
 | `idNuée` | `string` | L'identifiant de la nuée. |
 | `langues` | `string[] \| undefined` | Si vous voulez que les colonnes portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
 | `nomFichier` | `string \| undefined` | Le nom du fichier que vous voulez créer. Si non spécifié, Constellation utilisera le nom de la nuée si `langues !== undefined` ou, à défaut, l'identifiant unique de la nuée. |
-| `nRésultatsDésirés` | `number` | Le nombre maximum de files de données désirées (le réseau peut être grand !). |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre maximum de files de données désirées (le réseau peut être grand !). |
 
 
 #### Retour
@@ -1126,7 +1125,6 @@ const idNuée = await client.nuées.créerNuée({ });
 const données = await client.nuées.exporterDonnéesNuée({ 
     idNuée,
     langues: [],
-    nRésultatsDésirés: 1000
 });
 
 ```
@@ -1146,7 +1144,7 @@ Cette fonction suit, de manière récursive, les nuées qui ont spécifié la nu
 | --- | ---- | ----------- |
 | `idNuée` | `string` | L'identifiant de la nuée parent. |
 | `f` | `(résultats: string[]) => void` | La fonction qui sera appellée avec les identifiants des nuées liées chaque fois que celles-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 
 #### Retour
 | Type | Description |
@@ -1204,7 +1202,6 @@ const {
 } = await client.nuées.suivreNuéesParents({
   idNuée: idNuéeSpécialisée,
   f: x => parents.value = x,
-  nRésultatsDésirés: 10,
 });
 
 await fChangerNParents(3);  // On veut 3 résultats maximum

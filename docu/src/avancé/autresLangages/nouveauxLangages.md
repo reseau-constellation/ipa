@@ -132,8 +132,7 @@ const {
   fChangerN
 } = await client.recherche.rechercherBdSelonNom({ 
   nomBd: "météo", 
-  f: console.log, 
-  nRésultatsDésirés: 30 
+  f: console.log,
 });
 
 // Demander plus de résultats
@@ -154,7 +153,7 @@ const message: MessageSuivrePourTravailleur = {
   type: "suivre",
   id,
   fonction: ["recherche", "rechercherBdSelonNom"],
-  args: { nomBd: "météo", nRésultatsDésirés: 30 },
+  args: { nomBd: "météo" },
   nomArgFonction: "f",  // Nom de l'argument correspondant à la fonction de suivi
 }
 

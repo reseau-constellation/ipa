@@ -14,7 +14,7 @@ Recherche des profils correspondant à un identifiant de compte.
 | --- | ---- | ----------- |
 | `idCompte` | `string` | L'identifiant du compte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 
 #### Retour
 | Type | Description |
@@ -38,7 +38,6 @@ const {
 } = await client.recherche.rechercherProfilSelonId({
   idCompte: (await client.obtIdCompte()).slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
 });
 
 await fChangerN(3);  // On veut 3 résultats maximum
@@ -54,7 +53,7 @@ Recherche des profils selon leur nom.
 | --- | ---- | ----------- |
 | `nom` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 
 #### Retour
 | Type | Description |
@@ -78,7 +77,6 @@ const {
 } = await client.recherche.rechercherProfilSelonNom({
   nom: "moi",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
 });
 
 await fChangerN(3);  // On veut 3 résultats maximum
@@ -92,7 +90,7 @@ Recherche des profils selon leur niveau d'activité. Utile pour trouver des prof
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 
 #### Retour
 | Type | Description |
@@ -115,8 +113,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherProfilSelonActivité({
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -130,7 +127,7 @@ Recherche des profils selon leur courriel.
 | --- | ---- | ----------- |
 | `courriel` | `string` | Le courriel à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 
 #### Retour
 | Type | Description |
@@ -154,8 +151,7 @@ const {
 } = await client.recherche.rechercherProfilSelonNom({
   courriel: "@mail.mcgill.ca",  // Rechercher les utilisateurs étudiants de McGill
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -169,7 +165,7 @@ Recherche des profils selon tous leurs attributs (nom, contact ou autre).
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 
 #### Retour
 | Type | Description |
@@ -193,8 +189,7 @@ const {
 } = await client.recherche.rechercherProfilSelonTexte({
   courriel: "Julien",  // Recherchera les noms et les courriels avec ce texte
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -210,7 +205,7 @@ Recherche des mots-clefs du réseau sans aucun critère spécifique.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos mots-clefs à nous. Vrai par défaut. |
 
 #### Retour
@@ -234,8 +229,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherMotsClefs({
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -250,7 +244,7 @@ Recherche des mots-clefs selon leur identifiant unique.
 | --- | ---- | ----------- |
 | `idMotClef` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos mots-clefs à nous. Vrai par défaut. |
 
 #### Retour
@@ -277,8 +271,7 @@ const {
 } = await client.recherche.rechercherMotsClefs({
   idMotClef: idMotClef.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -292,7 +285,7 @@ Recherche des mots-clefs selon leur nom.
 | --- | ---- | ----------- |
 | `nomMotClef` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos mots-clefs à nous. Vrai par défaut. |
 
 #### Retour
@@ -319,8 +312,7 @@ const {
 } = await client.recherche.rechercherMotsClefsSelonNom({
   nomMotClef: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -334,7 +326,7 @@ Recherche des mots-clefs selon leur description.
 | --- | ---- | ----------- |
 | `descrMotClef` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos mots-clefs à nous. Vrai par défaut. |
 
 #### Retour
@@ -361,8 +353,7 @@ const {
 } = await client.recherche.rechercherMotsClefsSelonDescr({
   descrMotClef: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -376,7 +367,7 @@ Recherche tous les champs des mots-clefs.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos mots-clefs à nous. Vrai par défaut. |
 
 #### Retour
@@ -403,8 +394,7 @@ const {
 } = await client.recherche.rechercherMotsClefsSelonTexte({
   descrMotClef: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -420,7 +410,7 @@ Recherche des variables du réseau sans aucun critère spécifique.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos variables à nous. Vrai par défaut. |
 
 #### Retour
@@ -444,8 +434,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherVariables({
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -460,7 +449,7 @@ Recherche des variables selon leur identifiant unique.
 | --- | ---- | ----------- |
 | `idVariable` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos variables à nous. Vrai par défaut. |
 
 #### Retour
@@ -487,8 +476,7 @@ const {
 } = await client.recherche.rechercherVariablesSelonId({
   idVariable: idVariable.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -502,7 +490,7 @@ Recherche des variables selon leur nom.
 | --- | ---- | ----------- |
 | `nomVariable` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos variables à nous. Vrai par défaut. |
 
 #### Retour
@@ -529,8 +517,7 @@ const {
 } = await client.recherche.rechercherVariablesSelonNom({
   nomVariable: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -544,7 +531,7 @@ Recherche des variables selon leur description.
 | --- | ---- | ----------- |
 | `descrVariable` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos variables à nous. Vrai par défaut. |
 
 #### Retour
@@ -571,8 +558,7 @@ const {
 } = await client.recherche.rechercherVariablesSelonDescr({
   descrVariable: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -586,7 +572,7 @@ Recherche tous les champs des variables.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos variables à nous. Vrai par défaut. |
 
 #### Retour
@@ -613,8 +599,7 @@ const {
 } = await client.recherche.rechercherVariablesSelonTexte({
   descrVariable: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -630,7 +615,7 @@ Recherche des bases de données du réseau sans aucun critère spécifique.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -654,8 +639,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherBds({
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -670,7 +654,7 @@ Recherche des bases de données selon leur identifiant unique.
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -697,8 +681,7 @@ const {
 } = await client.recherche.rechercherBdsSelonId({
   idBd: idBd.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -712,7 +695,7 @@ Recherche des variables selon leur nom.
 | --- | ---- | ----------- |
 | `nomBd` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -739,8 +722,7 @@ const {
 } = await client.recherche.rechercherBdsSelonNom({
   nomBd: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -754,7 +736,7 @@ Recherche des bases de données selon leur description.
 | --- | ---- | ----------- |
 | `descrBd` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -781,9 +763,7 @@ const {
 } = await client.recherche.rechercherBdsSelonDescr({
   descrBd: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
-
+  })
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
 ```
@@ -796,7 +776,7 @@ Recherche des bases de données selon les identifiants uniques de leurs mots-cle
 | --- | ---- | ----------- |
 | `idMotClef` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -825,8 +805,7 @@ const {
 } = await client.recherche.rechercherBdsSelonIdMotClef({
   idMotClef: idMotClef.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -840,7 +819,7 @@ Recherche des bases de données selon les identifiants uniques de leurs variable
 | --- | ---- | ----------- |
 | `idVariable` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -870,8 +849,7 @@ const {
 } = await client.recherche.rechercherBdsSelonIdVariable({
   idVariable: idVariable.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -885,7 +863,7 @@ Recherche des bases de données selon les noms de leurs mots-clefs.
 | --- | ---- | ----------- |
 | `nomMotClef` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -914,8 +892,7 @@ const {
 } = await client.recherche.rechercherBdsSelonNomMotClef({
   nomMotClef: "agronomie",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -935,7 +912,7 @@ Recherche des bases de données selon les noms de leurs variables.
 | --- | ---- | ----------- |
 | `nomVariable` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -965,8 +942,7 @@ const {
 } = await client.recherche.rechercherBdsSelonNomVariable({
   nomVariable: "température",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -986,7 +962,7 @@ Recherche des bases de données selon leurs mots-clefs.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -1015,8 +991,7 @@ const {
 } = await client.recherche.rechercherBdsSelonMotClef({
   texte: "agronomie",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -1036,7 +1011,7 @@ Recherche des bases de données selon leurs variables.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -1066,8 +1041,7 @@ const {
 } = await client.recherche.rechercherBdsSelonVariable({
   texte: "température",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -1087,7 +1061,7 @@ Recherche tous les champs des bases de données.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche< infoRésultatTexte \| infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos bases de données à nous. Vrai par défaut. |
 
 #### Retour
@@ -1118,8 +1092,7 @@ const {
 } = await client.recherche.rechercherBdsSelonTexte({
   texte: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1135,7 +1108,7 @@ Recherche des bases de données du réseau sans aucun critère spécifique.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1159,8 +1132,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherProjets({
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1175,7 +1147,7 @@ Recherche des projets selon leur identifiant unique.
 | --- | ---- | ----------- |
 | `idProjet` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1202,8 +1174,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonId({
   idProjet: idProjet.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1217,7 +1188,7 @@ Recherche des variables selon leur nom.
 | --- | ---- | ----------- |
 | `nomProjet` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1244,8 +1215,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonNom({
   nomProjet: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1259,7 +1229,7 @@ Recherche des projets selon leur description.
 | --- | ---- | ----------- |
 | `descrProjet` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1286,8 +1256,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonDescr({
   descrProjet: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1301,7 +1270,7 @@ Recherche des projets selon les identifiants uniques de leurs mots-clefs.
 | --- | ---- | ----------- |
 | `idMotClef` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1330,8 +1299,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonIdMotClef({
   idMotClef: idMotClef.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1345,7 +1313,7 @@ Recherche des projets selon les identifiants uniques de leurs variables.
 | --- | ---- | ----------- |
 | `idVariable` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1379,8 +1347,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonIdVariable({
   idVariable: idVariable.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1394,7 +1361,7 @@ Recherche des projets selon les noms de leurs mots-clefs.
 | --- | ---- | ----------- |
 | `nomMotClef` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1423,8 +1390,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonNomMotClef({
   nomMotClef: "agronomie",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -1444,7 +1410,7 @@ Recherche des projets selon les noms de leurs variables.
 | --- | ---- | ----------- |
 | `nomVariable` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1477,8 +1443,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonNomVariable({
   nomVariable: "température",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -1498,7 +1463,7 @@ Recherche des projets selon leurs mots-clefs.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1527,8 +1492,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonMotClef({
   texte: "agronomie",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -1548,7 +1512,7 @@ Recherche des projets selon leurs variables.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1582,8 +1546,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonVariable({
   texte: "température",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -1604,7 +1567,7 @@ Recherche des projets selon les identifiants de leurs bases de données.
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de donnnées à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1632,8 +1595,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonVariable({
   idBd: idBd.slice(-10),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1647,7 +1609,7 @@ Recherche des projets selon leurs bases de données.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherchce< infoRésultatRecherche <infoRésultatTexte \| infoRésultatRecherche <infoRésultatTexte> > >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1679,8 +1641,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonVariable({
   texte: "insecte",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.bds.sauvegarderNomBd({
   idBd,
@@ -1700,7 +1661,7 @@ Recherche tous les champs des projets.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte \| infoRésultatRecherche< infoRésultatTexte \| infoRésultatRecherche <infoRésultatTexte> > >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos projets à nous. Vrai par défaut. |
 
 #### Retour
@@ -1737,8 +1698,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonTexte({
   texte: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1754,7 +1714,7 @@ Recherche des nuées du réseau sans aucun critère spécifique.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -1778,8 +1738,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherNuées({
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1794,7 +1753,7 @@ Recherche des nuées selon leur identifiant unique.
 | --- | ---- | ----------- |
 | `idNuée` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -1821,8 +1780,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonId({
   idNuée: idNuée.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1836,7 +1794,7 @@ Recherche des variables selon leur nom.
 | --- | ---- | ----------- |
 | `nomNuée` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -1863,8 +1821,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonNom({
   nomNuée: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1878,7 +1835,7 @@ Recherche des nuées selon leur description.
 | --- | ---- | ----------- |
 | `descrNuée` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatTexte>`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -1905,8 +1862,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonDescr({
   descrNuée: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1920,7 +1876,7 @@ Recherche des nuées selon les identifiants uniques de leurs mots-clefs.
 | --- | ---- | ----------- |
 | `idMotClef` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -1949,8 +1905,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonIdMotClef({
   idMotClef: idMotClef.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1964,7 +1919,7 @@ Recherche des nuées selon les identifiants uniques de leurs variables.
 | --- | ---- | ----------- |
 | `idVariable` | `string` | L'identifiant à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -1994,8 +1949,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonIdVariable({
   idVariable: idVariable.slice(-5),
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -2009,7 +1963,7 @@ Recherche des nuées selon les noms de leurs mots-clefs.
 | --- | ---- | ----------- |
 | `nomMotClef` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -2038,8 +1992,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonNomMotClef({
   nomMotClef: "agronomie",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -2059,7 +2012,7 @@ Recherche des nuées selon les noms de leurs variables.
 | --- | ---- | ----------- |
 | `nomVariable` | `string` | Le nom à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -2089,8 +2042,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonNomVariable({
   nomVariable: "température",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -2110,7 +2062,7 @@ Recherche des nuées selon leurs mots-clefs.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -2139,8 +2091,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonMotClef({
   texte: "agronomie",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -2160,7 +2111,7 @@ Recherche des nuées selon leurs variables.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche <infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -2190,8 +2141,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonVariable({
   texte: "température",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -2211,7 +2161,7 @@ Recherche tous les champs des nuées.
 | --- | ---- | ----------- |
 | `texte` | `string` | Le texte à rechercher. |
 | `f` | `(résultats: `[`résultatRecherche< infoRésultatTexte \| infoRésultatRecherche <infoRésultatTexte> >`](#types) `[]) => void` | La fonction qui sera appellée avec les résultats de la recherche chaque fois que ceux-ci changent. |
-| `nRésultatsDésirés` | `number` | Le nombre de résultats désirés. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre de résultats désirés. |
 | `toutLeRéseau` | `boolean` | Si nous recherchons tout le réseau ou bien uniquement parmi nos nuées à nous. Vrai par défaut. |
 
 #### Retour
@@ -2244,8 +2194,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonTexte({
   texte: "hydro",
   f: x => résultats.value = x,
-  nRésultatsDésirés: 10,
-});
+  });
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi

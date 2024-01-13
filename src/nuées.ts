@@ -2376,8 +2376,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           return await this.rechercherNuéesDéscendantes({
             idNuée,
             f: (parents) => fSuivreRacine([idNuée, ...parents].reverse()),
-            nRésultatsDésirés: 1000,
-          });
+                      });
         },
         f: async (bds: string[]) => {
           info.descendance = bds;
@@ -2438,8 +2437,7 @@ export default class Nuée extends ComposanteClientListe<string> {
           idNuée,
           f: async (bds) => fSuivreRacine([idNuée, ...bds]),
           héritage,
-          nRésultatsDésirés: 1000,
-        });
+                  });
         return fOublier;
       },
       f: async (empreintes: string[]) => {

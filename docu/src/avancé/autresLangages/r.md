@@ -92,7 +92,7 @@ constellationR::avecClientEtServeur(
     }
     retour <- client$rechercher(
       "recherche.rechercherVariablesSelonNom",
-      list(nomVariable="oiseaux", nRésultatsDésirés = 10, f = f)
+      list(nomVariable="oiseaux", f = f)
     )
 
     idVariableAudio <- client$action(
@@ -165,8 +165,8 @@ constellationR::avecClientEtServeur(
 
     oublier <- client$obtDonnéesTableauNuée(
       f=f,
-      idNuée=idNuée, clefTableau=clefTableau,
-      nRésultatsDésirés=100
+      idNuée=idNuée, 
+      clefTableau=clefTableau,
     )
   }
 )

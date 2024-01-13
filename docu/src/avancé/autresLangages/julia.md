@@ -123,7 +123,7 @@ Constellation.avecServeur() do port
         réponse = Constellation.suivre(
             client, 
             "recherche.rechercherVariableSelonNom", 
-            Dict([("nomVariable", "humidité"), ("nRésultatsDésirés", 3)])
+            Dict([("nomVariable", "humidité")])
         ) do résultat
             résultatsRecherche = résultat
         end

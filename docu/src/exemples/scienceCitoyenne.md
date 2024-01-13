@@ -176,7 +176,6 @@ const données = await client.nuées.suivreDonnéesTableauNuée({
     idNuée,
     clefTableau: "observations",
     f: console.log,  // Ou quelque chose de plus intelligent
-    nRésultatsDésirés: 1000,
 })
 ```
 

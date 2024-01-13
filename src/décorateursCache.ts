@@ -169,11 +169,9 @@ export class CacheSuivi {
       Object.entries(args).filter((x) => x[0] !== nomArgTaille),
     );
 
-    const taille = args[nomArgTaille];
+    let taille = args[nomArgTaille];
     if (taille === undefined)
-      throw new Error(
-        `Aucun argument de nom ${nomArgTaille} n'a été passé à la fonction ${adresseFonction}.`,
-      );
+      taille = Infinity;
     if (typeof taille !== "number")
       throw new Error(
         `Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`,

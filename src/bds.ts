@@ -586,8 +586,7 @@ export default class BDs extends ComposanteClientListe<string> {
         return (await this.client.nuées.rechercherNuéesDéscendantes({
           idNuée: id,
           f: async (descendants) => fSuivreBranche([...descendants, branche]),
-          nRésultatsDésirés: 1000,
-        })).fOublier
+                  })).fOublier
       },
 
     })
