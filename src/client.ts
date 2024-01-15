@@ -537,9 +537,9 @@ export class ClientConstellation {
     const { orbite } = await this.attendreSfipEtOrbite();
     return await orbite.ouvrirBdTypée({
       id,
-      // @ts-ignore Va donc comprendre
+      // @ts-expect-error Va donc comprendre
       type,
-      // @ts-ignore Va donc comprendre
+      // @ts-expect-error Va donc comprendre
       schéma,
       options,
     });

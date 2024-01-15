@@ -363,7 +363,7 @@ export const envelopper = ({
   nomArgTaille,
 }: {
   nom: string;
-  descripteur: any;
+  descripteur: any; // eslint-disable-line @typescript-eslint/no-explicit-any
   recherche?: "profondeur" | "nRésultats";
   nomArgTaille?: string;
 }) => {

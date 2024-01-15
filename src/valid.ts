@@ -344,12 +344,12 @@ export function validerCatégorieVal({
   }
 }
 
-const validerBorneVal = ({
+const validerBorneVal = <T extends élémentBdListeDonnées>({
   val,
   fComp,
 }: {
-  val: unknown;
-  fComp: (v: any) => boolean;
+  val: élémentDonnées<T>;
+  fComp: (v: élémentDonnées<T>) => boolean;
 }) => {
   if (Array.isArray(val)) {
     return val.every((v) => fComp(v));

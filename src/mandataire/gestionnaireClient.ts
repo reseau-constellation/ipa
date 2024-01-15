@@ -162,6 +162,7 @@ export default class GestionnaireClient {
   extraireFonctionIPA(
     adresseFonction: string[],
     idMessage: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): ((...args: any[]) => unknown) | undefined {
     const erreur = `Fonction ClientConstellation.${adresseFonction.join(
       ".",
@@ -180,7 +181,7 @@ export default class GestionnaireClient {
           attr in fonctionIPA &&
           fonctionIPA[attr as keyof typeof fonctionIPA]
         ) {
-          // @ts-ignore
+          // @ts-expect-error Ça, ça me dépasse
           fonctionIPA = fonctionIPA[attr].bind(fonctionIPA);
         } else {
           this.fErreur(erreur, idMessage);
