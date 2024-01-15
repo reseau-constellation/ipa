@@ -688,7 +688,7 @@ typesClients.forEach((type) => {
                 idNuée,
                 clefTableau: "principal",
                 f: async (x) => résultatChezMoi.mettreÀJour(x),
-                              });
+              });
             fsOublier.push(fOublierChezMoi);
 
             const { fOublier: fOublierChezLesAutres } =
@@ -696,7 +696,7 @@ typesClients.forEach((type) => {
                 idNuée,
                 clefTableau: "principal",
                 f: async (x) => résultatChezLesAutres.mettreÀJour(x),
-                              });
+              });
             fsOublier.push(fOublierChezLesAutres);
 
             const schémaNuée = await client.nuées.générerSchémaBdNuée({
@@ -780,7 +780,7 @@ typesClients.forEach((type) => {
                 idNuée,
                 clefTableau: "principal",
                 f: async (x) => résultatChezMoi.mettreÀJour(x),
-                              });
+              });
             fsOublier.push(fOublierChezMoi);
 
             const { fOublier: fOublierChezLesAutres } =
@@ -788,7 +788,7 @@ typesClients.forEach((type) => {
                 idNuée,
                 clefTableau: "principal",
                 f: async (x) => résultatChezLesAutres.mettreÀJour(x),
-                              });
+              });
             fsOublier.push(fOublierChezLesAutres);
 
             id = (
@@ -893,14 +893,14 @@ typesClients.forEach((type) => {
               await clients[1].nuées.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => résultat.mettreÀJour(x),
-                              });
+              });
             fsOublier.push(fOublierRésultat);
 
             const { fOublier: fOublierRésultatSansVérification } =
               await client.nuées.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => résultatSansVérification.mettreÀJour(x),
-                                vérifierAutorisation: false,
+                vérifierAutorisation: false,
               });
             fsOublier.push(fOublierRésultatSansVérification);
 
@@ -908,7 +908,7 @@ typesClients.forEach((type) => {
               await clients[1].nuées.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => résultatSansInclureLesMiennes.mettreÀJour(x),
-                                toujoursInclureLesMiennes: false,
+                toujoursInclureLesMiennes: false,
               });
             fsOublier.push(fOublierRésultatSansInclureLesMiennes);
           });
@@ -966,7 +966,7 @@ typesClients.forEach((type) => {
               await client.nuées.suivreBdsCorrespondantes({
                 idNuée,
                 f: (x) => résultat.mettreÀJour(x),
-                              });
+              });
             fsOublier.push(fOublierRésultat);
           });
 
@@ -1077,7 +1077,7 @@ typesClients.forEach((type) => {
             await client.nuées.rechercherNuéesDéscendantes({
               idNuée: idNuéeParent,
               f: (x) => descendants.mettreÀJour(x),
-                          });
+            });
 
           fsOublier.push(fOublierDescendants);
           fsOublier.push(async () => descendants.toutAnnuler());
@@ -1296,7 +1296,7 @@ typesClients.forEach((type) => {
               idNuée,
               clefTableau: "principal",
               f: (x) => données.mettreÀJour(x),
-                            héritage: ["ascendance"],
+              héritage: ["ascendance"],
             });
           fsOublier.push(fOublierDonnées);
           fsOublier.push(async () => données.toutAnnuler());
@@ -1399,7 +1399,7 @@ typesClients.forEach((type) => {
               idNuée: idNuéeParent,
               clefTableau: "principal",
               f: (x) => données.mettreÀJour(x),
-                            héritage: ["descendance"],
+              héritage: ["descendance"],
             });
           fsOublier.push(fOublierDonnées);
           fsOublier.push(async () => données.toutAnnuler());
@@ -1599,7 +1599,7 @@ typesClients.forEach((type) => {
           idNuée,
           langues: ["fr"],
           f: (x) => résultat.mettreÀJour(x),
-                  });
+        });
         fsOublier.push(fOublierRésultat);
       });
 
@@ -1736,7 +1736,7 @@ typesClients.forEach((type) => {
           await client.nuées.exporterDonnéesNuée({
             idNuée,
             langues: ["fr"],
-                      }));
+          }));
       });
 
       after(async () => {

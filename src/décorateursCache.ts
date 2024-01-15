@@ -170,8 +170,7 @@ export class CacheSuivi {
     );
 
     let taille = args[nomArgTaille];
-    if (taille === undefined)
-      taille = Infinity;
+    if (taille === undefined) taille = Infinity;
     if (typeof taille !== "number")
       throw new Error(
         `Argument ${nomArgTaille} n'est pas un nombre dans la fonction ${adresseFonction}.`,

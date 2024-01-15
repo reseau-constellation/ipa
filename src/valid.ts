@@ -36,15 +36,15 @@ export type typeOp = ">" | "<" | ">=" | "<=" | "≥" | "≤";
 
 export type règleExiste = {
   typeRègle: "existe";
-  détails: détailsRègleExiste
+  détails: détailsRègleExiste;
 };
 
 export type détailsRègleExiste = Record<string, never>;
 
 export type règleBornes<T extends détailsRègleBornes = détailsRègleBornes> = {
-    typeRègle: "bornes";
-    détails: T;
-  };
+  typeRègle: "bornes";
+  détails: T;
+};
 
 // Peut être numérique ou bien l'id d'une autre variable ou l'id d'une colonne sur la même BD
 export type détailsRègleBornes =
@@ -74,7 +74,7 @@ export type règleValeurCatégorique<
   T extends détailsRègleValeurCatégorique = détailsRègleValeurCatégorique,
 > = {
   typeRègle: "valeurCatégorique";
-  détails: T
+  détails: T;
 };
 
 export type détailsRègleValeurCatégorique =

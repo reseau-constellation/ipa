@@ -1520,7 +1520,6 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
     fScore?: (r: résultatRechercheSansScore<T>) => number;
   }): Promise<schémaRetourFonctionRechercheParN> {
-
     if (!fScore) {
       fScore = (x: résultatRechercheSansScore<T>): number => {
         return (x.confiance + x.qualité + x.objectif.score) / 3;
@@ -1563,7 +1562,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         .flat()
         .map((r) => r.résultatObjectif.score);
       const pireScoreInclus =
-        (scores.length >= nRésultatsDésirés)
+        scores.length >= nRésultatsDésirés
           ? Math.min(...scores.slice(0, nRésultatsDésirés))
           : 0;
 

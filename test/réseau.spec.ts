@@ -2438,7 +2438,7 @@ typesClients.forEach((type) => {
                 await clients[0].réseau.suivreBdsDeNuée({
                   idNuée,
                   f: (bds) => résBds.mettreÀJour(bds),
-                                  })
+                })
               ).fOublier,
             );
             fsOublier.push(

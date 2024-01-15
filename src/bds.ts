@@ -573,7 +573,9 @@ export default class BDs extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     return await suivreBdsDeFonctionListe({
-      fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>): Promise<schémaFonctionOublier> => {
+      fListe: async (
+        fSuivreRacine: (éléments: string[]) => Promise<void>,
+      ): Promise<schémaFonctionOublier> => {
         return await this.client.suivreBdListeDeClef({
           id: idBd,
           clef: "nuées",
@@ -582,15 +584,19 @@ export default class BDs extends ComposanteClientListe<string> {
         });
       },
       f,
-      fBranche: async (id: string, fSuivreBranche: schémaFonctionSuivi<string[]>, branche: string): Promise<schémaFonctionOublier> => {
-        return (await this.client.nuées.rechercherNuéesDéscendantes({
-          idNuée: id,
-          f: async (descendants) => fSuivreBranche([...descendants, branche]),
-                  })).fOublier
+      fBranche: async (
+        id: string,
+        fSuivreBranche: schémaFonctionSuivi<string[]>,
+        branche: string,
+      ): Promise<schémaFonctionOublier> => {
+        return (
+          await this.client.nuées.rechercherNuéesDéscendantes({
+            idNuée: id,
+            f: async (descendants) => fSuivreBranche([...descendants, branche]),
+          })
+        ).fOublier;
       },
-
-    })
-    
+    });
   }
 
   @cacheSuivi
