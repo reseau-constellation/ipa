@@ -11,7 +11,7 @@
   },
   "scripts": {
     "nettoyer": "rimraf dist",
-    "compiler": "pnpm versioner && pnpm nettoyer && pnpm tspc -p tsconfig.build.json",
+    "compiler": "pnpm versioner && pnpm formatter && pnpm nettoyer && pnpm tspc -p tsconfig.build.json",
     "test:node": "pnpm compiler && env MANDATAIRE=PROC pnpm aegir test -t node --cov -- --exit",
     "test:navig": "pnpm compiler && env MANDATAIRE=PROC pnpm aegir test -t browser --cov",
     "test:électron-principal": "pnpm compiler && env MANDATAIRE=PROC pnpm aegir test -t electron-main --cov",
