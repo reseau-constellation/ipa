@@ -389,7 +389,7 @@ export class GestionnaireOrbite {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
 
     // @ts-expect-error L'inférence de types marche mal ici
-    const résultat = await bd[fonction](args);
+    const résultat = await bd[fonction](...args);
 
     await fOublier();
     return résultat;
