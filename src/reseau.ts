@@ -2336,7 +2336,19 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       f,
     });
   }
-
+  async suivreAuteursNuée({
+    idNuée,
+    f,
+  }: {
+    idNuée: string;
+    f: schémaFonctionSuivi<infoAuteur[]>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.suivreAuteursObjet({
+      idObjet: idNuée,
+      clef: "nuées",
+      f,
+    });
+  }
   async suivreObjetsMembre({
     idCompte,
     fListeObjets,
