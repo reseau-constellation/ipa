@@ -1927,7 +1927,7 @@ export default class Tableaux {
   }
 
   @cacheSuivi
-  async suivreValidDonnées<T extends élémentBdListeDonnées>({
+  async suivreValidDonnées({
     idTableau,
     f,
   }: {
@@ -1935,8 +1935,8 @@ export default class Tableaux {
     f: schémaFonctionSuivi<erreurValidation[]>;
   }): Promise<schémaFonctionOublier> {
     const info: {
-      données?: élémentDonnées<T>[];
-      règles?: schémaFonctionValidation<T>[];
+      données?: élémentDonnées[];
+      règles?: schémaFonctionValidation[];
       varsÀColonnes?: { [key: string]: string };
     } = {};
     const fFinale = async () => {
@@ -1963,7 +1963,7 @@ export default class Tableaux {
         await fFinale();
       }
     };
-    const fFinaleDonnées = async (données: élémentDonnées<T>[]) => {
+    const fFinaleDonnées = async (données: élémentDonnées[]) => {
       info.données = données;
       await fFinale();
     };

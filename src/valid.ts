@@ -133,7 +133,7 @@ export type erreurRègleBornesVariableNonPrésente = {
 };
 
 export type schémaFonctionValidation<
-  T extends élémentBdListeDonnées,
+  T extends élémentBdListeDonnées = élémentBdListeDonnées,
   R extends règleVariable = règleVariable,
 > = (valeurs: élémentDonnées<T>[]) => erreurValidation<R>[];
 
