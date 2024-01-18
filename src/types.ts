@@ -86,7 +86,7 @@ export type schémaFonctionSuivreObjectifRecherche<T extends infoRésultat> = (
 
 export type schémaFonctionSuiviRecherche<T extends infoRésultat> = (
   résultat?: résultatObjectifRecherche<T>,
-) => void;
+) => Promise<void>;
 
 export type schémaFonctionSuivreConfianceRecherche = (
   id: string,

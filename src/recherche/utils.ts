@@ -49,12 +49,7 @@ export const similTexte = (
         type: "résultat",
         score,
         clef,
-        info: { type: "texte", texte: val, début, fin },
-      } as {
-        type: "résultat";
-        score: number;
-        clef: string;
-        info: { type: "texte"; texte: string; début: number; fin: number };
+        info: { type: "texte", texte: val, début, fin } as infoRésultatTexte,
       };
     }
     return undefined;
@@ -97,7 +92,7 @@ export const combinerRecherches = async <T extends infoRésultat>(
 
   await Promise.all(
     Object.entries(fsRecherche).map(async ([clef, fRecherche]) => {
-      const fSuivre = (résultat?: résultatObjectifRecherche<T>) => {
+      const fSuivre = async (résultat?: résultatObjectifRecherche<T>) => {
         résultats[clef] = résultat;
         fSuivreFinale();
       };
@@ -126,7 +121,7 @@ export const sousRecherche = async <T extends infoRésultat>(
     return await fRechercher(
       client,
       idBd,
-      (résultat?: résultatObjectifRecherche<T>) => {
+      async (résultat?: résultatObjectifRecherche<T>) => {
         if (résultat) f({ id: idBd, résultat });
       },
     );
