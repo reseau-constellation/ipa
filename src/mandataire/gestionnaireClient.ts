@@ -5,12 +5,9 @@ import type { schémaFonctionOublier } from "@/types.js";
 import type {
   MessagePourTravailleur,
   MessageDeTravailleur,
-  MessageActionPourTravailleur,
   MessageActionDeTravailleur,
-  MessageSuivrePourTravailleur,
   MessageSuivreDeTravailleur,
   MessageSuivrePrêtDeTravailleur,
-  MessageRetourPourTravailleur,
 } from "./messages.js";
 
 export default class GestionnaireClient {
@@ -76,11 +73,9 @@ export default class GestionnaireClient {
     const { type } = message;
     switch (type) {
       case "suivre": {
-        const { id } = message as MessageSuivrePourTravailleur;
+        const { id, fonction, args, nomArgFonction } = message;
         if (!this.ipa) this.fErreur("IPA non initialisé", id);
 
-        const { fonction, args, nomArgFonction } =
-          message as MessageSuivrePourTravailleur;
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
@@ -120,10 +115,9 @@ export default class GestionnaireClient {
         break;
       }
       case "action": {
-        const { id } = message as MessageActionPourTravailleur;
+        const { id, fonction, args } = message;
         if (!this.ipa) this.fErreur("IPA non initialisé", id);
 
-        const { fonction, args } = message as MessageActionPourTravailleur;
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
@@ -142,7 +136,7 @@ export default class GestionnaireClient {
         break;
       }
       case "retour": {
-        const { id, fonction, args } = message as MessageRetourPourTravailleur;
+        const { id, fonction, args } = message;
         const retour = this.dicFRetourSuivi[id];
 
         if (retour) await retour[fonction](args);
