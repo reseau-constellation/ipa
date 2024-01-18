@@ -50,7 +50,7 @@ describe("Client ", function () {
       idNuée = await client.nuées.créerNuée({});
 
       const fRecherche = rechercherNuéesSelonNom("Météo");
-      fOublier = await fRecherche(client, idNuée, (r) =>
+      fOublier = await fRecherche(client, idNuée, async (r) =>
         résultat.mettreÀJour(r),
       );
     });
@@ -98,7 +98,7 @@ describe("Client ", function () {
       idNuée = await client.nuées.créerNuée({});
 
       const fRecherche = rechercherNuéesSelonDescr("Météo");
-      fOublier = await fRecherche(client, idNuée, (r) =>
+      fOublier = await fRecherche(client, idNuée, async (r) =>
         résultat.mettreÀJour(r),
       );
     });
@@ -156,19 +156,23 @@ describe("Client ", function () {
 
       const fRechercheNom = rechercherNuéesSelonNomMotClef("Météo");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r)),
+        await fRechercheNom(client, idNuée, async (r) =>
+          résultatNom.mettreÀJour(r),
+        ),
       );
 
       const fRechercheId = rechercherNuéesSelonIdMotClef(
         idMotClef.slice(0, 15),
       );
       fsOublier.push(
-        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r)),
+        await fRechercheId(client, idNuée, async (r) =>
+          résultatId.mettreÀJour(r),
+        ),
       );
 
       const fRechercheTous = rechercherNuéesSelonMotClef("Météo");
       fsOublier.push(
-        await fRechercheTous(client, idNuée, (r) =>
+        await fRechercheTous(client, idNuée, async (r) =>
           résultatTous.mettreÀJour(r),
         ),
       );
@@ -271,19 +275,23 @@ describe("Client ", function () {
 
       const fRechercheNom = rechercherNuéesSelonNomVariable("Précip");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r)),
+        await fRechercheNom(client, idNuée, async (r) =>
+          résultatNom.mettreÀJour(r),
+        ),
       );
 
       const fRechercheId = rechercherNuéesSelonIdVariable(
         idVariable.slice(0, 15),
       );
       fsOublier.push(
-        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r)),
+        await fRechercheId(client, idNuée, async (r) =>
+          résultatId.mettreÀJour(r),
+        ),
       );
 
       const fRechercheTous = rechercherNuéesSelonVariable("Précip");
       fsOublier.push(
-        await fRechercheTous(client, idNuée, (r) =>
+        await fRechercheTous(client, idNuée, async (r) =>
           résultatTous.mettreÀJour(r),
         ),
       );
@@ -415,31 +423,35 @@ describe("Client ", function () {
 
       const fRechercheNom = rechercherNuéesSelonTexte("Hydrologie");
       fsOublier.push(
-        await fRechercheNom(client, idNuée, (r) => résultatNom.mettreÀJour(r)),
+        await fRechercheNom(client, idNuée, async (r) =>
+          résultatNom.mettreÀJour(r),
+        ),
       );
 
       const fRechercheId = rechercherNuéesSelonTexte(idNuée.slice(0, 15));
       fsOublier.push(
-        await fRechercheId(client, idNuée, (r) => résultatId.mettreÀJour(r)),
+        await fRechercheId(client, idNuée, async (r) =>
+          résultatId.mettreÀJour(r),
+        ),
       );
 
       const fRechercheDescr = rechercherNuéesSelonTexte("Montréal");
       fsOublier.push(
-        await fRechercheDescr(client, idNuée, (r) =>
+        await fRechercheDescr(client, idNuée, async (r) =>
           résultatDescr.mettreÀJour(r),
         ),
       );
 
       const fRechercheVariables = rechercherNuéesSelonTexte("Température");
       fsOublier.push(
-        await fRechercheVariables(client, idNuée, (r) =>
+        await fRechercheVariables(client, idNuée, async (r) =>
           résultatVariable.mettreÀJour(r),
         ),
       );
 
       const fRechercheMotsClef = rechercherNuéesSelonTexte("Météo");
       fsOublier.push(
-        await fRechercheMotsClef(client, idNuée, (r) =>
+        await fRechercheMotsClef(client, idNuée, async (r) =>
           résultatMotClef.mettreÀJour(r),
         ),
       );

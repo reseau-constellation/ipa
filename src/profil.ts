@@ -17,12 +17,27 @@ export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
 type structureBdProfil = {
+  contacts?: string;
+  noms?: string;
   image?: string;
+  initialisé?: boolean;
 };
 const schémaStructureBdProfil: JSONSchemaType<structureBdProfil> = {
   type: "object",
   properties: {
+    initialisé: {
+      type: "boolean",
+      nullable: true,
+    },
     image: {
+      type: "string",
+      nullable: true,
+    },
+    contacts: {
+      type: "string",
+      nullable: true,
+    },
+    noms: {
       type: "string",
       nullable: true,
     },
@@ -58,6 +73,30 @@ export default class Profil extends ComposanteClientDic<structureBdProfil> {
       id: idBdProfil,
       récursif: true,
       fichiers: true,
+    });
+  }
+
+  async initialiser(): Promise<void> {
+    const idBdProfil = await this.obtIdBd();
+    const { bd: bdProfil, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdProfil,
+      type: "keyvalue",
+      schéma: schémaStructureBdProfil,
+    });
+    await bdProfil.set("initialisé", true);
+    await fOublier();
+  }
+
+  async suivreInitialisé({
+    f,
+    idCompte,
+  }: {
+    f: schémaFonctionSuivi<boolean>;
+    idCompte?: string;
+  }): Promise<schémaFonctionOublier> {
+    return await this.suivreBdPrincipale({
+      idCompte,
+      f: async (profil) => await f(!!profil.initialisé),
     });
   }
 

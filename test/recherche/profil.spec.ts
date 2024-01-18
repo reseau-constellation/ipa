@@ -37,7 +37,9 @@ describe("Rechercher profil", function () {
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonActivité();
-      fOublier = await fRecherche(client, idCompte, (r) => rés.mettreÀJour(r));
+      fOublier = await fRecherche(client, idCompte, async (r) =>
+        rés.mettreÀJour(r),
+      );
     });
 
     after(async () => {
@@ -105,7 +107,9 @@ describe("Rechercher profil", function () {
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonNom("Julien");
-      fOublier = await fRecherche(client, idCompte, (r) => rés.mettreÀJour(r));
+      fOublier = await fRecherche(client, idCompte, async (r) =>
+        rés.mettreÀJour(r),
+      );
     });
 
     after(async () => {
@@ -162,7 +166,9 @@ describe("Rechercher profil", function () {
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonCourriel("julien");
-      fOublier = await fRecherche(client, idCompte, (r) => rés.mettreÀJour(r));
+      fOublier = await fRecherche(client, idCompte, async (r) =>
+        rés.mettreÀJour(r),
+      );
     });
 
     after(async () => {
@@ -217,12 +223,14 @@ describe("Rechercher profil", function () {
       idCompte = await client.obtIdCompte();
       const fRechercheNom = rechercherProfilsSelonTexte("Julien Malard");
       fsOublier.push(
-        await fRechercheNom(client, idCompte, (r) => résNom.mettreÀJour(r)),
+        await fRechercheNom(client, idCompte, async (r) =>
+          résNom.mettreÀJour(r),
+        ),
       );
 
       const fRechercherCourriel = rechercherProfilsSelonTexte("julien.");
       fsOublier.push(
-        await fRechercherCourriel(client, idCompte, (r) =>
+        await fRechercherCourriel(client, idCompte, async (r) =>
           résCourriel.mettreÀJour(r),
         ),
       );

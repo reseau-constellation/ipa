@@ -43,7 +43,7 @@ describe("Rechercher variables", function () {
       });
 
       const fRecherche = rechercherVariablesSelonNom("Radiation solaire");
-      fOublier = await fRecherche(client, idVariable, (r) =>
+      fOublier = await fRecherche(client, idVariable, async (r) =>
         résultat.mettreÀJour(r),
       );
     });
@@ -123,7 +123,7 @@ describe("Rechercher variables", function () {
       });
 
       const fRecherche = rechercherVariablesSelonDescr("Radiation solaire");
-      fOublier = await fRecherche(client, idVariable, (r) =>
+      fOublier = await fRecherche(client, idVariable, async (r) =>
         résultat.mettreÀJour(r),
       );
     });
@@ -207,7 +207,7 @@ describe("Rechercher variables", function () {
 
       const fRechercheNom = rechercherVariablesSelonTexte("précipitation");
       fsOublier.push(
-        await fRechercheNom(client, idVariable, (r) =>
+        await fRechercheNom(client, idVariable, async (r) =>
           résultatNom.mettreÀJour(r),
         ),
       );
@@ -216,7 +216,7 @@ describe("Rechercher variables", function () {
         idVariable.slice(0, 15),
       );
       fsOublier.push(
-        await fRechercheId(client, idVariable, (r) =>
+        await fRechercheId(client, idVariable, async (r) =>
           résultatId.mettreÀJour(r),
         ),
       );

@@ -33,6 +33,36 @@ typesClients.forEach((type) => {
         if (fOublierClients) await fOublierClients();
       });
 
+      describe("Initialiser profil", function () {
+        let fOublier: schémaFonctionOublier;
+
+        const résultatInitialisé =
+          new utilsTestAttente.AttendreRésultat<boolean>();
+
+        before(async () => {
+          fOublier = await client.profil.suivreInitialisé({
+            f: (c) => résultatInitialisé.mettreÀJour(c),
+          });
+        });
+
+        it("Pas initialisé pour commencer", async () => {
+          const courriel = await résultatInitialisé.attendreQue(
+            (x) => x !== undefined,
+          );
+          expect(courriel).to.be.false();
+        });
+
+        it("Initialiser", async () => {
+          await client.profil.initialiser();
+          const initialisé = await résultatInitialisé.attendreQue((x) => x);
+          expect(initialisé).to.be.true();
+        });
+
+        after(async () => {
+          if (fOublier) await fOublier();
+        });
+      });
+
       describe("Courriels", function () {
         let fOublier: schémaFonctionOublier;
 

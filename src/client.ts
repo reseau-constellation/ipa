@@ -270,7 +270,7 @@ export class ClientConstellation {
     this.protocoles = new Protocoles({ client: this });
   }
 
-  async initialiser(): Promise<void> {
+  async _initialiser(): Promise<void> {
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
@@ -2504,7 +2504,7 @@ export class ClientConstellation {
     opts: optsConstellation = {},
   ): Promise<ClientConstellation> {
     const client = new ClientConstellation(opts);
-    await client.initialiser();
+    await client._initialiser();
     return client;
   }
 }

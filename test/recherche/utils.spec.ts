@@ -211,7 +211,7 @@ describe("Utils recherche", function () {
     const fRecherche = rechercherSelonId("id");
 
     before(async () => {
-      fOublier = await fRecherche(client, "voici mon id", (rés) =>
+      fOublier = await fRecherche(client, "voici mon id", async (rés) =>
         résultat.mettreÀJour(rés),
       );
     });
@@ -252,7 +252,7 @@ describe("Utils recherche", function () {
         },
         client,
         "abcdefghij",
-        (rés) => résultat.mettreÀJour(rés),
+        async (rés) => résultat.mettreÀJour(rés),
       );
     });
     after(async () => {
@@ -294,7 +294,7 @@ describe("Utils recherche", function () {
       };
 
       const fRechercher = rechercherSelonId("précipitation");
-      const fSuivreRecherche = (
+      const fSuivreRecherche = async (
         rés?: résultatObjectifRecherche<
           infoRésultatRecherche<infoRésultatTexte>
         >,
@@ -392,7 +392,7 @@ describe("Utils recherche", function () {
 
     before(async () => {
       const fRecherche = rechercherTous();
-      fOublier = await fRecherche(client, "abc", (rés) =>
+      fOublier = await fRecherche(client, "abc", async (rés) =>
         résultat.mettreÀJour(rés),
       );
     });

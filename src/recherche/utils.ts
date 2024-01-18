@@ -209,7 +209,7 @@ export const rechercherSelonId = (
     const résultat = rechercherDansTexte(idRecherché, id);
     if (résultat) {
       const { score, début, fin } = résultat;
-      fSuivreRecherche({
+      await fSuivreRecherche({
         score,
         type: "résultat",
         de: "id",
@@ -221,7 +221,7 @@ export const rechercherSelonId = (
         },
       });
     } else {
-      fSuivreRecherche();
+      await fSuivreRecherche();
     }
 
     return faisRien;

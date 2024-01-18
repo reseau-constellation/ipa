@@ -1827,8 +1827,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       return await fRechercherSelonActivité(
         this.client,
         idCompte,
-        (résultat) => {
-          fSuivi(résultat?.score || 0);
+        async (résultat) => {
+          await fSuivi(résultat?.score || 0);
         },
       );
     };
