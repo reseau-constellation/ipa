@@ -1,6 +1,6 @@
 import ClientConstellation from "@/client.js";
 
-import type { ToFile } from "ipfs-core-types/src/utils";
+import type { ToFile } from "helia";
 
 import {
   schémaFonctionSuivi,

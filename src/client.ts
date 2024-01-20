@@ -1,6 +1,3 @@
-import type { IPFS as SFIP } from "ipfs-core";
-import type { IDResult } from "ipfs-core-types/src/root";
-import type { ToFile } from "ipfs-core-types/src/utils";
 import type { KeyValue as KeyValueDatabaseType } from "@orbitdb/core";
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
@@ -86,6 +83,7 @@ import type {
   SetDatabaseType,
 } from "@constl/orbit-db-kuiper";
 import Protocoles from "./protocoles.js";
+import { Helia } from "helia";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -338,11 +336,11 @@ export class ClientConstellation {
     }
   }
 
-  async _générerSFIPetOrbite(): Promise<{ sfip: SFIP; orbite: OrbitDB }> {
+  async _générerSFIPetOrbite(): Promise<{ sfip: Helia; orbite: OrbitDB }> {
     const { orbite } = this._opts;
     préparerOrbite();
 
-    let sfipFinale: SFIP;
+    let sfipFinale: Helia;
     let orbiteFinale: OrbitDB;
 
     const _générerSFIP = async (opts?: optsInitSFIP): Promise<SFIP> => {
