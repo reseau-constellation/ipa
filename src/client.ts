@@ -196,7 +196,7 @@ export class ClientConstellation {
   événements: TypedEmitter<ÉvénementsClient>;
 
   orbite?: GestionnaireOrbite;
-  sfip?: SFIP;
+  sfip?: Helia;
 
   épingles: Épingles;
   profil: Profil;
@@ -1890,7 +1890,8 @@ export class ClientConstellation {
   }
 
   obtItérableAsyncSFIP({ id }: { id: string }): AsyncIterable<Uint8Array> {
-    return this.sfip!.cat(id);
+    const sfip = this.attendreSfipEtOrbite()
+    return mfs(sfip).cat(id);
   }
 
   async ajouterÀSFIP({ fichier }: { fichier: ToFile }): Promise<string> {

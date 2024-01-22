@@ -1,5 +1,3 @@
-import type { ToFile } from "ipfs-core-types/src/utils";
-
 import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
