@@ -25,7 +25,7 @@ export const configVitePress = defineConfig({
       },
       {
         text: "Appli",
-        link: "https://réseau-constellation.ca",
+        link: "https://appli.réseau-constellation.ca/?lg=fr",
       },
     ],
     sidebar: [

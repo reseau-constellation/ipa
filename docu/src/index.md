@@ -13,7 +13,7 @@ hero:
       link: /guide/introduction
     - theme: alt
       text: Essayer l'appli
-      link: https://réseau-constellation.ca/?lg=fr
+      link: https://appli.réseau-constellation.ca/?lg=fr
     - theme: alt
       text: Installer
       link: https://réseau-constellation.ca/téléchargements/?lg=fr

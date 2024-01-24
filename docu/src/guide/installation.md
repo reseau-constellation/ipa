@@ -1,8 +1,8 @@
 # Installation
 Constellation peut être utilisé soit
 
-* **sur votre ordinateur**, en tant qu'appli locale [installable](https://réseau-constellation.ca/téléchargements), soit
-* **en ligne** sans installation, à travers l'[appli Internet](https://réseau-constellation.ca).
+* **sur votre ordinateur**, en tant qu'appli locale [installable](https://réseau-constellation.ca/téléchargements/?lg=fr), soit
+* **en ligne** sans installation, à travers l'[appli Internet](https://appli.réseau-constellation.ca/?lg=fr).
 
 Il y a plusieurs avantages à installer Constellation sur votre ordinateur plutôt que d'utiliser l'appli en ligne. Premièrement, vous aurez accès à plus de mémoire, l'appli en ligne étant limitée par la mémoire de votre navigateur. En plus, la version installée offre plus de fonctionnalités, tel le partage automatique de vos données à base d'un fichier local et la sauvegarde automatique des données Constellation sur votre ordinateur.
 
