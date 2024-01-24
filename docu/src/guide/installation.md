@@ -6,7 +6,7 @@ Constellation peut être utilisé soit
 
 Il y a plusieurs avantages à installer Constellation sur votre ordinateur plutôt que d'utiliser l'appli en ligne. Premièrement, vous aurez accès à plus de mémoire, l'appli en ligne étant limitée par la mémoire de votre navigateur. En plus, la version installée offre plus de fonctionnalités, tel le partage automatique de vos données à base d'un fichier local et la sauvegarde automatique des données Constellation sur votre ordinateur.
 
-| Fonctionnalité | [Constellation navigateur](https://réseau-constellation.ca) | [Constellation installée](https://réseau-constellation.ca/téléchargements) |
+| Fonctionnalité | [Constellation navigateur](https://appli.réseau-constellation.ca/?lg=fr) | [Constellation installée](https://réseau-constellation.ca/téléchargements) |
 | --- | ---- | --- |
 | Exportation manuelle | ✅ | ✅ |
 | Exportation automatisée | ❌ | ✅ |
