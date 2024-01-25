@@ -1,5 +1,5 @@
-import type { IPFS } from "ipfs-core";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
+import type { Helia } from "helia";
 
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -46,7 +46,7 @@ export default async function initOrbite({
   sfip,
   dossierOrbite,
 }: {
-  sfip: IPFS;
+  sfip: Helia;
   dossierOrbite?: string;
 }): Promise<OrbitDB> {
   let dossierOrbiteFinal: string | undefined = dossierOrbite;

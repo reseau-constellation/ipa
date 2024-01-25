@@ -1,8 +1,8 @@
 import { isValidAddress } from "@orbitdb/core";
 
-import type { PeersResult } from "ipfs-core-types/src/swarm";
 import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";
-import type { Libp2p, Libp2pEvents } from "libp2p";
+import type { Libp2p, Libp2pEvents, } from "libp2p";
+import type { PeerId } from "@libp2p/interface";
 
 import { EventEmitter } from "events";
 import sum from "lodash/sum.js";
@@ -222,12 +222,6 @@ const CONFIANCE_DE_FAVORIS = 0.7;
 const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
-const obtChaîneIdSFIPClient = async (
-  client: ClientConstellation,
-): Promise<string> => {
-  return (await client.obtIdSFIP()).id.toCID().toString();
-};
-
 export default class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: ClientConstellation;
   bloquésPrivés: Set<string>;
@@ -259,7 +253,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
   async initialiser(): Promise<void> {
     const promesses: { [clef: string]: Promise<void> } = {};
-    await this.client.sfip!.pubsub.subscribe(
+    await this.client.sfip!.libp2p.pubsub.subscribe(
       this.client.sujet_réseau,
       (msg: MessagePubSub) => {
         const id = uuidv4();
@@ -275,8 +269,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         }
       },
     );
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+    const pubsub = sfip.libp2p.services.pubsub
     this.fsOublier.push(async () => {
-      await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau);
+      await pubsub.unsubscribe(this.client.sujet_réseau);
       await Promise.all(Object.values(promesses));
     });
 
@@ -330,9 +326,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       msg.destinataire = idSFIP;
     }
     const sujet = this.client.sujet_réseau;
-
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+    const pubsub = sfip.libp2p.services.pubsub
     const msgBinaire = Buffer.from(JSON.stringify(msg));
-    await this.client.sfip!.pubsub.publish(sujet, msgBinaire);
+    await pubsub.publish(sujet, msgBinaire);
   }
 
   async envoyerMessageAuMembre({
@@ -402,7 +399,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const valeur: ValeurMessageSalut = {
       type: "Salut !",
       contenu: {
-        idSFIP: await obtChaîneIdSFIPClient(this.client),
+        idSFIP: (await this.client.obtIdSFIP()).toCID().toString(),
         idDispositif: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
@@ -466,7 +463,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     if (
       destinataire &&
-      destinataire !== (await obtChaîneIdSFIPClient(this.client))
+      destinataire !== ((await this.client.obtIdSFIP()).toCID().toString())
     )
       return;
 
@@ -1297,15 +1294,15 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     f: schémaFonctionSuivi<{ adresse: string; pair: string }[]>;
   }): Promise<schémaFonctionOublier> {
     const dédédoublerConnexions = (
-      connexions: PeersResult[],
-    ): PeersResult[] => {
+      connexions: PeerId[],
+    ): PeerId[] => {
       const adrDéjàVues: string[] = [];
-      const dédupliquées: PeersResult[] = [];
+      const dédupliquées: PeerId[] = [];
 
       // Enlever les doublons
       for (const c of connexions) {
-        if (!adrDéjàVues.includes(c.peer.toCID().toString())) {
-          adrDéjàVues.push(c.peer.toCID().toString());
+        if (!adrDéjàVues.includes(c.toCID().toString())) {
+          adrDéjàVues.push(c.toCID().toString());
           dédupliquées.push(c);
         }
       }
@@ -1314,7 +1311,8 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fFinale = async () => {
-      const connexions = await this.client.sfip!.swarm.peers();
+      const { sfip } = await this.client.attendreSfipEtOrbite();
+      const connexions = sfip.libp2p.getPeers();
 
       // Enlever les doublons (pas trop sûr ce qu'ils font ici)
       const connexionsUniques = dédédoublerConnexions(connexions);
@@ -1323,7 +1321,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
         connexionsUniques.map((c) => {
           return {
             adresse: c.addr.toString(),
-            pair: c.peer.toCID().toString(),
+            pair: c.toCID().toString(),
           };
         }),
       );

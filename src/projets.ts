@@ -1,5 +1,3 @@
-import type { ToFile } from "ipfs-core-types/src/utils";
-
 import { WorkBook, BookType, write as writeXLSX, utils } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
@@ -609,22 +607,16 @@ export default class Projets extends ComposanteClientListe<string> {
     image,
   }: {
     idProjet: string;
-    image: ToFile & { path: string };
+    image: {
+      contenu: Uint8Array;
+      nomFichier: string;
+    };
   }): Promise<void> {
-    let contenu: ToFile & { path: string };
 
-    if ((image.content as File).size !== undefined) {
-      if ((image.content as File).size > MAX_TAILLE_IMAGE) {
-        throw new Error("Taille maximale excédée");
-      }
-      contenu = {
-        path: image.path,
-        content: await (image.content as File).arrayBuffer(),
-      };
-    } else {
-      contenu = image;
+    if (image.contenu.byteLength > MAX_TAILLE_IMAGE) {
+      throw new Error("Taille maximale excédée");
     }
-    const idImage = await this.client.ajouterÀSFIP({ fichier: contenu });
+    const idImage = await this.client.ajouterÀSFIP(image);
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
@@ -1008,7 +1000,7 @@ export default class Projets extends ComposanteClientListe<string> {
             return {
               nom: fichier.replace("/", "-"),
               octets: await toBuffer(
-                this.client.obtItérableAsyncSFIP({ id: fichier }),
+                await this.client.obtItérableAsyncSFIP({ id: fichier }),
               ),
             };
           }),

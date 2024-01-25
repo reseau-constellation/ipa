@@ -1,10 +1,10 @@
 import initSFIP from "../src/sfip/index.js";
 import { expect } from "aegir/chai";
-import type { IPFS } from "ipfs-core";
+import type { Helia } from "helia";
 import { isElectronMain, isNode, isWebWorker } from "wherearewe";
 
 describe("SFIP", function () {
-  let sfip: IPFS;
+  let sfip: Helia;
   let dossier: string | undefined = undefined;
 
   before(async () => {
@@ -18,18 +18,17 @@ describe("SFIP", function () {
   });
 
   it("Initialiser", async () => {
-    const id = await sfip.id();
-    expect(id.id.toCID().toString()).to.be.a.string;
+    const id = await sfip.libp2p.peerId;
+    expect(id).to.be.a.string;
   });
 
   it("Connexion à un serveur webrtc-star", async () => {
     if (!isWebWorker) {
       await new Promise<void>((résoudre) => {
-        // @ts-expect-error libp2p n'est pas dans les déclarations de SFIP
         sfip.libp2p.addEventListener("peer:connect", async () => {
-          const pairs = await sfip.swarm.peers();
+          const pairs = sfip.libp2p.getPeers();
           const trouvé = pairs.find((p) =>
-            p.addr.toString().includes("p2p-webrtc-star"),
+            p.toString().includes("p2p-webrtc-star"),
           );
           if (trouvé) {
             résoudre();
@@ -44,7 +43,6 @@ describe("SFIP", function () {
     if (dossier) {
       if (isNode) {
         // Pas pour Électron principal parce que nous n'avons pas appellé sfip.stop() ci-dessus
-        //@ts-ignore
         const { sync } = await import("rimraf");
         sync(dossier);
       }

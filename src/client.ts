@@ -9,7 +9,8 @@ import {
   KeyValue,
   OrbitDBDatabaseOptions,
 } from "@orbitdb/core";
-
+import { PeerId } from "@libp2p/interface";
+import { unixfs } from "@helia/unixfs";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import Licences from "@/licences.js";
 import { EventEmitter } from "events";
@@ -84,6 +85,7 @@ import type {
 } from "@constl/orbit-db-kuiper";
 import Protocoles from "./protocoles.js";
 import { Helia } from "helia";
+import { CID } from "multiformats";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -97,7 +99,10 @@ type ContrôleurConstellation = Awaited<
 
 type ÉvénementsClient = {
   comptePrêt: (args: { idCompte: string }) => void;
-  sfipEtOrbitePrêts: (args: { sfip: SFIP; orbite: GestionnaireOrbite }) => void;
+  sfipEtOrbitePrêts: (args: {
+    sfip: Helia;
+    orbite: GestionnaireOrbite;
+  }) => void;
 };
 
 const estOrbiteDB = (x: unknown): x is OrbitDB => {
@@ -136,7 +141,7 @@ type optsInitOrbite = {
 };
 
 type optsInitSFIP = {
-  sfip?: SFIP;
+  sfip?: Helia;
   dossier?: string;
 };
 
@@ -311,7 +316,7 @@ export class ClientConstellation {
 
   async attendreSfipEtOrbite(): Promise<{
     orbite: GestionnaireOrbite;
-    sfip: SFIP;
+    sfip: Helia;
   }> {
     if (this.sfip && this.orbite) {
       return {
@@ -343,7 +348,7 @@ export class ClientConstellation {
     let sfipFinale: Helia;
     let orbiteFinale: OrbitDB;
 
-    const _générerSFIP = async (opts?: optsInitSFIP): Promise<SFIP> => {
+    const _générerSFIP = async (opts?: optsInitSFIP): Promise<Helia> => {
       if (opts?.sfip) {
         this._sfipExterne = true;
         return opts.sfip;
@@ -872,9 +877,9 @@ export class ClientConstellation {
     };
   }
 
-  async obtIdSFIP(): Promise<IDResult> {
+  async obtIdSFIP(): Promise<PeerId> {
     const { sfip } = await this.attendreSfipEtOrbite();
-    return sfip.id();
+    return sfip.libp2p.peerId;
   }
 
   async obtIdDispositif(): Promise<string> {
@@ -1886,19 +1891,30 @@ export class ClientConstellation {
     id: string;
     max?: number;
   }): Promise<Uint8Array | null> {
-    return await toBuffer(this.obtItérableAsyncSFIP({ id }), max);
+    return await toBuffer(await this.obtItérableAsyncSFIP({ id }), max);
   }
 
-  obtItérableAsyncSFIP({ id }: { id: string }): AsyncIterable<Uint8Array> {
-    const sfip = this.attendreSfipEtOrbite()
-    return mfs(sfip).cat(id);
+  async obtItérableAsyncSFIP({
+    id,
+  }: {
+    id: string;
+  }): Promise<AsyncIterable<Uint8Array>> {
+    const { sfip } = await this.attendreSfipEtOrbite();
+    const fs = unixfs(sfip);
+    return fs.cat(CID.parse(id));
   }
 
-  async ajouterÀSFIP({ fichier }: { fichier: ToFile }): Promise<string> {
-    const nomFichier = fichier.path;
-    fichier.path = "/base/" + nomFichier;
-    const résultat = await this.sfip!.add(fichier);
-    return résultat.cid.toString() + "/" + nomFichier;
+  async ajouterÀSFIP({
+    contenu,
+    nomFichier,
+  }: {
+    contenu: Uint8Array;
+    nomFichier: string;
+  }): Promise<string> {
+    const { sfip } = await this.attendreSfipEtOrbite();
+    const fs = unixfs(sfip);
+    const idc = await fs.addFile({ content: contenu, path: "./" + nomFichier });
+    return idc.toString() + "/" + nomFichier;
   }
 
   dossierOrbite(): string | undefined {

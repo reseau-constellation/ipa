@@ -1131,11 +1131,10 @@ export default class Tableaux {
         const contenuFichier = (await axios.get(chemin)).data;
         const composantesUrl = chemin.split("/");
         const nomFichier = composantesUrl.pop() || composantesUrl.pop();
+        if (!nomFichier) throw new Error("Nom de fichier manquant.");
         const cid = await this.client.ajouterÀSFIP({
-          fichier: {
-            path: nomFichier,
-            content: contenuFichier,
-          },
+          nomFichier,
+          contenu: contenuFichier,
         });
         fichiersDéjàAjoutés[chemin] = cid;
       } catch {
@@ -1156,10 +1155,8 @@ export default class Tableaux {
 
         const contenuFichier = fs.readFileSync(cheminAbsolut);
         const cid = await this.client.ajouterÀSFIP({
-          fichier: {
-            path: path.basename(cheminAbsolut),
-            content: contenuFichier,
-          },
+          nomFichier: path.basename(cheminAbsolut),
+          contenu: contenuFichier,
         });
         fichiersDéjàAjoutés[chemin] = cid;
 

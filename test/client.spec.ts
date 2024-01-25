@@ -1,6 +1,9 @@
 import all from "it-all";
 import toBuffer from "it-to-buffer";
 
+import { isValidAddress } from "@orbitdb/core";
+import { unixfs } from "@helia/unixfs";
+
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import {
@@ -8,7 +11,6 @@ import {
   suivreBdDeFonction,
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
-import { isValidAddress } from "@orbitdb/core";
 
 import { peutÉcrire, attente } from "@constl/utils-tests";
 
@@ -1358,10 +1360,8 @@ if (isNode || isElectronMain) {
       const texte = "வணக்கம்";
       it("On ajoute un fichier au SFIP", async () => {
         cid = await client.ajouterÀSFIP({
-          fichier: {
-            path: "texte.txt",
-            content: texte,
-          },
+          nomFichier: "texte.txt",
+          contenu: new TextEncoder().encode(texte),
         });
       });
       it("On télécharge le fichier du SFIP", async () => {
@@ -1369,7 +1369,7 @@ if (isNode || isElectronMain) {
         expect(new TextDecoder().decode(données!)).to.equal(texte);
       });
       it("On télécharge le fichier en tant qu'itérable", async () => {
-        const flux = client.obtItérableAsyncSFIP({ id: cid });
+        const flux = await client.obtItérableAsyncSFIP({ id: cid });
         const données = await toBuffer(flux);
         expect(new TextDecoder().decode(données!)).to.equal(texte);
       });
@@ -2048,7 +2048,11 @@ if (isNode || isElectronMain) {
         await bdKv.put("ma bd liste", idBdListe);
         await bdListe.add(idBdKv2);
 
-        cidTexte = (await client2.sfip!.add("Bonjour !")).cid.toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
+        const { sfip: sfip2 } = await client2.attendreSfipEtOrbite();
+        const fs = unixfs(sfip2);
+        cidTexte = (
+          await fs.addBytes(new TextEncoder().encode("Bonjour !"))
+        ).toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
         await bdListe.add(cidTexte + "/text.txt");
 
         await client.épingles.épinglerBd({ id: idBdKv, récursif: true });
@@ -2072,7 +2076,7 @@ if (isNode || isElectronMain) {
         let fichierEstÉpinglé = false;
         await new Promise<void>((résoudre) => {
           interval = setInterval(async () => {
-            const épinglés = await all(client.sfip!.pin.ls());
+            const épinglés = await all(client.sfip!.pins.ls());
             fichierEstÉpinglé = épinglés
               .map((x) => x.cid.toString())
               .includes(cidTexte);
