@@ -113,7 +113,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherProfilSelonActivité({
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -151,7 +151,7 @@ const {
 } = await client.recherche.rechercherProfilSelonNom({
   courriel: "@mail.mcgill.ca",  // Rechercher les utilisateurs étudiants de McGill
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -189,7 +189,7 @@ const {
 } = await client.recherche.rechercherProfilSelonTexte({
   courriel: "Julien",  // Recherchera les noms et les courriels avec ce texte
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -229,7 +229,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherMotsClefs({
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -271,7 +271,7 @@ const {
 } = await client.recherche.rechercherMotsClefs({
   idMotClef: idMotClef.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -312,7 +312,7 @@ const {
 } = await client.recherche.rechercherMotsClefsSelonNom({
   nomMotClef: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -353,7 +353,7 @@ const {
 } = await client.recherche.rechercherMotsClefsSelonDescr({
   descrMotClef: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -394,7 +394,7 @@ const {
 } = await client.recherche.rechercherMotsClefsSelonTexte({
   descrMotClef: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -434,7 +434,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherVariables({
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -476,7 +476,7 @@ const {
 } = await client.recherche.rechercherVariablesSelonId({
   idVariable: idVariable.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -517,7 +517,7 @@ const {
 } = await client.recherche.rechercherVariablesSelonNom({
   nomVariable: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -558,7 +558,7 @@ const {
 } = await client.recherche.rechercherVariablesSelonDescr({
   descrVariable: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -599,7 +599,7 @@ const {
 } = await client.recherche.rechercherVariablesSelonTexte({
   descrVariable: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -639,7 +639,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherBds({
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -681,7 +681,7 @@ const {
 } = await client.recherche.rechercherBdsSelonId({
   idBd: idBd.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -722,7 +722,7 @@ const {
 } = await client.recherche.rechercherBdsSelonNom({
   nomBd: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -805,7 +805,7 @@ const {
 } = await client.recherche.rechercherBdsSelonIdMotClef({
   idMotClef: idMotClef.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -849,7 +849,7 @@ const {
 } = await client.recherche.rechercherBdsSelonIdVariable({
   idVariable: idVariable.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -892,7 +892,7 @@ const {
 } = await client.recherche.rechercherBdsSelonNomMotClef({
   nomMotClef: "agronomie",
   f: x => résultats.value = x,
-  });
+});
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -942,7 +942,7 @@ const {
 } = await client.recherche.rechercherBdsSelonNomVariable({
   nomVariable: "température",
   f: x => résultats.value = x,
-  });
+});
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -991,7 +991,7 @@ const {
 } = await client.recherche.rechercherBdsSelonMotClef({
   texte: "agronomie",
   f: x => résultats.value = x,
-  });
+});
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -1041,7 +1041,7 @@ const {
 } = await client.recherche.rechercherBdsSelonVariable({
   texte: "température",
   f: x => résultats.value = x,
-  });
+});
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -1092,7 +1092,7 @@ const {
 } = await client.recherche.rechercherBdsSelonTexte({
   texte: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1132,7 +1132,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherProjets({
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1174,7 +1174,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonId({
   idProjet: idProjet.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1215,7 +1215,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonNom({
   nomProjet: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1256,7 +1256,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonDescr({
   descrProjet: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1299,7 +1299,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonIdMotClef({
   idMotClef: idMotClef.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1347,7 +1347,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonIdVariable({
   idVariable: idVariable.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1390,7 +1390,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonNomMotClef({
   nomMotClef: "agronomie",
   f: x => résultats.value = x,
-  });
+});
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -1443,7 +1443,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonNomVariable({
   nomVariable: "température",
   f: x => résultats.value = x,
-  });
+});
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -1492,7 +1492,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonMotClef({
   texte: "agronomie",
   f: x => résultats.value = x,
-  });
+});
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -1546,7 +1546,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonVariable({
   texte: "température",
   f: x => résultats.value = x,
-  });
+});
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -1595,7 +1595,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonVariable({
   idBd: idBd.slice(-10),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1641,7 +1641,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonVariable({
   texte: "insecte",
   f: x => résultats.value = x,
-  });
+});
 
 await client.bds.sauvegarderNomBd({
   idBd,
@@ -1698,7 +1698,7 @@ const {
 } = await client.recherche.rechercherProjetsSelonTexte({
   texte: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1738,7 +1738,7 @@ const {
   fChangerN 
 } = await client.recherche.rechercherNuées({
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1780,7 +1780,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonId({
   idNuée: idNuée.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1821,7 +1821,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonNom({
   nomNuée: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1862,7 +1862,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonDescr({
   descrNuée: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1905,7 +1905,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonIdMotClef({
   idMotClef: idMotClef.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1949,7 +1949,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonIdVariable({
   idVariable: idVariable.slice(-5),
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
@@ -1992,7 +1992,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonNomMotClef({
   nomMotClef: "agronomie",
   f: x => résultats.value = x,
-  });
+});
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -2042,7 +2042,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonNomVariable({
   nomVariable: "température",
   f: x => résultats.value = x,
-  });
+});
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -2091,7 +2091,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonMotClef({
   texte: "agronomie",
   f: x => résultats.value = x,
-  });
+});
 
 await client.motsClefs.sauvegarderNomMotClef({
   idMotClef,
@@ -2141,7 +2141,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonVariable({
   texte: "température",
   f: x => résultats.value = x,
-  });
+});
 
 await client.variables.sauvegarderNomVariable({
   idVariable,
@@ -2194,7 +2194,7 @@ const {
 } = await client.recherche.rechercherNuéesSelonTexte({
   texte: "hydro",
   f: x => résultats.value = x,
-  });
+});
 
 await fChangerN(3);  // On veut 3 résultats maximum
 await fOublier();  // Arrêter le suivi
