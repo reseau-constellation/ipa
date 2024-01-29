@@ -1694,22 +1694,13 @@ export default class BDs extends ComposanteClientListe<string> {
     image,
   }: {
     idBd: string;
-    image: ToFile & { path: string };
+    image: { contenu: Uint8Array; nomFichier: string };
   }): Promise<void> {
-    let contenu: ToFile & { path: string };
 
-    if ((image.content as File).size !== undefined) {
-      if ((image.content as File).size > MAX_TAILLE_IMAGE) {
-        throw new Error("Taille maximale excédée");
-      }
-      contenu = {
-        path: image.path,
-        content: await (image.content as File).arrayBuffer(),
-      };
-    } else {
-      contenu = image;
+    if (image.contenu.byteLength > MAX_TAILLE_IMAGE) {
+      throw new Error("Taille maximale excédée");
     }
-    const idImage = await this.client.ajouterÀSFIP({ fichier: contenu });
+    const idImage = await this.client.ajouterÀSFIP(image);
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",

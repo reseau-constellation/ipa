@@ -22,9 +22,9 @@ Suit les connexions aux autres comptes Constellation.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type réseau } from "@constl/ipa";
+import { créerConstellation, type réseau } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const connexions = ref<réseau.statutMembre[]>();
 
@@ -50,9 +50,9 @@ Suit les connexions aux autres dispositifs des comptes Constellation.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type réseau } from "@constl/ipa";
+import { créerConstellation, type réseau } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const connexions = ref<réseau.statutDispositif[]>();
 
@@ -78,9 +78,9 @@ Suit les connexions aux autres postes du [Systèmes de fichiers Interplanétaire
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const connexions = ref<{ adresse: string; pair: string }[]>();
 
@@ -108,9 +108,9 @@ Suit les membres qui font parti du réseau personnel d'un compte (en ligne ou no
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type réseau } from "@constl/ipa";
+import { créerConstellation, type réseau } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const comptes = ref<réseau.infoMembreRéseau[]>();
 
@@ -140,9 +140,9 @@ Suit les membres qui font parti du réseau personnel d'un compte (en ligne ou no
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type réseau } from "@constl/ipa";
+import { créerConstellation, type réseau } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const comptes = ref<réseau.infoMembreRéseau[]>();
 
@@ -170,9 +170,9 @@ Indique que vous faites confiance à un compte Constellation (`confiance = 1`).
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 await client.réseau.faireConfianceAuMembre({
     idCompte: "idCompteDeQuelquUnDeChouette",
@@ -191,9 +191,9 @@ Indique que vous ne faites plus confiance à un compte Constellation (la confian
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 await client.réseau.nePlusFaireConfianceAuMembre({
     idCompte: "idCompteDeQuelquUnDePasSiChouetteAprèsTout",
@@ -219,9 +219,9 @@ Si le bloquage est privé, le compte sera bloqué uniquement sur ce dispositif, 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 await client.réseau.bloquerMembre({
     idCompte: "idCompteDeQuelquUnQuiNestVraimentPasGentil",
@@ -240,9 +240,9 @@ Débloque un compte qui avait été bloqué.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const confiance = ref<number>();
 
@@ -269,9 +269,9 @@ Suit les comptes à qui on fait confiance.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const fiables = ref<string[]>();
 
@@ -302,9 +302,9 @@ Le champ `privé` dans les réponses indique si le compte est bloqué de manièr
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const bloqués = ref<{ idCompte: string; privé: boolean }[]>();
 
@@ -331,9 +331,9 @@ Suit les comptes qui ont été bloqués de manière publique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const bloqués = ref<string[]>();
 
@@ -362,9 +362,9 @@ Suit la confiance de mon réseau envers un compte.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const confiance = ref<number>();
 
@@ -399,9 +399,9 @@ Suit les bases de données appartenant à un utilisateur Constellation, en véri
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const bds = ref<string[]>();
 
@@ -430,9 +430,9 @@ Suit les projets appartenant à une utilisatrice Constellation, en vérifiant et
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const projets = ref<string[]>();
 
@@ -461,9 +461,9 @@ Suit les variables appartenant à une utilisatrice Constellation, en vérifiant 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const variables = ref<string[]>();
 
@@ -491,9 +491,9 @@ Suit les mots-clefs appartenant à une utilisatrice Constellation, en vérifiant
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const motsClefs = ref<string[]>();
 
@@ -521,9 +521,9 @@ Suit les nuées appartenant à une utilisatrice Constellation, en vérifiant et 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const nuées = ref<string[]>();
 
@@ -551,9 +551,9 @@ Suit les favoris d'une utilisatrice Constellation.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type favoris as favo } from "@constl/ipa";
+import { créerConstellation, type favoris as favo } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const favoris = ref<favo.ÉlémentFavorisAvecObjet[]>();
 
@@ -582,9 +582,9 @@ Suit les personnes qui ont marqué un objet (base de données, projet, variable 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type favoris as favo } from "@constl/ipa";
+import { créerConstellation, type favoris as favo } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const favoris = ref<(favo.ÉlémentFavorisAvecObjet & { idCompte: string })[]>();
 
@@ -617,9 +617,9 @@ Suit les réplications d'un objet (base de données, projet, variable ou autre) 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type réseau } from "@constl/ipa";
+import { créerConstellation, type réseau } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const réplications = ref<réseau.infoRéplications>();
 
@@ -653,9 +653,9 @@ Suit les protocoles associés à un membre du réseau Constellation.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const protocoles = ref<string[]>();
 
@@ -682,9 +682,9 @@ Suit les protocoles associés à un dispositif sur le réseau Constellation.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const protocoles = ref<string[]>();
 

@@ -44,5 +44,3 @@ export const générerMandataireProc = (
 ): MandataireClientConstellation<ClientConstellation> => {
   return générerMandataire(new MandataireClientProc(opts));
 };
-
-export default générerMandataireProc;

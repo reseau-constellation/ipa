@@ -79,7 +79,7 @@ describe("Rechercher profil", function () {
       });
 
       await client.profil.sauvegarderImage({
-        image: { content: IMAGE, path: "logo.png" },
+        image: { contenu: IMAGE, nomFichier: "logo.png" },
       });
       const val = await rés.attendreQue(
         (x: résultatObjectifRecherche<infoRésultatVide> | undefined) =>

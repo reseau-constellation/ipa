@@ -18,8 +18,8 @@ Sauvegarde le nom du tableau dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -43,8 +43,8 @@ Sauvegarde le nom du tableau dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -66,8 +66,8 @@ Efface la traduction du nom du tableau dans une langue donnée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -91,8 +91,8 @@ Suit les noms (traduits en différentes langues) du tableau.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -128,9 +128,9 @@ Ajoute une colonne à un tableau.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -172,9 +172,9 @@ Suit les colonnes d'un tableau.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type tableaux } from "@constl/ipa";
+import { créerConstellation, type tableaux } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -206,9 +206,9 @@ Change le statut d'index d'une colonne.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -242,9 +242,9 @@ Suit les noms (traduits en différentes langues) du tableau.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -294,9 +294,9 @@ Ajoute un ou plusieurs éléments à un tableau.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type bds, type tableaux } from "@constl/ipa";
+import { créerConstellation, type bds, type tableaux } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 // Créer nos variables
 const idVarSite = await client.variables.créerVariable({ 
@@ -435,9 +435,9 @@ Ajoute une règle de validation à un tableau.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -581,8 +581,8 @@ Importer des données vers un tableau Constellation.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.tableaux.créerTableau({ idBd });
@@ -666,8 +666,8 @@ Exporte des données d'un tableau Constellation, mais ne le sauvegarde pas immé
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.bds.ajouterTableauBd({ idBd });

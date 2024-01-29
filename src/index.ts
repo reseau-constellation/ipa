@@ -26,8 +26,34 @@ import type { optsIpaTravailleur } from "@/mandataire/ipaTravailleur.js";
 import type { MandataireClientConstellation } from "@constl/mandataire";
 
 import type { ClientConstellation as _ClientConstellation } from "@/client.js";
+import { isBrowser, isElectronMain, isElectronRenderer, isNode, isWebWorker, isReactNative } from "wherearewe";
+
 export type ClientConstellation =
   MandataireClientConstellation<_ClientConstellation>;
+
+
+export const créerConstellation = ({opts}: {opts?: optsConstellation} = {}): ClientConstellation => {
+  if (isNode || isElectronMain) {
+    return ipa.générerMandataireProc(opts);
+  } else if (isBrowser) {
+    return ipaTravailleur.générerMandataireTravailleur(optsTravailleur);
+  } else if (isElectronRenderer) {
+    console.warn(
+      "Constellation a été initialisée par le processus de rendu d'Électron. Ce n'est pas un gros gros problème, mais nous vous recommandons d'utiliser Constellation dans le processus principal, ce qui est beaucoup plus performant et vous permettra également d'accéder à toutes les fonctionnalités de Constellation telles les sauvegardes et les importations automatisées. Voir la documentation: https://docu.réseau-constellation.ca/avancé/applications/électron.html."
+    )
+    return ipaTravailleur.générerMandataireTravailleur(optsTravailleur);
+  } else if (isWebWorker) {
+    console.warn(
+      "Constellation a été initialisée dans un processus de travailleur. Ce n'est pas un si gros problème, mais nous vous recommandons d'utiliser Constellation dans le processus principal, ce qui est beaucoup plus performant et vous permettra également d'accéder à toutes les fonctionnalités de Constellation telles les sauvegardes et les importations automatisées. Voir la documentation: https://docu.réseau-constellation.ca/avancé/applications/électron.html."
+    )
+    return ipaTravailleur.générerMandataireTravailleur(optsTravailleur);
+  } else if (isReactNative) {
+    console.warn(
+      "Constellation n'a pas encore été optimisé pour React Native. Nous utiliserons l'implémentation pour navigateurs."
+    )
+    return ipaTravailleur.générerMandataireTravailleur(optsTravailleur);
+  }
+}
 
 function générerClient({
   opts,
@@ -68,7 +94,8 @@ function générerClient({
     case "proc":
       return ipa.générerMandataireProc(opts);
     case "travailleur":
-      return ipaTravailleur.default(opts as optsIpaTravailleur);
+
+      return ipaTravailleur.générerMandataireTravailleur(optsTravailleur);
     default:
       throw new Error(
         `Mandataire de type ${mandataire} non reconnu (doit être "proc" ou "travailleur").`,

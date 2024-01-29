@@ -5,7 +5,7 @@ Le client Constellation représente un compte sur le réseau.
 
 ## Initialisation
 
-### `générerClient({ opts, mandataire })`
+### `créerConstellation({ opts, mandataire })`
 Initialise un client Constellation.
 
 #### Paramètres
@@ -22,8 +22,8 @@ Initialise un client Constellation.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 ```
 
@@ -51,8 +51,8 @@ Obtenir l'identifiant du compte Constellation. Cet identifiant est partagé parm
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idCompte = await client.obtIdCompte();
 
@@ -75,9 +75,9 @@ Suivre l'identifiant du compte Constellation. Celui-ci ne changera que si le dis
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idCompte = ref<string>();
 const fOublier = await client.suivreIdCompte({ 
@@ -100,8 +100,8 @@ Celui-ci est identique à l'identifiant [bd-orbite](https://github.com/orbitdb/o
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idDispositif = await client.obtIdDispositif();
 
@@ -117,8 +117,8 @@ Obtenir l'identifiant du nœud de Système de fichiers interplanétaire ([SFIP](
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idSFIP = await client.obtIdSFIP();
 
@@ -145,9 +145,9 @@ Suivre les dispositifs associés à ce compte.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const dispositifs = ref<string[]>();
 
@@ -170,9 +170,9 @@ Spécifier un nom pour votre dispositif afin de mieux le reconnaître.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const fOublier = await client.nommerDispositif({ 
     nom: "Mon téléphone",
@@ -198,9 +198,9 @@ Suivre les noms des dispositifs associés à un compte.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type client } from "@constl/ipa";
+import { créerConstellation, type client } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const dispositifs = ref<client.structureNomsDispositifs>();
 
@@ -229,9 +229,9 @@ Suivre le nom d'un dispositif spécifique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type client } from "@constl/ipa";
+import { créerConstellation, type client } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const nom = ref<{ type?: string; nom?: string }>();
 
@@ -256,9 +256,9 @@ Générer une invitation qu'un autre dispositif peut utiliser pour se joindre à
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const invitationSecrète = await client.générerInvitationRejoindreCompte();
 ```
@@ -290,9 +290,9 @@ Utiliser une invitation pour rejoindre un compte existant.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 await client.demanderEtPuisRejoindreCompte({
     idCompte: "idDuCompteQueJeVeuxRejoindre",
@@ -310,9 +310,9 @@ Exporter les données de ce dispositif pour pouvoir le réinitialiser en cas de 
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 await client.exporterDispositif({ nomFichier: "ma sauvegarde"});
 ```
@@ -326,9 +326,9 @@ Effacer ce dispositif.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 await client.effacerDispositif();
 ```
@@ -353,9 +353,9 @@ Détecte le type d'un objet (variable, base de données, projet ou autre).
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idVariable = await client.créerVariable({ catégorie: "numérique" });
 
@@ -384,9 +384,9 @@ Suit l'autorisation d'un compte envers des données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idVariable = await client.créerVariable({ catégorie: "numérique" });
 
@@ -415,9 +415,9 @@ Fonction d'utilité qui suit le niveau d'autorisation d'un compte envers des don
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idVariable = await client.créerVariable({ catégorie: "numérique" });
 

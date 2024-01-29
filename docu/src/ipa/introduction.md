@@ -31,9 +31,9 @@ setInterval(async ()=>{
 Constellation est bien plus simple. On ne demande pas à Constellation de nous donner la réponse à notre requète, mais plutôt de nous prévenir chaque fois que la réponse change ! Ça prend un peu de temps à s'y habituer, mais c'est bien plus pratique.
 
 ```TypeScript
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 let image: Uint8Array | null;
 
@@ -56,7 +56,7 @@ Ou bien, si vous préférez un exemple plus complet avec Vue.js :
 </template>
 
 <script setup lang="ts">
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 import { ref, inject, computed, onMounted, onUnmounted } from "vue";
 
 const client = inject<ClientConstellation>("constl")  // Initialiser le client dans une extention Vue

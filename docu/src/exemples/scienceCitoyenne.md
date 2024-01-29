@@ -60,9 +60,9 @@ Les actions ci-dessous n'ont besoin d'être effectuées **qu'une seule fois** (p
 Et voici l'équivalent en code :
 
 ```ts
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient();
+const client = créerConstellation();
 
 const idVarDate = await client.variables.créerVariable({ catégorie: "horoDatage" });
 
@@ -122,9 +122,9 @@ Nous allons maintenant ajouter des règles de validation pour les données. Nous
 [Image à inclure]
 
 ```ts
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient();
+const client = créerConstellation();
 
 await client.nuées.ajouterRègleTableauNuée({
     idTableau: idTableauObs,

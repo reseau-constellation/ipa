@@ -1,32 +1,35 @@
-import { webSockets } from "@libp2p/websockets";
-import { webRTCDirect } from "@libp2p/webrtc-direct";
-import { webRTCStar } from "@libp2p/webrtc-star";
-import { webTransport } from "@libp2p/webtransport";
-import type { create } from "ipfs-core";
+import { identify } from '@libp2p/identify'
+import { webSockets } from '@libp2p/websockets'
+import { webRTC } from '@libp2p/webrtc'
+import { all } from '@libp2p/websockets/filters'
+import { noise } from '@chainsafe/libp2p-noise'
+import { yamux } from '@chainsafe/libp2p-yamux'
+import { gossipsub } from '@chainsafe/libp2p-gossipsub'
+import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
+import type {  } from "@libp2p/interface";
+import { tcp } from '@libp2p/tcp'
 
-import wrtc from "wrtc";
-import { ADRESSES_WEBRTC_STAR } from "./const.js";
-
-const webrtc = webRTCStar({
-  wrtc,
-});
-
-// https://github.com/libp2p/js-libp2p/blob/master/doc/CONFIGURATION.md#setup-webrtc-transport-and-discovery
-// https://github.com/ipfs/js-ipfs/blob/master/packages/ipfs-core-config/src/libp2p.browser
-// https://github.com/ipfs/js-ipfs/blob/master/packages/ipfs-core-config/src/libp2p
-const config: Parameters<typeof create>[0] = {
-  libp2p: {
-    transports: [
-      webTransport(),
-      webSockets(),
-      webrtc.transport,
-      webRTCDirect({ wrtc }),
-    ],
-    peerDiscovery: [webrtc.discovery],
-    addresses: {
-      listen: ADRESSES_WEBRTC_STAR,
-    },
+export const OptionsLibp2pNode = {
+  addresses: {
+    listen: ['/ip4/0.0.0.0/tcp/0/ws']
   },
-};
-
-export default config;
+  transports: [
+    webSockets({
+      filter: all
+    }),
+    webRTC(),
+    circuitRelayTransport({
+      discoverRelays: 1
+    }),
+    tcp(),
+  ],
+  connectionEncryption: [noise()],
+  streamMuxers: [yamux()],
+  connectionGater: {
+    denyDialMultiaddr: () => false
+  },
+  services: {
+    identify: identify(),
+    pubsub: gossipsub({ allowPublishToZeroPeers: true })
+  }
+}
