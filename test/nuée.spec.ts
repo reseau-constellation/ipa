@@ -14,7 +14,6 @@ import {
 const { générerClients } = utilsClientTest;
 import { typesClients } from "./ressources/utils.js";
 
-import { expect } from "aegir/chai";
 import { isElectronMain, isNode } from "wherearewe";
 import { donnéesNuéeExportation } from "@/nuées.js";
 import { règleColonne } from "@/valid.js";
@@ -22,6 +21,8 @@ import pkg from "lodash";
 const { isSet } = pkg;
 import { obtRessourceTest } from "./ressources/index.js";
 import { attendreStabilité } from "@constl/utils-ipa";
+
+import { expect } from "aegir/chai";
 
 const générerNuéeTest = async (
   client: ClientConstellation,

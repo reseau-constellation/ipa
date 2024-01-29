@@ -9,12 +9,13 @@ import {
   KeyValue as KeyValueDatabaseType,
 } from "@orbitdb/core";
 
+import { type FeedDatabaseType, registerFeed } from "@orbitdb/feed-db";
+import { type SetDatabaseType, registerSet } from "@orbitdb/set-db";
 import {
-  FeedDatabaseType,
-  OrderedKeyValueDatabaseType,
-  SetDatabaseType,
-  registerAll,
-} from "@constl/orbit-db-kuiper";
+  type OrderedKeyValueDatabaseType,
+  registerOrderedKeyValue,
+} from "@orbitdb/ordered-keyvalue-db";
+
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import { isElectronMain, isNode } from "wherearewe";
 import { type JSONSchemaType } from "ajv";
@@ -30,6 +31,8 @@ import {
 } from "@constl/bohr-db";
 
 import Semaphore from "@chriscdn/promise-semaphore";
+import type { Libp2p } from "@libp2p/interface";
+import type { ServicesLibp2p } from "./sfip/index.js";
 
 export type Store =
   | FeedDatabaseType
@@ -38,15 +41,17 @@ export type Store =
   | OrderedKeyValueDatabaseType;
 
 export const préparerOrbite = () => {
+  registerFeed();
+  registerSet();
+  registerOrderedKeyValue();
   enregistrerContrôleurs();
-  registerAll();
 };
 
 export default async function initOrbite({
   sfip,
   dossierOrbite,
 }: {
-  sfip: Helia;
+  sfip: Helia<Libp2p<ServicesLibp2p>>;
   dossierOrbite?: string;
 }): Promise<OrbitDB> {
   let dossierOrbiteFinal: string | undefined = dossierOrbite;

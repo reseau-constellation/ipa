@@ -612,7 +612,6 @@ export default class Projets extends ComposanteClientListe<string> {
       nomFichier: string;
     };
   }): Promise<void> {
-
     if (image.contenu.byteLength > MAX_TAILLE_IMAGE) {
       throw new Error("Taille maximale excédée");
     }

@@ -1696,7 +1696,6 @@ export default class BDs extends ComposanteClientListe<string> {
     idBd: string;
     image: { contenu: Uint8Array; nomFichier: string };
   }): Promise<void> {
-
     if (image.contenu.byteLength > MAX_TAILLE_IMAGE) {
       throw new Error("Taille maximale excédée");
     }

@@ -9,7 +9,7 @@ import {
   KeyValue,
   OrbitDBDatabaseOptions,
 } from "@orbitdb/core";
-import { PeerId } from "@libp2p/interface";
+import { Libp2p, PeerId } from "@libp2p/interface";
 import { unixfs } from "@helia/unixfs";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import Licences from "@/licences.js";
@@ -78,14 +78,13 @@ import {
   TypedOrderedKeyValue,
   TypedSet,
 } from "@constl/bohr-db";
-import type {
-  FeedDatabaseType,
-  OrderedKeyValueDatabaseType,
-  SetDatabaseType,
-} from "@constl/orbit-db-kuiper";
+import type { FeedDatabaseType } from "@orbitdb/feed-db";
+import type { SetDatabaseType } from "@orbitdb/set-db";
+import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import Protocoles from "./protocoles.js";
 import { Helia } from "helia";
 import { CID } from "multiformats";
+import type { ServicesLibp2p } from "@/sfip/index.js";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -100,7 +99,7 @@ type ContrôleurConstellation = Awaited<
 type ÉvénementsClient = {
   comptePrêt: (args: { idCompte: string }) => void;
   sfipEtOrbitePrêts: (args: {
-    sfip: Helia;
+    sfip: Helia<Libp2p<ServicesLibp2p>>;
     orbite: GestionnaireOrbite;
   }) => void;
 };
@@ -141,7 +140,7 @@ type optsInitOrbite = {
 };
 
 type optsInitSFIP = {
-  sfip?: Helia;
+  sfip?: Helia<Libp2p<ServicesLibp2p>>;
   dossier?: string;
 };
 
@@ -201,7 +200,7 @@ export class ClientConstellation {
   événements: TypedEmitter<ÉvénementsClient>;
 
   orbite?: GestionnaireOrbite;
-  sfip?: Helia;
+  sfip?: Helia<Libp2p<ServicesLibp2p>>;
 
   épingles: Épingles;
   profil: Profil;
@@ -316,7 +315,7 @@ export class ClientConstellation {
 
   async attendreSfipEtOrbite(): Promise<{
     orbite: GestionnaireOrbite;
-    sfip: Helia;
+    sfip: Helia<Libp2p<ServicesLibp2p>>;
   }> {
     if (this.sfip && this.orbite) {
       return {
@@ -341,14 +340,19 @@ export class ClientConstellation {
     }
   }
 
-  async _générerSFIPetOrbite(): Promise<{ sfip: Helia; orbite: OrbitDB }> {
+  async _générerSFIPetOrbite(): Promise<{
+    sfip: Helia<Libp2p<ServicesLibp2p>>;
+    orbite: OrbitDB;
+  }> {
     const { orbite } = this._opts;
     préparerOrbite();
 
-    let sfipFinale: Helia;
+    let sfipFinale: Helia<Libp2p<ServicesLibp2p>>;
     let orbiteFinale: OrbitDB;
 
-    const _générerSFIP = async (opts?: optsInitSFIP): Promise<Helia> => {
+    const _générerSFIP = async (
+      opts?: optsInitSFIP,
+    ): Promise<Helia<Libp2p<ServicesLibp2p>>> => {
       if (opts?.sfip) {
         this._sfipExterne = true;
         return opts.sfip;
