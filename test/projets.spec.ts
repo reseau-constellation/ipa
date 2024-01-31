@@ -2,20 +2,18 @@ import type XLSX from "xlsx";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
-import { générerClient, type ClientConstellation } from "@/index.js";
+import { type ClientConstellation, créerConstellation } from "@/index.js";
 import { schémaFonctionOublier } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
 
 import {
   attente,
-  client as utilsClientTest,
+  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
-  dossiers as utilsTestDossiers,
+  dossiers,
 } from "@constl/utils-tests";
-const { générerClients } = utilsClientTest;
+const { créerConstellationsTest } = utilsTestConstellation;
 import { typesClients } from "./ressources/utils.js";
-
-const { dossierTempoTests, obtDirTempoPourTest } = utilsTestDossiers;
 
 import { obtRessourceTest } from "./ressources/index.js";
 
@@ -31,11 +29,12 @@ typesClients.forEach((type) => {
       let idProjet: string;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients({
-          n: 1,
-          type,
-          générerClient,
-        }));
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
+            n: 1,
+            fGénérerClient: créerConstellation,
+          },
+        ));
         client = clients[0];
       });
 
@@ -525,7 +524,8 @@ typesClients.forEach((type) => {
             optsAxios: { responseType: "arraybuffer" },
           });
           cid = await client.ajouterÀSFIP({
-            fichier: { content: OCTETS, path: "logo.svg" },
+            contenu: OCTETS,
+            nomFichier: "logo.svg",
           });
 
           await client.tableaux.ajouterÉlément({
@@ -573,7 +573,6 @@ typesClients.forEach((type) => {
 
         if (isElectronMain || isNode) {
           describe("Exporter document projet", function () {
-            let dossierBase: string;
             let dossierZip: string;
             let fEffacer: () => void;
 
@@ -583,11 +582,8 @@ typesClients.forEach((type) => {
             before(async () => {
               const path = await import("path");
 
-              ({ dossier: dossierBase, fEffacer } = await dossierTempoTests());
-              dossierZip = await obtDirTempoPourTest({
-                base: dossierBase,
-                nom: "testExporterProjet",
-              });
+              ({ dossier: dossierZip, fEffacer } =
+                await dossiers.dossierTempo());
 
               await client.projets.exporterDocumentDonnées({
                 données: { docs, fichiersSFIP, nomFichier },

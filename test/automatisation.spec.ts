@@ -6,14 +6,12 @@ import { isBrowser, isElectronRenderer } from "wherearewe";
 import axios from "axios";
 
 import {
-  client as utilsClientTest,
+  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
-  dossiers as utilsTestDossiers,
+  dossiers,
 } from "@constl/utils-tests";
-const { générerClients } = utilsClientTest;
+const { créerConstellationsTest } = utilsTestConstellation;
 import { typesClients } from "./ressources/utils.js";
-
-const { dossierTempoTests, obtDirTempoPourTest } = utilsTestDossiers;
 
 import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
@@ -32,7 +30,7 @@ import type {
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
-import { générerClient, type ClientConstellation } from "@/index.js";
+import { type ClientConstellation, créerConstellation } from "@/index.js";
 
 import { expect } from "aegir/chai";
 
@@ -92,7 +90,7 @@ const vérifierDonnéesProjet = async (
   });
 
   const { dossier: dossierFichierExtrait, fEffacer } =
-    await dossierTempoTests();
+    await dossiers.dossierTempo();
   await Promise.all(
     Object.entries(zip.files).map(async ([adresseRelative, élémentZip]) => {
       const adresseAbsolue = path.join(dossierFichierExtrait, adresseRelative);
@@ -134,31 +132,28 @@ typesClients.forEach((type) => {
       let fOublierClients: () => Promise<void>;
       let clients: ClientConstellation[];
       let client: ClientConstellation;
-      let fEffacerDossier: () => void;
-      let baseDossierTempo: string;
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients({
-          n: 1,
-          type,
-          générerClient,
-        }));
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
+            n: 1,
+            fGénérerClient: créerConstellation,
+          },
+        ));
         client = clients[0];
-        ({ dossier: baseDossierTempo, fEffacer: fEffacerDossier } =
-          await dossierTempoTests());
       });
 
       after(async () => {
         if (fOublierClients) await fOublierClients();
-        if (fEffacerDossier) fEffacerDossier();
       });
 
       describe("Importation", function () {
         let idTableau: string;
         let idCol1: string;
         let idCol2: string;
-        let dirTempo: string;
+        let dossier: string;
         let fOublierAuto: () => Promise<void>;
+        let fEffacer: () => void;
 
         let _get: typeof axios.get;
 
@@ -174,10 +169,8 @@ typesClients.forEach((type) => {
           rés = new utilsTestAttente.AttendreRésultat<
             élémentDonnées<élémentBdListeDonnées>[]
           >();
-          dirTempo = await obtDirTempoPourTest({
-            base: baseDossierTempo,
-            nom: "testImporterBd",
-          });
+          ({ dossier, fEffacer } = await dossiers.dossierTempo());
+          fsOublier.push(async () => fEffacer());
 
           const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
 
@@ -219,7 +212,7 @@ typesClients.forEach((type) => {
         it("Importer de fichier JSON", async function () {
           if (isBrowser || isElectronRenderer) this.skip();
 
-          const fichierJSON = path.join(dirTempo, "données.json");
+          const fichierJSON = path.join(dossier, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -266,7 +259,7 @@ typesClients.forEach((type) => {
         it("Importer de fichier tableau", async function () {
           if (isBrowser || isElectronRenderer) this.skip();
 
-          const fichierFeuilleCalcul = path.join(dirTempo, "données.ods");
+          const fichierFeuilleCalcul = path.join(dossier, "données.ods");
 
           const données = XLSX.utils.book_new();
           const tableau = XLSX.utils.json_to_sheet([
@@ -427,7 +420,7 @@ typesClients.forEach((type) => {
         it("Importation selon changements", async function () {
           if (isBrowser || isElectronRenderer) this.skip();
 
-          const fichierJSON = path.join(dirTempo, "données.json");
+          const fichierJSON = path.join(dossier, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -478,7 +471,7 @@ typesClients.forEach((type) => {
         it("Importation selon fréquence", async function () {
           if (isBrowser || isElectronRenderer) this.skip();
 
-          const fichierJSON = path.join(dirTempo, "données.json");
+          const fichierJSON = path.join(dossier, "données.json");
           const données = {
             données: [
               { "col 1": 1, "col 2": "អ" },
@@ -544,14 +537,13 @@ typesClients.forEach((type) => {
         let idBd: string;
         let idProjet: string;
         let dossier: string;
+        let fEffacer: () => void;
 
         const fsOublier: (() => void)[] = [];
 
         before(async () => {
-          dossier = await obtDirTempoPourTest({
-            base: baseDossierTempo,
-            nom: "testExporterBd",
-          });
+          ({ dossier, fEffacer } = await dossiers.dossierTempo());
+          fsOublier.push(fEffacer);
 
           idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           await client.bds.sauvegarderNomsBd({
@@ -779,6 +771,7 @@ typesClients.forEach((type) => {
 
       describe("Exportation nuée bds", function () {
         let dossier: string;
+        let fEffacer: () => void;
 
         let idNuée: string;
         let idBd: string;
@@ -788,10 +781,8 @@ typesClients.forEach((type) => {
         const fsOublier: (() => void)[] = [];
 
         before(async () => {
-          dossier = await obtDirTempoPourTest({
-            base: baseDossierTempo,
-            nom: "testExporterBd",
-          });
+          ({ dossier, fEffacer } = await dossiers.dossierTempo());
+          fsOublier.push(fEffacer);
           idNuée = await client.nuées.créerNuée({});
           await client.nuées.sauvegarderNomsNuée({
             idNuée,
@@ -881,6 +872,7 @@ typesClients.forEach((type) => {
         let idTableau: string;
         let idBd: string;
         let dossier: string;
+        let fEffacer: () => void;
 
         const résÉtats = new utilsTestAttente.AttendreRésultat<{
           [key: string]: ÉtatAutomatisation;
@@ -892,10 +884,8 @@ typesClients.forEach((type) => {
         const fsOublier: (schémaFonctionOublier | (() => void))[] = [];
 
         before(async () => {
-          dossier = await obtDirTempoPourTest({
-            base: baseDossierTempo,
-            nom: "testExporterBd",
-          });
+          ({ dossier, fEffacer } = await dossiers.dossierTempo());
+          fsOublier.push(fEffacer);
 
           fsOublier.push(
             await client.automatisations.suivreÉtatAutomatisations({
@@ -1089,6 +1079,7 @@ typesClients.forEach((type) => {
         let idCol1: string;
         let idCol2: string;
         let dossier: string;
+        let fEffacer: () => void;
 
         const résÉtats = new utilsTestAttente.AttendreRésultat<{
           [key: string]: ÉtatAutomatisation;
@@ -1110,10 +1101,8 @@ typesClients.forEach((type) => {
             }),
           );
 
-          dossier = await obtDirTempoPourTest({
-            base: baseDossierTempo,
-            nom: "testExporterBd",
-          });
+          ({ dossier, fEffacer } = await dossiers.dossierTempo());
+          fsOublier.push(async () => fEffacer());
 
           const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
           idTableau = await client.tableaux.créerTableau({ idBd });

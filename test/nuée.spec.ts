@@ -1703,7 +1703,8 @@ typesClients.forEach((type) => {
           optsAxios: { responseType: "arraybuffer" },
         });
         cid = await client.ajouterÀSFIP({
-          fichier: { content: octets, path: "logo.svg" },
+          contenu: octets,
+          nomFichier: "logo.svg",
         });
 
         const schéma = await client.nuées.générerSchémaBdNuée({

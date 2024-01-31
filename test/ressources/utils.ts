@@ -1,4 +1,4 @@
-import { client as utilsClientTest } from "@constl/utils-tests";
+import { orbite } from "@constl/utils-tests";
 
 import { ClientConstellation as ClientConstellationInterne } from "@/client.js";
 import { isBrowser } from "wherearewe";
@@ -25,7 +25,7 @@ export const générerClientsInternes = async ({
   if (isBrowser) window.localStorage.clear();
 
   const { orbites, fOublier: fOublierOrbites } =
-    await utilsClientTest.générerOrbites(n);
+    await orbite.créerOrbiteTest({ n });
   fsOublier.push(fOublierOrbites);
 
   const clients = await Promise.all(

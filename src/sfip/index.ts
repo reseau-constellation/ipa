@@ -44,7 +44,9 @@ export default async function initSFIP(
 ): Promise<Helia<Libp2p<ServicesLibp2p>>> {
   const config = await obtConfigLibp2pPlateforme();
 
-  const libp2p = await createLibp2p({ ...config });
+  const libp2p = (await createLibp2p({
+    ...config,
+  })) as unknown as Libp2p<ServicesLibp2p>;
 
   const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
 

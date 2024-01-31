@@ -1,4 +1,8 @@
-import { générerClient, type ClientConstellation, créerConstellation } from "@/index.js";
+import {
+  générerClient,
+  type ClientConstellation,
+  créerConstellation,
+} from "@/index.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/types.js";
 

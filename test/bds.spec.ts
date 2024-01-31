@@ -6,16 +6,14 @@ import pkg from "lodash";
 const { isSet } = pkg;
 
 import {
-  client as utilsClientTest,
+  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
-  dossiers as utilsTestDossiers,
+  dossiers,
 } from "@constl/utils-tests";
-const { générerClients } = utilsClientTest;
+const { créerConstellationsTest } = utilsTestConstellation;
 import { typesClients } from "./ressources/utils.js";
 
-const { dossierTempoTests } = utilsTestDossiers;
-
-import { générerClient, type ClientConstellation } from "@/index.js";
+import { créerConstellation, type ClientConstellation } from "@/index.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
@@ -48,11 +46,12 @@ typesClients.forEach((type) => {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } = await générerClients({
-          n: 1,
-          type,
-          générerClient,
-        }));
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
+            n: 1,
+            fGénérerClient: créerConstellation,
+          },
+        ));
         client = clients[0];
       });
 
@@ -1258,7 +1257,8 @@ typesClients.forEach((type) => {
             optsAxios: { responseType: "arraybuffer" },
           });
           cid = await client.ajouterÀSFIP({
-            fichier: { content: octets, path: "logo.svg" },
+            contenu: octets,
+            nomFichier: "logo.svg",
           });
 
           await client.tableaux.ajouterÉlément({
@@ -1298,18 +1298,18 @@ typesClients.forEach((type) => {
 
         describe("Exporter document données", function () {
           if (isElectronMain || isNode) {
-            let dossier: string;
+            let dossierZip: string;
             let fEffacer: () => void;
-            let dirZip: string;
             let zip: JSZip;
 
             before(async () => {
-              ({ dossier, fEffacer } = await dossierTempoTests());
-              dirZip = path.join(dossier, "testExporterBd");
+              ({ dossier: dossierZip, fEffacer } =
+                await dossiers.dossierTempo());
+
               await client.bds.exporterDocumentDonnées({
                 données: { doc, fichiersSFIP, nomFichier },
                 formatDoc: "ods",
-                dossier: dirZip,
+                dossier: dossierZip,
                 inclureFichiersSFIP: true,
               });
             });
@@ -1319,7 +1319,7 @@ typesClients.forEach((type) => {
             });
 
             it("Le fichier zip existe", async () => {
-              const nomZip = path.join(dirZip, nomFichier + ".zip");
+              const nomZip = path.join(dossierZip, nomFichier + ".zip");
               expect(fs.existsSync(nomZip)).to.be.true();
               zip = await JSZip.loadAsync(fs.readFileSync(nomZip));
             });

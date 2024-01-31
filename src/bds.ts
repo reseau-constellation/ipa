@@ -2313,7 +2313,7 @@ export default class BDs extends ComposanteClientListe<string> {
           return {
             nom: fichier.replace("/", "-"),
             octets: await toBuffer(
-              this.client.obtItérableAsyncSFIP({ id: fichier }),
+              await this.client.obtItérableAsyncSFIP({ id: fichier }),
             ),
           };
         }),
