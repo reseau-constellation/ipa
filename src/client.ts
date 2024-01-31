@@ -1905,7 +1905,8 @@ export class ClientConstellation {
   }): Promise<AsyncIterable<Uint8Array>> {
     const { sfip } = await this.attendreSfipEtOrbite();
     const fs = unixfs(sfip);
-    return fs.cat(CID.parse(id));
+    const idc = id.split("/")[0];
+    return fs.cat(CID.parse(idc));
   }
 
   async ajouterÀSFIP({
@@ -1917,7 +1918,7 @@ export class ClientConstellation {
   }): Promise<string> {
     const { sfip } = await this.attendreSfipEtOrbite();
     const fs = unixfs(sfip);
-    const idc = await fs.addFile({ content: contenu, path: "./" + nomFichier });
+    const idc = await fs.addFile({ content: contenu });
     return idc.toString() + "/" + nomFichier;
   }
 
