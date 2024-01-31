@@ -887,7 +887,7 @@ Pour ce qui est de l'importation de données, celle-ci s'effectue directement su
 :::
 
 ### `client.bds.exporterDonnées({ idBd, langues, nomFichier })`
-Exporte les données d'une la base de données mais ne le sauvegarde pas immédiatement au disque.
+Exporte les données d'une base de données mais ne le sauvegarde pas immédiatement au disque.
 
 :::tip ASTUCE
 Vous pouvez également [automatiser](./automatisations.md) ces actions !
@@ -903,7 +903,7 @@ Vous pouvez également [automatiser](./automatisations.md) ces actions !
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<`[`donnéesBdExportées`](#donnees-exportees)`>` | Les données exportées, prètes à être écrites à un fichier de votre choix. |
+| `Promise<`[`donnéesBdExportées`](#types-donnees-exportees)`>` | Les données exportées, prètes à être écrites à un fichier de votre choix. |
 
 
 #### Exemple
@@ -930,7 +930,7 @@ Prend les données exportées par [`client.bds.exporterDonnées`](#clientbdsexpo
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
-| `données` | [`donnéesBdExportées`](#donnees-exportees) | Les données déjà exportées. |
+| `données` | [`donnéesBdExportées`](#types-donnees-exportees) | Les données déjà exportées. |
 | `formatDoc` | `xlsx.BookType \| "xls"` | Le format du fichier (`odt`, `xlsx`, `csv`, `txt` ou n'importe quel autre type supporté par [SheetJS](https://docs.sheetjs.com/docs/api/write-options/#supported-output-formats). |
 | `dossier` | `string \| undefined` | Le dossier (optionnel) où sauvegarder les données. |
 | `inclureFichiersSFIP` | `boolean` | Si nous voulons sauvegarder les fichiers (images, vidéos ou autres) incluses dans la base de données. Si oui, le tout sera sauvegardé en tant que fichier `zip`. |
@@ -954,6 +954,40 @@ const adresseFichier = await client.bds.exporterDocumentDonnées({
 // Vous pouvez maintenant ouvrir le document `adresseFichier`.
 
 ```
+
+### `client.bds.suivreDonnéesExportation({ idBd, langues, f })`
+Suit les donneés d'une base de données en format exportation (noms de tableaux et données traduites).
+
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idBd` | `string` | L'identifiant de la base de données. |
+| `langues` | `string[] \| undefined` | Si vous voulez que les colonnes et les tableaux portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
+| `f` | `() => <`[`donnéesBdExportation`](#types-donnees-exportees)`>` | Fonction de suivi qui sera appellée chaque fois que changeront les données. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+#### Exemple
+```ts
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
+
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
+
+// ... créer des tableaux et ajouter des données ...
+
+const fOublier = await client.bds.suivreDonnéesExportation({ 
+    idBd, 
+    langues: ["fr", "த", "kaq"],
+    f: console.log
+});
+
+```
+
 
 ## Statut
 Les bases de données peuvent être identifiées en tant qu'actives, bêta, obsolètes ou bien internes à une autre application.
@@ -1437,12 +1471,17 @@ type infoTableauAvecId = infoTableau & { id: string }
 ```
 
 ### Types données exportées
-Ce type décrit les données exportées d'une base de données Constellation.
+Ces types décrivent les données exportées d'une base de données Constellation.
 
 ```ts
-export interface donnéesBdExportées {
+interface donnéesBdExportées {
   doc: xlsx.WorkBook;
   fichiersSFIP: Set<{ cid: string; ext: string }>;
   nomFichier: string;
 }
-````
+
+type donnéesBdExportation = {
+  nomBd: string;
+  tableaux: donnéesTableauExportation[];
+};
+```

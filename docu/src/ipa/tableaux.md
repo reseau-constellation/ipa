@@ -683,6 +683,42 @@ const donnéesExportées = await client.tableaux.exporterDonnées({
 
 ```
 
+### `client.tableaux.suivreDonnéesExportation({ idTableau, langues, f })`
+Suite les données d'un tableau en format exportation (données traduites).
+
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idTableau` | `string` | L'identifiant du tableau. |
+| `langues` | `string[] \| undefined` | Si vous voulez que les colonnes et les tableaux portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
+| `f` | `Promise<`[`donnéesTableauExportation`](#types-exportation)`>` | Fonction de suivi qui sera appellée chaque fois que changeront les données. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+
+#### Exemple
+```ts
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
+
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
+const idTableau = await client.bds.ajouterTableauBd({ idBd });
+
+// ... ajouter des colonnes et des données ...
+
+const fOublier = await client.tableaux.suivreDonnéesExportation({ 
+    idTableau, 
+    langues: ["fr", "த", "kaq"],
+    f: console.log
+});
+
+```
+
+
 ## Types
 Plusieurs types sont associés aux tableaux Constellation et à leurs données.
 
@@ -753,4 +789,15 @@ export type conversionDonnéesChaîne = {
   type: "chaîne";
   langue: string;
 };
+```
+
+#### Types exportation
+
+```ts
+type donnéesTableauExportation = {
+  nomTableau: string;
+  données: élémentBdListeDonnées[];
+  fichiersSFIP: Set<string>;
+};
+
 ```

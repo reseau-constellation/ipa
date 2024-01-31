@@ -677,7 +677,7 @@ await client.projets.ajouterBdProjet({ idProjet, idBd });
 Vous pouvez exporter des données d'un projet Constellation vers un autre format (Excel, LibreOffice ou autre).
 
 ### `client.projets.exporterDonnées({ idProjet, langues, nomFichier })`
-Exporte les données d'une le projet mais ne le sauvegarde pas immédiatement au disque.
+Exporte les données d'un projet mais ne le sauvegarde pas immédiatement au disque.
 
 :::tip ASTUCE
 Vous pouvez également [automatiser](./automatisations.md) ces actions !
@@ -744,6 +744,41 @@ const adresseFichier = await client.projets.exporterDocumentDonnées({
 // Vous pouvez maintenant ouvrir le document `adresseFichier`.
 
 ```
+
+
+### `client.projets.suivreDonnéesExportation({ idProjet, langues, f })`
+Suite les données d'un projet en format exportation (données traduites).
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idProjet` | `string` | L'identifiant du projet. |
+| `langues` | `string[] \| undefined` | Si vous voulez que les colonnes et les tableaux portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
+| `f` | `Promise<`[`donnéesProjetExportation`](#types-exportation)`>` | Fonction de suivi qui sera appellée chaque fois que changeront les données. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+
+#### Exemple
+```ts
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
+
+const idProjet = await client.projets.créerProjet();
+
+// ... ajouter des bases de données ...
+
+const fOublier = await client.projets.suivreDonnéesExportation({ 
+    idProjet, 
+    langues: ["fr", "த", "kaq"],
+    f: console.log
+});
+
+```
+
 
 ## Statut
 Les projets peuvent être identifiées en tant qu'actifs, bêta, obsolètes ou bien internes à une autre application.
@@ -886,7 +921,7 @@ const idTableau = await client.projets.marquerBêta({ idProjet });
 ## Types
 
 ### Types exportation
-L'interface `donnéesProjetExportées` représente des données exportées d'un projet.
+L'interface `donnéesProjetExportées` représente des données exportées d'un projet, et `donnéesProjetExportation` les données formattées et prêtes à l'exportation.
 
 ```ts
 interface donnéesProjetExportées {
@@ -894,4 +929,10 @@ interface donnéesProjetExportées {
   fichiersSFIP: Set<{ cid: string; ext: string }>;
   nomFichier: string;
 }
+
+interface donnéesProjetExportation {
+  nomProjet: string;
+  bds: donnéesBdExportation[];
+}
+
 ```

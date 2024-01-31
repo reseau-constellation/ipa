@@ -1099,6 +1099,7 @@ Vous pouvez également [automatiser](./automatisations.md) les exportations selo
 | `idNuée` | `string` | L'identifiant de la nuée. |
 | `langues` | `string[] \| undefined` | Si vous voulez que les colonnes portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
 | `nomFichier` | `string \| undefined` | Le nom du fichier que vous voulez créer. Si non spécifié, Constellation utilisera le nom de la nuée si `langues !== undefined` ou, à défaut, l'identifiant unique de la nuée. |
+| `héritage` | `("descendance" | "ascendance")[]` | Si nous voulons aussi les données associées aux parents ou aux décendants de cette nuée. |
 | `nRésultatsDésirés` | `number \| undefined` | Le nombre maximum de files de données désirées (le réseau peut être grand !). |
 
 
@@ -1128,6 +1129,48 @@ const données = await client.nuées.exporterDonnéesNuée({
 });
 
 ```
+
+### `client.nuées.suivreDonnéesExportation({ idNuée, f, ... })`
+Cette fonction vous permet d'exporter les données présentes dans une nuée.
+
+:::tip CONSEIL
+Vous pouvez également [automatiser](./automatisations.md) les exportations selon une fréquence qui vous convient. C'est bien plus pratique !
+:::
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idNuée` | `string` | L'identifiant de la nuée. |
+| `langues` | `string[] \| undefined` | Si vous voulez que les colonnes portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
+| `héritage` | `("descendance" | "ascendance")[]` | Si nous voulons aussi les données associées aux parents ou aux décendants de cette nuée. |
+| `nRésultatsDésirés` | `number \| undefined` | Le nombre maximum de files de données désirées (le réseau peut être grand !). |
+| `f` | `Promise<`[`donnéesNuéeExportation`](#types-exportation)`>` | Fonction de suivi qui sera appellée chaque fois que changeront les données. |
+
+#### Retour
+| Type | Description |
+| ---- | ----------- |
+| `Promise<() => Promise<void>>` | Fonction à appeler pour arrêter le suivi. |
+
+
+#### Exemple
+```ts
+import { ref } from "vue";
+import { créerConstellation } from "@constl/ipa";
+
+const client = créerConstellation();
+
+const idNuée = await client.nuées.créerNuée({ });
+
+// ajouter des tableaux, créer des bases de données liées et y ajouter des données...
+
+const fOublier = await client.nuées.suivreDonnéesExportation({ 
+    idNuée,
+    langues: [],
+    f: console.log
+});
+
+```
+
 
 ## Héritage
 Les nuées peuvent hériter d'autres nuées. Cette fonctionnalité leur permet de partager des noms, des mots-clefs et des structures de données. Les nuées « enfant » doivent contenir tous les tableaux et colonnes des nuées « parent » , mais peuvent contenir des colonnes ou des tableaux additionnels si vous le souhaitez.
@@ -1260,6 +1303,14 @@ export type élémentDeMembreAvecValid<T extends élémentBdListeDonnées> =
   élémentDeMembre<T> & {
     valid: erreurValidation[];
   };
+```
+
+### Types exportation
+```ts
+type donnéesNuéeExportation = {
+  nomNuée: string;
+  tableaux: donnéesTableauExportation[];
+};
 ```
 
 ### Types différences
