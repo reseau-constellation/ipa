@@ -12,7 +12,7 @@ import {
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
-import { orbite, attente } from "@constl/utils-tests";
+import { orbite, attente, dossiers } from "@constl/utils-tests";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
@@ -50,8 +50,19 @@ const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
 if (!isBrowser)
   // Pour l'instant
   describe("Fermeture sécuritaire", function () {
+    let dossier: string;
+    let fEffacer: () => void;
+
+    before(async () => {
+      ({ dossier, fEffacer } = await dossiers.dossierTempo());
+    });
+
+    after(async () => {
+      fEffacer?.();
+    });
+
     it("Fermeture immédiatement après ouverture", async () => {
-      const client = créerConstellation({ opts: {} });
+      const client = créerConstellation({ opts: { orbite: { dossier } } });
       await client.fermer();
     });
   });
