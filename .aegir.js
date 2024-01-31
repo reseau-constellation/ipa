@@ -25,6 +25,7 @@ const esbuild = {
     "zlib",
     "rimraf",
     "electron",
+    "net",
   ],
   plugins: [
     {
