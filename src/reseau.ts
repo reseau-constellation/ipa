@@ -463,11 +463,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     await this.envoyerMessageAuMembre({ msg, idCompte });
   }
 
-  async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
+  async messageReçu({ msg }: { msg: Message }): Promise<void> {
     if (this._fermé) return;
-
-    const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
-    const { encrypté, destinataire } = messageJSON;
+ 
+    const { encrypté, destinataire } = msg;
 
     if (
       destinataire &&
@@ -478,12 +477,12 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const données: DonnéesMessage = encrypté
       ? JSON.parse(
           await this.client.encryption.décrypter({
-            message: (messageJSON as MessageEncrypté).données,
-            clefPubliqueExpéditeur: (messageJSON as MessageEncrypté)
+            message: (msg as MessageEncrypté).données,
+            clefPubliqueExpéditeur: (msg as MessageEncrypté)
               .clefPubliqueExpéditeur,
           }),
         )
-      : messageJSON.données;
+      : msg.données;
 
     const { valeur, signature } = données;
 
