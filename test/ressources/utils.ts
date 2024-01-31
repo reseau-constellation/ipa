@@ -3,15 +3,6 @@ import { orbite } from "@constl/utils-tests";
 import { ClientConstellation as ClientConstellationInterne } from "@/client.js";
 import { isBrowser } from "wherearewe";
 
-export type typeClient = "proc" | "travailleur";
-
-export const typesClients: typeClient[] =
-  process.env.MANDATAIRE === "TOUS"
-    ? ["travailleur", "proc"]
-    : process.env.MANDATAIRE === "TRAV"
-      ? ["travailleur"]
-      : ["proc"];
-
 export const générerClientsInternes = async ({
   n,
 }: {
@@ -24,8 +15,9 @@ export const générerClientsInternes = async ({
   // Nécessaire pour Playwright
   if (isBrowser) window.localStorage.clear();
 
-  const { orbites, fOublier: fOublierOrbites } =
-    await orbite.créerOrbiteTest({ n });
+  const { orbites, fOublier: fOublierOrbites } = await orbite.créerOrbiteTest({
+    n,
+  });
   fsOublier.push(fOublierOrbites);
 
   const clients = await Promise.all(

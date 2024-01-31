@@ -12,7 +12,7 @@ import {
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
-import { peutÉcrire, attente } from "@constl/utils-tests";
+import { orbite, attente } from "@constl/utils-tests";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
@@ -26,7 +26,7 @@ import { générerClientsInternes } from "./ressources/utils.js";
 import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
-import { générerClient } from "@/index.js";
+import { créerConstellation } from "@/index.js";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
@@ -51,7 +51,7 @@ if (!isBrowser)
   // Pour l'instant
   describe("Fermeture sécuritaire", function () {
     it("Fermeture immédiatement après ouverture", async () => {
-      const client = générerClient({ opts: {} });
+      const client = créerConstellation({ opts: {} });
       await client.fermer();
     });
   });
@@ -162,7 +162,10 @@ if (isNode || isElectronMain) {
             schéma: schémaKVNumérique,
           });
         fsOublier.push(fOublier);
-        const autorisé = await peutÉcrire(bd_orbite2, client2.orbite?.orbite);
+        const autorisé = await orbite.peutÉcrire(
+          bd_orbite2,
+          client2.orbite?.orbite,
+        );
         expect(autorisé).to.be.true();
       });
 
@@ -228,7 +231,10 @@ if (isNode || isElectronMain) {
             type: "keyvalue",
             schéma: schémaKVNumérique,
           });
-        const autorisé = await peutÉcrire(bd_orbite3, client3.orbite?.orbite);
+        const autorisé = await orbite.peutÉcrire(
+          bd_orbite3,
+          client3.orbite?.orbite,
+        );
         await fOublier();
         expect(autorisé).to.be.true();
       });
@@ -1556,7 +1562,7 @@ if (isNode || isElectronMain) {
         });
         fsOublier.push(fOublier);
 
-        const autorisé = await peutÉcrire(bd, client.orbite?.orbite);
+        const autorisé = await orbite.peutÉcrire(bd, client.orbite?.orbite);
         expect(autorisé).to.be.true();
       });
       it("Avec accès personalisé", async () => {
@@ -1575,7 +1581,10 @@ if (isNode || isElectronMain) {
           });
         fsOublier.push(fOublier);
 
-        const autorisé = await peutÉcrire(bd_orbite2, client2.orbite?.orbite);
+        const autorisé = await orbite.peutÉcrire(
+          bd_orbite2,
+          client2.orbite?.orbite,
+        );
 
         expect(autorisé).to.be.true();
       });
@@ -1920,7 +1929,7 @@ if (isNode || isElectronMain) {
 
         fsOublier.push(fOublier);
 
-        const permission = await peutÉcrire(bd, client2.orbite?.orbite);
+        const permission = await orbite.peutÉcrire(bd, client2.orbite?.orbite);
         expect(permission).to.be.true();
       });
 

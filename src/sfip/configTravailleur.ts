@@ -1,5 +1,6 @@
 import { identify } from "@libp2p/identify";
 import { webSockets } from "@libp2p/websockets";
+import { webTransport } from "@libp2p/webtransport";
 import { all } from "@libp2p/websockets/filters";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
@@ -15,6 +16,7 @@ export const OptionsLibp2pTravailleurWeb: Libp2pOptions = {
     webSockets({
       filter: all,
     }),
+    webTransport(),
     circuitRelayTransport({
       discoverRelays: 1,
     }),

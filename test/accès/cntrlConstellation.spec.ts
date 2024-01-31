@@ -4,18 +4,12 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import { type OrbitDB } from "@orbitdb/core";
 
-import {
-  attendreSync,
-  peutÉcrire,
-  client as utilsClientTest,
-} from "@constl/utils-tests";
-const { générerOrbites } = utilsClientTest;
+import { orbite } from "@constl/utils-tests";
 
 import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";
 import type { KeyValue } from "@orbitdb/core";
 import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import { registerAll } from "@constl/orbit-db-kuiper";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 
 type TypeContrôleurConstellation = Awaited<
@@ -49,8 +43,8 @@ describe("Contrôleur Constellation", function () {
 
         before(async () => {
           enregistrerContrôleurs();
-          registerAll();
-          ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(2));
+          ({ fOublier: fOublierOrbites, orbites } =
+            await orbite.créerOrbiteTest({ n: 2 }));
           [orbitdb1, orbitdb2] = orbites;
 
           bd = (await orbitdb1.open(uuidv4(), {
@@ -67,7 +61,7 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Le premier mod peut écrire à la BD", async () => {
-          const autorisé = await peutÉcrire(bd);
+          const autorisé = await orbite.peutÉcrire(bd);
           expect(autorisé).to.be.true();
         });
 
@@ -76,7 +70,7 @@ describe("Contrôleur Constellation", function () {
             type: "keyvalue",
           })) as unknown as KeyValue;
 
-          const autorisé = await peutÉcrire(bdOrbite2);
+          const autorisé = await orbite.peutÉcrire(bdOrbite2);
 
           await bdOrbite2.close();
           expect(autorisé).to.be.false();
@@ -92,7 +86,7 @@ describe("Contrôleur Constellation", function () {
             bd.address,
           )) as unknown as KeyValue;
 
-          const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
+          const autorisé = await orbite.peutÉcrire(bdOrbite2, orbitdb2);
 
           await bdOrbite2.close();
           expect(autorisé).to.be.true();
@@ -114,8 +108,8 @@ describe("Contrôleur Constellation", function () {
 
         before(async () => {
           enregistrerContrôleurs();
-          registerAll();
-          ({ fOublier: fOublierOrbites, orbites } = await générerOrbites(4));
+          ({ fOublier: fOublierOrbites, orbites } =
+            await orbite.créerOrbiteTest({ n: 4 }));
           [orbitdb1, orbitdb2, orbitdb3, orbitdb4] = orbites;
 
           bdRacine = (await orbitdb1.open(uuidv4(), {
@@ -147,15 +141,15 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Le premier mod peut écrire à la BD", async () => {
-          const autorisé = await peutÉcrire(bd);
+          const autorisé = await orbite.peutÉcrire(bd);
           expect(autorisé).to.be.true();
         });
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
           bdOrbite2 = (await orbitdb2.open(bd.address)) as unknown as KeyValue;
-          attendreSync(bdOrbite2);
+          orbite.attendreSync(bdOrbite2);
 
-          const autorisé = await peutÉcrire(bdOrbite2);
+          const autorisé = await orbite.peutÉcrire(bdOrbite2);
           expect(autorisé).to.be.false();
         });
 
@@ -165,7 +159,7 @@ describe("Contrôleur Constellation", function () {
             bdRacine2.address,
           );
 
-          const autorisé = await peutÉcrire(bdOrbite2, orbitdb2);
+          const autorisé = await orbite.peutÉcrire(bdOrbite2, orbitdb2);
 
           expect(autorisé).to.be.true();
         });
@@ -189,7 +183,7 @@ describe("Contrôleur Constellation", function () {
             type: "keyvalue",
           })) as unknown as KeyValue;
 
-          const autorisé = await peutÉcrire(bdOrbite3, orbitdb3);
+          const autorisé = await orbite.peutÉcrire(bdOrbite3, orbitdb3);
 
           await bdOrbite3.close();
 
@@ -213,7 +207,7 @@ describe("Contrôleur Constellation", function () {
             type: "keyvalue",
           })) as unknown as KeyValue;
 
-          const autorisé = await peutÉcrire(bdOrbite4, orbitdb4);
+          const autorisé = await orbite.peutÉcrire(bdOrbite4, orbitdb4);
 
           await bdOrbite4.close();
           expect(autorisé).to.be.true();

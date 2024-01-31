@@ -1,6 +1,7 @@
 import { identify } from "@libp2p/identify";
 import { webSockets } from "@libp2p/websockets";
 import { webRTC as libp2pWebRTC } from "@libp2p/webrtc";
+import { webTransport } from "@libp2p/webtransport";
 import { all } from "@libp2p/websockets/filters";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
@@ -22,6 +23,7 @@ export const OptionsLibp2pÉlectionPrincipal: Libp2pOptions = {
       filter: all,
     }),
     libp2pWebRTC({}),
+    webTransport(),
     circuitRelayTransport({
       discoverRelays: 1,
     }),

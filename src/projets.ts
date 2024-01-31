@@ -41,6 +41,7 @@ export interface donnéesProjetExportation {
   nomProjet: string;
   bds: donnéesBdExportation[];
 }
+
 export interface donnéesProjetExportées {
   docs: { doc: WorkBook; nom: string }[];
   fichiersSFIP: Set<string>;

@@ -5,7 +5,7 @@ import { isElectronMain, isNode, isWebWorker } from "wherearewe";
 
 describe("SFIP", function () {
   let sfip: Helia;
-  let dossier: string | undefined = undefined;
+  let dossier: string;
 
   before(async () => {
     if (isNode || isElectronMain) {
@@ -13,6 +13,8 @@ describe("SFIP", function () {
       const path = await import("path");
       const os = await import("os");
       dossier = fs.mkdtempSync(path.join(os.tmpdir(), "constl-ipa-"));
+    } else {
+      dossier = "dossierSFIP";
     }
     sfip = await initSFIP(dossier);
   });
