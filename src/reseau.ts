@@ -1,8 +1,10 @@
 import { isValidAddress } from "@orbitdb/core";
 
-import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";
-import type { Libp2p, Libp2pEvents } from "libp2p";
-import type { PeerId } from "@libp2p/interface";
+import type {
+  PeerId,
+  Libp2pEvents,
+  Message as MessagePubSub,
+} from "@libp2p/interface";
 
 import { EventEmitter } from "events";
 import sum from "lodash/sum.js";
@@ -50,7 +52,6 @@ import { ComposanteClientDic } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
-import { GossipSub, GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
@@ -260,11 +261,14 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const pubsub = sfip.libp2p.services.pubsub;
     pubsub.subscribe(this.client.sujet_réseau);
 
-    const fÉcoutePubSub = (msg: CustomEvent<GossipsubMessage>) => {
+    const fÉcoutePubSub = (évé: CustomEvent<MessagePubSub>) => {
+      const messageGs = évé.detail;
       const id = uuidv4();
-      if (msg.msg.topic === this.client.sujet_réseau) {
+      if (messageGs.topic === this.client.sujet_réseau) {
         try {
-          const promesse = this.messageReçu({ msg: msg.msg.data });
+          const promesse = this.messageReçu({
+            msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
+          });
           promesses[id] = promesse;
           promesse.then(() => {
             delete promesses[id];
@@ -283,8 +287,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       await Promise.all(Object.values(promesses));
     });
 
-    // @ts-expect-error Pas inclus dans les types de SFIP
-    const libp2p: Libp2p = this.client.sfip!.libp2p;
+    const libp2p = sfip.libp2p;
 
     const fSuivreConnexions = () => {
       this.événements.emit("changementConnexions");
@@ -292,9 +295,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const événements: (keyof Libp2pEvents)[] = [
       "peer:discovery",
-      // @ts-expect-error erreur dans les types SFIP
       "peer:connect",
-      // @ts-expect-error erreur dans les types SFIP
       "peer:disconnect",
     ];
     for (const é of événements) {
@@ -1298,7 +1299,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   async suivreConnexionsPostesSFIP({
     f,
   }: {
-    f: schémaFonctionSuivi<{ adresse: string; pair: string }[]>;
+    f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
     const dédédoublerConnexions = (connexions: PeerId[]): PeerId[] => {
       const adrDéjàVues: string[] = [];
@@ -1322,14 +1323,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       // Enlever les doublons (pas trop sûr ce qu'ils font ici)
       const connexionsUniques = dédédoublerConnexions(connexions);
 
-      return await f(
-        connexionsUniques.map((c) => {
-          return {
-            adresse: c.addr.toString(),
-            pair: c.toCID().toString(),
-          };
-        }),
-      );
+      return await f(connexionsUniques.map((c) => c.toCID().toString()));
     };
 
     this.événements.on("changementConnexions", fFinale);

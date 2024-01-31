@@ -1,4 +1,8 @@
-import type { ClientConstellation, optsConstellation } from "@/client.js";
+import type {
+  ClientConstellation,
+  optsConstellation,
+  optsInitOrbite,
+} from "@/client.js";
 
 import {
   générerMandataire,
@@ -43,6 +47,22 @@ export interface optsIpaTravailleur extends optsConstellation {
     };
   };
 }
+
+export const confirmerOptsTravailleur = (
+  opts?: optsConstellation,
+): optsIpaTravailleur => {
+  const optsIpa: optsIpaTravailleur = {};
+  if (opts?.compte) optsIpa.compte = opts.compte;
+  if (opts?.sujetRéseau) optsIpa.sujetRéseau = opts.sujetRéseau;
+  if (opts?.protocoles) optsIpa.protocoles = opts.protocoles;
+  if (opts?.orbite) {
+    optsIpa.orbite = {};
+    const { dossier, sfip } = opts.orbite as optsInitOrbite;
+    if (dossier) optsIpa.orbite.dossier = dossier;
+    if (sfip) optsIpa.orbite.sfip = { dossier: sfip.dossier };
+  }
+  return optsIpa;
+};
 
 export const générerMandataireTravailleur = (
   opts: optsIpaTravailleur = {},

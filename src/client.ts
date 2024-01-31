@@ -132,14 +132,14 @@ export interface optsConstellation {
   protocoles?: string[];
 }
 
-type optsOrbite = OrbitDB | optsInitOrbite;
+export type optsOrbite = OrbitDB | optsInitOrbite;
 
-type optsInitOrbite = {
+export type optsInitOrbite = {
   dossier?: string;
   sfip?: optsInitSFIP;
 };
 
-type optsInitSFIP = {
+export type optsInitSFIP = {
   sfip?: Helia<Libp2p<ServicesLibp2p>>;
   dossier?: string;
 };
@@ -358,7 +358,7 @@ export class ClientConstellation {
         return opts.sfip;
       } else {
         const initSFIP = (await import("@/sfip/index.js")).default;
-        return await initSFIP(opts?.dossier);
+        return await initSFIP(opts?.dossier || ".");
       }
     };
 

@@ -69,9 +69,7 @@ if (isNode || isElectronMain) {
       let idsOrbite: string[];
       let clients: ClientConstellation[];
 
-      const rés = new utilsTestAttente.AttendreRésultat<
-        { adresse: string; pair: string }[]
-      >();
+      const rés = new utilsTestAttente.AttendreRésultat<string[]>();
       const dispositifs = new utilsTestAttente.AttendreRésultat<
         statutDispositif[]
       >();
@@ -111,10 +109,7 @@ if (isNode || isElectronMain) {
 
       it("Autres postes détectés", async () => {
         const val = await rés.attendreQue((x) => x.length >= 2);
-        expect(val.map((r) => r.pair)).to.have.members([
-          idsNodesSFIP[1],
-          idsNodesSFIP[2],
-        ]);
+        expect(val).to.have.members([idsNodesSFIP[1], idsNodesSFIP[2]]);
       });
 
       it("Autres dispositifs détectés", async () => {

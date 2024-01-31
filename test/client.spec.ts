@@ -2082,10 +2082,11 @@ if (isNode || isElectronMain) {
         expect(client.orbite?._bdsOrbite[idBdKv2]).to.exist();
       });
       it("Les fichiers SFIP sont également épinglés", async () => {
+        const { sfip } = await client.attendreSfipEtOrbite();
         let fichierEstÉpinglé = false;
         await new Promise<void>((résoudre) => {
           interval = setInterval(async () => {
-            const épinglés = await all(client.sfip!.pins.ls());
+            const épinglés = await all(sfip.pins.ls());
             fichierEstÉpinglé = épinglés
               .map((x) => x.cid.toString())
               .includes(cidTexte);
