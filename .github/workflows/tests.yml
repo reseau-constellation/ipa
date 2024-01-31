@@ -106,6 +106,5 @@ jobs:
         # De cawa-93/vite-electron-builder
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- pnpm run test:électron-principal
 
-
       - name: Envoyer couverure à Codecov
         uses: codecov/codecov-action@v3
