@@ -634,7 +634,10 @@ describe("Rechercher projets", function () {
         score: 1,
       };
 
-      const val = await résultatMotsClef.attendreQue((x) => x.de === "motClef");
+      const val = await résultatMotsClef.attendreQue(
+        (x) =>
+          (x.info as infoRésultatRecherche<infoRésultatTexte>).de === "motClef",
+      );
       expect(val).to.deep.equal(réfRés);
     });
   });
