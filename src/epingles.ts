@@ -150,7 +150,7 @@ export default class Épingles {
           l_vals = [vals];
         }
         const idsOrbite = l_vals.filter((v) => isValidAddress(v));
-        
+
         if (fichiers) {
           // Épingler les fichiers si nécessaire
           const cids = l_vals.filter(
