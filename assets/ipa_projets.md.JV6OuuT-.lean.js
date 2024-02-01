@@ -1,1 +1,0 @@
-import{_ as s,o as i,c as a,R as t}from"./chunks/framework.Eeo-33mw.js";const g=JSON.parse('{"title":"Projets","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/projets.md","filePath":"ipa/projets.md"}'),e={name:"ipa/projets.md"},n=t("",242),l=[n];function h(r,p,k,d,o,c){return i(),a("div",null,l)}const u=s(e,[["render",h]]);export{g as __pageData,u as default};
