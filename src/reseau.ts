@@ -465,7 +465,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
   async messageReçu({ msg }: { msg: Message }): Promise<void> {
     if (this._fermé) return;
- 
+
     const { encrypté, destinataire } = msg;
 
     if (
