@@ -1,4 +1,4 @@
-import all from "it-all";
+import type { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
 
 import { isValidAddress } from "@orbitdb/core";
@@ -2042,7 +2042,7 @@ if (isNode || isElectronMain) {
       let idBdListe: string;
       let idBdKv2: string;
 
-      let cidTexte: string;
+      let idcContenu: CID;
       let interval: NodeJS.Timeout | undefined = undefined;
 
       const fsOublier: schémaFonctionOublier[] = [];
@@ -2074,10 +2074,8 @@ if (isNode || isElectronMain) {
 
         const { sfip: sfip2 } = await client2.attendreSfipEtOrbite();
         const fs = unixfs(sfip2);
-        cidTexte = (
-          await fs.addBytes(new TextEncoder().encode("Bonjour !"))
-        ).toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
-        await bdListe.add(cidTexte + "/text.txt");
+        idcContenu = await fs.addBytes(new TextEncoder().encode("Bonjour !")); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
+        await bdListe.add(idcContenu.toString() + "/text.txt");
 
         await client.épingles.épinglerBd({ id: idBdKv, récursif: true });
       });
@@ -2098,16 +2096,14 @@ if (isNode || isElectronMain) {
       });
       it("Les fichiers SFIP sont également épinglés", async () => {
         const { sfip } = await client.attendreSfipEtOrbite();
-        let fichierEstÉpinglé = false;
-        await new Promise<void>((résoudre) => {
+
+        const fichierEstÉpinglé = await new Promise<boolean>((résoudre) => {
           interval = setInterval(async () => {
-            const épinglés = await all(sfip.pins.ls());
-            fichierEstÉpinglé = épinglés
-              .map((x) => x.cid.toString())
-              .includes(cidTexte);
-            if (fichierEstÉpinglé) {
-              clearInterval(interval);
-              résoudre();
+            for await (const épingle of sfip.pins.ls()) {
+              if (épingle.cid.equals(idcContenu)) {
+                clearInterval(interval);
+                résoudre(true);
+              }
             }
           }, 50);
         });
