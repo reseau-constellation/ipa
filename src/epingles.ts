@@ -150,7 +150,7 @@ export default class Épingles {
           l_vals = [vals];
         }
         const idsOrbite = l_vals.filter((v) => isValidAddress(v));
-
+        
         if (fichiers) {
           // Épingler les fichiers si nécessaire
           const cids = l_vals.filter(
@@ -159,9 +159,9 @@ export default class Épingles {
 
           const { sfip } = await this.client.attendreSfipEtOrbite();
           cids.forEach(async (id_) => {
-            // Pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
-            // (Sinon ça bloquerait tout le programme en attendant de trouver le contenu sur le réseau SFIP !)
-            sfip.pins.add(CID.parse(id_.split("/")[0]));
+            for await (const _ of sfip.pins.add(CID.parse(id_.split("/")[0]))) {
+              // rien à faire... assurer que ceci ne bloque pas tout le programme en attendant de trouver le contenu sur le réseau SFIP !
+            }
 
             const fOublier_ = async () => {
               // rm par contre peut être async

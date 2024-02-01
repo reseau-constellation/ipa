@@ -280,9 +280,6 @@ devDependencies:
   image-type:
     specifier: ^5.2.0
     version: 5.2.0
-  it-all:
-    specifier: ^3.0.4
-    version: 3.0.4
   keyv:
     specifier: ^4.5.4
     version: 4.5.4
