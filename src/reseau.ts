@@ -1340,8 +1340,22 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }: {
     f: schémaFonctionSuivi<statutDispositif[]>;
   }): Promise<schémaFonctionOublier> {
+    const moi: statutDispositif = {
+      infoDispositif: {
+        idSFIP: (await this.client.obtIdSFIP()).toCID().toString(),
+        idDispositif: await this.client.obtIdDispositif(),
+        idCompte: await this.client.obtIdCompte(),
+        clefPublique: (await this.client.obtIdentitéOrbite()).publicKey,
+        encryption: {
+          type: await this.client.encryption.obtNom(),
+          clefPublique: (await this.client.encryption.obtClefs()).publique,
+        },
+        signatures: (await this.client.obtIdentitéOrbite()).signatures,
+      },
+    };
+
     const fFinale = async () => {
-      return await f(Object.values(this.dispositifsEnLigne));
+      return await f([...Object.values(this.dispositifsEnLigne), moi]);
     };
 
     this.événements.on("membreVu", fFinale);
