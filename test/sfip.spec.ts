@@ -2,8 +2,9 @@ import initSFIP from "../src/sfip/index.js";
 import { expect } from "aegir/chai";
 import type { Helia } from "helia";
 import { isElectronMain, isNode, isWebWorker } from "wherearewe";
+import { multiaddr } from "@multiformats/multiaddr";
 
-describe("SFIP", function () {
+describe.only("SFIP", function () {
   let sfip: Helia;
   let dossier: string;
 
@@ -24,20 +25,23 @@ describe("SFIP", function () {
     expect(id).to.be.a.string;
   });
 
-  it("Connexion à un serveur webrtc-star", async () => {
-    if (!isWebWorker) {
-      await new Promise<void>((résoudre) => {
-        sfip.libp2p.addEventListener("peer:connect", async () => {
-          const pairs = sfip.libp2p.getPeers();
-          const trouvé = pairs.find((p) =>
-            p.toString().includes("p2p-webrtc-star"),
-          );
-          if (trouvé) {
-            résoudre();
-          }
-        });
+  it("Connexion à un navigateur", async () => {
+    const relayId = "12D3KooWAJjbRkp8FPF5MKgMU53aUTxWkqvDrs4zc1VMbwRwfsbE";
+
+    await sfip.libp2p.dial(
+      multiaddr(`/ip4/127.0.0.1/tcp/12345/ws/p2p/${relayId}`),
+    );
+
+    await new Promise<void>((résoudre) => {
+      sfip.libp2p.addEventListener("peer:discovery", async () => {
+        const pairs = sfip.libp2p.getPeers();
+        console.log(pairs);
+        const trouvé = pairs.find((p) => p.toString().includes(relayId));
+        if (trouvé) {
+          résoudre();
+        }
       });
-    }
+    });
   });
   after(async () => {
     // Ça coince pour toujours avec Électron principal. Peut-être que ça sera mieux avec Hélia...
