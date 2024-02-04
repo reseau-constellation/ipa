@@ -4,6 +4,7 @@ import { createRequire } from "module";
 import express from "express";
 import cors from "cors";
 import url from "url";
+import { $ } from "execa";
 
 const require = createRequire(import.meta.url);
 
@@ -60,6 +61,8 @@ const options = {
       },
     },
     before: async (opts) => {
+      // $`node test/utils/relai.js &`;
+
       // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
       const { chromium } = await import("playwright");
       const navigateur = await chromium.launch();

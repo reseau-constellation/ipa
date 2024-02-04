@@ -26,10 +26,12 @@ describe.only("SFIP", function () {
   });
 
   it("Connexion à un navigateur", async () => {
-    const relayId = "12D3KooWAJjbRkp8FPF5MKgMU53aUTxWkqvDrs4zc1VMbwRwfsbE";
+    const relayId = "12D3KooWPQJMHevU1JcDHH11taaS75FxEM27ar9qTrXTnTi9UGhc";
 
     await sfip.libp2p.dial(
-      multiaddr(`/ip4/127.0.0.1/tcp/12345/ws/p2p/${relayId}`),
+      multiaddr(
+        `/dns4/relailibp2p-m7f59ma6.b4a.run/tcp/53321/ws/p2p/${relayId}`,
+      ),
     );
 
     await new Promise<void>((résoudre) => {
