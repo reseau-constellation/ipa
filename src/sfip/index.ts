@@ -5,7 +5,6 @@ import {
   isNode,
   isWebWorker,
 } from "wherearewe";
-import mergeOptions from "merge-options";
 import { Helia, createHelia } from "helia";
 import { LevelBlockstore } from "blockstore-level";
 import { bitswap } from "@helia/block-brokers";
