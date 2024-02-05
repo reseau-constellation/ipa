@@ -30,7 +30,6 @@ const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
     configPlateforme = await obtOptionsLibp2pÉlectionPrincipal();
   } else if (isNode) {
     configPlateforme = await obtOptionsLibp2pNode();
-    throw new Error();
   } else {
     console.warn(
       "Plateforme non reconnue. On utilisera la configuration navigateur.",
