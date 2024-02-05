@@ -95,7 +95,7 @@
     "@constl/electron-webrtc-relay": "^0.2.3",
     "@constl/mandataire": "^0.1.15",
     "@constl/orbit-db-kuiper": "^0.0.2",
-    "@constl/utils-ipa": "^0.2.4",
+    "@constl/utils-ipa": "^1.0.0",
     "@ipld/dag-cbor": "^9.0.6",
     "@lassi-js/kili": "^0.3.4",
     "@libp2p/interface-transport": "^4.0.3",
