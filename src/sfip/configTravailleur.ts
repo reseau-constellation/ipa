@@ -10,32 +10,35 @@ import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import type { Libp2pOptions } from "libp2p";
 import { WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE } from "./const.js";
 
-export const OptionsLibp2pTravailleurWeb: Libp2pOptions = {
-  addresses: {
-    listen: ["/webrtc"],
-  },
-  transports: [
-    webSockets({
-      filter: all,
-    }),
-    webTransport(),
-    circuitRelayTransport({
-      discoverRelays: 1,
-    }),
-  ],
-  connectionEncryption: [noise()],
-  streamMuxers: [yamux()],
-  connectionGater: {
-    denyDialMultiaddr: () => false,
-  },
-  peerDiscovery: [
-    bootstrap({
-      list: [WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE],
-      tagTTL: Infinity,
-    }),
-  ],
-  services: {
-    identify: identify(),
-    pubsub: gossipsub({ allowPublishToZeroPeers: true }),
-  },
-};
+export const obtOptionsLibp2pTravailleurWeb =
+  async (): Promise<Libp2pOptions> => {
+    return {
+      addresses: {
+        listen: ["/webrtc"],
+      },
+      transports: [
+        webSockets({
+          filter: all,
+        }),
+        webTransport(),
+        circuitRelayTransport({
+          discoverRelays: 1,
+        }),
+      ],
+      connectionEncryption: [noise()],
+      streamMuxers: [yamux()],
+      connectionGater: {
+        denyDialMultiaddr: () => false,
+      },
+      peerDiscovery: [
+        bootstrap({
+          list: [WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE],
+          tagTTL: Infinity,
+        }),
+      ],
+      services: {
+        identify: identify(),
+        pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+      },
+    };
+  };

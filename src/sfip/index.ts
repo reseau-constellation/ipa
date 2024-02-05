@@ -13,27 +13,29 @@ import { createLibp2p, type Libp2pOptions } from "libp2p";
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
 import type { Libp2p } from "@libp2p/interface";
 
+import { obtOptionsLibp2pNode } from "./configNode.js";
+import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
+import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
+import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
+
 export type ServicesLibp2p = { pubsub: GossipSub };
 
 const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
   if (isBrowser || isElectronRenderer) {
-    configPlateforme = (await import("@/sfip/configNavigateur.js"))
-      .OptionsLibp2pNavigateur;
+    configPlateforme = await obtOptionsLibp2pNavigateur();
   } else if (isWebWorker) {
-    configPlateforme = (await import("@/sfip/configTravailleur.js"))
-      .OptionsLibp2pTravailleurWeb;
+    configPlateforme = await obtOptionsLibp2pTravailleurWeb();
   } else if (isElectronMain) {
-    configPlateforme = (await import("@/sfip/configÉlectronPrincipal.js"))
-      .OptionsLibp2pÉlectionPrincipal;
+    configPlateforme = await obtOptionsLibp2pÉlectionPrincipal();
   } else if (isNode) {
-    configPlateforme = (await import("@/sfip/configNode.js")).OptionsLibp2pNode;
+    configPlateforme = await obtOptionsLibp2pNode();
+    throw new Error();
   } else {
     console.warn(
       "Plateforme non reconnue. On utilisera la configuration navigateur.",
     );
-    configPlateforme = (await import("@/sfip/configNavigateur.js"))
-      .OptionsLibp2pNavigateur;
+    configPlateforme = await obtOptionsLibp2pNavigateur();
   }
   return configPlateforme;
 };

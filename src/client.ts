@@ -19,7 +19,6 @@ import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 import indexedDbStream from "indexed-db-stream";
 import type TypedEmitter from "typed-emitter";
-import envPaths from "env-paths";
 
 import {
   suivreBdDeFonction,
@@ -194,10 +193,13 @@ export const schémaStructureNomsDispositifs: JSONSchemaType<structureNomsDispos
 
 const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 
-const obtDossierConstellation = (opts: optsConstellation): string => {
+const obtDossierConstellation = async (
+  opts: optsConstellation,
+): Promise<string> => {
   if (opts.dossier) return opts.dossier;
   if (isNode || isElectronMain) {
     // Utiliser l'application native
+    const envPaths = (await import("env-paths")).default;
     const chemins = envPaths("constl", { suffix: "" });
     return chemins.data;
   } else {
@@ -208,7 +210,6 @@ const obtDossierConstellation = (opts: optsConstellation): string => {
 
 export class ClientConstellation {
   _opts: optsConstellation;
-  dossier: string;
   événements: TypedEmitter<ÉvénementsClient>;
 
   orbite?: GestionnaireOrbite;
@@ -242,8 +243,6 @@ export class ClientConstellation {
 
   constructor(opts: optsConstellation = {}) {
     this._opts = opts;
-
-    this.dossier = obtDossierConstellation(opts);
 
     this.événements = new EventEmitter() as TypedEmitter<ÉvénementsClient>;
 
@@ -284,6 +283,10 @@ export class ClientConstellation {
     this.réseau = new Réseau({ client: this });
 
     this.protocoles = new Protocoles({ client: this });
+  }
+
+  async dossier(): Promise<string> {
+    return await obtDossierConstellation(this._opts);
   }
 
   async _initialiser(): Promise<void> {
@@ -373,22 +376,23 @@ export class ClientConstellation {
           this._sfipExterne = true;
           sfipFinale = orbite.ipfs;
         } else {
-          sfipFinale = await initSFIP(join(this.dossier, "sfip"));
+          sfipFinale = await initSFIP(join(await this.dossier(), "sfip"));
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
-          dossierOrbite: orbite.directory || join(this.dossier, "orbite"),
+          dossierOrbite:
+            orbite.directory || join(await this.dossier(), "orbite"),
         });
         sfipFinale = orbiteFinale.ipfs;
       }
     } else {
       const initSFIP = (await import("@/sfip/index.js")).default;
-      sfipFinale = await initSFIP(join(this.dossier, "sfip"));
+      sfipFinale = await initSFIP(join(await this.dossier(), "sfip"));
 
       const initOrbite = (await import("@/orbite.js")).default;
       orbiteFinale = await initOrbite({
         sfip: sfipFinale,
-        dossierOrbite: join(this.dossier, "orbite"),
+        dossierOrbite: join(await this.dossier(), "orbite"),
       });
     }
 
@@ -1956,7 +1960,7 @@ export class ClientConstellation {
   }): Promise<string | null> {
     const clefClient = this.obtClefStockageClient({ clef, parCompte });
 
-    return (await obtStockageLocal(this.dossier)).getItem(clefClient);
+    return (await obtStockageLocal(await this.dossier())).getItem(clefClient);
   }
 
   async sauvegarderAuStockageLocal({
@@ -1969,7 +1973,10 @@ export class ClientConstellation {
     parCompte?: boolean;
   }): Promise<void> {
     const clefClient = this.obtClefStockageClient({ clef, parCompte });
-    return (await obtStockageLocal(this.dossier)).setItem(clefClient, val);
+    return (await obtStockageLocal(await this.dossier())).setItem(
+      clefClient,
+      val,
+    );
   }
 
   async effacerDeStockageLocal({
@@ -1981,7 +1988,9 @@ export class ClientConstellation {
   }): Promise<void> {
     const clefClient = this.obtClefStockageClient({ clef, parCompte });
 
-    return (await obtStockageLocal(this.dossier)).removeItem(clefClient);
+    return (await obtStockageLocal(await this.dossier())).removeItem(
+      clefClient,
+    );
   }
 
   async obtIdBd<K extends string>({
@@ -2363,7 +2372,7 @@ export class ClientConstellation {
   async fermer(): Promise<void> {
     await this.attendreInitialisée();
     const { orbite } = await this.attendreSfipEtOrbite();
-    await (await obtStockageLocal(this.dossier)).fermer?.();
+    await (await obtStockageLocal(await this.dossier())).fermer?.();
     await this.fermerCompte();
     await this.épingles.fermer();
 
@@ -2386,9 +2395,9 @@ export class ClientConstellation {
       }
     } else {
       const fs = await import("fs");
-      const stockageLocal = await obtStockageLocal(this.dossier);
+      const stockageLocal = await obtStockageLocal(await this.dossier());
       stockageLocal.clear();
-      fs.rmdirSync(this.dossier);
+      fs.rmdirSync(await this.dossier());
     }
   }
 
@@ -2424,7 +2433,7 @@ export class ClientConstellation {
       };
       const zip = new JSZip();
       ajouterDossierÀZip({
-        dossier: this.dossier,
+        dossier: await this.dossier(),
         zip,
       });
       await sauvegarderFichierZip({ fichierZip: zip, nomFichier });
@@ -2467,7 +2476,7 @@ export class ClientConstellation {
         });
         fichierZip.file(
           "stockageLocal",
-          JSON.stringify(await exporterStockageLocal(this.dossier)),
+          JSON.stringify(await exporterStockageLocal(await this.dossier())),
         );
       }
 
