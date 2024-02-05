@@ -91,7 +91,7 @@
     "@chainsafe/libp2p-gossipsub": "^7.0.0",
     "@chainsafe/libp2p-noise": "^11.0.4",
     "@chriscdn/promise-semaphore": "^2.0.8",
-    "@constl/bohr-db": "^0.0.6",
+    "@constl/bohr-db": "^1.0.0",
     "@constl/electron-webrtc-relay": "^0.2.3",
     "@constl/mandataire": "^0.1.15",
     "@constl/orbit-db-kuiper": "^0.0.2",
