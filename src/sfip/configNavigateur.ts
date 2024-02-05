@@ -1,6 +1,6 @@
 import { identify } from "@libp2p/identify";
 import { webSockets } from "@libp2p/websockets";
-import { webRTC } from "@libp2p/webrtc";
+import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webTransport } from "@libp2p/webtransport";
 import { bootstrap } from "@libp2p/bootstrap";
 import { all } from "@libp2p/websockets/filters";
@@ -20,6 +20,7 @@ export const OptionsLibp2pNavigateur: Libp2pOptions = {
       filter: all,
     }),
     webRTC(),
+    webRTCDirect(),
     webTransport(),
     circuitRelayTransport({
       discoverRelays: 1,

@@ -39,7 +39,7 @@ import { expect } from "aegir/chai";
 async function toutPréparer(n: number) {
   const { fOublier: fOublierClients, clients } = await créerConstellationsTest({
     n,
-    fGénérerClient: créerConstellation,
+    créerConstellation,
   });
   const idsNodesSFIP = await Promise.all(
     clients.map(async (c) => (await c.obtIdSFIP()).toCID().toString()),

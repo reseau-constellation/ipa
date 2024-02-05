@@ -20,7 +20,7 @@ describe("Profil", function () {
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
       n: 1,
-      fGénérerClient: créerConstellation,
+      créerConstellation,
     }));
     [client] = clients;
   });

@@ -61,7 +61,7 @@ describe("Nuées", function () {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
         n: 1,
 
-        fGénérerClient: créerConstellation,
+        créerConstellation,
       }));
       client = clients[0];
     });
@@ -626,7 +626,7 @@ describe("Nuées", function () {
         ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
           {
             n: 2,
-            fGénérerClient: créerConstellation,
+            créerConstellation,
           },
         ));
         client = clients[0];
@@ -849,7 +849,7 @@ describe("Nuées", function () {
           {
             n: 2,
 
-            fGénérerClient: créerConstellation,
+            créerConstellation,
           },
         ));
 
@@ -1004,7 +1004,7 @@ describe("Nuées", function () {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
         n: 1,
 
-        fGénérerClient: créerConstellation,
+        créerConstellation,
       }));
       client = clients[0];
     });
@@ -1484,7 +1484,7 @@ describe("Nuées", function () {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
         n: 1,
 
-        fGénérerClient: créerConstellation,
+        créerConstellation,
       }));
       client = clients[0];
 
@@ -1580,7 +1580,7 @@ describe("Nuées", function () {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
         n: 2,
 
-        fGénérerClient: créerConstellation,
+        créerConstellation,
       }));
 
       client = clients[0];
@@ -1656,7 +1656,7 @@ describe("Nuées", function () {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
         n: 1,
 
-        fGénérerClient: créerConstellation,
+        créerConstellation,
       }));
 
       client = clients[0];

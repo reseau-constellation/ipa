@@ -31,6 +31,7 @@ import JSZip from "jszip";
 import { obtRessourceTest } from "./ressources/index.js";
 import { isElectronMain, isNode } from "wherearewe";
 import { attente } from "@constl/utils-tests";
+import { préparerOrbite } from "@/orbite.js";
 
 describe("BDs", function () {
   let fOublierClients: () => Promise<void>;
@@ -43,9 +44,10 @@ describe("BDs", function () {
   const fsOublier: schémaFonctionOublier[] = [];
 
   before(async () => {
+    préparerOrbite();
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
       n: 1,
-      fGénérerClient: créerConstellation,
+      créerConstellation,
     }));
     client = clients[0];
   });

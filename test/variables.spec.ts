@@ -25,7 +25,7 @@ describe("Variables", function () {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
       await créerConstellationsTest({
         n: 1,
-        fGénérerClient: créerConstellation,
+        créerConstellation,
       }));
     client = clients[0];
   });

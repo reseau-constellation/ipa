@@ -2,6 +2,7 @@ import { orbite } from "@constl/utils-tests";
 
 import { ClientConstellation as ClientConstellationInterne } from "@/client.js";
 import { isBrowser } from "wherearewe";
+import { préparerOrbite } from "@/orbite.js";
 
 export const générerClientsInternes = async ({
   n,
@@ -11,7 +12,10 @@ export const générerClientsInternes = async ({
   clients: ClientConstellationInterne[];
   fOublier: () => Promise<void>;
 }> => {
+  préparerOrbite();
+
   const fsOublier: (() => Promise<void>)[] = [];
+
   // Nécessaire pour Playwright
   if (isBrowser) window.localStorage.clear();
 
@@ -23,6 +27,7 @@ export const générerClientsInternes = async ({
   const clients = await Promise.all(
     [...Array(n).keys()].map(async (i) => {
       return await ClientConstellationInterne.créer({
+        dossier: orbites[i].directory.split("/").slice(0, -1).join("/"),
         orbite: orbites[i],
       });
     }),

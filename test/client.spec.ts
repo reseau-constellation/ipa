@@ -64,7 +64,7 @@ if (!isBrowser)
     it("Fermeture immédiatement après ouverture", async () => {
       // À faire : simplifier options initialisation (dossier compte unique)
       const client = créerConstellation({
-        opts: { dossier },
+        dossier,
       });
       await client.fermer();
     });
@@ -257,7 +257,7 @@ if (isNode || isElectronMain) {
     });
   });
 
-  describe("Fonctionalités client", function () {
+  describe.only("Fonctionalités client", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation, client2: ClientConstellation;

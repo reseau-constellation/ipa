@@ -4,7 +4,7 @@ import type { Helia } from "helia";
 import { isElectronMain, isNode, isWebWorker } from "wherearewe";
 import { multiaddr } from "@multiformats/multiaddr";
 
-describe.only("SFIP", function () {
+describe("SFIP", function () {
   let sfip: Helia;
   let dossier: string;
 

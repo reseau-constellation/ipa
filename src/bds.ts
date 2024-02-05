@@ -680,8 +680,9 @@ export default class BDs extends ComposanteClientListe<string> {
     for (const info of tableauxBd2) {
       const { id: idTableau, clef } = info;
       if (clef) {
-        const idTableauBaseCorresp = tableauxBase.find((t) => t.clef === clef)
-          ?.id;
+        const idTableauBaseCorresp = tableauxBase.find(
+          (t) => t.clef === clef,
+        )?.id;
 
         if (idTableauBaseCorresp) {
           await this.client.tableaux.combinerDonnées({

@@ -47,7 +47,7 @@ describe("Tableaux", function () {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
       n: 1,
 
-      fGénérerClient: créerConstellation,
+      créerConstellation,
     }));
     client = clients[0];
     idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });

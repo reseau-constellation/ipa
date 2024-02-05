@@ -78,7 +78,7 @@ if (isElectronMain || isNode) {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
           await créerConstellationsTest({
             n: 3,
-            fGénérerClient: créerConstellation,
+            créerConstellation,
           }));
 
         idsComptes = await Promise.all(
@@ -321,7 +321,7 @@ if (isElectronMain || isNode) {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
           await créerConstellationsTest({
             n: 2,
-            fGénérerClient: créerConstellation,
+            créerConstellation,
           }));
       });
 
@@ -462,7 +462,7 @@ if (isElectronMain || isNode) {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
           await créerConstellationsTest({
             n: 2,
-            fGénérerClient: créerConstellation,
+            créerConstellation,
           }));
       });
 
@@ -666,7 +666,7 @@ if (isElectronMain || isNode) {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
           await créerConstellationsTest({
             n: 2,
-            fGénérerClient: créerConstellation,
+            créerConstellation,
           }));
       });
 
@@ -983,7 +983,7 @@ if (isElectronMain || isNode) {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
           await créerConstellationsTest({
             n: 2,
-            fGénérerClient: créerConstellation,
+            créerConstellation,
           }));
       });
 
@@ -1301,7 +1301,7 @@ if (isElectronMain || isNode) {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
           await créerConstellationsTest({
             n: 2,
-            fGénérerClient: créerConstellation,
+            créerConstellation,
           }));
       });
 
@@ -1691,7 +1691,7 @@ describe.skip("Test fonctionnalités recherche", function () {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
       await créerConstellationsTest({
         n: 5,
-        fGénérerClient: créerConstellation,
+        créerConstellation,
       }));
     client = clients[0];
     for (const [i, c] of clients.entries()) {

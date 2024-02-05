@@ -197,8 +197,8 @@ const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 const obtDossierConstellation = (opts: optsConstellation): string => {
   if (opts.dossier) return opts.dossier;
   if (isNode || isElectronMain) {
-    // Utiliser le chemin de navigation
-    const chemins = envPaths("constl");
+    // Utiliser l'application native
+    const chemins = envPaths("constl", { suffix: "" });
     return chemins.data;
   } else {
     // Pour navigateur

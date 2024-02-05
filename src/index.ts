@@ -38,9 +38,9 @@ import {
 export type ClientConstellation =
   MandataireClientConstellation<_ClientConstellation>;
 
-export const créerConstellation = ({
-  opts,
-}: { opts?: optsConstellation } = {}): ClientConstellation => {
+export const créerConstellation = (
+  opts: optsConstellation = {},
+): ClientConstellation => {
   if (isNode || isElectronMain) {
     return ipa.générerMandataireProc(opts);
   } else if (isBrowser) {
