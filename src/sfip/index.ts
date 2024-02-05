@@ -23,6 +23,7 @@ export type ServicesLibp2p = { pubsub: GossipSub };
 const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
   if (isBrowser || isElectronRenderer) {
+    // À faire - migrer vers travailleur ?
     configPlateforme = await obtOptionsLibp2pNavigateur();
   } else if (isWebWorker) {
     configPlateforme = await obtOptionsLibp2pTravailleurWeb();
