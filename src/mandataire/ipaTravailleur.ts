@@ -38,28 +38,21 @@ export class MandataireClientTravailleur extends ClientMandatairifiable {
 }
 
 export interface optsIpaTravailleur extends optsConstellation {
-  compte?: string;
-  sujetRéseau?: string;
-  orbite?: {
-    dossier?: string;
-    sfip?: {
-      dossier?: string;
-    };
-  };
+  orbite?: Omit<optsInitOrbite, "ipfs">;
 }
 
 export const confirmerOptsTravailleur = (
   opts?: optsConstellation,
 ): optsIpaTravailleur => {
   const optsIpa: optsIpaTravailleur = {};
-  if (opts?.compte) optsIpa.compte = opts.compte;
+  if (opts?.dossier) optsIpa.dossier = opts.dossier;
   if (opts?.sujetRéseau) optsIpa.sujetRéseau = opts.sujetRéseau;
   if (opts?.protocoles) optsIpa.protocoles = opts.protocoles;
   if (opts?.orbite) {
-    optsIpa.orbite = {};
-    const { dossier, sfip } = opts.orbite as optsInitOrbite;
-    if (dossier) optsIpa.orbite.dossier = dossier;
-    if (sfip) optsIpa.orbite.sfip = { dossier: sfip.dossier };
+    optsIpa.orbite = {
+      directory: opts.orbite.directory,
+      id: opts.orbite.id,
+    };
   }
   return optsIpa;
 };

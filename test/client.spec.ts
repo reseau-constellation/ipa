@@ -27,7 +27,6 @@ import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
 import { créerConstellation } from "@/index.js";
-import { join } from "path";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
@@ -65,7 +64,7 @@ if (!isBrowser)
     it("Fermeture immédiatement après ouverture", async () => {
       // À faire : simplifier options initialisation (dossier compte unique)
       const client = créerConstellation({
-        opts: { orbite: { dossier, sfip: { dossier: join(dossier, "sfip") } } },
+        opts: { dossier },
       });
       await client.fermer();
     });

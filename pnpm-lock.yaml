@@ -68,9 +68,6 @@ dependencies:
   '@libp2p/webrtc-direct':
     specifier: ^6.0.0
     version: 6.0.0
-  '@libp2p/webrtc-star':
-    specifier: ^7.0.0
-    version: 7.0.0
   '@libp2p/websockets':
     specifier: ^8.0.13
     version: 8.0.13
@@ -125,6 +122,9 @@ dependencies:
   ennikkai:
     specifier: ^2.2.5
     version: 2.2.5(@constl/ipa@0.9.25)
+  env-paths:
+    specifier: ^3.0.0
+    version: 3.0.0
   events:
     specifier: ^3.3.0
     version: 3.3.0
@@ -2155,6 +2155,8 @@ packages:
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
       wherearewe: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
 
   /@chainsafe/libp2p-noise@15.0.0:
     resolution: {integrity: sha512-O8Y/WVU4J/qrnG72jwVhbmdXiBzv1dT9B3PMClCRmZ9z/5vVPEGRVXE/SVYeGF3bNuBTLoh+F+GaKG/9UHlMhg==}
@@ -3309,6 +3311,8 @@ packages:
       protons-runtime: 5.2.2
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.0
+    transitivePeerDependencies:
+      - supports-color
 
   /@libp2p/crypto@4.0.1:
     resolution: {integrity: sha512-lKGbX8TvQt4JbqlttdexEz2VtYJnTwY31kVBDQviwt0pMF+6Uy2hzNnEQ1FHZBwnow8BIlyb6UevHfgyOFlnkw==}
@@ -3321,6 +3325,8 @@ packages:
       protons-runtime: 5.2.2
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
+    transitivePeerDependencies:
+      - supports-color
 
   /@libp2p/dcutr@1.0.9:
     resolution: {integrity: sha512-EJmlMUThkkt8yosEYzlBHaKvrVNMiYCye1mN9Lirm0urc3Omb7KfZqca5tl5NMsldGCeBHWqo/eNb0tqlr792g==}
@@ -5025,6 +5031,8 @@ packages:
       p-queue: 8.0.1
       timeout-abort-controller: 3.0.0
       uint8arrays: 5.0.0
+    transitivePeerDependencies:
+      - supports-color
 
   /@orbitdb/feed-db@1.0.0(react-native@0.73.3):
     resolution: {integrity: sha512-5wD8fNCwJcsQ+YSbG8J3b0WUSGU1oKkaI8r1nUwflXm9oHOtFoexY+Bq5DCgDvcbB7YBpvQpAX4KejlEu52ZwQ==}
@@ -9175,7 +9183,6 @@ packages:
   /env-paths@3.0.0:
     resolution: {integrity: sha512-dtJUTepzMW3Lm/NPxRf3wP4642UWhjL2sQxc+ym2YMj1m/H2zDNQOlezafzkHwn6sMstjHTwG6iQQsctDW/b1A==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-    dev: true
 
   /envinfo@7.11.0:
     resolution: {integrity: sha512-G9/6xF1FPbIw0TtalAMaVPpiq2aDEuKLXM314jPVAO9r2fo2a4BLqMNkmRS7O/xPPZ+COAhGIz3ETvHEV3eUcg==}

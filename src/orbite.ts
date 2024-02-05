@@ -17,7 +17,6 @@ import {
 } from "@orbitdb/ordered-keyvalue-db";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import { isElectronMain, isNode } from "wherearewe";
 import { type JSONSchemaType } from "ajv";
 import {
   typedFeed,
@@ -52,22 +51,14 @@ export default async function initOrbite({
   dossierOrbite,
 }: {
   sfip: Helia<Libp2p<ServicesLibp2p>>;
-  dossierOrbite?: string;
+  dossierOrbite: string;
 }): Promise<OrbitDB> {
-  let dossierOrbiteFinal: string | undefined = dossierOrbite;
-  if (isElectronMain || isNode) {
-    const path = await import("path");
-    dossierOrbiteFinal = dossierOrbite || path.join(".", "constl", "orbite");
-  } else {
-    dossierOrbiteFinal = dossierOrbite || "./constl/orbite";
-  }
-
   préparerOrbite();
 
   const orbite = await createOrbitDB({
     ipfs: sfip,
     id: "constellation",
-    directory: dossierOrbiteFinal,
+    directory: dossierOrbite,
   });
 
   return orbite;
