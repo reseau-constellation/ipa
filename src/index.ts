@@ -34,6 +34,7 @@ import {
   isWebWorker,
   isReactNative,
 } from "wherearewe";
+import { préparerOrbite } from "./orbite.js";
 
 export type ClientConstellation =
   MandataireClientConstellation<_ClientConstellation>;
@@ -41,6 +42,7 @@ export type ClientConstellation =
 export const créerConstellation = (
   opts: optsConstellation = {},
 ): ClientConstellation => {
+  préparerOrbite();
   if (isNode || isElectronMain) {
     return ipa.générerMandataireProc(opts);
   } else if (isBrowser) {
