@@ -185,8 +185,8 @@ devDependencies:
     specifier: ^2.0.0
     version: 2.0.0(react-native@0.73.4)
   '@constl/utils-tests':
-    specifier: 1.1.0
-    version: 1.1.0(react-native@0.73.4)
+    specifier: 1.1.1-86be043.0
+    version: 1.1.1-86be043.0(react-native@0.73.4)
   '@libp2p/crypto':
     specifier: ^4.0.1
     version: 4.0.1
@@ -1968,8 +1968,6 @@ packages:
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
       wherearewe: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   /@chainsafe/libp2p-yamux@6.0.1:
     resolution: {integrity: sha512-8ar6jph9ZuUUxQ8t8W1MaZqH7f7KvGK2wR7TDGnN0r4QtZc07ICNgVjnolnI9/8bclrI5Um4uMa8QCYKTrdvDQ==}
@@ -2177,8 +2175,8 @@ packages:
       - supports-color
     dev: false
 
-  /@constl/utils-tests@1.1.0(react-native@0.73.4):
-    resolution: {integrity: sha512-8EmGV7ula+9Zck35JZUCssDTmvstxke/k80PclZ3jJ6h/36h+SsTkIuDIN4DsW3qSodPNdFebnTBKSWwV1250g==}
+  /@constl/utils-tests@1.1.1-86be043.0(react-native@0.73.4):
+    resolution: {integrity: sha512-7p4qrC3Xtx2mQR22xzRCuqV9xeTUIn4sKdsfgm6Mgh6V98sUPHjtk4rk5+7qUlBl6CTpiXWlZVSMzApWmeLtig==}
     engines: {node: '>=20'}
     dependencies:
       '@helia/block-brokers': 2.0.1
@@ -2768,6 +2766,8 @@ packages:
       interface-store: 5.1.7
       multiformats: 13.0.1
       progress-events: 1.0.0
+    transitivePeerDependencies:
+      - supports-color
 
   /@helia/unixfs@3.0.0:
     resolution: {integrity: sha512-jguVr8823VHqpADroEilHOqS/GsZBlQcMsxnN4P4bqKw+DIPAqsCt56qdSXZgHEwyMB5UpYsPoX5pzaZ7NpB7A==}
@@ -3658,8 +3658,6 @@ packages:
       multiformats: 13.0.1
       sanitize-filename: 1.6.3
       uint8arrays: 5.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   /@libp2p/logger@2.1.1:
     resolution: {integrity: sha512-2UbzDPctg3cPupF6jrv6abQnAUTrbLybNOj0rmmrdGm1cN2HJ1o/hBu0sXuq4KF9P1h/eVRn1HIRbVIEKnEJrA==}
@@ -3856,8 +3854,6 @@ packages:
       protons-runtime: 5.4.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   /@libp2p/peer-id@2.0.4:
     resolution: {integrity: sha512-gcOsN8Fbhj6izIK+ejiWsqiqKeJ2yWPapi/m55VjOvDa52/ptQzZszxQP8jUk93u36de92ATFXDfZR/Bi6eeUQ==}
@@ -18842,6 +18838,8 @@ packages:
       node-pre-gyp: 0.13.0
     optionalDependencies:
       domexception: 1.0.1
+    transitivePeerDependencies:
+      - supports-color
     bundledDependencies:
       - node-pre-gyp
 
