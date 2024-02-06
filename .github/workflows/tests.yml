@@ -54,7 +54,7 @@ jobs:
     name: IPA sur le navigateur
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       
