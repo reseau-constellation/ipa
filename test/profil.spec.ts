@@ -160,7 +160,6 @@ describe("Profil", function () {
     before(async () => {
       IMAGE = await obtRessourceTest({
         nomFichier: "logo.svg",
-        optsAxios: { responseType: "arraybuffer" },
       });
     });
 

@@ -514,7 +514,6 @@ describe("Projets", function () {
 
       const OCTETS = await obtRessourceTest({
         nomFichier: "logo.svg",
-        optsAxios: { responseType: "arraybuffer" },
       });
       cid = await client.ajouterÀSFIP({
         contenu: OCTETS,

@@ -1724,7 +1724,6 @@ if (isNode || isElectronMain) {
       before(async () => {
         IMAGE = await obtRessourceTest({
           nomFichier: "logo.svg",
-          optsAxios: { responseType: "arraybuffer" },
         });
 
         ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));

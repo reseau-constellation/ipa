@@ -1694,7 +1694,6 @@ describe("Nuées", function () {
 
       const octets = await obtRessourceTest({
         nomFichier: "logo.svg",
-        optsAxios: { responseType: "arraybuffer" },
       });
       cid = await client.ajouterÀSFIP({
         contenu: octets,

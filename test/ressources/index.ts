@@ -30,6 +30,8 @@ export const obtRessourceTest = async ({
       `http://localhost:3000/fichier/${encodeURIComponent(nomFichier)}`,
       optsAxios,
     );
-    return rés.data;
+    return typeof rés.data === "string"
+      ? new TextEncoder().encode(rés.data)
+      : rés.data;
   }
 };
