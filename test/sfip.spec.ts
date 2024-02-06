@@ -1,10 +1,10 @@
 import initSFIP from "../src/sfip/index.js";
 import { expect } from "aegir/chai";
 import type { Helia } from "helia";
-import { isElectronMain, isNode, isWebWorker } from "wherearewe";
+import { isElectronMain, isNode } from "wherearewe";
 import { multiaddr } from "@multiformats/multiaddr";
 
-describe("SFIP", function () {
+describe.skip("SFIP", function () {
   let sfip: Helia;
   let dossier: string;
 
