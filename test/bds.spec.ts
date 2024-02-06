@@ -1309,7 +1309,7 @@ describe("BDs", function () {
         });
 
         it("Les fichiers SFIP existent", () => {
-          const contenu = zip.files[path.join("sfip", cid.replace("/", "-"))];
+          const contenu = zip.files[["sfip", cid.replace("/", "-")].join("/")];
           expect(contenu).to.exist();
         });
       }

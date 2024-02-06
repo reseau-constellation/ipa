@@ -606,8 +606,7 @@ describe("Projets", function () {
         });
 
         it("Les fichiers SFIP existent", async () => {
-          const path = await import("path");
-          const contenu = zip.files[path.join("sfip", cid.replace("/", "-"))];
+          const contenu = zip.files[["sfip", cid.replace("/", "-")].join("/")];
           expect(contenu).to.exist();
         });
       });
