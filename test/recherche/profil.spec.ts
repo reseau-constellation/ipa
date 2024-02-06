@@ -75,7 +75,6 @@ describe("Rechercher profil", function () {
     it("C'est parfait avec un photo !", async () => {
       const IMAGE = await obtRessourceTest({
         nomFichier: "logo.png",
-        optsAxios: { responseType: "arraybuffer" },
       });
 
       await client.profil.sauvegarderImage({

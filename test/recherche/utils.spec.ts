@@ -178,11 +178,9 @@ describe("Utils recherche", function () {
     before(async () => {
       IMAGE = await obtRessourceTest({
         nomFichier: "logo.png",
-        optsAxios: { responseType: "arraybuffer" },
       });
       IMAGE2 = await obtRessourceTest({
         nomFichier: "logo2.png",
-        optsAxios: { responseType: "arraybuffer" },
       });
     });
 
