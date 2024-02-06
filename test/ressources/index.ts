@@ -16,7 +16,9 @@ export const obtRessourceTest = async ({
     const ext = nomFichier.split(".").pop();
 
     const cheminFichier = path.join(
-      url.fileURLToPath(new URL(".", import.meta.url)).replace("dist" + path.sep, ""),
+      url
+        .fileURLToPath(new URL(".", import.meta.url))
+        .replace("dist" + path.sep, ""),
       nomFichier,
     );
 

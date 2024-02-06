@@ -63,7 +63,7 @@ if (!isBrowser)
     });
 
     it("Fermeture immédiatement après ouverture", async function () {
-      if (process.platform === "win32") this.skip()
+      if (process.platform === "win32") this.skip();
       // Ça a déjà causé des problèmes quand on utilisait ipfs-js
       const client = créerConstellation({
         dossier,
@@ -74,7 +74,6 @@ if (!isBrowser)
 
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
-  
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation,
