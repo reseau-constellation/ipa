@@ -74,6 +74,7 @@ if (!isBrowser)
 
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
+  
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
     let client: ClientConstellation,
