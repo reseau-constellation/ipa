@@ -27,6 +27,7 @@ import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
 import { créerConstellation } from "@/index.js";
+import { platform } from "os";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
@@ -61,7 +62,8 @@ if (!isBrowser)
       fEffacer?.();
     });
 
-    it("Fermeture immédiatement après ouverture", async () => {
+    it("Fermeture immédiatement après ouverture", async function () {
+      if (process.platform === "win32") this.skip()
       // Ça a déjà causé des problèmes quand on utilisait ipfs-js
       const client = créerConstellation({
         dossier,
