@@ -62,7 +62,7 @@ const options = {
       },
     },
     before: async (opts) => {
-      // $`node test/utils/relai.js &`;
+      const relai = $`node test/utils/relai.js &`;
 
       // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
       const { chromium } = await import("playwright");
@@ -118,11 +118,12 @@ const options = {
         serveurLocal = appliExpress.listen(3000);
       }
 
-      return { navigateur, serveurLocal };
+      return { navigateur, serveurLocal, relai };
     },
     after: async (_, avant) => {
       await avant.navigateur.close();
       await avant.serveurLocal?.close();
+      avant.relai.kill();
     },
   },
   build: {
