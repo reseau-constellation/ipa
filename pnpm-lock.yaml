@@ -185,8 +185,8 @@ devDependencies:
     specifier: ^2.0.0
     version: 2.0.0(react-native@0.73.4)
   '@constl/utils-tests':
-    specifier: 1.1.1-95255e4.0
-    version: 1.1.1-95255e4.0(react-native@0.73.4)
+    specifier: 1.1.1-b3f9530.0
+    version: 1.1.1-b3f9530.0(react-native@0.73.4)
   '@libp2p/crypto':
     specifier: ^4.0.1
     version: 4.0.1
@@ -2175,8 +2175,8 @@ packages:
       - supports-color
     dev: false
 
-  /@constl/utils-tests@1.1.1-95255e4.0(react-native@0.73.4):
-    resolution: {integrity: sha512-5s4pJLSRuDMgUroc1nAOHHY8Ea0W+EoYtXwaclgIbLIhKPj5kHjKW9n5OubsxXO9EYd+o63LL49ZYaJWFW/83A==}
+  /@constl/utils-tests@1.1.1-b3f9530.0(react-native@0.73.4):
+    resolution: {integrity: sha512-OtmdQ4v7uga9qkadag7H5uNZunN+OkJfnu2p935ODnIYIpWJ+5Av7BguGQM8N0XImNdN836PQZO3AQbQItWFHA==}
     engines: {node: '>=20'}
     dependencies:
       '@helia/block-brokers': 2.0.1
@@ -3103,6 +3103,8 @@ packages:
       protons-runtime: 5.4.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
+    transitivePeerDependencies:
+      - supports-color
 
   /@libp2p/dcutr@1.0.10:
     resolution: {integrity: sha512-DFI1ZJ8w6KtFyeum3mWomRrrQif6QYkF5q9SEyT9yCfYjLwGKxjBZngV6MAWEPjQsmNRmidiqpAJcikzfcMXMw==}

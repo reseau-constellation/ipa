@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@constl/orbit-db-types": "^2.0.0",
-    "@constl/utils-tests": "1.1.1-95255e4.0",
+    "@constl/utils-tests": "1.1.1-b3f9530.0",
     "@libp2p/crypto": "^4.0.1",
     "@libp2p/interface": "^1.1.2",
     "@libp2p/interface-connection-manager": "^3.0.1",
