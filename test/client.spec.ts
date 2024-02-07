@@ -18,7 +18,7 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import { isNode, isElectronMain, isBrowser } from "wherearewe";
+import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
@@ -27,7 +27,6 @@ import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
 import { créerConstellation } from "@/index.js";
-import { platform } from "os";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
