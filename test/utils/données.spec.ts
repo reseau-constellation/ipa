@@ -35,6 +35,7 @@ describe("Utils : données", function () {
 
       before(async () => {
         ({ dossier, fEffacer } = await dossiers.dossierTempo());
+
         nomFichier = path.join(dossier, "testZip.zip");
         attendreFichier = new attente.AttendreFichierExiste(nomFichier);
         const fichiersDocs = [
