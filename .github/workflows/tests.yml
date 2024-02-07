@@ -86,7 +86,7 @@ jobs:
 
   test-ipa-electron-principal:
     name: IPA sur Électron principal
-    needs: test-ipa-nodejs
+    # needs: test-ipa-nodejs
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
