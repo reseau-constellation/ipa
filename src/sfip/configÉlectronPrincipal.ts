@@ -14,7 +14,7 @@ import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 export const obtOptionsLibp2pÉlectionPrincipal =
   async (): Promise<Libp2pOptions> => {
     const { tcp } = await import("@libp2p/tcp");
-    const { webRTC } = await import("@constl/electron-webrtc-relay");
+    const webRTC = (await import("@constl/electron-webrtc-relay")).default;
 
     const wrtc = webRTC();
     wrtc.init();
