@@ -185,8 +185,8 @@ devDependencies:
     specifier: ^2.0.0
     version: 2.0.0(react-native@0.73.4)
   '@constl/utils-tests':
-    specifier: 1.1.1-f631113.0
-    version: 1.1.1-f631113.0(react-native@0.73.4)
+    specifier: 1.1.1-95255e4.0
+    version: 1.1.1-95255e4.0(react-native@0.73.4)
   '@libp2p/crypto':
     specifier: ^4.0.1
     version: 4.0.1
@@ -2070,7 +2070,7 @@ packages:
       approx-string-match: 2.0.0
       axios: 1.6.7
       browser-fs-access: 0.35.0
-      chokidar: 3.5.3
+      chokidar: 3.6.0
       crypto-js: 4.2.0
       deep-equal: 2.2.3
       deepcopy: 2.1.0
@@ -2175,8 +2175,8 @@ packages:
       - supports-color
     dev: false
 
-  /@constl/utils-tests@1.1.1-f631113.0(react-native@0.73.4):
-    resolution: {integrity: sha512-v2TGe/9APx2xw4JC314KxYeMaWcwGaC/VtUUEQ4xZHyD3JhlKpuGXOqIRnomCWTe3YbeIePCZIgPKKuOk9zxmQ==}
+  /@constl/utils-tests@1.1.1-95255e4.0(react-native@0.73.4):
+    resolution: {integrity: sha512-5s4pJLSRuDMgUroc1nAOHHY8Ea0W+EoYtXwaclgIbLIhKPj5kHjKW9n5OubsxXO9EYd+o63LL49ZYaJWFW/83A==}
     engines: {node: '>=20'}
     dependencies:
       '@helia/block-brokers': 2.0.1
@@ -3103,8 +3103,6 @@ packages:
       protons-runtime: 5.4.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   /@libp2p/dcutr@1.0.10:
     resolution: {integrity: sha512-DFI1ZJ8w6KtFyeum3mWomRrrQif6QYkF5q9SEyT9yCfYjLwGKxjBZngV6MAWEPjQsmNRmidiqpAJcikzfcMXMw==}
@@ -7573,6 +7571,21 @@ packages:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
+
+  /chokidar@3.6.0:
+    resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
+    engines: {node: '>= 8.10.0'}
+    dependencies:
+      anymatch: 3.1.3
+      braces: 3.0.2
+      glob-parent: 5.1.2
+      is-binary-path: 2.1.0
+      is-glob: 4.0.3
+      normalize-path: 3.0.0
+      readdirp: 3.6.0
+    optionalDependencies:
+      fsevents: 2.3.3
+    dev: false
 
   /chownr@1.1.4:
     resolution: {integrity: sha512-jJ0bqzaylmJtVnNgzTeSOs8DPavpbYgEr/b0YL8/2GO3xJEhInFmhKMUnEJQjZumK7KXGFhUy89PrsJWlakBVg==}
