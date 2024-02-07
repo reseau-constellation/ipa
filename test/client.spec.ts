@@ -48,29 +48,27 @@ const schémaKVChaîne: JSONSchemaType<{ [clef: string]: string }> = {
 const schémaListeNumérique: JSONSchemaType<number> = { type: "number" };
 const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
 
-if (!isBrowser)
-  // Pour l'instant
-  describe("Fermeture sécuritaire", function () {
-    let dossier: string;
-    let fEffacer: () => void;
+describe("Fermeture sécuritaire", function () {
+  let dossier: string;
+  let fEffacer: () => void;
 
-    before(async () => {
-      ({ dossier, fEffacer } = await dossiers.dossierTempo());
-    });
-
-    after(async () => {
-      fEffacer?.();
-    });
-
-    it("Fermeture immédiatement après ouverture", async function () {
-      if (process.platform === "win32") this.skip();
-      // Ça a déjà causé des problèmes quand on utilisait ipfs-js
-      const client = créerConstellation({
-        dossier,
-      });
-      await client.fermer();
-    });
+  before(async () => {
+    ({ dossier, fEffacer } = await dossiers.dossierTempo());
   });
+
+  after(async () => {
+    fEffacer?.();
+  });
+
+  it("Fermeture immédiatement après ouverture", async function () {
+    if (!isNode || process.platform === "win32") this.skip(); // Pour l'instant
+
+    const client = créerConstellation({
+      dossier,
+    });
+    await client.fermer();
+  });
+});
 
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
