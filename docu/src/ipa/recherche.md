@@ -24,9 +24,9 @@ Recherche des profils correspondant à un identifiant de compte.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -63,9 +63,9 @@ Recherche des profils selon leur nom.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -100,9 +100,9 @@ Recherche des profils selon leur niveau d'activité. Utile pour trouver des prof
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatVide>
@@ -137,9 +137,9 @@ Recherche des profils selon leur courriel.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -175,9 +175,9 @@ Recherche des profils selon tous leurs attributs (nom, contact ou autre).
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -216,9 +216,9 @@ Recherche des mots-clefs du réseau sans aucun critère spécifique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -255,9 +255,9 @@ Recherche des mots-clefs selon leur identifiant unique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -296,9 +296,9 @@ Recherche des mots-clefs selon leur nom.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -337,9 +337,9 @@ Recherche des mots-clefs selon leur description.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -378,9 +378,9 @@ Recherche tous les champs des mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -421,9 +421,9 @@ Recherche des variables du réseau sans aucun critère spécifique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -460,9 +460,9 @@ Recherche des variables selon leur identifiant unique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -501,9 +501,9 @@ Recherche des variables selon leur nom.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -542,9 +542,9 @@ Recherche des variables selon leur description.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -583,9 +583,9 @@ Recherche tous les champs des variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -626,9 +626,9 @@ Recherche des bases de données du réseau sans aucun critère spécifique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -665,9 +665,9 @@ Recherche des bases de données selon leur identifiant unique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -706,9 +706,9 @@ Recherche des variables selon leur nom.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -747,9 +747,9 @@ Recherche des bases de données selon leur description.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -787,9 +787,9 @@ Recherche des bases de données selon les identifiants uniques de leurs mots-cle
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -830,9 +830,9 @@ Recherche des bases de données selon les identifiants uniques de leurs variable
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -874,9 +874,9 @@ Recherche des bases de données selon les noms de leurs mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -923,9 +923,9 @@ Recherche des bases de données selon les noms de leurs variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -973,9 +973,9 @@ Recherche des bases de données selon leurs mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1022,9 +1022,9 @@ Recherche des bases de données selon leurs variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1072,9 +1072,9 @@ Recherche tous les champs des bases de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<utils.résultatRecherche<
   utils.infoRésultatTexte | utils.infoRésultatRecherche<utils.infoRésultatTexte>
@@ -1119,9 +1119,9 @@ Recherche des bases de données du réseau sans aucun critère spécifique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -1158,9 +1158,9 @@ Recherche des projets selon leur identifiant unique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -1199,9 +1199,9 @@ Recherche des variables selon leur nom.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -1240,9 +1240,9 @@ Recherche des projets selon leur description.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -1281,9 +1281,9 @@ Recherche des projets selon les identifiants uniques de leurs mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1324,9 +1324,9 @@ Recherche des projets selon les identifiants uniques de leurs variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1372,9 +1372,9 @@ Recherche des projets selon les noms de leurs mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1421,9 +1421,9 @@ Recherche des projets selon les noms de leurs variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1474,9 +1474,9 @@ Recherche des projets selon leurs mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1523,9 +1523,9 @@ Recherche des projets selon leurs variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1578,9 +1578,9 @@ Recherche des projets selon les identifiants de leurs bases de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1620,9 +1620,9 @@ Recherche des projets selon leurs bases de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<
@@ -1672,9 +1672,9 @@ Recherche tous les champs des projets.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<utils.résultatRecherche<
   utils.infoRésultatTexte
@@ -1725,9 +1725,9 @@ Recherche des nuées du réseau sans aucun critère spécifique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -1764,9 +1764,9 @@ Recherche des nuées selon leur identifiant unique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -1805,9 +1805,9 @@ Recherche des variables selon leur nom.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -1846,9 +1846,9 @@ Recherche des nuées selon leur description.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
@@ -1887,9 +1887,9 @@ Recherche des nuées selon les identifiants uniques de leurs mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1930,9 +1930,9 @@ Recherche des nuées selon les identifiants uniques de leurs variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -1974,9 +1974,9 @@ Recherche des nuées selon les noms de leurs mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -2023,9 +2023,9 @@ Recherche des nuées selon les noms de leurs variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -2073,9 +2073,9 @@ Recherche des nuées selon leurs mots-clefs.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -2122,9 +2122,9 @@ Recherche des nuées selon leurs variables.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
@@ -2172,9 +2172,9 @@ Recherche tous les champs des nuées.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const résultats = ref<utils.résultatRecherche<
   utils.infoRésultatTexte | utils.infoRésultatRecherche<utils.infoRésultatTexte>

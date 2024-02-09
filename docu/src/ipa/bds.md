@@ -24,9 +24,9 @@ Recherche les bases de données appartenant au compte présent. Pour rechercher 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const bds = ref<string[]>();
 await client.bds.suivreBds({ f: x => bds.value = x });
@@ -51,8 +51,8 @@ Crée une nouvelle base de données.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ 
     licence: "ODbl-1_0", 
@@ -77,8 +77,8 @@ Crée une copie d'une base de données.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 const idCopie = await client.bds.copierBd({ idBd });
@@ -100,8 +100,8 @@ Crée une base de données à partir d'une spécification de schéma.
 
 #### Exemple
 ```ts
-import { générerClient, type bds } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation, type bds } from "@constl/ipa";
+const client = créerConstellation();
 
 // Créer nos variables
 const idVarSite = await client.variables.créerVariable({ 
@@ -156,8 +156,8 @@ Inviter une autre utilisatrice à modifier une base de données vous appartenant
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.inviterAuteur({ 
@@ -178,8 +178,8 @@ Effacer une base de données. Étant donné la structure distribuée de Constell
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.effacerBd({ idBd });
@@ -204,9 +204,9 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'une base de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type bds } from "@constl/ipa";
+import { créerConstellation, type bds } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -234,8 +234,8 @@ Sauvegarde le nom de la base de données dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.sauvegarderNomBd({
@@ -258,8 +258,8 @@ Sauvegarde le nom de la base de données dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.sauvegarderNomsBd({ 
@@ -280,8 +280,8 @@ Efface la traduction du nom de la base de données dans une langue donnée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.effacerNomBd({ idBd, langue: "fr" });
@@ -305,8 +305,8 @@ Suit les noms (traduits en différentes langues) de la base de données.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -342,8 +342,8 @@ Sauvegarde la description de la base de données dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.sauvegarderDescriptionBd({
@@ -366,8 +366,8 @@ Sauvegarde la description d'une base de données dans plusieurs langues en même
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.sauvegarderDescriptionsBd({ 
@@ -391,8 +391,8 @@ Efface la traduction d'une description de la base de données dans une langue do
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.effacerDescriptionBd({ idBd, langue: "fr" });
@@ -415,8 +415,8 @@ Suit les descriptions (traduites en différentes langues) de la base de données
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -451,8 +451,8 @@ Sauvegarde une image décorative.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -493,9 +493,9 @@ Suit l'image de la base de données.
 #### Exemple
 ```ts
 import { ref } from 'vue';
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -528,8 +528,8 @@ Change la licence d'une base de données.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 await client.bds.changerLicenceBd({ idBd, licence: "ODC-BY-1_0" });
@@ -546,8 +546,8 @@ Change la licence des fichiers (images, vidéos ou autres) contenus dans la base
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ 
     licence: "ODBl-1_0", 
@@ -577,9 +577,9 @@ Suit la licence de la base de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -615,9 +615,9 @@ Suit la licence des fichiers contenus par la base de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -649,8 +649,8 @@ Ajoute des mots-clefs à la base de données.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
@@ -704,9 +704,9 @@ Suit les mots-clefs associés à la base de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -752,9 +752,9 @@ Suit les variables associées à la base de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -792,8 +792,8 @@ Ajoute un nouveau tableau à la base de données.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.bds.ajouterTableauBd({ idBd });
@@ -812,8 +812,8 @@ Change la clef identifiant un tableau de la base de données.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 const idTableau = await client.bds.ajouterTableauBd({ idBd });
@@ -862,9 +862,9 @@ Suit les tableaux associés à la base de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type bds } from "@constl/ipa";
+import { créerConstellation, type bds } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -908,8 +908,8 @@ Vous pouvez également [automatiser](./automatisations.md) ces actions !
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
@@ -1003,8 +1003,8 @@ Change le statut de la base de données.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
@@ -1027,8 +1027,8 @@ Indique que la base de données est maintenant obsolète.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
@@ -1049,8 +1049,8 @@ Indique que la base de données est active (pas obsolète).
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
@@ -1067,8 +1067,8 @@ Indique que la base de données est en phase d'essaie (bêta).
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
@@ -1085,8 +1085,8 @@ Indique que la base de données est une base de données interne pour une applic
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
@@ -1110,10 +1110,10 @@ Suit le statut de la base de données.
 
 #### Exemple
 ```ts
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 import { ref } from "vue";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -1141,8 +1141,8 @@ Associer la base de données à des nuées.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
@@ -1191,9 +1191,9 @@ Suit les nuées associées à la base de données.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -1244,9 +1244,9 @@ Suit les données d'un tableau d'une base de données unique.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type bds, type tableaux } from "@constl/ipa";
+import { créerConstellation, type bds, type tableaux } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 // Créer nos variables
 const idVarSite = await client.variables.créerVariable({ 

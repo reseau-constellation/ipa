@@ -22,58 +22,56 @@ export * as variables from "@/variables.js";
 
 import { ipa, ipaTravailleur } from "@/mandataire/index.js";
 import type { optsConstellation } from "@/client.js";
-import type { optsIpaTravailleur } from "@/mandataire/ipaTravailleur.js";
+import { confirmerOptsTravailleur } from "@/mandataire/ipaTravailleur.js";
 import type { MandataireClientConstellation } from "@constl/mandataire";
 
 import type { ClientConstellation as _ClientConstellation } from "@/client.js";
+import {
+  isBrowser,
+  isElectronMain,
+  isElectronRenderer,
+  isNode,
+  isWebWorker,
+  isReactNative,
+} from "wherearewe";
+import { préparerOrbite } from "./orbite.js";
+
 export type ClientConstellation =
   MandataireClientConstellation<_ClientConstellation>;
 
-function générerClient({
-  opts,
-  mandataire,
-}: {
-  opts?: optsConstellation;
-  mandataire: "proc";
-}): ClientConstellation;
-function générerClient({
-  opts,
-  mandataire,
-}: {
-  opts: optsIpaTravailleur;
-  mandataire: "travailleur";
-}): ClientConstellation;
-function générerClient({
-  opts,
-  mandataire,
-}: {
-  opts?: optsConstellation;
-  mandataire?: "proc";
-}): ClientConstellation;
-function générerClient({
-  opts,
-  mandataire,
-}: {
-  opts?: optsConstellation | optsIpaTravailleur;
-  mandataire?: "proc" | "travailleur";
-}): ClientConstellation;
-function générerClient({
-  opts,
-  mandataire = "proc",
-}: {
-  opts?: optsConstellation | optsIpaTravailleur;
-  mandataire?: "proc" | "travailleur";
-}): ClientConstellation {
-  switch (mandataire) {
-    case "proc":
-      return ipa.générerMandataireProc(opts);
-    case "travailleur":
-      return ipaTravailleur.default(opts as optsIpaTravailleur);
-    default:
-      throw new Error(
-        `Mandataire de type ${mandataire} non reconnu (doit être "proc" ou "travailleur").`,
-      );
+export const créerConstellation = (
+  opts: optsConstellation = {},
+): ClientConstellation => {
+  préparerOrbite();
+  if (isNode || isElectronMain) {
+    return ipa.générerMandataireProc(opts);
+  } else if (isBrowser) {
+    return ipa.générerMandataireProc(confirmerOptsTravailleur(opts));
+  } else if (isElectronRenderer) {
+    console.warn(
+      "Constellation a été initialisée par le processus de rendu d'Électron. Ce n'est pas un gros gros problème, mais nous vous recommandons d'utiliser Constellation dans le processus principal, ce qui est beaucoup plus performant et vous permettra également d'accéder à toutes les fonctionnalités de Constellation telles les sauvegardes et les importations automatisées. Voir la documentation: https://docu.réseau-constellation.ca/avancé/applications/électron.html.",
+    );
+    return ipa.générerMandataireProc(confirmerOptsTravailleur(opts));
+  } else if (isWebWorker) {
+    console.warn(
+      "Constellation a été initialisée dans un processus de travailleur. Ce n'est pas un si gros problème, mais nous vous recommandons d'utiliser Constellation dans le processus principal, ce qui est beaucoup plus performant et vous permettra également d'accéder à toutes les fonctionnalités de Constellation telles les sauvegardes et les importations automatisées. Voir la documentation: https://docu.réseau-constellation.ca/avancé/applications/électron.html.",
+    );
+    return ipaTravailleur.générerMandataireTravailleur(
+      confirmerOptsTravailleur(opts),
+    );
+  } else if (isReactNative) {
+    console.warn(
+      "Constellation n'a pas encore été optimisé pour React Native. Nous utiliserons l'implémentation pour navigateurs.",
+    );
+    return ipaTravailleur.générerMandataireTravailleur(
+      confirmerOptsTravailleur(opts),
+    );
+  } else {
+    console.warn(
+      "Environnement non détecté. On va utiliser la configuration navigateur.",
+    );
+    return ipaTravailleur.générerMandataireTravailleur(
+      confirmerOptsTravailleur(opts),
+    );
   }
-}
-
-export { générerClient };
+};

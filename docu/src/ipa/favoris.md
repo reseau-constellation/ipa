@@ -38,9 +38,9 @@ Suit les favoris d'un compte. Identique à [`client.réseau.suivreFavorisMembre`
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type favoris as fav} from "@constl/ipa";
+import { créerConstellation, type favoris as fav} from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const favoris = ref<fav.ÉlémentFavorisAvecObjet[]>();
 const fOublier = await client.favoris.suivreFavoris({
@@ -61,9 +61,9 @@ const fOublier = await client.favoris.suivreFavoris({
 
 #### Exemple
 ```ts
-import { générerClient, type favoris } from "@constl/ipa";
+import { créerConstellation, type favoris } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -113,9 +113,9 @@ Si vous voulez savoir si des données sont épinglées ailleurs sur le réseau, 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type favoris as fav } from "@constl/ipa";
+import { créerConstellation, type favoris as fav } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 
@@ -145,9 +145,9 @@ Suit le statut de l'épingle d'un objet sur un dispositif.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type favoris as fav } from "@constl/ipa";
+import { créerConstellation, type favoris as fav } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
 

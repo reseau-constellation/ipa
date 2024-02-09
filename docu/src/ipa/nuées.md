@@ -24,9 +24,9 @@ Recherche les nuées appartenant au compte présent. Pour rechercher des nuées 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const nuées = ref<string[]>();
 await client.nuées.suivreNuées({ f: x => nuées.value = x });
@@ -50,9 +50,9 @@ Créer une nouvelle nuée.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ autorisation: "CJPI" });
 
@@ -73,8 +73,8 @@ Crée une copie d'une nuée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 const idCopie = await client.nuées.copierNuée({ idNuée });
@@ -96,8 +96,8 @@ Génère une nuée structurée selon une base de données existante.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 // Créer une base de données
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });
@@ -157,8 +157,8 @@ Cette action autorise la modification de la spécification de la nuée. Les aute
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerBd({ });
 await client.nuées.inviterAuteur({ 
@@ -179,8 +179,8 @@ Effacer une nuée. Étant donné la structure distribuée de Constellation, cett
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.bds.créerNuée({  });
 await client.nuées.effacerNuée({ idNuée });
@@ -206,9 +206,9 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'une nuée. 1 indique 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type bds } from "@constl/ipa";
+import { créerConstellation, type bds } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -242,9 +242,9 @@ Suit les noms (traduits en différentes langues) de la nuée.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -277,8 +277,8 @@ Sauvegarde le nom de la nuée dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 await client.nuées.sauvegarderNomNuée({
@@ -301,8 +301,8 @@ Sauvegarde le nom de la nuée dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idBd = await client.nuées.créerNuée({ });
 await client.nuées.sauvegarderNomsNuée({ 
@@ -346,8 +346,8 @@ Sauvegarde la description de la nuée dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 await client.nuée.sauvegarderDescriptionNuée({
@@ -370,8 +370,8 @@ Sauvegarde la description d'une nuée dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 await client.nuées.sauvegarderDescriptionsNuée({ 
@@ -417,9 +417,9 @@ Suit les descriptions (traduites en différentes langues) de la nuée.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";à
+import { créerConstellation } from "@constl/ipa";à
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -454,8 +454,8 @@ Sauvegarde une image décorative.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -496,9 +496,9 @@ Suit l'image de la nuée.
 #### Exemple
 ```ts
 import { ref } from 'vue';
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -527,8 +527,8 @@ Ajoute des mots-clefs à la nuée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -582,9 +582,9 @@ Suit les mots-clefs associés à la nuée.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -631,9 +631,9 @@ Suit les variables associées à la nuée.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -667,8 +667,8 @@ Change le statut de la nuée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 
@@ -697,10 +697,10 @@ Suit le statut de la nuée.
 
 #### Exemple
 ```ts
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 import { ref } from "vue";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 
@@ -725,8 +725,8 @@ Indique que la nuée est maintenant obsolète.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 
@@ -747,8 +747,8 @@ Indique que la nuée est active (pas obsolète).
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 
@@ -765,8 +765,8 @@ Indique que la nuée est en phase d'essaie (bêta).
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 
@@ -783,8 +783,8 @@ Indique que la nuée est une nuée interne pour une application tièrce et ne de
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 
@@ -808,8 +808,8 @@ Ajoute un nouveau tableau à la nuée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
@@ -852,9 +852,9 @@ Suit les tableaux associés à la nuée.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient, type bds } from "@constl/ipa";
+import { créerConstellation, type bds } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 
@@ -904,9 +904,9 @@ Ajoute une règle de validation à un tableau d'une nuée.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const clefTableau = "mon tableau principal";
 
@@ -1115,9 +1115,9 @@ Vous pouvez passer le résultat de cette fonction à la fonction [`bds.exporterD
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({ });
 
@@ -1197,9 +1197,9 @@ Cette fonction suit, de manière récursive, les nuées qui ont spécifié la nu
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const nuéesLiées = ref<string[]>();
 

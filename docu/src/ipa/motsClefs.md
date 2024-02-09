@@ -23,8 +23,8 @@ Recherche les mots-clefs appartenant au compte présent. Pour rechercher des mot
 ```ts
 import { ref } from "vue";
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const motsClefs = ref<string[]>();
 await client.motsClefs.suivreMotsClefs({ f: x => motsClefs.value = x });
@@ -41,8 +41,8 @@ Crée un nouveau mot-clef.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 
@@ -64,8 +64,8 @@ Crée une copie d'un mot-clef.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 const idCopie = await client.motsClefs.copierMotClef({ idMotClef });
@@ -84,8 +84,8 @@ Inviter une autre utilisatrice à modifier un mot-clef vous appartenant. Attenti
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.inviterAuteur({ 
@@ -106,8 +106,8 @@ Effacer un mot-clef. Étant donné la structure distribuée de Constellation, ce
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.effacerMotClef({ idMotClef });
@@ -133,8 +133,8 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'un mot-clef. 1 indiqu
 ```ts
 import { ref } from "vue";
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 
@@ -163,8 +163,8 @@ Sauvegarde le nom du mot-clef dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.sauvegarderNomMotClef({
@@ -187,8 +187,8 @@ Sauvegarde le nom du mot-clef dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.sauvegarderNomsMotClef({ 
@@ -209,8 +209,8 @@ Efface la traduction du nom du mot-clef dans une langue donnée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.effacerNomMotClef({ idMotClef, langue: "fr" });
@@ -234,8 +234,8 @@ Suit les noms (traduits en différentes langues) du mot-clef.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 
@@ -271,8 +271,8 @@ Sauvegarde la description du mot-clef dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.sauvegarderDescriptionMotClef({
@@ -295,8 +295,8 @@ Sauvegarde la description d'un mot-clef dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.sauvegarderDescriptionsMotClef({ 
@@ -320,8 +320,8 @@ Efface la traduction d'une description du mot-clef dans une langue donnée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.effacerDescriptionMotClef({ idMotClef, langue: "fr" });
@@ -345,8 +345,8 @@ Suit les descriptions (traduites en différentes langues) du mot-clef.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 

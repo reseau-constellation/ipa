@@ -5,57 +5,57 @@ import {
   isNode,
   isWebWorker,
 } from "wherearewe";
-import { mplex } from "@libp2p/mplex";
-import { create } from "ipfs-core";
-import { noise } from "@chainsafe/libp2p-noise";
-import mergeOptions from "merge-options";
-import type { IPFS } from "ipfs-core";
-import type { Options } from "ipfs-core";
-import { FaultTolerance } from "@libp2p/interface-transport";
+import { Helia, createHelia } from "helia";
+import { LevelBlockstore } from "blockstore-level";
+import { bitswap } from "@helia/block-brokers";
 
-const obtConfigPlateforme = async (): Promise<Parameters<typeof create>[0]> => {
-  let configPlateforme: Parameters<typeof create>[0];
+import { createLibp2p, type Libp2pOptions } from "libp2p";
+import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
+import type { Libp2p } from "@libp2p/interface";
+
+import { obtOptionsLibp2pNode } from "./configNode.js";
+import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
+import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
+import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
+
+export type ServicesLibp2p = { pubsub: GossipSub };
+
+const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
+  let configPlateforme: Libp2pOptions;
   if (isBrowser || isElectronRenderer) {
-    configPlateforme = (await import("@/sfip/configNavigateur.js")).default;
+    // À faire - migrer vers travailleur ?
+    configPlateforme = await obtOptionsLibp2pNavigateur();
   } else if (isWebWorker) {
-    configPlateforme = (await import("@/sfip/configTravailleur.js")).default;
+    configPlateforme = await obtOptionsLibp2pTravailleurWeb();
   } else if (isElectronMain) {
-    configPlateforme = (await import("@/sfip/configÉlectronPrincipal.js"))
-      .default;
+    configPlateforme = await obtOptionsLibp2pÉlectionPrincipal();
   } else if (isNode) {
-    configPlateforme = (await import("@/sfip/configNode.js")).default;
+    configPlateforme = await obtOptionsLibp2pNode();
   } else {
     console.warn(
       "Plateforme non reconnue. On utilisera la configuration navigateur.",
     );
-    configPlateforme = (await import("@/sfip/configNavigateur.js")).default;
+    configPlateforme = await obtOptionsLibp2pNavigateur();
   }
   return configPlateforme;
 };
 
-// https://github.com/libp2p/js-libp2p-webrtc-direct/issues/98
-const obtConfigCommun = (): Options => {
-  return {
-    libp2p: {
-      streamMuxers: [mplex()],
-      connectionEncryption: [noise()],
-      transportManager: {
-        faultTolerance: FaultTolerance.NO_FATAL,
-      },
-    },
-    relay: { enabled: true, hop: { enabled: true, active: true } },
+export default async function initSFIP(
+  dossier: string,
+): Promise<Helia<Libp2p<ServicesLibp2p>>> {
+  const config = await obtConfigLibp2pPlateforme();
+
+  const libp2p = (await createLibp2p({
+    ...config,
+  })) as unknown as Libp2p<ServicesLibp2p>;
+
+  const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
+
+  const optionsHelia = {
+    blockstore: stockageBloques,
+    libp2p,
+    blockBrokers: [bitswap()],
   };
-};
 
-export default async function initSFIP(dir = "./constl/sfip"): Promise<IPFS> {
-  const config = obtConfigCommun();
-  const configPlateforme = await obtConfigPlateforme();
-
-  config.repo = dir;
-
-  const configFinale: Parameters<typeof create>[0] = mergeOptions(
-    config,
-    configPlateforme,
-  );
-  return await create(configFinale);
+  return await createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
 }

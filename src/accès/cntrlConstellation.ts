@@ -257,7 +257,9 @@ const ContrôleurConstellation =
     };
 
     const drop = async () => {
-      await bd.drop();
+      // Désactivé pour l'instant. Si nous avons plus qu'une bd qui partage le même contrôleur,
+      // la destruction de la bd du contrôleur pourrait causer des ennuis.
+      // await bd.drop();
     };
 
     const suivreUtilisateursAutorisés = async (

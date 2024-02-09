@@ -1,32 +1,49 @@
+import { identify } from "@libp2p/identify";
 import { webSockets } from "@libp2p/websockets";
-import { webRTCDirect } from "@libp2p/webrtc-direct";
-import { webRTCStar } from "@libp2p/webrtc-star";
 import { webTransport } from "@libp2p/webtransport";
-import type { create } from "ipfs-core";
+import { webRTC } from "@libp2p/webrtc";
+import { bootstrap } from "@libp2p/bootstrap";
+import { all } from "@libp2p/websockets/filters";
+import { noise } from "@chainsafe/libp2p-noise";
+import { yamux } from "@chainsafe/libp2p-yamux";
+import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
-import wrtc from "wrtc";
-import { ADRESSES_WEBRTC_STAR } from "./const.js";
+import type { Libp2pOptions } from "libp2p";
 
-const webrtc = webRTCStar({
-  wrtc,
-});
+import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 
-// https://github.com/libp2p/js-libp2p/blob/master/doc/CONFIGURATION.md#setup-webrtc-transport-and-discovery
-// https://github.com/ipfs/js-ipfs/blob/master/packages/ipfs-core-config/src/libp2p.browser
-// https://github.com/ipfs/js-ipfs/blob/master/packages/ipfs-core-config/src/libp2p
-const config: Parameters<typeof create>[0] = {
-  libp2p: {
-    transports: [
-      webTransport(),
-      webSockets(),
-      webrtc.transport,
-      webRTCDirect({ wrtc }),
-    ],
-    peerDiscovery: [webrtc.discovery],
+export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
+  const { tcp } = await import("@libp2p/tcp");
+  return {
     addresses: {
-      listen: ADRESSES_WEBRTC_STAR,
+      listen: ["/ip4/0.0.0.0/tcp/0/ws"],
     },
-  },
+    transports: [
+      webSockets({
+        filter: all,
+      }),
+      webRTC(),
+      webTransport(),
+      tcp(),
+      circuitRelayTransport({
+        discoverRelays: 1,
+      }),
+    ],
+    connectionEncryption: [noise()],
+    streamMuxers: [yamux()],
+    connectionGater: {
+      denyDialMultiaddr: () => false,
+    },
+    peerDiscovery: [
+      bootstrap({
+        list: ADRESSES_NŒUDS_RELAI,
+        tagTTL: Infinity,
+      }),
+    ],
+    services: {
+      identify: identify(),
+      pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+    },
+  };
 };
-
-export default config;

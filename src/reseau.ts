@@ -1,8 +1,10 @@
 import { isValidAddress } from "@orbitdb/core";
 
-import type { PeersResult } from "ipfs-core-types/src/swarm";
-import type { Message as MessagePubSub } from "@libp2p/interface-pubsub";
-import type { Libp2p, Libp2pEvents } from "libp2p";
+import type {
+  PeerId,
+  Libp2pEvents,
+  Message as MessagePubSub,
+} from "@libp2p/interface";
 
 import { EventEmitter } from "events";
 import sum from "lodash/sum.js";
@@ -222,12 +224,6 @@ const CONFIANCE_DE_FAVORIS = 0.7;
 const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
-const obtChaîneIdSFIPClient = async (
-  client: ClientConstellation,
-): Promise<string> => {
-  return (await client.obtIdSFIP()).id.toCID().toString();
-};
-
 export default class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: ClientConstellation;
   bloquésPrivés: Set<string>;
@@ -258,13 +254,21 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }
 
   async initialiser(): Promise<void> {
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+
     const promesses: { [clef: string]: Promise<void> } = {};
-    await this.client.sfip!.pubsub.subscribe(
-      this.client.sujet_réseau,
-      (msg: MessagePubSub) => {
-        const id = uuidv4();
+
+    const pubsub = sfip.libp2p.services.pubsub;
+    pubsub.subscribe(this.client.sujet_réseau);
+
+    const fÉcoutePubSub = (évé: CustomEvent<MessagePubSub>) => {
+      const messageGs = évé.detail;
+      const id = uuidv4();
+      if (messageGs.topic === this.client.sujet_réseau) {
         try {
-          const promesse = this.messageReçu({ msg });
+          const promesse = this.messageReçu({
+            msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
+          });
           promesses[id] = promesse;
           promesse.then(() => {
             delete promesses[id];
@@ -273,15 +277,17 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
           console.error(e.toString());
           console.error(e.stack.toString());
         }
-      },
-    );
+      }
+    };
+    pubsub.addEventListener("message", fÉcoutePubSub);
+
     this.fsOublier.push(async () => {
-      await this.client.sfip!.pubsub.unsubscribe(this.client.sujet_réseau);
+      pubsub.unsubscribe(this.client.sujet_réseau);
+      pubsub.removeEventListener("message");
       await Promise.all(Object.values(promesses));
     });
 
-    // @ts-expect-error Pas inclus dans les types de SFIP
-    const libp2p: Libp2p = this.client.sfip!.libp2p;
+    const libp2p = sfip.libp2p;
 
     const fSuivreConnexions = () => {
       this.événements.emit("changementConnexions");
@@ -289,9 +295,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
 
     const événements: (keyof Libp2pEvents)[] = [
       "peer:discovery",
-      // @ts-expect-error erreur dans les types SFIP
       "peer:connect",
-      // @ts-expect-error erreur dans les types SFIP
       "peer:disconnect",
     ];
     for (const é of événements) {
@@ -330,9 +334,10 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
       msg.destinataire = idSFIP;
     }
     const sujet = this.client.sujet_réseau;
-
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+    const pubsub = sfip.libp2p.services.pubsub;
     const msgBinaire = Buffer.from(JSON.stringify(msg));
-    await this.client.sfip!.pubsub.publish(sujet, msgBinaire);
+    await pubsub.publish(sujet, msgBinaire);
   }
 
   async envoyerMessageAuMembre({
@@ -402,7 +407,7 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     const valeur: ValeurMessageSalut = {
       type: "Salut !",
       contenu: {
-        idSFIP: await obtChaîneIdSFIPClient(this.client),
+        idSFIP: (await this.client.obtIdSFIP()).toCID().toString(),
         idDispositif: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
@@ -458,27 +463,26 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     await this.envoyerMessageAuMembre({ msg, idCompte });
   }
 
-  async messageReçu({ msg }: { msg: MessagePubSub }): Promise<void> {
+  async messageReçu({ msg }: { msg: Message }): Promise<void> {
     if (this._fermé) return;
 
-    const messageJSON: Message = JSON.parse(new TextDecoder().decode(msg.data));
-    const { encrypté, destinataire } = messageJSON;
+    const { encrypté, destinataire } = msg;
 
     if (
       destinataire &&
-      destinataire !== (await obtChaîneIdSFIPClient(this.client))
+      destinataire !== (await this.client.obtIdSFIP()).toCID().toString()
     )
       return;
 
     const données: DonnéesMessage = encrypté
       ? JSON.parse(
           await this.client.encryption.décrypter({
-            message: (messageJSON as MessageEncrypté).données,
-            clefPubliqueExpéditeur: (messageJSON as MessageEncrypté)
+            message: (msg as MessageEncrypté).données,
+            clefPubliqueExpéditeur: (msg as MessageEncrypté)
               .clefPubliqueExpéditeur,
           }),
         )
-      : messageJSON.données;
+      : msg.données;
 
     const { valeur, signature } = données;
 
@@ -1294,18 +1298,16 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   async suivreConnexionsPostesSFIP({
     f,
   }: {
-    f: schémaFonctionSuivi<{ adresse: string; pair: string }[]>;
+    f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    const dédédoublerConnexions = (
-      connexions: PeersResult[],
-    ): PeersResult[] => {
+    const dédédoublerConnexions = (connexions: PeerId[]): PeerId[] => {
       const adrDéjàVues: string[] = [];
-      const dédupliquées: PeersResult[] = [];
+      const dédupliquées: PeerId[] = [];
 
       // Enlever les doublons
       for (const c of connexions) {
-        if (!adrDéjàVues.includes(c.peer.toCID().toString())) {
-          adrDéjàVues.push(c.peer.toCID().toString());
+        if (!adrDéjàVues.includes(c.toCID().toString())) {
+          adrDéjàVues.push(c.toCID().toString());
           dédupliquées.push(c);
         }
       }
@@ -1314,19 +1316,13 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
     };
 
     const fFinale = async () => {
-      const connexions = await this.client.sfip!.swarm.peers();
+      const { sfip } = await this.client.attendreSfipEtOrbite();
+      const connexions = sfip.libp2p.getPeers();
 
       // Enlever les doublons (pas trop sûr ce qu'ils font ici)
       const connexionsUniques = dédédoublerConnexions(connexions);
 
-      return await f(
-        connexionsUniques.map((c) => {
-          return {
-            adresse: c.addr.toString(),
-            pair: c.peer.toCID().toString(),
-          };
-        }),
-      );
+      return await f(connexionsUniques.map((c) => c.toCID().toString()));
     };
 
     this.événements.on("changementConnexions", fFinale);
@@ -1344,8 +1340,22 @@ export default class Réseau extends ComposanteClientDic<structureBdPrincipaleR�
   }: {
     f: schémaFonctionSuivi<statutDispositif[]>;
   }): Promise<schémaFonctionOublier> {
+    const moi: statutDispositif = {
+      infoDispositif: {
+        idSFIP: (await this.client.obtIdSFIP()).toCID().toString(),
+        idDispositif: await this.client.obtIdDispositif(),
+        idCompte: await this.client.obtIdCompte(),
+        clefPublique: (await this.client.obtIdentitéOrbite()).publicKey,
+        encryption: {
+          type: await this.client.encryption.obtNom(),
+          clefPublique: (await this.client.encryption.obtClefs()).publique,
+        },
+        signatures: (await this.client.obtIdentitéOrbite()).signatures,
+      },
+    };
+
     const fFinale = async () => {
-      return await f(Object.values(this.dispositifsEnLigne));
+      return await f([...Object.values(this.dispositifsEnLigne), moi]);
     };
 
     this.événements.on("membreVu", fFinale);

@@ -1,16 +1,8 @@
-import { client as utilsClientTest } from "@constl/utils-tests";
+import { orbite } from "@constl/utils-tests";
 
 import { ClientConstellation as ClientConstellationInterne } from "@/client.js";
 import { isBrowser } from "wherearewe";
-
-export type typeClient = "proc" | "travailleur";
-
-export const typesClients: typeClient[] =
-  process.env.MANDATAIRE === "TOUS"
-    ? ["travailleur", "proc"]
-    : process.env.MANDATAIRE === "TRAV"
-      ? ["travailleur"]
-      : ["proc"];
+import { préparerOrbite } from "@/orbite.js";
 
 export const générerClientsInternes = async ({
   n,
@@ -20,17 +12,22 @@ export const générerClientsInternes = async ({
   clients: ClientConstellationInterne[];
   fOublier: () => Promise<void>;
 }> => {
+  préparerOrbite();
+
   const fsOublier: (() => Promise<void>)[] = [];
+
   // Nécessaire pour Playwright
   if (isBrowser) window.localStorage.clear();
 
-  const { orbites, fOublier: fOublierOrbites } =
-    await utilsClientTest.générerOrbites(n);
+  const { orbites, fOublier: fOublierOrbites } = await orbite.créerOrbiteTest({
+    n,
+  });
   fsOublier.push(fOublierOrbites);
 
   const clients = await Promise.all(
     [...Array(n).keys()].map(async (i) => {
       return await ClientConstellationInterne.créer({
+        dossier: orbites[i].directory.split("/").slice(0, -1).join("/"),
         orbite: orbites[i],
       });
     }),

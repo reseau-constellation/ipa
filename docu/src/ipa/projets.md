@@ -22,9 +22,9 @@ Recherche les projets appartenant au compte présent. Pour rechercher des bases 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const projets = ref<string[]>();
 await client.projets.suivreProjets({ f: x => projets.value = x });
@@ -41,8 +41,8 @@ Crée un nouveau projet .
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -63,8 +63,8 @@ Crée une copie d'un projet.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 const idCopie = await client.projets.copierProjet({ idProjet });
@@ -83,8 +83,8 @@ Inviter une autre utilisatrice à modifier un projet vous appartenant. Attention
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 await client.projets.inviterAuteur({ 
@@ -105,8 +105,8 @@ Effacer un projet. Étant donné la structure distribuée de Constellation, cett
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 await client.projets.effacerProjet({ idProjet });
@@ -131,9 +131,9 @@ Suivre une mesure (subjective, de 0 à 1) de la qualité d'un projet. 1 indique 
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -160,8 +160,8 @@ Sauvegarde le nom du projet dans une langue donnée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 await client.projets.sauvegarderNomProjet({
@@ -184,8 +184,8 @@ Sauvegarde le nom du projet dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 await client.projets.sauvegarderNomsProjet({ 
@@ -206,8 +206,8 @@ Efface la traduction du nom du projet dans une langue donnée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 await client.projets.effacerNomProjet({ idProjet, langue: "fr" });
@@ -231,8 +231,8 @@ Suit les noms (traduits en différentes langues) du projet.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -268,8 +268,8 @@ Sauvegarde la description du projet dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 await client.projets.sauvegarderDescriptionProjet({
@@ -292,8 +292,8 @@ Sauvegarde la description d'un projet dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 await client.projets.sauvegarderDescriptionsProjet({ 
@@ -317,8 +317,8 @@ Efface la traduction d'une description du projet dans une langue donnée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 await client.projets.effacerDescriptionProjet({ idProjet, langue: "fr" });
@@ -341,8 +341,8 @@ Suit les descriptions (traduites en différentes langues) du projet.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -376,8 +376,8 @@ Sauvegarde une image décorative.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -418,9 +418,9 @@ Suit l'image du projet.
 #### Exemple
 ```ts
 import { ref } from 'vue';
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -444,8 +444,8 @@ Ajoute des mots-clefs au projet.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
@@ -493,9 +493,9 @@ Suit les bases de données associées au projet.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -527,8 +527,8 @@ Ajoute des mots-clefs au projet.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -582,9 +582,9 @@ Suit les mots-clefs associés au projet, soit directement, soit indirectement à
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -647,9 +647,9 @@ Suit les variables associées au projet.
 #### Exemple
 ```ts
 import { ref } from "vue";
-import { générerClient } from "@constl/ipa";
+import { créerConstellation } from "@constl/ipa";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -698,8 +698,8 @@ Vous pouvez également [automatiser](./automatisations.md) ces actions !
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -794,8 +794,8 @@ Change le statut du projet.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -818,8 +818,8 @@ Indique que le projet est maintenant obsolète.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -840,8 +840,8 @@ Indique que le projet est actif (pas obsolète).
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -858,8 +858,8 @@ Indique que le projet est en phase d'essaie (bêta).
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -876,8 +876,8 @@ Indique que le projet est un projet interne pour une application tièrce et ne d
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
@@ -901,10 +901,10 @@ Suit le statut du projet.
 
 #### Exemple
 ```ts
-import { générerClient, type utils } from "@constl/ipa";
+import { créerConstellation, type utils } from "@constl/ipa";
 import { ref } from "vue";
 
-const client = générerClient({});
+const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 

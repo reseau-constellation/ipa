@@ -18,8 +18,8 @@ Sauvegarde le nom de l'utilisateur dans une langue donnée.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 await client.profil.sauvegarderNom({ langue: "fr", nom: "C'est bien moi !" });
 
@@ -36,8 +36,8 @@ Sauvegarde le nom de l'utilisateur dans plusieurs langues en même temps.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 await client.profil.sauvegarderNoms({ fr: "C'est bien moi !", हिं: "मैं हुँ"});
 
@@ -53,8 +53,8 @@ Efface la traduction du nom de l'utilisateur dans une langue donnée.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 await client.profil.effacerNom({ langue: "fr" });
 ```
@@ -77,8 +77,8 @@ Suit les noms (traduits en différentes langues) de l'utilisatrice.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const fOublierNoms = await client.profil.suivreNoms({ f: noms => console.log(noms) });
 await fOublierNoms();
@@ -97,8 +97,8 @@ Sauvegarde une image de profil.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const image = fs.readFileSync("mon image locale.jpeg");
 await client.profil.sauvegarderImage({ image });
@@ -110,8 +110,8 @@ Efface l'image de profil.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 await client.profil.effacerImage();
 ```
@@ -133,8 +133,8 @@ Suit l'image de profil de l'utilisatrice.
 #### Exemple
 ```ts
 import { ref } from 'vue';
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const image = ref<Uint8Array>();
 const fOublierImage = await client.profil.suivreImage({ f: x => image.value = x });
@@ -156,8 +156,8 @@ Sauvegarde un moyen de contact.
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 await client.profil.sauvegarderContact({ 
     type: "courriel", 
@@ -177,8 +177,8 @@ Effacer l'information de contact.
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 await client.profil.effacerContact({ type: "courriel" });
 ```
@@ -200,8 +200,8 @@ Suit les informations de contact de l'utilisatrice.
 #### Exemple
 ```ts
 import { ref } from 'vue';
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const contacts = ref<Uint8Array>({type: string, contact: string}[]);
 const fOublierContacts = await client.profil.suivreContacts({
@@ -221,8 +221,8 @@ Fonction rapide pour sauvegarder un courriel. Équivalent à `client.profil.sauv
 #### Exemple
 ```ts
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 await client.profil.sauvegarderCourriel({ 
     courriel: "moi@cestbienmoi.ca" 
@@ -235,8 +235,8 @@ Fonction rapide pour effacer un courriel. Équivalent à `client.profil.effacerC
 
 #### Exemple
 ```ts
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 await client.profil.effacerCourriel();
 ```
@@ -258,8 +258,8 @@ Version spécifique de `client.profil.suivreContact` qui suit le courriel de l'u
 #### Exemple
 ```ts
 import { ref } from 'vue';
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const courriel = ref<Uint8Array>();
 const fOublierCourriel = await client.profil.suivreCourriel({

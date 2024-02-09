@@ -937,8 +937,9 @@ export default class Automatisations extends ComposanteClientDic<{
       if (!autos.find((a) => a.id === id)) await this.fermerAuto(id);
     }
 
+    const monIdOrbite = await this.client.obtIdDispositif();
     for (const a of autos) {
-      if (activePourCeDispositif(a, this.client.orbite!.identity.id)) {
+      if (activePourCeDispositif(a, monIdOrbite)) {
         if (!Object.keys(this.automatisations).includes(a.id)) {
           const auto = new AutomatisationActive(a, a.id, this.client);
           auto.on("misÀJour", () => this.événements.emit("misÀJour"));
@@ -1053,7 +1054,8 @@ export default class Automatisations extends ComposanteClientDic<{
     héritage?: ("descendance" | "ascendance")[];
     copies?: copiesExportation;
   }): Promise<string> {
-    dispositifs = dispositifs || [this.client.orbite!.identity.id];
+    const { orbite } = await this.client.attendreSfipEtOrbite();
+    dispositifs = dispositifs || [orbite.identity.id];
     const idAuto = uuidv4();
     const idDossier = await this.sauvegarderAdressePrivéeFichier({
       fichier: dossier,
@@ -1103,8 +1105,9 @@ export default class Automatisations extends ComposanteClientDic<{
     dispositif?: string;
   }): Promise<string> {
     const { bd, fOublier } = await this.obtBd();
+    const { orbite } = await this.client.attendreSfipEtOrbite();
 
-    dispositif = dispositif || this.client.orbite!.identity.id;
+    dispositif = dispositif || orbite.identity.id;
     const id = uuidv4();
 
     if (source.typeSource === "fichier") {

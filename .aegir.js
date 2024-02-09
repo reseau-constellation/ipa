@@ -4,6 +4,7 @@ import { createRequire } from "module";
 import express from "express";
 import cors from "cors";
 import url from "url";
+import { $ } from "execa";
 
 const require = createRequire(import.meta.url);
 
@@ -25,6 +26,8 @@ const esbuild = {
     "zlib",
     "rimraf",
     "electron",
+    "env-paths",
+    "@libp2p/tcp",
   ],
   plugins: [
     {
@@ -59,6 +62,8 @@ const options = {
       },
     },
     before: async (opts) => {
+      const relai = $`node test/utils/relai.js &`;
+
       // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
       const { chromium } = await import("playwright");
       const navigateur = await chromium.launch();
@@ -113,11 +118,12 @@ const options = {
         serveurLocal = appliExpress.listen(3000);
       }
 
-      return { navigateur, serveurLocal };
+      return { navigateur, serveurLocal, relai };
     },
     after: async (_, avant) => {
       await avant.navigateur.close();
       await avant.serveurLocal?.close();
+      avant.relai.kill();
     },
   },
   build: {

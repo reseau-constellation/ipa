@@ -16,7 +16,9 @@ export const obtRessourceTest = async ({
     const ext = nomFichier.split(".").pop();
 
     const cheminFichier = path.join(
-      url.fileURLToPath(new URL(".", import.meta.url)).replace("dist/", ""),
+      url
+        .fileURLToPath(new URL(".", import.meta.url))
+        .replace("dist" + path.sep, ""),
       nomFichier,
     );
 
@@ -30,6 +32,8 @@ export const obtRessourceTest = async ({
       `http://localhost:3000/fichier/${encodeURIComponent(nomFichier)}`,
       optsAxios,
     );
-    return rés.data;
+    return typeof rés.data === "string"
+      ? new TextEncoder().encode(rés.data)
+      : rés.data;
   }
 };

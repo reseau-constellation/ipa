@@ -20,8 +20,8 @@ Les règles de type `existe` précisent que les valeurs manquantes ne sont pas a
 ```TypeScript
 import type { valid } from "@constl/ipa";
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idVariable = await client.variables.créerVariable({ catégorie: "image" });
 
@@ -47,8 +47,8 @@ Les bornes fixes précisent une valeur contre laquelle les valeurs des données 
 ```TypeScript
 import type { valid } from "@constl/ipa";
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.variables.sauvegarderNomVariable({ 
@@ -74,8 +74,8 @@ Les bornes dynamiques comparent les données à une valeur dynamique provenant d
 ```TypeScript
 import type { valid } from "@constl/ipa";
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 const idVariableTempMin = await client.variables.créerVariable({ 
     catégorie: "numérique" 
@@ -144,8 +144,8 @@ Les règles catégoriques fixes incluent une liste fixe de valeurs permises.
 ```TypeScript
 import type { valid } from "@constl/ipa";
 
-import { générerClient } from "@constl/ipa";
-const client = générerClient({});
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
 
 // Une base de données
 const idBd = await client.bds.créerBd({ licence: "ODBl-1_0" });

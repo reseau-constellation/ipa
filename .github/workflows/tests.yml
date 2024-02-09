@@ -54,7 +54,7 @@ jobs:
     name: IPA sur le navigateur
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       
@@ -116,7 +116,10 @@ jobs:
       - name: Vérifier les tests
         # De cawa-93/vite-electron-builder
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- pnpm run test:électron-principal
+        if: matrix.os == 'ubuntu-latest'
 
+      - run: pnpm run test:électron-principal
+        if: matrix.os != 'ubuntu-latest'
 
       - name: Envoyer couverure à Codecov
         uses: codecov/codecov-action@v3

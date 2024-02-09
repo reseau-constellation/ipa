@@ -8,11 +8,11 @@ Voici un exemple d'extention [Vue.js 3](https://fr.vuejs.org/) qui crée une ins
 // extentions/constellation.ts
 import type {App} from 'vue';
 
-import { générerClient } from '@constl/ipa';
+import { créerConstellation } from '@constl/ipa';
 
 export default {
   install: (app: App) => {
-    const client = générerClient({});
+    const client = créerConstellation();
     app.provide('constl', client);
   },
 };

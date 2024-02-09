@@ -7,6 +7,7 @@ import {
 import { cidValide } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 import { EventEmitter } from "events";
+import { CID } from "multiformats";
 
 interface RequèteÉpingle {
   id: string;
@@ -158,14 +159,14 @@ export default class Épingles {
 
           const { sfip } = await this.client.attendreSfipEtOrbite();
           cids.forEach(async (id_) => {
-            // Pas async car le contenu correspondant au CID n'est peut-être pas disponible au moment
-            // (Sinon ça bloquerait tout le programme en attendant de trouver le contenu sur le réseau SFIP !)
-            sfip.pin.add(id_.split("/")[0]);
+            for await (const _ of sfip.pins.add(CID.parse(id_.split("/")[0]))) {
+              // rien à faire... assurer que ceci ne bloque pas tout le programme en attendant de trouver le contenu sur le réseau SFIP !
+            }
 
             const fOublier_ = async () => {
               // rm par contre peut être async
               try {
-                await sfip.pin.rm(id_);
+                await sfip.pins.rm(CID.parse(id_));
               } catch {
                 // Ignorer erreur si id_ n'était pas épinglé sur SFIP
               }

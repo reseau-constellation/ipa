@@ -4,12 +4,7 @@ import path from "path";
 import { traduire, zipper } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 
-import {
-  attente as utilsTestAttente,
-  dossiers as utilsTestDossiers,
-} from "@constl/utils-tests";
-
-const { dossierTempoTests } = utilsTestDossiers;
+import { attente, dossiers } from "@constl/utils-tests";
 
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
@@ -36,14 +31,13 @@ describe("Utils : données", function () {
       let nomFichier: string;
       let zip: JSZip;
 
-      let attendreFichier: utilsTestAttente.AttendreFichierExiste;
+      let attendreFichier: attente.AttendreFichierExiste;
 
       before(async () => {
-        ({ dossier, fEffacer } = await dossierTempoTests());
+        ({ dossier, fEffacer } = await dossiers.dossierTempo());
+
         nomFichier = path.join(dossier, "testZip.zip");
-        attendreFichier = new utilsTestAttente.AttendreFichierExiste(
-          nomFichier,
-        );
+        attendreFichier = new attente.AttendreFichierExiste(nomFichier);
         const fichiersDocs = [
           {
             nom: "fichier1.txt",
@@ -81,13 +75,13 @@ describe("Utils : données", function () {
       it("Les fichiers SFIP sont inclus", async () => {
         expect(zip.files["sfip/"].dir).to.be.true();
         const contenuFichierSFIP1 =
-          await zip.files[path.join("sfip", "fichierSFIP1.txt")].async(
+          await zip.files[["sfip", "fichierSFIP1.txt"].join("/")].async(
             "string",
           );
         expect(contenuFichierSFIP1).to.equal("Je suis le fichier SFIP no. 1.");
 
         const contenuFichierSFIP2 =
-          await zip.files[path.join("sfip", "fichierSFIP2.txt")].async(
+          await zip.files[["sfip", "fichierSFIP2.txt"].join("/")].async(
             "string",
           );
         expect(contenuFichierSFIP2).to.equal("Je suis le fichier SFIP no. 2.");

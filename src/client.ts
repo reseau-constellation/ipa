@@ -1,6 +1,3 @@
-import type { IPFS as SFIP } from "ipfs-core";
-import type { IDResult } from "ipfs-core-types/src/root";
-import type { ToFile } from "ipfs-core-types/src/utils";
 import type { KeyValue as KeyValueDatabaseType } from "@orbitdb/core";
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
@@ -11,8 +8,10 @@ import {
   isValidAddress,
   KeyValue,
   OrbitDBDatabaseOptions,
+  type createOrbitDB,
 } from "@orbitdb/core";
-
+import { Libp2p, PeerId } from "@libp2p/interface";
+import { unixfs } from "@helia/unixfs";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
 import Licences from "@/licences.js";
 import { EventEmitter } from "events";
@@ -72,7 +71,6 @@ import {
   gestionnaireOrbiteGénéral,
   type GestionnaireOrbite,
   Store,
-  préparerOrbite,
 } from "@/orbite.js";
 import {
   TypedFeed,
@@ -80,12 +78,15 @@ import {
   TypedOrderedKeyValue,
   TypedSet,
 } from "@constl/bohr-db";
-import type {
-  FeedDatabaseType,
-  OrderedKeyValueDatabaseType,
-  SetDatabaseType,
-} from "@constl/orbit-db-kuiper";
+import type { FeedDatabaseType } from "@orbitdb/feed-db";
+import type { SetDatabaseType } from "@orbitdb/set-db";
+import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import Protocoles from "./protocoles.js";
+import { Helia } from "helia";
+import { CID } from "multiformats";
+import type { ServicesLibp2p } from "@/sfip/index.js";
+import { join } from "path";
+import initSFIP from "@/sfip/index.js";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -99,7 +100,10 @@ type ContrôleurConstellation = Awaited<
 
 type ÉvénementsClient = {
   comptePrêt: (args: { idCompte: string }) => void;
-  sfipEtOrbitePrêts: (args: { sfip: SFIP; orbite: GestionnaireOrbite }) => void;
+  sfipEtOrbitePrêts: (args: {
+    sfip: Helia<Libp2p<ServicesLibp2p>>;
+    orbite: GestionnaireOrbite;
+  }) => void;
 };
 
 const estOrbiteDB = (x: unknown): x is OrbitDB => {
@@ -124,23 +128,18 @@ export interface Signature {
 }
 
 export interface optsConstellation {
-  compte?: string;
+  dossier?: string;
   sujetRéseau?: string;
-  orbite?: optsOrbite;
   protocoles?: string[];
+  orbite?: optsOrbite;
 }
 
-type optsOrbite = OrbitDB | optsInitOrbite;
+export type optsInitOrbite = Omit<
+  Parameters<typeof createOrbitDB>[0],
+  "ipfs" | "directory"
+> & { directory?: string; ipfs?: Helia<Libp2p<ServicesLibp2p>> };
 
-type optsInitOrbite = {
-  dossier?: string;
-  sfip?: optsInitSFIP;
-};
-
-type optsInitSFIP = {
-  sfip?: SFIP;
-  dossier?: string;
-};
+export type optsOrbite = OrbitDB | optsInitOrbite;
 
 export type structureBdCompte = {
   protocoles?: string;
@@ -156,6 +155,7 @@ export type structureBdCompte = {
   réseau?: string;
   automatisations?: string;
 };
+
 export const schémaStructureBdCompte: JSONSchemaType<structureBdCompte> = {
   type: "object",
   properties: {
@@ -193,12 +193,27 @@ export const schémaStructureNomsDispositifs: JSONSchemaType<structureNomsDispos
 
 const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 
+const obtDossierConstellation = async (
+  opts: optsConstellation,
+): Promise<string> => {
+  if (opts.dossier) return opts.dossier;
+  if (isNode || isElectronMain) {
+    // Utiliser l'application native
+    const envPaths = (await import("env-paths")).default;
+    const chemins = envPaths("constl", { suffix: "" });
+    return chemins.data;
+  } else {
+    // Pour navigateur
+    return "./constl";
+  }
+};
+
 export class ClientConstellation {
   _opts: optsConstellation;
   événements: TypedEmitter<ÉvénementsClient>;
 
   orbite?: GestionnaireOrbite;
-  sfip?: SFIP;
+  sfip?: Helia<Libp2p<ServicesLibp2p>>;
 
   épingles: Épingles;
   profil: Profil;
@@ -270,6 +285,10 @@ export class ClientConstellation {
     this.protocoles = new Protocoles({ client: this });
   }
 
+  async dossier(): Promise<string> {
+    return await obtDossierConstellation(this._opts);
+  }
+
   async _initialiser(): Promise<void> {
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
@@ -283,12 +302,10 @@ export class ClientConstellation {
     };
 
     this.idCompte =
-      this._opts.compte ||
       (await this.obtDeStockageLocal({
         clef: "idCompte",
         parCompte: false,
-      })) ||
-      undefined;
+      })) || undefined;
     if (!this.idCompte) {
       this.idCompte = await this.créerBdIndépendante({
         type: "keyvalue",
@@ -313,7 +330,7 @@ export class ClientConstellation {
 
   async attendreSfipEtOrbite(): Promise<{
     orbite: GestionnaireOrbite;
-    sfip: SFIP;
+    sfip: Helia<Libp2p<ServicesLibp2p>>;
   }> {
     if (this.sfip && this.orbite) {
       return {
@@ -338,22 +355,14 @@ export class ClientConstellation {
     }
   }
 
-  async _générerSFIPetOrbite(): Promise<{ sfip: SFIP; orbite: OrbitDB }> {
+  async _générerSFIPetOrbite(): Promise<{
+    sfip: Helia<Libp2p<ServicesLibp2p>>;
+    orbite: OrbitDB;
+  }> {
     const { orbite } = this._opts;
-    préparerOrbite();
 
-    let sfipFinale: SFIP;
+    let sfipFinale: Helia<Libp2p<ServicesLibp2p>>;
     let orbiteFinale: OrbitDB;
-
-    const _générerSFIP = async (opts?: optsInitSFIP): Promise<SFIP> => {
-      if (opts?.sfip) {
-        this._sfipExterne = true;
-        return opts.sfip;
-      } else {
-        const initSFIP = (await import("@/sfip/index.js")).default;
-        return await initSFIP(opts?.dossier);
-      }
-    };
 
     if (orbite) {
       if (estOrbiteDB(orbite)) {
@@ -363,16 +372,28 @@ export class ClientConstellation {
       } else {
         // Éviter d'importer la configuration BD Orbite si pas nécessaire
         const initOrbite = (await import("@/orbite.js")).default;
-        sfipFinale = await _générerSFIP(orbite.sfip);
+        if (orbite.ipfs) {
+          this._sfipExterne = true;
+          sfipFinale = orbite.ipfs;
+        } else {
+          sfipFinale = await initSFIP(join(await this.dossier(), "sfip"));
+        }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
-          dossierOrbite: orbite.dossier,
+          dossierOrbite:
+            orbite.directory || join(await this.dossier(), "orbite"),
         });
+        sfipFinale = orbiteFinale.ipfs;
       }
     } else {
-      sfipFinale = await _générerSFIP();
+      const initSFIP = (await import("@/sfip/index.js")).default;
+      sfipFinale = await initSFIP(join(await this.dossier(), "sfip"));
+
       const initOrbite = (await import("@/orbite.js")).default;
-      orbiteFinale = await initOrbite({ sfip: sfipFinale });
+      orbiteFinale = await initOrbite({
+        sfip: sfipFinale,
+        dossierOrbite: join(await this.dossier(), "orbite"),
+      });
     }
 
     return { sfip: sfipFinale, orbite: orbiteFinale };
@@ -874,9 +895,9 @@ export class ClientConstellation {
     };
   }
 
-  async obtIdSFIP(): Promise<IDResult> {
+  async obtIdSFIP(): Promise<PeerId> {
     const { sfip } = await this.attendreSfipEtOrbite();
-    return sfip.id();
+    return sfip.libp2p.peerId;
   }
 
   async obtIdDispositif(): Promise<string> {
@@ -1888,40 +1909,31 @@ export class ClientConstellation {
     id: string;
     max?: number;
   }): Promise<Uint8Array | null> {
-    return await toBuffer(this.obtItérableAsyncSFIP({ id }), max);
+    return await toBuffer(await this.obtItérableAsyncSFIP({ id }), max);
   }
 
-  obtItérableAsyncSFIP({ id }: { id: string }): AsyncIterable<Uint8Array> {
-    return this.sfip!.cat(id);
+  async obtItérableAsyncSFIP({
+    id,
+  }: {
+    id: string;
+  }): Promise<AsyncIterable<Uint8Array>> {
+    const { sfip } = await this.attendreSfipEtOrbite();
+    const fs = unixfs(sfip);
+    const idc = id.split("/")[0];
+    return fs.cat(CID.parse(idc));
   }
 
-  async ajouterÀSFIP({ fichier }: { fichier: ToFile }): Promise<string> {
-    const nomFichier = fichier.path;
-    fichier.path = "/base/" + nomFichier;
-    const résultat = await this.sfip!.add(fichier);
-    return résultat.cid.toString() + "/" + nomFichier;
-  }
-
-  dossierOrbite(): string | undefined {
-    let dossierOrbite: string | undefined;
-
-    const optsOrbite = this._opts.orbite;
-    if (estOrbiteDB(optsOrbite)) {
-      dossierOrbite = optsOrbite.directory;
-    } else {
-      dossierOrbite = optsOrbite?.dossier || this.orbite?.orbite.directory;
-    }
-    return dossierOrbite;
-  }
-
-  dossierSFIP(): string | undefined {
-    let dossierSFIP: string | undefined;
-
-    const optsOrbite = this._opts.orbite;
-    if (!estOrbiteDB(optsOrbite)) {
-      dossierSFIP = optsOrbite?.sfip?.dossier;
-    }
-    return dossierSFIP;
+  async ajouterÀSFIP({
+    contenu,
+    nomFichier,
+  }: {
+    contenu: Uint8Array;
+    nomFichier: string;
+  }): Promise<string> {
+    const { sfip } = await this.attendreSfipEtOrbite();
+    const fs = unixfs(sfip);
+    const idc = await fs.addFile({ content: contenu });
+    return idc.toString() + "/" + nomFichier;
   }
 
   obtClefStockageClient({
@@ -1948,7 +1960,7 @@ export class ClientConstellation {
   }): Promise<string | null> {
     const clefClient = this.obtClefStockageClient({ clef, parCompte });
 
-    return (await obtStockageLocal(this.dossierOrbite())).getItem(clefClient);
+    return (await obtStockageLocal(await this.dossier())).getItem(clefClient);
   }
 
   async sauvegarderAuStockageLocal({
@@ -1961,7 +1973,7 @@ export class ClientConstellation {
     parCompte?: boolean;
   }): Promise<void> {
     const clefClient = this.obtClefStockageClient({ clef, parCompte });
-    return (await obtStockageLocal(this.dossierOrbite())).setItem(
+    return (await obtStockageLocal(await this.dossier())).setItem(
       clefClient,
       val,
     );
@@ -1976,7 +1988,7 @@ export class ClientConstellation {
   }): Promise<void> {
     const clefClient = this.obtClefStockageClient({ clef, parCompte });
 
-    return (await obtStockageLocal(this.dossierOrbite())).removeItem(
+    return (await obtStockageLocal(await this.dossier())).removeItem(
       clefClient,
     );
   }
@@ -2360,7 +2372,7 @@ export class ClientConstellation {
   async fermer(): Promise<void> {
     await this.attendreInitialisée();
     const { orbite } = await this.attendreSfipEtOrbite();
-    await (await obtStockageLocal(this.dossierOrbite())).fermer?.();
+    await (await obtStockageLocal(await this.dossier())).fermer?.();
     await this.fermerCompte();
     await this.épingles.fermer();
 
@@ -2383,12 +2395,9 @@ export class ClientConstellation {
       }
     } else {
       const fs = await import("fs");
-      const dossierOrbite = this.dossierOrbite();
-      const dossierSFIP = this.dossierSFIP();
-      if (dossierOrbite) fs.rmdirSync(dossierOrbite);
-      if (dossierSFIP) fs.rmdirSync(dossierSFIP);
-      const stockageLocal = await obtStockageLocal();
+      const stockageLocal = await obtStockageLocal(await this.dossier());
       stockageLocal.clear();
+      fs.rmdirSync(await this.dossier());
     }
   }
 
@@ -2422,19 +2431,11 @@ export class ClientConstellation {
           }
         });
       };
-      const dossierOrbite = this.dossierOrbite();
-      const dossierSFIP = this.dossierSFIP();
-      if (!dossierOrbite || !dossierSFIP)
-        throw new Error("Constellation pas encore initialisée.");
-      const donnéesStockageLocal = await exporterStockageLocal();
-
       const zip = new JSZip();
       ajouterDossierÀZip({
-        dossier: dossierOrbite,
-        zip: zip.folder("orbite")!,
+        dossier: await this.dossier(),
+        zip,
       });
-      ajouterDossierÀZip({ dossier: dossierSFIP, zip: zip.folder("sfip")! });
-      zip.file("stockageLocal", donnéesStockageLocal);
       await sauvegarderFichierZip({ fichierZip: zip, nomFichier });
     } else if (indexedDB) {
       const sauvegarderBdIndexeÀZip = ({
@@ -2475,30 +2476,25 @@ export class ClientConstellation {
         });
         fichierZip.file(
           "stockageLocal",
-          JSON.stringify(await exporterStockageLocal()),
+          JSON.stringify(await exporterStockageLocal(await this.dossier())),
         );
       }
 
       await sauvegarderFichierZip({ fichierZip, nomFichier });
     } else {
-      throw new Error("Sauvegarde non implémenté.");
+      throw new Error("Sauvegarde non implémentée.");
     }
   }
 
-  /*
-  async rétablirDispositif({
-    stockageLocal,
-  }: {
-    stockageLocal: string;
-  }): Promise<void> {
+  async rétablirDispositif(): Promise<void> {
     await this.effacerDispositif();
 
     if (isNode || isElectronMain) {
+      throw new Error("Non implémenté");
     } else {
+      throw new Error("Non implémenté");
     }
-
-    const donnéesStockageLocal = JSON.parse(stockageLocal);
-  }*/
+  }
 
   static async créer(
     opts: optsConstellation = {},

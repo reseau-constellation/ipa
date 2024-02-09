@@ -1,5 +1,8 @@
-import all from "it-all";
+import type { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
+
+import { isValidAddress } from "@orbitdb/core";
+import { unixfs } from "@helia/unixfs";
 
 import ClientConstellation, { infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
@@ -8,15 +11,14 @@ import {
   suivreBdDeFonction,
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
-import { isValidAddress } from "@orbitdb/core";
 
-import { peutÉcrire, attente } from "@constl/utils-tests";
+import { orbite, attente, dossiers } from "@constl/utils-tests";
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import { isNode, isElectronMain, isBrowser } from "wherearewe";
+import { isNode, isElectronMain } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
@@ -24,7 +26,7 @@ import { générerClientsInternes } from "./ressources/utils.js";
 import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
-import { générerClient } from "@/index.js";
+import { créerConstellation } from "@/index.js";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
@@ -45,14 +47,27 @@ const schémaKVChaîne: JSONSchemaType<{ [clef: string]: string }> = {
 const schémaListeNumérique: JSONSchemaType<number> = { type: "number" };
 const schémaListeChaîne: JSONSchemaType<string> = { type: "string" };
 
-if (!isBrowser)
-  // Pour l'instant
-  describe("Fermeture sécuritaire", function () {
-    it("Fermeture immédiatement après ouverture", async () => {
-      const client = générerClient({ opts: {} });
-      await client.fermer();
-    });
+describe("Fermeture sécuritaire", function () {
+  let dossier: string;
+  let fEffacer: () => void;
+
+  before(async () => {
+    ({ dossier, fEffacer } = await dossiers.dossierTempo());
   });
+
+  after(async () => {
+    fEffacer?.();
+  });
+
+  it("Fermeture immédiatement après ouverture", async function () {
+    if (!isNode || process.platform === "win32") this.skip(); // Pour l'instant
+
+    const client = créerConstellation({
+      dossier,
+    });
+    await client.fermer();
+  });
+});
 
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
@@ -160,7 +175,10 @@ if (isNode || isElectronMain) {
             schéma: schémaKVNumérique,
           });
         fsOublier.push(fOublier);
-        const autorisé = await peutÉcrire(bd_orbite2, client2.orbite?.orbite);
+        const autorisé = await orbite.peutÉcrire(
+          bd_orbite2,
+          client2.orbite?.orbite,
+        );
         expect(autorisé).to.be.true();
       });
 
@@ -226,7 +244,10 @@ if (isNode || isElectronMain) {
             type: "keyvalue",
             schéma: schémaKVNumérique,
           });
-        const autorisé = await peutÉcrire(bd_orbite3, client3.orbite?.orbite);
+        const autorisé = await orbite.peutÉcrire(
+          bd_orbite3,
+          client3.orbite?.orbite,
+        );
         await fOublier();
         expect(autorisé).to.be.true();
       });
@@ -1358,10 +1379,8 @@ if (isNode || isElectronMain) {
       const texte = "வணக்கம்";
       it("On ajoute un fichier au SFIP", async () => {
         cid = await client.ajouterÀSFIP({
-          fichier: {
-            path: "texte.txt",
-            content: texte,
-          },
+          nomFichier: "texte.txt",
+          contenu: new TextEncoder().encode(texte),
         });
       });
       it("On télécharge le fichier du SFIP", async () => {
@@ -1369,7 +1388,7 @@ if (isNode || isElectronMain) {
         expect(new TextDecoder().decode(données!)).to.equal(texte);
       });
       it("On télécharge le fichier en tant qu'itérable", async () => {
-        const flux = client.obtItérableAsyncSFIP({ id: cid });
+        const flux = await client.obtItérableAsyncSFIP({ id: cid });
         const données = await toBuffer(flux);
         expect(new TextDecoder().decode(données!)).to.equal(texte);
       });
@@ -1556,7 +1575,7 @@ if (isNode || isElectronMain) {
         });
         fsOublier.push(fOublier);
 
-        const autorisé = await peutÉcrire(bd, client.orbite?.orbite);
+        const autorisé = await orbite.peutÉcrire(bd, client.orbite?.orbite);
         expect(autorisé).to.be.true();
       });
       it("Avec accès personalisé", async () => {
@@ -1575,7 +1594,10 @@ if (isNode || isElectronMain) {
           });
         fsOublier.push(fOublier);
 
-        const autorisé = await peutÉcrire(bd_orbite2, client2.orbite?.orbite);
+        const autorisé = await orbite.peutÉcrire(
+          bd_orbite2,
+          client2.orbite?.orbite,
+        );
 
         expect(autorisé).to.be.true();
       });
@@ -1920,7 +1942,7 @@ if (isNode || isElectronMain) {
 
         fsOublier.push(fOublier);
 
-        const permission = await peutÉcrire(bd, client2.orbite?.orbite);
+        const permission = await orbite.peutÉcrire(bd, client2.orbite?.orbite);
         expect(permission).to.be.true();
       });
 
@@ -2018,7 +2040,7 @@ if (isNode || isElectronMain) {
       let idBdListe: string;
       let idBdKv2: string;
 
-      let cidTexte: string;
+      let idcContenu: CID;
       let interval: NodeJS.Timeout | undefined = undefined;
 
       const fsOublier: schémaFonctionOublier[] = [];
@@ -2048,8 +2070,10 @@ if (isNode || isElectronMain) {
         await bdKv.put("ma bd liste", idBdListe);
         await bdListe.add(idBdKv2);
 
-        cidTexte = (await client2.sfip!.add("Bonjour !")).cid.toString(); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
-        await bdListe.add(cidTexte + "/text.txt");
+        const { sfip: sfip2 } = await client2.attendreSfipEtOrbite();
+        const fs = unixfs(sfip2);
+        idcContenu = await fs.addBytes(new TextEncoder().encode("Bonjour !")); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
+        await bdListe.add(idcContenu.toString() + "/text.txt");
 
         await client.épingles.épinglerBd({ id: idBdKv, récursif: true });
       });
@@ -2069,16 +2093,15 @@ if (isNode || isElectronMain) {
         expect(client.orbite?._bdsOrbite[idBdKv2]).to.exist();
       });
       it("Les fichiers SFIP sont également épinglés", async () => {
-        let fichierEstÉpinglé = false;
-        await new Promise<void>((résoudre) => {
+        const { sfip } = await client.attendreSfipEtOrbite();
+
+        const fichierEstÉpinglé = await new Promise<boolean>((résoudre) => {
           interval = setInterval(async () => {
-            const épinglés = await all(client.sfip!.pin.ls());
-            fichierEstÉpinglé = épinglés
-              .map((x) => x.cid.toString())
-              .includes(cidTexte);
-            if (fichierEstÉpinglé) {
-              clearInterval(interval);
-              résoudre();
+            for await (const épingle of sfip.pins.ls()) {
+              if (épingle.cid.equals(idcContenu)) {
+                clearInterval(interval);
+                résoudre(true);
+              }
             }
           }, 50);
         });

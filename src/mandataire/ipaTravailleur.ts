@@ -1,4 +1,8 @@
-import type { ClientConstellation, optsConstellation } from "@/client.js";
+import type {
+  ClientConstellation,
+  optsConstellation,
+  optsInitOrbite,
+} from "@/client.js";
 
 import {
   générerMandataire,
@@ -34,17 +38,26 @@ export class MandataireClientTravailleur extends ClientMandatairifiable {
 }
 
 export interface optsIpaTravailleur extends optsConstellation {
-  compte?: string;
-  sujetRéseau?: string;
-  orbite?: {
-    dossier?: string;
-    sfip?: {
-      dossier?: string;
-    };
-  };
+  orbite?: Omit<optsInitOrbite, "ipfs">;
 }
 
-export default (
+export const confirmerOptsTravailleur = (
+  opts?: optsConstellation,
+): optsIpaTravailleur => {
+  const optsIpa: optsIpaTravailleur = {};
+  if (opts?.dossier) optsIpa.dossier = opts.dossier;
+  if (opts?.sujetRéseau) optsIpa.sujetRéseau = opts.sujetRéseau;
+  if (opts?.protocoles) optsIpa.protocoles = opts.protocoles;
+  if (opts?.orbite) {
+    optsIpa.orbite = {
+      directory: opts.orbite.directory,
+      id: opts.orbite.id,
+    };
+  }
+  return optsIpa;
+};
+
+export const générerMandataireTravailleur = (
   opts: optsIpaTravailleur = {},
 ): MandataireClientConstellation<ClientConstellation> => {
   return générerMandataire(new MandataireClientTravailleur(opts));
