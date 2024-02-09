@@ -3,21 +3,26 @@ import { expect } from "aegir/chai";
 import type { Helia } from "helia";
 import { isElectronMain, isNode } from "wherearewe";
 import { multiaddr } from "@multiformats/multiaddr";
+import { dossiers } from "@constl/utils-tests";
 
-describe.skip("SFIP", function () {
+describe.only("SFIP", function () {
   let sfip: Helia;
   let dossier: string;
+  let fEffacer: () => void;
 
   before(async () => {
     if (isNode || isElectronMain) {
-      const fs = await import("fs");
-      const path = await import("path");
-      const os = await import("os");
-      dossier = fs.mkdtempSync(path.join(os.tmpdir(), "constl-ipa-"));
+      ({ dossier, fEffacer } = await dossiers.dossierTempo());
     } else {
       dossier = "dossierSFIP";
     }
     sfip = await initSFIP(dossier);
+  });
+
+  after(async () => {
+    // Ça coince pour toujours avec Électron principal. Peut-être que ça sera mieux avec Hélia...
+    if (!isElectronMain) await sfip.stop();
+    fEffacer?.();
   });
 
   it("Initialiser", async () => {
@@ -29,9 +34,7 @@ describe.skip("SFIP", function () {
     const relayId = "12D3KooWPQJMHevU1JcDHH11taaS75FxEM27ar9qTrXTnTi9UGhc";
 
     await sfip.libp2p.dial(
-      multiaddr(
-        `/dns4/relailibp2p-m7f59ma6.b4a.run/tcp/53321/ws/p2p/${relayId}`,
-      ),
+      multiaddr(`/dns4/relai-libp2p.xn--rseau-constellation-bzb.ca/tcp/443/wss/p2p/${relayId}`),
     );
 
     await new Promise<void>((résoudre) => {
@@ -44,16 +47,5 @@ describe.skip("SFIP", function () {
         }
       });
     });
-  });
-  after(async () => {
-    // Ça coince pour toujours avec Électron principal. Peut-être que ça sera mieux avec Hélia...
-    if (!isElectronMain) await sfip.stop();
-    if (dossier) {
-      if (isNode) {
-        // Pas pour Électron principal parce que nous n'avons pas appellé sfip.stop() ci-dessus
-        const { sync } = await import("rimraf");
-        sync(dossier);
-      }
-    }
   });
 });
