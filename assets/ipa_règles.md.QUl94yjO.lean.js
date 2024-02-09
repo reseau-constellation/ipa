@@ -1,0 +1,1 @@
+import{_ as s,o as i,c as a,R as n}from"./chunks/framework.Eeo-33mw.js";const o=JSON.parse('{"title":"Règles","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/règles.md","filePath":"ipa/règles.md"}'),l={name:"ipa/règles.md"},e=n("",39),t=[e];function h(p,k,r,E,d,g){return i(),a("div",null,t)}const c=s(l,[["render",h]]);export{o as __pageData,c as default};
