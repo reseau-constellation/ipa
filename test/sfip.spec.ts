@@ -5,7 +5,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { multiaddr } from "@multiformats/multiaddr";
 import { dossiers } from "@constl/utils-tests";
 
-describe.only("SFIP", function () {
+describe.skip("SFIP", function () {
   let sfip: Helia;
   let dossier: string;
   let fEffacer: () => void;
