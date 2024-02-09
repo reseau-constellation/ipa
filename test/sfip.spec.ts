@@ -34,7 +34,9 @@ describe.skip("SFIP", function () {
     const relayId = "12D3KooWPQJMHevU1JcDHH11taaS75FxEM27ar9qTrXTnTi9UGhc";
 
     await sfip.libp2p.dial(
-      multiaddr(`/dns4/relai-libp2p.xn--rseau-constellation-bzb.ca/tcp/443/wss/p2p/${relayId}`),
+      multiaddr(
+        `/dns4/relai-libp2p.xn--rseau-constellation-bzb.ca/tcp/443/wss/p2p/${relayId}`,
+      ),
     );
 
     await new Promise<void>((résoudre) => {
