@@ -7,14 +7,16 @@ import { all } from "@libp2p/websockets/filters";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
+
 import type { Libp2pOptions } from "libp2p";
 import { WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE } from "./const.js";
 
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   return {
     addresses: {
-      listen: ["/webrtc"],
+      listen: ["/webrtc", "/webtransport"],
     },
     transports: [
       webSockets({
@@ -47,6 +49,11 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       bootstrap({
         list: [WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE],
         tagTTL: Infinity,
+      }),
+      pubsubPeerDiscovery({
+        interval: 10000,
+//        topics: pubSubPeerDiscoveryTopics, // defaults to ['_peer-discovery._p2p._pubsub']
+        listenOnly: false
       }),
     ],
     services: {
