@@ -41,18 +41,30 @@ dependencies:
   '@lassi-js/kili':
     specifier: ^0.3.6
     version: 0.3.6(@constl/ipa@0.9.25)
+  '@libp2p/autonat':
+    specifier: ^1.0.12
+    version: 1.0.12
   '@libp2p/bootstrap':
     specifier: ^10.0.15
     version: 10.0.15
   '@libp2p/circuit-relay-v2':
     specifier: ^1.0.15
     version: 1.0.15
+  '@libp2p/dcutr':
+    specifier: ^1.0.12
+    version: 1.0.12
   '@libp2p/identify':
     specifier: ^1.0.14
     version: 1.0.14
   '@libp2p/interface-transport':
     specifier: ^4.0.3
     version: 4.0.3
+  '@libp2p/kad-dht':
+    specifier: ^12.0.7
+    version: 12.0.7
+  '@libp2p/mdns':
+    specifier: ^10.0.15
+    version: 10.0.15
   '@libp2p/pubsub-peer-discovery':
     specifier: ^10.0.2
     version: 10.0.2
@@ -259,6 +271,9 @@ devDependencies:
   crypto-browserify:
     specifier: ^3.12.0
     version: 3.12.0
+  esbuild:
+    specifier: ^0.20.0
+    version: 0.20.0
   eslint:
     specifier: ^8.56.0
     version: 8.56.0
