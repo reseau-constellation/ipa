@@ -13,7 +13,6 @@ import {
 import { Libp2p, PeerId } from "@libp2p/interface";
 import { unixfs } from "@helia/unixfs";
 import type { objRôles, infoUtilisateur } from "@/accès/types.js";
-import Licences from "@/licences.js";
 import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
@@ -25,20 +24,21 @@ import {
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
-import Épingles from "@/epingles.js";
-import Profil from "@/profil.js";
-import BDs from "@/bds.js";
-import Tableaux from "@/tableaux.js";
-import Variables from "@/variables.js";
-import Réseau from "@/reseau.js";
+import { Licences } from "@/licences.js";
+import { Épingles } from "@/epingles.js";
+import { Profil } from "@/profil.js";
+import { BDs } from "@/bds.js";
+import { Tableaux } from "@/tableaux.js";
+import { Variables } from "@/variables.js";
+import { Réseau } from "@/reseau.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
-import Favoris from "@/favoris.js";
-import Projets from "@/projets.js";
-import MotsClefs from "@/motsClefs.js";
-import Nuées from "@/nuées.js";
-import Recherche from "@/recherche/index.js";
+import { Favoris } from "@/favoris.js";
+import { Projets } from "@/projets.js";
+import { MotsClefs } from "@/motsClefs.js";
+import { Nuées } from "@/nuées.js";
+import { Recherche } from "@/recherche/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
-import Automatisations from "@/automatisation.js";
+import { Automatisations } from "@/automatisation.js";
 
 import { cacheSuivi } from "@/décorateursCache.js";
 
@@ -55,8 +55,9 @@ import {
   sauvegarderFichierZip,
 } from "@constl/utils-ipa";
 import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
-import générerContrôleurConstellation, {
+import {
   type OptionsContrôleurConstellation,
+  ContrôleurConstellation as générerContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
 
@@ -81,12 +82,12 @@ import {
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
-import Protocoles from "./protocoles.js";
+import { Protocoles } from "./protocoles.js";
 import { Helia } from "helia";
 import { CID } from "multiformats";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import { join } from "path";
-import initSFIP from "@/sfip/index.js";
+import { initSFIP } from "@/sfip/index.js";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -371,7 +372,7 @@ export class ClientConstellation {
         orbiteFinale = orbite;
       } else {
         // Éviter d'importer la configuration BD Orbite si pas nécessaire
-        const initOrbite = (await import("@/orbite.js")).default;
+        const { initOrbite } = await import("@/orbite.js");
         if (orbite.ipfs) {
           this._sfipExterne = true;
           sfipFinale = orbite.ipfs;
@@ -386,10 +387,10 @@ export class ClientConstellation {
         sfipFinale = orbiteFinale.ipfs;
       }
     } else {
-      const initSFIP = (await import("@/sfip/index.js")).default;
+      const { initSFIP } = await import("@/sfip/index.js");
       sfipFinale = await initSFIP(join(await this.dossier(), "sfip"));
 
-      const initOrbite = (await import("@/orbite.js")).default;
+      const { initOrbite } = await import("@/orbite.js");
       orbiteFinale = await initOrbite({
         sfip: sfipFinale,
         dossierOrbite: join(await this.dossier(), "orbite"),
@@ -2504,5 +2505,3 @@ export class ClientConstellation {
     return client;
   }
 }
-
-export default ClientConstellation;

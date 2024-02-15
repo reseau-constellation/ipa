@@ -1,4 +1,4 @@
-import ClientConstellation from "@/client.js";
+import { ClientConstellation } from "@/client.js";
 
 import {
   schémaFonctionSuivi,
@@ -23,7 +23,7 @@ import {
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import type { objRôles } from "@/accès/types.js";
@@ -148,7 +148,7 @@ const schémaBdMotsClefsNuée: JSONSchemaType<string> = {
   type: "string",
 };
 
-export default class Nuée extends ComposanteClientListe<string> {
+export class Nuées extends ComposanteClientListe<string> {
   constructor({ client }: { client: ClientConstellation }) {
     super({ client, clef: "nuées", schémaBdPrincipale: { type: "string" } });
   }

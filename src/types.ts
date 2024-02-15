@@ -1,5 +1,5 @@
 import type { objRôles } from "@/accès/types.js";
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import { JSONSchemaType } from "ajv";
 
 export interface infoAuteur {

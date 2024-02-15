@@ -14,7 +14,7 @@ import * as dagCbor from "@ipld/dag-cbor";
 import { sha256 } from "multiformats/hashes/sha2";
 import { base58btc } from "multiformats/bases/base58";
 
-import GestionnaireAccès from "@/accès/gestionnaireUtilisateurs.js";
+import { GestionnaireAccès } from "@/accès/gestionnaireUtilisateurs.js";
 import { MODÉRATEUR, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès } from "@/accès/types.js";
 import { pathJoin } from "./utils.js";
@@ -143,4 +143,4 @@ const ContrôleurAccès =
   };
 
 ContrôleurAccès.type = type;
-export default ContrôleurAccès;
+export { ContrôleurAccès };

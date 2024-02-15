@@ -1,4 +1,5 @@
-import ImportateurDonnéesJSON, {
+import {
+  ImportateurDonnéesJSON,
   extraireDonnées,
   aplatirDonnées,
   élément,

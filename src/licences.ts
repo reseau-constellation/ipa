@@ -5,7 +5,7 @@ import type {
 } from "@/types";
 
 import { cacheSuivi } from "@/décorateursCache.js";
-import ClientConstellation from "@/client.js";
+import { ClientConstellation } from "@/client.js";
 import { faisRien } from "@constl/utils-ipa";
 import {
   CLEF_TABLEAU_LICENCES_APPROUVÉES,
@@ -422,7 +422,7 @@ export const infoLicences: { [key: string]: InfoLicence } = {
 
 export const licences = Object.keys(infoLicences);
 
-export default class Licences {
+export class Licences {
   client: ClientConstellation;
   événements: EventEmitter;
   prêt: boolean;

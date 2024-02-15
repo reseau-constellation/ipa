@@ -1,4 +1,4 @@
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import {
   schémaFonctionOublier,
   élémentsBd,
@@ -28,7 +28,7 @@ export const cidEtFichierValide = (val: string) => {
   return { cid, fichier };
 };
 
-export default class Épingles {
+export class Épingles {
   client: ClientConstellation;
   requètes: RequèteÉpingle[];
   fsOublier: { [key: string]: schémaFonctionOublier };

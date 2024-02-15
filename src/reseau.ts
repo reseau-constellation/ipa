@@ -10,8 +10,9 @@ import { EventEmitter } from "events";
 import sum from "lodash/sum.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
-import ClientConstellation, {
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import {
+  ClientConstellation,
   Signature,
   infoAccès,
   schémaStructureBdCompte,
@@ -224,7 +225,7 @@ const CONFIANCE_DE_FAVORIS = 0.7;
 const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
-export default class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
+export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: ClientConstellation;
   bloquésPrivés: Set<string>;
   _fermé: boolean;

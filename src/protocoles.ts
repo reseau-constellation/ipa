@@ -1,6 +1,6 @@
 import { JSONSchemaType } from "ajv";
 import { ComposanteClientDic } from "./composanteClient.js";
-import ClientConstellation from "./client.js";
+import { ClientConstellation } from "./client.js";
 import { cacheSuivi } from "./décorateursCache.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "./types.js";
 
@@ -19,7 +19,7 @@ export const schémaStructureBdProtocoles: JSONSchemaType<structureBdProtocoles>
     required: [],
   };
 
-export default class Protocoles extends ComposanteClientDic<structureBdProtocoles> {
+export class Protocoles extends ComposanteClientDic<structureBdProtocoles> {
   constructor({ client }: { client: ClientConstellation }) {
     super({
       client,

@@ -4,7 +4,7 @@ import toBuffer from "it-to-buffer";
 import { isValidAddress } from "@orbitdb/core";
 import { unixfs } from "@helia/unixfs";
 
-import ClientConstellation, { infoAccès } from "@/client.js";
+import { ClientConstellation, infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import {
   faisRien,

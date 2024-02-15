@@ -7,7 +7,7 @@ import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
 import type { élémentBdAccès, objRôles } from "@/accès/types.js";
 
-import générerContrôleurConstellation from "./cntrlConstellation.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "./cntrlConstellation.js";
 import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
 import { TypedSet } from "@constl/bohr-db";
 type ContrôleurConstellation = Awaited<
@@ -94,7 +94,7 @@ class AccèsUtilisateur extends EventEmitter {
   }
 }
 
-export default class GestionnaireAccès extends EventEmitter {
+export class GestionnaireAccès extends EventEmitter {
   _rôles: objRôles;
   _rôlesIdOrbite: objRôles;
   _rôlesUtilisateurs: {

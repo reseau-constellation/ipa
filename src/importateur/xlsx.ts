@@ -1,6 +1,6 @@
 import { utils, WorkBook } from "xlsx";
 
-export default class ImportateurFeuilleCalcul {
+export class ImportateurFeuilleCalcul {
   doc: WorkBook;
 
   constructor(données: WorkBook) {

@@ -9,7 +9,7 @@ import { orbite } from "@constl/utils-tests";
 import { isNode, isElectronMain } from "wherearewe";
 import { expect } from "aegir/chai";
 import type { KeyValue } from "@orbitdb/core";
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 
 type TypeContrôleurConstellation = Awaited<

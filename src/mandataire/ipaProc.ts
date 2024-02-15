@@ -10,7 +10,7 @@ import type {
   MessagePourTravailleur,
   MessageErreurDeTravailleur,
 } from "@/mandataire/messages.js";
-import GestionnaireClient from "@/mandataire/gestionnaireClient.js";
+import { GestionnaireClient } from "@/mandataire/gestionnaireClient.js";
 
 export class MandataireClientProc extends ClientMandatairifiable {
   client: GestionnaireClient;

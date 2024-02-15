@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { WorkBook, utils } from "xlsx";
 
-import ClientConstellation from "@/client.js";
+import { ClientConstellation } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -39,7 +39,7 @@ import type {
   catégorieVariables,
 } from "@/variables.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { cholqij } from "@/dates.js";
 
 import { isElectronMain, isNode } from "wherearewe";
@@ -256,7 +256,7 @@ const schémaStructureBdTableau: JSONSchemaType<structureBdTableau> = {
   required: ["données", "colonnes", "noms", "règles", "type"],
 };
 
-export default class Tableaux {
+export class Tableaux {
   client: ClientConstellation;
 
   constructor({ client }: { client: ClientConstellation }) {

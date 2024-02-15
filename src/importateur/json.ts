@@ -159,7 +159,7 @@ export const extraireDonnées = (
   return donnéesFinales;
 };
 
-export default class ImportateurDonnéesJSON {
+export class ImportateurDonnéesJSON {
   // Exemple: https://coordinates.native-land.ca/indigenousLanguageson
   donnéesJSON: DonnéesJSON;
 

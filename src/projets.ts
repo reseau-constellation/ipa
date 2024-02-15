@@ -2,9 +2,9 @@ import { WorkBook, BookType, write as writeXLSX, utils } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import ClientConstellation from "@/client.js";
+import { ClientConstellation } from "@/client.js";
 import type { objRôles } from "@/accès/types.js";
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -91,7 +91,7 @@ const schémaStructureBdProjet: JSONSchemaType<structureBdProjet> = {
   required: ["noms", "descriptions", "statut", "type", "bds", "copiéDe"],
 };
 
-export default class Projets extends ComposanteClientListe<string> {
+export class Projets extends ComposanteClientListe<string> {
   constructor({ client }: { client: ClientConstellation }) {
     super({ client, clef: "projets", schémaBdPrincipale: schémaBdPrincipale });
   }

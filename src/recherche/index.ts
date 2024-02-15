@@ -1,3 +1,1 @@
-import { Recherche } from "@/recherche/recherche.js";
-
-export default Recherche;
+export { Recherche } from "@/recherche/recherche.js";

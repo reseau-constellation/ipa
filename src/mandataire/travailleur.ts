@@ -1,4 +1,4 @@
-import GestionnaireClient from "./gestionnaireClient.js";
+import { GestionnaireClient } from "./gestionnaireClient.js";
 import type {
   MessageDeTravailleur,
   MessageErreurDeTravailleur,

@@ -14,7 +14,8 @@ import { sha256 } from "multiformats/hashes/sha2";
 import { base58btc } from "multiformats/bases/base58";
 
 import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import GestionnaireAccès, {
+import {
+  GestionnaireAccès,
   suivreBdAccès,
 } from "@/accès/gestionnaireUtilisateurs.js";
 
@@ -23,7 +24,7 @@ import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
 import { gestionnaireOrbiteGénéral } from "@/orbite.js";
 import { TypedSet } from "@constl/bohr-db";
 import { EventEmitter } from "events";
-import ContrôleurAccès from "./cntrlMod.js";
+import { ContrôleurAccès } from "./cntrlMod.js";
 import { pathJoin } from "./utils.js";
 import { JSONSchemaType } from "ajv";
 
@@ -332,4 +333,4 @@ const ContrôleurConstellation =
   };
 
 ContrôleurConstellation.type = nomType;
-export default ContrôleurConstellation;
+export { ContrôleurConstellation };

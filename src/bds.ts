@@ -29,7 +29,7 @@ import type {
   élémentDonnées,
   donnéesTableauExportation,
 } from "@/tableaux.js";
-import ClientConstellation from "@/client.js";
+import { ClientConstellation } from "@/client.js";
 import {
   traduire,
   zipper,
@@ -38,7 +38,7 @@ import {
   ignorerNonDéfinis,
 } from "@constl/utils-ipa";
 import type { objRôles } from "@/accès/types.js";
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 
@@ -193,7 +193,7 @@ const schémaStructureBdNuées: JSONSchemaType<string> = { type: "string" };
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 
-export default class BDs extends ComposanteClientListe<string> {
+export class BDs extends ComposanteClientListe<string> {
   verrouBdUnique: Semaphore;
 
   constructor({ client }: { client: ClientConstellation }) {

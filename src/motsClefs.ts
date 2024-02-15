@@ -5,13 +5,13 @@ import {
 } from "@/types.js";
 import type { objRôles } from "@/accès/types.js";
 
-import ClientConstellation from "@/client.js";
+import { ClientConstellation } from "@/client.js";
 
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -34,7 +34,7 @@ const schémaBdMotClef: JSONSchemaType<Partial<structureBdMotClef>> = {
   required: [],
 };
 
-export default class MotsClefs extends ComposanteClientListe<string> {
+export class MotsClefs extends ComposanteClientListe<string> {
   constructor({ client }: { client: ClientConstellation }) {
     super({ client, clef: "motsClefs", schémaBdPrincipale });
   }

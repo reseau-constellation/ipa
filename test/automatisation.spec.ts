@@ -12,7 +12,7 @@ import {
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
-import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
+import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
 import type {

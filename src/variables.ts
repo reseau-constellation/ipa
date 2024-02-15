@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
-import ClientConstellation from "@/client.js";
-import générerContrôleurConstellation from "@/accès/cntrlConstellation.js";
+import { ClientConstellation } from "@/client.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import type {
   règleVariable,
   règleCatégorie,
@@ -114,7 +114,7 @@ export const schémaBdRèglesVariable: JSONSchemaType<structureBdRèglesVariable
     required: [],
   };
 
-export default class Variables extends ComposanteClientListe<string> {
+export class Variables extends ComposanteClientListe<string> {
   constructor({ client }: { client: ClientConstellation }) {
     super({ client, clef: "variables", schémaBdPrincipale });
   }

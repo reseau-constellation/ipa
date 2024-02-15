@@ -1,6 +1,6 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import ClientConstellation, { optsConstellation } from "@/client.js";
+import { ClientConstellation, optsConstellation } from "@/client.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import type {
   MessagePourTravailleur,
@@ -10,7 +10,7 @@ import type {
   MessageSuivrePrêtDeTravailleur,
 } from "./messages.js";
 
-export default class GestionnaireClient {
+export class GestionnaireClient {
   ipa?: ClientConstellation;
   _messagesEnAttente: MessagePourTravailleur[];
   prêt: boolean;

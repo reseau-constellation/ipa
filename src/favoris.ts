@@ -1,6 +1,6 @@
 import { isNode, isElectronMain } from "wherearewe";
 
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
@@ -60,7 +60,7 @@ const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
   required: [],
 };
 
-export default class Favoris extends ComposanteClientDic<structureBdFavoris> {
+export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   _promesseInit: Promise<void>;
   oublierÉpingler?: schémaFonctionOublier;
 

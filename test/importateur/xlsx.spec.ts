@@ -1,6 +1,6 @@
 import XLSX from "xlsx";
 
-import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
+import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
 import { obtRessourceTest } from "../ressources/index.js";
 
 import { expect } from "aegir/chai";

@@ -7,7 +7,7 @@ import { isNode, isElectronMain } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import deepcopy from "deepcopy";
 
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { faisRien } from "@constl/utils-ipa";
 import {
@@ -16,8 +16,8 @@ import {
 } from "@/importateur/index.js";
 import type { conversionDonnées } from "@/tableaux.js";
 
-import ImportateurFeuilleCalcul from "@/importateur/xlsx.js";
-import ImportateurDonnéesJSON, { clefsExtraction } from "@/importateur/json.js";
+import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
+import { ImportateurDonnéesJSON, clefsExtraction } from "@/importateur/json.js";
 import { ComposanteClientDic } from "@/composanteClient.js";
 import type { JSONSchemaType } from "ajv";
 
@@ -894,7 +894,7 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
 
 const verrou = new Semaphore();
 
-export default class Automatisations extends ComposanteClientDic<{
+export class Automatisations extends ComposanteClientDic<{
   [id: string]: SpécificationAutomatisation;
 }> {
   automatisations: { [key: string]: AutomatisationActive };

@@ -1,7 +1,7 @@
 import ssim from "ssim";
 import correspTexte from "approx-string-match";
 
-import type { default as ClientConstellation } from "@/client.js";
+import type { ClientConstellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,

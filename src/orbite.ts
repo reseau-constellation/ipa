@@ -46,7 +46,7 @@ export const préparerOrbite = () => {
   enregistrerContrôleurs();
 };
 
-export default async function initOrbite({
+export async function initOrbite({
   sfip,
   dossierOrbite,
 }: {
