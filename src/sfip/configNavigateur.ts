@@ -6,12 +6,19 @@ import { bootstrap } from "@libp2p/bootstrap";
 import { all } from "@libp2p/websockets/filters";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
+import { autoNAT } from "@libp2p/autonat";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { dcutr } from "@libp2p/dcutr";
+import { kadDHT } from "@libp2p/kad-dht";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 import type { Libp2pOptions } from "libp2p";
-import { WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE } from "./const.js";
+import {
+  ADRESSES_NŒUDS_RELAI,
+  WEBRTC_BOOTSTRAP_NODE,
+  WEBTRANSPORT_BOOTSTRAP_NODE,
+} from "./const.js";
 
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   return {
@@ -47,18 +54,30 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     },
     peerDiscovery: [
       bootstrap({
-        list: [WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE],
+        list: ADRESSES_NŒUDS_RELAI,
         tagTTL: Infinity,
       }),
       pubsubPeerDiscovery({
-        interval: 10000,
-//        topics: pubSubPeerDiscoveryTopics, // defaults to ['_peer-discovery._p2p._pubsub']
-        listenOnly: false
+        interval: 1000,
+        topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
+        listenOnly: false,
       }),
     ],
     services: {
       identify: identify(),
+      autoNAT: autoNAT(),
+      dcutr: dcutr(),
       pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+      /*        aminoDHT: kadDHT({
+            protocol: '/ipfs/kad/1.0.0',
+            peerInfoMapper: removePrivateAddressesMapper
+        })*/
+      dht: kadDHT({
+        //   protocolPrefix: "/svelte-pubsub",
+        //   maxInboundStreams: 5000,
+        //   maxOutboundStreams: 5000,
+        clientMode: true,
+      }),
     },
   };
 };
