@@ -17,6 +17,8 @@ import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
+import { multiaddr } from "@multiformats/multiaddr";
+import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 
 export type ServicesLibp2p = { pubsub: GossipSub };
 
@@ -40,7 +42,7 @@ const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   return configPlateforme;
 };
 
-export default async function initSFIP(
+export async function initSFIP(
   dossier: string,
 ): Promise<Helia<Libp2p<ServicesLibp2p>>> {
   const config = await obtConfigLibp2pPlateforme();
@@ -57,5 +59,17 @@ export default async function initSFIP(
     blockBrokers: [bitswap()],
   };
 
-  return await createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
+  const hélia = await createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
+
+  // À faire : configuer la connection automatique avec bootstrap ?
+  for (const adresse of ADRESSES_NŒUDS_RELAI) {
+    try {
+      await hélia.libp2p.dial(
+        multiaddr(adresse),
+      );
+    } catch {
+      // Rien à faire
+    }
+  }
+  return hélia;
 }
