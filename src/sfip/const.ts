@@ -1,7 +1,9 @@
 // Voir https://github.com/alexeyvolkoff/orbitdb-example/blob/main/relay.js
 // https://github.com/libp2p/js-libp2p-example-circuit-relay
 export const ADRESSES_NŒUDS_RELAI = [
-  "/dns4/serveurwebrtcstarconstellation1-julienmalard.b4a.run/tcp/443/wss/p2p-webrtc-star/",
+  "/ip4/127.0.0.1/udp/9090/webrtc-direct/certhash/uEiAWCRG30KUzLUuWYZ9HZNcFBHt8uLjLRB2xlLW_L_8lQg/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
+  "/ip4/127.0.0.1/udp/9091/quic-v1/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
+  "/ip4/127.0.0.1/tcp/9092/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
 ];
 
 // À changer
