@@ -4,7 +4,7 @@ La section `réseau` de Constellation permet de réseauter avec d'autres membres
 [[toc]]
 
 ## Connexions
-Ces fonctions suivent la connection du compte sur le réseau Constellation.
+Ces fonctions suivent la connexion du compte sur le réseau Constellation.
 
 ### `client.réseau.suivreConnexionsMembres({ f })`
 Suit les connexions aux autres comptes Constellation.
