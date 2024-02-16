@@ -16,8 +16,6 @@ import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import type { Libp2pOptions } from "libp2p";
 import {
   ADRESSES_NŒUDS_RELAI,
-  WEBRTC_BOOTSTRAP_NODE,
-  WEBTRANSPORT_BOOTSTRAP_NODE,
 } from "./const.js";
 
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
@@ -55,7 +53,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     peerDiscovery: [
       bootstrap({
         list: ADRESSES_NŒUDS_RELAI,
-        tagTTL: Infinity,
+        timeout: 0,
       }),
       pubsubPeerDiscovery({
         interval: 1000,
@@ -68,14 +66,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       autoNAT: autoNAT(),
       dcutr: dcutr(),
       pubsub: gossipsub({ allowPublishToZeroPeers: true }),
-      /*        aminoDHT: kadDHT({
-            protocol: '/ipfs/kad/1.0.0',
-            peerInfoMapper: removePrivateAddressesMapper
-        })*/
       dht: kadDHT({
-        //   protocolPrefix: "/svelte-pubsub",
-        //   maxInboundStreams: 5000,
-        //   maxOutboundStreams: 5000,
         clientMode: true,
       }),
     },

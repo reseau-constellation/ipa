@@ -18,10 +18,8 @@ import { kadDHT } from "@libp2p/kad-dht";
 export const obtOptionsLibp2pÉlectionPrincipal =
   async (): Promise<Libp2pOptions> => {
     const { tcp } = await import("@libp2p/tcp");
-    const webRTC = (await import("@constl/electron-webrtc-relay")).default;
+    const { mdns } = await import("@libp2p/mdns");
 
-    const wrtc = webRTC();
-    wrtc.init();
     return {
       addresses: {
         listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport"],
@@ -55,9 +53,10 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         denyDialMultiaddr: () => false,
       },
       peerDiscovery: [
+        mdns(),
         bootstrap({
           list: ADRESSES_NŒUDS_RELAI,
-          tagTTL: Infinity,
+          timeout: 0,
         }),
         pubsubPeerDiscovery({
           interval: 1000,
@@ -71,9 +70,6 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         dcutr: dcutr(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
         dht: kadDHT({
-          //   protocolPrefix: "/svelte-pubsub",
-          //   maxInboundStreams: 5000,
-          //   maxOutboundStreams: 5000,
           clientMode: false,
         }),
       },

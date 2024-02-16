@@ -5,6 +5,8 @@ initSFIP("./testSfip").then(async (sfip) => {
   console.log(sfip.libp2p.peerId.toString());
   sfip.libp2p.addEventListener("peer:discovery", async () => {
     const pairs = sfip.libp2p.getPeers();
-    console.log(pairs.map((p) => p.toString()));
+    console.log("pairs : ", pairs.map((p) => p.toString()));
+    const connexions = sfip.libp2p.getConnections();
+    console.log("connexions : ", JSON.stringify(connexions.map(c=>c.remoteAddr.toString()), undefined, 2))
   });
 });

@@ -59,17 +59,5 @@ export async function initSFIP(
     blockBrokers: [bitswap()],
   };
 
-  const hélia = await createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
-
-  // À faire : configuer la connection automatique avec bootstrap ?
-  for (const adresse of ADRESSES_NŒUDS_RELAI) {
-    try {
-      await hélia.libp2p.dial(
-        multiaddr(adresse),
-      );
-    } catch {
-      // Rien à faire
-    }
-  }
-  return hélia;
+  return await createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
 }

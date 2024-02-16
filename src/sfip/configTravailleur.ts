@@ -1,3 +1,5 @@
+import type { Libp2pOptions } from "libp2p";
+
 import { identify } from "@libp2p/identify";
 import { webSockets } from "@libp2p/websockets";
 import { webTransport } from "@libp2p/webtransport";
@@ -7,8 +9,7 @@ import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
-import type { Libp2pOptions } from "libp2p";
-import { WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE } from "./const.js";
+import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 
 export const obtOptionsLibp2pTravailleurWeb =
   async (): Promise<Libp2pOptions> => {
@@ -32,8 +33,8 @@ export const obtOptionsLibp2pTravailleurWeb =
       },
       peerDiscovery: [
         bootstrap({
-          list: [WEBRTC_BOOTSTRAP_NODE, WEBTRANSPORT_BOOTSTRAP_NODE],
-          tagTTL: Infinity,
+          list: ADRESSES_NŒUDS_RELAI,
+          timeout: 0,
         }),
       ],
       services: {

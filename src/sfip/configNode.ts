@@ -60,7 +60,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       mdns(),
       bootstrap({
         list: ADRESSES_NŒUDS_RELAI,
-        tagTTL: Infinity,
+        timeout: 0,
       }),
       pubsubPeerDiscovery({
         interval: 1000,
@@ -74,9 +74,6 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       dcutr: dcutr(),
       pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       dht: kadDHT({
-        //   protocolPrefix: "/svelte-pubsub",
-        //   maxInboundStreams: 5000,
-        //   maxOutboundStreams: 5000,
         clientMode: false,
       }),
     },
