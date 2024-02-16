@@ -19,14 +19,18 @@ describe.only("SFIP", function () {
   });
 
   after(async () => {
+    console.log("après test")
     await sfip.stop();
+    console.log("après fermeture sfip")
     try {
       fEffacer?.();
+      console.log("dossier effacé")
     } catch (e) {
       if (!(isNode || isElectronMain) || !(process.platform === "win32")) {
         throw e
       }
     }
+    console.log("fini après test")
   });
 
   it("Initialiser", async () => {
