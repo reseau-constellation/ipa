@@ -110,9 +110,13 @@ const lancerSfipDansNavigateur = async (opts) => {
   const dossierCompilation = mkdtempSync(
     path.join(os.tmpdir(), "test-constl-"),
   );
-  const fichierJs = path.join(dossierCompilation, "test.min.js");
   try {
+    const fichierJs = path.join(dossierCompilation, "test.min.js");
     const page = await navigateur.newPage();
+    page.on("console", (msg) =>
+      console.log("Message de Playwright : ", msg.text()),
+    );
+
     const globalName = "testnavigsfip";
     const umdPre = `(function (root, factory) {(typeof module === 'object' && module.exports) ? module.exports = factory() : root.${globalName} = factory()}(typeof self !== 'undefined' ? self : this, function () {`;
     const umdPost = `return ${globalName}}));`;
@@ -131,9 +135,6 @@ const lancerSfipDansNavigateur = async (opts) => {
       ...esbuild,
     });
 
-    page.on("console", (msg) =>
-      console.log("Message de Playwright : ", msg.text()),
-    );
     const fichierHtml = path.join(dossierCompilation, "lancerNœud.html");
 
     copyFileSync(
@@ -142,12 +143,15 @@ const lancerSfipDansNavigateur = async (opts) => {
     );
 
     await page.goto(`file://${fichierHtml}`);
+    console.log("On a navigué à la page")
     await page.getByText("Test").isVisible();
+    console.log("La page est prête")
   } catch (e) {
     // On arrête pas les tests pour une petite erreur comme ça
     console.error(e);
   }
   return async () => {
+    console.log("On ferme le navigateur")
     await navigateur.close();
     sync(dossierCompilation);
   };
@@ -173,6 +177,7 @@ const options = {
       return { fermerNavigateur, serveurLocal, relai };
     },
     after: async (_, avant) => {
+      console.log("On ferme aegir")
       await avant.fermerNavigateur();
       await avant.serveurLocal?.close();
       avant.relai?.kill();
