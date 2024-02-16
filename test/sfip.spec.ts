@@ -24,7 +24,7 @@ describe.only("SFIP", function () {
     try {
       fEffacer?.();
     } catch (e) {
-      if (!isNode || !(process.platform === "win32")) {
+      if (!(isNode || isElectronMain) || !(process.platform === "win32")) {
         throw e
       }
     }
