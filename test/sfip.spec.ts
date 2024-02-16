@@ -19,6 +19,7 @@ describe.only("SFIP", function () {
   });
 
   after(async () => {
+    await sfip.stop();
     try {
       fEffacer?.();
     } catch (e) {
