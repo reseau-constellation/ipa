@@ -91,7 +91,7 @@
     "wrtc": "^0.4.7"
   },
   "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "^11.2.1",
+    "@chainsafe/libp2p-gossipsub": "^12.0.0",
     "@chainsafe/libp2p-noise": "^15.0.0",
     "@chainsafe/libp2p-yamux": "^6.0.2",
     "@chriscdn/promise-semaphore": "^2.0.9",

@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@chainsafe/libp2p-gossipsub':
-    specifier: ^11.2.1
-    version: 11.2.1
+    specifier: ^12.0.0
+    version: 12.0.0
   '@chainsafe/libp2p-noise':
     specifier: ^15.0.0
     version: 15.0.0
@@ -1797,6 +1797,28 @@ packages:
       uint8arrays: 5.0.2
     transitivePeerDependencies:
       - supports-color
+
+  /@chainsafe/libp2p-gossipsub@12.0.0:
+    resolution: {integrity: sha512-ZuVIvzZjUaZXSPG6Ni9veVBLkZ4OkVp3zc3E8Y5EG/iIUSNVbHLFxweb3HuA12e3lIXLLurvy4vDyGWp4FpKow==}
+    engines: {npm: '>=8.7.0'}
+    dependencies:
+      '@libp2p/crypto': 4.0.2
+      '@libp2p/interface': 1.1.3
+      '@libp2p/interface-internal': 1.0.8
+      '@libp2p/peer-id': 4.0.6
+      '@libp2p/pubsub': 9.0.10
+      '@multiformats/multiaddr': 12.1.14
+      denque: 2.1.0
+      it-length-prefixed: 9.0.4
+      it-pipe: 3.0.1
+      it-pushable: 3.2.3
+      multiformats: 13.0.1
+      protons-runtime: 5.4.0
+      uint8arraylist: 2.4.8
+      uint8arrays: 5.0.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@chainsafe/libp2p-gossipsub@6.3.0:
     resolution: {integrity: sha512-yRgMB5JpyPROjmhOeOmzJUAKci19qBEnpH80201f8JkkviUJo7+X8i3MUkammlbFg0VhaTKBT98Osbko9+rT1w==}
@@ -18509,8 +18531,6 @@ packages:
       node-pre-gyp: 0.13.0
     optionalDependencies:
       domexception: 1.0.1
-    transitivePeerDependencies:
-      - supports-color
     bundledDependencies:
       - node-pre-gyp
 
