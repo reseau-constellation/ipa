@@ -17,8 +17,6 @@ import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
-import { multiaddr } from "@multiformats/multiaddr";
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 
 export type ServicesLibp2p = { pubsub: GossipSub };
 

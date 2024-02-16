@@ -7,7 +7,7 @@ import url from "url";
 import { $ } from "execa";
 import os from "os";
 import esbuildCmd from "esbuild";
-import { mkdtempSync, copyFileSync, appendFileSync, existsSync, lstat, lstatSync, readdirSync, readSync, readFileSync } from "fs";
+import { mkdtempSync, copyFileSync } from "fs";
 import { sync } from "rimraf";
 
 const require = createRequire(import.meta.url);
@@ -107,8 +107,10 @@ const lancerSfipDansNavigateur = async (opts) => {
   const { chromium } = await import("playwright");
   const navigateur = await chromium.launch();
 
-  const dossierCompilation = mkdtempSync(path.join(os.tmpdir(), "test-constl-"));
-  const  fichierJs = path.join(dossierCompilation, "test.min.js");
+  const dossierCompilation = mkdtempSync(
+    path.join(os.tmpdir(), "test-constl-"),
+  );
+  const fichierJs = path.join(dossierCompilation, "test.min.js");
   try {
     const page = await navigateur.newPage();
     const globalName = "testnavigsfip";
@@ -132,13 +134,14 @@ const lancerSfipDansNavigateur = async (opts) => {
     page.on("console", (msg) =>
       console.log("Message de Playwright : ", msg.text()),
     );
-    const fichierHtml = path.join(dossierCompilation, "lancerNœud.html")
-    
-    copyFileSync(path.join(__dirname, "test", "utils", "lancerNœud.html"), fichierHtml)
+    const fichierHtml = path.join(dossierCompilation, "lancerNœud.html");
 
-    await page.goto(
-      `file://${fichierHtml}`,
+    copyFileSync(
+      path.join(__dirname, "test", "utils", "lancerNœud.html"),
+      fichierHtml,
     );
+
+    await page.goto(`file://${fichierHtml}`);
     await page.getByText("Test").isVisible();
   } catch (e) {
     // On arrête pas les tests pour une petite erreur comme ça
@@ -146,7 +149,7 @@ const lancerSfipDansNavigateur = async (opts) => {
   }
   return async () => {
     await navigateur.close();
-    sync(dossierCompilation)
+    sync(dossierCompilation);
   };
 };
 
