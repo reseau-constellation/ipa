@@ -96,7 +96,6 @@
     "@chainsafe/libp2p-yamux": "^6.0.2",
     "@chriscdn/promise-semaphore": "^2.0.9",
     "@constl/bohr-db": "^1.1.0",
-    "@constl/electron-webrtc-relay": "^0.2.3",
     "@constl/mandataire": "^0.1.15",
     "@constl/utils-ipa": "^1.0.0",
     "@helia/block-brokers": "^2.0.1",

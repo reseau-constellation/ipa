@@ -20,9 +20,6 @@ dependencies:
   '@constl/bohr-db':
     specifier: ^1.1.0
     version: 1.1.0(react-native@0.73.4)
-  '@constl/electron-webrtc-relay':
-    specifier: ^0.2.3
-    version: 0.2.3
   '@constl/mandataire':
     specifier: ^0.1.15
     version: 0.1.15
@@ -18512,6 +18509,8 @@ packages:
       node-pre-gyp: 0.13.0
     optionalDependencies:
       domexception: 1.0.1
+    transitivePeerDependencies:
+      - supports-color
     bundledDependencies:
       - node-pre-gyp
 
