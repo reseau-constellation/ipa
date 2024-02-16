@@ -19,8 +19,6 @@ describe.only("SFIP", function () {
   });
 
   after(async () => {
-    // Ça coince pour toujours avec Électron principal. Peut-être que ça sera mieux avec Hélia...
-    if (!isElectronMain) await sfip.stop();
     try {
       fEffacer?.();
     } catch (e) {
@@ -31,19 +29,11 @@ describe.only("SFIP", function () {
   });
 
   it("Initialiser", async () => {
-    const id = await sfip.libp2p.peerId;
+    const id = sfip.libp2p.peerId;
     expect(id).to.be.a.string;
   });
 
   it("Connexion à un navigateur", async () => {
-    /*const relayId = "12D3KooWPQJMHevU1JcDHH11taaS75FxEM27ar9qTrXTnTi9UGhc";
-
-    await sfip.libp2p.dial(
-      multiaddr(
-        `/dns4/relai-libp2p.xn--rseau-constellation-bzb.ca/tcp/443/wss/p2p/${relayId}`,
-      ),
-    );*/
-
     await new Promise<void>((résoudre) => {
       sfip.libp2p.addEventListener("peer:discovery", async () => {
         const pairs = sfip.libp2p.getPeers();
