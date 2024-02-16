@@ -2,7 +2,6 @@ import { initSFIP } from "../src/sfip/index.js";
 import { expect } from "aegir/chai";
 import type { Helia } from "helia";
 import { isElectronMain, isNode } from "wherearewe";
-import { multiaddr } from "@multiformats/multiaddr";
 import { dossiers } from "@constl/utils-tests";
 
 describe.only("SFIP", function () {
@@ -22,7 +21,13 @@ describe.only("SFIP", function () {
   after(async () => {
     // Ça coince pour toujours avec Électron principal. Peut-être que ça sera mieux avec Hélia...
     if (!isElectronMain) await sfip.stop();
-    fEffacer?.();
+    try {
+      fEffacer?.();
+    } catch (e) {
+      if (!isNode || !(process.platform === "win32")) {
+        throw e
+      }
+    }
   });
 
   it("Initialiser", async () => {
