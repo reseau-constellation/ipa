@@ -143,15 +143,15 @@ const lancerSfipDansNavigateur = async (opts) => {
     );
 
     await page.goto(`file://${fichierHtml}`);
-    console.log("On a navigué à la page")
+    console.log("On a navigué à la page");
     await page.getByText("Test").isVisible();
-    console.log("La page est prête")
+    console.log("La page est prête");
   } catch (e) {
     // On arrête pas les tests pour une petite erreur comme ça
     console.error(e);
   }
   return async () => {
-    console.log("On ferme le navigateur")
+    console.log("On ferme le navigateur");
     await navigateur.close();
     sync(dossierCompilation);
   };
@@ -177,7 +177,7 @@ const options = {
       return { fermerNavigateur, serveurLocal, relai };
     },
     after: async (_, avant) => {
-      console.log("On ferme aegir")
+      console.log("On ferme aegir");
       await avant.fermerNavigateur();
       await avant.serveurLocal?.close();
       avant.relai?.kill();

@@ -6,7 +6,8 @@ export const ADRESSES_NŒUDS_RELAI = [
   "/ip4/164.90.222.145/tcp/9092/p2p/12D3KooWJ7P1yeoxB5mq3TwQh8YgmVhankjtT4rsVGZPUyf617aR",
 ];
 
-export const ADRESSES_NŒUDS_RELAI_LOCAL = ["/ip4/127.0.0.1/udp/9090/webrtc-direct/certhash/uEiAWCRG30KUzLUuWYZ9HZNcFBHt8uLjLRB2xlLW_L_8lQg/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
-"/ip4/127.0.0.1/udp/9091/quic-v1/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
-"/ip4/127.0.0.1/tcp/9092/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu"]; 
-
+export const ADRESSES_NŒUDS_RELAI_LOCAL = [
+  "/ip4/127.0.0.1/udp/9090/webrtc-direct/certhash/uEiAWCRG30KUzLUuWYZ9HZNcFBHt8uLjLRB2xlLW_L_8lQg/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
+  "/ip4/127.0.0.1/udp/9091/quic-v1/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
+  "/ip4/127.0.0.1/tcp/9092/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
+];
