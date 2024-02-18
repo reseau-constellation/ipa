@@ -197,12 +197,13 @@ const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 const obtDossierConstellation = async (
   opts: optsConstellation,
 ): Promise<string> => {
-  if (opts.dossier) return opts.dossier;
+  if (opts.dossier && opts.dossier !== "dév") return opts.dossier;
   if (isNode || isElectronMain) {
     // Utiliser l'application native
     const envPaths = (await import("env-paths")).default;
+    const { join } = await import("path")
     const chemins = envPaths("constl", { suffix: "" });
-    return chemins.data;
+    return join(chemins.data, opts.dossier === "dév" ? "constl-dév" : "constl");
   } else {
     // Pour navigateur
     return "./constl";
