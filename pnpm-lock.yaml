@@ -191,8 +191,8 @@ devDependencies:
     specifier: ^2.0.0
     version: 2.0.0(react-native@0.73.4)
   '@constl/utils-tests':
-    specifier: 1.1.1-b3f9530.0
-    version: 1.1.1-b3f9530.0(react-native@0.73.4)
+    specifier: 1.1.2
+    version: 1.1.2(react-native@0.73.4)
   '@libp2p/crypto':
     specifier: ^4.0.2
     version: 4.0.2
@@ -2164,8 +2164,8 @@ packages:
       - supports-color
     dev: false
 
-  /@constl/utils-tests@1.1.1-b3f9530.0(react-native@0.73.4):
-    resolution: {integrity: sha512-OtmdQ4v7uga9qkadag7H5uNZunN+OkJfnu2p935ODnIYIpWJ+5Av7BguGQM8N0XImNdN836PQZO3AQbQItWFHA==}
+  /@constl/utils-tests@1.1.2(react-native@0.73.4):
+    resolution: {integrity: sha512-kZatxdWcWlz48QtvSvgm9O0M2i+m8WiPn1Mb48DFM1rwEwkL0crMcOFgaB1fOhJYwC6o5+y7vB02TKizHO1Tzw==}
     engines: {node: '>=20'}
     dependencies:
       '@helia/block-brokers': 2.0.1
