@@ -53,6 +53,7 @@ import { ComposanteClientDic } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
+import { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
@@ -262,8 +263,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const pubsub = sfip.libp2p.services.pubsub;
     pubsub.subscribe(this.client.sujet_réseau);
 
-    const fÉcoutePubSub = (évé: CustomEvent<MessagePubSub>) => {
-      const messageGs = évé.detail;
+    const fÉcoutePubSub = (évé: CustomEvent<GossipsubMessage>) => {
+      const messageGs = évé.detail.msg;
       const id = uuidv4();
       if (messageGs.topic === this.client.sujet_réseau) {
         try {
@@ -280,11 +281,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         }
       }
     };
-    pubsub.addEventListener("message", fÉcoutePubSub);
+    pubsub.addEventListener("gossipsub:message", fÉcoutePubSub);
 
     this.fsOublier.push(async () => {
       pubsub.unsubscribe(this.client.sujet_réseau);
-      pubsub.removeEventListener("message");
+      pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
       await Promise.all(Object.values(promesses));
     });
 
@@ -408,7 +409,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const valeur: ValeurMessageSalut = {
       type: "Salut !",
       contenu: {
-        idSFIP: (await this.client.obtIdSFIP()).toCID().toString(),
+        idSFIP: (await this.client.obtIdSFIP()).toString(),
         idDispositif: this.client.orbite!.identity.id,
         clefPublique: this.client.orbite!.identity.publicKey,
         signatures: this.client.orbite!.identity.signatures,
@@ -471,7 +472,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     if (
       destinataire &&
-      destinataire !== (await this.client.obtIdSFIP()).toCID().toString()
+      destinataire !== (await this.client.obtIdSFIP()).toString()
     )
       return;
 
@@ -1307,8 +1308,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
       // Enlever les doublons
       for (const c of connexions) {
-        if (!adrDéjàVues.includes(c.toCID().toString())) {
-          adrDéjàVues.push(c.toCID().toString());
+        if (!adrDéjàVues.includes(c.toString())) {
+          adrDéjàVues.push(c.toString());
           dédupliquées.push(c);
         }
       }
@@ -1323,7 +1324,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       // Enlever les doublons (pas trop sûr ce qu'ils font ici)
       const connexionsUniques = dédédoublerConnexions(connexions);
 
-      return await f(connexionsUniques.map((c) => c.toCID().toString()));
+      return await f(connexionsUniques.map((c) => c.toString()));
     };
 
     this.événements.on("changementConnexions", fFinale);
@@ -1343,7 +1344,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }): Promise<schémaFonctionOublier> {
     const moi: statutDispositif = {
       infoDispositif: {
-        idSFIP: (await this.client.obtIdSFIP()).toCID().toString(),
+        idSFIP: (await this.client.obtIdSFIP()).toString(),
         idDispositif: await this.client.obtIdDispositif(),
         idCompte: await this.client.obtIdCompte(),
         clefPublique: (await this.client.obtIdentitéOrbite()).publicKey,

@@ -378,7 +378,7 @@ export class ClientConstellation {
           this._sfipExterne = true;
           sfipFinale = orbite.ipfs;
         } else {
-          sfipFinale = await initSFIP(join(await this.dossier(), "sfip"));
+          sfipFinale = await initSFIP({ dossier: join(await this.dossier(), "sfip")});
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
@@ -389,7 +389,7 @@ export class ClientConstellation {
       }
     } else {
       const { initSFIP } = await import("@/sfip/index.js");
-      sfipFinale = await initSFIP(join(await this.dossier(), "sfip"));
+      sfipFinale = await initSFIP({ dossier: join(await this.dossier(), "sfip") });
 
       const { initOrbite } = await import("@/orbite.js");
       orbiteFinale = await initOrbite({

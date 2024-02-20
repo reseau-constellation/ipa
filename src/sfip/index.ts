@@ -5,6 +5,7 @@ import {
   isNode,
   isWebWorker,
 } from "wherearewe";
+import mergeOptions from "merge-options";
 import { Helia, createHelia } from "helia";
 import { LevelBlockstore } from "blockstore-level";
 import { bitswap } from "@helia/block-brokers";
@@ -40,14 +41,18 @@ const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   return configPlateforme;
 };
 
-export async function initSFIP(
+export async function initSFIP({
+  dossier,
+  configLibp2p = {}
+}: {
   dossier: string,
-): Promise<Helia<Libp2p<ServicesLibp2p>>> {
+  configLibp2p?: Libp2pOptions,
+}): Promise<Helia<Libp2p<ServicesLibp2p>>> {
   const config = await obtConfigLibp2pPlateforme();
 
-  const libp2p = (await createLibp2p({
+  const libp2p = (await createLibp2p(mergeOptions(configLibp2p, {
     ...config,
-  })) as unknown as Libp2p<ServicesLibp2p>;
+  }))) as unknown as Libp2p<ServicesLibp2p>;
 
   const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
 

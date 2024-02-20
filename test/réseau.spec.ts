@@ -42,7 +42,7 @@ async function toutPréparer(n: number) {
     créerConstellation,
   });
   const idsNodesSFIP = await Promise.all(
-    clients.map(async (c) => (await c.obtIdSFIP()).toCID().toString()),
+    clients.map(async (c) => (await c.obtIdSFIP()).toString()),
   );
   const idsOrbite = await Promise.all(
     clients.map(async (c) => await c.obtIdDispositif()),
