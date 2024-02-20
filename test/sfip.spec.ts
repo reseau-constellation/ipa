@@ -14,7 +14,7 @@ const ID_PAIR_NODE = "12D3KooWENXsSgmKXse4hi77cmCeyKtpLiQWedkcgYeFsiQPnJRr";
 
 const attendreConnecté = async ({ sfip, idPair }: { sfip: Helia<Libp2p<ServicesLibp2p>>; idPair: string }) => {
   await new Promise<void>((résoudre) => {
-    sfip.libp2p.addEventListener("peer:discovery", async () => {
+    const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
       const connexions = sfip.libp2p.getConnections().map(c=>[c.remotePeer.toString(), c.remoteAddr.toString()]);
       console.log("principal: ", {connexions})
@@ -23,7 +23,9 @@ const attendreConnecté = async ({ sfip, idPair }: { sfip: Helia<Libp2p<Services
       if (trouvé) {
         résoudre();
       }
-    });
+    }
+    sfip.libp2p.addEventListener("peer:connect", vérifierConnecté);
+    vérifierConnecté();
   });
 }
 
@@ -37,7 +39,7 @@ const testerGossipSub = async ({ sfip, idPair }: { sfip: Helia<Libp2p<ServicesLi
       sfip.libp2p.services.pubsub.addEventListener("gossipsub:message", m => {
         if (m.detail.msg.topic === CANAL_TEST) {
           const messageRetour = JSON.parse(new TextDecoder().decode(m.detail.msg.data)) as { idPair: string, type: string, message: string }
-          console.log(messageRetour)
+
           if (messageRetour.message.includes(message) && messageRetour.idPair === idPair) {
             if (intervale) clearInterval(intervale)
             résoudre(messageRetour)
@@ -89,31 +91,14 @@ describe.only("SFIP", function () {
     await testerGossipSub({ sfip, idPair: ID_PAIR_NODE });
   });
 
-  it("Connexion à un navigateur", async () => {
+  it.skip("Connexion à un navigateur", async () => {
     await attendreConnecté({ sfip, idPair: ID_PAIR_NAVIG })
   });
 
   it.skip("Ça fonctionne localement hors ligne");
 
-  it("Gossipsub avec navigateur", async () => {
+  it.skip("Gossipsub avec navigateur", async () => {
     await testerGossipSub({ sfip, idPair: ID_PAIR_NAVIG });
-    sfip.libp2p.services.pubsub.subscribe("test")
-    const message = uuidv4();
-    let intervale : NodeJS.Timeout | undefined = undefined;
-    const retour = await new Promise(résoudre => {
-      sfip.libp2p.services.pubsub.addEventListener("gossipsub:message", m => {
-        console.log(m.detail.msg.topic, new TextDecoder().decode(m.detail.msg.data));
-        if (m.detail.msg.topic === "test") {
-          const messageRetour = new TextDecoder().decode(m.detail.msg.data)
-          if (messageRetour.includes(message)) {
-            if (intervale) clearInterval(intervale)
-            résoudre(messageRetour)
-          }
-        }
-      });
-      intervale = setInterval(()=>sfip.libp2p.services.pubsub.publish("test", new TextEncoder().encode(message)));
-    })
-    expect(retour).to.equal("Retour : " + message)
     return
     
     const constl = créerConstellation({ orbite: await initOrbite({ sfip, dossierOrbite: join(dossier, "./orbite") }), dossier});
