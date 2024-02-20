@@ -53,7 +53,7 @@ const testerGossipSub = async ({ sfip, idPair }: { sfip: Helia<Libp2p<ServicesLi
     expect(retour).to.deep.equal({idPair, message, type: "pong"})
 }
 
-describe.only("SFIP", function () {
+describe("SFIP", function () {
   let sfip: Helia<Libp2p<ServicesLibp2p>>;
   let dossier: string;
   let fEffacer: () => void;
