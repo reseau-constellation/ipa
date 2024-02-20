@@ -5,6 +5,16 @@ initSFIP("./testSfip").then(async (sfip) => {
     "SFIP initialisé avec id de nœud :",
     sfip.libp2p.peerId.toString(),
   );
+  sfip.libp2p.services.pubsub.subscribe("test");
+  sfip.libp2p.services.pubsub.addEventListener("gossipsub:message", m => {
+    if (m.detail.msg.topic === "test") {
+      console.log(m.detail.msg.topic, new TextDecoder().decode(m.detail.msg.data));
+      const message = new TextDecoder().decode(m.detail.msg.data)
+      if (!message.includes("Retour")) {
+        sfip.libp2p.services.pubsub.publish("test", new TextEncoder().encode("Retour :" + message))
+      }
+    }
+  })
   sfip.libp2p.addEventListener("peer:discovery", async () => {
     const pairs = sfip.libp2p.getPeers();
     console.log(
