@@ -103,6 +103,11 @@ const générerServeurRessourcesTests = (opts) => {
   return serveurLocal;
 };
 
+const lancerSfipDansNode = async (opts) => {
+  const processusNode = $`node dist/test/utils/lancerNœud.js &`;
+  return async () => processusNode?.kill()
+}
+
 const lancerSfipDansNavigateur = async (opts) => {
   const { chromium } = await import("playwright");
   const navigateur = await chromium.launch();
@@ -171,14 +176,18 @@ const options = {
       // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
       const fermerNavigateur = await lancerSfipDansNavigateur(opts);
 
+      // Et une sur Node.js pour pouvoir tester la connectivité avec Node
+      const fermerNode = await lancerSfipDansNode(opts);
+
       // Pour pouvoir accéder les fichiers test dans le navigateur
       const serveurLocal = générerServeurRessourcesTests(opts);
 
-      return { fermerNavigateur, serveurLocal, relai };
+      return { fermerNavigateur, fermerNode, serveurLocal, relai };
     },
     after: async (_, avant) => {
       console.log("On ferme aegir");
       await avant.fermerNavigateur();
+      await avant.fermerNode();
       await avant.serveurLocal?.close();
       avant.relai?.kill();
     },
