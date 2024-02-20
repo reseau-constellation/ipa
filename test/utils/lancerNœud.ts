@@ -18,7 +18,9 @@ const obtIdPair = async () => {
 }
 const CANAL_TEST = "test:gossipsub"
 
-obtIdPair().then(peerId => initSFIP({dossier: "./testSfip", configLibp2p: { peerId }}, ).then(async (sfip) => {
+const dossier = isBrowser ? "./testSfip" : (process.argv.indexOf("--dossier") ? process.argv[process.argv.indexOf("--dossier") + 1] : "./testSfip")
+
+obtIdPair().then(peerId => initSFIP({ dossier, configLibp2p: { peerId } }, ).then(async (sfip) => {
   console.log(
     "SFIP initialisé avec id de nœud :",
     sfip.libp2p.peerId.toString(),
@@ -27,6 +29,22 @@ obtIdPair().then(peerId => initSFIP({dossier: "./testSfip", configLibp2p: { peer
     console.log("clef privée : ", uint8ArrayToString(sfip.libp2p.peerId!.privateKey!, "hex"))
   }
 
+  sfip.libp2p.addEventListener("peer:connect", async () => {
+    const pairs = sfip.libp2p.getPeers();
+    console.log(
+      "pairs : ",
+      pairs.map((p) => p.toString()),
+    );
+    const connexions = sfip.libp2p.getConnections();
+    console.log(
+      "connexions : ",
+      JSON.stringify(
+        connexions.map((c) => [c.remotePeer.toString(), c.remoteAddr.toString()]),
+        undefined,
+        2,
+      ),
+    );
+  });
   sfip.libp2p.services.pubsub.subscribe(CANAL_TEST);
   sfip.libp2p.services.pubsub.addEventListener("gossipsub:message", m => {
     if (m.detail.msg.topic === CANAL_TEST) {
@@ -37,21 +55,5 @@ obtIdPair().then(peerId => initSFIP({dossier: "./testSfip", configLibp2p: { peer
         sfip.libp2p.services.pubsub.publish(CANAL_TEST, new TextEncoder().encode(JSON.stringify({message: message.message, idPair, type: "pong"})))
       }
     }
-  })
-  sfip.libp2p.addEventListener("peer:discovery", async () => {
-    const pairs = sfip.libp2p.getPeers();
-    console.log(
-      "pairs : ",
-      pairs.map((p) => p.toString()),
-    );
-    const connexions = sfip.libp2p.getConnections();
-    console.log(
-      "connexions : ",
-      JSON.stringify(
-        connexions.map((c) => c.remoteAddr.toString()),
-        undefined,
-        2,
-      ),
-    );
   });
 }));

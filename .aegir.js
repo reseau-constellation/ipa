@@ -7,8 +7,9 @@ import url from "url";
 import { $ } from "execa";
 import os from "os";
 import esbuildCmd from "esbuild";
-import { mkdtempSync, copyFileSync } from "fs";
+import { mkdtempSync, copyFileSync, existsSync } from "fs";
 import { sync } from "rimraf";
+import { dossiers } from "@constl/utils-tests";
 
 const require = createRequire(import.meta.url);
 
@@ -104,8 +105,15 @@ const générerServeurRessourcesTests = (opts) => {
 };
 
 const lancerSfipDansNode = async (opts) => {
-  const processusNode = $`node dist/test/utils/lancerNœud.js &`;
-  return async () => processusNode?.kill()
+  const {dossier, fEffacer } = await dossiers.dossierTempo()
+  const args = ["--dossier", dossier]
+
+  const processusNode = $`node dist/test/utils/lancerNœud.js ${args} &`;  // $({stdio: 'inherit'})`...` pour écrire à la console
+
+  return async () => {
+    processusNode?.kill()
+    fEffacer();
+  }
 }
 
 const lancerSfipDansNavigateur = async (opts) => {
@@ -148,9 +156,6 @@ const lancerSfipDansNavigateur = async (opts) => {
     );
 
     await page.goto(`file://${fichierHtml}`);
-    console.log("On a navigué à la page");
-    await page.getByText("Test").isVisible();
-    console.log("La page est prête");
   } catch (e) {
     // On arrête pas les tests pour une petite erreur comme ça
     console.error(e);
