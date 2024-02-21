@@ -176,7 +176,7 @@ const options = {
       },
     },
     before: async (opts) => {
-      const relai = $`node dist/test/utils/relai.js &`;
+      const relai = (opts.target.includes("browser") || opts.target.includes("electron-renderer")) ? $`node dist/test/utils/relai.js &` : undefined;
 
       // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
       const fermerNavigateur = await lancerSfipDansNavigateur(opts);
