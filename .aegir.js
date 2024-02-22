@@ -52,7 +52,7 @@ const générerServeurRessourcesTests = async (opts) => {
     });
     serveurLocal = appliExpress.listen(3000);
   }
-  return async () =>serveurLocal.close();
+  return async () => serveurLocal?.close();
 };
 
 const lancerSfipDansNode = async (opts) => {
