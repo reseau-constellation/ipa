@@ -194,8 +194,8 @@ devDependencies:
     specifier: ^2.0.0
     version: 2.0.0(react-native@0.73.4)
   '@constl/utils-tests':
-    specifier: 1.1.2
-    version: 1.1.2(react-native@0.73.4)
+    specifier: 1.2.2
+    version: 1.2.2(react-native@0.73.4)
   '@libp2p/crypto':
     specifier: ^4.0.2
     version: 4.0.2
@@ -1867,8 +1867,6 @@ packages:
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.2
       wherearewe: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   /@chainsafe/libp2p-yamux@6.0.2:
     resolution: {integrity: sha512-S5OkLHqYhEVMQQ4BTgnRANEIbGTQhaC23glCgBwGdeoTRtMpIozwDiPfljFLCm0RYWdCRJw9oFztO95KUHjptA==}
@@ -1926,7 +1924,7 @@ packages:
       '@chainsafe/libp2p-yamux': 6.0.2
       '@chriscdn/promise-semaphore': 2.0.9
       '@constl/bohr-db': 1.1.0(react-native@0.73.4)
-      '@constl/mandataire': 0.1.15
+      '@constl/mandataire': 0.1.16
       '@constl/utils-ipa': 1.0.0
       '@helia/block-brokers': 2.0.1
       '@helia/unixfs': 3.0.0
@@ -1948,7 +1946,7 @@ packages:
       '@libp2p/webtransport': 4.0.19
       '@localfirst/auth': 5.4.1
       '@localfirst/crypto': 5.4.1
-      '@orbitdb/core': 2.0.1
+      '@orbitdb/core': 2.1.0
       '@orbitdb/feed-db': 1.0.0(react-native@0.73.4)
       '@orbitdb/ordered-keyvalue-db': 1.0.0(react-native@0.73.4)
       '@orbitdb/set-db': 1.0.0(react-native@0.73.4)
@@ -1998,6 +1996,13 @@ packages:
       uuid: 9.0.1
     dev: false
 
+  /@constl/mandataire@0.1.16:
+    resolution: {integrity: sha512-cOOgRR9KB86JRi873/KoTnMsxeUVJg4rODgRJxoc9Ar6XUArzLinEZVYHu9KchcNWZpDCQbZdIPvvW4F9oG7kA==}
+    dependencies:
+      events: 3.3.0
+      uuid: 9.0.1
+    dev: false
+
   /@constl/orbit-db-types@2.0.0(react-native@0.73.4):
     resolution: {integrity: sha512-7B6/s6yAesWbL6IsVCfAG66b1xa7P0e49qNUjvCFxOuk6T4f05xjmi5KOljRLUi05B6GV6uwhLPTj9brPr3Alg==}
     dependencies:
@@ -2028,19 +2033,20 @@ packages:
       - supports-color
     dev: false
 
-  /@constl/utils-tests@1.1.2(react-native@0.73.4):
-    resolution: {integrity: sha512-kZatxdWcWlz48QtvSvgm9O0M2i+m8WiPn1Mb48DFM1rwEwkL0crMcOFgaB1fOhJYwC6o5+y7vB02TKizHO1Tzw==}
+  /@constl/utils-tests@1.2.2(react-native@0.73.4):
+    resolution: {integrity: sha512-GW8GQ6pAkZaNMmvWjzGyN23UxxfbwVVjBZ6TiAbAHtAXIH7vXOsIx6V4M1bPGTHLLJQd4S2SzlO3kOG9U4q2jQ==}
     engines: {node: '>=20'}
     dependencies:
       '@helia/block-brokers': 2.0.1
       '@orbitdb/quickstart': 1.0.0(react-native@0.73.4)
       blockstore-core: 4.4.0
-      blockstore-level: 1.1.7
+      blockstore-level: 1.1.8
       chokidar: 3.6.0
       events: 3.3.0
       genversion: 3.2.0
       helia: 3.0.1(react-native@0.73.4)
       libp2p: 1.2.3
+      read-package-up: 11.0.0
       rimraf: 5.0.5
       uint8arrays: 5.0.2
       uuid: 9.0.1
@@ -2422,6 +2428,8 @@ packages:
       interface-store: 5.1.7
       multiformats: 13.0.1
       progress-events: 1.0.0
+    transitivePeerDependencies:
+      - supports-color
 
   /@helia/unixfs@3.0.0:
     resolution: {integrity: sha512-jguVr8823VHqpADroEilHOqS/GsZBlQcMsxnN4P4bqKw+DIPAqsCt56qdSXZgHEwyMB5UpYsPoX5pzaZ7NpB7A==}
@@ -2723,8 +2731,6 @@ packages:
       protons-runtime: 5.4.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.2
-    transitivePeerDependencies:
-      - supports-color
 
   /@libp2p/dcutr@1.0.12:
     resolution: {integrity: sha512-2fpk2UUpcsVF/oiBymLMvbyBnR3Zma1cdv/HBMLNO2R0SpMYIHV9RmLJM4PVNyTaVGWul0NOQqBteRFfstTMmA==}
@@ -2916,8 +2922,6 @@ packages:
       multiformats: 13.0.1
       sanitize-filename: 1.6.3
       uint8arrays: 5.0.2
-    transitivePeerDependencies:
-      - supports-color
 
   /@libp2p/logger@2.1.1:
     resolution: {integrity: sha512-2UbzDPctg3cPupF6jrv6abQnAUTrbLybNOj0rmmrdGm1cN2HJ1o/hBu0sXuq4KF9P1h/eVRn1HIRbVIEKnEJrA==}
@@ -3018,8 +3022,6 @@ packages:
       protons-runtime: 5.4.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.0.2
-    transitivePeerDependencies:
-      - supports-color
 
   /@libp2p/peer-id@2.0.4:
     resolution: {integrity: sha512-gcOsN8Fbhj6izIK+ejiWsqiqKeJ2yWPapi/m55VjOvDa52/ptQzZszxQP8jUk93u36de92ATFXDfZR/Bi6eeUQ==}
@@ -3629,6 +3631,21 @@ packages:
       timeout-abort-controller: 3.0.0
       uint8arrays: 5.0.2
 
+  /@orbitdb/core@2.1.0:
+    resolution: {integrity: sha512-IjNPZrvZrFCoALF6owbWpdwn3rO6ekkurSA1Ccp5p2sgatJa3j2yCXN0qJpr6pistqwc9tZSKYsYmGUQ2bkEUw==}
+    engines: {node: '>=20.0.0'}
+    dependencies:
+      '@ipld/dag-cbor': 9.2.0
+      '@libp2p/crypto': 3.0.4
+      it-pipe: 3.0.1
+      level: 8.0.1
+      lru: 3.1.0
+      multiformats: 12.1.3
+      p-queue: 8.0.1
+      timeout-abort-controller: 3.0.0
+      uint8arrays: 5.0.2
+    dev: false
+
   /@orbitdb/feed-db@1.0.0(react-native@0.73.4):
     resolution: {integrity: sha512-5wD8fNCwJcsQ+YSbG8J3b0WUSGU1oKkaI8r1nUwflXm9oHOtFoexY+Bq5DCgDvcbB7YBpvQpAX4KejlEu52ZwQ==}
     dependencies:
@@ -3782,7 +3799,7 @@ packages:
       cosmiconfig: 5.2.1
       deepmerge: 4.3.1
       glob: 7.2.3
-      joi: 17.12.1
+      joi: 17.12.2
     transitivePeerDependencies:
       - encoding
 
@@ -3806,7 +3823,7 @@ packages:
       envinfo: 7.11.1
       execa: 5.1.1
       hermes-profile-transformer: 0.0.6
-      ip: 1.1.8
+      ip: 1.1.9
       node-stream-zip: 1.15.0
       ora: 5.4.1
       semver: 7.6.0
@@ -3823,7 +3840,7 @@ packages:
       '@react-native-community/cli-tools': 12.3.2
       chalk: 4.1.2
       hermes-profile-transformer: 0.0.6
-      ip: 1.1.8
+      ip: 1.1.9
     transitivePeerDependencies:
       - encoding
 
@@ -3891,7 +3908,7 @@ packages:
   /@react-native-community/cli-types@12.3.2:
     resolution: {integrity: sha512-9D0UEFqLW8JmS16mjHJxUJWX8E+zJddrHILSH8AJHZ0NNHv4u2DXKdb0wFLMobFxGNxPT+VSOjc60fGvXzWHog==}
     dependencies:
-      joi: 17.12.1
+      joi: 17.12.2
 
   /@react-native-community/cli@12.3.2:
     resolution: {integrity: sha512-WgoUWwLDcf/G1Su2COUUVs3RzAwnV/vUTdISSpAUGgSc57mPabaAoUctKTnfYEhCnE3j02k3VtaVPwCAFRO3TQ==}
@@ -5718,7 +5735,6 @@ packages:
       multiformats: 13.0.1
     transitivePeerDependencies:
       - supports-color
-    dev: false
 
   /blork@9.3.0:
     resolution: {integrity: sha512-9naBrHS2bwCQeGqGR9ptcoll6utsox9jtk1E0SwOAFa4RCV/IQHoBJARdi8AhHQTPPoWkjixMrzHvQKAV5Fx2A==}
@@ -5898,8 +5914,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001587
-      electron-to-chromium: 1.4.673
+      caniuse-lite: 1.0.30001589
+      electron-to-chromium: 1.4.679
       node-releases: 2.0.14
       update-browserslist-db: 1.0.13(browserslist@4.23.0)
 
@@ -6118,8 +6134,8 @@ packages:
   /caniuse-lite@1.0.30001585:
     resolution: {integrity: sha512-yr2BWR1yLXQ8fMpdS/4ZZXpseBgE7o4g41x3a6AJOqZuOi+iE/WdJYAuZ6Y95i4Ohd2Y+9MzIWRR+uGABH4s3Q==}
 
-  /caniuse-lite@1.0.30001587:
-    resolution: {integrity: sha512-HMFNotUmLXn71BQxg8cijvqxnIAofforZOwGsxyXJ0qugTdspUF4sPSJ2vhgprHCB996tIDzEq1ubumPDV8ULA==}
+  /caniuse-lite@1.0.30001589:
+    resolution: {integrity: sha512-vNQWS6kI+q6sBlHbh71IIeC+sRwK2N3EDySc/updIGhIee2x5z00J4c1242/5/d6EpEMdOnk/m+6tuk4/tcsqg==}
 
   /canvas@2.11.2:
     resolution: {integrity: sha512-ItanGBMrmRV7Py2Z+Xhs7cT+FNt5K0vPL4p9EZ/UX/Mu7hFbkxSjKF2KVtPwX7UYWp7dRKnrTvReflgrItJbdw==}
@@ -7376,8 +7392,8 @@ packages:
   /electron-to-chromium@1.4.664:
     resolution: {integrity: sha512-k9VKKSkOSNPvSckZgDDl/IQx45E1quMjX8QfLzUsAs/zve8AyFDK+ByRynSP/OfEfryiKHpQeMf00z0leLCc3A==}
 
-  /electron-to-chromium@1.4.673:
-    resolution: {integrity: sha512-zjqzx4N7xGdl5468G+vcgzDhaHkaYgVcf9MqgexcTqsl2UHSCmOj/Bi3HAprg4BZCpC7HyD8a6nZl6QAZf72gw==}
+  /electron-to-chromium@1.4.679:
+    resolution: {integrity: sha512-NhQMsz5k0d6m9z3qAxnsOR/ebal4NAGsrNVRwcDo4Kc/zQ7KdsTKZUxZoygHcVRb0QDW3waEDIcE3isZ79RP6g==}
 
   /electron-window@0.8.1:
     resolution: {integrity: sha512-W1i9LfnZJozk3MXE8VgsL2E5wOUHSgyCvcg1H2vQQjj+gqhO9lVudgY3z3SF7LJAmi+0vy3CJkbMqsynWB49EA==}
@@ -9693,8 +9709,8 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dev: false
 
-  /ip@1.1.8:
-    resolution: {integrity: sha512-PuExPYUiu6qMBQb4l06ecm6T6ujzhmh+MeJcW9wa89PoAz5pvd4zPgN5WJV104mb6S2T1AwNIAaB70JNrLQWhg==}
+  /ip@1.1.9:
+    resolution: {integrity: sha512-cyRxvOEpNHNtchU3Ln9KC/auJgup87llfQpQ+t5ghoC/UhL16SWzbueiCsdTnWmqAWl7LadfuwhlqmtOaqMHdQ==}
 
   /ipaddr.js@1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
@@ -10584,8 +10600,8 @@ packages:
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
-  /joi@17.12.1:
-    resolution: {integrity: sha512-vtxmq+Lsc5SlfqotnfVjlViWfOL9nt/avKNbKYizwf6gsCfq9NYY/ceYRMFD8XDdrjJ9abJyScWmhmIiy+XRtQ==}
+  /joi@17.12.2:
+    resolution: {integrity: sha512-RonXAIzCiHLc8ss3Ibuz45u28GOsWE1UpfDXLbN/9NKbL4tCJf8TWYVKsoYuuh+sAUt7fsSNpA+r2+TBA6Wjmw==}
     dependencies:
       '@hapi/hoek': 9.3.0
       '@hapi/topo': 5.1.0
@@ -11560,7 +11576,7 @@ packages:
     resolution: {integrity: sha512-83eZaH2+B+jP92KuodPqXknzwmiboKAuZY4doRfTEEXAG57pNVNN6cqSRJlwDnmaTBKRffxoncBXbYqHQgulgg==}
     engines: {node: '>=18'}
     dependencies:
-      terser: 5.27.1
+      terser: 5.27.2
 
   /metro-react-native-babel-preset@0.64.0(@babel/core@7.23.9):
     resolution: {integrity: sha512-HcZ0RWQRuJfpPiaHyFQJzcym+/dDIVUPwUAXWoub/C4GkGu+mPjp8vqK6g0FxokCnnI2TK0gZTza2IDfiNNscQ==}
@@ -14076,6 +14092,15 @@ packages:
     dependencies:
       loose-envify: 1.4.0
 
+  /read-package-up@11.0.0:
+    resolution: {integrity: sha512-MbgfoNPANMdb4oRBNg5eqLbB2t2r+o5Ua1pNt8BqGp4I0FJZhuVSOj3PaBPni4azWuSzEdNn2evevzVmEk1ohQ==}
+    engines: {node: '>=18'}
+    dependencies:
+      find-up-simple: 1.0.0
+      read-pkg: 9.0.1
+      type-fest: 4.10.3
+    dev: true
+
   /read-pkg-up@11.0.0:
     resolution: {integrity: sha512-LOVbvF1Q0SZdjClSefZ0Nz5z8u+tIE7mV5NibzmE9VYmDe9CaBbAVtz1veOSZbofrdsilxuDAYnFenukZVp8/Q==}
     engines: {node: '>=18'}
@@ -15411,8 +15436,8 @@ packages:
       unique-string: 3.0.0
     dev: true
 
-  /terser@5.27.1:
-    resolution: {integrity: sha512-29wAr6UU/oQpnTw5HoadwjUZnFQXGdOfj0LjZ4sVxzqwHh/QVkvr7m8y9WoR4iN3FRitVduTc6KdjcW38Npsug==}
+  /terser@5.27.2:
+    resolution: {integrity: sha512-sHXmLSkImesJ4p5apTeT63DsV4Obe1s37qT8qvwHRmVxKTBH7Rv9Wr26VcAMmLbmk9UliiwK8z+657NyJHHy/w==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
@@ -15770,6 +15795,11 @@ packages:
 
   /type-fest@4.10.2:
     resolution: {integrity: sha512-anpAG63wSpdEbLwOqH8L84urkL6PiVIov3EMmgIhhThevh9aiMQov+6Btx0wldNcvm4wV+e2/Rt1QdDwKHFbHw==}
+    engines: {node: '>=16'}
+    dev: true
+
+  /type-fest@4.10.3:
+    resolution: {integrity: sha512-JLXyjizi072smKGGcZiAJDCNweT8J+AuRxmPZ1aG7TERg4ijx9REl8CNhbr36RV4qXqL1gO1FF9HL8OkVmmrsA==}
     engines: {node: '>=16'}
     dev: true
 
