@@ -6,18 +6,20 @@ import {
   isWebWorker,
 } from "wherearewe";
 import mergeOptions from "merge-options";
+
+import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
+import type { Libp2p } from "@libp2p/interface";
 import { Helia, createHelia } from "helia";
 import { LevelBlockstore } from "blockstore-level";
 import { bitswap } from "@helia/block-brokers";
-
 import { createLibp2p, type Libp2pOptions } from "libp2p";
-import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
-import type { Libp2p } from "@libp2p/interface";
+import { multiaddr } from "@multiformats/multiaddr";
 
 import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
+import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 
 export type ServicesLibp2p = { pubsub: GossipSub };
 
@@ -62,5 +64,7 @@ export async function initSFIP({
     blockBrokers: [bitswap()],
   };
 
-  return await createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
+  const hélia = createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
+  
+  return hélia
 }

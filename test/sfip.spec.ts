@@ -91,32 +91,13 @@ describe("SFIP", function () {
     await testerGossipSub({ sfip, idPair: ID_PAIR_NODE });
   });
 
-  it.skip("Connexion à un navigateur", async () => {
+  it("Connexion à un navigateur", async () => {
     await attendreConnecté({ sfip, idPair: ID_PAIR_NAVIG })
   });
 
-  it.skip("Ça fonctionne localement hors ligne");
-
-  it.skip("Gossipsub avec navigateur", async () => {
+  it("Gossipsub avec navigateur", async () => {
     await testerGossipSub({ sfip, idPair: ID_PAIR_NAVIG });
-    return
-    
-    const constl = créerConstellation({ orbite: await initOrbite({ sfip, dossierOrbite: join(dossier, "./orbite") }), dossier});
-    await constl.réseau.suivreConnexionsPostesSFIP({
-      f: sfips => console.log({sfips})
-    })
-    const noms = await new Promise(résoudre => {
+  });
 
-      constl.réseau.suivreConnexionsMembres({
-        f: async membres => {
-          console.log(JSON.stringify({membres}, undefined, 2))
-          return await constl.profil.suivreNoms({
-            idCompte: membres[0].infoMembre.idCompte, 
-            f: noms => {console.log({noms}); Object.keys(noms).includes("fr") && résoudre(noms)},
-          })
-        }
-      })
-    })
-    console.log("ici", {noms})
-  })
+  it.skip("Ça fonctionne localement hors ligne");
 });
