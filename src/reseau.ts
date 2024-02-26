@@ -1,9 +1,7 @@
 import { isValidAddress } from "@orbitdb/core";
 
 import type {
-  PeerId,
   Libp2pEvents,
-  Message as MessagePubSub,
 } from "@libp2p/interface";
 
 import { EventEmitter } from "events";
@@ -1300,31 +1298,18 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   async suivreConnexionsPostesSFIP({
     f,
   }: {
-    f: schémaFonctionSuivi<string[]>;
+    f: schémaFonctionSuivi<{pair: string, adresses: string[]}[]>;
   }): Promise<schémaFonctionOublier> {
-    const dédédoublerConnexions = (connexions: PeerId[]): PeerId[] => {
-      const adrDéjàVues: string[] = [];
-      const dédupliquées: PeerId[] = [];
-
-      // Enlever les doublons
-      for (const c of connexions) {
-        if (!adrDéjàVues.includes(c.toString())) {
-          adrDéjàVues.push(c.toString());
-          dédupliquées.push(c);
-        }
-      }
-
-      return dédupliquées;
-    };
-
     const fFinale = async () => {
       const { sfip } = await this.client.attendreSfipEtOrbite();
-      const connexions = sfip.libp2p.getPeers();
+      const pairs = sfip.libp2p.getPeers();
+      const connexions = sfip.libp2p.getConnections();
 
-      // Enlever les doublons (pas trop sûr ce qu'ils font ici)
-      const connexionsUniques = dédédoublerConnexions(connexions);
-
-      return await f(connexionsUniques.map((c) => c.toString()));
+      return await f(pairs.map((p) => {
+        const pair = p.toString();
+        const adresses = connexions.filter(c=>c.remotePeer.toString() === pair).map(a=>a.remoteAddr.toString())
+        return {pair, adresses}
+      }));
     };
 
     this.événements.on("changementConnexions", fFinale);

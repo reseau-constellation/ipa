@@ -61,7 +61,7 @@ async function toutPréparer(n: number) {
 }
 
 if (isNode || isElectronMain) {
-  describe("Réseau", function () {
+  describe.only("Réseau", function () {
     describe("Suivre en ligne", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
@@ -69,7 +69,7 @@ if (isNode || isElectronMain) {
       let idsOrbite: string[];
       let clients: ClientConstellation[];
 
-      const rés = new utilsTestAttente.AttendreRésultat<string[]>();
+      const rés = new utilsTestAttente.AttendreRésultat<{pair: string; adresses: string[]}[]>();
       const dispositifs = new utilsTestAttente.AttendreRésultat<
         statutDispositif[]
       >();
@@ -109,7 +109,8 @@ if (isNode || isElectronMain) {
 
       it("Autres postes détectés", async () => {
         const val = await rés.attendreQue((x) => x.length >= 2);
-        expect(val).to.have.members([idsNodesSFIP[1], idsNodesSFIP[2]]);
+        expect(val.map(p=>p.pair)).to.have.members([idsNodesSFIP[1], idsNodesSFIP[2]]);
+        expect(val.map(p=>p.adresses[0].split("/")[1])).to.have.members([idsNodesSFIP[1], idsNodesSFIP[2]])
       });
 
       it("Autres dispositifs détectés", async () => {
