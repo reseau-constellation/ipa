@@ -3,10 +3,8 @@ import { expect } from "aegir/chai";
 import type { Helia } from "helia";
 import { isElectronMain, isNode } from "wherearewe";
 import { dossiers } from "@constl/utils-tests";
-import { initOrbite } from "@/orbite.js";
 import { Libp2p } from "@libp2p/interface";
-import { créerConstellation } from "@/index.js";
-import path, { join } from "path";
+import path from "path";
 import { v4 as uuidv4} from "uuid";
 
 const ID_PAIR_NAVIG = "12D3KooWSCVw8HCc4hrkzfkEeJmVW2xfQRkxEreLzoc1NDTfzYFf";
@@ -53,17 +51,13 @@ const testerGossipSub = async ({ sfip, idPair }: { sfip: Helia<Libp2p<ServicesLi
     expect(retour).to.deep.equal({idPair, message, type: "pong"})
 }
 
-describe("SFIP", function () {
+describe.only("SFIP", function () {
   let sfip: Helia<Libp2p<ServicesLibp2p>>;
   let dossier: string;
   let fEffacer: () => void;
 
   before(async () => {
-    if (isNode || isElectronMain) {
-      ({ dossier, fEffacer } = await dossiers.dossierTempo());
-    } else {
-      dossier = "dossierSFIP";
-    }
+    ({ dossier, fEffacer } = await dossiers.dossierTempo());
     sfip = await initSFIP({dossier: path.join(dossier, "sfip")});
   });
 

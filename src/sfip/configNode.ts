@@ -11,11 +11,11 @@ import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { dcutr } from "@libp2p/dcutr";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
-import type { Libp2pOptions } from "libp2p";
-
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { kadDHT } from "@libp2p/kad-dht";
+import type { Libp2pOptions } from "libp2p";
+
+import { ADRESSES_NŒUDS_RELAI, ADRESSES_NŒUDS_RELAI_LOCAL } from "./const.js";
 
 export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
@@ -26,7 +26,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
 
   return {
     addresses: {
-      listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport"],
+      listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport", "/webrtc-direct"],
     },
     transports: [
       webSockets({
@@ -59,7 +59,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
     peerDiscovery: [
       mdns(),
       bootstrap({
-        list: ADRESSES_NŒUDS_RELAI,
+        list: ADRESSES_NŒUDS_RELAI_LOCAL,
         timeout: 0,
       }),
       pubsubPeerDiscovery({

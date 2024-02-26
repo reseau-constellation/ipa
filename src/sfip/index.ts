@@ -64,7 +64,5 @@ export async function initSFIP({
     blockBrokers: [bitswap()],
   };
 
-  const hélia = createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
-  
-  return hélia
+  return createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
 }

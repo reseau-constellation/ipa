@@ -27,7 +27,7 @@ obtIdPair().then(peerId => initSFIP({ dossier, configLibp2p: { peerId } }, ).the
   if (!peerId) {
     console.log("clef privée : ", uint8ArrayToString(sfip.libp2p.peerId!.privateKey!, "hex"))
   }
-
+  console.log("nos adresses: ", sfip.libp2p.peerId.toString(), sfip.libp2p.getMultiaddrs().map((ma) => ma.toString()),)
   sfip.libp2p.addEventListener("peer:connect", async () => {
     const pairs = sfip.libp2p.getPeers();
     console.log(
