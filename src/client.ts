@@ -1274,7 +1274,7 @@ export class ClientConstellation {
         })
         .catch((e) => {
           if (!annulé) {
-            if (String(e).includes("ipfs unable to find")) {
+            if (String(e).includes("ipfs unable to find") || String(e).includes("aborted")) {
               lancerSuivi();
             } else {
               console.error(e);
