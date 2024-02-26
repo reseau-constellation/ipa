@@ -26,7 +26,12 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
 
   return {
     addresses: {
-      listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport", "/webrtc-direct"],
+      listen: [
+        "/ip4/0.0.0.0/tcp/0/ws",
+        "/webrtc",
+        "/webtransport",
+        "/webrtc-direct",
+      ],
     },
     transports: [
       webSockets({

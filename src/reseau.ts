@@ -1,8 +1,6 @@
 import { isValidAddress } from "@orbitdb/core";
 
-import type {
-  Libp2pEvents,
-} from "@libp2p/interface";
+import type { Libp2pEvents } from "@libp2p/interface";
 
 import { EventEmitter } from "events";
 import sum from "lodash/sum.js";
@@ -1298,18 +1296,22 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   async suivreConnexionsPostesSFIP({
     f,
   }: {
-    f: schémaFonctionSuivi<{pair: string, adresses: string[]}[]>;
+    f: schémaFonctionSuivi<{ pair: string; adresses: string[] }[]>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async () => {
       const { sfip } = await this.client.attendreSfipEtOrbite();
       const pairs = sfip.libp2p.getPeers();
       const connexions = sfip.libp2p.getConnections();
 
-      return await f(pairs.map((p) => {
-        const pair = p.toString();
-        const adresses = connexions.filter(c=>c.remotePeer.toString() === pair).map(a=>a.remoteAddr.toString())
-        return {pair, adresses}
-      }));
+      return await f(
+        pairs.map((p) => {
+          const pair = p.toString();
+          const adresses = connexions
+            .filter((c) => c.remotePeer.toString() === pair)
+            .map((a) => a.remoteAddr.toString());
+          return { pair, adresses };
+        }),
+      );
     };
 
     this.événements.on("changementConnexions", fFinale);

@@ -201,7 +201,7 @@ const obtDossierConstellation = async (
   if (isNode || isElectronMain) {
     // Utiliser l'application native
     const envPaths = (await import("env-paths")).default;
-    const { join } = await import("path")
+    const { join } = await import("path");
     const chemins = envPaths("constl", { suffix: "" });
     return join(chemins.data, opts.dossier === "dév" ? "constl-dév" : "constl");
   } else {
@@ -378,7 +378,9 @@ export class ClientConstellation {
           this._sfipExterne = true;
           sfipFinale = orbite.ipfs;
         } else {
-          sfipFinale = await initSFIP({ dossier: join(await this.dossier(), "sfip")});
+          sfipFinale = await initSFIP({
+            dossier: join(await this.dossier(), "sfip"),
+          });
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
@@ -389,7 +391,9 @@ export class ClientConstellation {
       }
     } else {
       const { initSFIP } = await import("@/sfip/index.js");
-      sfipFinale = await initSFIP({ dossier: join(await this.dossier(), "sfip") });
+      sfipFinale = await initSFIP({
+        dossier: join(await this.dossier(), "sfip"),
+      });
 
       const { initOrbite } = await import("@/orbite.js");
       orbiteFinale = await initOrbite({

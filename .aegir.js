@@ -56,16 +56,16 @@ const générerServeurRessourcesTests = async (opts) => {
 };
 
 const lancerSfipDansNode = async (opts) => {
-  const {dossier, fEffacer } = await dossiers.dossierTempo()
-  const args = ["--dossier", dossier]
+  const { dossier, fEffacer } = await dossiers.dossierTempo();
+  const args = ["--dossier", dossier];
 
-  const processusNode = $`node dist/test/utils/lancerNœud.js ${args} &`;  // $({stdio: 'inherit'})`...` pour écrire à la console
+  const processusNode = $`node dist/test/utils/lancerNœud.js ${args} &`; // $({stdio: 'inherit'})`...` pour écrire à la console
 
   return async () => {
-    processusNode?.kill()
+    processusNode?.kill();
     fEffacer();
-  }
-}
+  };
+};
 
 const lancerSfipDansNavigateur = async (opts) => {
   const { chromium } = await import("playwright");
@@ -121,7 +121,6 @@ const lancerSfipDansNavigateur = async (opts) => {
 };
 
 const avantTest = async (opts) => {
-
   // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
   const fermerNavigateur = await lancerSfipDansNavigateur(opts);
 
@@ -142,16 +141,16 @@ const aprèsTest = async (_, avant) => {
 
 const générerConfigÆgirFinal = async () => {
   const configÆgir = await config.générerConfigÆgir();
-  
-  const avantTestDéfaut = configÆgir.test.before
+
+  const avantTestDéfaut = configÆgir.test.before;
   configÆgir.test.before = async (opts) => {
     const retourAvantTestDéfaut = await avantTestDéfaut(opts);
     const retourAvantTest = await avantTest(opts);
     return {
       ...retourAvantTestDéfaut,
       ...retourAvantTest,
-    }
-  }
+    };
+  };
 
   const aprèsTestDéfaut = configÆgir.test.after;
   configÆgir.test.after = async (_, avant) => {
@@ -160,8 +159,8 @@ const générerConfigÆgirFinal = async () => {
     return {
       ...retourAprèsTestDéfaut,
       ...retourAprèsTest,
-    }
-  }
+    };
+  };
 
   return configÆgir;
 };

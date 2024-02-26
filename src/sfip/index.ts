@@ -45,16 +45,18 @@ const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
 
 export async function initSFIP({
   dossier,
-  configLibp2p = {}
+  configLibp2p = {},
 }: {
-  dossier: string,
-  configLibp2p?: Libp2pOptions,
+  dossier: string;
+  configLibp2p?: Libp2pOptions;
 }): Promise<Helia<Libp2p<ServicesLibp2p>>> {
   const config = await obtConfigLibp2pPlateforme();
 
-  const libp2p = (await createLibp2p(mergeOptions(configLibp2p, {
-    ...config,
-  }))) as unknown as Libp2p<ServicesLibp2p>;
+  const libp2p = (await createLibp2p(
+    mergeOptions(configLibp2p, {
+      ...config,
+    }),
+  )) as unknown as Libp2p<ServicesLibp2p>;
 
   const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
 
