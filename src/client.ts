@@ -1273,6 +1273,7 @@ export class ClientConstellation {
           fFinale();
         })
         .catch((e) => {
+          // Ceci nous permet de ressayer d'obtenir le contenu de la BD en continue, tant que la requète n'a pas été annulée
           if (!annulé) {
             if (String(e).includes("ipfs unable to find") || String(e).includes("aborted")) {
               lancerSuivi();
