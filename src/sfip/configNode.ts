@@ -64,7 +64,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
     peerDiscovery: [
       mdns(),
       bootstrap({
-        list: ADRESSES_NŒUDS_RELAI_LOCAL,
+        list: ADRESSES_NŒUDS_RELAI,
         timeout: 0,
       }),
       pubsubPeerDiscovery({
