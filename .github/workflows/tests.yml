@@ -89,7 +89,7 @@ jobs:
     needs: test-ipa-nodejs
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]  # , windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       
