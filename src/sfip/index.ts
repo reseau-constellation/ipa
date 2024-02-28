@@ -13,13 +13,11 @@ import { Helia, createHelia } from "helia";
 import { LevelBlockstore } from "blockstore-level";
 import { bitswap } from "@helia/block-brokers";
 import { createLibp2p, type Libp2pOptions } from "libp2p";
-import { multiaddr } from "@multiformats/multiaddr";
 
 import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 
 export type ServicesLibp2p = { pubsub: GossipSub };
 
