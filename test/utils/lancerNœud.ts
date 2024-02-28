@@ -44,11 +44,11 @@ obtIdPair().then((peerId) =>
     );
     sfip.libp2p.addEventListener("peer:connect", async () => {
       const pairs = sfip.libp2p.getPeers();
-      console.log(
+      const connexions = sfip.libp2p.getConnections();
+      /*console.log(
         "pairs : ",
         pairs.map((p) => p.toString()),
       );
-      const connexions = sfip.libp2p.getConnections();
       console.log(
         "connexions : ",
         JSON.stringify(
@@ -60,20 +60,15 @@ obtIdPair().then((peerId) =>
           2,
         ),
       );
+      */
     });
     sfip.libp2p.services.pubsub.subscribe(CANAL_TEST);
     sfip.libp2p.services.pubsub.addEventListener("gossipsub:message", (m) => {
-      if (m.detail.msg.topic.includes("constellation")) {
-        console.log(
-          m.detail.msg.topic,
-          new TextDecoder().decode(m.detail.msg.data),
-        );
-      }
+      /*console.log(
+        m.detail.msg.topic,
+        new TextDecoder().decode(m.detail.msg.data),
+      );*/
       if (m.detail.msg.topic === CANAL_TEST) {
-        console.log(
-          m.detail.msg.topic,
-          new TextDecoder().decode(m.detail.msg.data),
-        );
         const idPair = sfip.libp2p.peerId.toString();
         const message = JSON.parse(
           new TextDecoder().decode(m.detail.msg.data),

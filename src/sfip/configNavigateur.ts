@@ -63,7 +63,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       identify: identify(),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
-      pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+      pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       dht: kadDHT({
         clientMode: true,
       }),

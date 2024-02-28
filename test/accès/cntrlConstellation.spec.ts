@@ -61,7 +61,8 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Le premier mod peut écrire à la BD", async () => {
-          const autorisé = await orbite.peutÉcrire(bd);
+          console.log(bd.type);
+          const autorisé = await orbite.peutÉcrire(bd, orbitdb1);
           expect(autorisé).to.be.true();
         });
 

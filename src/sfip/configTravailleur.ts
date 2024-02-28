@@ -39,7 +39,7 @@ export const obtOptionsLibp2pTravailleurWeb =
       ],
       services: {
         identify: identify(),
-        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+        pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       },
     };
   };

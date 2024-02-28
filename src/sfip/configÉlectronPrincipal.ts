@@ -68,7 +68,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         identify: identify(),
         autoNAT: autoNAT(),
         dcutr: dcutr(),
-        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+        pubsub: gossipsub({ allowPublishToZeroPeers: true }),
         dht: kadDHT({
           clientMode: false,
         }),
