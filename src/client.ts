@@ -1,4 +1,6 @@
 import type { KeyValue as KeyValueDatabaseType } from "@orbitdb/core";
+import type TypedEmitter from "typed-emitter";
+
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
 import {
@@ -17,7 +19,7 @@ import { EventEmitter } from "events";
 import { v4 as uuidv4 } from "uuid";
 import Semaphore from "@chriscdn/promise-semaphore";
 import indexedDbStream from "indexed-db-stream";
-import type TypedEmitter from "typed-emitter";
+import plateforme from "platform";
 
 import {
   suivreBdDeFonction,
@@ -66,7 +68,7 @@ import Base64 from "crypto-js/enc-base64.js";
 import sha256 from "crypto-js/sha256.js";
 import md5 from "crypto-js/md5.js";
 import JSZip from "jszip";
-import { isElectronMain, isNode } from "wherearewe";
+import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
 import {
   gestionnaireOrbiteGénéral,
@@ -315,6 +317,10 @@ export class ClientConstellation {
         nom: "racine",
       });
 
+      await this.nommerDispositif({
+        type: this.détecterTypeDispositif(),
+      })
+
       await this.sauvegarderAuStockageLocal({
         clef: "idCompte",
         val: this.idCompte,
@@ -328,6 +334,22 @@ export class ClientConstellation {
     });
     await this.épingler();
     this.événements.emit("comptePrêt", { idCompte: this.idCompte });
+  }
+
+  détecterTypeDispositif (): string | undefined {
+    if (isElectronMain) {
+      return 'ordinateur'
+    } else if (isNode) {
+      return 'serveur'
+    } else if (isBrowser) {
+      if (['Pad', 'Kindle', 'Nexus', 'Nook', 'PlayBook'].find(x=>plateforme.product?.includes(x))) {
+        return 'tablette'
+      } else if (plateforme.name?.includes('Mobile') || ['Phone', 'Android', 'iOS'].find(x=>plateforme.os?.family?.includes(x))) {
+        return 'téléphone'
+      }
+      return 'navigateur'
+    }
+    return undefined
   }
 
   async attendreSfipEtOrbite(): Promise<{
@@ -666,8 +688,8 @@ export class ClientConstellation {
     type,
   }: {
     idDispositif?: string;
-    nom: string;
-    type: string;
+    nom?: string;
+    type?: string;
   }): Promise<void> {
     const idDispositifFinal = idDispositif || (await this.obtIdDispositif());
 
@@ -681,7 +703,14 @@ export class ClientConstellation {
       type: "keyvalue",
       schéma: schémaStructureNomsDispositifs,
     });
-    await bdNomsDispositifs.set(idDispositifFinal, { nom, type });
+    if (nom || type) {
+      const val: {nom?: string; type?: string} = {};
+      if (nom) val.nom = nom;
+      if (type) val.type = type;
+      await bdNomsDispositifs.set(idDispositifFinal, val);
+    } else {
+      await bdNomsDispositifs.del(idDispositifFinal)
+    }
     await fOublier();
   }
 
