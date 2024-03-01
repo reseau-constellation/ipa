@@ -5,6 +5,7 @@ import type {
   schémaFonctionSuiviRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
+  infoRésultatVide,
 } from "@/types.js";
 
 import { rechercherBdsSelonTexte } from "@/recherche/bd.js";
@@ -21,6 +22,7 @@ import {
   combinerRecherches,
   sousRecherche,
   rechercherSelonId,
+  rechercherTousSiVide,
 } from "@/recherche/utils.js";
 
 export const rechercherProjetsSelonNom = (
@@ -123,6 +125,7 @@ export const rechercherProjetsSelonBd = (
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<
     infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+    | infoRésultatVide
   >
 > => {
   return async (
@@ -131,6 +134,7 @@ export const rechercherProjetsSelonBd = (
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<
         infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatVide
       >
     >,
   ): Promise<schémaFonctionOublier> => {
@@ -224,13 +228,13 @@ export const rechercherProjetsSelonNomVariable = (
 export const rechercherProjetsSelonVariable = (
   texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
-  infoRésultatRecherche<infoRésultatTexte>
+  infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
 > => {
   return async (
     client: ClientConstellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
-      infoRésultatRecherche<infoRésultatTexte>
+      infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
     >,
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
@@ -323,13 +327,13 @@ export const rechercherProjetsSelonNomMotClef = (
 export const rechercherProjetsSelonMotClef = (
   texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
-  infoRésultatRecherche<infoRésultatTexte>
+  infoRésultatRecherche<infoRésultatTexte|infoRésultatVide>
 > => {
   return async (
     client: ClientConstellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
-      infoRésultatRecherche<infoRésultatTexte>
+      infoRésultatRecherche<infoRésultatTexte|infoRésultatVide>
     >,
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
@@ -358,8 +362,10 @@ export const rechercherProjetsSelonTexte = (
 ): schémaFonctionSuivreObjectifRecherche<
   | infoRésultatTexte
   | infoRésultatRecherche<
-      infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+      infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      | infoRésultatVide
     >
+  | infoRésultatVide
 > => {
   return async (
     client: ClientConstellation,
@@ -367,8 +373,10 @@ export const rechercherProjetsSelonTexte = (
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       | infoRésultatTexte
       | infoRésultatRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          | infoRésultatVide
         >
+        | infoRésultatVide
     >,
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherProjetsSelonNom(texte);
@@ -377,12 +385,14 @@ export const rechercherProjetsSelonTexte = (
     const fRechercherVariable = rechercherProjetsSelonVariable(texte);
     const fRechercherMotClef = rechercherProjetsSelonMotClef(texte);
     const fRechercherId = rechercherSelonId(texte);
+    const fRechercherTous = rechercherTousSiVide(texte);
 
     return await combinerRecherches<
       | infoRésultatTexte
       | infoRésultatRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+          infoRésultatTexte | infoRésultatVide | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
         >
+      | infoRésultatVide
     >(
       {
         noms: fRechercherNoms,
@@ -391,6 +401,7 @@ export const rechercherProjetsSelonTexte = (
         variable: fRechercherVariable,
         motClef: fRechercherMotClef,
         id: fRechercherId,
+        tous: fRechercherTous,
       },
       client,
       idCompte,

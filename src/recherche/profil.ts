@@ -14,6 +14,7 @@ import {
   rechercherDansTexte,
   combinerRecherches,
   rechercherSelonId,
+  rechercherTousSiVide,
 } from "@/recherche/utils.js";
 
 export const rechercherProfilsSelonActivité =
@@ -151,21 +152,23 @@ export const rechercherProfilsSelonCourriel = (
 
 export const rechercherProfilsSelonTexte = (
   texte: string,
-): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
+): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte | infoRésultatVide> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte | infoRésultatVide>,
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherProfilsSelonNom(texte);
     const fRechercherCourriel = rechercherProfilsSelonCourriel(texte);
     const fRechercherId = rechercherSelonId(texte);
+    const fRechercherTous = rechercherTousSiVide(texte);
 
     return await combinerRecherches(
       {
         noms: fRechercherNoms,
         courriel: fRechercherCourriel,
         id: fRechercherId,
+        vide: fRechercherTous
       },
       client,
       idCompte,

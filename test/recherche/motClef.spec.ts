@@ -3,6 +3,7 @@ import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
+  infoRésultatVide,
 } from "@/types.js";
 import {
   rechercherMotsClefsSelonNom,
@@ -110,10 +111,10 @@ describe("Rechercher mots clefs", function () {
   describe("Selon texte", function () {
     let idMotClef: string;
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];

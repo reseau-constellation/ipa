@@ -4,12 +4,14 @@ import type {
   schémaFonctionSuivreObjectifRecherche,
   schémaFonctionSuiviRecherche,
   infoRésultatTexte,
+  infoRésultatVide,
 } from "@/types.js";
 
 import {
   similTexte,
   combinerRecherches,
   rechercherSelonId,
+  rechercherTousSiVide,
 } from "@/recherche/utils.js";
 
 export const rechercherVariablesSelonNom = (
@@ -76,18 +78,19 @@ export const rechercherVariablesSelonDescr = (
 
 export const rechercherVariablesSelonTexte = (
   texte: string,
-): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
+): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte | infoRésultatVide> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte | infoRésultatVide>,
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherVariablesSelonNom(texte);
     const fRechercherDescr = rechercherVariablesSelonDescr(texte);
     const fRechercherId = rechercherSelonId(texte);
+    const fRechercherTous = rechercherTousSiVide(texte);
 
     return await combinerRecherches(
-      { noms: fRechercherNoms, descr: fRechercherDescr, id: fRechercherId },
+      { noms: fRechercherNoms, descr: fRechercherDescr, id: fRechercherId, vide: fRechercherTous },
       client,
       idCompte,
       fSuivreRecherche,

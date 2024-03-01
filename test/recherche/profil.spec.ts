@@ -208,10 +208,10 @@ describe("Rechercher profil", function () {
     let idCompte: string;
     const fsOublier: schémaFonctionOublier[] = [];
     const résNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
     >();
     const résCourriel = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
     >();
 
     before(async () => {

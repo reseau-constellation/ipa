@@ -4,6 +4,7 @@ import type {
   résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatRecherche,
+  infoRésultatVide,
 } from "@/types.js";
 import {
   rechercherBdsSelonNom,
@@ -369,31 +370,30 @@ describe("Rechercher bds", function () {
   });
 
   describe("Selon texte", function () {
-    // node --experimental-specifier-resolution=node --inspect dist/recherche/bd.test.js
     let idBd: string;
     const résultatId = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
       >
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
       >
     >();
     const résultatDescr = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
       >
     >();
     const résultatVariable = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
       >
     >();
     const résultatMotsClef = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
       >
     >();
 

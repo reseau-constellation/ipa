@@ -1448,7 +1448,7 @@ if (isElectronMain || isNode) {
       describe("selon variables", () => {
         let fOublier: schémaFonctionOublier;
         const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+          résultatRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>>[]
         >();
 
         before(async () => {
@@ -1517,7 +1517,7 @@ if (isElectronMain || isNode) {
       describe("selon mots-clefs", () => {
         let fOublier: schémaFonctionOublier;
         const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatRecherche<infoRésultatTexte>>[]
+          résultatRecherche<infoRésultatRecherche<infoRésultatTexte| infoRésultatVide>>[]
         >();
 
         before(async () => {
@@ -1585,8 +1585,8 @@ if (isElectronMain || isNode) {
         const rés = new utilsTestAttente.AttendreRésultat<
           résultatRecherche<
             infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
-            >
+              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide> | infoRésultatVide
+            > | infoRésultatVide
           >[]
         >();
 

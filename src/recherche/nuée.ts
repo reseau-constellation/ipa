@@ -5,6 +5,7 @@ import type {
   schémaFonctionSuiviRecherche,
   infoRésultatTexte,
   infoRésultatRecherche,
+  infoRésultatVide,
 } from "@/types.js";
 
 import { rechercherVariablesSelonNom } from "@/recherche/variable.js";
@@ -14,6 +15,7 @@ import {
   sousRecherche,
   rechercherSelonId,
   similTexte,
+  rechercherTousSiVide,
 } from "@/recherche/utils.js";
 
 export const rechercherNuéesSelonNom = (
@@ -258,17 +260,17 @@ export const rechercherNuéesSelonMotClef = (
 export const rechercherNuéesSelonTexte = (
   texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
-  infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
+  infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
 > => {
   return async (
     client: ClientConstellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
-      infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
+      infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
     >,
   ) => {
     return await combinerRecherches<
-      infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte
+      infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
     >(
       {
         nom: rechercherNuéesSelonNom(texte),
@@ -276,6 +278,7 @@ export const rechercherNuéesSelonTexte = (
         variables: rechercherNuéesSelonVariable(texte),
         motsClefs: rechercherNuéesSelonMotClef(texte),
         id: rechercherSelonId(texte),
+        tous: rechercherTousSiVide(texte),
       },
       client,
       idNuée,

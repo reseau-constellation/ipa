@@ -3,6 +3,7 @@ import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
   infoRésultatTexte,
+  infoRésultatVide,
 } from "@/types.js";
 import {
   rechercherVariablesSelonNom,
@@ -192,10 +193,10 @@ describe("Rechercher variables", function () {
   describe("Selon texte", function () {
     let idVariable: string;
     const résultatId = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatTexte>
+      résultatObjectifRecherche<infoRésultatTexte | infoRésultatVide>
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
