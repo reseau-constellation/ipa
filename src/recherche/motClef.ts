@@ -78,11 +78,15 @@ export const rechercherMotsClefsSelonDescr = (
 
 export const rechercherMotsClefsSelonTexte = (
   texte: string,
-): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte | infoRésultatVide> => {
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatTexte | infoRésultatVide
+> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte | infoRésultatVide>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatTexte | infoRésultatVide
+    >,
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherMotsClefsSelonNom(texte);
     const fRechercherDescr = rechercherMotsClefsSelonDescr(texte);
@@ -90,7 +94,12 @@ export const rechercherMotsClefsSelonTexte = (
     const fRechercherTous = rechercherTousSiVide(texte);
 
     return await combinerRecherches(
-      { noms: fRechercherNoms, id: fRechercherId, descr: fRechercherDescr, vide: fRechercherTous },
+      {
+        noms: fRechercherNoms,
+        id: fRechercherId,
+        descr: fRechercherDescr,
+        vide: fRechercherTous,
+      },
       client,
       idCompte,
       fSuivreRecherche,

@@ -169,12 +169,12 @@ const aMieuxQueB = <T extends infoRésultat>(
     while (x.type === "résultat") x = x.info;
     while (y.type === "résultat") y = y.info;
 
-    const ordreImportanceCroissante: infoRésultat["type"][] = ['vide', 'texte'];
-    const iX = ordreImportanceCroissante.indexOf(x.type)
-    const iY = ordreImportanceCroissante.indexOf(y.type)
+    const ordreImportanceCroissante: infoRésultat["type"][] = ["vide", "texte"];
+    const iX = ordreImportanceCroissante.indexOf(x.type);
+    const iY = ordreImportanceCroissante.indexOf(y.type);
 
     return iX > iY;
-  }
+  };
   const xPlusLongQueY = (x: infoRésultat, y: infoRésultat): boolean => {
     while (x.type === "résultat") x = x.info;
     while (y.type === "résultat") y = y.info;
@@ -256,20 +256,21 @@ export const rechercherTous =
     };
   };
 
-export const rechercherTousSiVide =
-  (texte: string): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
-    return async (
-      _client: ClientConstellation,
-      _id: string,
-      fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
-    ): Promise<schémaFonctionOublier> => {
-      if (texte==='')
-        await fSuivreRecherche({
-          type: "résultat",
-          score: 1,
-          de: "*",
-          info: { type: "vide" },
-        });
-      return faisRien;
-    };
+export const rechercherTousSiVide = (
+  texte: string,
+): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
+  return async (
+    _client: ClientConstellation,
+    _id: string,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
+  ): Promise<schémaFonctionOublier> => {
+    if (texte === "")
+      await fSuivreRecherche({
+        type: "résultat",
+        score: 1,
+        de: "*",
+        info: { type: "vide" },
+      });
+    return faisRien;
   };
+};

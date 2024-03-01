@@ -373,27 +373,37 @@ describe("Rechercher bds", function () {
     let idBd: string;
     const résultatId = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+        | infoRésultatTexte
+        | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatVide
       >
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+        | infoRésultatTexte
+        | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatVide
       >
     >();
     const résultatDescr = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+        | infoRésultatTexte
+        | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatVide
       >
     >();
     const résultatVariable = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+        | infoRésultatTexte
+        | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatVide
       >
     >();
     const résultatMotsClef = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+        | infoRésultatTexte
+        | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatVide
       >
     >();
 

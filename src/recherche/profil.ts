@@ -152,11 +152,15 @@ export const rechercherProfilsSelonCourriel = (
 
 export const rechercherProfilsSelonTexte = (
   texte: string,
-): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte | infoRésultatVide> => {
+): schémaFonctionSuivreObjectifRecherche<
+  infoRésultatTexte | infoRésultatVide
+> => {
   return async (
     client: ClientConstellation,
     idCompte: string,
-    fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte | infoRésultatVide>,
+    fSuivreRecherche: schémaFonctionSuiviRecherche<
+      infoRésultatTexte | infoRésultatVide
+    >,
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherProfilsSelonNom(texte);
     const fRechercherCourriel = rechercherProfilsSelonCourriel(texte);
@@ -168,7 +172,7 @@ export const rechercherProfilsSelonTexte = (
         noms: fRechercherNoms,
         courriel: fRechercherCourriel,
         id: fRechercherId,
-        vide: fRechercherTous
+        vide: fRechercherTous,
       },
       client,
       idCompte,

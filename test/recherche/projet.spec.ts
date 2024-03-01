@@ -145,7 +145,9 @@ describe("Rechercher projets", function () {
       résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
     >();
     const résultatTous = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte| infoRésultatVide>>
+      résultatObjectifRecherche<
+        infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      >
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -262,7 +264,9 @@ describe("Rechercher projets", function () {
       résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte>>
     >();
     const résultatTous = new utilsTestAttente.AttendreRésultat<
-      résultatObjectifRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>>
+      résultatObjectifRecherche<
+        infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      >
     >();
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -390,7 +394,9 @@ describe("Rechercher projets", function () {
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte>
+            | infoRésultatVide
           >
       >
     >();
@@ -398,7 +404,9 @@ describe("Rechercher projets", function () {
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte>
+            | infoRésultatVide
           >
       >
     >();
@@ -406,7 +414,9 @@ describe("Rechercher projets", function () {
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte>
+            | infoRésultatVide
           >
       >
     >();
@@ -414,7 +424,9 @@ describe("Rechercher projets", function () {
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte>
+            | infoRésultatVide
           >
       >
     >();
@@ -650,45 +662,55 @@ describe("Rechercher projets", function () {
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
             | infoRésultatVide
-          > | infoRésultatVide
+          >
+        | infoRésultatVide
       >
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
             | infoRésultatVide
-          > | infoRésultatVide
+          >
+        | infoRésultatVide
       >
     >();
     const résultatDescr = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
             | infoRésultatVide
-          > | infoRésultatVide
+          >
+        | infoRésultatVide
       >
     >();
     const résultatBd = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
             | infoRésultatVide
-          > | infoRésultatVide
+          >
+        | infoRésultatVide
       >
     >();
     const résultatVariable = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
             | infoRésultatVide
-          > | infoRésultatVide
+          >
+        | infoRésultatVide
       >
     >();
 
@@ -696,9 +718,11 @@ describe("Rechercher projets", function () {
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-          | infoRésultatVide
-          > | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+            | infoRésultatVide
+          >
+        | infoRésultatVide
       >
     >();
 

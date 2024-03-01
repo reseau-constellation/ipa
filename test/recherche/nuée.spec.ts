@@ -379,32 +379,41 @@ describe("Client ", function () {
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-          > | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          >
+        | infoRésultatVide
       >
     >();
     const résultatNom = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
-          > | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte>
+            | infoRésultatVide
+          >
+        | infoRésultatVide
       >
     >();
     const résultatDescr = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-          > | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          >
+        | infoRésultatVide
       >
     >();
     const résultatVariable = new utilsTestAttente.AttendreRésultat<
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-          > | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          >
+        | infoRésultatVide
       >
     >();
 
@@ -412,8 +421,10 @@ describe("Client ", function () {
       résultatObjectifRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
-          > | infoRésultatVide
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          >
+        | infoRésultatVide
       >
     >();
 

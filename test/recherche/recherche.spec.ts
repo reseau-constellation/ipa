@@ -1448,7 +1448,9 @@ if (isElectronMain || isNode) {
       describe("selon variables", () => {
         let fOublier: schémaFonctionOublier;
         const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>>[]
+          résultatRecherche<
+            infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          >[]
         >();
 
         before(async () => {
@@ -1517,7 +1519,9 @@ if (isElectronMain || isNode) {
       describe("selon mots-clefs", () => {
         let fOublier: schémaFonctionOublier;
         const rés = new utilsTestAttente.AttendreRésultat<
-          résultatRecherche<infoRésultatRecherche<infoRésultatTexte| infoRésultatVide>>[]
+          résultatRecherche<
+            infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          >[]
         >();
 
         before(async () => {
@@ -1584,9 +1588,12 @@ if (isElectronMain || isNode) {
         const nouveauNom = "Mi base de datos meteorológicos";
         const rés = new utilsTestAttente.AttendreRésultat<
           résultatRecherche<
-            infoRésultatRecherche<
-              infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide> | infoRésultatVide
-            > | infoRésultatVide
+            | infoRésultatRecherche<
+                | infoRésultatTexte
+                | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+                | infoRésultatVide
+              >
+            | infoRésultatVide
           >[]
         >();
 

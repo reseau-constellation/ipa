@@ -260,17 +260,23 @@ export const rechercherBdsSelonMotClef = (
 export const rechercherBdsSelonTexte = (
   texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
-  infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
+  | infoRésultatRecherche<infoRésultatTexte>
+  | infoRésultatTexte
+  | infoRésultatVide
 > => {
   return async (
     client: ClientConstellation,
     idBd: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
-      infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
+      | infoRésultatRecherche<infoRésultatTexte>
+      | infoRésultatTexte
+      | infoRésultatVide
     >,
   ) => {
     return await combinerRecherches<
-      infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
+      | infoRésultatRecherche<infoRésultatTexte>
+      | infoRésultatTexte
+      | infoRésultatVide
     >(
       {
         nom: rechercherBdsSelonNom(texte),
@@ -278,7 +284,7 @@ export const rechercherBdsSelonTexte = (
         variables: rechercherBdsSelonVariable(texte),
         motsClefs: rechercherBdsSelonMotClef(texte),
         id: rechercherSelonId(texte),
-        vide: rechercherTousSiVide(texte)
+        vide: rechercherTousSiVide(texte),
       },
       client,
       idBd,

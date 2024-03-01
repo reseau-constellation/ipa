@@ -112,7 +112,9 @@ export class Recherche {
     toutLeRéseau = true,
   }: {
     texte: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte | infoRésultatVide>[]>;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatTexte | infoRésultatVide>[]
+    >;
     nRésultatsDésirés?: number;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
@@ -213,7 +215,9 @@ export class Recherche {
     toutLeRéseau = true,
   }: {
     texte: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte | infoRésultatVide>[]>;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatTexte | infoRésultatVide>[]
+    >;
     nRésultatsDésirés?: number;
     toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
@@ -454,7 +458,9 @@ export class Recherche {
     texte: string;
     f: schémaFonctionSuivi<
       résultatRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+        | infoRésultatTexte
+        | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatVide
       >[]
     >;
     nRésultatsDésirés?: number;
@@ -564,7 +570,9 @@ export class Recherche {
     nRésultatsDésirés,
   }: {
     texte: string;
-    f: schémaFonctionSuivi<résultatRecherche<infoRésultatTexte | infoRésultatVide>[]>;
+    f: schémaFonctionSuivi<
+      résultatRecherche<infoRésultatTexte | infoRésultatVide>[]
+    >;
     nRésultatsDésirés?: number;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fObjectif = profil.rechercherProfilsSelonTexte(texte);
@@ -710,7 +718,9 @@ export class Recherche {
   }: {
     texte: string;
     f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>>[]
+      résultatRecherche<
+        infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      >[]
     >;
     nRésultatsDésirés?: number;
     toutLeRéseau?: boolean;
@@ -779,7 +789,9 @@ export class Recherche {
   }: {
     texte: string;
     f: schémaFonctionSuivi<
-      résultatRecherche<infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>>[]
+      résultatRecherche<
+        infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      >[]
     >;
     nRésultatsDésirés?: number;
     toutLeRéseau?: boolean;
@@ -827,7 +839,9 @@ export class Recherche {
     f: schémaFonctionSuivi<
       résultatRecherche<
         infoRésultatRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+          | infoRésultatTexte
+          | infoRésultatRecherche<infoRésultatTexte>
+          | infoRésultatVide
         >
       >[]
     >;
@@ -855,9 +869,11 @@ export class Recherche {
       résultatRecherche<
         | infoRésultatTexte
         | infoRésultatRecherche<
-            infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+            | infoRésultatTexte
+            | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
             | infoRésultatVide
-          > | infoRésultatVide
+          >
+        | infoRésultatVide
       >[]
     >;
     nRésultatsDésirés?: number;
@@ -1100,7 +1116,9 @@ export class Recherche {
     texte: string;
     f: schémaFonctionSuivi<
       résultatRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte> | infoRésultatVide
+        | infoRésultatTexte
+        | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatVide
       >[]
     >;
     nRésultatsDésirés?: number;

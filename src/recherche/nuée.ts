@@ -260,17 +260,23 @@ export const rechercherNuéesSelonMotClef = (
 export const rechercherNuéesSelonTexte = (
   texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
-  infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
+  | infoRésultatRecherche<infoRésultatTexte>
+  | infoRésultatTexte
+  | infoRésultatVide
 > => {
   return async (
     client: ClientConstellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
-      infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
+      | infoRésultatRecherche<infoRésultatTexte>
+      | infoRésultatTexte
+      | infoRésultatVide
     >,
   ) => {
     return await combinerRecherches<
-      infoRésultatRecherche<infoRésultatTexte> | infoRésultatTexte | infoRésultatVide
+      | infoRésultatRecherche<infoRésultatTexte>
+      | infoRésultatTexte
+      | infoRésultatVide
     >(
       {
         nom: rechercherNuéesSelonNom(texte),

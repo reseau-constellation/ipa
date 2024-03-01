@@ -124,7 +124,8 @@ export const rechercherProjetsSelonBd = (
   texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
   infoRésultatRecherche<
-    infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+    | infoRésultatTexte
+    | infoRésultatRecherche<infoRésultatTexte>
     | infoRésultatVide
   >
 > => {
@@ -133,7 +134,8 @@ export const rechercherProjetsSelonBd = (
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<
-        infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte>
+        | infoRésultatTexte
+        | infoRésultatRecherche<infoRésultatTexte>
         | infoRésultatVide
       >
     >,
@@ -327,13 +329,13 @@ export const rechercherProjetsSelonNomMotClef = (
 export const rechercherProjetsSelonMotClef = (
   texte: string,
 ): schémaFonctionSuivreObjectifRecherche<
-  infoRésultatRecherche<infoRésultatTexte|infoRésultatVide>
+  infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
 > => {
   return async (
     client: ClientConstellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
-      infoRésultatRecherche<infoRésultatTexte|infoRésultatVide>
+      infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
     >,
   ): Promise<schémaFonctionOublier> => {
     const fListe = async (
@@ -362,7 +364,8 @@ export const rechercherProjetsSelonTexte = (
 ): schémaFonctionSuivreObjectifRecherche<
   | infoRésultatTexte
   | infoRésultatRecherche<
-      infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+      | infoRésultatTexte
+      | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
       | infoRésultatVide
     >
   | infoRésultatVide
@@ -373,10 +376,11 @@ export const rechercherProjetsSelonTexte = (
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       | infoRésultatTexte
       | infoRésultatRecherche<
-          infoRésultatTexte | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          | infoRésultatTexte
+          | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
           | infoRésultatVide
         >
-        | infoRésultatVide
+      | infoRésultatVide
     >,
   ): Promise<schémaFonctionOublier> => {
     const fRechercherNoms = rechercherProjetsSelonNom(texte);
@@ -390,7 +394,9 @@ export const rechercherProjetsSelonTexte = (
     return await combinerRecherches<
       | infoRésultatTexte
       | infoRésultatRecherche<
-          infoRésultatTexte | infoRésultatVide | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
+          | infoRésultatTexte
+          | infoRésultatVide
+          | infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
         >
       | infoRésultatVide
     >(

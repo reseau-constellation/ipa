@@ -319,7 +319,7 @@ export class ClientConstellation {
 
       await this.nommerDispositif({
         type: this.détecterTypeDispositif(),
-      })
+      });
 
       await this.sauvegarderAuStockageLocal({
         clef: "idCompte",
@@ -336,20 +336,29 @@ export class ClientConstellation {
     this.événements.emit("comptePrêt", { idCompte: this.idCompte });
   }
 
-  détecterTypeDispositif (): string | undefined {
+  détecterTypeDispositif(): string | undefined {
     if (isElectronMain) {
-      return 'ordinateur'
+      return "ordinateur";
     } else if (isNode) {
-      return 'serveur'
+      return "serveur";
     } else if (isBrowser) {
-      if (['Pad', 'Kindle', 'Nexus', 'Nook', 'PlayBook'].find(x=>plateforme.product?.includes(x))) {
-        return 'tablette'
-      } else if (plateforme.name?.includes('Mobile') || ['Phone', 'Android', 'iOS'].find(x=>plateforme.os?.family?.includes(x))) {
-        return 'téléphone'
+      if (
+        ["Pad", "Kindle", "Nexus", "Nook", "PlayBook"].find((x) =>
+          plateforme.product?.includes(x),
+        )
+      ) {
+        return "tablette";
+      } else if (
+        plateforme.name?.includes("Mobile") ||
+        ["Phone", "Android", "iOS"].find((x) =>
+          plateforme.os?.family?.includes(x),
+        )
+      ) {
+        return "téléphone";
       }
-      return 'navigateur'
+      return "navigateur";
     }
-    return undefined
+    return undefined;
   }
 
   async attendreSfipEtOrbite(): Promise<{
@@ -704,12 +713,12 @@ export class ClientConstellation {
       schéma: schémaStructureNomsDispositifs,
     });
     if (nom || type) {
-      const val: {nom?: string; type?: string} = {};
+      const val: { nom?: string; type?: string } = {};
       if (nom) val.nom = nom;
       if (type) val.type = type;
       await bdNomsDispositifs.set(idDispositifFinal, val);
     } else {
-      await bdNomsDispositifs.del(idDispositifFinal)
+      await bdNomsDispositifs.del(idDispositifFinal);
     }
     await fOublier();
   }
