@@ -1014,7 +1014,7 @@ export class Projets extends ComposanteClientListe<string> {
     await this.enleverDeMesProjets({ idProjet });
 
     // Et puis maintenant aussi effacer les données et le projet lui-même
-    for (const clef in ["noms", "descriptions", "motsClefs", "bds"]) {
+    for (const clef of ["noms", "descriptions", "motsClefs", "bds"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: idProjet,

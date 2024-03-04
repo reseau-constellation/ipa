@@ -2344,7 +2344,7 @@ export class BDs extends ComposanteClientListe<string> {
     await fOublier();
 
     // Et puis maintenant aussi effacer les données et la BD elle-même
-    for (const clef in ["noms", "descriptions", "motsClefs"]) {
+    for (const clef of ["noms", "descriptions", "motsClefs"]) {
       const idSousBd = await this.client.obtIdBd({
         nom: clef,
         racine: idBd,

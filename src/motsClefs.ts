@@ -384,7 +384,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
     await this.enleverDeMesMotsClefs({ idMotClef });
 
     // Effacer le mot-clef lui-même
-    for (const clef in ["noms"]) {
+    for (const clef of ["noms"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: idMotClef,

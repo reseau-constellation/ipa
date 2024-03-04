@@ -3183,7 +3183,7 @@ export class Nuées extends ComposanteClientListe<string> {
     await fOublier();
 
     // Et puis maintenant aussi effacer les tableaux et la Nuée elle-même
-    for (const clef in ["noms", "descriptions", "motsClefs"]) {
+    for (const clef of ["noms", "descriptions", "motsClefs"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: idNuée,

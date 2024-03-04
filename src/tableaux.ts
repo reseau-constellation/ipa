@@ -2193,7 +2193,7 @@ export class Tableaux {
 
   async effacerTableau({ idTableau }: { idTableau: string }): Promise<void> {
     // Effacer toutes les composantes du tableau
-    for (const clef in ["noms", "données", "colonnes", "règles"]) {
+    for (const clef of ["noms", "données", "colonnes", "règles"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: idTableau,

@@ -865,7 +865,7 @@ export class Variables extends ComposanteClientListe<string> {
     await this.enleverDeMesVariables({ idVariable });
 
     // Effacer la variable elle-même
-    for (const clef in ["noms", "descriptions", "règles"]) {
+    for (const clef of ["noms", "descriptions", "règles"]) {
       const idBd = await this.client.obtIdBd({
         nom: clef,
         racine: idVariable,
