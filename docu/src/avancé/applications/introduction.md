@@ -8,4 +8,4 @@ Si vous cherchez à créer un appli de science citoyenne, **Constellation peut l
 :::
 
 ## Projets utilisant Constellation
-Si vous développez un projet utilisant Constellation, [contactez-nous](julien.malard@mail.mcgill.ca) (ou, encore mieux, [ajoutez-le vous-même](https://github.com/reseau-constellation/ipa/edit/main/docu/src/avancé/applications/introduction.md)) et nous vous donnerons un peu de publicité ici.
+Si vous développez un projet utilisant Constellation, [contactez-nous](mailto://julien.malard@mail.mcgill.ca) (ou, encore mieux, [ajoutez-le vous-même](https://github.com/reseau-constellation/ipa/edit/main/docu/src/avancé/applications/introduction.md)) et nous vous donnerons un peu de publicité ici.
