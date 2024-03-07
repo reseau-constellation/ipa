@@ -1,5 +1,5 @@
 import { créerConstellation, type ClientConstellation } from "@/index.js";
-import { schémaFonctionOublier, schémaStatut, TYPES_STATUT } from "@/types.js";
+import { schémaFonctionOublier, schémaStatut } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
 
 import { élémentDeMembreAvecValid } from "@/reseau.js";
@@ -419,23 +419,23 @@ describe("Nuées", function () {
         if (fOublier) await fOublier();
       });
 
-      it("Marquer bêta", async () => {
-        await client.nuées.marquerBêta({ idNuée });
+      it("Marquer jouet", async () => {
+        await client.nuées.marquerJouet({ idNuée });
         const val = await statut.attendreQue(
-          (x) => x.statut === TYPES_STATUT.BÊTA,
+          (x) => x.statut === 'jouet',
         );
         expect(val).to.deep.equal({
-          statut: TYPES_STATUT.BÊTA,
+          statut: 'jouet',
         });
       });
 
       it("Marquer interne", async () => {
         await client.nuées.marquerInterne({ idNuée });
         const val = await statut.attendreQue(
-          (x) => x.statut === TYPES_STATUT.INTERNE,
+          (x) => x.statut === 'interne',
         );
         expect(val).to.deep.equal({
-          statut: TYPES_STATUT.INTERNE,
+          statut: 'interne',
         });
       });
 
@@ -445,10 +445,10 @@ describe("Nuées", function () {
           idNouvelle: "Une nouvelle bd.",
         }); //  Pour une vraie application, utiliser un id Nuée valide, bien entendu.
         const val = await statut.attendreQue(
-          (x) => x.statut === TYPES_STATUT.OBSOLÈTE,
+          (x) => x.statut === 'obsolète',
         );
         expect(val).to.deep.equal({
-          statut: TYPES_STATUT.OBSOLÈTE,
+          statut: 'obsolète',
           idNouvelle: "Une nouvelle bd.",
         });
       });
@@ -456,10 +456,10 @@ describe("Nuées", function () {
       it("Marquer active", async () => {
         await client.nuées.marquerActive({ idNuée });
         const val = await statut.attendreQue(
-          (x) => x.statut === TYPES_STATUT.ACTIVE,
+          (x) => x.statut === 'active',
         );
         expect(val).to.deep.equal({
-          statut: TYPES_STATUT.ACTIVE,
+          statut: 'active',
         });
       });
     });

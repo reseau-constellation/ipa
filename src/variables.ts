@@ -13,7 +13,6 @@ import type { dicTrads } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import {
-  TYPES_STATUT,
   schémaFonctionSuivi,
   schémaFonctionOublier,
   schémaStatut,
@@ -191,7 +190,7 @@ export class Variables extends ComposanteClientListe<string> {
 
     await this.établirStatut({
       id: idBdVariable,
-      statut: { statut: TYPES_STATUT.ACTIVE },
+      statut: { statut: 'active' },
     });
 
     fOublierVariable();
@@ -296,7 +295,7 @@ export class Variables extends ComposanteClientListe<string> {
     }
 
     const statut = ((await bdBase.get("statut")) as schémaStatut) || {
-      statut: TYPES_STATUT.ACTIVE,
+      statut: 'active',
     };
     await this.établirStatut({ id: idNouvelleBd, statut });
 
@@ -856,7 +855,7 @@ export class Variables extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdVariable,
     });
-    bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
+    bd.set("statut", { statut: 'obsolète', idNouvelle });
     await fOublier();
   }
 

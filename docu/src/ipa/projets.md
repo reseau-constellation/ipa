@@ -781,7 +781,7 @@ const fOublier = await client.projets.suivreDonnéesExportation({
 
 
 ## Statut
-Les projets peuvent être identifiées en tant qu'actifs, bêta, obsolètes ou bien internes à une autre application.
+Les projets peuvent être identifiées en tant qu'actifs, jouet, obsolètes ou bien internes à une autre application.
 
 ### `client.projets.changerStatutProjet({ idProjet, statut })`
 Change le statut du projet.
@@ -848,8 +848,8 @@ const idProjet = await client.projets.créerProjet();
 await client.projets.marquerActive({ idProjet });
 ```
 
-### `client.projets.marquerBêta({ idProjet })`
-Indique que le projet est en phase d'essaie (bêta).
+### `client.projets.marquerJouet({ idProjet })`
+Indique que le projet est un test et ne contient pas de vraies données.
 
 #### Paramètres
 | Nom | Type | Description |
@@ -863,7 +863,7 @@ const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
-await client.projets.marquerBêta({ idProjet });
+await client.projets.marquerJouet({ idProjet });
 ```
 
 ### `client.projets.marquerInterne({ idProjet })`
@@ -914,7 +914,7 @@ const fOublierStatut = await client.projets.suivreStatutProjet({
     f: x => statut.value = x,
 });
 
-const idTableau = await client.projets.marquerBêta({ idProjet });
+const idTableau = await client.projets.marquerJouet({ idProjet });
 
 ```
 

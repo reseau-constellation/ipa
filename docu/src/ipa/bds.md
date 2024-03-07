@@ -990,7 +990,7 @@ const fOublier = await client.bds.suivreDonnéesExportation({
 
 
 ## Statut
-Les bases de données peuvent être identifiées en tant qu'actives, bêta, obsolètes ou bien internes à une autre application.
+Les bases de données peuvent être identifiées en tant qu'actives, jouet, obsolètes ou bien internes à une autre application.
 
 ### `client.bds.changerStatutBd({ idBd, statut })`
 Change le statut de la base de données.
@@ -1057,8 +1057,8 @@ const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 await client.bds.marquerActive({ idBd });
 ```
 
-### `client.bds.marquerBêta({ idBd })`
-Indique que la base de données est en phase d'essaie (bêta).
+### `client.bds.marquerJouet({ idBd })`
+Indique que la base de données est un test et ne contient pas de vraies données.
 
 #### Paramètres
 | Nom | Type | Description |
@@ -1072,7 +1072,7 @@ const client = créerConstellation();
 
 const idBd = await client.bds.créerBd(: "ODBl-1_0" });
 
-await client.bds.marquerBêta({ idBd });
+await client.bds.marquerJouet({ idBd });
 ```
 
 ### `client.bds.marquerInterne({ idBd })`
@@ -1123,7 +1123,7 @@ const fOublierStatut = await client.bds.suivreStatutBd({
     f: x => statut.value = x,
 });
 
-const idTableau = await client.bds.marquerBêta({ idBd });
+const idTableau = await client.bds.marquerJouet({ idBd });
 
 ```
 
@@ -1446,12 +1446,7 @@ interface schémaSpécificationBd {
 Les bases de données, de même que d'autres objets Constellation, peuvent avoir différents statuts de développement. La valeur par défaut est `active`.
 
 ```ts
-enum TYPES_STATUT {
-    INTERNE = "interne",
-    BÊTA = "bêta",
-    ACTIVE = "active",
-    OBSOLÈTE = "obsolète",
-}
+export type TYPES_STATUT = "interne" | "jouet" | "active" | 'obsolète';
 
 type schémaStatut = {
     statut: TYPES_STATUT;

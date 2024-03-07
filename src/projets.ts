@@ -12,7 +12,6 @@ type ContrôleurConstellation = Awaited<
 
 import { cacheSuivi } from "@/décorateursCache.js";
 import {
-  TYPES_STATUT,
   schémaStatut,
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -172,7 +171,7 @@ export class Projets extends ComposanteClientListe<string> {
     });
     await bdProjet.set("motsClefs", idBdMotsClefs);
 
-    await bdProjet.set("statut", { statut: TYPES_STATUT.ACTIVE });
+    await bdProjet.set("statut", { statut: 'active' });
 
     await bdRacine.add(idBdProjet);
 
@@ -259,7 +258,7 @@ export class Projets extends ComposanteClientListe<string> {
     }
 
     const statut = (await bdBase.get("statut")) || {
-      statut: TYPES_STATUT.ACTIVE,
+      statut: 'active',
     };
     await nouvelleBd.set("statut", statut);
 
@@ -553,7 +552,7 @@ export class Projets extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
-    bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
+    bd.set("statut", { statut: 'obsolète', idNouvelle });
     await fOublier();
   }
 
@@ -579,17 +578,17 @@ export class Projets extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
-    bd.set("statut", { statut: TYPES_STATUT.ACTIVE });
+    bd.set("statut", { statut: 'active' });
     await fOublier();
   }
 
-  async marquerBêta({ idProjet }: { idProjet: string }): Promise<void> {
+  async marquerJouet({ idProjet }: { idProjet: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idProjet,
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
-    bd.set("statut", { statut: TYPES_STATUT.BÊTA });
+    bd.set("statut", { statut: 'jouet' });
     await fOublier();
   }
 
@@ -599,7 +598,7 @@ export class Projets extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdProjet,
     });
-    bd.set("statut", { statut: TYPES_STATUT.INTERNE });
+    bd.set("statut", { statut: 'interne' });
     await fOublier();
   }
 

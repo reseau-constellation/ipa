@@ -15,12 +15,7 @@ export type élémentsBd =
   | { [clef: string]: élémentsBd }
   | Array<élémentsBd>;
 
-export enum TYPES_STATUT {
-  INTERNE = "interne",
-  BÊTA = "bêta",
-  ACTIVE = "active",
-  OBSOLÈTE = "obsolète",
-}
+export type TYPES_STATUT = "interne" | "jouet" | "active" | 'obsolète';
 
 export type schémaStatut = {
   statut: TYPES_STATUT;

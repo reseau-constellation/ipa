@@ -654,7 +654,7 @@ await client.tableaux.ajouterColonneTableauNuée({
 ```
 
 ## Statut
-Tout comme les [bases de données](./bds.md) et les [projets](./projets.md), les nuées peuvent être identifiées en tant qu'actives, bêta, obsolètes ou bien internes à une autre application.
+Tout comme les [bases de données](./bds.md) et les [projets](./projets.md), les nuées peuvent être identifiées en tant qu'actives, jouet, obsolètes ou bien internes à une autre application.
 
 ### `client.nuées.changerStatutNuée({ idNuée, statut })`
 Change le statut de la nuée.
@@ -710,7 +710,7 @@ const fOublierStatut = await client.nuées.suivreStatutNuée({
     f: x => statut.value = x,
 });
 
-const idTableau = await client.nuées.marquerBêta({ idNuée });
+const idTableau = await client.nuées.marquerJouet({ idNuée });
 
 ```
 
@@ -755,8 +755,8 @@ const idNuée = await client.nuées.créerNuée({});
 await client.nuées.marquerActive({ idNuée });
 ```
 
-### `client.nuées.marquerBêta({ idNuée })`
-Indique que la nuée est en phase d'essaie (bêta).
+### `client.nuées.marquerJouet({ idNuée })`
+Indique que la nuée est un test et ne contient pas de vraies données.
 
 #### Paramètres
 | Nom | Type | Description |
@@ -770,7 +770,7 @@ const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée({});
 
-await client.nuées.marquerBêta({ idNuée });
+await client.nuées.marquerJouet({ idNuée });
 ```
 
 ### `client.nuées.marquerInterne({ idNuée })`

@@ -14,7 +14,6 @@ import {
   schémaStatut,
   schémaStructureBdMétadonnées,
   schémaStructureBdNoms,
-  TYPES_STATUT,
   élémentsBd,
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -285,7 +284,7 @@ export class BDs extends ComposanteClientListe<string> {
     });
     await bdBD.set("nuées", idBdNuées);
 
-    await bdBD.set("statut", { statut: TYPES_STATUT.ACTIVE });
+    await bdBD.set("statut", { statut: 'active' });
 
     if (ajouter) {
       const { bd: bdRacine, fOublier: fOublierRacine } =
@@ -459,7 +458,7 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     const statut = (await bdBase.get("statut")) || {
-      statut: TYPES_STATUT.ACTIVE,
+      statut: 'active',
     };
     await nouvelleBd.set("statut", statut);
 
@@ -1606,7 +1605,7 @@ export class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
-    bd.set("statut", { statut: TYPES_STATUT.OBSOLÈTE, idNouvelle });
+    bd.set("statut", { statut: 'obsolète', idNouvelle });
     await fOublier();
   }
 
@@ -1616,17 +1615,17 @@ export class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
-    bd.set("statut", { statut: TYPES_STATUT.ACTIVE });
+    bd.set("statut", { statut: 'active' });
     await fOublier();
   }
 
-  async marquerBêta({ idBd }: { idBd: string }): Promise<void> {
+  async marquerJouet({ idBd }: { idBd: string }): Promise<void> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
-    bd.set("statut", { statut: TYPES_STATUT.BÊTA });
+    bd.set("statut", { statut: 'jouet' });
     await fOublier();
   }
 
@@ -1636,7 +1635,7 @@ export class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
-    bd.set("statut", { statut: TYPES_STATUT.INTERNE });
+    bd.set("statut", { statut: 'interne' });
     await fOublier();
   }
 
