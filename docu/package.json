@@ -18,8 +18,8 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@lassi-js/kilimukku-vitepress": "^0.0.4",
+    "@lassi-js/kilimukku-vitepress": "^0.1.0",
     "cross-env": "^7.0.3",
-    "vitepress": "1.0.0-rc.31"
+    "vitepress": "1.0.0-rc.45"
   }
 }
