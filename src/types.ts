@@ -15,7 +15,7 @@ export type élémentsBd =
   | { [clef: string]: élémentsBd }
   | Array<élémentsBd>;
 
-export type TYPES_STATUT = "interne" | "jouet" | "active" | 'obsolète';
+export type TYPES_STATUT = "interne" | "jouet" | "active" | "obsolète";
 
 export type schémaStatut = {
   statut: TYPES_STATUT;

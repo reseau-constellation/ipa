@@ -421,21 +421,17 @@ describe("Nuées", function () {
 
       it("Marquer jouet", async () => {
         await client.nuées.marquerJouet({ idNuée });
-        const val = await statut.attendreQue(
-          (x) => x.statut === 'jouet',
-        );
+        const val = await statut.attendreQue((x) => x.statut === "jouet");
         expect(val).to.deep.equal({
-          statut: 'jouet',
+          statut: "jouet",
         });
       });
 
       it("Marquer interne", async () => {
         await client.nuées.marquerInterne({ idNuée });
-        const val = await statut.attendreQue(
-          (x) => x.statut === 'interne',
-        );
+        const val = await statut.attendreQue((x) => x.statut === "interne");
         expect(val).to.deep.equal({
-          statut: 'interne',
+          statut: "interne",
         });
       });
 
@@ -444,22 +440,18 @@ describe("Nuées", function () {
           idNuée,
           idNouvelle: "Une nouvelle bd.",
         }); //  Pour une vraie application, utiliser un id Nuée valide, bien entendu.
-        const val = await statut.attendreQue(
-          (x) => x.statut === 'obsolète',
-        );
+        const val = await statut.attendreQue((x) => x.statut === "obsolète");
         expect(val).to.deep.equal({
-          statut: 'obsolète',
+          statut: "obsolète",
           idNouvelle: "Une nouvelle bd.",
         });
       });
 
       it("Marquer active", async () => {
         await client.nuées.marquerActive({ idNuée });
-        const val = await statut.attendreQue(
-          (x) => x.statut === 'active',
-        );
+        const val = await statut.attendreQue((x) => x.statut === "active");
         expect(val).to.deep.equal({
-          statut: 'active',
+          statut: "active",
         });
       });
     });

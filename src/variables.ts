@@ -190,7 +190,7 @@ export class Variables extends ComposanteClientListe<string> {
 
     await this.établirStatut({
       id: idBdVariable,
-      statut: { statut: 'active' },
+      statut: { statut: "active" },
     });
 
     fOublierVariable();
@@ -295,7 +295,7 @@ export class Variables extends ComposanteClientListe<string> {
     }
 
     const statut = ((await bdBase.get("statut")) as schémaStatut) || {
-      statut: 'active',
+      statut: "active",
     };
     await this.établirStatut({ id: idNouvelleBd, statut });
 
@@ -855,7 +855,7 @@ export class Variables extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdVariable,
     });
-    bd.set("statut", { statut: 'obsolète', idNouvelle });
+    bd.set("statut", { statut: "obsolète", idNouvelle });
     await fOublier();
   }
 

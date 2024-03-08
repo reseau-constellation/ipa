@@ -284,7 +284,7 @@ export class BDs extends ComposanteClientListe<string> {
     });
     await bdBD.set("nuées", idBdNuées);
 
-    await bdBD.set("statut", { statut: 'active' });
+    await bdBD.set("statut", { statut: "active" });
 
     if (ajouter) {
       const { bd: bdRacine, fOublier: fOublierRacine } =
@@ -458,7 +458,7 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     const statut = (await bdBase.get("statut")) || {
-      statut: 'active',
+      statut: "active",
     };
     await nouvelleBd.set("statut", statut);
 
@@ -1605,7 +1605,7 @@ export class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
-    bd.set("statut", { statut: 'obsolète', idNouvelle });
+    bd.set("statut", { statut: "obsolète", idNouvelle });
     await fOublier();
   }
 
@@ -1615,7 +1615,7 @@ export class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
-    bd.set("statut", { statut: 'active' });
+    bd.set("statut", { statut: "active" });
     await fOublier();
   }
 
@@ -1625,7 +1625,7 @@ export class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
-    bd.set("statut", { statut: 'jouet' });
+    bd.set("statut", { statut: "jouet" });
     await fOublier();
   }
 
@@ -1635,7 +1635,7 @@ export class BDs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
-    bd.set("statut", { statut: 'interne' });
+    bd.set("statut", { statut: "interne" });
     await fOublier();
   }
 
