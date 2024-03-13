@@ -1969,7 +1969,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       const fOublierFavoris = await this.suivreFavorisMembre({
         idCompte,
         f: async (favoris) => {
-          résultats.favoris = favoris ? favoris.map(f=>f.idObjet) : [];
+          résultats.favoris = favoris ? favoris.map((f) => f.idObjet) : [];
           await fFinale();
         },
       });
