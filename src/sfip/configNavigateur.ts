@@ -50,7 +50,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     },
     peerDiscovery: [
       bootstrap({
-        list: ADRESSES_NŒUDS_RELAI,
+        list: ADRESSES_NŒUDS_RELAI_LOCAL,
         timeout: 0,
       }),
       pubsubPeerDiscovery({

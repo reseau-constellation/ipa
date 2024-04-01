@@ -77,7 +77,7 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe.skip("SFIP", function () {
+describe.only("SFIP", function () {
   let sfip: Helia<Libp2p<ServicesLibp2p>>;
   let dossier: string;
   let fEffacer: () => void;
