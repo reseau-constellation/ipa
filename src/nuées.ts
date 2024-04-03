@@ -518,8 +518,8 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     f: schémaFonctionSuivi<{ [clef: string]: élémentsBd }>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (noms: { [key: string]: string }[]) => {
-      await f(Object.assign({}, ...noms));
+    const fFinale = async (métadonnées: { [key: string]: élémentsBd }[]) => {
+      await f(Object.assign({}, ...métadonnées));
     };
 
     return await this.suivreDeParents({
@@ -527,7 +527,7 @@ export class Nuées extends ComposanteClientListe<string> {
       f: fFinale,
       fParents: async (
         id: string,
-        fSuivreBranche: schémaFonctionSuivi<{ [key: string]: string }>,
+        fSuivreBranche: schémaFonctionSuivi<{ [key: string]: élémentsBd }>,
       ): Promise<schémaFonctionOublier> => {
         return await this.client.suivreBdDicDeClef({
           id,
