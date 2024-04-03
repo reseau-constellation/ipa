@@ -590,12 +590,12 @@ export class BDs extends ComposanteClientListe<string> {
       ): Promise<schémaFonctionOublier> => {
         if (inclureParents) {
           return await this.client.nuées.suivreNuéesParents({
-              idNuée: id,
-              f: async (parents) => fSuivreBranche([...parents, branche]),
-            });
+            idNuée: id,
+            f: async (parents) => fSuivreBranche([...parents, branche]),
+          });
         } else {
-          await  fSuivreBranche([branche])
-          return faisRien
+          await fSuivreBranche([branche]);
+          return faisRien;
         }
       },
     });
@@ -658,7 +658,11 @@ export class BDs extends ComposanteClientListe<string> {
       const fFinaleSuivreCondition = async (nuéesBd?: string[]) => {
         fSuivreCondition(!!nuéesBd && nuéesBd.includes(idNuée));
       };
-      return await this.suivreNuéesBd({ idBd: id, f: fFinaleSuivreCondition, inclureParents });
+      return await this.suivreNuéesBd({
+        idBd: id,
+        f: fFinaleSuivreCondition,
+        inclureParents,
+      });
     };
     return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
   }

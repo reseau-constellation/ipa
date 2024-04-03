@@ -959,7 +959,11 @@ export class ClientConstellation {
     return idCompte;
   }
 
-  async copierContenuBdDic<T extends { [clef: string]: élémentsBd } & Record<C, string>, C extends string, U extends { [clef: string]: élémentsBd }>({
+  async copierContenuBdDic<
+    T extends { [clef: string]: élémentsBd } & Record<C, string>,
+    C extends string,
+    U extends { [clef: string]: élémentsBd },
+  >({
     bdBase,
     nouvelleBd,
     clef,
