@@ -114,7 +114,6 @@ const lancerSfipDansNavigateur = async (opts) => {
     console.error(e);
   }
   return async () => {
-    console.log("On ferme le navigateur");
     await navigateur.close();
     sync(dossierCompilation);
   };
