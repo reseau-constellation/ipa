@@ -565,9 +565,11 @@ export class BDs extends ComposanteClientListe<string> {
   async suivreNuéesBd({
     idBd,
     f,
+    inclureParents = true,
   }: {
     idBd: string;
     f: schémaFonctionSuivi<string[]>;
+    inclureParents?: boolean;
   }): Promise<schémaFonctionOublier> {
     return await suivreBdsDeFonctionListe({
       fListe: async (
@@ -586,12 +588,15 @@ export class BDs extends ComposanteClientListe<string> {
         fSuivreBranche: schémaFonctionSuivi<string[]>,
         branche: string,
       ): Promise<schémaFonctionOublier> => {
-        return (
-          await this.client.nuées.rechercherNuéesDéscendantes({
-            idNuée: id,
-            f: async (descendants) => fSuivreBranche([...descendants, branche]),
-          })
-        ).fOublier;
+        if (inclureParents) {
+          return await this.client.nuées.suivreNuéesParents({
+              idNuée: id,
+              f: async (parents) => fSuivreBranche([...parents, branche]),
+            });
+        } else {
+          await  fSuivreBranche([branche])
+          return faisRien
+        }
       },
     });
   }
@@ -633,10 +638,12 @@ export class BDs extends ComposanteClientListe<string> {
     idNuée,
     f,
     idCompte,
+    inclureParents = true,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
     idCompte?: string;
+    inclureParents?: boolean;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>,
@@ -651,7 +658,7 @@ export class BDs extends ComposanteClientListe<string> {
       const fFinaleSuivreCondition = async (nuéesBd?: string[]) => {
         fSuivreCondition(!!nuéesBd && nuéesBd.includes(idNuée));
       };
-      return await this.suivreNuéesBd({ idBd: id, f: fFinaleSuivreCondition });
+      return await this.suivreNuéesBd({ idBd: id, f: fFinaleSuivreCondition, inclureParents });
     };
     return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
   }
@@ -783,6 +790,7 @@ export class BDs extends ComposanteClientListe<string> {
     const fOublier = await this.rechercherBdsParNuée({
       idNuée: idNuéeUnique,
       f: fFinale,
+      inclureParents: false,
     });
 
     return fOublier;

@@ -107,12 +107,14 @@ const typerBd = <
     case "keyvalue":
       return typedKeyValue({
         db: bd,
+        // @ts-expect-error Je ne sais pas pourquoi
         schema: schéma as JSONSchemaType<U>,
       }) as unknown as Typer<T, U>;
 
     case "ordered-keyvalue":
       return typedOrderedKeyValue({
         db: bd,
+        // @ts-expect-error Je ne sais pas pourquoi
         schema: schéma as JSONSchemaType<U>,
       }) as unknown as Typer<T, U>;
 

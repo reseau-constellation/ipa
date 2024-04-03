@@ -578,6 +578,7 @@ export class Tableaux {
       id: idTableau,
       clef: "données",
       f: fSuivreDonnées,
+      // @ts-expect-error Il faudrait implémenter un schéma dynamique selon T
       schéma: schémaBdDonnéesTableau,
     });
 

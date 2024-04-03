@@ -93,7 +93,7 @@ describe("Contrôleur Constellation", function () {
         });
       });
 
-      describe("Accès par id BD racine", function () {
+      describe.only("Accès par id BD racine", function () {
         let fOublierOrbites: () => Promise<void>;
         let orbites: OrbitDB[];
         let orbitdb1: OrbitDB,
@@ -147,7 +147,6 @@ describe("Contrôleur Constellation", function () {
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
           bdOrbite2 = (await orbitdb2.open(bd.address)) as unknown as KeyValue;
-          orbite.attendreSync(bdOrbite2);
 
           const autorisé = await orbite.peutÉcrire(bdOrbite2);
           expect(autorisé).to.be.false();

@@ -451,7 +451,6 @@ export class Licences {
         >[0]["விண்மீன்"],
         அட்டவணை_சாபி: CLEF_TABLEAU_LICENCES_APPROUVÉES,
         குழு_அடையாளம்: ID_NUÉE_LICENCES,
-        // @ts-expect-error à mettre à jour dans கிளி
         வார்ப்புரு: SCHÉMA_BD_LICENCES,
       });
     }

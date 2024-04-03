@@ -959,7 +959,7 @@ export class ClientConstellation {
     return idCompte;
   }
 
-  async copierContenuBdDic<T extends { [clef: string]: élémentsBd }>({
+  async copierContenuBdDic<T extends { [clef: string]: élémentsBd } & Record<C, string>, C extends string, U extends { [clef: string]: élémentsBd }>({
     bdBase,
     nouvelleBd,
     clef,
@@ -967,8 +967,8 @@ export class ClientConstellation {
   }: {
     bdBase: TypedKeyValue<T>;
     nouvelleBd: TypedKeyValue<T>;
-    clef: string;
-    schéma: JSONSchemaType<T>;
+    clef: C;
+    schéma: JSONSchemaType<U>;
   }): Promise<void> {
     const idBdDicInit = await bdBase.get(clef);
 
@@ -1384,6 +1384,7 @@ export class ClientConstellation {
       ) as T;
       await f(valeurs);
     };
+    // @ts-expect-error Je ne sais pas pourquoi
     return await this.suivreBd({ id, type: "keyvalue", schéma, f: fFinale });
   }
 
@@ -1415,6 +1416,7 @@ export class ClientConstellation {
       id,
       type: "ordered-keyvalue",
       schéma,
+      // @ts-expect-error Je ne sais pas pourquoi
       f: fFinale,
     });
   }

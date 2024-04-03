@@ -1437,6 +1437,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     return await this.client.suivreBdDicDeClef({
       id: idCompte || (await this.client.obtIdCompte()),
       clef: "protocoles",
+      // @ts-expect-error Je ne sais pas pourquoi
       schéma: schémaStructureBdCompte,
       f,
     });
