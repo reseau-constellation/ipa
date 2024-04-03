@@ -93,7 +93,7 @@ describe("Contrôleur Constellation", function () {
         });
       });
 
-      describe.only("Accès par id BD racine", function () {
+      describe("Accès par id BD racine", function () {
         let fOublierOrbites: () => Promise<void>;
         let orbites: OrbitDB[];
         let orbitdb1: OrbitDB,
