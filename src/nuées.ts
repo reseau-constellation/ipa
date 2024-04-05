@@ -1925,6 +1925,7 @@ export class Nuées extends ComposanteClientListe<string> {
       return await this.client.bds.suivreNuéesBd({
         idBd,
         f: fSuivreRacine,
+        inclureParents: false,
       });
     };
     const fSuivreNuée = async (
