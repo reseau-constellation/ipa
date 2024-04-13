@@ -14,7 +14,7 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 import type { Libp2pOptions } from "libp2p";
-import { ADRESSES_NŒUDS_RELAI, ADRESSES_NŒUDS_RELAI_LOCAL } from "./const.js";
+import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   return {
@@ -50,7 +50,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     },
     peerDiscovery: [
       bootstrap({
-        list: ADRESSES_NŒUDS_RELAI_LOCAL,
+        list: ADRESSES_NŒUDS_RELAI,
         timeout: 0,
       }),
       pubsubPeerDiscovery({
