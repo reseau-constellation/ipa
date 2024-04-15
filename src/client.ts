@@ -2492,7 +2492,7 @@ export class ClientConstellation {
         zip,
       });
       await sauvegarderFichierZip({ fichierZip: zip, nomFichier });
-    } else if (indexedDB) {
+    } else if (indexedDB?.databases) {
       const sauvegarderBdIndexeÀZip = ({
         bd,
         zip,
@@ -2522,18 +2522,16 @@ export class ClientConstellation {
       };
       const fichierZip = new JSZip();
 
-      if (indexedDB.databases) {
-        const indexedDbDatabases = await indexedDB.databases();
-        const dossierZipIndexe = fichierZip.folder("bdIndexe");
-        if (!dossierZipIndexe) throw new Error("Erreur Bd Indexe...");
-        indexedDbDatabases.forEach((bd) => {
-          sauvegarderBdIndexeÀZip({ bd, zip: dossierZipIndexe });
-        });
-        fichierZip.file(
-          "stockageLocal",
-          JSON.stringify(await exporterStockageLocal(await this.dossier())),
-        );
-      }
+      const indexedDbDatabases = await indexedDB.databases();
+      const dossierZipIndexe = fichierZip.folder("bdIndexe");
+      if (!dossierZipIndexe) throw new Error("Erreur Bd Indexe...");
+      indexedDbDatabases.forEach((bd) => {
+        sauvegarderBdIndexeÀZip({ bd, zip: dossierZipIndexe });
+      });
+      fichierZip.file(
+        "stockageLocal",
+        JSON.stringify(await exporterStockageLocal(await this.dossier())),
+      );
 
       await sauvegarderFichierZip({ fichierZip, nomFichier });
     } else {
