@@ -88,8 +88,7 @@
     "tscpaths": "^0.0.9",
     "typed-emitter": "^2.1.0",
     "typescript": "5.4.3",
-    "typescript-transform-paths": "^3.4.7",
-    "wrtc": "^0.4.7"
+    "typescript-transform-paths": "^3.4.7"
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "^11.2.1",
@@ -114,7 +113,6 @@
     "@libp2p/pubsub-peer-discovery": "^10.0.2",
     "@libp2p/tcp": "^9.0.17",
     "@libp2p/webrtc": "^4.0.23",
-    "@libp2p/webrtc-direct": "^6.0.0",
     "@libp2p/websockets": "^8.0.17",
     "@libp2p/webtransport": "^4.0.22",
     "@localfirst/auth": "^5.6.0",
@@ -154,8 +152,5 @@
     "uuid": "^9.0.1",
     "wherearewe": "^2.0.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz"
-  },
-  "peerDependencies": {
-    "wrtc": "^0.4.7"
   }
 }
