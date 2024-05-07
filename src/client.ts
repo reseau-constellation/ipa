@@ -245,7 +245,7 @@ export class ClientConstellation {
   ennikkai: எண்ணிக்கை;
 
   verrouObtIdBd: Semaphore;
-  _intervaleVerrou?: NodeJS.Timeout
+  _intervaleVerrou?: NodeJS.Timeout;
 
   constructor(opts: optsConstellation = {}) {
     this._opts = opts;
@@ -296,7 +296,7 @@ export class ClientConstellation {
   }
 
   async _initialiser(): Promise<void> {
-    await this.verrouillerDossier({message: this._opts.messageVerrou});
+    await this.verrouillerDossier({ message: this._opts.messageVerrou });
 
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
@@ -392,8 +392,8 @@ export class ClientConstellation {
     }
   }
 
-  async verrouillerDossier({message}: {message?: string}): Promise<void> {
-    const intervaleVerrou = 5000  // 5 millisecondes
+  async verrouillerDossier({ message }: { message?: string }): Promise<void> {
+    const intervaleVerrou = 5000; // 5 millisecondes
     if (isElectronMain || isNode) {
       const fs = await import("fs");
       const path = await import("path");
@@ -405,30 +405,32 @@ export class ClientConstellation {
         const infoFichier = fs.statSync(fichierVerrou);
         const modifiéÀ = infoFichier.mtime;
         const verrifierSiVieux = () => {
-          if ((maintenant.getTime() - modifiéÀ.getTime()) > intervaleVerrou) {
+          if (maintenant.getTime() - modifiéÀ.getTime() > intervaleVerrou) {
             fs.writeFileSync(fichierVerrou, message || "");
           } else {
             const contenuFichier = fs.readFileSync(fichierVerrou);
-            throw new Error(new TextDecoder().decode(contenuFichier))
-          }  
-        }
+            throw new Error(new TextDecoder().decode(contenuFichier));
+          }
+        };
         try {
-          verrifierSiVieux()
+          verrifierSiVieux();
         } catch {
-          await new Promise(résoudre => setTimeout(résoudre, intervaleVerrou))
-          verrifierSiVieux()
+          await new Promise((résoudre) =>
+            setTimeout(résoudre, intervaleVerrou),
+          );
+          verrifierSiVieux();
         }
       }
       this._intervaleVerrou = setInterval(
         () => fs.utimesSync(fichierVerrou, maintenant, maintenant),
-        intervaleVerrou
-      )
+        intervaleVerrou,
+      );
     }
   }
 
   async effacerVerrou() {
     if (isElectronMain || isNode) {
-      if (this._intervaleVerrou) clearInterval(this._intervaleVerrou)
+      if (this._intervaleVerrou) clearInterval(this._intervaleVerrou);
       const fs = await import("fs");
       const path = await import("path");
       fs.rmSync(path.join(await this.dossier(), "VERROU"));
@@ -2484,7 +2486,7 @@ export class ClientConstellation {
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
 
     // Effacer fichier verrour
-    this.effacerVerrou()
+    this.effacerVerrou();
   }
 
   async effacerDispositif(): Promise<void> {
