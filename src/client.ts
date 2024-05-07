@@ -135,6 +135,7 @@ export interface optsConstellation {
   sujetRéseau?: string;
   protocoles?: string[];
   orbite?: optsOrbite;
+  messageVerrou?: string;
 }
 
 export type optsInitOrbite = Omit<
@@ -244,6 +245,7 @@ export class ClientConstellation {
   ennikkai: எண்ணிக்கை;
 
   verrouObtIdBd: Semaphore;
+  _intervaleVerrou?: NodeJS.Timeout
 
   constructor(opts: optsConstellation = {}) {
     this._opts = opts;
@@ -294,6 +296,8 @@ export class ClientConstellation {
   }
 
   async _initialiser(): Promise<void> {
+    await this.verrouillerDossier({message: this._opts.messageVerrou});
+
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
@@ -388,10 +392,55 @@ export class ClientConstellation {
     }
   }
 
+  async verrouillerDossier({message}: {message?: string}): Promise<void> {
+    const intervaleVerrou = 5000  // 5 millisecondes
+    if (isElectronMain || isNode) {
+      const fs = await import("fs");
+      const path = await import("path");
+      const fichierVerrou = path.join(await this.dossier(), "VERROU");
+      const maintenant = new Date();
+      if (!fs.existsSync(fichierVerrou)) {
+        fs.writeFileSync(fichierVerrou, message || "");
+      } else {
+        const infoFichier = fs.statSync(fichierVerrou);
+        const modifiéÀ = infoFichier.mtime;
+        const verrifierSiVieux = () => {
+          if ((maintenant.getTime() - modifiéÀ.getTime()) > intervaleVerrou) {
+            fs.writeFileSync(fichierVerrou, message || "");
+          } else {
+            const contenuFichier = fs.readFileSync(fichierVerrou);
+            throw new Error(new TextDecoder().decode(contenuFichier))
+          }  
+        }
+        try {
+          verrifierSiVieux()
+        } catch {
+          await new Promise(résoudre => setTimeout(résoudre, intervaleVerrou))
+          verrifierSiVieux()
+        }
+      }
+      this._intervaleVerrou = setInterval(
+        () => fs.utimesSync(fichierVerrou, maintenant, maintenant),
+        intervaleVerrou
+      )
+    }
+  }
+
+  async effacerVerrou() {
+    if (isElectronMain || isNode) {
+      if (this._intervaleVerrou) clearInterval(this._intervaleVerrou)
+      const fs = await import("fs");
+      const path = await import("path");
+      fs.rmSync(path.join(await this.dossier(), "VERROU"));
+    }
+  }
+
   async _générerSFIPetOrbite(): Promise<{
     sfip: Helia<Libp2p<ServicesLibp2p>>;
     orbite: OrbitDB;
   }> {
+    const dossier = await this.dossier();
+
     const { orbite } = this._opts;
 
     let sfipFinale: Helia<Libp2p<ServicesLibp2p>>;
@@ -405,18 +454,18 @@ export class ClientConstellation {
       } else {
         // Éviter d'importer la configuration BD Orbite si pas nécessaire
         const { initOrbite } = await import("@/orbite.js");
+
         if (orbite.ipfs) {
           this._sfipExterne = true;
           sfipFinale = orbite.ipfs;
         } else {
           sfipFinale = await initSFIP({
-            dossier: join(await this.dossier(), "sfip"),
+            dossier: join(dossier, "sfip"),
           });
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
-          dossierOrbite:
-            orbite.directory || join(await this.dossier(), "orbite"),
+          dossierOrbite: orbite.directory || join(dossier, "orbite"),
         });
         sfipFinale = orbiteFinale.ipfs;
       }
@@ -2433,6 +2482,9 @@ export class ClientConstellation {
 
     await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
+
+    // Effacer fichier verrour
+    this.effacerVerrou()
   }
 
   async effacerDispositif(): Promise<void> {
