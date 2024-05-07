@@ -299,6 +299,15 @@ if (isNode || isElectronMain) {
       it.skip("Suivre protocoles compte");
     });
 
+    describe("Dispositif", function () {
+      it("Détecter type dispositif", async () => {
+        const typeDispositif = client.détecterTypeDispositif();
+        if (isElectronMain) expect(typeDispositif).to.eq("ordinateur");
+        else if (isNode) expect(typeDispositif).to.eq("serveur");
+        else expect(typeDispositif).to.eq("navigateur");
+      });
+    });
+
     describe("Suivre BD", function () {
       let idBd: string;
       let fOublier: schémaFonctionOublier;
