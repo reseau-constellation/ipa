@@ -1,5 +1,5 @@
 import { obtCompilateur } from "./compilateur.js";
-import { générerPrisesDÉcran } from "./images/dist/index.js"
+import { générerPrisesDÉcran } from "./images/index.js"
 
 (async () => {
   const compilateur = await obtCompilateur();

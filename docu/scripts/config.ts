@@ -30,6 +30,7 @@ export const configVitePress = defineConfig({
     ],
     sidebar: [
       {
+        // @ts-ignore
         text: "Guide",
         items: [
           { text: "Introduction", link: "/guide/introduction" },
@@ -40,6 +41,7 @@ export const configVitePress = defineConfig({
         ],
       },
       {
+        // @ts-ignore
         text: "Exemples",
         items: [
           { text: "Démarrage", link: "/exemples/créationCompte" },
@@ -50,6 +52,7 @@ export const configVitePress = defineConfig({
         ],
       },
       {
+        // @ts-ignore
         text: "Avancé",
         items: [
           {
@@ -90,6 +93,7 @@ export const configVitePress = defineConfig({
         ],
       },
       {
+        // @ts-ignore
         text: "Documentation IPA",
         collapsible: true,
         items: [

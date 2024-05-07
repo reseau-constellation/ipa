@@ -11,7 +11,7 @@
   "repository": "https://github.com/reseau-constellation/ipa/docu",
   "scripts": {
     "traducs": "node ./scripts/compilerTraducs.mjs",
-    "prises": "cd ./scripts/images && pnpm compiler && cd ../.. && node ./scripts/générerPrisesdÉcran.mjs",
+    "prises": "rimraf .scripts/dist && pnpm tsc && node ./scripts/dist/générerPrisesdÉcran.js",
     "dev": "pnpm traducs && vitepress dev src",
     "build": "pnpm prises && pnpm traducs && cross-env NODE_OPTIONS=--max-old-space-size=16384 vitepress build src",
     "preview": "pnpm build && vitepress preview src"
@@ -20,6 +20,9 @@
   "devDependencies": {
     "@lassi-js/kilimukku-vitepress": "^0.1.1",
     "cross-env": "^7.0.3",
+    "nuchabal": "^3.2.4",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.5",
     "vitepress": "1.1.4"
   }
 }
