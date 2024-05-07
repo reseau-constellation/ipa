@@ -25,7 +25,7 @@ importers:
         version: 1.1.0(react-native@0.73.6(@babel/core@7.24.5)(@babel/preset-env@7.24.3(@babel/core@7.24.5))(react@18.2.0))
       '@constl/mandataire':
         specifier: ^1.0.1
-        version: 1.0.1
+        version: 1.0.2
       '@constl/utils-ipa':
         specifier: ^1.0.0
         version: 1.0.0
@@ -1159,8 +1159,8 @@ packages:
   '@constl/mandataire@0.1.16':
     resolution: {integrity: sha512-cOOgRR9KB86JRi873/KoTnMsxeUVJg4rODgRJxoc9Ar6XUArzLinEZVYHu9KchcNWZpDCQbZdIPvvW4F9oG7kA==}
 
-  '@constl/mandataire@1.0.1':
-    resolution: {integrity: sha512-pXFP2ha5llHEgTF21cLjpoJrRKzBoqtTB/z55krTnxvexagHRHM810iSBv4DbfwJwRkRWhbeIbgoXaXCYrl/xg==}
+  '@constl/mandataire@1.0.2':
+    resolution: {integrity: sha512-L4HzTXWJOuoTVeGxGQBKOK0fT5hAmMoZan2SU3mCkz5dN1at8R5JOmW9A8lcFWg5TblMHRDj5FRxAqmtIdhBOA==}
 
   '@constl/orbit-db-types@2.0.0':
     resolution: {integrity: sha512-7B6/s6yAesWbL6IsVCfAG66b1xa7P0e49qNUjvCFxOuk6T4f05xjmi5KOljRLUi05B6GV6uwhLPTj9brPr3Alg==}
@@ -10001,7 +10001,7 @@ snapshots:
       events: 3.3.0
       uuid: 9.0.1
 
-  '@constl/mandataire@1.0.1':
+  '@constl/mandataire@1.0.2':
     dependencies:
       events: 3.3.0
       uuid: 9.0.1
