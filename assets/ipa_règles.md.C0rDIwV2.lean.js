@@ -1,1 +1,0 @@
-import{_ as s,c as i,o as a,a4 as n}from"./chunks/framework.nQaBHiNx.js";const o=JSON.parse('{"title":"Règles","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/règles.md","filePath":"ipa/règles.md"}'),l={name:"ipa/règles.md"},e=n("",39),t=[e];function h(p,k,r,E,d,g){return a(),i("div",null,t)}const c=s(l,[["render",h]]);export{o as __pageData,c as default};

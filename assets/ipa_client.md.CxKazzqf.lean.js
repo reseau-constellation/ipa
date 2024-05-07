@@ -1,0 +1,1 @@
+import{_ as i,c as s,o as a,a3 as t}from"./chunks/framework.COm4hYgr.js";const g=JSON.parse('{"title":"Client","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/client.md","filePath":"ipa/client.md"}'),e={name:"ipa/client.md"},n=t("",138),l=[n];function h(p,r,k,d,o,c){return a(),s("div",null,l)}const y=i(e,[["render",h]]);export{g as __pageData,y as default};
