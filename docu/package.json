@@ -10,10 +10,9 @@
   },
   "repository": "https://github.com/reseau-constellation/ipa/docu",
   "scripts": {
-    "traducs": "node ./scripts/compilerTraducs.mjs",
-    "prises": "rimraf .scripts/dist && pnpm tsc && node ./scripts/dist/générerPrisesdÉcran.js",
-    "dev": "pnpm traducs && vitepress dev src",
-    "build": "pnpm prises && pnpm traducs && cross-env NODE_OPTIONS=--max-old-space-size=16384 vitepress build src",
+    "scripts": "rimraf .scripts/dist && pnpm tsc && node ./scripts/dist/générerPrisesdÉcran.js && node ./scripts/dist/compilerTraducs.js",
+    "dev": "pnpm scripts && vitepress dev src",
+    "build": "pnpm scripts && cross-env NODE_OPTIONS=--max-old-space-size=16384 vitepress build src",
     "preview": "pnpm build && vitepress preview src"
   },
   "license": "MIT",
