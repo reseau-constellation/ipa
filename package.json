@@ -1,5 +1,5 @@
 {
-  "version": "1.0.12",
+  "version": "1.0.13",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -129,7 +129,7 @@
     "crypto-js": "^4.2.0",
     "deep-equal": "^2.2.3",
     "deepcopy": "^2.1.0",
-    "ennikkai": "^2.2.8",
+    "ennikkai": "^2.2.9",
     "env-paths": "^3.0.0",
     "events": "^3.3.0",
     "genversion": "^3.2.0",

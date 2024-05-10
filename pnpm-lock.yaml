@@ -123,8 +123,8 @@ dependencies:
     specifier: ^2.1.0
     version: 2.1.0
   ennikkai:
-    specifier: ^2.2.8
-    version: 2.2.8(@constl/ipa@1.0.12)
+    specifier: ^2.2.9
+    version: 2.2.9(@constl/ipa@1.0.12)
   env-paths:
     specifier: ^3.0.0
     version: 3.0.0
@@ -1937,7 +1937,7 @@ packages:
       crypto-js: 4.2.0
       deep-equal: 2.2.3
       deepcopy: 2.1.0
-      ennikkai: 2.2.8(@constl/ipa@1.0.12)
+      ennikkai: 2.2.9(@constl/ipa@1.0.12)
       env-paths: 3.0.0
       events: 3.3.0
       genversion: 3.2.0
@@ -7855,8 +7855,8 @@ packages:
     dependencies:
       once: 1.4.0
 
-  /ennikkai@2.2.8(@constl/ipa@1.0.12):
-    resolution: {integrity: sha512-VbynBDBQ5m2qJK87iUbUjJI7STKhQ5tZAuWLFBlJTX7tr7nKyW0tU/9dqO8vbDFUBoyM3s/SesadjDUdou/Lng==}
+  /ennikkai@2.2.9(@constl/ipa@1.0.12):
+    resolution: {integrity: sha512-yI9tzqBtYOm4U+zDKFApY2Auzm8TQwDr/4J2s++/K1U0stUu6BIrmDy1VPRoO6EDXyw1jzB6Svkvfe/B2iF4Jw==}
     peerDependencies:
       '@constl/ipa': ^1.0.12
     dependencies:
