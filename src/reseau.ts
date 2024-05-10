@@ -1909,10 +1909,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     nRésultatsDésirés?: number;
     fRecherche: (args: {
       idCompte: string;
-      f: (bds: string[] | undefined) => void;
+      f: (objets: string[] | undefined) => void;
     }) => Promise<schémaFonctionOublier>;
     fRechercheLesMiens: (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
+      fSuivreRacine: (objets: string[]) => Promise<void>,
     ) => Promise<schémaFonctionOublier>;
     fQualité: schémaFonctionSuivreQualitéRecherche;
     fObjectif?: schémaFonctionSuivreObjectifRecherche<T>;
@@ -1936,9 +1936,18 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         f,
         fBranche: async (
           id: string,
-          fSuivreBranche: schémaFonctionSuiviRecherche<T>,
+          fSuivreBranche: schémaFonctionSuivi<résultatRecherche<T>>,
         ): Promise<schémaFonctionOublier> =>
-          await fObjectifFinal(this.client, id, fSuivreBranche),
+          await fObjectifFinal(
+            this.client, id, 
+            async (résultat) => {
+              if (résultat)
+                return await fSuivreBranche({
+                id,
+                résultatObjectif: résultat
+              })
+            }
+          ),
       });
     }
 
