@@ -13,8 +13,6 @@ on:
         - '**.md'
         - 'docu/**'
 
-
-
 jobs:
   test-ipa-nodejs:
     name: IPA sur Node.js

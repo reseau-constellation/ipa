@@ -726,7 +726,7 @@ describe("Nuées", function () {
         });
       });
 
-      describe("Toujours inclure les miennes - idNuée non rejoignable", function () {
+      describe.only("Toujours inclure les miennes - idNuée non rejoignable", function () {
         let id: string;
 
         const idNuée =

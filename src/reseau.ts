@@ -1938,16 +1938,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           id: string,
           fSuivreBranche: schémaFonctionSuivi<résultatRecherche<T>>,
         ): Promise<schémaFonctionOublier> =>
-          await fObjectifFinal(
-            this.client, id, 
-            async (résultat) => {
-              if (résultat)
-                return await fSuivreBranche({
+          await fObjectifFinal(this.client, id, async (résultat) => {
+            if (résultat)
+              return await fSuivreBranche({
                 id,
-                résultatObjectif: résultat
-              })
-            }
-          ),
+                résultatObjectif: résultat,
+              });
+          }),
       });
     }
 
