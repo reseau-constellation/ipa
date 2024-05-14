@@ -7,7 +7,7 @@ export const obtCompilateur = async () => {
 
   const compilateur = new Compilateur({
     languePrincipale: "fr",
-    languesCibles: ["த", "cst", "kaq", "हिं", "فا", "ગુ", "తె", "ಕ"],
+    languesCibles: ["த", "cst", "kaq", "हिं", "فا", "ગુ", "తె", "ಕ", "മ"],
     dossierSource: "src",
     dossierTraductions: "traducs",
     configVitePress,
