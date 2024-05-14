@@ -17,7 +17,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@lassi-js/kilimukku-vitepress": "^0.1.1",
+    "@lassi-js/kilimukku-vitepress": "^0.1.5",
     "cross-env": "^7.0.3",
     "nuchabal": "^3.2.4",
     "playwright": "^1.44.0",
