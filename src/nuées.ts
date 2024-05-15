@@ -514,7 +514,7 @@ export class Nuées extends ComposanteClientListe<string> {
   async suivreMétadonnéesNuée({
     idNuée,
     f,
-    hériter
+    hériter,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<{ [clef: string]: élémentsBd }>;
@@ -524,7 +524,7 @@ export class Nuées extends ComposanteClientListe<string> {
       const fFinale = async (métadonnées: { [key: string]: élémentsBd }[]) => {
         await f(Object.assign({}, ...métadonnées));
       };
-  
+
       return await this.suivreDeParents({
         idNuée,
         f: fFinale,
