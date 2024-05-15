@@ -477,10 +477,8 @@ export class BDs extends ComposanteClientListe<string> {
 
   async créerBdDeSchéma({
     schéma,
-    ajouter = true,
   }: {
     schéma: schémaSpécificationBd;
-    ajouter?: boolean;
   }): Promise<string> {
     const { tableaux, motsClefs, nuées, licence, licenceContenu, statut } =
       schéma;
@@ -537,7 +535,7 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     // Maintenant on peut l'annoncer !
-    if (ajouter) await this.ajouterÀMesBds({ idBd });
+    await this.ajouterÀMesBds({ idBd });
 
     return idBd;
   }
