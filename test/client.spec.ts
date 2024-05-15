@@ -256,6 +256,11 @@ if (isNode || isElectronMain) {
     });
   });
 
+  describe("Concurrence", function () {
+    it("Différents dossiers");
+    it("Même dossier");
+  });
+
   describe("Fonctionalités client", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
