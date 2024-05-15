@@ -168,7 +168,7 @@ export class Nuées extends ComposanteClientListe<string> {
     nuéeParent?: string;
     autorisation?: string | "IJPC" | "CJPI";
     ajouter?: boolean;
-  }): Promise<string> {
+  } = {}): Promise<string> {
     const idBdNuée = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
@@ -514,29 +514,40 @@ export class Nuées extends ComposanteClientListe<string> {
   async suivreMétadonnéesNuée({
     idNuée,
     f,
+    hériter
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<{ [clef: string]: élémentsBd }>;
+    hériter?: true;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (métadonnées: { [key: string]: élémentsBd }[]) => {
-      await f(Object.assign({}, ...métadonnées));
-    };
-
-    return await this.suivreDeParents({
-      idNuée,
-      f: fFinale,
-      fParents: async (
-        id: string,
-        fSuivreBranche: schémaFonctionSuivi<{ [key: string]: élémentsBd }>,
-      ): Promise<schémaFonctionOublier> => {
-        return await this.client.suivreBdDicDeClef({
-          id,
-          clef: "métadonnées",
-          schéma: schémaStructureBdMétadonnées,
-          f: fSuivreBranche,
-        });
-      },
-    });
+    if (hériter) {
+      const fFinale = async (métadonnées: { [key: string]: élémentsBd }[]) => {
+        await f(Object.assign({}, ...métadonnées));
+      };
+  
+      return await this.suivreDeParents({
+        idNuée,
+        f: fFinale,
+        fParents: async (
+          id: string,
+          fSuivreBranche: schémaFonctionSuivi<{ [key: string]: élémentsBd }>,
+        ): Promise<schémaFonctionOublier> => {
+          return await this.client.suivreBdDicDeClef({
+            id,
+            clef: "métadonnées",
+            schéma: schémaStructureBdMétadonnées,
+            f: fSuivreBranche,
+          });
+        },
+      });
+    } else {
+      return await this.client.suivreBdDicDeClef({
+        id: idNuée,
+        clef: "métadonnées",
+        schéma: schémaStructureBdMétadonnées,
+        f,
+      });
+    }
   }
 
   async sauvegarderNomNuée({
@@ -1925,7 +1936,6 @@ export class Nuées extends ComposanteClientListe<string> {
       return await this.client.bds.suivreNuéesBd({
         idBd,
         f: fSuivreRacine,
-        inclureParents: false,
       });
     };
     const fSuivreNuée = async (
