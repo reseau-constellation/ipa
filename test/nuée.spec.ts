@@ -10,6 +10,7 @@ import XLSX from "xlsx";
 import {
   constellation as utilsTestConstellation,
   attente as utilsTestAttente,
+  attente,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
@@ -850,6 +851,126 @@ describe.only("Nuées", function () {
 
       after(async () => {
         if (fOublierClients) await fOublierClients();
+      });
+
+      describe("Héritage", function () {
+        let idNuéeGrandParent: string;
+        let idNuéeParent: string;
+        let idNuée: string;
+        let idNuéeSœure: string;
+        let idBdDeNuéeGrandParent: string;
+        let idBdDeNuéeParent: string;
+        let idBdDeNuée: string;
+        let idBdDeNuéeSœure: string;
+
+        let fsOublier: schémaFonctionOublier[] = [];
+
+        before(async () => {
+          idNuéeGrandParent = await client.nuées.créerNuée();
+          idNuéeParent = await client.nuées.créerNuée({
+            nuéeParent: idNuéeGrandParent,
+          });
+          idNuée = await client.nuées.créerNuée({
+            nuéeParent: idNuéeParent,
+          });
+          idNuéeSœure = await client.nuées.créerNuée({
+            nuéeParent: idNuéeParent,
+          });
+          idBdDeNuéeGrandParent = await client.bds.créerBdDeSchéma({
+            schéma: await client.nuées.générerSchémaBdNuée({
+              idNuée: idNuéeGrandParent,
+              licence: "ODbl-1_0",
+            }),
+          });
+          idBdDeNuéeParent = await client.bds.créerBdDeSchéma({
+            schéma: await client.nuées.générerSchémaBdNuée({
+              idNuée: idNuéeParent,
+              licence: "ODbl-1_0",
+            }),
+          });
+          idBdDeNuée = await client.bds.créerBdDeSchéma({
+            schéma: await client.nuées.générerSchémaBdNuée({
+              idNuée: idNuée,
+              licence: "ODbl-1_0",
+            }),
+          });
+          idBdDeNuéeSœure = await client.bds.créerBdDeSchéma({
+            schéma: await client.nuées.générerSchémaBdNuée({
+              idNuée: idNuéeSœure,
+              licence: "ODbl-1_0",
+            }),
+          });
+          console.log({
+            idBdDeNuéeGrandParent,
+            idBdDeNuéeParent,
+            idBdDeNuée,
+            idBdDeNuéeSœure,
+          });
+        });
+
+        afterEach(async () => {
+          await Promise.all(fsOublier.map((f) => f()));
+          fsOublier = [];
+        });
+
+        it("Sans héritage", async () => {
+          const correspondantes = new attente.AttendreRésultat<string[]>();
+          const { fOublier } = await client.nuées.suivreBdsCorrespondantes({
+            idNuée,
+            f: (x) => correspondantes.mettreÀJour(x),
+          });
+          fsOublier.push(fOublier);
+
+          const val = await correspondantes.attendreQue((x) => x.length > 0);
+          expect(val).to.have.members([idBdDeNuée]).lengthOf(1);
+        });
+        it("Héritage descendance", async () => {
+          const correspondantes = new attente.AttendreRésultat<string[]>();
+          const { fOublier } = await client.nuées.suivreBdsCorrespondantes({
+            idNuée: idNuéeParent,
+            héritage: ["descendance"],
+            f: (x) => correspondantes.mettreÀJour(x),
+          });
+          fsOublier.push(fOublier);
+          const val = await correspondantes.attendreQue((x) => x.length > 2);
+          expect(val)
+            .to.have.members([idBdDeNuéeParent, idBdDeNuée, idBdDeNuéeSœure])
+            .lengthOf(3);
+        });
+        it("Héritage ascendance", async () => {
+          const correspondantes = new attente.AttendreRésultat<string[]>();
+          const { fOublier } = await client.nuées.suivreBdsCorrespondantes({
+            idNuée,
+            héritage: ["ascendance"],
+            f: (x) => correspondantes.mettreÀJour(x),
+          });
+          fsOublier.push(fOublier);
+          const val = await correspondantes.attendreQue((x) => x.length > 2);
+          expect(val)
+            .to.have.members([
+              idBdDeNuéeGrandParent,
+              idBdDeNuéeParent,
+              idBdDeNuée,
+            ])
+            .lengthOf(3);
+        });
+        it("Héritage ascendance et descendance", async () => {
+          const correspondantes = new attente.AttendreRésultat<string[]>();
+          const { fOublier } = await client.nuées.suivreBdsCorrespondantes({
+            idNuée: idNuéeParent,
+            héritage: ["descendance", "ascendance"],
+            f: (x) => correspondantes.mettreÀJour(x),
+          });
+          fsOublier.push(fOublier);
+          const val = await correspondantes.attendreQue((x) => x.length > 2);
+          expect(val)
+            .to.have.members([
+              idBdDeNuéeGrandParent,
+              idBdDeNuéeParent,
+              idBdDeNuée,
+            ])
+            .lengthOf(3);
+        });
       });
 
       describe("CJPI", function () {
