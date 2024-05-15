@@ -565,39 +565,16 @@ export class BDs extends ComposanteClientListe<string> {
   async suivreNuéesBd({
     idBd,
     f,
-    inclureParents = true,
   }: {
     idBd: string;
     f: schémaFonctionSuivi<string[]>;
     inclureParents?: boolean;
   }): Promise<schémaFonctionOublier> {
-    return await suivreBdsDeFonctionListe({
-      fListe: async (
-        fSuivreRacine: (éléments: string[]) => Promise<void>,
-      ): Promise<schémaFonctionOublier> => {
-        return await this.client.suivreBdListeDeClef({
-          id: idBd,
-          clef: "nuées",
-          schéma: { type: "string" },
-          f: fSuivreRacine,
-        });
-      },
+    return await this.client.suivreBdListeDeClef({
+      id: idBd,
+      clef: "nuées",
+      schéma: { type: "string" },
       f,
-      fBranche: async (
-        id: string,
-        fSuivreBranche: schémaFonctionSuivi<string[]>,
-        branche: string,
-      ): Promise<schémaFonctionOublier> => {
-        if (inclureParents) {
-          return await this.client.nuées.suivreNuéesParents({
-            idNuée: id,
-            f: async (parents) => fSuivreBranche([...parents, branche]),
-          });
-        } else {
-          await fSuivreBranche([branche]);
-          return faisRien;
-        }
-      },
     });
   }
 

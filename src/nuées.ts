@@ -2158,7 +2158,6 @@ export class Nuées extends ComposanteClientListe<string> {
       } = {};
 
       const fFinale = async (): Promise<void> => {
-        console.log("ici", { info });
         const { philoAutorisation, membres, bds } = info;
 
         if (!bds) return;
@@ -2317,7 +2316,6 @@ export class Nuées extends ComposanteClientListe<string> {
     const fsOublier: schémaFonctionOublier[] = [];
 
     const fFinale = async () => {
-      console.log({ info });
       if (!info.directes) return;
       const finaux = [
         ...new Set([
@@ -2486,7 +2484,6 @@ export class Nuées extends ComposanteClientListe<string> {
       return await this.suivreBdsCorrespondantes({
         idNuée,
         f: async (bds) => {
-          console.log({ bds });
           return await fSuivreRacine(bds);
         },
         nRésultatsDésirés,
@@ -2502,7 +2499,6 @@ export class Nuées extends ComposanteClientListe<string> {
         idBd: string,
         fSuivreCondition: schémaFonctionSuivi<boolean>,
       ): Promise<schémaFonctionOublier> => {
-        console.log({ idBd });
         const conformes: { licence: boolean; formatBd: boolean } = {
           licence: false,
           formatBd: true, // Ça doit être vrai par défaut, en attendant de rejoindre la nuée distante

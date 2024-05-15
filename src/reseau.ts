@@ -26,7 +26,6 @@ import type {
   infoRésultat,
   résultatObjectifRecherche,
   résultatRecherche,
-  schémaFonctionSuiviRecherche,
 } from "@/types.js";
 import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import type { infoScore } from "@/bds.js";
