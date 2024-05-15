@@ -2022,10 +2022,12 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée,
     f,
     nRésultatsDésirés,
+    toutLeRéseau = true,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
     nRésultatsDésirés?: number;
+    toutLeRéseau?: boolean;
   }): Promise<schémaRetourFonctionRechercheParN> {
     const fFinale = async (
       résultats: résultatRecherche<infoRésultatVide>[],
@@ -2055,6 +2057,7 @@ export class Nuées extends ComposanteClientListe<string> {
         });
       },
       nRésultatsDésirés,
+      toutLeRéseau,
     });
   }
 
