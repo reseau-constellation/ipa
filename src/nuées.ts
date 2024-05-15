@@ -514,11 +514,11 @@ export class Nuées extends ComposanteClientListe<string> {
   async suivreMétadonnéesNuée({
     idNuée,
     f,
-    hériter,
+    hériter = true,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<{ [clef: string]: élémentsBd }>;
-    hériter?: true;
+    hériter?: boolean;
   }): Promise<schémaFonctionOublier> {
     if (hériter) {
       const fFinale = async (métadonnées: { [key: string]: élémentsBd }[]) => {
