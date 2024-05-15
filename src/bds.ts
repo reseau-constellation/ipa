@@ -568,7 +568,6 @@ export class BDs extends ComposanteClientListe<string> {
   }: {
     idBd: string;
     f: schémaFonctionSuivi<string[]>;
-    inclureParents?: boolean;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdListeDeClef({
       id: idBd,
@@ -615,12 +614,10 @@ export class BDs extends ComposanteClientListe<string> {
     idNuée,
     f,
     idCompte,
-    inclureParents = true,
   }: {
     idNuée: string;
     f: schémaFonctionSuivi<string[]>;
     idCompte?: string;
-    inclureParents?: boolean;
   }): Promise<schémaFonctionOublier> {
     const fListe = async (
       fSuivreRacine: (éléments: string[]) => Promise<void>,
@@ -638,7 +635,6 @@ export class BDs extends ComposanteClientListe<string> {
       return await this.suivreNuéesBd({
         idBd: id,
         f: fFinaleSuivreCondition,
-        inclureParents,
       });
     };
     return await this.client.suivreBdsSelonCondition({ fListe, fCondition, f });
@@ -771,7 +767,6 @@ export class BDs extends ComposanteClientListe<string> {
     const fOublier = await this.rechercherBdsParNuée({
       idNuée: idNuéeUnique,
       f: fFinale,
-      inclureParents: false,
     });
 
     return fOublier;
