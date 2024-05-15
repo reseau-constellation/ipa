@@ -49,7 +49,7 @@ const générerNuéeTest = async (
   return { idNuée, idTableau };
 };
 
-describe("Nuées", function () {
+describe.only("Nuées", function () {
   describe("Tests individuels", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
@@ -726,7 +726,7 @@ describe("Nuées", function () {
         });
       });
 
-      describe.only("Toujours inclure les miennes - idNuée non rejoignable", function () {
+      describe("Toujours inclure les miennes - idNuée non rejoignable", function () {
         let id: string;
 
         const idNuée =
