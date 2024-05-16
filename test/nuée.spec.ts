@@ -50,7 +50,7 @@ const générerNuéeTest = async (
   return { idNuée, idTableau };
 };
 
-describe.only("Nuées", function () {
+describe("Nuées", function () {
   describe("Tests individuels", function () {
     let fOublierClients: () => Promise<void>;
     let clients: ClientConstellation[];
