@@ -22,43 +22,43 @@ import EventEmitter from "events";
 import { mandatairifier } from "./mandataire/index.js";
 
 // https://github.com/github/choosealicense.com
-export enum conditions {
-  ATTR = "attribution",
-  ÉGAL = "partageÉgal",
-  INCL = "inclureDroitDauteur",
-  CHNG = "indiquerChangements",
-  SRCE = "partagerCodeSource",
-  USGR = "usagereseau",
+export const conditions = {
+  ATTR: "attribution",
+  ÉGAL: "partageÉgal",
+  INCL: "inclureDroitDauteur",
+  CHNG: "indiquerChangements",
+  SRCE: "partagerCodeSource",
+  USGR: "usagereseau",
+} as const;
+
+export const droits = {
+  PRTG: "partager",
+  ADPT: "adapter",
+  CMRC: "usageComercial",
+  PRV: "usagePrivé",
+  BREV: "usageBrevets",
 }
 
-export enum droits {
-  PRTG = "partager",
-  ADPT = "adapter",
-  CMRC = "usageComercial",
-  PRV = "usagePrivé",
-  BREV = "usageBrevets",
+export const limitations = {
+  RSP: "aucuneResponsabilité",
+  GRNT: "aucuneGarantie",
+  MRCM: "marqueCommerce",
+  BREV: "brevetExclu",
+  SOUS: "sousLicence",
 }
 
-export enum limitations {
-  RSP = "aucuneResponsabilité",
-  GRNT = "aucuneGarantie",
-  MRCM = "marqueCommerce",
-  BREV = "brevetExclu",
-  SOUS = "sousLicence",
-}
-
-export enum catégories {
-  BD = "basesDeDonnées",
-  ART = "artistique",
-  CODE = "codeInformatique",
-  AUTRE = "autre",
-}
+export const catégories = {
+  BD: "basesDeDonnées",
+  ART: "artistique",
+  CODE: "codeInformatique",
+  AUTRE: "autre",
+} as const
 
 export type InfoLicence = {
-  conditions: conditions[];
-  droits: droits[];
-  limitations: limitations[];
-  catégorie: catégories;
+  conditions: (typeof conditions[keyof typeof conditions])[];
+  droits: (typeof droits[keyof typeof droits])[];
+  limitations: (typeof limitations[keyof typeof limitations])[];
+  catégorie: typeof catégories[keyof typeof catégories];
   spécialisée?: boolean;
 };
 
