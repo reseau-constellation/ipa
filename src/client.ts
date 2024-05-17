@@ -204,7 +204,10 @@ const obtDossierConstellation = async (
     // Utiliser l'application native
     const envPaths = (await import("env-paths")).default;
     const chemins = envPaths("constl", { suffix: "" });
-    return await join(chemins.data, opts.dossier === "dév" ? "constl-dév" : "constl");
+    return await join(
+      chemins.data,
+      opts.dossier === "dév" ? "constl-dév" : "constl",
+    );
   } else {
     // Pour navigateur
     return "./constl";
@@ -215,11 +218,11 @@ const join = async (...args: string[]) => {
   if (isNode || isElectronMain) {
     // Utiliser l'application native
     const { join } = await import("path");
-    return join(...args)
+    return join(...args);
   } else {
-    return args.join("/")
+    return args.join("/");
   }
-}
+};
 
 export class ClientConstellation {
   _opts: optsConstellation;
@@ -473,7 +476,7 @@ export class ClientConstellation {
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
-          dossierOrbite: orbite.directory || await join(dossier, "orbite"),
+          dossierOrbite: orbite.directory || (await join(dossier, "orbite")),
         });
         sfipFinale = orbiteFinale.ipfs;
       }
