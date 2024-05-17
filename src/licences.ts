@@ -22,7 +22,7 @@ import EventEmitter from "events";
 import { mandatairifier } from "./mandataire/index.js";
 
 // https://github.com/github/choosealicense.com
-enum conditions {
+export enum conditions {
   ATTR = "attribution",
   ÉGAL = "partageÉgal",
   INCL = "inclureDroitDauteur",
@@ -31,7 +31,7 @@ enum conditions {
   USGR = "usagereseau",
 }
 
-enum droits {
+export enum droits {
   PRTG = "partager",
   ADPT = "adapter",
   CMRC = "usageComercial",
@@ -39,7 +39,7 @@ enum droits {
   BREV = "usageBrevets",
 }
 
-enum limitations {
+export enum limitations {
   RSP = "aucuneResponsabilité",
   GRNT = "aucuneGarantie",
   MRCM = "marqueCommerce",
