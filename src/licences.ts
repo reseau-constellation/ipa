@@ -37,7 +37,7 @@ export const droits = {
   CMRC: "usageComercial",
   PRV: "usagePrivé",
   BREV: "usageBrevets",
-}
+};
 
 export const limitations = {
   RSP: "aucuneResponsabilité",
@@ -45,20 +45,20 @@ export const limitations = {
   MRCM: "marqueCommerce",
   BREV: "brevetExclu",
   SOUS: "sousLicence",
-}
+};
 
 export const catégories = {
   BD: "basesDeDonnées",
   ART: "artistique",
   CODE: "codeInformatique",
   AUTRE: "autre",
-} as const
+} as const;
 
 export type InfoLicence = {
-  conditions: (typeof conditions[keyof typeof conditions])[];
-  droits: (typeof droits[keyof typeof droits])[];
-  limitations: (typeof limitations[keyof typeof limitations])[];
-  catégorie: typeof catégories[keyof typeof catégories];
+  conditions: (typeof conditions)[keyof typeof conditions][];
+  droits: (typeof droits)[keyof typeof droits][];
+  limitations: (typeof limitations)[keyof typeof limitations][];
+  catégorie: (typeof catégories)[keyof typeof catégories];
   spécialisée?: boolean;
 };
 
