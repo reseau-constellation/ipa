@@ -88,7 +88,6 @@ import { Protocoles } from "./protocoles.js";
 import { Helia } from "helia";
 import { CID } from "multiformats";
 import type { ServicesLibp2p } from "@/sfip/index.js";
-import { join } from "path";
 import { initSFIP } from "@/sfip/index.js";
 
 type IPFSAccessController = Awaited<
@@ -204,14 +203,23 @@ const obtDossierConstellation = async (
   if (isNode || isElectronMain) {
     // Utiliser l'application native
     const envPaths = (await import("env-paths")).default;
-    const { join } = await import("path");
     const chemins = envPaths("constl", { suffix: "" });
-    return join(chemins.data, opts.dossier === "dév" ? "constl-dév" : "constl");
+    return await join(chemins.data, opts.dossier === "dév" ? "constl-dév" : "constl");
   } else {
     // Pour navigateur
     return "./constl";
   }
 };
+
+const join = async (...args: string[]) => {
+  if (isNode || isElectronMain) {
+    // Utiliser l'application native
+    const { join } = await import("path");
+    return join(...args)
+  } else {
+    return args.join("/")
+  }
+}
 
 export class ClientConstellation {
   _opts: optsConstellation;
@@ -396,8 +404,7 @@ export class ClientConstellation {
     const intervaleVerrou = 5000; // 5 millisecondes
     if (isElectronMain || isNode) {
       const fs = await import("fs");
-      const path = await import("path");
-      const fichierVerrou = path.join(await this.dossier(), "VERROU");
+      const fichierVerrou = await join(await this.dossier(), "VERROU");
       const maintenant = new Date();
       if (!fs.existsSync(fichierVerrou)) {
         fs.writeFileSync(fichierVerrou, message || "");
@@ -432,8 +439,7 @@ export class ClientConstellation {
     if (isElectronMain || isNode) {
       if (this._intervaleVerrou) clearInterval(this._intervaleVerrou);
       const fs = await import("fs");
-      const path = await import("path");
-      fs.rmSync(path.join(await this.dossier(), "VERROU"));
+      fs.rmSync(await join(await this.dossier(), "VERROU"));
     }
   }
 
@@ -462,25 +468,25 @@ export class ClientConstellation {
           sfipFinale = orbite.ipfs;
         } else {
           sfipFinale = await initSFIP({
-            dossier: join(dossier, "sfip"),
+            dossier: await join(dossier, "sfip"),
           });
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
-          dossierOrbite: orbite.directory || join(dossier, "orbite"),
+          dossierOrbite: orbite.directory || await join(dossier, "orbite"),
         });
         sfipFinale = orbiteFinale.ipfs;
       }
     } else {
       const { initSFIP } = await import("@/sfip/index.js");
       sfipFinale = await initSFIP({
-        dossier: join(await this.dossier(), "sfip"),
+        dossier: await join(await this.dossier(), "sfip"),
       });
 
       const { initOrbite } = await import("@/orbite.js");
       orbiteFinale = await initOrbite({
         sfip: sfipFinale,
-        dossierOrbite: join(await this.dossier(), "orbite"),
+        dossierOrbite: await join(await this.dossier(), "orbite"),
       });
     }
 
