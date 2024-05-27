@@ -236,6 +236,9 @@ describe("Automatisation", function () {
         {
           idTableau,
           source,
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
       fOublierAuto = async () =>
@@ -287,6 +290,9 @@ describe("Automatisation", function () {
         {
           idTableau,
           source,
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
       fOublierAuto = async () =>
@@ -334,8 +340,11 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            unités: "jours",
-            n: 1,
+            type: "fixe",
+            détails: {
+              unités: "jours",
+              n: 1,
+            }
           },
         },
       );
@@ -390,8 +399,11 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            unités: "jours",
-            n: 1,
+            type: "fixe",
+            détails: {
+              unités: "jours",
+              n: 1,
+            }
           },
         },
       );
@@ -445,6 +457,9 @@ describe("Automatisation", function () {
         {
           idTableau,
           source,
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
       fOublierAuto = async () =>
@@ -498,8 +513,11 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            unités: "millisecondes",
-            n: 300,
+            type: "fixe",
+            détails: {
+              unités: "millisecondes",
+              n: 300,
+            }
           },
         },
       );
@@ -621,6 +639,9 @@ describe("Automatisation", function () {
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
 
@@ -646,6 +667,9 @@ describe("Automatisation", function () {
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
 
@@ -670,6 +694,9 @@ describe("Automatisation", function () {
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
       await attendreExiste;
@@ -698,6 +725,9 @@ describe("Automatisation", function () {
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
 
@@ -741,8 +771,11 @@ describe("Automatisation", function () {
           dossier,
           langues: ["cst"],
           fréquence: {
-            unités: "secondes",
-            n: 0.3,
+            type: "fixe",
+            détails: {
+              unités: "secondes",
+              n: 0.3,
+            }
           },
         },
       );
@@ -837,6 +870,9 @@ describe("Automatisation", function () {
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
       await attendreExiste;
@@ -973,6 +1009,9 @@ describe("Automatisation", function () {
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
       await attendreFichierExiste.attendre();
@@ -1013,8 +1052,11 @@ describe("Automatisation", function () {
           dossier,
           langues: ["fr"],
           fréquence: {
-            unités: "heures",
-            n: 1,
+            type: "fixe",
+            détails: {
+              unités: "heures",
+              n: 1,
+            }
           },
         },
       );
@@ -1046,8 +1088,11 @@ describe("Automatisation", function () {
           dossier,
           langues: ["fr"],
           fréquence: {
-            unités: "semaines",
-            n: 1,
+            type: "fixe",
+            détails: {
+              unités: "semaines",
+              n: 1,
+            }
           },
         },
       );
@@ -1160,6 +1205,9 @@ describe("Automatisation", function () {
         {
           idTableau,
           source,
+          fréquence: {
+            type: "dynamique"
+          }
         },
       );
 
@@ -1218,8 +1266,11 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            unités: "minutes",
-            n: 3,
+            type: "fixe",
+            détails: {
+              unités: "minutes",
+              n: 3,
+            }
           },
         },
       );
@@ -1271,8 +1322,11 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            unités: "minutes",
-            n: 3,
+            type: "fixe",
+            détails: {
+              unités: "minutes",
+              n: 3,
+            }
           },
         },
       );

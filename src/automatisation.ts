@@ -29,20 +29,30 @@ if (isElectronMain || isNode) {
 const MESSAGE_NON_DISPO_NAVIGATEUR =
   "L'automatisation de l'importation des fichiers locaux n'est pas disponible sur la version apli internet de Constellation.";
 
-export type formatTélécharger = XLSX.BookType | "xls";
+export type formatTélécharger = XLSX.BookType;
 
-export type fréquence = {
-  unités:
-    | "années"
-    | "mois"
-    | "semaines"
-    | "jours"
-    | "heures"
-    | "minutes"
-    | "secondes"
-    | "millisecondes";
-  n: number;
+export type fréquence = fréquenceFixe | fréquenceDynamique | fréquenceManuelle;
+export type fréquenceFixe = {
+  type: "fixe";
+  détails: {
+    unités:
+      | "années"
+      | "mois"
+      | "semaines"
+      | "jours"
+      | "heures"
+      | "minutes"
+      | "secondes"
+      | "millisecondes";
+    n: number;
+  }
 };
+export type fréquenceDynamique = {
+  type: "dynamique"
+}
+export type fréquenceManuelle = {
+  type: "manuelle"
+}
 
 export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
@@ -65,11 +75,16 @@ const schémaBdAutomatisations: JSONSchemaType<{
           fréquence: {
             type: "object",
             properties: {
-              n: { type: "number" },
-              unités: { type: "string" },
-            },
-            nullable: true,
-            required: ["n", "unités"],
+              type: { type: "string" },
+              détails: {
+                type: "object",
+                properties: {
+                  n: { type: "number" },
+                  unités: { type: "string" },
+                },
+                nullable: true,
+              }
+            }        
           },
           idObjet: { type: "string" },
           typeObjet: { type: "string" },
@@ -100,6 +115,7 @@ const schémaBdAutomatisations: JSONSchemaType<{
           "typeObjet",
           "formatDoc",
           "dispositifs",
+          "fréquence",
           "inclureFichiersSFIP",
         ],
       },
@@ -110,11 +126,16 @@ const schémaBdAutomatisations: JSONSchemaType<{
           fréquence: {
             type: "object",
             properties: {
-              n: { type: "number" },
-              unités: { type: "string" },
-            },
-            nullable: true,
-            required: ["n", "unités"],
+              type: { type: "string" },
+              détails: {
+                type: "object",
+                properties: {
+                  n: { type: "number" },
+                  unités: { type: "string" },
+                },
+                nullable: true,
+              }
+            }
           },
           idTableau: { type: "string" },
           dispositif: { type: "string" },
@@ -155,11 +176,11 @@ export type copiesExportationN = {
 
 export type copiesExportationTemps = {
   type: "temps";
-  temps: fréquence;
+  temps: fréquenceFixe;
 };
 
 type BaseSpécificationAutomatisation = {
-  fréquence?: fréquence;
+  fréquence: fréquence;
   type: "importation" | "exportation";
   id: string;
 };
@@ -395,8 +416,8 @@ export interface ÉtatProgrammée {
   à: number;
 }
 
-const obtTempsInterval = (fréq: fréquence): number => {
-  const { n, unités } = fréq;
+const obtTempsInterval = (fréq: fréquenceFixe): number => {
+  const { n, unités } = fréq.détails;
   switch (unités) {
     case "années":
       return n * 365.25 * 24 * 60 * 60 * 1000;
@@ -638,11 +659,11 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   idSpéc: string;
   client: ClientConstellation;
   fÉtat: (état: ÉtatAutomatisation) => void;
-}): Promise<schémaFonctionOublier> => {
+}): Promise<{fOublier: schémaFonctionOublier, fLancer: ()=>Promise<void>}> => {
   const fAuto = générerFAuto(spéc, client);
   const clefStockageDernièreFois = `auto: ${idSpéc}`;
 
-  const tempsInterval = spéc.fréquence
+  const tempsInterval = spéc.fréquence?.type === "fixe"
     ? obtTempsInterval(spéc.fréquence)
     : undefined;
 
@@ -713,8 +734,9 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     }
     verrou.release("opération");
   };
+  const fLancer = async () => await fAutoAvecÉtats(uuidv4());
 
-  if (spéc.fréquence) {
+  if (spéc.fréquence.type === 'fixe') {
     const nouvelÉtat: ÉtatProgrammée = {
       type: "programmée",
       à: tempsInterval!,
@@ -747,8 +769,8 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     const fOublier = async () => {
       if (dicFOublierIntervale.f) await dicFOublierIntervale.f();
     };
-    return fOublier;
-  } else {
+    return {fOublier, fLancer};
+  } else if (spéc.fréquence.type === 'dynamique') {
     const nouvelÉtat: ÉtatÉcoute = {
       type: "écoute",
     };
@@ -761,13 +783,13 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             idNuée: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
-          return fOublier;
+          return {fOublier, fLancer};
         } else {
           const fOublier = await client.suivreEmpreinteTêtesBdRécursive({
             idBd: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
-          return fOublier;
+          return {fOublier, fLancer};
         }
       }
 
@@ -809,7 +831,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             }
 
             const fOublier = async () => await écouteur.close();
-            return fOublier;
+            return {fOublier, fLancer};
           }
 
           case "url": {
@@ -820,7 +842,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
               prochaineProgramméeÀ: undefined,
             };
             fÉtat(étatErreur);
-            return faisRien;
+            return {fOublier: faisRien, fLancer: faisRien};
           }
 
           default:
@@ -831,6 +853,13 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       default:
         throw new Error(spéc);
     }
+  } else if (spéc.fréquence.type === 'manuelle') {
+    return {
+      fOublier: faisRien,
+      fLancer,
+    }
+  } else {
+    throw new Error(spéc.fréquence);
   }
 };
 
@@ -839,6 +868,7 @@ class AutomatisationActive extends EventEmitter {
 
   état?: ÉtatAutomatisation;
   fOublier?: schémaFonctionOublier;
+  fLancer?: () => Promise<void>;
 
   constructor(
     spéc: SpécificationAutomatisation,
@@ -856,10 +886,22 @@ class AutomatisationActive extends EventEmitter {
         this.état = état;
         this.emit("misÀJour");
       },
-    }).then((fOublier) => {
+    }).then(({fOublier, fLancer}) => {
       this.fOublier = fOublier;
+      this.fLancer = fLancer;
       this.emit("prêt");
     });
+  }
+
+  async relancer () {
+    if (!this.fOublier) {
+      await new Promise<void>((résoudre) => {
+        this.once("prêt", () => {
+          résoudre();
+        });
+      });
+    }
+    await this.fLancer?.();
   }
 
   async fermer(): Promise<void> {
@@ -937,9 +979,9 @@ export class Automatisations extends ComposanteClientDic<{
       if (!autos.find((a) => a.id === id)) await this.fermerAuto(id);
     }
 
-    const monIdOrbite = await this.client.obtIdDispositif();
+    const ceDispositif = await this.client.obtIdDispositif();
     for (const a of autos) {
-      if (activePourCeDispositif(a, monIdOrbite)) {
+      if (activePourCeDispositif(a, ceDispositif)) {
         if (!Object.keys(this.automatisations).includes(a.id)) {
           const auto = new AutomatisationActive(a, a.id, this.client);
           auto.on("misÀJour", () => this.événements.emit("misÀJour"));
@@ -1047,8 +1089,8 @@ export class Automatisations extends ComposanteClientDic<{
     formatDoc: formatTélécharger;
     inclureFichiersSFIP: boolean;
     dossier: string;
+    fréquence: fréquence;
     langues?: string[];
-    fréquence?: fréquence;
     dispositifs?: string[];
     nRésultatsDésirésNuée?: number;
     héritage?: ("descendance" | "ascendance")[];
@@ -1101,7 +1143,7 @@ export class Automatisations extends ComposanteClientDic<{
   }: {
     idTableau: string;
     source: SourceDonnéesImportation<T>;
-    fréquence?: fréquence;
+    fréquence: fréquence;
     dispositif?: string;
   }): Promise<string> {
     const { bd, fOublier } = await this.obtBd();
@@ -1233,6 +1275,10 @@ export class Automatisations extends ComposanteClientDic<{
     return async () => {
       this.événements.off("misÀJour", fFinale);
     };
+  }
+
+  async lancerManuellement({id}: {id: string}) {
+    await this.automatisations[id]?.relancer();
   }
 
   async fermerAuto(id: string): Promise<void> {
