@@ -45,14 +45,14 @@ export type fréquenceFixe = {
       | "secondes"
       | "millisecondes";
     n: number;
-  }
+  };
 };
 export type fréquenceDynamique = {
-  type: "dynamique"
-}
+  type: "dynamique";
+};
 export type fréquenceManuelle = {
-  type: "manuelle"
-}
+  type: "manuelle";
+};
 
 export type typeObjetExportation = "nuée" | "projet" | "bd" | "tableau";
 
@@ -83,8 +83,8 @@ const schémaBdAutomatisations: JSONSchemaType<{
                   unités: { type: "string" },
                 },
                 nullable: true,
-              }
-            }        
+              },
+            },
           },
           idObjet: { type: "string" },
           typeObjet: { type: "string" },
@@ -134,8 +134,8 @@ const schémaBdAutomatisations: JSONSchemaType<{
                   unités: { type: "string" },
                 },
                 nullable: true,
-              }
-            }
+              },
+            },
           },
           idTableau: { type: "string" },
           dispositif: { type: "string" },
@@ -659,13 +659,17 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   idSpéc: string;
   client: ClientConstellation;
   fÉtat: (état: ÉtatAutomatisation) => void;
-}): Promise<{fOublier: schémaFonctionOublier, fLancer: ()=>Promise<void>}> => {
+}): Promise<{
+  fOublier: schémaFonctionOublier;
+  fLancer: () => Promise<void>;
+}> => {
   const fAuto = générerFAuto(spéc, client);
   const clefStockageDernièreFois = `auto: ${idSpéc}`;
 
-  const tempsInterval = spéc.fréquence?.type === "fixe"
-    ? obtTempsInterval(spéc.fréquence)
-    : undefined;
+  const tempsInterval =
+    spéc.fréquence?.type === "fixe"
+      ? obtTempsInterval(spéc.fréquence)
+      : undefined;
 
   const verrou = new Semaphore();
   let idDernièreRequèteOpération = "";
@@ -736,7 +740,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   };
   const fLancer = async () => await fAutoAvecÉtats(uuidv4());
 
-  if (spéc.fréquence.type === 'fixe') {
+  if (spéc.fréquence.type === "fixe") {
     const nouvelÉtat: ÉtatProgrammée = {
       type: "programmée",
       à: tempsInterval!,
@@ -769,8 +773,8 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     const fOublier = async () => {
       if (dicFOublierIntervale.f) await dicFOublierIntervale.f();
     };
-    return {fOublier, fLancer};
-  } else if (spéc.fréquence.type === 'dynamique') {
+    return { fOublier, fLancer };
+  } else if (spéc.fréquence.type === "dynamique") {
     const nouvelÉtat: ÉtatÉcoute = {
       type: "écoute",
     };
@@ -783,13 +787,13 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             idNuée: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
-          return {fOublier, fLancer};
+          return { fOublier, fLancer };
         } else {
           const fOublier = await client.suivreEmpreinteTêtesBdRécursive({
             idBd: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
-          return {fOublier, fLancer};
+          return { fOublier, fLancer };
         }
       }
 
@@ -831,7 +835,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             }
 
             const fOublier = async () => await écouteur.close();
-            return {fOublier, fLancer};
+            return { fOublier, fLancer };
           }
 
           case "url": {
@@ -842,7 +846,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
               prochaineProgramméeÀ: undefined,
             };
             fÉtat(étatErreur);
-            return {fOublier: faisRien, fLancer: faisRien};
+            return { fOublier: faisRien, fLancer: faisRien };
           }
 
           default:
@@ -853,11 +857,11 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       default:
         throw new Error(spéc);
     }
-  } else if (spéc.fréquence.type === 'manuelle') {
+  } else if (spéc.fréquence.type === "manuelle") {
     return {
       fOublier: faisRien,
       fLancer,
-    }
+    };
   } else {
     throw new Error(spéc.fréquence);
   }
@@ -886,14 +890,14 @@ class AutomatisationActive extends EventEmitter {
         this.état = état;
         this.emit("misÀJour");
       },
-    }).then(({fOublier, fLancer}) => {
+    }).then(({ fOublier, fLancer }) => {
       this.fOublier = fOublier;
       this.fLancer = fLancer;
       this.emit("prêt");
     });
   }
 
-  async relancer () {
+  async relancer() {
     if (!this.fOublier) {
       await new Promise<void>((résoudre) => {
         this.once("prêt", () => {
@@ -1277,7 +1281,7 @@ export class Automatisations extends ComposanteClientDic<{
     };
   }
 
-  async lancerManuellement({id}: {id: string}) {
+  async lancerManuellement({ id }: { id: string }) {
     await this.automatisations[id]?.relancer();
   }
 

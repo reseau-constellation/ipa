@@ -237,8 +237,8 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
       fOublierAuto = async () =>
@@ -291,8 +291,8 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
       fOublierAuto = async () =>
@@ -344,7 +344,7 @@ describe("Automatisation", function () {
             détails: {
               unités: "jours",
               n: 1,
-            }
+            },
           },
         },
       );
@@ -403,7 +403,7 @@ describe("Automatisation", function () {
             détails: {
               unités: "jours",
               n: 1,
-            }
+            },
           },
         },
       );
@@ -458,8 +458,8 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
       fOublierAuto = async () =>
@@ -517,7 +517,7 @@ describe("Automatisation", function () {
             détails: {
               unités: "millisecondes",
               n: 300,
-            }
+            },
           },
         },
       );
@@ -640,8 +640,8 @@ describe("Automatisation", function () {
           dossier,
           langues: ["fr"],
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
 
@@ -668,8 +668,8 @@ describe("Automatisation", function () {
           dossier,
           langues: ["fr"],
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
 
@@ -695,8 +695,8 @@ describe("Automatisation", function () {
           dossier,
           langues: ["fr"],
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
       await attendreExiste;
@@ -726,8 +726,8 @@ describe("Automatisation", function () {
           dossier,
           langues: ["fr"],
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
 
@@ -775,7 +775,7 @@ describe("Automatisation", function () {
             détails: {
               unités: "secondes",
               n: 0.3,
-            }
+            },
           },
         },
       );
@@ -871,8 +871,8 @@ describe("Automatisation", function () {
           dossier,
           langues: ["fr"],
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
       await attendreExiste;
@@ -1010,8 +1010,8 @@ describe("Automatisation", function () {
           dossier,
           langues: ["fr"],
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
       await attendreFichierExiste.attendre();
@@ -1056,7 +1056,7 @@ describe("Automatisation", function () {
             détails: {
               unités: "heures",
               n: 1,
-            }
+            },
           },
         },
       );
@@ -1092,7 +1092,7 @@ describe("Automatisation", function () {
             détails: {
               unités: "semaines",
               n: 1,
-            }
+            },
           },
         },
       );
@@ -1206,8 +1206,8 @@ describe("Automatisation", function () {
           idTableau,
           source,
           fréquence: {
-            type: "dynamique"
-          }
+            type: "dynamique",
+          },
         },
       );
 
@@ -1270,7 +1270,7 @@ describe("Automatisation", function () {
             détails: {
               unités: "minutes",
               n: 3,
-            }
+            },
           },
         },
       );
@@ -1326,7 +1326,7 @@ describe("Automatisation", function () {
             détails: {
               unités: "minutes",
               n: 3,
-            }
+            },
           },
         },
       );
