@@ -196,8 +196,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))
       '@constl/utils-tests':
-        specifier: ^1.2.6
-        version: 1.2.6(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))
+        specifier: ^1.2.7
+        version: 1.2.7(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))
       '@libp2p/crypto':
         specifier: ^4.1.2
         version: 4.1.2
@@ -1475,8 +1475,8 @@ packages:
     resolution: {integrity: sha512-saDMdbk/PYu9R800/wjI1784hz4hQdC4utAoSNYq3R2UrWxiAN98s1frOHZNV2y5Jwc7T/Lvj7OxuJ6MO3o4+Q==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@1.2.6':
-    resolution: {integrity: sha512-qZQiHbESSnZtBnNO0dfV7iqmw5wBl+LmjPlLF8oPwm593bs0dFzv47+m3FLxGqhaO13Ix/jdFXMma10mkgpEdw==}
+  '@constl/utils-tests@1.2.7':
+    resolution: {integrity: sha512-MffW3SCPOlY9chZwoeFM0G7mCdqR0Z0VU5xOYh1F3F5ii0KADnpbVsVLSBuT5w4XgnH3CS86m1oz7efIpFSDNA==}
     engines: {node: '>=20'}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -8981,6 +8981,9 @@ packages:
     resolution: {integrity: sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
+  url-polyfill@1.1.12:
+    resolution: {integrity: sha512-mYFmBHCapZjtcNHW0MDq9967t+z4Dmg5CJ0KqysK3+ZbyoNOWQHksGCTWwDhxGXllkWlOc10Xfko6v4a3ucM6A==}
+
   use@3.1.1:
     resolution: {integrity: sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==}
     engines: {node: '>=0.10.0'}
@@ -10817,7 +10820,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@constl/utils-tests@1.2.6(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))':
+  '@constl/utils-tests@1.2.7(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))':
     dependencies:
       '@helia/block-brokers': 1.0.0
       '@orbitdb/quickstart': 1.0.0(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))
@@ -10836,6 +10839,7 @@ snapshots:
       rimraf: 5.0.7
       stream-browserify: 3.0.0
       uint8arrays: 5.1.0
+      url-polyfill: 1.1.12
       uuid: 9.0.1
       wherearewe: 2.0.1
     transitivePeerDependencies:
@@ -11729,7 +11733,7 @@ snapshots:
 
   '@libp2p/interface@1.4.1':
     dependencies:
-      '@multiformats/multiaddr': 12.3.0
+      '@multiformats/multiaddr': 12.2.3
       it-pushable: 3.2.3
       it-stream-types: 2.0.1
       multiformats: 13.1.0
@@ -11852,7 +11856,7 @@ snapshots:
   '@libp2p/logger@4.0.14':
     dependencies:
       '@libp2p/interface': 1.4.1
-      '@multiformats/multiaddr': 12.3.0
+      '@multiformats/multiaddr': 12.2.3
       debug: 4.3.5
       interface-datastore: 8.2.11
       multiformats: 13.1.0
@@ -13976,7 +13980,7 @@ snapshots:
 
   blockstore-core@4.4.1:
     dependencies:
-      '@libp2p/logger': 4.0.13
+      '@libp2p/logger': 4.0.14
       err-code: 3.0.1
       interface-blockstore: 5.2.10
       interface-store: 5.1.8
@@ -20847,6 +20851,8 @@ snapshots:
   urix@0.1.0: {}
 
   url-join@5.0.0: {}
+
+  url-polyfill@1.1.12: {}
 
   use@3.1.1: {}
 
