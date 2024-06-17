@@ -316,8 +316,8 @@ function validFichier(val: unknown, exts?: string[]): boolean {
   if (!fichier) return false;
   if (!cidValide(id)) return false;
   if (exts) {
-    const ext = fichier.split(".")[1];
-    return exts.includes(ext);
+    const ext = fichier.split(".").pop();
+    return !!ext && exts.includes(ext);
   }
   return true;
 }
