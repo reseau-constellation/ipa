@@ -31,7 +31,7 @@ importers:
         version: 1.0.2
       '@constl/utils-ipa':
         specifier: ^1.0.0
-        version: 1.0.0
+        version: 1.0.1
       '@helia/block-brokers':
         specifier: ^1.0.0
         version: 1.0.0
@@ -374,10 +374,6 @@ packages:
 
   '@achingbrain/nat-port-mapper@1.0.13':
     resolution: {integrity: sha512-B5GL6ILDek72OjoEyFGEuuNYaEOYxO06Ulhcaf/5iQ4EO8uaZWS+OkolYST7L+ecJrkjfaSNmSAsWRRuh+1Z5A==}
-
-  '@achingbrain/nat-port-mapper@1.0.8':
-    resolution: {integrity: sha512-FKiV8cAfpjJd6GG4E+iuShnJIpj8Ro36lKlfyMlYepXlmID0q5h7pTG5ha61FHigpouT3CQc5ZTAwXiDsVCSCA==}
-    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
   '@achingbrain/ssdp@4.0.6':
     resolution: {integrity: sha512-Y4JE2L9150i50V6lg/Y8+ilhxRpUZKKv+PKo68Aj7MjPfaUAar6ZHilF9h4/Zb3q0fqGMXNc9o11cQLNI8J8bA==}
@@ -1480,8 +1476,8 @@ packages:
   '@constl/orbit-db-types@2.0.0':
     resolution: {integrity: sha512-7B6/s6yAesWbL6IsVCfAG66b1xa7P0e49qNUjvCFxOuk6T4f05xjmi5KOljRLUi05B6GV6uwhLPTj9brPr3Alg==}
 
-  '@constl/utils-ipa@1.0.0':
-    resolution: {integrity: sha512-saDMdbk/PYu9R800/wjI1784hz4hQdC4utAoSNYq3R2UrWxiAN98s1frOHZNV2y5Jwc7T/Lvj7OxuJ6MO3o4+Q==}
+  '@constl/utils-ipa@1.0.1':
+    resolution: {integrity: sha512-BIbwqwZ3T1RWXBTm7ocHGP8HxIQZnA19PCjGnrfuNdDThMwOK51WUnI/yLQAMuj7ze1lsBC+AAfvzQzX+7DPLg==}
     engines: {node: '>=20'}
 
   '@constl/utils-tests@1.2.7':
@@ -4240,10 +4236,6 @@ packages:
   deepmerge@4.3.1:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
-
-  default-gateway@6.0.3:
-    resolution: {integrity: sha512-fwSOJsbbNzZ/CUFpqFBqYfYNLj1NbMPm8MMCIzHjC83iSJRBEGmDUxU+WP661BaBQImeC2yHwXtz+P/O9o+XEg==}
-    engines: {node: '>= 10'}
 
   default-gateway@7.2.2:
     resolution: {integrity: sha512-AD7TrdNNPXRZIGw63dw+lnGmT4v7ggZC5NHNJgAYWm5njrwoze1q5JSAW9YuLy2tjnoLUG/r8FEB93MCh9QJPg==}
@@ -9284,10 +9276,6 @@ packages:
     engines: {node: '>=0.8'}
     hasBin: true
 
-  xml2js@0.5.0:
-    resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
-    engines: {node: '>=4.0.0'}
-
   xml2js@0.6.2:
     resolution: {integrity: sha512-T4rieHaC1EXcES0Kxxj4JWgaUQHDk+qwHcYOCFHfiwKz7tOVPLq7Hjq9dM1WCMhylqMEfP7hMcOIChvotiZegA==}
     engines: {node: '>=4.0.0'}
@@ -9407,19 +9395,6 @@ snapshots:
       p-defer: 4.0.1
       p-timeout: 6.1.2
       xml2js: 0.6.2
-    transitivePeerDependencies:
-      - supports-color
-
-  '@achingbrain/nat-port-mapper@1.0.8':
-    dependencies:
-      '@achingbrain/ssdp': 4.0.6
-      '@libp2p/logger': 2.1.1
-      default-gateway: 6.0.3
-      err-code: 3.0.1
-      it-first: 3.0.6
-      p-defer: 4.0.1
-      p-timeout: 5.1.0
-      xml2js: 0.5.0
     transitivePeerDependencies:
       - supports-color
 
@@ -10827,7 +10802,7 @@ snapshots:
       '@chriscdn/promise-semaphore': 2.0.9
       '@constl/bohr-db': 1.1.0(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))
       '@constl/mandataire': 1.0.2
-      '@constl/utils-ipa': 1.0.0
+      '@constl/utils-ipa': 1.0.1
       '@helia/block-brokers': 2.1.3
       '@helia/unixfs': 3.0.6
       '@ipld/dag-cbor': 9.2.0
@@ -10904,21 +10879,18 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@constl/utils-ipa@1.0.0':
+  '@constl/utils-ipa@1.0.1':
     dependencies:
-      '@achingbrain/nat-port-mapper': 1.0.8
       '@chriscdn/promise-semaphore': 2.0.9
       browser-fs-access: 0.35.0
       deep-equal: 2.2.3
       events: 3.3.0
       genversion: 3.2.0
       jszip: 3.10.1
-      multiformats: 9.9.0
+      multiformats: 13.1.0
       rimraf: 5.0.7
-      uint8arrays: 4.0.10
+      uint8arrays: 5.1.0
       wherearewe: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
 
   '@constl/utils-tests@1.2.7(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))':
     dependencies:
@@ -11578,11 +11550,9 @@ snapshots:
   '@lassi-js/kili@0.3.14(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0)))':
     dependencies:
       '@constl/ipa': 1.0.12(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))
-      '@constl/utils-ipa': 1.0.0
+      '@constl/utils-ipa': 1.0.1
       '@orbitdb/core': 2.2.0
       deepcopy: 2.1.0
-    transitivePeerDependencies:
-      - supports-color
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
@@ -14980,10 +14950,6 @@ snapshots:
 
   deepmerge@4.3.1: {}
 
-  default-gateway@6.0.3:
-    dependencies:
-      execa: 5.1.1
-
   default-gateway@7.2.2:
     dependencies:
       execa: 7.2.0
@@ -15214,8 +15180,6 @@ snapshots:
       '@lassi-js/kili': 0.3.14(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0)))
       deepmerge: 4.3.1
       events: 3.3.0
-    transitivePeerDependencies:
-      - supports-color
 
   ennikkai@2.3.2(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0))):
     dependencies:
@@ -15223,8 +15187,6 @@ snapshots:
       '@lassi-js/kili': 0.3.14(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.24.6)(@babel/preset-env@7.24.5(@babel/core@7.24.6))(react@18.2.0)))
       deepmerge: 4.3.1
       events: 3.3.0
-    transitivePeerDependencies:
-      - supports-color
 
   entities@4.5.0: {}
 
@@ -21315,11 +21277,6 @@ snapshots:
   ws@8.17.1: {}
 
   xlsx@https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz: {}
-
-  xml2js@0.5.0:
-    dependencies:
-      sax: 1.4.1
-      xmlbuilder: 11.0.1
 
   xml2js@0.6.2:
     dependencies:
