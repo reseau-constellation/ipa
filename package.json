@@ -133,6 +133,7 @@
     "ennikkai": "^2.3.0",
     "env-paths": "^3.0.0",
     "events": "^3.3.0",
+    "file-saver": "^2.0.5",
     "genversion": "^3.2.0",
     "geojson-validation": "^1.0.2",
     "helia": "^3.0.1",

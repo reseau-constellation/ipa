@@ -1,7 +1,7 @@
-import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
+import { WorkBook, utils, BookType, writeFile, write as writeXLSX, write } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
-import { isBrowser, isWebWorker } from "wherearewe";
+import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import {
   attendreStabilité,
@@ -40,6 +40,8 @@ import type { objRôles } from "@/accès/types.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
+import pkg from "file-saver";
+const {saveAs} = pkg;
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -2307,9 +2309,14 @@ export class BDs extends ComposanteClientListe<string> {
       );
       return path.join(dossier, `${nomFichier}.zip`);
     } else {
-      writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {
-        bookType,
-      });
+      if (isNode || isElectronMain) {
+        writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {
+          bookType,
+        });
+      } else {
+        const document = writeXLSX(doc, { bookType, type: "buffer" });
+        saveAs(document, `${nomFichier}.${formatDoc}`)
+      }
       return path.join(dossier, `${nomFichier}.${formatDoc}`);
     }
   }
