@@ -43,9 +43,9 @@ obtIdPair().then((peerId) =>
       sfip.libp2p.getMultiaddrs().map((ma) => ma.toString()),
     );
     sfip.libp2p.addEventListener("peer:connect", async () => {
-      const pairs = sfip.libp2p.getPeers();
+      /*const pairs = sfip.libp2p.getPeers();
       const connexions = sfip.libp2p.getConnections();
-      /*console.log(
+      console.log(
         "pairs : ",
         pairs.map((p) => p.toString()),
       );
