@@ -118,10 +118,12 @@ if (isNode || isElectronMain) {
       if (fOublierClients) await fOublierClients();
     });
 
-    it("Mon dispositif est présent", async () => {
-      const val = await mesDispositifs.attendreExiste();
-      expect(val).to.have.members([idDispositif1]);
-    });
+    describe("Initiale", function () {
+      it("Mon dispositif est présent", async () => {
+        const val = await mesDispositifs.attendreExiste();
+        expect(val).to.have.members([idDispositif1]);
+      });
+    })
 
     describe("Ajouter dispositif manuellement", function () {
       let idBd: string;
