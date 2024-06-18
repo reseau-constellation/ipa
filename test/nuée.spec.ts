@@ -50,6 +50,21 @@ const générerNuéeTest = async (
   return { idNuée, idTableau };
 };
 
+const idsCorrespondantes = async (
+  résultat: attente.AttendreRésultat<string[]>,
+  ids: { [nom: string]: string },
+) => {
+  const nIdsDésirées = Object.keys(ids).length;
+  const val = await résultat.attendreQue((x) => x.length > nIdsDésirées - 1);
+  expect(
+    val.map(
+      (x) => Object.entries(ids).find(([_nom, id]) => id === x)?.[0] || x,
+    ),
+  )
+    .to.have.members(Object.keys(ids))
+    .lengthOf(nIdsDésirées);
+};
+
 describe("Nuées", function () {
   describe("Tests individuels", function () {
     let fOublierClients: () => Promise<void>;
@@ -900,12 +915,6 @@ describe("Nuées", function () {
               licence: "ODbl-1_0",
             }),
           });
-          console.log({
-            idBdDeNuéeGrandParent,
-            idBdDeNuéeParent,
-            idBdDeNuée,
-            idBdDeNuéeSœure,
-          });
         });
 
         afterEach(async () => {
@@ -962,14 +971,12 @@ describe("Nuées", function () {
             f: (x) => correspondantes.mettreÀJour(x),
           });
           fsOublier.push(fOublier);
-          const val = await correspondantes.attendreQue((x) => x.length > 2);
-          expect(val)
-            .to.have.members([
-              idBdDeNuéeGrandParent,
-              idBdDeNuéeParent,
-              idBdDeNuée,
-            ])
-            .lengthOf(3);
+          await idsCorrespondantes(correspondantes, {
+            idBdDeNuéeGrandParent,
+            idBdDeNuéeParent,
+            idBdDeNuée,
+            idBdDeNuéeSœure,
+          });
         });
       });
 
