@@ -34,9 +34,11 @@ export const générerClientsInternes = async ({
   );
 
   const fOublier = async () => {
-    if (isBrowser) return; // Mystère et boule de gomme !!
-    await Promise.all(clients.map((client) => client.fermer()));
-    await Promise.all(fsOublier.map((f) => f()));
+    try {
+      await Promise.all([...clients.map((client) => client.fermer()), ...fsOublier.map((f) => f())]);
+    } catch (e) {
+      console.error(e)
+    }
   };
 
   return { clients, fOublier };
