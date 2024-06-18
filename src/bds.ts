@@ -1,4 +1,11 @@
-import { WorkBook, utils, BookType, writeFile, write as writeXLSX, write } from "xlsx";
+import {
+  WorkBook,
+  utils,
+  BookType,
+  writeFile,
+  write as writeXLSX,
+  write,
+} from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
@@ -41,7 +48,7 @@ import { ContrôleurConstellation as générerContrôleurConstellation } from "@
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import pkg from "file-saver";
-const {saveAs} = pkg;
+const { saveAs } = pkg;
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -2315,7 +2322,7 @@ export class BDs extends ComposanteClientListe<string> {
         });
       } else {
         const document = writeXLSX(doc, { bookType, type: "buffer" });
-        saveAs(document, `${nomFichier}.${formatDoc}`)
+        saveAs(document, `${nomFichier}.${formatDoc}`);
       }
       return path.join(dossier, `${nomFichier}.${formatDoc}`);
     }
