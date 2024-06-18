@@ -1,11 +1,4 @@
-import {
-  WorkBook,
-  utils,
-  BookType,
-  writeFile,
-  write as writeXLSX,
-  write,
-} from "xlsx";
+import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
