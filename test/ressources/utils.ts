@@ -35,9 +35,12 @@ export const générerClientsInternes = async ({
 
   const fOublier = async () => {
     try {
-      await Promise.all([...clients.map((client) => client.fermer()), ...fsOublier.map((f) => f())]);
+      await Promise.all([
+        ...clients.map((client) => client.fermer()),
+        ...fsOublier.map((f) => f()),
+      ]);
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   };
 

@@ -123,7 +123,7 @@ if (isNode || isElectronMain) {
         const val = await mesDispositifs.attendreExiste();
         expect(val).to.have.members([idDispositif1]);
       });
-    })
+    });
 
     describe("Ajouter dispositif manuellement", function () {
       let idBd: string;
