@@ -2314,8 +2314,8 @@ export class BDs extends ComposanteClientListe<string> {
           bookType,
         });
       } else {
-        const document = writeXLSX(doc, { bookType, type: "buffer" });
-        saveAs(document, `${nomFichier}.${formatDoc}`);
+        const document = writeXLSX(doc, { bookType, type: "buffer" }) as ArrayBuffer;
+        saveAs(new Blob([new Uint8Array(document)]), `${nomFichier}.${formatDoc}`);
       }
       return path.join(dossier, `${nomFichier}.${formatDoc}`);
     }
