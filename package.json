@@ -1,5 +1,5 @@
 {
-  "version": "1.0.23",
+  "version": "1.0.24",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -157,7 +157,8 @@
   },
   "pnpm": {
     "overrides": {
-      "node-datachannel": "^0.8.0"
+      "node-datachannel": "^0.8.0",
+      "@libp2p/autonat": "1.0.21"
     }
   }
 }
