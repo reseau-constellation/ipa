@@ -1,10 +1,10 @@
 :root {
-  --vp-home-hero-name-color: #1867c0;
-  --vp-c-brand: #1697f6;
+  --vp-home-hero-name-color: #192fd6;
+  --vp-c-brand: #2ec0f9;
   --vp-c-brand-dark: #1689db;
-  --vp-c-brand-darker: #1867c0;
-  --vp-c-brand-light: #7bc6ff;
-  --vp-c-brand-lightest: #aeddff;
+  --vp-c-brand-darker: #192fd6;
+  --vp-c-brand-light: #67aaf9;
+  --vp-c-brand-lightest: #c4e0f9;
 }
 
 .VPHero .VPImage.image-src {
