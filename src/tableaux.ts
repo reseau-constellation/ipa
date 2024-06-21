@@ -716,7 +716,7 @@ export class Tableaux {
               langues && nomsVariables?.[idVar]
                 ? traduire(nomsVariables[idVar], langues) || idCol
                 : idCol;
-            acc[nomVar] = d[idVar];
+            acc[nomVar] = d[idCol];
             return acc;
           }, {}),
         );
