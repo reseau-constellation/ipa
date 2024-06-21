@@ -75,7 +75,8 @@ if (isNode || isElectronMain) {
     let clients: ClientConstellation[];
     let client: ClientConstellation,
       client2: ClientConstellation,
-      client3: ClientConstellation;
+      client3: ClientConstellation,
+      client4: ClientConstellation;
 
     let fOublierDispositifs: schémaFonctionOublier;
     let fOublieridCompte: schémaFonctionOublier;
@@ -92,9 +93,9 @@ if (isNode || isElectronMain) {
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
-        n: 3,
+        n: 4,
       }));
-      [client, client2, client3] = clients;
+      [client, client2, client3, client4] = clients;
 
       idCompte1 = await client.obtIdCompte();
 
@@ -198,12 +199,13 @@ if (isNode || isElectronMain) {
     describe("Automatiser ajout dispositif", function () {
       let idBd: string;
 
+      const attendreConnectés = new attente.AttendreRésultat<
+          statutDispositif[]
+        >();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        const attendreConnectés = new attente.AttendreRésultat<
-          statutDispositif[]
-        >();
+        
         const fOublierConnexions =
           await client3.réseau.suivreConnexionsDispositifs({
             f: (x) => attendreConnectés.mettreÀJour(x),
@@ -211,14 +213,6 @@ if (isNode || isElectronMain) {
         fsOublier.push(fOublierConnexions);
 
         idBd = await client.créerBdIndépendante({ type: "keyvalue" });
-
-        const invitation = await client.générerInvitationRejoindreCompte();
-
-        const idClient1 = await client.obtIdCompte();
-        await attendreConnectés.attendreQue((x) => {
-          return !!x.find((c) => c.infoDispositif.idCompte === idClient1);
-        });
-        await client3.demanderEtPuisRejoindreCompte(invitation);
       });
 
       after(async () => {
@@ -226,6 +220,15 @@ if (isNode || isElectronMain) {
       });
 
       it("Nouveau dispositif ajouté au compte", async () => {
+        const invitation = await client.générerInvitationRejoindreCompte();
+
+        const idClient1 = await client.obtIdCompte();
+        await attendreConnectés.attendreQue((x) => {
+          return !!x.find((c) => c.infoDispositif.idCompte === idClient1);
+        });
+        client4.demanderEtPuisRejoindreCompte({idCompte: invitation.idCompte, codeSecret: "code secret invalid"})
+        await client3.demanderEtPuisRejoindreCompte(invitation);
+
         const val = await mesDispositifs.attendreQue((x) => x.length > 2);
         expect(val).to.have.members([
           idDispositif1,
@@ -254,7 +257,7 @@ if (isNode || isElectronMain) {
         expect(autorisé).to.be.true();
       });
 
-      it.skip("Mauvais mot de passe");
+
     });
   });
 
