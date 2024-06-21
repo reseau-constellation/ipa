@@ -2842,7 +2842,6 @@ export class Nuées extends ComposanteClientListe<string> {
       nRésultatsDésirés,
       héritage,
       f: async (données) => {
-        console.log("ici, ", données.map(d=>d.élément))
         info.données = données;
         await fFinale();
       },
