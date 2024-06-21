@@ -200,12 +200,11 @@ if (isNode || isElectronMain) {
       let idBd: string;
 
       const attendreConnectés = new attente.AttendreRésultat<
-          statutDispositif[]
-        >();
+        statutDispositif[]
+      >();
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        
         const fOublierConnexions =
           await client3.réseau.suivreConnexionsDispositifs({
             f: (x) => attendreConnectés.mettreÀJour(x),
@@ -226,7 +225,10 @@ if (isNode || isElectronMain) {
         await attendreConnectés.attendreQue((x) => {
           return !!x.find((c) => c.infoDispositif.idCompte === idClient1);
         });
-        client4.demanderEtPuisRejoindreCompte({idCompte: invitation.idCompte, codeSecret: "code secret invalid"})
+        client4.demanderEtPuisRejoindreCompte({
+          idCompte: invitation.idCompte,
+          codeSecret: "code secret invalid",
+        });
         await client3.demanderEtPuisRejoindreCompte(invitation);
 
         const val = await mesDispositifs.attendreQue((x) => x.length > 2);
@@ -256,8 +258,6 @@ if (isNode || isElectronMain) {
         await fOublier();
         expect(autorisé).to.be.true();
       });
-
-
     });
   });
 

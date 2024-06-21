@@ -431,10 +431,13 @@ export class ClientConstellation {
           verrifierSiVieux();
         }
       }
-      this._intervaleVerrou = setInterval(
-        () => fs.utimesSync(fichierVerrou, maintenant, maintenant),
-        intervaleVerrou,
-      );
+      this._intervaleVerrou = setInterval(() => {
+        try {
+          fs.utimesSync(fichierVerrou, maintenant, maintenant);
+        } catch {
+          // On s'inquiète pas trop
+        }
+      }, intervaleVerrou);
     }
   }
 
