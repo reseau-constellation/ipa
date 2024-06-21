@@ -646,7 +646,7 @@ export class Tableaux {
       const colonne = colonnes.find((c) => c.id === col);
       if (!colonne) continue;
 
-      const { variable, catégorie } = colonne;
+      const { catégorie } = colonne;
 
       let val: string | number | undefined = undefined;
       const élément = é[col];
@@ -661,7 +661,7 @@ export class Tableaux {
           );
         }
       }
-      if (val !== undefined) élémentFinal[variable] = val;
+      if (val !== undefined) élémentFinal[col] = val;
     }
 
     return élémentFinal;
@@ -702,11 +702,11 @@ export class Tableaux {
         );
 
         donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d).reduce((acc: élémentBdListeDonnées, idVar: string) => {
-            const idCol = colonnes.find((c) => c.variable === idVar)?.id;
-            if (!idCol)
+          Object.keys(d).reduce((acc: élémentBdListeDonnées, idCol: string) => {
+            const idVar = colonnes.find((c) => c.id === idCol)?.variable;
+            if (!idVar)
               throw new Error(
-                `Colonnne pour variable ${idVar} non trouvée parmis les colonnnes :\n${JSON.stringify(
+                `Colonnne avec id ${idCol} non trouvée parmis les colonnnes :\n${JSON.stringify(
                   colonnes,
                   undefined,
                   2,
