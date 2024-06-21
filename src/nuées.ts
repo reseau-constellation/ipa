@@ -2747,16 +2747,24 @@ export class Nuées extends ComposanteClientListe<string> {
         );
 
         donnéesFormattées = donnéesFormattées.map((d) =>
-          Object.keys(d).reduce((acc: élémentBdListeDonnées, elem: string) => {
-            if (elem === "auteur") {
-              acc[elem] = d[elem];
+          Object.keys(d).reduce((acc: élémentBdListeDonnées, idCol: string) => {
+            if (idCol === "auteur") {
+              acc[idCol] = d[idCol];
             } else {
-              const idCol = colonnes.find((c) => c.variable === elem)?.id;
+              const idVar = colonnes.find((c) => c.id === idCol)?.variable;
+              if (!idVar)
+                throw new Error(
+                  `Colonnne avec id ${idCol} non trouvée parmis les colonnnes :\n${JSON.stringify(
+                    colonnes,
+                    undefined,
+                    2,
+                  )}.`,
+                );
               const nomVar =
-                langues && nomsVariables?.[elem]
-                  ? traduire(nomsVariables[elem], langues) || idCol || elem
-                  : idCol || elem;
-              acc[nomVar] = d[elem];
+                langues && nomsVariables?.[idVar]
+                  ? traduire(nomsVariables[idVar], langues) || idCol
+                  : idCol;
+              acc[nomVar] = d[idCol];
             }
             return acc;
           }, {}),
@@ -2809,7 +2817,7 @@ export class Nuées extends ComposanteClientListe<string> {
             f: async (noms) =>
               await fSuivreBranche({
                 idVar: id,
-                noms: { ...noms, auteur: "auteur" },
+                noms,
               }),
           });
         },
@@ -2834,6 +2842,7 @@ export class Nuées extends ComposanteClientListe<string> {
       nRésultatsDésirés,
       héritage,
       f: async (données) => {
+        console.log("ici, ", données.map(d=>d.élément))
         info.données = données;
         await fFinale();
       },
