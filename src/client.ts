@@ -418,8 +418,20 @@ export class ClientConstellation {
           if (maintenant.getTime() - modifiéÀ.getTime() > intervaleVerrou) {
             fs.writeFileSync(fichierVerrou, message || "");
           } else {
-            const contenuFichier = fs.readFileSync(fichierVerrou);
-            throw new Error(new TextDecoder().decode(contenuFichier));
+            const contenuFichier = new TextDecoder().decode(
+              fs.readFileSync(fichierVerrou),
+            );
+            try {
+              const messageJSON = JSON.parse(contenuFichier);
+              if (messageJSON["port"]) {
+                throw new Error(
+                  `Ce compte est déjà ouvert en Constellation, et le serveur local est disponible sur le port ${messageJSON["port"]}. Vous pouvez soit vous connecter sur ce port, soit fermer les instances de Constellation qui ouvertes et puis vous ressayer.`,
+                );
+              }
+            } catch {
+              //
+            }
+            throw new Error("Constellation est déjà lancé.");
           }
         };
         try {

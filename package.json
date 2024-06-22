@@ -1,5 +1,5 @@
 {
-  "version": "1.0.25",
+  "version": "1.0.26",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -155,10 +155,8 @@
     "wherearewe": "^2.0.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz"
   },
-  "pnpm": {
-    "overrides": {
-      "node-datachannel": "^0.8.0",
-      "@libp2p/autonat": "1.0.21"
-    }
+  "resolutions": {
+    "node-datachannel": "^0.8.0",
+    "@libp2p/autonat": "1.0.21"
   }
 }

@@ -262,7 +262,7 @@ if (isNode || isElectronMain) {
   });
 
   describe("Concurrence", function () {
-    it("Différents dossiers");
+    it("Différents dossiers", async () => {});
     it("Même dossier");
   });
 
