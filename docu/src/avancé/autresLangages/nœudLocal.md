@@ -17,7 +17,7 @@ L'installation globale vous permet de lancer un nœud local Constellation de la 
 
 ::: code-group
 ```bash [pnpm]
-$ pnpm add -g @constl/serveur @constl/ipa
+$ curl https://raw.githubusercontent.com/reseau-constellation/serveur-ws/principale/installer.cjs | node -
 ```
 :::
 
