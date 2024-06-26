@@ -1,9 +1,7 @@
 import type { Base58 } from "@localfirst/auth";
 
-
-import {asymmetric} from "@localfirst/auth";
-import {randomKey} from "@localfirst/crypto";
-
+import { asymmetric } from "@localfirst/auth";
+import { randomKey } from "@localfirst/crypto";
 
 export interface Encryption {
   nom: string;
@@ -41,7 +39,6 @@ export class EncryptionLocalFirst implements Encryption {
   }
 
   async obtClefs(): Promise<{ publique: Base58; secrète: Base58 }> {
-    
     return this.clefs;
   }
 
@@ -68,7 +65,6 @@ export class EncryptionLocalFirst implements Encryption {
     message: string;
     clefPubliqueExpéditeur: string;
   }): Promise<string> {
-
     return asymmetric.decrypt({
       cipher: message as Base58,
       recipientSecretKey: this.clefs.secrète as Base58,
