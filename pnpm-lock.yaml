@@ -8,6 +8,11 @@ overrides:
   node-datachannel: ^0.8.0
   '@libp2p/autonat': 1.0.21
 
+patchedDependencies:
+  '@localfirst/crypto@5.6.0':
+    hash: agla7r7xny3ylmponmk6b6hrie
+    path: patches/@localfirst__crypto@5.6.0.patch
+
 importers:
 
   .:
@@ -89,7 +94,7 @@ importers:
         version: 5.6.0
       '@localfirst/crypto':
         specifier: ^5.6.0
-        version: 5.6.0
+        version: 5.6.0(patch_hash=agla7r7xny3ylmponmk6b6hrie)
       '@orbitdb/core':
         specifier: ^2.2.0
         version: 2.2.0
@@ -9970,7 +9975,7 @@ snapshots:
       '@libp2p/websockets': 8.0.25
       '@libp2p/webtransport': 4.0.33
       '@localfirst/auth': 5.6.0
-      '@localfirst/crypto': 5.6.0
+      '@localfirst/crypto': 5.6.0(patch_hash=agla7r7xny3ylmponmk6b6hrie)
       '@orbitdb/core': 2.2.0
       '@orbitdb/feed-db': 1.0.0(react-native@0.74.2(@babel/core@7.24.7)(@babel/preset-env@7.24.7(@babel/core@7.24.7))(react@18.2.0))
       '@orbitdb/ordered-keyvalue-db': 1.0.0(react-native@0.74.2(@babel/core@7.24.7)(@babel/preset-env@7.24.7(@babel/core@7.24.7))(react@18.2.0))
@@ -11144,7 +11149,7 @@ snapshots:
     dependencies:
       '@herbcaudill/eventemitter42': 0.3.1
       '@localfirst/crdx': 5.6.0
-      '@localfirst/crypto': 5.6.0
+      '@localfirst/crypto': 5.6.0(patch_hash=agla7r7xny3ylmponmk6b6hrie)
       '@localfirst/shared': 5.6.0
       '@paralleldrive/cuid2': 2.2.2
       lodash-es: 4.17.21
@@ -11156,7 +11161,7 @@ snapshots:
   '@localfirst/crdx@5.6.0':
     dependencies:
       '@herbcaudill/eventemitter42': 0.3.1
-      '@localfirst/crypto': 5.6.0
+      '@localfirst/crypto': 5.6.0(patch_hash=agla7r7xny3ylmponmk6b6hrie)
       '@localfirst/shared': 5.6.0
       '@paralleldrive/cuid2': 2.2.2
       '@types/lodash-es': 4.17.12
@@ -11165,7 +11170,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@localfirst/crypto@5.6.0':
+  '@localfirst/crypto@5.6.0(patch_hash=agla7r7xny3ylmponmk6b6hrie)':
     dependencies:
       '@localfirst/shared': 5.6.0
       '@types/lodash-es': 4.17.12
