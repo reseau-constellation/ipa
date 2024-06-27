@@ -1,5 +1,5 @@
 {
-  "version": "1.0.27",
+  "version": "1.0.28",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -158,10 +158,5 @@
   "resolutions": {
     "node-datachannel": "^0.8.0",
     "@libp2p/autonat": "1.0.21"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "@localfirst/crypto@5.6.0": "patches/@localfirst__crypto@5.6.0.patch"
-    }
   }
 }
