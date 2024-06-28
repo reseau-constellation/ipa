@@ -55,7 +55,7 @@ export const créerConstellation = (
     return ipa.générerMandataireProc(confirmerOptsTravailleur(opts));
   } else if (isWebWorker) {
     console.warn(
-      "Constellation a été initialisée dans un processus de travailleur. Ce n'est pas un si gros problème, mais nous vous recommandons d'utiliser Constellation dans le processus principal, ce qui est beaucoup plus performant et vous permettra également d'accéder à toutes les fonctionnalités de Constellation telles les sauvegardes et les importations automatisées. Voir la documentation: https://docu.réseau-constellation.ca/avancé/applications/électron.html.",
+      "Constellation a été initialisée dans un processus de travailleur. J'espère que ça va fonctionner !",
     );
     return ipaTravailleur.générerMandataireTravailleur(
       confirmerOptsTravailleur(opts),
