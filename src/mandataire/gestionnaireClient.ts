@@ -52,7 +52,7 @@ export class GestionnaireClient {
     if (this.ipa) {
       this._verrou.release("init");
       return;
-    } // Nécessaire si on a plus qu'un mandataire client connecté au même client Constellation
+    } // Nécessaire si on a plus qu'un mandataire connecté à la même instance Constellation
 
     this.ipa = await ClientConstellation.créer(this.opts);
 
