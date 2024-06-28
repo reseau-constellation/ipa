@@ -1,7 +1,7 @@
 import pkg from "lodash";
 const { isSet } = pkg;
 
-import { créerConstellation, type ClientConstellation } from "@/index.js";
+import { créerConstellation, type Constellation } from "@/index.js";
 
 import {
   constellation as utilsTestConstellation,
@@ -14,8 +14,8 @@ import { schémaFonctionOublier } from "@/types.js";
 
 describe("Épingles", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({

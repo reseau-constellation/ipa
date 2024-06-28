@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -18,8 +18,8 @@ import { générerClientsInternes } from "../ressources/utils.js";
 
 describe("Rechercher variables", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =

@@ -1,6 +1,6 @@
 import type XLSX from "xlsx";
 
-import { créerConstellation, type ClientConstellation } from "@/index.js";
+import { créerConstellation, type Constellation } from "@/index.js";
 import { schémaFonctionOublier, élémentsBd } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
 
@@ -35,8 +35,8 @@ import { expect } from "aegir/chai";
 
 describe("Tableaux", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   let idBd: string;
   let idTableau: string;

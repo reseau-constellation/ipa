@@ -1,7 +1,7 @@
 import ssim from "ssim";
 import correspTexte from "approx-string-match";
 
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
@@ -74,7 +74,7 @@ export const similImages = (
 
 export const combinerRecherches = async <T extends infoRésultat>(
   fsRecherche: { [key: string]: schémaFonctionSuivreObjectifRecherche<T> },
-  client: ClientConstellation,
+  client: Constellation,
   id: string,
   fSuivreRecherche: schémaFonctionSuiviRecherche<T>,
 ): Promise<schémaFonctionOublier> => {
@@ -111,7 +111,7 @@ export const sousRecherche = async <T extends infoRésultat>(
     fSuivreRacine: (ids: string[]) => void,
   ) => Promise<schémaFonctionOublier>,
   fRechercher: schémaFonctionSuivreObjectifRecherche<T>,
-  client: ClientConstellation,
+  client: Constellation,
   fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<T>>,
 ): Promise<schémaFonctionOublier> => {
   const fBranche = async (
@@ -213,7 +213,7 @@ export const rechercherSelonId = (
   idRecherché: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    _client: ClientConstellation,
+    _client: Constellation,
     id: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -242,7 +242,7 @@ export const rechercherSelonId = (
 export const rechercherTous =
   (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
     return async (
-      _client: ClientConstellation,
+      _client: Constellation,
       _id: string,
       fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
     ): Promise<schémaFonctionOublier> => {
@@ -260,7 +260,7 @@ export const rechercherTousSiVide = (
   texte: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
   return async (
-    _client: ClientConstellation,
+    _client: Constellation,
     _id: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
   ): Promise<schémaFonctionOublier> => {

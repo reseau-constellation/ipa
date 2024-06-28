@@ -1,6 +1,6 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import { ClientConstellation, optsConstellation } from "@/client.js";
+import { Constellation, optsConstellation } from "@/client.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import type {
   MessagePourTravailleur,
@@ -11,7 +11,7 @@ import type {
 } from "./messages.js";
 
 export class GestionnaireClient {
-  ipa?: ClientConstellation;
+  ipa?: Constellation;
   _messagesEnAttente: MessagePourTravailleur[];
   prêt: boolean;
   dicFRetourSuivi: {
@@ -29,13 +29,13 @@ export class GestionnaireClient {
   constructor(
     fMessage: (m: MessageDeTravailleur) => void,
     fErreur: (e: string, idRequète?: string) => void,
-    opts: optsConstellation | ClientConstellation = {},
+    opts: optsConstellation | Constellation = {},
   ) {
     this.fMessage = fMessage;
     this.fErreur = fErreur;
 
-    this.opts = opts instanceof ClientConstellation ? {} : opts;
-    if (opts instanceof ClientConstellation) this.ipa = opts;
+    this.opts = opts instanceof Constellation ? {} : opts;
+    if (opts instanceof Constellation) this.ipa = opts;
 
     this.dicFRetourSuivi = {};
 
@@ -54,7 +54,7 @@ export class GestionnaireClient {
       return;
     } // Nécessaire si on a plus qu'un mandataire connecté à la même instance Constellation
 
-    this.ipa = await ClientConstellation.créer(this.opts);
+    this.ipa = await Constellation.créer(this.opts);
 
     this._messagesEnAttente.forEach((m) => this._gérerMessage(m));
     this.prêt = true;
@@ -158,13 +158,13 @@ export class GestionnaireClient {
     idMessage: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): ((...args: any[]) => unknown) | undefined {
-    const erreur = `Fonction ClientConstellation.${adresseFonction.join(
+    const erreur = `Fonction Constellation.${adresseFonction.join(
       ".",
     )} n'existe pas ou n'est pas une fonction.`;
 
     let fonctionIPA:
-      | ClientConstellation
-      | ClientConstellation[keyof ClientConstellation]
+      | Constellation
+      | Constellation[keyof Constellation]
       | ((args: { [key: string]: unknown }) => Promise<unknown>) = this.ipa;
 
     for (const [i, attr] of adresseFonction.entries()) {

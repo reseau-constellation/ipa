@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import {
   schémaFonctionOublier,
   élémentsBd,
@@ -29,12 +29,12 @@ export const cidEtFichierValide = (val: string) => {
 };
 
 export class Épingles {
-  client: ClientConstellation;
+  client: Constellation;
   requètes: RequèteÉpingle[];
   fsOublier: { [key: string]: schémaFonctionOublier };
   événements: EventEmitter;
 
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     this.client = client;
     this.requètes = [];
     this.fsOublier = {};

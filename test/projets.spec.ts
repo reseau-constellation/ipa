@@ -2,7 +2,7 @@ import type XLSX from "xlsx";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
 
-import { type ClientConstellation, créerConstellation } from "@/index.js";
+import { type Constellation, créerConstellation } from "@/index.js";
 import { schémaFonctionOublier } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
 
@@ -20,8 +20,8 @@ import { expect } from "aegir/chai";
 
 describe("Projets", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   let idProjet: string;
 

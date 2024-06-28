@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { WorkBook, utils } from "xlsx";
 
-import { ClientConstellation } from "@/client.js";
+import { Constellation } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -257,9 +257,9 @@ const schémaStructureBdTableau: JSONSchemaType<structureBdTableau> = {
 };
 
 export class Tableaux {
-  client: ClientConstellation;
+  client: Constellation;
 
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     this.client = client;
   }
 

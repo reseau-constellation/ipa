@@ -1,4 +1,4 @@
-import { ClientConstellation } from "@/client.js";
+import { Constellation } from "@/client.js";
 
 import {
   schémaFonctionSuivi,
@@ -148,7 +148,7 @@ const schémaBdMotsClefsNuée: JSONSchemaType<string> = {
 };
 
 export class Nuées extends ComposanteClientListe<string> {
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     super({ client, clef: "nuées", schémaBdPrincipale: { type: "string" } });
   }
 
@@ -2037,7 +2037,7 @@ export class Nuées extends ComposanteClientListe<string> {
     return await this.client.réseau.rechercherNuées({
       f: fFinale,
       fObjectif: async (
-        client: ClientConstellation,
+        client: Constellation,
         id: string,
         fSuiviRésultats: schémaFonctionSuiviRecherche<infoRésultatVide>,
       ): Promise<schémaFonctionOublier> => {

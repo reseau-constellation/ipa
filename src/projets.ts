@@ -2,7 +2,7 @@ import { WorkBook, BookType, write as writeXLSX, utils } from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
-import { ClientConstellation } from "@/client.js";
+import { Constellation } from "@/client.js";
 import type { objRôles } from "@/accès/types.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
@@ -91,7 +91,7 @@ const schémaStructureBdProjet: JSONSchemaType<structureBdProjet> = {
 };
 
 export class Projets extends ComposanteClientListe<string> {
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     super({ client, clef: "projets", schémaBdPrincipale: schémaBdPrincipale });
   }
 

@@ -1,4 +1,4 @@
-import { type ClientConstellation } from "@/index.js";
+import { type Constellation } from "@/index.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -27,8 +27,8 @@ import { expect } from "aegir/chai";
 
 describe("Rechercher projets", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =

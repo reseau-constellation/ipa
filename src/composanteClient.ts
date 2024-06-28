@@ -5,7 +5,7 @@ import type {
 } from "./types.js";
 import {
   schémaStructureBdCompte,
-  type ClientConstellation,
+  type Constellation,
   type structureBdCompte,
 } from "@/client.js";
 import { suivreBdDeFonction } from "@constl/utils-ipa";
@@ -22,7 +22,7 @@ type KeysMatching<T, V> = {
 }[keyof T];
 
 export class ComposanteClient {
-  client: ClientConstellation;
+  client: Constellation;
   clef: KeysMatching<structureBdCompte, string | undefined>;
   typeBd: "keyvalue" | "set";
 
@@ -31,7 +31,7 @@ export class ComposanteClient {
     clef,
     typeBd,
   }: {
-    client: ClientConstellation;
+    client: Constellation;
     clef: KeysMatching<structureBdCompte, string | undefined>;
     typeBd: "keyvalue" | "set";
   }) {
@@ -62,7 +62,7 @@ export class ComposanteClientDic<
     clef,
     schémaBdPrincipale,
   }: {
-    client: ClientConstellation;
+    client: Constellation;
     clef: KeysMatching<structureBdCompte, string | undefined>;
     schémaBdPrincipale: JSONSchemaType<T>;
   }) {
@@ -213,7 +213,7 @@ export class ComposanteClientListe<
     clef,
     schémaBdPrincipale,
   }: {
-    client: ClientConstellation;
+    client: Constellation;
     clef: KeysMatching<structureBdCompte, string | undefined>;
     schémaBdPrincipale: JSONSchemaType<T>;
   }) {

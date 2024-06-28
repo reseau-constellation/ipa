@@ -1,5 +1,5 @@
 import type { objRôles } from "@/accès/types.js";
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import { JSONSchemaType } from "ajv";
 
 export interface infoAuteur {
@@ -74,7 +74,7 @@ export interface résultatRecherche<T extends infoRésultat> {
 }
 
 export type schémaFonctionSuivreObjectifRecherche<T extends infoRésultat> = (
-  client: ClientConstellation,
+  client: Constellation,
   id: string,
   f: schémaFonctionSuiviRecherche<T>,
 ) => Promise<schémaFonctionOublier>;

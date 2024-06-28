@@ -59,7 +59,7 @@ Ou bien, si vous préférez un exemple plus complet avec Vue.js :
 import { créerConstellation } from "@constl/ipa";
 import { ref, inject, computed, onMounted, onUnmounted } from "vue";
 
-const client = inject<ClientConstellation>("constl")  // Initialiser le client dans une extention Vue
+const client = inject<Constellation>("constl")  // Initialiser le client dans une extention Vue
 
 const image = ref<Uint8Array | null>();
 

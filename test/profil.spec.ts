@@ -1,4 +1,4 @@
-import { type ClientConstellation, créerConstellation } from "@/index.js";
+import { type Constellation, créerConstellation } from "@/index.js";
 import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
@@ -14,8 +14,8 @@ import { expect } from "aegir/chai";
 
 describe("Profil", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({

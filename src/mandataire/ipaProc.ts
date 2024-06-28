@@ -1,9 +1,9 @@
-import type { ClientConstellation, optsConstellation } from "@/client.js";
+import type { Constellation, optsConstellation } from "@/client.js";
 
 import {
   générerMandataire,
   ClientMandatairifiable,
-  MandataireClientConstellation,
+  MandataireConstellation,
 } from "@constl/mandataire";
 import type {
   MessageDeTravailleur,
@@ -15,7 +15,7 @@ import { GestionnaireClient } from "@/mandataire/gestionnaireClient.js";
 export class MandataireClientProc extends ClientMandatairifiable {
   client: GestionnaireClient;
 
-  constructor(opts: optsConstellation | ClientConstellation = {}) {
+  constructor(opts: optsConstellation | Constellation = {}) {
     super();
 
     this.client = new GestionnaireClient(
@@ -41,6 +41,6 @@ export class MandataireClientProc extends ClientMandatairifiable {
 
 export const générerMandataireProc = (
   opts: optsConstellation = {},
-): MandataireClientConstellation<ClientConstellation> => {
+): MandataireConstellation<Constellation> => {
   return générerMandataire(new MandataireClientProc(opts));
 };

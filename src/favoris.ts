@@ -1,6 +1,6 @@
 import { isNode, isElectronMain } from "wherearewe";
 
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
@@ -64,7 +64,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   _promesseInit: Promise<void>;
   oublierÉpingler?: schémaFonctionOublier;
 
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     super({ client, clef: "favoris", schémaBdPrincipale });
 
     this._promesseInit = this._épinglerFavoris();

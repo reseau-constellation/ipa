@@ -1,5 +1,5 @@
 import type {
-  ClientConstellation,
+  Constellation,
   optsConstellation,
   optsInitOrbite,
 } from "@/client.js";
@@ -7,7 +7,7 @@ import type {
 import {
   générerMandataire,
   ClientMandatairifiable,
-  MandataireClientConstellation,
+  MandataireConstellation,
 } from "@constl/mandataire";
 
 import type {
@@ -59,6 +59,6 @@ export const confirmerOptsTravailleur = (
 
 export const générerMandataireTravailleur = (
   opts: optsIpaTravailleur = {},
-): MandataireClientConstellation<ClientConstellation> => {
+): MandataireConstellation<Constellation> => {
   return générerMandataire(new MandataireClientTravailleur(opts));
 };

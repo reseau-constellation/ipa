@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import {
   schémaFonctionSuivi,
   schémaFonctionOublier,
@@ -57,7 +57,7 @@ const schémaContactProfil: JSONSchemaType<structureContactProfil> = {
 };
 
 export class Profil extends ComposanteClientDic<structureBdProfil> {
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     super({
       client,
       clef: "profil",

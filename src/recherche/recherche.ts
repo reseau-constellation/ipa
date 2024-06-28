@@ -6,7 +6,7 @@ import * as variable from "@/recherche/variable.js";
 import * as nuée from "@/recherche/nuée.js";
 import * as utils from "@/recherche/utils.js";
 
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaRetourFonctionRechercheParN,
   schémaFonctionSuivi,
@@ -18,9 +18,9 @@ import type {
 import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
 
 export class Recherche {
-  client: ClientConstellation;
+  client: Constellation;
 
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     this.client = client;
   }
 

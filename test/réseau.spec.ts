@@ -8,7 +8,7 @@ import {
 } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
 
-import { type ClientConstellation, créerConstellation } from "@/index.js";
+import { type Constellation, créerConstellation } from "@/index.js";
 import type { ÉlémentFavorisAvecObjet } from "@/favoris.js";
 import type {
   élémentDeMembre,
@@ -67,7 +67,7 @@ if (isNode || isElectronMain) {
       let idsBdCompte: string[];
       let idsNodesSFIP: string[];
       let idsOrbite: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       const rés = new utilsTestAttente.AttendreRésultat<
         { pair: string; adresses: string[] }[]
@@ -162,7 +162,7 @@ if (isNode || isElectronMain) {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
 
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       const fsOublier: schémaFonctionOublier[] = [];
 
@@ -232,7 +232,7 @@ if (isNode || isElectronMain) {
     describe("Membres bloqués", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       const bloquésTous = new utilsTestAttente.AttendreRésultat<infoBloqué[]>();
       const bloquésPubliques = new utilsTestAttente.AttendreRésultat<
@@ -386,7 +386,7 @@ if (isNode || isElectronMain) {
       describe("Relations explicites", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let clients: ClientConstellation[];
+        let clients: Constellation[];
 
         const relationsPropres = new utilsTestAttente.AttendreRésultat<
           infoConfiance[]
@@ -514,7 +514,7 @@ if (isNode || isElectronMain) {
       describe("Relations indirectes", function () {
         let fOublierClients: () => Promise<void>;
         let idsBdCompte: string[];
-        let clients: ClientConstellation[];
+        let clients: Constellation[];
 
         let idMotClef1: string;
         let idMotClef2: string;
@@ -723,7 +723,7 @@ if (isNode || isElectronMain) {
     describe("Suivre relations confiance", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
@@ -825,7 +825,7 @@ if (isNode || isElectronMain) {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
       let moiMême: infoMembreRéseau;
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
@@ -1100,7 +1100,7 @@ if (isNode || isElectronMain) {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
       let moiMême: infoMembreRéseau;
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
@@ -1211,7 +1211,7 @@ if (isNode || isElectronMain) {
     describe("Suivre confiance mon réseau pour membre", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
@@ -1260,7 +1260,7 @@ if (isNode || isElectronMain) {
     describe("Suivre confiance auteurs", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let idMotClef: string;
@@ -1328,7 +1328,7 @@ if (isNode || isElectronMain) {
     describe("Auteurs", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let idMotClef: string;
       let idVariable: string;
@@ -1713,7 +1713,7 @@ if (isNode || isElectronMain) {
     describe("Suivre membre", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
       let IMAGE: Buffer;
 
       const résNom = new utilsTestAttente.AttendreRésultat<{
@@ -1798,7 +1798,7 @@ if (isNode || isElectronMain) {
     describe("Suivre mots-clefs", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let idMotClef1: string;
       let idMotClef2: string;
@@ -1848,7 +1848,7 @@ if (isNode || isElectronMain) {
     describe("Suivre variables", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let idVariable1: string;
       let idVariable2: string;
@@ -1903,7 +1903,7 @@ if (isNode || isElectronMain) {
     describe("Suivre BDs", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       const résPropres = new utilsTestAttente.AttendreRésultat<string[]>();
       const résAutres = new utilsTestAttente.AttendreRésultat<string[]>();
@@ -1950,7 +1950,7 @@ if (isNode || isElectronMain) {
     describe("Suivre projets", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       const résPropres = new utilsTestAttente.AttendreRésultat<string[]>();
       const résAutres = new utilsTestAttente.AttendreRésultat<string[]>();
@@ -1997,7 +1997,7 @@ if (isNode || isElectronMain) {
     describe("Suivre favoris", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let idMotClef: string;
 
@@ -2077,7 +2077,7 @@ if (isNode || isElectronMain) {
     describe("Suivre favoris objet", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let idMotClef: string;
       let fOublier: schémaFonctionOublier;
@@ -2158,7 +2158,7 @@ if (isNode || isElectronMain) {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
       let idsOrbite: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let idBd: string;
 
@@ -2224,7 +2224,7 @@ if (isNode || isElectronMain) {
     describe("Suivre BD par mot-clef unique", function () {
       let fOublierClients: () => Promise<void>;
       let idsBdCompte: string[];
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       let idNuée: string;
       let idBd1: string;

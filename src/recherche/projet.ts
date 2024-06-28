@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
@@ -29,7 +29,7 @@ export const rechercherProjetsSelonNom = (
   nomProjet: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -60,7 +60,7 @@ export const rechercherProjetsSelonDescr = (
   descProjet: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -93,7 +93,7 @@ export const rechercherProjetsSelonIdBd = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -130,7 +130,7 @@ export const rechercherProjetsSelonBd = (
   >
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<
@@ -167,7 +167,7 @@ export const rechercherProjetsSelonIdVariable = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -200,7 +200,7 @@ export const rechercherProjetsSelonNomVariable = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -233,7 +233,7 @@ export const rechercherProjetsSelonVariable = (
   infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
@@ -266,7 +266,7 @@ export const rechercherProjetsSelonIdMotClef = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -299,7 +299,7 @@ export const rechercherProjetsSelonNomMotClef = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -332,7 +332,7 @@ export const rechercherProjetsSelonMotClef = (
   infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idProjet: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte | infoRésultatVide>
@@ -371,7 +371,7 @@ export const rechercherProjetsSelonTexte = (
   | infoRésultatVide
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       | infoRésultatTexte

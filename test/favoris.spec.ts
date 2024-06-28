@@ -2,7 +2,7 @@ import { isElectronMain, isNode } from "wherearewe";
 
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/types.js";
-import { créerConstellation, type ClientConstellation } from "@/index.js";
+import { créerConstellation, type Constellation } from "@/index.js";
 
 import {
   attente,
@@ -15,8 +15,8 @@ import { expect } from "aegir/chai";
 
 describe("Favoris", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({

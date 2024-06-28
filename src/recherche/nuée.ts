@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
@@ -22,7 +22,7 @@ export const rechercherNuéesSelonNom = (
   nomNuée: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -50,7 +50,7 @@ export const rechercherNuéesSelonDescr = (
   descrNuée: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -83,7 +83,7 @@ export const rechercherNuéesSelonIdVariable = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -116,7 +116,7 @@ export const rechercherNuéesSelonNomVariable = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -149,7 +149,7 @@ export const rechercherNuéesSelonVariable = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -173,7 +173,7 @@ export const rechercherNuéesSelonIdMotClef = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -206,7 +206,7 @@ export const rechercherNuéesSelonNomMotClef = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -239,7 +239,7 @@ export const rechercherNuéesSelonMotClef = (
   infoRésultatRecherche<infoRésultatTexte>
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatRecherche<infoRésultatTexte>
@@ -265,7 +265,7 @@ export const rechercherNuéesSelonTexte = (
   | infoRésultatVide
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idNuée: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       | infoRésultatRecherche<infoRésultatTexte>

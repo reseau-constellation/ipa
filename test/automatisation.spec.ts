@@ -29,7 +29,7 @@ import type {
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 
 import { obtRessourceTest } from "./ressources/index.js";
-import { type ClientConstellation, créerConstellation } from "@/index.js";
+import { type Constellation, créerConstellation } from "@/index.js";
 
 import { expect } from "aegir/chai";
 
@@ -127,8 +127,8 @@ const comparerDonnéesTableau = (
 
 describe("Automatisation", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({

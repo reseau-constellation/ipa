@@ -28,7 +28,7 @@ import type {
   élémentDonnées,
   donnéesTableauExportation,
 } from "@/tableaux.js";
-import { ClientConstellation } from "@/client.js";
+import { Constellation } from "@/client.js";
 import {
   traduire,
   zipper,
@@ -197,7 +197,7 @@ export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
 export class BDs extends ComposanteClientListe<string> {
   verrouBdUnique: Semaphore;
 
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     super({ client, clef: "bds", schémaBdPrincipale });
     this.verrouBdUnique = new Semaphore();
   }

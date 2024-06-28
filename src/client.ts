@@ -224,7 +224,7 @@ const join = async (...args: string[]) => {
   }
 };
 
-export class ClientConstellation {
+export class Constellation {
   _opts: optsConstellation;
   événements: TypedEmitter<ÉvénementsClient>;
 
@@ -2629,8 +2629,8 @@ export class ClientConstellation {
 
   static async créer(
     opts: optsConstellation = {},
-  ): Promise<ClientConstellation> {
-    const client = new ClientConstellation(opts);
+  ): Promise<Constellation> {
+    const client = new Constellation(opts);
     await client._initialiser();
     return client;
   }

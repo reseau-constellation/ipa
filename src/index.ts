@@ -24,9 +24,9 @@ export * as orbite from "@/orbite.js";
 import { ipa, ipaTravailleur } from "@/mandataire/index.js";
 import type { optsConstellation } from "@/client.js";
 import { confirmerOptsTravailleur } from "@/mandataire/ipaTravailleur.js";
-import type { MandataireClientConstellation } from "@constl/mandataire";
+import type { MandataireConstellation } from "@constl/mandataire";
 
-import type { ClientConstellation as _ClientConstellation } from "@/client.js";
+import type { Constellation as _Constellation } from "@/client.js";
 import {
   isBrowser,
   isElectronMain,
@@ -37,12 +37,12 @@ import {
 } from "wherearewe";
 import { préparerOrbite } from "./orbite.js";
 
-export type ClientConstellation =
-  MandataireClientConstellation<_ClientConstellation>;
+export type Constellation =
+  MandataireConstellation<_Constellation>;
 
 export const créerConstellation = (
   opts: optsConstellation = {},
-): ClientConstellation => {
+): Constellation => {
   préparerOrbite();
   if (isNode || isElectronMain) {
     return ipa.générerMandataireProc(opts);

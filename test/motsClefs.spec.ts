@@ -1,6 +1,6 @@
 import { expect } from "aegir/chai";
 
-import { créerConstellation, type ClientConstellation } from "@/index.js";
+import { créerConstellation, type Constellation } from "@/index.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 import {
@@ -12,8 +12,8 @@ const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("Mots-clefs", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   before("Préparer clients", async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({

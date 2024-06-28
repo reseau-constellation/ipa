@@ -6,6 +6,7 @@ import { dossiers } from "@constl/utils-tests";
 import { Libp2p } from "@libp2p/interface";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+import { Constellation, créerConstellation } from "@/index.js";
 
 const ID_PAIR_NAVIG = "12D3KooWSCVw8HCc4hrkzfkEeJmVW2xfQRkxEreLzoc1NDTfzYFf";
 const ID_PAIR_NODE = "12D3KooWENXsSgmKXse4hi77cmCeyKtpLiQWedkcgYeFsiQPnJRr";
@@ -121,3 +122,36 @@ describe.skip("SFIP", function () {
 
   it.skip("Ça fonctionne localement hors ligne");
 });
+
+describe.only("Stabilité client", function () {
+  let client: Constellation;
+  let dossier: string;
+  let fEffacer: () => void;
+
+  before(async () => {
+    ({ dossier, fEffacer } = await dossiers.dossierTempo());
+    client = créerConstellation({dossier})
+  });
+
+  after(async () => {
+    await client.fermer();
+    try {
+      fEffacer?.();
+    } catch (e) {
+      if (!(isNode || isElectronMain) || !(process.platform === "win32")) {
+        throw e;
+      }
+    }
+  });
+  it("Réactivité continue", async () => {
+    let avant = Date.now();
+    let i = 0
+    while (i < 30) {
+      await client.bds.créerBd({licence: "ODbl-1_0"});
+      const après = Date.now();
+      console.log(après - avant);
+      avant = après
+      i++
+    }
+  })
+})

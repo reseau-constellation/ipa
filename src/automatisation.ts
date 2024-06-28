@@ -7,7 +7,7 @@ import { isNode, isElectronMain } from "wherearewe";
 import { v4 as uuidv4 } from "uuid";
 import deepcopy from "deepcopy";
 
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { faisRien } from "@constl/utils-ipa";
 import {
@@ -450,7 +450,7 @@ const obtTempsInterval = (fréq: fréquenceFixe): number => {
 
 const générerFExportation = (
   spéc: SpécificationExporter,
-  client: ClientConstellation,
+  client: Constellation,
 ): (() => Promise<void>) => {
   return async () => {
     const os = await import("os");
@@ -597,7 +597,7 @@ const générerFExportation = (
 
 const générerFAuto = <T extends SpécificationAutomatisation>(
   spéc: T,
-  client: ClientConstellation,
+  client: Constellation,
 ): (() => Promise<void>) => {
   switch (spéc.type) {
     case "importation": {
@@ -657,7 +657,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 }: {
   spéc: T;
   idSpéc: string;
-  client: ClientConstellation;
+  client: Constellation;
   fÉtat: (état: ÉtatAutomatisation) => void;
 }): Promise<{
   fOublier: schémaFonctionOublier;
@@ -868,7 +868,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 };
 
 class AutomatisationActive extends EventEmitter {
-  client: ClientConstellation;
+  client: Constellation;
 
   état?: ÉtatAutomatisation;
   fOublier?: schémaFonctionOublier;
@@ -877,7 +877,7 @@ class AutomatisationActive extends EventEmitter {
   constructor(
     spéc: SpécificationAutomatisation,
     idSpéc: string,
-    client: ClientConstellation,
+    client: Constellation,
   ) {
     super();
 
@@ -948,7 +948,7 @@ export class Automatisations extends ComposanteClientDic<{
 
   fOublier?: schémaFonctionOublier;
 
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     super({
       client,
       clef: "automatisations",

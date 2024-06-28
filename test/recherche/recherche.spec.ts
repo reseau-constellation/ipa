@@ -1,4 +1,4 @@
-import { créerConstellation, type ClientConstellation } from "@/index.js";
+import { créerConstellation, type Constellation } from "@/index.js";
 import type { statutMembre } from "@/reseau.js";
 import type {
   schémaFonctionOublier,
@@ -71,7 +71,7 @@ if (isElectronMain || isNode) {
   describe("Rechercher dans réseau", function () {
     describe("Profil", function () {
       let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
       let idsComptes: string[];
 
       before(async () => {
@@ -315,7 +315,7 @@ if (isElectronMain || isNode) {
 
     describe("Mots-clefs", () => {
       let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       before(async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
@@ -456,7 +456,7 @@ if (isElectronMain || isNode) {
 
     describe("Variables", () => {
       let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       before(async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
@@ -660,7 +660,7 @@ if (isElectronMain || isNode) {
       let idBd: string;
 
       let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       before(async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
@@ -977,7 +977,7 @@ if (isElectronMain || isNode) {
       let idNuée: string;
 
       let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       before(async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
@@ -1295,7 +1295,7 @@ if (isElectronMain || isNode) {
       let idBd: string;
 
       let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
+      let clients: Constellation[];
 
       before(async () => {
         ({ fOublier: fOublierClients, clients: clients as unknown } =
@@ -1690,8 +1690,8 @@ if (isElectronMain || isNode) {
 
 describe.skip("Test fonctionnalités recherche", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
   let idsComptes: string[];
 
   before(async () => {

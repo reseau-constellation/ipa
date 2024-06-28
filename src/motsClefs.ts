@@ -5,7 +5,7 @@ import {
 } from "@/types.js";
 import type { objRôles } from "@/accès/types.js";
 
-import { ClientConstellation } from "@/client.js";
+import { Constellation } from "@/client.js";
 
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
@@ -35,7 +35,7 @@ const schémaBdMotClef: JSONSchemaType<Partial<structureBdMotClef>> = {
 };
 
 export class MotsClefs extends ComposanteClientListe<string> {
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     super({ client, clef: "motsClefs", schémaBdPrincipale });
   }
 

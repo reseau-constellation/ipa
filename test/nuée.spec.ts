@@ -1,4 +1,4 @@
-import { créerConstellation, type ClientConstellation } from "@/index.js";
+import { créerConstellation, type Constellation } from "@/index.js";
 import { schémaFonctionOublier, schémaStatut } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
 
@@ -25,7 +25,7 @@ import { attendreStabilité } from "@constl/utils-ipa";
 import { expect } from "aegir/chai";
 
 const générerNuéeTest = async (
-  client: ClientConstellation,
+  client: Constellation,
   opts: {
     nuéeParent?: string;
     autorisation?: string | "IJPC" | "CJPI";
@@ -68,8 +68,8 @@ const idsCorrespondantes = async (
 describe("Nuées", function () {
   describe("Tests individuels", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -625,8 +625,8 @@ describe("Nuées", function () {
   if (isElectronMain || isNode) {
     describe("Suivre données", function () {
       let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
-      let client: ClientConstellation;
+      let clients: Constellation[];
+      let client: Constellation;
 
       const fsOublier: schémaFonctionOublier[] = [];
 
@@ -849,8 +849,8 @@ describe("Nuées", function () {
 
     describe("Correspondances bds", function () {
       let fOublierClients: () => Promise<void>;
-      let clients: ClientConstellation[];
-      let client: ClientConstellation;
+      let clients: Constellation[];
+      let client: Constellation;
 
       before(async () => {
         ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
@@ -1117,8 +1117,8 @@ describe("Nuées", function () {
 
   describe("Ascendance", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
@@ -1588,8 +1588,8 @@ describe("Nuées", function () {
 
   describe("Suivre empreinte", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
 
     let idNuée: string;
     let idBd: string;
@@ -1684,8 +1684,8 @@ describe("Nuées", function () {
 
   describe("Suivre données exportées", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
 
     let idNuée: string;
     let schémaNuée: schémaSpécificationBd;
@@ -1759,8 +1759,8 @@ describe("Nuées", function () {
 
   describe("Document données exportées", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
 
     let idNuée: string;
     let idBd: string;

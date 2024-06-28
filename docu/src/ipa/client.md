@@ -17,7 +17,7 @@ Initialise un client Constellation.
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<ClientConstellation>` | Le client Constellation, prêt à utiliser. |
+| `Promise<Constellation>` | Le client Constellation, prêt à utiliser. |
 
 #### Exemple
 ```ts

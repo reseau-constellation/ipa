@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
@@ -20,7 +20,7 @@ import {
 export const rechercherProfilsSelonActivité =
   (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
     return async (
-      client: ClientConstellation,
+      client: Constellation,
       idCompte: string,
       fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
     ): Promise<schémaFonctionOublier> => {
@@ -90,7 +90,7 @@ export const rechercherProfilsSelonNom = (
   nom: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -121,7 +121,7 @@ export const rechercherProfilsSelonCourriel = (
   courriel: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -156,7 +156,7 @@ export const rechercherProfilsSelonTexte = (
   infoRésultatTexte | infoRésultatVide
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatTexte | infoRésultatVide
@@ -185,7 +185,7 @@ export const rechercherProfilsSelonImage = (
   image: Uint8Array,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatVide>,
   ): Promise<schémaFonctionOublier> => {

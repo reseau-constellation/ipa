@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type { catégorieVariables } from "@/variables.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import type {
@@ -18,8 +18,8 @@ import { créerConstellation } from "@/index.js";
 
 describe("Variables", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   before("Préparer clients", async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =

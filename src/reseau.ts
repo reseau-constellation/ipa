@@ -8,7 +8,7 @@ import Semaphore from "@chriscdn/promise-semaphore";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
-  ClientConstellation,
+  Constellation,
   Signature,
   infoAccès,
   schémaStructureBdCompte,
@@ -222,7 +222,7 @@ const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
-  client: ClientConstellation;
+  client: Constellation;
   bloquésPrivés: Set<string>;
   _fermé: boolean;
 
@@ -233,7 +233,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   fsOublier: schémaFonctionOublier[];
   événements: EventEmitter;
 
-  constructor({ client }: { client: ClientConstellation }) {
+  constructor({ client }: { client: Constellation }) {
     super({
       client,
       clef: "réseau",

@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivreObjectifRecherche,
@@ -18,7 +18,7 @@ export const rechercherMotsClefsSelonNom = (
   nomMotClef: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idMotClef: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -49,7 +49,7 @@ export const rechercherMotsClefsSelonDescr = (
   desrcMotClef: string,
 ): schémaFonctionSuivreObjectifRecherche<infoRésultatTexte> => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idMotClef: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatTexte>,
   ): Promise<schémaFonctionOublier> => {
@@ -82,7 +82,7 @@ export const rechercherMotsClefsSelonTexte = (
   infoRésultatTexte | infoRésultatVide
 > => {
   return async (
-    client: ClientConstellation,
+    client: Constellation,
     idCompte: string,
     fSuivreRecherche: schémaFonctionSuiviRecherche<
       infoRésultatTexte | infoRésultatVide

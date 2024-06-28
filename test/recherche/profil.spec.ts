@@ -1,4 +1,4 @@
-import type { ClientConstellation } from "@/client.js";
+import type { Constellation } from "@/client.js";
 import type {
   schémaFonctionOublier,
   résultatObjectifRecherche,
@@ -21,8 +21,8 @@ import { expect } from "aegir/chai";
 describe("Rechercher profil", function () {
   describe("Selon activité", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
     let idCompte: string;
 
     let fOublier: schémaFonctionOublier;
@@ -91,8 +91,8 @@ describe("Rechercher profil", function () {
 
   describe("Selon nom", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
     let idCompte: string;
     let fOublier: schémaFonctionOublier;
 
@@ -150,8 +150,8 @@ describe("Rechercher profil", function () {
 
   describe("Selon courriel", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
     let idCompte: string;
     let fOublier: schémaFonctionOublier;
 
@@ -203,8 +203,8 @@ describe("Rechercher profil", function () {
 
   describe("Selon texte", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation;
     let idCompte: string;
     const fsOublier: schémaFonctionOublier[] = [];
     const résNom = new utilsTestAttente.AttendreRésultat<

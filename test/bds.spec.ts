@@ -12,7 +12,7 @@ import {
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
-import { créerConstellation, type ClientConstellation } from "@/index.js";
+import { créerConstellation, type Constellation } from "@/index.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
@@ -35,8 +35,8 @@ import { préparerOrbite } from "@/orbite.js";
 
 describe("BDs", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: ClientConstellation[];
-  let client: ClientConstellation;
+  let clients: Constellation[];
+  let client: Constellation;
 
   let idBd: string;
   let accèsBd: boolean;

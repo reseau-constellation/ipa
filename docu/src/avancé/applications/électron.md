@@ -114,9 +114,9 @@ Et voilà, le tour est joué ! Vous pouvez maintenant utiliser Constellation di
 ```Vue
 <script setup lang="ts">
 import { ref, inject } from 'vue';
-import type { ClientConstellation } from "@constl/ipa"
+import type { Constellation } from "@constl/ipa"
 
-const constellation = inject<ClientConstellation>('constl');
+const constellation = inject<Constellation>('constl');
 const idBd = ref<string>();
 
 const créerBd = async () => {

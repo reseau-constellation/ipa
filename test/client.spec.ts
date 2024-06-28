@@ -4,7 +4,7 @@ import toBuffer from "it-to-buffer";
 import { isValidAddress } from "@orbitdb/core";
 import { unixfs } from "@helia/unixfs";
 
-import { ClientConstellation, infoAccès } from "@/client.js";
+import { Constellation, infoAccès } from "@/client.js";
 import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import {
   faisRien,
@@ -72,11 +72,11 @@ describe("Fermeture sécuritaire", function () {
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation,
-      client2: ClientConstellation,
-      client3: ClientConstellation,
-      client4: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation,
+      client2: Constellation,
+      client3: Constellation,
+      client4: Constellation;
 
     let fOublierDispositifs: schémaFonctionOublier;
     let fOublieridCompte: schémaFonctionOublier;
@@ -268,8 +268,8 @@ if (isNode || isElectronMain) {
 
   describe("Fonctionalités client", function () {
     let fOublierClients: () => Promise<void>;
-    let clients: ClientConstellation[];
-    let client: ClientConstellation, client2: ClientConstellation;
+    let clients: Constellation[];
+    let client: Constellation, client2: Constellation;
 
     let idCompte2: string;
 
