@@ -59,7 +59,6 @@ describe.only("BDs", function () {
 
   it("Création", async () => {
     idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-    console.log({ idBd });
     expect(isValidAddress(idBd)).to.be.true();
   });
   it("Accès", async () => {

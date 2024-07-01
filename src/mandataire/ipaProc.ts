@@ -17,10 +17,7 @@ export class MandataireProc extends Mandatairifiable {
     super();
 
     this.client = new GestionnaireClient(
-      (m: MessageDIpa) => {
-        console.log("retour", m);
-        this.recevoirMessageDIpa(m);
-      },
+      (m: MessageDIpa) => this.recevoirMessageDIpa(m),
       (erreur: string, id?: string) => {
         const messageErreur: MessageErreurDIpa = {
           type: "erreur",
@@ -34,7 +31,6 @@ export class MandataireProc extends Mandatairifiable {
   }
 
   envoyerMessageÀIpa(message: MessagePourIpa) {
-    console.log(message);
     this.client.gérerMessage(message);
   }
 }
