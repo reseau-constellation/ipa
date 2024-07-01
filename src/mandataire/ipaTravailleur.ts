@@ -6,16 +6,13 @@ import type {
 
 import {
   générerMandataire,
-  ClientMandatairifiable,
+  Mandatairifiable,
   MandataireConstellation,
+  type MessageDIpa,
+  type MessagePourIpa,
 } from "@constl/mandataire";
 
-import type {
-  MessageDeTravailleur,
-  MessagePourTravailleur,
-} from "@/mandataire/messages.js";
-
-export class MandataireClientTravailleur extends ClientMandatairifiable {
+export class MandataireTravailleur extends Mandatairifiable {
   travailleur: Worker;
 
   constructor(opts: optsIpaTravailleur) {
@@ -23,16 +20,16 @@ export class MandataireClientTravailleur extends ClientMandatairifiable {
 
     this.travailleur = new Worker(new URL("./travailleur.js"));
     this.travailleur.onerror = (e: ErrorEvent) => {
-      this.événements.emit("erreur", { erreur: e.error });
+      this.recevoirMessageDIpa({ type: "erreur", erreur: e.error });
     };
-    this.travailleur.onmessage = (e: MessageEvent<MessageDeTravailleur>) => {
-      this.événements.emit("message", e.data);
+    this.travailleur.onmessage = (e: MessageEvent<MessageDIpa>) => {
+      this.recevoirMessageDIpa(e.data);
     };
 
     this.travailleur.postMessage({ type: "init", opts });
   }
 
-  envoyerMessage(message: MessagePourTravailleur): void {
+  envoyerMessageÀIpa(message: MessagePourIpa): void {
     this.travailleur.postMessage(message);
   }
 }
@@ -60,5 +57,5 @@ export const confirmerOptsTravailleur = (
 export const générerMandataireTravailleur = (
   opts: optsIpaTravailleur = {},
 ): MandataireConstellation<Constellation> => {
-  return générerMandataire(new MandataireClientTravailleur(opts));
+  return générerMandataire(new MandataireTravailleur(opts));
 };

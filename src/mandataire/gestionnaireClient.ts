@@ -3,16 +3,16 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import { Constellation, optsConstellation } from "@/client.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import type {
-  MessagePourTravailleur,
-  MessageDeTravailleur,
-  MessageActionDeTravailleur,
-  MessageSuivreDeTravailleur,
-  MessageSuivrePrêtDeTravailleur,
-} from "./messages.js";
+  MessagePourIpa,
+  MessageDIpa,
+  MessageActionDIpa,
+  MessageSuivreDIpa,
+  MessageSuivrePrêtDIpa,
+} from "@constl/mandataire";
 
 export class GestionnaireClient {
   ipa?: Constellation;
-  _messagesEnAttente: MessagePourTravailleur[];
+  _messagesEnAttente: MessagePourIpa[];
   prêt: boolean;
   dicFRetourSuivi: {
     [key: string]: { fOublier: schémaFonctionOublier } & {
@@ -21,13 +21,13 @@ export class GestionnaireClient {
   };
   opts: optsConstellation;
 
-  fMessage: (m: MessageDeTravailleur) => void;
+  fMessage: (m: MessageDIpa) => void;
   fErreur: (e: string, idRequète?: string) => void;
 
   _verrou: Semaphore;
 
   constructor(
-    fMessage: (m: MessageDeTravailleur) => void,
+    fMessage: (m: MessageDIpa) => void,
     fErreur: (e: string, idRequète?: string) => void,
     opts: optsConstellation | Constellation = {},
   ) {
@@ -61,7 +61,7 @@ export class GestionnaireClient {
     this._verrou.release("init");
   }
 
-  async gérerMessage(message: MessagePourTravailleur): Promise<void> {
+  async gérerMessage(message: MessagePourIpa): Promise<void> {
     if (this.prêt) {
       await this._gérerMessage(message);
     } else {
@@ -69,7 +69,7 @@ export class GestionnaireClient {
     }
   }
 
-  async _gérerMessage(message: MessagePourTravailleur): Promise<void> {
+  async _gérerMessage(message: MessagePourIpa): Promise<void> {
     const { type } = message;
     switch (type) {
       case "suivre": {
@@ -80,7 +80,7 @@ export class GestionnaireClient {
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
         const fFinale = (données: unknown) => {
-          const messageRetour: MessageSuivreDeTravailleur = {
+          const messageRetour: MessageSuivreDIpa = {
             type: "suivre",
             id,
             données,
@@ -101,7 +101,7 @@ export class GestionnaireClient {
             typeof retour === "function" ? { fOublier: retour } : retour;
 
           this.dicFRetourSuivi[id] = retourFinal;
-          const messageRetour: MessageSuivrePrêtDeTravailleur = {
+          const messageRetour: MessageSuivrePrêtDIpa = {
             type: "suivrePrêt",
             id,
           };
@@ -123,7 +123,7 @@ export class GestionnaireClient {
 
         try {
           const résultat = await fonctionIPA(args);
-          const messageRetour: MessageActionDeTravailleur = {
+          const messageRetour: MessageActionDIpa = {
             type: "action",
             id,
             résultat,
@@ -146,7 +146,7 @@ export class GestionnaireClient {
       default: {
         this.fErreur(
           `Type de requète ${type} non reconnu dans message ${message}`,
-          (message as MessagePourTravailleur).id,
+          (message as MessagePourIpa).id,
         );
         break;
       }

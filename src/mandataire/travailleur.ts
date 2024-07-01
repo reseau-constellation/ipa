@@ -1,13 +1,13 @@
 import { GestionnaireClient } from "./gestionnaireClient.js";
 import type {
-  MessageDeTravailleur,
-  MessageErreurDeTravailleur,
-} from "./messages.js";
+  MessageDIpa,
+  MessageErreurDIpa,
+} from "@constl/mandataire";
 
-const fMessage = (message: MessageDeTravailleur) => postMessage(message);
+const fMessage = (message: MessageDIpa) => postMessage(message);
 
 const fErreur = (erreur: string, id?: string) => {
-  const messageErreur: MessageErreurDeTravailleur = {
+  const messageErreur: MessageErreurDIpa = {
     type: "erreur",
     id,
     erreur,

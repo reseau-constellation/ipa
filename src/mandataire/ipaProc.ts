@@ -2,39 +2,37 @@ import type { Constellation, optsConstellation } from "@/client.js";
 
 import {
   générerMandataire,
-  ClientMandatairifiable,
+  Mandatairifiable,
   MandataireConstellation,
+  MessageDIpa,
+  MessagePourIpa,
+  MessageErreurDIpa,
 } from "@constl/mandataire";
-import type {
-  MessageDeTravailleur,
-  MessagePourTravailleur,
-  MessageErreurDeTravailleur,
-} from "@/mandataire/messages.js";
 import { GestionnaireClient } from "@/mandataire/gestionnaireClient.js";
 
-export class MandataireClientProc extends ClientMandatairifiable {
+export class MandataireProc extends Mandatairifiable {
   client: GestionnaireClient;
 
   constructor(opts: optsConstellation | Constellation = {}) {
     super();
 
     this.client = new GestionnaireClient(
-      (m: MessageDeTravailleur) => {
-        this.événements.emit("message", m);
+      (m: MessageDIpa) => {
+        this.recevoirMessageDIpa(m);
       },
       (erreur: string, id?: string) => {
-        const messageErreur: MessageErreurDeTravailleur = {
+        const messageErreur: MessageErreurDIpa = {
           type: "erreur",
           id,
           erreur,
         };
-        this.événements.emit("message", messageErreur);
+        this.recevoirMessageDIpa(messageErreur);
       },
       opts,
     );
   }
 
-  envoyerMessage(message: MessagePourTravailleur) {
+  envoyerMessageÀIpa(message: MessagePourIpa) {
     this.client.gérerMessage(message);
   }
 }
@@ -42,5 +40,5 @@ export class MandataireClientProc extends ClientMandatairifiable {
 export const générerMandataireProc = (
   opts: optsConstellation = {},
 ): MandataireConstellation<Constellation> => {
-  return générerMandataire(new MandataireClientProc(opts));
+  return générerMandataire(new MandataireProc(opts));
 };
