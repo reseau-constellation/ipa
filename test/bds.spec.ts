@@ -33,7 +33,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { attente } from "@constl/utils-tests";
 import { préparerOrbite } from "@/orbite.js";
 
-describe("BDs", function () {
+describe.only("BDs", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
@@ -59,6 +59,7 @@ describe("BDs", function () {
 
   it("Création", async () => {
     idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+    console.log({ idBd });
     expect(isValidAddress(idBd)).to.be.true();
   });
   it("Accès", async () => {

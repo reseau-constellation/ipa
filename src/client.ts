@@ -2627,9 +2627,7 @@ export class Constellation {
     }
   }
 
-  static async créer(
-    opts: optsConstellation = {},
-  ): Promise<Constellation> {
+  static async créer(opts: optsConstellation = {}): Promise<Constellation> {
     const client = new Constellation(opts);
     await client._initialiser();
     return client;

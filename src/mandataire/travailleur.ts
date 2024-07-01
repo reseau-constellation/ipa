@@ -1,8 +1,5 @@
 import { GestionnaireClient } from "./gestionnaireClient.js";
-import type {
-  MessageDIpa,
-  MessageErreurDIpa,
-} from "@constl/mandataire";
+import type { MessageDIpa, MessageErreurDIpa } from "@constl/mandataire";
 
 const fMessage = (message: MessageDIpa) => postMessage(message);
 

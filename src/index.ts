@@ -37,12 +37,12 @@ import {
 } from "wherearewe";
 import { préparerOrbite } from "./orbite.js";
 
-export type Constellation =
-  MandataireConstellation<_Constellation>;
+export type Constellation = MandataireConstellation<_Constellation>;
 
 export const créerConstellation = (
   opts: optsConstellation = {},
 ): Constellation => {
+  console.log("créerConstellation");
   préparerOrbite();
   if (isNode || isElectronMain) {
     return ipa.générerMandataireProc(opts);

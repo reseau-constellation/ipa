@@ -123,14 +123,14 @@ describe.skip("SFIP", function () {
   it.skip("Ça fonctionne localement hors ligne");
 });
 
-describe.only("Stabilité client", function () {
+describe("Stabilité client", function () {
   let client: Constellation;
   let dossier: string;
   let fEffacer: () => void;
 
   before(async () => {
     ({ dossier, fEffacer } = await dossiers.dossierTempo());
-    client = créerConstellation({dossier})
+    client = créerConstellation({ dossier });
   });
 
   after(async () => {
@@ -145,13 +145,13 @@ describe.only("Stabilité client", function () {
   });
   it("Réactivité continue", async () => {
     let avant = Date.now();
-    let i = 0
+    let i = 0;
     while (i < 30) {
-      await client.bds.créerBd({licence: "ODbl-1_0"});
+      await client.bds.créerBd({ licence: "ODbl-1_0" });
       const après = Date.now();
       console.log(après - avant);
-      avant = après
-      i++
+      avant = après;
+      i++;
     }
-  })
-})
+  });
+});

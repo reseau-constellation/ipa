@@ -1,5 +1,5 @@
 {
-  "version": "1.0.28",
+  "version": "1.0.29",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -98,7 +98,7 @@
     "@chainsafe/libp2p-yamux": "^6.0.2",
     "@chriscdn/promise-semaphore": "^2.0.9",
     "@constl/bohr-db": "^1.1.0",
-    "@constl/mandataire": "^2.0.2",
+    "@constl/mandataire": "^2.0.3",
     "@constl/utils-ipa": "^1.0.0",
     "@helia/block-brokers": "^1.0.0",
     "@helia/unixfs": "^3.0.6",
