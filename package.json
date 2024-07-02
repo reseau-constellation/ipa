@@ -98,7 +98,7 @@
     "@chainsafe/libp2p-yamux": "^6.0.2",
     "@chriscdn/promise-semaphore": "^2.0.9",
     "@constl/bohr-db": "^1.1.0",
-    "@constl/mandataire": "^2.0.3",
+    "@constl/mandataire": "^2.0.6",
     "@constl/utils-ipa": "^1.0.0",
     "@helia/block-brokers": "^1.0.0",
     "@helia/unixfs": "^3.0.6",

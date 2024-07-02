@@ -2,12 +2,13 @@ import Semaphore from "@chriscdn/promise-semaphore";
 
 import { Constellation, optsConstellation } from "@/client.js";
 import type { schémaFonctionOublier } from "@/types.js";
-import type {
-  MessagePourIpa,
-  MessageDIpa,
-  MessageActionDIpa,
-  MessageSuivreDIpa,
-  MessageSuivrePrêtDIpa,
+import {
+  type MessagePourIpa,
+  type MessageDIpa,
+  type MessageActionDIpa,
+  type MessageSuivreDIpa,
+  type MessageSuivrePrêtDIpa,
+  ERREUR_INIT_IPA,
 } from "@constl/mandataire";
 
 export class GestionnaireClient {
@@ -22,13 +23,13 @@ export class GestionnaireClient {
   opts: optsConstellation;
 
   fMessage: (m: MessageDIpa) => void;
-  fErreur: (e: string, idRequète?: string) => void;
+  fErreur: (args: {erreur: string, idRequète?: string, code?: string}) => void;
 
   _verrou: Semaphore;
 
   constructor(
     fMessage: (m: MessageDIpa) => void,
-    fErreur: (e: string, idRequète?: string) => void,
+    fErreur: (args: {erreur: string, idRequète?: string, code?: string}) => void,
     opts: optsConstellation | Constellation = {},
   ) {
     this.fMessage = fMessage;
@@ -54,10 +55,16 @@ export class GestionnaireClient {
       return;
     } // Nécessaire si on a plus qu'un mandataire connecté à la même instance Constellation
 
-    this.ipa = await Constellation.créer(this.opts);
+    try {
+      this.ipa = await Constellation.créer(this.opts);
+    } catch (e) {
+      this.fErreur({erreur: e.toString(), code: e.name === "Error" ? undefined : e.name})
+      throw e
+    };
 
     this._messagesEnAttente.forEach((m) => this._gérerMessage(m));
     this.prêt = true;
+
     this._verrou.release("init");
   }
 
@@ -74,7 +81,7 @@ export class GestionnaireClient {
     switch (type) {
       case "suivre": {
         const { id, fonction, args, nomArgFonction } = message;
-        if (!this.ipa) this.fErreur("IPA non initialisé", id);
+        if (!this.ipa) this.fErreur({erreur: "IPA non initialisé", idRequète: id, code: ERREUR_INIT_IPA});
 
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
@@ -109,14 +116,14 @@ export class GestionnaireClient {
             messageRetour.fonctions = Object.keys(retour);
           this.fMessage(messageRetour);
         } catch (e) {
-          this.fErreur(e.toString() + e.stack.toString(), id);
+          this.fErreur({erreur: e.toString() + e.stack.toString(), idRequète: id});
         }
 
         break;
       }
       case "action": {
         const { id, fonction, args } = message;
-        if (!this.ipa) this.fErreur("IPA non initialisé", id);
+        if (!this.ipa) this.fErreur({erreur: "IPA non initialisé", idRequète: id, code: ERREUR_INIT_IPA});
 
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
@@ -130,7 +137,7 @@ export class GestionnaireClient {
           };
           this.fMessage(messageRetour);
         } catch (e) {
-          this.fErreur(e.toString() + e.stack.toString(), id);
+          this.fErreur({erreur: e.toString() + e.stack.toString(), idRequète: id});
         }
 
         break;
@@ -144,10 +151,10 @@ export class GestionnaireClient {
         break;
       }
       default: {
-        this.fErreur(
-          `Type de requète ${type} non reconnu dans message ${message}`,
-          (message as MessagePourIpa).id,
-        );
+        this.fErreur({
+          erreur: `Type de requète ${type} non reconnu dans message ${message}`,
+          idRequète: (message as MessagePourIpa).id,
+        });
         break;
       }
     }
@@ -178,7 +185,7 @@ export class GestionnaireClient {
           // @ts-expect-error Ça, ça me dépasse
           fonctionIPA = fonctionIPA[attr].bind(fonctionIPA);
         } else {
-          this.fErreur(erreur, idMessage);
+          this.fErreur({erreur, idRequète: idMessage});
           return undefined;
         }
       } else {
@@ -189,18 +196,18 @@ export class GestionnaireClient {
         ) {
           fonctionIPA = fonctionIPA[attr as keyof typeof fonctionIPA];
         } else {
-          this.fErreur(erreur, idMessage);
+          this.fErreur({erreur, idRequète: idMessage});
           return undefined;
         }
       }
 
       if (!fonctionIPA) {
-        this.fErreur(erreur, idMessage);
+        this.fErreur({erreur, idRequète: idMessage});
         return undefined;
       }
     }
     if (typeof fonctionIPA !== "function") {
-      this.fErreur(erreur, idMessage);
+      this.fErreur({erreur, idRequète: idMessage});
       return undefined;
     }
     return fonctionIPA;

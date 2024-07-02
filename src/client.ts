@@ -89,6 +89,7 @@ import { Helia } from "helia";
 import { CID } from "multiformats";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import { initSFIP } from "@/sfip/index.js";
+import { ERREUR_INIT_IPA, ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -424,14 +425,18 @@ export class Constellation {
             try {
               const messageJSON = JSON.parse(contenuFichier);
               if (messageJSON["port"]) {
-                throw new Error(
+                const erreur = new Error(
                   `Ce compte est déjà ouvert en Constellation, et le serveur local est disponible sur le port ${messageJSON["port"]}. Vous pouvez soit vous connecter sur ce port, soit fermer les instances de Constellation qui ouvertes et puis vous ressayer.`,
                 );
+                erreur.name = ERREUR_INIT_IPA_DÉJÀ_LANCÉ;
+                throw erreur;
               }
             } catch {
               //
             }
-            throw new Error("Constellation est déjà lancé.");
+            const erreur = new Error("Constellation est déjà lancée.");
+            erreur.name = ERREUR_INIT_IPA_DÉJÀ_LANCÉ;
+            throw erreur;
           }
         };
         try {
