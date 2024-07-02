@@ -58,7 +58,7 @@ export class GestionnaireClient {
     try {
       this.ipa = await Constellation.créer(this.opts);
     } catch (e) {
-      this.fErreur({erreur: e.toString(), code: e.name === "Error" ? undefined : e.name})
+      this.fErreur({erreur: e.toString(), code: e.name === "Error" ? ERREUR_INIT_IPA : e.name})
       throw e
     };
 
