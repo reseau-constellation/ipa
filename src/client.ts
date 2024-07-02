@@ -92,6 +92,7 @@ import { initSFIP } from "@/sfip/index.js";
 import {
   ERREUR_INIT_IPA_DÉJÀ_LANCÉ,
 } from "@constl/mandataire";
+import { existsSync, mkdirSync } from "fs";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -207,10 +208,13 @@ const obtDossierConstellation = async (
     // Utiliser l'application native
     const envPaths = (await import("env-paths")).default;
     const chemins = envPaths("constl", { suffix: "" });
-    return await join(
+    const dossier = await join(
       chemins.data,
       opts.dossier === "dév" ? "constl-dév" : "constl",
     );
+    if (!existsSync(dossier)) mkdirSync(dossier, {recursive: true});
+    return dossier;
+    
   } else {
     // Pour navigateur
     return "./constl";
@@ -303,6 +307,8 @@ export class Constellation {
     this.réseau = new Réseau({ client: this });
 
     this.protocoles = new Protocoles({ client: this });
+
+    this._initialiser();
   }
 
   async dossier(): Promise<string> {
@@ -2636,7 +2642,7 @@ export class Constellation {
 
   static async créer(opts: optsConstellation = {}): Promise<Constellation> {
     const client = new Constellation(opts);
-    await client._initialiser();
+    await client.attendreInitialisée();
     return client;
   }
 }
