@@ -47,7 +47,7 @@ importers:
         version: 0.3.14(@constl/ipa@1.0.23(react-native@0.74.2(@babel/core@7.24.7)(@babel/preset-env@7.24.7(@babel/core@7.24.7))(react@18.2.0)))
       '@libp2p/autonat':
         specifier: 1.0.21
-        version: 1.0.21
+        version: 1.1.0
       '@libp2p/bootstrap':
         specifier: ^10.0.24
         version: 10.0.25
@@ -1786,6 +1786,9 @@ packages:
 
   '@libp2p/autonat@1.0.21':
     resolution: {integrity: sha512-+2Znh8YkbmQdXOVfMG/yihoAppGZLfgzJSzoDMtvu2y6zUcYacKbhxFWBq2QmXJiY2JSZelYDJZFkb9wvyb0Gw==}
+
+  '@libp2p/autonat@1.1.0':
+    resolution: {integrity: sha512-Ygr66ViUEzHc5deN1A65+QbyyFeSnDT0h6BdZa1zvfG8NOrogPxEQuibcuT9wPGqdzXZbmrS6QS+ctDnbxuhUg==}
 
   '@libp2p/bootstrap@10.0.25':
     resolution: {integrity: sha512-yHvP7U9GilkxMbx4qmDLfziaqfmKf64rYS4yVitN+7TADDMU/nvspnukgdmHOPd3EtB7YYzTQXb+QLxX6KcklA==}
@@ -9966,7 +9969,7 @@ snapshots:
       '@chainsafe/as-sha256': 0.4.2
       '@libp2p/crypto': 3.0.4
       '@libp2p/interface': 1.4.1
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/peer-id': 4.1.4
       '@noble/ciphers': 0.4.1
       '@noble/curves': 1.4.0
       '@noble/hashes': 1.4.0
@@ -10722,10 +10725,27 @@ snapshots:
   '@libp2p/autonat@1.0.21':
     dependencies:
       '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/interface-internal': 1.2.4
+      '@libp2p/peer-id': 4.1.4
       '@libp2p/peer-id-factory': 4.1.3
       '@libp2p/utils': 5.4.3
+      '@multiformats/multiaddr': 12.3.0
+      it-first: 3.0.6
+      it-length-prefixed: 9.0.4
+      it-map: 3.1.1
+      it-parallel: 3.0.8
+      it-pipe: 3.0.1
+      protons-runtime: 5.4.0
+      uint8arraylist: 2.4.8
+    transitivePeerDependencies:
+      - supports-color
+
+  '@libp2p/autonat@1.1.0':
+    dependencies:
+      '@libp2p/interface': 1.5.0
+      '@libp2p/interface-internal': 1.2.4
+      '@libp2p/peer-id': 4.1.4
+      '@libp2p/utils': 5.4.4
       '@multiformats/multiaddr': 12.3.0
       it-first: 3.0.6
       it-length-prefixed: 9.0.4
@@ -10798,7 +10818,7 @@ snapshots:
   '@libp2p/crypto@2.0.8':
     dependencies:
       '@libp2p/interface': 0.1.6
-      '@noble/curves': 1.4.0
+      '@noble/curves': 1.4.2
       '@noble/hashes': 1.4.0
       multiformats: 12.1.3
       node-forge: 1.3.1
@@ -10870,8 +10890,8 @@ snapshots:
   '@libp2p/identify@1.0.21':
     dependencies:
       '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/interface-internal': 1.2.4
+      '@libp2p/peer-id': 4.1.4
       '@libp2p/peer-record': 7.0.19
       '@multiformats/multiaddr': 12.3.0
       '@multiformats/multiaddr-matcher': 1.2.4
@@ -11085,7 +11105,7 @@ snapshots:
     dependencies:
       '@libp2p/crypto': 4.1.3
       '@libp2p/interface': 1.4.1
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/peer-id': 4.1.4
       interface-datastore: 8.2.11
       merge-options: 3.0.4
       multiformats: 13.1.0
@@ -11287,7 +11307,7 @@ snapshots:
     dependencies:
       '@libp2p/crypto': 4.1.3
       '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
+      '@libp2p/interface-internal': 1.2.4
       '@multiformats/multiaddr': 12.3.0
       it-first: 3.0.6
       it-pipe: 3.0.1
@@ -11314,7 +11334,7 @@ snapshots:
       '@libp2p/interface-internal': 1.2.3
       '@libp2p/peer-collections': 5.2.3
       '@libp2p/peer-id': 4.1.3
-      '@libp2p/utils': 5.4.3
+      '@libp2p/utils': 5.4.4
       it-length-prefixed: 9.0.4
       it-pipe: 3.0.1
       it-pushable: 3.2.3
@@ -11357,7 +11377,7 @@ snapshots:
     dependencies:
       '@achingbrain/nat-port-mapper': 1.0.13
       '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
+      '@libp2p/interface-internal': 1.2.4
       '@libp2p/utils': 5.4.3
       '@multiformats/multiaddr': 12.3.0
       wherearewe: 2.0.1
@@ -15963,7 +15983,7 @@ snapshots:
     dependencies:
       '@libp2p/interface': 1.4.1
       '@libp2p/logger': 4.0.14
-      '@libp2p/utils': 5.4.3
+      '@libp2p/utils': 5.4.4
       '@multiformats/multiaddr': 12.3.0
       '@vascosantos/moving-average': 1.1.0
       any-signal: 4.1.1
@@ -16058,7 +16078,7 @@ snapshots:
       '@libp2p/crypto': 4.1.3
       '@libp2p/interface': 1.4.1
       '@libp2p/logger': 4.0.14
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/peer-id': 4.1.4
       cborg: 4.2.1
       err-code: 3.0.1
       interface-datastore: 8.2.11
