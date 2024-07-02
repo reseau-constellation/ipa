@@ -90,7 +90,6 @@ import { CID } from "multiformats";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import { initSFIP } from "@/sfip/index.js";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
-import { existsSync, mkdirSync } from "fs";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -202,6 +201,7 @@ const obtDossierConstellation = async (
   opts: optsConstellation,
 ): Promise<string> => {
   if (opts.dossier && opts.dossier !== "dév") return opts.dossier;
+  const fs = await import("fs");
   if (isNode || isElectronMain) {
     // Utiliser l'application native
     const envPaths = (await import("env-paths")).default;
@@ -210,7 +210,7 @@ const obtDossierConstellation = async (
       chemins.data,
       opts.dossier === "dév" ? "constl-dév" : "constl",
     );
-    if (!existsSync(dossier)) mkdirSync(dossier, { recursive: true });
+    if (!fs.existsSync(dossier)) fs.mkdirSync(dossier, { recursive: true });
     return dossier;
   } else {
     // Pour navigateur
