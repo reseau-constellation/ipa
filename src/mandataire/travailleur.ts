@@ -3,7 +3,15 @@ import type { MessageDIpa, MessageErreurDIpa } from "@constl/mandataire";
 
 const fMessage = (message: MessageDIpa) => postMessage(message);
 
-const fErreur = ({erreur, idRequète, code}: {erreur: string, idRequète?: string, code?: string}) => {
+const fErreur = ({
+  erreur,
+  idRequète,
+  code,
+}: {
+  erreur: string;
+  idRequète?: string;
+  code?: string;
+}) => {
   const messageErreur: MessageErreurDIpa = {
     type: "erreur",
     id: idRequète,

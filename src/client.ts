@@ -89,7 +89,9 @@ import { Helia } from "helia";
 import { CID } from "multiformats";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import { initSFIP } from "@/sfip/index.js";
-import { ERREUR_INIT_IPA, ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
+import {
+  ERREUR_INIT_IPA_DÉJÀ_LANCÉ,
+} from "@constl/mandataire";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>

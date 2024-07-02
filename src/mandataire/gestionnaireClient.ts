@@ -23,13 +23,21 @@ export class GestionnaireClient {
   opts: optsConstellation;
 
   fMessage: (m: MessageDIpa) => void;
-  fErreur: (args: {erreur: string, idRequète?: string, code?: string}) => void;
+  fErreur: (args: {
+    erreur: string;
+    idRequète?: string;
+    code?: string;
+  }) => void;
 
   _verrou: Semaphore;
 
   constructor(
     fMessage: (m: MessageDIpa) => void,
-    fErreur: (args: {erreur: string, idRequète?: string, code?: string}) => void,
+    fErreur: (args: {
+      erreur: string;
+      idRequète?: string;
+      code?: string;
+    }) => void,
     opts: optsConstellation | Constellation = {},
   ) {
     this.fMessage = fMessage;
@@ -58,9 +66,12 @@ export class GestionnaireClient {
     try {
       this.ipa = await Constellation.créer(this.opts);
     } catch (e) {
-      this.fErreur({erreur: e.toString(), code: e.name === "Error" ? ERREUR_INIT_IPA : e.name})
-      throw e
-    };
+      this.fErreur({
+        erreur: e.toString(),
+        code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
+      });
+      throw e;
+    }
 
     this._messagesEnAttente.forEach((m) => this._gérerMessage(m));
     this.prêt = true;
@@ -81,7 +92,12 @@ export class GestionnaireClient {
     switch (type) {
       case "suivre": {
         const { id, fonction, args, nomArgFonction } = message;
-        if (!this.ipa) this.fErreur({erreur: "IPA non initialisé", idRequète: id, code: ERREUR_INIT_IPA});
+        if (!this.ipa)
+          this.fErreur({
+            erreur: "IPA non initialisé",
+            idRequète: id,
+            code: ERREUR_INIT_IPA,
+          });
 
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
@@ -116,14 +132,22 @@ export class GestionnaireClient {
             messageRetour.fonctions = Object.keys(retour);
           this.fMessage(messageRetour);
         } catch (e) {
-          this.fErreur({erreur: e.toString() + e.stack.toString(), idRequète: id});
+          this.fErreur({
+            erreur: e.toString() + e.stack.toString(),
+            idRequète: id,
+          });
         }
 
         break;
       }
       case "action": {
         const { id, fonction, args } = message;
-        if (!this.ipa) this.fErreur({erreur: "IPA non initialisé", idRequète: id, code: ERREUR_INIT_IPA});
+        if (!this.ipa)
+          this.fErreur({
+            erreur: "IPA non initialisé",
+            idRequète: id,
+            code: ERREUR_INIT_IPA,
+          });
 
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
@@ -137,7 +161,10 @@ export class GestionnaireClient {
           };
           this.fMessage(messageRetour);
         } catch (e) {
-          this.fErreur({erreur: e.toString() + e.stack.toString(), idRequète: id});
+          this.fErreur({
+            erreur: e.toString() + e.stack.toString(),
+            idRequète: id,
+          });
         }
 
         break;
@@ -185,7 +212,7 @@ export class GestionnaireClient {
           // @ts-expect-error Ça, ça me dépasse
           fonctionIPA = fonctionIPA[attr].bind(fonctionIPA);
         } else {
-          this.fErreur({erreur, idRequète: idMessage});
+          this.fErreur({ erreur, idRequète: idMessage });
           return undefined;
         }
       } else {
@@ -196,18 +223,18 @@ export class GestionnaireClient {
         ) {
           fonctionIPA = fonctionIPA[attr as keyof typeof fonctionIPA];
         } else {
-          this.fErreur({erreur, idRequète: idMessage});
+          this.fErreur({ erreur, idRequète: idMessage });
           return undefined;
         }
       }
 
       if (!fonctionIPA) {
-        this.fErreur({erreur, idRequète: idMessage});
+        this.fErreur({ erreur, idRequète: idMessage });
         return undefined;
       }
     }
     if (typeof fonctionIPA !== "function") {
-      this.fErreur({erreur, idRequète: idMessage});
+      this.fErreur({ erreur, idRequète: idMessage });
       return undefined;
     }
     return fonctionIPA;
