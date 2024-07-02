@@ -19,7 +19,7 @@ class LocalStorage {
     this._événements = new EventEmitter();
     this.verrou = new Semaphore();
     if (!fs.existsSync(dossier)) {
-      fs.mkdirSync(dossier);
+      fs.mkdirSync(dossier, {recursive: true});
     }
     try {
       this._données = JSON.parse(fs.readFileSync(this.fichier).toString());
