@@ -200,9 +200,16 @@ const DÉLAI_EXPIRATION_INVITATIONS = 1000 * 60 * 5; // 5 minutes
 const obtDossierConstellation = async (
   opts: optsConstellation,
 ): Promise<string> => {
-  if (opts.dossier && opts.dossier !== "dév") return opts.dossier;
-  const fs = await import("fs");
+  if (opts.dossier && opts.dossier !== "dév") {
+    if (isNode || isElectronMain) {
+      const fs = await import("fs");
+      if (!fs.existsSync(opts.dossier)) fs.mkdirSync(opts.dossier, { recursive: true });
+    }
+    return opts.dossier
+  };
+  console.log({isNode, isElectronMain, isBrowser})
   if (isNode || isElectronMain) {
+    const fs = await import("fs");
     // Utiliser l'application native
     const envPaths = (await import("env-paths")).default;
     const chemins = envPaths("constl", { suffix: "" });
@@ -2520,7 +2527,7 @@ export class Constellation {
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
 
     // Effacer fichier verrour
-    this.effacerVerrou();
+    await this.effacerVerrou();
   }
 
   async effacerDispositif(): Promise<void> {

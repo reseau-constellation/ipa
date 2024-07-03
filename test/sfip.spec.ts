@@ -123,7 +123,7 @@ describe.skip("SFIP", function () {
   it.skip("Ça fonctionne localement hors ligne");
 });
 
-describe("Stabilité client", function () {
+describe.only("Stabilité client", function () {
   let client: Constellation;
   let dossier: string;
   let fEffacer: () => void;
