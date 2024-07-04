@@ -5,16 +5,16 @@ const fMessage = (message: MessageDIpa) => postMessage(message);
 
 const fErreur = ({
   erreur,
-  idRequète,
+  idRequête,
   code,
 }: {
   erreur: string;
-  idRequète?: string;
+  idRequête?: string;
   code?: string;
 }) => {
   const messageErreur: MessageErreurDIpa = {
     type: "erreur",
-    id: idRequète,
+    id: idRequête,
     erreur,
     codeErreur: code,
   };

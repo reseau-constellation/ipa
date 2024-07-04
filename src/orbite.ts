@@ -123,7 +123,7 @@ const typerBd = <
   }
 };
 
-type bdOuverte<T extends Store> = { bd: T; idsRequètes: Set<string> };
+type bdOuverte<T extends Store> = { bd: T; idsRequêtes: Set<string> };
 
 export class GestionnaireOrbite {
   orbite: OrbitDB;
@@ -211,14 +211,14 @@ export class GestionnaireOrbite {
     await this.verrouOuvertureBd.acquire(id);
     const existante = this._bdsOrbite[id];
 
-    const idRequète = uuidv4();
+    const idRequête = uuidv4();
 
     const fOublier = async () => {
       // Si la BD a été effacée entre-temps par `client.effacerBd`,
       // elle ne sera plus disponible ici
       if (!this._bdsOrbite[id]) return;
 
-      this._bdsOrbite[id].idsRequètes.delete(idRequète);
+      this._bdsOrbite[id].idsRequêtes.delete(idRequête);
     };
 
     // Fonction utilitaire pour vérifier le type de la bd
@@ -229,7 +229,7 @@ export class GestionnaireOrbite {
     };
 
     if (existante) {
-      this._bdsOrbite[id].idsRequètes.add(idRequète);
+      this._bdsOrbite[id].idsRequêtes.add(idRequête);
       this.verrouOuvertureBd.release(id);
 
       if (!vérifierTypeBd(existante.bd))
@@ -246,7 +246,7 @@ export class GestionnaireOrbite {
     try {
       const bd = (await this.orbite!.open(id, { type, ...options })) as T;
 
-      this._bdsOrbite[id] = { bd, idsRequètes: new Set([idRequète]) };
+      this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
 
       // Maintenant que la BD a été créée, on peut relâcher le verrou
       this.verrouOuvertureBd.release(id);
@@ -349,7 +349,7 @@ export class GestionnaireOrbite {
     })) as Store;
     const { address } = bd;
 
-    this._bdsOrbite[address] = { bd, idsRequètes: new Set() };
+    this._bdsOrbite[address] = { bd, idsRequêtes: new Set() };
     return address;
   }
 
@@ -363,8 +363,8 @@ export class GestionnaireOrbite {
     const fNettoyer = async () => {
       await Promise.all(
         Object.keys(this._bdsOrbite).map(async (id) => {
-          const { bd, idsRequètes } = this._bdsOrbite[id];
-          if (!idsRequètes.size) {
+          const { bd, idsRequêtes } = this._bdsOrbite[id];
+          if (!idsRequêtes.size) {
             delete this._bdsOrbite[id];
             await bd.close();
           }

@@ -20,16 +20,16 @@ export class MandataireProc extends Mandatairifiable {
       (m: MessageDIpa) => this.recevoirMessageDIpa(m),
       ({
         erreur,
-        idRequète,
+        idRequête,
         code,
       }: {
         erreur: string;
-        idRequète?: string;
+        idRequête?: string;
         code?: string;
       }) => {
         const messageErreur: MessageErreurDIpa = {
           type: "erreur",
-          id: idRequète,
+          id: idRequête,
           erreur,
           codeErreur: code,
         };

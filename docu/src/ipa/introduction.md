@@ -28,7 +28,7 @@ setInterval(async ()=>{
 }, 5000)
 ```
 
-Constellation est bien plus simple. On ne demande pas à Constellation de nous donner la réponse à notre requète, mais plutôt de nous prévenir chaque fois que la réponse change ! Ça prend un peu de temps à s'y habituer, mais c'est bien plus pratique.
+Constellation est bien plus simple. On ne demande pas à Constellation de nous donner la réponse à notre requête, mais plutôt de nous prévenir chaque fois que la réponse change ! Ça prend un peu de temps à s'y habituer, mais c'est bien plus pratique.
 
 ```TypeScript
 import { créerConstellation } from "@constl/ipa";

@@ -25,7 +25,7 @@ export class GestionnaireClient {
   fMessage: (m: MessageDIpa) => void;
   fErreur: (args: {
     erreur: string;
-    idRequète?: string;
+    idRequête?: string;
     code?: string;
   }) => void;
 
@@ -35,7 +35,7 @@ export class GestionnaireClient {
     fMessage: (m: MessageDIpa) => void,
     fErreur: (args: {
       erreur: string;
-      idRequète?: string;
+      idRequête?: string;
       code?: string;
     }) => void,
     opts: optsConstellation | Constellation = {},
@@ -95,7 +95,7 @@ export class GestionnaireClient {
         if (!this.ipa)
           this.fErreur({
             erreur: "IPA non initialisé",
-            idRequète: id,
+            idRequête: id,
             code: ERREUR_INIT_IPA,
           });
 
@@ -134,7 +134,7 @@ export class GestionnaireClient {
         } catch (e) {
           this.fErreur({
             erreur: e.toString() + e.stack.toString(),
-            idRequète: id,
+            idRequête: id,
           });
         }
 
@@ -145,7 +145,7 @@ export class GestionnaireClient {
         if (!this.ipa)
           this.fErreur({
             erreur: "IPA non initialisé",
-            idRequète: id,
+            idRequête: id,
             code: ERREUR_INIT_IPA,
           });
 
@@ -163,7 +163,7 @@ export class GestionnaireClient {
         } catch (e) {
           this.fErreur({
             erreur: e.toString() + e.stack.toString(),
-            idRequète: id,
+            idRequête: id,
           });
         }
 
@@ -179,8 +179,8 @@ export class GestionnaireClient {
       }
       default: {
         this.fErreur({
-          erreur: `Type de requète ${type} non reconnu dans message ${message}`,
-          idRequète: (message as MessagePourIpa).id,
+          erreur: `Type de requête ${type} non reconnu dans message ${message}`,
+          idRequête: (message as MessagePourIpa).id,
         });
         break;
       }
@@ -212,7 +212,7 @@ export class GestionnaireClient {
           // @ts-expect-error Ça, ça me dépasse
           fonctionIPA = fonctionIPA[attr].bind(fonctionIPA);
         } else {
-          this.fErreur({ erreur, idRequète: idMessage });
+          this.fErreur({ erreur, idRequête: idMessage });
           return undefined;
         }
       } else {
@@ -223,18 +223,18 @@ export class GestionnaireClient {
         ) {
           fonctionIPA = fonctionIPA[attr as keyof typeof fonctionIPA];
         } else {
-          this.fErreur({ erreur, idRequète: idMessage });
+          this.fErreur({ erreur, idRequête: idMessage });
           return undefined;
         }
       }
 
       if (!fonctionIPA) {
-        this.fErreur({ erreur, idRequète: idMessage });
+        this.fErreur({ erreur, idRequête: idMessage });
         return undefined;
       }
     }
     if (typeof fonctionIPA !== "function") {
-      this.fErreur({ erreur, idRequète: idMessage });
+      this.fErreur({ erreur, idRequête: idMessage });
       return undefined;
     }
     return fonctionIPA;

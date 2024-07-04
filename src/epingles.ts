@@ -9,7 +9,7 @@ import { isValidAddress } from "@orbitdb/core";
 import { EventEmitter } from "events";
 import { CID } from "multiformats";
 
-interface RequèteÉpingle {
+interface RequêteÉpingle {
   id: string;
   fOublier: schémaFonctionOublier | (() => Promise<void>);
   parent?: string;
@@ -30,13 +30,13 @@ export const cidEtFichierValide = (val: string) => {
 
 export class Épingles {
   client: Constellation;
-  requètes: RequèteÉpingle[];
+  requêtes: RequêteÉpingle[];
   fsOublier: { [key: string]: schémaFonctionOublier };
   événements: EventEmitter;
 
   constructor({ client }: { client: Constellation }) {
     this.client = client;
-    this.requètes = [];
+    this.requêtes = [];
     this.fsOublier = {};
     this.événements = new EventEmitter();
   }
@@ -57,19 +57,19 @@ export class Épingles {
 
   async désépinglerBd({ id }: { id: string }) {
     await Promise.all(
-      this.requètes
+      this.requêtes
         .filter((r) => r.id === id)
         .map(async (r) => await r.fOublier()),
     );
-    const dépendants = this.requètes.filter((r) => r.parent === id);
+    const dépendants = this.requêtes.filter((r) => r.parent === id);
 
-    this.requètes = this.requètes.filter((r) => r.id !== id);
-    this.requètes = this.requètes.filter((r) => r.parent !== id);
+    this.requêtes = this.requêtes.filter((r) => r.id !== id);
+    this.requêtes = this.requêtes.filter((r) => r.parent !== id);
 
     await Promise.all(
       dépendants.map(async (d) => {
         if (
-          !this.requètes.filter((r) => r.id === d.id && r.parent !== id).length
+          !this.requêtes.filter((r) => r.id === d.id && r.parent !== id).length
         ) {
           await this.désépinglerBd({ id: d.id });
         }
@@ -79,7 +79,7 @@ export class Épingles {
   }
 
   async épinglée({ id }: { id: string }): Promise<boolean> {
-    return this.requètes.some((r) => r.id === id);
+    return this.requêtes.some((r) => r.id === id);
   }
 
   async épingléeParParent({
@@ -89,7 +89,7 @@ export class Épingles {
     id: string;
     parent?: string;
   }): Promise<boolean> {
-    return this.requètes.some((r) => r.id === id && r.parent === parent);
+    return this.requêtes.some((r) => r.id === id && r.parent === parent);
   }
 
   async directementÉpinglée({ id }: { id: string }): Promise<boolean> {
@@ -97,7 +97,7 @@ export class Épingles {
   }
 
   async épingles(): Promise<Set<string>> {
-    return new Set(this.requètes.map((r) => r.id));
+    return new Set(this.requêtes.map((r) => r.id));
   }
 
   async suivreÉpingles({
@@ -129,7 +129,7 @@ export class Épingles {
     if (await this.épingléeParParent({ id, parent })) return;
 
     const { bd, fOublier } = await this.client.ouvrirBd({ id });
-    this.requètes.push({ id, parent, fOublier });
+    this.requêtes.push({ id, parent, fOublier });
     this.événements.emit("changement épingles");
 
     if (récursif) {
@@ -171,7 +171,7 @@ export class Épingles {
                 // Ignorer erreur si id_ n'était pas épinglé sur SFIP
               }
             };
-            this.requètes.push({ id: id_, parent: id, fOublier: fOublier_ });
+            this.requêtes.push({ id: id_, parent: id, fOublier: fOublier_ });
             this.événements.emit("changement épingles");
           });
         }

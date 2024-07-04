@@ -10,7 +10,7 @@ class LocalStorage {
   fichier: string;
   _données: { [clef: string]: string };
   _événements: EventEmitter;
-  _idRequèteSauvegarde?: string;
+  _idRequêteSauvegarde?: string;
   verrou: Semaphore;
   fOublier?: () => void;
 
@@ -28,7 +28,7 @@ class LocalStorage {
     }
     const fSuivre = () => {
       const id = uuidv4();
-      this._idRequèteSauvegarde = id;
+      this._idRequêteSauvegarde = id;
       this.sauvegarder(id);
     };
     this._événements.on("sauvegarder", fSuivre);
@@ -54,7 +54,7 @@ class LocalStorage {
   }
   async sauvegarder(id: string): Promise<void> {
     await this.verrou.acquire("sauvegarder");
-    if (this._idRequèteSauvegarde !== id) {
+    if (this._idRequêteSauvegarde !== id) {
       this.verrou.release("sauvegarder");
       return;
     }

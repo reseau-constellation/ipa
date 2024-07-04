@@ -12,7 +12,7 @@ Pour invoquer une action Constellation, le client devra envoyer un message de la
 ```TypeScript
 interface MessageActionPourTravailleur extends MessagePourTravailleur {
   type: "action";
-  id: string;  // Un identifiant unique (qui sera inclut dans le message de retour avec le résultat de la requète)
+  id: string;  // Un identifiant unique (qui sera inclut dans le message de retour avec le résultat de la requête)
   fonction: string[];  // Le nom de la fonction Constellation, en forme de liste
   args: { [key: string]: unknown };  // Les arguments de la fonction Constellation
 }
@@ -33,7 +33,7 @@ interface MessageActionDeTravailleur extends MessageDeTravailleur {
 const idBd = await client.bds.créerBd({ licence: "ODbl-1_0" })
 ```
 
-Afin d'invoquer la même fonction par le serveur Constellation, nous enverrons un message comme suit (utilisant le module [uuid](https://www.npmjs.com/package/uuid) pour générer un identifiant unique pour la requète). L'exemple de code est donné en TypeScript, mais pourrait être en n'importe quel
+Afin d'invoquer la même fonction par le serveur Constellation, nous enverrons un message comme suit (utilisant le module [uuid](https://www.npmjs.com/package/uuid) pour générer un identifiant unique pour la requête). L'exemple de code est donné en TypeScript, mais pourrait être en n'importe quel
 langage informatique.
 
 ```TypeScript
@@ -62,7 +62,7 @@ Et nous recevrons une réponse comme tel :
 ```
 
 ### Suivis
-Les fonctions qui suivent les résultats d'une requète à travers le temps, plutôt que je redonner un résultat ponctuel dans le temps, sont un peu plus compliquées. La fonction suivante suis les noms d'une variable :
+Les fonctions qui suivent les résultats d'une requête à travers le temps, plutôt que je redonner un résultat ponctuel dans le temps, sont un peu plus compliquées. La fonction suivante suis les noms d'une variable :
 
 
 ```TypeScript
@@ -185,7 +185,7 @@ const message: MessageRetourPourTravailleur = {
 
 
 ### Erreurs
-Si le serveur a des difficultés, il enverra un message d'erreur. Le champ `id` est facultatif et sera présent si l'erreur provient spécifiquement d'une requète particulière.
+Si le serveur a des difficultés, il enverra un message d'erreur. Le champ `id` est facultatif et sera présent si l'erreur provient spécifiquement d'une requête particulière.
 
 ```Json
 {

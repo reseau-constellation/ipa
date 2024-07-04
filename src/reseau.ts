@@ -189,7 +189,7 @@ export interface ContenuMessageSalut extends ContenuMessage {
   encryption?: { type: string; clefPublique: string };
 }
 
-export interface ValeurMessageRequèteRejoindreCompte extends ValeurMessage {
+export interface ValeurMessageRequêteRejoindreCompte extends ValeurMessage {
   type: "Je veux rejoindre ce compte";
   contenu: ContenuMessageRejoindreCompte;
 }
@@ -446,7 +446,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     codeSecret: string;
   }): Promise<void> {
     const idDispositif = await this.client.obtIdDispositif();
-    const msg: ValeurMessageRequèteRejoindreCompte = {
+    const msg: ValeurMessageRequêteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
       contenu: {
         idDispositif,
@@ -516,8 +516,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       case "Je veux rejoindre ce compte": {
         const contenuMessage = contenu as ContenuMessageRejoindreCompte;
 
-        await this.client.considérerRequèteRejoindreCompte({
-          requète: contenuMessage,
+        await this.client.considérerRequêteRejoindreCompte({
+          requête: contenuMessage,
         });
 
         break;

@@ -17,7 +17,7 @@ export class CacheSuivi {
   _cacheSuivi: {
     [clef: string]: {
       val?: unknown;
-      requètes: { [clef: string]: schémaFonctionSuivi<unknown> };
+      requêtes: { [clef: string]: schémaFonctionSuivi<unknown> };
       fOublier?: schémaFonctionOublier;
     };
   };
@@ -25,7 +25,7 @@ export class CacheSuivi {
     [clef: string]: {
       val?: unknown[];
       taillePrésente: number;
-      requètes: {
+      requêtes: {
         [clef: string]: { f: schémaFonctionSuivi<unknown>; taille: number };
       };
       fs?: {
@@ -82,7 +82,7 @@ export class CacheSuivi {
       idClient,
       argsClefs: argsSansF,
     });
-    const idRequète = uuidv4();
+    const idRequête = uuidv4();
 
     await this.verrou.acquire(codeCache);
 
@@ -90,17 +90,17 @@ export class CacheSuivi {
     if (!this._cacheSuivi[codeCache]) {
       // Si pas en cache, générer
       this._cacheSuivi[codeCache] = {
-        requètes: { [idRequète]: f },
+        requêtes: { [idRequête]: f },
       };
       const fFinale = async (x: unknown) => {
-        if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requète
+        if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requête
         if (
           Object.keys(this._cacheSuivi[codeCache]).includes("val") &&
           deepEqual(this._cacheSuivi[codeCache].val, x, { strict: true })
         )
           return; // Ignorer si c'est la même valeur qu'avant
         this._cacheSuivi[codeCache].val = x;
-        const fsSuivis = Object.values(this._cacheSuivi[codeCache].requètes);
+        const fsSuivis = Object.values(this._cacheSuivi[codeCache].requêtes);
         await Promise.all(fsSuivis.map((f_) => f_(x)));
       };
       const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
@@ -112,16 +112,16 @@ export class CacheSuivi {
       this.verrou.release(codeCache);
 
       // Sinon, ajouter f à la liste de fonctions de rappel
-      this._cacheSuivi[codeCache].requètes[idRequète] = f;
+      this._cacheSuivi[codeCache].requêtes[idRequête] = f;
       if (Object.keys(this._cacheSuivi[codeCache]).includes("val"))
         await f(this._cacheSuivi[codeCache].val);
     }
 
-    const fOublierRequète = async () => {
-      await this.oublierSuivi({ codeCache, idRequète });
+    const fOublierRequête = async () => {
+      await this.oublierSuivi({ codeCache, idRequête });
     };
 
-    return fOublierRequète;
+    return fOublierRequête;
   }
 
   async suivreRecherche<
@@ -181,18 +181,18 @@ export class CacheSuivi {
       idClient,
       argsClefs: argsSansFOuTaille,
     });
-    const idRequète = uuidv4();
+    const idRequête = uuidv4();
 
     await this.verrou.acquire(codeCache);
 
     const fFinale = (val: unknown[]) => {
-      if (!this._cacheRecherche[codeCache]) return; // Si on a déjà annulé la requète
+      if (!this._cacheRecherche[codeCache]) return; // Si on a déjà annulé la requête
       this._cacheRecherche[codeCache].val = val;
-      const infoRequètes = Object.values(
-        this._cacheRecherche[codeCache].requètes,
+      const infoRequêtes = Object.values(
+        this._cacheRecherche[codeCache].requêtes,
       );
       if (par === "profondeur") {
-        infoRequètes.forEach((info) =>
+        infoRequêtes.forEach((info) =>
           info.f(
             (val as itemRechercheProfondeur[]).filter(
               (x) => x.profondeur <= info.taille,
@@ -200,7 +200,7 @@ export class CacheSuivi {
           ),
         );
       } else {
-        infoRequètes.forEach((info) => info.f(val.slice(0, info.taille)));
+        infoRequêtes.forEach((info) => info.f(val.slice(0, info.taille)));
       }
     };
 
@@ -208,7 +208,7 @@ export class CacheSuivi {
     if (!this._cacheRecherche[codeCache]) {
       // Si pas en cache, générer
       this._cacheRecherche[codeCache] = {
-        requètes: { [idRequète]: { f, taille } },
+        requêtes: { [idRequête]: { f, taille } },
         taillePrésente: taille,
       };
 
@@ -238,27 +238,27 @@ export class CacheSuivi {
       }
     } else {
       // Sinon, ajouter f à la liste de fonctions de rappel
-      this._cacheRecherche[codeCache].requètes[idRequète] = { f, taille };
+      this._cacheRecherche[codeCache].requêtes[idRequête] = { f, taille };
       if (Object.keys(this._cacheRecherche[codeCache]).includes("val")) {
         const { val } = this._cacheRecherche[codeCache];
         if (val) fFinale(val);
       }
     }
 
-    const fOublierRequète = async () => {
-      await this.oublierRecherche({ codeCache, idRequète });
+    const fOublierRequête = async () => {
+      await this.oublierRecherche({ codeCache, idRequête });
     };
 
-    const fChangerTailleRequète = (taille: number) => {
+    const fChangerTailleRequête = (taille: number) => {
       const tailleAvant =
-        this._cacheRecherche[codeCache].requètes[idRequète].taille;
+        this._cacheRecherche[codeCache].requêtes[idRequête].taille;
       if (taille === tailleAvant) return;
-      this._cacheRecherche[codeCache].requètes[idRequète].taille = taille;
+      this._cacheRecherche[codeCache].requêtes[idRequête].taille = taille;
       const { val } = this._cacheRecherche[codeCache];
       if (val) fFinale(val);
 
       const maxTaille = Math.max(
-        ...Object.values(this._cacheRecherche[codeCache].requètes).map(
+        ...Object.values(this._cacheRecherche[codeCache].requêtes).map(
           (r) => r.taille,
         ),
       );
@@ -273,25 +273,25 @@ export class CacheSuivi {
     this.verrou.release(codeCache);
 
     return {
-      fOublier: fOublierRequète,
+      fOublier: fOublierRequête,
       [par === "profondeur" ? "fChangerProfondeur" : "fChangerN"]:
-        fChangerTailleRequète,
+        fChangerTailleRequête,
     } as V;
   }
 
   async oublierSuivi({
     codeCache,
-    idRequète,
+    idRequête,
   }: {
     codeCache: string;
-    idRequète: string;
+    idRequête: string;
   }) {
     await this.verrou.acquire(codeCache);
     if (this._cacheSuivi[codeCache] === undefined) return;
-    const { requètes, fOublier } = this._cacheSuivi[codeCache];
-    delete requètes[idRequète];
+    const { requêtes, fOublier } = this._cacheSuivi[codeCache];
+    delete requêtes[idRequête];
 
-    if (!Object.keys(requètes).length) {
+    if (!Object.keys(requêtes).length) {
       fOublier && (await fOublier());
       delete this._cacheSuivi[codeCache];
     }
@@ -300,17 +300,17 @@ export class CacheSuivi {
 
   async oublierRecherche({
     codeCache,
-    idRequète,
+    idRequête,
   }: {
     codeCache: string;
-    idRequète: string;
+    idRequête: string;
   }) {
     await this.verrou.acquire(codeCache);
     if (this._cacheRecherche[codeCache] === undefined) return;
-    const { requètes, fs } = this._cacheRecherche[codeCache];
-    delete requètes[idRequète];
+    const { requêtes, fs } = this._cacheRecherche[codeCache];
+    delete requêtes[idRequête];
 
-    if (!Object.keys(requètes).length) {
+    if (!Object.keys(requêtes).length) {
       fs && (await fs.fOublier());
       delete this._cacheRecherche[codeCache];
     }

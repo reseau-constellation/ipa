@@ -874,12 +874,12 @@ export class Constellation {
     }
   }
 
-  async considérerRequèteRejoindreCompte({
-    requète,
+  async considérerRequêteRejoindreCompte({
+    requête,
   }: {
-    requète: ContenuMessageRejoindreCompte;
+    requête: ContenuMessageRejoindreCompte;
   }): Promise<void> {
-    const { idDispositif, empreinteVérification } = requète;
+    const { idDispositif, empreinteVérification } = requête;
     const maintenant = Date.now();
 
     for (const codeSecret of Object.keys(this.motsDePasseRejoindreCompte)) {
@@ -1408,7 +1408,7 @@ export class Constellation {
           fFinale();
         })
         .catch((e) => {
-          // Ceci nous permet de ressayer d'obtenir le contenu de la BD en continue, tant que la requète n'a pas été annulée
+          // Ceci nous permet de ressayer d'obtenir le contenu de la BD en continue, tant que la requête n'a pas été annulée
           if (!annulé) {
             if (
               String(e).includes("ipfs unable to find") ||
@@ -2174,12 +2174,12 @@ export class Constellation {
           })
         : { bd: racine, fOublier: faisRien };
 
-    const clefRequète = bdRacine.address + ":" + nom;
-    await this.verrouObtIdBd.acquire(clefRequète);
+    const clefRequête = bdRacine.address + ":" + nom;
+    await this.verrouObtIdBd.acquire(clefRequête);
 
     let idBd = (await bdRacine.get(nom)) as string | undefined;
 
-    const idBdPrécédente = await this.obtDeStockageLocal({ clef: clefRequète });
+    const idBdPrécédente = await this.obtDeStockageLocal({ clef: clefRequête });
 
     if (typeof idBd === "string" && idBdPrécédente && idBd !== idBdPrécédente) {
       try {
@@ -2189,7 +2189,7 @@ export class Constellation {
         });
 
         await this.effacerBd({ id: idBdPrécédente });
-        await this.sauvegarderAuStockageLocal({ clef: clefRequète, val: idBd });
+        await this.sauvegarderAuStockageLocal({ clef: clefRequête, val: idBd });
       } catch {
         // Rien à faire ; on démissionne !
       }
@@ -2204,10 +2204,10 @@ export class Constellation {
         });
         await fOublierBd();
 
-        this.verrouObtIdBd.release(clefRequète);
+        this.verrouObtIdBd.release(clefRequête);
         return idBd;
       } catch {
-        this.verrouObtIdBd.release(clefRequète);
+        this.verrouObtIdBd.release(clefRequête);
         throw new Error("Bd n'existe pas : " + nom + " " + idBd);
       }
     }
@@ -2232,11 +2232,11 @@ export class Constellation {
     }
 
     if (typeof idBd === "string")
-      await this.sauvegarderAuStockageLocal({ clef: clefRequète, val: idBd });
+      await this.sauvegarderAuStockageLocal({ clef: clefRequête, val: idBd });
 
     if (fOublier) await fOublier();
 
-    this.verrouObtIdBd.release(clefRequète);
+    this.verrouObtIdBd.release(clefRequête);
     return typeof idBd === "string" ? idBd : undefined;
   }
 
@@ -2384,7 +2384,7 @@ export class Constellation {
   }): Promise<schémaFonctionOublier> {
     const dicBds: {
       [key: string]: {
-        requètes: Set<string>;
+        requêtes: Set<string>;
         sousBds: string[];
         fOublier: schémaFonctionOublier;
       };
@@ -2396,13 +2396,13 @@ export class Constellation {
 
     const verrou = new Semaphore();
 
-    const enleverRequètesDe = async (de: string) => {
+    const enleverRequêtesDe = async (de: string) => {
       delete dicBds[de];
       await Promise.all(
         Object.keys(dicBds).map(async (id) => {
           if (!dicBds[id]) return;
-          dicBds[id].requètes.delete(de);
-          if (!dicBds[id].requètes.size) {
+          dicBds[id].requêtes.delete(de);
+          if (!dicBds[id].requêtes.size) {
             await dicBds[id].fOublier();
           }
         }),
@@ -2458,8 +2458,8 @@ export class Constellation {
 
         await Promise.all(
           obsolètes.map(async (o) => {
-            dicBds[o]?.requètes.delete(id);
-            if (!dicBds[o]?.requètes.size) await dicBds[o]?.fOublier();
+            dicBds[o]?.requêtes.delete(id);
+            if (!dicBds[o]?.requêtes.size) await dicBds[o]?.fOublier();
           }),
         );
         await Promise.all(
@@ -2470,7 +2470,7 @@ export class Constellation {
 
       await verrou.acquire(id);
       if (dicBds[id]) {
-        dicBds[id].requètes.add(de);
+        dicBds[id].requêtes.add(de);
         return;
       }
 
@@ -2479,11 +2479,11 @@ export class Constellation {
       await fOublier();
 
       dicBds[id] = {
-        requètes: new Set([de]),
+        requêtes: new Set([de]),
         sousBds: [],
         fOublier: async () => {
           await fOublierSuiviBd();
-          await enleverRequètesDe(id);
+          await enleverRequêtesDe(id);
         },
       };
 

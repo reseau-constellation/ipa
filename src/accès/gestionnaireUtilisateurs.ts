@@ -43,7 +43,7 @@ class AccèsUtilisateur extends EventEmitter {
   oublierSuivi?: schémaFonctionOublier;
   autorisés: string[];
   accès?: ContrôleurConstellation;
-  idRequète: string;
+  idRequête: string;
   prêt: boolean;
 
   constructor(orbite: OrbitDB, idBd: string) {
@@ -52,7 +52,7 @@ class AccèsUtilisateur extends EventEmitter {
     this.idBd = idBd;
 
     this.autorisés = [];
-    this.idRequète = uuidv4();
+    this.idRequête = uuidv4();
     this.prêt = false;
   }
 

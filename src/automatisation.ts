@@ -672,30 +672,30 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       : undefined;
 
   const verrou = new Semaphore();
-  let idDernièreRequèteOpération = "";
-  const requèteDernièreModifImportée = await client.obtDeStockageLocal({
+  let idDernièreRequêteOpération = "";
+  const requêteDernièreModifImportée = await client.obtDeStockageLocal({
     clef: clefStockageDernièreFois,
   });
-  const requètesDéjàExécutées = new Set([requèteDernièreModifImportée]);
+  const requêtesDéjàExécutées = new Set([requêteDernièreModifImportée]);
 
-  const fAutoAvecÉtats = async (requète: string) => {
-    if (requètesDéjàExécutées.has(requète)) return;
+  const fAutoAvecÉtats = async (requête: string) => {
+    if (requêtesDéjàExécutées.has(requête)) return;
 
-    idDernièreRequèteOpération = requète;
+    idDernièreRequêteOpération = requête;
 
     await verrou.acquire("opération");
     if (
-      requète !== idDernièreRequèteOpération ||
-      requètesDéjàExécutées.has(requète)
+      requête !== idDernièreRequêteOpération ||
+      requêtesDéjàExécutées.has(requête)
     ) {
       verrou.release("opération");
       return;
     }
     await client.sauvegarderAuStockageLocal({
       clef: clefStockageDernièreFois,
-      val: requète,
+      val: requête,
     });
-    requètesDéjàExécutées.add(requète);
+    requêtesDéjàExécutées.add(requête);
 
     const nouvelÉtat: ÉtatEnSync = {
       type: "sync",
