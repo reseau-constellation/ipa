@@ -88,14 +88,14 @@ export class GestionnaireClient {
   }
 
   async _gérerMessage(message: MessagePourIpa): Promise<void> {
-    if (!this.ipa){
+    if (!this.ipa) {
       this.fErreur({
         erreur: "IPA non initialisé",
         idRequête: message.id,
         code: ERREUR_INIT_IPA,
       });
-     return;
-    };
+      return;
+    }
 
     const { type } = message;
     switch (type) {
