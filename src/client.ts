@@ -207,7 +207,7 @@ const obtDossierConstellation = async (
     }
     return opts.dossier
   };
-  console.log({isNode, isElectronMain, isBrowser})
+
   if (isNode || isElectronMain) {
     const fs = await import("fs");
     // Utiliser l'application native
