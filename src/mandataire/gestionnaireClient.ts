@@ -88,16 +88,19 @@ export class GestionnaireClient {
   }
 
   async _gérerMessage(message: MessagePourIpa): Promise<void> {
+    if (!this.ipa){
+      this.fErreur({
+        erreur: "IPA non initialisé",
+        idRequête: message.id,
+        code: ERREUR_INIT_IPA,
+      });
+     return;
+    };
+
     const { type } = message;
     switch (type) {
       case "suivre": {
         const { id, fonction, args, nomArgFonction } = message;
-        if (!this.ipa)
-          this.fErreur({
-            erreur: "IPA non initialisé",
-            idRequête: id,
-            code: ERREUR_INIT_IPA,
-          });
 
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
@@ -142,12 +145,6 @@ export class GestionnaireClient {
       }
       case "action": {
         const { id, fonction, args } = message;
-        if (!this.ipa)
-          this.fErreur({
-            erreur: "IPA non initialisé",
-            idRequête: id,
-            code: ERREUR_INIT_IPA,
-          });
 
         const fonctionIPA = this.extraireFonctionIPA(fonction, id);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
