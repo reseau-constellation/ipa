@@ -203,10 +203,11 @@ const obtDossierConstellation = async (
   if (opts.dossier && opts.dossier !== "dév") {
     if (isNode || isElectronMain) {
       const fs = await import("fs");
-      if (!fs.existsSync(opts.dossier)) fs.mkdirSync(opts.dossier, { recursive: true });
+      if (!fs.existsSync(opts.dossier))
+        fs.mkdirSync(opts.dossier, { recursive: true });
     }
-    return opts.dossier
-  };
+    return opts.dossier;
+  }
 
   if (isNode || isElectronMain) {
     const fs = await import("fs");
