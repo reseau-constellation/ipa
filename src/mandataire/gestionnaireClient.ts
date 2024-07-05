@@ -10,6 +10,7 @@ import {
   type MessageSuivrePrêtDIpa,
   ERREUR_INIT_IPA,
 } from "@constl/mandataire";
+import { v4 as uuidv4 } from "uuid";
 
 export class GestionnaireClient {
   ipa?: Constellation;
@@ -22,12 +23,12 @@ export class GestionnaireClient {
   };
   opts: optsConstellation;
 
-  fMessage: (m: MessageDIpa) => void;
-  fErreur: (args: {
+  fsMessages: {[clef: string]: ((m: MessageDIpa) => void)};
+  fsErreurs: {[clef: string]: ((args: {
     erreur: string;
     idRequête?: string;
     code?: string;
-  }) => void;
+  }) => void)};
 
   _verrou: Semaphore;
 
@@ -40,8 +41,10 @@ export class GestionnaireClient {
     }) => void,
     opts: optsConstellation | Constellation = {},
   ) {
-    this.fMessage = fMessage;
-    this.fErreur = fErreur;
+    this.connecterÉcouteurs({
+      fMessage,
+      fErreur
+    });
 
     this.opts = opts instanceof Constellation ? {} : opts;
     if (opts instanceof Constellation) this.ipa = opts;
@@ -55,12 +58,24 @@ export class GestionnaireClient {
     this.init();
   }
 
-  async init(): Promise<void> {
+  fMessage(m: MessageDIpa) {
+    Object.values(this.fsMessages).forEach(f=>f(m));
+  }
+
+  fErreur({erreur, idRequête, code}: {
+    erreur: string;
+    idRequête?: string;
+    code?: string;
+  }) {
+    Object.values(this.fsErreurs).forEach(f=>f({erreur, idRequête, code}));
+  }
+
+  async init(): Promise<Constellation> {
     await this._verrou.acquire("init");
 
     if (this.ipa) {
       this._verrou.release("init");
-      return;
+      return this.ipa;
     } // Nécessaire si on a plus qu'un mandataire connecté à la même instance Constellation
 
     try {
@@ -77,6 +92,7 @@ export class GestionnaireClient {
     this.prêt = true;
 
     this._verrou.release("init");
+    return this.ipa
   }
 
   async gérerMessage(message: MessagePourIpa): Promise<void> {
@@ -237,9 +253,26 @@ export class GestionnaireClient {
     return fonctionIPA;
   }
 
+  connecterÉcouteurs({fMessage, fErreur}: {
+    fMessage: (m: MessageDIpa) => void,
+    fErreur: (args: {
+      erreur: string;
+      idRequête?: string;
+      code?: string;
+    }) => void,
+  }): ()=>void {
+    const idÉcouteurs = uuidv4();
+    this.fsMessages[idÉcouteurs] = fMessage;
+    this.fsErreurs[idÉcouteurs] = fErreur;
+    return () => {
+      delete this.fsMessages[idÉcouteurs];
+      delete this.fsErreurs[idÉcouteurs];
+    }
+  }
+
   async fermer(): Promise<void> {
     // Avant de fermer, il faut être sûr qu'on a bien initialisé !
-    await this.init();
-    await this.ipa!.fermer();
+    const ipa = await this.init();
+    await ipa.fermer();
   }
 }
