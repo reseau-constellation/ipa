@@ -21,7 +21,10 @@ export * as valid from "@/valid.js";
 export * as variables from "@/variables.js";
 export * as orbite from "@/orbite.js";
 
-import { générerMandataireProc, générerMandataireTravailleur } from "@/mandataire/index.js";
+import {
+  générerMandataireProc,
+  générerMandataireTravailleur,
+} from "@/mandataire/index.js";
 import type { optsConstellation } from "@/client.js";
 import { confirmerOptsTravailleur } from "@/mandataire/ipaTravailleur.js";
 import type { MandataireConstellation } from "@constl/mandataire";
@@ -56,22 +59,16 @@ export const créerConstellation = (
     console.warn(
       "Constellation a été initialisée dans un processus de travailleur. J'espère que ça va fonctionner !",
     );
-    return générerMandataireTravailleur(
-      confirmerOptsTravailleur(opts),
-    );
+    return générerMandataireTravailleur(confirmerOptsTravailleur(opts));
   } else if (isReactNative) {
     console.warn(
       "Constellation n'a pas encore été optimisé pour React Native. Nous utiliserons l'implémentation pour navigateurs.",
     );
-    return générerMandataireProc(
-      confirmerOptsTravailleur(opts),
-    );
+    return générerMandataireProc(confirmerOptsTravailleur(opts));
   } else {
     console.warn(
       "Environnement non détecté. On va utiliser la configuration navigateur.",
     );
-    return générerMandataireTravailleur(
-      confirmerOptsTravailleur(opts),
-    );
+    return générerMandataireTravailleur(confirmerOptsTravailleur(opts));
   }
 };

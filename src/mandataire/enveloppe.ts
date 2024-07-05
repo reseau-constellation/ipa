@@ -23,12 +23,14 @@ export class EnveloppeIpa {
   };
   opts: optsConstellation;
 
-  fsMessages: {[clef: string]: ((m: MessageDIpa) => void)};
-  fsErreurs: {[clef: string]: ((args: {
-    erreur: string;
-    idRequête?: string;
-    code?: string;
-  }) => void)};
+  fsMessages: { [clef: string]: (m: MessageDIpa) => void };
+  fsErreurs: {
+    [clef: string]: (args: {
+      erreur: string;
+      idRequête?: string;
+      code?: string;
+    }) => void;
+  };
 
   _verrou: Semaphore;
 
@@ -46,7 +48,7 @@ export class EnveloppeIpa {
 
     this.connecterÉcouteurs({
       fMessage,
-      fErreur
+      fErreur,
     });
 
     this.opts = opts instanceof Constellation ? {} : opts;
@@ -62,15 +64,21 @@ export class EnveloppeIpa {
   }
 
   fMessage(m: MessageDIpa) {
-    Object.values(this.fsMessages).forEach(f=>f(m));
+    Object.values(this.fsMessages).forEach((f) => f(m));
   }
 
-  fErreur({erreur, idRequête, code}: {
+  fErreur({
+    erreur,
+    idRequête,
+    code,
+  }: {
     erreur: string;
     idRequête?: string;
     code?: string;
   }) {
-    Object.values(this.fsErreurs).forEach(f=>f({erreur, idRequête, code}));
+    Object.values(this.fsErreurs).forEach((f) =>
+      f({ erreur, idRequête, code }),
+    );
   }
 
   async init(): Promise<Constellation> {
@@ -95,7 +103,7 @@ export class EnveloppeIpa {
     this.prêt = true;
 
     this._verrou.release("init");
-    return this.ipa
+    return this.ipa;
   }
 
   async gérerMessage(message: MessagePourIpa): Promise<void> {
@@ -256,21 +264,24 @@ export class EnveloppeIpa {
     return fonctionIPA;
   }
 
-  connecterÉcouteurs({fMessage, fErreur}: {
-    fMessage: (m: MessageDIpa) => void,
+  connecterÉcouteurs({
+    fMessage,
+    fErreur,
+  }: {
+    fMessage: (m: MessageDIpa) => void;
     fErreur: (args: {
       erreur: string;
       idRequête?: string;
       code?: string;
-    }) => void,
-  }): ()=>void {
+    }) => void;
+  }): () => void {
     const idÉcouteurs = uuidv4();
     this.fsMessages[idÉcouteurs] = fMessage;
     this.fsErreurs[idÉcouteurs] = fErreur;
     return () => {
       delete this.fsMessages[idÉcouteurs];
       delete this.fsErreurs[idÉcouteurs];
-    }
+    };
   }
 
   async fermer(): Promise<void> {
