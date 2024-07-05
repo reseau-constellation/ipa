@@ -1,4 +1,4 @@
-import { GestionnaireClient } from "./gestionnaireClient.js";
+import { EnveloppeIpa } from "./enveloppe.js";
 import type { MessageDIpa, MessageErreurDIpa } from "@constl/mandataire";
 
 const fMessage = (message: MessageDIpa) => postMessage(message);
@@ -21,15 +21,15 @@ const fErreur = ({
   postMessage(messageErreur);
 };
 
-let client: GestionnaireClient;
+let ipa: EnveloppeIpa;
 onmessage = async function ({ data }) {
-  if (!client) {
+  if (!ipa) {
     if (data.type === "init") {
-      client = new GestionnaireClient(fMessage, fErreur, data.opts);
+      ipa = new EnveloppeIpa(fMessage, fErreur, data.opts);
     } else {
-      throw Error("Client non initialisé");
+      throw Error("Constellation non initialisée");
     }
   } else {
-    client.gérerMessage(data);
+    ipa.gérerMessage(data);
   }
 };

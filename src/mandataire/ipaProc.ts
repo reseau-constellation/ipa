@@ -8,15 +8,15 @@ import {
   MessagePourIpa,
   MessageErreurDIpa,
 } from "@constl/mandataire";
-import { GestionnaireClient } from "@/mandataire/gestionnaireClient.js";
+import { EnveloppeIpa } from "@/mandataire/enveloppe.js";
 
 export class MandataireProc extends Mandatairifiable {
-  client: GestionnaireClient;
+  ipa: EnveloppeIpa;
 
   constructor(opts: optsConstellation | Constellation = {}) {
     super();
 
-    this.client = new GestionnaireClient(
+    this.ipa = new EnveloppeIpa(
       (m: MessageDIpa) => this.recevoirMessageDIpa(m),
       ({
         erreur,
@@ -40,7 +40,7 @@ export class MandataireProc extends Mandatairifiable {
   }
 
   envoyerMessageÀIpa(message: MessagePourIpa) {
-    this.client.gérerMessage(message);
+    this.ipa.gérerMessage(message);
   }
 }
 

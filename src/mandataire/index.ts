@@ -1,4 +1,9 @@
-export * as ipa from "@/mandataire/ipaProc.js";
-export * as ipaTravailleur from "@/mandataire/ipaTravailleur.js";
-export * as gestionnaireClient from "@/mandataire/gestionnaireClient.js";
+export { MandataireProc, générerMandataireProc } from "@/mandataire/ipaProc.js";
+export { 
+  MandataireTravailleur, 
+  optsIpaTravailleur, 
+  confirmerOptsTravailleur, 
+  générerMandataireTravailleur 
+} from "@/mandataire/ipaTravailleur.js";
+export { EnveloppeIpa } from "@/mandataire/enveloppe.js";
 export { mandatairifier } from "./fonctions.js";

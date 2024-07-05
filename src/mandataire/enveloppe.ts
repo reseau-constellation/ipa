@@ -12,7 +12,7 @@ import {
 } from "@constl/mandataire";
 import { v4 as uuidv4 } from "uuid";
 
-export class GestionnaireClient {
+export class EnveloppeIpa {
   ipa?: Constellation;
   _messagesEnAttente: MessagePourIpa[];
   prêt: boolean;
@@ -41,6 +41,9 @@ export class GestionnaireClient {
     }) => void,
     opts: optsConstellation | Constellation = {},
   ) {
+    this.fsMessages = {};
+    this.fsErreurs = {};
+
     this.connecterÉcouteurs({
       fMessage,
       fErreur

@@ -21,7 +21,7 @@ export * as valid from "@/valid.js";
 export * as variables from "@/variables.js";
 export * as orbite from "@/orbite.js";
 
-import { ipa, ipaTravailleur } from "@/mandataire/index.js";
+import { générerMandataireProc, générerMandataireTravailleur } from "@/mandataire/index.js";
 import type { optsConstellation } from "@/client.js";
 import { confirmerOptsTravailleur } from "@/mandataire/ipaTravailleur.js";
 import type { MandataireConstellation } from "@constl/mandataire";
@@ -44,33 +44,33 @@ export const créerConstellation = (
 ): Constellation => {
   préparerOrbite();
   if (isNode || isElectronMain) {
-    return ipa.générerMandataireProc(opts);
+    return générerMandataireProc(opts);
   } else if (isBrowser) {
-    return ipa.générerMandataireProc(confirmerOptsTravailleur(opts));
+    return générerMandataireProc(confirmerOptsTravailleur(opts));
   } else if (isElectronRenderer) {
     console.warn(
       "Constellation a été initialisée par le processus de rendu d'Électron. Ce n'est pas un gros gros problème, mais nous vous recommandons d'utiliser Constellation dans le processus principal, ce qui est beaucoup plus performant et vous permettra également d'accéder à toutes les fonctionnalités de Constellation telles les sauvegardes et les importations automatisées. Voir la documentation: https://docu.réseau-constellation.ca/avancé/applications/électron.html.",
     );
-    return ipa.générerMandataireProc(confirmerOptsTravailleur(opts));
+    return générerMandataireProc(confirmerOptsTravailleur(opts));
   } else if (isWebWorker) {
     console.warn(
       "Constellation a été initialisée dans un processus de travailleur. J'espère que ça va fonctionner !",
     );
-    return ipaTravailleur.générerMandataireTravailleur(
+    return générerMandataireTravailleur(
       confirmerOptsTravailleur(opts),
     );
   } else if (isReactNative) {
     console.warn(
       "Constellation n'a pas encore été optimisé pour React Native. Nous utiliserons l'implémentation pour navigateurs.",
     );
-    return ipaTravailleur.générerMandataireTravailleur(
+    return générerMandataireProc(
       confirmerOptsTravailleur(opts),
     );
   } else {
     console.warn(
       "Environnement non détecté. On va utiliser la configuration navigateur.",
     );
-    return ipaTravailleur.générerMandataireTravailleur(
+    return générerMandataireTravailleur(
       confirmerOptsTravailleur(opts),
     );
   }
