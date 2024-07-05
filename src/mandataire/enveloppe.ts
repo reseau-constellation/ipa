@@ -8,7 +8,11 @@ import {
   type MessageActionDIpa,
   type MessageSuivreDIpa,
   type MessageSuivrePrêtDIpa,
+  type ErreurMandataire,
   ERREUR_INIT_IPA,
+  ERREUR_EXÉCUTION_IPA,
+  ERREUR_FONCTION_MANQUANTE,
+  ERREUR_PAS_UNE_FONCTION,
 } from "@constl/mandataire";
 import { v4 as uuidv4 } from "uuid";
 
@@ -25,22 +29,14 @@ export class EnveloppeIpa {
 
   fsMessages: { [clef: string]: (m: MessageDIpa) => void };
   fsErreurs: {
-    [clef: string]: (args: {
-      erreur: string;
-      idRequête?: string;
-      code?: string;
-    }) => void;
+    [clef: string]: (e: ErreurMandataire) => void;
   };
 
   _verrou: Semaphore;
 
   constructor(
     fMessage: (m: MessageDIpa) => void,
-    fErreur: (args: {
-      erreur: string;
-      idRequête?: string;
-      code?: string;
-    }) => void,
+    fErreur: (args: ErreurMandataire) => void,
     opts: optsConstellation | Constellation = {},
   ) {
     this.fsMessages = {};
@@ -67,18 +63,8 @@ export class EnveloppeIpa {
     Object.values(this.fsMessages).forEach((f) => f(m));
   }
 
-  fErreur({
-    erreur,
-    idRequête,
-    code,
-  }: {
-    erreur: string;
-    idRequête?: string;
-    code?: string;
-  }) {
-    Object.values(this.fsErreurs).forEach((f) =>
-      f({ erreur, idRequête, code }),
-    );
+  fErreur({ erreur, id, code }: { erreur: string; id?: string; code: string }) {
+    Object.values(this.fsErreurs).forEach((f) => f({ erreur, id, code }));
   }
 
   async init(): Promise<Constellation> {
@@ -118,7 +104,7 @@ export class EnveloppeIpa {
     if (!this.ipa) {
       this.fErreur({
         erreur: "IPA non initialisé",
-        idRequête: message.id,
+        id: message.id,
         code: ERREUR_INIT_IPA,
       });
       return;
@@ -164,7 +150,8 @@ export class EnveloppeIpa {
         } catch (e) {
           this.fErreur({
             erreur: e.toString() + e.stack.toString(),
-            idRequête: id,
+            id,
+            code: ERREUR_EXÉCUTION_IPA,
           });
         }
 
@@ -187,7 +174,8 @@ export class EnveloppeIpa {
         } catch (e) {
           this.fErreur({
             erreur: e.toString() + e.stack.toString(),
-            idRequête: id,
+            id,
+            code: ERREUR_EXÉCUTION_IPA,
           });
         }
 
@@ -204,7 +192,8 @@ export class EnveloppeIpa {
       default: {
         this.fErreur({
           erreur: `Type de requête ${type} non reconnu dans message ${message}`,
-          idRequête: (message as MessagePourIpa).id,
+          id: (message as MessagePourIpa).id,
+          code: ERREUR_EXÉCUTION_IPA,
         });
         break;
       }
@@ -226,39 +215,38 @@ export class EnveloppeIpa {
       | ((args: { [key: string]: unknown }) => Promise<unknown>) = this.ipa;
 
     for (const [i, attr] of adresseFonction.entries()) {
-      // Vive JavaScript et `this`!
-      if (i === adresseFonction.length - 1) {
-        if (
-          typeof fonctionIPA === "object" &&
-          attr in fonctionIPA &&
-          fonctionIPA[attr as keyof typeof fonctionIPA]
-        ) {
+      if (
+        typeof fonctionIPA === "object" &&
+        attr in fonctionIPA &&
+        fonctionIPA[attr as keyof typeof fonctionIPA]
+      ) {
+        // Vive JavaScript et `this`!
+        if (i === adresseFonction.length - 1) {
           // @ts-expect-error Ça, ça me dépasse
           fonctionIPA = fonctionIPA[attr].bind(fonctionIPA);
         } else {
-          this.fErreur({ erreur, idRequête: idMessage });
-          return undefined;
+          fonctionIPA = fonctionIPA[attr as keyof typeof fonctionIPA];
         }
       } else {
-        if (
-          typeof fonctionIPA === "object" &&
-          attr in fonctionIPA &&
-          fonctionIPA[attr as keyof typeof fonctionIPA]
-        ) {
-          fonctionIPA = fonctionIPA[attr as keyof typeof fonctionIPA];
-        } else {
-          this.fErreur({ erreur, idRequête: idMessage });
-          return undefined;
-        }
+        this.fErreur({
+          erreur,
+          id: idMessage,
+          code: ERREUR_FONCTION_MANQUANTE,
+        });
+        return undefined;
       }
 
       if (!fonctionIPA) {
-        this.fErreur({ erreur, idRequête: idMessage });
+        this.fErreur({
+          erreur,
+          id: idMessage,
+          code: ERREUR_FONCTION_MANQUANTE,
+        });
         return undefined;
       }
     }
     if (typeof fonctionIPA !== "function") {
-      this.fErreur({ erreur, idRequête: idMessage });
+      this.fErreur({ erreur, id: idMessage, code: ERREUR_PAS_UNE_FONCTION });
       return undefined;
     }
     return fonctionIPA;
@@ -269,11 +257,7 @@ export class EnveloppeIpa {
     fErreur,
   }: {
     fMessage: (m: MessageDIpa) => void;
-    fErreur: (args: {
-      erreur: string;
-      idRequête?: string;
-      code?: string;
-    }) => void;
+    fErreur: (e: ErreurMandataire) => void;
   }): () => void {
     const idÉcouteurs = uuidv4();
     this.fsMessages[idÉcouteurs] = fMessage;
