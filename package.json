@@ -1,5 +1,5 @@
 {
-  "version": "1.1.1",
+  "version": "1.1.2",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -99,7 +99,7 @@
     "@chriscdn/promise-semaphore": "^2.0.9",
     "@constl/bohr-db": "^1.1.0",
     "@constl/mandataire": "^2.0.6",
-    "@constl/utils-ipa": "^1.0.0",
+    "@constl/utils-ipa": "^1.0.3",
     "@helia/block-brokers": "^1.0.0",
     "@helia/unixfs": "^3.0.6",
     "@ipld/dag-cbor": "^9.2.0",

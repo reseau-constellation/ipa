@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
+import { validerCatégorieVal } from "@constl/utils-ipa";
 import type { élémentsBd } from "@/types.js";
 import {
-  validerCatégorieVal,
   générerFonctionRègle,
   règleExiste,
   règleColonne,

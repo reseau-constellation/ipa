@@ -1,14 +1,7 @@
-import gjv from "geojson-validation";
-
+import { validerCatégorieVal } from "@constl/utils-ipa";
 import { élémentsBd } from "@/types.js";
-import { cidValide } from "@constl/utils-ipa";
-import type {
-  catégorieBaseVariables,
-  catégorieVariables,
-} from "@/variables.js";
+import type { catégorieVariables } from "@/variables.js";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
-import { cholqij } from "@/dates.js";
-import { isValidAddress } from "@orbitdb/core";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle =
@@ -286,64 +279,6 @@ export function générerFonctionRègle<
   }
 }
 
-export const formatsFichiers = {
-  images: [
-    "webp",
-    "svg",
-    "png",
-    "jpg",
-    "jpeg",
-    "jfif",
-    "pjpeg",
-    "pjp",
-    "gif",
-    "avif",
-    "apng",
-  ],
-  vidéo: ["mp4"],
-  audio: ["mp3", "ogg", "m4a"],
-};
-
-function validFichier(val: unknown, exts?: string[]): boolean {
-  if (typeof val !== "string") return false;
-  let id: string;
-  let fichier: string;
-  try {
-    [id, fichier] = val.split("/");
-  } catch {
-    return false;
-  }
-  if (!fichier) return false;
-  if (!cidValide(id)) return false;
-  if (exts) {
-    const ext = fichier.split(".").pop();
-    return !!ext && exts.includes(ext);
-  }
-  return true;
-}
-
-export function validerCatégorieVal({
-  val,
-  catégorie,
-}: {
-  val: unknown;
-  catégorie: catégorieVariables;
-}): boolean {
-  if (val === undefined) return true; // Permettre les valeurs manquantes
-
-  if (catégorie.type === "simple") {
-    return validerCatégorieBase({ catégorie: catégorie.catégorie, val });
-  } else {
-    if (Array.isArray(val)) {
-      return val.every((v) =>
-        validerCatégorieBase({ catégorie: catégorie.catégorie, val: v }),
-      );
-    } else {
-      return false;
-    }
-  }
-}
-
 const validerBorneVal = <T extends élémentBdListeDonnées>({
   val,
   fComp,
@@ -355,53 +290,5 @@ const validerBorneVal = <T extends élémentBdListeDonnées>({
     return val.every((v) => fComp(v));
   } else {
     return fComp(val);
-  }
-};
-
-const estUnHoroDatage = (val: unknown): boolean => {
-  if (["number", "string"].includes(typeof val)) {
-    const date = new Date(val as string | number);
-    return !isNaN(date.valueOf());
-  } else {
-    return cholqij.dateValide(val);
-  }
-};
-
-const validerCatégorieBase = ({
-  catégorie,
-  val,
-}: {
-  catégorie: catégorieBaseVariables;
-  val: unknown;
-}) => {
-  switch (catégorie) {
-    case "numérique":
-      return typeof val === "number";
-    case "horoDatage": {
-      return estUnHoroDatage(val);
-    }
-    case "intervaleTemps":
-      if (!Array.isArray(val)) return false;
-      if (val.length !== 2) return false;
-      return val.every((d) => estUnHoroDatage(d));
-    case "chaîne":
-      return isValidAddress(val);
-    case "chaîneNonTraductible":
-      return typeof val === "string";
-    case "booléen":
-      return typeof val === "boolean";
-    case "géojson":
-      if (!(typeof val === "object")) return false;
-      return gjv.valid(val);
-    case "vidéo":
-      return validFichier(val, formatsFichiers.vidéo);
-    case "audio":
-      return validFichier(val, formatsFichiers.audio);
-    case "image":
-      return validFichier(val, formatsFichiers.images);
-    case "fichier":
-      return validFichier(val);
-    default:
-      return false;
   }
 };

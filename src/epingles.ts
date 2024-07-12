@@ -4,7 +4,7 @@ import {
   élémentsBd,
   schémaFonctionSuivi,
 } from "@/types.js";
-import { cidValide } from "@constl/utils-ipa";
+import { idcValide } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 import { EventEmitter } from "events";
 import { CID } from "multiformats";
@@ -24,7 +24,7 @@ export const cidEtFichierValide = (val: string) => {
     return false;
   }
   if (!fichier) return false;
-  if (!cidValide(cid)) return false;
+  if (!idcValide(cid)) return false;
   return { cid, fichier };
 };
 
