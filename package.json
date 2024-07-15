@@ -138,7 +138,7 @@
     "file-saver": "^2.0.5",
     "genversion": "^3.2.0",
     "geojson-validation": "^1.0.2",
-    "helia": "^3.0.1",
+    "helia": "^4.0.0",
     "indexed-db-stream": "^1.0.0",
     "iso-constants": "github:inverted-capital/iso-constants#patch-1",
     "it-to-buffer": "^4.0.7",
