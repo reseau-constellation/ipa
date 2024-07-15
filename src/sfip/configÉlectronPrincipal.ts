@@ -70,7 +70,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         dcutr: dcutr(),
         pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
         dht: kadDHT({
-          clientMode: false,
+          clientMode: true,
         }),
       },
     };

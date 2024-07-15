@@ -79,7 +79,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       dcutr: dcutr(),
       pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
       dht: kadDHT({
-        clientMode: false,
+        clientMode: true,
       }),
     },
   };
