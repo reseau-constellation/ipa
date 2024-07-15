@@ -100,7 +100,7 @@
     "@constl/bohr-db": "^1.1.0",
     "@constl/mandataire": "^2.0.6",
     "@constl/utils-ipa": "^1.0.3",
-    "@helia/block-brokers": "^1.0.0",
+    "@helia/block-brokers": "^3.0.0",
     "@helia/unixfs": "^3.0.6",
     "@ipld/dag-cbor": "^9.2.0",
     "@lassi-js/kili": "^0.3.14",
