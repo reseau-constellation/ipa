@@ -55,7 +55,7 @@ const générerServeurRessourcesTests = async (opts) => {
   return async () => serveurLocal?.close();
 };
 
-const lancerSfipDansNode = async (opts) => {
+const lancerSfipDansNode = async (_opts) => {
   const { dossier, fEffacer } = await dossiers.dossierTempo();
   const args = ["--dossier", dossier];
 
