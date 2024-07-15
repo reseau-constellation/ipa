@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       '@chainsafe/libp2p-gossipsub':
-        specifier: ^11.2.1
-        version: 11.2.1
+        specifier: ^13.0.0
+        version: 13.1.0
       '@chainsafe/libp2p-noise':
         specifier: ^15.0.0
         version: 15.0.0
@@ -1213,6 +1213,10 @@ packages:
 
   '@chainsafe/libp2p-gossipsub@11.2.1':
     resolution: {integrity: sha512-2NvlOY4Jfwn7U/sKF0kILl3+luHxq9hhEiBqZRqLTIV8LYmMQl9VpTMgMvRwKzgn/NDeZzsPb8olk2o00tkmZw==}
+    engines: {npm: '>=8.7.0'}
+
+  '@chainsafe/libp2p-gossipsub@13.1.0':
+    resolution: {integrity: sha512-Wk1O6ZT/L0o+p9vlAB4qxDa9pAwTh5yxPrQbyc98wvKbrnPhAfZbjMfhCBOEvFKzMkEFDsTd3TGPjP8TTtNtQw==}
     engines: {npm: '>=8.7.0'}
 
   '@chainsafe/libp2p-noise@14.1.0':
@@ -10187,10 +10191,10 @@ snapshots:
 
   '@chainsafe/libp2p-gossipsub@11.2.1':
     dependencies:
-      '@libp2p/crypto': 4.1.3
-      '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/crypto': 4.1.5
+      '@libp2p/interface': 1.6.0
+      '@libp2p/interface-internal': 1.3.0
+      '@libp2p/peer-id': 4.2.0
       '@libp2p/pubsub': 9.0.20
       '@multiformats/multiaddr': 12.3.0
       denque: 2.1.0
@@ -10204,13 +10208,32 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@chainsafe/libp2p-gossipsub@13.1.0':
+    dependencies:
+      '@libp2p/crypto': 4.1.5
+      '@libp2p/interface': 1.6.0
+      '@libp2p/interface-internal': 1.3.0
+      '@libp2p/peer-id': 4.2.0
+      '@libp2p/pubsub': 9.0.20
+      '@multiformats/multiaddr': 12.3.0
+      denque: 2.1.0
+      it-length-prefixed: 9.0.4
+      it-pipe: 3.0.1
+      it-pushable: 3.2.3
+      multiformats: 13.1.0
+      protons-runtime: 5.4.0
+      uint8arraylist: 2.4.8
+      uint8arrays: 5.1.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@chainsafe/libp2p-noise@14.1.0':
     dependencies:
       '@chainsafe/as-chacha20poly1305': 0.1.0
       '@chainsafe/as-sha256': 0.4.2
       '@libp2p/crypto': 3.0.4
-      '@libp2p/interface': 1.4.1
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/interface': 1.6.0
+      '@libp2p/peer-id': 4.2.0
       '@noble/ciphers': 0.4.1
       '@noble/curves': 1.4.0
       '@noble/hashes': 1.4.0
@@ -11044,7 +11067,7 @@ snapshots:
   '@libp2p/crypto@2.0.8':
     dependencies:
       '@libp2p/interface': 0.1.6
-      '@noble/curves': 1.4.0
+      '@noble/curves': 1.4.2
       '@noble/hashes': 1.4.0
       multiformats: 12.1.3
       node-forge: 1.3.1
@@ -11115,9 +11138,9 @@ snapshots:
 
   '@libp2p/identify@1.0.21':
     dependencies:
-      '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/interface': 1.6.0
+      '@libp2p/interface-internal': 1.3.0
+      '@libp2p/peer-id': 4.2.0
       '@libp2p/peer-record': 7.0.19
       '@multiformats/multiaddr': 12.3.0
       '@multiformats/multiaddr-matcher': 1.2.4
@@ -11330,9 +11353,9 @@ snapshots:
 
   '@libp2p/keychain@4.0.16':
     dependencies:
-      '@libp2p/crypto': 4.1.3
-      '@libp2p/interface': 1.4.1
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/crypto': 4.1.5
+      '@libp2p/interface': 1.6.0
+      '@libp2p/peer-id': 4.2.0
       interface-datastore: 8.2.11
       merge-options: 3.0.4
       multiformats: 13.1.0
@@ -11407,7 +11430,7 @@ snapshots:
 
   '@libp2p/mplex@10.0.25':
     dependencies:
-      '@libp2p/interface': 1.4.1
+      '@libp2p/interface': 1.6.0
       '@libp2p/utils': 5.4.3
       it-pipe: 3.0.1
       it-pushable: 3.2.3
@@ -11532,9 +11555,9 @@ snapshots:
 
   '@libp2p/ping@1.0.20':
     dependencies:
-      '@libp2p/crypto': 4.1.3
-      '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
+      '@libp2p/crypto': 4.1.5
+      '@libp2p/interface': 1.6.0
+      '@libp2p/interface-internal': 1.3.0
       '@multiformats/multiaddr': 12.3.0
       it-first: 3.0.6
       it-pipe: 3.0.1
@@ -11556,12 +11579,12 @@ snapshots:
 
   '@libp2p/pubsub@9.0.20':
     dependencies:
-      '@libp2p/crypto': 4.1.3
-      '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
-      '@libp2p/peer-collections': 5.2.3
-      '@libp2p/peer-id': 4.1.3
-      '@libp2p/utils': 5.4.3
+      '@libp2p/crypto': 4.1.5
+      '@libp2p/interface': 1.6.0
+      '@libp2p/interface-internal': 1.3.0
+      '@libp2p/peer-collections': 5.2.5
+      '@libp2p/peer-id': 4.2.0
+      '@libp2p/utils': 5.4.5
       it-length-prefixed: 9.0.4
       it-pipe: 3.0.1
       it-pushable: 3.2.3
@@ -11604,8 +11627,8 @@ snapshots:
   '@libp2p/upnp-nat@1.1.0':
     dependencies:
       '@achingbrain/nat-port-mapper': 1.0.13
-      '@libp2p/interface': 1.4.1
-      '@libp2p/interface-internal': 1.2.3
+      '@libp2p/interface': 1.6.0
+      '@libp2p/interface-internal': 1.3.0
       '@libp2p/utils': 5.4.3
       '@multiformats/multiaddr': 12.3.0
       wherearewe: 2.0.1
@@ -16320,10 +16343,10 @@ snapshots:
 
   ipns@8.0.4:
     dependencies:
-      '@libp2p/crypto': 4.1.3
-      '@libp2p/interface': 1.4.1
+      '@libp2p/crypto': 4.1.5
+      '@libp2p/interface': 1.6.0
       '@libp2p/logger': 4.0.14
-      '@libp2p/peer-id': 4.1.3
+      '@libp2p/peer-id': 4.2.0
       cborg: 4.2.1
       err-code: 3.0.1
       interface-datastore: 8.2.11
