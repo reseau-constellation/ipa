@@ -70,7 +70,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.2.0",
-    "execa": "^8.0.1",
+    "execa": "^9.0.0",
     "express": "^4.19.2",
     "image-type": "^5.2.0",
     "keyv": "^4.5.4",
