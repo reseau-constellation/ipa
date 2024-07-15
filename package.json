@@ -158,7 +158,7 @@
   "pnpm": {
     "overrides": {
       "@libp2p/autonat": "1.0.21",
-      "node-datachannel": "0.8.0"
+      "node-datachannel": "0.10.1"
     }
   }
 }
