@@ -30,7 +30,7 @@ export const configVitePress = defineConfig({
     ],
     sidebar: [
       {
-        // @ts-ignore
+        // @ts-expect-error Je ne sais pas pourquoi
         text: "Guide",
         items: [
           { text: "Introduction", link: "/guide/introduction" },
@@ -41,7 +41,7 @@ export const configVitePress = defineConfig({
         ],
       },
       {
-        // @ts-ignore
+        // @ts-expect-error Je ne sais pas pourquoi
         text: "Exemples",
         items: [
           { text: "Démarrage", link: "/exemples/créationCompte" },
@@ -52,7 +52,7 @@ export const configVitePress = defineConfig({
         ],
       },
       {
-        // @ts-ignore
+        // @ts-expect-error Je ne sais pas pourquoi
         text: "Avancé",
         items: [
           {
@@ -93,7 +93,7 @@ export const configVitePress = defineConfig({
         ],
       },
       {
-        // @ts-ignore
+        // @ts-expect-error Je ne sais pas pourquoi
         text: "Documentation IPA",
         collapsible: true,
         items: [
