@@ -85,7 +85,7 @@ import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import { Protocoles } from "./protocoles.js";
-import { Helia } from "helia";
+import { HeliaLibp2p } from "helia";
 import { CID } from "multiformats";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import { initSFIP } from "@/sfip/index.js";
@@ -104,7 +104,7 @@ type ContrôleurConstellation = Awaited<
 type ÉvénementsClient = {
   comptePrêt: (args: { idCompte: string }) => void;
   sfipEtOrbitePrêts: (args: {
-    sfip: Helia<Libp2p<ServicesLibp2p>>;
+    sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
     orbite: GestionnaireOrbite;
   }) => void;
 };
@@ -141,7 +141,7 @@ export interface optsConstellation {
 export type optsInitOrbite = Omit<
   Parameters<typeof createOrbitDB>[0],
   "ipfs" | "directory"
-> & { directory?: string; ipfs?: Helia<Libp2p<ServicesLibp2p>> };
+> & { directory?: string; ipfs?: HeliaLibp2p<Libp2p<ServicesLibp2p>> };
 
 export type optsOrbite = OrbitDB | optsInitOrbite;
 
@@ -241,7 +241,7 @@ export class Constellation {
   événements: TypedEmitter<ÉvénementsClient>;
 
   orbite?: GestionnaireOrbite;
-  sfip?: Helia<Libp2p<ServicesLibp2p>>;
+  sfip?: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
 
   épingles: Épingles;
   profil: Profil;
@@ -392,7 +392,7 @@ export class Constellation {
 
   async attendreSfipEtOrbite(): Promise<{
     orbite: GestionnaireOrbite;
-    sfip: Helia<Libp2p<ServicesLibp2p>>;
+    sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   }> {
     if (this.sfip && this.orbite) {
       return {
@@ -480,14 +480,14 @@ export class Constellation {
   }
 
   async _générerSFIPetOrbite(): Promise<{
-    sfip: Helia<Libp2p<ServicesLibp2p>>;
+    sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
     orbite: OrbitDB;
   }> {
     const dossier = await this.dossier();
 
     const { orbite } = this._opts;
 
-    let sfipFinale: Helia<Libp2p<ServicesLibp2p>>;
+    let sfipFinale: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
     let orbiteFinale: OrbitDB;
 
     if (orbite) {

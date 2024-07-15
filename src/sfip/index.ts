@@ -9,7 +9,7 @@ import mergeOptions from "merge-options";
 
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
 import type { Libp2p } from "@libp2p/interface";
-import { Helia, createHelia } from "helia";
+import { HeliaLibp2p, createHelia } from "helia";
 import { LevelBlockstore } from "blockstore-level";
 import { bitswap } from "@helia/block-brokers";
 import { createLibp2p, type Libp2pOptions } from "libp2p";
@@ -47,7 +47,7 @@ export async function initSFIP({
 }: {
   dossier: string;
   configLibp2p?: Libp2pOptions;
-}): Promise<Helia<Libp2p<ServicesLibp2p>>> {
+}): Promise<HeliaLibp2p<Libp2p<ServicesLibp2p>>> {
   const config = await obtConfigLibp2pPlateforme();
 
   const libp2p = (await createLibp2p(

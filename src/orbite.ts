@@ -1,5 +1,5 @@
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
-import type { Helia } from "helia";
+import type { HeliaLibp2p } from "helia";
 
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -50,7 +50,7 @@ export async function initOrbite({
   sfip,
   dossierOrbite,
 }: {
-  sfip: Helia<Libp2p<ServicesLibp2p>>;
+  sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   dossierOrbite: string;
 }): Promise<OrbitDB> {
   préparerOrbite();

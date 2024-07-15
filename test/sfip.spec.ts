@@ -1,6 +1,6 @@
 import { ServicesLibp2p, initSFIP } from "../src/sfip/index.js";
 import { expect } from "aegir/chai";
-import type { Helia } from "helia";
+import type { HeliaLibp2p } from "helia";
 import { isElectronMain, isNode } from "wherearewe";
 import { dossiers } from "@constl/utils-tests";
 import { Libp2p } from "@libp2p/interface";
@@ -15,7 +15,7 @@ const attendreConnecté = async ({
   sfip,
   idPair,
 }: {
-  sfip: Helia<Libp2p<ServicesLibp2p>>;
+  sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
   await new Promise<void>((résoudre) => {
@@ -40,7 +40,7 @@ const testerGossipSub = async ({
   sfip,
   idPair,
 }: {
-  sfip: Helia<Libp2p<ServicesLibp2p>>;
+  sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
   const CANAL_TEST = "test:gossipsub";
@@ -79,7 +79,7 @@ const testerGossipSub = async ({
 };
 
 describe.skip("SFIP", function () {
-  let sfip: Helia<Libp2p<ServicesLibp2p>>;
+  let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   let dossier: string;
   let fEffacer: () => void;
 
