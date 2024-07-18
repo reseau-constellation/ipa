@@ -33,7 +33,7 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/orbit-db-types": "^2.0.0",
+    "@constl/orbit-db-types": "^2.0.1",
     "@constl/utils-tests": "^1.2.7",
     "@eslint/js": "^9.7.0",
     "@libp2p/crypto": "^4.1.6",
@@ -97,7 +97,7 @@
     "@chainsafe/libp2p-noise": "^15.1.0",
     "@chainsafe/libp2p-yamux": "^6.0.2",
     "@chriscdn/promise-semaphore": "^2.0.9",
-    "@constl/bohr-db": "^1.1.0",
+    "@constl/bohr-db": "^1.1.1",
     "@constl/mandataire": "^2.0.8",
     "@constl/utils-ipa": "^1.0.3",
     "@helia/block-brokers": "^3.0.2",
@@ -120,9 +120,9 @@
     "@localfirst/auth": "^5.6.0",
     "@localfirst/crypto": "^5.6.0",
     "@orbitdb/core": "^2.2.0",
-    "@orbitdb/feed-db": "^1.0.0",
-    "@orbitdb/ordered-keyvalue-db": "^1.0.0",
-    "@orbitdb/set-db": "^1.0.0",
+    "@orbitdb/feed-db": "^1.0.1",
+    "@orbitdb/ordered-keyvalue-db": "^1.0.1",
+    "@orbitdb/set-db": "^1.0.2",
     "ajv": "^8.17.1",
     "approx-string-match": "^2.0.0",
     "axios": "^1.7.2",
@@ -157,8 +157,7 @@
   },
   "pnpm": {
     "overrides": {
-      "@libp2p/autonat": "1.0.21",
-      "node-datachannel": "0.8.0"
+      "@libp2p/autonat": "1.0.21"
     }
   }
 }

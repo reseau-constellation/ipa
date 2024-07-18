@@ -30,8 +30,6 @@ import {
 } from "@constl/bohr-db";
 
 import Semaphore from "@chriscdn/promise-semaphore";
-import type { Libp2p } from "@libp2p/interface";
-import type { ServicesLibp2p } from "./sfip/index.js";
 
 export type Store =
   | FeedDatabaseType
@@ -50,7 +48,7 @@ export async function initOrbite({
   sfip,
   dossierOrbite,
 }: {
-  sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+  sfip: HeliaLibp2p;
   dossierOrbite: string;
 }): Promise<OrbitDB> {
   préparerOrbite();

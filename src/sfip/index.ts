@@ -8,18 +8,18 @@ import {
 import mergeOptions from "merge-options";
 
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
-import type { Libp2p } from "@libp2p/interface";
-import { HeliaLibp2p, createHelia } from "helia";
+import { DefaultLibp2pServices, HeliaLibp2p, createHelia } from "helia";
 import { LevelBlockstore } from "blockstore-level";
 import { bitswap } from "@helia/block-brokers";
-import { createLibp2p, type Libp2pOptions } from "libp2p";
+import { Libp2p, createLibp2p, type Libp2pOptions } from "libp2p";
 
 import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
 
-export type ServicesLibp2p = { pubsub: GossipSub };
+
+export type ServicesLibp2p = DefaultLibp2pServices & { pubsub: GossipSub };
 
 const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
@@ -54,7 +54,7 @@ export async function initSFIP({
     mergeOptions(configLibp2p, {
       ...config,
     }),
-  )) as unknown as Libp2p<ServicesLibp2p>;
+  )) as Libp2p<DefaultLibp2pServices>;
 
   const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
 
@@ -64,5 +64,5 @@ export async function initSFIP({
     blockBrokers: [bitswap()],
   };
 
-  return createHelia<Libp2p<ServicesLibp2p>>({ ...optionsHelia });
+  return await createHelia({ ...optionsHelia }) as HeliaLibp2p<Libp2p<ServicesLibp2p>>;
 }
