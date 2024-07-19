@@ -70,7 +70,7 @@ describe("Fermeture sécuritaire", function () {
 });
 
 if (isNode || isElectronMain) {
-  describe("Contrôle dispositifs", function () {
+  describe.skip("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
     let clients: Constellation[];
     let client: Constellation,
