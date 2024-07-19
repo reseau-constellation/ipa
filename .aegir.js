@@ -156,8 +156,8 @@ const générerConfigÆgirFinal = async () => {
 
   const aprèsTestDéfaut = configÆgir.test.after;
   configÆgir.test.after = async (_, avant) => {
-    const retourAprèsTestDéfaut = await aprèsTestDéfaut(_, avant);
     const retourAprèsTest = await aprèsTest(_, avant);
+    const retourAprèsTestDéfaut = await aprèsTestDéfaut(_, avant);
     return {
       ...retourAprèsTestDéfaut,
       ...retourAprèsTest,
