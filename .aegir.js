@@ -60,6 +60,9 @@ const lancerSfipDansNode = async (_opts) => {
   const args = ["--dossier", dossier];
 
   const processusNode = $`node dist/test/utils/lancerNœud.js ${args} &`; // $({stdio: 'inherit'})`...` pour écrire à la console
+  processusNode.catch(e => {
+    if (e.signal !== 'SIGTERM') throw new Error(e)
+  })
   processusNode.stdout.on("data", x => console.log((new TextDecoder()).decode(x)))
   return async () => {
     processusNode?.kill();
