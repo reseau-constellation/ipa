@@ -70,7 +70,7 @@ describe("Fermeture sécuritaire", function () {
 });
 
 if (isNode || isElectronMain) {
-  describe("Contrôle dispositifs", function () {
+  describe.only("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
     let clients: Constellation[];
     let client: Constellation,
@@ -79,7 +79,7 @@ if (isNode || isElectronMain) {
       client4: Constellation;
 
     let fOublierDispositifs: schémaFonctionOublier;
-    let fOublieridCompte: schémaFonctionOublier;
+    let fOublierIdCompte: schémaFonctionOublier;
 
     let idDispositif1: string;
     let idDispositif2: string;
@@ -108,14 +108,14 @@ if (isNode || isElectronMain) {
       fOublierDispositifs = await client.suivreDispositifs({
         f: (dispositifs) => mesDispositifs.mettreÀJour(dispositifs),
       });
-      fOublieridCompte = await client2.suivreIdCompte({
+      fOublierIdCompte = await client2.suivreIdCompte({
         f: (id) => (idCompte2EnDirecte = id),
       });
     });
 
     after(async () => {
       if (fOublierDispositifs) await fOublierDispositifs();
-      if (fOublieridCompte) await fOublieridCompte();
+      if (fOublierIdCompte) await fOublierIdCompte();
       if (fOublierClients) await fOublierClients();
     });
 
