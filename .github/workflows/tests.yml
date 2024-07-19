@@ -12,6 +12,7 @@ on:
     paths-ignore:
         - '**.md'
         - 'docu/**'
+
 concurrency:
   group: tests-${{ github.ref }}
   cancel-in-progress: true
