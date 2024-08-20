@@ -25,7 +25,7 @@ import { générerClientsInternes } from "../ressources/utils.js";
 
 import { expect } from "aegir/chai";
 
-describe("Client ", function () {
+describe("Nuées", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
@@ -609,7 +609,7 @@ describe("Client ", function () {
         score: 1,
       };
 
-      const val = await résultatMotClef.attendreQue((x) => x.de === "motClef");
+      const val = await résultatMotClef.attendreQue((x) => x.de === "motClef" && x.info.type === "résultat" && x.info.de === "nom");
       expect(val).to.deep.equal(résRéf);
     });
   });
