@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 
 export default [
   {
-    ignores: ['**/dist/**', '**/.vitepress/cache/**'],
+    ignores: ["**/dist/**", "**/.vitepress/cache/**"],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -15,7 +15,7 @@ export default [
         sourceType: "module",
       },
     },
-    ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**'],
+    ignores: ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
     rules: {
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/no-unused-vars": [

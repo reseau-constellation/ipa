@@ -18,7 +18,6 @@ import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.j
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
 
-
 export type ServicesLibp2p = DefaultLibp2pServices & { pubsub: GossipSub };
 
 const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
@@ -64,5 +63,7 @@ export async function initSFIP({
     blockBrokers: [bitswap()],
   };
 
-  return await createHelia({ ...optionsHelia }) as HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+  return (await createHelia({ ...optionsHelia })) as HeliaLibp2p<
+    Libp2p<ServicesLibp2p>
+  >;
 }

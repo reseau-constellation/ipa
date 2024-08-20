@@ -12,7 +12,12 @@ import {
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
-import { orbite, attente, dossiers, constellation as utilsTestConstellation } from "@constl/utils-tests";
+import {
+  orbite,
+  attente,
+  dossiers,
+  constellation as utilsTestConstellation,
+} from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
@@ -74,9 +79,7 @@ if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
     let orbites: OrbitDB[];
-    let _orbite1: OrbitDB,
-      orbite2: OrbitDB,
-      orbite3: OrbitDB;
+    let _orbite1: OrbitDB, orbite2: OrbitDB, orbite3: OrbitDB;
     let clients: Constellation[];
     let client: Constellation,
       client2: Constellation,
@@ -98,7 +101,11 @@ if (isNode || isElectronMain) {
     const mesDispositifs = new attente.AttendreRésultat<string[]>();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients, orbites } = await créerConstellationsTest({
+      ({
+        fOublier: fOublierClients,
+        clients,
+        orbites,
+      } = await créerConstellationsTest({
         n: 4,
         créerConstellation,
       }));
@@ -116,7 +123,7 @@ if (isNode || isElectronMain) {
         f: (dispositifs) => mesDispositifs.mettreÀJour(dispositifs),
       });
       fOublierIdCompte = await client2.suivreIdCompte({
-        f: (id) => (idClient2EnDirecte.mettreÀJour(id)),
+        f: (id) => idClient2EnDirecte.mettreÀJour(id),
       });
     });
 
@@ -172,7 +179,9 @@ if (isNode || isElectronMain) {
       });
 
       it("Le nouveau dispositif a rejoint notre compte", async () => {
-        const nouvelIdCompte2 = await idClient2EnDirecte.attendreQue(x=>x !== idCompte2)
+        const nouvelIdCompte2 = await idClient2EnDirecte.attendreQue(
+          (x) => x !== idCompte2,
+        );
         expect(nouvelIdCompte2).to.equal(idCompte1);
       });
 
@@ -182,17 +191,13 @@ if (isNode || isElectronMain) {
       });
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
-        const { bd: bd_orbite2, fOublier } =
-          await client2.ouvrirBdTypée({
-            id: idBd,
-            type: "keyvalue",
-            schéma: schémaKVNumérique,
-          });
+        const { bd: bd_orbite2, fOublier } = await client2.ouvrirBdTypée({
+          id: idBd,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        });
         fsOublier.push(fOublier);
-        const autorisé = await orbite.peutÉcrire(
-          bd_orbite2,
-          orbite2,
-        );
+        const autorisé = await orbite.peutÉcrire(bd_orbite2, orbite2);
         expect(autorisé).to.be.true();
       });
 
@@ -256,16 +261,12 @@ if (isNode || isElectronMain) {
       });
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
-        const { bd: bd_orbite3, fOublier } =
-          await client3.ouvrirBdTypée({
-            id: idBd,
-            type: "keyvalue",
-            schéma: schémaKVNumérique,
-          });
-        const autorisé = await orbite.peutÉcrire(
-          bd_orbite3,
-          orbite3,
-        );
+        const { bd: bd_orbite3, fOublier } = await client3.ouvrirBdTypée({
+          id: idBd,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        });
+        const autorisé = await orbite.peutÉcrire(bd_orbite3, orbite3);
         await fOublier();
         expect(autorisé).to.be.true();
       });
