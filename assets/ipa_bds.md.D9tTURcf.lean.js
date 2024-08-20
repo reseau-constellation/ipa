@@ -1,1 +1,0 @@
-import{_ as s,c as i,o as a,a3 as e}from"./chunks/framework.COm4hYgr.js";const g=JSON.parse('{"title":"Bases de données","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/bds.md","filePath":"ipa/bds.md"}'),t={name:"ipa/bds.md"},n=e("",372),l=[n];function h(d,p,k,r,o,c){return a(),i("div",null,l)}const u=s(t,[["render",h]]);export{g as __pageData,u as default};

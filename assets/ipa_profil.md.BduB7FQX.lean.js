@@ -1,1 +1,0 @@
-import{_ as i,c as s,o as a,a3 as t}from"./chunks/framework.COm4hYgr.js";const u=JSON.parse('{"title":"Profil","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/profil.md","filePath":"ipa/profil.md"}'),e={name:"ipa/profil.md"},l=t("",90),n=[l];function r(h,p,o,d,k,c){return a(),s("div",null,n)}const E=i(e,[["render",r]]);export{u as __pageData,E as default};
