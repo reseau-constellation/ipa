@@ -28,7 +28,7 @@ jobs:
           node-version: 'latest'
           cache: 'pnpm'
 
-      - run: cd docu && pnpm install
+      - run: cd docu && pnpm install && pnpm exec playwright install
       - run: cd docu/scripts/images && pnpm i && pnpm exec playwright install
       - run: cd docu && pnpm build
 
