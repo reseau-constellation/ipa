@@ -11,3 +11,5 @@ node_modules
 
 docu/src/.vitepress/dist
 docu/src/.vitepress/cache
+
+**/tempo.ts
