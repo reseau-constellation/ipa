@@ -89,7 +89,6 @@ jobs:
 
   test-ipa-electron-principal:
     name: IPA sur Électron principal
-    if: false
     needs: test-ipa-nodejs
     strategy:
       matrix:
