@@ -1,7 +1,7 @@
 import type { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
 
-import { isValidAddress } from "@orbitdb/core";
+import { OrbitDB, isValidAddress } from "@orbitdb/core";
 import { unixfs } from "@helia/unixfs";
 
 import { Constellation, infoAccès } from "@/client.js";
@@ -12,7 +12,8 @@ import {
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
-import { orbite, attente, dossiers } from "@constl/utils-tests";
+import { orbite, attente, dossiers, constellation as utilsTestConstellation } from "@constl/utils-tests";
+const { créerConstellationsTest } = utilsTestConstellation;
 
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
@@ -72,6 +73,10 @@ describe("Fermeture sécuritaire", function () {
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
+    let orbites: OrbitDB[];
+    let _orbite1: OrbitDB,
+      orbite2: OrbitDB,
+      orbite3: OrbitDB;
     let clients: Constellation[];
     let client: Constellation,
       client2: Constellation,
@@ -86,34 +91,39 @@ if (isNode || isElectronMain) {
     let idDispositif3: string;
 
     let idCompte1: string;
+    let idCompte2: string;
 
-    let idCompte2EnDirecte: string | undefined;
+    const idClient2EnDirecte = new attente.AttendreRésultat<string>();
 
     const mesDispositifs = new attente.AttendreRésultat<string[]>();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+      ({ fOublier: fOublierClients, clients, orbites } = await créerConstellationsTest({
         n: 4,
+        créerConstellation,
       }));
       [client, client2, client3, client4] = clients;
+      [_orbite1, orbite2, orbite3] = orbites;
 
       idCompte1 = await client.obtIdCompte();
+      idCompte2 = await client2.obtIdCompte();
 
       idDispositif1 = await client.obtIdDispositif();
       idDispositif2 = await client2.obtIdDispositif();
       idDispositif3 = await client3.obtIdDispositif();
 
-      await new Promise((résoudre) => setTimeout(résoudre, 9000));
-
       fOublierDispositifs = await client.suivreDispositifs({
         f: (dispositifs) => mesDispositifs.mettreÀJour(dispositifs),
       });
       fOublierIdCompte = await client2.suivreIdCompte({
-        f: (id) => (idCompte2EnDirecte = id),
+        f: (id) => (idClient2EnDirecte.mettreÀJour(id)),
       });
     });
 
     after(async () => {
+      idClient2EnDirecte.toutAnnuler();
+      mesDispositifs.toutAnnuler();
+
       if (fOublierDispositifs) await fOublierDispositifs();
       if (fOublierIdCompte) await fOublierIdCompte();
       if (fOublierClients) await fOublierClients();
@@ -161,8 +171,9 @@ if (isNode || isElectronMain) {
         expect(val).to.have.members([idDispositif1, idDispositif2]);
       });
 
-      it("Le nouveau dispositif a rejoint notre compte", () => {
-        expect(idCompte2EnDirecte).to.equal(idCompte1);
+      it("Le nouveau dispositif a rejoint notre compte", async () => {
+        const nouvelIdCompte2 = await idClient2EnDirecte.attendreQue(x=>x !== idCompte2)
+        expect(nouvelIdCompte2).to.equal(idCompte1);
       });
 
       it("idDispositif ne change pas", async () => {
@@ -172,7 +183,7 @@ if (isNode || isElectronMain) {
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
         const { bd: bd_orbite2, fOublier } =
-          await client2.orbite!.ouvrirBdTypée({
+          await client2.ouvrirBdTypée({
             id: idBd,
             type: "keyvalue",
             schéma: schémaKVNumérique,
@@ -180,7 +191,7 @@ if (isNode || isElectronMain) {
         fsOublier.push(fOublier);
         const autorisé = await orbite.peutÉcrire(
           bd_orbite2,
-          client2.orbite?.orbite,
+          orbite2,
         );
         expect(autorisé).to.be.true();
       });
@@ -246,14 +257,14 @@ if (isNode || isElectronMain) {
 
       it("Le nouveau dispositif peut modifier mes BDs", async () => {
         const { bd: bd_orbite3, fOublier } =
-          await client3.orbite!.ouvrirBdTypée({
+          await client3.ouvrirBdTypée({
             id: idBd,
             type: "keyvalue",
             schéma: schémaKVNumérique,
           });
         const autorisé = await orbite.peutÉcrire(
           bd_orbite3,
-          client3.orbite?.orbite,
+          orbite3,
         );
         await fOublier();
         expect(autorisé).to.be.true();
