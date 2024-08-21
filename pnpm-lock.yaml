@@ -316,8 +316,8 @@ importers:
         specifier: ^5.2.0
         version: 5.2.0
       keyv:
-        specifier: ^4.5.4
-        version: 4.5.4
+        specifier: ^5.0.0
+        version: 5.0.0
       libp2p:
         specifier: ^1.9.2
         version: 1.9.2
@@ -1774,6 +1774,9 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
+
+  '@keyv/serialize@1.0.0':
+    resolution: {integrity: sha512-BckrffCXqE2eMxl8LjOpc6vY3TTduILoiFwytNhJtQfhMDKhepq4+EAyP9qMCy38Fxs9g4RRCe/6mimdap1/vQ==}
 
   '@lassi-js/kili@0.3.14':
     resolution: {integrity: sha512-ZMPRnQLdLVHOg342Qqfi8El72jeelUpUXLUEliN92I9zSEI6BsYN0RmZGEY1Dz9+sFOVQw+Vq2YJKuZlmMCghg==}
@@ -5644,6 +5647,9 @@ packages:
 
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
+
+  keyv@5.0.0:
+    resolution: {integrity: sha512-qtmxo+NR06YxIrywQzkxQG5bsNKR4GlOHZzrJHKsRXATU8ivqptnMllSuPIJRtaLmDGWdAK/n6JVfbBgRfTuXQ==}
 
   kind-of@3.2.2:
     resolution: {integrity: sha512-NOW9QQXMoZGg/oqnVNoNTTIFEIid1627WCffUBJEdMxYApq7mNE7CpzucIPc+ZQg25Phej7IJSmX3hO+oblOtQ==}
@@ -10565,6 +10571,10 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  '@keyv/serialize@1.0.0':
+    dependencies:
+      buffer: 6.0.3
 
   '@lassi-js/kili@0.3.14(@constl/ipa@1.1.2(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0)))':
     dependencies:
@@ -16130,6 +16140,10 @@ snapshots:
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
+
+  keyv@5.0.0:
+    dependencies:
+      '@keyv/serialize': 1.0.0
 
   kind-of@3.2.2:
     dependencies:
