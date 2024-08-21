@@ -73,7 +73,7 @@
     "execa": "^9.3.1",
     "express": "^4.19.2",
     "image-type": "^5.2.0",
-    "keyv": "^4.5.4",
+    "keyv": "^5.0.0",
     "libp2p": "^1.9.2",
     "mocha": "^10.7.3",
     "os-browserify": "^0.3.0",
