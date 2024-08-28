@@ -800,7 +800,7 @@ export class Tableaux {
     langues,
     doc,
     nomFichier,
-    patience = 1000,
+    patience = 500,
   }: {
     idTableau: string;
     langues?: string[];
