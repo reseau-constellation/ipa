@@ -33,7 +33,7 @@ const { créerConstellationsTest } = utilsTestConstellation;
 
 import { expect } from "aegir/chai";
 
-describe("Tableaux", function () {
+describe.only("Tableaux", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
