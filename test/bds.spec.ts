@@ -33,7 +33,7 @@ import { isElectronMain, isNode } from "wherearewe";
 import { attente } from "@constl/utils-tests";
 import { préparerOrbite } from "@/orbite.js";
 
-describe.only("BDs", function () {
+describe("BDs", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
