@@ -646,6 +646,7 @@ describe("Automatisation", function () {
       );
 
       await attendreExiste;
+      await new Promise(résoudre => setTimeout(résoudre, 1000));
       vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
