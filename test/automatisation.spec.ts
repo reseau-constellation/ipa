@@ -84,7 +84,7 @@ const vérifierDonnéesProjet = async (
         zip_ = await JSZip.loadAsync(donnéesFichier);
         clearInterval(interval);
         résoudre(zip_);
-      } catch (e) {
+      } catch {
         // Réessayer
       }
     }, 100);

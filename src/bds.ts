@@ -1,4 +1,4 @@
-import { WorkBook, utils, BookType, writeFile, write as writeXLSX } from "xlsx";
+import XLSX from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
@@ -41,6 +41,7 @@ import { ContrôleurConstellation as générerContrôleurConstellation } from "@
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import pkg from "file-saver";
+import { existsSync } from "fs";
 const { saveAs } = pkg;
 
 type ContrôleurConstellation = Awaited<
@@ -79,7 +80,7 @@ export type donnéesBdExportation = {
 };
 
 export interface donnéesBdExportées {
-  doc: WorkBook;
+  doc: XLSX.WorkBook;
   fichiersSFIP: Set<string>;
   nomFichier: string;
 }
@@ -2225,7 +2226,7 @@ export class BDs extends ComposanteClientListe<string> {
     nomFichier?: string;
     patience?: number;
   }): Promise<donnéesBdExportées> {
-    const doc = utils.book_new();
+    const doc = XLSX.utils.book_new();
 
     const données = await uneFois(
       async (
@@ -2248,10 +2249,10 @@ export class BDs extends ComposanteClientListe<string> {
       tableau.fichiersSFIP.forEach((x) => fichiersSFIP.add(x));
 
       /* Créer le tableau */
-      const tableauXLSX = utils.json_to_sheet(tableau.données);
+      const tableauXLSX = XLSX.utils.json_to_sheet(tableau.données);
 
       /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-      utils.book_append_sheet(
+      XLSX.utils.book_append_sheet(
         doc,
         tableauXLSX,
         tableau.nomTableau.slice(0, 30),
@@ -2267,16 +2268,16 @@ export class BDs extends ComposanteClientListe<string> {
     inclureFichiersSFIP = true,
   }: {
     données: donnéesBdExportées;
-    formatDoc: BookType | "xls";
+    formatDoc: XLSX.BookType | "xls";
     dossier?: string;
     inclureFichiersSFIP?: boolean;
   }): Promise<string> {
     const { doc, fichiersSFIP, nomFichier } = données;
 
-    const conversionsTypes: { [key: string]: BookType } = {
+    const conversionsTypes: { [key: string]: XLSX.BookType } = {
       xls: "biff8",
     };
-    const bookType: BookType = conversionsTypes[formatDoc] || formatDoc;
+    const bookType: XLSX.BookType = conversionsTypes[formatDoc] || formatDoc;
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
     if (!(isBrowser || isWebWorker)) {
@@ -2289,7 +2290,7 @@ export class BDs extends ComposanteClientListe<string> {
 
     if (inclureFichiersSFIP) {
       const fichierDoc = {
-        octets: writeXLSX(doc, { bookType, type: "buffer" }),
+        octets: XLSX.writeXLSX(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
       };
       const fichiersDeSFIP = await Promise.all(
@@ -2310,13 +2311,14 @@ export class BDs extends ComposanteClientListe<string> {
       return path.join(dossier, `${nomFichier}.zip`);
     } else {
       if (isNode || isElectronMain) {
-        console.log("avant écriture")
-        writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {
+        console.log("avant écriture, ", path.join(dossier, `${nomFichier}.${formatDoc}`));
+        console.log(existsSync(path.join(dossier, `${nomFichier}.${formatDoc}`)));
+        XLSX.writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {
           bookType,
         });
         console.log("après écriture")
       } else {
-        const document = writeXLSX(doc, {
+        const document = XLSX.writeXLSX(doc, {
           bookType,
           type: "buffer",
         }) as ArrayBuffer;
