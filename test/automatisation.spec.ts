@@ -47,6 +47,8 @@ const vérifierDonnéesTableau = (
   const cols = importateur.obtColsTableau(tableau);
   const donnéesFichier = importateur.obtDonnées(tableau, cols);
 
+  console.log({cols, donnéesFichier});
+
   expect(donnéesFichier).to.have.deep.members(données);
   expect(donnéesFichier.length).to.equal(données.length);
 };
@@ -646,7 +648,6 @@ describe("Automatisation", function () {
       );
 
       await attendreExiste;
-      await new Promise(résoudre => setTimeout(résoudre, 5000));
       vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
