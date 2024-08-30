@@ -701,6 +701,9 @@ export class Tableaux {
           ),
         );
 
+        console.log("dans tableaux", JSON.stringify(données, undefined, 2))  // temporaire
+        console.log("dans tableaux : formattées", JSON.stringify(donnéesFormattées, undefined, 2))  // temporaire
+
         donnéesFormattées = donnéesFormattées.map((d) =>
           Object.keys(d).reduce((acc: élémentBdListeDonnées, idCol: string) => {
             const idVar = colonnes.find((c) => c.id === idCol)?.variable;
@@ -827,6 +830,8 @@ export class Tableaux {
       },
       attendreStabilité(patience),
     );
+
+    console.log(JSON.stringify(données, undefined, 2)) // temporaire
 
     /* Créer le tableau */
     const tableau = utils.json_to_sheet(données.données);
