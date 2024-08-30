@@ -2312,7 +2312,7 @@ export class BDs extends ComposanteClientListe<string> {
     } else {
       if (isNode || isElectronMain) {
         console.log("avant écriture, ", path.join(dossier, `${nomFichier}.${formatDoc}`));
-        console.log(existsSync(path.join(dossier, `${nomFichier}.${formatDoc}`)));
+        console.log(existsSync(dossier));
         XLSX.writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {
           bookType,
         });
