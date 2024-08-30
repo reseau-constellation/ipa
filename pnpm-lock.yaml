@@ -27,8 +27,13 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       '@constl/mandataire':
+<<<<<<< HEAD
         specifier: ^3.0.1
         version: 3.0.1
+=======
+        specifier: ^2.0.8
+        version: 2.0.9
+>>>>>>> e522888c7 (Mise à jour)
       '@constl/utils-ipa':
         specifier: ^1.0.3
         version: 1.0.3
@@ -237,10 +242,14 @@ importers:
       '@types/node':
         specifier: ^20.16.1
 <<<<<<< HEAD
+<<<<<<< HEAD
         version: 20.16.2
 =======
         version: 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+        version: 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
       '@types/node-localstorage':
         specifier: ^1.3.3
         version: 1.3.3
@@ -397,10 +406,13 @@ packages:
     resolution: {integrity: sha512-BcYH1CVJBO9tvyIZ2jVeXgSIMvGZ2FDRvDdOIVQyuklNKSsx+eppDEBq/g47Ayw+RqNFE+URvOShmf+f/qwAlA==}
     engines: {node: '>=6.9.0'}
 
+<<<<<<< HEAD
   '@babel/compat-data@7.25.4':
     resolution: {integrity: sha512-+LGRog6RAsCJrrrg/IO6LGmpphNe5DiK30dGjCoxxeGv49B10/3XYGxPsAwrDlMFcFEvdAUavDT8r9k/hSyQqQ==}
     engines: {node: '>=6.9.0'}
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@babel/compat-data@7.25.4':
     resolution: {integrity: sha512-+LGRog6RAsCJrrrg/IO6LGmpphNe5DiK30dGjCoxxeGv49B10/3XYGxPsAwrDlMFcFEvdAUavDT8r9k/hSyQqQ==}
     engines: {node: '>=6.9.0'}
@@ -411,10 +423,13 @@ packages:
 
   '@babel/generator@7.25.5':
     resolution: {integrity: sha512-abd43wyLfbWoxC6ahM8xTkqLpGB2iWBVyuKC9/srhFunCd1SDNrV1s72bBpK4hLj8KLzHBBcOblvLQZBNw9r3w==}
+<<<<<<< HEAD
     engines: {node: '>=6.9.0'}
 
   '@babel/generator@7.25.6':
     resolution: {integrity: sha512-VPC82gr1seXOpkjAAKoLhP50vx4vGNlF4msF64dSFq1P8RfB+QAuJWGHPXXPc8QyfVWwwB/TNNU4+ayZmHNbZw==}
+=======
+>>>>>>> e522888c7 (Mise à jour)
     engines: {node: '>=6.9.0'}
 
   '@babel/generator@7.25.6':
@@ -433,12 +448,15 @@ packages:
     resolution: {integrity: sha512-U2U5LsSaZ7TAt3cfaymQ8WHh0pxvdHoEk6HVpaexxixjyEquMh0L0YNJNM6CTGKMXV1iksi0iZkGw4AcFkPaaw==}
     engines: {node: '>=6.9.0'}
 
+<<<<<<< HEAD
   '@babel/helper-create-class-features-plugin@7.25.4':
     resolution: {integrity: sha512-ro/bFs3/84MDgDmMwbcHgDa8/E6J3QKNTk4xJJnVeFtGE+tL0K26E3pNxhYz2b67fJpt7Aphw5XcploKXuCvCQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@babel/helper-create-class-features-plugin@7.25.4':
     resolution: {integrity: sha512-ro/bFs3/84MDgDmMwbcHgDa8/E6J3QKNTk4xJJnVeFtGE+tL0K26E3pNxhYz2b67fJpt7Aphw5XcploKXuCvCQ==}
     engines: {node: '>=6.9.0'}
@@ -528,11 +546,14 @@ packages:
 
   '@babel/parser@7.25.4':
     resolution: {integrity: sha512-nq+eWrOgdtu3jG5Os4TQP3x3cLA8hR8TvJNjD8vnPa20WGycimcparWnLK4jJhElTK6SDyuJo1weMKO/5LpmLA==}
+<<<<<<< HEAD
     engines: {node: '>=6.0.0'}
     hasBin: true
 
   '@babel/parser@7.25.6':
     resolution: {integrity: sha512-trGdfBdbD0l1ZPmcJ83eNxB9rbEax4ALFTF7fN386TMYbeCQbyme5cOEXQhbGXKebwGaB/J52w1mrklMcbgy6Q==}
+=======
+>>>>>>> e522888c7 (Mise à jour)
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -787,12 +808,15 @@ packages:
     peerDependencies:
       '@babel/core': ^7.12.0
 
+<<<<<<< HEAD
   '@babel/plugin-transform-classes@7.25.4':
     resolution: {integrity: sha512-oexUfaQle2pF/b6E0dwsxQtAol9TLSO88kQvym6HHBWFliV2lGdrPieX+WgMRLSJDVzdYywk7jXbLPuO2KLTLg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@babel/plugin-transform-classes@7.25.4':
     resolution: {integrity: sha512-oexUfaQle2pF/b6E0dwsxQtAol9TLSO88kQvym6HHBWFliV2lGdrPieX+WgMRLSJDVzdYywk7jXbLPuO2KLTLg==}
     engines: {node: '>=6.9.0'}
@@ -1027,12 +1051,15 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
+<<<<<<< HEAD
   '@babel/plugin-transform-runtime@7.25.4':
     resolution: {integrity: sha512-8hsyG+KUYGY0coX6KUCDancA0Vw225KJ2HJO0yCNr1vq5r+lJTleDaJf0K7iOhjw4SWhu03TMBzYTJ9krmzULQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@babel/plugin-transform-runtime@7.25.4':
     resolution: {integrity: sha512-8hsyG+KUYGY0coX6KUCDancA0Vw225KJ2HJO0yCNr1vq5r+lJTleDaJf0K7iOhjw4SWhu03TMBzYTJ9krmzULQ==}
     engines: {node: '>=6.9.0'}
@@ -1133,10 +1160,13 @@ packages:
 
   '@babel/runtime@7.25.4':
     resolution: {integrity: sha512-DSgLeL/FNcpXuzav5wfYvHCGvynXkJbn3Zvc3823AEe9nPwW9IK4UoCSS5yGymmQzN0pCPvivtgS6/8U2kkm1w==}
+<<<<<<< HEAD
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.25.6':
     resolution: {integrity: sha512-VBj9MYyDb9tuLq7yzqjgzt6Q+IBQLrGZfdjOekyEirZPHxXWoTSGUTMrpsfi58Up73d13NfYLv8HT9vmznjzhQ==}
+=======
+>>>>>>> e522888c7 (Mise à jour)
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.25.6':
@@ -1156,6 +1186,7 @@ packages:
     engines: {node: '>=6.9.0'}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   '@babel/types@7.25.4':
     resolution: {integrity: sha512-zQ1ijeeCXVEh+aNL0RlmkPkG8HUiDcU2pzQQFjtbntgAczRASFzj4H+6+bV+dy1ntKR14I/DypeuRG1uma98iQ==}
     engines: {node: '>=6.9.0'}
@@ -1166,6 +1197,10 @@ packages:
   '@babel/types@7.25.2':
     resolution: {integrity: sha512-YTnYtra7W9e6/oAZEHj0bJehPRUlLH9/fbpT5LfB0NhQXyALCRkRs3zH9v07IYhkgpqX6Z78FnuccZr/l4Fs4Q==}
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+  '@babel/types@7.25.4':
+    resolution: {integrity: sha512-zQ1ijeeCXVEh+aNL0RlmkPkG8HUiDcU2pzQQFjtbntgAczRASFzj4H+6+bV+dy1ntKR14I/DypeuRG1uma98iQ==}
+>>>>>>> e522888c7 (Mise à jour)
     engines: {node: '>=6.9.0'}
 
   '@babel/types@7.25.6':
@@ -1216,12 +1251,15 @@ packages:
     resolution: {integrity: sha512-8HFKXj1SXv1X1dwHD7poOvUgX8HvC4r5WeswjdMqJwhZmDtGGHBe2fBfMyxmfNFNTB6b7fp7Y78KN8UK4d2c/g==}
     engines: {node: '>=20'}
 
+<<<<<<< HEAD
   '@constl/mandataire@2.0.9':
     resolution: {integrity: sha512-1XzCHyo7xaZjQrqp/KNypVFVxPw90xFInqBGjXFm6cR0j0ghDF+zVbjyqlgy2tq7e5hmzCNVaFqCj3y8Wvi9UA==}
 
   '@constl/mandataire@3.0.1':
     resolution: {integrity: sha512-5B/aIdMpZ5pAVAd+mZAsR7hHSkeAB+McwKyYaGG+V1j8mO/Lwbx4kGDyvjWybRPFhl6Wx7g1ZGoVDXcJEjL7Zg==}
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@constl/mandataire@2.0.9':
     resolution: {integrity: sha512-1XzCHyo7xaZjQrqp/KNypVFVxPw90xFInqBGjXFm6cR0j0ghDF+zVbjyqlgy2tq7e5hmzCNVaFqCj3y8Wvi9UA==}
 
@@ -1903,9 +1941,6 @@ packages:
   '@libp2p/keychain@4.1.5':
     resolution: {integrity: sha512-teDH0WbQ4mMSBCtOxV5ZoPltTj13xQiuOV27rzarRNYf4jRopPn2BU7k2c5qOFZ0VaCIvMAd1DT2Q8kfjcT4cw==}
 
-  '@libp2p/keychain@4.1.6':
-    resolution: {integrity: sha512-HZ5VhKPAqItMWY/5jfXaFMKCddAxYuybgn0j3v3hZnnHQ2HyeLJnUvDd5yjM7L3DxMDLdetK2rdocrdtqjdWkA==}
-
   '@libp2p/logger@2.1.1':
     resolution: {integrity: sha512-2UbzDPctg3cPupF6jrv6abQnAUTrbLybNOj0rmmrdGm1cN2HJ1o/hBu0sXuq4KF9P1h/eVRn1HIRbVIEKnEJrA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
@@ -1947,9 +1982,6 @@ packages:
 
   '@libp2p/ping@1.1.5':
     resolution: {integrity: sha512-CeRpXdtljyWr/UNmrojnZbyI/oDkdu6duCGtWnnDFmPS2tR4Rxr2C8sKA1iAvhgvRFhh5vrTmlB1QUbUWHHRCg==}
-
-  '@libp2p/ping@1.1.6':
-    resolution: {integrity: sha512-tzTL0BzS1JaHE8v4PhRZ5K8wQQQcTMXM/0baCkLTLIaSMe1fzhj+KHbFNoUrY3yni4yfsVY1uR0qchhc1/J9qg==}
 
   '@libp2p/pubsub-peer-discovery@10.0.2':
     resolution: {integrity: sha512-7DLasMSo443nxPJ+X95tXazXgO96K2/TafoexDxi4QVWIKgkmK+HyoFRcmwog2pjhA1/KQUsPu8S8wH6Ns9Oow==}
@@ -2498,12 +2530,17 @@ packages:
     resolution: {integrity: sha512-Wkn5g4eM5x10UNV9Xvl9K6y6m0zorocuJy4WjB5muUdyMZuPbZpSJG3hlhjGHe1HGxbOQO7RcB+jlHcNwkh+Jw==}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   '@types/node@20.16.2':
     resolution: {integrity: sha512-91s/n4qUPV/wg8eE9KHYW1kouTfDk2FPGjXbBMfRWP/2vg1rCXNQL1OCabwGs0XSdukuK+MwCDXE30QpSeMUhQ==}
 =======
   '@types/node@18.19.48':
     resolution: {integrity: sha512-7WevbG4ekUcRQSZzOwxWgi5dZmTak7FaxXDoW7xVxPBmKx1rTzfmRLkeCgJzcbBnOV2dkhAPc8cCeT6agocpjg==}
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+  '@types/node@20.16.2':
+    resolution: {integrity: sha512-91s/n4qUPV/wg8eE9KHYW1kouTfDk2FPGjXbBMfRWP/2vg1rCXNQL1OCabwGs0XSdukuK+MwCDXE30QpSeMUhQ==}
+>>>>>>> e522888c7 (Mise à jour)
 
   '@types/node@20.16.3':
     resolution: {integrity: sha512-/wdGiWRkMOm53gAsSyFMXFZHbVg7C6CbkrzHNpaHoYfsUWPg7m6ZRKtvQjgvQ9i8WT540a3ydRlRQbxjY30XxQ==}
@@ -3044,9 +3081,12 @@ packages:
 
   axios@1.7.5:
     resolution: {integrity: sha512-fZu86yCo+svH3uqJ/yTdQ0QHpQu5oL+/QE+QPSv6BZSkDAoky9vytxp7u5qk83OJFS3kEBcesWni9WTZAv3tSw==}
+<<<<<<< HEAD
 
   axios@1.7.7:
     resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
+=======
+>>>>>>> e522888c7 (Mise à jour)
 
   axios@1.7.7:
     resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
@@ -5814,9 +5854,6 @@ packages:
   libp2p@1.9.2:
     resolution: {integrity: sha512-cvzSC3UM9A1w6kb3GO9+iqRwCg/c/4hF6RZTF0SyY5U3xVawXSQPMcB5td9d+20HcNrYm2uWKjlexORllAT2hA==}
 
-  libp2p@1.9.3:
-    resolution: {integrity: sha512-Yni08xk7V+vwL4EhhblxsO38b3DsJvmDzGuC41z0OrIJDE5K795bLeLAwxWhqf3lSdlq0TeXLjPTE1KETmA1RQ==}
-
   libsodium-sumo@0.7.15:
     resolution: {integrity: sha512-5tPmqPmq8T8Nikpm1Nqj0hBHvsLFCXvdhBFV7SGOitQPZAA6jso8XoL0r4L7vmfKXr486fiQInvErHtEvizFMw==}
 
@@ -6260,10 +6297,13 @@ packages:
     resolution: {integrity: sha512-MWikgl9n9M3w+bpsY3He8L+w9eF9338xRl8IAO5viDizwSzziFEyUzo2xrrloB64ADbTf8uA8vRqqttDTOmccg==}
     engines: {node: '>=0.10.0'}
 
+<<<<<<< HEAD
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
     engines: {node: '>=8.6'}
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
     engines: {node: '>=8.6'}
@@ -7220,12 +7260,15 @@ packages:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   protobufjs@7.4.0:
     resolution: {integrity: sha512-mRUWCc3KUU4w1jU8sGxICXH/gNS94DvI1gxqDvBzhj1JpcsimQkYiOJfwsPUykUI5ZaspFbSgmBLER8IrQ3tqw==}
     engines: {node: '>=12.0.0'}
 
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+>>>>>>> e522888c7 (Mise à jour)
   protons-runtime@5.4.0:
     resolution: {integrity: sha512-XfA++W/WlQOSyjUyuF5lgYBfXZUEMP01Oh1C2dSwZAlF2e/ZrMRPfWonXj6BGM+o8Xciv7w0tsRMKYwYEuQvaw==}
 
@@ -8284,9 +8327,12 @@ packages:
   tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
 
+<<<<<<< HEAD
   tslib@2.7.0:
     resolution: {integrity: sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==}
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   tslib@2.7.0:
     resolution: {integrity: sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==}
 
@@ -8868,8 +8914,11 @@ snapshots:
       '@babel/highlight': 7.24.7
       picocolors: 1.0.1
 
+<<<<<<< HEAD
   '@babel/compat-data@7.25.4': {}
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@babel/compat-data@7.25.4': {}
 
   '@babel/core@7.25.2':
@@ -8895,6 +8944,7 @@ snapshots:
   '@babel/generator@7.25.5':
     dependencies:
       '@babel/types': 7.25.4
+<<<<<<< HEAD
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 2.5.2
@@ -8902,6 +8952,8 @@ snapshots:
   '@babel/generator@7.25.6':
     dependencies:
       '@babel/types': 7.25.6
+=======
+>>>>>>> e522888c7 (Mise à jour)
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 2.5.2
@@ -8932,6 +8984,7 @@ snapshots:
       lru-cache: 5.1.1
       semver: 6.3.1
 
+<<<<<<< HEAD
   '@babel/helper-create-class-features-plugin@7.25.4(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
@@ -8945,6 +8998,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@babel/helper-create-class-features-plugin@7.25.4(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
@@ -8953,7 +9008,7 @@ snapshots:
       '@babel/helper-optimise-call-expression': 7.24.7
       '@babel/helper-replace-supers': 7.25.0(@babel/core@7.25.2)
       '@babel/helper-skip-transparent-expression-wrappers': 7.24.7
-      '@babel/traverse': 7.25.6
+      '@babel/traverse': 7.25.4
       semver: 6.3.1
     transitivePeerDependencies:
       - supports-color
@@ -9071,10 +9126,13 @@ snapshots:
   '@babel/parser@7.25.4':
     dependencies:
       '@babel/types': 7.25.4
+<<<<<<< HEAD
 
   '@babel/parser@7.25.6':
     dependencies:
       '@babel/types': 7.25.6
+=======
+>>>>>>> e522888c7 (Mise à jour)
 
   '@babel/parser@7.25.6':
     dependencies:
@@ -9335,6 +9393,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+<<<<<<< HEAD
   '@babel/plugin-transform-classes@7.25.4(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
@@ -9347,6 +9406,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@babel/plugin-transform-classes@7.25.4(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
@@ -9354,7 +9415,7 @@ snapshots:
       '@babel/helper-compilation-targets': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
       '@babel/helper-replace-supers': 7.25.0(@babel/core@7.25.2)
-      '@babel/traverse': 7.25.6
+      '@babel/traverse': 7.25.4
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -9611,6 +9672,7 @@ snapshots:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
 
+<<<<<<< HEAD
   '@babel/plugin-transform-runtime@7.25.4(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
@@ -9623,6 +9685,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@babel/plugin-transform-runtime@7.25.4(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
@@ -9823,10 +9887,13 @@ snapshots:
   '@babel/regjsgen@0.8.0': {}
 
   '@babel/runtime@7.25.4':
+<<<<<<< HEAD
     dependencies:
       regenerator-runtime: 0.14.1
 
   '@babel/runtime@7.25.6':
+=======
+>>>>>>> e522888c7 (Mise à jour)
     dependencies:
       regenerator-runtime: 0.14.1
 
@@ -9865,6 +9932,7 @@ snapshots:
       - supports-color
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   '@babel/types@7.25.4':
     dependencies:
       '@babel/helper-string-parser': 7.24.8
@@ -9875,6 +9943,9 @@ snapshots:
 =======
   '@babel/types@7.25.2':
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+  '@babel/types@7.25.4':
+>>>>>>> e522888c7 (Mise à jour)
     dependencies:
       '@babel/helper-string-parser': 7.24.8
       '@babel/helper-validator-identifier': 7.24.7
@@ -9895,6 +9966,7 @@ snapshots:
   '@chainsafe/is-ip@2.0.2': {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   '@chainsafe/libp2p-gossipsub@11.2.1':
     dependencies:
@@ -9914,6 +9986,8 @@ snapshots:
       uint8arrays: 5.1.0
 
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@chainsafe/libp2p-gossipsub@13.2.0':
     dependencies:
       '@libp2p/crypto': 4.1.9
@@ -9931,6 +10005,7 @@ snapshots:
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   '@chainsafe/libp2p-noise@14.1.0':
@@ -9955,6 +10030,8 @@ snapshots:
       wherearewe: 2.0.1
 
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@chainsafe/libp2p-noise@15.1.1':
     dependencies:
       '@chainsafe/as-chacha20poly1305': 0.1.0
@@ -10032,6 +10109,7 @@ snapshots:
   '@constl/ipa@1.1.3(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@chainsafe/libp2p-gossipsub': 13.2.0
       '@chainsafe/libp2p-noise': 15.1.2
       '@chainsafe/libp2p-yamux': 6.0.2
@@ -10044,6 +10122,13 @@ snapshots:
       '@chriscdn/promise-semaphore': 2.0.9
       '@constl/bohr-db': 1.1.1(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0))
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@chainsafe/libp2p-gossipsub': 13.2.0
+      '@chainsafe/libp2p-noise': 15.1.2
+      '@chainsafe/libp2p-yamux': 6.0.2
+      '@chriscdn/promise-semaphore': 2.0.9
+      '@constl/bohr-db': 1.1.1(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+>>>>>>> e522888c7 (Mise à jour)
       '@constl/mandataire': 2.0.9
       '@constl/utils-ipa': 1.0.3
       '@helia/block-brokers': 3.0.3
@@ -10061,10 +10146,14 @@ snapshots:
       '@libp2p/pubsub-peer-discovery': 10.0.2
       '@libp2p/tcp': 9.1.5
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@libp2p/webrtc': 4.1.8(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
 =======
       '@libp2p/webrtc': 4.1.8(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0))
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@libp2p/webrtc': 4.1.8(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+>>>>>>> e522888c7 (Mise à jour)
       '@libp2p/websockets': 8.2.0
       '@libp2p/webtransport': 4.1.8
       '@localfirst/auth': 5.6.0
@@ -10112,6 +10201,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
+<<<<<<< HEAD
   '@constl/mandataire@2.0.9':
     dependencies:
       events: 3.3.0
@@ -10122,6 +10212,8 @@ snapshots:
       events: 3.3.0
       uuid: 10.0.0
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@constl/mandataire@2.0.9':
     dependencies:
       events: 3.3.0
@@ -10794,6 +10886,7 @@ snapshots:
       uint8arrays: 5.1.0
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   '@libp2p/crypto@2.0.8':
     dependencies:
@@ -10807,6 +10900,8 @@ snapshots:
       uint8arrays: 4.0.10
 
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+>>>>>>> e522888c7 (Mise à jour)
   '@libp2p/crypto@3.0.4':
     dependencies:
       '@libp2p/interface': 1.7.0
@@ -10963,17 +11058,6 @@ snapshots:
       sanitize-filename: 1.6.3
       uint8arrays: 5.1.0
 
-  '@libp2p/keychain@4.1.6':
-    dependencies:
-      '@libp2p/crypto': 4.1.9
-      '@libp2p/interface': 1.7.0
-      '@libp2p/peer-id': 4.2.4
-      interface-datastore: 8.3.0
-      merge-options: 3.0.4
-      multiformats: 13.2.2
-      sanitize-filename: 1.6.3
-      uint8arrays: 5.1.0
-
   '@libp2p/logger@2.1.1':
     dependencies:
       '@libp2p/interface-peer-id': 2.0.2
@@ -11096,16 +11180,6 @@ snapshots:
       it-pipe: 3.0.1
       uint8arrays: 5.1.0
 
-  '@libp2p/ping@1.1.6':
-    dependencies:
-      '@libp2p/crypto': 4.1.9
-      '@libp2p/interface': 1.7.0
-      '@libp2p/interface-internal': 1.3.4
-      '@multiformats/multiaddr': 12.3.0
-      it-first: 3.0.6
-      it-pipe: 3.0.1
-      uint8arrays: 5.1.0
-
   '@libp2p/pubsub-peer-discovery@10.0.2':
     dependencies:
       '@libp2p/interface': 1.7.0
@@ -11205,6 +11279,7 @@ snapshots:
       protons-runtime: 5.5.0
       race-signal: 1.1.0
       react-native-webrtc: 118.0.7(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+<<<<<<< HEAD
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
     transitivePeerDependencies:
@@ -11235,13 +11310,15 @@ snapshots:
       protons-runtime: 5.5.0
       race-signal: 1.1.0
       react-native-webrtc: 118.0.7(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+=======
+>>>>>>> e522888c7 (Mise à jour)
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
     transitivePeerDependencies:
       - react-native
       - supports-color
 
-  '@libp2p/webrtc@4.1.8(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0))':
+  '@libp2p/webrtc@4.1.8(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))':
     dependencies:
       '@chainsafe/libp2p-noise': 15.1.2
       '@libp2p/interface': 1.7.0
@@ -11264,7 +11341,7 @@ snapshots:
       progress-events: 1.0.1
       protons-runtime: 5.5.0
       race-signal: 1.1.0
-      react-native-webrtc: 118.0.7(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0))
+      react-native-webrtc: 118.0.7(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
     transitivePeerDependencies:
@@ -11784,9 +11861,13 @@ snapshots:
       '@babel/plugin-transform-async-to-generator': 7.24.7(@babel/core@7.25.2)
       '@babel/plugin-transform-block-scoping': 7.25.0(@babel/core@7.25.2)
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/plugin-transform-class-properties': 7.25.4(@babel/core@7.25.2)
 =======
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@babel/plugin-transform-class-properties': 7.25.4(@babel/core@7.25.2)
+>>>>>>> e522888c7 (Mise à jour)
       '@babel/plugin-transform-classes': 7.25.4(@babel/core@7.25.2)
       '@babel/plugin-transform-computed-properties': 7.24.7(@babel/core@7.25.2)
       '@babel/plugin-transform-destructuring': 7.24.8(@babel/core@7.25.2)
@@ -11810,9 +11891,13 @@ snapshots:
       '@babel/plugin-transform-react-jsx-self': 7.24.7(@babel/core@7.25.2)
       '@babel/plugin-transform-react-jsx-source': 7.24.7(@babel/core@7.25.2)
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/plugin-transform-regenerator': 7.24.7(@babel/core@7.25.2)
 =======
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@babel/plugin-transform-regenerator': 7.24.7(@babel/core@7.25.2)
+>>>>>>> e522888c7 (Mise à jour)
       '@babel/plugin-transform-runtime': 7.25.4(@babel/core@7.25.2)
       '@babel/plugin-transform-shorthand-properties': 7.24.7(@babel/core@7.25.2)
       '@babel/plugin-transform-spread': 7.24.7(@babel/core@7.25.2)
@@ -11831,10 +11916,14 @@ snapshots:
     dependencies:
       '@babel/parser': 7.25.6
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/preset-env': 7.25.4(@babel/core@7.25.2)
 =======
       '@babel/preset-env': 7.24.8(@babel/core@7.25.2)
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@babel/preset-env': 7.25.4(@babel/core@7.25.2)
+>>>>>>> e522888c7 (Mise à jour)
       glob: 7.2.3
       hermes-parser: 0.22.0
       invariant: 2.2.4
@@ -11910,6 +11999,7 @@ snapshots:
       invariant: 2.2.4
       nullthrows: 1.1.1
 <<<<<<< HEAD
+<<<<<<< HEAD
       react: 18.3.1
       react-native: 0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4)
 =======
@@ -11927,6 +12017,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      react: 18.3.1
+      react-native: 0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4)
+>>>>>>> e522888c7 (Mise à jour)
 
   '@samverschueren/stream-to-observable@0.3.1(rxjs@6.6.7)':
     dependencies:
@@ -12078,10 +12172,14 @@ snapshots:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
       '@types/responselike': 1.0.3
 
   '@types/chai-as-promised@7.1.8':
@@ -12109,10 +12207,14 @@ snapshots:
   '@types/dns-packet@5.6.5':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
 
   '@types/file-saver@2.0.7': {}
 
@@ -12120,10 +12222,14 @@ snapshots:
     dependencies:
       '@types/minimatch': 5.1.2
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
 
   '@types/http-cache-semantics@4.0.4': {}
 
@@ -12144,10 +12250,14 @@ snapshots:
   '@types/keyv@3.1.4':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
 
   '@types/lodash-es@4.17.12':
     dependencies:
@@ -12173,10 +12283,14 @@ snapshots:
     dependencies:
       '@types/dns-packet': 5.6.5
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
 
   '@types/murmurhash3js-revisited@3.0.3': {}
 
@@ -12187,6 +12301,7 @@ snapshots:
   '@types/node-localstorage@1.3.3':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 
   '@types/node@20.16.2':
@@ -12195,6 +12310,11 @@ snapshots:
 
   '@types/node@18.19.48':
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+
+  '@types/node@20.16.2':
+>>>>>>> e522888c7 (Mise à jour)
     dependencies:
       undici-types: 6.19.8
 
@@ -12211,10 +12331,14 @@ snapshots:
   '@types/responselike@1.0.3':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
 
   '@types/retry@0.12.0': {}
 
@@ -12243,10 +12367,14 @@ snapshots:
   '@types/ws@8.5.12':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -12261,10 +12389,14 @@ snapshots:
   '@types/yauzl@2.10.3':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
     optional: true
 
   '@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)':
@@ -12590,12 +12722,17 @@ snapshots:
       '@types/chai-subset': 1.3.5
       '@types/mocha': 10.0.7
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
 =======
       '@types/node': 20.16.3
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+      '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
+>>>>>>> e522888c7 (Mise à jour)
       buffer: 6.0.3
       bytes: 3.1.2
       c8: 10.1.2
@@ -12670,10 +12807,14 @@ snapshots:
       typedoc-plugin-missing-exports: 2.3.0(typedoc@0.25.13(typescript@5.5.4))
       typescript: 5.5.4
 <<<<<<< HEAD
+<<<<<<< HEAD
       typescript-docs-verifier: 2.5.0(@types/node@20.16.2)(typescript@5.5.4)
 =======
       typescript-docs-verifier: 2.5.0(@types/node@20.16.3)(typescript@5.5.4)
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      typescript-docs-verifier: 2.5.0(@types/node@20.16.2)(typescript@5.5.4)
+>>>>>>> e522888c7 (Mise à jour)
       wherearewe: 2.0.1
       yargs: 17.7.2
       yargs-parser: 21.1.1
@@ -12930,6 +13071,7 @@ snapshots:
   average@0.0.1: {}
 
   axios@1.7.5:
+<<<<<<< HEAD
     dependencies:
       follow-redirects: 1.15.6
       form-data: 4.0.0
@@ -12938,6 +13080,8 @@ snapshots:
       - debug
 
   axios@1.7.7:
+=======
+>>>>>>> e522888c7 (Mise à jour)
     dependencies:
       follow-redirects: 1.15.6
       form-data: 4.0.0
@@ -14030,10 +14174,14 @@ snapshots:
     dependencies:
       '@electron/get': 2.0.3
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
       extract-zip: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -14316,12 +14464,17 @@ snapshots:
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.0)(typescript@5.5.4)
 <<<<<<< HEAD
+<<<<<<< HEAD
       eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
       eslint-config-standard: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
 =======
       eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@9.9.0))(eslint-plugin-n@17.10.2(eslint@9.9.0))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
       eslint-config-standard: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@9.9.0))(eslint-plugin-n@17.10.2(eslint@9.9.0))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
+      eslint-config-standard: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
+>>>>>>> e522888c7 (Mise à jour)
       eslint-plugin-etc: 2.0.3(eslint@8.57.0)(typescript@5.5.4)
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
       eslint-plugin-jsdoc: 48.11.0(eslint@8.57.0)
@@ -14338,14 +14491,19 @@ snapshots:
       - supports-color
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
 =======
   eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@9.9.0))(eslint-plugin-n@17.10.2(eslint@9.9.0))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+  eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
+>>>>>>> e522888c7 (Mise à jour)
     dependencies:
-      '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.0)(typescript@5.5.4)
       eslint: 8.57.0
+<<<<<<< HEAD
 <<<<<<< HEAD
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
       eslint-plugin-n: 17.10.2(eslint@9.9.1)
@@ -14353,6 +14511,10 @@ snapshots:
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@9.9.0)
       eslint-plugin-n: 17.10.2(eslint@9.9.0)
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
+      eslint-plugin-n: 17.10.2(eslint@9.9.1)
+>>>>>>> e522888c7 (Mise à jour)
       eslint-plugin-promise: 6.6.0(eslint@8.57.0)
       typescript: 5.5.4
     transitivePeerDependencies:
@@ -14362,6 +14524,7 @@ snapshots:
     dependencies:
       eslint: 9.9.1
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   eslint-config-standard@17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
@@ -14375,6 +14538,13 @@ snapshots:
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@9.9.0)
       eslint-plugin-n: 17.10.2(eslint@9.9.0)
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+  eslint-config-standard@17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
+    dependencies:
+      eslint: 8.57.0
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
+      eslint-plugin-n: 17.10.2(eslint@9.9.1)
+>>>>>>> e522888c7 (Mise à jour)
       eslint-plugin-promise: 6.6.0(eslint@8.57.0)
 
   eslint-config-standard@17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@7.1.0(eslint@9.9.1))(eslint@9.9.1):
@@ -15507,6 +15677,7 @@ snapshots:
   he@1.2.0: {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   helia@4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4)):
 =======
   helia@3.0.1(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0)):
@@ -15559,6 +15730,9 @@ snapshots:
 
   helia@4.2.5(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0)):
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+  helia@4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4)):
+>>>>>>> e522888c7 (Mise à jour)
     dependencies:
       '@chainsafe/libp2p-noise': 15.1.1
       '@chainsafe/libp2p-yamux': 6.0.2
@@ -16565,35 +16739,6 @@ snapshots:
       race-signal: 1.1.0
       uint8arrays: 5.1.0
 
-  libp2p@1.9.3:
-    dependencies:
-      '@libp2p/crypto': 4.1.9
-      '@libp2p/interface': 1.7.0
-      '@libp2p/interface-internal': 1.3.4
-      '@libp2p/logger': 4.0.20
-      '@libp2p/multistream-select': 5.1.17
-      '@libp2p/peer-collections': 5.2.9
-      '@libp2p/peer-id': 4.2.4
-      '@libp2p/peer-id-factory': 4.2.4
-      '@libp2p/peer-store': 10.1.5
-      '@libp2p/utils': 5.4.9
-      '@multiformats/dns': 1.0.6
-      '@multiformats/multiaddr': 12.3.0
-      '@multiformats/multiaddr-matcher': 1.2.4
-      any-signal: 4.1.1
-      datastore-core: 9.2.9
-      interface-datastore: 8.3.0
-      it-byte-stream: 1.1.0
-      it-merge: 3.0.5
-      it-parallel: 3.0.8
-      merge-options: 3.0.4
-      multiformats: 13.2.2
-      p-defer: 4.0.1
-      progress-events: 1.0.1
-      race-event: 1.3.0
-      race-signal: 1.1.0
-      uint8arrays: 5.1.0
-
   libsodium-sumo@0.7.15: {}
 
   libsodium-wrappers-sumo@0.7.15:
@@ -17407,11 +17552,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+<<<<<<< HEAD
   micromatch@4.0.8:
     dependencies:
       braces: 3.0.3
       picomatch: 2.3.1
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   micromatch@4.0.8:
     dependencies:
       braces: 3.0.3
@@ -18346,6 +18494,7 @@ snapshots:
   proto-list@1.2.4: {}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   protobufjs@7.4.0:
     dependencies:
@@ -18363,6 +18512,8 @@ snapshots:
       long: 5.2.3
 
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+>>>>>>> e522888c7 (Mise à jour)
   protons-runtime@5.4.0:
     dependencies:
       uint8-varint: 2.0.4
@@ -19567,10 +19718,14 @@ snapshots:
       typescript: 5.5.4
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   ts-node@10.9.2(@types/node@20.16.2)(typescript@5.5.4):
 =======
   ts-node@10.9.2(@types/node@20.16.3)(typescript@5.5.4):
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+  ts-node@10.9.2(@types/node@20.16.2)(typescript@5.5.4):
+>>>>>>> e522888c7 (Mise à jour)
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
@@ -19578,10 +19733,14 @@ snapshots:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.2
 =======
       '@types/node': 20.16.3
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      '@types/node': 20.16.2
+>>>>>>> e522888c7 (Mise à jour)
       acorn: 8.12.1
       acorn-walk: 8.3.3
       arg: 4.1.3
@@ -19630,8 +19789,11 @@ snapshots:
 
   tslib@1.14.1: {}
 
+<<<<<<< HEAD
   tslib@2.7.0: {}
 
+=======
+>>>>>>> e522888c7 (Mise à jour)
   tslib@2.7.0: {}
 
   tsutils-etc@1.4.2(tsutils@3.21.0(typescript@5.5.4))(typescript@5.5.4):
@@ -19745,20 +19907,28 @@ snapshots:
       typescript: 5.5.4
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   typescript-docs-verifier@2.5.0(@types/node@20.16.2)(typescript@5.5.4):
 =======
   typescript-docs-verifier@2.5.0(@types/node@20.16.3)(typescript@5.5.4):
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+  typescript-docs-verifier@2.5.0(@types/node@20.16.2)(typescript@5.5.4):
+>>>>>>> e522888c7 (Mise à jour)
     dependencies:
       chalk: 4.1.2
       fs-extra: 10.1.0
       ora: 5.4.1
       strip-ansi: 7.1.0
 <<<<<<< HEAD
+<<<<<<< HEAD
       ts-node: 10.9.2(@types/node@20.16.2)(typescript@5.5.4)
 =======
       ts-node: 10.9.2(@types/node@20.16.3)(typescript@5.5.4)
 >>>>>>> 7855ad352 (Update dependency @types/node to v20.16.3)
+=======
+      ts-node: 10.9.2(@types/node@20.16.2)(typescript@5.5.4)
+>>>>>>> e522888c7 (Mise à jour)
       tsconfig: 7.0.0
       typescript: 5.5.4
       yargs: 17.7.2
