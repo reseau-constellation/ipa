@@ -595,9 +595,14 @@ describe("Automatisation", function () {
       });
       await client.tableaux.ajouterÉlément({
         idTableau,
-        vals: {
-          [idCol]: 3,
-        },
+        vals: [
+          {
+            [idCol]: 3,
+          },
+          {
+            [idCol]: 5,
+          }
+        ],
       });
 
       idProjet = await client.projets.créerProjet();
@@ -653,7 +658,7 @@ describe("Automatisation", function () {
       await attendreExiste;
       const brutes = new TextDecoder().decode(fs.readFileSync(fichier))
       console.log({brutes: JSON.stringify(brutes, undefined, 2)})
-      vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
+      vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }, { précipitation: 5 }]);
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
     });
