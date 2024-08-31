@@ -41,7 +41,6 @@ import { ContrôleurConstellation as générerContrôleurConstellation } from "@
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import pkg from "file-saver";
-import { writeFileSync } from "fs";
 const { saveAs } = pkg;
 
 type ContrôleurConstellation = Awaited<
@@ -2278,6 +2277,7 @@ export class BDs extends ComposanteClientListe<string> {
       xls: "biff8",
     };
     const bookType: XLSX.BookType = conversionsTypes[formatDoc] || formatDoc;
+    const adresseFinale = path.join(dossier, `${nomFichier}.${formatDoc}`);
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
     if (!(isBrowser || isWebWorker)) {
@@ -2310,26 +2310,24 @@ export class BDs extends ComposanteClientListe<string> {
       );
       return path.join(dossier, `${nomFichier}.zip`);
     } else {
-      const document = XLSX.write(doc, {
-        bookType,
-        type: "buffer",
-      }) as ArrayBuffer;
       if (isNode || isElectronMain) {
-        console.log("avant écriture, ", path.join(dossier, `${nomFichier}.${formatDoc}`), {bookType});
+        console.log("avant écriture, ", adresseFinale, {bookType});
         console.log(JSON.stringify(doc, undefined, 2));
-        writeFileSync(
-          path.join(dossier, `${nomFichier}.${formatDoc}`),
-          Buffer.from(document)
-        );
+        XLSX.writeFile(doc, adresseFinale, {
+          bookType,
+        });
         console.log("après écriture")
       } else {
-        
+        const document = XLSX.write(doc, {
+          bookType,
+          type: "buffer",
+        }) as ArrayBuffer;
         saveAs(
           new Blob([new Uint8Array(document)]),
           `${nomFichier}.${formatDoc}`,
         );
       }
-      return path.join(dossier, `${nomFichier}.${formatDoc}`);
+      return adresseFinale;
     }
   }
 
