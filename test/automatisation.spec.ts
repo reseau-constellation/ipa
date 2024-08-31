@@ -265,9 +265,9 @@ describe("Automatisation", function () {
 
       const données = XLSX.utils.book_new();
       const tableau = XLSX.utils.json_to_sheet([
-        { "col 1": 4, "col 2": "អ" },
-        { "col 1": 5, "col 2": "அ" },
-        { "col 1": 6, "col 2": "a" },
+        { "colé 1": 4, "col 2": "អ" },
+        { "colé 1": 5, "col 2": "அ" },
+        { "colé 1": 6, "col 2": "a" },
       ]);
       XLSX.utils.book_append_sheet(données, tableau, "tableau");
 
@@ -283,8 +283,8 @@ describe("Automatisation", function () {
             nomTableau: "tableau",
             formatDonnées: "feuilleCalcul",
             cols: {
-              [idCol1]: "col 1",
-              [idCol2]: "col 2",
+              [idCol1]: "colé 1",
+              [idCol2]: "colé 2",
             },
           },
         };
