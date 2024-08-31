@@ -629,7 +629,7 @@ describe("Automatisation", function () {
     it("Exportation tableau", async function () {
       if (isBrowser || isElectronRenderer) this.skip();
 
-      const fichier = path.join(dossier, "météo.xlsx");
+      const fichier = path.join(dossier, "météo.csv");
       const attente = new utilsTestAttente.AttendreFichierExiste(fichier);
       fsOublier.push(() => attente.annuler());
       const attendreExiste = attente.attendre();
@@ -638,7 +638,7 @@ describe("Automatisation", function () {
         {
           id: idTableau,
           typeObjet: "tableau",
-          formatDoc: "xlsx",
+          formatDoc: "csv",
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
@@ -649,6 +649,8 @@ describe("Automatisation", function () {
       );
 
       await attendreExiste;
+      const brutes = new TextDecoder().decode(fs.readFileSync(fichier))
+      console.log({brutes: JSON.stringify(brutes, undefined, 2)})
       vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
