@@ -629,7 +629,7 @@ describe("Automatisation", function () {
     it("Exportation tableau", async function () {
       if (isBrowser || isElectronRenderer) this.skip();
 
-      const fichier = path.join(dossier, "météo.csv");
+      const fichier = path.join(dossier, "météo.ods");
       const attente = new utilsTestAttente.AttendreFichierExiste(fichier);
       fsOublier.push(() => attente.annuler());
       const attendreExiste = attente.attendre();
@@ -638,7 +638,7 @@ describe("Automatisation", function () {
         {
           id: idTableau,
           typeObjet: "tableau",
-          formatDoc: "csv",
+          formatDoc: "ods",
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
