@@ -269,7 +269,7 @@ describe("Automatisation", function () {
         { "colé 1": 5, "colé 2": "அ" },
         { "colé 1": 6, "colé 2": "a" },
       ]);
-      XLSX.utils.book_append_sheet(données, tableau, "tableau");
+      XLSX.utils.book_append_sheet(données, tableau, "tabléau");
       console.log(JSON.stringify(données, undefined, 2))
 
       XLSX.writeFile(données, fichierFeuilleCalcul, {
@@ -281,7 +281,7 @@ describe("Automatisation", function () {
           typeSource: "fichier",
           adresseFichier: fichierFeuilleCalcul,
           info: {
-            nomTableau: "tableau",
+            nomTableau: "tabléau",
             formatDonnées: "feuilleCalcul",
             cols: {
               [idCol1]: "colé 1",
