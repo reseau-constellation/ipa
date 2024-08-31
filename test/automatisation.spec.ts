@@ -834,8 +834,8 @@ describe("Automatisation", function () {
       });
       await client.tableaux.sauvegarderNomTableau({
         idTableau,
-        langue: "fr",
-        nom: "météo",
+        langue: "த",
+        nom: "காலநிலை",
       });
       const idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
@@ -897,13 +897,13 @@ describe("Automatisation", function () {
       await attenteModifié.attendre(avant, async () => {
         const doc = XLSX.readFile(fichier);
         return (
-          Object.keys(utils.sheet_to_json(doc.Sheets["météo"])[0] || {})
+          Object.keys(utils.sheet_to_json(doc.Sheets["காலநிலை"])[0] || {})
             .length > 1
         );
       });
 
       vérifierDonnéesBd(fichier, {
-        météo: [{ Précipitation: 123, auteur: await client.obtIdCompte() }],
+        காலநிலை: [{ Précipitation: 123, auteur: await client.obtIdCompte() }],
       });
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
