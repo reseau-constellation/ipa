@@ -828,8 +828,6 @@ export class Tableaux {
       attendreStabilité(patience),
     );
 
-    console.log(JSON.stringify(données, undefined, 2)) // temporaire
-
     /* Créer le tableau */
     const tableau = utils.json_to_sheet(données.données);
 

@@ -474,7 +474,6 @@ const générerFExportation = (
           idTableau: spéc.idObjet,
           langues: spéc.langues,
         });
-        console.log(JSON.stringify(donnéesExp, undefined, 2))  // temporaire
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
