@@ -41,7 +41,7 @@ import { ContrôleurConstellation as générerContrôleurConstellation } from "@
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import pkg from "file-saver";
-import { existsSync } from "fs";
+import { writeFileSync } from "fs";
 const { saveAs } = pkg;
 
 type ContrôleurConstellation = Awaited<
@@ -2310,18 +2310,20 @@ export class BDs extends ComposanteClientListe<string> {
       );
       return path.join(dossier, `${nomFichier}.zip`);
     } else {
+      const document = XLSX.write(doc, {
+        bookType,
+        type: "buffer",
+      }) as ArrayBuffer;
       if (isNode || isElectronMain) {
         console.log("avant écriture, ", path.join(dossier, `${nomFichier}.${formatDoc}`), {bookType});
         console.log(JSON.stringify(doc, undefined, 2));
-        XLSX.writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {
-          bookType,
-        });
+        writeFileSync(
+          path.join(dossier, `${nomFichier}.${formatDoc}`),
+          Buffer.from(document)
+        );
         console.log("après écriture")
       } else {
-        const document = XLSX.write(doc, {
-          bookType,
-          type: "buffer",
-        }) as ArrayBuffer;
+        
         saveAs(
           new Blob([new Uint8Array(document)]),
           `${nomFichier}.${formatDoc}`,

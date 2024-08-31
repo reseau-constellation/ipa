@@ -272,24 +272,7 @@ describe("Automatisation", function () {
       XLSX.utils.book_append_sheet(données, tableau, "tabléau");
       console.log(JSON.stringify(données, undefined, 2))
 
-      XLSX.writeFile({
-        "SheetNames": [
-          "météo"
-        ],
-        "Sheets": {
-          "météo": {
-            "A2": {
-              "t": "n",
-              "v": 3
-            },
-            "A1": {
-              "t": "s",
-              "v": "précipitation"
-            },
-            "!ref": "A1:A2"
-          }
-        }
-      }, fichierFeuilleCalcul, {
+      XLSX.writeFile(données, fichierFeuilleCalcul, {
         bookType: "ods",
       });
 
