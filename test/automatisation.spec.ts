@@ -265,13 +265,13 @@ describe("Automatisation", function () {
 
       const données = XLSX.utils.book_new();
       const tableau = XLSX.utils.json_to_sheet([
-        { "colé 1": 4, "colé 2": "អ" }
+        { "colé 1": 4 }
       ]);
       XLSX.utils.book_append_sheet(données, tableau, "météo");
       console.log(JSON.stringify(données, undefined, 2))
 
       XLSX.writeFile(données, fichierFeuilleCalcul, {
-        bookType: "ods",
+        bookType: "ods"
       });
 
       const brutes = new TextDecoder().decode(fs.readFileSync(fichierFeuilleCalcul))
@@ -552,8 +552,10 @@ describe("Automatisation", function () {
   });
 
   describe("Exportation", function () {
-    let idVariable: string;
-    let idCol: string;
+    let idVariablePrécip: string;
+    let idVariableTemp: string;
+    let idColPrécip: string;
+    let idColTemp: string;
     let idTableau: string;
     let idBd: string;
     let idProjet: string;
@@ -580,29 +582,38 @@ describe("Automatisation", function () {
         },
       });
 
-      idVariable = await client.variables.créerVariable({
+      idVariablePrécip = await client.variables.créerVariable({
         catégorie: "numérique",
       });
-      idCol = await client.tableaux.ajouterColonneTableau({
+      idColPrécip = await client.tableaux.ajouterColonneTableau({
         idTableau,
-        idVariable,
+        idVariable: idVariablePrécip,
       });
       await client.variables.sauvegarderNomsVariable({
-        idVariable,
+        idVariable: idVariablePrécip,
         noms: {
           fr: "précipitation",
         },
       });
+      idVariableTemp = await client.variables.créerVariable({
+        catégorie: "numérique",
+      });
+      idColTemp = await client.tableaux.ajouterColonneTableau({
+        idTableau,
+        idVariable: idVariableTemp,
+      });
+      await client.variables.sauvegarderNomsVariable({
+        idVariable: idVariableTemp,
+        noms: {
+          fr: "température",
+        },
+      });
       await client.tableaux.ajouterÉlément({
         idTableau,
-        vals: [
-          {
-            [idCol]: 3,
-          },
-          {
-            [idCol]: 5,
-          }
-        ],
+        vals: {
+          [idColPrécip]: 3,
+          [idColTemp]: 25,
+        },
       });
 
       idProjet = await client.projets.créerProjet();
@@ -658,7 +669,7 @@ describe("Automatisation", function () {
       await attendreExiste;
       const brutes = new TextDecoder().decode(fs.readFileSync(fichier))
       console.log({brutes: JSON.stringify(brutes, undefined, 2)})
-      vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }, { précipitation: 5 }]);
+      vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3, température: 25 }]);
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
     });
@@ -686,7 +697,7 @@ describe("Automatisation", function () {
       );
 
       await attendreExiste;
-      vérifierDonnéesBd(fichier, { météo: [{ précipitation: 3 }] });
+      vérifierDonnéesBd(fichier, { météo: [{ précipitation: 3, température: 25 }] });
       await client.automatisations.annulerAutomatisation({ id: idAuto });
     });
 
@@ -714,7 +725,7 @@ describe("Automatisation", function () {
       await attendreExiste;
       await vérifierDonnéesProjet(fichier, {
         "Ma bd.ods": {
-          météo: [{ précipitation: 3 }],
+          météo: [{ précipitation: 3, température: 25 }],
         },
       });
 
@@ -756,12 +767,12 @@ describe("Automatisation", function () {
       });
       await client.tableaux.ajouterÉlément({
         idTableau,
-        vals: { [idCol]: 5 },
+        vals: { [idColPrécip]: 5 },
       });
       await attenteModifié;
 
       vérifierDonnéesBd(fichier, {
-        météo: [{ précipitation: 3 }, { précipitation: 5 }],
+        météo: [{ précipitation: 3, température: 25 }, { précipitation: 5 }],
       });
       await client.automatisations.annulerAutomatisation({ id: idAuto });
     });
