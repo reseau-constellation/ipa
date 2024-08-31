@@ -629,7 +629,7 @@ describe("Automatisation", function () {
     it("Exportation tableau", async function () {
       if (isBrowser || isElectronRenderer) this.skip();
 
-      const fichier = path.join(dossier, "météo.ods");
+      const fichier = path.join(dossier, "météo.xlsx");
       const attente = new utilsTestAttente.AttendreFichierExiste(fichier);
       fsOublier.push(() => attente.annuler());
       const attendreExiste = attente.attendre();
