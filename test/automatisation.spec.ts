@@ -276,6 +276,9 @@ describe("Automatisation", function () {
         bookType: "ods",
       });
 
+      const brutes = new TextDecoder().decode(fs.readFileSync(fichierFeuilleCalcul))
+      console.log({brutes: JSON.stringify(brutes, undefined, 2)})
+
       const source: SourceDonnéesImportationFichier<infoImporterFeuilleCalcul> =
         {
           typeSource: "fichier",
