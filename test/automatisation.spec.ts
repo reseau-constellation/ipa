@@ -265,11 +265,12 @@ describe("Automatisation", function () {
 
       const données = XLSX.utils.book_new();
       const tableau = XLSX.utils.json_to_sheet([
-        { "colé 1": 4, "col 2": "អ" },
-        { "colé 1": 5, "col 2": "அ" },
-        { "colé 1": 6, "col 2": "a" },
+        { "colé 1": 4, "colé 2": "អ" },
+        { "colé 1": 5, "colé 2": "அ" },
+        { "colé 1": 6, "colé 2": "a" },
       ]);
       XLSX.utils.book_append_sheet(données, tableau, "tableau");
+      console.log(JSON.stringify(données, undefined, 2))
 
       XLSX.writeFile(données, fichierFeuilleCalcul, {
         bookType: "ods",
