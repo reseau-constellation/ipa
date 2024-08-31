@@ -47,8 +47,6 @@ const vérifierDonnéesTableau = (
   const cols = importateur.obtColsTableau(tableau);
   const donnéesFichier = importateur.obtDonnées(tableau, cols);
 
-  console.log({cols, donnéesFichier});
-
   expect(donnéesFichier).to.have.deep.members(données);
   expect(donnéesFichier.length).to.equal(données.length);
 };
@@ -60,7 +58,6 @@ const vérifierDonnéesBd = (
   if (typeof doc === "string") {
     expect(fs.existsSync(doc));
     doc = XLSX.readFile(doc);
-    console.log(doc);
   }
   for (const tableau of Object.keys(données)) {
     vérifierDonnéesTableau(doc, tableau, données[tableau]);
@@ -678,8 +675,6 @@ describe("Automatisation", function () {
       );
 
       await attendreExiste;
-      const brutes = new TextDecoder().decode(fs.readFileSync(fichier))
-      console.log({brutes: JSON.stringify(brutes, undefined, 2)})
       vérifierDonnéesBd(fichier, { காலநிலை: [{ précipitation: 3 }] });
       await client.automatisations.annulerAutomatisation({ id: idAuto });
     });

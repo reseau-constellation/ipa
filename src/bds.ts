@@ -2311,12 +2311,9 @@ export class BDs extends ComposanteClientListe<string> {
       return path.join(dossier, `${nomFichier}.zip`);
     } else {
       if (isNode || isElectronMain) {
-        console.log("avant écriture, ", adresseFinale, {bookType});
-        console.log(JSON.stringify(doc, undefined, 2));
         XLSX.writeFile(doc, adresseFinale, {
           bookType,
         });
-        console.log("après écriture")
       } else {
         const document = XLSX.write(doc, {
           bookType,
