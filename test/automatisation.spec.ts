@@ -265,7 +265,7 @@ describe("Automatisation", function () {
 
       const données = XLSX.utils.book_new();
       const tableau = XLSX.utils.json_to_sheet([
-        { "colé 1": 4 },
+        { "colé 1": 4, "colé 2": "អ" }
       ]);
       XLSX.utils.book_append_sheet(données, tableau, "météo");
       console.log(JSON.stringify(données, undefined, 2))
