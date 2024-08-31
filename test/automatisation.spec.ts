@@ -652,7 +652,7 @@ describe("Automatisation", function () {
       await attendreExiste;
       const brutes = new TextDecoder().decode(fs.readFileSync(fichier))
       console.log({brutes: JSON.stringify(brutes, undefined, 2)})
-      vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
+      vérifierDonnéesTableau(fichier, "காலநிலை", [{ précipitation: 3 }]);
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
     });
