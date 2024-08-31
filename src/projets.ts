@@ -1,4 +1,4 @@
-import { WorkBook, BookType, write as writeXLSX, utils } from "xlsx";
+import XLSX from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
 
@@ -42,7 +42,7 @@ export interface donnéesProjetExportation {
 }
 
 export interface donnéesProjetExportées {
-  docs: { doc: WorkBook; nom: string }[];
+  docs: { doc: XLSX.WorkBook; nom: string }[];
   fichiersSFIP: Set<string>;
   nomFichier: string;
 }
@@ -950,13 +950,13 @@ export class Projets extends ComposanteClientListe<string> {
 
     return {
       docs: données.bds.map((donnéesBd) => {
-        const doc = utils.book_new();
+        const doc = XLSX.utils.book_new();
         for (const tableau of donnéesBd.tableaux) {
           /* Créer le tableau */
-          const tableauXLSX = utils.json_to_sheet(tableau.données);
+          const tableauXLSX = XLSX.utils.json_to_sheet(tableau.données);
 
           /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-          utils.book_append_sheet(
+          XLSX.utils.book_append_sheet(
             doc,
             tableauXLSX,
             tableau.nomTableau.slice(0, 30),
@@ -976,21 +976,21 @@ export class Projets extends ComposanteClientListe<string> {
     inclureFichiersSFIP = true,
   }: {
     données: donnéesProjetExportées;
-    formatDoc: BookType | "xls";
+    formatDoc: XLSX.BookType | "xls";
     dossier?: string;
     inclureFichiersSFIP?: boolean;
   }): Promise<void> {
     const { docs, fichiersSFIP, nomFichier } = données;
 
-    const conversionsTypes: { [key: string]: BookType } = {
+    const conversionsTypes: { [key: string]: XLSX.BookType } = {
       xls: "biff8",
     };
-    const bookType: BookType = conversionsTypes[formatDoc] || formatDoc;
+    const bookType: XLSX.BookType = conversionsTypes[formatDoc] || formatDoc;
 
     const fichiersDocs = docs.map((d) => {
       return {
         nom: `${d.nom}.${formatDoc}`,
-        octets: writeXLSX(d.doc, { bookType, type: "buffer" }),
+        octets: XLSX.write(d.doc, { bookType, type: "buffer" }),
       };
     });
     const fichiersDeSFIP = inclureFichiersSFIP

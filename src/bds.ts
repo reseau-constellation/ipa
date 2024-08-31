@@ -2290,7 +2290,7 @@ export class BDs extends ComposanteClientListe<string> {
 
     if (inclureFichiersSFIP) {
       const fichierDoc = {
-        octets: XLSX.writeXLSX(doc, { bookType, type: "buffer" }),
+        octets: XLSX.write(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
       };
       const fichiersDeSFIP = await Promise.all(
@@ -2311,14 +2311,14 @@ export class BDs extends ComposanteClientListe<string> {
       return path.join(dossier, `${nomFichier}.zip`);
     } else {
       if (isNode || isElectronMain) {
-        console.log("avant écriture, ", path.join(dossier, `${nomFichier}.${formatDoc}`));
+        console.log("avant écriture, ", path.join(dossier, `${nomFichier}.${formatDoc}`), {bookType});
         console.log(existsSync(dossier));
         XLSX.writeFile(doc, path.join(dossier, `${nomFichier}.${formatDoc}`), {
           bookType,
         });
         console.log("après écriture")
       } else {
-        const document = XLSX.writeXLSX(doc, {
+        const document = XLSX.write(doc, {
           bookType,
           type: "buffer",
         }) as ArrayBuffer;
