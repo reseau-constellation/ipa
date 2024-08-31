@@ -11,6 +11,10 @@ import { Constellation, créerConstellation } from "@/index.js";
 const ID_PAIR_NAVIG = "12D3KooWSCVw8HCc4hrkzfkEeJmVW2xfQRkxEreLzoc1NDTfzYFf";
 const ID_PAIR_NODE = "12D3KooWENXsSgmKXse4hi77cmCeyKtpLiQWedkcgYeFsiQPnJRr";
 
+
+const attendre = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 const attendreConnecté = async ({
   sfip,
   idPair,
@@ -101,7 +105,7 @@ describe.skip("SFIP", function () {
 
   it("Initialiser", async () => {
     const id = sfip.libp2p.peerId;
-    expect(id).to.be.a.string;
+    expect(id).to.be.a("string");
   });
 
   it("Connexion à Node.js", async () => {
@@ -131,6 +135,7 @@ describe.skip("Stabilité client", function () {
   before(async () => {
     ({ dossier, fEffacer } = await dossiers.dossierTempo());
     client = créerConstellation({ dossier });
+    await attendre(15000);
   });
 
   after(async () => {

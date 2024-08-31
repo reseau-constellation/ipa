@@ -814,7 +814,7 @@ describe("Automatisation", function () {
 
       await client.tableaux.ajouterÉlément({
         idTableau,
-        vals: { [idCol]: 7 },
+        vals: { [idColPrécip]: 7 },
       });
 
       await modifié;
