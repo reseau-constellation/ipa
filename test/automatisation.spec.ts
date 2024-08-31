@@ -40,7 +40,7 @@ const vérifierDonnéesTableau = (
 ): void => {
   if (typeof doc === "string") {
     expect(fs.existsSync(doc)).to.be.true();
-    doc = XLSX.readFile(doc);
+    doc = XLSX.readFile(doc, {});
     console.log(doc);
   }
   const importateur = new ImportateurFeuilleCalcul(doc);
@@ -638,7 +638,7 @@ describe("Automatisation", function () {
         {
           id: idTableau,
           typeObjet: "tableau",
-          formatDoc: "ods",
+          formatDoc: "xlsx",
           inclureFichiersSFIP: false,
           dossier,
           langues: ["fr"],
@@ -649,7 +649,6 @@ describe("Automatisation", function () {
       );
 
       await attendreExiste;
-      await new Promise(résoudre => setTimeout(résoudre, 5000));
       vérifierDonnéesTableau(fichier, "météo", [{ précipitation: 3 }]);
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
