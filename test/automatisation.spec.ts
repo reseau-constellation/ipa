@@ -543,7 +543,7 @@ describe("Automatisation", function () {
         { [idCol1]: 4, [idCol2]: "子" },
       ]);
     });
-    it("Effacer automatisation");
+    it.skip("Effacer automatisation");
   });
 
   describe("Exportation", function () {
