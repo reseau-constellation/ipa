@@ -265,28 +265,26 @@ describe("Automatisation", function () {
 
       const données = XLSX.utils.book_new();
       const tableau = XLSX.utils.json_to_sheet([
-        { "colé 2": "អ" }
+        { "col 1": 4, "col 2": "អ" },
+        { "col 1": 5, "col 2": "அ" },
+        { "col 1": 6, "col 2": "a" },
       ]);
-      XLSX.utils.book_append_sheet(données, tableau, "météo");
-      console.log(JSON.stringify(données, undefined, 2))
+      XLSX.utils.book_append_sheet(données, tableau, "tableau");
 
       XLSX.writeFile(données, fichierFeuilleCalcul, {
         bookType: "ods",
       });
 
-      const brutes = new TextDecoder().decode(fs.readFileSync(fichierFeuilleCalcul))
-      console.log({brutes: JSON.stringify(brutes, undefined, 2)})
-      return;
       const source: SourceDonnéesImportationFichier<infoImporterFeuilleCalcul> =
         {
           typeSource: "fichier",
           adresseFichier: fichierFeuilleCalcul,
           info: {
-            nomTableau: "tabléau",
+            nomTableau: "tableau",
             formatDonnées: "feuilleCalcul",
             cols: {
-              [idCol1]: "colé 1",
-              [idCol2]: "colé 2",
+              [idCol1]: "col 1",
+              [idCol2]: "col 2",
             },
           },
         };
@@ -312,7 +310,7 @@ describe("Automatisation", function () {
       ]);
     });
 
-    it.skip("Importer d'un URL (feuille calcul)", async function () {
+    it("Importer d'un URL (feuille calcul)", async function () {
       // @ts-expect-error  Faire semblant qu'on se connecte à l'Internet
       axios.get = async (url, opts) => {
         return url.startsWith("https://")
@@ -372,7 +370,7 @@ describe("Automatisation", function () {
       ]);
     });
 
-    it.skip("Importer d'un URL (json)", async function () {
+    it("Importer d'un URL (json)", async function () {
       const source: SourceDonnéesImportationURL<infoImporterJSON> = {
         typeSource: "url",
         url: "https://coordinates.native-land.ca/indigenousLanguages.json",
@@ -430,7 +428,7 @@ describe("Automatisation", function () {
       ).to.be.true();
     });
 
-    it.skip("Importation selon changements", async function () {
+    it("Importation selon changements", async function () {
       if (isBrowser || isElectronRenderer) this.skip();
 
       const fichierJSON = path.join(dossier, "données.json");
@@ -485,7 +483,7 @@ describe("Automatisation", function () {
       ]);
     });
 
-    it.skip("Importation selon fréquence", async function () {
+    it("Importation selon fréquence", async function () {
       if (isBrowser || isElectronRenderer) this.skip();
 
       const fichierJSON = path.join(dossier, "données.json");
@@ -548,7 +546,7 @@ describe("Automatisation", function () {
         { [idCol1]: 4, [idCol2]: "子" },
       ]);
     });
-    it.skip("Effacer automatisation");
+    it("Effacer automatisation");
   });
 
   describe("Exportation", function () {
@@ -577,6 +575,7 @@ describe("Automatisation", function () {
         idTableau,
         noms: {
           fr: "météo",
+          த: "காலநிலை" 
         },
       });
 
@@ -643,7 +642,7 @@ describe("Automatisation", function () {
           formatDoc: "ods",
           inclureFichiersSFIP: false,
           dossier,
-          langues: ["fr"],
+          langues: ["த", "fr"],
           fréquence: {
             type: "dynamique",
           },
