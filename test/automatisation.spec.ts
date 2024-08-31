@@ -41,7 +41,6 @@ const vérifierDonnéesTableau = (
   if (typeof doc === "string") {
     expect(fs.existsSync(doc)).to.be.true();
     doc = XLSX.readFile(doc, {});
-    console.log(doc);
   }
   const importateur = new ImportateurFeuilleCalcul(doc);
 
@@ -61,6 +60,7 @@ const vérifierDonnéesBd = (
   if (typeof doc === "string") {
     expect(fs.existsSync(doc));
     doc = XLSX.readFile(doc);
+    console.log(doc);
   }
   for (const tableau of Object.keys(données)) {
     vérifierDonnéesTableau(doc, tableau, données[tableau]);
@@ -650,8 +650,6 @@ describe("Automatisation", function () {
       );
 
       await attendreExiste;
-      const brutes = new TextDecoder().decode(fs.readFileSync(fichier))
-      console.log({brutes: JSON.stringify(brutes, undefined, 2)})
       vérifierDonnéesTableau(fichier, "காலநிலை", [{ précipitation: 3 }]);
 
       await client.automatisations.annulerAutomatisation({ id: idAuto });
@@ -672,7 +670,7 @@ describe("Automatisation", function () {
           formatDoc: "ods",
           inclureFichiersSFIP: false,
           dossier,
-          langues: ["fr"],
+          langues: ["த", "fr"],
           fréquence: {
             type: "dynamique",
           },
@@ -680,7 +678,9 @@ describe("Automatisation", function () {
       );
 
       await attendreExiste;
-      vérifierDonnéesBd(fichier, { météo: [{ précipitation: 3 }] });
+      const brutes = new TextDecoder().decode(fs.readFileSync(fichier))
+      console.log({brutes: JSON.stringify(brutes, undefined, 2)})
+      vérifierDonnéesBd(fichier, { காலநிலை: [{ précipitation: 3 }] });
       await client.automatisations.annulerAutomatisation({ id: idAuto });
     });
 
@@ -699,7 +699,7 @@ describe("Automatisation", function () {
           formatDoc: "ods",
           inclureFichiersSFIP: false,
           dossier,
-          langues: ["fr"],
+          langues: ["த", "fr"],
           fréquence: {
             type: "dynamique",
           },
@@ -708,7 +708,7 @@ describe("Automatisation", function () {
       await attendreExiste;
       await vérifierDonnéesProjet(fichier, {
         "Ma bd.ods": {
-          météo: [{ précipitation: 3 }],
+          காலநிலை: [{ précipitation: 3 }],
         },
       });
 
@@ -730,7 +730,7 @@ describe("Automatisation", function () {
           formatDoc: "ods",
           inclureFichiersSFIP: false,
           dossier,
-          langues: ["fr"],
+          langues: ["த", "fr"],
           fréquence: {
             type: "dynamique",
           },
@@ -746,7 +746,7 @@ describe("Automatisation", function () {
       const avant = Date.now();
       const attenteModifié = attendreModifié.attendre(avant, async () => {
         const doc = XLSX.readFile(fichier);
-        return utils.sheet_to_json(doc.Sheets["météo"]).length >= 2;
+        return utils.sheet_to_json(doc.Sheets["காலநிலை"]).length >= 2;
       });
       await client.tableaux.ajouterÉlément({
         idTableau,
@@ -755,7 +755,7 @@ describe("Automatisation", function () {
       await attenteModifié;
 
       vérifierDonnéesBd(fichier, {
-        météo: [{ précipitation: 3 }, { précipitation: 5 }],
+        காலநிலை: [{ précipitation: 3 }, { précipitation: 5 }],
       });
       await client.automatisations.annulerAutomatisation({ id: idAuto });
     });
