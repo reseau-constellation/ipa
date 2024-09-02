@@ -29,7 +29,7 @@ export class MandataireProc extends Mandatairifiable {
       }) => {
         const messageErreur: MessageErreurDIpa = {
           type: "erreur",
-          id: idRequête,
+          idRequête,
           erreur,
           codeErreur: code,
         };
