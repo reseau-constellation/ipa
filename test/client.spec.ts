@@ -331,7 +331,16 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await constl1.fermer();
-        fEffacer?.();
+        try {
+          fEffacer?.();
+        } catch (e) {
+          if ((isNode || isElectronMain) && process.platform === "win32") {
+            console.log("On ignore ça sur Windows\n", e);
+            return;
+          } else {
+            throw e;
+          }
+        }
       });
 
       it("Erreur pour la deuxième instance", async () => {
