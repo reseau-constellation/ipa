@@ -263,6 +263,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       const id = uuidv4();
       if (messageGs.topic === this.client.sujet_réseau) {
         try {
+          const test = "données"
+          console.log({test})
+          const encodé = new TextEncoder().encode(test);
+          console.log({encodé});
+          const décodé = new TextDecoder().decode(encodé);
+          console.log({décodé});
           console.log("message", new TextDecoder().decode(messageGs.data))
           const promesse = this.messageReçu({
             msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
@@ -334,7 +340,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const sujet = this.client.sujet_réseau;
     const { sfip } = await this.client.attendreSfipEtOrbite();
     const pubsub = sfip.libp2p.services.pubsub;
-    const msgBinaire = Buffer.from(JSON.stringify(msg));
+    const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
     await pubsub.publish(sujet, msgBinaire);
   }
 
