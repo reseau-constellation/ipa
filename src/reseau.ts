@@ -263,8 +263,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       const id = uuidv4();
       if (messageGs.topic === this.client.sujet_réseau) {
         try {
-          console.log("message", new TextDecoder().decode(messageGs.data))
-          console.log("jsonifié", JSON.parse(new TextDecoder().decode(messageGs.data)))
           const promesse = this.messageReçu({
             msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
           });
@@ -488,7 +486,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     try {
       ({ valeur, signature } = données);
     } catch {
-      console.log("Erreur message externe : ", JSON.stringify(données), JSON.stringify(msg));
+      // console.log("Erreur message externe : ", JSON.stringify(données), JSON.stringify(msg));
       return;
     }
 
