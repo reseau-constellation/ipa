@@ -28,7 +28,7 @@ importers:
         version: 1.1.1(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0))
       '@constl/mandataire':
         specifier: ^2.0.8
-        version: 2.0.8
+        version: 2.0.9
       '@constl/utils-ipa':
         specifier: ^1.0.3
         version: 1.0.3
@@ -1199,9 +1199,6 @@ packages:
   '@constl/ipa@1.1.2':
     resolution: {integrity: sha512-MjS0tESc2GInCszDPvZXBlbobOld5umy1dlXQwN+wYzKvhiQtOMb/r3Oli0L+sVQEb71ulmG7zasv75z/Zj0Rw==}
     engines: {node: '>=20'}
-
-  '@constl/mandataire@2.0.8':
-    resolution: {integrity: sha512-EL+saxpjmh8uh7U3qz1kI2NXAG9dHVh9naokqKeGcdsmpS8MHdsY4qxwuamukAxlYp2I416QtyIyx3TSdhKNFA==}
 
   '@constl/mandataire@2.0.9':
     resolution: {integrity: sha512-1XzCHyo7xaZjQrqp/KNypVFVxPw90xFInqBGjXFm6cR0j0ghDF+zVbjyqlgy2tq7e5hmzCNVaFqCj3y8Wvi9UA==}
@@ -10146,11 +10143,6 @@ snapshots:
       - react-native
       - supports-color
       - utf-8-validate
-
-  '@constl/mandataire@2.0.8':
-    dependencies:
-      events: 3.3.0
-      uuid: 10.0.0
 
   '@constl/mandataire@2.0.9':
     dependencies:
