@@ -104,7 +104,7 @@
     "@helia/unixfs": "^3.0.7",
     "@ipld/dag-cbor": "^9.2.1",
     "@lassi-js/kili": "^0.3.14",
-    "@libp2p/autonat": "1.0.21",
+    "@libp2p/autonat": "1.1.5",
     "@libp2p/bootstrap": "^10.1.5",
     "@libp2p/circuit-relay-v2": "^1.1.5",
     "@libp2p/dcutr": "^1.1.5",
@@ -157,7 +157,7 @@
   },
   "pnpm": {
     "overrides": {
-      "@libp2p/autonat": "1.0.21"
+      "@libp2p/autonat": "1.1.5"
     }
   }
 }
