@@ -486,7 +486,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     try {
       ({ valeur, signature } = données);
     } catch {
-      console.log("Erreur message externe : ", JSON.stringify(données));
+      console.log("Erreur message externe : ", JSON.stringify(données), JSON.stringify(msg));
       return;
     }
 
