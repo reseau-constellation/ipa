@@ -78,9 +78,9 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       autoNAT: autoNAT(),
       dcutr: dcutr(),
       pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
-      dht: kadDHT({
+      /*dht: kadDHT({
         clientMode: true,
-      }),
+      }),*/
     },
   };
 };

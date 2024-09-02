@@ -22,6 +22,7 @@ import indexedDbStream from "indexed-db-stream";
 import plateforme from "platform";
 
 import {
+  adresseOrbiteValide,
   suivreBdDeFonction,
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
@@ -103,6 +104,7 @@ type ContrôleurConstellation = Awaited<
 
 type ÉvénementsClient = {
   comptePrêt: (args: { idCompte: string }) => void;
+  erreurInitialisation: (args: Error) => void;
   sfipEtOrbitePrêts: (args: {
     sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
     orbite: GestionnaireOrbite;
@@ -258,6 +260,7 @@ export class Constellation {
   licences: Licences;
   protocoles: Protocoles;
 
+  erreurInitialisation?: Error;
   _orbiteExterne: boolean;
   _sfipExterne: boolean;
 
@@ -321,7 +324,12 @@ export class Constellation {
   }
 
   async _initialiser(): Promise<void> {
-    await this.verrouillerDossier({ message: this._opts.messageVerrou });
+    try {
+      await this.verrouillerDossier({ message: this._opts.messageVerrou });
+    } catch (e) {
+      this.erreurInitialisation = e;
+      this.événements.emit("erreurInitialisation", e);
+    }
 
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
@@ -406,13 +414,16 @@ export class Constellation {
   }
 
   async attendreInitialisée(): Promise<{ idCompte: string }> {
+    if (this.erreurInitialisation) throw this.erreurInitialisation;
+
     if (this.idCompte) {
       return {
         idCompte: this.idCompte as string,
       };
     } else {
-      return new Promise((résoudre) => {
+      return new Promise((résoudre, rejeter) => {
         this.événements.once("comptePrêt", résoudre);
+        this.événements.once("erreurInitialisation", rejeter);
       });
     }
   }
@@ -428,7 +439,7 @@ export class Constellation {
       } else {
         const infoFichier = fs.statSync(fichierVerrou);
         const modifiéÀ = infoFichier.mtime;
-        const verrifierSiVieux = () => {
+        const verifierSiVieux = () => {
           if (maintenant.getTime() - modifiéÀ.getTime() > intervaleVerrou) {
             fs.writeFileSync(fichierVerrou, message || "");
           } else {
@@ -453,12 +464,12 @@ export class Constellation {
           }
         };
         try {
-          verrifierSiVieux();
+          verifierSiVieux();
         } catch {
           await new Promise((résoudre) =>
             setTimeout(résoudre, intervaleVerrou),
           );
-          verrifierSiVieux();
+          verifierSiVieux();
         }
       }
       this._intervaleVerrou = setInterval(() => {
@@ -2164,6 +2175,10 @@ export class Constellation {
       additionalProperties: true,
       required: [],
     };
+
+    if (typeof racine === "string" && !adresseOrbiteValide(racine)) {
+      throw new Error(`Adresse ${racine} non valide.`);
+    }
 
     const { bd: bdRacine, fOublier } =
       typeof racine === "string"

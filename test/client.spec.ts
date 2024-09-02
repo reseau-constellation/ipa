@@ -33,6 +33,7 @@ import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
 import { créerConstellation } from "@/index.js";
+import platform from "platform";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
@@ -274,8 +275,82 @@ if (isNode || isElectronMain) {
   });
 
   describe("Concurrence", function () {
-    it("Différents dossiers", async () => {});
-    it("Même dossier");
+    describe("Différents dossiers", async () => {
+      let constl1: Constellation;
+      let constl2: Constellation;
+
+      let dossier1: string;
+      let fEffacer1: () => void;
+      let dossier2: string;
+      let fEffacer2: () => void;
+
+      before(async () => {
+        ({ dossier: dossier1, fEffacer: fEffacer1 } =
+          await dossiers.dossierTempo());
+        ({ dossier: dossier2, fEffacer: fEffacer2 } =
+          await dossiers.dossierTempo());
+        constl1 = créerConstellation({ dossier: dossier1 });
+      });
+
+      after(async () => {
+        await constl1?.fermer();
+        await constl2?.fermer();
+        try {
+          fEffacer1?.();
+          fEffacer2?.();
+        } catch (e) {
+          if ((isNode || isElectronMain) && process.platform === "win32") {
+            console.log("On ignore ça sur Windows\n", e);
+            return;
+          } else {
+            throw e;
+          }
+        }
+      });
+
+      it("Création de la deuxième instance", async () => {
+        const constl2 = créerConstellation({ dossier: dossier2 });
+        const idCompte1 = await constl1.obtIdCompte();
+        const idCompte2 = await constl2.obtIdCompte();
+
+        expect(idCompte1).to.be.a("string");
+        expect(idCompte2).to.be.a("string");
+        expect(idCompte1).to.not.equal(idCompte2);
+      });
+    });
+    describe("Même dossier", async () => {
+      let constl1: Constellation;
+
+      let dossier: string;
+      let fEffacer: () => void;
+
+      before(async () => {
+        ({ dossier, fEffacer } = await dossiers.dossierTempo());
+        constl1 = créerConstellation({ dossier });
+      });
+
+      after(async () => {
+        await constl1.fermer();
+        try {
+          fEffacer?.();
+        } catch (e) {
+          if ((isNode || isElectronMain) && process.platform === "win32") {
+            console.log("On ignore ça sur Windows\n", e);
+            return;
+          } else {
+            throw e;
+          }
+        }
+      });
+
+      it("Erreur pour la deuxième instance", async () => {
+        const constl2 = créerConstellation({ dossier });
+        await expect(constl2.obtIdCompte()).to.be.rejectedWith(
+          "Constellation est déjà lancée.",
+        );
+      });
+
+    });
   });
 
   describe("Fonctionalités client", function () {

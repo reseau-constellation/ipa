@@ -196,7 +196,7 @@ export class ImportateurDonnéesJSON {
             let val: valsJSON | undefined;
             try {
               val = extraireDonnées(élémentJSON, clefs);
-            } catch (e) {
+            } catch {
               val = undefined;
             }
 

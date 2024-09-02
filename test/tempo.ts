@@ -1,3 +1,5 @@
+// node --inspect dist/src/tempo.js
+
 import { créerConstellation } from "@/index";
 import { rmSync } from "fs";
 

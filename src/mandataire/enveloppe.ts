@@ -63,8 +63,18 @@ export class EnveloppeIpa {
     Object.values(this.fsMessages).forEach((f) => f(m));
   }
 
-  fErreur({ erreur, id, code }: { erreur: string; id?: string; code: string }) {
-    Object.values(this.fsErreurs).forEach((f) => f({ erreur, id, code }));
+  fErreur({
+    erreur,
+    idRequête,
+    code,
+  }: {
+    erreur: string;
+    idRequête?: string;
+    code: string;
+  }) {
+    Object.values(this.fsErreurs).forEach((f) =>
+      f({ erreur, idRequête, code }),
+    );
   }
 
   async init(): Promise<Constellation> {
@@ -82,6 +92,16 @@ export class EnveloppeIpa {
         erreur: e.toString(),
         code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
       });
+
+      // Aussi renvoyer l'erreur à toutes les requêtes potentiellement en attente de l'initialisation.
+      this._messagesEnAttente.forEach(
+        (m)=>
+        this.fErreur({
+          erreur: e.toString(),
+          idRequête: m.idRequête,
+          code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
+        }),
+      );
       throw e;
     }
 
@@ -95,6 +115,15 @@ export class EnveloppeIpa {
   async gérerMessage(message: MessagePourIpa): Promise<void> {
     if (this.prêt) {
       await this._gérerMessage(message);
+    } else if (this.ipa?.erreurInitialisation) {
+      this.fErreur({
+        erreur: this.ipa.erreurInitialisation.toString(),
+        idRequête: message.idRequête,
+        code:
+          this.ipa.erreurInitialisation.name === "Error"
+            ? ERREUR_INIT_IPA
+            : this.ipa.erreurInitialisation.name,
+      });
     } else {
       this._messagesEnAttente.unshift(message);
     }
@@ -104,7 +133,7 @@ export class EnveloppeIpa {
     if (!this.ipa) {
       this.fErreur({
         erreur: "IPA non initialisé",
-        id: message.id,
+        idRequête: message.idRequête,
         code: ERREUR_INIT_IPA,
       });
       return;
@@ -113,15 +142,15 @@ export class EnveloppeIpa {
     const { type } = message;
     switch (type) {
       case "suivre": {
-        const { id, fonction, args, nomArgFonction } = message;
+        const { idRequête, fonction, args, nomArgFonction } = message;
 
-        const fonctionIPA = this.extraireFonctionIPA(fonction, id);
+        const fonctionIPA = this.extraireFonctionIPA(fonction, idRequête);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
         const fFinale = (données: unknown) => {
           const messageRetour: MessageSuivreDIpa = {
             type: "suivre",
-            id,
+            idRequête,
             données,
           };
           this.fMessage(messageRetour);
@@ -139,10 +168,10 @@ export class EnveloppeIpa {
           const retourFinal =
             typeof retour === "function" ? { fOublier: retour } : retour;
 
-          this.dicFRetourSuivi[id] = retourFinal;
+          this.dicFRetourSuivi[idRequête] = retourFinal;
           const messageRetour: MessageSuivrePrêtDIpa = {
             type: "suivrePrêt",
-            id,
+            idRequête,
           };
           if (typeof retour !== "function")
             messageRetour.fonctions = Object.keys(retour);
@@ -150,7 +179,7 @@ export class EnveloppeIpa {
         } catch (e) {
           this.fErreur({
             erreur: e.toString() + e.stack.toString(),
-            id,
+            idRequête,
             code: ERREUR_EXÉCUTION_IPA,
           });
         }
@@ -158,23 +187,23 @@ export class EnveloppeIpa {
         break;
       }
       case "action": {
-        const { id, fonction, args } = message;
+        const { idRequête, fonction, args } = message;
 
-        const fonctionIPA = this.extraireFonctionIPA(fonction, id);
+        const fonctionIPA = this.extraireFonctionIPA(fonction, idRequête);
         if (!fonctionIPA) return; // L'erreur est déjà envoyée par extraireFonctionIPA
 
         try {
           const résultat = await fonctionIPA(args);
           const messageRetour: MessageActionDIpa = {
             type: "action",
-            id,
+            idRequête,
             résultat,
           };
           this.fMessage(messageRetour);
         } catch (e) {
           this.fErreur({
-            erreur: e.toString() + e.stack.toString(),
-            id,
+            erreur: e.stack.toString(),
+            idRequête,
             code: ERREUR_EXÉCUTION_IPA,
           });
         }
@@ -182,17 +211,17 @@ export class EnveloppeIpa {
         break;
       }
       case "retour": {
-        const { id, fonction, args } = message;
-        const retour = this.dicFRetourSuivi[id];
+        const { idRequête, fonction, args } = message;
+        const retour = this.dicFRetourSuivi[idRequête];
 
         if (retour) await retour[fonction](args);
-        if (fonction === "fOublier") delete this.dicFRetourSuivi[id];
+        if (fonction === "fOublier") delete this.dicFRetourSuivi[idRequête];
         break;
       }
       default: {
         this.fErreur({
           erreur: `Type de requête ${type} non reconnu dans message ${message}`,
-          id: (message as MessagePourIpa).id,
+          idRequête: (message as MessagePourIpa).idRequête,
           code: ERREUR_EXÉCUTION_IPA,
         });
         break;
@@ -230,7 +259,7 @@ export class EnveloppeIpa {
       } else {
         this.fErreur({
           erreur,
-          id: idMessage,
+          idRequête: idMessage,
           code: ERREUR_FONCTION_MANQUANTE,
         });
         return undefined;
@@ -239,14 +268,18 @@ export class EnveloppeIpa {
       if (!fonctionIPA) {
         this.fErreur({
           erreur,
-          id: idMessage,
+          idRequête: idMessage,
           code: ERREUR_FONCTION_MANQUANTE,
         });
         return undefined;
       }
     }
     if (typeof fonctionIPA !== "function") {
-      this.fErreur({ erreur, id: idMessage, code: ERREUR_PAS_UNE_FONCTION });
+      this.fErreur({
+        erreur,
+        idRequête: idMessage,
+        code: ERREUR_PAS_UNE_FONCTION,
+      });
       return undefined;
     }
     return fonctionIPA;

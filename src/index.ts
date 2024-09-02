@@ -15,6 +15,7 @@ export * as licences from "@/licences.js";
 export * as motsClefs from "@/motsClefs.js";
 export * as projets from "@/projets.js";
 export * as réseau from "@/reseau.js";
+export * as sfip from "@/sfip/index.js";
 export * as tableaux from "@/tableaux.js";
 export * as types from "@/types.js";
 export * as valid from "@/valid.js";

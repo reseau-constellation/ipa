@@ -333,8 +333,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const sujet = this.client.sujet_réseau;
     const { sfip } = await this.client.attendreSfipEtOrbite();
     const pubsub = sfip.libp2p.services.pubsub;
-    const msgBinaire = Buffer.from(JSON.stringify(msg));
-    await pubsub.publish(sujet, msgBinaire);
+    const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
+    await pubsub.publish(sujet, Buffer.from(msgBinaire));
   }
 
   async envoyerMessageAuMembre({
@@ -481,11 +481,19 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         )
       : msg.données;
 
-    const { valeur, signature } = données;
+    let valeur: ValeurMessage;
+    let signature: Signature;
+    try {
+      ({ valeur, signature } = données);
+    } catch {
+      // console.log("Erreur message externe : ", JSON.stringify(données), JSON.stringify(msg));
+      return;
+    }
 
     // Ignorer la plupart des messages de nous-mêmes
+    const { orbite } = await this.client.attendreSfipEtOrbite();
     if (
-      signature.clefPublique === this.client.orbite!.identity.publicKey &&
+      signature.clefPublique === orbite.identity.publicKey &&
       valeur.type !== "Salut !"
     ) {
       return;
