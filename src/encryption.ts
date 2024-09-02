@@ -88,7 +88,7 @@ export class EncryptionLocalFirst implements Encryption {
   }): Promise<string> {
     const { asymmetric } = await obtAuth();
     const clefs = await this.obtClefs();
-    console.log({message})
+
     return asymmetric
       .encrypt({
         secret: message,
@@ -113,7 +113,6 @@ export class EncryptionLocalFirst implements Encryption {
       recipientSecretKey: clefs.secrète as Base58,
       senderPublicKey: clefPubliqueExpéditeur as Base58,
     });
-    console.log({décrypté})
     return décrypté
   }
 

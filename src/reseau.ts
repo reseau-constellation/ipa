@@ -264,7 +264,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       if (messageGs.topic === this.client.sujet_réseau) {
         try {
           const promesse = this.messageReçu({
-            msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
+            msg: JSON.parse(new TextDecoder('utf-8').decode(messageGs.data)),
           });
           promesses[id] = promesse;
           promesse.then(() => {
