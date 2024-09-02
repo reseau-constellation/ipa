@@ -28,12 +28,21 @@ importers:
         version: 1.1.1(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       '@constl/mandataire':
 <<<<<<< HEAD
+<<<<<<< HEAD
         specifier: ^3.0.1
         version: 3.0.1
 =======
         specifier: ^2.0.8
         version: 2.0.9
 >>>>>>> e522888c7 (Mise à jour)
+=======
+        specifier: ^2.0.8
+        version: 2.0.9
+=======
+        specifier: ^3.0.1
+        version: 3.0.1
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
+>>>>>>> a34bd0455 (Tests concurence initialisation)
       '@constl/utils-ipa':
         specifier: ^1.0.3
         version: 1.0.3
@@ -441,6 +450,10 @@ packages:
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
     engines: {node: '>=6.9.0'}
 
+  '@babel/generator@7.25.6':
+    resolution: {integrity: sha512-VPC82gr1seXOpkjAAKoLhP50vx4vGNlF4msF64dSFq1P8RfB+QAuJWGHPXXPc8QyfVWwwB/TNNU4+ayZmHNbZw==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/helper-annotate-as-pure@7.24.7':
     resolution: {integrity: sha512-BaDeOonYvhdKw+JoMVkAixAAJzG2jVPIwWoKBPdYuY9b452e2rPuI9QPYh3KpofZ3pW2akOmwZLOiOsHMiqRAg==}
     engines: {node: '>=6.9.0'}
@@ -569,6 +582,11 @@ packages:
     resolution: {integrity: sha512-trGdfBdbD0l1ZPmcJ83eNxB9rbEax4ALFTF7fN386TMYbeCQbyme5cOEXQhbGXKebwGaB/J52w1mrklMcbgy6Q==}
 =======
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  '@babel/parser@7.25.6':
+    resolution: {integrity: sha512-trGdfBdbD0l1ZPmcJ83eNxB9rbEax4ALFTF7fN386TMYbeCQbyme5cOEXQhbGXKebwGaB/J52w1mrklMcbgy6Q==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -1188,6 +1206,10 @@ packages:
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
     engines: {node: '>=6.9.0'}
 
+  '@babel/runtime@7.25.6':
+    resolution: {integrity: sha512-VBj9MYyDb9tuLq7yzqjgzt6Q+IBQLrGZfdjOekyEirZPHxXWoTSGUTMrpsfi58Up73d13NfYLv8HT9vmznjzhQ==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/template@7.25.0':
     resolution: {integrity: sha512-aOOgh1/5XzKvg1jvVz7AVrx2piJ2XBi227DHmbY6y+bM9H2FlN+IfecYu4Xl0cNiiVejlsCri89LUsbj8vJD9Q==}
     engines: {node: '>=6.9.0'}
@@ -1197,6 +1219,9 @@ packages:
     engines: {node: '>=6.9.0'}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
   '@babel/traverse@7.25.6':
     resolution: {integrity: sha512-9Vrcx5ZW6UwK5tvqsj0nGpp/XzqthkT0dqIc9g1AdtygFToNtTF67XzYS//dm+SAK9cp3B9R4ZO/46p63SCjlQ==}
     engines: {node: '>=6.9.0'}
@@ -1209,6 +1234,7 @@ packages:
 
   '@babel/types@7.25.6':
     resolution: {integrity: sha512-/l42B1qxpG6RdfYf343Uw1vmDjeNhneUXtzhojE7pDgfpEypmRhI6j1kr17XCVv4Cgl9HdAiQY2x0GwKm7rWCw==}
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
   '@babel/types@7.25.2':
@@ -1226,7 +1252,12 @@ packages:
   '@babel/types@7.25.4':
     resolution: {integrity: sha512-zQ1ijeeCXVEh+aNL0RlmkPkG8HUiDcU2pzQQFjtbntgAczRASFzj4H+6+bV+dy1ntKR14I/DypeuRG1uma98iQ==}
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+<<<<<<< HEAD
 >>>>>>> da5b63d4b (@libp2p/autonat 1.0.21)
+=======
+=======
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
+>>>>>>> a34bd0455 (Tests concurence initialisation)
     engines: {node: '>=6.9.0'}
 
   '@bcoe/v8-coverage@0.2.3':
@@ -1284,6 +1315,12 @@ packages:
 >>>>>>> e522888c7 (Mise à jour)
   '@constl/mandataire@2.0.9':
     resolution: {integrity: sha512-1XzCHyo7xaZjQrqp/KNypVFVxPw90xFInqBGjXFm6cR0j0ghDF+zVbjyqlgy2tq7e5hmzCNVaFqCj3y8Wvi9UA==}
+<<<<<<< HEAD
+=======
+
+  '@constl/mandataire@3.0.1':
+    resolution: {integrity: sha512-5B/aIdMpZ5pAVAd+mZAsR7hHSkeAB+McwKyYaGG+V1j8mO/Lwbx4kGDyvjWybRPFhl6Wx7g1ZGoVDXcJEjL7Zg==}
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
 
   '@constl/orbit-db-types@2.0.1':
     resolution: {integrity: sha512-YMYe1UiQDnS00hUPGhdguM6PNN66enUMq7S7tQ9LoNzdDdibZ7NkMz9cRaATdxWndRe7HjEis6yOanKlmT6iFg==}
@@ -2573,6 +2610,9 @@ packages:
 =======
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
 
+  '@types/node@20.16.3':
+    resolution: {integrity: sha512-/wdGiWRkMOm53gAsSyFMXFZHbVg7C6CbkrzHNpaHoYfsUWPg7m6ZRKtvQjgvQ9i8WT540a3ydRlRQbxjY30XxQ==}
+
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
@@ -3123,6 +3163,9 @@ packages:
     resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
 =======
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+
+  axios@1.7.7:
+    resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
 
   babel-core@7.0.0-bridge.0:
     resolution: {integrity: sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg==}
@@ -9003,6 +9046,13 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 2.5.2
 
+  '@babel/generator@7.25.6':
+    dependencies:
+      '@babel/types': 7.25.6
+      '@jridgewell/gen-mapping': 0.3.5
+      '@jridgewell/trace-mapping': 0.3.25
+      jsesc: 2.5.2
+
   '@babel/helper-annotate-as-pure@7.24.7':
     dependencies:
       '@babel/types': 7.25.4
@@ -9181,15 +9231,23 @@ snapshots:
 =======
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
 
+  '@babel/parser@7.25.6':
+    dependencies:
+      '@babel/types': 7.25.6
+
   '@babel/plugin-bugfix-firefox-class-in-computed-class-key@7.25.3(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/traverse': 7.25.6
 =======
       '@babel/traverse': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/traverse': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
     transitivePeerDependencies:
       - supports-color
 
@@ -9217,10 +9275,14 @@ snapshots:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/traverse': 7.25.6
 =======
       '@babel/traverse': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/traverse': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
     transitivePeerDependencies:
       - supports-color
 
@@ -9405,10 +9467,14 @@ snapshots:
       '@babel/helper-remap-async-to-generator': 7.25.0(@babel/core@7.25.2)
       '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.25.2)
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/traverse': 7.25.6
 =======
       '@babel/traverse': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/traverse': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
     transitivePeerDependencies:
       - supports-color
 
@@ -9592,10 +9658,14 @@ snapshots:
       '@babel/helper-plugin-utils': 7.24.8
       '@babel/helper-validator-identifier': 7.24.7
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/traverse': 7.25.6
 =======
       '@babel/traverse': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/traverse': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
     transitivePeerDependencies:
       - supports-color
 
@@ -9921,10 +9991,14 @@ snapshots:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/types': 7.25.6
 =======
       '@babel/types': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/types': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       esutils: 2.0.3
 
   '@babel/preset-typescript@7.24.7(@babel/core@7.25.2)':
@@ -9969,6 +10043,10 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.1
 
+  '@babel/runtime@7.25.6':
+    dependencies:
+      regenerator-runtime: 0.14.1
+
   '@babel/template@7.25.0':
     dependencies:
       '@babel/code-frame': 7.24.7
@@ -9988,6 +10066,9 @@ snapshots:
       - supports-color
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
   '@babel/traverse@7.25.6':
     dependencies:
       '@babel/code-frame': 7.24.7
@@ -10009,6 +10090,7 @@ snapshots:
       to-fast-properties: 2.0.0
 
   '@babel/types@7.25.6':
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
   '@babel/types@7.25.2':
@@ -10025,7 +10107,12 @@ snapshots:
 =======
   '@babel/types@7.25.4':
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+<<<<<<< HEAD
 >>>>>>> da5b63d4b (@libp2p/autonat 1.0.21)
+=======
+=======
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
+>>>>>>> a34bd0455 (Tests concurence initialisation)
     dependencies:
       '@babel/helper-string-parser': 7.24.8
       '@babel/helper-validator-identifier': 7.24.7
@@ -10186,6 +10273,7 @@ snapshots:
 <<<<<<< HEAD
       '@chainsafe/libp2p-gossipsub': 13.2.0
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@chainsafe/libp2p-noise': 15.1.2
       '@chainsafe/libp2p-yamux': 6.0.2
       '@chriscdn/promise-semaphore': 2.0.9
@@ -10212,6 +10300,13 @@ snapshots:
       '@constl/bohr-db': 1.1.1(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       '@constl/mandataire': 2.0.8
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@chainsafe/libp2p-noise': 15.1.2
+      '@chainsafe/libp2p-yamux': 6.0.2
+      '@chriscdn/promise-semaphore': 2.0.9
+      '@constl/bohr-db': 1.1.1(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+      '@constl/mandataire': 2.0.9
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       '@constl/utils-ipa': 1.0.3
       '@helia/block-brokers': 3.0.3
       '@helia/unixfs': 3.0.7
@@ -10234,6 +10329,7 @@ snapshots:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@libp2p/webrtc': 4.1.8(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
 =======
       '@libp2p/webrtc': 4.1.8(react-native@0.74.3(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(react@18.2.0))
@@ -10242,11 +10338,19 @@ snapshots:
       '@libp2p/webrtc': 4.1.8(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
 >>>>>>> e522888c7 (Mise à jour)
 =======
+=======
+>>>>>>> a34bd0455 (Tests concurence initialisation)
       '@libp2p/webrtc': 4.1.8(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
 =======
       '@libp2p/webrtc': 4.1.7(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+<<<<<<< HEAD
 >>>>>>> da5b63d4b (@libp2p/autonat 1.0.21)
+=======
+=======
+      '@libp2p/webrtc': 4.1.8(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
+>>>>>>> a34bd0455 (Tests concurence initialisation)
       '@libp2p/websockets': 8.2.0
       '@libp2p/webtransport': 4.1.8
       '@localfirst/auth': 5.6.0
@@ -10258,10 +10362,14 @@ snapshots:
       ajv: 8.17.1
       approx-string-match: 2.0.0
 <<<<<<< HEAD
+<<<<<<< HEAD
       axios: 1.7.7
 =======
       axios: 1.7.5
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      axios: 1.7.7
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       blockstore-level: 1.1.8
       browser-fs-access: 0.35.0
       chokidar: 3.6.0
@@ -10312,6 +10420,14 @@ snapshots:
 =======
 >>>>>>> e522888c7 (Mise à jour)
   '@constl/mandataire@2.0.9':
+<<<<<<< HEAD
+=======
+    dependencies:
+      events: 3.3.0
+      uuid: 10.0.0
+
+  '@constl/mandataire@3.0.1':
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
     dependencies:
       events: 3.3.0
       uuid: 10.0.0
@@ -10867,10 +10983,14 @@ snapshots:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       jest-mock: 29.7.0
 
   '@jest/fake-timers@29.7.0':
@@ -10878,10 +10998,14 @@ snapshots:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -10895,10 +11019,14 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       '@types/yargs': 15.0.19
       chalk: 4.1.2
 
@@ -10908,10 +11036,14 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -11461,6 +11593,36 @@ snapshots:
       react-native-webrtc: 118.0.7(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
 =======
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+      uint8arraylist: 2.4.8
+      uint8arrays: 5.1.0
+    transitivePeerDependencies:
+      - react-native
+      - supports-color
+
+  '@libp2p/webrtc@4.1.8(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))':
+    dependencies:
+      '@chainsafe/libp2p-noise': 15.1.2
+      '@libp2p/interface': 1.7.0
+      '@libp2p/interface-internal': 1.3.4
+      '@libp2p/peer-id': 4.2.4
+      '@libp2p/utils': 5.4.9
+      '@multiformats/mafmt': 12.1.6
+      '@multiformats/multiaddr': 12.3.0
+      '@multiformats/multiaddr-matcher': 1.2.4
+      detect-browser: 5.3.0
+      it-length-prefixed: 9.1.0
+      it-protobuf-stream: 1.1.5
+      it-pushable: 3.2.3
+      it-stream-types: 2.0.1
+      multiformats: 13.2.2
+      node-datachannel: 0.11.0
+      p-defer: 4.0.1
+      p-event: 6.0.1
+      p-timeout: 6.1.2
+      progress-events: 1.0.1
+      protons-runtime: 5.5.0
+      race-signal: 1.1.0
+      react-native-webrtc: 118.0.7(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
     transitivePeerDependencies:
@@ -12034,6 +12196,7 @@ snapshots:
   '@react-native/codegen@0.75.2(@babel/preset-env@7.25.4(@babel/core@7.25.2))':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/parser': 7.25.6
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -12042,7 +12205,13 @@ snapshots:
 =======
       '@babel/parser': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+<<<<<<< HEAD
 >>>>>>> da5b63d4b (@libp2p/autonat 1.0.21)
+=======
+=======
+      '@babel/parser': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
+>>>>>>> a34bd0455 (Tests concurence initialisation)
       '@babel/preset-env': 7.25.4(@babel/core@7.25.2)
 =======
       '@babel/preset-env': 7.24.8(@babel/core@7.25.2)
@@ -12423,10 +12592,14 @@ snapshots:
   '@types/node-forge@1.3.11':
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
 
   '@types/node-localstorage@1.3.3':
     dependencies:
@@ -12455,6 +12628,10 @@ snapshots:
   '@types/node@20.16.3':
 =======
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+    dependencies:
+      undici-types: 6.19.8
+
+  '@types/node@20.16.3':
     dependencies:
       undici-types: 6.19.8
 
@@ -13238,6 +13415,14 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  axios@1.7.7:
+    dependencies:
+      follow-redirects: 1.15.6
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+
   babel-core@7.0.0-bridge.0(@babel/core@7.25.2):
     dependencies:
       '@babel/core': 7.25.2
@@ -13648,10 +13833,14 @@ snapshots:
   chrome-launcher@0.15.2:
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -13661,10 +13850,14 @@ snapshots:
   chromium-edge-launcher@0.2.0:
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -16605,10 +16798,14 @@ snapshots:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
@@ -16630,20 +16827,28 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       jest-util: 29.7.0
 
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -16661,10 +16866,14 @@ snapshots:
   jest-worker@29.7.0:
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@types/node': 20.16.3
 =======
       '@types/node': 20.16.2
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@types/node': 20.16.3
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -16696,10 +16905,14 @@ snapshots:
     dependencies:
       '@babel/core': 7.25.2
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/parser': 7.25.6
 =======
       '@babel/parser': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/parser': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.25.2)
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6(@babel/core@7.25.2)
       '@babel/plugin-proposal-optional-chaining': 7.21.0(@babel/core@7.25.2)
@@ -17401,14 +17614,19 @@ snapshots:
   metro-runtime@0.80.10:
     dependencies:
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/runtime': 7.25.6
 =======
       '@babel/runtime': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/runtime': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       flow-enums-runtime: 0.0.6
 
   metro-source-map@0.80.10:
     dependencies:
+<<<<<<< HEAD
 <<<<<<< HEAD
       '@babel/traverse': 7.25.6
       '@babel/types': 7.25.6
@@ -17416,6 +17634,10 @@ snapshots:
       '@babel/traverse': 7.25.4
       '@babel/types': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/traverse': 7.25.6
+      '@babel/types': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
       metro-symbolicate: 0.80.10
@@ -17442,6 +17664,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.25.2
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/generator': 7.25.6
       '@babel/template': 7.25.0
       '@babel/traverse': 7.25.6
@@ -17450,6 +17673,11 @@ snapshots:
       '@babel/template': 7.25.0
       '@babel/traverse': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/generator': 7.25.6
+      '@babel/template': 7.25.0
+      '@babel/traverse': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       flow-enums-runtime: 0.0.6
       nullthrows: 1.1.1
     transitivePeerDependencies:
@@ -17459,6 +17687,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.25.2
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/generator': 7.25.6
       '@babel/parser': 7.25.6
       '@babel/types': 7.25.6
@@ -17467,6 +17696,11 @@ snapshots:
       '@babel/parser': 7.25.4
       '@babel/types': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/generator': 7.25.6
+      '@babel/parser': 7.25.6
+      '@babel/types': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       flow-enums-runtime: 0.0.6
       metro: 0.80.10
       metro-babel-transformer: 0.80.10
@@ -17487,6 +17721,7 @@ snapshots:
       '@babel/code-frame': 7.24.7
       '@babel/core': 7.25.2
 <<<<<<< HEAD
+<<<<<<< HEAD
       '@babel/generator': 7.25.6
       '@babel/parser': 7.25.6
       '@babel/template': 7.25.0
@@ -17499,6 +17734,13 @@ snapshots:
       '@babel/traverse': 7.25.4
       '@babel/types': 7.25.4
 >>>>>>> 0bcbd5999 (@libp2p/autonat 1.0.21)
+=======
+      '@babel/generator': 7.25.6
+      '@babel/parser': 7.25.6
+      '@babel/template': 7.25.0
+      '@babel/traverse': 7.25.6
+      '@babel/types': 7.25.6
+>>>>>>> 6e7f969e5 (Tests concurence initialisation)
       accepts: 1.3.8
       chalk: 4.1.2
       ci-info: 2.0.0

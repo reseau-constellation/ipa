@@ -283,6 +283,7 @@ if (isNode || isElectronMain) {
       let fEffacer1: () => void;
       let dossier2: string;
       let fEffacer2: () => void;
+<<<<<<< HEAD
 
       before(async () => {
         ({ dossier: dossier1, fEffacer: fEffacer1 } =
@@ -310,19 +311,43 @@ if (isNode || isElectronMain) {
 
       it("Création de la deuxième instance", async () => {
         const constl2 = créerConstellation({ dossier: dossier2 });
+=======
+    
+      before(async () => {
+        ({ dossier: dossier1, fEffacer: fEffacer1 } = await dossiers.dossierTempo());
+        ({ dossier: dossier2, fEffacer: fEffacer2 } = await dossiers.dossierTempo());
+        constl1 = créerConstellation({dossier: dossier1});
+      });
+    
+      after(async () => {
+        await constl1?.fermer();
+        await constl2?.fermer();
+        fEffacer1?.();
+        fEffacer2?.();
+      });
+    
+      it("Création de la deuxième instance", async () => {
+        const constl2 = créerConstellation({dossier: dossier2})
+>>>>>>> a34bd0455 (Tests concurence initialisation)
         const idCompte1 = await constl1.obtIdCompte();
         const idCompte2 = await constl2.obtIdCompte();
 
         expect(idCompte1).to.be.a("string");
         expect(idCompte2).to.be.a("string");
         expect(idCompte1).to.not.equal(idCompte2);
+<<<<<<< HEAD
       });
+=======
+      })
+      
+>>>>>>> a34bd0455 (Tests concurence initialisation)
     });
     describe("Même dossier", async () => {
       let constl1: Constellation;
 
       let dossier: string;
       let fEffacer: () => void;
+<<<<<<< HEAD
 
       before(async () => {
         ({ dossier, fEffacer } = await dossiers.dossierTempo());
@@ -349,6 +374,26 @@ if (isNode || isElectronMain) {
           "Constellation est déjà lancée.",
         );
       });
+=======
+    
+      before(async () => {
+        ({ dossier, fEffacer } = await dossiers.dossierTempo());
+        constl1 = créerConstellation({dossier});
+      });
+    
+      after(async () => {
+        await constl1.fermer();
+        fEffacer?.();
+      });
+    
+      it("Erreur pour la deuxième instance", async () => {
+        const constl2 = créerConstellation({dossier})
+        await expect(
+          constl2.obtIdCompte()
+        ).to.be.rejectedWith("Constellation est déjà lancée.");
+      })
+      
+>>>>>>> a34bd0455 (Tests concurence initialisation)
     });
   });
 
