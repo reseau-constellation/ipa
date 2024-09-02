@@ -480,18 +480,18 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           }),
         )
       : msg.données;
-    
+
     let valeur: ValeurMessage;
     let signature: Signature;
     try {
       ({ valeur, signature } = données);
     } catch {
-      console.log("Erreur message externe : ", JSON.stringify(données))
+      console.log("Erreur message externe : ", JSON.stringify(données));
       return;
     }
 
     // Ignorer la plupart des messages de nous-mêmes
-    const {orbite} = await this.client.attendreSfipEtOrbite();
+    const { orbite } = await this.client.attendreSfipEtOrbite();
     if (
       signature.clefPublique === orbite.identity.publicKey &&
       valeur.type !== "Salut !"
