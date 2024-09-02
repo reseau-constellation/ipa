@@ -63,7 +63,6 @@ export class EnveloppeIpa {
     Object.values(this.fsMessages).forEach((f) => f(m));
   }
 
-<<<<<<< HEAD
   fErreur({
     erreur,
     idRequête,
@@ -76,10 +75,6 @@ export class EnveloppeIpa {
     Object.values(this.fsErreurs).forEach((f) =>
       f({ erreur, idRequête, code }),
     );
-=======
-  fErreur({ erreur, idRequête, code }: { erreur: string; idRequête?: string; code: string }) {
-    Object.values(this.fsErreurs).forEach((f) => f({ erreur, idRequête, code }));
->>>>>>> a34bd0455 (Tests concurence initialisation)
   }
 
   async init(): Promise<Constellation> {
@@ -99,23 +94,14 @@ export class EnveloppeIpa {
       });
 
       // Aussi renvoyer l'erreur à toutes les requêtes potentiellement en attente de l'initialisation.
-<<<<<<< HEAD
-      this._messagesEnAttente.forEach((m) =>
-=======
       this._messagesEnAttente.forEach(
         (m)=>
->>>>>>> a34bd0455 (Tests concurence initialisation)
         this.fErreur({
           erreur: e.toString(),
           idRequête: m.idRequête,
           code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
-<<<<<<< HEAD
         }),
       );
-=======
-        })
-      )
->>>>>>> a34bd0455 (Tests concurence initialisation)
       throw e;
     }
 
@@ -133,16 +119,11 @@ export class EnveloppeIpa {
       this.fErreur({
         erreur: this.ipa.erreurInitialisation.toString(),
         idRequête: message.idRequête,
-<<<<<<< HEAD
         code:
           this.ipa.erreurInitialisation.name === "Error"
             ? ERREUR_INIT_IPA
             : this.ipa.erreurInitialisation.name,
       });
-=======
-        code: this.ipa.erreurInitialisation.name === "Error" ? ERREUR_INIT_IPA : this.ipa.erreurInitialisation.name,
-      })
->>>>>>> a34bd0455 (Tests concurence initialisation)
     } else {
       this._messagesEnAttente.unshift(message);
     }
@@ -294,15 +275,11 @@ export class EnveloppeIpa {
       }
     }
     if (typeof fonctionIPA !== "function") {
-<<<<<<< HEAD
       this.fErreur({
         erreur,
         idRequête: idMessage,
         code: ERREUR_PAS_UNE_FONCTION,
       });
-=======
-      this.fErreur({ erreur, idRequête: idMessage, code: ERREUR_PAS_UNE_FONCTION });
->>>>>>> a34bd0455 (Tests concurence initialisation)
       return undefined;
     }
     return fonctionIPA;
