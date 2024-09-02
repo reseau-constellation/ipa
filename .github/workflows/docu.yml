@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 'latest'
+          node-version: "22.6.0"
           cache: 'pnpm'
 
       - run: cd docu && pnpm install && pnpm exec playwright install
