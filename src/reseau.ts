@@ -341,7 +341,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const { sfip } = await this.client.attendreSfipEtOrbite();
     const pubsub = sfip.libp2p.services.pubsub;
     const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
-    await pubsub.publish(sujet, msgBinaire);
+    await pubsub.publish(sujet, Buffer.from(msgBinaire));
   }
 
   async envoyerMessageAuMembre({
