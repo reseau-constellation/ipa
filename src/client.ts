@@ -329,8 +329,8 @@ export class Constellation {
     } catch (e) {
       this.erreurInitialisation = e;
       this.événements.emit("erreurInitialisation", e);
-    };
-    
+    }
+
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
     this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
@@ -2177,7 +2177,7 @@ export class Constellation {
     };
 
     if (typeof racine === "string" && !adresseOrbiteValide(racine)) {
-      throw new Error(`Adresse ${racine} non valide.`)
+      throw new Error(`Adresse ${racine} non valide.`);
     }
 
     const { bd: bdRacine, fOublier } =

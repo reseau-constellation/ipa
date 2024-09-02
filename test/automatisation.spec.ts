@@ -572,7 +572,7 @@ describe("Automatisation", function () {
         idTableau,
         noms: {
           fr: "météo",
-          த: "காலநிலை" 
+          த: "காலநிலை",
         },
       });
 

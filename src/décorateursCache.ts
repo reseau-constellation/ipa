@@ -292,7 +292,7 @@ export class CacheSuivi {
     delete requêtes[idRequête];
 
     if (!Object.keys(requêtes).length) {
-      fOublier && (await fOublier());
+      await fOublier?.();
       delete this._cacheSuivi[codeCache];
     }
     this.verrou.release(codeCache);
@@ -311,7 +311,7 @@ export class CacheSuivi {
     delete requêtes[idRequête];
 
     if (!Object.keys(requêtes).length) {
-      fs && (await fs.fOublier());
+      await fs?.fOublier();
       delete this._cacheRecherche[codeCache];
     }
     this.verrou.release(codeCache);

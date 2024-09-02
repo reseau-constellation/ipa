@@ -63,8 +63,18 @@ export class EnveloppeIpa {
     Object.values(this.fsMessages).forEach((f) => f(m));
   }
 
-  fErreur({ erreur, idRequête, code }: { erreur: string; idRequête?: string; code: string }) {
-    Object.values(this.fsErreurs).forEach((f) => f({ erreur, idRequête, code }));
+  fErreur({
+    erreur,
+    idRequête,
+    code,
+  }: {
+    erreur: string;
+    idRequête?: string;
+    code: string;
+  }) {
+    Object.values(this.fsErreurs).forEach((f) =>
+      f({ erreur, idRequête, code }),
+    );
   }
 
   async init(): Promise<Constellation> {
@@ -84,14 +94,13 @@ export class EnveloppeIpa {
       });
 
       // Aussi renvoyer l'erreur à toutes les requêtes potentiellement en attente de l'initialisation.
-      this._messagesEnAttente.forEach(
-        (m)=>
+      this._messagesEnAttente.forEach((m) =>
         this.fErreur({
           erreur: e.toString(),
           idRequête: m.idRequête,
           code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
-        })
-      )
+        }),
+      );
       throw e;
     }
 
@@ -109,8 +118,11 @@ export class EnveloppeIpa {
       this.fErreur({
         erreur: this.ipa.erreurInitialisation.toString(),
         idRequête: message.idRequête,
-        code: this.ipa.erreurInitialisation.name === "Error" ? ERREUR_INIT_IPA : this.ipa.erreurInitialisation.name,
-      })
+        code:
+          this.ipa.erreurInitialisation.name === "Error"
+            ? ERREUR_INIT_IPA
+            : this.ipa.erreurInitialisation.name,
+      });
     } else {
       this._messagesEnAttente.unshift(message);
     }
@@ -262,7 +274,11 @@ export class EnveloppeIpa {
       }
     }
     if (typeof fonctionIPA !== "function") {
-      this.fErreur({ erreur, idRequête: idMessage, code: ERREUR_PAS_UNE_FONCTION });
+      this.fErreur({
+        erreur,
+        idRequête: idMessage,
+        code: ERREUR_PAS_UNE_FONCTION,
+      });
       return undefined;
     }
     return fonctionIPA;

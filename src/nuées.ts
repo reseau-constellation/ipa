@@ -2347,7 +2347,7 @@ export class Nuées extends ComposanteClientListe<string> {
           const finales: string[] = [];
           bds.forEach((l) =>
             l.forEach((bd) => {
-              !finales.includes(bd) && finales.push(bd);
+              if (!finales.includes(bd)) finales.push(bd);
             }),
           );
           info.ascendance = finales;

@@ -11,7 +11,6 @@ import { Constellation, créerConstellation } from "@/index.js";
 const ID_PAIR_NAVIG = "12D3KooWSCVw8HCc4hrkzfkEeJmVW2xfQRkxEreLzoc1NDTfzYFf";
 const ID_PAIR_NODE = "12D3KooWENXsSgmKXse4hi77cmCeyKtpLiQWedkcgYeFsiQPnJRr";
 
-
 const attendre = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 

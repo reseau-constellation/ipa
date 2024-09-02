@@ -64,7 +64,7 @@ class LocalStorage {
 
   async fermer(): Promise<void> {
     await this.verrou.acquire("sauvegarder");
-    this.fOublier && this.fOublier();
+    this.fOublier?.();
     this.verrou.release("sauvegarder");
   }
 }
