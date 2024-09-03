@@ -8,6 +8,7 @@ import {
 import { isBrowser } from "wherearewe";
 
 const obtIdPair = async () => {
+  return undefined;
   const clefSecrète = isBrowser
     ? "08011240d098f4a94f3bdac9cada1b289189d3f310f48cfea55aaba00a30bc904075d61ef3668c7bf19999f91bb23ebab128bc24ced9eedbe59237bd0e11a4c152c255b6"
     : "08011240966c7e0c39ec1347890bf503fa8786c1a3657ca5da57b0c7c9ff8f95a80dde6e43ac4da8ae070eb852daa7077750535b3ed71bd389108da8c24bf741ff18f00d";
@@ -36,7 +37,7 @@ obtIdPair().then((peerId) =>
         "clef privée : ",
         uint8ArrayToString(sfip.libp2p.peerId!.privateKey!, "hex"),
       );
-    }
+    };
     console.log(
       "nos adresses: ",
       sfip.libp2p.peerId.toString(),
