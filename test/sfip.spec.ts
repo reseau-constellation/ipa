@@ -82,7 +82,7 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe.only("SFIP", function () {
+describe("SFIP", function () {
   let idPairNavig: string;
   let idPairNode: string;
   let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
