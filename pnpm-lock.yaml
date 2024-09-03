@@ -13937,6 +13937,7 @@ snapshots:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
       eslint-config-standard: 17.1.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
 =======
@@ -13944,6 +13945,8 @@ snapshots:
 >>>>>>> ca5044f46 (Update typescript-eslint monorepo to v8.4.0)
 =======
 >>>>>>> a4a525e6a (Update dependency eslint-plugin-import to v2.30.0)
+=======
+>>>>>>> 41f27fed7 (Test mise à jour)
 <<<<<<< HEAD
       eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
       eslint-config-standard: 17.1.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
@@ -13957,6 +13960,8 @@ snapshots:
 =======
 =======
 >>>>>>> bceadaa4d (Update dependency eslint-plugin-import to v2.30.0)
+=======
+>>>>>>> 09580c2d5 (Test mise à jour)
       eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
       eslint-config-standard: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
 =======
@@ -13973,8 +13978,27 @@ snapshots:
       eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
       eslint-config-standard: 17.1.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
 >>>>>>> 4171c859a (Update dependency eslint-plugin-import to v2.30.0)
+<<<<<<< HEAD
 >>>>>>> bceadaa4d (Update dependency eslint-plugin-import to v2.30.0)
+<<<<<<< HEAD
 >>>>>>> a4a525e6a (Update dependency eslint-plugin-import to v2.30.0)
+=======
+=======
+=======
+      eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
+      eslint-config-standard: 17.1.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
+=======
+<<<<<<< HEAD
+      eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
+      eslint-config-standard: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
+=======
+      eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
+      eslint-config-standard: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
+>>>>>>> a893cca09 (Test mise à jour)
+>>>>>>> b23eedc65 (Test mise à jour)
+>>>>>>> 3dcce7e9d (Test mise à jour)
+>>>>>>> 09580c2d5 (Test mise à jour)
+>>>>>>> 41f27fed7 (Test mise à jour)
       eslint-plugin-etc: 2.0.3(eslint@8.57.0)(typescript@5.5.4)
       eslint-plugin-import: 2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
       eslint-plugin-jsdoc: 48.11.0(eslint@8.57.0)
@@ -13993,12 +14017,15 @@ snapshots:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
 =======
 =======
 >>>>>>> ca5044f46 (Update typescript-eslint monorepo to v8.4.0)
 =======
 >>>>>>> a4a525e6a (Update dependency eslint-plugin-import to v2.30.0)
+=======
+>>>>>>> 41f27fed7 (Test mise à jour)
 <<<<<<< HEAD
   eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
 >>>>>>> 71ae76c4c (Test mise à jour)
@@ -14015,6 +14042,8 @@ snapshots:
 >>>>>>> f1c9277fb (Update typescript-eslint monorepo to v8.4.0)
 =======
 >>>>>>> bceadaa4d (Update dependency eslint-plugin-import to v2.30.0)
+=======
+>>>>>>> 09580c2d5 (Test mise à jour)
   eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
     dependencies:
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
@@ -14032,10 +14061,18 @@ snapshots:
 =======
   eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
 >>>>>>> 4171c859a (Update dependency eslint-plugin-import to v2.30.0)
+=======
+  eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
+=======
+<<<<<<< HEAD
+  eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
+>>>>>>> b23eedc65 (Test mise à jour)
+>>>>>>> 3dcce7e9d (Test mise à jour)
     dependencies:
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.0)(typescript@5.5.4)
       eslint: 8.57.0
+<<<<<<< HEAD
 <<<<<<< HEAD
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
 >>>>>>> 7c1bbc10e (Update typescript-eslint monorepo to v8.4.0)
@@ -14048,8 +14085,28 @@ snapshots:
 =======
       eslint-plugin-import: 2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
 >>>>>>> 4171c859a (Update dependency eslint-plugin-import to v2.30.0)
+<<<<<<< HEAD
 >>>>>>> bceadaa4d (Update dependency eslint-plugin-import to v2.30.0)
+<<<<<<< HEAD
 >>>>>>> a4a525e6a (Update dependency eslint-plugin-import to v2.30.0)
+=======
+=======
+=======
+      eslint-plugin-import: 2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
+=======
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
+=======
+  eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/parser': 7.18.0(eslint@8.57.0)(typescript@5.5.4)
+      eslint: 8.57.0
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
+>>>>>>> a893cca09 (Test mise à jour)
+>>>>>>> b23eedc65 (Test mise à jour)
+>>>>>>> 3dcce7e9d (Test mise à jour)
+>>>>>>> 09580c2d5 (Test mise à jour)
+>>>>>>> 41f27fed7 (Test mise à jour)
       eslint-plugin-n: 17.10.2(eslint@9.9.1)
       eslint-plugin-promise: 6.6.0(eslint@8.57.0)
       typescript: 5.5.4
@@ -14063,6 +14120,7 @@ snapshots:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   eslint-config-standard@17.1.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
@@ -14072,6 +14130,8 @@ snapshots:
 >>>>>>> ca5044f46 (Update typescript-eslint monorepo to v8.4.0)
 =======
 >>>>>>> a4a525e6a (Update dependency eslint-plugin-import to v2.30.0)
+=======
+>>>>>>> 41f27fed7 (Test mise à jour)
 <<<<<<< HEAD
   eslint-config-standard@17.1.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
@@ -14082,6 +14142,8 @@ snapshots:
 >>>>>>> f1c9277fb (Update typescript-eslint monorepo to v8.4.0)
 =======
 >>>>>>> bceadaa4d (Update dependency eslint-plugin-import to v2.30.0)
+=======
+>>>>>>> 09580c2d5 (Test mise à jour)
   eslint-config-standard@17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
@@ -14104,11 +14166,29 @@ snapshots:
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
 >>>>>>> 7c1bbc10e (Update typescript-eslint monorepo to v8.4.0)
 =======
+=======
+>>>>>>> 3dcce7e9d (Test mise à jour)
   eslint-config-standard@17.1.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
       eslint-plugin-import: 2.30.0(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
+<<<<<<< HEAD
 >>>>>>> 4171c859a (Update dependency eslint-plugin-import to v2.30.0)
+=======
+=======
+<<<<<<< HEAD
+  eslint-config-standard@17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
+    dependencies:
+      eslint: 8.57.0
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.4.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
+=======
+  eslint-config-standard@17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
+    dependencies:
+      eslint: 8.57.0
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
+>>>>>>> a893cca09 (Test mise à jour)
+>>>>>>> b23eedc65 (Test mise à jour)
+>>>>>>> 3dcce7e9d (Test mise à jour)
       eslint-plugin-n: 17.10.2(eslint@9.9.1)
       eslint-plugin-promise: 6.6.0(eslint@8.57.0)
 
