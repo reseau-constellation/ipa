@@ -1,5 +1,6 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
+import globals from "globals";
 
 export default [
   {
@@ -26,6 +27,18 @@ export default [
           caughtErrorsIgnorePattern: "^_",
         },
       ],
+    },
+  },
+  {
+    files: ["*.{js,ts}"],
+    languageOptions: {
+      parserOptions: {
+        ecmaVersion: 12,
+        sourceType: "module",
+      },
+      globals: {
+        ...globals.node
+      }
     },
   },
 ];
