@@ -1227,7 +1227,7 @@ describe("Tableaux", function () {
       expect(valVariables).to.deep.equal([idVarChaîne]);
     });
     it("Suivre colonnes", async () => {
-      expect(colonnes.val).to.be.undefined;
+      expect(colonnes.val).to.be.undefined();
     });
     it("Suivre colonnes sans catégorie", async () => {
       const val = await colonnesSansCatégorie.attendreQue((x) => x.length > 0);
