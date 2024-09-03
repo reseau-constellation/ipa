@@ -109,7 +109,7 @@ importers:
         version: 2.0.0
       axios:
         specifier: ^1.7.4
-        version: 1.7.5
+        version: 1.7.7
       blockstore-level:
         specifier: ^1.1.8
         version: 1.1.8
@@ -2972,9 +2972,6 @@ packages:
 
   average@0.0.1:
     resolution: {integrity: sha512-rnSkP7Xnbxz3cKEHscefV2Uu6GdlDrCCameNIbzM8c3zCMTigfndi1NuOxuks4fK3ZC/FtXLIS3Y8f7N70ZBmQ==}
-
-  axios@1.7.5:
-    resolution: {integrity: sha512-fZu86yCo+svH3uqJ/yTdQ0QHpQu5oL+/QE+QPSv6BZSkDAoky9vytxp7u5qk83OJFS3kEBcesWni9WTZAv3tSw==}
 
   axios@1.7.7:
     resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
@@ -12515,14 +12512,6 @@ snapshots:
       possible-typed-array-names: 1.0.0
 
   average@0.0.1: {}
-
-  axios@1.7.5:
-    dependencies:
-      follow-redirects: 1.15.6
-      form-data: 4.0.0
-      proxy-from-env: 1.1.0
-    transitivePeerDependencies:
-      - debug
 
   axios@1.7.7:
     dependencies:
