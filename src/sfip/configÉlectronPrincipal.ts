@@ -12,8 +12,8 @@ import type { Libp2pOptions } from "libp2p";
 import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { autoNAT } from "@libp2p/autonat";
-import { dcutr } from "@libp2p/dcutr";
 import { kadDHT } from "@libp2p/kad-dht";
+import { dcutr } from "@libp2p/dcutr";
 
 export const obtOptionsLibp2pÉlectionPrincipal =
   async (): Promise<Libp2pOptions> => {
