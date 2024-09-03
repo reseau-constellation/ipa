@@ -72,7 +72,7 @@ const lancerSfipDansNode = async (_opts) => {
   };
 };
 
-const lancerSfipDansNavigateur = async (opts) => {
+const lancerSfipDansNavigateur = async (_opts) => {
   const { chromium } = await import("playwright");
   const navigateur = await chromium.launch();
 

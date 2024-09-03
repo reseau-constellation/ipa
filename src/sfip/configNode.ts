@@ -12,7 +12,7 @@ import { dcutr } from "@libp2p/dcutr";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
-import { kadDHT } from "@libp2p/kad-dht";
+// import { kadDHT } from "@libp2p/kad-dht";
 import type { Libp2pOptions } from "libp2p";
 
 import { ADRESSES_NŒUDS_RELAI } from "./const.js";
