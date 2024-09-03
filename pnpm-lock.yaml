@@ -16,7 +16,7 @@ importers:
         version: 13.2.0
       '@chainsafe/libp2p-noise':
         specifier: ^15.1.1
-        version: 15.1.1
+        version: 15.1.2
       '@chainsafe/libp2p-yamux':
         specifier: ^6.0.2
         version: 6.0.2
@@ -1139,10 +1139,6 @@ packages:
   '@chainsafe/libp2p-gossipsub@13.2.0':
     resolution: {integrity: sha512-yKGXIJMLeNLa/XeI57HvQKhf1f4LRgBuV1Lrzv9Vo685Szr+qaBATUbMk/aLxpN2rMgibDIS5F8yaeuIUVPh8Q==}
     engines: {npm: '>=8.7.0'}
-
-  '@chainsafe/libp2p-noise@15.1.1':
-    resolution: {integrity: sha512-66EPS8gFTkb1jVCiJoY3+ulG/ZTef7kiNZZZvUOUzsLIZYQTi+7pIDBpgmolzSXdsFb8I2hl5mZsvcbzVZB5gg==}
-    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
   '@chainsafe/libp2p-noise@15.1.2':
     resolution: {integrity: sha512-o6mqsAbaCBucgdLOOHtkwtGVL1c8RLKhlTnHQY+leazY+thiE1Sm6qPCwsTHKQnWii1q5hDVI2Q0l9QgYi5v4Q==}
@@ -4369,8 +4365,8 @@ packages:
   fast-uri@3.0.1:
     resolution: {integrity: sha512-MWipKbbYiYI0UC7cl8m/i/IWTqfC8YXsqjzybjddLsFjStroQzsHXkc73JutMvBiXmOvapk+axIl79ig5t55Bw==}
 
-  fast-xml-parser@4.4.1:
-    resolution: {integrity: sha512-xkjOecfnKGkSsOwtZ5Pz7Us/T6mrbPQrq0nh+aCO5V9nk5NLWmasAHumTKjiPJPWANe+kAZ84Jc8ooJkzZ88Sw==}
+  fast-xml-parser@4.5.0:
+    resolution: {integrity: sha512-/PlTQCI96+fZMAOLMZK4CWG1ItCbfZ/0jx7UIJFChPNrx7tcEgerUgWbeieCM9MfHInUDyK8DWYZ+YrywDJuTg==}
     hasBin: true
 
   fastq@1.17.1:
@@ -9765,26 +9761,6 @@ snapshots:
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
 
-  '@chainsafe/libp2p-noise@15.1.1':
-    dependencies:
-      '@chainsafe/as-chacha20poly1305': 0.1.0
-      '@chainsafe/as-sha256': 0.4.2
-      '@libp2p/crypto': 4.1.9
-      '@libp2p/interface': 1.7.0
-      '@libp2p/peer-id': 4.2.4
-      '@noble/ciphers': 0.6.0
-      '@noble/curves': 1.5.0
-      '@noble/hashes': 1.4.0
-      it-length-prefixed: 9.1.0
-      it-length-prefixed-stream: 1.2.0
-      it-pair: 2.0.6
-      it-pipe: 3.0.1
-      it-stream-types: 2.0.1
-      protons-runtime: 5.5.0
-      uint8arraylist: 2.4.8
-      uint8arrays: 5.1.0
-      wherearewe: 2.0.1
-
   '@chainsafe/libp2p-noise@15.1.2':
     dependencies:
       '@chainsafe/as-chacha20poly1305': 0.1.0
@@ -10590,7 +10566,7 @@ snapshots:
     dependencies:
       '@libp2p/interface': 1.7.0
       '@noble/curves': 1.5.0
-      '@noble/hashes': 1.4.0
+      '@noble/hashes': 1.5.0
       multiformats: 13.2.2
       node-forge: 1.3.1
       protons-runtime: 5.5.0
@@ -10941,7 +10917,7 @@ snapshots:
 
   '@libp2p/webrtc@4.1.7(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))':
     dependencies:
-      '@chainsafe/libp2p-noise': 15.1.1
+      '@chainsafe/libp2p-noise': 15.1.2
       '@libp2p/interface': 1.7.0
       '@libp2p/interface-internal': 1.3.4
       '@libp2p/peer-id': 4.2.4
@@ -11019,7 +10995,7 @@ snapshots:
 
   '@libp2p/webtransport@4.1.7':
     dependencies:
-      '@chainsafe/libp2p-noise': 15.1.1
+      '@chainsafe/libp2p-noise': 15.1.2
       '@libp2p/interface': 1.7.0
       '@libp2p/peer-id': 4.2.4
       '@libp2p/utils': 5.4.9
@@ -11300,7 +11276,7 @@ snapshots:
 
   '@paralleldrive/cuid2@2.2.2':
     dependencies:
-      '@noble/hashes': 1.4.0
+      '@noble/hashes': 1.5.0
 
   '@phenomnomnominal/tsquery@5.0.1(typescript@5.5.4)':
     dependencies:
@@ -11387,7 +11363,7 @@ snapshots:
       chalk: 4.1.2
       execa: 5.1.1
       fast-glob: 3.3.2
-      fast-xml-parser: 4.4.1
+      fast-xml-parser: 4.5.0
       logkitty: 0.7.1
 
   '@react-native-community/cli-platform-apple@14.0.0':
@@ -11396,7 +11372,7 @@ snapshots:
       chalk: 4.1.2
       execa: 5.1.1
       fast-glob: 3.3.2
-      fast-xml-parser: 4.4.1
+      fast-xml-parser: 4.5.0
       ora: 5.4.1
 
   '@react-native-community/cli-platform-ios@14.0.0':
@@ -13958,8 +13934,8 @@ snapshots:
     dependencies:
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.0)(typescript@5.5.4)
-      eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
-      eslint-config-standard: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
+      eslint-config-love: 47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4)
+      eslint-config-standard: 17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)
       eslint-plugin-etc: 2.0.3(eslint@8.57.0)(typescript@5.5.4)
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
       eslint-plugin-jsdoc: 48.11.0(eslint@8.57.0)
@@ -13975,12 +13951,12 @@ snapshots:
       - eslint-plugin-n
       - supports-color
 
-  eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
+  eslint-config-love@47.0.0(@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.5.4):
     dependencies:
-      '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
+      '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4)
       '@typescript-eslint/parser': 7.18.0(eslint@8.57.0)(typescript@5.5.4)
       eslint: 8.57.0
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
       eslint-plugin-n: 17.10.2(eslint@9.9.1)
       eslint-plugin-promise: 6.6.0(eslint@8.57.0)
       typescript: 5.5.4
@@ -13991,10 +13967,10 @@ snapshots:
     dependencies:
       eslint: 9.9.1
 
-  eslint-config-standard@17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
+  eslint-config-standard@17.1.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1))(eslint-plugin-n@17.10.2(eslint@9.9.1))(eslint-plugin-promise@6.6.0(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
+      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.3.0(eslint@9.9.1)(typescript@5.5.4))(eslint@9.9.1)
       eslint-plugin-n: 17.10.2(eslint@9.9.1)
       eslint-plugin-promise: 6.6.0(eslint@8.57.0)
 
@@ -14545,7 +14521,7 @@ snapshots:
 
   fast-uri@3.0.1: {}
 
-  fast-xml-parser@4.4.1:
+  fast-xml-parser@4.5.0:
     dependencies:
       strnum: 1.0.5
 
@@ -15129,7 +15105,7 @@ snapshots:
 
   helia@4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4)):
     dependencies:
-      '@chainsafe/libp2p-noise': 15.1.1
+      '@chainsafe/libp2p-noise': 15.1.2
       '@chainsafe/libp2p-yamux': 6.0.2
       '@helia/block-brokers': 3.0.3
       '@helia/delegated-routing-v1-http-api-client': 3.0.1
