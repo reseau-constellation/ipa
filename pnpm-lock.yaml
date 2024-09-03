@@ -312,6 +312,9 @@ importers:
       express:
         specifier: ^4.19.2
         version: 4.19.2
+      globals:
+        specifier: ^15.9.0
+        version: 15.9.0
       image-type:
         specifier: ^5.2.0
         version: 5.2.0

@@ -72,6 +72,7 @@
     "eslint-plugin-promise": "^7.0.0",
     "execa": "^9.3.1",
     "express": "^4.19.2",
+    "globals": "^15.9.0",
     "image-type": "^5.2.0",
     "keyv": "^5.0.0",
     "libp2p": "^1.9.2",
