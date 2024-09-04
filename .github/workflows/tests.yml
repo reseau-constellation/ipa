@@ -52,6 +52,8 @@ jobs:
 
       - name: Envoyer couverture à Codecov
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
   
   test-ipa-navig:
     name: IPA sur le navigateur
@@ -86,8 +88,8 @@ jobs:
 
       - name: Envoyer couverture à Codecov
         uses: codecov/codecov-action@v4
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test-ipa-electron-principal:
     name: IPA sur Électron principal
@@ -128,3 +130,5 @@ jobs:
 
       - name: Envoyer couverture à Codecov
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
