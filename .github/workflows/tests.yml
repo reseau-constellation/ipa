@@ -50,7 +50,7 @@ jobs:
       - name: Vérifier les tests
         run: pnpm test:node
 
-      - name: Envoyer couverure à Codecov
+      - name: Envoyer couverture à Codecov
         uses: codecov/codecov-action@v4
   
   test-ipa-navig:
@@ -84,8 +84,10 @@ jobs:
       - name: Vérifier les tests
         run: pnpm test:navig
 
-      - name: Envoyer couverure à Codecov
+      - name: Envoyer couverture à Codecov
         uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-ipa-electron-principal:
     name: IPA sur Électron principal
@@ -124,5 +126,5 @@ jobs:
       - run: pnpm run test:électron-principal
         if: matrix.os != 'ubuntu-latest'
 
-      - name: Envoyer couverure à Codecov
+      - name: Envoyer couverture à Codecov
         uses: codecov/codecov-action@v4
