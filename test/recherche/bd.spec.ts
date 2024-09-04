@@ -557,7 +557,7 @@ describe("Rechercher bds", function () {
         },
       });
 
-      const val = await résultatMotsClef.attendreExiste();
+      const val = await résultatMotsClef.attendreQue(x=>x.de==="motClef");
       expect(val).to.deep.equal({
         type: "résultat",
         clef: idMotClef,
