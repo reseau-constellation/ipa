@@ -15,7 +15,7 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { kadDHT } from "@libp2p/kad-dht";
 import type { Libp2pOptions } from "libp2p";
 
-import { ADRESSES_NŒUDS_RELAI_LOCAL as  ADRESSES_NŒUDS_RELAI } from "./const.js";
+import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 import { DelegatedRoutingV1HttpApiClient, createDelegatedRoutingV1HttpApiClient } from "@helia/delegated-routing-v1-http-api-client";
 import first from "it-first";
 import { Multiaddr } from '@multiformats/multiaddr'
@@ -35,7 +35,7 @@ async function getBootstrapMultiaddrs(
   client: DelegatedRoutingV1HttpApiClient,
 ): Promise<BootstrapsMultiaddrs> {
   const peers = await Promise.all(
-    ["12D3KooWStqWjd1JZNapXuXJzmvos9xTkUf8tmwsSuBVRzgK6Vg8"].map((peerId) => first(client.getPeers(peerIdFromString(peerId)))),
+    ["12D3KooWJ8TusXqNSVCYCDLFYAtvmHfi3nAzcqk6YbX5vpJkJ8YP"].map((peerId) => first(client.getPeers(peerIdFromString(peerId)))),
   )
 
   const bootstrapAddrs = []
@@ -115,7 +115,7 @@ console.log({ bootstrapAddrs, relayListenAddrs })
     peerDiscovery: [
       mdns(),
       bootstrap({
-        list: [...bootstrapAddrs, "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
+        list: [...ADRESSES_NŒUDS_RELAI, "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
         "/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
         "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
         "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",],
