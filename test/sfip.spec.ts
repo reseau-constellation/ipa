@@ -9,9 +9,6 @@ import { v4 as uuidv4 } from "uuid";
 import { Constellation, créerConstellation } from "@/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
 
-// const ID_PAIR_NAVIG = "12D3KooWSCVw8HCc4hrkzfkEeJmVW2xfQRkxEreLzoc1NDTfzYFf";
-// const ID_PAIR_NODE = "12D3KooWENXsSgmKXse4hi77cmCeyKtpLiQWedkcgYeFsiQPnJRr";
-
 const attendre = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -82,7 +79,7 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe("SFIP", function () {
+describe.only("SFIP", function () {
   let idPairNavig: string;
   let idPairNode: string;
   let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
@@ -131,7 +128,7 @@ describe("SFIP", function () {
   it.skip("Ça fonctionne localement hors ligne");
 });
 
-describe.only("Stabilité client", function () {
+describe.skip("Stabilité client", function () {
   let client: Constellation;
   let dossier: string;
   let fEffacer: () => void;

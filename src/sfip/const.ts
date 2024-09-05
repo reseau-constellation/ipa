@@ -8,7 +8,7 @@ export const ADRESSES_NŒUDS_RELAI = [
 export const IDS_NŒUDS_RELAI = ['12D3KooWJ7P1yeoxB5mq3TwQh8YgmVhankjtT4rsVGZPUyf617aR']
 
 export const ADRESSES_NŒUDS_RELAI_LOCAL = [
-  "/ip4/127.0.0.1/udp/9090/webrtc-direct/certhash/uEiAWCRG30KUzLUuWYZ9HZNcFBHt8uLjLRB2xlLW_L_8lQg/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
-  "/ip4/127.0.0.1/udp/9091/quic-v1/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
-  "/ip4/127.0.0.1/tcp/9092/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
+  "/ip4/127.0.0.1/udp/9090/webrtc-direct/certhash/uEiCBKkaX5AltV3cLtHn4p1fvOk-36MjjKt598dX0uKDWsA/p2p/12D3KooWStqWjd1JZNapXuXJzmvos9xTkUf8tmwsSuBVRzgK6Vg8",
+  "/ip4/127.0.0.1/udp/9091/quic-v1/p2p/12D3KooWStqWjd1JZNapXuXJzmvos9xTkUf8tmwsSuBVRzgK6Vg8",
+  "/ip4/127.0.0.1/tcp/9092/p2p/12D3KooWStqWjd1JZNapXuXJzmvos9xTkUf8tmwsSuBVRzgK6Vg8",
 ];
