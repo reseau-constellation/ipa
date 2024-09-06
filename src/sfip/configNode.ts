@@ -15,7 +15,7 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { kadDHT } from "@libp2p/kad-dht";
 import type { Libp2pOptions } from "libp2p";
 
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
+import { ADRESSES_NŒUDS_RELAI, IDS_NŒUDS_RELAI } from "./const.js";
 import { DelegatedRoutingV1HttpApiClient, createDelegatedRoutingV1HttpApiClient } from "@helia/delegated-routing-v1-http-api-client";
 import first from "it-first";
 import { Multiaddr } from '@multiformats/multiaddr'
@@ -35,7 +35,7 @@ async function getBootstrapMultiaddrs(
   client: DelegatedRoutingV1HttpApiClient,
 ): Promise<BootstrapsMultiaddrs> {
   const peers = await Promise.all(
-    ["12D3KooWJ8TusXqNSVCYCDLFYAtvmHfi3nAzcqk6YbX5vpJkJ8YP"].map((peerId) => first(client.getPeers(peerIdFromString(peerId)))),
+    IDS_NŒUDS_RELAI.map((peerId) => first(client.getPeers(peerIdFromString(peerId)))),
   )
 
   const bootstrapAddrs = []

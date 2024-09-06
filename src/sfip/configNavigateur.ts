@@ -28,6 +28,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   
   const delegatedClient = createDelegatedRoutingV1HttpApiClient('https://delegated-ipfs.dev')
   const { bootstrapAddrs, relayListenAddrs } = await getBootstrapMultiaddrs(delegatedClient)
+  console.log({ bootstrapAddrs, relayListenAddrs } )
 
   return {
     addresses: {
@@ -66,7 +67,10 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     },
     peerDiscovery: [
       bootstrap({
-        list: [...ADRESSES_NŒUDS_RELAI],
+        list: [...bootstrapAddrs, "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
+        "/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
+        "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
+        "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt"],
         timeout: 0,
       }),
       pubsubPeerDiscovery({
@@ -108,10 +112,6 @@ async function getBootstrapMultiaddrs(
     IDS_NŒUDS_RELAI.map((peerId) => first(client.getPeers(peerIdFromString(peerId)))),
   )
 
-// Constructs a multiaddr string representing the circuit relay v2 listen address for a relayed connection to the given peer.
-const getRelayListenAddr = (maddr: Multiaddr, peer: PeerId): string =>
-  `${maddr.toString()}/p2p/${peer.toString()}/p2p-circuit`
-
   const bootstrapAddrs = []
   const relayListenAddrs = []
   for (const p of peers) {
@@ -131,3 +131,7 @@ const getRelayListenAddr = (maddr: Multiaddr, peer: PeerId): string =>
   }
   return { bootstrapAddrs, relayListenAddrs }
 }
+
+// Constructs a multiaddr string representing the circuit relay v2 listen address for a relayed connection to the given peer.
+const getRelayListenAddr = (maddr: Multiaddr, peer: PeerId): string =>
+  `${maddr.toString()}/p2p/${peer.toString()}/p2p-circuit`
