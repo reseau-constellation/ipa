@@ -50,9 +50,7 @@ export async function initSFIP({
   const config = await obtConfigLibp2pPlateforme();
 
   const libp2p = (await createLibp2p(
-    mergeOptions(configLibp2p, {
-      ...config,
-    }),
+    mergeOptions(config, configLibp2p),
   )) as Libp2p<DefaultLibp2pServices>;
 
   const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
