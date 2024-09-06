@@ -73,8 +73,6 @@ const delegatedClient = createDelegatedRoutingV1HttpApiClient('https://delegated
 const { bootstrapAddrs, relayListenAddrs } = await getBootstrapMultiaddrs(delegatedClient)
 console.log({ bootstrapAddrs, relayListenAddrs })
 
-
-
   return {
     addresses: {
       listen: [

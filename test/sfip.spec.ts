@@ -109,13 +109,6 @@ describe.only("SFIP", function () {
     expect(id.toString()).to.be.a("string");
   });
 
-  it("Connexion à Node.js", async () => {
-    await attendreConnecté({ sfip, idPair: idPairNode });
-  });
-
-  it("GossipSub avec Node.js", async () => {
-    await testerGossipSub({ sfip, idPair: idPairNode });
-  });
 
   it("Connexion à un navigateur", async () => {
     await attendreConnecté({ sfip, idPair: idPairNavig });
@@ -124,6 +117,16 @@ describe.only("SFIP", function () {
   it("Gossipsub avec navigateur", async () => {
     await testerGossipSub({ sfip, idPair: idPairNavig });
   });
+
+  it("GossipSub avec Node.js", async () => {
+    await testerGossipSub({ sfip, idPair: idPairNode });
+  });
+
+  it.skip("Connexion à Node.js", async () => {
+    await attendreConnecté({ sfip, idPair: idPairNode });
+  });
+
+
 
   it.skip("Ça fonctionne localement hors ligne");
 });
