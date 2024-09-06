@@ -19,17 +19,17 @@ const attendreConnecté = async ({
   sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
-  await new Promise<void>((résoudre) => {
+  await new Promise((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
       const connexions = sfip.libp2p
         .getConnections()
-        .map((c) => [c.remotePeer.toString(), c.remoteAddr.toString()]);
-      console.log("principal: ", { connexions });
-      console.log(pairs.map((p) => p.toString()));
+      console.log({connexions: connexions.length})
+      // console.log("principal: ", { connexions });
+      // console.log(pairs.map((p) => p.toString()));
       const trouvé = pairs.find((p) => p.toString() === idPair);
       if (trouvé) {
-        résoudre();
+        résoudre(connexions.find(c=>c.remotePeer.toString() === idPair)?.remoteAddr.toString());
       }
     };
     sfip.libp2p.addEventListener("peer:connect", vérifierConnecté);
@@ -109,22 +109,27 @@ describe.only("SFIP", function () {
     expect(id.toString()).to.be.a("string");
   });
 
-
-  it("Connexion à un navigateur", async () => {
-    await attendreConnecté({ sfip, idPair: idPairNavig });
+  it("Connexion à Node.js", async () => {
+    const connexion = await attendreConnecté({ sfip, idPair: idPairNode });
+    console.log({connexion})
   });
 
-  it("Gossipsub avec navigateur", async () => {
-    await testerGossipSub({ sfip, idPair: idPairNavig });
-  });
 
   it("GossipSub avec Node.js", async () => {
     await testerGossipSub({ sfip, idPair: idPairNode });
   });
 
-  it.skip("Connexion à Node.js", async () => {
-    await attendreConnecté({ sfip, idPair: idPairNode });
+  it("Connexion à un navigateur", async () => {
+    const connexion = await attendreConnecté({ sfip, idPair: idPairNavig });
+    console.log({connexion})
   });
+  it("Gossipsub avec navigateur", async () => {
+    await testerGossipSub({ sfip, idPair: idPairNavig });
+  });
+
+
+
+
 
 
 
