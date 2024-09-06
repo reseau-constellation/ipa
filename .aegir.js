@@ -76,7 +76,7 @@ const lancerSfipDansNode = async (_opts) => {
       const texte = new TextDecoder().decode(x);
       if (texte.startsWith("SFIP initialisé avec id de nœud :")) {
         processusNode.stdout.off("data", fDonnées);
-        résoudre(texte.split(":")[1].trim());
+        résoudre(texte.split("\n")[0].split(":")[1].trim());
       }
     }
     processusNode.stdout.on("data", fDonnées);
@@ -136,7 +136,7 @@ const lancerSfipDansNavigateur = async (_opts) => {
         const texte = x.text();
         if (texte.startsWith("SFIP initialisé avec id de nœud :")) {
           page.off("console", fDonnées);
-          résoudre(texte.split(":")[1].trim());
+          résoudre(texte.split("\n")[0].split(":")[1].trim());
         }
       }
       page.on("console", fDonnées);
