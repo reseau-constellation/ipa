@@ -96,7 +96,7 @@ describe.only("SFIP", function () {
   after(async () => {
     await sfip.stop();
     try {
-      fEffacer?.();
+      if (!(isNode || isElectronMain) || !(process.platform === "win32")) fEffacer?.();
     } catch (e) {
       if (!(isNode || isElectronMain) || !(process.platform === "win32")) {
         throw e;
