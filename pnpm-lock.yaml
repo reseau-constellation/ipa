@@ -111,8 +111,8 @@ importers:
         specifier: ^1.7.4
         version: 1.7.7
       blockstore-level:
-        specifier: ^1.1.8
-        version: 1.1.8
+        specifier: ^2.0.0
+        version: 2.0.0
       browser-fs-access:
         specifier: ^0.35.0
         version: 0.35.0
@@ -3040,8 +3040,14 @@ packages:
   blockstore-core@4.4.1:
     resolution: {integrity: sha512-peXfL9ZLx1cb84QALocMjhT8CsQ4JsreI/AitlN1inipSdC/G+jcYVJCqeCD5ecSTv/0LMpg8NlAPH/eBYZLjA==}
 
+  blockstore-core@5.0.0:
+    resolution: {integrity: sha512-ZzsU1/iRQBJDAMMVBydmIm8hM4UoVEydHKk2pTHZaeQbyBhL2SsowtwU5UBIijXHWzFZNupn9hUvyDYbhnj3gw==}
+
   blockstore-level@1.1.8:
     resolution: {integrity: sha512-8+NLeoyAQZzWIf9TWl0kC3x0JpJf6bts02K1fg8MCxgx/z/Leh4gVCzSGvYDuorHicOCVsyWv4+3ldlrnzRXoA==}
+
+  blockstore-level@2.0.0:
+    resolution: {integrity: sha512-8BguhrXVYwAYryY+bA0Q1KJsJDItiXLjKPF1ekBb2WnWWp2R3cMSIMgj0yKVPmKAHUVk2pTDktIeqj9S2PpQow==}
 
   bmp-js@0.1.0:
     resolution: {integrity: sha512-vHdS19CnY3hwiNdkaqk93DvjVLfbEcI8mys4UjuWrlX1haDmroo8o4xCzh4wD6DGV6HxRCyauwhHRqMTfERtjw==}
@@ -12624,11 +12630,30 @@ snapshots:
       it-pushable: 3.2.3
       multiformats: 13.2.2
 
+  blockstore-core@5.0.0:
+    dependencies:
+      '@libp2p/logger': 4.0.20
+      interface-blockstore: 5.3.0
+      interface-store: 6.0.0
+      it-drain: 3.0.7
+      it-filter: 3.1.1
+      it-merge: 3.0.5
+      it-pushable: 3.2.3
+      multiformats: 13.2.2
+
   blockstore-level@1.1.8:
     dependencies:
       blockstore-core: 4.4.1
       interface-blockstore: 5.3.0
       interface-store: 5.1.8
+      level: 8.0.1
+      multiformats: 13.2.2
+
+  blockstore-level@2.0.0:
+    dependencies:
+      blockstore-core: 5.0.0
+      interface-blockstore: 5.3.0
+      interface-store: 6.0.0
       level: 8.0.1
       multiformats: 13.2.2
 
