@@ -22,11 +22,7 @@ const attendreConnecté = async ({
   await new Promise((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
-      const connexions = sfip.libp2p
-        .getConnections()
-      console.log({connexions: connexions.length})
-      // console.log("principal: ", { connexions });
-      // console.log(pairs.map((p) => p.toString()));
+      const connexions = sfip.libp2p.getConnections()
       const trouvé = pairs.find((p) => p.toString() === idPair);
       if (trouvé) {
         résoudre(connexions.find(c=>c.remotePeer.toString() === idPair)?.remoteAddr.toString());
@@ -111,33 +107,25 @@ if (!(process.platform === "win32"))
     });
 
     it("Connexion à Node.js", async () => {
-      const connexion = await attendreConnecté({ sfip, idPair: idPairNode });
-      console.log({connexion})
+      await attendreConnecté({ sfip, idPair: idPairNode });
     });
-
 
     it("GossipSub avec Node.js", async () => {
       await testerGossipSub({ sfip, idPair: idPairNode });
     });
 
     it("Connexion à un navigateur", async () => {
-      const connexion = await attendreConnecté({ sfip, idPair: idPairNavig });
-      console.log({connexion})
+      await attendreConnecté({ sfip, idPair: idPairNavig });
     });
+
     it("Gossipsub avec navigateur", async () => {
       await testerGossipSub({ sfip, idPair: idPairNavig });
     });
 
-
-
-
-
-
-
     it.skip("Ça fonctionne localement hors ligne");
   });
 
-describe.skip("Stabilité client", function () {
+describe("Stabilité client", function () {
   let client: Constellation;
   let dossier: string;
   let fEffacer: () => void;
