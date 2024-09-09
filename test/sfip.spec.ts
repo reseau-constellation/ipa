@@ -175,6 +175,7 @@ if (!(process.platform === "win32")) {
     });
   });
 }
+
 describe("Stabilité client", function () {
   let client: Constellation;
   let dossier: string;
