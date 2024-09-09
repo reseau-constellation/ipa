@@ -75,8 +75,8 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-if (!(process.platform === "win32"))
-  describe.only("SFIP", function () {
+if (!(process.platform === "win32")) {
+  describe.only("Connectivité SFIP", function () {
     let idPairNavig: string;
     let idPairNode: string;
     let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
@@ -125,6 +125,56 @@ if (!(process.platform === "win32"))
     it.skip("Ça fonctionne localement hors ligne");
   });
 
+  describe.only("Connectivité lors de redémarrage", function () {
+    let idPairNavig: string;
+    let idPairNode: string;
+    let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+    let dossier: string;
+    let fEffacer: () => void;
+
+    before(async () => {
+      ({ dossier, fEffacer } = await dossiers.dossierTempo());
+      sfip = await initSFIP({ dossier: path.join(dossier, "sfip") });
+      ({idPairNavig, idPairNode} = await obtIdsPairs());
+      console.log({idPairNavig, idPairNode})
+    });
+
+    after(async () => {
+      await sfip.stop();
+      try {
+        fEffacer?.();
+      } catch (e) {
+        if (!(isNode || isElectronMain) || !(process.platform === "win32")) {
+          throw e;
+        }
+      }
+    });
+
+    it("Réouverture", async () => {
+      await sfip.stop();
+      sfip = await initSFIP({ dossier: path.join(dossier, "sfip") });
+      console.log({dossier})
+      const id = sfip.libp2p.peerId;
+      expect(id.toString()).to.be.a("string");
+    });
+
+    it("Connexion à Node.js", async () => {
+      await attendreConnecté({ sfip, idPair: idPairNode });
+    });
+
+    it("GossipSub avec Node.js", async () => {
+      await testerGossipSub({ sfip, idPair: idPairNode });
+    });
+
+    it("Connexion à un navigateur", async () => {
+      await attendreConnecté({ sfip, idPair: idPairNavig });
+    });
+
+    it("Gossipsub avec navigateur", async () => {
+      await testerGossipSub({ sfip, idPair: idPairNavig });
+    });
+  });
+}
 describe("Stabilité client", function () {
   let client: Constellation;
   let dossier: string;
