@@ -89,7 +89,7 @@ describe("Favoris", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idBd = await client.bds.créerBd({ licence: "ODbl-1_0", épingler: false });
 
       fsOublier.push(
         await client.favoris.suivreFavoris({
