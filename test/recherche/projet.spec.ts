@@ -649,7 +649,7 @@ describe("Rechercher projets", function () {
 
       const val = await résultatMotsClef.attendreQue(
         (x) =>
-          (x.info as infoRésultatRecherche<infoRésultatTexte>).de === "motClef",
+          (x.info as infoRésultatRecherche<infoRésultatTexte>).de === "motClef" && x.info.type === "résultat" && x.info.de === "nom",
       );
       expect(val).to.deep.equal(réfRés);
     });
