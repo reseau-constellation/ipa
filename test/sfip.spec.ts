@@ -7,9 +7,7 @@ import { Libp2p } from "@libp2p/interface";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Constellation, créerConstellation } from "@/index.js";
-
-const ID_PAIR_NAVIG = "12D3KooWSCVw8HCc4hrkzfkEeJmVW2xfQRkxEreLzoc1NDTfzYFf";
-const ID_PAIR_NODE = "12D3KooWENXsSgmKXse4hi77cmCeyKtpLiQWedkcgYeFsiQPnJRr";
+import { obtIdsPairs } from "./utils/utils.js";
 
 const attendre = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -21,17 +19,13 @@ const attendreConnecté = async ({
   sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
-  await new Promise<void>((résoudre) => {
+  await new Promise((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
-      const connexions = sfip.libp2p
-        .getConnections()
-        .map((c) => [c.remotePeer.toString(), c.remoteAddr.toString()]);
-      console.log("principal: ", { connexions });
-      console.log(pairs.map((p) => p.toString()));
+      const connexions = sfip.libp2p.getConnections()
       const trouvé = pairs.find((p) => p.toString() === idPair);
       if (trouvé) {
-        résoudre();
+        résoudre(connexions.find(c=>c.remotePeer.toString() === idPair)?.remoteAddr.toString());
       }
     };
     sfip.libp2p.addEventListener("peer:connect", vérifierConnecté);
@@ -81,52 +75,107 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe.skip("SFIP", function () {
-  let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
-  let dossier: string;
-  let fEffacer: () => void;
+if (!(process.platform === "win32")) {
+  describe.only("Connectivité SFIP", function () {
+    let idPairNavig: string;
+    let idPairNode: string;
+    let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+    let dossier: string;
+    let fEffacer: () => void;
 
-  before(async () => {
-    ({ dossier, fEffacer } = await dossiers.dossierTempo());
-    sfip = await initSFIP({ dossier: path.join(dossier, "sfip") });
-  });
+    before(async () => {
+      ({ dossier, fEffacer } = await dossiers.dossierTempo());
+      sfip = await initSFIP({ dossier: path.join(dossier, "sfip") });
+      ({idPairNavig, idPairNode} = await obtIdsPairs());
+      console.log({idPairNavig, idPairNode})
+    });
 
-  after(async () => {
-    await sfip.stop();
-    try {
-      fEffacer?.();
-    } catch (e) {
-      if (!(isNode || isElectronMain) || !(process.platform === "win32")) {
-        throw e;
+    after(async () => {
+      await sfip.stop();
+      try {
+        fEffacer?.();
+      } catch (e) {
+        if (!(isNode || isElectronMain) || !(process.platform === "win32")) {
+          throw e;
+        }
       }
-    }
+    });
+
+    it("Initialiser", async () => {
+      const id = sfip.libp2p.peerId;
+      expect(id.toString()).to.be.a("string");
+    });
+
+    it("Connexion à Node.js", async () => {
+      await attendreConnecté({ sfip, idPair: idPairNode });
+    });
+
+    it("GossipSub avec Node.js", async () => {
+      await testerGossipSub({ sfip, idPair: idPairNode });
+    });
+
+    it("Connexion à un navigateur", async () => {
+      await attendreConnecté({ sfip, idPair: idPairNavig });
+    });
+
+    it("Gossipsub avec navigateur", async () => {
+      await testerGossipSub({ sfip, idPair: idPairNavig });
+    });
+
+    it.skip("Ça fonctionne localement hors ligne");
   });
 
-  it("Initialiser", async () => {
-    const id = sfip.libp2p.peerId;
-    expect(id).to.be.a("string");
+  describe.only("Connectivité lors de redémarrage", function () {
+    let idPairNavig: string;
+    let idPairNode: string;
+    let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+    let dossier: string;
+    let fEffacer: () => void;
+
+    before(async () => {
+      ({ dossier, fEffacer } = await dossiers.dossierTempo());
+      sfip = await initSFIP({ dossier: path.join(dossier, "sfip") });
+      ({idPairNavig, idPairNode} = await obtIdsPairs());
+      console.log({idPairNavig, idPairNode})
+    });
+
+    after(async () => {
+      await sfip.stop();
+      try {
+        fEffacer?.();
+      } catch (e) {
+        if (!(isNode || isElectronMain) || !(process.platform === "win32")) {
+          throw e;
+        }
+      }
+    });
+
+    it("Réouverture", async () => {
+      await sfip.stop();
+      sfip = await initSFIP({ dossier: path.join(dossier, "sfip") });
+      console.log({dossier})
+      const id = sfip.libp2p.peerId;
+      expect(id.toString()).to.be.a("string");
+    });
+
+    it("Connexion à Node.js", async () => {
+      await attendreConnecté({ sfip, idPair: idPairNode });
+    });
+
+    it("GossipSub avec Node.js", async () => {
+      await testerGossipSub({ sfip, idPair: idPairNode });
+    });
+
+    it("Connexion à un navigateur", async () => {
+      await attendreConnecté({ sfip, idPair: idPairNavig });
+    });
+
+    it("Gossipsub avec navigateur", async () => {
+      await testerGossipSub({ sfip, idPair: idPairNavig });
+    });
   });
-
-  it("Connexion à Node.js", async () => {
-    await attendreConnecté({ sfip, idPair: ID_PAIR_NODE });
-  });
-
-  it("GossipSub avec Node.js", async () => {
-    await testerGossipSub({ sfip, idPair: ID_PAIR_NODE });
-  });
-
-  it("Connexion à un navigateur", async () => {
-    await attendreConnecté({ sfip, idPair: ID_PAIR_NAVIG });
-  });
-
-  it("Gossipsub avec navigateur", async () => {
-    await testerGossipSub({ sfip, idPair: ID_PAIR_NAVIG });
-  });
-
-  it.skip("Ça fonctionne localement hors ligne");
-});
-
-describe.skip("Stabilité client", function () {
+}
+describe("Stabilité client", function () {
   let client: Constellation;
   let dossier: string;
   let fEffacer: () => void;

@@ -14,12 +14,15 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 import type { Libp2pOptions } from "libp2p";
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
+import { obtAdressesDépart, obtClientDélégation } from './utils.js';
 
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
+  const { bootstrapAddrs, relayListenAddrs } = await obtAdressesDépart();
+  const delegatedClient = obtClientDélégation();
+
   return {
     addresses: {
-      listen: ["/webrtc", "/webtransport"],
+      listen: ["/webrtc","/webtransport", ...relayListenAddrs],
     },
     transports: [
       webSockets({
@@ -38,11 +41,15 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
         },
       }),
       webRTCDirect(),
-      webTransport(),
+      // webTransport(),
       circuitRelayTransport({
         discoverRelays: 1,
       }),
     ],
+    connectionManager: {
+      maxConnections: 30,
+      minConnections: 5,
+    },
     connectionEncryption: [noise()],
     streamMuxers: [yamux()],
     connectionGater: {
@@ -50,7 +57,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     },
     peerDiscovery: [
       bootstrap({
-        list: ADRESSES_NŒUDS_RELAI,
+        list: bootstrapAddrs,
         timeout: 0,
       }),
       pubsubPeerDiscovery({
@@ -63,10 +70,14 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       identify: identify(),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
-      pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+      pubsub: gossipsub({ 
+        allowPublishToZeroTopicPeers: true, 
+        ignoreDuplicatePublishError: true 
+      }),
       dht: kadDHT({
         clientMode: true,
       }),
+      delegatedRouting:  () => delegatedClient,
     },
   };
 };

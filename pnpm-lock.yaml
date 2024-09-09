@@ -35,6 +35,9 @@ importers:
       '@helia/block-brokers':
         specifier: ^3.0.3
         version: 3.0.3
+      '@helia/delegated-routing-v1-http-api-client':
+        specifier: ^3.0.1
+        version: 3.0.1
       '@helia/unixfs':
         specifier: ^3.0.7
         version: 3.0.7
@@ -68,6 +71,9 @@ importers:
       '@libp2p/mdns':
         specifier: ^10.1.5
         version: 10.1.5
+      '@libp2p/peer-id':
+        specifier: ^4.2.4
+        version: 4.2.4
       '@libp2p/pubsub-peer-discovery':
         specifier: ^10.0.2
         version: 10.0.2
@@ -155,6 +161,9 @@ importers:
       iso-constants:
         specifier: github:inverted-capital/iso-constants#patch-1
         version: https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f
+      it-first:
+        specifier: ^3.0.6
+        version: 3.0.6
       it-to-buffer:
         specifier: ^4.0.7
         version: 4.0.7

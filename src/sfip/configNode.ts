@@ -12,10 +12,10 @@ import { dcutr } from "@libp2p/dcutr";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
-// import { kadDHT } from "@libp2p/kad-dht";
+import { kadDHT } from "@libp2p/kad-dht";
 import type { Libp2pOptions } from "libp2p";
 
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
+import { obtAdressesDépart, obtClientDélégation } from "./utils.js";
 
 export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
@@ -24,6 +24,9 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
   const { tcp } = await import("@libp2p/tcp");
   const { mdns } = await import("@libp2p/mdns");
 
+  const { bootstrapAddrs, relayListenAddrs } = await obtAdressesDépart();
+  const delegatedClient = obtClientDélégation();
+
   return {
     addresses: {
       listen: [
@@ -31,6 +34,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         "/webrtc",
         "/webtransport",
         "/webrtc-direct",
+        ...relayListenAddrs
       ],
     },
     transports: [
@@ -64,7 +68,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
     peerDiscovery: [
       mdns(),
       bootstrap({
-        list: ADRESSES_NŒUDS_RELAI,
+        list: bootstrapAddrs,
         timeout: 0,
       }),
       pubsubPeerDiscovery({
@@ -78,9 +82,10 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       autoNAT: autoNAT(),
       dcutr: dcutr(),
       pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
-      /*dht: kadDHT({
-        clientMode: true,
-      }),*/
+      dht: kadDHT({
+        clientMode: false,
+      }),
+      delegatedRouting:  () => delegatedClient,
     },
   };
 };
