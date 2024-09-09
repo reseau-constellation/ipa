@@ -22,7 +22,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
 
   return {
     addresses: {
-      listen: ["/webrtc", ...relayListenAddrs],
+      listen: ["/webrtc","/webtransport", ...relayListenAddrs],
     },
     transports: [
       webSockets({

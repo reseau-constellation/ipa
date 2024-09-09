@@ -32,31 +32,31 @@ interface BootstrapsMultiaddrs {
 // Function which resolves PeerIDs of rust/go bootstrap nodes to multiaddrs dialable from the browser
 // Returns both the dialable multiaddrs in addition to the relay
 export async function getBootstrapMultiaddrs(
-client: DelegatedRoutingV1HttpApiClient,
+  client: DelegatedRoutingV1HttpApiClient,
 ): Promise<BootstrapsMultiaddrs> {
-const peers = await Promise.all(
+  const peers = await Promise.all(
     IDS_NŒUDS_RELAI.map((peerId) => first(client.getPeers(peerIdFromString(peerId)))),
-)
+  )
 
-const bootstrapAddrs = [...ADRESSES_INITIALES]
-const relayListenAddrs = []
-for (const p of peers) {
-    if (p && p.Addrs.length > 0) {
-    for (const maddr of p.Addrs) {
-        const protos = maddr.protoNames()
-        if (
-        (protos.includes('webtransport') || protos.includes('webrtc-direct')) &&
-        protos.includes('certhash')
-        ) {
-        if (maddr.nodeAddress().address === '127.0.0.1') continue // skip loopback
-        bootstrapAddrs.push(maddr.toString())
-        relayListenAddrs.push(getRelayListenAddr(maddr, p.ID))
-        }
+  const bootstrapAddrs = [...ADRESSES_INITIALES];
+  const relayListenAddrs = []
+  for (const p of peers) {
+      if (p && p.Addrs.length > 0) {
+      for (const maddr of p.Addrs) {
+          const protos = maddr.protoNames()
+          if (
+          (protos.includes('webtransport') || protos.includes('webrtc-direct')) &&
+          protos.includes('certhash')
+          ) {
+          if (maddr.nodeAddress().address === '127.0.0.1') continue // skip loopback
+          bootstrapAddrs.push(maddr.toString())
+          relayListenAddrs.push(getRelayListenAddr(maddr, p.ID))
+          }
+      }
     }
-    }
-}
-console.log({ bootstrapAddrs, relayListenAddrs })
-return { bootstrapAddrs, relayListenAddrs }
+  }
+
+  return { bootstrapAddrs, relayListenAddrs }
 }
 
 // Constructs a multiaddr string representing the circuit relay v2 listen address for a relayed connection to the given peer.
