@@ -31,8 +31,13 @@ await client.motsClefs.suivreMotsClefs({ f: x => motsClefs.value = x });
 
 ```
 
-### `client.motsClefs.créerMotClef()`
+### `client.motsClefs.créerMotClef({ épingler })`
 Crée un nouveau mot-clef.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `épingler` | `boolean` | Si nous épinglons le nouveau mot-clef. Vrai par défaut.|
 
 #### Retour
 | Type | Description |

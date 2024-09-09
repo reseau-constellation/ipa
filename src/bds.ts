@@ -224,12 +224,10 @@ export class BDs extends ComposanteClientListe<string> {
   async créerBd({
     licence,
     licenceContenu,
-    ajouter = true,
     épingler = true,
   }: {
     licence: string;
     licenceContenu?: string;
-    ajouter?: boolean;
     épingler?: boolean;
   }): Promise<string> {
     const idBdBd = await this.client.créerBdIndépendante({
@@ -291,16 +289,14 @@ export class BDs extends ComposanteClientListe<string> {
 
     await bdBD.set("statut", { statut: "active" });
 
-    if (ajouter) {
-      const { bd: bdRacine, fOublier: fOublierRacine } =
-        await this.client.ouvrirBdTypée({
-          id: await this.obtIdBd(),
-          type: "set",
-          schéma: schémaBdPrincipale,
-        });
-      await bdRacine.add(idBdBd);
-      fOublierRacine();
-    }
+    const { bd: bdRacine, fOublier: fOublierRacine } =
+      await this.client.ouvrirBdTypée({
+        id: await this.obtIdBd(),
+        type: "set",
+        schéma: schémaBdPrincipale,
+      });
+    await bdRacine.add(idBdBd);
+    fOublierRacine();
 
     await fOublier();
 
@@ -329,11 +325,9 @@ export class BDs extends ComposanteClientListe<string> {
 
   async copierBd({
     idBd,
-    ajouterÀMesBds = true,
     copierDonnées = true,
   }: {
     idBd: string;
-    ajouterÀMesBds?: boolean;
     copierDonnées?: boolean;
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBdTypée({
@@ -348,7 +342,6 @@ export class BDs extends ComposanteClientListe<string> {
     const idNouvelleBd = await this.créerBd({
       licence,
       licenceContenu,
-      ajouter: ajouterÀMesBds,
     });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
       await this.client.ouvrirBdTypée({
@@ -492,7 +485,6 @@ export class BDs extends ComposanteClientListe<string> {
     const idBd = await this.créerBd({
       licence,
       licenceContenu,
-      ajouter: false,
     });
 
     if (motsClefs) {
@@ -538,9 +530,6 @@ export class BDs extends ComposanteClientListe<string> {
         }
       }
     }
-
-    // Maintenant on peut l'annoncer !
-    await this.ajouterÀMesBds({ idBd });
 
     return idBd;
   }

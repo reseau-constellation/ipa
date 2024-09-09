@@ -33,7 +33,7 @@ await client.nuées.suivreNuées({ f: x => nuées.value = x });
 
 ```
 
-### `client.nuées.créerNuée({ autorisation, nuéeParent })`
+### `client.nuées.créerNuée({ autorisation, nuéeParent, épingler })`
 Créer une nouvelle nuée.
 
 #### Paramètres
@@ -41,6 +41,7 @@ Créer une nouvelle nuée.
 | --- | ---- | ----------- |
 | `autorisation` | `string \| "IJPC" \| "CJPI" \| undefined` | La stratégie d'autorisation pour participer à la nuée. Voir la section [accès](#acces-et-permissions) pour plus d'information. `autorisation` peut aussi être un identifiant orbite d'une stratégie d'autorisation déjà existante. |
 | `nuéeParent` | `string \| undefined` | Si cette nuée doit hériter d'une nuée existante, l'identifiant de cette dernière. |
+| `épingler` | `boolean` | Si nous épinglons la nouvelle nuée. Vrai par défaut.|
 
 #### Retour
 | Type | Description |

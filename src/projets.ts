@@ -117,14 +117,14 @@ export class Projets extends ComposanteClientListe<string> {
     });
   }
 
-  async créerProjet(): Promise<string> {
+  async créerProjet({épingler = true}: {épingler?: boolean} = {}): Promise<string> {
     const { bd: bdRacine, fOublier: fOublierRacine } =
       await this.client.ouvrirBdTypée({
         id: await this.obtIdBd(),
         type: "set",
         schéma: schémaBdPrincipale,
       });
-    const idBdProjet = await this.client.créerBdIndépendante({
+    const idProjet = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
@@ -134,7 +134,7 @@ export class Projets extends ComposanteClientListe<string> {
 
     const { bd: bdProjet, fOublier: fOublierProjet } =
       await this.client.ouvrirBdTypée({
-        id: idBdProjet,
+        id: idProjet,
         type: "keyvalue",
         schéma: schémaStructureBdProjet,
       });
@@ -173,11 +173,13 @@ export class Projets extends ComposanteClientListe<string> {
 
     await bdProjet.set("statut", { statut: "active" });
 
-    await bdRacine.add(idBdProjet);
+    await bdRacine.add(idProjet);
+
+    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idProjet });
 
     await Promise.all([fOublierRacine(), fOublierProjet()]);
 
-    return idBdProjet;
+    return idProjet;
   }
 
   async copierProjet({ idProjet }: { idProjet: string }): Promise<string> {

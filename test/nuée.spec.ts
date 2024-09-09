@@ -393,10 +393,9 @@ describe("Nuées", function () {
         if (fOublier) await fOublier();
       });
       it("On crée une autre nuée sans l'ajouter", async () => {
-        idNouvelleNuée = await client.nuées.créerNuée({
-          ajouter: false,
-        });
-        const val = await nuées.attendreExiste();
+        idNouvelleNuée = await client.nuées.créerNuée();
+        await client.nuées.enleverDeMesNuées({idNuée: idNouvelleNuée});
+        const val = await nuées.attendreQue(x=>x && !x.includes(idNouvelleNuée));
         expect(val).to.be.an("array").and.not.to.contain(idNouvelleNuée);
       });
       it("La nuée déjà ajoutée est présente", async () => {

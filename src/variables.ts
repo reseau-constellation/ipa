@@ -139,21 +139,24 @@ export class Variables extends ComposanteClientListe<string> {
 
   async créerVariable({
     catégorie,
+    épingler=true,
   }: {
     catégorie: catégorieVariables | catégorieBaseVariables;
+    épingler?: boolean,
   }): Promise<string> {
-    const idBdVariable = await this.client.créerBdIndépendante({
+    const idVariable = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
         write: await this.client.obtIdCompte(),
       },
     });
-    await this.ajouterÀMesVariables({ idVariable: idBdVariable });
+    await this.ajouterÀMesVariables({ idVariable: idVariable });
+    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idVariable });
 
     const { bd: bdVariable, fOublier: fOublierVariable } =
       await this.client.ouvrirBdTypée({
-        id: idBdVariable,
+        id: idVariable,
         type: "keyvalue",
         schéma: schémaStructureBdVariable,
       });
@@ -189,13 +192,13 @@ export class Variables extends ComposanteClientListe<string> {
     );
 
     await this.établirStatut({
-      id: idBdVariable,
+      id: idVariable,
       statut: { statut: "active" },
     });
 
     fOublierVariable();
 
-    return idBdVariable;
+    return idVariable;
   }
 
   async ajouterÀMesVariables({

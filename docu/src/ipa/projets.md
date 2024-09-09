@@ -31,8 +31,13 @@ await client.projets.suivreProjets({ f: x => projets.value = x });
 
 ```
 
-### `client.projets.créerProjet()`
-Crée un nouveau projet .
+### `client.projets.créerProjet({ épingler })`
+Crée un nouveau projet.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `épingler` | `boolean` | Si nous épinglons le nouveau projet. Vrai par défaut.|
 
 #### Retour
 | Type | Description |

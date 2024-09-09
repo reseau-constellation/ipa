@@ -163,24 +163,25 @@ export class Nuées extends ComposanteClientListe<string> {
   async créerNuée({
     nuéeParent,
     autorisation = "IJPC",
-    ajouter = true,
+    épingler = true,
   }: {
     nuéeParent?: string;
     autorisation?: string | "IJPC" | "CJPI";
-    ajouter?: boolean;
+    épingler?: boolean;
   } = {}): Promise<string> {
-    const idBdNuée = await this.client.créerBdIndépendante({
+    const idNuée = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
         write: await this.client.obtIdCompte(),
       },
     });
-    if (ajouter) await this.ajouterÀMesNuées({ idNuée: idBdNuée });
+    await this.ajouterÀMesNuées({ idNuée: idNuée });
+    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idNuée })
 
     const { bd: bdNuée, fOublier: fOublierNuée } =
       await this.client.ouvrirBdTypée({
-        id: idBdNuée,
+        id: idNuée,
         type: "keyvalue",
         schéma: schémaStructureBdNuée,
       });
@@ -203,7 +204,7 @@ export class Nuées extends ComposanteClientListe<string> {
     await bdNuée.set("autorisation", autorisationFinale);
     if (autorisation === "CJPI") {
       await this.accepterMembreNuée({
-        idNuée: idBdNuée,
+        idNuée: idNuée,
         idCompte: await this.client.obtIdCompte(),
       });
     }
@@ -244,7 +245,7 @@ export class Nuées extends ComposanteClientListe<string> {
     }
 
     fOublierNuée();
-    return idBdNuée;
+    return idNuée;
   }
 
   async ajouterÀMesNuées({ idNuée }: { idNuée: string }): Promise<void> {
@@ -261,10 +262,8 @@ export class Nuées extends ComposanteClientListe<string> {
 
   async copierNuée({
     idNuée,
-    ajouterÀMesNuées = true,
   }: {
     idNuée: string;
-    ajouterÀMesNuées?: boolean;
   }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
@@ -274,7 +273,6 @@ export class Nuées extends ComposanteClientListe<string> {
     const nuéeParent = await bdBase.get("parent");
     const idNouvelleNuée = await this.créerNuée({
       nuéeParent,
-      ajouter: ajouterÀMesNuées,
     });
     const { bd: nouvelleBd, fOublier: fOublierNouvelle } =
       await this.client.ouvrirBdTypée({

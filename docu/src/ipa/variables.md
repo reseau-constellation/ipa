@@ -31,13 +31,14 @@ await client.variables.suivreVariables({ f: x => variables.value = x });
 
 ```
 
-### `client.variables.créerVariable({ catégorie })`
+### `client.variables.créerVariable({ catégorie, épingler })`
 Crée une nouvelle variable.
 
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `catégorie` | [`catégorieVariables`](#catégorievariables) `\|` [`catégorieBaseVariables`](#catégoriebasevariables) | La catégorie de la variable.
+| `épingler` | `boolean` | Si nous épinglons la nouvelle variable. Vrai par défaut.|
 
 
 #### Retour
