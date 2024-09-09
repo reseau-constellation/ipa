@@ -9,20 +9,24 @@ import { yamux } from "@chainsafe/libp2p-yamux";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import type { Libp2pOptions } from "libp2p";
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { autoNAT } from "@libp2p/autonat";
 import { kadDHT } from "@libp2p/kad-dht";
 import { dcutr } from "@libp2p/dcutr";
+import { obtAdressesDépart, obtClientDélégation } from "./utils.js";
 
 export const obtOptionsLibp2pÉlectionPrincipal =
   async (): Promise<Libp2pOptions> => {
     const { tcp } = await import("@libp2p/tcp");
     const { mdns } = await import("@libp2p/mdns");
 
+
+    const { bootstrapAddrs, relayListenAddrs } = await obtAdressesDépart();
+    const delegatedClient = obtClientDélégation();
+
     return {
       addresses: {
-        listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport"],
+        listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport", "/webrtc-direct", ...relayListenAddrs],
       },
       transports: [
         webSockets({
@@ -55,7 +59,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
       peerDiscovery: [
         mdns(),
         bootstrap({
-          list: ADRESSES_NŒUDS_RELAI,
+          list: bootstrapAddrs,
           timeout: 0,
         }),
         pubsubPeerDiscovery({
@@ -70,8 +74,9 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         dcutr: dcutr(),
         pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
         dht: kadDHT({
-          clientMode: true,
+          clientMode: false,
         }),
+        delegatedRouting:  () => delegatedClient,
       },
     };
   };

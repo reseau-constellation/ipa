@@ -15,51 +15,7 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { kadDHT } from "@libp2p/kad-dht";
 import type { Libp2pOptions } from "libp2p";
 
-import { ADRESSES_NŒUDS_RELAI, IDS_NŒUDS_RELAI } from "./const.js";
-import { DelegatedRoutingV1HttpApiClient, createDelegatedRoutingV1HttpApiClient } from "@helia/delegated-routing-v1-http-api-client";
-import first from "it-first";
-import { Multiaddr } from '@multiformats/multiaddr'
-import type { PeerId } from '@libp2p/interface'
-import { peerIdFromString } from '@libp2p/peer-id'
-
-// https://docs.libp2p.io/guides/getting-started/webrtc/
-interface BootstrapsMultiaddrs {
-  // Multiaddrs that are dialable from the browser
-  bootstrapAddrs: string[]
-
-  // multiaddr string representing the circuit relay v2 listen addr
-  relayListenAddrs: string[]
-}
-
-async function getBootstrapMultiaddrs(
-  client: DelegatedRoutingV1HttpApiClient,
-): Promise<BootstrapsMultiaddrs> {
-  const peers = await Promise.all(
-    IDS_NŒUDS_RELAI.map((peerId) => first(client.getPeers(peerIdFromString(peerId)))),
-  )
-
-  const bootstrapAddrs = []
-  const relayListenAddrs = []
-  for (const p of peers) {
-    if (p && p.Addrs.length > 0) {
-      for (const maddr of p.Addrs) {
-        const protos = maddr.protoNames()
-        if (
-          (protos.includes('webtransport') || protos.includes('webrtc-direct')) &&
-          protos.includes('certhash')
-        ) {
-          if (maddr.nodeAddress().address === '127.0.0.1') continue // skip loopback
-          bootstrapAddrs.push(maddr.toString())
-          relayListenAddrs.push(getRelayListenAddr(maddr, p.ID))
-        }
-      }
-    }
-  }
-  return { bootstrapAddrs, relayListenAddrs }
-}
-
-const getRelayListenAddr = (maddr: Multiaddr, peer: PeerId): string =>
-  `${maddr.toString()}/p2p/${peer.toString()}/p2p-circuit`
+import { obtAdressesDépart, obtClientDélégation } from "./utils.js";
 
 export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
@@ -68,10 +24,8 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
   const { tcp } = await import("@libp2p/tcp");
   const { mdns } = await import("@libp2p/mdns");
 
-
-const delegatedClient = createDelegatedRoutingV1HttpApiClient('https://delegated-ipfs.dev')
-const { bootstrapAddrs, relayListenAddrs } = await getBootstrapMultiaddrs(delegatedClient)
-console.log({ bootstrapAddrs, relayListenAddrs })
+  const { bootstrapAddrs, relayListenAddrs } = await obtAdressesDépart();
+  const delegatedClient = obtClientDélégation();
 
   return {
     addresses: {
@@ -80,6 +34,7 @@ console.log({ bootstrapAddrs, relayListenAddrs })
         "/webrtc",
         "/webtransport",
         "/webrtc-direct",
+        ...relayListenAddrs
       ],
     },
     transports: [
@@ -113,10 +68,7 @@ console.log({ bootstrapAddrs, relayListenAddrs })
     peerDiscovery: [
       mdns(),
       bootstrap({
-        list: [...ADRESSES_NŒUDS_RELAI, "/dnsaddr/bootstrap.libp2p.io/p2p/QmNnooDu7bfjPFoTZYxMNLWUQJyrVwtbZg5gBMjTezGAJN",
-        "/dnsaddr/bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
-        "/dnsaddr/bootstrap.libp2p.io/p2p/QmbLHAnMoJPWSCR5Zhtx6BHJX9KiKNN6tpvbUcqanj75Nb",
-        "/dnsaddr/bootstrap.libp2p.io/p2p/QmcZf59bWwK5XFi76CZX8cbJ4BhTzzA3gU1ZjYZcYW3dwt",],
+        list: bootstrapAddrs,
         timeout: 0,
       }),
       pubsubPeerDiscovery({
@@ -133,6 +85,7 @@ console.log({ bootstrapAddrs, relayListenAddrs })
       dht: kadDHT({
         clientMode: false,
       }),
+      delegatedRouting:  () => delegatedClient,
     },
   };
 };
