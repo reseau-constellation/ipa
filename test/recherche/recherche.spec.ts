@@ -714,6 +714,7 @@ if (isElectronMain || isNode) {
           vérifierRecherche(val, [réf]);
         });
       });
+
       describe("selon nom", () => {
         let fOublier: schémaFonctionOublier;
         const rés = new utilsTestAttente.AttendreRésultat<
@@ -967,8 +968,8 @@ if (isElectronMain || isNode) {
               fr: "Météorologie de la région de Montpellier.",
             },
           });
-          const val = await rés.attendreQue((x) => x.length > 0);
-          vérifierRecherche(val, [réf]);
+          const val = await rés.attendreQue((x) => !!x.find(r => r.id === idBd));
+          vérifierRecherche([val.find(r => r.id === idBd)!], [réf]);
         });
       });
     });
