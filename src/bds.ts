@@ -225,10 +225,12 @@ export class BDs extends ComposanteClientListe<string> {
     licence,
     licenceContenu,
     ajouter = true,
+    épingler = true,
   }: {
     licence: string;
     licenceContenu?: string;
     ajouter?: boolean;
+    épingler?: boolean;
   }): Promise<string> {
     const idBdBd = await this.client.créerBdIndépendante({
       type: "keyvalue",
@@ -237,6 +239,7 @@ export class BDs extends ComposanteClientListe<string> {
         write: await this.client.obtIdCompte(),
       },
     });
+    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idBdBd });
 
     const { bd: bdBD, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdBd,

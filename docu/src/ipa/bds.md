@@ -33,7 +33,7 @@ await client.bds.suivreBds({ f: x => bds.value = x });
 
 ```
 
-### `client.bds.créerBd({ licence, licenceContenu })`
+### `client.bds.créerBd({ licence, licenceContenu, épingler })`
 Crée une nouvelle base de données.
 
 
@@ -42,6 +42,7 @@ Crée une nouvelle base de données.
 | --- | ---- | ----------- |
 | `licence` | `string` | Le nom de la licence sous laquelle vous voulez partager ces données. |
 | `licenceContenu` | `string` | Vous pouvez aussi spécifier une licence différente pour les documents (images, vidéos ou autres fichiers) présents dans la base de données. Si non spécifié, cela laisse supposer que le contenu est également partagé sous les termes de `licence`.|
+| `épingler` | `boolean` | Si nous épinglons la nouvelle BD. Vrai par défaut.|
 
 
 #### Retour
