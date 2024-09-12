@@ -68,7 +68,7 @@ const vérifierRecherche = (
 };
 
 if (isElectronMain || isNode) {
-  describe.only("Rechercher dans réseau", function () {
+  describe("Rechercher dans réseau", function () {
     describe("Profil", function () {
       let fOublierClients: () => Promise<void>;
       let clients: Constellation[];
