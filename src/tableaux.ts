@@ -276,31 +276,41 @@ export class Tableaux {
       schéma: schémaStructureBdTableau,
     });
 
-    await bdTableau.set("type", "tableau");
+    const établirType = async () => bdTableau.set("type", "tableau");
 
-    const idBdNoms = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdTableau.set("noms", idBdNoms);
+    const établirNoms = async () => {
+      const idBdNoms = await this.client.créerBdIndépendante({
+        type: "keyvalue",
+        optionsAccès,
+      });
+      await bdTableau.set("noms", idBdNoms);
+    }
 
-    const idBdDonnées = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdTableau.set("données", idBdDonnées);
+    const établirDonnées = async () => {
+      const idBdDonnées = await this.client.créerBdIndépendante({
+        type: "keyvalue",
+        optionsAccès,
+      });
+      await bdTableau.set("données", idBdDonnées);
+    };
 
-    const idBdColonnes = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdTableau.set("colonnes", idBdColonnes);
+    const établirColonnes = async () => {
+      const idBdColonnes = await this.client.créerBdIndépendante({
+        type: "keyvalue",
+        optionsAccès,
+      });
+      await bdTableau.set("colonnes", idBdColonnes);
+    }
 
-    const idBdRègles = await this.client.créerBdIndépendante({
-      type: "keyvalue",
-      optionsAccès,
-    });
-    await bdTableau.set("règles", idBdRègles);
+    const établirRègles = async () => {
+      const idBdRègles = await this.client.créerBdIndépendante({
+        type: "keyvalue",
+        optionsAccès,
+      });
+      await bdTableau.set("règles", idBdRègles);
+    }
+
+    await Promise.all([établirType(), établirNoms(), établirDonnées(), établirColonnes(), établirRègles()])
 
     await fOublier();
 
