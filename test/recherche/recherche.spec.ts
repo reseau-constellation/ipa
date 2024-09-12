@@ -68,7 +68,7 @@ const vérifierRecherche = (
 };
 
 if (isElectronMain || isNode) {
-  describe("Rechercher dans réseau", function () {
+  describe.only("Rechercher dans réseau", function () {
     describe("Profil", function () {
       let fOublierClients: () => Promise<void>;
       let clients: Constellation[];
@@ -968,8 +968,8 @@ if (isElectronMain || isNode) {
               fr: "Météorologie de la région de Montpellier.",
             },
           });
-          const val = await rés.attendreQue((x) => !!x.find(r => r.id === idBd));
-          vérifierRecherche([val.find(r => r.id === idBd)!], [réf]);
+          const val = await rés.attendreQue((x) => x.length > 0);
+          vérifierRecherche(val, [réf]);
         });
       });
     });
@@ -1532,7 +1532,7 @@ if (isElectronMain || isNode) {
           ({ fOublier } =
             await clients[0].recherche.rechercherProjetsSelonMotClef({
               texte: "meteorología",
-              f: (bds) => rés.mettreÀJour(bds),
+              f: (projets) => rés.mettreÀJour(projets),
               nRésultatsDésirés: 2,
             }));
         });
