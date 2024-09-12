@@ -52,7 +52,8 @@ export class Épingles {
   }): Promise<void> {
     if (await this.directementÉpinglée({ id })) return;
 
-    await this._épingler({ id, récursif, fichiers });
+    // On n'attend pas, au cas où la base de données ne serait pas immédiatement disponible...
+    this._épingler({ id, récursif, fichiers });
   }
 
   async désépinglerBd({ id }: { id: string }) {
@@ -115,7 +116,7 @@ export class Épingles {
     };
   }
 
-  async _épingler({
+  private async _épingler({
     id,
     récursif,
     fichiers,
@@ -135,7 +136,7 @@ export class Épingles {
     if (récursif) {
       const fSuivre = async (vals: élémentsBd) => {
         // Cette fonction détectera les éléments d'une liste ou d'un dictionnaire
-        // (à un niveau de profondeur) qui représentent une adresse de BD Orbit.
+        // (à un niveau de profondeur) qui représentent une adresse de BD Orbite.
         let l_vals: string[] = [];
         if (typeof vals === "object") {
           l_vals = Object.values(vals).filter(
