@@ -176,9 +176,10 @@ export class EnveloppeIpa {
           if (typeof retour !== "function")
             messageRetour.fonctions = Object.keys(retour);
           this.fMessage(messageRetour);
-        } catch (e) {
+        } catch (er) {
+          const texteErreur = (er instanceof AggregateError ? er.errors : [er]).map(e=>e.toString() + e.stack.toString()).join("\n")
           this.fErreur({
-            erreur: e.toString() + e.stack.toString(),
+            erreur: texteErreur,
             idRequête,
             code: ERREUR_EXÉCUTION_IPA,
           });
@@ -200,9 +201,10 @@ export class EnveloppeIpa {
             résultat,
           };
           this.fMessage(messageRetour);
-        } catch (e) {
+        } catch (er) {
+          const texteErreur = (er instanceof AggregateError ? er.errors : [er]).map(e=>e.toString() + e.stack.toString()).join("\n")
           this.fErreur({
-            erreur: e.stack.toString(),
+            erreur: texteErreur,
             idRequête,
             code: ERREUR_EXÉCUTION_IPA,
           });
