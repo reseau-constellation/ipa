@@ -31,19 +31,31 @@ describe("Épingles", function () {
 
   describe("Épingler BDs", function () {
     let idBd: string;
+    let fOublierÉpingles: schémaFonctionOublier | undefined = undefined;
+
+    const rés = new utilsTestAttente.AttendreRésultat<Set<string>>();
 
     before(async () => {
       idBd = await client!.créerBdIndépendante({ type: "keyvalue" });
       await client.épingles.toutDésépingler();
+      fOublierÉpingles = await client.épingles.suivreÉpingles({ f: x => rés.mettreÀJour(x) })
+
     });
+
+    after(async () => {
+      rés.toutAnnuler();
+      if (fOublierÉpingles) await fOublierClients();
+    })
 
     it("Pas d'épingles pour commencer", async () => {
       const épingles = await client.épingles.épingles();
       expect(isSet(épingles)).to.be.true();
       expect(épingles.size).to.equal(0);
     });
+
     it("Ajouter une épingle", async () => {
       await client.épingles.épinglerBd({ id: idBd });
+      await rés.attendreQue(x=>x.has(idBd))
 
       const épingles = await client.épingles.épingles();
       expect(isSet(épingles)).to.be.true();
