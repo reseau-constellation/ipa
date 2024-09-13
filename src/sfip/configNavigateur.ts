@@ -19,10 +19,10 @@ import { obtAdressesDépart, obtClientDélégation } from './utils.js';
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   const { bootstrapAddrs, relayListenAddrs } = await obtAdressesDépart();
   const delegatedClient = obtClientDélégation();
-
+  console.log(bootstrapAddrs)
   return {
     addresses: {
-      listen: ["/webrtc","/webtransport", ...relayListenAddrs],
+      listen: ["/webrtc","/webtransport", ...relayListenAddrs, "/ip4/127.0.0.1/udp/9090/webrtc-direct/certhash/uEiCgfrapxkPBjMGFkovcnS_AbqQPpA6gBGiNGADS0nLd0g/p2p/12D3KooWAhnzyrMGsEqjtpDo8WLHLEytGoifUnXYRLXuVQenNv9Y/p2p-circuit"],
     },
     transports: [
       webSockets({

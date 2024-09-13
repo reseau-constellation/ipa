@@ -100,9 +100,10 @@ const lancerSfipDansNavigateur = async (_opts) => {
   try {
     const fichierJs = path.join(dossierCompilation, "test.min.js");
     const page = await navigateur.newPage();
-    page.on("console", (msg) =>
-      console.log("Message de Playwright : ", msg.text()),
-    );
+    page.on("console", (msg) =>{
+      if (!msg.text().includes("Failed to load resource: the server responded with a status of 404"))
+      console.log("Message de Playwright : ", msg.text());
+    });
 
     const globalName = "testnavigsfip";
     const umdPre = `(function (root, factory) {(typeof module === 'object' && module.exports) ? module.exports = factory() : root.${globalName} = factory()}(typeof self !== 'undefined' ? self : this, function () {`;

@@ -44,7 +44,7 @@ obtIdPair().then((peerId) =>
       sfip.libp2p.getMultiaddrs().map((ma) => ma.toString()),
     );
     sfip.libp2p.addEventListener("peer:connect", async () => {
-      /*const pairs = sfip.libp2p.getPeers();
+      const pairs = sfip.libp2p.getPeers();
       const connexions = sfip.libp2p.getConnections();
       console.log(
         "pairs : ",
@@ -61,7 +61,7 @@ obtIdPair().then((peerId) =>
           2,
         ),
       );
-      */
+      
     });
     sfip.libp2p.services.pubsub.subscribe(CANAL_TEST);
     sfip.libp2p.services.pubsub.addEventListener("gossipsub:message", (m) => {

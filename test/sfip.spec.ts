@@ -1,4 +1,4 @@
-import { ServicesLibp2p, initSFIP } from "../src/sfip/index.js";
+import { ServicesLibp2p, initSFIP } from "@/sfip/index.js";
 import { expect } from "aegir/chai";
 import type { HeliaLibp2p } from "helia";
 import { isElectronMain, isNode } from "wherearewe";
@@ -8,6 +8,8 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Constellation, créerConstellation } from "@/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
+import { peerIdFromString } from "@libp2p/peer-id"
+
 
 const attendre = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -19,11 +21,22 @@ const attendreConnecté = async ({
   sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
+
   await new Promise((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
       const connexions = sfip.libp2p.getConnections()
-      const trouvé = pairs.find((p) => p.toString() === idPair);
+      console.log(JSON.stringify(
+        connexions.map((c) => [
+          c.remotePeer.toString(),
+          c.remoteAddr.toString(),
+        ]),
+        undefined,
+        2,
+      ), idPair)
+      console.log(pairs.length, pairs.map(p=>p.toString()), idPair)
+      const trouvé = connexions.find((c) => c.remotePeer.toString() === idPair);
+      console.log({trouvé})
       if (trouvé) {
         résoudre(connexions.find(c=>c.remotePeer.toString() === idPair)?.remoteAddr.toString());
       }
