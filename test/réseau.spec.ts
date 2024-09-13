@@ -2088,7 +2088,7 @@ if (isNode || isElectronMain) {
 
       before(async () => {
         ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
-        idMotClef = await clients[0].motsClefs.créerMotClef();
+        idMotClef = await clients[0].motsClefs.créerMotClef({ épingler: false });
 
         ({ fOublier } = await clients[0].réseau.suivreFavorisObjet({
           idObjet: idMotClef,
