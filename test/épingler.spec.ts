@@ -44,7 +44,7 @@ describe("Épingles", function () {
 
     after(async () => {
       rés.toutAnnuler();
-      if (fOublierÉpingles) await fOublierClients();
+      if (fOublierÉpingles) await fOublierÉpingles();
     })
 
     it("Pas d'épingles pour commencer", async () => {
@@ -85,11 +85,11 @@ describe("Épingles", function () {
     before(async () => {
       await client.épingles.toutDésépingler();
 
-      idBdDic = await client!.créerBdIndépendante({ type: "keyvalue" });
-      idBdListe = await client!.créerBdIndépendante({ type: "set" });
+      idBdDic = await client.créerBdIndépendante({ type: "keyvalue" });
+      idBdListe = await client.créerBdIndépendante({ type: "set" });
 
-      idBdDic2 = await client!.créerBdIndépendante({ type: "keyvalue" });
-      idBdAutre = await client!.créerBdIndépendante({ type: "keyvalue" });
+      idBdDic2 = await client.créerBdIndépendante({ type: "keyvalue" });
+      idBdAutre = await client.créerBdIndépendante({ type: "keyvalue" });
       fOublierÉpingles = await client.épingles.suivreÉpingles({
         f: (x) => épingles.mettreÀJour(x),
       });

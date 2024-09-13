@@ -5,7 +5,6 @@ import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
-import { AbortError } from "@libp2p/interface";
 
 export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
 
@@ -81,40 +80,29 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
 
   async _épinglerFavoris() {
     let précédentes: string[] = [];
-    
+
     const fFinale = async (favoris: { [clef: string]: ÉlémentFavoris }) => {
       const nouvelles: string[] = [];
 
-      try {
-        await Promise.all(
-          Object.entries(favoris).map(async ([id, fav]) => {
-            const épinglerBd = await this.estÉpingléSurDispositif({
-              dispositifs: fav.dispositifs,
+      await Promise.all(
+        Object.entries(favoris).map(async ([id, fav]) => {
+          const épinglerBd = await this.estÉpingléSurDispositif({
+            dispositifs: fav.dispositifs,
+          });
+          if (épinglerBd) {
+            const épinglerFichiers = await this.estÉpingléSurDispositif({
+              dispositifs: fav.dispositifsFichiers,
             });
-            if (épinglerBd) {
-              const épinglerFichiers = await this.estÉpingléSurDispositif({
-                dispositifs: fav.dispositifsFichiers,
-              });
-              try {
-                await this.client.épingles.épinglerBd({
-                  id,
-                  récursif: fav.récursif,
-                  fichiers: épinglerFichiers,
-                });
-              } catch (e) {
-                if (e.toString().includes("AbortError:") || (e instanceof AggregateError && e.errors.every(x=> x.toString().includes("AbortError:")))) {
-                  console.error(e)
-                } else {
-                  throw e
-                }
-              }
-            }
-            nouvelles.push(id);
-          }),
-        );
-      } catch (e) {
-        console.error(e)
-      }
+            await this.client.épingles.épinglerBd({
+              id,
+              récursif: fav.récursif,
+              fichiers: épinglerFichiers,
+            });
+          }
+          nouvelles.push(id);
+        }),
+      );
+
       const àOublier = précédentes.filter((id) => !nouvelles.includes(id));
 
       await Promise.all(

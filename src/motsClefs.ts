@@ -384,6 +384,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
   async effacerMotClef({ idMotClef }: { idMotClef: string }): Promise<void> {
     // Effacer l'entrée dans notre liste de mots clefs
     await this.enleverDeMesMotsClefs({ idMotClef });
+    await this.client.favoris.désépinglerFavori({ idObjet: idMotClef });
 
     // Effacer le mot-clef lui-même
     for (const clef of ["noms"]) {

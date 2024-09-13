@@ -279,7 +279,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     pubsub.addEventListener("gossipsub:message", fÉcoutePubSub);
 
     this.fsOublier.push(async () => {
-      pubsub.unsubscribe(this.client.sujet_réseau);
+      if (pubsub.isStarted()) pubsub.unsubscribe(this.client.sujet_réseau);
       pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
       await Promise.all(Object.values(promesses));
     });

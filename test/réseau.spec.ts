@@ -613,7 +613,7 @@ if (isNode || isElectronMain) {
 
         it("Enlever variable détecté", async () => {
           await clients[0].variables.effacerVariable({ idVariable });
-          const valPropres = await relationsPropres.attendreExiste();
+          const valPropres = await relationsPropres.attendreQue(x=>x.length < 1);
           expect(valPropres.length).to.equal(0);
 
           const val = await relationsAutres.attendreQue((x) => !x.length);
@@ -644,11 +644,11 @@ if (isNode || isElectronMain) {
 
         it("Enlever bd détecté", async () => {
           await clients[0].bds.effacerBd({ idBd });
-          const valPropres = await relationsPropres.attendreExiste();
+          const valPropres = await relationsPropres.attendreQue(x=>x.length < 1);
           expect(valPropres.length).to.equal(0);
 
           const val = await relationsAutres.attendreQue(
-            (x?: infoConfiance[]) => !!x && !x.length,
+            (x) => !x.length,
           );
           expect(val.length).to.equal(0);
         });
@@ -676,7 +676,7 @@ if (isNode || isElectronMain) {
 
         it("Enlever projet détecté", async () => {
           await clients[0].projets.effacerProjet({ idProjet });
-          const valPropres = await relationsPropres.attendreExiste();
+          const valPropres = await relationsPropres.attendreQue(x=>!x.length);
           expect(valPropres.length).to.equal(0);
 
           const val = await relationsAutres.attendreQue((x) => !x.length);
@@ -708,7 +708,7 @@ if (isNode || isElectronMain) {
           await clients[0].motsClefs.effacerMotClef({
             idMotClef: idMotClef1,
           });
-          const valPropres = await relationsPropres.attendreExiste();
+          const valPropres = await relationsPropres.attendreQue(x=>!x.length);
           expect(valPropres.length).to.equal(0);
 
           await relationsAutres.attendreQue(

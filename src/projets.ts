@@ -1013,6 +1013,7 @@ export class Projets extends ComposanteClientListe<string> {
   async effacerProjet({ idProjet }: { idProjet: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de projets
     await this.enleverDeMesProjets({ idProjet });
+    await this.client.favoris.désépinglerFavori({ idObjet: idProjet });
 
     // Et puis maintenant aussi effacer les données et le projet lui-même
     for (const clef of ["noms", "descriptions", "motsClefs", "bds"]) {

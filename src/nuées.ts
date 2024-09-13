@@ -3232,6 +3232,7 @@ export class Nuées extends ComposanteClientListe<string> {
     }
 
     await this.enleverDeMesNuées({ idNuée });
+    await this.client.favoris.désépinglerFavori({ idObjet: idNuée });
     await this.client.effacerBd({ id: idNuée });
   }
 }

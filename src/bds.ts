@@ -2359,6 +2359,8 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     await this.enleverDeMesBds({ idBd });
+    await this.client.favoris.désépinglerFavori({ idObjet: idBd });
+
     await this.client.effacerBd({ id: idBd });
   }
 }

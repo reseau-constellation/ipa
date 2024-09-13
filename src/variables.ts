@@ -865,6 +865,7 @@ export class Variables extends ComposanteClientListe<string> {
   async effacerVariable({ idVariable }: { idVariable: string }): Promise<void> {
     // Effacer l'entrée dans notre liste de variables
     await this.enleverDeMesVariables({ idVariable });
+    await this.client.favoris.désépinglerFavori({ idObjet: idVariable });
 
     // Effacer la variable elle-même
     for (const clef of ["noms", "descriptions", "règles"]) {
