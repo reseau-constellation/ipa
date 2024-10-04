@@ -117,7 +117,9 @@ export class Projets extends ComposanteClientListe<string> {
     });
   }
 
-  async créerProjet({épingler = true}: {épingler?: boolean} = {}): Promise<string> {
+  async créerProjet({
+    épingler = true,
+  }: { épingler?: boolean } = {}): Promise<string> {
     const { bd: bdRacine, fOublier: fOublierRacine } =
       await this.client.ouvrirBdTypée({
         id: await this.obtIdBd(),
@@ -175,7 +177,8 @@ export class Projets extends ComposanteClientListe<string> {
 
     await bdRacine.add(idProjet);
 
-    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idProjet });
+    if (épingler)
+      await this.client.favoris.épinglerFavori({ idObjet: idProjet });
 
     await Promise.all([fOublierRacine(), fOublierProjet()]);
 

@@ -38,14 +38,15 @@ describe("Épingles", function () {
     before(async () => {
       idBd = await client!.créerBdIndépendante({ type: "keyvalue" });
       await client.épingles.toutDésépingler();
-      fOublierÉpingles = await client.épingles.suivreÉpingles({ f: x => rés.mettreÀJour(x) })
-
+      fOublierÉpingles = await client.épingles.suivreÉpingles({
+        f: (x) => rés.mettreÀJour(x),
+      });
     });
 
     after(async () => {
       rés.toutAnnuler();
       if (fOublierÉpingles) await fOublierÉpingles();
-    })
+    });
 
     it("Pas d'épingles pour commencer", async () => {
       const épingles = await client.épingles.épingles();
@@ -55,7 +56,7 @@ describe("Épingles", function () {
 
     it("Ajouter une épingle", async () => {
       await client.épingles.épinglerBd({ id: idBd });
-      await rés.attendreQue(x=>x.has(idBd))
+      await rés.attendreQue((x) => x.has(idBd));
 
       const épingles = await client.épingles.épingles();
       expect(isSet(épingles)).to.be.true();

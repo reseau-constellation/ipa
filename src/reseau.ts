@@ -1980,10 +1980,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         },
       });
 
-      const clefObjetÀClef = (x: clefObjet): "projet" | "nuée" | "bd" | "variable" | "motClef" | undefined => {
+      const clefObjetÀClef = (
+        x: clefObjet,
+      ): "projet" | "nuée" | "bd" | "variable" | "motClef" | undefined => {
         switch (x) {
           case "bds":
-            return "bd"
+            return "bd";
           case "motsClefs":
             return "motClef";
           case "nuées":
@@ -1991,27 +1993,37 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           case "projets":
             return "projet";
           case "variables":
-            return "variable";        
+            return "variable";
           default:
             return undefined;
         }
-      }
+      };
 
       const fOublierFavoris = await this.client.suivreBdsSelonCondition({
-        fListe: async (fSuivreRacine: (id: string[]) => Promise<void>): Promise<schémaFonctionOublier> => {
+        fListe: async (
+          fSuivreRacine: (id: string[]) => Promise<void>,
+        ): Promise<schémaFonctionOublier> => {
           return await this.suivreFavorisMembre({
             idCompte,
-            f: async favoris => fSuivreRacine(favoris.map(fv => fv.idObjet))
+            f: async (favoris) =>
+              fSuivreRacine(favoris.map((fv) => fv.idObjet)),
           });
         },
-        fCondition: async (id: string, fSuivreCondition: schémaFonctionSuivi<boolean>): Promise<schémaFonctionOublier> => {
-          return await this.client.suivreTypeObjet({ idObjet: id, f: async typeObjet => await fSuivreCondition(typeObjet === clefObjetÀClef(clef))})
+        fCondition: async (
+          id: string,
+          fSuivreCondition: schémaFonctionSuivi<boolean>,
+        ): Promise<schémaFonctionOublier> => {
+          return await this.client.suivreTypeObjet({
+            idObjet: id,
+            f: async (typeObjet) =>
+              await fSuivreCondition(typeObjet === clefObjetÀClef(clef)),
+          });
         },
         f: async (favoris) => {
           résultats.favoris = favoris ? favoris : [];
           await fFinale();
         },
-      })
+      });
 
       return async () => {
         await fOublierPropres();

@@ -613,7 +613,9 @@ if (isNode || isElectronMain) {
 
         it("Enlever variable détecté", async () => {
           await clients[0].variables.effacerVariable({ idVariable });
-          const valPropres = await relationsPropres.attendreQue(x=>x.length < 1);
+          const valPropres = await relationsPropres.attendreQue(
+            (x) => x.length < 1,
+          );
           expect(valPropres.length).to.equal(0);
 
           const val = await relationsAutres.attendreQue((x) => !x.length);
@@ -644,12 +646,12 @@ if (isNode || isElectronMain) {
 
         it("Enlever bd détecté", async () => {
           await clients[0].bds.effacerBd({ idBd });
-          const valPropres = await relationsPropres.attendreQue(x=>x.length < 1);
+          const valPropres = await relationsPropres.attendreQue(
+            (x) => x.length < 1,
+          );
           expect(valPropres.length).to.equal(0);
 
-          const val = await relationsAutres.attendreQue(
-            (x) => !x.length,
-          );
+          const val = await relationsAutres.attendreQue((x) => !x.length);
           expect(val.length).to.equal(0);
         });
 
@@ -676,7 +678,9 @@ if (isNode || isElectronMain) {
 
         it("Enlever projet détecté", async () => {
           await clients[0].projets.effacerProjet({ idProjet });
-          const valPropres = await relationsPropres.attendreQue(x=>!x.length);
+          const valPropres = await relationsPropres.attendreQue(
+            (x) => !x.length,
+          );
           expect(valPropres.length).to.equal(0);
 
           const val = await relationsAutres.attendreQue((x) => !x.length);
@@ -708,7 +712,9 @@ if (isNode || isElectronMain) {
           await clients[0].motsClefs.effacerMotClef({
             idMotClef: idMotClef1,
           });
-          const valPropres = await relationsPropres.attendreQue(x=>!x.length);
+          const valPropres = await relationsPropres.attendreQue(
+            (x) => !x.length,
+          );
           expect(valPropres.length).to.equal(0);
 
           await relationsAutres.attendreQue(
@@ -2088,7 +2094,9 @@ if (isNode || isElectronMain) {
 
       before(async () => {
         ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
-        idMotClef = await clients[0].motsClefs.créerMotClef({ épingler: false });
+        idMotClef = await clients[0].motsClefs.créerMotClef({
+          épingler: false,
+        });
 
         ({ fOublier } = await clients[0].réseau.suivreFavorisObjet({
           idObjet: idMotClef,

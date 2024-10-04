@@ -94,7 +94,7 @@ describe("BDs", function () {
         licence: "ODbl-1_0",
       });
       const val = bds.val;
-      await client.bds.enleverDeMesBds({idBd: idNouvelleBd})
+      await client.bds.enleverDeMesBds({ idBd: idNouvelleBd });
       expect(val).to.be.an("array").with.length(1).and.contain(idBd);
     });
     it("On peut l'ajouter ensuite à mes bds", async () => {

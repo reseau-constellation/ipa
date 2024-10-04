@@ -177,7 +177,7 @@ export class Nuées extends ComposanteClientListe<string> {
       },
     });
     await this.ajouterÀMesNuées({ idNuée: idNuée });
-    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idNuée })
+    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idNuée });
 
     const { bd: bdNuée, fOublier: fOublierNuée } =
       await this.client.ouvrirBdTypée({
@@ -260,11 +260,7 @@ export class Nuées extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async copierNuée({
-    idNuée,
-  }: {
-    idNuée: string;
-  }): Promise<string> {
+  async copierNuée({ idNuée }: { idNuée: string }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,
       type: "keyvalue",

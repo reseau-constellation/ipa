@@ -94,8 +94,7 @@ export class EnveloppeIpa {
       });
 
       // Aussi renvoyer l'erreur à toutes les requêtes potentiellement en attente de l'initialisation.
-      this._messagesEnAttente.forEach(
-        (m)=>
+      this._messagesEnAttente.forEach((m) =>
         this.fErreur({
           erreur: e.toString(),
           idRequête: m.idRequête,
@@ -177,7 +176,9 @@ export class EnveloppeIpa {
             messageRetour.fonctions = Object.keys(retour);
           this.fMessage(messageRetour);
         } catch (er) {
-          const texteErreur = (er instanceof AggregateError ? er.errors : [er]).map(e=>e.toString() + e.stack.toString()).join("\n")
+          const texteErreur = (er instanceof AggregateError ? er.errors : [er])
+            .map((e) => e.toString() + e.stack.toString())
+            .join("\n");
           this.fErreur({
             erreur: texteErreur,
             idRequête,
@@ -202,7 +203,9 @@ export class EnveloppeIpa {
           };
           this.fMessage(messageRetour);
         } catch (er) {
-          const texteErreur = (er instanceof AggregateError ? er.errors : [er]).map(e=>e.toString() + e.stack.toString()).join("\n")
+          const texteErreur = (er instanceof AggregateError ? er.errors : [er])
+            .map((e) => e.toString() + e.stack.toString())
+            .join("\n");
           this.fErreur({
             erreur: texteErreur,
             idRequête,

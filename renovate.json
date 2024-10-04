@@ -19,23 +19,15 @@
       "description": "Regrouper les librairies @constl.",
       "groupName": "Constellation",
       "groupSlug": "constellation-node",
-      "matchDatasources": [
-        "npm"
-      ],
-      "matchPackageNames": [
-        "@constl/**"
-      ]
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["@constl/**"]
     },
     {
       "description": "Regrouper les librairies @libp2p et Helia.",
       "groupName": "Libp2p et Helia",
       "groupSlug": "libp2p-helia-node",
-      "matchDatasources": [
-        "npm"
-      ],
-      "matchPackageNames": [
-        "@libp2p/**", "libp2p", "helia", "@chainsafe"
-      ]
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["@libp2p/**", "libp2p", "helia", "@chainsafe"]
     }
   ]
 }

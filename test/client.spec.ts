@@ -348,7 +348,6 @@ if (isNode || isElectronMain) {
           "Constellation est déjà lancée.",
         );
       });
-
     });
   });
 

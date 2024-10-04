@@ -284,7 +284,7 @@ export class Tableaux {
         optionsAccès,
       });
       await bdTableau.set("noms", idBdNoms);
-    }
+    };
 
     const établirDonnées = async () => {
       const idBdDonnées = await this.client.créerBdIndépendante({
@@ -300,7 +300,7 @@ export class Tableaux {
         optionsAccès,
       });
       await bdTableau.set("colonnes", idBdColonnes);
-    }
+    };
 
     const établirRègles = async () => {
       const idBdRègles = await this.client.créerBdIndépendante({
@@ -308,9 +308,15 @@ export class Tableaux {
         optionsAccès,
       });
       await bdTableau.set("règles", idBdRègles);
-    }
+    };
 
-    await Promise.all([établirType(), établirNoms(), établirDonnées(), établirColonnes(), établirRègles()])
+    await Promise.all([
+      établirType(),
+      établirNoms(),
+      établirDonnées(),
+      établirColonnes(),
+      établirRègles(),
+    ]);
 
     await fOublier();
 

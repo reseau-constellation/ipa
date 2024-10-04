@@ -59,7 +59,9 @@ export class MotsClefs extends ComposanteClientListe<string> {
     return await this.suivreBdPrincipale({ idCompte, f });
   }
 
-  async créerMotClef({épingler=true}: {épingler?: boolean} = {}): Promise<string> {
+  async créerMotClef({
+    épingler = true,
+  }: { épingler?: boolean } = {}): Promise<string> {
     const idMotClef = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
@@ -69,8 +71,9 @@ export class MotsClefs extends ComposanteClientListe<string> {
     });
 
     await this.ajouterÀMesMotsClefs({ idMotClef });
-    
-    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idMotClef });
+
+    if (épingler)
+      await this.client.favoris.épinglerFavori({ idObjet: idMotClef });
 
     const { bd: bdMotClef, fOublier: fOublierMotClef } =
       await this.client.ouvrirBdTypée({

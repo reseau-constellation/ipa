@@ -139,10 +139,10 @@ export class Variables extends ComposanteClientListe<string> {
 
   async créerVariable({
     catégorie,
-    épingler=true,
+    épingler = true,
   }: {
     catégorie: catégorieVariables | catégorieBaseVariables;
-    épingler?: boolean,
+    épingler?: boolean;
   }): Promise<string> {
     const idVariable = await this.client.créerBdIndépendante({
       type: "keyvalue",
@@ -152,7 +152,8 @@ export class Variables extends ComposanteClientListe<string> {
       },
     });
     await this.ajouterÀMesVariables({ idVariable: idVariable });
-    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idVariable });
+    if (épingler)
+      await this.client.favoris.épinglerFavori({ idObjet: idVariable });
 
     const { bd: bdVariable, fOublier: fOublierVariable } =
       await this.client.ouvrirBdTypée({
