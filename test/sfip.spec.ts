@@ -24,11 +24,6 @@ const attendreConnecté = async ({
   await new Promise<void>((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
-      const connexions = sfip.libp2p
-        .getConnections()
-        .map((c) => [c.remotePeer.toString(), c.remoteAddr.toString()]);
-      console.log("principal: ", { connexions });
-      console.log(pairs.map((p) => p.toString()));
       const trouvé = pairs.find((p) => p.toString() === idPair);
       if (trouvé) {
         résoudre();
@@ -81,7 +76,7 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe.skip("SFIP", function () {
+describe("SFIP", function () {
   let sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   let dossier: string;
   let fEffacer: () => void;
@@ -103,7 +98,7 @@ describe.skip("SFIP", function () {
   });
 
   it("Initialiser", async () => {
-    const id = sfip.libp2p.peerId;
+    const id = sfip.libp2p.peerId.toString();
     expect(id).to.be.a("string");
   });
 
