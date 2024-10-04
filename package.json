@@ -94,7 +94,7 @@
     "typescript-transform-paths": "^3.5.1"
   },
   "dependencies": {
-    "@chainsafe/libp2p-gossipsub": "^13.2.0",
+    "@chainsafe/libp2p-gossipsub": "^14.0.0",
     "@chainsafe/libp2p-noise": "^15.1.2",
     "@chainsafe/libp2p-yamux": "^6.0.2",
     "@chriscdn/promise-semaphore": "^2.0.9",
