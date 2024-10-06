@@ -16,7 +16,7 @@ hero:
       link: https://appli.réseau-constellation.ca/?lg=fr
     - theme: alt
       text: Installer
-      link: https://réseau-constellation.ca/téléchargements/?lg=fr
+      link: https://réseau-constellation.ca/#/téléchargements/?lg=fr
     - theme: alt
       text: Voir sur GitHub
       link: https://github.com/reseau-constellation/
