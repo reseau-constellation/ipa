@@ -2465,6 +2465,7 @@ export class Nuées extends ComposanteClientListe<string> {
     licencesPermises = undefined,
     toujoursInclureLesMiennes = true,
     clefsSelonVariables = false,
+    vérifierAutorisation = true,
   }: {
     idNuée: string;
     clefTableau: string;
@@ -2477,6 +2478,7 @@ export class Nuées extends ComposanteClientListe<string> {
     licencesPermises?: string[];
     toujoursInclureLesMiennes?: boolean;
     clefsSelonVariables?: boolean;
+    vérifierAutorisation?: boolean;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = async (
       donnéesTableaux: élémentDeMembreAvecValid<T>[][],
@@ -2496,6 +2498,7 @@ export class Nuées extends ComposanteClientListe<string> {
         nRésultatsDésirés,
         héritage,
         toujoursInclureLesMiennes,
+        vérifierAutorisation,
       });
     };
 
