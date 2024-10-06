@@ -20,5 +20,5 @@ $ npm add -g pnpm
 Et puis installer Constellation :
 
 ```sh
-$ pnpm global add -g @constl/ipa @constl/serveur
+$ pnpm global add -g @constl/serveur
 ```
