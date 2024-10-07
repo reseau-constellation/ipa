@@ -870,7 +870,7 @@ const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
 
 ```
 
-### `client.nuées.ajouterNomsTableauNuée`
+### `client.nuées.sauvegarderNomsTableauNuée`
 
 ::: info NOTE
 Nous y travaillons... revenez plus tard, ou, encore mieux, [contactez-nous !](mailto:julien.malard@mail.mcgill.ca)

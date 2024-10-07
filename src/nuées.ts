@@ -1405,7 +1405,7 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
-  async ajouterNomsTableauNuée({
+  async sauvegarderNomsTableauNuée({
     idTableau,
     noms,
   }: {
