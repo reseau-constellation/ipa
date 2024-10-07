@@ -148,7 +148,7 @@ importers:
         version: 1.0.2
       helia:
         specifier: ^4.2.5
-        version: 4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+        version: 4.2.6(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       indexed-db-stream:
         specifier: ^1.0.0
         version: 1.0.0
@@ -2141,8 +2141,8 @@ packages:
   '@libp2p/logger@4.0.20':
     resolution: {integrity: sha512-TTh2dhHsOTAlMPxSa9ncFPHa/0jTt+0AQxwHdlxg/OGLAgc9VRhnrhHUbJZp07Crcw4T/MOfS4KhjlxgqYgJRw==}
 
-  '@libp2p/logger@5.0.4':
-    resolution: {integrity: sha512-lK4N8K6W2cQGaPM/HO0MS453J4y1VmH8pjeMIK0sOnEi2xb94wlpdvDiol5S8tHkTyAWQdUiWyg+pxw2ugjXaA==}
+  '@libp2p/logger@5.1.0':
+    resolution: {integrity: sha512-hmkk1TONYRe+kKs5QTxkayIfj9qicp8hcrJ1Ac9QfTW/jdaUlnqd1uop4QcOD5GV6qNMq+v1qaMFWFYSN9RcPA==}
 
   '@libp2p/mdns@10.1.5':
     resolution: {integrity: sha512-iSBnjaUgPdPudXP3ZPXJMWzJkT+I+TQHRCBTh6OMPa0V2C/MhL+FfCGn0SDMWKSDDwqK6I6UOeTflf4YUzy/8w==}
@@ -3521,6 +3521,10 @@ packages:
     resolution: {integrity: sha512-XBFbEJ6WMfn9L7woc2t+EzOxF8vGqddoopKBbrhIvZBt2WIUgSlT8xLmM6Aq1xv8eWt4yOSjwxWjYeuHU3CpJA==}
     hasBin: true
 
+  cborg@4.2.4:
+    resolution: {integrity: sha512-ns2xY95zViHIVy4lq+qdLmfXTpnT3XjmKradz4RJxxbr5jc/A5gS5FiFLcPGhSdHVlSeeoizT1fuKdI1Kcd6oA==}
+    hasBin: true
+
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
 
@@ -4510,6 +4514,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   eslint@9.10.0:
@@ -5168,9 +5173,6 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
-
-  helia@4.2.5:
-    resolution: {integrity: sha512-0X4Kb1jIwGGROcIcfS5xSjQHH8uisBbMGvktnWjziGkmlcgb8JXzilLXTtH+jDpkTkpo0s1VTKZkHo9rozjWkw==}
 
   helia@4.2.6:
     resolution: {integrity: sha512-qa/ADpLRRqzQHchd0XqpC4cVj9+OC4BA4QldN6dxBO0OLuGoUEo6kGrbpkygqNQ8RupA1ViFBWP7TqX6OIrppg==}
@@ -7701,8 +7703,8 @@ packages:
   regjsgen@0.8.0:
     resolution: {integrity: sha512-RvwtGe3d7LvWiDQXeQw8p5asZUmfU1G/l6WbUXeHta7Y2PEIvBTwH6E2EfmYUK8pxcxEdEmaomqyp0vZZ7C+3Q==}
 
-  regjsparser@0.11.0:
-    resolution: {integrity: sha512-vTbzVAjQDzwQdKuvj7qEq6OlAprCjE656khuGQ4QaBLg7abQ9I9ISpmLuc6inWe7zP75AECjqUa4g4sdQvOXhg==}
+  regjsparser@0.11.1:
+    resolution: {integrity: sha512-1DHODs4B8p/mQHU9kr+jv8+wIC9mtG4eBHxWxIq5mhjE3D5oORhCc6deRKzTjs9DcfRFmj9BHSDguZklqCGFWQ==}
     hasBin: true
 
   regjsparser@0.9.1:
@@ -8860,8 +8862,8 @@ packages:
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
 
-  weald@1.0.2:
-    resolution: {integrity: sha512-iG5cIuBwsPe1ZcoGGd4X6QYlepU1vLr4l4oWpzQWqeJPSo9B8bxxyE6xlnj3TCmThtha7gyVL+uuZgUFkPyfDg==}
+  weald@1.0.3:
+    resolution: {integrity: sha512-h5pTSGRApQotfZ8Goqe5Jrg6iOjx4uXB55I00A+WRMZbhbiWfUatr6fMLt6UNrURzqXaX/ZDhIvcDzs1TEzz4Q==}
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -9092,7 +9094,7 @@ snapshots:
   '@achingbrain/nat-port-mapper@1.0.15':
     dependencies:
       '@achingbrain/ssdp': 4.0.6
-      '@libp2p/logger': 5.0.4
+      '@libp2p/logger': 5.1.0
       default-gateway: 7.2.2
       err-code: 3.0.1
       it-first: 3.0.6
@@ -10474,7 +10476,7 @@ snapshots:
       '@orbitdb/set-db': 1.0.2(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       ajv: 8.17.1
       events: 3.3.0
-      helia: 4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+      helia: 4.2.6(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       uuid: 10.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -10590,7 +10592,7 @@ snapshots:
       crypto-browserify: 3.12.0
       events: 3.3.0
       genversion: 3.2.0
-      helia: 4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+      helia: 4.2.6(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
       libp2p: 1.9.4
       os-browserify: 0.3.0
       process: 0.11.10
@@ -11044,7 +11046,7 @@ snapshots:
       '@types/murmurhash3js-revisited': 3.0.3
       any-signal: 4.1.1
       blockstore-core: 4.4.1
-      cborg: 4.2.3
+      cborg: 4.2.4
       interface-blockstore: 5.3.1
       interface-datastore: 8.3.1
       interface-store: 5.1.8
@@ -11394,7 +11396,7 @@ snapshots:
       '@libp2p/crypto': 4.1.9
       '@libp2p/interface': 1.7.0
       '@libp2p/peer-id': 4.2.4
-      interface-datastore: 8.3.0
+      interface-datastore: 8.3.1
       merge-options: 3.0.4
       multiformats: 13.2.3
       sanitize-filename: 1.6.3
@@ -11414,17 +11416,17 @@ snapshots:
     dependencies:
       '@libp2p/interface': 1.7.0
       '@multiformats/multiaddr': 12.3.1
-      interface-datastore: 8.3.0
+      interface-datastore: 8.3.1
       multiformats: 13.2.3
-      weald: 1.0.2
+      weald: 1.0.3
 
-  '@libp2p/logger@5.0.4':
+  '@libp2p/logger@5.1.0':
     dependencies:
       '@libp2p/interface': 2.1.2
       '@multiformats/multiaddr': 12.3.1
       interface-datastore: 8.3.1
       multiformats: 13.2.3
-      weald: 1.0.2
+      weald: 1.0.3
 
   '@libp2p/mdns@10.1.5':
     dependencies:
@@ -11878,7 +11880,7 @@ snapshots:
   '@orbitdb/feed-db@1.0.1(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))':
     dependencies:
       '@orbitdb/core': 2.2.0
-      helia: 4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+      helia: 4.2.6(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -11888,7 +11890,7 @@ snapshots:
   '@orbitdb/ordered-keyvalue-db@1.0.1(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))':
     dependencies:
       '@orbitdb/core': 2.2.0
-      helia: 4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+      helia: 4.2.6(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -11900,7 +11902,7 @@ snapshots:
       '@chainsafe/libp2p-gossipsub': 13.2.0
       '@orbitdb/core': 2.2.0
       blockstore-level: 1.1.8
-      helia: 4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+      helia: 4.2.6(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -11910,7 +11912,7 @@ snapshots:
   '@orbitdb/set-db@1.0.2(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))':
     dependencies:
       '@orbitdb/core': 2.2.0
-      helia: 4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
+      helia: 4.2.6(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -13301,7 +13303,7 @@ snapshots:
 
   blockstore-core@5.0.2:
     dependencies:
-      '@libp2p/logger': 5.0.4
+      '@libp2p/logger': 5.1.0
       interface-blockstore: 5.3.1
       interface-store: 6.0.2
       it-drain: 3.0.7
@@ -13573,6 +13575,8 @@ snapshots:
   catering@2.1.1: {}
 
   cborg@4.2.3: {}
+
+  cborg@4.2.4: {}
 
   ccount@2.0.1: {}
 
@@ -14049,7 +14053,7 @@ snapshots:
     dependencies:
       '@libp2p/logger': 4.0.20
       err-code: 3.0.1
-      interface-datastore: 8.3.0
+      interface-datastore: 8.3.1
       interface-store: 5.1.8
       it-drain: 3.0.7
       it-filter: 3.1.1
@@ -15775,46 +15779,6 @@ snapshots:
 
   he@1.2.0: {}
 
-  helia@4.2.5(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4)):
-    dependencies:
-      '@chainsafe/libp2p-noise': 15.1.2
-      '@chainsafe/libp2p-yamux': 6.0.2
-      '@helia/block-brokers': 3.0.4
-      '@helia/delegated-routing-v1-http-api-client': 3.0.2
-      '@helia/interface': 4.3.1
-      '@helia/routers': 1.1.1
-      '@helia/utils': 0.3.3
-      '@libp2p/autonat': 1.1.5
-      '@libp2p/bootstrap': 10.1.5
-      '@libp2p/circuit-relay-v2': 1.1.5
-      '@libp2p/dcutr': 1.1.5
-      '@libp2p/identify': 2.1.5
-      '@libp2p/interface': 1.7.0
-      '@libp2p/kad-dht': 12.1.5
-      '@libp2p/keychain': 4.1.6
-      '@libp2p/logger': 4.0.20
-      '@libp2p/mdns': 10.1.5
-      '@libp2p/mplex': 10.1.5
-      '@libp2p/ping': 1.1.6
-      '@libp2p/tcp': 9.1.6
-      '@libp2p/upnp-nat': 1.2.5
-      '@libp2p/webrtc': 4.1.10(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4))
-      '@libp2p/websockets': 8.2.0
-      '@libp2p/webtransport': 4.1.9
-      '@multiformats/dns': 1.0.6
-      blockstore-core: 4.4.1
-      datastore-core: 9.2.9
-      interface-blockstore: 5.3.0
-      interface-datastore: 8.3.0
-      ipns: 9.1.2
-      libp2p: 1.9.4
-      multiformats: 13.2.3
-    transitivePeerDependencies:
-      - bufferutil
-      - react-native
-      - supports-color
-      - utf-8-validate
-
   helia@4.2.6(react-native@0.75.2(@babel/core@7.25.2)(@babel/preset-env@7.25.4(@babel/core@7.25.2))(react@18.3.1)(typescript@5.5.4)):
     dependencies:
       '@chainsafe/libp2p-noise': 15.1.2
@@ -16101,9 +16065,9 @@ snapshots:
       '@libp2p/interface': 1.7.0
       '@libp2p/logger': 4.0.20
       '@libp2p/peer-id': 4.2.4
-      cborg: 4.2.3
+      cborg: 4.2.4
       err-code: 3.0.1
-      interface-datastore: 8.3.0
+      interface-datastore: 8.3.1
       multiformats: 13.2.3
       protons-runtime: 5.5.0
       timestamp-nano: 1.0.1
@@ -18924,7 +18888,7 @@ snapshots:
       regenerate: 1.4.2
       regenerate-unicode-properties: 10.2.0
       regjsgen: 0.8.0
-      regjsparser: 0.11.0
+      regjsparser: 0.11.1
       unicode-match-property-ecmascript: 2.0.0
       unicode-match-property-value-ecmascript: 2.2.0
 
@@ -18938,7 +18902,7 @@ snapshots:
 
   regjsgen@0.8.0: {}
 
-  regjsparser@0.11.0:
+  regjsparser@0.11.1:
     dependencies:
       jsesc: 3.0.2
 
@@ -20173,7 +20137,7 @@ snapshots:
     dependencies:
       defaults: 1.0.4
 
-  weald@1.0.2:
+  weald@1.0.3:
     dependencies:
       ms: 3.0.0-canary.1
       supports-color: 9.4.0
