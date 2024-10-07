@@ -756,6 +756,9 @@ describe("Nuées", function () {
         const résultatChezLesAutres = new utilsTestAttente.AttendreRésultat<
           élémentDeMembreAvecValid<élémentBdListeDonnées>[]
         >();
+        const résultatChezLesAutresSansVérification = new utilsTestAttente.AttendreRésultat<
+          élémentDeMembreAvecValid<élémentBdListeDonnées>[]
+        >();
 
         before(async () => {
           const idVariableNumérique = await client.variables.créerVariable({
@@ -794,6 +797,15 @@ describe("Nuées", function () {
             });
           fsOublier.push(fOublierChezLesAutres);
 
+          const { fOublier: fOublierChezLesAutresSansVérification } =
+            await client.nuées.suivreDonnéesTableauNuée({
+              idNuée,
+              clefTableau: "principal",
+              f: async (x) => résultatChezLesAutresSansVérification.mettreÀJour(x),
+              vérifierAutorisation: false,
+            });
+          fsOublier.push(fOublierChezLesAutresSansVérification);
+
           id = (
             await clients[1].bds.ajouterÉlémentÀTableauUnique({
               schémaBd,
@@ -828,6 +840,24 @@ describe("Nuées", function () {
         it("Mais pas chez les autres", async () => {
           const val = await résultatChezLesAutres.attendreExiste();
           expect(val.length).to.equal(0);
+        });
+
+        it("...à moins que ce ne soit l'intention", async () => {
+
+          const val = await résultatChezLesAutresSansVérification.attendreQue(
+            (x) => x && x.length > 0,
+          );
+          const réf: élémentDeMembreAvecValid<élémentBdListeDonnées> = {
+            idCompte: await clients[1].obtIdCompte(),
+            élément: {
+              données: {
+                [idCol]: 3,
+              },
+              id,
+            },
+            valid: [],
+          };
+          expect(val[0]).to.deep.equal(réf);
         });
       });
     });
