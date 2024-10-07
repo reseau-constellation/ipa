@@ -47,7 +47,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
           discoverRelays: 1,
         }),
       ],
-      connectionEncryption: [noise()],
+      connectionEncrypters: [noise()],
       streamMuxers: [yamux()],
       connectionGater: {
         denyDialMultiaddr: () => false,
@@ -70,7 +70,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         dcutr: dcutr(),
         pubsub: gossipsub({
           allowPublishToZeroTopicPeers: true,
-          runOnTransientConnection: true,
+          runOnLimitedConnection: true,
         }),
         /*dht: kadDHT({
           clientMode: true,

@@ -1,5 +1,4 @@
 import { initSFIP } from "@/sfip/index.js";
-import { unmarshalPrivateKey } from "@libp2p/crypto/keys";
 import { createFromPrivKey } from "@libp2p/peer-id-factory";
 import {
   fromString as uint8ArrayFromString,
@@ -25,8 +24,8 @@ const dossier = isBrowser
     ? process.argv[process.argv.indexOf("--dossier") + 1]
     : "./testSfip";
 
-obtIdPair().then((peerId) =>
-  initSFIP({ dossier, configLibp2p: { peerId } }).then(async (sfip) => {
+obtIdPair().then((privateKey) =>
+  initSFIP({ dossier, configLibp2p: { privateKey } }).then(async (sfip) => {
     console.log(
       "SFIP initialisé avec id de nœud :",
       sfip.libp2p.peerId.toString(),

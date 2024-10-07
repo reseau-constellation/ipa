@@ -43,7 +43,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
         discoverRelays: 1,
       }),
     ],
-    connectionEncryption: [noise()],
+    connectionEncrypters: [noise()],
     streamMuxers: [yamux()],
     connectionGater: {
       denyDialMultiaddr: () => false,
@@ -65,7 +65,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       dcutr: dcutr(),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
-        runOnTransientConnection: true,
+        runOnLimitedConnection: true,
       }),
       dht: kadDHT({
         clientMode: true,
