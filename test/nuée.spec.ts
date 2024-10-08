@@ -756,9 +756,10 @@ describe("Nuées", function () {
         const résultatChezLesAutres = new utilsTestAttente.AttendreRésultat<
           élémentDeMembreAvecValid<élémentBdListeDonnées>[]
         >();
-        const résultatChezLesAutresSansVérification = new utilsTestAttente.AttendreRésultat<
-          élémentDeMembreAvecValid<élémentBdListeDonnées>[]
-        >();
+        const résultatChezLesAutresSansVérification =
+          new utilsTestAttente.AttendreRésultat<
+            élémentDeMembreAvecValid<élémentBdListeDonnées>[]
+          >();
 
         before(async () => {
           const idVariableNumérique = await client.variables.créerVariable({
@@ -801,7 +802,8 @@ describe("Nuées", function () {
             await client.nuées.suivreDonnéesTableauNuée({
               idNuée,
               clefTableau: "principal",
-              f: async (x) => résultatChezLesAutresSansVérification.mettreÀJour(x),
+              f: async (x) =>
+                résultatChezLesAutresSansVérification.mettreÀJour(x),
               vérifierAutorisation: false,
             });
           fsOublier.push(fOublierChezLesAutresSansVérification);
@@ -843,7 +845,6 @@ describe("Nuées", function () {
         });
 
         it("...à moins que ce ne soit l'intention", async () => {
-
           const val = await résultatChezLesAutresSansVérification.attendreQue(
             (x) => x && x.length > 0,
           );

@@ -20,40 +20,40 @@ const générerServeurRessourcesTests = async (opts, idsPairs) => {
   //   opts.target.includes("browser") ||
   //   opts.target.includes("electron-renderer")
   // ) {
-    const appliExpress = express();
+  const appliExpress = express();
 
-    // Permettre l'accès à partir de l'hôte locale
-    appliExpress.use(
-      cors({
-        origin: function (origin, callback) {
-          if (!origin) {
-            callback(null, true);
-            return;
-          }
-          if (new URL(origin).hostname === "127.0.0.1") {
-            callback(null, true);
-          } else {
-            callback(new Error("Not allowed by CORS"));
-          }
-        },
-      }),
+  // Permettre l'accès à partir de l'hôte locale
+  appliExpress.use(
+    cors({
+      origin: function (origin, callback) {
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+        if (new URL(origin).hostname === "127.0.0.1") {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
+    }),
+  );
+  appliExpress.get("/fichier/:nomFichier", function (req, res) {
+    const { nomFichier } = req.params;
+
+    const cheminFichier = path.join(
+      url.fileURLToPath(new URL(".", import.meta.url)),
+      "test",
+      "ressources",
+      decodeURIComponent(nomFichier),
     );
-    appliExpress.get("/fichier/:nomFichier", function (req, res) {
-      const { nomFichier } = req.params;
 
-      const cheminFichier = path.join(
-        url.fileURLToPath(new URL(".", import.meta.url)),
-        "test",
-        "ressources",
-        decodeURIComponent(nomFichier),
-      );
-
-      res.sendFile(cheminFichier);
-    });
-    appliExpress.get("/idsPairs", function (_, res) {
-      res.send(idsPairs)
-    })
-    serveurLocal = appliExpress.listen(3000);
+    res.sendFile(cheminFichier);
+  });
+  appliExpress.get("/idsPairs", function (_, res) {
+    res.send(idsPairs);
+  });
+  serveurLocal = appliExpress.listen(3000);
   // }
   return async () => serveurLocal?.close();
 };
@@ -66,11 +66,10 @@ const lancerSfipDansNode = async (_opts) => {
   processusNode.catch((e) => {
     if (e.signal !== "SIGTERM") throw new Error(e);
   });
-  processusNode.stdout.on("data", (x) =>{
+  processusNode.stdout.on("data", (x) => {
     const texte = new TextDecoder().decode(x);
     console.log(texte);
-  }
-  );
+  });
   const idPair = await new Promise((résoudre) => {
     const fDonnées = (x) => {
       const texte = new TextDecoder().decode(x);
@@ -78,15 +77,16 @@ const lancerSfipDansNode = async (_opts) => {
         processusNode.stdout.off("data", fDonnées);
         résoudre(texte.split("\n")[0].split(":")[1].trim());
       }
-    }
+    };
     processusNode.stdout.on("data", fDonnées);
-  })
+  });
   return {
     idPair,
     fermerNode: async () => {
-    processusNode?.kill();
-    fEffacer();
-  }};
+      processusNode?.kill();
+      fEffacer();
+    },
+  };
 };
 
 const lancerSfipDansNavigateur = async (_opts) => {
@@ -100,9 +100,15 @@ const lancerSfipDansNavigateur = async (_opts) => {
   try {
     const fichierJs = path.join(dossierCompilation, "test.min.js");
     const page = await navigateur.newPage();
-    page.on("console", (msg) =>{
-      if (!msg.text().includes("Failed to load resource: the server responded with a status of 404"))
-      console.log("Message de Playwright : ", msg.text());
+    page.on("console", (msg) => {
+      if (
+        !msg
+          .text()
+          .includes(
+            "Failed to load resource: the server responded with a status of 404",
+          )
+      )
+        console.log("Message de Playwright : ", msg.text());
     });
 
     const globalName = "testnavigsfip";
@@ -137,12 +143,12 @@ const lancerSfipDansNavigateur = async (_opts) => {
         const texte = x.text();
         if (texte.startsWith("SFIP initialisé avec id de nœud :")) {
           page.off("console", fDonnées);
-          const id = texte.split("\n")[0].split(":")[1].trim()
+          const id = texte.split("\n")[0].split(":")[1].trim();
           résoudre(id);
         }
-      }
+      };
       page.on("console", fDonnées);
-    })
+    });
     await page.goto(`file://${fichierHtml}`);
 
     idPair = await promesseIdPair;
@@ -150,26 +156,31 @@ const lancerSfipDansNavigateur = async (_opts) => {
     // On arrête pas les tests pour une petite erreur comme ça
     console.error(e);
   }
-  
+
   return {
     idPair,
     fermerNavigateur: async () => {
-    await navigateur.close();
-    sync(dossierCompilation);
-  }};
+      await navigateur.close();
+      sync(dossierCompilation);
+    },
+  };
 };
 
 const avantTest = async (opts) => {
   // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
-  const {fermerNavigateur, idPair: idPairNavig} = await lancerSfipDansNavigateur(opts);
-  console.log({idPairNavig})
+  const { fermerNavigateur, idPair: idPairNavig } =
+    await lancerSfipDansNavigateur(opts);
+  console.log({ idPairNavig });
 
   // Et une sur Node.js pour pouvoir tester la connectivité avec Node
-  const {fermerNode, idPair: idPairNode} = await lancerSfipDansNode(opts);
-  console.log({idPairNode})
+  const { fermerNode, idPair: idPairNode } = await lancerSfipDansNode(opts);
+  console.log({ idPairNode });
 
   // Pour pouvoir accéder les fichiers test dans le navigateur
-  const fermerServeurLocal = await générerServeurRessourcesTests(opts, {idPairNode, idPairNavig});
+  const fermerServeurLocal = await générerServeurRessourcesTests(opts, {
+    idPairNode,
+    idPairNavig,
+  });
 
   return { fermerNavigateur, fermerNode, fermerServeurLocal };
 };

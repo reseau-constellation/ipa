@@ -10,7 +10,7 @@ const dossier = isBrowser
     ? process.argv[process.argv.indexOf("--dossier") + 1]
     : "./testSfip";
 
-initSFIP({ dossier, configLibp2p: { } }).then(async (sfip) => {
+initSFIP({ dossier, configLibp2p: {} }).then(async (sfip) => {
   console.log(
     "SFIP initialisé avec id de nœud :",
     sfip.libp2p.peerId.toString(),

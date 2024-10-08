@@ -18,4 +18,3 @@ export const ADRESSES_NŒUDS_RELAI_LOCAL = [
   "/ip4/127.0.0.1/udp/9091/quic-v1/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
   "/ip4/127.0.0.1/tcp/9092/p2p/12D3KooWKeJNXytogRbQPvYrFxXAaDGaJUfysrPeGbbEBDM78iTu",
 ];
-

@@ -76,7 +76,7 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe("Connectivité SFIP", function () {
+describe.only("Connectivité SFIP", function () {
   let idPairNavig: string;
   let idPairNode: string;
 
@@ -87,7 +87,7 @@ describe("Connectivité SFIP", function () {
   before(async () => {
     ({ dossier, fEffacer } = await dossiers.dossierTempo());
     sfip = await initSFIP({ dossier: path.join(dossier, "sfip") });
-    ({idPairNavig, idPairNode} = await obtIdsPairs());
+    ({ idPairNavig, idPairNode } = await obtIdsPairs());
   });
 
   after(async () => {
@@ -121,7 +121,6 @@ describe("Connectivité SFIP", function () {
   it("Gossipsub avec navigateur", async () => {
     await testerGossipSub({ sfip, idPair: idPairNavig });
   });
-
 
   it.skip("Ça fonctionne localement hors ligne");
 });
