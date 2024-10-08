@@ -22,8 +22,8 @@ const attendreConnecté = async ({
   await new Promise<void>((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
-      console.log(pairs.map((p) => p.toString()))
-      console.log(sfip.libp2p.getConnections().map(c=>c.remoteAddr.toString()))
+      // console.log(pairs.map((p) => p.toString()))
+      // console.log(sfip.libp2p.getConnections().map(c=>c.remoteAddr.toString()))
       const trouvé = pairs.find((p) => p.toString() === idPair);
       if (trouvé) {
         résoudre();
