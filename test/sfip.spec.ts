@@ -30,6 +30,13 @@ const attendreConnecté = async ({
       }
     };
     sfip.libp2p.addEventListener("peer:connect", vérifierConnecté);
+    sfip.libp2p.addEventListener("peer:discovery", (x) => {
+      if (x.detail.id.toString() === idPair)
+        console.log(
+          x.detail.id.toString(),
+          x.detail.multiaddrs.map((a) => a.toString()),
+        );
+    });
     vérifierConnecté();
   });
 };
