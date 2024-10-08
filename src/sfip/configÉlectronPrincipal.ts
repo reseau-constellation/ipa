@@ -13,7 +13,7 @@ import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { autoNAT } from "@libp2p/autonat";
 import { dcutr } from "@libp2p/dcutr";
-// import { kadDHT } from "@libp2p/kad-dht";
+import { kadDHT } from "@libp2p/kad-dht";
 
 export const obtOptionsLibp2pÉlectionPrincipal =
   async (): Promise<Libp2pOptions> => {
@@ -47,8 +47,12 @@ export const obtOptionsLibp2pÉlectionPrincipal =
           discoverRelays: 1,
         }),
       ],
-      connectionEncrypters: [noise()],
+      connectionEncryption: [noise()],
       streamMuxers: [yamux()],
+      connectionManager: {
+        maxConnections: Infinity,
+        minConnections: 10,
+      },
       connectionGater: {
         denyDialMultiaddr: () => false,
       },
@@ -70,11 +74,12 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         dcutr: dcutr(),
         pubsub: gossipsub({
           allowPublishToZeroTopicPeers: true,
-          runOnLimitedConnection: true,
+          runOnTransientConnection: true,
+          canRelayMessage: true,
         }),
-        /*dht: kadDHT({
+        dht: kadDHT({
           clientMode: true,
-        }),*/
+        }),
       },
     };
   };

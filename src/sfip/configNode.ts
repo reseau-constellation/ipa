@@ -12,10 +12,11 @@ import { dcutr } from "@libp2p/dcutr";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
-// import { kadDHT } from "@libp2p/kad-dht";
+import { kadDHT } from "@libp2p/kad-dht";
 import type { Libp2pOptions } from "libp2p";
 
 import { ADRESSES_NŒUDS_RELAI } from "./const.js";
+import { FaultTolerance } from "@libp2p/interface";
 
 export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
@@ -53,11 +54,15 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       webRTCDirect(),
       tcp(),
       circuitRelayTransport({
-        discoverRelays: 1,
+        discoverRelays: 2,
       }),
     ],
     connectionEncryption: [noise()],
     streamMuxers: [yamux()],
+    connectionManager: {
+      maxConnections: Infinity,
+      minConnections: 10,
+    },
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
@@ -80,10 +85,11 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
         runOnTransientConnection: true,
+        canRelayMessage: true,
       }),
-      /*dht: kadDHT({
-        clientMode: true,
-      }),*/
+      dht: kadDHT({
+        clientMode: false,
+      }),
     },
   };
 };

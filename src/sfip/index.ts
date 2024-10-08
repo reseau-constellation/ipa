@@ -54,7 +54,7 @@ export async function initSFIP({
       ...config,
     }),
   )) as Libp2p<DefaultLibp2pServices>;
-
+  libp2p.addEventListener("peer:discovery", x=>console.log("découverte", x.detail.id.toString(), x.detail.multiaddrs.map(m=>m.toString())))
   const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
 
   const optionsHelia = {

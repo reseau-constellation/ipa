@@ -26,7 +26,7 @@ export const obtOptionsLibp2pTravailleurWeb =
           discoverRelays: 1,
         }),
       ],
-      connectionEncrypters: [noise()],
+      connectionEncryption: [noise()],
       streamMuxers: [yamux()],
       connectionGater: {
         denyDialMultiaddr: () => false,

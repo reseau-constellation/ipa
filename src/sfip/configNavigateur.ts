@@ -40,11 +40,15 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       webRTCDirect(),
       webTransport(),
       circuitRelayTransport({
-        discoverRelays: 1,
+        discoverRelays: 2,
       }),
     ],
-    connectionEncrypters: [noise()],
+    connectionEncryption: [noise()],
     streamMuxers: [yamux()],
+    connectionManager: {
+      maxConnections: Infinity,
+      minConnections: 10,
+    },
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
@@ -65,11 +69,12 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       dcutr: dcutr(),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
-        runOnLimitedConnection: true,
+        runOnTransientConnection: true,
+        canRelayMessage: true,
       }),
-      dht: kadDHT({
+      /*dht: kadDHT({
         clientMode: true,
-      }),
+      }),*/
     },
   };
 };

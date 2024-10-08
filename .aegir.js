@@ -10,16 +10,16 @@ import { mkdtempSync, copyFileSync } from "fs";
 import { sync } from "rimraf";
 import { dossiers, config } from "@constl/utils-tests";
 
-const générerServeurRessourcesTests = async (opts) => {
+const générerServeurRessourcesTests = async (opts, idsPairs) => {
   /**
    * @type {Express | undefined}
    */
   let serveurLocal = undefined;
 
-  if (
-    opts.target.includes("browser") ||
-    opts.target.includes("electron-renderer")
-  ) {
+  // if (
+  //   opts.target.includes("browser") ||
+  //   opts.target.includes("electron-renderer")
+  // ) {
     const appliExpress = express();
 
     // Permettre l'accès à partir de l'hôte locale
@@ -50,8 +50,11 @@ const générerServeurRessourcesTests = async (opts) => {
 
       res.sendFile(cheminFichier);
     });
+    appliExpress.get("/idsPairs", function (_, res) {
+      res.send(idsPairs)
+    })
     serveurLocal = appliExpress.listen(3000);
-  }
+  // }
   return async () => serveurLocal?.close();
 };
 
@@ -63,13 +66,27 @@ const lancerSfipDansNode = async (_opts) => {
   processusNode.catch((e) => {
     if (e.signal !== "SIGTERM") throw new Error(e);
   });
-  processusNode.stdout.on("data", (x) =>
-    console.log(new TextDecoder().decode(x)),
+  processusNode.stdout.on("data", (x) =>{
+    const texte = new TextDecoder().decode(x);
+    console.log(texte);
+  }
   );
-  return async () => {
+  const idPair = await new Promise((résoudre) => {
+    const fDonnées = (x) => {
+      const texte = new TextDecoder().decode(x);
+      if (texte.startsWith("SFIP initialisé avec id de nœud :")) {
+        processusNode.stdout.off("data", fDonnées);
+        résoudre(texte.split("\n")[0].split(":")[1].trim());
+      }
+    }
+    processusNode.stdout.on("data", fDonnées);
+  })
+  return {
+    idPair,
+    fermerNode: async () => {
     processusNode?.kill();
     fEffacer();
-  };
+  }};
 };
 
 const lancerSfipDansNavigateur = async (_opts) => {
@@ -79,12 +96,14 @@ const lancerSfipDansNavigateur = async (_opts) => {
   const dossierCompilation = mkdtempSync(
     path.join(os.tmpdir(), "test-constl-"),
   );
+  let idPair;
   try {
     const fichierJs = path.join(dossierCompilation, "test.min.js");
     const page = await navigateur.newPage();
-    page.on("console", (msg) =>
-      console.log("Message de Playwright : ", msg.text()),
-    );
+    page.on("console", (msg) =>{
+      if (!msg.text().includes("Failed to load resource: the server responded with a status of 404"))
+      console.log("Message de Playwright : ", msg.text());
+    });
 
     const globalName = "testnavigsfip";
     const umdPre = `(function (root, factory) {(typeof module === 'object' && module.exports) ? module.exports = factory() : root.${globalName} = factory()}(typeof self !== 'undefined' ? self : this, function () {`;
@@ -113,26 +132,44 @@ const lancerSfipDansNavigateur = async (_opts) => {
       fichierHtml,
     );
 
+    const promesseIdPair = new Promise((résoudre) => {
+      const fDonnées = (x) => {
+        const texte = x.text();
+        if (texte.startsWith("SFIP initialisé avec id de nœud :")) {
+          page.off("console", fDonnées);
+          const id = texte.split("\n")[0].split(":")[1].trim()
+          résoudre(id);
+        }
+      }
+      page.on("console", fDonnées);
+    })
     await page.goto(`file://${fichierHtml}`);
+
+    idPair = await promesseIdPair;
   } catch (e) {
     // On arrête pas les tests pour une petite erreur comme ça
     console.error(e);
   }
-  return async () => {
+  
+  return {
+    idPair,
+    fermerNavigateur: async () => {
     await navigateur.close();
     sync(dossierCompilation);
-  };
+  }};
 };
 
 const avantTest = async (opts) => {
   // On va lancer une page Constellation pour pouvoir tester la connectivité webrtc avec les navigateurs
-  const fermerNavigateur = await lancerSfipDansNavigateur(opts);
+  const {fermerNavigateur, idPair: idPairNavig} = await lancerSfipDansNavigateur(opts);
+  console.log({idPairNavig})
 
   // Et une sur Node.js pour pouvoir tester la connectivité avec Node
-  const fermerNode = await lancerSfipDansNode(opts);
+  const {fermerNode, idPair: idPairNode} = await lancerSfipDansNode(opts);
+  console.log({idPairNode})
 
   // Pour pouvoir accéder les fichiers test dans le navigateur
-  const fermerServeurLocal = await générerServeurRessourcesTests(opts);
+  const fermerServeurLocal = await générerServeurRessourcesTests(opts, {idPairNode, idPairNavig});
 
   return { fermerNavigateur, fermerNode, fermerServeurLocal };
 };
