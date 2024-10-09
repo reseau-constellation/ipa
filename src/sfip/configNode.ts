@@ -12,7 +12,7 @@ import { dcutr } from "@libp2p/dcutr";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
-import { kadDHT } from "@libp2p/kad-dht";
+// import { kadDHT } from "@libp2p/kad-dht";
 import type { Libp2pOptions } from "libp2p";
 
 import { ADRESSES_NŒUDS_RELAI } from "./const.js";
@@ -31,7 +31,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         "/ip4/0.0.0.0/tcp/0/ws",
         "/webrtc",
         "/webtransport",
-        "/webrtc-direct",
+        // "/webrtc-direct",
       ],
     },
     transportManager: {
@@ -63,7 +63,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
     connectionEncryption: [noise()],
     streamMuxers: [yamux()],
     connectionManager: {
-      maxConnections: Infinity,
+      maxConnections: 50,
       minConnections: 10,
     },
     connectionGater: {
@@ -76,7 +76,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         timeout: 0,
       }),
       pubsubPeerDiscovery({
-        interval: 1000,
+        interval: 10000,
         topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
         listenOnly: false,
       }),
@@ -90,9 +90,9 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         runOnTransientConnection: true,
         canRelayMessage: true,
       }),
-      dht: kadDHT({
+      /*dht: kadDHT({
         clientMode: false,
-      }),
+      }),*/
     },
   };
 };

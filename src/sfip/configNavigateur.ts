@@ -9,7 +9,7 @@ import { yamux } from "@chainsafe/libp2p-yamux";
 import { autoNAT } from "@libp2p/autonat";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { dcutr } from "@libp2p/dcutr";
-import { kadDHT } from "@libp2p/kad-dht";
+// import { kadDHT } from "@libp2p/kad-dht";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
@@ -58,7 +58,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
         timeout: 0,
       }),
       pubsubPeerDiscovery({
-        interval: 1000,
+        interval: 10000,
         topics: ["constellation._peer-discovery._p2p._pubsub"], // par défaut : ['_peer-discovery._p2p._pubsub']
         listenOnly: false,
       }),

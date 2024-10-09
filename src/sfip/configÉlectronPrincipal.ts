@@ -13,7 +13,7 @@ import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { autoNAT } from "@libp2p/autonat";
 import { dcutr } from "@libp2p/dcutr";
-import { kadDHT } from "@libp2p/kad-dht";
+// import { kadDHT } from "@libp2p/kad-dht";
 
 export const obtOptionsLibp2pÉlectionPrincipal =
   async (): Promise<Libp2pOptions> => {
@@ -50,7 +50,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
       connectionEncryption: [noise()],
       streamMuxers: [yamux()],
       connectionManager: {
-        maxConnections: Infinity,
+        maxConnections: 50,
         minConnections: 10,
       },
       connectionGater: {
@@ -77,9 +77,9 @@ export const obtOptionsLibp2pÉlectionPrincipal =
           runOnTransientConnection: true,
           canRelayMessage: true,
         }),
-        dht: kadDHT({
+        /*dht: kadDHT({
           clientMode: true,
-        }),
+        }),*/
       },
     };
   };
