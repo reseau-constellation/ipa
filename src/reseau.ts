@@ -213,12 +213,12 @@ const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> =
   required: [],
 };
 
-const INTERVALE_SALUT = 1000 * 10;
+const INTERVALE_SALUT = 1000 * 10;  // 10 secondes
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
 const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
 const CONFIANCE_DE_COAUTEUR = 0.9;
 const CONFIANCE_DE_FAVORIS = 0.7;
-const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;
+const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30;  // 1 mois
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
@@ -245,6 +245,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.bloquésPrivés = new Set();
 
     this.dispositifsEnLigne = {};
+    this.client.obtDeStockageLocal({clef: "dispositifsEnLigne"}).then(x=>this.dispositifsEnLigne = JSON.parse(x || "{}"))
     this.fsOublier = [];
     this._fermé = false;
     this.événements = new EventEmitter();

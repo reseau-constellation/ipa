@@ -8,6 +8,9 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Constellation, créerConstellation } from "@/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
+// import {Peer as PBPeer} from "./peer.js"
+// import { multiaddr } from '@multiformats/multiaddr'
+// import { WebRTC } from "@multiformats/multiaddr-matcher";
 
 const attendre = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -19,6 +22,23 @@ const attendreConnecté = async ({
   sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
+  sfip.libp2p.addEventListener("self:peer:update", (_evt) => {
+    // Updated self multiaddrs?
+    console.log(
+      `Advertising with a relay address of ${sfip.libp2p.getMultiaddrs()[0].toString()}`,
+    );
+  });
+  /*sfip.libp2p.services.pubsub.addEventListener("message", async x=>{
+    if (x.detail.topic.includes("_pubsub")) {
+      const adresses = PBPeer.decode(x.detail.data).addrs.map(a=>multiaddr(a).toString());
+      for (const a of adresses) {
+        console.log("avant",a)
+        if (a.includes('p2p-circuit')) {
+          // sfip.libp2p.dial(multiaddr(a)).then(()=>{console.log("connecté", a);console.log(sfip.libp2p.getPeers().map(p=>p.toString()))}).catch(e=>console.log("erreur", a, e))
+        }
+      }
+    }
+  })*/
   await new Promise<void>((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
@@ -26,17 +46,19 @@ const attendreConnecté = async ({
       // console.log(sfip.libp2p.getConnections().map(c=>c.remoteAddr.toString()))
       const trouvé = pairs.find((p) => p.toString() === idPair);
       if (trouvé) {
+        // console.log("trouvé !", idPair, sfip.libp2p.getConnections().map(c=>c.remoteAddr.toString()))
         résoudre();
       }
     };
     sfip.libp2p.addEventListener("peer:connect", vérifierConnecté);
-    sfip.libp2p.addEventListener("peer:discovery", (x) => {
-      if (x.detail.id.toString() === idPair)
+    /*sfip.libp2p.addEventListener("peer:discovery", (x) => {
+      if (true || x.detail.id.toString() === idPair)
         console.log(
+          "découverte",
           x.detail.id.toString(),
           x.detail.multiaddrs.map((a) => a.toString()),
         );
-    });
+    });*/
     vérifierConnecté();
   });
 };
