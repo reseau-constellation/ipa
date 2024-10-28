@@ -620,7 +620,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
       await fOublier();
       return sigIdValide && sigClefPubliqueValide && bdCompteValide;
-    } catch (e) {
+    } catch {
       return false;
     }
   }
