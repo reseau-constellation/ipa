@@ -132,7 +132,7 @@
     "axios": "^1.7.7",
     "blockstore-level": "^2.0.1",
     "browser-fs-access": "^0.35.0",
-    "chokidar": "^3.6.0",
+    "chokidar": "^4.0.0",
     "crypto-js": "^4.2.0",
     "deep-equal": "^2.2.3",
     "deepcopy": "^2.1.0",
