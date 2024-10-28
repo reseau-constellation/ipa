@@ -104,7 +104,7 @@
     "@constl/mandataire": "^3.0.2",
     "@constl/utils-ipa": "^1.0.3",
     "@helia/block-brokers": "^3.0.4",
-    "@helia/unixfs": "^3.0.7",
+    "@helia/unixfs": "^4.0.0",
     "@ipld/dag-cbor": "^9.2.1",
     "@lassi-js/kili": "^0.3.16",
     "@libp2p/autonat": "1.1.5",

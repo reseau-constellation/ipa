@@ -36,8 +36,8 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4
       '@helia/unixfs':
-        specifier: ^3.0.7
-        version: 3.0.7
+        specifier: ^4.0.0
+        version: 4.0.0
       '@ipld/dag-cbor':
         specifier: ^9.2.1
         version: 9.2.1
@@ -1668,11 +1668,17 @@ packages:
   '@helia/interface@4.3.1':
     resolution: {integrity: sha512-jvuUUAQbLMhvMt+Lon7mJfJt5xJWiwn8aXtI9fHBpMNMsrKJOtefxAzwSr18xe+C9bMdOyRtocj2eFhs74bQ8w==}
 
+  '@helia/interface@5.0.0':
+    resolution: {integrity: sha512-B95cP8RBl7cqSu1VELeRWPUsTNxu2bJ2Y/ihsdYfUCcxHKUUQdDDLTHQzhZe9iC9TYADkfkjIM7gqgmhqYtY6A==}
+
   '@helia/routers@1.1.1':
     resolution: {integrity: sha512-LsEkUAno4PiQ1cmwxFnYWy5xQicpzjXyYeRJEGLjAnAXin8hq0JPkEouZx8vTlmSf1Rde4RSaTu3+3H1qj5ccw==}
 
   '@helia/unixfs@3.0.7':
     resolution: {integrity: sha512-5fBXYk9t6Iu/DnTQZ//sn0MhM00AnK+VYEkfXdReoBUdzVFrOFW/bihT4sgLfYCq86+TShdrU1aDLkbFiN6FnQ==}
+
+  '@helia/unixfs@4.0.0':
+    resolution: {integrity: sha512-e6tiXB7d3VL5suYm4e2cNEt+R8HLRmIkZkfOhB+WMcsCA7c3wtFNuN1ASKBQvCopp6+TdTfYafvCz40QnWgP+Q==}
 
   '@helia/utils@0.3.3':
     resolution: {integrity: sha512-iCS8dJRULgltfx7aLLoqfjWUpqBWrTyouCToB9RgHpNs4lHcIsZn/VSbHyjC4NUF9nIWsxhH/3UAdvWl23HEgw==}
@@ -3063,6 +3069,7 @@ packages:
 
   boolean@3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   bottleneck@2.19.5:
     resolution: {integrity: sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==}
@@ -10299,6 +10306,16 @@ snapshots:
       multiformats: 13.2.3
       progress-events: 1.0.1
 
+  '@helia/interface@5.0.0':
+    dependencies:
+      '@libp2p/interface': 2.1.2
+      '@multiformats/dns': 1.0.6
+      interface-blockstore: 5.3.1
+      interface-datastore: 8.3.1
+      interface-store: 6.0.2
+      multiformats: 13.2.3
+      progress-events: 1.0.1
+
   '@helia/routers@1.1.1':
     dependencies:
       '@helia/delegated-routing-v1-http-api-client': 3.0.2
@@ -10317,6 +10334,31 @@ snapshots:
       '@ipld/dag-pb': 4.1.2
       '@libp2p/interface': 1.7.0
       '@libp2p/logger': 4.0.20
+      '@multiformats/murmur3': 2.1.8
+      hamt-sharding: 3.0.6
+      interface-blockstore: 5.3.1
+      ipfs-unixfs: 11.2.0
+      ipfs-unixfs-exporter: 13.6.1
+      ipfs-unixfs-importer: 15.3.1
+      it-all: 3.0.6
+      it-glob: 3.0.1
+      it-last: 3.0.6
+      it-pipe: 3.0.1
+      merge-options: 3.0.4
+      multiformats: 13.2.3
+      progress-events: 1.0.1
+      sparse-array: 1.3.2
+      uint8arrays: 5.1.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  '@helia/unixfs@4.0.0':
+    dependencies:
+      '@helia/interface': 5.0.0
+      '@ipld/dag-pb': 4.1.2
+      '@libp2p/interface': 2.1.2
+      '@libp2p/logger': 5.1.0
       '@multiformats/murmur3': 2.1.8
       hamt-sharding: 3.0.6
       interface-blockstore: 5.3.1
