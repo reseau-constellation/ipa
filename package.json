@@ -75,7 +75,7 @@
     "globals": "^15.11.0",
     "image-type": "^5.2.0",
     "keyv": "^5.1.2",
-    "libp2p": "2.1.10",
+    "libp2p": "2.2.0",
     "mocha": "^10.7.3",
     "os-browserify": "^0.3.0",
     "playwright": "^1.48.2",
@@ -158,12 +158,5 @@
     "uuid": "^11.0.1",
     "wherearewe": "^2.0.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz"
-  },
-  "pnpm": {
-    "overrides": {
-      "libp2p": "2.1.10",
-      "helia": "5.1.0",
-      "@chainsafe/libp2p-gossipsub": "14.1.0"
-    }
   }
 }
