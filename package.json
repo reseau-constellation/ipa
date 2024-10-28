@@ -75,7 +75,7 @@
     "globals": "^15.11.0",
     "image-type": "^5.2.0",
     "keyv": "^5.1.2",
-    "libp2p": "2.2.0",
+    "libp2p": "2.2.1",
     "mocha": "^10.7.3",
     "os-browserify": "^0.3.0",
     "playwright": "^1.48.2",
