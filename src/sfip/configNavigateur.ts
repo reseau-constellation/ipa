@@ -19,7 +19,7 @@ import { ADRESSES_NŒUDS_RELAI } from "./const.js";
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   return {
     addresses: {
-      listen: ["/webrtc", "/webtransport"],
+      listen: ["/webrtc", "/webtransport", "/p2p-circuit"],
     },
     transports: [
       webSockets({
@@ -39,16 +39,10 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       }),
       webRTCDirect(),
       webTransport(),
-      circuitRelayTransport({
-        discoverRelays: 4,
-      }),
+      circuitRelayTransport(),
     ],
-    connectionEncryption: [noise()],
+    connectionEncrypters: [noise()],
     streamMuxers: [yamux()],
-    connectionManager: {
-      maxConnections: Infinity,
-      minConnections: 10,
-    },
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
@@ -69,7 +63,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       dcutr: dcutr(),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
-        runOnTransientConnection: true,
+        runOnLimitedConnection: true,
         canRelayMessage: true,
       }),
       /*dht: kadDHT({

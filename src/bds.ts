@@ -39,7 +39,7 @@ import {
 import type { objRôles } from "@/accès/types.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
-import { JSONSchemaType } from "ajv";
+import type { JSONSchemaType } from "ajv";
 import pkg from "file-saver";
 const { saveAs } = pkg;
 

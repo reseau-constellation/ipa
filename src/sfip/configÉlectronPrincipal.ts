@@ -22,7 +22,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
 
     return {
       addresses: {
-        listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport"],
+        listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport", "/p2p-circuit"],
       },
       transports: [
         webSockets({
@@ -43,16 +43,10 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         webTransport(),
         webRTCDirect(),
         tcp(),
-        circuitRelayTransport({
-          discoverRelays: 4,
-        }),
+        circuitRelayTransport(),
       ],
-      connectionEncryption: [noise()],
+      connectionEncrypters: [noise()],
       streamMuxers: [yamux()],
-      connectionManager: {
-        maxConnections: 50,
-        minConnections: 10,
-      },
       connectionGater: {
         denyDialMultiaddr: () => false,
       },
@@ -74,7 +68,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         dcutr: dcutr(),
         pubsub: gossipsub({
           allowPublishToZeroTopicPeers: true,
-          runOnTransientConnection: true,
+          runOnLimitedConnection: true,
           canRelayMessage: true,
         }),
         /*dht: kadDHT({

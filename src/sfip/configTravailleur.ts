@@ -15,18 +15,16 @@ export const obtOptionsLibp2pTravailleurWeb =
   async (): Promise<Libp2pOptions> => {
     return {
       addresses: {
-        listen: ["/webrtc"],
+        listen: ["/webrtc", "/p2p-circuit"],
       },
       transports: [
         webSockets({
           filter: all,
         }),
         webTransport(),
-        circuitRelayTransport({
-          discoverRelays: 4,
-        }),
+        circuitRelayTransport(),
       ],
-      connectionEncryption: [noise()],
+      connectionEncrypters: [noise()],
       streamMuxers: [yamux()],
       connectionGater: {
         denyDialMultiaddr: () => false,

@@ -31,6 +31,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         "/ip4/0.0.0.0/tcp/0/ws",
         "/webrtc",
         "/webtransport",
+        "/p2p-circuit"
         // "/webrtc-direct",
       ],
     },
@@ -56,16 +57,10 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       webTransport(),
       webRTCDirect(),
       tcp(),
-      circuitRelayTransport({
-        discoverRelays: 4,
-      }),
+      circuitRelayTransport(),
     ],
-    connectionEncryption: [noise()],
+    connectionEncrypters: [noise()],
     streamMuxers: [yamux()],
-    connectionManager: {
-      maxConnections: 50,
-      minConnections: 10,
-    },
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
@@ -87,7 +82,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       dcutr: dcutr(),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
-        runOnTransientConnection: true,
+        runOnLimitedConnection: true,
         canRelayMessage: true,
       }),
       /*dht: kadDHT({
