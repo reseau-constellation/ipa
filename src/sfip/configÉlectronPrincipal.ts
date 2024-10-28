@@ -22,7 +22,12 @@ export const obtOptionsLibp2pÉlectionPrincipal =
 
     return {
       addresses: {
-        listen: ["/ip4/0.0.0.0/tcp/0/ws", "/webrtc", "/webtransport", "/p2p-circuit"],
+        listen: [
+          "/ip4/0.0.0.0/tcp/0/ws",
+          "/webrtc",
+          "/webtransport",
+          "/p2p-circuit",
+        ],
       },
       transports: [
         webSockets({

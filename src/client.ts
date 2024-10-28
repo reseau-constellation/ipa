@@ -2102,15 +2102,14 @@ export class Constellation {
     clef: string;
     parCompte?: boolean;
   }): string {
-
-    if (parCompte){
+    if (parCompte) {
       // Vérifier que idCompte existe bien si parCompte === true
       if (!this.idCompte) throw new Error("Erreur initialisation");
       return `${this.idCompte.slice(
         this.idCompte!.length - 23,
         this.idCompte!.length - 8,
-      )} : ${clef}`
-    };
+      )} : ${clef}`;
+    }
     return clef;
   }
 

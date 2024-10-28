@@ -71,7 +71,7 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Le premier mod peut écrire à la BD", async () => {
-          const bdTypée = typedKeyValue({ db: bd, schema: schemaDicNumérique })
+          const bdTypée = typedKeyValue({ db: bd, schema: schemaDicNumérique });
           const autorisé = await orbite.peutÉcrire(bdTypée, orbitdb1);
           expect(autorisé).to.be.true();
         });
@@ -80,8 +80,10 @@ describe("Contrôleur Constellation", function () {
           const bdOrbite2 = (await orbitdb2.open(bd.address, {
             type: "keyvalue",
           })) as KeyValue;
-          const bdOrbite2Typée = typedKeyValue({ db: bdOrbite2, schema: schemaDicNumérique })
-
+          const bdOrbite2Typée = typedKeyValue({
+            db: bdOrbite2,
+            schema: schemaDicNumérique,
+          });
 
           const autorisé = await orbite.peutÉcrire(bdOrbite2Typée);
 
@@ -95,11 +97,11 @@ describe("Contrôleur Constellation", function () {
             orbitdb2.identity.id,
           );
 
-          const bdOrbite2 = (await orbitdb2.open(
-            bd.address,
-          )) as KeyValue;
-          const bdOrbite2Typée = typedKeyValue({ db: bdOrbite2, schema: schemaDicNumérique })
-
+          const bdOrbite2 = (await orbitdb2.open(bd.address)) as KeyValue;
+          const bdOrbite2Typée = typedKeyValue({
+            db: bdOrbite2,
+            schema: schemaDicNumérique,
+          });
 
           const autorisé = await orbite.peutÉcrire(bdOrbite2Typée, orbitdb2);
 
@@ -164,7 +166,10 @@ describe("Contrôleur Constellation", function () {
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
           bdOrbite2 = (await orbitdb2.open(bd.address)) as KeyValue;
-          const bdOrbite2Typée = typedKeyValue({ db: bdOrbite2, schema: schemaDicNumérique })
+          const bdOrbite2Typée = typedKeyValue({
+            db: bdOrbite2,
+            schema: schemaDicNumérique,
+          });
 
           const autorisé = await orbite.peutÉcrire(bdOrbite2Typée);
           expect(autorisé).to.be.false();
@@ -176,7 +181,10 @@ describe("Contrôleur Constellation", function () {
             bdRacine2.address,
           );
 
-          const bdOrbite2Typée = typedKeyValue({ db: bdOrbite2, schema: schemaDicNumérique })
+          const bdOrbite2Typée = typedKeyValue({
+            db: bdOrbite2,
+            schema: schemaDicNumérique,
+          });
           const autorisé = await orbite.peutÉcrire(bdOrbite2Typée, orbitdb2);
 
           expect(autorisé).to.be.true();
@@ -200,7 +208,10 @@ describe("Contrôleur Constellation", function () {
           const bdOrbite3 = (await orbitdb3.open(bd.address, {
             type: "keyvalue",
           })) as KeyValue;
-          const bdOrbite3Typée = typedKeyValue({ db: bdOrbite3, schema: schemaDicNumérique })
+          const bdOrbite3Typée = typedKeyValue({
+            db: bdOrbite3,
+            schema: schemaDicNumérique,
+          });
 
           const autorisé = await orbite.peutÉcrire(bdOrbite3Typée, orbitdb3);
 
@@ -225,7 +236,10 @@ describe("Contrôleur Constellation", function () {
           const bdOrbite4 = (await orbitdb4.open(bd.address, {
             type: "keyvalue",
           })) as KeyValue;
-          const bdOrbite4Typée = typedKeyValue({ db: bdOrbite4, schema: schemaDicNumérique })
+          const bdOrbite4Typée = typedKeyValue({
+            db: bdOrbite4,
+            schema: schemaDicNumérique,
+          });
 
           const autorisé = await orbite.peutÉcrire(bdOrbite4Typée, orbitdb4);
 

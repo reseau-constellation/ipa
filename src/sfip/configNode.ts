@@ -31,7 +31,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         "/ip4/0.0.0.0/tcp/0/ws",
         "/webrtc",
         "/webtransport",
-        "/p2p-circuit"
+        "/p2p-circuit",
         // "/webrtc-direct",
       ],
     },
