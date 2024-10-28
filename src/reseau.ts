@@ -608,17 +608,22 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
 
     if (!isValidAddress(idCompte)) return false;
-    const { bd: bdCompte, fOublier } = await this.client.orbite!.ouvrirBd({
-      id: idCompte,
-    });
+    try {
 
-    if (!estUnContrôleurConstellation(bdCompte.access)) return false;
-    const bdCompteValide = (
-      bdCompte.access as ContrôleurConstellation
-    ).estAutorisé(idDispositif);
-
-    await fOublier();
-    return sigIdValide && sigClefPubliqueValide && bdCompteValide;
+      const { bd: bdCompte, fOublier } = await this.client.orbite!.ouvrirBd({
+        id: idCompte,
+      });
+  
+      if (!estUnContrôleurConstellation(bdCompte.access)) return false;
+      const bdCompteValide = (
+        bdCompte.access as ContrôleurConstellation
+      ).estAutorisé(idDispositif);
+  
+      await fOublier();
+      return sigIdValide && sigClefPubliqueValide && bdCompteValide;
+    } catch (e) {
+      return false;
+    }
   }
 
   async faireConfianceAuMembre({
