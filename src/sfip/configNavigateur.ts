@@ -40,7 +40,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       webRTCDirect(),
       webTransport(),
       circuitRelayTransport({
-        discoverRelays: 2,
+        discoverRelays: 4,
       }),
     ],
     connectionEncryption: [noise()],

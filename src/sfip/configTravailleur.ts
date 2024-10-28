@@ -23,7 +23,7 @@ export const obtOptionsLibp2pTravailleurWeb =
         }),
         webTransport(),
         circuitRelayTransport({
-          discoverRelays: 1,
+          discoverRelays: 4,
         }),
       ],
       connectionEncryption: [noise()],

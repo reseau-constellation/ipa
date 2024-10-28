@@ -44,7 +44,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         webRTCDirect(),
         tcp(),
         circuitRelayTransport({
-          discoverRelays: 1,
+          discoverRelays: 4,
         }),
       ],
       connectionEncryption: [noise()],
