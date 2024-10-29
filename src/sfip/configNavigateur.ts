@@ -46,6 +46,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
+    connectionManager: {},
     peerDiscovery: [
       bootstrap({
         list: ADRESSES_NŒUDS_RELAI,

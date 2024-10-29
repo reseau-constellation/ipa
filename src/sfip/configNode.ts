@@ -32,7 +32,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         "/webrtc",
         "/webtransport",
         "/p2p-circuit",
-        // "/webrtc-direct",
+        "/webrtc-direct",
       ],
     },
     transportManager: {
@@ -64,6 +64,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
+    connectionManager: {},
     peerDiscovery: [
       mdns(),
       bootstrap({
