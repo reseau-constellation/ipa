@@ -256,8 +256,8 @@ importers:
         specifier: ^8.11.0
         version: 8.11.0(eslint@9.13.0)(typescript@5.5.4)
       aegir:
-        specifier: ^44.1.4
-        version: 44.1.4(@babel/core@7.26.0)(@typescript-eslint/parser@8.11.0(eslint@9.13.0)(typescript@5.5.4))(eslint-plugin-n@17.11.1(eslint@9.13.0))
+        specifier: ^45.0.0
+        version: 45.0.0(@babel/core@7.26.0)(@typescript-eslint/parser@8.11.0(eslint@9.13.0)(typescript@5.5.4))(eslint-plugin-n@17.11.1(eslint@9.13.0))
       bmp-js:
         specifier: ^0.1.0
         version: 0.1.0
@@ -2674,8 +2674,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  aegir@44.1.4:
-    resolution: {integrity: sha512-ag2aGwR4xKjQOefg/YI/oq20MqDr8rT+ZgOO+GW0H6sffXN6P44EMbe2bPo57gMrSyUFqRNQctOtPNB2DhtApQ==}
+  aegir@45.0.0:
+    resolution: {integrity: sha512-u36UmoxUQtPBWnAbkX3jFQLV+/kBzxXbBqxVdmKyJtvQG3Ytg2BwWLVsjF3YSx6ND69cGfrlicXZWpqA6g8wZA==}
     hasBin: true
 
   agent-base@7.1.1:
@@ -12488,7 +12488,7 @@ snapshots:
 
   acorn@8.14.0: {}
 
-  aegir@44.1.4(@babel/core@7.26.0)(@typescript-eslint/parser@8.11.0(eslint@9.13.0)(typescript@5.5.4))(eslint-plugin-n@17.11.1(eslint@9.13.0)):
+  aegir@45.0.0(@babel/core@7.26.0)(@typescript-eslint/parser@8.11.0(eslint@9.13.0)(typescript@5.5.4))(eslint-plugin-n@17.11.1(eslint@9.13.0)):
     dependencies:
       '@electron/get': 3.1.0
       '@polka/send-type': 0.5.2
