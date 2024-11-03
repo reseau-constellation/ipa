@@ -8,8 +8,8 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { Constellation, créerConstellation } from "@/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
-import {Peer as PBPeer} from "./peer.js"
-import { multiaddr } from '@multiformats/multiaddr'
+import { Peer as PBPeer } from "./peer.js";
+import { multiaddr } from "@multiformats/multiaddr";
 // import { WebRTC } from "@multiformats/multiaddr-matcher";
 
 const attendre = (ms: number) =>
@@ -28,25 +28,31 @@ const attendreConnecté = async ({
       `Advertising with a relay address of ${sfip.libp2p.getMultiaddrs()[0]?.toString()}`,
     );
   });
-  sfip.libp2p.services.pubsub.addEventListener("message", async x=>{
+  sfip.libp2p.services.pubsub.addEventListener("message", async (x) => {
     if (x.detail.topic.includes("_pubsub")) {
-      const adresses = PBPeer.decode(x.detail.data).addrs.map(a=>multiaddr(a).toString());
-      console.log("pubsub : ", x.detail.topic, adresses)
+      const adresses = PBPeer.decode(x.detail.data).addrs.map((a) =>
+        multiaddr(a).toString(),
+      );
+      console.log("pubsub : ", x.detail.topic, adresses);
       for (const a of adresses) {
         try {
           await sfip.libp2p.dial(multiaddr(a));
-          console.log("connecté", a)
+          console.log("connecté", a);
           break;
         } catch (e) {
-          console.log("erreur connection", a, e)
+          console.log("erreur connection", a, e);
         }
       }
     }
-  })
+  });
   await new Promise<void>((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
-      console.log("pairs :", pairs.map((p) => p.toString()), sfip.libp2p.getConnections().map(c=>c.remoteAddr.toString()))
+      console.log(
+        "pairs :",
+        pairs.map((p) => p.toString()),
+        sfip.libp2p.getConnections().map((c) => c.remoteAddr.toString()),
+      );
       const trouvé = pairs.find((p) => p.toString() === idPair);
       if (trouvé) {
         // console.log("trouvé !", idPair, sfip.libp2p.getConnections().map(c=>c.remoteAddr.toString()))

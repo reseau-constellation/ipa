@@ -2103,7 +2103,7 @@ export class Constellation {
     parCompte?: boolean;
   }): Promise<string> {
     if (parCompte) {
-      const idCompte = await this.obtIdCompte()
+      const idCompte = await this.obtIdCompte();
       return `${idCompte.slice(
         idCompte!.length - 23,
         idCompte!.length - 8,
