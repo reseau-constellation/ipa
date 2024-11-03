@@ -10,7 +10,7 @@ importers:
     devDependencies:
       '@lassi-js/kilimukku-vitepress':
         specifier: ^0.1.5
-        version: 0.1.5(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))(postcss@8.4.47)(vitepress@1.4.2(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3))
+        version: 0.1.5(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))(postcss@8.4.47)(vitepress@1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3))
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -27,8 +27,8 @@ importers:
         specifier: ^5.5.3
         version: 5.6.3
       vitepress:
-        specifier: 1.4.2
-        version: 1.4.2(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3)
+        specifier: 1.4.3
+        version: 1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3)
 
 packages:
 
@@ -4877,8 +4877,8 @@ packages:
       terser:
         optional: true
 
-  vitepress@1.4.2:
-    resolution: {integrity: sha512-10v92Lqx0N4r7YC3cQLBvu+gRS2rHviE7vgdKiwlupUGfSWkyiQDqYccxM5iPStDGSi1Brnec1lf+lmhaQcZXw==}
+  vitepress@1.4.3:
+    resolution: {integrity: sha512-956c2K2Mr0ubY9bTc2lCJD3g0mgo0mARB1iJC/BqUt4s0AM8Wl60wSU4zbFnzV7X2miFK1XJDKzGZnuEN90umw==}
     hasBin: true
     peerDependencies:
       markdown-it-mathjax3: ^4
@@ -6812,13 +6812,13 @@ snapshots:
       '@orbitdb/core': 2.3.0
       deepcopy: 2.1.0
 
-  '@lassi-js/kilimukku-vitepress@0.1.5(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))(postcss@8.4.47)(vitepress@1.4.2(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3))':
+  '@lassi-js/kilimukku-vitepress@0.1.5(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))(postcss@8.4.47)(vitepress@1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3))':
     dependencies:
       marked: 12.0.2
       merge-options: 3.0.4
       nuchabal: 3.2.7(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))
       postcss-rtl: 2.0.0(postcss@8.4.47)
-      vitepress: 1.4.2(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3)
+      vitepress: 1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3)
       xml2js: 0.6.2
       yaml: 2.4.5
     transitivePeerDependencies:
@@ -11990,7 +11990,7 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.36.0
 
-  vitepress@1.4.2(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3):
+  vitepress@1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.1)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3):
     dependencies:
       '@docsearch/css': 3.6.2
       '@docsearch/js': 3.6.2(@algolia/client-search@4.24.0)(react@18.2.0)(search-insights@2.13.0)
