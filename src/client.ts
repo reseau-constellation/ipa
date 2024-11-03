@@ -2095,19 +2095,18 @@ export class Constellation {
     return idc.toString() + "/" + nomFichier;
   }
 
-  obtClefStockageClient({
+  async obtClefStockageClient({
     clef,
     parCompte = true,
   }: {
     clef: string;
     parCompte?: boolean;
-  }): string {
+  }): Promise<string> {
     if (parCompte) {
-      // Vérifier que idCompte existe bien si parCompte === true
-      if (!this.idCompte) throw new Error("Erreur initialisation");
-      return `${this.idCompte.slice(
-        this.idCompte!.length - 23,
-        this.idCompte!.length - 8,
+      const idCompte = await this.obtIdCompte()
+      return `${idCompte.slice(
+        idCompte!.length - 23,
+        idCompte!.length - 8,
       )} : ${clef}`;
     }
     return clef;
@@ -2120,7 +2119,7 @@ export class Constellation {
     clef: string;
     parCompte?: boolean;
   }): Promise<string | null> {
-    const clefClient = this.obtClefStockageClient({ clef, parCompte });
+    const clefClient = await this.obtClefStockageClient({ clef, parCompte });
 
     return (await obtStockageLocal(await this.dossier())).getItem(clefClient);
   }
@@ -2134,7 +2133,7 @@ export class Constellation {
     val: string;
     parCompte?: boolean;
   }): Promise<void> {
-    const clefClient = this.obtClefStockageClient({ clef, parCompte });
+    const clefClient = await this.obtClefStockageClient({ clef, parCompte });
     return (await obtStockageLocal(await this.dossier())).setItem(
       clefClient,
       val,
@@ -2148,7 +2147,7 @@ export class Constellation {
     clef: string;
     parCompte: boolean;
   }): Promise<void> {
-    const clefClient = this.obtClefStockageClient({ clef, parCompte });
+    const clefClient = await this.obtClefStockageClient({ clef, parCompte });
 
     return (await obtStockageLocal(await this.dossier())).removeItem(
       clefClient,

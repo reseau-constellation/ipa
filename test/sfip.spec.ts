@@ -34,7 +34,7 @@ const attendreConnecté = async ({
       console.log("pubsub : ", x.detail.topic, adresses)
       for (const a of adresses) {
         try {
-          // await sfip.libp2p.dial(multiaddr(a));
+          await sfip.libp2p.dial(multiaddr(a));
           console.log("connecté", a)
           break;
         } catch (e) {
@@ -108,7 +108,7 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe.only("Connectivité SFIP", function () {
+describe.skip("Connectivité SFIP", function () {
   let idPairNavig: string;
   let idPairNode: string;
 
@@ -138,20 +138,20 @@ describe.only("Connectivité SFIP", function () {
     expect(id).to.be.a("string");
   });
 
-  it("Connexion à un navigateur", async () => {
-    await attendreConnecté({ sfip, idPair: idPairNavig });
-  });
-
   it("Connexion à Node.js", async () => {
     await attendreConnecté({ sfip, idPair: idPairNode });
   });
 
-  it("Gossipsub avec navigateur", async () => {
-    await testerGossipSub({ sfip, idPair: idPairNavig });
-  });
-
   it("GossipSub avec Node.js", async () => {
     await testerGossipSub({ sfip, idPair: idPairNode });
+  });
+
+  it("Connexion à un navigateur", async () => {
+    await attendreConnecté({ sfip, idPair: idPairNavig });
+  });
+
+  it("Gossipsub avec navigateur", async () => {
+    await testerGossipSub({ sfip, idPair: idPairNavig });
   });
 
   it.skip("Ça fonctionne localement hors ligne");
