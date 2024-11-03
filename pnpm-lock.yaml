@@ -326,7 +326,7 @@ importers:
         version: 5.2.0
       keyv:
         specifier: ^5.1.2
-        version: 5.1.2
+        version: 5.1.3
       libp2p:
         specifier: 2.2.1
         version: 2.2.1
@@ -5537,8 +5537,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  keyv@5.1.2:
-    resolution: {integrity: sha512-gOWSYwaPJsBNB8r+ptJDHLgyw7C7YPeta3gDHfn9kEYMgWNGqw2m+GOvfl6V2CsaiuNfxd1LFz7pnXD5KsFU3w==}
+  keyv@5.1.3:
+    resolution: {integrity: sha512-qWefZgq3GByWFTQgn+C9U7iaHe+mwAVb1utqbna15ggTO5RiLSL91NY+5liTgzchAhGhI6MOn5NVVn/eR1FkPA==}
 
   kind-of@3.2.2:
     resolution: {integrity: sha512-NOW9QQXMoZGg/oqnVNoNTTIFEIid1627WCffUBJEdMxYApq7mNE7CpzucIPc+ZQg25Phej7IJSmX3hO+oblOtQ==}
@@ -15648,7 +15648,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  keyv@5.1.2:
+  keyv@5.1.3:
     dependencies:
       '@keyv/serialize': 1.0.1
 
