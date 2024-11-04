@@ -10,7 +10,7 @@ importers:
     devDependencies:
       '@lassi-js/kilimukku-vitepress':
         specifier: ^0.1.5
-        version: 0.1.5(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))(postcss@8.4.47)(vitepress@1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3))
+        version: 0.1.5(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))(postcss@8.4.47)(vitepress@1.4.5(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3))
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -27,8 +27,8 @@ importers:
         specifier: ^5.5.3
         version: 5.6.3
       vitepress:
-        specifier: 1.4.3
-        version: 1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3)
+        specifier: 1.4.5
+        version: 1.4.5(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3)
 
 packages:
 
@@ -220,11 +220,6 @@ packages:
   '@babel/helpers@7.26.0':
     resolution: {integrity: sha512-tbhNuIxNcVb21pInl3ZSjksLCvgdZy9KwJ8brv993QtIVKJBBkYXz4q4ZbAv31GdnC+R90np23L5FbEBlthAEw==}
     engines: {node: '>=6.9.0'}
-
-  '@babel/parser@7.26.1':
-    resolution: {integrity: sha512-reoQYNiAJreZNsJzyrDNzFQ+IQ5JFiIzAHJg9bn94S3l+4++J7RsIhNMoB+lgP/9tpmiAQqspv+xfdxTSzREOw==}
-    engines: {node: '>=6.0.0'}
-    hasBin: true
 
   '@babel/parser@7.26.2':
     resolution: {integrity: sha512-DWMCZH9WA4Maitz2q21SRKHo9QXZxkDsbNZoVD62gusNtNBBqDg9i7uOhASfTfIGNzW+O+r7+jAlM8dwphcJKQ==}
@@ -4893,8 +4888,8 @@ packages:
       terser:
         optional: true
 
-  vitepress@1.4.3:
-    resolution: {integrity: sha512-956c2K2Mr0ubY9bTc2lCJD3g0mgo0mARB1iJC/BqUt4s0AM8Wl60wSU4zbFnzV7X2miFK1XJDKzGZnuEN90umw==}
+  vitepress@1.4.5:
+    resolution: {integrity: sha512-9K0k8kvdEbeowVCpKF/x0AySSq0Pr9pM8xufLgQcKMjsifwxtDjXJjcFhZv4LYw2dcpdYiBq2j7PnWi0tCaMCg==}
     hasBin: true
     peerDependencies:
       markdown-it-mathjax3: ^4
@@ -5391,10 +5386,6 @@ snapshots:
   '@babel/helpers@7.26.0':
     dependencies:
       '@babel/template': 7.25.9
-      '@babel/types': 7.26.0
-
-  '@babel/parser@7.26.1':
-    dependencies:
       '@babel/types': 7.26.0
 
   '@babel/parser@7.26.2':
@@ -6143,7 +6134,7 @@ snapshots:
       it-length-prefixed: 9.1.0
       it-pipe: 3.0.1
       it-pushable: 3.2.3
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       protobufjs: 7.4.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
@@ -6459,7 +6450,7 @@ snapshots:
       it-map: 3.1.1
       it-pipe: 3.0.1
       it-take: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-defer: 4.0.1
       progress-events: 1.0.1
       protons-runtime: 5.5.0
@@ -6486,7 +6477,7 @@ snapshots:
       it-map: 3.1.1
       it-pipe: 3.0.1
       it-take: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-defer: 4.0.1
       progress-events: 1.0.1
       protons-runtime: 5.5.0
@@ -6505,7 +6496,7 @@ snapshots:
       ipfs-bitswap: 20.0.2
       it-filter: 3.1.1
       it-foreach: 2.1.1
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
       uint8arrays: 5.1.0
 
@@ -6521,7 +6512,7 @@ snapshots:
       '@multiformats/multiaddr-to-uri': 10.1.2
       interface-blockstore: 5.3.1
       interface-store: 5.1.8
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
 
   '@helia/block-brokers@4.0.1':
@@ -6536,7 +6527,7 @@ snapshots:
       '@multiformats/multiaddr-to-uri': 10.1.2
       interface-blockstore: 5.3.1
       interface-store: 6.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
 
   '@helia/delegated-routing-v1-http-api-client@1.1.2':
@@ -6582,7 +6573,7 @@ snapshots:
       interface-datastore: 8.3.1
       interface-store: 5.1.8
       ipfs-bitswap: 20.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
 
   '@helia/interface@4.3.1':
@@ -6592,7 +6583,7 @@ snapshots:
       interface-blockstore: 5.3.1
       interface-datastore: 8.3.1
       interface-store: 5.1.8
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
 
   '@helia/interface@5.0.0':
@@ -6602,7 +6593,7 @@ snapshots:
       interface-blockstore: 5.3.1
       interface-datastore: 8.3.1
       interface-store: 6.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
 
   '@helia/routers@2.1.0':
@@ -6615,7 +6606,7 @@ snapshots:
       ipns: 10.0.0
       it-first: 3.0.6
       it-map: 3.1.1
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       uint8arrays: 5.1.0
 
   '@helia/unixfs@3.0.7':
@@ -6635,7 +6626,7 @@ snapshots:
       it-last: 3.0.6
       it-pipe: 3.0.1
       merge-options: 3.0.4
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
       sparse-array: 1.3.2
       uint8arrays: 5.1.0
@@ -6666,7 +6657,7 @@ snapshots:
       it-foreach: 2.1.1
       it-merge: 3.0.5
       mortice: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       murmurhash3js-revisited: 3.0.0
       p-defer: 4.0.1
       progress-events: 1.0.1
@@ -6696,7 +6687,7 @@ snapshots:
       it-foreach: 2.1.1
       it-merge: 3.0.5
       mortice: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       murmurhash3js-revisited: 3.0.0
       p-defer: 4.0.1
       progress-events: 1.0.1
@@ -6724,7 +6715,7 @@ snapshots:
       it-foreach: 2.1.1
       it-merge: 3.0.5
       mortice: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-defer: 4.0.1
       progress-events: 1.0.1
       uint8arrays: 5.1.0
@@ -6739,16 +6730,16 @@ snapshots:
   '@ipld/dag-cbor@9.2.2':
     dependencies:
       cborg: 4.2.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
 
   '@ipld/dag-json@10.2.3':
     dependencies:
       cborg: 4.2.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
 
   '@ipld/dag-pb@4.1.3':
     dependencies:
-      multiformats: 13.1.0
+      multiformats: 13.3.1
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -6838,13 +6829,13 @@ snapshots:
       '@orbitdb/core': 2.4.3
       deepcopy: 2.1.0
 
-  '@lassi-js/kilimukku-vitepress@0.1.5(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))(postcss@8.4.47)(vitepress@1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3))':
+  '@lassi-js/kilimukku-vitepress@0.1.5(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))(postcss@8.4.47)(vitepress@1.4.5(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3))':
     dependencies:
       marked: 12.0.2
       merge-options: 3.0.4
       nuchabal: 3.2.7(@constl/ipa@1.0.12(react-native@0.74.1(@babel/core@7.26.0)(@babel/preset-env@7.24.5(@babel/core@7.26.0))(react@18.2.0)))
       postcss-rtl: 2.0.0(postcss@8.4.47)
-      vitepress: 1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3)
+      vitepress: 1.4.5(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3)
       xml2js: 0.6.2
       yaml: 2.4.5
     transitivePeerDependencies:
@@ -6912,7 +6903,7 @@ snapshots:
       any-signal: 4.1.1
       it-protobuf-stream: 1.1.5
       it-stream-types: 2.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-defer: 4.0.1
       progress-events: 1.0.1
       protons-runtime: 5.5.0
@@ -6934,7 +6925,7 @@ snapshots:
       any-signal: 4.1.1
       it-protobuf-stream: 1.1.5
       it-stream-types: 2.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       nanoid: 5.0.8
       progress-events: 1.0.1
       protons-runtime: 5.5.0
@@ -6970,7 +6961,7 @@ snapshots:
       '@noble/curves': 1.6.0
       '@noble/hashes': 1.5.0
       asn1js: 3.0.5
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       protons-runtime: 5.5.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
@@ -6981,7 +6972,7 @@ snapshots:
       '@noble/curves': 1.6.0
       '@noble/hashes': 1.5.0
       asn1js: 3.0.5
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       protons-runtime: 5.5.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
@@ -7118,7 +7109,7 @@ snapshots:
       '@multiformats/multiaddr': 12.3.1
       it-pushable: 3.2.3
       it-stream-types: 2.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
       uint8arraylist: 2.4.8
 
@@ -7127,7 +7118,7 @@ snapshots:
       '@multiformats/multiaddr': 12.3.1
       it-pushable: 3.2.3
       it-stream-types: 2.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
       uint8arraylist: 2.4.8
 
@@ -7155,7 +7146,7 @@ snapshots:
       it-pipe: 3.0.1
       it-protobuf-stream: 1.1.5
       it-take: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-defer: 4.0.1
       p-event: 6.0.1
       p-queue: 8.0.1
@@ -7188,7 +7179,7 @@ snapshots:
       it-protobuf-stream: 1.1.5
       it-take: 3.0.6
       mortice: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-defer: 4.0.1
       p-event: 6.0.1
       progress-events: 1.0.1
@@ -7205,7 +7196,7 @@ snapshots:
       '@libp2p/peer-id': 4.2.4
       interface-datastore: 8.3.1
       merge-options: 3.0.4
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       sanitize-filename: 1.6.3
       uint8arrays: 5.1.0
 
@@ -7246,7 +7237,7 @@ snapshots:
       '@libp2p/interface': 1.7.0
       '@multiformats/multiaddr': 12.3.1
       interface-datastore: 8.3.1
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       weald: 1.0.4
 
   '@libp2p/logger@5.1.3':
@@ -7254,7 +7245,7 @@ snapshots:
       '@libp2p/interface': 2.2.0
       '@multiformats/multiaddr': 12.3.1
       interface-datastore: 8.3.1
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       weald: 1.0.4
 
   '@libp2p/mdns@10.1.5':
@@ -7356,14 +7347,14 @@ snapshots:
   '@libp2p/peer-id@4.2.4':
     dependencies:
       '@libp2p/interface': 1.7.0
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       uint8arrays: 5.1.0
 
   '@libp2p/peer-id@5.0.7':
     dependencies:
       '@libp2p/crypto': 5.0.6
       '@libp2p/interface': 2.2.0
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       uint8arrays: 5.1.0
 
   '@libp2p/peer-record@7.0.25':
@@ -7401,7 +7392,7 @@ snapshots:
       interface-datastore: 8.3.1
       it-all: 3.0.6
       mortice: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       protons-runtime: 5.5.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
@@ -7416,7 +7407,7 @@ snapshots:
       interface-datastore: 8.3.1
       it-all: 3.0.6
       mortice: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       protons-runtime: 5.5.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
@@ -7461,7 +7452,7 @@ snapshots:
       it-length-prefixed: 9.1.0
       it-pipe: 3.0.1
       it-pushable: 3.2.3
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-queue: 8.0.1
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
@@ -7593,7 +7584,7 @@ snapshots:
       it-protobuf-stream: 1.1.5
       it-pushable: 3.2.3
       it-stream-types: 2.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       node-datachannel: 0.11.0
       p-defer: 4.0.1
       p-event: 6.0.1
@@ -7624,7 +7615,7 @@ snapshots:
       it-protobuf-stream: 1.1.5
       it-pushable: 3.2.3
       it-stream-types: 2.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       node-datachannel: 0.11.0
       p-defer: 4.0.1
       p-event: 6.0.1
@@ -7685,7 +7676,7 @@ snapshots:
       '@multiformats/multiaddr': 12.3.1
       '@multiformats/multiaddr-matcher': 1.4.0
       it-stream-types: 2.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
       race-signal: 1.1.0
       uint8arraylist: 2.4.8
@@ -7700,7 +7691,7 @@ snapshots:
       '@multiformats/multiaddr': 12.3.1
       '@multiformats/multiaddr-matcher': 1.4.0
       it-stream-types: 2.0.2
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
       race-signal: 1.1.0
       uint8arraylist: 2.4.8
@@ -7788,7 +7779,7 @@ snapshots:
     dependencies:
       '@chainsafe/is-ip': 2.0.2
       '@multiformats/multiaddr': 12.3.1
-      multiformats: 13.1.0
+      multiformats: 13.3.1
 
   '@multiformats/multiaddr-to-uri@10.1.2':
     dependencies:
@@ -7809,13 +7800,13 @@ snapshots:
       '@chainsafe/is-ip': 2.0.2
       '@chainsafe/netmask': 2.0.0
       '@multiformats/dns': 1.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       uint8-varint: 2.0.4
       uint8arrays: 5.1.0
 
   '@multiformats/murmur3@2.1.8':
     dependencies:
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       murmurhash3js-revisited: 3.0.0
 
   '@multiformats/uri-to-multiaddr@8.0.0':
@@ -8537,7 +8528,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.12':
     dependencies:
-      '@babel/parser': 7.26.1
+      '@babel/parser': 7.26.2
       '@vue/shared': 3.5.12
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -8550,7 +8541,7 @@ snapshots:
 
   '@vue/compiler-sfc@3.5.12':
     dependencies:
-      '@babel/parser': 7.26.1
+      '@babel/parser': 7.26.2
       '@vue/compiler-core': 3.5.12
       '@vue/compiler-dom': 3.5.12
       '@vue/compiler-ssr': 3.5.12
@@ -8850,7 +8841,7 @@ snapshots:
       it-filter: 3.1.1
       it-merge: 3.0.5
       it-pushable: 3.2.3
-      multiformats: 13.1.0
+      multiformats: 13.3.1
 
   blockstore-core@5.0.2:
     dependencies:
@@ -8869,7 +8860,7 @@ snapshots:
       interface-blockstore: 5.3.1
       interface-store: 5.1.8
       level: 8.0.1
-      multiformats: 13.1.0
+      multiformats: 13.3.1
 
   brace-expansion@1.1.11:
     dependencies:
@@ -9699,7 +9690,7 @@ snapshots:
       it-drain: 3.0.7
       libp2p: 1.9.4
       mortice: 3.0.6
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
       uint8arrays: 5.1.0
     transitivePeerDependencies:
@@ -9743,7 +9734,7 @@ snapshots:
       interface-datastore: 8.3.1
       ipns: 10.0.0
       libp2p: 2.2.1
-      multiformats: 13.1.0
+      multiformats: 13.3.1
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -9862,7 +9853,7 @@ snapshots:
       it-pipe: 3.0.1
       it-take: 3.0.6
       just-debounce-it: 3.2.0
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       progress-events: 1.0.1
       protons-runtime: 5.5.0
       timeout-abort-controller: 3.0.0
@@ -9955,7 +9946,7 @@ snapshots:
       cborg: 4.2.6
       err-code: 3.0.1
       interface-datastore: 8.3.1
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       protons-runtime: 5.5.0
       timestamp-nano: 1.0.1
       uint8arraylist: 2.4.8
@@ -10395,7 +10386,7 @@ snapshots:
       it-merge: 3.0.5
       it-parallel: 3.0.8
       merge-options: 3.0.4
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-defer: 4.0.1
       progress-events: 1.0.1
       race-event: 1.3.0
@@ -10423,7 +10414,7 @@ snapshots:
       it-merge: 3.0.5
       it-parallel: 3.0.8
       merge-options: 3.0.4
-      multiformats: 13.1.0
+      multiformats: 13.3.1
       p-defer: 4.0.1
       p-retry: 6.2.0
       progress-events: 1.0.1
@@ -12020,7 +12011,7 @@ snapshots:
       fsevents: 2.3.3
       terser: 5.36.0
 
-  vitepress@1.4.3(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3):
+  vitepress@1.4.5(@algolia/client-search@4.24.0)(@types/node@22.8.7)(axios@1.7.7)(postcss@8.4.47)(react@18.2.0)(search-insights@2.13.0)(terser@5.36.0)(typescript@5.6.3):
     dependencies:
       '@docsearch/css': 3.6.2
       '@docsearch/js': 3.6.2(@algolia/client-search@4.24.0)(react@18.2.0)(search-insights@2.13.0)
@@ -12150,7 +12141,7 @@ snapshots:
 
   wide-align@1.1.5:
     dependencies:
-      string-width: 1.0.2
+      string-width: 4.2.3
 
   wrap-ansi@6.2.0:
     dependencies:
