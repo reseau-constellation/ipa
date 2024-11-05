@@ -54,7 +54,15 @@ export async function initSFIP({
       ...config,
     }),
   )) as Libp2p<DefaultLibp2pServices>;
-  // libp2p.addEventListener("peer:discovery", x=>console.log("découverte", x.detail.id.toString(), x.detail.multiaddrs.map(m=>m.toString())))
+
+  // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
+  libp2p.addEventListener("peer:discovery", async (x) => {
+    try {
+      await libp2p.dial(x.detail.id);
+    } catch {
+      // Tant pis...
+    }
+  });
   const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
 
   const optionsHelia = {

@@ -53,7 +53,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
         timeout: 0,
       }),
       pubsubPeerDiscovery({
-        interval: 10000,
+        interval: 1000,
         topics: ["constellation._peer-discovery._p2p._pubsub"], // par défaut : ['_peer-discovery._p2p._pubsub']
         listenOnly: false,
       }),

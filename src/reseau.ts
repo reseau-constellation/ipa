@@ -294,7 +294,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     };
 
     const événements: (keyof Libp2pEvents)[] = [
-      // "peer:discovery",
       "peer:connect",
       "peer:disconnect",
     ];
