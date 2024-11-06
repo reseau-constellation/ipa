@@ -19,7 +19,6 @@ const attendreConnecté = async ({
   sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
   idPair: string;
 }) => {
-
   await new Promise<void>((résoudre) => {
     const vérifierConnecté = () => {
       const pairs = sfip.libp2p.getPeers();
