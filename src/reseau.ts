@@ -3,7 +3,7 @@ import { isValidAddress } from "@orbitdb/core";
 import type { Libp2pEvents } from "@libp2p/interface";
 
 import { EventEmitter } from "events";
-import sum from "lodash/sum.js";
+import {sum} from "lodash-es";
 import Semaphore from "@chriscdn/promise-semaphore";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";

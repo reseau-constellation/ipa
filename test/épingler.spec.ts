@@ -1,5 +1,4 @@
-import pkg from "lodash";
-const { isSet } = pkg;
+import { isSet } from "lodash-es";
 
 import { créerConstellation, type Constellation } from "@/index.js";
 

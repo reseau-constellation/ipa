@@ -17,8 +17,8 @@ const { créerConstellationsTest } = utilsTestConstellation;
 import { isElectronMain, isNode } from "wherearewe";
 import { donnéesNuéeExportation } from "@/nuées.js";
 import { règleColonne } from "@/valid.js";
-import pkg from "lodash";
-const { isSet } = pkg;
+import { isSet } from "lodash-es";
+
 import { obtRessourceTest } from "./ressources/index.js";
 import { attendreStabilité } from "@constl/utils-ipa";
 

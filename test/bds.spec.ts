@@ -2,8 +2,7 @@ import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
 
-import pkg from "lodash";
-const { isSet } = pkg;
+import { isSet } from "lodash-es";
 
 import {
   constellation as utilsTestConstellation,
