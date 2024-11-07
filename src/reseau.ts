@@ -1,10 +1,11 @@
 import { isValidAddress } from "@orbitdb/core";
 
-import type { Libp2pEvents } from "@libp2p/interface";
+import type { Libp2pEvents, PeerUpdate } from "@libp2p/interface";
 
 import { EventEmitter } from "events";
 import { sum } from "lodash-es";
 import Semaphore from "@chriscdn/promise-semaphore";
+import { multiaddr } from "@multiformats/multiaddr";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
@@ -322,13 +323,40 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
   }
 
+  async suivreMesAdresses({
+    f,
+  }: {
+    f: schémaFonctionSuivi<string[]>;
+  }): Promise<schémaFonctionOublier> {
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+    const adressesActuelles = sfip.libp2p
+      .getMultiaddrs()
+      .map((a) => a.toString());
+    await f(adressesActuelles);
+
+    const fSuivi = async (é: CustomEvent<PeerUpdate>) => {
+      const adresses = é.detail.peer.addresses.map((a) =>
+        a.multiaddr.toString(),
+      );
+      await f(adresses);
+    };
+    sfip.libp2p.addEventListener("self:peer:update", fSuivi);
+    return async () =>
+      sfip.libp2p.removeEventListener("self:peer:update", fSuivi);
+  }
+
+  async connecterÀAdresse({ adresse }: { adresse: string }) {
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+    await sfip.libp2p.dial(multiaddr(adresse));
+  }
+
   async envoyerMessageAuDispositif({
     msg,
     idSFIP,
   }: {
     msg: Message;
     idSFIP?: string;
-  }): Promise<void> {
+  }) {
     if (idSFIP) {
       msg.destinataire = idSFIP;
     }
