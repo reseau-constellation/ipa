@@ -11,7 +11,7 @@ const dossier = isBrowser
     : "./testSfip";
 
 initSFIP({ dossier, configLibp2p: {} }).then(async (sfip) => {
-  // Important ! Ne pas effacer cet appel à `console.log` 
+  // Important ! Ne pas effacer cet appel à `console.log`
   console.log(
     "SFIP initialisé avec id de nœud :",
     sfip.libp2p.peerId.toString(),

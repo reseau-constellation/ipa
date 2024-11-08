@@ -80,7 +80,7 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe.skip("Connectivité SFIP", function () {
+describe.only("Connectivité SFIP", function () {
   let idPairNavig: string;
   let idPairNode: string;
 
