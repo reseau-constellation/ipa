@@ -9,7 +9,7 @@ import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
+import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 
 export const obtOptionsLibp2pTravailleurWeb =
   async (): Promise<Libp2pOptions> => {
@@ -31,7 +31,7 @@ export const obtOptionsLibp2pTravailleurWeb =
       },
       peerDiscovery: [
         bootstrap({
-          list: ADRESSES_NŒUDS_RELAI,
+          list: ADRESSES_NŒUDS_INITIAUX,
           timeout: 0,
         }),
       ],
