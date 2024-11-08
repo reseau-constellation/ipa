@@ -9,7 +9,7 @@ import { yamux } from "@chainsafe/libp2p-yamux";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import type { Libp2pOptions } from "libp2p";
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
+import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { autoNAT } from "@libp2p/autonat";
 import { dcutr } from "@libp2p/dcutr";
@@ -58,7 +58,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
       peerDiscovery: [
         mdns(),
         bootstrap({
-          list: ADRESSES_NŒUDS_RELAI,
+          list: ADRESSES_NŒUDS_INITIAUX,
           timeout: 0,
         }),
         pubsubPeerDiscovery({

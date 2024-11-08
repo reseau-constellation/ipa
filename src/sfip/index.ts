@@ -17,10 +17,11 @@ import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
+import * as consts from './const.js';
 
 export type ServicesLibp2p = DefaultLibp2pServices & { pubsub: GossipSub };
 
-const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
+export const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
   if (isBrowser || isElectronRenderer) {
     // À faire - migrer vers travailleur ?
@@ -75,3 +76,11 @@ export async function initSFIP({
     Libp2p<ServicesLibp2p>
   >;
 }
+
+export {
+  obtOptionsLibp2pNavigateur,
+  obtOptionsLibp2pNode,
+  obtOptionsLibp2pÉlectionPrincipal,
+  obtOptionsLibp2pTravailleurWeb,
+  consts,
+};

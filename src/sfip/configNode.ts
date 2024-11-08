@@ -15,7 +15,7 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 // import { kadDHT } from "@libp2p/kad-dht";
 import type { Libp2pOptions } from "libp2p";
 
-import { ADRESSES_NŒUDS_RELAI } from "./const.js";
+import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import { FaultTolerance } from "@libp2p/interface";
 
 export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
@@ -68,7 +68,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
     peerDiscovery: [
       mdns(),
       bootstrap({
-        list: ADRESSES_NŒUDS_RELAI,
+        list: ADRESSES_NŒUDS_INITIAUX,
         timeout: 0,
       }),
       pubsubPeerDiscovery({
