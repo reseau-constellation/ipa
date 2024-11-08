@@ -1,33 +1,53 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": [
+    "config:recommended"
+  ],
   "packageRules": [
     {
-      "matchDepTypes": ["devDependencies"],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
       "automerge": true
     },
     {
-      "matchUpdateTypes": ["minor", "patch"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
     },
     {
-      "matchPackagePatterns": ["^actions/"],
-      "automerge": true
+      "automerge": true,
+      "matchPackageNames": [
+        "/^actions//"
+      ]
     },
     {
       "description": "Regrouper les librairies @constl.",
       "groupName": "Constellation",
       "groupSlug": "constellation-node",
-      "matchDatasources": ["npm"],
-      "matchPackageNames": ["@constl/**"]
+      "matchDatasources": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "@constl/**"
+      ]
     },
     {
       "description": "Regrouper les librairies @libp2p et Helia.",
       "groupName": "Libp2p et Helia",
       "groupSlug": "libp2p-helia-node",
-      "matchDatasources": ["npm"],
-      "matchPackageNames": ["@libp2p/**", "@chainsafe/**", "libp2p", "helia"]
+      "matchDatasources": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "@libp2p/**",
+        "@chainsafe/**",
+        "libp2p",
+        "helia"
+      ]
     }
   ]
 }
