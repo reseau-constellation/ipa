@@ -320,7 +320,7 @@ importers:
         version: 5.2.0
       keyv:
         specifier: ^5.1.3
-        version: 5.1.3
+        version: 5.2.0
       libp2p:
         specifier: 2.2.1
         version: 2.2.1
@@ -1842,6 +1842,9 @@ packages:
 
   '@multiformats/multiaddr-matcher@1.5.0':
     resolution: {integrity: sha512-nA6lJpzjN1TZ1G9BM5QoVIBspbnPxnlVbJMvvaAR992K0t3G5c5vKCEMuUzanAE5VRrJ1MXHDhHonTeKoT/eTg==}
+
+  '@multiformats/multiaddr-matcher@1.5.1':
+    resolution: {integrity: sha512-ra/2CA7G3/ZDZHvRSidsxhwwbdm2aavgYhc/8yi08CvRtIdeLrtlOyRReG3hww4W0G3M6/vfxcSBMzVv+ei68A==}
 
   '@multiformats/multiaddr-to-uri@10.1.2':
     resolution: {integrity: sha512-6sicfYRjJlHJn4bwsQancs8kXncWU4dDN/+V9sMVTYp9hi8ovWgVkK75AbAv4SfhztmmI+oufVUncQ1n+SukKQ==}
@@ -5515,8 +5518,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  keyv@5.1.3:
-    resolution: {integrity: sha512-qWefZgq3GByWFTQgn+C9U7iaHe+mwAVb1utqbna15ggTO5RiLSL91NY+5liTgzchAhGhI6MOn5NVVn/eR1FkPA==}
+  keyv@5.2.0:
+    resolution: {integrity: sha512-LKtKPS5JVvm6DQrd/9JN7RTGzT9s0XMiS5l02fm0cCgnhUTa7O/fmXNa9+TmeWBsSV4KiZCOt5VKt6mhplG1RQ==}
 
   kind-of@3.2.2:
     resolution: {integrity: sha512-NOW9QQXMoZGg/oqnVNoNTTIFEIid1627WCffUBJEdMxYApq7mNE7CpzucIPc+ZQg25Phej7IJSmX3hO+oblOtQ==}
@@ -9581,7 +9584,7 @@ snapshots:
       '@libp2p/webtransport': 5.0.16
       '@localfirst/auth': 5.6.0
       '@localfirst/crypto': 5.6.0
-      '@multiformats/multiaddr-matcher': 1.5.0
+      '@multiformats/multiaddr-matcher': 1.5.1
       '@orbitdb/core': 2.4.3
       '@orbitdb/feed-db': 1.1.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
       '@orbitdb/ordered-keyvalue-db': 1.1.0(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
@@ -10791,6 +10794,12 @@ snapshots:
       '@multiformats/multiaddr': 12.3.1
 
   '@multiformats/multiaddr-matcher@1.5.0':
+    dependencies:
+      '@chainsafe/is-ip': 2.0.2
+      '@multiformats/multiaddr': 12.3.1
+      multiformats: 13.3.1
+
+  '@multiformats/multiaddr-matcher@1.5.1':
     dependencies:
       '@chainsafe/is-ip': 2.0.2
       '@multiformats/multiaddr': 12.3.1
@@ -15597,7 +15606,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  keyv@5.1.3:
+  keyv@5.2.0:
     dependencies:
       '@keyv/serialize': 1.0.1
 
