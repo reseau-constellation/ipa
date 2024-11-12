@@ -81,8 +81,8 @@ importers:
         specifier: ^5.0.16
         version: 5.0.16
       '@localfirst/auth':
-        specifier: ^5.6.0
-        version: 5.6.0
+        specifier: ^6.0.0
+        version: 6.0.0
       '@localfirst/crypto':
         specifier: ^6.0.0
         version: 6.0.0
@@ -1794,8 +1794,16 @@ packages:
     resolution: {integrity: sha512-4nNEZ/xCYLtr9SA8GHz4Xdt+LPk1ZZsulNK2vJoO/Gy6IWIPeWuk9zKdpa1m3EhlbVw5L9xhj7ncUXAZEbmWRw==}
     engines: {node: '>=18'}
 
+  '@localfirst/auth@6.0.0':
+    resolution: {integrity: sha512-qEs0bhVKV9c1VnzWErRYk6j3DcM3CqAuNAj4DR3dZzBc6tGEYkPvzB6CpoOAxlz/i7U77SGFkvT9BWfk22zreQ==}
+    engines: {node: '>=18'}
+
   '@localfirst/crdx@5.6.0':
     resolution: {integrity: sha512-o2UPeS9lpSgZfwTCo7VRzbghVzyXxA/qf4sG6sMuVBSuG+QhsJUjVT7r/WVWuCyw9gjTC3pOHfDL37wKXbuqug==}
+    engines: {node: '>=18'}
+
+  '@localfirst/crdx@6.0.0':
+    resolution: {integrity: sha512-uuQ6G1WlubO6fMTwMai0Iysf2Qye8ojB4b6DEbxZESeSErdrjkBFQd7YRj9WihLFagTF6jvg/58OSLjE3I7KdQ==}
     engines: {node: '>=18'}
 
   '@localfirst/crypto@5.6.0':
@@ -10749,11 +10757,36 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@localfirst/auth@6.0.0':
+    dependencies:
+      '@herbcaudill/eventemitter42': 0.3.3
+      '@localfirst/crdx': 6.0.0
+      '@localfirst/crypto': 6.0.0
+      '@localfirst/shared': 6.0.0
+      '@paralleldrive/cuid2': 2.2.2
+      lodash-es: 4.17.21
+      msgpackr: 1.11.2
+      xstate: 5.18.2
+    transitivePeerDependencies:
+      - supports-color
+
   '@localfirst/crdx@5.6.0':
     dependencies:
       '@herbcaudill/eventemitter42': 0.3.3
       '@localfirst/crypto': 5.6.0
       '@localfirst/shared': 5.6.0
+      '@paralleldrive/cuid2': 2.2.2
+      '@types/lodash-es': 4.17.12
+      lodash-es: 4.17.21
+      msgpackr: 1.11.2
+    transitivePeerDependencies:
+      - supports-color
+
+  '@localfirst/crdx@6.0.0':
+    dependencies:
+      '@herbcaudill/eventemitter42': 0.3.3
+      '@localfirst/crypto': 6.0.0
+      '@localfirst/shared': 6.0.0
       '@paralleldrive/cuid2': 2.2.2
       '@types/lodash-es': 4.17.12
       lodash-es: 4.17.21
