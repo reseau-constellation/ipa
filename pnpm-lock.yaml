@@ -84,8 +84,8 @@ importers:
         specifier: ^5.6.0
         version: 5.6.0
       '@localfirst/crypto':
-        specifier: ^5.6.0
-        version: 5.6.0
+        specifier: ^6.0.0
+        version: 6.0.0
       '@multiformats/multiaddr-matcher':
         specifier: ^1.5.0
         version: 1.5.1
@@ -1802,8 +1802,15 @@ packages:
     resolution: {integrity: sha512-dH7GXwCdxet9T+O5gLOHZIn44PzGYRC9feVyLK/ue9u4grMsiYQOpaeTbj04wUD0YZAqqdFOnd+Bxc45M5DYag==}
     engines: {node: '>=18'}
 
+  '@localfirst/crypto@6.0.0':
+    resolution: {integrity: sha512-hlZfry2BilI2F2KTp0m700gub9Y39Zh7Ba4guxA5BAIiIYaDIfACkEl912xSajN07CXc2SKhmTKNmfZvHlM8vg==}
+    engines: {node: '>=18'}
+
   '@localfirst/shared@5.6.0':
     resolution: {integrity: sha512-wf13QnH8ePYccpewQ4oWv/lY2E1eVAA8XDALf8+jyb7+YGfmKFDKRT/QBAvu5T0wfeg9JbYQT79UMOWRSkvX5A==}
+
+  '@localfirst/shared@6.0.0':
+    resolution: {integrity: sha512-qYl4SNbXBN4NIrWnskeTwGMkWI90vq+uhIO7AfUY4yoYtLoG+nyo352npX8xB8/aeEGVyR8rXXJu6bCsmnnxUw==}
 
   '@mrmlnc/readdir-enhanced@2.2.1':
     resolution: {integrity: sha512-bPHp6Ji8b41szTOcaP63VlnbbO5Ny6dwAATtY6JTjh5N2OLrb5Qk/Th5cRkRQhkWCt+EJsYrNB0MiL+Gpn6e3g==}
@@ -10765,7 +10772,28 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@localfirst/crypto@6.0.0':
+    dependencies:
+      '@localfirst/shared': 6.0.0
+      '@types/lodash-es': 4.17.12
+      bs58: 5.0.0
+      libsodium-wrappers-sumo: 0.7.15
+      lodash-es: 4.17.21
+      msgpackr: 1.11.2
+    transitivePeerDependencies:
+      - supports-color
+
   '@localfirst/shared@5.6.0':
+    dependencies:
+      '@herbcaudill/eventemitter42': 0.3.3
+      cd: 0.3.3
+      debug: 4.3.7(supports-color@8.1.1)
+      eventemitter3: 5.0.1
+      lodash-es: 4.17.21
+    transitivePeerDependencies:
+      - supports-color
+
+  '@localfirst/shared@6.0.0':
     dependencies:
       '@herbcaudill/eventemitter42': 0.3.3
       cd: 0.3.3
