@@ -48,12 +48,10 @@ export async function initSFIP({
   dossier: string;
   configLibp2p?: Libp2pOptions;
 }): Promise<HeliaLibp2p<Libp2p<ServicesLibp2p>>> {
-  const config = await obtConfigLibp2pPlateforme();
+  const configParDéfaut = await obtConfigLibp2pPlateforme();
 
   const libp2p = (await createLibp2p(
-    mergeOptions(configLibp2p, {
-      ...config,
-    }),
+    mergeOptions(configParDéfaut, configLibp2p),
   )) as Libp2p<DefaultLibp2pServices>;
 
   // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
