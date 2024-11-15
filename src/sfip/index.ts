@@ -16,7 +16,6 @@ import {
 } from "helia";
 import { FsDatastore } from "datastore-fs";
 import { IDBDatastore } from "datastore-idb";
-import { FsBlockstore } from "blockstore-fs";
 import { IDBBlockstore } from "blockstore-idb";
 import { bitswap } from "@helia/block-brokers";
 import { Libp2p, createLibp2p, type Libp2pOptions } from "libp2p";
@@ -75,7 +74,7 @@ export async function initSFIP({
 
   const stockageBloques = isBrowser
     ? new IDBBlockstore(dossierBloques)
-    : new FsBlockstore(dossierBloques);
+    : new (await import("blockstore-fs")).FsBlockstore(dossierBloques);
   const stockageDonnées = isBrowser
     ? new IDBDatastore(dossierDonnées)
     : new FsDatastore(dossierDonnées);
