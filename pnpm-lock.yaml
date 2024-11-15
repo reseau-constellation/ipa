@@ -110,7 +110,10 @@ importers:
       axios:
         specifier: ^1.7.7
         version: 1.7.7
-      blockstore-level:
+      blockstore-fs:
+        specifier: ^2.0.2
+        version: 2.0.2
+      blockstore-idb:
         specifier: ^2.0.1
         version: 2.0.1
       browser-fs-access:
@@ -122,9 +125,12 @@ importers:
       crypto-js:
         specifier: ^4.2.0
         version: 4.2.0
-      datastore-level:
-        specifier: ^11.0.1
-        version: 11.0.1
+      datastore-fs:
+        specifier: ^10.0.2
+        version: 10.0.2
+      datastore-idb:
+        specifier: ^3.0.1
+        version: 3.0.1
       deep-equal:
         specifier: ^2.2.3
         version: 2.2.3
@@ -2956,6 +2962,12 @@ packages:
   blockstore-core@5.0.2:
     resolution: {integrity: sha512-y7/BHdYLO3YCpJMg6Ue7b4Oz4FT1HWSZoHHdlsaJTsvoE8XieXb6kUCB9UkkUBDw2x4neRDwlgYBpyK77+Ro2Q==}
 
+  blockstore-fs@2.0.2:
+    resolution: {integrity: sha512-g4l4cJZqcLGPD+iOSb9DYWClAiSSGKsN7V13PTZYqQFHeg96phG15jNi9ql3urrlVC/OTzPB95FXK+GP0TX8Tw==}
+
+  blockstore-idb@2.0.1:
+    resolution: {integrity: sha512-dDoiEILLn0BaL5YMHTJW25XeEtSA8HV7yiUb/UMVFqdBHvvdSCuQnSbi0S5CMG/cc78ZkNaWG4Te4SfOL66UvQ==}
+
   blockstore-level@2.0.1:
     resolution: {integrity: sha512-qnnJFVfXioaCPFcc7lQZAPKAHytIqk2yIZJg9Mt58WhaQumvw3j8WZa4QYYbauUxA0FPysWU0cTXa9Njo4JdHg==}
 
@@ -3532,8 +3544,11 @@ packages:
   datastore-core@10.0.2:
     resolution: {integrity: sha512-B3WXxI54VxJkpXxnYibiF17si3bLXE1XOjrJB7wM5co9fx2KOEkiePDGiCCEtnapFHTnmAnYCPdA7WZTIpdn/A==}
 
-  datastore-level@11.0.1:
-    resolution: {integrity: sha512-mOcQTgSJL1bp6tM1F2WzpytIPX96i3SlshaFqEBhlAP6yLMjLgw8cVhHaWpR+wJ+tsLGjAKcKOSwecfgGvEoww==}
+  datastore-fs@10.0.2:
+    resolution: {integrity: sha512-Jk4mCsahcqDry5JhiH+S6V3GYbET4J9B13zNWlxmCHWoCVnGN+13RneT8jLBOgwOj3/TMLAzE/YhE5OuQqNfgA==}
+
+  datastore-idb@3.0.1:
+    resolution: {integrity: sha512-JY+mqFXadONjFDdcJCokAg0Tn5zOxpl3Rk3QB/vWyRRu+lQW5vUmXf1BsNStqtJAB/p3FlwmlQZz900xy1AhgA==}
 
   date-fns@1.30.1:
     resolution: {integrity: sha512-hBSVCvSmWC+QypYObzwGOd9wqdDpOt+0wl0KbU+R+uuZBS1jN8VsD1ss3irQDknRj5NvxiTF6oj/nDRnN/UQNw==}
@@ -4844,6 +4859,9 @@ packages:
 
   idb-wrapper@1.7.2:
     resolution: {integrity: sha512-zfNREywMuf0NzDo9mVsL0yegjsirJxHpKHvWcyRozIqQy89g0a3U+oBPOCN4cc0oCiOuYgZHimzaW/R46G1Mpg==}
+
+  idb@8.0.0:
+    resolution: {integrity: sha512-l//qvlAKGmQO31Qn7xdzagVPPaHTxXx199MhrAFuVBTPqydcPYBWjkrbv4Y0ktB+GmWOiwHl237UUOrLmQxLvw==}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -7666,6 +7684,10 @@ packages:
 
   stdin-discarder@0.2.2:
     resolution: {integrity: sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==}
+    engines: {node: '>=18'}
+
+  steno@4.0.2:
+    resolution: {integrity: sha512-yhPIQXjrlt1xv7dyPQg2P17URmXbuM5pdGkpiMB3RenprfiBlvK415Lctfe0eshk90oA7/tNq7WEiMK8RSP39A==}
     engines: {node: '>=18'}
 
   stop-iteration-iterator@1.0.0:
@@ -12436,6 +12458,24 @@ snapshots:
       it-pushable: 3.2.3
       multiformats: 13.3.1
 
+  blockstore-fs@2.0.2:
+    dependencies:
+      interface-blockstore: 5.3.1
+      interface-store: 6.0.2
+      it-glob: 3.0.1
+      it-map: 3.1.1
+      it-parallel-batch: 3.0.6
+      multiformats: 13.3.1
+      steno: 4.0.2
+
+  blockstore-idb@2.0.1:
+    dependencies:
+      blockstore-core: 5.0.2
+      idb: 8.0.0
+      interface-blockstore: 5.3.1
+      interface-store: 6.0.2
+      multiformats: 13.3.1
+
   blockstore-level@2.0.1:
     dependencies:
       blockstore-core: 5.0.2
@@ -13152,16 +13192,24 @@ snapshots:
       it-sort: 3.0.6
       it-take: 3.0.6
 
-  datastore-level@11.0.1:
+  datastore-fs@10.0.2:
     dependencies:
       datastore-core: 10.0.2
       interface-datastore: 8.3.1
       interface-store: 6.0.2
-      it-filter: 3.1.1
+      it-glob: 3.0.1
       it-map: 3.1.1
+      it-parallel-batch: 3.0.6
+      steno: 4.0.2
+
+  datastore-idb@3.0.1:
+    dependencies:
+      datastore-core: 10.0.2
+      idb: 8.0.0
+      interface-datastore: 8.3.1
+      interface-store: 6.0.2
+      it-filter: 3.1.1
       it-sort: 3.0.6
-      it-take: 3.0.6
-      level: 8.0.1
 
   date-fns@1.30.1: {}
 
@@ -14957,6 +15005,8 @@ snapshots:
       safer-buffer: 2.1.2
 
   idb-wrapper@1.7.2: {}
+
+  idb@8.0.0: {}
 
   ieee754@1.2.1: {}
 
@@ -18410,6 +18460,8 @@ snapshots:
   statuses@2.0.1: {}
 
   stdin-discarder@0.2.2: {}
+
+  steno@4.0.2: {}
 
   stop-iteration-iterator@1.0.0:
     dependencies:
