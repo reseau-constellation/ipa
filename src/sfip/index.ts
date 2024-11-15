@@ -81,6 +81,12 @@ export async function initSFIP({
       ? new (await import("datastore-fs")).FsDatastore(dossierDonnées)
       : new IDBDatastore(dossierDonnées);
 
+  // Ouverture manuelle requise pour une drôle de raison pour l'instant.
+  if (!(isNode || isElectronMain)) {
+    await stockageBloques.open()
+    await stockageDonnées.open()
+  }
+
   const optionsHelia: HeliaInit = {
     blockstore: stockageBloques,
     datastore: stockageDonnées,
