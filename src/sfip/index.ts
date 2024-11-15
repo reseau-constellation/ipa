@@ -8,7 +8,8 @@ import {
 import mergeOptions from "merge-options";
 
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
-import { DefaultLibp2pServices, HeliaLibp2p, createHelia } from "helia";
+import { DefaultLibp2pServices, HeliaInit, HeliaLibp2p, createHelia } from "helia";
+import { LevelDatastore } from 'datastore-level'
 import { LevelBlockstore } from "blockstore-level";
 import { bitswap } from "@helia/block-brokers";
 import { Libp2p, createLibp2p, type Libp2pOptions } from "libp2p";
@@ -63,9 +64,11 @@ export async function initSFIP({
     }
   });
   const stockageBloques = new LevelBlockstore(`${dossier}/blocks`);
+  const stockageDonnées = new LevelDatastore(`${dossier}/données`);
 
-  const optionsHelia = {
+  const optionsHelia: HeliaInit = {
     blockstore: stockageBloques,
+    datastore: stockageDonnées,
     libp2p,
     blockBrokers: [bitswap()],
   };

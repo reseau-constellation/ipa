@@ -134,6 +134,7 @@
     "browser-fs-access": "^0.35.0",
     "chokidar": "^4.0.1",
     "crypto-js": "^4.2.0",
+    "datastore-level": "^11.0.1",
     "deep-equal": "^2.2.3",
     "deepcopy": "^2.1.0",
     "ennikkai": "^2.3.2",

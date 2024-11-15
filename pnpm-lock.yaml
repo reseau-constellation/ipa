@@ -122,6 +122,9 @@ importers:
       crypto-js:
         specifier: ^4.2.0
         version: 4.2.0
+      datastore-level:
+        specifier: ^11.0.1
+        version: 11.0.1
       deep-equal:
         specifier: ^2.2.3
         version: 2.2.3
@@ -3528,6 +3531,9 @@ packages:
 
   datastore-core@10.0.2:
     resolution: {integrity: sha512-B3WXxI54VxJkpXxnYibiF17si3bLXE1XOjrJB7wM5co9fx2KOEkiePDGiCCEtnapFHTnmAnYCPdA7WZTIpdn/A==}
+
+  datastore-level@11.0.1:
+    resolution: {integrity: sha512-mOcQTgSJL1bp6tM1F2WzpytIPX96i3SlshaFqEBhlAP6yLMjLgw8cVhHaWpR+wJ+tsLGjAKcKOSwecfgGvEoww==}
 
   date-fns@1.30.1:
     resolution: {integrity: sha512-hBSVCvSmWC+QypYObzwGOd9wqdDpOt+0wl0KbU+R+uuZBS1jN8VsD1ss3irQDknRj5NvxiTF6oj/nDRnN/UQNw==}
@@ -13145,6 +13151,17 @@ snapshots:
       it-pushable: 3.2.3
       it-sort: 3.0.6
       it-take: 3.0.6
+
+  datastore-level@11.0.1:
+    dependencies:
+      datastore-core: 10.0.2
+      interface-datastore: 8.3.1
+      interface-store: 6.0.2
+      it-filter: 3.1.1
+      it-map: 3.1.1
+      it-sort: 3.0.6
+      it-take: 3.0.6
+      level: 8.0.1
 
   date-fns@1.30.1: {}
 
