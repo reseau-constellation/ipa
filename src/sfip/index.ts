@@ -14,7 +14,6 @@ import {
   HeliaLibp2p,
   createHelia,
 } from "helia";
-import { FsDatastore } from "datastore-fs";
 import { IDBDatastore } from "datastore-idb";
 import { IDBBlockstore } from "blockstore-idb";
 import { bitswap } from "@helia/block-brokers";
@@ -72,12 +71,13 @@ export async function initSFIP({
   const dossierDonnées = `${dossier}/données`;
   const dossierBloques = `${dossier}/blocks`;
 
+  // Importer FsBlockstore et FsDatastore dynamiquement pour éviter les erreurs de compilation sur le navigateur
   const stockageBloques = isBrowser
     ? new IDBBlockstore(dossierBloques)
     : new (await import("blockstore-fs")).FsBlockstore(dossierBloques);
   const stockageDonnées = isBrowser
     ? new IDBDatastore(dossierDonnées)
-    : new FsDatastore(dossierDonnées);
+    : new (await import("datastore-fs")).FsDatastore(dossierDonnées);
 
   const optionsHelia: HeliaInit = {
     blockstore: stockageBloques,
