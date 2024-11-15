@@ -72,12 +72,14 @@ export async function initSFIP({
   const dossierBloques = `${dossier}/blocks`;
 
   // Importer FsBlockstore et FsDatastore dynamiquement pour éviter les erreurs de compilation sur le navigateur
-  const stockageBloques = isBrowser
-    ? new IDBBlockstore(dossierBloques)
-    : new (await import("blockstore-fs")).FsBlockstore(dossierBloques);
-  const stockageDonnées = isBrowser
-    ? new IDBDatastore(dossierDonnées)
-    : new (await import("datastore-fs")).FsDatastore(dossierDonnées);
+  const stockageBloques =
+    isNode || isElectronMain
+      ? new (await import("blockstore-fs")).FsBlockstore(dossierBloques)
+      : new IDBBlockstore(dossierBloques);
+  const stockageDonnées =
+    isNode || isElectronMain
+      ? new (await import("datastore-fs")).FsDatastore(dossierDonnées)
+      : new IDBDatastore(dossierDonnées);
 
   const optionsHelia: HeliaInit = {
     blockstore: stockageBloques,
