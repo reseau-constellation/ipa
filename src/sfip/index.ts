@@ -8,11 +8,16 @@ import {
 import mergeOptions from "merge-options";
 
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
-import { DefaultLibp2pServices, HeliaInit, HeliaLibp2p, createHelia } from "helia";
-import { FsDatastore } from 'datastore-fs'
-import { IDBDatastore } from 'datastore-idb';
-import { FsBlockstore } from 'blockstore-fs'
-import { IDBBlockstore } from 'blockstore-idb'
+import {
+  DefaultLibp2pServices,
+  HeliaInit,
+  HeliaLibp2p,
+  createHelia,
+} from "helia";
+import { FsDatastore } from "datastore-fs";
+import { IDBDatastore } from "datastore-idb";
+import { FsBlockstore } from "blockstore-fs";
+import { IDBBlockstore } from "blockstore-idb";
 import { bitswap } from "@helia/block-brokers";
 import { Libp2p, createLibp2p, type Libp2pOptions } from "libp2p";
 
@@ -65,11 +70,15 @@ export async function initSFIP({
       // Tant pis...
     }
   });
-  const dossierDonnées = `${dossier}/données`
-  const dossierBloques = `${dossier}/blocks`
+  const dossierDonnées = `${dossier}/données`;
+  const dossierBloques = `${dossier}/blocks`;
 
-  const stockageBloques = isBrowser ? new IDBBlockstore(dossierBloques) : new FsBlockstore(dossierBloques);
-  const stockageDonnées = isBrowser ? new IDBDatastore(dossierDonnées) : new FsDatastore(dossierDonnées);
+  const stockageBloques = isBrowser
+    ? new IDBBlockstore(dossierBloques)
+    : new FsBlockstore(dossierBloques);
+  const stockageDonnées = isBrowser
+    ? new IDBDatastore(dossierDonnées)
+    : new FsDatastore(dossierDonnées);
 
   const optionsHelia: HeliaInit = {
     blockstore: stockageBloques,
