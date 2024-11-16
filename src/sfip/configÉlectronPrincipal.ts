@@ -1,6 +1,6 @@
 import { identify } from "@libp2p/identify";
 import { webSockets } from "@libp2p/websockets";
-import { webRTC as libp2pWebRTC, webRTCDirect } from "@libp2p/webrtc";
+import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webTransport } from "@libp2p/webtransport";
 import { bootstrap } from "@libp2p/bootstrap";
 import { all } from "@libp2p/websockets/filters";
@@ -33,18 +33,7 @@ export const obtOptionsLibp2pÉlectionPrincipal =
         webSockets({
           filter: all,
         }),
-        libp2pWebRTC({
-          rtcConfiguration: {
-            iceServers: [
-              {
-                urls: [
-                  "stun:stun.l.google.com:19302",
-                  "stun:global.stun.twilio.com:3478",
-                ],
-              },
-            ],
-          },
-        }),
+        webRTC(),
         webTransport(),
         webRTCDirect(),
         tcp(),

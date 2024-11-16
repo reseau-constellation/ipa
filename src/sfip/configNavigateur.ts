@@ -25,18 +25,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
       webSockets({
         filter: all,
       }),
-      webRTC({
-        rtcConfiguration: {
-          iceServers: [
-            {
-              urls: [
-                "stun:stun.l.google.com:19302",
-                "stun:global.stun.twilio.com:3478",
-              ],
-            },
-          ],
-        },
-      }),
+      webRTC(),
       webRTCDirect(),
       webTransport(),
       circuitRelayTransport(),
