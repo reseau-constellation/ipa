@@ -73,11 +73,11 @@ export async function initSFIP({
 
   // Importer FsBlockstore et FsDatastore dynamiquement pour éviter les erreurs de compilation sur le navigateur
   const stockageBloques =
-    isNode || isElectronMain
+    (isNode || isElectronMain)
       ? new (await import("blockstore-fs")).FsBlockstore(dossierBloques)
       : new IDBBlockstore(dossierBloques);
   const stockageDonnées =
-    isNode || isElectronMain
+    (isNode || isElectronMain)
       ? new (await import("datastore-fs")).FsDatastore(dossierDonnées)
       : new IDBDatastore(dossierDonnées);
 
