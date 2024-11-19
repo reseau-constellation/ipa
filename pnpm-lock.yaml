@@ -31,7 +31,7 @@ importers:
         version: 1.0.3
       '@helia/block-brokers':
         specifier: ^4.0.1
-        version: 4.0.1
+        version: 4.0.2
       '@helia/unixfs':
         specifier: ^4.0.0
         version: 4.0.1
@@ -1524,14 +1524,8 @@ packages:
     resolution: {integrity: sha512-2b/g5hRmpbb1o4GnTZax9N9m0FXzz9OV42ZzI4rDDMDuHUqigAiQCEWChBWCY4ztAGVRjoWT19v0yMmc5/L5kA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@helia/bitswap@2.0.1':
-    resolution: {integrity: sha512-9bwjwdgW3LfraDfIlfJ4g1WrO96IKW3hjrc63jXxlKHU8JPwMdd5a//XoNIQfQ5vx6DV0w+w2AM1aHHt+nHBGA==}
-
   '@helia/bitswap@2.0.2':
     resolution: {integrity: sha512-aJfcQeyJFX+f7TWYZhf8zuZJFig6AhzFjiB+mgzL8YnCG01c+ouZ2iYLSImLGndcRr47uOey6rjHvWuwu1Id8Q==}
-
-  '@helia/block-brokers@4.0.1':
-    resolution: {integrity: sha512-djYp4bmC15SBP1/ra9SrOAATr432hDcA2hnHWewkz1l84hCi+gSol7AcdAfW233pZ2ivZcI2Jc1Nyf7Vg6uFeg==}
 
   '@helia/block-brokers@4.0.2':
     resolution: {integrity: sha512-TGn/VFvZTnAZ12J2/l+XShqde+Dz10dVvgllIQlKnSxIcO+U7iGxDusrCvYL5KTn6yy/ghSUsQ2cBMEBCbjgvA==}
@@ -2402,6 +2396,9 @@ packages:
 
   '@types/node@22.9.0':
     resolution: {integrity: sha512-vuyHg81vvWA1Z1ELfvLko2c8f34gyA0zaic0+Rllc5lbCnbSyuvb2Oxpm6TAUAC/2xZN3QGqxBNggD1nNR2AfQ==}
+
+  '@types/node@22.9.1':
+    resolution: {integrity: sha512-p8Yy/8sw1caA8CdRIQBG5tiLHmxtQKObCijiAa9Ez+d4+PRffM4054xbju0msf+cvhJpnFEeNjxmVT/0ipktrg==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -9787,7 +9784,7 @@ snapshots:
 
   '@constl/utils-tests@1.6.3(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))':
     dependencies:
-      '@helia/block-brokers': 4.0.1
+      '@helia/block-brokers': 4.0.2
       '@libp2p/peer-id': 5.0.7
       '@libp2p/webrtc': 5.0.16(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
       '@orbitdb/core': 2.4.3
@@ -10057,38 +10054,11 @@ snapshots:
     dependencies:
       levn: 0.4.1
 
-  '@helia/bitswap@2.0.1':
-    dependencies:
-      '@helia/interface': 5.0.0
-      '@helia/utils': 1.0.1
-      '@libp2p/interface': 2.2.0
-      '@libp2p/logger': 5.1.4
-      '@libp2p/peer-collections': 6.0.10
-      '@libp2p/utils': 6.1.3
-      '@multiformats/multiaddr': 12.3.1
-      any-signal: 4.1.1
-      interface-blockstore: 5.3.1
-      interface-store: 6.0.2
-      it-drain: 3.0.7
-      it-length-prefixed: 9.1.0
-      it-length-prefixed-stream: 1.2.0
-      it-map: 3.1.1
-      it-pipe: 3.0.1
-      it-take: 3.0.6
-      multiformats: 13.3.1
-      p-defer: 4.0.1
-      progress-events: 1.0.1
-      protons-runtime: 5.5.0
-      race-event: 1.3.0
-      uint8-varint: 2.0.4
-      uint8arraylist: 2.4.8
-      uint8arrays: 5.1.0
-
   '@helia/bitswap@2.0.2':
     dependencies:
       '@helia/interface': 5.1.0
       '@helia/utils': 1.1.0
-      '@libp2p/interface': 2.2.1
+      '@libp2p/interface': 2.2.0
       '@libp2p/logger': 5.1.4
       '@libp2p/peer-collections': 6.0.12
       '@libp2p/utils': 6.2.1
@@ -10111,27 +10081,12 @@ snapshots:
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
 
-  '@helia/block-brokers@4.0.1':
-    dependencies:
-      '@helia/bitswap': 2.0.1
-      '@helia/interface': 5.0.0
-      '@helia/utils': 1.0.1
-      '@libp2p/interface': 2.2.0
-      '@libp2p/utils': 6.1.3
-      '@multiformats/multiaddr': 12.3.1
-      '@multiformats/multiaddr-matcher': 1.6.0
-      '@multiformats/multiaddr-to-uri': 10.1.2
-      interface-blockstore: 5.3.1
-      interface-store: 6.0.2
-      multiformats: 13.3.1
-      progress-events: 1.0.1
-
   '@helia/block-brokers@4.0.2':
     dependencies:
       '@helia/bitswap': 2.0.2
       '@helia/interface': 5.1.0
       '@helia/utils': 1.1.0
-      '@libp2p/interface': 2.2.1
+      '@libp2p/interface': 2.2.0
       '@libp2p/utils': 6.2.1
       '@multiformats/multiaddr': 12.3.1
       '@multiformats/multiaddr-matcher': 1.6.0
@@ -10224,7 +10179,7 @@ snapshots:
       '@ipld/dag-pb': 4.1.3
       '@libp2p/interface': 2.2.0
       '@libp2p/logger': 5.1.4
-      '@libp2p/utils': 6.1.3
+      '@libp2p/utils': 6.2.1
       '@multiformats/dns': 1.0.6
       any-signal: 4.1.1
       blockstore-core: 5.0.2
@@ -10248,7 +10203,7 @@ snapshots:
       '@ipld/dag-cbor': 9.2.2
       '@ipld/dag-json': 10.2.3
       '@ipld/dag-pb': 4.1.3
-      '@libp2p/interface': 2.2.1
+      '@libp2p/interface': 2.2.0
       '@libp2p/logger': 5.1.4
       '@libp2p/utils': 6.2.1
       '@multiformats/dns': 1.0.6
@@ -10336,14 +10291,14 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       jest-mock: 29.7.0
 
   '@jest/fake-timers@29.7.0':
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -10377,7 +10332,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -10805,7 +10760,7 @@ snapshots:
   '@libp2p/mplex@11.0.10':
     dependencies:
       '@libp2p/interface': 2.2.0
-      '@libp2p/utils': 6.1.3
+      '@libp2p/utils': 6.2.1
       it-pipe: 3.0.1
       it-pushable: 3.2.3
       it-stream-types: 2.0.2
@@ -10948,7 +10903,7 @@ snapshots:
       '@libp2p/interface-internal': 2.0.10
       '@libp2p/peer-collections': 6.0.10
       '@libp2p/peer-id': 5.0.7
-      '@libp2p/utils': 6.1.3
+      '@libp2p/utils': 6.2.1
       it-length-prefixed: 9.1.0
       it-pipe: 3.0.1
       it-pushable: 3.2.3
@@ -10997,7 +10952,7 @@ snapshots:
       '@achingbrain/nat-port-mapper': 1.0.18
       '@libp2p/interface': 2.2.0
       '@libp2p/interface-internal': 2.0.10
-      '@libp2p/utils': 6.1.3
+      '@libp2p/utils': 6.2.1
       '@multiformats/multiaddr': 12.3.1
       wherearewe: 2.0.1
 
@@ -11922,7 +11877,7 @@ snapshots:
 
   '@types/graceful-fs@4.1.9':
     dependencies:
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
 
   '@types/http-cache-semantics@4.0.4': {}
 
@@ -11973,7 +11928,7 @@ snapshots:
 
   '@types/node-forge@1.3.11':
     dependencies:
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
 
   '@types/node-localstorage@1.3.3':
     dependencies:
@@ -11984,6 +11939,10 @@ snapshots:
       undici-types: 6.19.8
 
   '@types/node@22.9.0':
+    dependencies:
+      undici-types: 6.19.8
+
+  '@types/node@22.9.1':
     dependencies:
       undici-types: 6.19.8
 
@@ -13191,7 +13150,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -13200,7 +13159,7 @@ snapshots:
 
   chromium-edge-launcher@0.2.0:
     dependencies:
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -15275,7 +15234,7 @@ snapshots:
     dependencies:
       '@chainsafe/libp2p-noise': 16.0.0
       '@chainsafe/libp2p-yamux': 7.0.1
-      '@helia/block-brokers': 4.0.1
+      '@helia/block-brokers': 4.0.2
       '@helia/delegated-routing-v1-http-api-client': 4.1.2
       '@helia/interface': 5.0.0
       '@helia/routers': 2.1.0
@@ -16003,7 +15962,7 @@ snapshots:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
@@ -16013,7 +15972,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@types/graceful-fs': 4.1.9
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -16040,7 +15999,7 @@ snapshots:
   jest-mock@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       jest-util: 29.7.0
 
   jest-regex-util@29.6.3: {}
@@ -16048,7 +16007,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -16065,7 +16024,7 @@ snapshots:
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 22.9.0
+      '@types/node': 22.9.1
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
