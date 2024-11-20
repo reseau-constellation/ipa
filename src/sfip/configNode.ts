@@ -13,7 +13,7 @@ import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
-import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
+// import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
 import type { Libp2pOptions } from "libp2p";
 
 import { ADRESSES_NŒUDS_INITIAUX, ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
@@ -79,10 +79,10 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         canRelayMessage: true,
         directPeers: résoudreInfoAdresses([...ADRESSES_NŒUDS_RELAI_WS, ...ADRESSES_NŒUDS_RELAI_RUST]),
       }),
-      dht: kadDHT({
+      /*dht: kadDHT({
         clientMode: true,
         // peerInfoMapper: removePrivateAddressesMapper
-      }),
+      }),*/
     },
   };
 };

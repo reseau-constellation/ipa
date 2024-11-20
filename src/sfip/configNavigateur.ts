@@ -9,7 +9,7 @@ import { yamux } from "@chainsafe/libp2p-yamux";
 import { autoNAT } from "@libp2p/autonat";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { dcutr } from "@libp2p/dcutr";
-import { kadDHT } from "@libp2p/kad-dht";
+// import { kadDHT } from "@libp2p/kad-dht";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import type { Libp2pOptions } from "libp2p";
@@ -64,10 +64,10 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
         canRelayMessage: true,
         directPeers: résoudreInfoAdresses([...ADRESSES_NŒUDS_RELAI_WS, ...ADRESSES_NŒUDS_RELAI_RUST]),
       }),
-      dht: kadDHT({
+      /*dht: kadDHT({
         clientMode: true,
         // peerInfoMapper: removePrivateAddressesMapper
-      }),
+      }),*/
     },
   };
 };
