@@ -14,7 +14,8 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
 import type { Libp2pOptions } from "libp2p";
-import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
+import { ADRESSES_NŒUDS_INITIAUX, ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
+import { résoudreInfoAdresses } from "./utils.js";
 
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   return {
@@ -56,6 +57,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,
         canRelayMessage: true,
+        directPeers: résoudreInfoAdresses([...ADRESSES_NŒUDS_RELAI_WS, ...ADRESSES_NŒUDS_RELAI_RUST]),
       }),
       /*dht: kadDHT({
         clientMode: true,

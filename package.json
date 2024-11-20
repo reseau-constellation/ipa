@@ -115,6 +115,7 @@
     "@libp2p/interface-transport": "^4.0.3",
     "@libp2p/kad-dht": "^14.1.0",
     "@libp2p/mdns": "^11.0.10",
+    "@libp2p/peer-id": "^5.0.8",
     "@libp2p/pubsub-peer-discovery": "11.0.0",
     "@libp2p/tcp": "10.0.13",
     "@libp2p/webrtc": "^5.0.16",
