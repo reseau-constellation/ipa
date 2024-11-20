@@ -63,7 +63,7 @@ export async function initSFIP({
   // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
   libp2p.addEventListener("peer:discovery", async (x) => {
     try {
-      // await libp2p.dial(x.detail.id);
+      await libp2p.dial(x.detail.id);
     } catch {
       // Tant pis...
     }

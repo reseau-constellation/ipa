@@ -140,6 +140,7 @@
     "datastore-idb": "^3.0.1",
     "deep-equal": "^2.2.3",
     "deepcopy": "^2.1.0",
+    "detect-browser": "^5.3.0",
     "ennikkai": "^2.3.2",
     "env-paths": "^3.0.0",
     "events": "^3.3.0",

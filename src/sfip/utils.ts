@@ -14,5 +14,6 @@ export const résoudreInfoAdresses = (adresses: string[]): AddrInfo[] => {
     }
     info.addrs.push(ma);
   }
+  console.log({infos})
   return infos
 }
