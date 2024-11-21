@@ -11,12 +11,15 @@ import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { dcutr } from "@libp2p/dcutr";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 
-
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 // import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
 import type { Libp2pOptions } from "libp2p";
 
-import { ADRESSES_NŒUDS_INITIAUX, ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
+import {
+  ADRESSES_NŒUDS_INITIAUX,
+  ADRESSES_NŒUDS_RELAI_RUST,
+  ADRESSES_NŒUDS_RELAI_WS,
+} from "./const.js";
 import { FaultTolerance } from "@libp2p/interface";
 import { résoudreInfoAdresses } from "./utils.js";
 
@@ -77,7 +80,13 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,
         canRelayMessage: true,
-        directPeers: résoudreInfoAdresses([...ADRESSES_NŒUDS_RELAI_WS, ...ADRESSES_NŒUDS_RELAI_RUST]),
+        directPeers: résoudreInfoAdresses([
+          ...ADRESSES_NŒUDS_RELAI_WS,
+          ...ADRESSES_NŒUDS_RELAI_RUST,
+        ]),
+        scoreThresholds: {
+          acceptPXThreshold: 0,
+        },
       }),
       /*dht: kadDHT({
         clientMode: true,

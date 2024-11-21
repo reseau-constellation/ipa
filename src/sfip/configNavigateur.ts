@@ -13,9 +13,13 @@ import { dcutr } from "@libp2p/dcutr";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import type { Libp2pOptions } from "libp2p";
-import { detect } from 'detect-browser';
+import { detect } from "detect-browser";
 
-import { ADRESSES_NŒUDS_INITIAUX, ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
+import {
+  ADRESSES_NŒUDS_INITIAUX,
+  ADRESSES_NŒUDS_RELAI_RUST,
+  ADRESSES_NŒUDS_RELAI_WS,
+} from "./const.js";
 import { résoudreInfoAdresses } from "./utils.js";
 
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
@@ -26,10 +30,10 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     webRTC(),
     webRTCDirect(),
     circuitRelayTransport(),
-  ]
+  ];
   // En attendant une résolution à https://github.com/libp2p/js-libp2p-webtransport/issues/64
-  if (detect()?.name !== 'chrome') {
-    transports.push(webTransport())
+  if (detect()?.name !== "chrome") {
+    transports.push(webTransport());
   }
   return {
     addresses: {
@@ -62,7 +66,13 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,
         canRelayMessage: true,
-        directPeers: résoudreInfoAdresses([...ADRESSES_NŒUDS_RELAI_WS, ...ADRESSES_NŒUDS_RELAI_RUST]),
+        directPeers: résoudreInfoAdresses([
+          ...ADRESSES_NŒUDS_RELAI_WS,
+          ...ADRESSES_NŒUDS_RELAI_RUST,
+        ]),
+        scoreThresholds: {
+          acceptPXThreshold: 0,
+        },
       }),
       /*dht: kadDHT({
         clientMode: true,
