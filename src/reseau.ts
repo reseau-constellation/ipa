@@ -323,6 +323,26 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
   }
 
+  async suivreMessageGossipsub({sujet, f}: {sujet: string, f: schémaFonctionSuivi<string>}): Promise<schémaFonctionOublier> {
+    const pubsub = (await this.client.attendreSfipEtOrbite()).sfip.libp2p.services.pubsub;
+    pubsub.subscribe(sujet);
+
+    const fÉcoutePubSub = async (évé: CustomEvent<GossipsubMessage>) => {
+      const messageGs = évé.detail.msg;
+      if (messageGs.topic === sujet) {
+        const message = new TextDecoder().decode(messageGs.data);
+        await f(message)
+      }
+    };
+    pubsub.addEventListener("gossipsub:message", fÉcoutePubSub);
+
+    return async () => {
+      // À faire : garder compte des requêtes pour `sujet` et appeler `unsubscribe` si nécessaire 
+      pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
+    };
+
+  }
+
   async suivreMesAdresses({
     f,
   }: {
