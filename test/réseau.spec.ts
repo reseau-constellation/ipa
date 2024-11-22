@@ -110,7 +110,9 @@ if (isNode || isElectronMain) {
       });
 
       it("Autres postes détectés", async () => {
-        const val = await rés.attendreQue((x) => x.length >= 2);
+        const val = await rés.attendreQue((x) =>
+          idsNodesSFIP.slice(1).every((id) => x.find((p) => p.pair === id)),
+        );
         expect(val.map((p) => p.pair)).to.have.members([
           idsNodesSFIP[1],
           idsNodesSFIP[2],
@@ -1120,6 +1122,7 @@ if (isNode || isElectronMain) {
           profondeur: 0,
           confiance: 1,
         };
+        // await clients[0].réseau.suivreMessageGossipsub({ sujet: "réseau-constellation", f: x=>console.log(JSON.stringify(JSON.parse(x), undefined, 2))});
         ({ fOublier, fChangerProfondeur } =
           await clients[0].réseau.suivreComptesRéseauEtEnLigne({
             f: (c) => rés.mettreÀJour(c),
