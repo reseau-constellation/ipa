@@ -308,11 +308,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     );
 
     const intervale = setInterval(() => {
-      this.direSalut({});
+      this.direSalut();
     }, INTERVALE_SALUT);
     this.fsOublier.unshift(async () => clearInterval(intervale));
 
-    await this.direSalut({});
+    await this.direSalut();
   }
 
   async épingler() {
@@ -456,7 +456,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     );
   }
 
-  async direSalut({ à }: { à?: string }): Promise<void> {
+  async direSalut({ à }: { à?: string } = {}): Promise<void> {
     const valeur: ValeurMessageSalut = {
       type: "Salut !",
       contenu: {
@@ -546,12 +546,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       return;
     }
 
-    // Ignorer la plupart des messages de nous-mêmes
+    // Ignorer les messages de nous-mêmes
     const { orbite } = await this.client.attendreSfipEtOrbite();
-    if (
-      signature.clefPublique === orbite.identity.publicKey &&
-      valeur.type !== "Salut !"
-    ) {
+    if (signature.clefPublique === orbite.identity.publicKey) {
       return;
     }
 
