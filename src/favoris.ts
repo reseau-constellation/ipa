@@ -1,10 +1,10 @@
-import { isNode, isElectronMain } from "wherearewe";
+import { isElectronMain, isNode } from "wherearewe";
 
 import type { Constellation } from "@/client.js";
-import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { ComposanteClientDic } from "./composanteClient.js";
+import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { JSONSchemaType } from "ajv";
+import { ComposanteClientDic } from "./composanteClient.js";
 
 export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
 

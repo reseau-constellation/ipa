@@ -1,21 +1,21 @@
 import * as bd from "@/recherche/bd.js";
 import * as motClef from "@/recherche/motClef.js";
+import * as nuée from "@/recherche/nuée.js";
 import * as profil from "@/recherche/profil.js";
 import * as projet from "@/recherche/projet.js";
-import * as variable from "@/recherche/variable.js";
-import * as nuée from "@/recherche/nuée.js";
 import * as utils from "@/recherche/utils.js";
+import * as variable from "@/recherche/variable.js";
 
 import type { Constellation } from "@/client.js";
+import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
 import type {
-  schémaRetourFonctionRechercheParN,
-  schémaFonctionSuivi,
-  résultatRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
+  résultatRecherche,
+  schémaFonctionSuivi,
+  schémaRetourFonctionRechercheParN,
 } from "@/types.js";
-import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
 
 export class Recherche {
   client: Constellation;

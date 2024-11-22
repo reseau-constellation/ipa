@@ -1,36 +1,39 @@
-import type XLSX from "xlsx";
 import fs from "fs";
 import path from "path";
+import type XLSX from "xlsx";
 
 import { isSet } from "lodash-es";
 
 import {
-  constellation as utilsTestConstellation,
-  attente as utilsTestAttente,
   dossiers,
+  attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
 import { créerConstellation, type Constellation } from "@/index.js";
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
+import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 
-import type { InfoColAvecCatégorie } from "@/tableaux.js";
 import type {
   infoScore,
-  schémaSpécificationBd,
   infoTableauAvecId,
+  schémaSpécificationBd,
 } from "@/bds.js";
-import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
+import type {
+  InfoColAvecCatégorie,
+  élémentBdListeDonnées,
+  élémentDonnées,
+} from "@/tableaux.js";
 import type { règleBornes } from "@/valid.js";
 
+import { préparerOrbite } from "@/orbite.js";
+import { attente } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
-import { obtRessourceTest } from "./ressources/index.js";
 import { isElectronMain, isNode } from "wherearewe";
-import { attente } from "@constl/utils-tests";
-import { préparerOrbite } from "@/orbite.js";
+import { obtRessourceTest } from "./ressources/index.js";
 
 describe("BDs", function () {
   let fOublierClients: () => Promise<void>;

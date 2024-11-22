@@ -3,8 +3,8 @@ import { MAX_TAILLE_IMAGE } from "@/profil.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 import {
-  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 

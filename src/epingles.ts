@@ -1,8 +1,8 @@
 import type { Constellation } from "@/client.js";
 import {
   schémaFonctionOublier,
-  élémentsBd,
   schémaFonctionSuivi,
+  élémentsBd,
 } from "@/types.js";
 import { idcValide } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";

@@ -2,8 +2,8 @@ import type { Browser } from "playwright";
 import {
   changerLangue,
   déjàGénérés,
-  ouvrirConstellation,
   optsPrises,
+  ouvrirConstellation,
   type schémaFObtCheminImage,
 } from "./utils.js";
 

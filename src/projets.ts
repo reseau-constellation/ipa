@@ -1,10 +1,10 @@
-import XLSX from "xlsx";
 import toBuffer from "it-to-buffer";
 import path from "path";
+import XLSX from "xlsx";
 
-import { Constellation } from "@/client.js";
-import type { objRôles } from "@/accès/types.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import type { objRôles } from "@/accès/types.js";
+import { Constellation } from "@/client.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -12,24 +12,24 @@ type ContrôleurConstellation = Awaited<
 
 import { cacheSuivi } from "@/décorateursCache.js";
 import {
-  schémaStatut,
-  schémaFonctionSuivi,
   schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaStatut,
   schémaStructureBdNoms,
   structureBdNoms,
 } from "@/types.js";
+import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import {
-  traduire,
-  zipper,
-  uneFois,
   attendreStabilité,
   suivreBdsDeFonctionListe,
+  traduire,
+  uneFois,
+  zipper,
 } from "@constl/utils-ipa";
-import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
-import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
-import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
+import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
+import { ComposanteClientListe } from "./composanteClient.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
   type: "string",

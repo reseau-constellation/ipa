@@ -1,6 +1,6 @@
 import { JSONSchemaType } from "ajv";
-import { ComposanteClientDic } from "./composanteClient.js";
 import { Constellation } from "./client.js";
+import { ComposanteClientDic } from "./composanteClient.js";
 import { cacheSuivi } from "./décorateursCache.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "./types.js";
 

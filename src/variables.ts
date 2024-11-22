@@ -1,26 +1,26 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { Constellation } from "@/client.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import { Constellation } from "@/client.js";
 import type {
-  règleVariable,
   règleCatégorie,
+  règleVariable,
   règleVariableAvecId,
 } from "@/valid.js";
 
 import type { objRôles } from "@/accès/types.js";
-import type { dicTrads } from "@/types.js";
 import { cacheSuivi } from "@/décorateursCache.js";
+import type { dicTrads } from "@/types.js";
 
 import {
-  schémaFonctionSuivi,
   schémaFonctionOublier,
+  schémaFonctionSuivi,
   schémaStatut,
   schémaStructureBdNoms,
 } from "@/types.js";
-import { ComposanteClientListe } from "./composanteClient.js";
 import { JSONSchemaType } from "ajv";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
+import { ComposanteClientListe } from "./composanteClient.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -705,7 +705,10 @@ export class Variables extends ComposanteClientListe<string> {
     const fFinale = async () => {
       await f(
         Object.entries(Object.assign({}, règles.catégorie, règles.propres)).map(
-          ([id, r]) => ({ id, règle: r }),
+          ([id, r]) => ({
+            id,
+            règle: r,
+          }),
         ),
       );
     };

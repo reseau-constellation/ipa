@@ -22,7 +22,11 @@ initSFIP({ dossier, configLibp2p: {} }).then(async (sfip) => {
       const idPair = sfip.libp2p.peerId.toString();
       const message = JSON.parse(
         new TextDecoder().decode(m.detail.msg.data),
-      ) as { idPair: string; type: string; message: string };
+      ) as {
+        idPair: string;
+        type: string;
+        message: string;
+      };
       if (message.type === "ping" && message.idPair === idPair) {
         sfip.libp2p.services.pubsub.publish(
           CANAL_TEST,

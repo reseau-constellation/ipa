@@ -1,35 +1,35 @@
-import fs from "fs";
-import path from "path";
-import XLSX, { WorkBook, utils } from "xlsx";
-import JSZip from "jszip";
-import { isBrowser, isElectronRenderer } from "wherearewe";
 import axios from "axios";
+import fs from "fs";
+import JSZip from "jszip";
+import path from "path";
+import { isBrowser, isElectronRenderer } from "wherearewe";
+import XLSX, { WorkBook, utils } from "xlsx";
 
 import {
-  constellation as utilsTestConstellation,
-  attente as utilsTestAttente,
   dossiers,
+  attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
-import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import { uneFois } from "@constl/utils-ipa";
 import type {
-  SpécificationAutomatisation,
-  SourceDonnéesImportationURL,
   SourceDonnéesImportationFichier,
-  infoImporterJSON,
+  SourceDonnéesImportationURL,
+  SpécificationAutomatisation,
   infoImporterFeuilleCalcul,
+  infoImporterJSON,
   ÉtatAutomatisation,
+  ÉtatEnSync,
   ÉtatErreur,
   ÉtatProgrammée,
-  ÉtatEnSync,
 } from "@/automatisation.js";
+import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
+import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
+import { uneFois } from "@constl/utils-ipa";
 
-import { obtRessourceTest } from "./ressources/index.js";
 import { type Constellation, créerConstellation } from "@/index.js";
+import { obtRessourceTest } from "./ressources/index.js";
 
 import { expect } from "aegir/chai";
 

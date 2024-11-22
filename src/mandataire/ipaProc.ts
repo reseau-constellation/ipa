@@ -1,14 +1,14 @@
 import type { Constellation, optsConstellation } from "@/client.js";
 
+import { EnveloppeIpa } from "@/mandataire/enveloppe.js";
 import {
   générerMandataire,
-  Mandatairifiable,
   MandataireConstellation,
+  Mandatairifiable,
   MessageDIpa,
-  MessagePourIpa,
   MessageErreurDIpa,
+  MessagePourIpa,
 } from "@constl/mandataire";
-import { EnveloppeIpa } from "@/mandataire/enveloppe.js";
 
 export class MandataireProc extends Mandatairifiable {
   ipa: EnveloppeIpa;

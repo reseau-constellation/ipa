@@ -1,18 +1,18 @@
-import { identify } from "@libp2p/identify";
-import { webSockets } from "@libp2p/websockets";
-import { webRTC, webRTCDirect } from "@libp2p/webrtc";
-import { webTransport } from "@libp2p/webtransport";
-import { bootstrap } from "@libp2p/bootstrap";
-import { all } from "@libp2p/websockets/filters";
+import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
-import { gossipsub } from "@chainsafe/libp2p-gossipsub";
+import { autoNAT } from "@libp2p/autonat";
+import { bootstrap } from "@libp2p/bootstrap";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
+import { dcutr } from "@libp2p/dcutr";
+import { identify } from "@libp2p/identify";
+import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
+import { webRTC, webRTCDirect } from "@libp2p/webrtc";
+import { webSockets } from "@libp2p/websockets";
+import { all } from "@libp2p/websockets/filters";
+import { webTransport } from "@libp2p/webtransport";
 import type { Libp2pOptions } from "libp2p";
 import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
-import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
-import { autoNAT } from "@libp2p/autonat";
-import { dcutr } from "@libp2p/dcutr";
 // import { kadDHT } from "@libp2p/kad-dht";
 
 export const obtOptionsLibp2pÉlectionPrincipal =

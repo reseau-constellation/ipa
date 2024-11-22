@@ -1,7 +1,7 @@
 import {
   ImportateurDonnéesJSON,
-  extraireDonnées,
   aplatirDonnées,
+  extraireDonnées,
   élément,
 } from "@/importateur/json.js";
 import { obtRessourceTest } from "../ressources/index.js";

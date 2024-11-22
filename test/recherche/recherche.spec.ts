@@ -1,18 +1,18 @@
 import { créerConstellation, type Constellation } from "@/index.js";
 import type { statutMembre } from "@/reseau.js";
 import type {
-  schémaFonctionOublier,
-  résultatRecherche,
   infoRésultat,
-  infoRésultatTexte,
   infoRésultatRecherche,
+  infoRésultatTexte,
   infoRésultatVide,
   résultatObjectifRecherche,
+  résultatRecherche,
+  schémaFonctionOublier,
 } from "@/types.js";
 
 import {
-  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 

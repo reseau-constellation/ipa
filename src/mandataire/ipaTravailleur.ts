@@ -6,8 +6,8 @@ import type {
 
 import {
   générerMandataire,
-  Mandatairifiable,
   MandataireConstellation,
+  Mandatairifiable,
   type MessageDIpa,
   type MessagePourIpa,
 } from "@constl/mandataire";

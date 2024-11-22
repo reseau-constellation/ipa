@@ -1,32 +1,32 @@
+import * as dagCbor from "@ipld/dag-cbor";
 import {
   type OrbitDB,
-  IPFSBlockStorage,
-  LRUStorage,
   ComposedStorage,
   IdentitiesType,
-  Storage,
+  IPFSBlockStorage,
   LogEntry,
+  LRUStorage,
+  Storage,
 } from "@orbitdb/core";
-import { v4 as uuidv4 } from "uuid";
-import * as Block from "multiformats/block";
-import * as dagCbor from "@ipld/dag-cbor";
-import { sha256 } from "multiformats/hashes/sha2";
 import { base58btc } from "multiformats/bases/base58";
+import * as Block from "multiformats/block";
+import { sha256 } from "multiformats/hashes/sha2";
+import { v4 as uuidv4 } from "uuid";
 
-import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
 import {
   GestionnaireAccès,
   suivreBdAccès,
 } from "@/accès/gestionnaireUtilisateurs.js";
+import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
-import { MODÉRATEUR, MEMBRE, rôles } from "@/accès/consts.js";
-import type { élémentBdAccès, infoUtilisateur } from "@/accès/types.js";
+import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
+import type { infoUtilisateur, élémentBdAccès } from "@/accès/types.js";
 import { gestionnaireOrbiteGénéral } from "@/orbite.js";
 import { TypedSet } from "@constl/bohr-db";
+import { JSONSchemaType } from "ajv";
 import { EventEmitter } from "events";
 import { ContrôleurAccès } from "./cntrlMod.js";
 import { pathJoin } from "./utils.js";
-import { JSONSchemaType } from "ajv";
 
 /* Fortement inspirée du contrôleur Orbit-DB de 3Box
 MIT License

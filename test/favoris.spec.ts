@@ -1,13 +1,13 @@
 import { isElectronMain, isNode } from "wherearewe";
 
 import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
-import type { schémaFonctionOublier } from "@/types.js";
 import { créerConstellation, type Constellation } from "@/index.js";
+import type { schémaFonctionOublier } from "@/types.js";
 
 import {
   attente,
-  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 

@@ -1,44 +1,44 @@
-import XLSX from "xlsx";
-import toBuffer from "it-to-buffer";
-import path from "path";
-import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
-import { v4 as uuidv4 } from "uuid";
 import {
   attendreStabilité,
   suivreBdDeFonction,
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
+import toBuffer from "it-to-buffer";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
+import XLSX from "xlsx";
 
+import { cacheSuivi } from "@/décorateursCache.js";
 import { type InfoColAvecCatégorie } from "@/tableaux.js";
 import {
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
   schémaStatut,
   schémaStructureBdMétadonnées,
   schémaStructureBdNoms,
   élémentsBd,
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
 } from "@/types.js";
-import { cacheSuivi } from "@/décorateursCache.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import type { règleColonne, erreurValidation, règleExiste } from "@/valid.js";
-import type {
-  élémentBdListeDonnées,
-  différenceTableaux,
-  élémentDonnées,
-  donnéesTableauExportation,
-} from "@/tableaux.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import type { objRôles } from "@/accès/types.js";
 import { Constellation } from "@/client.js";
+import { ComposanteClientListe } from "@/composanteClient.js";
+import type {
+  différenceTableaux,
+  donnéesTableauExportation,
+  élémentBdListeDonnées,
+  élémentDonnées,
+} from "@/tableaux.js";
+import type { erreurValidation, règleColonne, règleExiste } from "@/valid.js";
 import {
-  traduire,
-  zipper,
-  uneFois,
   faisRien,
   ignorerNonDéfinis,
+  traduire,
+  uneFois,
+  zipper,
 } from "@constl/utils-ipa";
-import type { objRôles } from "@/accès/types.js";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import { ComposanteClientListe } from "@/composanteClient.js";
 import type { JSONSchemaType } from "ajv";
 import pkg from "file-saver";
 const { saveAs } = pkg;

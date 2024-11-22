@@ -1,6 +1,6 @@
 import type { AddrInfo } from "@chainsafe/libp2p-gossipsub/dist/src/types";
-import { multiaddr } from "@multiformats/multiaddr";
 import { peerIdFromString } from "@libp2p/peer-id";
+import { multiaddr } from "@multiformats/multiaddr";
 
 export const résoudreInfoAdresses = (adresses: string[]): AddrInfo[] => {
   const infos: AddrInfo[] = [];

@@ -1,5 +1,7 @@
-import { ContrôleurConstellation as générerContrôleurConstellation } from "./cntrlConstellation.js";
-import { nomType } from "./cntrlConstellation.js";
+import {
+  ContrôleurConstellation as générerContrôleurConstellation,
+  nomType,
+} from "./cntrlConstellation.js";
 
 export const pathJoin = (...paths: string[]) =>
   paths.join("/").replace(/((?<=\/)\/+)|(^\.\/)|((?<=\/)\.\/)/g, "") || ".";

@@ -6,13 +6,13 @@ import { type OrbitDB } from "@orbitdb/core";
 
 import { orbite } from "@constl/utils-tests";
 
-import { isNode, isElectronMain } from "wherearewe";
-import { expect } from "aegir/chai";
-import type { KeyValue } from "@orbitdb/core";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import { typedKeyValue } from "@constl/bohr-db";
+import type { KeyValue } from "@orbitdb/core";
+import { expect } from "aegir/chai";
 import type { JSONSchemaType } from "ajv";
+import { isElectronMain, isNode } from "wherearewe";
 
 type TypeContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

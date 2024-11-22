@@ -3,15 +3,15 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import { Constellation, optsConstellation } from "@/client.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import {
-  type MessagePourIpa,
-  type MessageDIpa,
+  type ErreurMandataire,
   type MessageActionDIpa,
+  type MessageDIpa,
+  type MessagePourIpa,
   type MessageSuivreDIpa,
   type MessageSuivrePrêtDIpa,
-  type ErreurMandataire,
-  ERREUR_INIT_IPA,
   ERREUR_EXÉCUTION_IPA,
   ERREUR_FONCTION_MANQUANTE,
+  ERREUR_INIT_IPA,
   ERREUR_PAS_UNE_FONCTION,
 } from "@constl/mandataire";
 import { v4 as uuidv4 } from "uuid";

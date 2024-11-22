@@ -7,12 +7,13 @@ export * as mandataire from "@/mandataire/index.js";
 export * as automatisation from "@/automatisation.js";
 export * as bds from "@/bds.js";
 export * as client from "@/client.js";
-export * as épingles from "@/epingles.js";
-export * as profil from "@/profil.js";
 export * as encryption from "@/encryption.js";
+export * as épingles from "@/epingles.js";
 export * as favoris from "@/favoris.js";
 export * as licences from "@/licences.js";
 export * as motsClefs from "@/motsClefs.js";
+export * as orbite from "@/orbite.js";
+export * as profil from "@/profil.js";
 export * as projets from "@/projets.js";
 export * as réseau from "@/reseau.js";
 export * as sfip from "@/sfip/index.js";
@@ -20,13 +21,12 @@ export * as tableaux from "@/tableaux.js";
 export * as types from "@/types.js";
 export * as valid from "@/valid.js";
 export * as variables from "@/variables.js";
-export * as orbite from "@/orbite.js";
 
+import type { optsConstellation } from "@/client.js";
 import {
   générerMandataireProc,
   générerMandataireTravailleur,
 } from "@/mandataire/index.js";
-import type { optsConstellation } from "@/client.js";
 import { confirmerOptsTravailleur } from "@/mandataire/ipaTravailleur.js";
 import type { MandataireConstellation } from "@constl/mandataire";
 
@@ -36,8 +36,8 @@ import {
   isElectronMain,
   isElectronRenderer,
   isNode,
-  isWebWorker,
   isReactNative,
+  isWebWorker,
 } from "wherearewe";
 import { préparerOrbite } from "./orbite.js";
 

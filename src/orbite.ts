@@ -1,33 +1,33 @@
-import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 import type { HeliaLibp2p } from "helia";
+import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 
-import { v4 as uuidv4 } from "uuid";
 import {
-  createOrbitDB,
-  OrbitDBDatabaseOptions,
   type OrbitDB,
+  createOrbitDB,
   KeyValue as KeyValueDatabaseType,
+  OrbitDBDatabaseOptions,
 } from "@orbitdb/core";
+import { v4 as uuidv4 } from "uuid";
 
 import { type FeedDatabaseType, registerFeed } from "@orbitdb/feed-db";
-import { type SetDatabaseType, registerSet } from "@orbitdb/set-db";
 import {
   type OrderedKeyValueDatabaseType,
   registerOrderedKeyValue,
 } from "@orbitdb/ordered-keyvalue-db";
+import { type SetDatabaseType, registerSet } from "@orbitdb/set-db";
 
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import { type JSONSchemaType } from "ajv";
 import {
   typedFeed,
-  typedKeyValue,
-  typedOrderedKeyValue,
-  typedSet,
   TypedFeed,
+  typedKeyValue,
   TypedKeyValue,
+  typedOrderedKeyValue,
   TypedOrderedKeyValue,
+  typedSet,
   TypedSet,
 } from "@constl/bohr-db";
+import { type JSONSchemaType } from "ajv";
 
 import Semaphore from "@chriscdn/promise-semaphore";
 

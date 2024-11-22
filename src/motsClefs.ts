@@ -1,14 +1,14 @@
+import type { objRôles } from "@/accès/types.js";
 import {
-  type schémaFonctionSuivi,
   type schémaFonctionOublier,
+  type schémaFonctionSuivi,
   schémaStructureBdNoms,
 } from "@/types.js";
-import type { objRôles } from "@/accès/types.js";
 
 import { Constellation } from "@/client.js";
 
-import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
+import { cacheSuivi } from "@/décorateursCache.js";
 import { JSONSchemaType } from "ajv";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";

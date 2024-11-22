@@ -1,20 +1,20 @@
 import type { Constellation } from "@/client.js";
-import type {
-  schémaFonctionOublier,
-  résultatObjectifRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-} from "@/types.js";
 import {
-  rechercherProfilsSelonNom,
-  rechercherProfilsSelonTexte,
   rechercherProfilsSelonActivité,
   rechercherProfilsSelonCourriel,
+  rechercherProfilsSelonNom,
+  rechercherProfilsSelonTexte,
 } from "@/recherche/profil.js";
+import type {
+  infoRésultatTexte,
+  infoRésultatVide,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
+} from "@/types.js";
 
 import { attente as utilsTestAttente } from "@constl/utils-tests";
-import { générerClientsInternes } from "../ressources/utils.js";
 import { obtRessourceTest } from "../ressources/index.js";
+import { générerClientsInternes } from "../ressources/utils.js";
 
 import { expect } from "aegir/chai";
 
@@ -33,7 +33,9 @@ describe("Rechercher profil", function () {
 
     before(async () => {
       ({ fOublier: fOublierClients, clients: clients as unknown } =
-        await générerClientsInternes({ n: 1 }));
+        await générerClientsInternes({
+          n: 1,
+        }));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonActivité();
@@ -102,7 +104,9 @@ describe("Rechercher profil", function () {
 
     before(async () => {
       ({ fOublier: fOublierClients, clients: clients as unknown } =
-        await générerClientsInternes({ n: 1 }));
+        await générerClientsInternes({
+          n: 1,
+        }));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonNom("Julien");
@@ -161,7 +165,9 @@ describe("Rechercher profil", function () {
 
     before(async () => {
       ({ fOublier: fOublierClients, clients: clients as unknown } =
-        await générerClientsInternes({ n: 1 }));
+        await générerClientsInternes({
+          n: 1,
+        }));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonCourriel("julien");
@@ -216,7 +222,9 @@ describe("Rechercher profil", function () {
 
     before(async () => {
       ({ fOublier: fOublierClients, clients: clients as unknown } =
-        await générerClientsInternes({ n: 1 }));
+        await générerClientsInternes({
+          n: 1,
+        }));
       client = clients[0];
 
       idCompte = await client.obtIdCompte();

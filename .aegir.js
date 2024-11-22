@@ -1,14 +1,13 @@
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
-import express from "express";
+import { config, dossiers } from "@constl/utils-tests";
 import cors from "cors";
-import url from "url";
-import { $ } from "execa";
-import os from "os";
 import esbuildCmd from "esbuild";
-import { mkdtempSync, copyFileSync } from "fs";
+import { $ } from "execa";
+import express from "express";
+import { copyFileSync, mkdtempSync } from "fs";
+import os from "os";
+import path, { dirname } from "path";
 import { sync } from "rimraf";
-import { dossiers, config } from "@constl/utils-tests";
+import url, { fileURLToPath } from "url";
 
 const générerServeurRessourcesTests = async (opts, idsPairs) => {
   /**

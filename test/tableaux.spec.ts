@@ -11,23 +11,23 @@ import type {
   élémentDonnées,
 } from "@/tableaux.js";
 import type {
+  détailsRègleBornesDynamiqueColonne,
+  détailsRègleBornesDynamiqueVariable,
+  détailsRègleValeurCatégoriqueDynamique,
+  erreurRègle,
+  erreurRègleBornesColonneInexistante,
+  erreurRègleBornesVariableNonPrésente,
+  erreurRègleCatégoriqueColonneInexistante,
+  erreurValidation,
   règleBornes,
   règleColonne,
   règleValeurCatégorique,
-  détailsRègleValeurCatégoriqueDynamique,
-  erreurValidation,
-  erreurRègle,
-  erreurRègleBornesColonneInexistante,
-  erreurRègleCatégoriqueColonneInexistante,
-  erreurRègleBornesVariableNonPrésente,
-  détailsRègleBornesDynamiqueColonne,
-  détailsRègleBornesDynamiqueVariable,
 } from "@/valid.js";
 
 import {
   attente,
-  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 

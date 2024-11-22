@@ -4,14 +4,14 @@ import type {
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types";
 
-import { cacheSuivi } from "@/décorateursCache.js";
 import { Constellation } from "@/client.js";
-import { faisRien } from "@constl/utils-ipa";
 import {
   CLEF_TABLEAU_LICENCES_APPROUVÉES,
   ID_NUÉE_LICENCES,
   SCHÉMA_BD_LICENCES,
 } from "@/const.js";
+import { cacheSuivi } from "@/décorateursCache.js";
+import { faisRien } from "@constl/utils-ipa";
 
 import {
   கிளி,

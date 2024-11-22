@@ -1,26 +1,26 @@
-import { identify } from "@libp2p/identify";
-import { webSockets } from "@libp2p/websockets";
-import { webTransport } from "@libp2p/webtransport";
-import { webRTC, webRTCDirect } from "@libp2p/webrtc";
-import { bootstrap } from "@libp2p/bootstrap";
-import { all } from "@libp2p/websockets/filters";
+import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { autoNAT } from "@libp2p/autonat";
-import { gossipsub } from "@chainsafe/libp2p-gossipsub";
-import { dcutr } from "@libp2p/dcutr";
+import { bootstrap } from "@libp2p/bootstrap";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
+import { dcutr } from "@libp2p/dcutr";
+import { identify } from "@libp2p/identify";
+import { webRTC, webRTCDirect } from "@libp2p/webrtc";
+import { webSockets } from "@libp2p/websockets";
+import { all } from "@libp2p/websockets/filters";
+import { webTransport } from "@libp2p/webtransport";
 
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 // import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
 import type { Libp2pOptions } from "libp2p";
 
+import { FaultTolerance } from "@libp2p/interface";
 import {
   ADRESSES_NŒUDS_INITIAUX,
   ADRESSES_NŒUDS_RELAI_RUST,
   ADRESSES_NŒUDS_RELAI_WS,
 } from "./const.js";
-import { FaultTolerance } from "@libp2p/interface";
 import { résoudreInfoAdresses } from "./utils.js";
 
 export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {

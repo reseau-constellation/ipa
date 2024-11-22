@@ -1,25 +1,21 @@
-import { EventEmitter } from "events";
-
-import * as XLSX from "xlsx";
-
-import Semaphore from "@chriscdn/promise-semaphore";
-import { isNode, isElectronMain } from "wherearewe";
-import { v4 as uuidv4 } from "uuid";
-import deepcopy from "deepcopy";
-
 import type { Constellation } from "@/client.js";
-import type { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
-import { faisRien } from "@constl/utils-ipa";
+import { ComposanteClientDic } from "@/composanteClient.js";
 import {
   importerFeuilleCalculDURL,
   importerJSONdURL,
 } from "@/importateur/index.js";
-import type { conversionDonnées } from "@/tableaux.js";
-
-import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
 import { ImportateurDonnéesJSON, clefsExtraction } from "@/importateur/json.js";
-import { ComposanteClientDic } from "@/composanteClient.js";
+import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
+import type { conversionDonnées } from "@/tableaux.js";
+import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
+import Semaphore from "@chriscdn/promise-semaphore";
+import { faisRien } from "@constl/utils-ipa";
 import type { JSONSchemaType } from "ajv";
+import deepcopy from "deepcopy";
+import { EventEmitter } from "events";
+import { v4 as uuidv4 } from "uuid";
+import { isElectronMain, isNode } from "wherearewe";
+import * as XLSX from "xlsx";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));

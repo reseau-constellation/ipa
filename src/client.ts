@@ -1,25 +1,25 @@
 import type { KeyValue as KeyValueDatabaseType } from "@orbitdb/core";
 import type TypedEmitter from "typed-emitter";
 
-import deepEqual from "deep-equal";
-import { எண்ணிக்கை } from "ennikkai";
+import type { infoUtilisateur, objRôles } from "@/accès/types.js";
+import Semaphore from "@chriscdn/promise-semaphore";
+import { unixfs } from "@helia/unixfs";
+import { Libp2p, PeerId } from "@libp2p/interface";
 import {
+  type createOrbitDB,
   type IPFSAccessController as générerIPFSAccessController,
   type OrbitDB,
   AccessController,
   isValidAddress,
   KeyValue,
   OrbitDBDatabaseOptions,
-  type createOrbitDB,
 } from "@orbitdb/core";
-import { Libp2p, PeerId } from "@libp2p/interface";
-import { unixfs } from "@helia/unixfs";
-import type { objRôles, infoUtilisateur } from "@/accès/types.js";
+import deepEqual from "deep-equal";
+import { எண்ணிக்கை } from "ennikkai";
 import { EventEmitter } from "events";
-import { v4 as uuidv4 } from "uuid";
-import Semaphore from "@chriscdn/promise-semaphore";
 import indexedDbStream from "indexed-db-stream";
 import plateforme from "platform";
+import { v4 as uuidv4 } from "uuid";
 
 import {
   adresseOrbiteValide,
@@ -27,70 +27,70 @@ import {
   suivreBdsDeFonctionListe,
 } from "@constl/utils-ipa";
 
-import { Licences } from "@/licences.js";
-import { Épingles } from "@/epingles.js";
-import { Profil } from "@/profil.js";
+import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
-import { Tableaux } from "@/tableaux.js";
-import { Variables } from "@/variables.js";
-import { Réseau } from "@/reseau.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
+import { Épingles } from "@/epingles.js";
 import { Favoris } from "@/favoris.js";
-import { Projets } from "@/projets.js";
+import { Licences } from "@/licences.js";
 import { MotsClefs } from "@/motsClefs.js";
 import { Nuées } from "@/nuées.js";
+import { Profil } from "@/profil.js";
+import { Projets } from "@/projets.js";
 import { Recherche } from "@/recherche/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
-import { Automatisations } from "@/automatisation.js";
+import { Réseau } from "@/reseau.js";
+import { Tableaux } from "@/tableaux.js";
+import { Variables } from "@/variables.js";
 
 import { cacheSuivi } from "@/décorateursCache.js";
 
-import {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  schémaRetourFonctionRechercheParProfondeur,
-  élémentsBd,
-} from "@/types.js";
-import {
-  faisRien,
-  toBuffer,
-  ignorerNonDéfinis,
-  sauvegarderFichierZip,
-} from "@constl/utils-ipa";
-import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 import {
   type OptionsContrôleurConstellation,
   ContrôleurConstellation as générerContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
+import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
+import {
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaRetourFonctionRechercheParProfondeur,
+  élémentsBd,
+} from "@/types.js";
+import {
+  faisRien,
+  ignorerNonDéfinis,
+  sauvegarderFichierZip,
+  toBuffer,
+} from "@constl/utils-ipa";
 
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
-import Base64 from "crypto-js/enc-base64.js";
-import sha256 from "crypto-js/sha256.js";
-import md5 from "crypto-js/md5.js";
-import JSZip from "jszip";
-import { isBrowser, isElectronMain, isNode } from "wherearewe";
-import { JSONSchemaType } from "ajv";
 import {
-  gestionnaireOrbiteGénéral,
   type GestionnaireOrbite,
+  gestionnaireOrbiteGénéral,
   Store,
 } from "@/orbite.js";
+import type { ServicesLibp2p } from "@/sfip/index.js";
+import { initSFIP } from "@/sfip/index.js";
 import {
   TypedFeed,
   TypedKeyValue,
   TypedOrderedKeyValue,
   TypedSet,
 } from "@constl/bohr-db";
-import type { FeedDatabaseType } from "@orbitdb/feed-db";
-import type { SetDatabaseType } from "@orbitdb/set-db";
-import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
-import { Protocoles } from "./protocoles.js";
-import { HeliaLibp2p } from "helia";
-import { CID } from "multiformats";
-import type { ServicesLibp2p } from "@/sfip/index.js";
-import { initSFIP } from "@/sfip/index.js";
 import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
+import type { FeedDatabaseType } from "@orbitdb/feed-db";
+import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
+import type { SetDatabaseType } from "@orbitdb/set-db";
+import { JSONSchemaType } from "ajv";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
+import sha256 from "crypto-js/sha256.js";
+import { HeliaLibp2p } from "helia";
+import JSZip from "jszip";
+import { CID } from "multiformats";
+import { isBrowser, isElectronMain, isNode } from "wherearewe";
+import { Protocoles } from "./protocoles.js";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -143,7 +143,10 @@ export interface optsConstellation {
 export type optsInitOrbite = Omit<
   Parameters<typeof createOrbitDB>[0],
   "ipfs" | "directory"
-> & { directory?: string; ipfs?: HeliaLibp2p<Libp2p<ServicesLibp2p>> };
+> & {
+  directory?: string;
+  ipfs?: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+};
 
 export type optsOrbite = OrbitDB | optsInitOrbite;
 
@@ -2104,10 +2107,7 @@ export class Constellation {
   }): Promise<string> {
     if (parCompte) {
       const idCompte = await this.obtIdCompte();
-      return `${idCompte.slice(
-        idCompte!.length - 23,
-        idCompte!.length - 8,
-      )} : ${clef}`;
+      return `${idCompte.slice(idCompte!.length - 23, idCompte!.length - 8)} : ${clef}`;
     }
     return clef;
   }

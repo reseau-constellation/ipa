@@ -1,21 +1,21 @@
 import {
-  IPFSBlockStorage,
   ComposedStorage,
-  LRUStorage,
-  type Storage,
-  type IdentitiesType,
-  type OrbitDB,
   Entry,
+  IPFSBlockStorage,
+  LRUStorage,
+  type IdentitiesType,
   type LogEntry,
+  type OrbitDB,
+  type Storage,
 } from "@orbitdb/core";
 
-import * as Block from "multiformats/block";
 import * as dagCbor from "@ipld/dag-cbor";
-import { sha256 } from "multiformats/hashes/sha2";
 import { base58btc } from "multiformats/bases/base58";
+import * as Block from "multiformats/block";
+import { sha256 } from "multiformats/hashes/sha2";
 
-import { GestionnaireAccès } from "@/accès/gestionnaireUtilisateurs.js";
 import { MODÉRATEUR, rôles } from "@/accès/consts.js";
+import { GestionnaireAccès } from "@/accès/gestionnaireUtilisateurs.js";
 import type { élémentBdAccès } from "@/accès/types.js";
 import { pathJoin } from "./utils.js";
 

@@ -1,38 +1,38 @@
-import { MODÉRATEUR, MEMBRE } from "@/accès/consts.js";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import {
+  infoAuteur,
+  schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
-  schémaFonctionOublier,
-  infoAuteur,
 } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
 
-import { type Constellation, créerConstellation } from "@/index.js";
+import type { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 import type { ÉlémentFavorisAvecObjet } from "@/favoris.js";
+import { type Constellation, créerConstellation } from "@/index.js";
 import type {
-  élémentDeMembre,
-  statutDispositif,
   infoBloqué,
   infoConfiance,
   infoMembre,
-  statutMembre,
-  infoRelation,
   infoMembreRéseau,
+  infoRelation,
   infoRéplications,
+  statutDispositif,
+  statutMembre,
+  élémentDeMembre,
 } from "@/reseau.js";
-import type { schémaSpécificationBd, infoTableauAvecId } from "@/bds.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
 import {
-  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
 import { obtRessourceTest } from "./ressources/index.js";
 
-import { isNode, isElectronMain } from "wherearewe";
+import { isElectronMain, isNode } from "wherearewe";
 
 import { expect } from "aegir/chai";
 

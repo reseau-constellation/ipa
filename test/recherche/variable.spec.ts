@@ -1,15 +1,15 @@
 import type { Constellation } from "@/client.js";
-import type {
-  schémaFonctionOublier,
-  résultatObjectifRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-} from "@/types.js";
 import {
-  rechercherVariablesSelonNom,
   rechercherVariablesSelonDescr,
+  rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "@/recherche/variable.js";
+import type {
+  infoRésultatTexte,
+  infoRésultatVide,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
+} from "@/types.js";
 
 import { attente as utilsTestAttente } from "@constl/utils-tests";
 
@@ -23,7 +23,9 @@ describe("Rechercher variables", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClientsInternes({ n: 1 }));
+      await générerClientsInternes({
+        n: 1,
+      }));
     client = clients[0];
   });
 

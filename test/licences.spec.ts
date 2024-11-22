@@ -1,4 +1,4 @@
-import { licences, infoLicences } from "@/licences.js";
+import { infoLicences, licences } from "@/licences.js";
 
 import { expect } from "aegir/chai";
 

@@ -1,23 +1,23 @@
 import type { Constellation } from "@/client.js";
 
 import {
-  rechercherNuéesSelonNom,
   rechercherNuéesSelonDescr,
   rechercherNuéesSelonIdMotClef,
-  rechercherNuéesSelonNomMotClef,
-  rechercherNuéesSelonMotClef,
   rechercherNuéesSelonIdVariable,
+  rechercherNuéesSelonMotClef,
+  rechercherNuéesSelonNom,
+  rechercherNuéesSelonNomMotClef,
   rechercherNuéesSelonNomVariable,
-  rechercherNuéesSelonVariable,
   rechercherNuéesSelonTexte,
+  rechercherNuéesSelonVariable,
 } from "@/recherche/nuée.js";
 
 import type {
-  schémaFonctionOublier,
-  résultatObjectifRecherche,
-  infoRésultatTexte,
   infoRésultatRecherche,
+  infoRésultatTexte,
   infoRésultatVide,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
 } from "@/types.js";
 
 import { attente as utilsTestAttente } from "@constl/utils-tests";
@@ -32,7 +32,9 @@ describe("Nuées", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClientsInternes({ n: 1 }));
+      await générerClientsInternes({
+        n: 1,
+      }));
     client = clients[0];
   });
 

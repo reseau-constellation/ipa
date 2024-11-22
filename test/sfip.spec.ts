@@ -1,12 +1,12 @@
-import { ServicesLibp2p, initSFIP } from "../src/sfip/index.js";
-import { expect } from "aegir/chai";
-import type { HeliaLibp2p } from "helia";
-import { isElectronMain, isNode } from "wherearewe";
+import { Constellation, créerConstellation } from "@/index.js";
 import { dossiers } from "@constl/utils-tests";
 import { Libp2p } from "@libp2p/interface";
+import { expect } from "aegir/chai";
+import type { HeliaLibp2p } from "helia";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
-import { Constellation, créerConstellation } from "@/index.js";
+import { isElectronMain, isNode } from "wherearewe";
+import { ServicesLibp2p, initSFIP } from "../src/sfip/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
 
 const attendre = (ms: number) =>
@@ -55,7 +55,11 @@ const testerGossipSub = async ({
       if (m.detail.msg.topic === CANAL_TEST) {
         const messageRetour = JSON.parse(
           new TextDecoder().decode(m.detail.msg.data),
-        ) as { idPair: string; type: string; message: string };
+        ) as {
+          idPair: string;
+          type: string;
+          message: string;
+        };
 
         if (
           messageRetour.message.includes(message) &&

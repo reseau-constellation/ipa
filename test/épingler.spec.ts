@@ -3,13 +3,13 @@ import { isSet } from "lodash-es";
 import { créerConstellation, type Constellation } from "@/index.js";
 
 import {
-  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
-import { expect } from "aegir/chai";
 import { schémaFonctionOublier } from "@/types.js";
+import { expect } from "aegir/chai";
 
 describe("Épingles", function () {
   let fOublierClients: () => Promise<void>;

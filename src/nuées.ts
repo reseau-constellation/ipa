@@ -1,30 +1,29 @@
 import { Constellation } from "@/client.js";
 
 import {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  schémaStatut,
-  schémaRetourFonctionRechercheParProfondeur,
   infoAuteur,
-  schémaFonctionSuiviRecherche,
   infoRésultatVide,
   résultatRecherche,
-  schémaStructureBdNoms,
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaFonctionSuiviRecherche,
+  schémaRetourFonctionRechercheParProfondeur,
+  schémaStatut,
   schémaStructureBdMétadonnées,
+  schémaStructureBdNoms,
 } from "@/types.js";
 import {
-  faisRien,
-  uneFois,
-  ignorerNonDéfinis,
-  traduire,
   attendreStabilité,
+  faisRien,
+  ignorerNonDéfinis,
   suivreBdDeFonction,
   suivreBdsDeFonctionListe,
+  traduire,
+  uneFois,
 } from "@constl/utils-ipa";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import type { objRôles } from "@/accès/types.js";
 import {
   type différenceBds,
@@ -36,11 +35,12 @@ import {
   type schémaSpécificationBd,
   schémaBdTableauxDeBd,
 } from "@/bds.js";
-import { v4 as uuidv4 } from "uuid";
-import type { erreurValidation, règleVariable, règleColonne } from "@/valid.js";
-import type { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
+import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
+import type { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
 import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/types.js";
+import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
+import { v4 as uuidv4 } from "uuid";
 
 import {
   type différenceTableaux,
@@ -48,13 +48,13 @@ import {
   type InfoColAvecCatégorie,
   type élémentBdListeDonnées,
 } from "@/tableaux.js";
-import { ComposanteClientListe } from "./composanteClient.js";
+import { TypedKeyValue } from "@constl/bohr-db";
+import { isValidAddress } from "@orbitdb/core";
+import { JSONSchemaType } from "ajv";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { utils } from "xlsx";
-import { JSONSchemaType } from "ajv";
-import { isValidAddress } from "@orbitdb/core";
-import { TypedKeyValue } from "@constl/bohr-db";
+import { ComposanteClientListe } from "./composanteClient.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

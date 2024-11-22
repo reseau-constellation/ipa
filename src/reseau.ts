@@ -2,54 +2,57 @@ import { isValidAddress } from "@orbitdb/core";
 
 import type { Libp2pEvents, PeerUpdate } from "@libp2p/interface";
 
-import { EventEmitter } from "events";
-import { sum } from "lodash-es";
 import Semaphore from "@chriscdn/promise-semaphore";
 import { multiaddr } from "@multiformats/multiaddr";
+import { EventEmitter } from "events";
+import { sum } from "lodash-es";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import type { infoScore } from "@/bds.js";
 import {
   Constellation,
   Signature,
   infoAccès,
   schémaStructureBdCompte,
 } from "@/client.js";
-import type {
-  schémaFonctionSuivi,
-  schémaFonctionOublier,
-  schémaRetourFonctionRechercheParN,
-  schémaRetourFonctionRechercheParProfondeur,
-  schémaFonctionSuivreObjectifRecherche,
-  schémaFonctionSuivreQualitéRecherche,
-  schémaFonctionSuivreConfianceRecherche,
-  infoRésultatRecherche,
-  infoAuteur,
-  infoRésultat,
-  résultatObjectifRecherche,
-  résultatRecherche,
-} from "@/types.js";
-import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
-import type { infoScore } from "@/bds.js";
-import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
-import type {
-  ÉlémentFavoris,
-  ÉlémentFavorisAvecObjet,
-  épingleDispositif,
-} from "@/favoris.js";
-import type { erreurValidation } from "@/valid.js";
-import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
-import { rechercherTous } from "@/recherche/utils.js";
 import {
   cacheRechercheParNRésultats,
   cacheRechercheParProfondeur,
   cacheSuivi,
 } from "@/décorateursCache.js";
-import { v4 as uuidv4 } from "uuid";
-import { ComposanteClientDic } from "./composanteClient.js";
-import { JSONSchemaType } from "ajv";
-import { suivreBdDeFonction } from "@constl/utils-ipa";
-import { estUnContrôleurConstellation } from "./accès/utils.js";
+import type {
+  ÉlémentFavoris,
+  ÉlémentFavorisAvecObjet,
+  épingleDispositif,
+} from "@/favoris.js";
+import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
+import { rechercherTous } from "@/recherche/utils.js";
+import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
+import type {
+  infoAuteur,
+  infoRésultat,
+  infoRésultatRecherche,
+  résultatObjectifRecherche,
+  résultatRecherche,
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaFonctionSuivreConfianceRecherche,
+  schémaFonctionSuivreObjectifRecherche,
+  schémaFonctionSuivreQualitéRecherche,
+  schémaRetourFonctionRechercheParN,
+  schémaRetourFonctionRechercheParProfondeur,
+} from "@/types.js";
+import type { erreurValidation } from "@/valid.js";
 import { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
+import {
+  faisRien,
+  suivreBdDeFonction,
+  suivreBdsDeFonctionListe,
+} from "@constl/utils-ipa";
+import { JSONSchemaType } from "ajv";
+import { v4 as uuidv4 } from "uuid";
+import { estUnContrôleurConstellation } from "./accès/utils.js";
+import { ComposanteClientDic } from "./composanteClient.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 

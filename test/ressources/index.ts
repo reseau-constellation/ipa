@@ -1,5 +1,5 @@
-import { isElectronMain, isNode } from "wherearewe";
 import axios, { AxiosRequestConfig } from "axios";
+import { isElectronMain, isNode } from "wherearewe";
 
 export const obtRessourceTest = async ({
   nomFichier,

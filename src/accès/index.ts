@@ -1,8 +1,8 @@
 import { useAccessController } from "@orbitdb/core";
 
+import { registerSet } from "@orbitdb/set-db";
 import { ContrôleurConstellation } from "./cntrlConstellation.js";
 import { ContrôleurAccès } from "./cntrlMod.js";
-import { registerSet } from "@orbitdb/set-db";
 
 export const enregistrerContrôleurs = (): void => {
   registerSet();

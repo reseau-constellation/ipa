@@ -1,24 +1,24 @@
 import { type Constellation } from "@/index.js";
-import type {
-  schémaFonctionOublier,
-  résultatObjectifRecherche,
-  infoRésultatTexte,
-  infoRésultatRecherche,
-  infoRésultatVide,
-} from "@/types.js";
 import {
-  rechercherProjetsSelonNom,
+  rechercherProjetsSelonBd,
   rechercherProjetsSelonDescr,
   rechercherProjetsSelonIdBd,
-  rechercherProjetsSelonBd,
   rechercherProjetsSelonIdMotClef,
-  rechercherProjetsSelonNomMotClef,
-  rechercherProjetsSelonMotClef,
   rechercherProjetsSelonIdVariable,
+  rechercherProjetsSelonMotClef,
+  rechercherProjetsSelonNom,
+  rechercherProjetsSelonNomMotClef,
   rechercherProjetsSelonNomVariable,
-  rechercherProjetsSelonVariable,
   rechercherProjetsSelonTexte,
+  rechercherProjetsSelonVariable,
 } from "@/recherche/projet.js";
+import type {
+  infoRésultatRecherche,
+  infoRésultatTexte,
+  infoRésultatVide,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
+} from "@/types.js";
 
 import { attente as utilsTestAttente } from "@constl/utils-tests";
 import { générerClientsInternes } from "../ressources/utils.js";
@@ -32,7 +32,9 @@ describe("Rechercher projets", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClientsInternes({ n: 1 }));
+      await générerClientsInternes({
+        n: 1,
+      }));
     client = clients[0];
   });
 

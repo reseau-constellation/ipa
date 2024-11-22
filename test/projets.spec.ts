@@ -1,6 +1,6 @@
-import type XLSX from "xlsx";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
+import type XLSX from "xlsx";
 
 import { type Constellation, créerConstellation } from "@/index.js";
 import { schémaFonctionOublier } from "@/types.js";
@@ -8,9 +8,9 @@ import { isValidAddress } from "@orbitdb/core";
 
 import {
   attente,
-  constellation as utilsTestConstellation,
-  attente as utilsTestAttente,
   dossiers,
+  attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 

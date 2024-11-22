@@ -1,20 +1,20 @@
 import type { Constellation } from "@/client.js";
-import type { catégorieVariables } from "@/variables.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import type {
-  règleVariableAvecId,
   règleBornes,
   règleCatégorie,
+  règleVariableAvecId,
 } from "@/valid.js";
+import type { catégorieVariables } from "@/variables.js";
 import { expect } from "aegir/chai";
 
+import { créerConstellation } from "@/index.js";
 import {
   attente,
-  constellation as utilsTestConstellation,
   attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
-import { créerConstellation } from "@/index.js";
 
 describe("Variables", function () {
   let fOublierClients: () => Promise<void>;

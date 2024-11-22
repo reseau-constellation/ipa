@@ -1,6 +1,6 @@
-import type { Page, PageScreenshotOptions } from "playwright";
 import fs from "fs";
 import path from "path";
+import type { Page, PageScreenshotOptions } from "playwright";
 
 import { Nuchabäl } from "nuchabal";
 

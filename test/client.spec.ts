@@ -1,11 +1,11 @@
-import type { CID } from "multiformats";
 import toBuffer from "it-to-buffer";
+import type { CID } from "multiformats";
 
-import { OrbitDB, isValidAddress } from "@orbitdb/core";
 import { unixfs } from "@helia/unixfs";
+import { OrbitDB, isValidAddress } from "@orbitdb/core";
 
 import { Constellation, infoAccès } from "@/client.js";
-import { schémaFonctionSuivi, schémaFonctionOublier } from "@/types.js";
+import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import {
   faisRien,
   suivreBdDeFonction,
@@ -13,9 +13,9 @@ import {
 } from "@constl/utils-ipa";
 
 import {
-  orbite,
   attente,
   dossiers,
+  orbite,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
@@ -24,15 +24,15 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import { isNode, isElectronMain } from "wherearewe";
+import { isElectronMain, isNode } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
-import { générerClientsInternes } from "./ressources/utils.js";
+import { créerConstellation } from "@/index.js";
 import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
-import { créerConstellation } from "@/index.js";
+import { générerClientsInternes } from "./ressources/utils.js";
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
@@ -1853,9 +1853,15 @@ if (isNode || isElectronMain) {
         const idBdListe2 = await client.créerBdIndépendante({ type: "set" });
 
         const { bd: bdListe1, fOublier: fOublierListe1 } =
-          await client.orbite!.ouvrirBd({ id: idBdListe1, type: "set" });
+          await client.orbite!.ouvrirBd({
+            id: idBdListe1,
+            type: "set",
+          });
         const { bd: bdListe2, fOublier: fOublierListe2 } =
-          await client.orbite!.ouvrirBd({ id: idBdListe2, type: "set" });
+          await client.orbite!.ouvrirBd({
+            id: idBdListe2,
+            type: "set",
+          });
 
         fsOublier.push(fOublierListe1);
         fsOublier.push(fOublierListe2);
@@ -1872,7 +1878,10 @@ if (isNode || isElectronMain) {
         const idBdListeFinale = await bdDic1.get("clef");
         if (!idBdListeFinale) throw new Error("idBdListeFinale non définie");
         const { bd: bdListeFinale, fOublier: fOublierBdListeFinale } =
-          await client.orbite!.ouvrirBd({ id: idBdListeFinale, type: "set" });
+          await client.orbite!.ouvrirBd({
+            id: idBdListeFinale,
+            type: "set",
+          });
 
         fsOublier.push(fOublierBdListeFinale);
 
@@ -1920,9 +1929,15 @@ if (isNode || isElectronMain) {
         const idSubBd2 = await client.créerBdIndépendante({ type: "set" });
 
         const { bd: subBd1, fOublier: fOublierSubBd1 } =
-          await client.orbite!.ouvrirBd({ id: idSubBd1, type: "set" });
+          await client.orbite!.ouvrirBd({
+            id: idSubBd1,
+            type: "set",
+          });
         const { bd: subBd2, fOublier: fOublierSubBd2 } =
-          await client.orbite!.ouvrirBd({ id: idSubBd2, type: "set" });
+          await client.orbite!.ouvrirBd({
+            id: idSubBd2,
+            type: "set",
+          });
 
         fsOublier.push(fOublierSubBd1);
         fsOublier.push(fOublierSubBd2);
@@ -1949,7 +1964,10 @@ if (isNode || isElectronMain) {
 
         const idBdListeFinale = donnéesBdListe[0]!.idBd;
         const { bd: subBdFinale, fOublier: fOublierSubBdFinale } =
-          await client.orbite!.ouvrirBd({ id: idBdListeFinale, type: "set" });
+          await client.orbite!.ouvrirBd({
+            id: idBdListeFinale,
+            type: "set",
+          });
 
         fsOublier.push(fOublierSubBdFinale);
 

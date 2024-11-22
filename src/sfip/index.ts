@@ -1,3 +1,4 @@
+import mergeOptions from "merge-options";
 import {
   isBrowser,
   isElectronMain,
@@ -5,24 +6,23 @@ import {
   isNode,
   isWebWorker,
 } from "wherearewe";
-import mergeOptions from "merge-options";
 
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
+import { bitswap } from "@helia/block-brokers";
+import { IDBBlockstore } from "blockstore-idb";
+import { IDBDatastore } from "datastore-idb";
 import {
   DefaultLibp2pServices,
   HeliaInit,
   HeliaLibp2p,
   createHelia,
 } from "helia";
-import { IDBDatastore } from "datastore-idb";
-import { IDBBlockstore } from "blockstore-idb";
-import { bitswap } from "@helia/block-brokers";
 import { Libp2p, createLibp2p, type Libp2pOptions } from "libp2p";
 
-import { obtOptionsLibp2pNode } from "./configNode.js";
-import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
+import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
+import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import * as consts from "./const.js";
 
 export type ServicesLibp2p = DefaultLibp2pServices & { pubsub: GossipSub };
@@ -100,9 +100,9 @@ export async function initSFIP({
 }
 
 export {
+  consts,
   obtOptionsLibp2pNavigateur,
   obtOptionsLibp2pNode,
-  obtOptionsLibp2pÉlectionPrincipal,
   obtOptionsLibp2pTravailleurWeb,
-  consts,
+  obtOptionsLibp2pÉlectionPrincipal,
 };

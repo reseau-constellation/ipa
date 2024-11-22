@@ -1,14 +1,14 @@
 import type { Constellation } from "@/client.js";
-import type {
-  schémaFonctionOublier,
-  résultatObjectifRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-} from "@/types.js";
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
 } from "@/recherche/motClef.js";
+import type {
+  infoRésultatTexte,
+  infoRésultatVide,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
+} from "@/types.js";
 
 import { attente as utilsTestAttente } from "@constl/utils-tests";
 
@@ -22,7 +22,9 @@ describe("Rechercher mots clefs", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClientsInternes({ n: 1 }));
+      await générerClientsInternes({
+        n: 1,
+      }));
     client = clients[0];
   });
 

@@ -1,22 +1,22 @@
 import { type Constellation } from "@/index.js";
-import type {
-  schémaFonctionOublier,
-  résultatObjectifRecherche,
-  infoRésultatTexte,
-  infoRésultatRecherche,
-  infoRésultatVide,
-} from "@/types.js";
 import {
-  rechercherBdsSelonNom,
   rechercherBdsSelonDescr,
-  rechercherBdsSelonTexte,
-  rechercherBdsSelonMotClef,
-  rechercherBdsSelonVariable,
   rechercherBdsSelonIdMotClef,
   rechercherBdsSelonIdVariable,
+  rechercherBdsSelonMotClef,
+  rechercherBdsSelonNom,
   rechercherBdsSelonNomMotClef,
   rechercherBdsSelonNomVariable,
+  rechercherBdsSelonTexte,
+  rechercherBdsSelonVariable,
 } from "@/recherche/bd.js";
+import type {
+  infoRésultatRecherche,
+  infoRésultatTexte,
+  infoRésultatVide,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
+} from "@/types.js";
 import { attente as utilsTestAttente } from "@constl/utils-tests";
 
 import { générerClientsInternes } from "../ressources/utils.js";
@@ -30,7 +30,9 @@ describe("Rechercher bds", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClientsInternes({ n: 1 }));
+      await générerClientsInternes({
+        n: 1,
+      }));
     client = clients[0];
   });
 

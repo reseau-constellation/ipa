@@ -1,27 +1,27 @@
 import type { Constellation } from "@/client.js";
+import {
+  combinerRecherches,
+  rechercherDansTexte,
+  rechercherSelonId,
+  rechercherTous,
+  similImages,
+  similTexte,
+  sousRecherche,
+} from "@/recherche/utils.js";
 import type {
-  schémaFonctionOublier,
-  résultatObjectifRecherche,
   infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
 } from "@/types.js";
-import {
-  rechercherDansTexte,
-  similTexte,
-  similImages,
-  rechercherSelonId,
-  combinerRecherches,
-  sousRecherche,
-  rechercherTous,
-} from "@/recherche/utils.js";
 
 import { obtRessourceTest } from "../ressources/index.js";
 
-import { expect } from "aegir/chai";
-import { générerClientsInternes } from "../ressources/utils.js";
-import { JSONSchemaType } from "ajv";
 import { attente } from "@constl/utils-tests";
+import { expect } from "aegir/chai";
+import { JSONSchemaType } from "ajv";
+import { générerClientsInternes } from "../ressources/utils.js";
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;
@@ -30,7 +30,9 @@ describe("Utils recherche", function () {
 
   before(async () => {
     ({ fOublier: fOublierClients, clients: clients as unknown } =
-      await générerClientsInternes({ n: 1 }));
+      await générerClientsInternes({
+        n: 1,
+      }));
     client = clients[0];
   });
 

@@ -1,17 +1,17 @@
 import type { Constellation } from "@/client.js";
 import type {
-  schémaFonctionOublier,
-  schémaFonctionSuivreObjectifRecherche,
-  schémaFonctionSuiviRecherche,
   infoRésultatTexte,
   infoRésultatVide,
+  schémaFonctionOublier,
+  schémaFonctionSuiviRecherche,
+  schémaFonctionSuivreObjectifRecherche,
 } from "@/types.js";
 
 import {
-  similTexte,
   combinerRecherches,
   rechercherSelonId,
   rechercherTousSiVide,
+  similTexte,
 } from "@/recherche/utils.js";
 
 export const rechercherVariablesSelonNom = (

@@ -1,16 +1,16 @@
-import ssim from "ssim";
 import correspTexte from "approx-string-match";
+import ssim from "ssim";
 
 import type { Constellation } from "@/client.js";
 import type {
-  schémaFonctionOublier,
-  schémaFonctionSuivreObjectifRecherche,
-  schémaFonctionSuiviRecherche,
-  résultatObjectifRecherche,
+  infoRésultat,
+  infoRésultatRecherche,
   infoRésultatTexte,
   infoRésultatVide,
-  infoRésultatRecherche,
-  infoRésultat,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
+  schémaFonctionSuiviRecherche,
+  schémaFonctionSuivreObjectifRecherche,
 } from "@/types.js";
 import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 

@@ -1,20 +1,20 @@
 import type { Constellation } from "@/client.js";
 import type {
-  schémaFonctionOublier,
-  schémaFonctionSuivreObjectifRecherche,
-  schémaFonctionSuiviRecherche,
-  résultatObjectifRecherche,
   infoRésultatTexte,
   infoRésultatVide,
+  résultatObjectifRecherche,
+  schémaFonctionOublier,
+  schémaFonctionSuiviRecherche,
+  schémaFonctionSuivreObjectifRecherche,
 } from "@/types.js";
 
 import {
-  similImages,
-  similTexte,
-  rechercherDansTexte,
   combinerRecherches,
+  rechercherDansTexte,
   rechercherSelonId,
   rechercherTousSiVide,
+  similImages,
+  similTexte,
 } from "@/recherche/utils.js";
 
 export const rechercherProfilsSelonActivité =
