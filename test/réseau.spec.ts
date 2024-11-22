@@ -1,3 +1,10 @@
+import { uneFois } from "@constl/utils-ipa";
+import {
+  attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
+} from "@constl/utils-tests";
+import { isElectronMain, isNode } from "wherearewe";
+import { expect } from "aegir/chai";
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import {
@@ -6,11 +13,11 @@ import {
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
-import { uneFois } from "@constl/utils-ipa";
 
+import { type Constellation, créerConstellation } from "@/index.js";
+import { obtRessourceTest } from "./ressources/index.js";
 import type { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
 import type { ÉlémentFavorisAvecObjet } from "@/favoris.js";
-import { type Constellation, créerConstellation } from "@/index.js";
 import type {
   infoBloqué,
   infoConfiance,
@@ -24,17 +31,7 @@ import type {
 } from "@/reseau.js";
 import type { élémentBdListeDonnées } from "@/tableaux.js";
 
-import {
-  attente as utilsTestAttente,
-  constellation as utilsTestConstellation,
-} from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
-
-import { obtRessourceTest } from "./ressources/index.js";
-
-import { isElectronMain, isNode } from "wherearewe";
-
-import { expect } from "aegir/chai";
 
 async function toutPréparer(n: number) {
   const { fOublier: fOublierClients, clients } = await créerConstellationsTest({

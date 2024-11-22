@@ -1,3 +1,5 @@
+import { attente as utilsTestAttente } from "@constl/utils-tests";
+import { expect } from "aegir/chai";
 import { type Constellation } from "@/index.js";
 import {
   rechercherProjetsSelonBd,
@@ -12,6 +14,7 @@ import {
   rechercherProjetsSelonTexte,
   rechercherProjetsSelonVariable,
 } from "@/recherche/projet.js";
+import { générerClientsInternes } from "../ressources/utils.js";
 import type {
   infoRésultatRecherche,
   infoRésultatTexte,
@@ -19,11 +22,6 @@ import type {
   résultatObjectifRecherche,
   schémaFonctionOublier,
 } from "@/types.js";
-
-import { attente as utilsTestAttente } from "@constl/utils-tests";
-import { générerClientsInternes } from "../ressources/utils.js";
-
-import { expect } from "aegir/chai";
 
 describe("Rechercher projets", function () {
   let fOublierClients: () => Promise<void>;

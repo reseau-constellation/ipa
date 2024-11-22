@@ -1,8 +1,8 @@
 import { orbite } from "@constl/utils-tests";
 
+import { isBrowser } from "wherearewe";
 import { Constellation as ConstellationInterne } from "@/client.js";
 import { préparerOrbite } from "@/orbite.js";
-import { isBrowser } from "wherearewe";
 
 export const générerClientsInternes = async ({
   n,

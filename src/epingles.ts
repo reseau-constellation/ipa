@@ -1,13 +1,13 @@
-import type { Constellation } from "@/client.js";
+import { EventEmitter } from "events";
+import { idcValide } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
+import { CID } from "multiformats";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   élémentsBd,
 } from "@/types.js";
-import { idcValide } from "@constl/utils-ipa";
-import { isValidAddress } from "@orbitdb/core";
-import { EventEmitter } from "events";
-import { CID } from "multiformats";
+import type { Constellation } from "@/client.js";
 
 interface RequêteÉpingle {
   id: string;

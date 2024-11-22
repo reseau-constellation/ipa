@@ -1,6 +1,5 @@
-import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
-
 import { expect } from "aegir/chai";
+import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 
 describe("Encryption", function () {
   let encrypteur1: Encryption;

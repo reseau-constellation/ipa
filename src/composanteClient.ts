@@ -1,20 +1,21 @@
 import {
+  suivreBdDeFonction,
+  faisRien,
+  ignorerNonDéfinis,
+} from "@constl/utils-ipa";
+import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
+import { JSONSchemaType } from "ajv";
+import {
   schémaStructureBdCompte,
   type Constellation,
   type structureBdCompte,
 } from "@/client.js";
-import { suivreBdDeFonction } from "@constl/utils-ipa";
+import { cacheSuivi } from "./décorateursCache.js";
 import type {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   élémentsBd,
 } from "./types.js";
-
-import { faisRien, ignorerNonDéfinis } from "@constl/utils-ipa";
-import { cacheSuivi } from "./décorateursCache.js";
-
-import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
-import { JSONSchemaType } from "ajv";
 
 // Obtenu de https://stackoverflow.com/a/54520829
 type KeysMatching<T, V> = {

@@ -1,6 +1,3 @@
-import type { HeliaLibp2p } from "helia";
-import type { schémaFonctionOublier, élémentsBd } from "./types.js";
-
 import {
   type OrbitDB,
   createOrbitDB,
@@ -16,7 +13,6 @@ import {
 } from "@orbitdb/ordered-keyvalue-db";
 import { type SetDatabaseType, registerSet } from "@orbitdb/set-db";
 
-import { enregistrerContrôleurs } from "@/accès/index.js";
 import {
   typedFeed,
   TypedFeed,
@@ -30,6 +26,9 @@ import {
 import { type JSONSchemaType } from "ajv";
 
 import Semaphore from "@chriscdn/promise-semaphore";
+import { enregistrerContrôleurs } from "@/accès/index.js";
+import type { schémaFonctionOublier, élémentsBd } from "./types.js";
+import type { HeliaLibp2p } from "helia";
 
 export type Store =
   | FeedDatabaseType

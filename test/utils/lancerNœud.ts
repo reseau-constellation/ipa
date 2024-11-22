@@ -1,6 +1,5 @@
-import { initSFIP } from "@/sfip/index.js";
-
 import { isBrowser } from "wherearewe";
+import { initSFIP } from "@/sfip/index.js";
 
 const CANAL_TEST = "test:gossipsub";
 

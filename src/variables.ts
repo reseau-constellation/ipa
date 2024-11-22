@@ -1,7 +1,17 @@
 import { v4 as uuidv4 } from "uuid";
 
+import { JSONSchemaType } from "ajv";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { Constellation } from "@/client.js";
+import { cacheSuivi } from "@/décorateursCache.js";
+import {
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaStatut,
+  schémaStructureBdNoms,
+} from "@/types.js";
+import { estUnContrôleurConstellation } from "./accès/utils.js";
+import { ComposanteClientListe } from "./composanteClient.js";
 import type {
   règleCatégorie,
   règleVariable,
@@ -9,18 +19,7 @@ import type {
 } from "@/valid.js";
 
 import type { objRôles } from "@/accès/types.js";
-import { cacheSuivi } from "@/décorateursCache.js";
 import type { dicTrads } from "@/types.js";
-
-import {
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
-  schémaStatut,
-  schémaStructureBdNoms,
-} from "@/types.js";
-import { JSONSchemaType } from "ajv";
-import { estUnContrôleurConstellation } from "./accès/utils.js";
-import { ComposanteClientListe } from "./composanteClient.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

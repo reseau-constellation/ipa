@@ -1,7 +1,5 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 
-import { Constellation, optsConstellation } from "@/client.js";
-import type { schémaFonctionOublier } from "@/types.js";
 import {
   type ErreurMandataire,
   type MessageActionDIpa,
@@ -15,6 +13,8 @@ import {
   ERREUR_PAS_UNE_FONCTION,
 } from "@constl/mandataire";
 import { v4 as uuidv4 } from "uuid";
+import { Constellation, optsConstellation } from "@/client.js";
+import type { schémaFonctionOublier } from "@/types.js";
 
 export class EnveloppeIpa {
   ipa?: Constellation;

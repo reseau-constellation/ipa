@@ -1,8 +1,7 @@
+import EventEmitter from "events";
+import Semaphore from "@chriscdn/promise-semaphore";
 import type { Base58 } from "@localfirst/auth";
 import type TypedEmitter from "typed-emitter";
-
-import Semaphore from "@chriscdn/promise-semaphore";
-import EventEmitter from "events";
 
 const importationAuth = import("@localfirst/auth");
 const importationCrypto = import("@localfirst/crypto");

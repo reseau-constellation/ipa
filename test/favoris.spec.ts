@@ -1,17 +1,16 @@
 import { isElectronMain, isNode } from "wherearewe";
 
-import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
-import { créerConstellation, type Constellation } from "@/index.js";
-import type { schémaFonctionOublier } from "@/types.js";
-
 import {
   attente,
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
-
 import { expect } from "aegir/chai";
+import { créerConstellation, type Constellation } from "@/index.js";
+import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
+import type { schémaFonctionOublier } from "@/types.js";
+
+const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("Favoris", function () {
   let fOublierClients: () => Promise<void>;

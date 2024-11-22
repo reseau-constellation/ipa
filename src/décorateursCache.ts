@@ -3,6 +3,7 @@ import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import { v4 as uuidv4 } from "uuid";
 
+import deepEqual from "deep-equal";
 import type { itemRechercheProfondeur } from "@/reseau.js";
 import type {
   schémaFonctionOublier,
@@ -10,7 +11,6 @@ import type {
   schémaRetourFonctionRechercheParN,
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
-import deepEqual from "deep-equal";
 
 export class CacheSuivi {
   verrou: Semaphore;

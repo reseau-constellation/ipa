@@ -1,4 +1,6 @@
-import type { Constellation } from "@/client.js";
+import { attente } from "@constl/utils-tests";
+import { expect } from "aegir/chai";
+import { JSONSchemaType } from "ajv";
 import {
   combinerRecherches,
   rechercherDansTexte,
@@ -8,6 +10,8 @@ import {
   similTexte,
   sousRecherche,
 } from "@/recherche/utils.js";
+import { obtRessourceTest } from "../ressources/index.js";
+import { générerClientsInternes } from "../ressources/utils.js";
 import type {
   infoRésultatRecherche,
   infoRésultatTexte,
@@ -15,13 +19,7 @@ import type {
   résultatObjectifRecherche,
   schémaFonctionOublier,
 } from "@/types.js";
-
-import { obtRessourceTest } from "../ressources/index.js";
-
-import { attente } from "@constl/utils-tests";
-import { expect } from "aegir/chai";
-import { JSONSchemaType } from "ajv";
-import { générerClientsInternes } from "../ressources/utils.js";
+import type { Constellation } from "@/client.js";
 
 describe("Utils recherche", function () {
   let fOublierClients: () => Promise<void>;

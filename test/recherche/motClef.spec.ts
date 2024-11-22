@@ -1,19 +1,18 @@
-import type { Constellation } from "@/client.js";
+import { attente as utilsTestAttente } from "@constl/utils-tests";
+
+import { expect } from "aegir/chai";
 import {
   rechercherMotsClefsSelonNom,
   rechercherMotsClefsSelonTexte,
 } from "@/recherche/motClef.js";
+import { générerClientsInternes } from "../ressources/utils.js";
 import type {
   infoRésultatTexte,
   infoRésultatVide,
   résultatObjectifRecherche,
   schémaFonctionOublier,
 } from "@/types.js";
-
-import { attente as utilsTestAttente } from "@constl/utils-tests";
-
-import { expect } from "aegir/chai";
-import { générerClientsInternes } from "../ressources/utils.js";
+import type { Constellation } from "@/client.js";
 
 describe("Rechercher mots clefs", function () {
   let fOublierClients: () => Promise<void>;

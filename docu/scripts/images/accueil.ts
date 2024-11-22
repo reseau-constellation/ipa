@@ -1,5 +1,4 @@
 import { Nuchabäl } from "nuchabal";
-import type { Browser } from "playwright";
 import {
   changerLangue,
   déjàGénérés,
@@ -7,6 +6,7 @@ import {
   ouvrirConstellation,
   type schémaFObtCheminImage,
 } from "./utils.js";
+import type { Browser } from "playwright";
 
 const nuchabäl = new Nuchabäl({});
 

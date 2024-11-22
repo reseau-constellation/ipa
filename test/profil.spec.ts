@@ -1,16 +1,12 @@
-import { type Constellation, créerConstellation } from "@/index.js";
-import { MAX_TAILLE_IMAGE } from "@/profil.js";
-import type { schémaFonctionOublier } from "@/types.js";
-
 import {
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
-
-import { obtRessourceTest } from "./ressources/index.js";
-
 import { expect } from "aegir/chai";
+import { type Constellation, créerConstellation } from "@/index.js";
+import { MAX_TAILLE_IMAGE } from "@/profil.js";
+import { obtRessourceTest } from "./ressources/index.js";
+import type { schémaFonctionOublier } from "@/types.js";
 
 describe("Profil", function () {
   let fOublierClients: () => Promise<void>;
@@ -18,10 +14,11 @@ describe("Profil", function () {
   let client: Constellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
-      n: 1,
-      créerConstellation,
-    }));
+    ({ fOublier: fOublierClients, clients } =
+      await utilsTestConstellation.créerConstellationsTest({
+        n: 1,
+        créerConstellation,
+      }));
     [client] = clients;
   });
 

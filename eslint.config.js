@@ -1,7 +1,7 @@
 import eslint from "@eslint/js";
 import globals from "globals";
-import tseslint from "typescript-eslint";
-import importPlugin, { rules } from 'eslint-plugin-import';
+import { configs as configsTseslint } from "typescript-eslint";
+import importPlugin from "eslint-plugin-import";
 
 export default [
   {
@@ -21,14 +21,23 @@ export default [
       "import/order": [
         "warn",
         {
-          groups: ["builtin", "external", "internal", "parent", "sibling", "index", "object", "type"]
-        }
+          groups: [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index",
+            "object",
+            "type",
+          ],
+        },
       ],
       "import/no-unresolved": "off",
-    }
+    },
   },
   eslint.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...configsTseslint.recommended,
   {
     files: ["**/*.{js,ts}"],
     languageOptions: {

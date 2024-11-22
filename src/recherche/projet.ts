@@ -1,13 +1,3 @@
-import type { Constellation } from "@/client.js";
-import type {
-  infoRésultatRecherche,
-  infoRésultatTexte,
-  infoRésultatVide,
-  schémaFonctionOublier,
-  schémaFonctionSuiviRecherche,
-  schémaFonctionSuivreObjectifRecherche,
-} from "@/types.js";
-
 import { rechercherBdsSelonTexte } from "@/recherche/bd.js";
 import {
   rechercherMotsClefsSelonNom,
@@ -24,6 +14,15 @@ import {
   rechercherVariablesSelonNom,
   rechercherVariablesSelonTexte,
 } from "@/recherche/variable.js";
+import type {
+  infoRésultatRecherche,
+  infoRésultatTexte,
+  infoRésultatVide,
+  schémaFonctionOublier,
+  schémaFonctionSuiviRecherche,
+  schémaFonctionSuivreObjectifRecherche,
+} from "@/types.js";
+import type { Constellation } from "@/client.js";
 
 export const rechercherProjetsSelonNom = (
   nomProjet: string,

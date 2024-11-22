@@ -1,4 +1,10 @@
-import type { Constellation } from "@/client.js";
+import { EventEmitter } from "events";
+import Semaphore from "@chriscdn/promise-semaphore";
+import { faisRien } from "@constl/utils-ipa";
+import deepcopy from "deepcopy";
+import { v4 as uuidv4 } from "uuid";
+import { isElectronMain, isNode } from "wherearewe";
+import * as XLSX from "xlsx";
 import { ComposanteClientDic } from "@/composanteClient.js";
 import {
   importerFeuilleCalculDURL,
@@ -6,16 +12,10 @@ import {
 } from "@/importateur/index.js";
 import { ImportateurDonnéesJSON, clefsExtraction } from "@/importateur/json.js";
 import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
+import type { Constellation } from "@/client.js";
+import type { JSONSchemaType } from "ajv";
 import type { conversionDonnées } from "@/tableaux.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
-import Semaphore from "@chriscdn/promise-semaphore";
-import { faisRien } from "@constl/utils-ipa";
-import type { JSONSchemaType } from "ajv";
-import deepcopy from "deepcopy";
-import { EventEmitter } from "events";
-import { v4 as uuidv4 } from "uuid";
-import { isElectronMain, isNode } from "wherearewe";
-import * as XLSX from "xlsx";
 
 if (isElectronMain || isNode) {
   import("fs").then((fs) => XLSX.set_fs(fs));

@@ -1,4 +1,4 @@
-import type { objRôles } from "@/accès/types.js";
+import { JSONSchemaType } from "ajv";
 import {
   type schémaFonctionOublier,
   type schémaFonctionSuivi,
@@ -9,9 +9,9 @@ import { Constellation } from "@/client.js";
 
 import { ComposanteClientListe } from "@/composanteClient.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { JSONSchemaType } from "ajv";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import type { objRôles } from "@/accès/types.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

@@ -1,6 +1,5 @@
-import { infoLicences, licences } from "@/licences.js";
-
 import { expect } from "aegir/chai";
+import { infoLicences, licences } from "@/licences.js";
 
 describe("Licences", function () {
   it("licences", () => {

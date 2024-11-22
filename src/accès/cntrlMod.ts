@@ -16,8 +16,8 @@ import { sha256 } from "multiformats/hashes/sha2";
 
 import { MODÉRATEUR, rôles } from "@/accès/consts.js";
 import { GestionnaireAccès } from "@/accès/gestionnaireUtilisateurs.js";
-import type { élémentBdAccès } from "@/accès/types.js";
 import { pathJoin } from "./utils.js";
+import type { élémentBdAccès } from "@/accès/types.js";
 
 const type = "contrôleur-accès-constellation";
 

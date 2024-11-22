@@ -1,7 +1,7 @@
-import Semaphore from "@chriscdn/promise-semaphore";
 import { EventEmitter } from "events";
 import fs from "fs";
 import path from "path";
+import Semaphore from "@chriscdn/promise-semaphore";
 import { v4 as uuidv4 } from "uuid";
 
 const stockagesLocaux: { [dossier: string]: LocalStorage } = {};

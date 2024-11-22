@@ -1,3 +1,11 @@
+import {
+  combinerRecherches,
+  rechercherDansTexte,
+  rechercherSelonId,
+  rechercherTousSiVide,
+  similImages,
+  similTexte,
+} from "@/recherche/utils.js";
 import type { Constellation } from "@/client.js";
 import type {
   infoRésultatTexte,
@@ -7,15 +15,6 @@ import type {
   schémaFonctionSuiviRecherche,
   schémaFonctionSuivreObjectifRecherche,
 } from "@/types.js";
-
-import {
-  combinerRecherches,
-  rechercherDansTexte,
-  rechercherSelonId,
-  rechercherTousSiVide,
-  similImages,
-  similTexte,
-} from "@/recherche/utils.js";
 
 export const rechercherProfilsSelonActivité =
   (): schémaFonctionSuivreObjectifRecherche<infoRésultatVide> => {

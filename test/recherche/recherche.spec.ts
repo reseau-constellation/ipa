@@ -1,3 +1,9 @@
+import {
+  attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
+} from "@constl/utils-tests";
+import { expect } from "aegir/chai";
+import { isElectronMain, isNode } from "wherearewe";
 import { créerConstellation, type Constellation } from "@/index.js";
 import type { statutMembre } from "@/reseau.js";
 import type {
@@ -10,15 +16,7 @@ import type {
   schémaFonctionOublier,
 } from "@/types.js";
 
-import {
-  attente as utilsTestAttente,
-  constellation as utilsTestConstellation,
-} from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
-
-import { expect } from "aegir/chai";
-import { isElectronMain, isNode } from "wherearewe";
-
 const vérifierRecherche = (
   résultats: résultatRecherche<infoRésultat>[],
   réf: résultatRecherche<infoRésultat>[],

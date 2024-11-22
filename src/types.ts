@@ -1,6 +1,6 @@
+import { JSONSchemaType } from "ajv";
 import type { objRôles } from "@/accès/types.js";
 import type { Constellation } from "@/client.js";
-import { JSONSchemaType } from "ajv";
 
 export interface infoAuteur {
   idCompte: string;

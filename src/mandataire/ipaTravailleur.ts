@@ -1,9 +1,3 @@
-import type {
-  Constellation,
-  optsConstellation,
-  optsInitOrbite,
-} from "@/client.js";
-
 import {
   générerMandataire,
   MandataireConstellation,
@@ -11,6 +5,11 @@ import {
   type MessageDIpa,
   type MessagePourIpa,
 } from "@constl/mandataire";
+import type {
+  Constellation,
+  optsConstellation,
+  optsInitOrbite,
+} from "@/client.js";
 
 export class MandataireTravailleur extends Mandatairifiable {
   travailleur: Worker;

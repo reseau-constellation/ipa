@@ -1,7 +1,7 @@
 // node --inspect dist/src/tempo.js
 
-import { créerConstellation } from "@/index";
 import { rmSync } from "fs";
+import { créerConstellation } from "@/index";
 
 const constellation = créerConstellation({ dossier: "./test-tempo" });
 

@@ -1,15 +1,14 @@
-import type { Constellation } from "@/client.js";
+import { ignorerNonDéfinis, suivreBdDeFonction } from "@constl/utils-ipa";
+import { JSONSchemaType } from "ajv";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStructureBdNoms,
 } from "@/types.js";
-import { ignorerNonDéfinis } from "@constl/utils-ipa";
 
 import { ComposanteClientDic } from "@/composanteClient.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { suivreBdDeFonction } from "@constl/utils-ipa";
-import { JSONSchemaType } from "ajv";
+import type { Constellation } from "@/client.js";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets

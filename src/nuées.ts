@@ -1,3 +1,19 @@
+import {
+  attendreStabilité,
+  faisRien,
+  ignorerNonDéfinis,
+  suivreBdDeFonction,
+  suivreBdsDeFonctionListe,
+  traduire,
+  uneFois,
+} from "@constl/utils-ipa";
+import { v4 as uuidv4 } from "uuid";
+import { TypedKeyValue } from "@constl/bohr-db";
+import { isValidAddress } from "@orbitdb/core";
+import { JSONSchemaType } from "ajv";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
+import { utils } from "xlsx";
 import { Constellation } from "@/client.js";
 
 import {
@@ -12,19 +28,9 @@ import {
   schémaStructureBdMétadonnées,
   schémaStructureBdNoms,
 } from "@/types.js";
-import {
-  attendreStabilité,
-  faisRien,
-  ignorerNonDéfinis,
-  suivreBdDeFonction,
-  suivreBdsDeFonctionListe,
-  traduire,
-  uneFois,
-} from "@constl/utils-ipa";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import type { objRôles } from "@/accès/types.js";
 import {
   type différenceBds,
   type différenceBDTableauManquant,
@@ -36,25 +42,19 @@ import {
   schémaBdTableauxDeBd,
 } from "@/bds.js";
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
+import { ComposanteClientListe } from "./composanteClient.js";
+import type { objRôles } from "@/accès/types.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
-import type { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
-import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/types.js";
-import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
-import { v4 as uuidv4 } from "uuid";
-
-import {
+import type {
+  donnéesTableauExportation,
+  élémentDonnées,
   type différenceTableaux,
   type InfoCol,
   type InfoColAvecCatégorie,
   type élémentBdListeDonnées,
 } from "@/tableaux.js";
-import { TypedKeyValue } from "@constl/bohr-db";
-import { isValidAddress } from "@orbitdb/core";
-import { JSONSchemaType } from "ajv";
-import Base64 from "crypto-js/enc-base64.js";
-import md5 from "crypto-js/md5.js";
-import { utils } from "xlsx";
-import { ComposanteClientListe } from "./composanteClient.js";
+import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/types.js";
+import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

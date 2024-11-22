@@ -1,23 +1,11 @@
-import toBuffer from "it-to-buffer";
 import path from "path";
-import XLSX from "xlsx";
-
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import type { objRôles } from "@/accès/types.js";
-import { Constellation } from "@/client.js";
+import toBuffer from "it-to-buffer";
+import { write as xlsxWrite, utils as xlsxUtils } from "xlsx";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
 >;
 
-import { cacheSuivi } from "@/décorateursCache.js";
-import {
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
-  schémaStatut,
-  schémaStructureBdNoms,
-  structureBdNoms,
-} from "@/types.js";
 import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import {
   attendreStabilité,
@@ -27,9 +15,21 @@ import {
   zipper,
 } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
+import {
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaStatut,
+  schémaStructureBdNoms,
+  structureBdNoms,
+} from "@/types.js";
+import { cacheSuivi } from "@/décorateursCache.js";
+import { Constellation } from "@/client.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
 import { ComposanteClientListe } from "./composanteClient.js";
+import type xlsx from "xlsx";
+import type { objRôles } from "@/accès/types.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
   type: "string",
@@ -42,7 +42,7 @@ export interface donnéesProjetExportation {
 }
 
 export interface donnéesProjetExportées {
-  docs: { doc: XLSX.WorkBook; nom: string }[];
+  docs: { doc: xlsx.WorkBook; nom: string }[];
   fichiersSFIP: Set<string>;
   nomFichier: string;
 }
@@ -955,13 +955,13 @@ export class Projets extends ComposanteClientListe<string> {
 
     return {
       docs: données.bds.map((donnéesBd) => {
-        const doc = XLSX.utils.book_new();
+        const doc = xlsxUtils.book_new();
         for (const tableau of donnéesBd.tableaux) {
           /* Créer le tableau */
-          const tableauXLSX = XLSX.utils.json_to_sheet(tableau.données);
+          const tableauXLSX = xlsxUtils.json_to_sheet(tableau.données);
 
           /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-          XLSX.utils.book_append_sheet(
+          xlsxUtils.book_append_sheet(
             doc,
             tableauXLSX,
             tableau.nomTableau.slice(0, 30),
@@ -981,21 +981,21 @@ export class Projets extends ComposanteClientListe<string> {
     inclureFichiersSFIP = true,
   }: {
     données: donnéesProjetExportées;
-    formatDoc: XLSX.BookType | "xls";
+    formatDoc: xlsx.BookType | "xls";
     dossier?: string;
     inclureFichiersSFIP?: boolean;
   }): Promise<void> {
     const { docs, fichiersSFIP, nomFichier } = données;
 
-    const conversionsTypes: { [key: string]: XLSX.BookType } = {
+    const conversionsTypes: { [key: string]: xlsx.BookType } = {
       xls: "biff8",
     };
-    const bookType: XLSX.BookType = conversionsTypes[formatDoc] || formatDoc;
+    const bookType: xlsx.BookType = conversionsTypes[formatDoc] || formatDoc;
 
     const fichiersDocs = docs.map((d) => {
       return {
         nom: `${d.nom}.${formatDoc}`,
-        octets: XLSX.write(d.doc, { bookType, type: "buffer" }),
+        octets: xlsxWrite(d.doc, { bookType, type: "buffer" }),
       };
     });
     const fichiersDeSFIP = inclureFichiersSFIP

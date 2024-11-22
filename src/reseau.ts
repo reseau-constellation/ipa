@@ -1,14 +1,19 @@
+import { EventEmitter } from "events";
 import { isValidAddress } from "@orbitdb/core";
-
-import type { Libp2pEvents, PeerUpdate } from "@libp2p/interface";
 
 import Semaphore from "@chriscdn/promise-semaphore";
 import { multiaddr } from "@multiformats/multiaddr";
-import { EventEmitter } from "events";
 import { sum } from "lodash-es";
 
+import { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
+import {
+  faisRien,
+  suivreBdDeFonction,
+  suivreBdsDeFonctionListe,
+} from "@constl/utils-ipa";
+import { JSONSchemaType } from "ajv";
+import { v4 as uuidv4 } from "uuid";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import type { infoScore } from "@/bds.js";
 import {
   Constellation,
   Signature,
@@ -20,13 +25,17 @@ import {
   cacheRechercheParProfondeur,
   cacheSuivi,
 } from "@/décorateursCache.js";
+import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
+import { rechercherTous } from "@/recherche/utils.js";
+import { ComposanteClientDic } from "./composanteClient.js";
+import { estUnContrôleurConstellation } from "./accès/utils.js";
 import type {
   ÉlémentFavoris,
   ÉlémentFavorisAvecObjet,
   épingleDispositif,
 } from "@/favoris.js";
-import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
-import { rechercherTous } from "@/recherche/utils.js";
+import type { infoScore } from "@/bds.js";
+import type { Libp2pEvents, PeerUpdate } from "@libp2p/interface";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   infoAuteur,
@@ -43,16 +52,6 @@ import type {
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
 import type { erreurValidation } from "@/valid.js";
-import { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
-import {
-  faisRien,
-  suivreBdDeFonction,
-  suivreBdsDeFonctionListe,
-} from "@constl/utils-ipa";
-import { JSONSchemaType } from "ajv";
-import { v4 as uuidv4 } from "uuid";
-import { estUnContrôleurConstellation } from "./accès/utils.js";
-import { ComposanteClientDic } from "./composanteClient.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 

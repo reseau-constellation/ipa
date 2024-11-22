@@ -1,16 +1,33 @@
+import path from "path";
 import {
   attendreStabilité,
   suivreBdDeFonction,
   suivreBdsDeFonctionListe,
+  faisRien,
+  ignorerNonDéfinis,
+  traduire,
+  uneFois,
+  zipper,
 } from "@constl/utils-ipa";
 import toBuffer from "it-to-buffer";
-import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { isBrowser, isElectronMain, isNode, isWebWorker } from "wherearewe";
-import XLSX from "xlsx";
+import xlsx, {
+  utils as xlsxUtils,
+  write as xlsxWrite,
+  writeFile as xlsxWriteFile,
+} from "xlsx";
 
+import Semaphore from "@chriscdn/promise-semaphore";
+import pkg from "file-saver";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { type InfoColAvecCatégorie } from "@/tableaux.js";
+import {
+  type InfoColAvecCatégorie,
+  différenceTableaux,
+  donnéesTableauExportation,
+  élémentBdListeDonnées,
+  élémentDonnées,
+} from "@/tableaux.js";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivi,
@@ -19,28 +36,13 @@ import {
   schémaStructureBdNoms,
   élémentsBd,
 } from "@/types.js";
-import Semaphore from "@chriscdn/promise-semaphore";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import type { objRôles } from "@/accès/types.js";
 import { Constellation } from "@/client.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
-import type {
-  différenceTableaux,
-  donnéesTableauExportation,
-  élémentBdListeDonnées,
-  élémentDonnées,
-} from "@/tableaux.js";
-import type { erreurValidation, règleColonne, règleExiste } from "@/valid.js";
-import {
-  faisRien,
-  ignorerNonDéfinis,
-  traduire,
-  uneFois,
-  zipper,
-} from "@constl/utils-ipa";
+import type { objRôles } from "@/accès/types.js";
 import type { JSONSchemaType } from "ajv";
-import pkg from "file-saver";
+import type { erreurValidation, règleColonne, règleExiste } from "@/valid.js";
 const { saveAs } = pkg;
 
 type ContrôleurConstellation = Awaited<
@@ -79,7 +81,7 @@ export type donnéesBdExportation = {
 };
 
 export interface donnéesBdExportées {
-  doc: XLSX.WorkBook;
+  doc: xlsx.WorkBook;
   fichiersSFIP: Set<string>;
   nomFichier: string;
 }
@@ -2217,7 +2219,7 @@ export class BDs extends ComposanteClientListe<string> {
     nomFichier?: string;
     patience?: number;
   }): Promise<donnéesBdExportées> {
-    const doc = XLSX.utils.book_new();
+    const doc = xlsxUtils.book_new();
 
     const données = await uneFois(
       async (
@@ -2240,10 +2242,10 @@ export class BDs extends ComposanteClientListe<string> {
       tableau.fichiersSFIP.forEach((x) => fichiersSFIP.add(x));
 
       /* Créer le tableau */
-      const tableauXLSX = XLSX.utils.json_to_sheet(tableau.données);
+      const tableauXLSX = xlsxUtils.json_to_sheet(tableau.données);
 
       /* Ajouter la feuille au document. XLSX n'accepte pas les noms de colonne > 31 caractères */
-      XLSX.utils.book_append_sheet(
+      xlsxUtils.book_append_sheet(
         doc,
         tableauXLSX,
         tableau.nomTableau.slice(0, 30),
@@ -2259,16 +2261,16 @@ export class BDs extends ComposanteClientListe<string> {
     inclureFichiersSFIP = true,
   }: {
     données: donnéesBdExportées;
-    formatDoc: XLSX.BookType | "xls";
+    formatDoc: xlsx.BookType | "xls";
     dossier?: string;
     inclureFichiersSFIP?: boolean;
   }): Promise<string> {
     const { doc, fichiersSFIP, nomFichier } = données;
 
-    const conversionsTypes: { [key: string]: XLSX.BookType } = {
+    const conversionsTypes: { [key: string]: xlsx.BookType } = {
       xls: "biff8",
     };
-    const bookType: XLSX.BookType = conversionsTypes[formatDoc] || formatDoc;
+    const bookType: xlsx.BookType = conversionsTypes[formatDoc] || formatDoc;
     const adresseFinale = path.join(dossier, `${nomFichier}.${formatDoc}`);
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
@@ -2282,7 +2284,7 @@ export class BDs extends ComposanteClientListe<string> {
 
     if (inclureFichiersSFIP) {
       const fichierDoc = {
-        octets: XLSX.write(doc, { bookType, type: "buffer" }),
+        octets: xlsxWrite(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
       };
       const fichiersDeSFIP = await Promise.all(
@@ -2303,11 +2305,11 @@ export class BDs extends ComposanteClientListe<string> {
       return path.join(dossier, `${nomFichier}.zip`);
     } else {
       if (isNode || isElectronMain) {
-        XLSX.writeFile(doc, adresseFinale, {
+        xlsxWriteFile(doc, adresseFinale, {
           bookType,
         });
       } else {
-        const document = XLSX.write(doc, {
+        const document = xlsxWrite(doc, {
           bookType,
           type: "buffer",
         }) as ArrayBuffer;

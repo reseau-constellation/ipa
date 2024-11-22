@@ -1,12 +1,11 @@
-import XLSX from "xlsx";
+import { read as xlsxRead } from "xlsx";
 
+import { expect } from "aegir/chai";
 import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
 import { obtRessourceTest } from "../ressources/index.js";
 
-import { expect } from "aegir/chai";
-
-describe("XLSX", function () {
-  describe("Importateur XLSX", function () {
+describe("xlsx", function () {
+  describe("Importateur xlsx", function () {
     let importateur: ImportateurFeuilleCalcul;
 
     before(async () => {
@@ -15,7 +14,7 @@ describe("XLSX", function () {
         nomFichier: "donnéesTest.ods",
         optsAxios: { responseType: "arraybuffer" },
       });
-      const doc = XLSX.read(données);
+      const doc = xlsxRead(données);
       importateur = new ImportateurFeuilleCalcul(doc);
     });
 

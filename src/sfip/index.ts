@@ -7,7 +7,6 @@ import {
   isWebWorker,
 } from "wherearewe";
 
-import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
 import { bitswap } from "@helia/block-brokers";
 import { IDBBlockstore } from "blockstore-idb";
 import { IDBDatastore } from "datastore-idb";
@@ -24,6 +23,7 @@ import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import * as consts from "./const.js";
+import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
 
 export type ServicesLibp2p = DefaultLibp2pServices & { pubsub: GossipSub };
 

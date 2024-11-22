@@ -1,6 +1,7 @@
 import correspTexte from "approx-string-match";
 import ssim from "ssim";
 
+import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import type { Constellation } from "@/client.js";
 import type {
   infoRésultat,
@@ -12,7 +13,6 @@ import type {
   schémaFonctionSuiviRecherche,
   schémaFonctionSuivreObjectifRecherche,
 } from "@/types.js";
-import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 
 export const rechercherDansTexte = (
   schéma: string,

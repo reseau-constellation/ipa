@@ -1,17 +1,29 @@
-import axios from "axios";
 import fs from "fs";
-import JSZip from "jszip";
 import path from "path";
+import axios from "axios";
+import JSZip from "jszip";
 import { isBrowser, isElectronRenderer } from "wherearewe";
-import XLSX, { WorkBook, utils } from "xlsx";
+import {
+  WorkBook,
+  utils as xlsxUtils,
+  readFile as xlsxReadFile,
+  writeFile as xlsxWriteFile,
+} from "xlsx";
 
 import {
   dossiers,
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
 
+import { uneFois } from "@constl/utils-ipa";
+import { expect } from "aegir/chai";
+import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
+import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
+
+import { type Constellation, créerConstellation } from "@/index.js";
+import { obtRessourceTest } from "./ressources/index.js";
+import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   SourceDonnéesImportationFichier,
   SourceDonnéesImportationURL,
@@ -23,15 +35,7 @@ import type {
   ÉtatErreur,
   ÉtatProgrammée,
 } from "@/automatisation.js";
-import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
-import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
-import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
-import { uneFois } from "@constl/utils-ipa";
-
-import { type Constellation, créerConstellation } from "@/index.js";
-import { obtRessourceTest } from "./ressources/index.js";
-
-import { expect } from "aegir/chai";
+const { créerConstellationsTest } = utilsTestConstellation;
 
 const vérifierDonnéesTableau = (
   doc: string | WorkBook,
@@ -40,7 +44,7 @@ const vérifierDonnéesTableau = (
 ): void => {
   if (typeof doc === "string") {
     expect(fs.existsSync(doc)).to.be.true();
-    doc = XLSX.readFile(doc, {});
+    doc = xlsxReadFile(doc, {});
   }
   const importateur = new ImportateurFeuilleCalcul(doc);
 
@@ -57,7 +61,7 @@ const vérifierDonnéesBd = (
 ): void => {
   if (typeof doc === "string") {
     expect(fs.existsSync(doc));
-    doc = XLSX.readFile(doc);
+    doc = xlsxReadFile(doc);
   }
   for (const tableau of Object.keys(données)) {
     vérifierDonnéesTableau(doc, tableau, données[tableau]);
@@ -260,15 +264,15 @@ describe("Automatisation", function () {
 
       const fichierFeuilleCalcul = path.join(dossier, "données.ods");
 
-      const données = XLSX.utils.book_new();
-      const tableau = XLSX.utils.json_to_sheet([
+      const données = xlsxUtils.book_new();
+      const tableau = xlsxUtils.json_to_sheet([
         { "col 1": 4, "col 2": "អ" },
         { "col 1": 5, "col 2": "அ" },
         { "col 1": 6, "col 2": "a" },
       ]);
-      XLSX.utils.book_append_sheet(données, tableau, "tableau");
+      xlsxUtils.book_append_sheet(données, tableau, "tableau");
 
-      XLSX.writeFile(données, fichierFeuilleCalcul, {
+      xlsxWriteFile(données, fichierFeuilleCalcul, {
         bookType: "ods",
       });
 
@@ -740,8 +744,8 @@ describe("Automatisation", function () {
 
       const avant = Date.now();
       const attenteModifié = attendreModifié.attendre(avant, async () => {
-        const doc = XLSX.readFile(fichier);
-        return utils.sheet_to_json(doc.Sheets["காலநிலை"]).length >= 2;
+        const doc = xlsxReadFile(fichier);
+        return xlsxUtils.sheet_to_json(doc.Sheets["காலநிலை"]).length >= 2;
       });
       await client.tableaux.ajouterÉlément({
         idTableau,
@@ -890,9 +894,9 @@ describe("Automatisation", function () {
       });
 
       await attenteModifié.attendre(avant, async () => {
-        const doc = XLSX.readFile(fichier);
+        const doc = xlsxReadFile(fichier);
         return (
-          Object.keys(utils.sheet_to_json(doc.Sheets["காலநிலை"])[0] || {})
+          Object.keys(xlsxUtils.sheet_to_json(doc.Sheets["காலநிலை"])[0] || {})
             .length > 1
         );
       });

@@ -1,11 +1,8 @@
 import toBuffer from "it-to-buffer";
-import type { CID } from "multiformats";
 
 import { unixfs } from "@helia/unixfs";
 import { OrbitDB, isValidAddress } from "@orbitdb/core";
 
-import { Constellation, infoAccès } from "@/client.js";
-import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import {
   faisRien,
   suivreBdDeFonction,
@@ -18,21 +15,23 @@ import {
   orbite,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
-
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
-
-import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 import { isElectronMain, isNode } from "wherearewe";
 
 import { expect } from "aegir/chai";
 
-import { créerConstellation } from "@/index.js";
-import { statutDispositif } from "@/reseau.js";
 import { TypedKeyValue } from "@constl/bohr-db";
 import { JSONSchemaType } from "ajv";
+import { statutDispositif } from "@/reseau.js";
+import { créerConstellation } from "@/index.js";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
+import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
+import { Constellation, infoAccès } from "@/client.js";
 import { générerClientsInternes } from "./ressources/utils.js";
+import type { CID } from "multiformats";
+import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+
+const { créerConstellationsTest } = utilsTestConstellation;
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",

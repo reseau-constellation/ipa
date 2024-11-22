@@ -1,4 +1,7 @@
-import type { élémentsBd } from "@/types.js";
+import { validerCatégorieVal } from "@constl/utils-ipa";
+import { v4 as uuidv4 } from "uuid";
+
+import { expect } from "aegir/chai";
 import {
   générerFonctionRègle,
   règleBornes,
@@ -9,10 +12,7 @@ import {
   typeOp,
 } from "@/valid.js";
 import type { catégorieBaseVariables } from "@/variables.js";
-import { validerCatégorieVal } from "@constl/utils-ipa";
-import { v4 as uuidv4 } from "uuid";
-
-import { expect } from "aegir/chai";
+import type { élémentsBd } from "@/types.js";
 
 const catégories: {
   [key in catégorieBaseVariables]: {

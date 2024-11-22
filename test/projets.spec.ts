@@ -1,9 +1,6 @@
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
-import type XLSX from "xlsx";
 
-import { type Constellation, créerConstellation } from "@/index.js";
-import { schémaFonctionOublier } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
 
 import {
@@ -12,11 +9,14 @@ import {
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
-
-import { obtRessourceTest } from "./ressources/index.js";
 
 import { expect } from "aegir/chai";
+import { schémaFonctionOublier } from "@/types.js";
+import { type Constellation, créerConstellation } from "@/index.js";
+import { obtRessourceTest } from "./ressources/index.js";
+import type xlsx from "xlsx";
+
+const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("Projets", function () {
   let fOublierClients: () => Promise<void>;
@@ -476,7 +476,7 @@ describe("Projets", function () {
 
   describe("Exporter données", function () {
     let idProjet: string;
-    let docs: { doc: XLSX.WorkBook; nom: string }[];
+    let docs: { doc: xlsx.WorkBook; nom: string }[];
     let fichiersSFIP: Set<string>;
     let nomFichier: string;
 

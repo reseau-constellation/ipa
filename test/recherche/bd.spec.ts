@@ -1,3 +1,5 @@
+import { attente as utilsTestAttente } from "@constl/utils-tests";
+import { expect } from "aegir/chai";
 import { type Constellation } from "@/index.js";
 import {
   rechercherBdsSelonDescr,
@@ -10,6 +12,7 @@ import {
   rechercherBdsSelonTexte,
   rechercherBdsSelonVariable,
 } from "@/recherche/bd.js";
+import { générerClientsInternes } from "../ressources/utils.js";
 import type {
   infoRésultatRecherche,
   infoRésultatTexte,
@@ -17,11 +20,6 @@ import type {
   résultatObjectifRecherche,
   schémaFonctionOublier,
 } from "@/types.js";
-import { attente as utilsTestAttente } from "@constl/utils-tests";
-
-import { générerClientsInternes } from "../ressources/utils.js";
-
-import { expect } from "aegir/chai";
 
 describe("Rechercher bds", function () {
   let fOublierClients: () => Promise<void>;

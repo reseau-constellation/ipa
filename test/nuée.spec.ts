@@ -1,28 +1,27 @@
-import { créerConstellation, type Constellation } from "@/index.js";
-import { schémaFonctionOublier, schémaStatut } from "@/types.js";
 import { isValidAddress } from "@orbitdb/core";
-
-import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
-import { élémentDeMembreAvecValid } from "@/reseau.js";
-import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 import XLSX from "xlsx";
-
 import {
   attente,
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
+import { isSet } from "lodash-es";
+import { isElectronMain, isNode } from "wherearewe";
+import { attendreStabilité } from "@constl/utils-ipa";
+import { expect } from "aegir/chai";
+import { créerConstellation, type Constellation } from "@/index.js";
+import { schémaFonctionOublier, schémaStatut } from "@/types.js";
+
+import { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
+import { élémentDeMembreAvecValid } from "@/reseau.js";
+import { InfoColAvecCatégorie, élémentBdListeDonnées } from "@/tableaux.js";
 
 import { donnéesNuéeExportation } from "@/nuées.js";
 import { règleColonne } from "@/valid.js";
-import { isSet } from "lodash-es";
-import { isElectronMain, isNode } from "wherearewe";
 
-import { attendreStabilité } from "@constl/utils-ipa";
 import { obtRessourceTest } from "./ressources/index.js";
 
-import { expect } from "aegir/chai";
+const { créerConstellationsTest } = utilsTestConstellation;
 
 const générerNuéeTest = async (
   client: Constellation,

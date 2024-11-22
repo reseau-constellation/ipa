@@ -1,13 +1,13 @@
 import { expect } from "aegir/chai";
 
-import { créerConstellation, type Constellation } from "@/index.js";
-import type { schémaFonctionOublier } from "@/types.js";
-
 import {
   attente,
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
+import { créerConstellation, type Constellation } from "@/index.js";
+import type { schémaFonctionOublier } from "@/types.js";
+
 const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("Mots-clefs", function () {

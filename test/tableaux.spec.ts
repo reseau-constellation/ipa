@@ -1,8 +1,13 @@
-import type XLSX from "xlsx";
-
+import { isValidAddress } from "@orbitdb/core";
+import {
+  attente,
+  attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
+} from "@constl/utils-tests";
+import { expect } from "aegir/chai";
 import { créerConstellation, type Constellation } from "@/index.js";
 import { schémaFonctionOublier, élémentsBd } from "@/types.js";
-import { isValidAddress } from "@orbitdb/core";
+import type XLSX from "xlsx";
 
 import type {
   InfoCol,
@@ -24,14 +29,8 @@ import type {
   règleValeurCatégorique,
 } from "@/valid.js";
 
-import {
-  attente,
-  attente as utilsTestAttente,
-  constellation as utilsTestConstellation,
-} from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
 
-import { expect } from "aegir/chai";
+const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("Tableaux", function () {
   let fOublierClients: () => Promise<void>;

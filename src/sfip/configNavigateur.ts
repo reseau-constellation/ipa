@@ -13,7 +13,6 @@ import { webTransport } from "@libp2p/webtransport";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { detect } from "detect-browser";
-import type { Libp2pOptions } from "libp2p";
 
 import {
   ADRESSES_NŒUDS_INITIAUX,
@@ -21,6 +20,7 @@ import {
   ADRESSES_NŒUDS_RELAI_WS,
 } from "./const.js";
 import { résoudreInfoAdresses } from "./utils.js";
+import type { Libp2pOptions } from "libp2p";
 
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   const transports = [

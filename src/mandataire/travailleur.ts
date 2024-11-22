@@ -1,5 +1,5 @@
-import type { MessageDIpa, MessageErreurDIpa } from "@constl/mandataire";
 import { EnveloppeIpa } from "./enveloppe.js";
+import type { MessageDIpa, MessageErreurDIpa } from "@constl/mandataire";
 
 const fMessage = (message: MessageDIpa) => postMessage(message);
 

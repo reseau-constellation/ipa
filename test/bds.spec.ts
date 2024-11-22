@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import type XLSX from "xlsx";
 
 import { isSet } from "lodash-es";
 
@@ -8,32 +7,33 @@ import {
   dossiers,
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
+  attente,
 } from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
 
-import { créerConstellation, type Constellation } from "@/index.js";
-import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { uneFois } from "@constl/utils-ipa";
 import { isValidAddress } from "@orbitdb/core";
 
-import type {
-  infoScore,
-  infoTableauAvecId,
-  schémaSpécificationBd,
-} from "@/bds.js";
+import { expect } from "aegir/chai";
+import JSZip from "jszip";
+import { isElectronMain, isNode } from "wherearewe";
+import { préparerOrbite } from "@/orbite.js";
+import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
+import { créerConstellation, type Constellation } from "@/index.js";
+import { obtRessourceTest } from "./ressources/index.js";
+import type { règleBornes } from "@/valid.js";
 import type {
   InfoColAvecCatégorie,
   élémentBdListeDonnées,
   élémentDonnées,
 } from "@/tableaux.js";
-import type { règleBornes } from "@/valid.js";
+import type {
+  infoScore,
+  infoTableauAvecId,
+  schémaSpécificationBd,
+} from "@/bds.js";
+import type XLSX from "xlsx";
 
-import { préparerOrbite } from "@/orbite.js";
-import { attente } from "@constl/utils-tests";
-import { expect } from "aegir/chai";
-import JSZip from "jszip";
-import { isElectronMain, isNode } from "wherearewe";
-import { obtRessourceTest } from "./ressources/index.js";
+const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("BDs", function () {
   let fOublierClients: () => Promise<void>;

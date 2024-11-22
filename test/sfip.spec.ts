@@ -1,13 +1,13 @@
-import { Constellation, créerConstellation } from "@/index.js";
-import { dossiers } from "@constl/utils-tests";
-import { Libp2p } from "@libp2p/interface";
-import { expect } from "aegir/chai";
-import type { HeliaLibp2p } from "helia";
 import path from "path";
+import { expect } from "aegir/chai";
+import { Libp2p } from "@libp2p/interface";
+import { dossiers } from "@constl/utils-tests";
 import { v4 as uuidv4 } from "uuid";
 import { isElectronMain, isNode } from "wherearewe";
+import { Constellation, créerConstellation } from "@/index.js";
 import { ServicesLibp2p, initSFIP } from "../src/sfip/index.js";
 import { obtIdsPairs } from "./utils/utils.js";
+import type { HeliaLibp2p } from "helia";
 
 const attendre = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));

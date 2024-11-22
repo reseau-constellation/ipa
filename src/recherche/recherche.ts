@@ -6,8 +6,8 @@ import * as projet from "@/recherche/projet.js";
 import * as utils from "@/recherche/utils.js";
 import * as variable from "@/recherche/variable.js";
 
-import type { Constellation } from "@/client.js";
 import { cacheRechercheParNRésultats } from "@/décorateursCache.js";
+import type { Constellation } from "@/client.js";
 import type {
   infoRésultatRecherche,
   infoRésultatTexte,

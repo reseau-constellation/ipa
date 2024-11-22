@@ -1,13 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { WorkBook, utils } from "xlsx";
 
-import { Constellation } from "@/client.js";
-import {
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
-  schémaStructureBdNoms,
-  élémentsBd,
-} from "@/types.js";
 import {
   attendreStabilité,
   faisRien,
@@ -15,6 +8,19 @@ import {
   traduire,
   uneFois,
 } from "@constl/utils-ipa";
+import { isValidAddress } from "@orbitdb/core";
+import { JSONSchemaType } from "ajv";
+import axios from "axios";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
+import { isElectronMain, isNode } from "wherearewe";
+import { Constellation } from "@/client.js";
+import {
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaStructureBdNoms,
+  élémentsBd,
+} from "@/types.js";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { type donnéesBdExportées } from "@/bds.js";
@@ -37,18 +43,11 @@ import {
   règleVariableAvecId,
   schémaFonctionValidation,
 } from "@/valid.js";
+import { cidEtFichierValide } from "@/epingles.js";
 import type {
   catégorieBaseVariables,
   catégorieVariables,
 } from "@/variables.js";
-
-import { cidEtFichierValide } from "@/epingles.js";
-import { isValidAddress } from "@orbitdb/core";
-import { JSONSchemaType } from "ajv";
-import axios from "axios";
-import Base64 from "crypto-js/enc-base64.js";
-import md5 from "crypto-js/md5.js";
-import { isElectronMain, isNode } from "wherearewe";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

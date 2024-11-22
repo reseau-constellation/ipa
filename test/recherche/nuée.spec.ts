@@ -1,5 +1,5 @@
-import type { Constellation } from "@/client.js";
-
+import { attente as utilsTestAttente } from "@constl/utils-tests";
+import { expect } from "aegir/chai";
 import {
   rechercherNuéesSelonDescr,
   rechercherNuéesSelonIdMotClef,
@@ -11,6 +11,8 @@ import {
   rechercherNuéesSelonTexte,
   rechercherNuéesSelonVariable,
 } from "@/recherche/nuée.js";
+import { générerClientsInternes } from "../ressources/utils.js";
+import type { Constellation } from "@/client.js";
 
 import type {
   infoRésultatRecherche,
@@ -19,11 +21,6 @@ import type {
   résultatObjectifRecherche,
   schémaFonctionOublier,
 } from "@/types.js";
-
-import { attente as utilsTestAttente } from "@constl/utils-tests";
-import { générerClientsInternes } from "../ressources/utils.js";
-
-import { expect } from "aegir/chai";
 
 describe("Nuées", function () {
   let fOublierClients: () => Promise<void>;

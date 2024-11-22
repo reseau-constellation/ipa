@@ -1,8 +1,10 @@
-import type {
-  schémaFonctionOublier,
-  schémaFonctionSuivi,
-  schémaRetourFonctionRechercheParProfondeur,
-} from "@/types";
+import EventEmitter from "events";
+import { faisRien } from "@constl/utils-ipa";
+import {
+  கிளி,
+  type அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை,
+  type பிணையம்_பரிந்துரை,
+} from "@lassi-js/kili";
 
 import { Constellation } from "@/client.js";
 import {
@@ -11,15 +13,12 @@ import {
   SCHÉMA_BD_LICENCES,
 } from "@/const.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import { faisRien } from "@constl/utils-ipa";
-
-import {
-  கிளி,
-  type அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை,
-  type பிணையம்_பரிந்துரை,
-} from "@lassi-js/kili";
-import EventEmitter from "events";
 import { mandatairifier } from "./mandataire/index.js";
+import type {
+  schémaFonctionOublier,
+  schémaFonctionSuivi,
+  schémaRetourFonctionRechercheParProfondeur,
+} from "@/types";
 
 // https://github.com/github/choosealicense.com
 export const conditions = {

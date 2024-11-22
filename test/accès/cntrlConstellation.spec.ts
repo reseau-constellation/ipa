@@ -1,18 +1,15 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
-
-import { type OrbitDB } from "@orbitdb/core";
-
+import { type OrbitDB, KeyValue } from "@orbitdb/core";
 import { orbite } from "@constl/utils-tests";
+import { typedKeyValue } from "@constl/bohr-db";
+import { expect } from "aegir/chai";
+import { isElectronMain, isNode } from "wherearewe";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import { typedKeyValue } from "@constl/bohr-db";
-import type { KeyValue } from "@orbitdb/core";
-import { expect } from "aegir/chai";
 import type { JSONSchemaType } from "ajv";
-import { isElectronMain, isNode } from "wherearewe";
 
 type TypeContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>

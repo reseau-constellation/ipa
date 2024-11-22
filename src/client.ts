@@ -1,32 +1,39 @@
-import type { KeyValue as KeyValueDatabaseType } from "@orbitdb/core";
-import type TypedEmitter from "typed-emitter";
+import { EventEmitter } from "events";
 
-import type { infoUtilisateur, objRôles } from "@/accès/types.js";
 import Semaphore from "@chriscdn/promise-semaphore";
 import { unixfs } from "@helia/unixfs";
 import { Libp2p, PeerId } from "@libp2p/interface";
-import {
-  type createOrbitDB,
-  type IPFSAccessController as générerIPFSAccessController,
-  type OrbitDB,
-  AccessController,
-  isValidAddress,
-  KeyValue,
-  OrbitDBDatabaseOptions,
-} from "@orbitdb/core";
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
-import { EventEmitter } from "events";
 import indexedDbStream from "indexed-db-stream";
 import plateforme from "platform";
 import { v4 as uuidv4 } from "uuid";
-
 import {
   adresseOrbiteValide,
   suivreBdDeFonction,
   suivreBdsDeFonctionListe,
+  faisRien,
+  ignorerNonDéfinis,
+  sauvegarderFichierZip,
+  toBuffer,
 } from "@constl/utils-ipa";
+import {
+  TypedFeed,
+  TypedKeyValue,
+  TypedOrderedKeyValue,
+  TypedSet,
+} from "@constl/bohr-db";
+import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
+import { JSONSchemaType } from "ajv";
+import Base64 from "crypto-js/enc-base64.js";
+import md5 from "crypto-js/md5.js";
+import sha256 from "crypto-js/sha256.js";
 
+import { HeliaLibp2p } from "helia";
+import JSZip from "jszip";
+import { CID } from "multiformats";
+import { isBrowser, isElectronMain, isNode } from "wherearewe";
+import { isValidAddress } from "@orbitdb/core";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
@@ -38,7 +45,6 @@ import { Nuées } from "@/nuées.js";
 import { Profil } from "@/profil.js";
 import { Projets } from "@/projets.js";
 import { Recherche } from "@/recherche/index.js";
-import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import { Réseau } from "@/reseau.js";
 import { Tableaux } from "@/tableaux.js";
 import { Variables } from "@/variables.js";
@@ -50,47 +56,37 @@ import {
   ContrôleurConstellation as générerContrôleurConstellation,
   nomType as nomTypeContrôleurConstellation,
 } from "@/accès/cntrlConstellation.js";
-import obtStockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
+import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 import {
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
   élémentsBd,
 } from "@/types.js";
-import {
-  faisRien,
-  ignorerNonDéfinis,
-  sauvegarderFichierZip,
-  toBuffer,
-} from "@constl/utils-ipa";
-
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import {
   type GestionnaireOrbite,
   gestionnaireOrbiteGénéral,
   Store,
 } from "@/orbite.js";
-import type { ServicesLibp2p } from "@/sfip/index.js";
 import { initSFIP } from "@/sfip/index.js";
-import {
-  TypedFeed,
-  TypedKeyValue,
-  TypedOrderedKeyValue,
-  TypedSet,
-} from "@constl/bohr-db";
-import { ERREUR_INIT_IPA_DÉJÀ_LANCÉ } from "@constl/mandataire";
-import type { FeedDatabaseType } from "@orbitdb/feed-db";
-import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
-import type { SetDatabaseType } from "@orbitdb/set-db";
-import { JSONSchemaType } from "ajv";
-import Base64 from "crypto-js/enc-base64.js";
-import md5 from "crypto-js/md5.js";
-import sha256 from "crypto-js/sha256.js";
-import { HeliaLibp2p } from "helia";
-import JSZip from "jszip";
-import { CID } from "multiformats";
-import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import { Protocoles } from "./protocoles.js";
+import type { ServicesLibp2p } from "@/sfip/index.js";
+import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
+import type { infoUtilisateur, objRôles } from "@/accès/types.js";
+import type { SetDatabaseType } from "@orbitdb/set-db";
+import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
+import type { FeedDatabaseType } from "@orbitdb/feed-db";
+import type TypedEmitter from "typed-emitter";
+import type {
+  KeyValue as KeyValueDatabaseType,
+  createOrbitDB,
+  IPFSAccessController as générerIPFSAccessController,
+  OrbitDB,
+  AccessController,
+  KeyValue,
+  OrbitDBDatabaseOptions,
+} from "@orbitdb/core";
 
 type IPFSAccessController = Awaited<
   ReturnType<ReturnType<typeof générerIPFSAccessController>>
@@ -2121,7 +2117,7 @@ export class Constellation {
   }): Promise<string | null> {
     const clefClient = await this.obtClefStockageClient({ clef, parCompte });
 
-    return (await obtStockageLocal(await this.dossier())).getItem(clefClient);
+    return (await stockageLocal(await this.dossier())).getItem(clefClient);
   }
 
   async sauvegarderAuStockageLocal({
@@ -2134,10 +2130,7 @@ export class Constellation {
     parCompte?: boolean;
   }): Promise<void> {
     const clefClient = await this.obtClefStockageClient({ clef, parCompte });
-    return (await obtStockageLocal(await this.dossier())).setItem(
-      clefClient,
-      val,
-    );
+    return (await stockageLocal(await this.dossier())).setItem(clefClient, val);
   }
 
   async effacerDeStockageLocal({
@@ -2149,9 +2142,7 @@ export class Constellation {
   }): Promise<void> {
     const clefClient = await this.obtClefStockageClient({ clef, parCompte });
 
-    return (await obtStockageLocal(await this.dossier())).removeItem(
-      clefClient,
-    );
+    return (await stockageLocal(await this.dossier())).removeItem(clefClient);
   }
 
   async obtIdBd<K extends string>({
@@ -2537,7 +2528,7 @@ export class Constellation {
   async fermer(): Promise<void> {
     await this.attendreInitialisée();
     const { orbite } = await this.attendreSfipEtOrbite();
-    await (await obtStockageLocal(await this.dossier())).fermer?.();
+    await (await stockageLocal(await this.dossier())).fermer?.();
     await this.fermerCompte();
     await this.épingles.fermer();
 
@@ -2563,8 +2554,8 @@ export class Constellation {
       }
     } else {
       const fs = await import("fs");
-      const stockageLocal = await obtStockageLocal(await this.dossier());
-      stockageLocal.clear();
+      const stockageLocal_ = await stockageLocal(await this.dossier());
+      stockageLocal_.clear();
       fs.rmdirSync(await this.dossier());
     }
   }

@@ -1,5 +1,3 @@
-import type { Libp2pOptions } from "libp2p";
-
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
@@ -10,6 +8,7 @@ import { webSockets } from "@libp2p/websockets";
 import { all } from "@libp2p/websockets/filters";
 import { webTransport } from "@libp2p/webtransport";
 import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
+import type { Libp2pOptions } from "libp2p";
 
 export const obtOptionsLibp2pTravailleurWeb =
   async (): Promise<Libp2pOptions> => {

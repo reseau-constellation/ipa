@@ -13,7 +13,6 @@ import { webTransport } from "@libp2p/webtransport";
 
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 // import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
-import type { Libp2pOptions } from "libp2p";
 
 import { FaultTolerance } from "@libp2p/interface";
 import {
@@ -22,6 +21,7 @@ import {
   ADRESSES_NŒUDS_RELAI_WS,
 } from "./const.js";
 import { résoudreInfoAdresses } from "./utils.js";
+import type { Libp2pOptions } from "libp2p";
 
 export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement

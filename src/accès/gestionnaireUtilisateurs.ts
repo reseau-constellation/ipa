@@ -1,15 +1,15 @@
-import { isValidAddress, type OrbitDB } from "@orbitdb/core";
 import { EventEmitter, once } from "events";
+import { isValidAddress, type OrbitDB } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 
+import { TypedSet } from "@constl/bohr-db";
+import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
+import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
+import { ContrôleurConstellation as générerContrôleurConstellation } from "./cntrlConstellation.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
-import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import type { objRôles, élémentBdAccès } from "@/accès/types.js";
 
-import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
-import { TypedSet } from "@constl/bohr-db";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "./cntrlConstellation.js";
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
 >;

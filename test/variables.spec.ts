@@ -1,3 +1,10 @@
+import { expect } from "aegir/chai";
+import {
+  attente,
+  attente as utilsTestAttente,
+  constellation as utilsTestConstellation,
+} from "@constl/utils-tests";
+import { créerConstellation } from "@/index.js";
 import type { Constellation } from "@/client.js";
 import type { schémaFonctionOublier } from "@/types.js";
 import type {
@@ -6,14 +13,7 @@ import type {
   règleVariableAvecId,
 } from "@/valid.js";
 import type { catégorieVariables } from "@/variables.js";
-import { expect } from "aegir/chai";
 
-import { créerConstellation } from "@/index.js";
-import {
-  attente,
-  attente as utilsTestAttente,
-  constellation as utilsTestConstellation,
-} from "@constl/utils-tests";
 const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("Variables", function () {

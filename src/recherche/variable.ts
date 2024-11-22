@@ -1,3 +1,9 @@
+import {
+  combinerRecherches,
+  rechercherSelonId,
+  rechercherTousSiVide,
+  similTexte,
+} from "@/recherche/utils.js";
 import type { Constellation } from "@/client.js";
 import type {
   infoRésultatTexte,
@@ -6,13 +12,6 @@ import type {
   schémaFonctionSuiviRecherche,
   schémaFonctionSuivreObjectifRecherche,
 } from "@/types.js";
-
-import {
-  combinerRecherches,
-  rechercherSelonId,
-  rechercherTousSiVide,
-  similTexte,
-} from "@/recherche/utils.js";
 
 export const rechercherVariablesSelonNom = (
   nom: string,

@@ -1,7 +1,7 @@
-import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
-import { élémentsBd } from "@/types.js";
-import type { catégorieVariables } from "@/variables.js";
 import { validerCatégorieVal } from "@constl/utils-ipa";
+import { élémentsBd } from "@/types.js";
+import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
+import type { catégorieVariables } from "@/variables.js";
 
 export type typeRègle = "catégorie" | "bornes" | "valeurCatégorique" | "existe";
 export type sourceRègle =

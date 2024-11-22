@@ -1,15 +1,14 @@
 import { isSet } from "lodash-es";
 
-import { créerConstellation, type Constellation } from "@/index.js";
-
 import {
   attente as utilsTestAttente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
-const { créerConstellationsTest } = utilsTestConstellation;
-
-import { schémaFonctionOublier } from "@/types.js";
 import { expect } from "aegir/chai";
+import { créerConstellation, type Constellation } from "@/index.js";
+import { schémaFonctionOublier } from "@/types.js";
+
+const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("Épingles", function () {
   let fOublierClients: () => Promise<void>;
