@@ -45,7 +45,7 @@ import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js
 import { ComposanteClientListe } from "./composanteClient.js";
 import type { objRôles } from "@/accès/types.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
-import type {
+import {
   donnéesTableauExportation,
   élémentDonnées,
   type différenceTableaux,
