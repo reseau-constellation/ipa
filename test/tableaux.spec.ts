@@ -29,7 +29,6 @@ import type {
   règleValeurCatégorique,
 } from "@/valid.js";
 
-
 const { créerConstellationsTest } = utilsTestConstellation;
 
 describe("Tableaux", function () {

@@ -31,28 +31,27 @@ import {
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-import {
-  type différenceBds,
-  type différenceBDTableauManquant,
-  type différenceBDTableauSupplémentaire,
-  type différenceTableauxBds,
-  type donnéesBdExportées,
-  type infoTableauAvecId,
-  type schémaSpécificationBd,
-  schémaBdTableauxDeBd,
-} from "@/bds.js";
+import { schémaBdTableauxDeBd } from "@/bds.js";
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
+import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
 import { ComposanteClientListe } from "./composanteClient.js";
+import type {
+  différenceTableaux,
+  InfoCol,
+  InfoColAvecCatégorie,
+  élémentBdListeDonnées,
+} from "@/tableaux.js";
+import type {
+  différenceBds,
+  différenceBDTableauManquant,
+  différenceBDTableauSupplémentaire,
+  différenceTableauxBds,
+  donnéesBdExportées,
+  infoTableauAvecId,
+  schémaSpécificationBd,
+} from "@/bds.js";
 import type { objRôles } from "@/accès/types.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
-import {
-  donnéesTableauExportation,
-  élémentDonnées,
-  type différenceTableaux,
-  type InfoCol,
-  type InfoColAvecCatégorie,
-  type élémentBdListeDonnées,
-} from "@/tableaux.js";
 import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/types.js";
 import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
 
