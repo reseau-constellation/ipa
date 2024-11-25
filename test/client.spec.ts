@@ -78,7 +78,7 @@ if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
     let orbites: OrbitDB[];
-    let _orbite1: OrbitDB, orbite2: OrbitDB, orbite3: OrbitDB;
+    let orbite2: OrbitDB, orbite3: OrbitDB;
     let clients: Constellation[];
     let client: Constellation,
       client2: Constellation,
@@ -109,7 +109,8 @@ if (isNode || isElectronMain) {
         créerConstellation,
       }));
       [client, client2, client3, client4] = clients;
-      [_orbite1, orbite2, orbite3] = orbites;
+      orbite2 = orbites[1];
+      orbite3 = orbites[2];
 
       idCompte1 = await client.obtIdCompte();
       idCompte2 = await client2.obtIdCompte();
