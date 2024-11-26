@@ -1427,7 +1427,6 @@ export class Constellation {
               lancerSuivi();
             } else {
               console.error(e);
-              throw new Error(e);
             }
           }
         });
@@ -2102,7 +2101,7 @@ export class Constellation {
   }): Promise<string> {
     if (parCompte) {
       const idCompte = await this.obtIdCompte();
-      return `${idCompte.slice(idCompte!.length - 23, idCompte!.length - 8)} : ${clef}`;
+      return `${idCompte.slice(idCompte.length - 23, idCompte.length - 8)} : ${clef}`;
     }
     return clef;
   }
@@ -2282,7 +2281,7 @@ export class Constellation {
 
     await fOublier();
     return {
-      address: accès.bd!.address,
+      address: accès.bd.address,
       write: accès.write,
     };
   }
