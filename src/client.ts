@@ -79,13 +79,12 @@ import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
 import type TypedEmitter from "typed-emitter";
 import type {
-  KeyValue as KeyValueDatabaseType,
   createOrbitDB,
   IPFSAccessController as générerIPFSAccessController,
   OrbitDB,
   AccessController,
-  KeyValue,
-  OrbitDBDatabaseOptions,
+  KeyValueDatabase,
+  OpenDatabaseOptions,
 } from "@orbitdb/core";
 
 type IPFSAccessController = Awaited<
@@ -110,7 +109,7 @@ type ÉvénementsClient = {
 const estOrbiteDB = (x: unknown): x is OrbitDB => {
   if (!x) return false;
   const xCommeOrbite = x as OrbitDB;
-  return (
+  return !!(
     xCommeOrbite.id &&
     typeof xCommeOrbite.open === "function" &&
     typeof xCommeOrbite.stop === "function" &&
@@ -144,7 +143,7 @@ export type optsInitOrbite = Omit<
   ipfs?: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
 };
 
-export type optsOrbite = OrbitDB | optsInitOrbite;
+export type optsOrbite = OrbitDB<Libp2p<ServicesLibp2p>> | optsInitOrbite;
 
 export type structureBdCompte = {
   protocoles?: string;
@@ -498,7 +497,7 @@ export class Constellation {
     const { orbite } = this._opts;
 
     let sfipFinale: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
-    let orbiteFinale: OrbitDB;
+    let orbiteFinale: OrbitDB<Libp2p<ServicesLibp2p>>;
 
     if (orbite) {
       if (estOrbiteDB(orbite)) {
@@ -563,14 +562,14 @@ export class Constellation {
     );
   }
 
-  async ouvrirBd<T extends KeyValueDatabaseType>({
+  async ouvrirBd<T extends KeyValueDatabase>({
     id,
     type,
     options,
   }: {
     id: string;
     type: "keyvalue";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends FeedDatabaseType>({
     id,
@@ -579,7 +578,7 @@ export class Constellation {
   }: {
     id: string;
     type: "feed";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends SetDatabaseType>({
     id,
@@ -588,7 +587,7 @@ export class Constellation {
   }: {
     id: string;
     type: "set";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends OrderedKeyValueDatabaseType>({
     id,
@@ -597,22 +596,13 @@ export class Constellation {
   }: {
     id: string;
     type: "ordered-keyvalue";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
   }: {
     id: string;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<T extends Store>({
-    id,
-    type,
-    options,
-  }: {
-    id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
@@ -621,7 +611,16 @@ export class Constellation {
   }: {
     id: string;
     type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<T extends Store>({
+    id,
+    type,
+    options,
+  }: {
+    id: string;
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{
     bd: T;
     fOublier: schémaFonctionOublier;
@@ -646,7 +645,7 @@ export class Constellation {
     id: string;
     type: "keyvalue";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T = TypedFeed<U>>({
     id,
@@ -657,7 +656,7 @@ export class Constellation {
     id: string;
     type: "feed";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T = TypedSet<U>>({
     id,
@@ -668,7 +667,7 @@ export class Constellation {
     id: string;
     type: "set";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<
     U extends { [clef: string]: élémentsBd },
@@ -682,7 +681,7 @@ export class Constellation {
     id: string;
     type: "ordered-keyvalue";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T>({
     id,
@@ -693,7 +692,7 @@ export class Constellation {
     id: string;
     type: "ordered-keyvalue" | "set" | "keyvalue" | "feed";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
     const { orbite } = await this.attendreSfipEtOrbite();
     return await orbite.ouvrirBdTypée({
@@ -1168,8 +1167,8 @@ export class Constellation {
     bdBase,
     bd2,
   }: {
-    bdBase: KeyValue;
-    bd2: KeyValue;
+    bdBase: KeyValueDatabase;
+    bd2: KeyValueDatabase;
   }): Promise<void>;
   async combinerBdsDict<T extends { [clef: string]: unknown }>({
     bdBase,
@@ -1182,8 +1181,8 @@ export class Constellation {
     bdBase,
     bd2,
   }: {
-    bdBase: TypedKeyValue<T> | KeyValue;
-    bd2: TypedKeyValue<T> | KeyValue;
+    bdBase: TypedKeyValue<T> | KeyValueDatabase;
+    bd2: TypedKeyValue<T> | KeyValueDatabase;
   }): Promise<void> {
     const contenuBd2 = Object.fromEntries(
       (await bd2.all()).map((x) => [x.key, x.value]),
@@ -1483,7 +1482,7 @@ export class Constellation {
     schéma?: JSONSchemaType<T>;
     f: schémaFonctionSuivi<T>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd: KeyValue) => {
+    const fFinale = async (bd: KeyValueDatabase) => {
       const valeurs = (
         bd
           ? Object.fromEntries((await bd.all()).map((x) => [x.key, x.value]))

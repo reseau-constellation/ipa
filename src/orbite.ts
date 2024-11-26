@@ -1,8 +1,8 @@
 import {
   type OrbitDB,
   createOrbitDB,
-  KeyValue as KeyValueDatabaseType,
-  OrbitDBDatabaseOptions,
+  KeyValueDatabase,
+  OpenDatabaseOptions,
 } from "@orbitdb/core";
 import { v4 as uuidv4 } from "uuid";
 
@@ -29,11 +29,13 @@ import Semaphore from "@chriscdn/promise-semaphore";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 import type { HeliaLibp2p } from "helia";
+import type { Libp2p } from "libp2p";
+import type { ServicesLibp2p } from "./sfip/index.js";
 
 export type Store =
   | FeedDatabaseType
   | SetDatabaseType
-  | KeyValueDatabaseType
+  | KeyValueDatabase
   | OrderedKeyValueDatabaseType;
 
 export const préparerOrbite = () => {
@@ -43,13 +45,15 @@ export const préparerOrbite = () => {
   enregistrerContrôleurs();
 };
 
-export async function initOrbite({
+export async function initOrbite<
+  T extends Libp2p<ServicesLibp2p> = Libp2p<ServicesLibp2p>,
+>({
   sfip,
   dossierOrbite,
 }: {
-  sfip: HeliaLibp2p;
+  sfip: HeliaLibp2p<T>;
   dossierOrbite: string;
-}): Promise<OrbitDB> {
+}): Promise<OrbitDB<T>> {
   préparerOrbite();
 
   const orbite = await createOrbitDB({
@@ -63,10 +67,10 @@ export async function initOrbite({
 
 type Typer<
   T extends Store,
-  U extends T extends KeyValueDatabaseType | OrderedKeyValueDatabaseType
+  U extends T extends KeyValueDatabase | OrderedKeyValueDatabaseType
     ? { [clef: string]: élémentsBd }
     : élémentsBd,
-> = T extends KeyValueDatabaseType
+> = T extends KeyValueDatabase
   ? TypedKeyValue<Extract<U, { [clef: string]: élémentsBd }>>
   : T extends FeedDatabaseType
     ? TypedFeed<U>
@@ -78,7 +82,7 @@ type Typer<
 
 const typerBd = <
   T extends Store,
-  U extends T extends KeyValueDatabaseType | OrderedKeyValueDatabaseType
+  U extends T extends KeyValueDatabase | OrderedKeyValueDatabaseType
     ? { [clef: string]: élémentsBd }
     : élémentsBd,
 >({
@@ -141,14 +145,14 @@ export class GestionnaireOrbite {
     return this.orbite.identity;
   }
 
-  async ouvrirBd<T extends KeyValueDatabaseType>({
+  async ouvrirBd<T extends KeyValueDatabase>({
     id,
     type,
     options,
   }: {
     id: string;
     type: "keyvalue";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends FeedDatabaseType>({
     id,
@@ -157,7 +161,7 @@ export class GestionnaireOrbite {
   }: {
     id: string;
     type: "feed";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends SetDatabaseType>({
     id,
@@ -166,7 +170,7 @@ export class GestionnaireOrbite {
   }: {
     id: string;
     type: "set";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends OrderedKeyValueDatabaseType>({
     id,
@@ -175,22 +179,13 @@ export class GestionnaireOrbite {
   }: {
     id: string;
     type: "ordered-keyvalue";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
   }: {
     id: string;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<T extends Store>({
-    id,
-    type,
-    options,
-  }: {
-    id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
@@ -199,7 +194,16 @@ export class GestionnaireOrbite {
   }: {
     id: string;
     type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<T extends Store>({
+    id,
+    type,
+    options,
+  }: {
+    id: string;
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{
     bd: T;
     fOublier: schémaFonctionOublier;
@@ -270,7 +274,7 @@ export class GestionnaireOrbite {
     id: string;
     type: "keyvalue";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T = TypedFeed<U>>({
     id,
@@ -281,7 +285,7 @@ export class GestionnaireOrbite {
     id: string;
     type: "feed";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T = TypedSet<U>>({
     id,
@@ -292,7 +296,7 @@ export class GestionnaireOrbite {
     id: string;
     type: "set";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<
     U extends { [clef: string]: élémentsBd },
@@ -306,7 +310,7 @@ export class GestionnaireOrbite {
     id: string;
     type: "ordered-keyvalue";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T>({
     id,
@@ -317,7 +321,7 @@ export class GestionnaireOrbite {
     id: string;
     type: "ordered-keyvalue" | "set" | "keyvalue" | "feed";
     schéma: JSONSchemaType<U>;
-    options?: Omit<OrbitDBDatabaseOptions, "type">;
+    options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
     const { bd, fOublier } = await this.ouvrirBd({
       id,
@@ -337,7 +341,7 @@ export class GestionnaireOrbite {
     nom,
   }: {
     type: "set" | "ordered-keyvalue" | "keyvalue" | "feed";
-    options: Omit<OrbitDBDatabaseOptions, "type">;
+    options: Omit<OpenDatabaseOptions, "type">;
     nom?: string;
   }): Promise<string> {
     const bd = (await this.orbite.open(nom || uuidv4(), {

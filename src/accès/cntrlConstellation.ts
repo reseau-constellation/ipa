@@ -1,7 +1,6 @@
 import { EventEmitter } from "events";
 import * as dagCbor from "@ipld/dag-cbor";
 import {
-  type OrbitDB,
   ComposedStorage,
   IdentitiesType,
   IPFSBlockStorage,
@@ -24,6 +23,7 @@ import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import { gestionnaireOrbiteGénéral } from "@/orbite.js";
 import { ContrôleurAccès } from "./cntrlMod.js";
 import { pathJoin } from "./utils.js";
+import type { OrbitDB, DagCborEncodable } from "@orbitdb/core";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
 import type { infoUtilisateur, élémentBdAccès } from "@/accès/types.js";
@@ -154,7 +154,7 @@ const ContrôleurConstellation =
         type: "set",
         schéma: schémaBdAccès,
         options: {
-          syncAutomatically: true,
+          sync: true,
         },
       }));
     } else {
@@ -164,7 +164,7 @@ const ContrôleurConstellation =
         schéma: schémaBdAccès,
         options: {
           AccessController: ContrôleurAccès({ write, storage }),
-          syncAutomatically: true,
+          sync: true,
         },
       }));
       adresseBdAccès = bd.address;
@@ -202,7 +202,9 @@ const ContrôleurConstellation =
       return await gestRôles.estUnMembre(id);
     };
 
-    const canAppend = async (entry: LogEntry<unknown>): Promise<boolean> => {
+    const canAppend = async (
+      entry: LogEntry<DagCborEncodable>,
+    ): Promise<boolean> => {
       const writerIdentity = await identities.getIdentity(entry.identity);
       if (!writerIdentity) {
         return false;
@@ -213,7 +215,8 @@ const ContrôleurConstellation =
       // Pour implémenter la révocation des permissions, garder compte ici
       // des entrées approuvées par utilisatrice
       return (
-        identities.verifyIdentity(writerIdentity) && (await estAutorisé(id))
+        (await identities.verifyIdentity(writerIdentity)) &&
+        (await estAutorisé(id))
       );
     };
 

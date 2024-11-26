@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { type OrbitDB, KeyValue } from "@orbitdb/core";
+import { type OrbitDB, KeyValueDatabase } from "@orbitdb/core";
 import { orbite } from "@constl/utils-tests";
 import { typedKeyValue } from "@constl/bohr-db";
 import { expect } from "aegir/chai";
@@ -46,7 +46,7 @@ describe("Contrôleur Constellation", function () {
         let fOublierOrbites: () => Promise<void>;
         let orbites: OrbitDB[];
         let orbitdb1: OrbitDB, orbitdb2: OrbitDB;
-        let bd: KeyValue;
+        let bd: KeyValueDatabase;
 
         before(async () => {
           enregistrerContrôleurs();
@@ -59,7 +59,7 @@ describe("Contrôleur Constellation", function () {
             AccessController: générerContrôleurConstellation({
               write: orbitdb1.identity.id,
             }),
-          })) as KeyValue;
+          })) as KeyValueDatabase;
         });
 
         after(async () => {
@@ -76,7 +76,7 @@ describe("Contrôleur Constellation", function () {
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
           const bdOrbite2 = (await orbitdb2.open(bd.address, {
             type: "keyvalue",
-          })) as KeyValue;
+          })) as KeyValueDatabase;
           const bdOrbite2Typée = typedKeyValue({
             db: bdOrbite2,
             schema: schemaDicNumérique,
@@ -94,7 +94,9 @@ describe("Contrôleur Constellation", function () {
             orbitdb2.identity.id,
           );
 
-          const bdOrbite2 = (await orbitdb2.open(bd.address)) as KeyValue;
+          const bdOrbite2 = (await orbitdb2.open(
+            bd.address,
+          )) as KeyValueDatabase;
           const bdOrbite2Typée = typedKeyValue({
             db: bdOrbite2,
             schema: schemaDicNumérique,
@@ -115,10 +117,10 @@ describe("Contrôleur Constellation", function () {
           orbitdb3: OrbitDB,
           orbitdb4: OrbitDB;
 
-        let bdRacine: KeyValue;
-        let bdRacine2: KeyValue;
-        let bd: KeyValue;
-        let bdOrbite2: KeyValue;
+        let bdRacine: KeyValueDatabase;
+        let bdRacine2: KeyValueDatabase;
+        let bd: KeyValueDatabase;
+        let bdOrbite2: KeyValueDatabase;
 
         before(async () => {
           enregistrerContrôleurs();
@@ -131,21 +133,21 @@ describe("Contrôleur Constellation", function () {
             AccessController: générerContrôleurConstellation({
               write: orbitdb1.identity.id,
             }),
-          })) as KeyValue;
+          })) as KeyValueDatabase;
 
           bdRacine2 = (await orbitdb2.open(uuidv4(), {
             type: "keyvalue",
             AccessController: générerContrôleurConstellation({
               write: orbitdb2.identity.id,
             }),
-          })) as KeyValue;
+          })) as KeyValueDatabase;
 
           bd = (await orbitdb1.open(uuidv4(), {
             type: "keyvalue",
             AccessController: générerContrôleurConstellation({
               write: bdRacine.address,
             }),
-          })) as KeyValue;
+          })) as KeyValueDatabase;
         });
 
         after(async () => {
@@ -162,7 +164,7 @@ describe("Contrôleur Constellation", function () {
         });
 
         it("Quelqu'un d'autre ne peut pas écrire à la BD", async () => {
-          bdOrbite2 = (await orbitdb2.open(bd.address)) as KeyValue;
+          bdOrbite2 = (await orbitdb2.open(bd.address)) as KeyValueDatabase;
           const bdOrbite2Typée = typedKeyValue({
             db: bdOrbite2,
             schema: schemaDicNumérique,
@@ -204,7 +206,7 @@ describe("Contrôleur Constellation", function () {
 
           const bdOrbite3 = (await orbitdb3.open(bd.address, {
             type: "keyvalue",
-          })) as KeyValue;
+          })) as KeyValueDatabase;
           const bdOrbite3Typée = typedKeyValue({
             db: bdOrbite3,
             schema: schemaDicNumérique,
@@ -232,7 +234,7 @@ describe("Contrôleur Constellation", function () {
 
           const bdOrbite4 = (await orbitdb4.open(bd.address, {
             type: "keyvalue",
-          })) as KeyValue;
+          })) as KeyValueDatabase;
           const bdOrbite4Typée = typedKeyValue({
             db: bdOrbite4,
             schema: schemaDicNumérique,
@@ -257,7 +259,7 @@ describe("Contrôleur Constellation", function () {
           await bd.close();
           bd = (await orbitdb1.open(bd.address, {
             type: "keyvalue",
-          })) as KeyValue;
+          })) as KeyValueDatabase;
 
           const accès = bd.access as TypeContrôleurConstellation;
           for (const o of [orbitdb1, orbitdb2, orbitdb3, orbitdb4]) {

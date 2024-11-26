@@ -104,7 +104,7 @@ const ContrôleurAccès =
       if (
         rôleValide &&
         (await seraÉventuellementUnModérateur(id, entry)) &&
-        identities.verifyIdentity(writerIdentity)
+        (await identities.verifyIdentity(writerIdentity))
       ) {
         if (rôle === MODÉRATEUR) {
           await gestAccès.ajouterÉléments([{ id: idAjout, rôle: MODÉRATEUR }]);
@@ -123,7 +123,7 @@ const ContrôleurAccès =
       const prochains = entry.next;
 
       for (const prochain of prochains) {
-        const octets = await storage?.get(prochain);
+        const octets = await storage!.get(prochain);
         const prochaineEntrée = await Entry.decode(octets);
         const prochaineValide = await canAppend(prochaineEntrée);
 

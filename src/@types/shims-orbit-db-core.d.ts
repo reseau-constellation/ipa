@@ -1,1 +1,1 @@
-export * from "@constl/orbit-db-types";
+export * from "@orbitdb/core-types";

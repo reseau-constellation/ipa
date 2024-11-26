@@ -3,6 +3,9 @@ import { orbite } from "@constl/utils-tests";
 import { isBrowser } from "wherearewe";
 import { Constellation as ConstellationInterne } from "@/client.js";
 import { préparerOrbite } from "@/orbite.js";
+import { OrbitDB } from "@orbitdb/core";
+import { Libp2p } from "@libp2p/interface";
+import { ServicesLibp2p } from "@/sfip";
 
 export const générerClientsInternes = async ({
   n,
@@ -28,7 +31,7 @@ export const générerClientsInternes = async ({
     [...Array(n).keys()].map(async (i) => {
       return await ConstellationInterne.créer({
         dossier: orbites[i].directory.split("/").slice(0, -1).join("/"),
-        orbite: orbites[i],
+        orbite: orbites[i] as OrbitDB<Libp2p<ServicesLibp2p>>,
       });
     }),
   );
