@@ -2533,7 +2533,7 @@ export class Constellation {
     await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
     if (this.sfip && !this._sfipExterne) await this.sfip.stop();
 
-    // Effacer fichier verrour
+    // Effacer fichier verrou
     await this.effacerVerrou();
   }
 
