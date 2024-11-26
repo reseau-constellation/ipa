@@ -135,9 +135,8 @@ export class Épingles {
     try {
       // Faut pas trop s'en faire si la bd n'est pas accessible.
       ({ bd, fOublier } = await this.client.ouvrirBd({ id }));
-    } catch (e) {
-      if (e.toString().includes("abort")) return;
-      else throw e;
+    } catch {
+      return;
     }
 
     this.requêtes.push({ id, parent, fOublier });
