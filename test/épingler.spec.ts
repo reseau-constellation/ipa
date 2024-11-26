@@ -132,12 +132,10 @@ describe("Épingles", function () {
       await bd.set("clef", idBdDic2);
       await fOublier();
 
-      const { bd: bdDic2, fOublier: fOublier2 } = await orbite.ouvrirBd(
-        {
-          id: idBdDic2,
-          type: "keyvalue",
-        },
-      );
+      const { bd: bdDic2, fOublier: fOublier2 } = await orbite.ouvrirBd({
+        id: idBdDic2,
+        type: "keyvalue",
+      });
       await bdDic2.set("clef", idBdAutre);
       fOublier2();
 

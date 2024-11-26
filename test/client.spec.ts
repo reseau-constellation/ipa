@@ -484,12 +484,11 @@ if (isNode || isElectronMain) {
           type: "keyvalue",
           schéma: schémaKVNumérique,
         }));
-        ({ bd: bd2, fOublier: fOublierBd2 } =
-          await orbite.ouvrirBdTypée({
-            id: idBd2,
-            type: "keyvalue",
-            schéma: schémaKVNumérique,
-          }));
+        ({ bd: bd2, fOublier: fOublierBd2 } = await orbite.ouvrirBdTypée({
+          id: idBd2,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        }));
         const fRacine = async ({
           fSuivreRacine,
         }: {
@@ -1114,12 +1113,11 @@ if (isNode || isElectronMain) {
           (x) => !!x && x !== empreinteDébut,
         );
 
-        const { bd: bd2, fOublier: fOublierBd2 } =
-          await orbite.ouvrirBdTypée({
-            id: idBd2,
-            type: "set",
-            schéma: schémaListeChaîne,
-          });
+        const { bd: bd2, fOublier: fOublierBd2 } = await orbite.ouvrirBdTypée({
+          id: idBd2,
+          type: "set",
+          schéma: schémaListeChaîne,
+        });
         await bd2.add("abc");
         fOublierBd2();
 
@@ -1190,19 +1188,17 @@ if (isNode || isElectronMain) {
         idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
         idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
-        const { bd: bd1, fOublier: fOublier1 } =
-          await orbite.ouvrirBdTypée({
-            id: idBd1,
-            type: "keyvalue",
-            schéma: schémaKVNumérique,
-          });
+        const { bd: bd1, fOublier: fOublier1 } = await orbite.ouvrirBdTypée({
+          id: idBd1,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        });
         fsOublier.push(fOublier1);
-        const { bd: bd2, fOublier: fOublier2 } =
-          await orbite.ouvrirBdTypée({
-            id: idBd2,
-            type: "keyvalue",
-            schéma: schémaKVNumérique,
-          });
+        const { bd: bd2, fOublier: fOublier2 } = await orbite.ouvrirBdTypée({
+          id: idBd2,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        });
         fsOublier.push(fOublier2);
 
         await bd1.put("a", 1);
@@ -1240,19 +1236,17 @@ if (isNode || isElectronMain) {
 
           idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
           idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
-          const { bd: bd1, fOublier: fOublier1 } =
-            await orbite.ouvrirBdTypée({
-              id: idBd1,
-              type: "keyvalue",
-              schéma: schémaKVNumérique,
-            });
+          const { bd: bd1, fOublier: fOublier1 } = await orbite.ouvrirBdTypée({
+            id: idBd1,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
           fsOublier.push(fOublier1);
-          const { bd: bd2, fOublier: fOublier2 } =
-            await orbite.ouvrirBdTypée({
-              id: idBd2,
-              type: "keyvalue",
-              schéma: schémaKVNumérique,
-            });
+          const { bd: bd2, fOublier: fOublier2 } = await orbite.ouvrirBdTypée({
+            id: idBd2,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
           fsOublier.push(fOublier2);
 
           await bd1.put("a", 1);
@@ -1361,19 +1355,17 @@ if (isNode || isElectronMain) {
           idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
           idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
-          const { bd: bd1, fOublier: fOublier1 } =
-            await orbite.ouvrirBdTypée({
-              id: idBd1,
-              type: "keyvalue",
-              schéma: schémaKVNumérique,
-            });
+          const { bd: bd1, fOublier: fOublier1 } = await orbite.ouvrirBdTypée({
+            id: idBd1,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
           fsOublier.push(fOublier1);
-          const { bd: bd2, fOublier: fOublier2 } =
-            await orbite.ouvrirBdTypée({
-              id: idBd2,
-              type: "keyvalue",
-              schéma: schémaKVNumérique,
-            });
+          const { bd: bd2, fOublier: fOublier2 } = await orbite.ouvrirBdTypée({
+            id: idBd2,
+            type: "keyvalue",
+            schéma: schémaKVNumérique,
+          });
           fsOublier.push(fOublier2);
 
           await bd1.put("a", 1);
@@ -1499,12 +1491,11 @@ if (isNode || isElectronMain) {
         const val = await sélectionnées.attendreExiste();
         expect(val).to.be.an.empty("array");
 
-        const { bd: bd1, fOublier: fOublier1 } =
-          await orbite.ouvrirBdTypée({
-            id: idBd1,
-            type: "keyvalue",
-            schéma: schémaKVNumérique,
-          });
+        const { bd: bd1, fOublier: fOublier1 } = await orbite.ouvrirBdTypée({
+          id: idBd1,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        });
         fsOublier.push(fOublier1);
         await bd1.put("a", 1);
 
@@ -1514,12 +1505,11 @@ if (isNode || isElectronMain) {
       it("Les changements aux conditions sont détectés", async () => {
         const { orbite } = await client.attendreSfipEtOrbite();
 
-        const { bd: bd2, fOublier: fOublier2 } =
-          await orbite.ouvrirBdTypée({
-            id: idBd2,
-            type: "keyvalue",
-            schéma: schémaKVNumérique,
-          });
+        const { bd: bd2, fOublier: fOublier2 } = await orbite.ouvrirBdTypée({
+          id: idBd2,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        });
         fsOublier.push(fOublier2);
 
         await bd2.put("a", 1);
@@ -1657,7 +1647,7 @@ if (isNode || isElectronMain) {
 
       it("On ne perd pas les données en cas de concurrence entre dispositifs", async () => {
         const { orbite } = await client.attendreSfipEtOrbite();
-        
+
         // Créons une nouvelle BD avec des données
         const NOUVELLE_CLEF = "nouvelle clef";
         const idNouvelleBd = await client.obtIdBd({
@@ -1752,12 +1742,11 @@ if (isNode || isElectronMain) {
           optionsAccès,
         });
 
-        const { bd: bd_orbite2, fOublier } =
-          await orbite2.ouvrirBdTypée({
-            id: idBd,
-            type: "keyvalue",
-            schéma: schémaKVNumérique,
-          });
+        const { bd: bd_orbite2, fOublier } = await orbite2.ouvrirBdTypée({
+          id: idBd,
+          type: "keyvalue",
+          schéma: schémaKVNumérique,
+        });
         fsOublier.push(fOublier);
 
         const autorisé = await orbite.peutÉcrire(
@@ -1995,16 +1984,14 @@ if (isNode || isElectronMain) {
         const idSubBd1 = await client.créerBdIndépendante({ type: "set" });
         const idSubBd2 = await client.créerBdIndépendante({ type: "set" });
 
-        const { bd: subBd1, fOublier: fOublierSubBd1 } =
-          await orbite.ouvrirBd({
-            id: idSubBd1,
-            type: "set",
-          });
-        const { bd: subBd2, fOublier: fOublierSubBd2 } =
-          await orbite.ouvrirBd({
-            id: idSubBd2,
-            type: "set",
-          });
+        const { bd: subBd1, fOublier: fOublierSubBd1 } = await orbite.ouvrirBd({
+          id: idSubBd1,
+          type: "set",
+        });
+        const { bd: subBd2, fOublier: fOublierSubBd2 } = await orbite.ouvrirBd({
+          id: idSubBd2,
+          type: "set",
+        });
 
         fsOublier.push(fOublierSubBd1);
         fsOublier.push(fOublierSubBd2);
@@ -2241,12 +2228,11 @@ if (isNode || isElectronMain) {
       before(async () => {
         idBdKv = await client.créerBdIndépendante({ type: "keyvalue" });
         const { orbite } = await client.attendreSfipEtOrbite();
-        const { bd: bdKv, fOublier: fOublierKv } =
-          await orbite.ouvrirBdTypée({
-            id: idBdKv,
-            type: "keyvalue",
-            schéma: schémaKVChaîne,
-          });
+        const { bd: bdKv, fOublier: fOublierKv } = await orbite.ouvrirBdTypée({
+          id: idBdKv,
+          type: "keyvalue",
+          schéma: schémaKVChaîne,
+        });
 
         fsOublier.push(fOublierKv);
 
