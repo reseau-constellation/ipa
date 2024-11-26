@@ -1,10 +1,10 @@
 import { orbite } from "@constl/utils-tests";
 
 import { isBrowser } from "wherearewe";
-import { Constellation as ConstellationInterne } from "@/client.js";
-import { préparerOrbite } from "@/orbite.js";
 import { OrbitDB } from "@orbitdb/core";
 import { Libp2p } from "@libp2p/interface";
+import { Constellation as ConstellationInterne } from "@/client.js";
+import { préparerOrbite } from "@/orbite.js";
 import { ServicesLibp2p } from "@/sfip";
 
 export const générerClientsInternes = async ({
