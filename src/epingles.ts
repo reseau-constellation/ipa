@@ -8,6 +8,7 @@ import {
   élémentsBd,
 } from "@/types.js";
 import type { Constellation } from "@/client.js";
+import type { Store } from "./orbite.js";
 
 interface RequêteÉpingle {
   id: string;
@@ -129,7 +130,16 @@ export class Épingles {
   }): Promise<void> {
     if (await this.épingléeParParent({ id, parent })) return;
 
-    const { bd, fOublier } = await this.client.ouvrirBd({ id });
+    let bd: Store;
+    let fOublier: schémaFonctionOublier;
+    try {
+      // Faut pas trop s'en faire si la bd n'est pas accessible.
+      ({ bd, fOublier }  = await this.client.ouvrirBd({ id }));
+    } catch (e) {
+      if (e.toString().includes("abort")) return;
+      else throw e
+    }
+
     this.requêtes.push({ id, parent, fOublier });
     this.événements.emit("changement épingles");
 
