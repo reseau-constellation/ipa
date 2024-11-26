@@ -136,7 +136,7 @@ const ContrôleurConstellation =
     let fOublierBd: schémaFonctionOublier;
 
     if (address) {
-      const manifestBytes = await storage!.get(
+      const manifestBytes = await storage.get(
         address.replaceAll(`/${nomType}/`, ""),
       );
       const { value } = await Block.decode({

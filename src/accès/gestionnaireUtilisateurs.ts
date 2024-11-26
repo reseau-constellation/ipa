@@ -76,7 +76,7 @@ class AccèsUtilisateur extends EventEmitter {
     const autorisés: string[] = [];
     éléments = [
       {
-        id: this.accès!.write!,
+        id: this.accès!.write,
         rôle: MODÉRATEUR,
       },
       ...éléments,

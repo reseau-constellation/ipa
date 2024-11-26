@@ -245,7 +245,7 @@ export class GestionnaireOrbite {
     }
 
     try {
-      const bd = (await this.orbite!.open(id, { type, ...options })) as T;
+      const bd = (await this.orbite.open(id, { type, ...options })) as T;
 
       this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
 

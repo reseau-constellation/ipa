@@ -34,7 +34,7 @@ describe("Épingles", function () {
     const rés = new utilsTestAttente.AttendreRésultat<Set<string>>();
 
     before(async () => {
-      idBd = await client!.créerBdIndépendante({ type: "keyvalue" });
+      idBd = await client.créerBdIndépendante({ type: "keyvalue" });
       await client.épingles.toutDésépingler();
       fOublierÉpingles = await client.épingles.suivreÉpingles({
         f: (x) => rés.mettreÀJour(x),
@@ -102,7 +102,7 @@ describe("Épingles", function () {
     it("Épingler liste récursive", async () => {
       await client.épingles.épinglerBd({ id: idBdListe, récursif: true });
 
-      const { bd, fOublier } = await client.orbite!.ouvrirBd({
+      const { bd, fOublier } = await client.orbite.ouvrirBd({
         id: idBdListe,
         type: "set",
       });
@@ -123,15 +123,16 @@ describe("Épingles", function () {
 
     it("Épingler dic récursif", async () => {
       await client.épingles.épinglerBd({ id: idBdDic, récursif: true });
+      const { orbite } = await client.attendreSfipEtOrbite();
 
-      const { bd, fOublier } = await client.orbite!.ouvrirBd({
+      const { bd, fOublier } = await orbite.ouvrirBd({
         id: idBdDic,
         type: "keyvalue",
       });
       await bd.set("clef", idBdDic2);
       await fOublier();
 
-      const { bd: bdDic2, fOublier: fOublier2 } = await client.orbite!.ouvrirBd(
+      const { bd: bdDic2, fOublier: fOublier2 } = await orbite.ouvrirBd(
         {
           id: idBdDic2,
           type: "keyvalue",
@@ -184,7 +185,8 @@ describe("Épingles", function () {
     });
 
     it("Fichier épinglé", async () => {
-      const { bd, fOublier } = await client.orbite!.ouvrirBd({
+      const { orbite } = await client.attendreSfipEtOrbite();
+      const { bd, fOublier } = await orbite.ouvrirBd({
         id: idBd,
         type: "keyvalue",
       });
@@ -192,7 +194,7 @@ describe("Épingles", function () {
       await bd.set("clef2", idc2);
       await fOublier();
 
-      const { bd: bd2, fOublier: fOublier2 } = await client.orbite!.ouvrirBd({
+      const { bd: bd2, fOublier: fOublier2 } = await orbite.ouvrirBd({
         id: idBd2,
         type: "keyvalue",
       });
@@ -223,7 +225,8 @@ describe("Épingles", function () {
     it("Fichier épinglé dans BD récursive", async () => {
       await client.épingles.épinglerBd({ id: idBdListe });
 
-      const { bd, fOublier } = await client.orbite!.ouvrirBd({
+      const { orbite } = await client.attendreSfipEtOrbite();
+      const { bd, fOublier } = await orbite.ouvrirBd({
         id: idBdListe,
         type: "set",
       });

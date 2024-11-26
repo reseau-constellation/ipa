@@ -319,7 +319,8 @@ describe("Utils recherche", function () {
     });
 
     it("Ajout variable détecté", async () => {
-      const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
+      const { orbite } = await client.attendreSfipEtOrbite();
+      const { bd, fOublier } = await orbite.ouvrirBdTypée({
         id: idBd,
         type: "set",
         schéma: { type: "string" } as JSONSchemaType<string>,
@@ -351,7 +352,8 @@ describe("Utils recherche", function () {
     });
 
     it("Ajout meilleure variable détecté", async () => {
-      const { bd, fOublier } = await client.orbite!.ouvrirBdTypée({
+      const { orbite } = await client.attendreSfipEtOrbite();
+      const { bd, fOublier } = await orbite.ouvrirBdTypée({
         id: idBd,
         type: "set",
         schéma: { type: "string" } as JSONSchemaType<string>,

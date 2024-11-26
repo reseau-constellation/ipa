@@ -973,7 +973,7 @@ export class BDs extends ComposanteClientListe<string> {
       },
       (x) => !!x,
     );
-    return await this.client!.tableaux.suivreDonnées({
+    return await this.client.tableaux.suivreDonnées({
       idTableau,
       f,
     });

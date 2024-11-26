@@ -459,13 +459,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }
 
   async direSalut({ à }: { à?: string } = {}): Promise<void> {
+    const { orbite } = await this.client.attendreSfipEtOrbite();
     const valeur: ValeurMessageSalut = {
       type: "Salut !",
       contenu: {
         idSFIP: (await this.client.obtIdSFIP()).toString(),
-        idDispositif: this.client.orbite!.identity.id,
-        clefPublique: this.client.orbite!.identity.publicKey,
-        signatures: this.client.orbite!.identity.signatures,
+        idDispositif: orbite.identity.id,
+        clefPublique: orbite.identity.publicKey,
+        signatures: orbite.identity.signatures,
         idCompte: await this.client.obtIdCompte(),
       },
     };
@@ -661,7 +662,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     if (!isValidAddress(idCompte)) return false;
     try {
-      const { bd: bdCompte, fOublier } = await this.client.orbite!.ouvrirBd({
+      const { orbite } = await this.client.attendreSfipEtOrbite();
+      const { bd: bdCompte, fOublier } = await orbite.ouvrirBd({
         id: idCompte,
       });
 
@@ -1216,7 +1218,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
             return {
               idCompte,
               profondeur: maRelation.pour === this.client.idCompte ? 0 : 1,
-              confiance: maRelation!.confiance,
+              confiance: maRelation.confiance,
             };
           }
           const profondeurCompte = Math.min(...rs.map((r) => r.profondeur));
