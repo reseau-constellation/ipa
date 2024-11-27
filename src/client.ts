@@ -1427,6 +1427,7 @@ export class Constellation {
               lancerSuivi();
             } else {
               console.error(e);
+              throw e
             }
           }
         });
