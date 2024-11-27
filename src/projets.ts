@@ -30,6 +30,7 @@ import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
 import { ComposanteClientListe } from "./composanteClient.js";
 import type xlsx from "xlsx";
 import type { objRôles } from "@/accès/types.js";
+import { ÉpingleFavorisAvecId, ÉpingleProjet } from "./favoris.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
   type: "string",
@@ -95,12 +96,86 @@ export class Projets extends ComposanteClientListe<string> {
     super({ client, clef: "projets", schémaBdPrincipale: schémaBdPrincipale });
   }
 
-  async épingler() {
-    await this.client.épingles.épinglerBd({
-      id: await this.obtIdBd(),
-      récursif: false,
-      fichiers: false,
-    });
+  
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisAvecId<ÉpingleProjet>;
+    f: schémaFonctionSuivi<Set<string>>;
+  }): Promise<schémaFonctionOublier> {
+    const épinglerBase =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.base || "TOUS",
+      });
+    const épinglerFichiersBase =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.fichiersBase || "INSTALLÉ",
+      });
+    const épinglerBds = épingle.épingle.bds;
+    
+    const info: {
+      base?: (string | undefined)[];
+      fichiersBase?: (string | undefined)[];
+      bds?: (string | undefined)[];
+    } = {};
+    const fFinale = async () => {
+      return await f(
+        new Set(
+          Object.values(info)
+            .flat()
+            .filter((x) => !!x) as string[],
+        ),
+      );
+    };
+
+    const fsOublier: schémaFonctionOublier[] = [];
+    if (épinglerBase || épinglerFichiersBase) {
+      const fOublierBase = await this.client.suivreBd({
+        id: épingle.idObjet,
+        type: "keyvalue",
+        schéma: schémaStructureBdProjet,
+        f: async (bd) => {
+          const contenuBd = await bd.allAsJSON();
+          if (épinglerBase)
+            info.base = [
+              épingle.idObjet,
+              contenuBd.descriptions,
+              contenuBd.noms,
+              contenuBd.bds,
+              contenuBd.motsClefs,
+            ];
+          if (épinglerFichiersBase)
+            info.fichiersBase = [contenuBd.image];
+          await fFinale();
+        },
+      });
+      fsOublier.push(fOublierBase);
+    }
+
+    if (épinglerBds) {
+      const fOublierBds = await suivreBdsDeFonctionListe({
+        fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
+          return await this.suivreBdsProjet({idProjet: épingle.idObjet, f: fSuivreRacine})
+        },
+        fBranche: async (id: string, fSuivreBranche: schémaFonctionSuivi<string[]>) => {
+          return this.client.bds.suivreRésolutionÉpingle({épingle: {
+            idObjet: id,
+            épingle: épinglerBds,
+          }, f: idcs => fSuivreBranche([...idcs])})
+        },
+        f: async (idcs: string[]) => {
+          info.bds = idcs;
+          await fFinale();
+        },
+      });
+      
+      fsOublier.push(fOublierBds);
+    }
+
+    return async () => {
+      await Promise.all(fsOublier.map((f) => f()));
+    };
   }
 
   @cacheSuivi
@@ -177,8 +252,12 @@ export class Projets extends ComposanteClientListe<string> {
 
     await bdRacine.add(idProjet);
 
-    if (épingler)
-      await this.client.favoris.épinglerFavori({ idObjet: idProjet });
+    if (épingler) {
+      const épingle: ÉpingleProjet = {
+        type: 'projet'
+      }
+      await this.client.favoris.épinglerFavori({ idObjet: idProjet, épingle })
+    };
 
     await Promise.all([fOublierRacine(), fOublierProjet()]);
 

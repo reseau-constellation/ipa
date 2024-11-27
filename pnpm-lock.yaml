@@ -170,6 +170,9 @@ importers:
       iso-constants:
         specifier: github:inverted-capital/iso-constants#patch-1
         version: https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f
+      it-drain:
+        specifier: ^3.0.7
+        version: 3.0.7
       it-to-buffer:
         specifier: ^4.0.7
         version: 4.0.7
@@ -194,6 +197,9 @@ importers:
       ssim:
         specifier: ^0.0.0
         version: 0.0.0
+      tiny-typed-emitter:
+        specifier: ^2.1.0
+        version: 2.1.0
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -381,9 +387,6 @@ importers:
       tscpaths:
         specifier: ^0.0.9
         version: 0.0.9
-      typed-emitter:
-        specifier: ^2.1.0
-        version: 2.1.0
       typescript:
         specifier: 5.6.3
         version: 5.6.3
@@ -7423,9 +7426,6 @@ packages:
     resolution: {integrity: sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ==}
     engines: {npm: '>=2.0.0'}
 
-  rxjs@7.8.1:
-    resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
-
   sade@1.8.1:
     resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
     engines: {node: '>=6'}
@@ -7988,6 +7988,9 @@ packages:
     resolution: {integrity: sha512-4oGOVZWTu5sl89PtCDnhQBSt7/vL1zVEwAfxH1p49JhTosxzVQWYBYFRFZ8nJmo0G6f824iyP/44BFAwIoKvIA==}
     engines: {node: '>= 4.5.0'}
 
+  tiny-typed-emitter@2.1.0:
+    resolution: {integrity: sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA==}
+
   tmp@0.0.33:
     resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
     engines: {node: '>=0.6.0'}
@@ -8184,9 +8187,6 @@ packages:
   typed-array-length@1.0.7:
     resolution: {integrity: sha512-3KS2b+kL7fsuk/eJZ7EQdnEmQoaho/r6KUef7hxvltNA5DR8NAUM+8wJMbJyZ4G9/7i3v5zPBIMN5aybAh2/Jg==}
     engines: {node: '>= 0.4'}
-
-  typed-emitter@2.1.0:
-    resolution: {integrity: sha512-g/KzbYKbH5C2vPkaXGu8DJlHrGKHLsM25Zg9WuC9pMGfuvT+X25tZQWo5fK1BjBm8+UrVE9LDCvaY0CQk+fXDA==}
 
   typedarray-to-buffer@1.0.4:
     resolution: {integrity: sha512-vjMKrfSoUDN8/Vnqitw2FmstOfuJ73G6CrSEKnf11A6RmasVxHqfeBcnTb6RsL4pTMuV5Zsv9IiHRphMZyckUw==}
@@ -18242,11 +18242,6 @@ snapshots:
     dependencies:
       tslib: 1.14.1
 
-  rxjs@7.8.1:
-    dependencies:
-      tslib: 2.8.1
-    optional: true
-
   sade@1.8.1:
     dependencies:
       mri: 1.2.0
@@ -18897,6 +18892,8 @@ snapshots:
 
   timestamp-nano@1.0.1: {}
 
+  tiny-typed-emitter@2.1.0: {}
+
   tmp@0.0.33:
     dependencies:
       os-tmpdir: 1.0.2
@@ -19100,10 +19097,6 @@ snapshots:
       is-typed-array: 1.1.13
       possible-typed-array-names: 1.0.0
       reflect.getprototypeof: 1.0.7
-
-  typed-emitter@2.1.0:
-    optionalDependencies:
-      rxjs: 7.8.1
 
   typedarray-to-buffer@1.0.4: {}
 

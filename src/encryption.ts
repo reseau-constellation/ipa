@@ -1,7 +1,6 @@
-import EventEmitter from "events";
 import Semaphore from "@chriscdn/promise-semaphore";
+import {TypedEmitter }from "tiny-typed-emitter";
 import type { Base58 } from "@localfirst/auth";
-import type TypedEmitter from "typed-emitter";
 
 const importationAuth = import("@localfirst/auth");
 const importationCrypto = import("@localfirst/crypto");
@@ -60,7 +59,7 @@ export class EncryptionLocalFirst implements Encryption {
 
   constructor() {
     this.événements =
-      new EventEmitter() as TypedEmitter<ÉvénementsEncryptionLocalFirst>;
+      new TypedEmitter<ÉvénementsEncryptionLocalFirst>();
 
     obtAuth().then(({ asymmetric }) => {
       const { publicKey, secretKey } = asymmetric.keyPair();

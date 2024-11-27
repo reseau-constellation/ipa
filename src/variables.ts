@@ -12,6 +12,7 @@ import {
 } from "@/types.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { ComposanteClientListe } from "./composanteClient.js";
+import { ÉpingleFavorisAvecId, ÉpingleVariable } from "./favoris.js";
 import type {
   règleCatégorie,
   règleVariable,
@@ -117,12 +118,36 @@ export class Variables extends ComposanteClientListe<string> {
     super({ client, clef: "variables", schémaBdPrincipale });
   }
 
-  async épingler() {
-    await this.client.épingles.épinglerBd({
-      id: await this.obtIdBd(),
-      récursif: false,
-      fichiers: false,
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisAvecId<ÉpingleVariable>;
+    f: schémaFonctionSuivi<Set<string>>;
+  }): Promise<schémaFonctionOublier> {
+    const épinglerMétaDonnées =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.métaDonnées || "TOUS",
+      });
+    const fOublier = await this.client.suivreBd({
+      id: épingle.idObjet,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
+      f: async (bd) => {
+        const contenuBd = await bd.allAsJSON();
+        return await f(
+          new Set(épinglerMétaDonnées
+            ? [
+                épingle.idObjet,
+                contenuBd.descriptions,
+                contenuBd.noms,
+                contenuBd.règles,
+              ].filter(x=>!!x) as string[]
+            : []),
+        );
+      },
     });
+    return fOublier;
   }
 
   @cacheSuivi
@@ -151,8 +176,15 @@ export class Variables extends ComposanteClientListe<string> {
       },
     });
     await this.ajouterÀMesVariables({ idVariable: idVariable });
-    if (épingler)
-      await this.client.favoris.épinglerFavori({ idObjet: idVariable });
+    if (épingler) {
+      const épingle: ÉpingleVariable = {
+        type: "variable",
+      };
+      await this.client.favoris.épinglerFavori({
+        idObjet: idVariable,
+        épingle,
+      });
+    }
 
     const { bd: bdVariable, fOublier: fOublierVariable } =
       await this.client.ouvrirBdTypée({

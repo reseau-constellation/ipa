@@ -1,12 +1,14 @@
 import { isElectronMain, isNode } from "wherearewe";
 
 import { JSONSchemaType } from "ajv";
+import { suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
+import { effacerPropriétésNonDéfinies } from "./utils.js";
 import type { Constellation } from "@/client.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
-export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ";
+export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ" | "AUCUN";
 
 export interface épingleDispositif {
   idObjet: string;
@@ -15,15 +17,64 @@ export interface épingleDispositif {
   récursif: boolean;
 }
 
-export type ÉlémentFavoris = {
-  récursif: boolean;
-  dispositifs: typeDispositifs;
-  dispositifsFichiers?: typeDispositifs;
+export type ÉpingleFavoris =
+  | ÉpingleVariable
+  | ÉpingleMotClef
+  | ÉpingleBd
+  | ÉpingleNuée
+  | ÉpingleProjet
+  | ÉpingleCompte;
+
+export type BaseÉpingleFavoris = {
+  base?: typeDispositifs;
 };
 
-export type ÉlémentFavorisAvecObjet = ÉlémentFavoris & { idObjet: string };
+export type ÉpingleBd = BaseÉpingleFavoris & {
+  type: "bd";
+  fichiersBase?: typeDispositifs;
+  données?: {
+    tableaux?: typeDispositifs;
+    fichiers?: typeDispositifs;
+  };
+};
 
-type structureBdFavoris = { [idObjet: string]: ÉlémentFavoris };
+export type ÉpingleNuée = BaseÉpingleFavoris & {
+  type: "nuée";
+  fichiersBase?: typeDispositifs;
+  données?: ÉpingleBd;
+};
+
+export type ÉpingleVariable = BaseÉpingleFavoris & {
+  type: "variable";
+};
+
+export type ÉpingleMotClef = BaseÉpingleFavoris & {
+  type: "motClef";
+};
+
+export type ÉpingleProjet = BaseÉpingleFavoris & {
+  type: "projet";
+  fichiersBase?: typeDispositifs;
+  bds?: ÉpingleBd;
+};
+
+export type ÉpingleCompte = BaseÉpingleFavoris & {
+  type: "compte";
+  fichiersBase?: typeDispositifs;
+  favoris?: {
+    base?: typeDispositifs;
+  };
+  bds?: {
+    base?: typeDispositifs;
+  };
+};
+
+export type ÉpingleFavorisAvecId<T extends ÉpingleFavoris = ÉpingleFavoris> = {
+  idObjet: string;
+  épingle: T;
+};
+
+type structureBdFavoris = { [idObjet: string]: ÉpingleFavoris };
 const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
   type: "object",
   additionalProperties: {
@@ -70,52 +121,79 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     this._promesseInit = this._épinglerFavoris();
   }
 
-  async épingler() {
-    await this.client.épingles.épinglerBd({
-      id: await this.obtIdBd(),
-      récursif: false,
-      fichiers: false,
-    });
-  }
-
   async _épinglerFavoris() {
-    let précédentes: string[] = [];
-
-    const fFinale = async (favoris: { [clef: string]: ÉlémentFavoris }) => {
-      const nouvelles: string[] = [];
-
-      await Promise.all(
-        Object.entries(favoris).map(async ([id, fav]) => {
-          const épinglerBd = await this.estÉpingléSurDispositif({
-            dispositifs: fav.dispositifs,
-          });
-          if (épinglerBd) {
-            const épinglerFichiers = await this.estÉpingléSurDispositif({
-              dispositifs: fav.dispositifsFichiers,
-            });
-            await this.client.épingles.épinglerBd({
-              id,
-              récursif: fav.récursif,
-              fichiers: épinglerFichiers,
-            });
-          }
-          nouvelles.push(id);
-        }),
-      );
-
-      const àOublier = précédentes.filter((id) => !nouvelles.includes(id));
-
-      await Promise.all(
-        àOublier.map(
-          async (id) => await this.client.épingles.désépinglerBd({ id }),
-        ),
-      );
-
-      précédentes = nouvelles;
+    const fFinale = async (
+      résolutions: { idObjet: string; épingles: string[] }[],
+    ) => {
+      return await this.client.épingles.épingler({
+        idRequête: "favoris",
+        épingles: new Set(résolutions.map((r) => r.épingles).flat()),
+      });
     };
 
-    const fOublier = await this.suivreBdPrincipale({
+    const fListe = async (
+      fSuivreRacine: (éléments: ÉpingleFavorisAvecId[]) => Promise<void>,
+    ) => {
+      return await this.suivreBdPrincipale({
+        f: (x) =>
+          fSuivreRacine(
+            Object.entries(x).map(([idObjet, épingle]) => ({
+              idObjet,
+              épingle,
+            })),
+          ),
+      });
+    };
+    const fBranche = async (
+      _id: string,
+      fSuivreBranche: schémaFonctionSuivi<Set<string>>,
+      branche: ÉpingleFavorisAvecId<ÉpingleFavoris>,
+    ) => {
+      switch (branche.épingle.type) {
+        case "motClef":
+          return await this.client.motsClefs.suivreRésolutionÉpingle({
+            épingle: branche as ÉpingleFavorisAvecId<ÉpingleMotClef>,
+            f: fSuivreBranche,
+          });
+        case "variable":
+          return await this.client.variables.suivreRésolutionÉpingle({
+            épingle: branche as ÉpingleFavorisAvecId<ÉpingleVariable>,
+            f: fSuivreBranche,
+          });
+        case "bd":
+          return await this.client.bds.suivreRésolutionÉpingle({
+            épingle: branche as ÉpingleFavorisAvecId<ÉpingleBd>,
+            f: fSuivreBranche,
+          });
+        case "projet":
+          return await this.client.projets.suivreRésolutionÉpingle({
+            épingle: branche as ÉpingleFavorisAvecId<ÉpingleProjet>,
+            f: fSuivreBranche,
+          });
+        case "nuée":
+          return await this.client.nuées.suivreRésolutionÉpingle({
+            épingle: branche as ÉpingleFavorisAvecId<ÉpingleNuée>,
+            f: fSuivreBranche,
+          });
+        case "compte":
+          return await this.client.suivreRésolutionÉpingle({
+            épingle: branche as ÉpingleFavorisAvecId<ÉpingleCompte>,
+            f: fSuivreBranche,
+          });
+
+        default:
+          throw new Error(String(branche));
+      }
+    };
+    const fIdBdDeBranche = (b: ÉpingleFavorisAvecId) => b.idObjet;
+    const fCode = (b: ÉpingleFavorisAvecId) => b.idObjet;
+
+    const fOublier = await suivreBdsDeFonctionListe({
+      fListe,
       f: fFinale,
+      fBranche,
+      fIdBdDeBranche,
+      fCode,
     });
 
     this.oublierÉpingler = fOublier;
@@ -126,15 +204,15 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     f,
     idCompte,
   }: {
-    f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[]>;
+    f: schémaFonctionSuivi<ÉpingleFavorisAvecId[]>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (favoris: { [key: string]: ÉlémentFavoris }) => {
+    const fFinale = async (favoris: { [key: string]: ÉpingleFavoris }) => {
       const favorisFinaux = Object.entries(favoris).map(
-        ([idObjet, élément]) => {
+        ([idObjet, épingle]) => {
           return {
             idObjet,
-            ...élément,
+            épingle,
           };
         },
       );
@@ -149,22 +227,14 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
 
   async épinglerFavori({
     idObjet,
-    dispositifs = "TOUS",
-    dispositifsFichiers = "INSTALLÉ",
-    récursif = true,
+    épingle,
   }: {
     idObjet: string;
-    dispositifs?: typeDispositifs;
-    dispositifsFichiers?: typeDispositifs | undefined;
-    récursif?: boolean;
+    épingle: ÉpingleFavoris;
   }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
 
-    const élément: ÉlémentFavoris = {
-      récursif,
-      dispositifs,
-    };
-    if (dispositifsFichiers) élément.dispositifsFichiers = dispositifsFichiers;
+    const élément = effacerPropriétésNonDéfinies(épingle);
     await bd.put(idObjet, élément);
 
     await fOublier();
@@ -182,57 +252,30 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     f,
   }: {
     idObjet: string;
-    f: schémaFonctionSuivi<ÉlémentFavoris | undefined>;
+    f: schémaFonctionSuivi<ÉpingleFavoris | undefined>;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBdPrincipale({
       f: (favoris) => f(favoris[idObjet]),
     });
   }
 
-  @cacheSuivi
-  async suivreEstÉpingléSurDispositif({
-    idObjet,
-    f,
-    idDispositif,
-  }: {
-    idObjet: string;
-    f: schémaFonctionSuivi<épingleDispositif>;
-    idDispositif?: string;
-  }): Promise<schémaFonctionOublier> {
-    const fFinale = async (élément?: ÉlémentFavoris): Promise<void> => {
-      const bdEstÉpinglée = await this.estÉpingléSurDispositif({
-        dispositifs: élément?.dispositifs,
-        idDispositif,
-      });
-      const fichiersSontÉpinglés = await this.estÉpingléSurDispositif({
-        dispositifs: élément?.dispositifsFichiers,
-        idDispositif,
-      });
-
-      return await f({
-        idObjet,
-        bd: bdEstÉpinglée,
-        fichiers: fichiersSontÉpinglés,
-        récursif: élément?.récursif || false,
-      });
-    };
-    return await this.suivreÉtatFavori({ idObjet, f: fFinale });
-  }
-
   async estÉpingléSurDispositif({
     dispositifs,
     idDispositif,
   }: {
-    dispositifs: ÉlémentFavoris["dispositifs"] | undefined;
+    dispositifs: typeDispositifs;
     idDispositif?: string;
   }): Promise<boolean> {
-    idDispositif = idDispositif || (await this.client.obtIdDispositif());
-    if (dispositifs === undefined) {
+    const ceDispositif = await this.client.obtIdDispositif();
+
+    idDispositif = idDispositif || ceDispositif;
+
+    if (dispositifs === "AUCUN") {
       return false;
     } else if (dispositifs === "TOUS") {
       return true;
     } else if (dispositifs === "INSTALLÉ") {
-      if (idDispositif === (await this.client.obtIdDispositif())) {
+      if (idDispositif === ceDispositif) {
         return isNode || isElectronMain;
       } else {
         return false; // En réalité, inconnu. Mais on ne peut pas magiquement deviner la plateforme d'un autre paire.
@@ -245,7 +288,6 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }
 
   async fermer(): Promise<void> {
-    await this._promesseInit;
     if (this.oublierÉpingler) await this.oublierÉpingler();
   }
 }

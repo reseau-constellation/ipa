@@ -2026,14 +2026,14 @@ export class Tableaux {
       }
     };
 
-    const fIdDeBranche = (b: règleColonne) => b.règle.id;
+    const fIdBdDeBranche = (b: règleColonne) => b.règle.id;
     const fCode = (b: règleColonne) => b.règle.id;
 
     const fOublierRègles = await suivreBdsDeFonctionListe({
       fListe: fListeRègles,
       f: fFinaleRègles,
       fBranche: fBrancheRègles,
-      fIdBdDeBranche: fIdDeBranche,
+      fIdBdDeBranche,
       fCode,
     });
 
@@ -2189,14 +2189,14 @@ export class Tableaux {
       }
     };
 
-    const fIdDeBranche = (b: règleColonne<règleVariable>) => b.règle.id;
+    const fIdBdDeBranche = (b: règleColonne<règleVariable>) => b.règle.id;
     const fCode = (b: règleColonne<règleVariable>) => b.règle.id;
 
     const fOublierRègles = await suivreBdsDeFonctionListe({
       fListe: fListeRègles,
       f: fFinaleRègles,
       fBranche: fBrancheRègles,
-      fIdBdDeBranche: fIdDeBranche,
+      fIdBdDeBranche,
       fCode,
     });
 

@@ -35,6 +35,7 @@ import { schémaBdTableauxDeBd } from "@/bds.js";
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
 import { ComposanteClientListe } from "./composanteClient.js";
+import { ÉpingleFavorisAvecId, ÉpingleNuée } from "./favoris.js";
 import type {
   différenceTableaux,
   InfoCol,
@@ -151,12 +152,86 @@ export class Nuées extends ComposanteClientListe<string> {
     super({ client, clef: "nuées", schémaBdPrincipale: { type: "string" } });
   }
 
-  async épingler() {
-    await this.client.épingles.épinglerBd({
-      id: await this.obtIdBd(),
-      récursif: false,
-      fichiers: false,
-    });
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisAvecId<ÉpingleNuée>;
+    f: schémaFonctionSuivi<Set<string>>;
+  }): Promise<schémaFonctionOublier> {
+    const épinglerBase =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.base || "TOUS",
+      });
+    const épinglerFichiersBase =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.fichiersBase || "INSTALLÉ",
+      });
+    const épinglerDonnées = épingle.épingle.données;
+    
+    const info: {
+      base?: (string | undefined)[];
+      fichiersBase?: (string | undefined)[];
+      données?: (string | undefined)[];
+    } = {};
+    const fFinale = async () => {
+      return await f(
+        new Set(
+          Object.values(info)
+            .flat()
+            .filter((x) => !!x) as string[],
+        ),
+      );
+    };
+
+    const fsOublier: schémaFonctionOublier[] = [];
+    if (épinglerBase || épinglerFichiersBase) {
+      const fOublierBase = await this.client.suivreBd({
+        id: épingle.idObjet,
+        type: "keyvalue",
+        schéma: schémaStructureBdNuée,
+        f: async (bd) => {
+          const contenuBd = await bd.allAsJSON();
+          if (épinglerBase)
+            info.base = [
+              épingle.idObjet,
+              contenuBd.descriptions,
+              contenuBd.noms,
+              contenuBd.tableaux,
+              contenuBd.motsClefs,
+              contenuBd.métadonnées,
+            ];
+          if (épinglerFichiersBase)
+            info.fichiersBase = [contenuBd.image];
+          await fFinale();
+        },
+      });
+      fsOublier.push(fOublierBase);
+    }
+
+    if (épinglerDonnées) {
+      const {fOublier: fOublierDonnées} = await suivreBdsDeFonctionListe({
+        fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
+          return await this.suivreBdsCorrespondantes({idNuée: épingle.idObjet, f: fSuivreRacine})
+        },
+        fBranche: async (id: string, fSuivreBranche: schémaFonctionSuivi<string[]>) => {
+          return this.client.bds.suivreRésolutionÉpingle({épingle: {
+            idObjet: id,
+            épingle: épinglerDonnées,
+          }, f: idcs => fSuivreBranche([...idcs])})
+        },
+        f: async (idcs: string[]) => {
+          info.données = idcs;
+          await fFinale();
+        },
+      });
+      
+      fsOublier.push(fOublierDonnées);
+    }
+
+    return async () => {
+      await Promise.all(fsOublier.map((f) => f()));
+    };
   }
 
   async créerNuée({
@@ -175,8 +250,13 @@ export class Nuées extends ComposanteClientListe<string> {
         write: await this.client.obtIdCompte(),
       },
     });
-    await this.ajouterÀMesNuées({ idNuée: idNuée });
-    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idNuée });
+    await this.ajouterÀMesNuées({ idNuée });
+    if (épingler) {
+      const épingle: ÉpingleNuée = {
+        type: 'nuée',
+      }
+      await this.client.favoris.épinglerFavori({ idObjet: idNuée, épingle })
+    };
 
     const { bd: bdNuée, fOublier: fOublierNuée } =
       await this.client.ouvrirBdTypée({
@@ -1053,7 +1133,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     f: schémaFonctionSuivi<"IJPC" | "CJPI">;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (bd?: TypedKeyValue<structureBdAuthorisation>) => {
+    const fFinale = async (bd?: TypedKeyValue<Partial<structureBdAuthorisation>>) => {
       if (!bd) return;
       const philosophie = await bd.get("philosophie");
       if (philosophie && ["IJPC", "CJPI"].includes(philosophie)) {
@@ -1078,7 +1158,7 @@ export class Nuées extends ComposanteClientListe<string> {
     }: {
       id: string;
       fSuivreBd: schémaFonctionSuivi<
-        TypedKeyValue<structureBdAuthorisation> | undefined
+        TypedKeyValue<Partial<structureBdAuthorisation>> | undefined
       >;
     }) => {
       return await this.client.suivreBd({

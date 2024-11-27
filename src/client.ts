@@ -1,4 +1,3 @@
-import { EventEmitter } from "events";
 
 import Semaphore from "@chriscdn/promise-semaphore";
 import { unixfs } from "@helia/unixfs";
@@ -34,6 +33,7 @@ import JSZip from "jszip";
 import { CID } from "multiformats";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import { isValidAddress } from "@orbitdb/core";
+import {TypedEmitter} from "tiny-typed-emitter";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
@@ -77,7 +77,6 @@ import type { infoUtilisateur, objRôles } from "@/accès/types.js";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
 import type { FeedDatabaseType } from "@orbitdb/feed-db";
-import type TypedEmitter from "typed-emitter";
 import type {
   createOrbitDB,
   IPFSAccessController as générerIPFSAccessController,
@@ -274,7 +273,7 @@ export class Constellation {
   constructor(opts: optsConstellation = {}) {
     this._opts = opts;
 
-    this.événements = new EventEmitter() as TypedEmitter<ÉvénementsClient>;
+    this.événements = new TypedEmitter<ÉvénementsClient>();
 
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
@@ -1288,7 +1287,7 @@ export class Constellation {
 
   async suivreBd<
     U extends { [clef: string]: élémentsBd },
-    T = TypedKeyValue<U>,
+    T extends TypedKeyValue<U> = TypedKeyValue<U>,
   >({
     id,
     f,
@@ -1427,7 +1426,7 @@ export class Constellation {
               lancerSuivi();
             } else {
               console.error(e);
-              throw e
+              throw e;
             }
           }
         });

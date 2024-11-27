@@ -11,6 +11,7 @@ import { ComposanteClientListe } from "@/composanteClient.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
+import { ÉpingleFavorisAvecId, ÉpingleMotClef } from "./favoris";
 import type { objRôles } from "@/accès/types.js";
 
 type ContrôleurConstellation = Awaited<
@@ -39,13 +40,32 @@ export class MotsClefs extends ComposanteClientListe<string> {
     super({ client, clef: "motsClefs", schémaBdPrincipale });
   }
 
-  async épingler() {
-    const idBd = await this.obtIdBd();
-    await this.client.épingles.épinglerBd({
-      id: idBd,
-      récursif: false,
-      fichiers: false,
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisAvecId<ÉpingleMotClef>;
+    f: schémaFonctionSuivi<Set<string>>;
+  }): Promise<schémaFonctionOublier> {
+    const épinglerMétaDonnées =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.métaDonnées || "TOUS",
+      });
+
+    const fOublier = await this.client.suivreBd({
+      id: épingle.idObjet,
+      type: "keyvalue",
+      schéma: schémaBdMotClef,
+      f: async (bd) => {
+        const contenuBd = await bd.allAsJSON()
+        return await f(
+          new Set(épinglerMétaDonnées
+            ? [épingle.idObjet, contenuBd.descriptions, contenuBd.noms].filter(x=>!!x) as string[]
+            : []),
+        );
+      },
     });
+    return fOublier;
   }
 
   @cacheSuivi
@@ -72,8 +92,12 @@ export class MotsClefs extends ComposanteClientListe<string> {
 
     await this.ajouterÀMesMotsClefs({ idMotClef });
 
-    if (épingler)
-      await this.client.favoris.épinglerFavori({ idObjet: idMotClef });
+    if (épingler) {
+      const épingle: ÉpingleMotClef = {
+        type: "motClef",
+      };
+      await this.client.favoris.épinglerFavori({ idObjet: idMotClef, épingle });
+    }
 
     const { bd: bdMotClef, fOublier: fOublierMotClef } =
       await this.client.ouvrirBdTypée({

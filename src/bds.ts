@@ -8,6 +8,7 @@ import {
   traduire,
   uneFois,
   zipper,
+  idcValide,
 } from "@constl/utils-ipa";
 import toBuffer from "it-to-buffer";
 import { v4 as uuidv4 } from "uuid";
@@ -40,6 +41,7 @@ import {
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { Constellation } from "@/client.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
+import { ÉpingleBd, ÉpingleFavorisAvecId } from "./favoris";
 import type { objRôles } from "@/accès/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { erreurValidation, règleColonne, règleExiste } from "@/valid.js";
@@ -204,12 +206,96 @@ export class BDs extends ComposanteClientListe<string> {
     this.verrouBdUnique = new Semaphore();
   }
 
-  async épingler() {
-    await this.client.épingles.épinglerBd({
-      id: await this.obtIdBd(),
-      récursif: false,
-      fichiers: false,
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisAvecId<ÉpingleBd>;
+    f: schémaFonctionSuivi<Set<string>>;
+  }): Promise<schémaFonctionOublier> {
+    const épinglerBase =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.base || "TOUS",
+      });
+    const épinglerFichiersBase =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.fichiersBase || "INSTALLÉ",
+      });
+    const épinglerDonnées = await this.client.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.données?.tableaux || "TOUS",
     });
+    const épinglerFichiersDonnées =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.données?.fichiers || "INSTALLÉ",
+      });
+    const info: {
+      base?: (string | undefined)[];
+      fichiersBase?: (string | undefined)[];
+      données?: (string | undefined)[];
+      fichiersDonnées?: (string | undefined)[];
+    } = {};
+    const fFinale = async () => {
+      return await f(
+        new Set(
+          Object.values(info)
+            .flat()
+            .filter((x) => !!x) as string[],
+        ),
+      );
+    };
+
+    const fsOublier: schémaFonctionOublier[] = [];
+    if (épinglerBase || épinglerFichiersBase) {
+      const fOublierBase = await this.client.suivreBd({
+        id: épingle.idObjet,
+        type: "keyvalue",
+        schéma: schémaStructureBdBd,
+        f: async (bd) => {
+          const contenuBd = await bd.allAsJSON();
+          if (épinglerBase)
+            info.base = [
+              épingle.idObjet,
+              contenuBd.descriptions,
+              contenuBd.noms,
+              contenuBd.tableaux,
+              contenuBd.motsClefs,
+              contenuBd.nuées,
+              contenuBd.métadonnées,
+            ];
+          if (épinglerFichiersBase)
+            info.fichiersBase = [contenuBd.image];
+          await fFinale();
+        },
+      });
+      fsOublier.push(fOublierBase);
+    }
+
+    if (épinglerDonnées) {
+      const fOublierTableaux = await this.suivreTableauxBd({idBd: épingle.idObjet, f: async tableaux => {
+        info.données = tableaux.map(t=>t.id);
+        await fFinale();
+      }})
+      fsOublier.push(fOublierTableaux);
+    }
+    if (épinglerFichiersDonnées) {
+      const fOublierDonnées = await suivreBdsDeFonctionListe({
+        fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
+          return await this.suivreTableauxBd({idBd:  épingle.idObjet, f: tableaux => fSuivreRacine(tableaux.map(t=>t.id))})
+        },
+        fBranche: async (id: string, fSuivreBranche: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) => {
+          return await this.client.tableaux.suivreDonnées({ idTableau: id, f:fSuivreBranche})
+        },
+        f: (données: élémentDonnées<élémentBdListeDonnées>[]) => {
+          const idcs = données.map(file => Object.values(file.données).filter(x=>idcValide(x))).flat() as string[]
+          info.fichiersDonnées = idcs;
+        }
+      });
+      fsOublier.push(fOublierDonnées);
+    }
+
+    return async () => {
+      await Promise.all(fsOublier.map((f) => f()));
+    };
   }
 
   @cacheSuivi
@@ -232,17 +318,22 @@ export class BDs extends ComposanteClientListe<string> {
     licenceContenu?: string;
     épingler?: boolean;
   }): Promise<string> {
-    const idBdBd = await this.client.créerBdIndépendante({
+    const idBd = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès: {
         address: undefined,
         write: await this.client.obtIdCompte(),
       },
     });
-    if (épingler) await this.client.favoris.épinglerFavori({ idObjet: idBdBd });
+    if (épingler) {
+      const épingle: ÉpingleBd = {
+        type: 'bd'
+      }
+      await this.client.favoris.épinglerFavori({ idObjet: idBd, épingle })
+    };
 
     const { bd: bdBD, fOublier } = await this.client.ouvrirBdTypée({
-      id: idBdBd,
+      id: idBd,
       type: "keyvalue",
       schéma: schémaStructureBdBd,
     });
@@ -297,12 +388,12 @@ export class BDs extends ComposanteClientListe<string> {
         type: "set",
         schéma: schémaBdPrincipale,
       });
-    await bdRacine.add(idBdBd);
+    await bdRacine.add(idBd);
     fOublierRacine();
 
     await fOublier();
 
-    return idBdBd;
+    return idBd;
   }
 
   async ajouterÀMesBds({ idBd }: { idBd: string }): Promise<void> {
@@ -1792,9 +1883,7 @@ export class BDs extends ComposanteClientListe<string> {
       await f(tableaux);
     };
 
-    return await this.client.suivreBdDicOrdonnéeDeClef<{
-      [idTableau: string]: { clef: string };
-    }>({
+    return await this.client.suivreBdDicOrdonnéeDeClef({
       id: idBd,
       clef: "tableaux",
       schéma: schémaBdTableauxDeBd,
