@@ -30,9 +30,8 @@ import { rechercherTous } from "@/recherche/utils.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import type {
-  ÉlémentFavoris,
-  ÉlémentFavorisAvecObjet,
-  épingleDispositif,
+  ÉpingleFavoris,
+  ÉpingleFavorisAvecId,
 } from "@/favoris.js";
 import type { infoScore } from "@/bds.js";
 import type { Libp2pEvents, PeerUpdate } from "@libp2p/interface";
@@ -118,11 +117,13 @@ export interface statutMembre {
 
 export interface infoRéplications {
   membres: statutMembre[];
-  dispositifs: (épingleDispositif & {
-    idDispositif: string;
-    idCompte?: string;
-    vuÀ?: number;
-  })[];
+  dispositifs: {
+    épingle: ÉpingleFavorisAvecId;
+    dispositif: {
+      idDispositif: string;
+      vuÀ?: number;
+    }
+  }[];
 }
 
 export interface résultatRechercheSansScore<T extends infoRésultat> {
@@ -315,14 +316,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.fsOublier.unshift(async () => clearInterval(intervale));
 
     await this.direSalut();
-  }
-
-  async épingler() {
-    await this.client.épingles.épinglerBd({
-      id: await this.obtIdBd(),
-      récursif: false,
-      fichiers: false,
-    });
   }
 
   async suivreMessageGossipsub({
@@ -2530,7 +2523,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     f,
   }: {
     idCompte: string;
-    f: schémaFonctionSuivi<ÉlémentFavorisAvecObjet[]>;
+    f: schémaFonctionSuivi<ÉpingleFavorisAvecId[]>;
   }): Promise<schémaFonctionOublier> {
     // suivreFavoris est différent parce qu'on n'a pas besoin de vérifier l'autorisation du membre
     return await this.client.favoris.suivreFavoris({
@@ -2602,13 +2595,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     profondeur,
   }: {
     idObjet: string;
-    f: schémaFonctionSuivi<(ÉlémentFavorisAvecObjet & { idCompte: string })[]>;
+    f: schémaFonctionSuivi<({épingle: ÉpingleFavorisAvecId; idCompte: string })[]>;
     profondeur: number;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = async (
-      favoris: (ÉlémentFavoris & { idObjet: string; idCompte: string })[],
+      favoris: {épingle: ÉpingleFavorisAvecId; idCompte: string }[],
     ) => {
-      const favorisDIntérêt = favoris.filter((f) => f.idObjet === idObjet);
+      const favorisDIntérêt = favoris.filter((f) => f.épingle.idObjet === idObjet);
       await f(favorisDIntérêt);
     };
 
@@ -2633,12 +2626,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const fBranche = async (
       idCompte: string,
       fSuivreBranche: schémaFonctionSuivi<
-        (ÉlémentFavoris & { idObjet: string; idCompte: string })[] | undefined
+        (ÉpingleFavorisAvecId & { idCompte: string })[] | undefined
       >,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreFavorisMembre({
         idCompte: idCompte,
-        f: (favoris: (ÉlémentFavoris & { idObjet: string })[] | undefined) =>
+        f: (favoris: (ÉpingleFavorisAvecId)[] | undefined) =>
           fSuivreBranche(
             favoris
               ? favoris.map((fav) => {
@@ -2669,7 +2662,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       connexionsMembres: statutMembre[];
       connexionsDispositifs: statutDispositif[];
       favoris: {
-        favoris: ÉlémentFavoris & { idObjet: string; idCompte: string };
+        favoris: ÉpingleFavoris & { idObjet: string; idCompte: string };
         dispositifs: string[];
       }[];
     } = { connexionsMembres: [], connexionsDispositifs: [], favoris: [] };
@@ -2681,10 +2674,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         idsMembres.includes(c.infoMembre.idCompte),
       );
 
-      const dispositifs: (épingleDispositif & {
-        idDispositif: string;
-        vuÀ?: number;
-      })[] = (
+      const dispositifs: {
+        épingle: ÉpingleFavorisAvecId,
+        dispositif: {
+          idDispositif: string;
+          idCompte?: string;
+          vuÀ?: number;
+        }
+      }[] = (
         await Promise.all(
           favoris.map(async (fav) => {
             const { favoris, dispositifs } = fav;
@@ -2698,24 +2695,17 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
                   (c) => c.infoDispositif.idDispositif === d,
                 )?.infoDispositif.idCompte;
 
-                const dispositifsRéplication: épingleDispositif & {
+                const dispositifsRéplication: {épingle: ÉpingleFavorisAvecId, dispositif: {
                   idDispositif: string;
                   idCompte?: string;
                   vuÀ?: number;
-                } = {
-                  idObjet,
-                  idDispositif: d,
-                  idCompte,
-                  bd: await this.client.favoris.estÉpingléSurDispositif({
-                    dispositifs: favoris.dispositifs,
+                }} = {
+                  épingle: {idObjet, épingle: favoris},
+                  dispositif: {
                     idDispositif: d,
-                  }),
-                  fichiers: await this.client.favoris.estÉpingléSurDispositif({
-                    dispositifs: favoris.dispositifsFichiers,
-                    idDispositif: d,
-                  }),
-                  récursif: favoris.récursif,
-                  vuÀ,
+                    idCompte,
+                    vuÀ,
+                  }
                 };
                 return dispositifsRéplication;
               }),
@@ -2747,7 +2737,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const fSuivreFavoris = async (
       favoris: {
-        favoris: ÉlémentFavoris & { idObjet: string; idCompte: string };
+        favoris: ÉpingleFavoris & { idObjet: string; idCompte: string };
         dispositifs: string[];
       }[],
     ) => {
@@ -2757,7 +2747,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const fListeFavoris = async (
       fSuivreRacine: (
-        favoris: (ÉlémentFavoris & { idObjet: string; idCompte: string })[],
+        favoris: {épingle: ÉpingleFavorisAvecId; idCompte: string }[],
       ) => void,
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreFavorisObjet({
@@ -2770,10 +2760,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const fBrancheFavoris = async (
       id: string,
       fSuivreBranche: schémaFonctionSuivi<{
-        favoris: ÉlémentFavoris & { idObjet: string; idCompte: string };
+        favoris: {épingle: ÉpingleFavorisAvecId; idCompte: string };
         dispositifs: string[];
       }>,
-      branche: ÉlémentFavoris & { idObjet: string; idCompte: string },
+      branche: {épingle: ÉpingleFavorisAvecId; idCompte: string },
     ): Promise<schémaFonctionOublier> => {
       const fSuivreDispositifsMembre = async (dispositifs: string[]) => {
         return await fSuivreBranche({ favoris: branche, dispositifs });
@@ -2790,9 +2780,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     };
 
     const fIdBdDeBranche = (
-      x: ÉlémentFavoris & { idObjet: string; idCompte: string },
+      x: {épingle: ÉpingleFavorisAvecId; idCompte: string },
     ) => x.idCompte;
-    const fCode = (x: ÉlémentFavoris & { idObjet: string; idCompte: string }) =>
+    const fCode = (x: {épingle: ÉpingleFavorisAvecId; idCompte: string }) =>
       x.idCompte;
 
     const { fOublier: fOublierFavoris, fChangerProfondeur } =

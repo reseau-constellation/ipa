@@ -38,7 +38,7 @@ import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 import { Épingles } from "@/epingles.js";
-import { Favoris } from "@/favoris.js";
+import { Favoris, ÉpingleCompte, ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
 import { Licences } from "@/licences.js";
 import { MotsClefs } from "@/motsClefs.js";
 import { Nuées } from "@/nuées.js";
@@ -366,7 +366,11 @@ export class Constellation {
     await this.protocoles.établirProtocoles({
       protocoles: this._opts.protocoles,
     });
-    await this.épingler();
+    const épingle: ÉpingleCompte = {
+      type: "compte",
+      favoris: "TOUS"
+    }
+    await this.favoris.épinglerFavori({idObjet: this.idCompte, épingle});
     this.événements.emit("comptePrêt", { idCompte: this.idCompte });
   }
 
@@ -544,21 +548,106 @@ export class Constellation {
     };
   }
 
-  async épingler() {
-    await this.épingles.épinglerBd({ id: await this.obtIdCompte() }); // Celle-ci doit être récursive et inclure les fichiers
-    await Promise.all(
-      [
-        this.profil,
-        this.automatisations,
-        this.bds,
-        this.variables,
-        this.projets,
-        this.nuées,
-        this.motsClefs,
-        this.réseau,
-        this.favoris,
-      ].map(async (x) => x && (await x.épingler())),
-    );
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisAvecId<ÉpingleCompte>
+    f: schémaFonctionSuivi<Set<string>>
+  }) {
+    const épinglerBase =
+      await this.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.base || "TOUS",
+      });
+    const épinglerProfil = épingle.épingle.profil;
+    const épinglerFavoris =
+      await this.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.favoris || "AUCUN",
+      });
+
+    const info: {
+      base?: string[];
+      profil?: string[];
+      favoris?: string[];
+    } = {};
+
+    const fFinale = async () => {
+      return await f(
+        new Set(
+          Object.values(info)
+            .flat()
+            .filter((x) => !!x) as string[],
+        ),
+      );
+    };
+
+    const fsOublier: schémaFonctionOublier[] = [];
+    if (épinglerBase) {
+      const fOublierBase = await this.suivreBd({
+        id: épingle.idObjet,
+        type: "keyvalue",
+        schéma: schémaStructureBdCompte,
+        f: async (bd) => {
+          const contenuBd = await bd.allAsJSON();
+          info.base = [
+            épingle.idObjet,
+            contenuBd.automatisations,
+            contenuBd.bds,
+            contenuBd.favoris,
+            contenuBd.motsClefs,
+            contenuBd.nuées,
+            contenuBd.profil,
+            contenuBd.projets,
+            contenuBd.protocoles,
+            contenuBd.réseau,
+            contenuBd.variables
+          ].filter(x=>!!x) as string[]
+          return await fFinale();
+        },
+      });
+      fsOublier.push(fOublierBase);
+    }
+    if (épinglerProfil) {
+      const fOublierProfil = await suivreBdDeFonction({
+        fRacine: async ({fSuivreRacine}: {fSuivreRacine: (nouvelIdBdCible?: string | undefined) => Promise<void>}) => {
+          return await this.suivreBd({
+            id: épingle.idObjet,
+            type: "keyvalue",
+            schéma: schémaStructureBdCompte,
+            f: async (bd) => await fSuivreRacine((await bd.allAsJSON()).profil)
+          })
+        },
+        fSuivre: async ({id, fSuivreBd}: {id: string, fSuivreBd: schémaFonctionSuivi<Set<string>>}) => {
+          return await this.profil.suivreRésolutionÉpingle({
+            épingle: {idObjet: id, épingle: épinglerProfil},
+            f: fSuivreBd
+          })
+        },
+        f: async (idcs) => {info.profil = idcs ? [...idcs]: []; return await fFinale()},
+      })
+      fsOublier.push(fOublierProfil)
+    }
+    if (épinglerFavoris) {
+      const fOublierFavoris = await suivreBdsDeFonctionListe({
+        fListe: async (fSuivreRacine: (éléments: ÉpingleFavorisAvecId<ÉpingleFavoris>[])=>Promise<void>) => {
+          return await this.favoris.suivreFavoris({f: fSuivreRacine, idCompte: épingle.idObjet })
+        },
+        fBranche: async (_id: string, fSuivreBranche: schémaFonctionSuivi<Set<string>>, branche: ÉpingleFavorisAvecId) => {
+          return await this.favoris.suivreRésolutionÉpingle({épingle: branche, f:fSuivreBranche})
+        },
+        f: async (favoris: Set<string>[]) => {
+          info.favoris = favoris.map(f=>[...f]).flat();
+          return await fFinale();
+        },
+        fIdBdDeBranche: (b) => b.idObjet,
+        fCode: (b) => b.idObjet,
+      })
+      fsOublier.push(fOublierFavoris);
+    }
+
+    return async () => {
+      await Promise.all(fsOublier.map((f) => f()));
+    };
   }
 
   async ouvrirBd<T extends KeyValueDatabase>({

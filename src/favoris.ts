@@ -2,6 +2,7 @@ import { isElectronMain, isNode } from "wherearewe";
 
 import { JSONSchemaType } from "ajv";
 import { suivreBdsDeFonctionListe } from "@constl/utils-ipa";
+import deepEqual from "deep-equal";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { effacerPropriétésNonDéfinies } from "./utils.js";
@@ -10,12 +11,7 @@ import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
 export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ" | "AUCUN";
 
-export interface épingleDispositif {
-  idObjet: string;
-  bd: boolean;
-  fichiers: boolean;
-  récursif: boolean;
-}
+export type BooléenniserPropriétés<T extends object> = {[clef in keyof T]: T[clef] extends object ? BooléenniserPropriétés<T[clef]> : boolean}
 
 export type ÉpingleFavoris =
   | ÉpingleVariable
@@ -23,7 +19,8 @@ export type ÉpingleFavoris =
   | ÉpingleBd
   | ÉpingleNuée
   | ÉpingleProjet
-  | ÉpingleCompte;
+  | ÉpingleCompte
+  | ÉpingleProfil;
 
 export type BaseÉpingleFavoris = {
   base?: typeDispositifs;
@@ -58,15 +55,15 @@ export type ÉpingleProjet = BaseÉpingleFavoris & {
   bds?: ÉpingleBd;
 };
 
+export type ÉpingleProfil = BaseÉpingleFavoris & {
+  type: 'profil';
+  fichiers?: typeDispositifs;
+}
+
 export type ÉpingleCompte = BaseÉpingleFavoris & {
   type: "compte";
-  fichiersBase?: typeDispositifs;
-  favoris?: {
-    base?: typeDispositifs;
-  };
-  bds?: {
-    base?: typeDispositifs;
-  };
+  profil?: ÉpingleProfil
+  favoris?: typeDispositifs
 };
 
 export type ÉpingleFavorisAvecId<T extends ÉpingleFavoris = ÉpingleFavoris> = {
@@ -74,40 +71,145 @@ export type ÉpingleFavorisAvecId<T extends ÉpingleFavoris = ÉpingleFavoris> =
   épingle: T;
 };
 
+const schémaTypeDispositif: JSONSchemaType<typeDispositifs> = {
+  type: ["string", "array"],
+  anyOf: [
+    {
+      type: "string",
+    },
+    {
+      type: "array",
+      items: {type: "string"},
+    },
+  ],
+  nullable: true,
+}
+
+const schémaÉpingleVariable: JSONSchemaType<ÉpingleVariable> =  {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      const: "variable"
+    },
+    base: {
+      type: ["string", "array"],
+      anyOf: [
+        {
+          type: "string"
+        },
+        {
+          type: "array",
+          items: {type: "string"}
+        }
+      ],
+      nullable: true,
+    }
+  },
+  required: ["type"]
+}
+
+const schémaÉpingleMotClef: JSONSchemaType<ÉpingleMotClef> =  {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      const: "motClef"
+    },
+    base: schémaTypeDispositif
+  },
+  required: ["type"]
+}
+
+const schémaÉpingleBd: JSONSchemaType<ÉpingleBd> = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      const: "bd"
+    },
+    base: schémaTypeDispositif,
+    fichiersBase: schémaTypeDispositif,
+    données: {
+      type: "object",
+      properties: {
+        fichiers: schémaTypeDispositif,
+        tableaux: schémaTypeDispositif
+      },
+      nullable: true,
+    },
+  },
+  required: ["type"]
+}
+
+const schémaÉpingleNuée: JSONSchemaType<ÉpingleNuée> = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      const: "nuée"
+    },
+    base: schémaTypeDispositif,
+    fichiersBase: schémaTypeDispositif,
+    données: schémaÉpingleBd,
+  }
+}
+
+const schémaÉpingleProjet: JSONSchemaType<ÉpingleProjet> = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      const: "projet"
+    },
+    base: schémaTypeDispositif,
+    fichiersBase: schémaTypeDispositif,
+    bds: schémaÉpingleBd,
+  },
+  required: []
+}
+
+
+const schémaÉpingleProfil: JSONSchemaType<ÉpingleProfil> = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      const: "profil"
+    },
+    base: schémaTypeDispositif,
+    fichiers: schémaTypeDispositif,
+  },
+}
+const schémaÉpingleCompte: JSONSchemaType<ÉpingleCompte> = {
+  type: "object",
+  properties: {
+    type: {
+      type: "string",
+      const: "projet"
+    },
+    base: schémaTypeDispositif,
+    profil: schémaÉpingleProfil,
+    favoris: schémaTypeDispositif,
+  },
+}
+
+const schémaÉpingleFavoris: JSONSchemaType<ÉpingleFavoris> = {
+  anyOf: [
+    schémaÉpingleVariable,
+    schémaÉpingleMotClef,
+    schémaÉpingleBd,
+    schémaÉpingleNuée,
+    schémaÉpingleProjet,
+    schémaÉpingleCompte,
+    schémaÉpingleProfil,
+  ]
+};
+
 type structureBdFavoris = { [idObjet: string]: ÉpingleFavoris };
 const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
   type: "object",
-  additionalProperties: {
-    type: "object",
-    properties: {
-      dispositifs: {
-        anyOf: [
-          {
-            type: "array",
-            items: { type: "string" },
-          },
-          { type: "string" },
-        ],
-      },
-      dispositifsFichiers: {
-        type: ["array", "string"],
-        anyOf: [
-          {
-            type: "array",
-            items: { type: "string" },
-            nullable: true,
-          },
-          {
-            type: "string",
-            nullable: true,
-          },
-        ],
-        nullable: true,
-      },
-      récursif: { type: "boolean" },
-    },
-    required: ["dispositifs", "récursif"],
-  },
+  additionalProperties: schémaÉpingleFavoris,
   required: [],
 };
 
@@ -119,6 +221,44 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     super({ client, clef: "favoris", schémaBdPrincipale });
 
     this._promesseInit = this._épinglerFavoris();
+  }
+
+  async suivreRésolutionÉpingle({épingle, f}: {épingle: ÉpingleFavorisAvecId; f: schémaFonctionSuivi<Set<string>>}) {
+    switch (épingle.épingle.type) {
+      case "motClef":
+        return await this.client.motsClefs.suivreRésolutionÉpingle({
+          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleMotClef>,
+          f,
+        });
+      case "variable":
+        return await this.client.variables.suivreRésolutionÉpingle({
+          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleVariable>,
+          f,
+        });
+      case "bd":
+        return await this.client.bds.suivreRésolutionÉpingle({
+          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleBd>,
+          f,
+        });
+      case "projet":
+        return await this.client.projets.suivreRésolutionÉpingle({
+          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleProjet>,
+          f,
+        });
+      case "nuée":
+        return await this.client.nuées.suivreRésolutionÉpingle({
+          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleNuée>,
+          f,
+        });
+      case "compte":
+        return await this.client.suivreRésolutionÉpingle({
+          épingle: épingle as ÉpingleFavorisAvecId<ÉpingleCompte>,
+          f,
+        });
+
+      default:
+        throw new Error(String(épingle));
+    }
   }
 
   async _épinglerFavoris() {
@@ -149,41 +289,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
       fSuivreBranche: schémaFonctionSuivi<Set<string>>,
       branche: ÉpingleFavorisAvecId<ÉpingleFavoris>,
     ) => {
-      switch (branche.épingle.type) {
-        case "motClef":
-          return await this.client.motsClefs.suivreRésolutionÉpingle({
-            épingle: branche as ÉpingleFavorisAvecId<ÉpingleMotClef>,
-            f: fSuivreBranche,
-          });
-        case "variable":
-          return await this.client.variables.suivreRésolutionÉpingle({
-            épingle: branche as ÉpingleFavorisAvecId<ÉpingleVariable>,
-            f: fSuivreBranche,
-          });
-        case "bd":
-          return await this.client.bds.suivreRésolutionÉpingle({
-            épingle: branche as ÉpingleFavorisAvecId<ÉpingleBd>,
-            f: fSuivreBranche,
-          });
-        case "projet":
-          return await this.client.projets.suivreRésolutionÉpingle({
-            épingle: branche as ÉpingleFavorisAvecId<ÉpingleProjet>,
-            f: fSuivreBranche,
-          });
-        case "nuée":
-          return await this.client.nuées.suivreRésolutionÉpingle({
-            épingle: branche as ÉpingleFavorisAvecId<ÉpingleNuée>,
-            f: fSuivreBranche,
-          });
-        case "compte":
-          return await this.client.suivreRésolutionÉpingle({
-            épingle: branche as ÉpingleFavorisAvecId<ÉpingleCompte>,
-            f: fSuivreBranche,
-          });
-
-        default:
-          throw new Error(String(branche));
-      }
+      return await this.suivreRésolutionÉpingle({épingle: branche, f: fSuivreBranche});
     };
     const fIdBdDeBranche = (b: ÉpingleFavorisAvecId) => b.idObjet;
     const fCode = (b: ÉpingleFavorisAvecId) => b.idObjet;
@@ -235,7 +341,9 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     const { bd, fOublier } = await this.obtBd();
 
     const élément = effacerPropriétésNonDéfinies(épingle);
-    await bd.put(idObjet, élément);
+    const existant = bd.get(idObjet);
+    if (!deepEqual(existant, élément))  // À faire : déménager à Bohr-DB
+      await bd.put(idObjet, élément);
 
     await fOublier();
   }
@@ -257,6 +365,32 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     return await this.suivreBdPrincipale({
       f: (favoris) => f(favoris[idObjet]),
     });
+  }
+
+  @cacheSuivi
+  async suivreEstÉpingléSurDispositif({
+    idObjet,
+    f
+  }: {
+    idObjet: string;
+    f: schémaFonctionSuivi<BooléenniserPropriétés<ÉpingleFavoris> | undefined>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.suivreBdPrincipale({
+      f: async (favoris) => f(await this.résoudreÉpinglesSurDispositif({épingle: favoris[idObjet]})),
+    });
+  }
+
+  async résoudreÉpinglesSurDispositif<T extends ÉpingleFavoris>({épingle, idDispositif}: {épingle: T, idDispositif?: string}): Promise<BooléenniserPropriétés<T>> {
+    return Object.fromEntries(
+      await Promise.all(Object.entries(épingle).map(async ([clef, val])=>{
+        if (clef === 'type') return [clef, val];
+        else if (Array.isArray(clef) || typeof clef === 'string') {
+          return [clef, await this.estÉpingléSurDispositif({dispositifs: val,idDispositif})]
+        } else {
+          return [clef, await this.estÉpingléSurDispositif({dispositifs: val,  idDispositif})]
+        }
+      }))
+    )  as BooléenniserPropriétés<T>
   }
 
   async estÉpingléSurDispositif({

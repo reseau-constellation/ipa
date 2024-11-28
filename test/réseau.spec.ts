@@ -17,7 +17,7 @@ import {
 import { type Constellation, créerConstellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import type { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
-import type { ÉlémentFavorisAvecObjet } from "@/favoris.js";
+import type { ÉpingleFavorisAvecId } from "@/favoris.js";
 import type {
   infoBloqué,
   infoConfiance,
@@ -557,7 +557,9 @@ if (isNode || isElectronMain) {
           idMotClef2 = await clients[1].motsClefs.créerMotClef();
           await clients[0].favoris.épinglerFavori({
             idObjet: idMotClef2,
-            dispositifs: "TOUS",
+            épingle: {
+              type: "motClef"
+            },
           });
 
           const val = await relationsPropres.attendreQue(
@@ -2008,10 +2010,10 @@ if (isNode || isElectronMain) {
       let idMotClef: string;
 
       const résPropres = new utilsTestAttente.AttendreRésultat<
-        ÉlémentFavorisAvecObjet[]
+        ÉpingleFavorisAvecId[]
       >();
       const résAutres = new utilsTestAttente.AttendreRésultat<
-        ÉlémentFavorisAvecObjet[]
+        ÉpingleFavorisAvecId[]
       >();
 
       const fsOublier: schémaFonctionOublier[] = [];
@@ -2032,7 +2034,7 @@ if (isNode || isElectronMain) {
           }),
         );
 
-        idMotClef = await clients[0].motsClefs.créerMotClef();
+        idMotClef = await clients[0].motsClefs.créerMotClef({épingler: false});
       });
 
       after(async () => {
@@ -2044,36 +2046,40 @@ if (isNode || isElectronMain) {
       });
 
       it("Mes favoris détectés", async () => {
-        const réf: ÉlémentFavorisAvecObjet[] = [
+        const réf: ÉpingleFavorisAvecId[] = [
           {
-            récursif: true,
-            dispositifs: "TOUS",
-            dispositifsFichiers: "INSTALLÉ",
             idObjet: idMotClef,
+            épingle: {
+              type: "motClef"
+            }
           },
         ];
 
         await clients[1].favoris.épinglerFavori({
           idObjet: idMotClef,
-          dispositifs: "TOUS",
+          épingle: {
+            type: "motClef"
+          },
         });
         const val = await résPropres.attendreQue((x) => x.length > 0);
         expect(val).to.have.deep.members(réf);
       });
 
       it("Favoris d'un autre membre détectés", async () => {
-        const réf: ÉlémentFavorisAvecObjet[] = [
+        const réf: ÉpingleFavorisAvecId[] = [
           {
-            récursif: true,
-            dispositifs: "TOUS",
-            dispositifsFichiers: "INSTALLÉ",
             idObjet: idMotClef,
+            épingle: {
+              type: "motClef"
+            }
           },
         ];
 
         await clients[0].favoris.épinglerFavori({
           idObjet: idMotClef,
-          dispositifs: "TOUS",
+          épingle: {
+            type: "motClef"
+          },
         });
         const val = await résAutres.attendreQue((x) => x.length > 0);
         expect(val).to.have.deep.members(réf);
@@ -2089,7 +2095,7 @@ if (isNode || isElectronMain) {
       let fOublier: schémaFonctionOublier;
 
       const rés = new utilsTestAttente.AttendreRésultat<
-        (ÉlémentFavorisAvecObjet & { idCompte: string })[]
+        {épingle: ÉpingleFavorisAvecId; idCompte: string }[]
       >();
 
       before(async () => {
@@ -2117,18 +2123,19 @@ if (isNode || isElectronMain) {
       });
 
       it("Ajout à mes favoris détecté", async () => {
-        const réf: (ÉlémentFavorisAvecObjet & { idCompte: string })[] = [
+        const réf: {épingle: ÉpingleFavorisAvecId; idCompte: string }[] = [
           {
-            récursif: true,
-            dispositifs: "TOUS",
-            dispositifsFichiers: "INSTALLÉ",
-            idObjet: idMotClef,
             idCompte: idsBdCompte[0],
+            épingle: {
+              idObjet: idMotClef,
+              épingle: {
+              type: "motClef"
+            }}
           },
         ];
         await clients[0].favoris.épinglerFavori({
           idObjet: idMotClef,
-          dispositifs: "TOUS",
+          épingle: { type: "motClef" }
         });
         const val = await rés.attendreQue((x) => !!x && !!x.length);
 
@@ -2136,25 +2143,27 @@ if (isNode || isElectronMain) {
       });
 
       it("Ajout aux favoris d'un autre membre détecté", async () => {
-        const réf: (ÉlémentFavorisAvecObjet & { idCompte: string })[] = [
+        const réf: {épingle: ÉpingleFavorisAvecId; idCompte: string }[] = [
           {
-            récursif: true,
-            dispositifs: "TOUS",
-            dispositifsFichiers: "INSTALLÉ",
-            idObjet: idMotClef,
             idCompte: idsBdCompte[0],
+            épingle: {
+              épingle: {type: "motClef"},
+              idObjet: idMotClef
+            }
           },
           {
-            récursif: true,
-            dispositifs: "TOUS",
-            dispositifsFichiers: "INSTALLÉ",
-            idObjet: idMotClef,
             idCompte: idsBdCompte[1],
+            épingle: {
+              épingle: {type: "motClef"},
+              idObjet: idMotClef
+            }
           },
         ];
         await clients[1].favoris.épinglerFavori({
           idObjet: idMotClef,
-          dispositifs: "TOUS",
+          épingle: {
+            type: "motClef"
+          }
         });
         const val = await rés.attendreQue((x) => !!x && x.length === 2);
 
@@ -2197,7 +2206,7 @@ if (isNode || isElectronMain) {
       it("Auteur de la BD pour commencer", async () => {
         await clients[0].favoris.épinglerFavori({
           idObjet: idBd,
-          dispositifs: "TOUS",
+          épingle: {type: "motClef"}
         });
 
         const val = await rés.attendreQue((x) => !!x && x.membres.length > 0);
@@ -2205,7 +2214,7 @@ if (isNode || isElectronMain) {
         expect(val.membres.map((m) => m.infoMembre.idCompte)).to.contain(
           idsBdCompte[0],
         );
-        expect(val.dispositifs.map((d) => d.idDispositif)).to.contain(
+        expect(val.dispositifs.map((d) => d.dispositif.idDispositif)).to.contain(
           idsOrbite[0],
         );
       });
@@ -2213,7 +2222,7 @@ if (isNode || isElectronMain) {
       it("Ajout d'une réplication détectée", async () => {
         await clients[1].favoris.épinglerFavori({
           idObjet: idBd,
-          dispositifs: "TOUS",
+          épingle: {type: "bd"},
         });
 
         const val = await rés.attendreQue((x) => !!x && x.membres.length > 1);
@@ -2222,7 +2231,7 @@ if (isNode || isElectronMain) {
           idsBdCompte[0],
           idsBdCompte[1],
         ]);
-        expect(val.dispositifs.map((d) => d.idDispositif)).to.have.members([
+        expect(val.dispositifs.map((d) => d.dispositif.idDispositif)).to.have.members([
           idsOrbite[0],
           idsOrbite[1],
         ]);

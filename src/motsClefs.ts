@@ -49,7 +49,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
   }): Promise<schémaFonctionOublier> {
     const épinglerMétaDonnées =
       await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.métaDonnées || "TOUS",
+        dispositifs: épingle.épingle.base || "TOUS",
       });
 
     const fOublier = await this.client.suivreBd({

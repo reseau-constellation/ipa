@@ -125,9 +125,9 @@ export class Variables extends ComposanteClientListe<string> {
     épingle: ÉpingleFavorisAvecId<ÉpingleVariable>;
     f: schémaFonctionSuivi<Set<string>>;
   }): Promise<schémaFonctionOublier> {
-    const épinglerMétaDonnées =
+    const épinglerBase =
       await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.métaDonnées || "TOUS",
+        dispositifs: épingle.épingle.base || "TOUS",
       });
     const fOublier = await this.client.suivreBd({
       id: épingle.idObjet,
@@ -136,7 +136,7 @@ export class Variables extends ComposanteClientListe<string> {
       f: async (bd) => {
         const contenuBd = await bd.allAsJSON();
         return await f(
-          new Set(épinglerMétaDonnées
+          new Set(épinglerBase
             ? [
                 épingle.idObjet,
                 contenuBd.descriptions,

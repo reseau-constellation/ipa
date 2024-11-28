@@ -38,9 +38,13 @@ export class Épingles {
     await this.mettreÀJour();
   }
 
-  async désépingler({idRequête}: {idRequête: string})  {
+  async désépingler({idRequête}: {idRequête: string}) {
     delete this.requêtes[idRequête];
     await this.mettreÀJour();
+  }
+
+  estÉpinglé({id}: {id: string}): boolean {
+    return !!this.bdsOuvertes[id] || this.idcsÉpinglés.includes(id)
   }
 
   private async mettreÀJour() {
@@ -51,6 +55,7 @@ export class Épingles {
       const cidAvecFichier = cidEtFichierValide(id)
       if (cidAvecFichier) return cidAvecFichier.cid
       else if (idcValide(id)) return id;
+      return undefined;
     }).filter(x=>!!x) as string[];
     
     const { sfip } = await this.client.attendreSfipEtOrbite();

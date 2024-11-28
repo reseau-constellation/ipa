@@ -963,14 +963,6 @@ export class Automatisations extends ComposanteClientDic<{
     });
   }
 
-  async épingler() {
-    await this.client.épingles.épinglerBd({
-      id: await this.obtIdBd(),
-      récursif: false,
-      fichiers: false,
-    });
-  }
-
   async mettreAutosÀJour(autos: SpécificationAutomatisation[]): Promise<void> {
     await verrou.acquire("miseÀJour");
     const automatisationsDavant = Object.keys(this.automatisations);

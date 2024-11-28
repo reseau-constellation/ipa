@@ -7,7 +7,7 @@ import {
 } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { créerConstellation, type Constellation } from "@/index.js";
-import type { ÉlémentFavorisAvecObjet, épingleDispositif } from "@/favoris.js";
+import type { BooléenniserPropriétés, ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
@@ -31,12 +31,6 @@ describe("Favoris", function () {
   });
 
   describe("estÉpingléSurDispositif", function () {
-    it("undefined", async () => {
-      const épinglé = await client.favoris.estÉpingléSurDispositif({
-        dispositifs: undefined,
-      });
-      expect(épinglé).to.be.false();
-    });
     it("tous", async () => {
       const épinglé = await client.favoris.estÉpingléSurDispositif({
         dispositifs: "TOUS",
@@ -81,9 +75,9 @@ describe("Favoris", function () {
     let idBd: string;
 
     const favoris = new utilsTestAttente.AttendreRésultat<
-      ÉlémentFavorisAvecObjet[]
+      ÉpingleFavorisAvecId[]
     >();
-    const épingleBd = new attente.AttendreRésultat<épingleDispositif>();
+    const épingleBd = new attente.AttendreRésultat<BooléenniserPropriétés<ÉpingleFavoris>>();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
@@ -116,7 +110,9 @@ describe("Favoris", function () {
     it("Ajouter un favori", async () => {
       await client.favoris.épinglerFavori({
         idObjet: idBd,
-        dispositifs: "TOUS",
+        épingle: {
+          type: "bd"
+        },
       });
       const val = await favoris.attendreQue((x) => !!x.length);
       expect(val).to.be.an("array");
@@ -124,20 +120,20 @@ describe("Favoris", function () {
       expect(val.length).to.equal(1);
       expect(val).to.have.deep.members([
         {
-          récursif: true,
-          dispositifs: "TOUS",
-          dispositifsFichiers: "INSTALLÉ",
           idObjet: idBd,
+          épingle: {
+            type: "bd"
+          }
         },
-      ]);
+      ]  as ÉpingleFavorisAvecId[]);
 
-      const valÉpingleBd = await épingleBd.attendreQue((x) => x.bd);
+      const valÉpingleBd = await épingleBd.attendreExiste();
       expect(valÉpingleBd).to.deep.equal({
         idObjet: idBd,
-        bd: true,
-        fichiers: isElectronMain || isNode,
-        récursif: true,
-      });
+        épingle: {
+          type: "bd"
+        }
+      } as ÉpingleFavorisAvecId);
     });
 
     it("Enlever un favori", async () => {
@@ -146,13 +142,8 @@ describe("Favoris", function () {
       const val = await favoris.attendreQue((x) => x.length === 0);
       expect(val.length).to.equal(0);
 
-      const valÉpingleBd = await épingleBd.attendreQue((x) => !x.bd);
-      expect(valÉpingleBd).to.deep.equal({
-        idObjet: idBd,
-        bd: false,
-        fichiers: false,
-        récursif: false,
-      });
+      const valÉpingleBd = await épingleBd.attendreQue((x) => !x);
+      expect(valÉpingleBd).to.be.undefined();
     });
 
     it("Ajouter un favori avec fichiers", async () => {
@@ -173,7 +164,7 @@ describe("Favoris", function () {
         },
       });
 
-      expect(await client.épingles.épinglée({ id: idc }));
+      expect(client.épingles.estÉpinglé({ id: idc }));
     });
   });
 });

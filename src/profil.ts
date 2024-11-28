@@ -9,6 +9,7 @@ import {
 import { ComposanteClientDic } from "@/composanteClient.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 import type { Constellation } from "@/client.js";
+import { ÉpingleFavorisAvecId, ÉpingleProfil } from "./favoris";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
 export const MAX_TAILLE_IMAGE_VIS = 1500 * 1000; // 1,5 megaoctets
@@ -64,13 +65,40 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     });
   }
 
-  async épingler() {
-    const idBdProfil = await this.obtIdBd();
-    await this.client.épingles.épinglerBd({
-      id: idBdProfil,
-      récursif: true,
-      fichiers: true,
-    });
+  async suivreRésolutionÉpingle({épingle, f}: {épingle: ÉpingleFavorisAvecId<ÉpingleProfil>, f: schémaFonctionSuivi<Set<string>>}): Promise<schémaFonctionOublier> {
+    const épinglerBase =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.base || "TOUS",
+      });
+    const épinglerFichiers =
+      await this.client.favoris.estÉpingléSurDispositif({
+        dispositifs: épingle.épingle.base || "TOUS",
+      });
+  
+    const fsOublier: schémaFonctionOublier[] = [];
+    if (épinglerBase || épinglerFichiers) {
+      const fOublierBase = await this.client.suivreBd({
+        id: épingle.idObjet,
+        type: "keyvalue",
+        schéma: schémaStructureBdProfil,
+        f: async (bd) => {
+          const contenuBd = await bd.allAsJSON();
+          const idcs: string[] = []
+          if (épinglerBase) idcs.push(...[
+            épingle.idObjet,
+            contenuBd.contacts,
+            contenuBd.noms,
+          ].filter(x=>!!x) as string[]);
+          if (épinglerFichiers && contenuBd.image) idcs.push(contenuBd.image)
+          await f(new Set(idcs));
+        },
+      });
+      fsOublier.push(fOublierBase);
+    }
+    
+    return async () => {
+      await Promise.all(fsOublier.map((f) => f()));
+    };
   }
 
   async initialiser(): Promise<void> {
