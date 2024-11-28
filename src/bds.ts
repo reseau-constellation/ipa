@@ -104,7 +104,7 @@ export type structureBdBd = {
   motsClefs: string;
   nuées: string;
   statut: schémaStatut;
-  copiéDe: schémaCopiéDe;
+  copiéDe?: schémaCopiéDe;
 };
 const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
   type: "object",
@@ -133,6 +133,7 @@ const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
         id: { type: "string" },
       },
       required: ["id"],
+      nullable: true,
     },
   },
   required: [
@@ -144,7 +145,6 @@ const schémaStructureBdBd: JSONSchemaType<structureBdBd> = {
     "motsClefs",
     "nuées",
     "statut",
-    "copiéDe",
   ],
 };
 

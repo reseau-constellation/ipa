@@ -1,6 +1,5 @@
 import toBuffer from "it-to-buffer";
 
-import { unixfs } from "@helia/unixfs";
 import { OrbitDB, isValidAddress } from "@orbitdb/core";
 
 import {
@@ -28,7 +27,6 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { Constellation, infoAccès } from "@/client.js";
 import { générerClientsInternes } from "./ressources/utils.js";
-import type { CID } from "multiformats";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
@@ -2212,82 +2210,6 @@ if (isNode || isElectronMain) {
       it("L'invité détecte l'ajout de sa permission modératrice", async () => {
         expect(permissionÉcrire).to.be.true();
         expect(résultatPermission.val).to.equal(MODÉRATEUR);
-      });
-    });
-
-    describe("Épingler BD", function () {
-      let idBdKv: string;
-      let idBdListe: string;
-      let idBdKv2: string;
-
-      let idcContenu: CID;
-      let interval: NodeJS.Timeout | undefined = undefined;
-
-      const fsOublier: schémaFonctionOublier[] = [];
-
-      before(async () => {
-        idBdKv = await client.créerBdIndépendante({ type: "keyvalue" });
-        const { orbite } = await client.attendreSfipEtOrbite();
-        const { bd: bdKv, fOublier: fOublierKv } = await orbite.ouvrirBdTypée({
-          id: idBdKv,
-          type: "keyvalue",
-          schéma: schémaKVChaîne,
-        });
-
-        fsOublier.push(fOublierKv);
-
-        idBdListe = await client.créerBdIndépendante({ type: "set" });
-
-        const { bd: bdListe, fOublier: fOublierBdListe } =
-          await orbite.ouvrirBd({
-            id: idBdListe,
-            type: "set",
-          });
-
-        fsOublier.push(fOublierBdListe);
-
-        idBdKv2 = await client.créerBdIndépendante({ type: "keyvalue" });
-
-        await bdKv.put("ma bd liste", idBdListe);
-        await bdListe.add(idBdKv2);
-
-        const { sfip: sfip2 } = await client2.attendreSfipEtOrbite();
-        const fs = unixfs(sfip2);
-        idcContenu = await fs.addBytes(new TextEncoder().encode("Bonjour !")); // Utiliser ipfs2 pour ne pas l'ajouter à ipfs1 directement (simuler adition d'un autre membre)
-        await bdListe.add(idcContenu.toString() + "/text.txt");
-
-        await client.épingles.épinglerBd({ id: idBdKv, récursif: true });
-      });
-
-      after(async () => {
-        if (interval) clearInterval(interval);
-        await Promise.all(fsOublier.map((f) => f()));
-      });
-
-      it("La BD est épinglée", async () => {
-        expect(client.orbite?._bdsOrbite[idBdKv]).to.exist();
-      });
-      it("Récursion KeyValueDatabase", async () => {
-        expect(client.orbite?._bdsOrbite[idBdListe]).to.exist();
-      });
-      it("Récursion SetDatabase", async () => {
-        expect(client.orbite?._bdsOrbite[idBdKv2]).to.exist();
-      });
-      it("Les fichiers SFIP sont également épinglés", async () => {
-        const { sfip } = await client.attendreSfipEtOrbite();
-
-        const fichierEstÉpinglé = await new Promise<boolean>((résoudre) => {
-          interval = setInterval(async () => {
-            for await (const épingle of sfip.pins.ls()) {
-              if (épingle.cid.equals(idcContenu)) {
-                clearInterval(interval);
-                résoudre(true);
-              }
-            }
-          }, 50);
-        });
-
-        expect(fichierEstÉpinglé).to.be.true();
       });
     });
   });

@@ -49,7 +49,7 @@ export class Épingles {
 
   private async mettreÀJour() {
     const àÉpingler = new Set(...Object.values(this.requêtes));
-    const bdsOrbiteÀÉpingler = [...àÉpingler].filter(id=>isValidAddress(id));
+    const bdsOrbiteÀÉpingler = [...àÉpingler].filter(id=>id && isValidAddress(id));
     
     const idcsÀÉpingler = [...àÉpingler].filter(id=>!bdsOrbiteÀÉpingler.includes(id)).map(id=>{
       const cidAvecFichier = cidEtFichierValide(id)

@@ -28,9 +28,9 @@ import { ContrôleurConstellation as générerContrôleurConstellation } from "@
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
 import { ComposanteClientListe } from "./composanteClient.js";
+import { ÉpingleFavorisAvecId, ÉpingleProjet } from "./favoris.js";
 import type xlsx from "xlsx";
 import type { objRôles } from "@/accès/types.js";
-import { ÉpingleFavorisAvecId, ÉpingleProjet } from "./favoris.js";
 
 const schémaStructureBdMotsClefsdeProjet: JSONSchemaType<string> = {
   type: "string",
@@ -61,7 +61,7 @@ export type structureBdProjet = {
   bds: string;
   motsClefs: string;
   statut: schémaStatut;
-  copiéDe: schémaCopiéDe;
+  copiéDe?: schémaCopiéDe;
 };
 const schémaStructureBdProjet: JSONSchemaType<structureBdProjet> = {
   type: "object",
@@ -86,9 +86,10 @@ const schémaStructureBdProjet: JSONSchemaType<structureBdProjet> = {
         id: { type: "string" },
       },
       required: ["id"],
+      nullable: true,
     },
   },
-  required: ["noms", "descriptions", "statut", "type", "bds", "copiéDe"],
+  required: ["noms", "descriptions", "statut", "type", "bds"],
 };
 
 export class Projets extends ComposanteClientListe<string> {

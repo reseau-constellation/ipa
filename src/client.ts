@@ -370,8 +370,10 @@ export class Constellation {
       type: "compte",
       favoris: "TOUS"
     }
-    await this.favoris.épinglerFavori({idObjet: this.idCompte, épingle});
+
     this.événements.emit("comptePrêt", { idCompte: this.idCompte });
+
+    await this.favoris.épinglerFavori({idObjet: this.idCompte, épingle});
   }
 
   détecterTypeDispositif(): string | undefined {

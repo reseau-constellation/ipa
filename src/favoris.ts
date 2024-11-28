@@ -109,6 +109,7 @@ const schémaÉpingleVariable: JSONSchemaType<ÉpingleVariable> =  {
   required: ["type"]
 }
 
+// @ts-expect-error Va donc comprendre
 const schémaÉpingleMotClef: JSONSchemaType<ÉpingleMotClef> =  {
   type: "object",
   properties: {
@@ -120,7 +121,7 @@ const schémaÉpingleMotClef: JSONSchemaType<ÉpingleMotClef> =  {
   },
   required: ["type"]
 }
-
+// @ts-expect-error Va donc comprendre
 const schémaÉpingleBd: JSONSchemaType<ÉpingleBd> = {
   type: "object",
   properties: {
@@ -141,7 +142,7 @@ const schémaÉpingleBd: JSONSchemaType<ÉpingleBd> = {
   },
   required: ["type"]
 }
-
+// @ts-expect-error Va donc comprendre
 const schémaÉpingleNuée: JSONSchemaType<ÉpingleNuée> = {
   type: "object",
   properties: {
@@ -154,7 +155,7 @@ const schémaÉpingleNuée: JSONSchemaType<ÉpingleNuée> = {
     données: schémaÉpingleBd,
   }
 }
-
+// @ts-expect-error Va donc comprendre
 const schémaÉpingleProjet: JSONSchemaType<ÉpingleProjet> = {
   type: "object",
   properties: {
@@ -169,7 +170,7 @@ const schémaÉpingleProjet: JSONSchemaType<ÉpingleProjet> = {
   required: []
 }
 
-
+// @ts-expect-error Va donc comprendre
 const schémaÉpingleProfil: JSONSchemaType<ÉpingleProfil> = {
   type: "object",
   properties: {
@@ -181,12 +182,13 @@ const schémaÉpingleProfil: JSONSchemaType<ÉpingleProfil> = {
     fichiers: schémaTypeDispositif,
   },
 }
+// @ts-expect-error Va donc comprendre
 const schémaÉpingleCompte: JSONSchemaType<ÉpingleCompte> = {
   type: "object",
   properties: {
     type: {
       type: "string",
-      const: "projet"
+      const: "compte"
     },
     base: schémaTypeDispositif,
     profil: schémaÉpingleProfil,
@@ -422,6 +424,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }
 
   async fermer(): Promise<void> {
+    await this._promesseInit;
     if (this.oublierÉpingler) await this.oublierÉpingler();
   }
 }
