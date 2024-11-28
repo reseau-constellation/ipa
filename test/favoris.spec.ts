@@ -129,11 +129,8 @@ describe("Favoris", function () {
 
       const valÉpingleBd = await épingleBd.attendreExiste();
       expect(valÉpingleBd).to.deep.equal({
-        idObjet: idBd,
-        épingle: {
-          type: "bd"
-        }
-      } as ÉpingleFavorisAvecId);
+        type: "bd"
+      } as ÉpingleFavoris);
     });
 
     it("Enlever un favori", async () => {
@@ -142,8 +139,7 @@ describe("Favoris", function () {
       const val = await favoris.attendreQue((x) => x.length === 0);
       expect(val.length).to.equal(0);
 
-      const valÉpingleBd = await épingleBd.attendreQue((x) => !x);
-      expect(valÉpingleBd).to.be.undefined();
+      épingleBd.attendreNexistePas();
     });
 
     it("Ajouter un favori avec fichiers", async () => {
