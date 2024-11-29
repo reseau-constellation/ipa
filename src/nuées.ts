@@ -35,7 +35,7 @@ import { schémaBdTableauxDeBd } from "@/bds.js";
 import { cacheRechercheParNRésultats, cacheSuivi } from "@/décorateursCache.js";
 import { donnéesTableauExportation, élémentDonnées } from "@/tableaux.js";
 import { ComposanteClientListe } from "./composanteClient.js";
-import { ÉpingleFavorisAvecId, ÉpingleNuée } from "./favoris.js";
+import { INSTALLÉ, TOUS, résoudreDéfauts, ÉpingleFavorisAvecId, ÉpingleNuée } from "./favoris.js";
 import type {
   différenceTableaux,
   InfoCol,
@@ -53,7 +53,7 @@ import type {
 } from "@/bds.js";
 import type { objRôles } from "@/accès/types.js";
 import type { élémentDeMembreAvecValid } from "@/reseau.js";
-import type { schémaRetourFonctionRechercheParN, élémentsBd } from "@/types.js";
+import type { RecursivePartial, schémaRetourFonctionRechercheParN, élémentsBd } from "@/types.js";
 import type { erreurValidation, règleColonne, règleVariable } from "@/valid.js";
 
 type ContrôleurConstellation = Awaited<
@@ -252,10 +252,7 @@ export class Nuées extends ComposanteClientListe<string> {
     });
     await this.ajouterÀMesNuées({ idNuée });
     if (épingler) {
-      const épingle: ÉpingleNuée = {
-        type: 'nuée',
-      }
-      await this.client.favoris.épinglerFavori({ idObjet: idNuée, épingle })
+      await this.épinglerNuée({ idNuée });
     };
 
     const { bd: bdNuée, fOublier: fOublierNuée } =
@@ -337,6 +334,24 @@ export class Nuées extends ComposanteClientListe<string> {
     const { bd: bdRacine, fOublier } = await this.obtBd();
     await bdRacine.del(idNuée);
     await fOublier();
+  }
+
+  async épinglerNuée({ idNuée, options = {} }: { idNuée: string, options?: RecursivePartial<ÉpingleNuée>}) {
+    const épingle: ÉpingleNuée = résoudreDéfauts(options, {
+      type: 'nuée',
+      base: TOUS,
+      fichiersBase: INSTALLÉ,
+      données: {
+        type: "bd",
+        base: TOUS,
+        fichiersBase: INSTALLÉ,
+        données: {
+          tableaux: TOUS,
+          fichiers: INSTALLÉ,
+        }
+      }
+    })
+    await this.client.favoris.épinglerFavori({ idObjet: idNuée, épingle })
   }
 
   async copierNuée({ idNuée }: { idNuée: string }): Promise<string> {

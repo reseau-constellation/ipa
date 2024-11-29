@@ -16,6 +16,7 @@ import {
 } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
 import {
+  RecursivePartial,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
@@ -28,7 +29,7 @@ import { ContrôleurConstellation as générerContrôleurConstellation } from "@
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
 import { ComposanteClientListe } from "./composanteClient.js";
-import { ÉpingleFavorisAvecId, ÉpingleProjet } from "./favoris.js";
+import { INSTALLÉ, TOUS, résoudreDéfauts, ÉpingleFavorisAvecId, ÉpingleProjet } from "./favoris.js";
 import type xlsx from "xlsx";
 import type { objRôles } from "@/accès/types.js";
 
@@ -253,12 +254,7 @@ export class Projets extends ComposanteClientListe<string> {
 
     await bdRacine.add(idProjet);
 
-    if (épingler) {
-      const épingle: ÉpingleProjet = {
-        type: 'projet'
-      }
-      await this.client.favoris.épinglerFavori({ idObjet: idProjet, épingle })
-    };
+    if (épingler) await this.épinglerProjet({ idProjet });
 
     await Promise.all([fOublierRacine(), fOublierProjet()]);
 
@@ -374,6 +370,23 @@ export class Projets extends ComposanteClientListe<string> {
     });
     await bdRacine.del(idProjet);
     await fOublier();
+  }
+  async épinglerProjet({idProjet, options = {}}: {idProjet: string, options?: RecursivePartial<ÉpingleProjet>}) {
+    const épingle: ÉpingleProjet = résoudreDéfauts(options, {
+      type: 'projet',
+      base: TOUS,
+      fichiersBase: INSTALLÉ,
+      bds: {
+        type: "bd",
+        base: TOUS,
+        fichiersBase: INSTALLÉ,
+        données: {
+          tableaux: TOUS,
+          fichiers: INSTALLÉ
+        }
+      }
+    })
+    await this.client.favoris.épinglerFavori({ idObjet: idProjet, épingle });
   }
 
   async inviterAuteur({

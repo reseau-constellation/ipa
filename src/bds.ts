@@ -30,6 +30,7 @@ import {
   élémentDonnées,
 } from "@/tableaux.js";
 import {
+  RecursivePartial,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaStatut,
@@ -41,10 +42,12 @@ import {
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { Constellation } from "@/client.js";
 import { ComposanteClientListe } from "@/composanteClient.js";
-import { ÉpingleBd, ÉpingleFavorisAvecId } from "./favoris";
+import { INSTALLÉ, TOUS, résoudreDéfauts } from "./favoris.js";
+import type { ÉpingleBd, ÉpingleFavorisAvecId } from "./favoris.js";
 import type { objRôles } from "@/accès/types.js";
 import type { JSONSchemaType } from "ajv";
 import type { erreurValidation, règleColonne, règleExiste } from "@/valid.js";
+
 const { saveAs } = pkg;
 
 type ContrôleurConstellation = Awaited<
@@ -251,19 +254,24 @@ export class BDs extends ComposanteClientListe<string> {
         type: "keyvalue",
         schéma: schémaStructureBdBd,
         f: async (bd) => {
-          const contenuBd = await bd.allAsJSON();
-          if (épinglerBase)
-            info.base = [
-              épingle.idObjet,
-              contenuBd.descriptions,
-              contenuBd.noms,
-              contenuBd.tableaux,
-              contenuBd.motsClefs,
-              contenuBd.nuées,
-              contenuBd.métadonnées,
-            ];
-          if (épinglerFichiersBase)
-            info.fichiersBase = [contenuBd.image];
+          try {
+
+            const contenuBd = await bd.allAsJSON();
+            if (épinglerBase)
+              info.base = [
+                épingle.idObjet,
+                contenuBd.descriptions,
+                contenuBd.noms,
+                contenuBd.tableaux,
+                contenuBd.motsClefs,
+                contenuBd.nuées,
+                contenuBd.métadonnées,
+              ];
+            if (épinglerFichiersBase)
+              info.fichiersBase = [contenuBd.image];
+          } catch {
+            return;  // Si la structure n'est pas valide.
+          }
           await fFinale();
         },
       });
@@ -325,12 +333,7 @@ export class BDs extends ComposanteClientListe<string> {
         write: await this.client.obtIdCompte(),
       },
     });
-    if (épingler) {
-      const épingle: ÉpingleBd = {
-        type: 'bd'
-      }
-      await this.client.favoris.épinglerFavori({ idObjet: idBd, épingle })
-    };
+    if (épingler) await this.épinglerBd({idBd});
 
     const { bd: bdBD, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
@@ -414,6 +417,19 @@ export class BDs extends ComposanteClientListe<string> {
     });
     await bd.del(idBd);
     await fOublier();
+  }
+
+  async épinglerBd({idBd, options = {}}: {idBd: string, options?: RecursivePartial<ÉpingleBd>}) {
+    const épingle: ÉpingleBd = résoudreDéfauts(options, {
+      type: 'bd',
+      base: TOUS,
+      fichiersBase: INSTALLÉ,
+      données: {
+        tableaux: TOUS,
+        fichiers: INSTALLÉ
+      }
+    })
+    await this.client.favoris.épinglerFavori({ idObjet: idBd, épingle })
   }
 
   async copierBd({

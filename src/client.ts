@@ -366,14 +366,14 @@ export class Constellation {
     await this.protocoles.établirProtocoles({
       protocoles: this._opts.protocoles,
     });
-    const épingle: ÉpingleCompte = {
+    
+    this.événements.emit("comptePrêt", { idCompte: this.idCompte });
+    
+    /*const épingle: ÉpingleCompte = {
       type: "compte",
       favoris: "TOUS"
-    }
-
-    this.événements.emit("comptePrêt", { idCompte: this.idCompte });
-
-    await this.favoris.épinglerFavori({idObjet: this.idCompte, épingle});
+    }*/
+    // await this.favoris.épinglerFavori({idObjet: this.idCompte, épingle});
   }
 
   détecterTypeDispositif(): string | undefined {

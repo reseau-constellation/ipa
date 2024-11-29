@@ -12,7 +12,7 @@ import {
 } from "@/types.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { ComposanteClientListe } from "./composanteClient.js";
-import { ÉpingleFavorisAvecId, ÉpingleVariable } from "./favoris.js";
+import { TOUS, résoudreDéfauts, ÉpingleFavorisAvecId, ÉpingleVariable } from "./favoris.js";
 import type {
   règleCatégorie,
   règleVariable,
@@ -20,7 +20,7 @@ import type {
 } from "@/valid.js";
 
 import type { objRôles } from "@/accès/types.js";
-import type { dicTrads } from "@/types.js";
+import type { RecursivePartial, dicTrads } from "@/types.js";
 
 type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -176,15 +176,7 @@ export class Variables extends ComposanteClientListe<string> {
       },
     });
     await this.ajouterÀMesVariables({ idVariable: idVariable });
-    if (épingler) {
-      const épingle: ÉpingleVariable = {
-        type: "variable",
-      };
-      await this.client.favoris.épinglerFavori({
-        idObjet: idVariable,
-        épingle,
-      });
-    }
+    if (épingler) await this.épinglerVariable({ idVariable });
 
     const { bd: bdVariable, fOublier: fOublierVariable } =
       await this.client.ouvrirBdTypée({
@@ -251,6 +243,14 @@ export class Variables extends ComposanteClientListe<string> {
     const { bd: bdRacine, fOublier } = await this.obtBd();
     await bdRacine.del(idVariable);
     await fOublier();
+  }
+
+  async épinglerVariable({idVariable, options = {}}: {idVariable: string, options?: RecursivePartial<ÉpingleVariable>}) {
+    const épingle: ÉpingleVariable = résoudreDéfauts(options, {
+      type: 'variable',
+      base: TOUS,
+    })
+    await this.client.favoris.épinglerFavori({ idObjet: idVariable, épingle });
   }
 
   async copierVariable({

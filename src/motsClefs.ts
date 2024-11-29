@@ -3,6 +3,7 @@ import {
   type schémaFonctionOublier,
   type schémaFonctionSuivi,
   schémaStructureBdNoms,
+  RecursivePartial,
 } from "@/types.js";
 
 import { Constellation } from "@/client.js";
@@ -11,7 +12,7 @@ import { ComposanteClientListe } from "@/composanteClient.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import { ÉpingleFavorisAvecId, ÉpingleMotClef } from "./favoris";
+import { TOUS, résoudreDéfauts, ÉpingleFavorisAvecId, ÉpingleMotClef } from "./favoris.js";
 import type { objRôles } from "@/accès/types.js";
 
 type ContrôleurConstellation = Awaited<
@@ -92,12 +93,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
 
     await this.ajouterÀMesMotsClefs({ idMotClef });
 
-    if (épingler) {
-      const épingle: ÉpingleMotClef = {
-        type: "motClef",
-      };
-      await this.client.favoris.épinglerFavori({ idObjet: idMotClef, épingle });
-    }
+    if (épingler) await this.épinglerMotClef({ idMotClef });
 
     const { bd: bdMotClef, fOublier: fOublierMotClef } =
       await this.client.ouvrirBdTypée({
@@ -145,6 +141,14 @@ export class MotsClefs extends ComposanteClientListe<string> {
     const { bd: bdRacine, fOublier } = await this.obtBd();
     await bdRacine.del(idMotClef);
     await fOublier();
+  }
+
+  async épinglerMotClef({idMotClef, options = {}}: {idMotClef: string, options?: RecursivePartial<ÉpingleMotClef>}) {
+    const épingle: ÉpingleMotClef = résoudreDéfauts(options, {
+      type: 'motClef',
+      base: TOUS,
+    })
+    await this.client.favoris.épinglerFavori({ idObjet: idMotClef, épingle });
   }
 
   async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {

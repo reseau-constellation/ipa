@@ -15,9 +15,9 @@ import {
 } from "@/types.js";
 
 import { type Constellation, créerConstellation } from "@/index.js";
+import { INSTALLÉ, TOUS, type ÉpingleFavorisAvecId } from "@/favoris.js";
 import { obtRessourceTest } from "./ressources/index.js";
 import type { infoTableauAvecId, schémaSpécificationBd } from "@/bds.js";
-import type { ÉpingleFavorisAvecId } from "@/favoris.js";
 import type {
   infoBloqué,
   infoConfiance,
@@ -555,11 +555,8 @@ if (isNode || isElectronMain) {
 
         it("Ajout aux favoris détecté", async () => {
           idMotClef2 = await clients[1].motsClefs.créerMotClef();
-          await clients[0].favoris.épinglerFavori({
-            idObjet: idMotClef2,
-            épingle: {
-              type: "motClef"
-            },
+          await clients[0].motsClefs.épinglerMotClef({
+            idMotClef: idMotClef2,
           });
 
           const val = await relationsPropres.attendreQue(
@@ -2050,7 +2047,8 @@ if (isNode || isElectronMain) {
           {
             idObjet: idMotClef,
             épingle: {
-              type: "motClef"
+              type: "motClef",
+              base: TOUS
             }
           },
         ];
@@ -2058,7 +2056,8 @@ if (isNode || isElectronMain) {
         await clients[1].favoris.épinglerFavori({
           idObjet: idMotClef,
           épingle: {
-            type: "motClef"
+            type: "motClef",
+            base: TOUS
           },
         });
         const val = await résPropres.attendreQue((x) => x.length > 0);
@@ -2070,7 +2069,8 @@ if (isNode || isElectronMain) {
           {
             idObjet: idMotClef,
             épingle: {
-              type: "motClef"
+              type: "motClef",
+              base: TOUS,
             }
           },
         ];
@@ -2078,7 +2078,8 @@ if (isNode || isElectronMain) {
         await clients[0].favoris.épinglerFavori({
           idObjet: idMotClef,
           épingle: {
-            type: "motClef"
+            type: "motClef",
+            base: TOUS,
           },
         });
         const val = await résAutres.attendreQue((x) => x.length > 0);
@@ -2129,13 +2130,14 @@ if (isNode || isElectronMain) {
             épingle: {
               idObjet: idMotClef,
               épingle: {
-              type: "motClef"
+              type: "motClef",
+              base: TOUS,
             }}
           },
         ];
         await clients[0].favoris.épinglerFavori({
           idObjet: idMotClef,
-          épingle: { type: "motClef" }
+          épingle: { type: "motClef", base: TOUS }
         });
         const val = await rés.attendreQue((x) => !!x && !!x.length);
 
@@ -2147,14 +2149,14 @@ if (isNode || isElectronMain) {
           {
             idCompte: idsBdCompte[0],
             épingle: {
-              épingle: {type: "motClef"},
+              épingle: {type: "motClef", base: TOUS},
               idObjet: idMotClef
             }
           },
           {
             idCompte: idsBdCompte[1],
             épingle: {
-              épingle: {type: "motClef"},
+              épingle: {type: "motClef", base: TOUS},
               idObjet: idMotClef
             }
           },
@@ -2162,7 +2164,8 @@ if (isNode || isElectronMain) {
         await clients[1].favoris.épinglerFavori({
           idObjet: idMotClef,
           épingle: {
-            type: "motClef"
+            type: "motClef",
+            base: TOUS
           }
         });
         const val = await rés.attendreQue((x) => !!x && x.length === 2);
@@ -2206,7 +2209,7 @@ if (isNode || isElectronMain) {
       it("Auteur de la BD pour commencer", async () => {
         await clients[0].favoris.épinglerFavori({
           idObjet: idBd,
-          épingle: {type: "motClef"}
+          épingle: {type: "motClef", base: TOUS}
         });
 
         const val = await rés.attendreQue((x) => !!x && x.membres.length > 0);
@@ -2222,7 +2225,10 @@ if (isNode || isElectronMain) {
       it("Ajout d'une réplication détectée", async () => {
         await clients[1].favoris.épinglerFavori({
           idObjet: idBd,
-          épingle: {type: "bd"},
+          épingle: {type: "bd", base: TOUS, fichiersBase: INSTALLÉ, données: {
+            tableaux: TOUS,
+            fichiers: INSTALLÉ
+          }},
         });
 
         const val = await rés.attendreQue((x) => !!x && x.membres.length > 1);

@@ -1,4 +1,4 @@
-import { isElectronMain, isNode } from "wherearewe";
+import { isElectron, isElectronMain, isNode } from "wherearewe";
 
 import {
   attente,
@@ -7,7 +7,7 @@ import {
 } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { créerConstellation, type Constellation } from "@/index.js";
-import type { BooléenniserPropriétés, ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
+import { INSTALLÉ, TOUS, type BooléenniserPropriétés, type ÉpingleBd, type ÉpingleFavoris, type ÉpingleFavorisAvecId } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
@@ -83,7 +83,7 @@ describe("Favoris", function () {
 
     before(async () => {
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0", épingler: false });
-
+      
       fsOublier.push(
         await client.favoris.suivreFavoris({
           f: (favs) => favoris.mettreÀJour(favs),
@@ -108,29 +108,41 @@ describe("Favoris", function () {
     });
 
     it("Ajouter un favori", async () => {
-      await client.favoris.épinglerFavori({
-        idObjet: idBd,
-        épingle: {
-          type: "bd"
-        },
-      });
+      await client.bds.épinglerBd({ idBd });
       const val = await favoris.attendreQue((x) => !!x.length);
       expect(val).to.be.an("array");
 
       expect(val.length).to.equal(1);
-      expect(val).to.have.deep.members([
-        {
-          idObjet: idBd,
-          épingle: {
-            type: "bd"
+
+      const réf: ÉpingleFavorisAvecId<ÉpingleBd> = {
+        idObjet: idBd,
+        épingle: {
+          type: "bd",
+          base: TOUS,
+          fichiersBase: INSTALLÉ,
+          données: {
+            tableaux: TOUS,
+            fichiers: INSTALLÉ,
           }
-        },
-      ]  as ÉpingleFavorisAvecId[]);
+        }
+      }
+      expect(val).to.have.deep.members([
+        réf,
+      ]);
 
       const valÉpingleBd = await épingleBd.attendreExiste();
-      expect(valÉpingleBd).to.deep.equal({
-        type: "bd"
-      } as ÉpingleFavoris);
+
+
+      const réfÉpingle: BooléenniserPropriétés<ÉpingleBd> = {
+        base: true,
+        fichiersBase: isElectron || isNode,
+        données: {
+          tableaux: true,
+          fichiers: isElectron || isNode,
+        }
+      }
+
+      expect(valÉpingleBd).to.deep.equal(réfÉpingle);
     });
 
     it("Enlever un favori", async () => {

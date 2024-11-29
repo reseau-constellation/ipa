@@ -3,15 +3,32 @@ import { isElectronMain, isNode } from "wherearewe";
 import { JSONSchemaType } from "ajv";
 import { suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import deepEqual from "deep-equal";
+import deepcopy from "deepcopy";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { effacerPropriétésNonDéfinies } from "./utils.js";
 import type { Constellation } from "@/client.js";
-import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
+import type { RecursivePartial, schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
-export type typeDispositifs = string | string[] | "TOUS" | "INSTALLÉ" | "AUCUN";
+export const TOUS = "TOUS" as const
+export const INSTALLÉ = "INSTALLÉ" as const
+export const AUCUN = "AUCUN" as const
 
-export type BooléenniserPropriétés<T extends object> = {[clef in keyof T]: T[clef] extends object ? BooléenniserPropriétés<T[clef]> : boolean}
+export const résoudreDéfauts = <T extends {[clef: string]: unknown}>(épingle: RecursivePartial<T>, défauts: T): T => {
+  const copieDéfauts = deepcopy(défauts);
+  for (const [clef, val] of Object.entries(épingle)) {
+    if (typeof val === 'string' || Array.isArray(val)) {
+      copieDéfauts[clef as keyof T] = val as T[keyof T]
+    } else {
+      copieDéfauts[clef as keyof T] = résoudreDéfauts(val, copieDéfauts[clef] as {[clef: string]: unknown}) as T[keyof T]
+    }
+  }
+  return copieDéfauts;
+}
+
+export type typeDispositifs = string | string[] | typeof TOUS | typeof INSTALLÉ | typeof AUCUN;
+
+export type BooléenniserPropriétés<T extends object> = {[clef in keyof T]?: T[clef] extends object ? BooléenniserPropriétés<T[clef]> : boolean}
 
 export type ÉpingleFavoris =
   | ÉpingleVariable
@@ -23,22 +40,22 @@ export type ÉpingleFavoris =
   | ÉpingleProfil;
 
 export type BaseÉpingleFavoris = {
-  base?: typeDispositifs;
+  base: typeDispositifs;
 };
 
 export type ÉpingleBd = BaseÉpingleFavoris & {
   type: "bd";
-  fichiersBase?: typeDispositifs;
-  données?: {
-    tableaux?: typeDispositifs;
-    fichiers?: typeDispositifs;
+  fichiersBase: typeDispositifs;
+  données: {
+    tableaux: typeDispositifs;
+    fichiers: typeDispositifs;
   };
 };
 
 export type ÉpingleNuée = BaseÉpingleFavoris & {
   type: "nuée";
-  fichiersBase?: typeDispositifs;
-  données?: ÉpingleBd;
+  fichiersBase: typeDispositifs;
+  données: ÉpingleBd;
 };
 
 export type ÉpingleVariable = BaseÉpingleFavoris & {
@@ -51,19 +68,19 @@ export type ÉpingleMotClef = BaseÉpingleFavoris & {
 
 export type ÉpingleProjet = BaseÉpingleFavoris & {
   type: "projet";
-  fichiersBase?: typeDispositifs;
-  bds?: ÉpingleBd;
+  fichiersBase: typeDispositifs;
+  bds: ÉpingleBd;
 };
 
 export type ÉpingleProfil = BaseÉpingleFavoris & {
   type: 'profil';
-  fichiers?: typeDispositifs;
+  fichiers: typeDispositifs;
 }
 
 export type ÉpingleCompte = BaseÉpingleFavoris & {
   type: "compte";
-  profil?: ÉpingleProfil
-  favoris?: typeDispositifs
+  profil: ÉpingleProfil
+  favoris: typeDispositifs
 };
 
 export type ÉpingleFavorisAvecId<T extends ÉpingleFavoris = ÉpingleFavoris> = {
@@ -90,38 +107,25 @@ const schémaÉpingleVariable: JSONSchemaType<ÉpingleVariable> =  {
   properties: {
     type: {
       type: "string",
-      const: "variable"
+      const: "variable",
     },
-    base: {
-      type: ["string", "array"],
-      anyOf: [
-        {
-          type: "string"
-        },
-        {
-          type: "array",
-          items: {type: "string"}
-        }
-      ],
-      nullable: true,
-    }
+    base: schémaTypeDispositif,
   },
   required: ["type"]
 }
 
-// @ts-expect-error Va donc comprendre
 const schémaÉpingleMotClef: JSONSchemaType<ÉpingleMotClef> =  {
   type: "object",
   properties: {
     type: {
       type: "string",
-      const: "motClef"
+      const: "motClef",
     },
     base: schémaTypeDispositif
   },
   required: ["type"]
 }
-// @ts-expect-error Va donc comprendre
+
 const schémaÉpingleBd: JSONSchemaType<ÉpingleBd> = {
   type: "object",
   properties: {
@@ -137,12 +141,12 @@ const schémaÉpingleBd: JSONSchemaType<ÉpingleBd> = {
         fichiers: schémaTypeDispositif,
         tableaux: schémaTypeDispositif
       },
-      nullable: true,
+      required: ["fichiers", "tableaux"]
     },
   },
-  required: ["type"]
+  required: ["type", "base", "fichiersBase", "données"]
 }
-// @ts-expect-error Va donc comprendre
+
 const schémaÉpingleNuée: JSONSchemaType<ÉpingleNuée> = {
   type: "object",
   properties: {
@@ -153,9 +157,10 @@ const schémaÉpingleNuée: JSONSchemaType<ÉpingleNuée> = {
     base: schémaTypeDispositif,
     fichiersBase: schémaTypeDispositif,
     données: schémaÉpingleBd,
-  }
+  },
+  required: ["type", "base", "données", "fichiersBase"]
 }
-// @ts-expect-error Va donc comprendre
+
 const schémaÉpingleProjet: JSONSchemaType<ÉpingleProjet> = {
   type: "object",
   properties: {
@@ -167,10 +172,9 @@ const schémaÉpingleProjet: JSONSchemaType<ÉpingleProjet> = {
     fichiersBase: schémaTypeDispositif,
     bds: schémaÉpingleBd,
   },
-  required: []
+  required: ["type", "base", "fichiersBase", "bds"]
 }
 
-// @ts-expect-error Va donc comprendre
 const schémaÉpingleProfil: JSONSchemaType<ÉpingleProfil> = {
   type: "object",
   properties: {
@@ -181,8 +185,9 @@ const schémaÉpingleProfil: JSONSchemaType<ÉpingleProfil> = {
     base: schémaTypeDispositif,
     fichiers: schémaTypeDispositif,
   },
+  required: ["type", "base", "fichiers"]
 }
-// @ts-expect-error Va donc comprendre
+
 const schémaÉpingleCompte: JSONSchemaType<ÉpingleCompte> = {
   type: "object",
   properties: {
@@ -194,6 +199,7 @@ const schémaÉpingleCompte: JSONSchemaType<ÉpingleCompte> = {
     profil: schémaÉpingleProfil,
     favoris: schémaTypeDispositif,
   },
+  required: ["type", "base", "favoris", "profil"]
 }
 
 const schémaÉpingleFavoris: JSONSchemaType<ÉpingleFavoris> = {
@@ -383,16 +389,19 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }
 
   async résoudreÉpinglesSurDispositif<T extends ÉpingleFavoris>({épingle, idDispositif}: {épingle: T, idDispositif?: string}): Promise<BooléenniserPropriétés<T>> {
-    return Object.fromEntries(
-      await Promise.all(Object.entries(épingle).map(async ([clef, val])=>{
-        if (clef === 'type') return [clef, val];
-        else if (Array.isArray(clef) || typeof clef === 'string') {
-          return [clef, await this.estÉpingléSurDispositif({dispositifs: val,idDispositif})]
+    const résultat = Object.fromEntries(
+      await Promise.all(Object.entries(épingle).filter(([clef, _val])=>clef!=='type').map(async ([clef, val])=>{
+        if (Array.isArray(val) || typeof val === 'string') {
+          const x = [clef, await this.estÉpingléSurDispositif({dispositifs: val, idDispositif})]
+          return x
         } else {
-          return [clef, await this.estÉpingléSurDispositif({dispositifs: val,  idDispositif})]
+          // @ts-ignore
+          const  x = [clef, await this.résoudreÉpinglesSurDispositif({épingle: val, idDispositif})]
+          return x
         }
       }))
     )  as BooléenniserPropriétés<T>
+    return résultat
   }
 
   async estÉpingléSurDispositif({
