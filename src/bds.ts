@@ -755,6 +755,7 @@ export class BDs extends ComposanteClientListe<string> {
         ): Promise<schémaFonctionOublier> => {
           return await this.suivreTableauxBd({ idBd, f: fSuivi });
         },
+        attendreStabilité(1000),
       );
     };
 
