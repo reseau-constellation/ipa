@@ -590,20 +590,25 @@ export class Constellation {
         type: "keyvalue",
         schéma: schémaStructureBdCompte,
         f: async (bd) => {
-          const contenuBd = await bd.allAsJSON();
-          info.base = [
-            épingle.idObjet,
-            contenuBd.automatisations,
-            contenuBd.bds,
-            contenuBd.favoris,
-            contenuBd.motsClefs,
-            contenuBd.nuées,
-            contenuBd.profil,
-            contenuBd.projets,
-            contenuBd.protocoles,
-            contenuBd.réseau,
-            contenuBd.variables
-          ].filter(x=>!!x) as string[]
+          try {
+
+            const contenuBd = await bd.allAsJSON();
+            info.base = [
+              épingle.idObjet,
+              contenuBd.automatisations,
+              contenuBd.bds,
+              contenuBd.favoris,
+              contenuBd.motsClefs,
+              contenuBd.nuées,
+              contenuBd.profil,
+              contenuBd.projets,
+              contenuBd.protocoles,
+              contenuBd.réseau,
+              contenuBd.variables
+            ].filter(x=>!!x) as string[]
+          } catch {
+            return;  // Si la structure n'est pas valide.
+          }
           return await fFinale();
         },
       });

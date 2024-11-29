@@ -58,12 +58,16 @@ export class MotsClefs extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaBdMotClef,
       f: async (bd) => {
-        const contenuBd = await bd.allAsJSON()
-        return await f(
-          new Set(épinglerMétaDonnées
-            ? [épingle.idObjet, contenuBd.descriptions, contenuBd.noms].filter(x=>!!x) as string[]
-            : []),
-        );
+        try {
+          const contenuBd = await bd.allAsJSON()
+          return await f(
+            new Set(épinglerMétaDonnées
+              ? [épingle.idObjet, contenuBd.descriptions, contenuBd.noms].filter(x=>!!x) as string[]
+              : []),
+          );
+        } catch {
+          return;  // Si la structure n'est pas valide.
+        }
       },
     });
     return fOublier;

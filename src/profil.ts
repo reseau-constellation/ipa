@@ -82,15 +82,19 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
         type: "keyvalue",
         schéma: schémaStructureBdProfil,
         f: async (bd) => {
-          const contenuBd = await bd.allAsJSON();
-          const idcs: string[] = []
-          if (épinglerBase) idcs.push(...[
-            épingle.idObjet,
-            contenuBd.contacts,
-            contenuBd.noms,
-          ].filter(x=>!!x) as string[]);
-          if (épinglerFichiers && contenuBd.image) idcs.push(contenuBd.image)
-          await f(new Set(idcs));
+          try {
+            const contenuBd = await bd.allAsJSON();
+            const idcs: string[] = []
+            if (épinglerBase) idcs.push(...[
+              épingle.idObjet,
+              contenuBd.contacts,
+              contenuBd.noms,
+            ].filter(x=>!!x) as string[]);
+            if (épinglerFichiers && contenuBd.image) idcs.push(contenuBd.image)
+            await f(new Set(idcs));
+          } catch {
+            return;  // Si la structure n'est pas valide.
+          }
         },
       });
       fsOublier.push(fOublierBase);

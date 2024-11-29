@@ -191,19 +191,23 @@ export class Nuées extends ComposanteClientListe<string> {
         type: "keyvalue",
         schéma: schémaStructureBdNuée,
         f: async (bd) => {
-          const contenuBd = await bd.allAsJSON();
-          if (épinglerBase)
-            info.base = [
-              épingle.idObjet,
-              contenuBd.descriptions,
-              contenuBd.noms,
-              contenuBd.tableaux,
-              contenuBd.motsClefs,
-              contenuBd.métadonnées,
-            ];
-          if (épinglerFichiersBase)
-            info.fichiersBase = [contenuBd.image];
-          await fFinale();
+          try {
+            const contenuBd = await bd.allAsJSON();
+            if (épinglerBase)
+              info.base = [
+                épingle.idObjet,
+                contenuBd.descriptions,
+                contenuBd.noms,
+                contenuBd.tableaux,
+                contenuBd.motsClefs,
+                contenuBd.métadonnées,
+              ];
+            if (épinglerFichiersBase)
+              info.fichiersBase = [contenuBd.image];
+            await fFinale();
+          } catch {
+            return;  // Si la structure n'est pas valide.
+          }
         },
       });
       fsOublier.push(fOublierBase);

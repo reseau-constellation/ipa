@@ -134,17 +134,21 @@ export class Variables extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdVariable,
       f: async (bd) => {
-        const contenuBd = await bd.allAsJSON();
-        return await f(
-          new Set(épinglerBase
-            ? [
-                épingle.idObjet,
-                contenuBd.descriptions,
-                contenuBd.noms,
-                contenuBd.règles,
-              ].filter(x=>!!x) as string[]
-            : []),
-        );
+        try {
+          const contenuBd = await bd.allAsJSON();
+          return await f(
+            new Set(épinglerBase
+              ? [
+                  épingle.idObjet,
+                  contenuBd.descriptions,
+                  contenuBd.noms,
+                  contenuBd.règles,
+                ].filter(x=>!!x) as string[]
+              : []),
+          );
+        } catch {
+          return;  // Si la structure n'est pas valide.
+        }
       },
     });
     return fOublier;

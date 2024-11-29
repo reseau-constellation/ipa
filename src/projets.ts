@@ -138,17 +138,21 @@ export class Projets extends ComposanteClientListe<string> {
         type: "keyvalue",
         schéma: schémaStructureBdProjet,
         f: async (bd) => {
-          const contenuBd = await bd.allAsJSON();
-          if (épinglerBase)
-            info.base = [
-              épingle.idObjet,
-              contenuBd.descriptions,
-              contenuBd.noms,
-              contenuBd.bds,
-              contenuBd.motsClefs,
-            ];
-          if (épinglerFichiersBase)
-            info.fichiersBase = [contenuBd.image];
+          try {
+            const contenuBd = await bd.allAsJSON();
+            if (épinglerBase)
+              info.base = [
+                épingle.idObjet,
+                contenuBd.descriptions,
+                contenuBd.noms,
+                contenuBd.bds,
+                contenuBd.motsClefs,
+              ];
+            if (épinglerFichiersBase)
+              info.fichiersBase = [contenuBd.image];
+          } catch {
+            return;  // Si la structure n'est pas valide.
+          }
           await fFinale();
         },
       });
