@@ -666,7 +666,7 @@ describe("BDs", function () {
           trad: "Constellation",
         },
         {
-          clef: "kaq", // Une trad vide, par erreur disons
+          clef: "kaq", // Une traduction vide, par erreur disons
         },
       ];
       for (const élément of éléments1) {
