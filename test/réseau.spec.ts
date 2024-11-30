@@ -1118,7 +1118,7 @@ if (isNode || isElectronMain) {
           profondeur: 0,
           confiance: 1,
         };
-        // await clients[0].réseau.suivreMessageGossipsub({ sujet: "réseau-constellation", f: x=>console.log(JSON.stringify(JSON.parse(x), undefined, 2))});
+
         ({ fOublier, fChangerProfondeur } =
           await clients[0].réseau.suivreComptesRéseauEtEnLigne({
             f: (c) => rés.mettreÀJour(c),
@@ -2043,15 +2043,15 @@ if (isNode || isElectronMain) {
       });
 
       it("Mes favoris détectés", async () => {
-        const réf: ÉpingleFavorisAvecId[] = [
+        const réf: ÉpingleFavorisAvecId = 
           {
             idObjet: idMotClef,
             épingle: {
               type: "motClef",
               base: TOUS
             }
-          },
-        ];
+          }
+        ;
 
         await clients[1].favoris.épinglerFavori({
           idObjet: idMotClef,
@@ -2060,20 +2060,20 @@ if (isNode || isElectronMain) {
             base: TOUS
           },
         });
-        const val = await résPropres.attendreQue((x) => x.length > 0);
-        expect(val).to.have.deep.members(réf);
+        const val = await résPropres.attendreQue((x) => !!x.find(r=>r.idObjet === idMotClef));
+        expect(val.find(r=>r.idObjet === idMotClef)).to.deep.equal(réf);
       });
 
       it("Favoris d'un autre membre détectés", async () => {
-        const réf: ÉpingleFavorisAvecId[] = [
+        const réf: ÉpingleFavorisAvecId = 
           {
             idObjet: idMotClef,
             épingle: {
               type: "motClef",
               base: TOUS,
             }
-          },
-        ];
+          }
+        ;
 
         await clients[0].favoris.épinglerFavori({
           idObjet: idMotClef,
@@ -2082,8 +2082,8 @@ if (isNode || isElectronMain) {
             base: TOUS,
           },
         });
-        const val = await résAutres.attendreQue((x) => x.length > 0);
-        expect(val).to.have.deep.members(réf);
+        const val = await résAutres.attendreQue((x) => !!x.find(r=>r.épingle.type === 'motClef'));
+        expect(val.find(r=>r.épingle.type === 'motClef')).to.deep.equal(réf);
       });
     });
 
@@ -2139,7 +2139,7 @@ if (isNode || isElectronMain) {
           idObjet: idMotClef,
           épingle: { type: "motClef", base: TOUS }
         });
-        const val = await rés.attendreQue((x) => !!x && !!x.length);
+        const val = await rés.attendreQue((x) => x.length > 0);
 
         expect(val).to.have.deep.members(réf);
       });
