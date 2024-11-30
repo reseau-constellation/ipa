@@ -7,7 +7,7 @@ import {
 } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { créerConstellation, type Constellation } from "@/index.js";
-import { INSTALLÉ, TOUS, type BooléenniserPropriétés, type ÉpingleBd, type ÉpingleFavoris, type ÉpingleFavorisAvecId } from "@/favoris.js";
+import { INSTALLÉ, TOUS, ÉpingleCompte, type BooléenniserPropriétés, type ÉpingleBd, type ÉpingleFavoris, type ÉpingleFavorisAvecId } from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
@@ -101,10 +101,24 @@ describe("Favoris", function () {
       await Promise.all(fsOublier.map((f) => f()));
     });
 
-    it("Pas de favori pour commencer", async () => {
+    it("Juste un favori (notre propre compte) pour commencer", async () => {
       const val = await favoris.attendreExiste();
-      expect(Array.isArray(val)).to.be.true();
-      expect(val.length).to.equal(0);
+
+      const monCompte = await client.obtIdCompte();
+      const ref: ÉpingleFavorisAvecId<ÉpingleCompte> = {
+        idObjet: monCompte,
+        épingle: {
+          type: "compte",
+          base: TOUS,
+          profil: {
+            type: "profil",
+            base: TOUS,
+            fichiers: TOUS,
+          },
+          favoris: TOUS,
+        }
+      }
+      expect(val).to.have.deep.members([ref]);
     });
 
     it("Ajouter un favori", async () => {
