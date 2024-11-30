@@ -1069,7 +1069,6 @@ export class Constellation {
     }
 
     // Attendre de recevoir la permission d'écrire à idCompte
-    let autorisé: boolean;
     const { bd, fOublier } = await this.ouvrirBdTypée({
       id: idCompte,
       type: "keyvalue",
@@ -1077,21 +1076,20 @@ export class Constellation {
     });
     const accès = bd.access as ContrôleurConstellation;
     const moi = await this.obtIdDispositif();
-    const oublierPermission = await accès.suivreIdsOrbiteAutoriséesÉcriture(
-      (autorisés: string[]) => (autorisé = autorisés.includes(moi)),
-    );
+
+    let oublierPermission: schémaFonctionOublier;
     await new Promise<void>((résoudre) => {
       const vérifierSiAutorisé = async () => {
-        if (autorisé) {
-          clearInterval(intervale);
-          await oublierPermission();
-          await fOublier();
-          résoudre();
-        }
+        
       };
-      const intervale = setInterval(() => {
-        vérifierSiAutorisé();
-      }, 10);
+      accès.suivreIdsOrbiteAutoriséesÉcriture(
+        (autorisés: string[]) => {
+          const autorisé = autorisés.includes(moi)
+          if (autorisé) {
+            oublierPermission().then(fOublier).then(résoudre);
+          }
+        },
+      ).then(x => oublierPermission = x);
       vérifierSiAutorisé();
     });
 
@@ -1511,10 +1509,9 @@ export class Constellation {
           });
 
           /* if (
-            é === "update" &&
-            bd.events.listenerCount("write") > bd.events.getMaxListeners()
+            bd.events.listenerCount("update") > bd.events.getMaxListeners()
           ) {
-            console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("write")})
+            console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("update")})
             console.log({f})
           } */
 
