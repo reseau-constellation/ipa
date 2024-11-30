@@ -2328,7 +2328,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     ) => {
       const fFinaleSuivreBranche = async (objetsMembre?: string[]) => {
         objetsMembre = objetsMembre || [];
-        return fSuivreBranche([
+
+        return await fSuivreBranche([
           {
             idCompte: branche.idCompte,
             rôle: branche.rôle,
@@ -2338,6 +2339,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       };
 
       let fOublierBranche: schémaFonctionOublier | undefined = undefined;
+      // On doit appeler ça ici pour avanncer même si l'autre compte'est pas disponible.
+      await fFinaleSuivreBranche();
+
       switch (clef) {
         case "motsClefs":
           fOublierBranche = await this.client.motsClefs.suivreMotsClefs({
@@ -2372,7 +2376,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         default:
           throw new Error(clef);
       }
-
       return fOublierBranche;
     };
     const fIdBdDeBranche = (x: infoAccès) => x.idCompte;
@@ -2609,9 +2612,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       fSuivreRacine: (membres: string[]) => Promise<void>,
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       const fSuivreComptes = async (infosMembres: infoMembreRéseau[]) => {
-        // On s'ajoute à la liste des favoris
+        // On s'ajoute à la liste des comptes
+        const monCompte = await this.client.obtIdCompte();
         return await fSuivreRacine([
-          this.client.idCompte!,
+          monCompte,
           ...infosMembres.map((i) => i.idCompte),
         ]);
       };
@@ -2626,16 +2630,17 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const fBranche = async (
       idCompte: string,
       fSuivreBranche: schémaFonctionSuivi<
-        (ÉpingleFavorisAvecId & { idCompte: string })[] | undefined
+        {épingle: ÉpingleFavorisAvecId; idCompte: string }[] | undefined
       >,
     ): Promise<schémaFonctionOublier> => {
+      
       return await this.suivreFavorisMembre({
         idCompte: idCompte,
         f: (favoris: (ÉpingleFavorisAvecId)[] | undefined) =>
           fSuivreBranche(
             favoris
               ? favoris.map((fav) => {
-                  return { idCompte, ...fav };
+                  return { idCompte, épingle: fav };
                 })
               : undefined,
           ),
