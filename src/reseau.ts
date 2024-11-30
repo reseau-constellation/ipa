@@ -2060,7 +2060,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           return await this.suivreFavorisMembre({
             idCompte,
             f: async (favoris) =>
-              fSuivreRacine(favoris.map((fv) => fv.idObjet)),
+              fSuivreRacine(favoris.filter(fv=> fv.épingle.type === clefObjetÀClef(clef)).map((fv) => fv.idObjet)),
           });
         },
         fCondition: async (
