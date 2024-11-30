@@ -38,7 +38,7 @@ import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 import { Épingles } from "@/epingles.js";
-import { Favoris, ÉpingleCompte, ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
+import { Favoris, TOUS, ÉpingleCompte, ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
 import { Licences } from "@/licences.js";
 import { MotsClefs } from "@/motsClefs.js";
 import { Nuées } from "@/nuées.js";
@@ -369,11 +369,18 @@ export class Constellation {
     
     this.événements.emit("comptePrêt", { idCompte: this.idCompte });
     
-    /*const épingle: ÉpingleCompte = {
+    const épingle: ÉpingleCompte = {
       type: "compte",
-      favoris: "TOUS"
-    }*/
-    // await this.favoris.épinglerFavori({idObjet: this.idCompte, épingle});
+      base: TOUS,
+      profil: {
+        type: "profil",
+        base: TOUS,
+        fichiers: TOUS,
+      },
+      favoris: TOUS,
+    }
+    await this.favoris.épinglerFavori({idObjet: this.idCompte, épingle});
+    
   }
 
   détecterTypeDispositif(): string | undefined {
@@ -553,9 +560,11 @@ export class Constellation {
   async suivreRésolutionÉpingle({
     épingle,
     f,
+    ignorer,
   }: {
     épingle: ÉpingleFavorisAvecId<ÉpingleCompte>
-    f: schémaFonctionSuivi<Set<string>>
+    f: schémaFonctionSuivi<Set<string>>;
+    ignorer?: Set<string>
   }) {
     const épinglerBase =
       await this.favoris.estÉpingléSurDispositif({
@@ -627,7 +636,7 @@ export class Constellation {
         fSuivre: async ({id, fSuivreBd}: {id: string, fSuivreBd: schémaFonctionSuivi<Set<string>>}) => {
           return await this.profil.suivreRésolutionÉpingle({
             épingle: {idObjet: id, épingle: épinglerProfil},
-            f: fSuivreBd
+            f: fSuivreBd,
           })
         },
         f: async (idcs) => {info.profil = idcs ? [...idcs]: []; return await fFinale()},
@@ -640,7 +649,7 @@ export class Constellation {
           return await this.favoris.suivreFavoris({f: fSuivreRacine, idCompte: épingle.idObjet })
         },
         fBranche: async (_id: string, fSuivreBranche: schémaFonctionSuivi<Set<string>>, branche: ÉpingleFavorisAvecId) => {
-          return await this.favoris.suivreRésolutionÉpingle({épingle: branche, f:fSuivreBranche})
+          return await this.favoris.suivreRésolutionÉpingle({épingle: branche, f:fSuivreBranche, ignorer})
         },
         f: async (favoris: Set<string>[]) => {
           info.favoris = favoris.map(f=>[...f]).flat();
@@ -1114,7 +1123,7 @@ export class Constellation {
     const accès = bd.access;
     const typeAccès = (accès as AccessController).type;
     if (typeAccès === nomTypeContrôleurConstellation) {
-      (accès as ContrôleurConstellation).grant(rôle, identité);
+      await (accès as ContrôleurConstellation).grant(rôle, identité);
     }
     await fOublier();
   }

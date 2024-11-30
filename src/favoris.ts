@@ -1,7 +1,7 @@
 import { isElectronMain, isNode } from "wherearewe";
 
 import { JSONSchemaType } from "ajv";
-import { suivreBdsDeFonctionListe } from "@constl/utils-ipa";
+import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import deepEqual from "deep-equal";
 import deepcopy from "deepcopy";
 import { cacheSuivi } from "@/décorateursCache.js";
@@ -231,7 +231,13 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     this._promesseInit = this._épinglerFavoris();
   }
 
-  async suivreRésolutionÉpingle({épingle, f}: {épingle: ÉpingleFavorisAvecId; f: schémaFonctionSuivi<Set<string>>}) {
+  async suivreRésolutionÉpingle({épingle, f, ignorer}: {épingle: ÉpingleFavorisAvecId; f: schémaFonctionSuivi<Set<string>>, ignorer?: Set<string>}): Promise<schémaFonctionOublier> {
+
+    // Éviter boucles infinies entre compte et favoris
+    ignorer = ignorer || new Set<string>();
+    if (ignorer.has(épingle.idObjet)) return faisRien;
+    ignorer.add(épingle.idObjet)
+
     switch (épingle.épingle.type) {
       case "motClef":
         return await this.client.motsClefs.suivreRésolutionÉpingle({
@@ -262,6 +268,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
         return await this.client.suivreRésolutionÉpingle({
           épingle: épingle as ÉpingleFavorisAvecId<ÉpingleCompte>,
           f,
+          ignorer
         });
 
       default:
@@ -395,7 +402,6 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
           const x = [clef, await this.estÉpingléSurDispositif({dispositifs: val, idDispositif})]
           return x
         } else {
-          // @ts-ignore
           const  x = [clef, await this.résoudreÉpinglesSurDispositif({épingle: val, idDispositif})]
           return x
         }
