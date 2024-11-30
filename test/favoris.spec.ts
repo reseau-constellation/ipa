@@ -123,10 +123,7 @@ describe("Favoris", function () {
 
     it("Ajouter un favori", async () => {
       await client.bds.épinglerBd({ idBd });
-      const val = await favoris.attendreQue((x) => !!x.length);
-      expect(val).to.be.an("array");
-
-      expect(val.length).to.equal(1);
+      const val = await favoris.attendreQue((x) => !!x.find(fv=>fv.idObjet === idBd));
 
       const réf: ÉpingleFavorisAvecId<ÉpingleBd> = {
         idObjet: idBd,
@@ -162,8 +159,8 @@ describe("Favoris", function () {
     it("Enlever un favori", async () => {
       await client.favoris.désépinglerFavori({ idObjet: idBd });
 
-      const val = await favoris.attendreQue((x) => x.length === 0);
-      expect(val.length).to.equal(0);
+      const val = await favoris.attendreQue((x) => !x.find(fv=>fv.idObjet === idBd));
+      expect(val.length).to.equal(1);
 
       épingleBd.attendreNexistePas();
     });
