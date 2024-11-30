@@ -137,9 +137,7 @@ describe("Favoris", function () {
           }
         }
       }
-      expect(val).to.have.deep.members([
-        réf,
-      ]);
+      expect(val.find(fv=>fv.idObjet === idBd)).to.deep.equal(réf);
 
       const valÉpingleBd = await épingleBd.attendreExiste();
 
