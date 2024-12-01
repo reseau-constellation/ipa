@@ -235,13 +235,9 @@ if (isNode || isElectronMain) {
       it("Nouveau dispositif ajouté au compte", async () => {
         const invitation = await client.générerInvitationRejoindreCompte();
 
-        const idClient1 = await client.obtIdCompte();
-        await attendreConnectés.attendreQue((x) => {
-          return !!x.find((c) => c.infoDispositif.idCompte === idClient1);
-        });
         client4.demanderEtPuisRejoindreCompte({
           idCompte: invitation.idCompte,
-          codeSecret: "code secret invalid",
+          codeSecret: "code secret invalid:",
         });
         await client3.demanderEtPuisRejoindreCompte(invitation);
 

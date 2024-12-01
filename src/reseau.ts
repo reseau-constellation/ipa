@@ -10,6 +10,7 @@ import {
   faisRien,
   suivreBdDeFonction,
   suivreBdsDeFonctionListe,
+  uneFois,
 } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
 import { v4 as uuidv4 } from "uuid";
@@ -373,30 +374,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
   async envoyerMessageAuDispositif({
     msg,
-    idSFIP,
-  }: {
-    msg: Message;
-    idSFIP?: string;
-  }) {
-    if (idSFIP) {
-      msg.destinataire = idSFIP;
-    }
-    const sujet = this.client.sujet_réseau;
-    const { sfip } = await this.client.attendreSfipEtOrbite();
-    const pubsub = sfip.libp2p.services.pubsub;
-    const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
-    await pubsub.publish(sujet, Buffer.from(msgBinaire));
-  }
-
-  async envoyerMessageAuMembre({
-    msg,
-    idCompte,
-    encrypté = true,
+    idDispositif,
   }: {
     msg: ValeurMessage;
-    idCompte: string;
-    encrypté?: boolean;
-  }): Promise<void> {
+    idDispositif?: string;
+  }) {
     const signature = await this.client.signer({
       message: JSON.stringify(msg),
     });
@@ -405,6 +387,67 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       signature,
       valeur: msg,
     };
+    let idSFIP: string |undefined = undefined ;
+    let encryption: { type: string; clefPublique: string } | undefined;
+    if (idDispositif) {
+      const dispositif = await uneFois(
+        async (fSuivi: schémaFonctionSuivi<statutDispositif>) => {
+          return await this.suivreConnexionsDispositifs({
+            f: async dispositifs => {
+              const correspondant = dispositifs.find(dsp => dsp.infoDispositif.idDispositif === idDispositif )
+              if (correspondant) {
+                return await fSuivi(correspondant)
+              }
+            }
+          })
+        },
+      );
+      ({ idSFIP, encryption } = dispositif.infoDispositif);
+    }
+
+    let msgPourDispositif: MessageNonEncrypté | MessageEncrypté
+    if (idDispositif) {
+      // Arrêter si le dispositif n'a pas la même encryption que nous
+      if (encryption?.type !== this.client.encryption.nom) return;
+
+      const msgEncrypté = await this.client.encryption.encrypter({
+        message: JSON.stringify(msgSigné),
+        clefPubliqueDestinataire: encryption.clefPublique,
+      });
+      const { publique: clefPubliqueExpéditeur } =
+        await this.client.encryption.obtClefs();
+      msgPourDispositif = {
+        encrypté: true,
+        clefPubliqueExpéditeur,
+        données: msgEncrypté,
+      };
+      if (idSFIP) {
+        msgPourDispositif.destinataire = idSFIP;
+      }
+    } else {
+      msgPourDispositif = {
+        encrypté: false,
+        données: msgSigné,
+      };
+      if (idSFIP) {
+        msgPourDispositif.destinataire = idSFIP;
+      }
+    }
+
+    const sujet = this.client.sujet_réseau;
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+    const pubsub = sfip.libp2p.services.pubsub;
+    const msgBinaire = new TextEncoder().encode(JSON.stringify(msgPourDispositif));
+    await pubsub.publish(sujet, Buffer.from(msgBinaire));
+  }
+
+  async envoyerMessageAuMembre({
+    msg,
+    idCompte,
+  }: {
+    msg: ValeurMessage;
+    idCompte: string;
+  }): Promise<void> {
 
     const maintenant = Date.now();
 
@@ -417,36 +460,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       );
     await Promise.all(
       dispositifsMembre.map(async (d) => {
-        const { idSFIP, encryption } = d.infoDispositif;
-        if (encrypté) {
-          // Arrêter si le dispositif n'a pas la même encryption que nous
-          if (encryption?.type !== this.client.encryption.nom) return;
-
-          const msgEncrypté = await this.client.encryption.encrypter({
-            message: JSON.stringify(msgSigné),
-            clefPubliqueDestinataire: encryption.clefPublique,
-          });
-          const { publique: clefPubliqueExpéditeur } =
-            await this.client.encryption.obtClefs();
-          const msgPourDispositif: MessageEncrypté = {
-            encrypté: true,
-            clefPubliqueExpéditeur,
-            données: msgEncrypté,
-          };
-          await this.envoyerMessageAuDispositif({
-            msg: msgPourDispositif,
-            idSFIP,
-          });
-        } else {
-          const msgPourDispositif: MessageNonEncrypté = {
-            encrypté: false,
-            données: msgSigné,
-          };
-          await this.envoyerMessageAuDispositif({
-            msg: msgPourDispositif,
-            idSFIP,
-          });
-        }
+        await this.envoyerMessageAuDispositif({
+          msg, idDispositif: d.infoDispositif.idDispositif
+        })
       }),
     );
   }
@@ -470,18 +486,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         clefPublique,
       };
     }
-    const signature = await this.client.signer({
-      message: JSON.stringify(valeur),
-    });
-    const message: MessageNonEncrypté = {
-      encrypté: false,
-      données: {
-        signature,
-        valeur,
-      },
-    };
     try {
-      await this.envoyerMessageAuDispositif({ msg: message, idSFIP: à });
+      await this.envoyerMessageAuDispositif({ msg: valeur, idDispositif: à });
     } catch (e) {
       // On peut avoir cette erreur si l'autre poste s'est déconnecté entre-temps
       if (!e.toString().includes("PublishError.InsufficientPeers")) {
@@ -491,25 +497,24 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }
 
   async envoyerDemandeRejoindreCompte({
-    idCompte,
     codeSecret,
   }: {
-    idCompte: string;
     codeSecret: string;
   }): Promise<void> {
     const idDispositif = await this.client.obtIdDispositif();
+    const [idDispositifQuiInvite, codeSecretOriginal] = codeSecret.split(":");
     const msg: ValeurMessageRequêteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
       contenu: {
         idDispositif,
         empreinteVérification: this.client.empreinteInvitation({
           idDispositif,
-          codeSecret,
+          codeSecret: codeSecretOriginal,
         }),
       },
     };
 
-    await this.envoyerMessageAuMembre({ msg, idCompte });
+    await this.envoyerMessageAuDispositif({ msg, idDispositif: idDispositifQuiInvite });
   }
 
   async messageReçu({ msg }: { msg: Message }): Promise<void> {
@@ -567,7 +572,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
         await this.recevoirSalut({ message: contenuSalut });
 
-        if (!destinataire) await this.direSalut({ à: contenuSalut.idSFIP }); // Renvoyer le message, si ce n'était pas déjà fait
+        if (!destinataire) await this.direSalut({ à: contenuSalut.idDispositif }); // Renvoyer le message, si ce n'était pas déjà fait
         break;
       }
       case "Je veux rejoindre ce compte": {

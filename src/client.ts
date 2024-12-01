@@ -972,7 +972,8 @@ export class Constellation {
     const idCompte = await this.obtIdCompte();
     const codeSecret = await this.encryption.clefAléatoire();
     this.motsDePasseRejoindreCompte[codeSecret] = Date.now();
-    return { idCompte, codeSecret };
+    const idDispositif = await this.obtIdDispositif();
+    return { idCompte, codeSecret: `${idDispositif}:${codeSecret}` };
   }
 
   async révoquerInvitationRejoindreCompte({
@@ -981,7 +982,8 @@ export class Constellation {
     codeSecret?: string;
   }): Promise<void> {
     if (codeSecret) {
-      delete this.motsDePasseRejoindreCompte[codeSecret];
+      const codeSecretOriginal = codeSecret.split(":")[1]
+      delete this.motsDePasseRejoindreCompte[codeSecretOriginal];
     } else {
       this.motsDePasseRejoindreCompte = {};
     }
@@ -1031,7 +1033,6 @@ export class Constellation {
     codeSecret: string;
   }): Promise<void> {
     await this.réseau.envoyerDemandeRejoindreCompte({
-      idCompte,
       codeSecret,
     });
     await this.rejoindreCompte({
@@ -1079,9 +1080,6 @@ export class Constellation {
 
     let oublierPermission: schémaFonctionOublier;
     await new Promise<void>((résoudre) => {
-      const vérifierSiAutorisé = async () => {
-        
-      };
       accès.suivreIdsOrbiteAutoriséesÉcriture(
         (autorisés: string[]) => {
           const autorisé = autorisés.includes(moi)
@@ -1090,7 +1088,6 @@ export class Constellation {
           }
         },
       ).then(x => oublierPermission = x);
-      vérifierSiAutorisé();
     });
 
     // Là on peut y aller
