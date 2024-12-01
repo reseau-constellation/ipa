@@ -216,10 +216,9 @@ export class BDs extends ComposanteClientListe<string> {
     épingle: ÉpingleFavorisAvecId<ÉpingleBd>;
     f: schémaFonctionSuivi<Set<string>>;
   }): Promise<schémaFonctionOublier> {
-    const épinglerBase =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.base || "TOUS",
-      });
+    const épinglerBase = await this.client.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.base || "TOUS",
+    });
     const épinglerFichiersBase =
       await this.client.favoris.estÉpingléSurDispositif({
         dispositifs: épingle.épingle.fichiersBase || "INSTALLÉ",
@@ -255,7 +254,6 @@ export class BDs extends ComposanteClientListe<string> {
         schéma: schémaStructureBdBd,
         f: async (bd) => {
           try {
-
             const contenuBd = await bd.allAsJSON();
             if (épinglerBase)
               info.base = [
@@ -267,10 +265,9 @@ export class BDs extends ComposanteClientListe<string> {
                 contenuBd.nuées,
                 contenuBd.métadonnées,
               ];
-            if (épinglerFichiersBase)
-              info.fichiersBase = [contenuBd.image];
+            if (épinglerFichiersBase) info.fichiersBase = [contenuBd.image];
           } catch {
-            return;  // Si la structure n'est pas valide.
+            return; // Si la structure n'est pas valide.
           }
           await fFinale();
         },
@@ -279,24 +276,44 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     if (épinglerDonnées) {
-      const fOublierTableaux = await this.suivreTableauxBd({idBd: épingle.idObjet, f: async tableaux => {
-        info.données = tableaux.map(t=>t.id);
-        await fFinale();
-      }})
+      const fOublierTableaux = await this.suivreTableauxBd({
+        idBd: épingle.idObjet,
+        f: async (tableaux) => {
+          info.données = tableaux.map((t) => t.id);
+          await fFinale();
+        },
+      });
       fsOublier.push(fOublierTableaux);
     }
     if (épinglerFichiersDonnées) {
       const fOublierDonnées = await suivreBdsDeFonctionListe({
-        fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
-          return await this.suivreTableauxBd({idBd:  épingle.idObjet, f: tableaux => fSuivreRacine(tableaux.map(t=>t.id))})
+        fListe: async (
+          fSuivreRacine: (éléments: string[]) => Promise<void>,
+        ) => {
+          return await this.suivreTableauxBd({
+            idBd: épingle.idObjet,
+            f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
+          });
         },
-        fBranche: async (id: string, fSuivreBranche: schémaFonctionSuivi<élémentDonnées<élémentBdListeDonnées>[]>) => {
-          return await this.client.tableaux.suivreDonnées({ idTableau: id, f:fSuivreBranche})
+        fBranche: async (
+          id: string,
+          fSuivreBranche: schémaFonctionSuivi<
+            élémentDonnées<élémentBdListeDonnées>[]
+          >,
+        ) => {
+          return await this.client.tableaux.suivreDonnées({
+            idTableau: id,
+            f: fSuivreBranche,
+          });
         },
         f: (données: élémentDonnées<élémentBdListeDonnées>[]) => {
-          const idcs = données.map(file => Object.values(file.données).filter(x=>idcValide(x))).flat() as string[]
+          const idcs = données
+            .map((file) =>
+              Object.values(file.données).filter((x) => idcValide(x)),
+            )
+            .flat() as string[];
           info.fichiersDonnées = idcs;
-        }
+        },
       });
       fsOublier.push(fOublierDonnées);
     }
@@ -333,7 +350,7 @@ export class BDs extends ComposanteClientListe<string> {
         write: await this.client.obtIdCompte(),
       },
     });
-    if (épingler) await this.épinglerBd({idBd});
+    if (épingler) await this.épinglerBd({ idBd });
 
     const { bd: bdBD, fOublier } = await this.client.ouvrirBdTypée({
       id: idBd,
@@ -419,17 +436,23 @@ export class BDs extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async épinglerBd({idBd, options = {}}: {idBd: string, options?: RecursivePartial<ÉpingleBd>}) {
+  async épinglerBd({
+    idBd,
+    options = {},
+  }: {
+    idBd: string;
+    options?: RecursivePartial<ÉpingleBd>;
+  }) {
     const épingle: ÉpingleBd = résoudreDéfauts(options, {
-      type: 'bd',
+      type: "bd",
       base: TOUS,
       fichiersBase: INSTALLÉ,
       données: {
         tableaux: TOUS,
-        fichiers: INSTALLÉ
-      }
-    })
-    await this.client.favoris.épinglerFavori({ idObjet: idBd, épingle })
+        fichiers: INSTALLÉ,
+      },
+    });
+    await this.client.favoris.épinglerFavori({ idObjet: idBd, épingle });
   }
 
   async copierBd({

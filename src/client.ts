@@ -1,4 +1,3 @@
-
 import Semaphore from "@chriscdn/promise-semaphore";
 import { unixfs } from "@helia/unixfs";
 import { Libp2p, PeerId } from "@libp2p/interface";
@@ -33,12 +32,18 @@ import JSZip from "jszip";
 import { CID } from "multiformats";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import { isValidAddress } from "@orbitdb/core";
-import {TypedEmitter} from "tiny-typed-emitter";
+import { TypedEmitter } from "tiny-typed-emitter";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 import { Épingles } from "@/epingles.js";
-import { Favoris, TOUS, ÉpingleCompte, ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
+import {
+  Favoris,
+  TOUS,
+  ÉpingleCompte,
+  ÉpingleFavoris,
+  ÉpingleFavorisAvecId,
+} from "@/favoris.js";
 import { Licences } from "@/licences.js";
 import { MotsClefs } from "@/motsClefs.js";
 import { Nuées } from "@/nuées.js";
@@ -366,9 +371,9 @@ export class Constellation {
     await this.protocoles.établirProtocoles({
       protocoles: this._opts.protocoles,
     });
-    
+
     this.événements.emit("comptePrêt", { idCompte: this.idCompte });
-    
+
     const épingle: ÉpingleCompte = {
       type: "compte",
       base: TOUS,
@@ -378,9 +383,8 @@ export class Constellation {
         fichiers: TOUS,
       },
       favoris: TOUS,
-    }
-    await this.favoris.épinglerFavori({idObjet: this.idCompte, épingle});
-    
+    };
+    await this.favoris.épinglerFavori({ idObjet: this.idCompte, épingle });
   }
 
   détecterTypeDispositif(): string | undefined {
@@ -562,19 +566,17 @@ export class Constellation {
     f,
     ignorer,
   }: {
-    épingle: ÉpingleFavorisAvecId<ÉpingleCompte>
+    épingle: ÉpingleFavorisAvecId<ÉpingleCompte>;
     f: schémaFonctionSuivi<Set<string>>;
-    ignorer?: Set<string>
+    ignorer?: Set<string>;
   }) {
-    const épinglerBase =
-      await this.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.base || "TOUS",
-      });
+    const épinglerBase = await this.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.base || "TOUS",
+    });
     const épinglerProfil = épingle.épingle.profil;
-    const épinglerFavoris =
-      await this.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.favoris || "AUCUN",
-      });
+    const épinglerFavoris = await this.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.favoris || "AUCUN",
+    });
 
     const info: {
       base?: string[];
@@ -600,7 +602,6 @@ export class Constellation {
         schéma: schémaStructureBdCompte,
         f: async (bd) => {
           try {
-
             const contenuBd = await bd.allAsJSON();
             info.base = [
               épingle.idObjet,
@@ -613,10 +614,10 @@ export class Constellation {
               contenuBd.projets,
               contenuBd.protocoles,
               contenuBd.réseau,
-              contenuBd.variables
-            ].filter(x=>!!x) as string[]
+              contenuBd.variables,
+            ].filter((x) => !!x) as string[];
           } catch {
-            return;  // Si la structure n'est pas valide.
+            return; // Si la structure n'est pas valide.
           }
           return await fFinale();
         },
@@ -625,39 +626,69 @@ export class Constellation {
     }
     if (épinglerProfil) {
       const fOublierProfil = await suivreBdDeFonction({
-        fRacine: async ({fSuivreRacine}: {fSuivreRacine: (nouvelIdBdCible?: string | undefined) => Promise<void>}) => {
+        fRacine: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (
+            nouvelIdBdCible?: string | undefined,
+          ) => Promise<void>;
+        }) => {
           return await this.suivreBd({
             id: épingle.idObjet,
             type: "keyvalue",
             schéma: schémaStructureBdCompte,
-            f: async (bd) => await fSuivreRacine((await bd.allAsJSON()).profil)
-          })
+            f: async (bd) => await fSuivreRacine((await bd.allAsJSON()).profil),
+          });
         },
-        fSuivre: async ({id, fSuivreBd}: {id: string, fSuivreBd: schémaFonctionSuivi<Set<string>>}) => {
+        fSuivre: async ({
+          id,
+          fSuivreBd,
+        }: {
+          id: string;
+          fSuivreBd: schémaFonctionSuivi<Set<string>>;
+        }) => {
           return await this.profil.suivreRésolutionÉpingle({
-            épingle: {idObjet: id, épingle: épinglerProfil},
+            épingle: { idObjet: id, épingle: épinglerProfil },
             f: fSuivreBd,
-          })
+          });
         },
-        f: async (idcs) => {info.profil = idcs ? [...idcs]: []; return await fFinale()},
-      })
-      fsOublier.push(fOublierProfil)
+        f: async (idcs) => {
+          info.profil = idcs ? [...idcs] : [];
+          return await fFinale();
+        },
+      });
+      fsOublier.push(fOublierProfil);
     }
     if (épinglerFavoris) {
       const fOublierFavoris = await suivreBdsDeFonctionListe({
-        fListe: async (fSuivreRacine: (éléments: ÉpingleFavorisAvecId<ÉpingleFavoris>[])=>Promise<void>) => {
-          return await this.favoris.suivreFavoris({f: fSuivreRacine, idCompte: épingle.idObjet })
+        fListe: async (
+          fSuivreRacine: (
+            éléments: ÉpingleFavorisAvecId<ÉpingleFavoris>[],
+          ) => Promise<void>,
+        ) => {
+          return await this.favoris.suivreFavoris({
+            f: fSuivreRacine,
+            idCompte: épingle.idObjet,
+          });
         },
-        fBranche: async (_id: string, fSuivreBranche: schémaFonctionSuivi<Set<string>>, branche: ÉpingleFavorisAvecId) => {
-          return await this.favoris.suivreRésolutionÉpingle({épingle: branche, f:fSuivreBranche, ignorer})
+        fBranche: async (
+          _id: string,
+          fSuivreBranche: schémaFonctionSuivi<Set<string>>,
+          branche: ÉpingleFavorisAvecId,
+        ) => {
+          return await this.favoris.suivreRésolutionÉpingle({
+            épingle: branche,
+            f: fSuivreBranche,
+            ignorer,
+          });
         },
         f: async (favoris: Set<string>[]) => {
-          info.favoris = favoris.map(f=>[...f]).flat();
+          info.favoris = favoris.map((f) => [...f]).flat();
           return await fFinale();
         },
         fIdBdDeBranche: (b) => b.idObjet,
         fCode: (b) => b.idObjet,
-      })
+      });
       fsOublier.push(fOublierFavoris);
     }
 
@@ -982,7 +1013,7 @@ export class Constellation {
     codeSecret?: string;
   }): Promise<void> {
     if (codeSecret) {
-      const codeSecretOriginal = codeSecret.split(":")[1]
+      const codeSecretOriginal = codeSecret.split(":")[1];
       delete this.motsDePasseRejoindreCompte[codeSecretOriginal];
     } else {
       this.motsDePasseRejoindreCompte = {};
@@ -1080,14 +1111,14 @@ export class Constellation {
 
     let oublierPermission: schémaFonctionOublier;
     await new Promise<void>((résoudre) => {
-      accès.suivreIdsOrbiteAutoriséesÉcriture(
-        (autorisés: string[]) => {
-          const autorisé = autorisés.includes(moi)
+      accès
+        .suivreIdsOrbiteAutoriséesÉcriture((autorisés: string[]) => {
+          const autorisé = autorisés.includes(moi);
           if (autorisé) {
             oublierPermission().then(fOublier).then(résoudre);
           }
-        },
-      ).then(x => oublierPermission = x);
+        })
+        .then((x) => (oublierPermission = x));
     });
 
     // Là on peut y aller

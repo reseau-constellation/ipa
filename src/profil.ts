@@ -65,16 +65,20 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     });
   }
 
-  async suivreRésolutionÉpingle({épingle, f}: {épingle: ÉpingleFavorisAvecId<ÉpingleProfil>, f: schémaFonctionSuivi<Set<string>>}): Promise<schémaFonctionOublier> {
-    const épinglerBase =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.base || "TOUS",
-      });
-    const épinglerFichiers =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.base || "TOUS",
-      });
-  
+  async suivreRésolutionÉpingle({
+    épingle,
+    f,
+  }: {
+    épingle: ÉpingleFavorisAvecId<ÉpingleProfil>;
+    f: schémaFonctionSuivi<Set<string>>;
+  }): Promise<schémaFonctionOublier> {
+    const épinglerBase = await this.client.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.base || "TOUS",
+    });
+    const épinglerFichiers = await this.client.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.base || "TOUS",
+    });
+
     const fsOublier: schémaFonctionOublier[] = [];
     if (épinglerBase || épinglerFichiers) {
       const fOublierBase = await this.client.suivreBd({
@@ -84,22 +88,25 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
         f: async (bd) => {
           try {
             const contenuBd = await bd.allAsJSON();
-            const idcs: string[] = []
-            if (épinglerBase) idcs.push(...[
-              épingle.idObjet,
-              contenuBd.contacts,
-              contenuBd.noms,
-            ].filter(x=>!!x) as string[]);
-            if (épinglerFichiers && contenuBd.image) idcs.push(contenuBd.image)
+            const idcs: string[] = [];
+            if (épinglerBase)
+              idcs.push(
+                ...([
+                  épingle.idObjet,
+                  contenuBd.contacts,
+                  contenuBd.noms,
+                ].filter((x) => !!x) as string[]),
+              );
+            if (épinglerFichiers && contenuBd.image) idcs.push(contenuBd.image);
             await f(new Set(idcs));
           } catch {
-            return;  // Si la structure n'est pas valide.
+            return; // Si la structure n'est pas valide.
           }
         },
       });
       fsOublier.push(fOublierBase);
     }
-    
+
     return async () => {
       await Promise.all(fsOublier.map((f) => f()));
     };

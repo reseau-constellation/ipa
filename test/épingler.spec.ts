@@ -1,6 +1,1 @@
-
-
-
-describe("Épingles", function () {
-
-});
+describe("Épingles", function () {});

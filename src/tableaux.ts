@@ -1029,7 +1029,7 @@ export class Tableaux {
           f: fSuivi,
         });
       },
-      attendreStabilité(1000)
+      attendreStabilité(1000),
     );
 
     const colsTableauBase = await uneFois(
@@ -1058,7 +1058,7 @@ export class Tableaux {
       ) => {
         return await this.suivreDonnées({ idTableau: idTableau2, f: fSuivi });
       },
-      attendreStabilité(1000)
+      attendreStabilité(1000),
     );
 
     const indexes = colsTableauBase.filter((c) => c.index).map((c) => c.id);

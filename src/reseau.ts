@@ -30,10 +30,7 @@ import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
-import type {
-  ÉpingleFavoris,
-  ÉpingleFavorisAvecId,
-} from "@/favoris.js";
+import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
 import type { infoScore } from "@/bds.js";
 import type { Libp2pEvents, PeerUpdate } from "@libp2p/interface";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
@@ -123,7 +120,7 @@ export interface infoRéplications {
     dispositif: {
       idDispositif: string;
       vuÀ?: number;
-    }
+    };
   }[];
 }
 
@@ -387,25 +384,27 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       signature,
       valeur: msg,
     };
-    let idSFIP: string |undefined = undefined ;
+    let idSFIP: string | undefined = undefined;
     let encryption: { type: string; clefPublique: string } | undefined;
     if (idDispositif) {
       const dispositif = await uneFois(
         async (fSuivi: schémaFonctionSuivi<statutDispositif>) => {
           return await this.suivreConnexionsDispositifs({
-            f: async dispositifs => {
-              const correspondant = dispositifs.find(dsp => dsp.infoDispositif.idDispositif === idDispositif )
+            f: async (dispositifs) => {
+              const correspondant = dispositifs.find(
+                (dsp) => dsp.infoDispositif.idDispositif === idDispositif,
+              );
               if (correspondant) {
-                return await fSuivi(correspondant)
+                return await fSuivi(correspondant);
               }
-            }
-          })
+            },
+          });
         },
       );
       ({ idSFIP, encryption } = dispositif.infoDispositif);
     }
 
-    let msgPourDispositif: MessageNonEncrypté | MessageEncrypté
+    let msgPourDispositif: MessageNonEncrypté | MessageEncrypté;
     if (idDispositif) {
       // Arrêter si le dispositif n'a pas la même encryption que nous
       if (encryption?.type !== this.client.encryption.nom) return;
@@ -437,7 +436,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const sujet = this.client.sujet_réseau;
     const { sfip } = await this.client.attendreSfipEtOrbite();
     const pubsub = sfip.libp2p.services.pubsub;
-    const msgBinaire = new TextEncoder().encode(JSON.stringify(msgPourDispositif));
+    const msgBinaire = new TextEncoder().encode(
+      JSON.stringify(msgPourDispositif),
+    );
     await pubsub.publish(sujet, Buffer.from(msgBinaire));
   }
 
@@ -448,7 +449,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     msg: ValeurMessage;
     idCompte: string;
   }): Promise<void> {
-
     const maintenant = Date.now();
 
     const dispositifsMembre = Object.values(this.dispositifsEnLigne)
@@ -461,8 +461,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     await Promise.all(
       dispositifsMembre.map(async (d) => {
         await this.envoyerMessageAuDispositif({
-          msg, idDispositif: d.infoDispositif.idDispositif
-        })
+          msg,
+          idDispositif: d.infoDispositif.idDispositif,
+        });
       }),
     );
   }
@@ -514,7 +515,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       },
     };
 
-    await this.envoyerMessageAuDispositif({ msg, idDispositif: idDispositifQuiInvite });
+    await this.envoyerMessageAuDispositif({
+      msg,
+      idDispositif: idDispositifQuiInvite,
+    });
   }
 
   async messageReçu({ msg }: { msg: Message }): Promise<void> {
@@ -572,7 +576,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
         await this.recevoirSalut({ message: contenuSalut });
 
-        if (!destinataire) await this.direSalut({ à: contenuSalut.idDispositif }); // Renvoyer le message, si ce n'était pas déjà fait
+        if (!destinataire)
+          await this.direSalut({ à: contenuSalut.idDispositif }); // Renvoyer le message, si ce n'était pas déjà fait
         break;
       }
       case "Je veux rejoindre ce compte": {
@@ -2065,7 +2070,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           return await this.suivreFavorisMembre({
             idCompte,
             f: async (favoris) =>
-              fSuivreRacine(favoris.filter(fv=> fv.épingle.type === clefObjetÀClef(clef)).map((fv) => fv.idObjet)),
+              fSuivreRacine(
+                favoris
+                  .filter((fv) => fv.épingle.type === clefObjetÀClef(clef))
+                  .map((fv) => fv.idObjet),
+              ),
           });
         },
         fCondition: async (
@@ -2603,13 +2612,17 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     profondeur,
   }: {
     idObjet: string;
-    f: schémaFonctionSuivi<({épingle: ÉpingleFavorisAvecId; idCompte: string })[]>;
+    f: schémaFonctionSuivi<
+      { épingle: ÉpingleFavorisAvecId; idCompte: string }[]
+    >;
     profondeur: number;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     const fFinale = async (
-      favoris: {épingle: ÉpingleFavorisAvecId; idCompte: string }[],
+      favoris: { épingle: ÉpingleFavorisAvecId; idCompte: string }[],
     ) => {
-      const favorisDIntérêt = favoris.filter((f) => f.épingle.idObjet === idObjet);
+      const favorisDIntérêt = favoris.filter(
+        (f) => f.épingle.idObjet === idObjet,
+      );
       await f(favorisDIntérêt);
     };
 
@@ -2635,13 +2648,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const fBranche = async (
       idCompte: string,
       fSuivreBranche: schémaFonctionSuivi<
-        {épingle: ÉpingleFavorisAvecId; idCompte: string }[] | undefined
+        { épingle: ÉpingleFavorisAvecId; idCompte: string }[] | undefined
       >,
     ): Promise<schémaFonctionOublier> => {
-      
       return await this.suivreFavorisMembre({
         idCompte: idCompte,
-        f: (favoris: (ÉpingleFavorisAvecId)[] | undefined) =>
+        f: (favoris: ÉpingleFavorisAvecId[] | undefined) =>
           fSuivreBranche(
             favoris
               ? favoris.map((fav) => {
@@ -2685,12 +2697,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       );
 
       const dispositifs: {
-        épingle: ÉpingleFavorisAvecId,
+        épingle: ÉpingleFavorisAvecId;
         dispositif: {
           idDispositif: string;
           idCompte?: string;
           vuÀ?: number;
-        }
+        };
       }[] = (
         await Promise.all(
           favoris.map(async (fav) => {
@@ -2705,17 +2717,20 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
                   (c) => c.infoDispositif.idDispositif === d,
                 )?.infoDispositif.idCompte;
 
-                const dispositifsRéplication: {épingle: ÉpingleFavorisAvecId, dispositif: {
-                  idDispositif: string;
-                  idCompte?: string;
-                  vuÀ?: number;
-                }} = {
-                  épingle: {idObjet, épingle: favoris},
+                const dispositifsRéplication: {
+                  épingle: ÉpingleFavorisAvecId;
+                  dispositif: {
+                    idDispositif: string;
+                    idCompte?: string;
+                    vuÀ?: number;
+                  };
+                } = {
+                  épingle: { idObjet, épingle: favoris },
                   dispositif: {
                     idDispositif: d,
                     idCompte,
                     vuÀ,
-                  }
+                  },
                 };
                 return dispositifsRéplication;
               }),
@@ -2757,7 +2772,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const fListeFavoris = async (
       fSuivreRacine: (
-        favoris: {épingle: ÉpingleFavorisAvecId; idCompte: string }[],
+        favoris: { épingle: ÉpingleFavorisAvecId; idCompte: string }[],
       ) => void,
     ): Promise<schémaRetourFonctionRechercheParProfondeur> => {
       return await this.suivreFavorisObjet({
@@ -2770,10 +2785,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const fBrancheFavoris = async (
       id: string,
       fSuivreBranche: schémaFonctionSuivi<{
-        favoris: {épingle: ÉpingleFavorisAvecId; idCompte: string };
+        favoris: { épingle: ÉpingleFavorisAvecId; idCompte: string };
         dispositifs: string[];
       }>,
-      branche: {épingle: ÉpingleFavorisAvecId; idCompte: string },
+      branche: { épingle: ÉpingleFavorisAvecId; idCompte: string },
     ): Promise<schémaFonctionOublier> => {
       const fSuivreDispositifsMembre = async (dispositifs: string[]) => {
         return await fSuivreBranche({ favoris: branche, dispositifs });
@@ -2789,10 +2804,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       };
     };
 
-    const fIdBdDeBranche = (
-      x: {épingle: ÉpingleFavorisAvecId; idCompte: string },
-    ) => x.idCompte;
-    const fCode = (x: {épingle: ÉpingleFavorisAvecId; idCompte: string }) =>
+    const fIdBdDeBranche = (x: {
+      épingle: ÉpingleFavorisAvecId;
+      idCompte: string;
+    }) => x.idCompte;
+    const fCode = (x: { épingle: ÉpingleFavorisAvecId; idCompte: string }) =>
       x.idCompte;
 
     const { fOublier: fOublierFavoris, fChangerProfondeur } =

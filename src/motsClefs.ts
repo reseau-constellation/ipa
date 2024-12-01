@@ -12,7 +12,12 @@ import { ComposanteClientListe } from "@/composanteClient.js";
 import { cacheSuivi } from "@/décorateursCache.js";
 
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
-import { TOUS, résoudreDéfauts, ÉpingleFavorisAvecId, ÉpingleMotClef } from "./favoris.js";
+import {
+  TOUS,
+  résoudreDéfauts,
+  ÉpingleFavorisAvecId,
+  ÉpingleMotClef,
+} from "./favoris.js";
 import type { objRôles } from "@/accès/types.js";
 
 type ContrôleurConstellation = Awaited<
@@ -59,14 +64,20 @@ export class MotsClefs extends ComposanteClientListe<string> {
       schéma: schémaBdMotClef,
       f: async (bd) => {
         try {
-          const contenuBd = await bd.allAsJSON()
+          const contenuBd = await bd.allAsJSON();
           return await f(
-            new Set(épinglerMétaDonnées
-              ? [épingle.idObjet, contenuBd.descriptions, contenuBd.noms].filter(x=>!!x) as string[]
-              : []),
+            new Set(
+              épinglerMétaDonnées
+                ? ([
+                    épingle.idObjet,
+                    contenuBd.descriptions,
+                    contenuBd.noms,
+                  ].filter((x) => !!x) as string[])
+                : [],
+            ),
           );
         } catch {
-          return;  // Si la structure n'est pas valide.
+          return; // Si la structure n'est pas valide.
         }
       },
     });
@@ -147,11 +158,17 @@ export class MotsClefs extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async épinglerMotClef({idMotClef, options = {}}: {idMotClef: string, options?: RecursivePartial<ÉpingleMotClef>}) {
+  async épinglerMotClef({
+    idMotClef,
+    options = {},
+  }: {
+    idMotClef: string;
+    options?: RecursivePartial<ÉpingleMotClef>;
+  }) {
     const épingle: ÉpingleMotClef = résoudreDéfauts(options, {
-      type: 'motClef',
+      type: "motClef",
       base: TOUS,
-    })
+    });
     await this.client.favoris.épinglerFavori({ idObjet: idMotClef, épingle });
   }
 

@@ -29,7 +29,13 @@ import { ContrôleurConstellation as générerContrôleurConstellation } from "@
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { donnéesBdExportation, schémaCopiéDe } from "./bds.js";
 import { ComposanteClientListe } from "./composanteClient.js";
-import { INSTALLÉ, TOUS, résoudreDéfauts, ÉpingleFavorisAvecId, ÉpingleProjet } from "./favoris.js";
+import {
+  INSTALLÉ,
+  TOUS,
+  résoudreDéfauts,
+  ÉpingleFavorisAvecId,
+  ÉpingleProjet,
+} from "./favoris.js";
 import type xlsx from "xlsx";
 import type { objRôles } from "@/accès/types.js";
 
@@ -98,7 +104,6 @@ export class Projets extends ComposanteClientListe<string> {
     super({ client, clef: "projets", schémaBdPrincipale: schémaBdPrincipale });
   }
 
-  
   async suivreRésolutionÉpingle({
     épingle,
     f,
@@ -106,16 +111,15 @@ export class Projets extends ComposanteClientListe<string> {
     épingle: ÉpingleFavorisAvecId<ÉpingleProjet>;
     f: schémaFonctionSuivi<Set<string>>;
   }): Promise<schémaFonctionOublier> {
-    const épinglerBase =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.base || "TOUS",
-      });
+    const épinglerBase = await this.client.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.base || "TOUS",
+    });
     const épinglerFichiersBase =
       await this.client.favoris.estÉpingléSurDispositif({
         dispositifs: épingle.épingle.fichiersBase || "INSTALLÉ",
       });
     const épinglerBds = épingle.épingle.bds;
-    
+
     const info: {
       base?: (string | undefined)[];
       fichiersBase?: (string | undefined)[];
@@ -148,10 +152,9 @@ export class Projets extends ComposanteClientListe<string> {
                 contenuBd.bds,
                 contenuBd.motsClefs,
               ];
-            if (épinglerFichiersBase)
-              info.fichiersBase = [contenuBd.image];
+            if (épinglerFichiersBase) info.fichiersBase = [contenuBd.image];
           } catch {
-            return;  // Si la structure n'est pas valide.
+            return; // Si la structure n'est pas valide.
           }
           await fFinale();
         },
@@ -161,21 +164,32 @@ export class Projets extends ComposanteClientListe<string> {
 
     if (épinglerBds) {
       const fOublierBds = await suivreBdsDeFonctionListe({
-        fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
-          return await this.suivreBdsProjet({idProjet: épingle.idObjet, f: fSuivreRacine})
+        fListe: async (
+          fSuivreRacine: (éléments: string[]) => Promise<void>,
+        ) => {
+          return await this.suivreBdsProjet({
+            idProjet: épingle.idObjet,
+            f: fSuivreRacine,
+          });
         },
-        fBranche: async (id: string, fSuivreBranche: schémaFonctionSuivi<string[]>) => {
-          return this.client.bds.suivreRésolutionÉpingle({épingle: {
-            idObjet: id,
-            épingle: épinglerBds,
-          }, f: idcs => fSuivreBranche([...idcs])})
+        fBranche: async (
+          id: string,
+          fSuivreBranche: schémaFonctionSuivi<string[]>,
+        ) => {
+          return this.client.bds.suivreRésolutionÉpingle({
+            épingle: {
+              idObjet: id,
+              épingle: épinglerBds,
+            },
+            f: (idcs) => fSuivreBranche([...idcs]),
+          });
         },
         f: async (idcs: string[]) => {
           info.bds = idcs;
           await fFinale();
         },
       });
-      
+
       fsOublier.push(fOublierBds);
     }
 
@@ -375,9 +389,15 @@ export class Projets extends ComposanteClientListe<string> {
     await bdRacine.del(idProjet);
     await fOublier();
   }
-  async épinglerProjet({idProjet, options = {}}: {idProjet: string, options?: RecursivePartial<ÉpingleProjet>}) {
+  async épinglerProjet({
+    idProjet,
+    options = {},
+  }: {
+    idProjet: string;
+    options?: RecursivePartial<ÉpingleProjet>;
+  }) {
     const épingle: ÉpingleProjet = résoudreDéfauts(options, {
-      type: 'projet',
+      type: "projet",
       base: TOUS,
       fichiersBase: INSTALLÉ,
       bds: {
@@ -386,10 +406,10 @@ export class Projets extends ComposanteClientListe<string> {
         fichiersBase: INSTALLÉ,
         données: {
           tableaux: TOUS,
-          fichiers: INSTALLÉ
-        }
-      }
-    })
+          fichiers: INSTALLÉ,
+        },
+      },
+    });
     await this.client.favoris.épinglerFavori({ idObjet: idProjet, épingle });
   }
 

@@ -12,7 +12,12 @@ import {
 } from "@/types.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { ComposanteClientListe } from "./composanteClient.js";
-import { TOUS, résoudreDéfauts, ÉpingleFavorisAvecId, ÉpingleVariable } from "./favoris.js";
+import {
+  TOUS,
+  résoudreDéfauts,
+  ÉpingleFavorisAvecId,
+  ÉpingleVariable,
+} from "./favoris.js";
 import type {
   règleCatégorie,
   règleVariable,
@@ -125,10 +130,9 @@ export class Variables extends ComposanteClientListe<string> {
     épingle: ÉpingleFavorisAvecId<ÉpingleVariable>;
     f: schémaFonctionSuivi<Set<string>>;
   }): Promise<schémaFonctionOublier> {
-    const épinglerBase =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.base || "TOUS",
-      });
+    const épinglerBase = await this.client.favoris.estÉpingléSurDispositif({
+      dispositifs: épingle.épingle.base || "TOUS",
+    });
     const fOublier = await this.client.suivreBd({
       id: épingle.idObjet,
       type: "keyvalue",
@@ -137,17 +141,19 @@ export class Variables extends ComposanteClientListe<string> {
         try {
           const contenuBd = await bd.allAsJSON();
           return await f(
-            new Set(épinglerBase
-              ? [
-                  épingle.idObjet,
-                  contenuBd.descriptions,
-                  contenuBd.noms,
-                  contenuBd.règles,
-                ].filter(x=>!!x) as string[]
-              : []),
+            new Set(
+              épinglerBase
+                ? ([
+                    épingle.idObjet,
+                    contenuBd.descriptions,
+                    contenuBd.noms,
+                    contenuBd.règles,
+                  ].filter((x) => !!x) as string[])
+                : [],
+            ),
           );
         } catch {
-          return;  // Si la structure n'est pas valide.
+          return; // Si la structure n'est pas valide.
         }
       },
     });
@@ -249,11 +255,17 @@ export class Variables extends ComposanteClientListe<string> {
     await fOublier();
   }
 
-  async épinglerVariable({idVariable, options = {}}: {idVariable: string, options?: RecursivePartial<ÉpingleVariable>}) {
+  async épinglerVariable({
+    idVariable,
+    options = {},
+  }: {
+    idVariable: string;
+    options?: RecursivePartial<ÉpingleVariable>;
+  }) {
     const épingle: ÉpingleVariable = résoudreDéfauts(options, {
-      type: 'variable',
+      type: "variable",
       base: TOUS,
-    })
+    });
     await this.client.favoris.épinglerFavori({ idObjet: idVariable, épingle });
   }
 

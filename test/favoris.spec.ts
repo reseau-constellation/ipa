@@ -7,7 +7,15 @@ import {
 } from "@constl/utils-tests";
 import { expect } from "aegir/chai";
 import { créerConstellation, type Constellation } from "@/index.js";
-import { INSTALLÉ, TOUS, ÉpingleCompte, type BooléenniserPropriétés, type ÉpingleBd, type ÉpingleFavoris, type ÉpingleFavorisAvecId } from "@/favoris.js";
+import {
+  INSTALLÉ,
+  TOUS,
+  ÉpingleCompte,
+  type BooléenniserPropriétés,
+  type ÉpingleBd,
+  type ÉpingleFavoris,
+  type ÉpingleFavorisAvecId,
+} from "@/favoris.js";
 import type { schémaFonctionOublier } from "@/types.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
@@ -77,13 +85,15 @@ describe("Favoris", function () {
     const favoris = new utilsTestAttente.AttendreRésultat<
       ÉpingleFavorisAvecId[]
     >();
-    const épingleBd = new attente.AttendreRésultat<BooléenniserPropriétés<ÉpingleFavoris>>();
+    const épingleBd = new attente.AttendreRésultat<
+      BooléenniserPropriétés<ÉpingleFavoris>
+    >();
 
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0", épingler: false });
-      
+
       fsOublier.push(
         await client.favoris.suivreFavoris({
           f: (favs) => favoris.mettreÀJour(favs),
@@ -116,14 +126,16 @@ describe("Favoris", function () {
             fichiers: TOUS,
           },
           favoris: TOUS,
-        }
-      }
+        },
+      };
       expect(val).to.have.deep.members([ref]);
     });
 
     it("Ajouter un favori", async () => {
       await client.bds.épinglerBd({ idBd });
-      const val = await favoris.attendreQue((x) => !!x.find(fv=>fv.idObjet === idBd));
+      const val = await favoris.attendreQue(
+        (x) => !!x.find((fv) => fv.idObjet === idBd),
+      );
 
       const réf: ÉpingleFavorisAvecId<ÉpingleBd> = {
         idObjet: idBd,
@@ -134,13 +146,12 @@ describe("Favoris", function () {
           données: {
             tableaux: TOUS,
             fichiers: INSTALLÉ,
-          }
-        }
-      }
-      expect(val.find(fv=>fv.idObjet === idBd)).to.deep.equal(réf);
+          },
+        },
+      };
+      expect(val.find((fv) => fv.idObjet === idBd)).to.deep.equal(réf);
 
       const valÉpingleBd = await épingleBd.attendreExiste();
-
 
       const réfÉpingle: BooléenniserPropriétés<ÉpingleBd> = {
         base: true,
@@ -148,8 +159,8 @@ describe("Favoris", function () {
         données: {
           tableaux: true,
           fichiers: isElectron || isNode,
-        }
-      }
+        },
+      };
 
       expect(valÉpingleBd).to.deep.equal(réfÉpingle);
     });
@@ -157,7 +168,9 @@ describe("Favoris", function () {
     it("Enlever un favori", async () => {
       await client.favoris.désépinglerFavori({ idObjet: idBd });
 
-      const val = await favoris.attendreQue((x) => !x.find(fv=>fv.idObjet === idBd));
+      const val = await favoris.attendreQue(
+        (x) => !x.find((fv) => fv.idObjet === idBd),
+      );
       expect(val.length).to.equal(1);
 
       épingleBd.attendreNexistePas();
