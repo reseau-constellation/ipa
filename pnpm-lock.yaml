@@ -236,7 +236,7 @@ importers:
         version: 4.2.4
       '@multiformats/multiaddr':
         specifier: ^12.3.3
-        version: 12.3.3
+        version: 12.3.4
       '@orbitdb/core-types':
         specifier: ^1.0.11
         version: 1.0.11
@@ -427,12 +427,20 @@ packages:
     resolution: {integrity: sha512-Z0WgzSEa+aUcdiJuCIqgujCshpMWgUpgOxXotrYPSA53hA3qopNaqcJpyr0hVb1FeWdnqFA35/fUtXgBK8srQg==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/compat-data@7.26.3':
+    resolution: {integrity: sha512-nHIxvKPniQXpmQLb0vhY3VaFb3S0YrTAwpOWJZh1wn3oJPjJk9Asva204PsBdmAE8vpzfHudT8DB0scYvy9q0g==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/core@7.26.0':
     resolution: {integrity: sha512-i1SLeK+DzNnQ3LL/CswPCa/E5u4lh1k6IAEphON8F+cXt0t9euTshDru0q7/IqMa1PMPz5RnHuHscF8/ZJsStg==}
     engines: {node: '>=6.9.0'}
 
   '@babel/generator@7.26.2':
     resolution: {integrity: sha512-zevQbhbau95nkoxSq3f/DC/SC+EEOUZd3DYqfSkMhY2/wfSeaHV1Ew4vk8e+x8lja31IbyuUa2uQ3JONqKbysw==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/generator@7.26.3':
+    resolution: {integrity: sha512-6FF/urZvD0sTeO7k6/B15pMLC4CHUv1426lzr3N01aHJTl046uCAh9LXW/fzeXXjPNCJ6iABW5XaWOsIZB93aQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-annotate-as-pure@7.25.9':
@@ -455,6 +463,12 @@ packages:
 
   '@babel/helper-create-regexp-features-plugin@7.25.9':
     resolution: {integrity: sha512-ORPNZ3h6ZRkOyAa/SaHU+XsLZr0UQzRwuDQ0cczIA17nAzZ+85G5cVkOJIj7QavLZGSe8QXUmNFxSZzjcZF9bw==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0
+
+  '@babel/helper-create-regexp-features-plugin@7.26.3':
+    resolution: {integrity: sha512-G7ZRb40uUgdKOQqPLjfD12ZmGA54PzqDFUv2BKImnC9QIfGhIHKvVML0oN8IUiDq4iRqpq74ABpvOaerfWdong==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0
@@ -532,6 +546,11 @@ packages:
 
   '@babel/parser@7.26.2':
     resolution: {integrity: sha512-DWMCZH9WA4Maitz2q21SRKHo9QXZxkDsbNZoVD62gusNtNBBqDg9i7uOhASfTfIGNzW+O+r7+jAlM8dwphcJKQ==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  '@babel/parser@7.26.3':
+    resolution: {integrity: sha512-WJ/CvmY8Mea8iDXo6a7RK2wbmJITT5fN3BEkRuFlxVyNx8jOKIIhmC4fSkTcPcf8JyavbBwIe6OpiCOBXt/IcA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -829,6 +848,12 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
+  '@babel/plugin-transform-exponentiation-operator@7.26.3':
+    resolution: {integrity: sha512-7CAHcQ58z2chuXPWblnn1K6rLDnDWieghSOEmqQsrBenH0P9InCUtOJYD89pvngljmZlJcz3fcmgYsXFNGa1ZQ==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+
   '@babel/plugin-transform-export-namespace-from@7.25.9':
     resolution: {integrity: sha512-2NsEz+CxzJIVOPx2o9UsW1rXLqtChtLoVnwYHHiB04wS5sgn7mrV45fWMBX0Kk+ub9uXytVYfNP2HjbVbCB3Ww==}
     engines: {node: '>=6.9.0'}
@@ -885,6 +910,12 @@ packages:
 
   '@babel/plugin-transform-modules-commonjs@7.25.9':
     resolution: {integrity: sha512-dwh2Ol1jWwL2MgkCzUSOvfmKElqQcuswAZypBSUsScMXvgdT8Ekq5YA6TtqpTVWH+4903NmboMuH1o9i8Rxlyg==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+
+  '@babel/plugin-transform-modules-commonjs@7.26.3':
+    resolution: {integrity: sha512-MgR55l4q9KddUDITEzEFYn5ZsGDXMSsU9E+kh7fjRXTIC3RHqfCo8RPRbyReYJh44HQ/yomFkqbOFohXvDCiIQ==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -1063,6 +1094,12 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
+  '@babel/plugin-transform-typescript@7.26.3':
+    resolution: {integrity: sha512-6+5hpdr6mETwSKjmJUdYw0EIkATiQhnELWlE3kJFBwSg/BGIVwVaVbX+gOXBCdc7Ln1RXZxyWGecIXhUfnl7oA==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+
   '@babel/plugin-transform-unicode-escapes@7.25.9':
     resolution: {integrity: sha512-s5EDrE6bW97LtxOcGj1Khcx5AaXwiMmi4toFWRDP9/y0Woo6pXC+iyPu/KuhKtfSrNFd7jJB+/fkOtZy6aIC6Q==}
     engines: {node: '>=6.9.0'}
@@ -1128,8 +1165,16 @@ packages:
     resolution: {integrity: sha512-ZCuvfwOwlz/bawvAuvcj8rrithP2/N55Tzz342AkTvq4qaWbGfmCk/tKhNaV2cthijKrPAA8SRJV5WWe7IBMJw==}
     engines: {node: '>=6.9.0'}
 
+  '@babel/traverse@7.26.3':
+    resolution: {integrity: sha512-yTmc8J+Sj8yLzwr4PD5Xb/WF3bOYu2C2OoSZPzbuqRm4n98XirsbzaX+GloeO376UnSYIYJ4NCanwV5/ugZkwA==}
+    engines: {node: '>=6.9.0'}
+
   '@babel/types@7.26.0':
     resolution: {integrity: sha512-Z/yiTPj+lDVnF7lWeKCIJzaIkI0vYO87dMpZ4bg4TDrFe4XXLFWL1TbXU27gBP3QccxV9mZICCrnjnYlJjXHOA==}
+    engines: {node: '>=6.9.0'}
+
+  '@babel/types@7.26.3':
+    resolution: {integrity: sha512-vN5p+1kl59GVKMvTHt55NzzmYVxprfJD+ql7U9NFIfKCBkYE55LYtS+WtPlaYOyzydrKI8Nezd+aZextrd+FMA==}
     engines: {node: '>=6.9.0'}
 
   '@bcoe/v8-coverage@0.2.3':
@@ -1893,9 +1938,6 @@ packages:
 
   '@multiformats/multiaddr-to-uri@11.0.0':
     resolution: {integrity: sha512-9RNmlIGwZbBLsHekT50dbt4o4u8Iciw9kGjv+WHiGxQdsJ6xKKjU1+C0Vbas6RilMbaVOAOnEyfNcXbUmTkLxQ==}
-
-  '@multiformats/multiaddr@12.3.3':
-    resolution: {integrity: sha512-3POIUN7myk8JbO8oi/FEyZoLQW2XMhwM/uB7hG5Zl1PgdXJR8UTH9QdQEp1jM358kd3yn+vtS4fFJdqdRk+O7A==}
 
   '@multiformats/multiaddr@12.3.4':
     resolution: {integrity: sha512-R4pEEUyWGrRo16TSflz80Yr6XNbPirix1pfPqDLXsDZ4aaIrhZ7cez9jnyRQgci6DuuqSyZAdJKV6SdxpZ7Oiw==}
@@ -8724,6 +8766,8 @@ snapshots:
 
   '@babel/compat-data@7.26.2': {}
 
+  '@babel/compat-data@7.26.3': {}
+
   '@babel/core@7.26.0':
     dependencies:
       '@ampproject/remapping': 2.3.0
@@ -8748,6 +8792,14 @@ snapshots:
     dependencies:
       '@babel/parser': 7.26.2
       '@babel/types': 7.26.0
+      '@jridgewell/gen-mapping': 0.3.5
+      '@jridgewell/trace-mapping': 0.3.25
+      jsesc: 3.0.2
+
+  '@babel/generator@7.26.3':
+    dependencies:
+      '@babel/parser': 7.26.3
+      '@babel/types': 7.26.3
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 3.0.2
@@ -8785,6 +8837,13 @@ snapshots:
       - supports-color
 
   '@babel/helper-create-regexp-features-plugin@7.25.9(@babel/core@7.26.0)':
+    dependencies:
+      '@babel/core': 7.26.0
+      '@babel/helper-annotate-as-pure': 7.25.9
+      regexpu-core: 6.2.0
+      semver: 6.3.1
+
+  '@babel/helper-create-regexp-features-plugin@7.26.3(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-annotate-as-pure': 7.25.9
@@ -8890,11 +8949,15 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.0
 
+  '@babel/parser@7.26.3':
+    dependencies:
+      '@babel/types': 7.26.3
+
   '@babel/plugin-bugfix-firefox-class-in-computed-class-key@7.25.9(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.3
     transitivePeerDependencies:
       - supports-color
 
@@ -8921,7 +8984,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.3
     transitivePeerDependencies:
       - supports-color
 
@@ -9090,7 +9153,7 @@ snapshots:
   '@babel/plugin-syntax-unicode-sets-regex@7.18.6(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/helper-create-regexp-features-plugin': 7.25.9(@babel/core@7.26.0)
+      '@babel/helper-create-regexp-features-plugin': 7.26.3(@babel/core@7.26.0)
       '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/plugin-transform-arrow-functions@7.25.9(@babel/core@7.26.0)':
@@ -9103,7 +9166,7 @@ snapshots:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.25.9
       '@babel/helper-remap-async-to-generator': 7.25.9(@babel/core@7.26.0)
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.3
     transitivePeerDependencies:
       - supports-color
 
@@ -9168,7 +9231,7 @@ snapshots:
   '@babel/plugin-transform-dotall-regex@7.25.9(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/helper-create-regexp-features-plugin': 7.25.9(@babel/core@7.26.0)
+      '@babel/helper-create-regexp-features-plugin': 7.26.3(@babel/core@7.26.0)
       '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/plugin-transform-duplicate-keys@7.25.9(@babel/core@7.26.0)':
@@ -9179,7 +9242,7 @@ snapshots:
   '@babel/plugin-transform-duplicate-named-capturing-groups-regex@7.25.9(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/helper-create-regexp-features-plugin': 7.25.9(@babel/core@7.26.0)
+      '@babel/helper-create-regexp-features-plugin': 7.26.3(@babel/core@7.26.0)
       '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/plugin-transform-dynamic-import@7.25.9(@babel/core@7.26.0)':
@@ -9194,6 +9257,11 @@ snapshots:
       '@babel/helper-plugin-utils': 7.25.9
     transitivePeerDependencies:
       - supports-color
+
+  '@babel/plugin-transform-exponentiation-operator@7.26.3(@babel/core@7.26.0)':
+    dependencies:
+      '@babel/core': 7.26.0
+      '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/plugin-transform-export-namespace-from@7.25.9(@babel/core@7.26.0)':
     dependencies:
@@ -9260,13 +9328,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-modules-commonjs@7.26.3(@babel/core@7.26.0)':
+    dependencies:
+      '@babel/core': 7.26.0
+      '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.0)
+      '@babel/helper-plugin-utils': 7.25.9
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/plugin-transform-modules-systemjs@7.25.9(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-module-transforms': 7.26.0(@babel/core@7.26.0)
       '@babel/helper-plugin-utils': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.3
     transitivePeerDependencies:
       - supports-color
 
@@ -9281,7 +9357,7 @@ snapshots:
   '@babel/plugin-transform-named-capturing-groups-regex@7.25.9(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/helper-create-regexp-features-plugin': 7.25.9(@babel/core@7.26.0)
+      '@babel/helper-create-regexp-features-plugin': 7.26.3(@babel/core@7.26.0)
       '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/plugin-transform-new-target@7.25.9(@babel/core@7.26.0)':
@@ -9394,7 +9470,7 @@ snapshots:
   '@babel/plugin-transform-regexp-modifiers@7.26.0(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/helper-create-regexp-features-plugin': 7.25.9(@babel/core@7.26.0)
+      '@babel/helper-create-regexp-features-plugin': 7.26.3(@babel/core@7.26.0)
       '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/plugin-transform-reserved-words@7.25.9(@babel/core@7.26.0)':
@@ -9453,6 +9529,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/plugin-transform-typescript@7.26.3(@babel/core@7.26.0)':
+    dependencies:
+      '@babel/core': 7.26.0
+      '@babel/helper-annotate-as-pure': 7.25.9
+      '@babel/helper-create-class-features-plugin': 7.25.9(@babel/core@7.26.0)
+      '@babel/helper-plugin-utils': 7.25.9
+      '@babel/helper-skip-transparent-expression-wrappers': 7.25.9
+      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.0)
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/plugin-transform-unicode-escapes@7.25.9(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
@@ -9461,7 +9548,7 @@ snapshots:
   '@babel/plugin-transform-unicode-property-regex@7.25.9(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/helper-create-regexp-features-plugin': 7.25.9(@babel/core@7.26.0)
+      '@babel/helper-create-regexp-features-plugin': 7.26.3(@babel/core@7.26.0)
       '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/plugin-transform-unicode-regex@7.25.9(@babel/core@7.26.0)':
@@ -9473,12 +9560,12 @@ snapshots:
   '@babel/plugin-transform-unicode-sets-regex@7.25.9(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/helper-create-regexp-features-plugin': 7.25.9(@babel/core@7.26.0)
+      '@babel/helper-create-regexp-features-plugin': 7.26.3(@babel/core@7.26.0)
       '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/preset-env@7.26.0(@babel/core@7.26.0)':
     dependencies:
-      '@babel/compat-data': 7.26.2
+      '@babel/compat-data': 7.26.3
       '@babel/core': 7.26.0
       '@babel/helper-compilation-targets': 7.25.9
       '@babel/helper-plugin-utils': 7.25.9
@@ -9506,7 +9593,7 @@ snapshots:
       '@babel/plugin-transform-duplicate-keys': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-duplicate-named-capturing-groups-regex': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-dynamic-import': 7.25.9(@babel/core@7.26.0)
-      '@babel/plugin-transform-exponentiation-operator': 7.25.9(@babel/core@7.26.0)
+      '@babel/plugin-transform-exponentiation-operator': 7.26.3(@babel/core@7.26.0)
       '@babel/plugin-transform-export-namespace-from': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-for-of': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-function-name': 7.25.9(@babel/core@7.26.0)
@@ -9515,7 +9602,7 @@ snapshots:
       '@babel/plugin-transform-logical-assignment-operators': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-member-expression-literals': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-modules-amd': 7.25.9(@babel/core@7.26.0)
-      '@babel/plugin-transform-modules-commonjs': 7.25.9(@babel/core@7.26.0)
+      '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.0)
       '@babel/plugin-transform-modules-systemjs': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-modules-umd': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-named-capturing-groups-regex': 7.25.9(@babel/core@7.26.0)
@@ -9562,7 +9649,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.25.9
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.3
       esutils: 2.0.3
 
   '@babel/preset-typescript@7.26.0(@babel/core@7.26.0)':
@@ -9571,8 +9658,8 @@ snapshots:
       '@babel/helper-plugin-utils': 7.25.9
       '@babel/helper-validator-option': 7.25.9
       '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.0)
-      '@babel/plugin-transform-modules-commonjs': 7.25.9(@babel/core@7.26.0)
-      '@babel/plugin-transform-typescript': 7.25.9(@babel/core@7.26.0)
+      '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.0)
+      '@babel/plugin-transform-typescript': 7.26.3(@babel/core@7.26.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -9607,7 +9694,24 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@babel/traverse@7.26.3':
+    dependencies:
+      '@babel/code-frame': 7.26.2
+      '@babel/generator': 7.26.3
+      '@babel/parser': 7.26.3
+      '@babel/template': 7.25.9
+      '@babel/types': 7.26.3
+      debug: 4.3.7(supports-color@8.1.1)
+      globals: 11.12.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@babel/types@7.26.0':
+    dependencies:
+      '@babel/helper-string-parser': 7.25.9
+      '@babel/helper-validator-identifier': 7.25.9
+
+  '@babel/types@7.26.3':
     dependencies:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
@@ -9627,7 +9731,7 @@ snapshots:
       '@libp2p/interface-internal': 2.1.1
       '@libp2p/peer-id': 5.0.8
       '@libp2p/pubsub': 10.0.12
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       denque: 2.1.0
       it-length-prefixed: 9.1.0
       it-pipe: 3.0.1
@@ -10089,7 +10193,7 @@ snapshots:
       '@helia/utils': 1.1.0
       '@libp2p/interface': 2.2.1
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       '@multiformats/multiaddr-to-uri': 11.0.0
       interface-blockstore: 5.3.1
@@ -10363,7 +10467,7 @@ snapshots:
       '@libp2p/interface-internal': 2.1.1
       '@libp2p/peer-id': 5.0.8
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       it-first: 3.0.6
       it-length-prefixed: 9.1.0
       it-map: 3.1.1
@@ -10379,7 +10483,7 @@ snapshots:
       '@libp2p/interface-internal': 2.1.1
       '@libp2p/peer-id': 5.0.8
       '@multiformats/mafmt': 12.1.6
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
 
   '@libp2p/circuit-relay-v2@3.1.3':
     dependencies:
@@ -10390,7 +10494,7 @@ snapshots:
       '@libp2p/peer-id': 5.0.8
       '@libp2p/peer-record': 8.0.12
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       any-signal: 4.1.1
       it-protobuf-stream: 1.1.5
@@ -10430,7 +10534,7 @@ snapshots:
       '@libp2p/interface': 2.2.1
       '@libp2p/interface-internal': 2.1.1
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       delay: 6.0.0
       it-protobuf-stream: 1.1.5
@@ -10445,7 +10549,7 @@ snapshots:
       '@libp2p/peer-id': 5.0.8
       '@libp2p/peer-record': 8.0.12
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       it-drain: 3.0.7
       it-parallel: 3.0.8
@@ -10461,13 +10565,13 @@ snapshots:
       '@libp2p/interface-peer-id': 2.0.2
       '@libp2p/interfaces': 3.3.2
       '@libp2p/peer-collections': 3.0.2
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
 
   '@libp2p/interface-connection@5.1.1':
     dependencies:
       '@libp2p/interface-peer-id': 2.0.2
       '@libp2p/interfaces': 3.3.2
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       it-stream-types: 2.0.2
       uint8arraylist: 2.4.8
 
@@ -10475,7 +10579,7 @@ snapshots:
     dependencies:
       '@libp2p/interface': 2.2.1
       '@libp2p/peer-collections': 6.0.12
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       progress-events: 1.0.1
       uint8arraylist: 2.4.8
 
@@ -10501,14 +10605,14 @@ snapshots:
       '@libp2p/interface-connection': 5.1.1
       '@libp2p/interface-stream-muxer': 4.1.2
       '@libp2p/interfaces': 3.3.2
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       it-stream-types: 2.0.2
     transitivePeerDependencies:
       - supports-color
 
   '@libp2p/interface@1.7.0':
     dependencies:
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       it-pushable: 3.2.3
       it-stream-types: 2.0.2
       multiformats: 13.3.1
@@ -10517,7 +10621,7 @@ snapshots:
 
   '@libp2p/interface@2.2.1':
     dependencies:
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       it-pushable: 3.2.3
       it-stream-types: 2.0.2
       multiformats: 13.3.1
@@ -10535,7 +10639,7 @@ snapshots:
       '@libp2p/peer-id': 5.0.8
       '@libp2p/record': 4.0.4
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       any-signal: 4.1.1
       interface-datastore: 8.3.1
       it-drain: 3.0.7
@@ -10583,7 +10687,7 @@ snapshots:
   '@libp2p/logger@5.1.4':
     dependencies:
       '@libp2p/interface': 2.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       interface-datastore: 8.3.1
       multiformats: 13.3.1
       weald: 1.0.4
@@ -10594,7 +10698,7 @@ snapshots:
       '@libp2p/interface-internal': 2.1.1
       '@libp2p/peer-id': 5.0.8
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@types/multicast-dns': 7.2.4
       dns-packet: 5.6.1
       multicast-dns: 7.2.5
@@ -10682,7 +10786,7 @@ snapshots:
       '@libp2p/interface': 2.2.1
       '@libp2p/peer-id': 5.0.8
       '@libp2p/peer-record': 8.0.12
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       interface-datastore: 8.3.1
       it-all: 3.0.6
       mortice: 3.0.6
@@ -10762,7 +10866,7 @@ snapshots:
       '@libp2p/interface': 2.2.1
       '@libp2p/utils': 6.2.1
       '@multiformats/mafmt': 12.1.6
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@types/sinon': 17.0.3
       p-defer: 4.0.1
       p-event: 6.0.1
@@ -10804,7 +10908,7 @@ snapshots:
       '@libp2p/crypto': 5.0.7
       '@libp2p/interface': 2.2.1
       '@libp2p/logger': 5.1.4
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@sindresorhus/fnv1a': 3.1.0
       '@types/murmurhash3js-revisited': 3.0.3
       any-signal: 4.1.1
@@ -10830,7 +10934,7 @@ snapshots:
       '@libp2p/interface-internal': 2.1.1
       '@libp2p/peer-id': 5.0.8
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       detect-browser: 5.3.0
       it-length-prefixed: 9.1.0
@@ -10875,7 +10979,7 @@ snapshots:
     dependencies:
       '@libp2p/interface': 2.2.1
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       '@multiformats/multiaddr-to-uri': 10.1.2
       '@types/ws': 8.5.13
@@ -10895,7 +10999,7 @@ snapshots:
       '@libp2p/interface': 2.2.1
       '@libp2p/peer-id': 5.0.8
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       it-stream-types: 2.0.2
       multiformats: 13.3.1
@@ -11031,12 +11135,12 @@ snapshots:
 
   '@multiformats/mafmt@12.1.6':
     dependencies:
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
 
   '@multiformats/multiaddr-matcher@1.6.0':
     dependencies:
       '@chainsafe/is-ip': 2.0.2
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       multiformats: 13.3.1
 
   '@multiformats/multiaddr-to-uri@10.1.2':
@@ -11046,15 +11150,6 @@ snapshots:
   '@multiformats/multiaddr-to-uri@11.0.0':
     dependencies:
       '@multiformats/multiaddr': 12.3.4
-
-  '@multiformats/multiaddr@12.3.3':
-    dependencies:
-      '@chainsafe/is-ip': 2.0.2
-      '@chainsafe/netmask': 2.0.0
-      '@multiformats/dns': 1.0.6
-      multiformats: 13.3.1
-      uint8-varint: 2.0.4
-      uint8arrays: 5.1.0
 
   '@multiformats/multiaddr@12.3.4':
     dependencies:
@@ -11370,7 +11465,7 @@ snapshots:
       '@babel/plugin-transform-function-name': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-literals': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-logical-assignment-operators': 7.25.9(@babel/core@7.26.0)
-      '@babel/plugin-transform-modules-commonjs': 7.25.9(@babel/core@7.26.0)
+      '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.0)
       '@babel/plugin-transform-named-capturing-groups-regex': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-nullish-coalescing-operator': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-numeric-separator': 7.25.9(@babel/core@7.26.0)
@@ -11389,7 +11484,7 @@ snapshots:
       '@babel/plugin-transform-shorthand-properties': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-spread': 7.25.9(@babel/core@7.26.0)
       '@babel/plugin-transform-sticky-regex': 7.25.9(@babel/core@7.26.0)
-      '@babel/plugin-transform-typescript': 7.25.9(@babel/core@7.26.0)
+      '@babel/plugin-transform-typescript': 7.26.3(@babel/core@7.26.0)
       '@babel/plugin-transform-unicode-regex': 7.25.9(@babel/core@7.26.0)
       '@babel/template': 7.25.9
       '@react-native/babel-plugin-codegen': 0.76.1(@babel/preset-env@7.26.0(@babel/core@7.26.0))
@@ -11402,7 +11497,7 @@ snapshots:
 
   '@react-native/codegen@0.76.1(@babel/preset-env@7.26.0(@babel/core@7.26.0))':
     dependencies:
-      '@babel/parser': 7.26.2
+      '@babel/parser': 7.26.3
       '@babel/preset-env': 7.26.0(@babel/core@7.26.0)
       glob: 7.2.3
       hermes-parser: 0.23.1
@@ -11618,24 +11713,24 @@ snapshots:
 
   '@types/babel__core@7.20.5':
     dependencies:
-      '@babel/parser': 7.26.2
-      '@babel/types': 7.26.0
+      '@babel/parser': 7.26.3
+      '@babel/types': 7.26.3
       '@types/babel__generator': 7.6.8
       '@types/babel__template': 7.4.4
       '@types/babel__traverse': 7.20.6
 
   '@types/babel__generator@7.6.8':
     dependencies:
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.3
 
   '@types/babel__template@7.4.4':
     dependencies:
-      '@babel/parser': 7.26.2
-      '@babel/types': 7.26.0
+      '@babel/parser': 7.26.3
+      '@babel/types': 7.26.3
 
   '@types/babel__traverse@7.20.6':
     dependencies:
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.3
 
   '@types/cacheable-request@6.0.3':
     dependencies:
@@ -12485,7 +12580,7 @@ snapshots:
   babel-plugin-jest-hoist@29.6.3:
     dependencies:
       '@babel/template': 7.25.9
-      '@babel/types': 7.26.0
+      '@babel/types': 7.26.3
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.20.6
 
@@ -15641,7 +15736,7 @@ snapshots:
   istanbul-lib-instrument@5.2.1:
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/parser': 7.26.2
+      '@babel/parser': 7.26.3
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -15914,11 +16009,11 @@ snapshots:
   jscodeshift@0.14.0(@babel/preset-env@7.26.0(@babel/core@7.26.0)):
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/parser': 7.26.2
+      '@babel/parser': 7.26.3
       '@babel/plugin-proposal-class-properties': 7.18.6(@babel/core@7.26.0)
       '@babel/plugin-proposal-nullish-coalescing-operator': 7.18.6(@babel/core@7.26.0)
       '@babel/plugin-proposal-optional-chaining': 7.21.0(@babel/core@7.26.0)
-      '@babel/plugin-transform-modules-commonjs': 7.25.9(@babel/core@7.26.0)
+      '@babel/plugin-transform-modules-commonjs': 7.26.3(@babel/core@7.26.0)
       '@babel/preset-env': 7.26.0(@babel/core@7.26.0)
       '@babel/preset-flow': 7.25.9(@babel/core@7.26.0)
       '@babel/preset-typescript': 7.26.0(@babel/core@7.26.0)
@@ -16102,7 +16197,7 @@ snapshots:
       '@libp2p/peer-store': 11.0.12
       '@libp2p/utils': 6.2.1
       '@multiformats/dns': 1.0.6
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       any-signal: 4.1.1
       datastore-core: 10.0.2
@@ -16611,9 +16706,9 @@ snapshots:
 
   metro-source-map@0.81.0:
     dependencies:
-      '@babel/traverse': 7.25.9
-      '@babel/traverse--for-generate-function-map': '@babel/traverse@7.25.9'
-      '@babel/types': 7.26.0
+      '@babel/traverse': 7.26.3
+      '@babel/traverse--for-generate-function-map': '@babel/traverse@7.26.3'
+      '@babel/types': 7.26.3
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
       metro-symbolicate: 0.81.0
@@ -16639,9 +16734,9 @@ snapshots:
   metro-transform-plugins@0.81.0:
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/generator': 7.26.2
+      '@babel/generator': 7.26.3
       '@babel/template': 7.25.9
-      '@babel/traverse': 7.25.9
+      '@babel/traverse': 7.26.3
       flow-enums-runtime: 0.0.6
       nullthrows: 1.1.1
     transitivePeerDependencies:
@@ -16650,9 +16745,9 @@ snapshots:
   metro-transform-worker@0.81.0:
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/generator': 7.26.2
-      '@babel/parser': 7.26.2
-      '@babel/types': 7.26.0
+      '@babel/generator': 7.26.3
+      '@babel/parser': 7.26.3
+      '@babel/types': 7.26.3
       flow-enums-runtime: 0.0.6
       metro: 0.81.0
       metro-babel-transformer: 0.81.0
@@ -16671,11 +16766,11 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/core': 7.26.0
-      '@babel/generator': 7.26.2
-      '@babel/parser': 7.26.2
+      '@babel/generator': 7.26.3
+      '@babel/parser': 7.26.3
       '@babel/template': 7.25.9
-      '@babel/traverse': 7.25.9
-      '@babel/types': 7.26.0
+      '@babel/traverse': 7.26.3
+      '@babel/types': 7.26.3
       accepts: 1.3.8
       chalk: 4.1.2
       ci-info: 2.0.0
