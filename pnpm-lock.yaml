@@ -69,8 +69,8 @@ importers:
         specifier: ^5.0.8
         version: 5.0.8
       '@libp2p/pubsub-peer-discovery':
-        specifier: 11.0.0
-        version: 11.0.0
+        specifier: 11.0.1
+        version: 11.0.1
       '@libp2p/tcp':
         specifier: 10.0.13
         version: 10.0.13
@@ -1778,6 +1778,9 @@ packages:
 
   '@libp2p/pubsub-peer-discovery@11.0.0':
     resolution: {integrity: sha512-QlknUb2SCbmWScWzv2TS1tJIErYzr2HJoA93ZKYAlz5Dsfr9P1I17HvvlOIt/Q2PFp1aMOJOOF5mNsFV5kU73w==}
+
+  '@libp2p/pubsub-peer-discovery@11.0.1':
+    resolution: {integrity: sha512-bT7UO7tQ4mZCPFE0eS8Fx19B8MGzxjbTNR6SwcLGcOqOqUTvc2CLByMvcy3iMXuKjmds6G+VUf5ZMhvjGLTznA==}
 
   '@libp2p/pubsub@10.0.12':
     resolution: {integrity: sha512-Zhvq/GIV1VS9COwvEaG3olwF4EnSbt/Ftgq9A7veqG9vH+BdhKYtMxwTpC1jub0PbYGSIVSjKHiTDNZ5YAh7Tg==}
@@ -10060,7 +10063,7 @@ snapshots:
       '@libp2p/logger': 5.1.4
       '@libp2p/peer-collections': 6.0.12
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       any-signal: 4.1.1
       interface-blockstore: 5.3.1
       interface-store: 6.0.2
@@ -10099,7 +10102,7 @@ snapshots:
       '@libp2p/interface': 2.2.1
       '@libp2p/logger': 5.1.4
       '@libp2p/peer-id': 5.0.8
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       any-signal: 4.1.1
       browser-readablestream-to-it: 2.0.7
       ipns: 10.0.0
@@ -10570,7 +10573,7 @@ snapshots:
   '@libp2p/logger@2.1.1':
     dependencies:
       '@libp2p/interface-peer-id': 2.0.2
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       debug: 4.3.7(supports-color@8.1.1)
       interface-datastore: 8.3.1
       multiformats: 11.0.2
@@ -10666,7 +10669,7 @@ snapshots:
       '@libp2p/interface': 2.2.1
       '@libp2p/peer-id': 5.0.8
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       multiformats: 13.3.1
       protons-runtime: 5.5.0
       uint8-varint: 2.0.4
@@ -10693,7 +10696,7 @@ snapshots:
       '@libp2p/crypto': 5.0.7
       '@libp2p/interface': 2.2.1
       '@libp2p/interface-internal': 2.1.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       it-byte-stream: 1.1.0
       uint8arrays: 5.1.0
 
@@ -10703,7 +10706,18 @@ snapshots:
       '@libp2p/interface': 2.2.1
       '@libp2p/interface-internal': 2.1.1
       '@libp2p/peer-id': 5.0.8
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
+      protons-runtime: 5.5.0
+      uint8arraylist: 2.4.8
+      uint8arrays: 5.1.0
+
+  '@libp2p/pubsub-peer-discovery@11.0.1':
+    dependencies:
+      '@libp2p/crypto': 5.0.7
+      '@libp2p/interface': 2.2.1
+      '@libp2p/interface-internal': 2.1.1
+      '@libp2p/peer-id': 5.0.8
+      '@multiformats/multiaddr': 12.3.4
       protons-runtime: 5.5.0
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
@@ -10779,7 +10793,7 @@ snapshots:
       '@libp2p/interface': 2.2.1
       '@libp2p/interface-internal': 2.1.1
       '@libp2p/utils': 6.2.1
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       '@multiformats/multiaddr-matcher': 1.6.0
       p-defer: 4.0.1
       race-signal: 1.1.0
@@ -11027,11 +11041,11 @@ snapshots:
 
   '@multiformats/multiaddr-to-uri@10.1.2':
     dependencies:
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
 
   '@multiformats/multiaddr-to-uri@11.0.0':
     dependencies:
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
 
   '@multiformats/multiaddr@12.3.3':
     dependencies:
@@ -11058,7 +11072,7 @@ snapshots:
 
   '@multiformats/uri-to-multiaddr@8.0.0':
     dependencies:
-      '@multiformats/multiaddr': 12.3.3
+      '@multiformats/multiaddr': 12.3.4
       is-ip: 5.0.1
 
   '@noble/ciphers@0.6.0': {}
