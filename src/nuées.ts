@@ -383,6 +383,25 @@ export class Nuées extends ComposanteClientListe<string> {
     await this.client.favoris.épinglerFavori({ idObjet: idNuée, épingle });
   }
 
+  async suivreÉpingleNuée({
+    idBd,
+    f,
+    idCompte,
+  }: {
+    idBd: string;
+    f: schémaFonctionSuivi<ÉpingleNuée|undefined>;
+    idCompte?: string;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.favoris.suivreÉtatFavori({
+      idObjet: idBd,
+      f: async épingle => {
+        if (épingle?.type === 'nuée') await f(épingle);
+        else await f(undefined);
+      },
+      idCompte,
+    })
+  }
+
   async copierNuée({ idNuée }: { idNuée: string }): Promise<string> {
     const { bd: bdBase, fOublier } = await this.client.ouvrirBdTypée({
       id: idNuée,

@@ -403,12 +403,15 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   async suivreÉtatFavori({
     idObjet,
     f,
+    idCompte,
   }: {
     idObjet: string;
     f: schémaFonctionSuivi<ÉpingleFavoris | undefined>;
+    idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBdPrincipale({
       f: (favoris) => f(favoris[idObjet]),
+      idCompte,
     });
   }
 

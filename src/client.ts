@@ -39,7 +39,9 @@ import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 import { Épingles } from "@/epingles.js";
 import {
   Favoris,
+  INSTALLÉ,
   TOUS,
+  résoudreDéfauts,
   ÉpingleCompte,
   ÉpingleFavoris,
   ÉpingleFavorisAvecId,
@@ -63,6 +65,7 @@ import {
 } from "@/accès/cntrlConstellation.js";
 import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 import {
+  RecursivePartial,
   schémaFonctionOublier,
   schémaFonctionSuivi,
   schémaRetourFonctionRechercheParProfondeur,
@@ -384,7 +387,49 @@ export class Constellation {
       },
       favoris: TOUS,
     };
-    await this.favoris.épinglerFavori({ idObjet: this.idCompte, épingle });
+    await this.épinglerCompte({
+      idCompte: this.idCompte,
+      options: épingle
+    })
+  }
+
+  async épinglerCompte({
+    idCompte,
+    options = {},
+  }: {
+    idCompte: string;
+    options?: RecursivePartial<ÉpingleCompte>;
+  }) {
+    const épingle: ÉpingleCompte = résoudreDéfauts(options, {
+      type: "compte",
+      base: TOUS,
+      profil: {
+        type: "profil",
+        base: TOUS,
+        fichiers: INSTALLÉ,
+      },
+      favoris: TOUS,
+    });
+    await this.favoris.épinglerFavori({ idObjet: idCompte, épingle });
+  }
+
+  async suivreÉpingleCompte({
+    idCompte,
+    f,
+    idCompteQuiÉpingle,
+  }: {
+    idCompte: string;
+    f: schémaFonctionSuivi<ÉpingleCompte|undefined>;
+    idCompteQuiÉpingle?: string;
+  }): Promise<schémaFonctionOublier> {
+    return await this.favoris.suivreÉtatFavori({
+      idObjet: idCompte,
+      f: async épingle => {
+        if (épingle?.type === 'compte') await f(épingle);
+        else await f(undefined);
+      },
+      idCompte: idCompteQuiÉpingle,
+    })
   }
 
   détecterTypeDispositif(): string | undefined {

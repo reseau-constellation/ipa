@@ -269,6 +269,25 @@ export class Variables extends ComposanteClientListe<string> {
     await this.client.favoris.épinglerFavori({ idObjet: idVariable, épingle });
   }
 
+  async suivreÉpingleVariable({
+    idVariable,
+    f,
+    idCompte,
+  }: {
+    idVariable: string;
+    f: schémaFonctionSuivi<ÉpingleVariable|undefined>;
+    idCompte?: string;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.favoris.suivreÉtatFavori({
+      idObjet: idVariable,
+      f: async épingle => {
+        if (épingle?.type === 'variable') await f(épingle);
+        else await f(undefined);
+      },
+      idCompte,
+    })
+  }
+
   async copierVariable({
     idVariable,
   }: {
