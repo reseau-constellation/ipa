@@ -419,17 +419,17 @@ export class Projets extends ComposanteClientListe<string> {
     idCompte,
   }: {
     idProjet: string;
-    f: schémaFonctionSuivi<ÉpingleProjet|undefined>;
+    f: schémaFonctionSuivi<ÉpingleProjet | undefined>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.favoris.suivreÉtatFavori({
       idObjet: idProjet,
-      f: async épingle => {
-        if (épingle?.type === 'projet') await f(épingle);
+      f: async (épingle) => {
+        if (épingle?.type === "projet") await f(épingle);
         else await f(undefined);
       },
       idCompte,
-    })
+    });
   }
 
   async inviterAuteur({

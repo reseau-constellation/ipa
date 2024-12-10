@@ -389,8 +389,8 @@ export class Constellation {
     };
     await this.épinglerCompte({
       idCompte: this.idCompte,
-      options: épingle
-    })
+      options: épingle,
+    });
   }
 
   async épinglerCompte({
@@ -419,17 +419,17 @@ export class Constellation {
     idCompteQuiÉpingle,
   }: {
     idCompte: string;
-    f: schémaFonctionSuivi<ÉpingleCompte|undefined>;
+    f: schémaFonctionSuivi<ÉpingleCompte | undefined>;
     idCompteQuiÉpingle?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.favoris.suivreÉtatFavori({
       idObjet: idCompte,
-      f: async épingle => {
-        if (épingle?.type === 'compte') await f(épingle);
+      f: async (épingle) => {
+        if (épingle?.type === "compte") await f(épingle);
         else await f(undefined);
       },
       idCompte: idCompteQuiÉpingle,
-    })
+    });
   }
 
   détecterTypeDispositif(): string | undefined {

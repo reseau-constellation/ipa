@@ -461,17 +461,17 @@ export class BDs extends ComposanteClientListe<string> {
     idCompte,
   }: {
     idBd: string;
-    f: schémaFonctionSuivi<ÉpingleBd|undefined>;
+    f: schémaFonctionSuivi<ÉpingleBd | undefined>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.favoris.suivreÉtatFavori({
       idObjet: idBd,
-      f: async épingle => {
-        if (épingle?.type === 'bd') await f(épingle);
+      f: async (épingle) => {
+        if (épingle?.type === "bd") await f(épingle);
         else await f(undefined);
       },
       idCompte,
-    })
+    });
   }
 
   async copierBd({

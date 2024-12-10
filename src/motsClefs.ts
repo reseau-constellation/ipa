@@ -178,17 +178,17 @@ export class MotsClefs extends ComposanteClientListe<string> {
     idCompte,
   }: {
     idMotClef: string;
-    f: schémaFonctionSuivi<ÉpingleMotClef|undefined>;
+    f: schémaFonctionSuivi<ÉpingleMotClef | undefined>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.favoris.suivreÉtatFavori({
       idObjet: idMotClef,
-      f: async épingle => {
-        if (épingle?.type === 'motClef') await f(épingle);
+      f: async (épingle) => {
+        if (épingle?.type === "motClef") await f(épingle);
         else await f(undefined);
       },
       idCompte,
-    })
+    });
   }
 
   async copierMotClef({ idMotClef }: { idMotClef: string }): Promise<string> {
