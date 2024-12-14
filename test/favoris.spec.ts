@@ -142,7 +142,6 @@ describe("Favoris", function () {
         épingle: {
           type: "bd",
           base: TOUS,
-          fichiersBase: INSTALLÉ,
           données: {
             tableaux: TOUS,
             fichiers: INSTALLÉ,
@@ -155,7 +154,6 @@ describe("Favoris", function () {
 
       const réfÉpingle: BooléenniserPropriétés<ÉpingleBd> = {
         base: true,
-        fichiersBase: isElectron || isNode,
         données: {
           tableaux: true,
           fichiers: isElectron || isNode,

@@ -114,15 +114,10 @@ export class Projets extends ComposanteClientListe<string> {
     const épinglerBase = await this.client.favoris.estÉpingléSurDispositif({
       dispositifs: épingle.épingle.base || "TOUS",
     });
-    const épinglerFichiersBase =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.fichiersBase || "INSTALLÉ",
-      });
     const épinglerBds = épingle.épingle.bds;
 
     const info: {
       base?: (string | undefined)[];
-      fichiersBase?: (string | undefined)[];
       bds?: (string | undefined)[];
     } = {};
     const fFinale = async () => {
@@ -136,7 +131,7 @@ export class Projets extends ComposanteClientListe<string> {
     };
 
     const fsOublier: schémaFonctionOublier[] = [];
-    if (épinglerBase || épinglerFichiersBase) {
+    if (épinglerBase) {
       const fOublierBase = await this.client.suivreBd({
         id: épingle.idObjet,
         type: "keyvalue",
@@ -151,8 +146,8 @@ export class Projets extends ComposanteClientListe<string> {
                 contenuBd.noms,
                 contenuBd.bds,
                 contenuBd.motsClefs,
+                contenuBd.image
               ];
-            if (épinglerFichiersBase) info.fichiersBase = [contenuBd.image];
           } catch {
             return; // Si la structure n'est pas valide.
           }
@@ -399,11 +394,9 @@ export class Projets extends ComposanteClientListe<string> {
     const épingle: ÉpingleProjet = résoudreDéfauts(options, {
       type: "projet",
       base: TOUS,
-      fichiersBase: INSTALLÉ,
       bds: {
         type: "bd",
         base: TOUS,
-        fichiersBase: INSTALLÉ,
         données: {
           tableaux: TOUS,
           fichiers: INSTALLÉ,

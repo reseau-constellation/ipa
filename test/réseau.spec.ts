@@ -2231,7 +2231,6 @@ if (isNode || isElectronMain) {
           épingle: {
             type: "bd",
             base: TOUS,
-            fichiersBase: INSTALLÉ,
             données: {
               tableaux: TOUS,
               fichiers: INSTALLÉ,

@@ -64,7 +64,6 @@ export type BaseÉpingleFavoris = {
 
 export type ÉpingleBd = BaseÉpingleFavoris & {
   type: "bd";
-  fichiersBase: typeDispositifs;
   données: {
     tableaux: typeDispositifs;
     fichiers: typeDispositifs;
@@ -73,7 +72,6 @@ export type ÉpingleBd = BaseÉpingleFavoris & {
 
 export type ÉpingleNuée = BaseÉpingleFavoris & {
   type: "nuée";
-  fichiersBase: typeDispositifs;
   données: ÉpingleBd;
 };
 
@@ -87,7 +85,6 @@ export type ÉpingleMotClef = BaseÉpingleFavoris & {
 
 export type ÉpingleProjet = BaseÉpingleFavoris & {
   type: "projet";
-  fichiersBase: typeDispositifs;
   bds: ÉpingleBd;
 };
 
@@ -153,7 +150,6 @@ const schémaÉpingleBd: JSONSchemaType<ÉpingleBd> = {
       const: "bd",
     },
     base: schémaTypeDispositif,
-    fichiersBase: schémaTypeDispositif,
     données: {
       type: "object",
       properties: {
@@ -163,7 +159,7 @@ const schémaÉpingleBd: JSONSchemaType<ÉpingleBd> = {
       required: ["fichiers", "tableaux"],
     },
   },
-  required: ["type", "base", "fichiersBase", "données"],
+  required: ["type", "base", "données"],
 };
 
 const schémaÉpingleNuée: JSONSchemaType<ÉpingleNuée> = {
@@ -174,10 +170,9 @@ const schémaÉpingleNuée: JSONSchemaType<ÉpingleNuée> = {
       const: "nuée",
     },
     base: schémaTypeDispositif,
-    fichiersBase: schémaTypeDispositif,
     données: schémaÉpingleBd,
   },
-  required: ["type", "base", "données", "fichiersBase"],
+  required: ["type", "base", "données"],
 };
 
 const schémaÉpingleProjet: JSONSchemaType<ÉpingleProjet> = {
@@ -188,10 +183,9 @@ const schémaÉpingleProjet: JSONSchemaType<ÉpingleProjet> = {
       const: "projet",
     },
     base: schémaTypeDispositif,
-    fichiersBase: schémaTypeDispositif,
     bds: schémaÉpingleBd,
   },
-  required: ["type", "base", "fichiersBase", "bds"],
+  required: ["type", "base", "bds"],
 };
 
 const schémaÉpingleProfil: JSONSchemaType<ÉpingleProfil> = {

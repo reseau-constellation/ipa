@@ -219,10 +219,6 @@ export class BDs extends ComposanteClientListe<string> {
     const épinglerBase = await this.client.favoris.estÉpingléSurDispositif({
       dispositifs: épingle.épingle.base || "TOUS",
     });
-    const épinglerFichiersBase =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.fichiersBase || "INSTALLÉ",
-      });
     const épinglerDonnées = await this.client.favoris.estÉpingléSurDispositif({
       dispositifs: épingle.épingle.données?.tableaux || "TOUS",
     });
@@ -232,7 +228,6 @@ export class BDs extends ComposanteClientListe<string> {
       });
     const info: {
       base?: (string | undefined)[];
-      fichiersBase?: (string | undefined)[];
       données?: (string | undefined)[];
       fichiersDonnées?: (string | undefined)[];
     } = {};
@@ -247,7 +242,7 @@ export class BDs extends ComposanteClientListe<string> {
     };
 
     const fsOublier: schémaFonctionOublier[] = [];
-    if (épinglerBase || épinglerFichiersBase) {
+    if (épinglerBase) {
       const fOublierBase = await this.client.suivreBd({
         id: épingle.idObjet,
         type: "keyvalue",
@@ -264,8 +259,8 @@ export class BDs extends ComposanteClientListe<string> {
                 contenuBd.motsClefs,
                 contenuBd.nuées,
                 contenuBd.métadonnées,
+                contenuBd.image
               ];
-            if (épinglerFichiersBase) info.fichiersBase = [contenuBd.image];
           } catch {
             return; // Si la structure n'est pas valide.
           }
@@ -446,7 +441,6 @@ export class BDs extends ComposanteClientListe<string> {
     const épingle: ÉpingleBd = résoudreDéfauts(options, {
       type: "bd",
       base: TOUS,
-      fichiersBase: INSTALLÉ,
       données: {
         tableaux: TOUS,
         fichiers: INSTALLÉ,

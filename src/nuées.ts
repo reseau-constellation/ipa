@@ -172,15 +172,10 @@ export class Nuées extends ComposanteClientListe<string> {
     const épinglerBase = await this.client.favoris.estÉpingléSurDispositif({
       dispositifs: épingle.épingle.base || "TOUS",
     });
-    const épinglerFichiersBase =
-      await this.client.favoris.estÉpingléSurDispositif({
-        dispositifs: épingle.épingle.fichiersBase || "INSTALLÉ",
-      });
     const épinglerDonnées = épingle.épingle.données;
 
     const info: {
       base?: (string | undefined)[];
-      fichiersBase?: (string | undefined)[];
       données?: (string | undefined)[];
     } = {};
     const fFinale = async () => {
@@ -194,7 +189,7 @@ export class Nuées extends ComposanteClientListe<string> {
     };
 
     const fsOublier: schémaFonctionOublier[] = [];
-    if (épinglerBase || épinglerFichiersBase) {
+    if (épinglerBase) {
       const fOublierBase = await this.client.suivreBd({
         id: épingle.idObjet,
         type: "keyvalue",
@@ -210,8 +205,8 @@ export class Nuées extends ComposanteClientListe<string> {
                 contenuBd.tableaux,
                 contenuBd.motsClefs,
                 contenuBd.métadonnées,
+                contenuBd.image,
               ];
-            if (épinglerFichiersBase) info.fichiersBase = [contenuBd.image];
             await fFinale();
           } catch {
             return; // Si la structure n'est pas valide.
@@ -369,11 +364,9 @@ export class Nuées extends ComposanteClientListe<string> {
     const épingle: ÉpingleNuée = résoudreDéfauts(options, {
       type: "nuée",
       base: TOUS,
-      fichiersBase: INSTALLÉ,
       données: {
         type: "bd",
         base: TOUS,
-        fichiersBase: INSTALLÉ,
         données: {
           tableaux: TOUS,
           fichiers: INSTALLÉ,
