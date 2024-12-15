@@ -377,16 +377,16 @@ export class Nuées extends ComposanteClientListe<string> {
   }
 
   async suivreÉpingleNuée({
-    idBd,
+    idNuée,
     f,
     idCompte,
   }: {
-    idBd: string;
+    idNuée: string;
     f: schémaFonctionSuivi<ÉpingleNuée | undefined>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await this.client.favoris.suivreÉtatFavori({
-      idObjet: idBd,
+      idObjet: idNuée,
       f: async (épingle) => {
         if (épingle?.type === "nuée") await f(épingle);
         else await f(undefined);
