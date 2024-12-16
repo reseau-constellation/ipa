@@ -473,7 +473,7 @@ const générerFExportation = (
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await client.bds.exporterDocumentDonnées({
+        await client.bds.documentDonnéesÀFichier({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
@@ -490,7 +490,7 @@ const générerFExportation = (
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await client.bds.exporterDocumentDonnées({
+        await client.bds.documentDonnéesÀFichier({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
@@ -507,7 +507,7 @@ const générerFExportation = (
         nomFichier = donnéesExp.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await client.projets.exporterDocumentDonnées({
+        await client.projets.documentDonnéesÀFichier({
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
@@ -526,7 +526,7 @@ const générerFExportation = (
         nomFichier = donnéesNuée.nomFichier;
         if (spéc.copies) nomFichier = ajouterÉtiquetteÀNomFichier(nomFichier);
 
-        await client.bds.exporterDocumentDonnées({
+        await client.bds.documentDonnéesÀFichier({
           données: donnéesNuée,
           formatDoc: spéc.formatDoc,
           dossier,
