@@ -576,7 +576,7 @@ describe("Projets", function () {
 
           ({ dossier: dossierZip, fEffacer } = await dossiers.dossierTempo());
 
-          await client.projets.exporterDocumentDonnées({
+          await client.projets.documentDonnéesÀFichier({
             données: { docs, fichiersSFIP, nomFichier },
             formatDoc: "ods",
             dossier: dossierZip,

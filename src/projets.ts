@@ -1103,7 +1103,38 @@ export class Projets extends ComposanteClientListe<string> {
     };
   }
 
-  async exporterDocumentDonnées({
+  async exporterProjetÀFichier({
+    idProjet,
+    langues,
+    nomFichier,
+    patience = 500,
+    formatDoc,
+    dossier = "",
+    inclureFichiersSFIP = true,
+  }: {
+    idProjet: string;
+    langues?: string[];
+    nomFichier?: string;
+    patience?: number;
+    formatDoc: xlsx.BookType | "xls";
+    dossier?: string;
+    inclureFichiersSFIP?: boolean;
+  }): Promise<string> {
+    const donnéesExportées = await this.exporterDonnées({
+      idProjet,
+      langues,
+      nomFichier,
+      patience,
+    });
+    return await this.documentDonnéesÀFichier({
+      données: donnéesExportées,
+      formatDoc,
+      dossier,
+      inclureFichiersSFIP,
+    })
+  } 
+
+  async documentDonnéesÀFichier({
     données,
     formatDoc,
     dossier = "",
@@ -1113,7 +1144,7 @@ export class Projets extends ComposanteClientListe<string> {
     formatDoc: xlsx.BookType | "xls";
     dossier?: string;
     inclureFichiersSFIP?: boolean;
-  }): Promise<void> {
+  }): Promise<string> {
     const { docs, fichiersSFIP, nomFichier } = données;
 
     const conversionsTypes: { [key: string]: xlsx.BookType } = {
@@ -1140,6 +1171,7 @@ export class Projets extends ComposanteClientListe<string> {
         )
       : [];
     await zipper(fichiersDocs, fichiersDeSFIP, path.join(dossier, nomFichier));
+    return path.join(dossier, nomFichier);
   }
 
   async effacerProjet({ idProjet }: { idProjet: string }): Promise<void> {

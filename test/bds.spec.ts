@@ -1282,7 +1282,7 @@ describe("BDs", function () {
         before(async () => {
           ({ dossier: dossierZip, fEffacer } = await dossiers.dossierTempo());
 
-          await client.bds.exporterDocumentDonnées({
+          await client.bds.documentDonnéesÀFichier({
             données: { doc, fichiersSFIP, nomFichier },
             formatDoc: "ods",
             dossier: dossierZip,

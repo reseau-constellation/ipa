@@ -1110,7 +1110,7 @@ Vous pouvez également [automatiser](./automatisations.md) les exportations selo
 | `Promise<`[`donnéesBdExportées`](./bds.md#types-donnees-exportees)`>` | Les données exportées, prètes à être écrites à un fichier de votre choix. |
 
 :::tip CONSEIL
-Vous pouvez passer le résultat de cette fonction à la fonction [`bds.exporterDocumentDonnées`](./bds.md#client-bds-exporterdocumentdonnees-donnees-formatdoc-dossier-inclurefichierssfip) afin d'écrire le des données exportées à un document local ou les télécharger.
+Vous pouvez passer le résultat de cette fonction à la fonction [`bds.documentDonnéesÀFichier`](./bds.md#client-bds-exporterdocumentdonnees-donnees-formatdoc-dossier-inclurefichierssfip) afin d'écrire le des données exportées à un document local ou les télécharger.
 :::
 
 #### Exemple

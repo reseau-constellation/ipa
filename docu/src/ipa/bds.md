@@ -925,7 +925,7 @@ const donnéesExportées = await client.bds.exporterDonnées({
 
 ```
 
-### `client.bds.exporterDocumentDonnées({ données, formatDoc, dossier, inclureFichiersSFIP })`
+### `client.bds.documentDonnéesÀFichier({ données, formatDoc, dossier, inclureFichiersSFIP })`
 Prend les données exportées par [`client.bds.exporterDonnées`](#clientbdsexporterdonnées-idbd-langues-nomfichier) et les sauvegarde sur le disque.
 
 #### Paramètres
@@ -946,7 +946,7 @@ Prend les données exportées par [`client.bds.exporterDonnées`](#clientbdsexpo
 ```ts
 // ... continuant de ci-dessus ...
 
-const adresseFichier = await client.bds.exporterDocumentDonnées({ 
+const adresseFichier = await client.bds.documentDonnéesÀFichier({ 
     données: donnéesExportées,
     formatDoc: "ods",  // ou bien "xlsx",
     dossier: "./mes données exportées"

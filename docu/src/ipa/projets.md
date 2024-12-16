@@ -719,7 +719,7 @@ const donnéesExportées = await client.projets.exporterDonnées({
 
 ```
 
-### `client.projets.exporterDocumentDonnées({ données, formatDoc, dossier, inclureFichiersSFIP })`
+### `client.projets.documentDonnéesÀFichier({ données, formatDoc, dossier, inclureFichiersSFIP })`
 Prend les données exportées par [`client.projets.exporterDonnées`](#clientprojetsexporterdonnées-idprojet-langues-nomfichier) et les sauvegarde sur le disque.
 
 #### Paramètres
@@ -740,7 +740,7 @@ Prend les données exportées par [`client.projets.exporterDonnées`](#clientpro
 ```ts
 // ... continuant de ci-dessus ...
 
-const adresseFichier = await client.projets.exporterDocumentDonnées({ 
+const adresseFichier = await client.projets.documentDonnéesÀFichier({ 
     données: donnéesExportées,
     formatDoc: "ods",  // ou bien "xlsx",
     dossier: "./mes données exportées"

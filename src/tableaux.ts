@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { WorkBook, utils } from "xlsx";
+import { WorkBook, utils, BookType } from "xlsx";
 
 import {
   attendreStabilité,
@@ -852,6 +852,41 @@ export class Tableaux {
     nomFichier = nomFichier || données.nomTableau;
     return { doc, fichiersSFIP: données.fichiersSFIP, nomFichier };
   }
+
+
+  async exporterTableauÀFichier({
+    idTableau,
+    langues,
+    doc,
+    nomFichier,
+    patience = 500,
+    formatDoc,
+    dossier = "",
+    inclureFichiersSFIP = true,
+  }: {
+    idTableau: string;
+    langues?: string[];
+    doc?: WorkBook;
+    nomFichier?: string;
+    patience?: number;
+    formatDoc: BookType | "xls";
+    dossier?: string;
+    inclureFichiersSFIP?: boolean;
+  }): Promise<string> {
+    const donnéesExportées = await this.exporterDonnées({
+      idTableau,
+      langues,
+      doc,
+      nomFichier,
+      patience,
+    });
+    return await this.client.bds.documentDonnéesÀFichier({
+      données: donnéesExportées,
+      formatDoc,
+      dossier,
+      inclureFichiersSFIP,
+    })
+  } 
 
   async ajouterÉlément<T extends élémentBdListeDonnées>({
     idTableau,

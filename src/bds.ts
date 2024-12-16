@@ -2396,7 +2396,7 @@ export class BDs extends ComposanteClientListe<string> {
     return { doc, fichiersSFIP, nomFichier };
   }
 
-  async exporterDocumentDonnées({
+  async documentDonnéesÀFichier({
     données,
     formatDoc,
     dossier = "",
@@ -2463,6 +2463,34 @@ export class BDs extends ComposanteClientListe<string> {
       return adresseFinale;
     }
   }
+
+  async exporterBdÀFichier({
+    idBd,
+    langues,
+    nomFichier,
+    patience = 500,
+    formatDoc,
+    dossier = "",
+    inclureFichiersSFIP = true,
+  }: {
+    idBd: string;
+    langues?: string[];
+    nomFichier?: string;
+    patience?: number;
+    formatDoc: xlsx.BookType | "xls";
+    dossier?: string;
+    inclureFichiersSFIP?: boolean;
+  }): Promise<string> {
+    const donnéesExportées = await this.exporterDonnées({
+      idBd, langues, nomFichier, patience
+    });
+    return await this.documentDonnéesÀFichier({
+      données: donnéesExportées,
+      formatDoc,
+      dossier,
+      inclureFichiersSFIP,
+    })
+  } 
 
   async effacerBd({ idBd }: { idBd: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs

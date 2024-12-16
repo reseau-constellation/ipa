@@ -42,6 +42,7 @@ import {
   ÉpingleFavorisAvecId,
   ÉpingleNuée,
 } from "./favoris.js";
+import type { BookType } from "xlsx";
 import type {
   différenceTableaux,
   InfoCol,
@@ -3116,6 +3117,43 @@ export class Nuées extends ComposanteClientListe<string> {
     }
     return { doc, fichiersSFIP, nomFichier };
   }
+
+  async exporterNuéeÀFichier({
+    idNuée,
+    langues,
+    nomFichier,
+    nRésultatsDésirés,
+    héritage,
+    patience = 500,
+    formatDoc,
+    dossier = "",
+    inclureFichiersSFIP = true,
+  }: {
+    idNuée: string;
+    langues?: string[];
+    nomFichier?: string;
+    nRésultatsDésirés?: number;
+    héritage?: ("descendance" | "ascendance")[];
+    patience?: number;
+    formatDoc: BookType | "xls";
+    dossier?: string;
+    inclureFichiersSFIP?: boolean;
+  }): Promise<string> {
+    const donnéesExportées = await this.exporterDonnéesNuée({
+      idNuée,
+      langues,
+      nomFichier,
+      nRésultatsDésirés,
+      héritage,
+      patience,
+    });
+    return await this.client.bds.documentDonnéesÀFichier({
+      données: donnéesExportées,
+      formatDoc,
+      dossier,
+      inclureFichiersSFIP,
+    })
+  } 
 
   async générerDeBd({
     idBd,
