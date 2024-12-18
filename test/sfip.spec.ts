@@ -84,7 +84,7 @@ const testerGossipSub = async ({
   expect(retour).to.deep.equal({ idPair, message, type: "pong" });
 };
 
-describe.skip("Connectivité SFIP", function () {
+describe("Connectivité SFIP", function () {
   let idPairNavig: string;
   let idPairNode: string;
 
@@ -118,7 +118,7 @@ describe.skip("Connectivité SFIP", function () {
     await attendreConnecté({ sfip, idPair: idPairNode });
   });
 
-  it.skip("GossipSub avec Node.js", async () => {
+  it("GossipSub avec Node.js", async () => {
     await testerGossipSub({ sfip, idPair: idPairNode });
   });
 
@@ -126,7 +126,7 @@ describe.skip("Connectivité SFIP", function () {
     await attendreConnecté({ sfip, idPair: idPairNavig });
   });
 
-  it.skip("Gossipsub avec navigateur", async () => {
+  it("Gossipsub avec navigateur", async () => {
     await testerGossipSub({ sfip, idPair: idPairNavig });
   });
 
