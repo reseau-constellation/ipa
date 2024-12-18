@@ -114,6 +114,7 @@ const lancerSfipDansNavigateur = async (_opts) => {
     const umdPre = `(function (root, factory) {(typeof module === 'object' && module.exports) ? module.exports = factory() : root.${globalName} = factory()}(typeof self !== 'undefined' ? self : this, function () {`;
     const umdPost = `return ${globalName}}));`;
     const configEsbuild = await config.obtConfigEsbuild();
+
     await esbuildCmd.build({
       entryPoints: ["dist/test/utils/lancerNœud.js"],
       bundle: true,
@@ -192,6 +193,7 @@ const aprèsTest = async (_, avant) => {
 
 const générerConfigÆgirFinal = async () => {
   const configÆgir = await config.générerConfigÆgir();
+  configÆgir.test.browser.config.buildConfig.external.push("@constl/serveur");
 
   const avantTestDéfaut = configÆgir.test.before;
   configÆgir.test.before = async (opts) => {
