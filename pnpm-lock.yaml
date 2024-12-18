@@ -39,8 +39,8 @@ importers:
         specifier: ^9.2.2
         version: 9.2.2
       '@lassi-js/kili':
-        specifier: ^0.3.16
-        version: 0.3.16(@constl/ipa@1.3.4(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1)))
+        specifier: ^0.4.0
+        version: 0.4.1
       '@libp2p/autonat':
         specifier: 2.0.12
         version: 2.0.12
@@ -1657,6 +1657,9 @@ packages:
     resolution: {integrity: sha512-4+kx4sltrxod7pUqbbIyuk+wh2iFD+vAv+Mv4iu7NRHQLF1hLpRgkJ/MjH2oK8wT2WTO0uvYYfaXL3Mcb9r7GA==}
     peerDependencies:
       '@constl/ipa': ^1.0.14
+
+  '@lassi-js/kili@0.4.1':
+    resolution: {integrity: sha512-wF2vgmLDjZinDqgNdLHZT1HqRvQdtgGc7tSZOZbhEX7WtjzS9KtsI5qLA8CE1BQMmIz9QFReNdNn3gV8eYi6qw==}
 
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
@@ -10445,6 +10448,12 @@ snapshots:
   '@lassi-js/kili@0.3.16(@constl/ipa@1.3.4(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1)))':
     dependencies:
       '@constl/ipa': 1.3.4(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
+      '@constl/utils-ipa': 1.0.4
+      '@orbitdb/core': 2.4.3
+      deepcopy: 2.1.0
+
+  '@lassi-js/kili@0.4.1':
+    dependencies:
       '@constl/utils-ipa': 1.0.4
       '@orbitdb/core': 2.4.3
       deepcopy: 2.1.0
