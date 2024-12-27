@@ -580,7 +580,7 @@ describe("Projets", function () {
             données: { docs, fichiersSFIP, nomFichier },
             formatDoc: "ods",
             dossier: dossierZip,
-            inclureFichiersSFIP: true,
+            inclureDocuments: true,
           });
           nomZip = path.join(dossierZip, nomFichier + ".zip");
         });

@@ -1286,7 +1286,7 @@ describe("BDs", function () {
             données: { doc, fichiersSFIP, nomFichier },
             formatDoc: "ods",
             dossier: dossierZip,
-            inclureFichiersSFIP: true,
+            inclureDocuments: true,
           });
         });
 

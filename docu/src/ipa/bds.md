@@ -925,7 +925,7 @@ const donnéesExportées = await client.bds.exporterDonnées({
 
 ```
 
-### `client.bds.documentDonnéesÀFichier({ données, formatDoc, dossier, inclureFichiersSFIP })`
+### `client.bds.documentDonnéesÀFichier({ données, formatDoc, dossier, inclureDocuments })`
 Prend les données exportées par [`client.bds.exporterDonnées`](#clientbdsexporterdonnées-idbd-langues-nomfichier) et les sauvegarde sur le disque.
 
 #### Paramètres
@@ -934,7 +934,7 @@ Prend les données exportées par [`client.bds.exporterDonnées`](#clientbdsexpo
 | `données` | [`donnéesBdExportées`](#types-donnees-exportees) | Les données déjà exportées. |
 | `formatDoc` | `xlsx.BookType \| "xls"` | Le format du fichier (`odt`, `xlsx`, `csv`, `txt` ou n'importe quel autre type supporté par [SheetJS](https://docs.sheetjs.com/docs/api/write-options/#supported-output-formats). |
 | `dossier` | `string \| undefined` | Le dossier (optionnel) où sauvegarder les données. |
-| `inclureFichiersSFIP` | `boolean` | Si nous voulons sauvegarder les fichiers (images, vidéos ou autres) incluses dans la base de données. Si oui, le tout sera sauvegardé en tant que fichier `zip`. |
+| `inclureDocuments` | `boolean` | Si nous voulons sauvegarder les fichiers (images, vidéos ou autres) incluses dans la base de données. Si oui, le tout sera sauvegardé en tant que fichier `zip`. |
 
 #### Retour
 | Type | Description |

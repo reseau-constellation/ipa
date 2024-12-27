@@ -3127,7 +3127,7 @@ export class Nuées extends ComposanteClientListe<string> {
     patience = 500,
     formatDoc,
     dossier = "",
-    inclureFichiersSFIP = true,
+    inclureDocuments = true,
   }: {
     idNuée: string;
     langues?: string[];
@@ -3137,7 +3137,7 @@ export class Nuées extends ComposanteClientListe<string> {
     patience?: number;
     formatDoc: BookType | "xls";
     dossier?: string;
-    inclureFichiersSFIP?: boolean;
+    inclureDocuments?: boolean;
   }): Promise<string> {
     const donnéesExportées = await this.exporterDonnéesNuée({
       idNuée,
@@ -3151,7 +3151,7 @@ export class Nuées extends ComposanteClientListe<string> {
       données: donnéesExportées,
       formatDoc,
       dossier,
-      inclureFichiersSFIP,
+      inclureDocuments,
     });
   }
 

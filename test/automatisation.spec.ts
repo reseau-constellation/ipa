@@ -641,7 +641,7 @@ describe("Automatisation", function () {
           id: idTableau,
           typeObjet: "tableau",
           formatDoc: "ods",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["த", "fr"],
           fréquence: {
@@ -669,7 +669,7 @@ describe("Automatisation", function () {
           id: idBd,
           typeObjet: "bd",
           formatDoc: "ods",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["த", "fr"],
           fréquence: {
@@ -696,7 +696,7 @@ describe("Automatisation", function () {
           id: idProjet,
           typeObjet: "projet",
           formatDoc: "ods",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["த", "fr"],
           fréquence: {
@@ -727,7 +727,7 @@ describe("Automatisation", function () {
           id: idBd,
           typeObjet: "bd",
           formatDoc: "ods",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["த", "fr"],
           fréquence: {
@@ -772,7 +772,7 @@ describe("Automatisation", function () {
           id: idBd,
           typeObjet: "bd",
           formatDoc: "ods",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["cst"],
           fréquence: {
@@ -872,7 +872,7 @@ describe("Automatisation", function () {
           id: idNuée,
           typeObjet: "nuée",
           formatDoc: "ods",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["fr"],
           fréquence: {
@@ -1011,7 +1011,7 @@ describe("Automatisation", function () {
           id: idBd,
           typeObjet: "bd",
           formatDoc: "ods",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["fr"],
           fréquence: {
@@ -1053,7 +1053,7 @@ describe("Automatisation", function () {
           id: idBd,
           typeObjet: "bd",
           formatDoc: "ods",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["fr"],
           fréquence: {
@@ -1089,7 +1089,7 @@ describe("Automatisation", function () {
           typeObjet: "bd",
           // @ts-expect-error: on fait une erreur par exprès !
           formatDoc: "ods!",
-          inclureFichiersSFIP: false,
+          inclureDocuments: false,
           dossier,
           langues: ["fr"],
           fréquence: {

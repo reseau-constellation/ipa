@@ -1110,7 +1110,7 @@ export class Projets extends ComposanteClientListe<string> {
     patience = 500,
     formatDoc,
     dossier = "",
-    inclureFichiersSFIP = true,
+    inclureDocuments = true,
   }: {
     idProjet: string;
     langues?: string[];
@@ -1118,7 +1118,7 @@ export class Projets extends ComposanteClientListe<string> {
     patience?: number;
     formatDoc: xlsx.BookType | "xls";
     dossier?: string;
-    inclureFichiersSFIP?: boolean;
+    inclureDocuments?: boolean;
   }): Promise<string> {
     const donnéesExportées = await this.exporterDonnées({
       idProjet,
@@ -1130,7 +1130,7 @@ export class Projets extends ComposanteClientListe<string> {
       données: donnéesExportées,
       formatDoc,
       dossier,
-      inclureFichiersSFIP,
+      inclureDocuments,
     });
   }
 
@@ -1138,12 +1138,12 @@ export class Projets extends ComposanteClientListe<string> {
     données,
     formatDoc,
     dossier = "",
-    inclureFichiersSFIP = true,
+    inclureDocuments = true,
   }: {
     données: donnéesProjetExportées;
     formatDoc: xlsx.BookType | "xls";
     dossier?: string;
-    inclureFichiersSFIP?: boolean;
+    inclureDocuments?: boolean;
   }): Promise<string> {
     const { docs, fichiersSFIP, nomFichier } = données;
 
@@ -1158,7 +1158,7 @@ export class Projets extends ComposanteClientListe<string> {
         octets: xlsxWrite(d.doc, { bookType, type: "buffer" }),
       };
     });
-    const fichiersDeSFIP = inclureFichiersSFIP
+    const fichiersDeSFIP = inclureDocuments
       ? await Promise.all(
           [...fichiersSFIP].map(async (fichier) => {
             return {

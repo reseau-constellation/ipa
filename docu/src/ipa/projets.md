@@ -719,7 +719,7 @@ const donnéesExportées = await client.projets.exporterDonnées({
 
 ```
 
-### `client.projets.documentDonnéesÀFichier({ données, formatDoc, dossier, inclureFichiersSFIP })`
+### `client.projets.documentDonnéesÀFichier({ données, formatDoc, dossier, inclureDocuments })`
 Prend les données exportées par [`client.projets.exporterDonnées`](#clientprojetsexporterdonnées-idprojet-langues-nomfichier) et les sauvegarde sur le disque.
 
 #### Paramètres
@@ -728,7 +728,7 @@ Prend les données exportées par [`client.projets.exporterDonnées`](#clientpro
 | `données` | [`donnéesProjetExportées`](#donnees-exportees) | Les données déjà exportées. |
 | `formatDoc` | `xlsx.BookType \| "xls"` | Le format du fichier (`odt`, `xlsx`, `csv`, `txt` ou n'importe quel autre type supporté par [SheetJS](https://docs.sheetjs.com/docs/api/write-options/#supported-output-formats). |
 | `dossier` | `string \| undefined` | Le dossier (optionnel) où sauvegarder les données. |
-| `inclureFichiersSFIP` | `boolean` | Si nous voulons sauvegarder les fichiers (images, vidéos ou autres) incluses dans le projet. |
+| `inclureDocuments` | `boolean` | Si nous voulons sauvegarder les fichiers (images, vidéos ou autres) incluses dans le projet. |
 
 #### Retour
 | Type | Description |

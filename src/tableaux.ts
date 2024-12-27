@@ -861,7 +861,7 @@ export class Tableaux {
     patience = 500,
     formatDoc,
     dossier = "",
-    inclureFichiersSFIP = true,
+    inclureDocuments = true,
   }: {
     idTableau: string;
     langues?: string[];
@@ -870,7 +870,7 @@ export class Tableaux {
     patience?: number;
     formatDoc: BookType | "xls";
     dossier?: string;
-    inclureFichiersSFIP?: boolean;
+    inclureDocuments?: boolean;
   }): Promise<string> {
     const donnéesExportées = await this.exporterDonnées({
       idTableau,
@@ -883,7 +883,7 @@ export class Tableaux {
       données: donnéesExportées,
       formatDoc,
       dossier,
-      inclureFichiersSFIP,
+      inclureDocuments,
     });
   }
 

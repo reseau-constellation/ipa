@@ -2400,12 +2400,12 @@ export class BDs extends ComposanteClientListe<string> {
     données,
     formatDoc,
     dossier = "",
-    inclureFichiersSFIP = true,
+    inclureDocuments = true,
   }: {
     données: donnéesBdExportées;
     formatDoc: xlsx.BookType | "xls";
     dossier?: string;
-    inclureFichiersSFIP?: boolean;
+    inclureDocuments?: boolean;
   }): Promise<string> {
     const { doc, fichiersSFIP, nomFichier } = données;
 
@@ -2424,7 +2424,7 @@ export class BDs extends ComposanteClientListe<string> {
       }
     }
 
-    if (inclureFichiersSFIP) {
+    if (inclureDocuments) {
       const fichierDoc = {
         octets: xlsxWrite(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
@@ -2471,7 +2471,7 @@ export class BDs extends ComposanteClientListe<string> {
     patience = 500,
     formatDoc,
     dossier = "",
-    inclureFichiersSFIP = true,
+    inclureDocuments = true,
   }: {
     idBd: string;
     langues?: string[];
@@ -2479,7 +2479,7 @@ export class BDs extends ComposanteClientListe<string> {
     patience?: number;
     formatDoc: xlsx.BookType | "xls";
     dossier?: string;
-    inclureFichiersSFIP?: boolean;
+    inclureDocuments?: boolean;
   }): Promise<string> {
     const donnéesExportées = await this.exporterDonnées({
       idBd,
@@ -2491,7 +2491,7 @@ export class BDs extends ComposanteClientListe<string> {
       données: donnéesExportées,
       formatDoc,
       dossier,
-      inclureFichiersSFIP,
+      inclureDocuments,
     });
   }
 

@@ -97,7 +97,7 @@ const schémaBdAutomatisations: JSONSchemaType<{
             type: "array",
             items: { type: "string" },
           },
-          inclureFichiersSFIP: {
+          inclureDocuments: {
             type: "boolean",
           },
           nRésultatsDésirésNuée: {
@@ -112,7 +112,7 @@ const schémaBdAutomatisations: JSONSchemaType<{
           "formatDoc",
           "dispositifs",
           "fréquence",
-          "inclureFichiersSFIP",
+          "inclureDocuments",
         ],
       },
       {
@@ -189,7 +189,7 @@ export type SpécificationExporter = BaseSpécificationAutomatisation & {
   dossier?: string;
   langues?: string[];
   dispositifs: string[];
-  inclureFichiersSFIP: boolean;
+  inclureDocuments: boolean;
   nRésultatsDésirésNuée?: number;
   héritage?: ("descendance" | "ascendance")[];
   copies?: copiesExportation;
@@ -477,7 +477,7 @@ const générerFExportation = (
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
-          inclureFichiersSFIP: spéc.inclureFichiersSFIP,
+          inclureDocuments: spéc.inclureDocuments,
         });
         break;
       }
@@ -494,7 +494,7 @@ const générerFExportation = (
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
-          inclureFichiersSFIP: spéc.inclureFichiersSFIP,
+          inclureDocuments: spéc.inclureDocuments,
         });
         break;
       }
@@ -511,7 +511,7 @@ const générerFExportation = (
           données: donnéesExp,
           formatDoc: spéc.formatDoc,
           dossier,
-          inclureFichiersSFIP: spéc.inclureFichiersSFIP,
+          inclureDocuments: spéc.inclureDocuments,
         });
         break;
       }
@@ -530,7 +530,7 @@ const générerFExportation = (
           données: donnéesNuée,
           formatDoc: spéc.formatDoc,
           dossier,
-          inclureFichiersSFIP: spéc.inclureFichiersSFIP,
+          inclureDocuments: spéc.inclureDocuments,
         });
         break;
       }
@@ -1067,7 +1067,7 @@ export class Automatisations extends ComposanteClientDic<{
     id,
     typeObjet,
     formatDoc,
-    inclureFichiersSFIP,
+    inclureDocuments,
     dossier,
     langues,
     fréquence,
@@ -1079,7 +1079,7 @@ export class Automatisations extends ComposanteClientDic<{
     id: string;
     typeObjet: typeObjetExportation;
     formatDoc: formatTélécharger;
-    inclureFichiersSFIP: boolean;
+    inclureDocuments: boolean;
     dossier: string;
     fréquence: fréquence;
     langues?: string[];
@@ -1104,7 +1104,7 @@ export class Automatisations extends ComposanteClientDic<{
       fréquence,
       formatDoc,
       langues,
-      inclureFichiersSFIP,
+      inclureDocuments,
       dossier: idDossier, // Pour des raisons de sécurité, on ne sauvegarde pas le nom du dossier directement
       nRésultatsDésirésNuée,
       héritage,

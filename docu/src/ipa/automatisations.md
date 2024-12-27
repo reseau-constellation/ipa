@@ -29,7 +29,7 @@ Cette fonction automatise une exportation.
 | `id` | `string` | L'identifiant de l'objet à exporter. |
 | `typeObjet` | `"nuée" \| "projet" \| "bd" \| "tableau"` | Le type d'objet à exporter. |
 | `formatDoc` | `xlsx.BookType \| "xls"` | Le format du fichier (`odt`, `xlsx`, `csv`, `txt` ou n'importe quel autre type supporté par [SheetJS](https://docs.sheetjs.com/docs/api/write-options/#supported-output-formats). |
-| `inclureFichiersSFIP` | `boolean` | Si nous voulons sauvegarder les fichiers (images, vidéos ou autres) incluses dans les données. |
+| `inclureDocuments` | `boolean` | Si nous voulons sauvegarder les fichiers (images, vidéos ou autres) incluses dans les données. |
 | `dossier` | `string \| undefined` | Le dossier (optionnel) où sauvegarder les données. Si non spécifié, les données seront sauvegardées sous un dossié nommé `constellation`. |
 | `langues` | `string[] \| undefined` | Si vous voulez que les colonnes et les tableaux portent leurs noms respectifs au lieu de leurs identifiants uniques, la liste de langues (en ordre de préférence) dans laquelle vous souhaitez recevoir les données. Une liste vide utilisera, sans préférence, n'importe quelle langue parmi celles disponibles. |
 | `fréquence` | [`fréquence`](#types-frequence) `\| undefined` | La fréquence à laquelle les données devraient être exportées. Si non spécifiée, les données seront exportées chaque fois que Constellation y détecte des changements. |
@@ -225,7 +225,7 @@ type SpécificationExporter = BaseSpécificationAutomatisation & {
   dossier?: string;
   langues?: string[];
   dispositifs: string[];
-  inclureFichiersSFIP: boolean;
+  inclureDocuments: boolean;
   nRésultatsDésirésNuée?: number;
   héritage?: ("descendance"|"ascendance")[];
   copies?: copiesExportation;
