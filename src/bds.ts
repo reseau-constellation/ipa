@@ -259,7 +259,7 @@ export class BDs extends ComposanteClientListe<string> {
                 contenuBd.motsClefs,
                 contenuBd.nuées,
                 contenuBd.métadonnées,
-                contenuBd.image
+                contenuBd.image,
               ];
           } catch {
             return; // Si la structure n'est pas valide.
@@ -2482,15 +2482,18 @@ export class BDs extends ComposanteClientListe<string> {
     inclureFichiersSFIP?: boolean;
   }): Promise<string> {
     const donnéesExportées = await this.exporterDonnées({
-      idBd, langues, nomFichier, patience
+      idBd,
+      langues,
+      nomFichier,
+      patience,
     });
     return await this.documentDonnéesÀFichier({
       données: donnéesExportées,
       formatDoc,
       dossier,
       inclureFichiersSFIP,
-    })
-  } 
+    });
+  }
 
   async effacerBd({ idBd }: { idBd: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs

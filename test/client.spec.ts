@@ -375,7 +375,7 @@ if (isNode || isElectronMain) {
       it("Erreur pour la deuxième instance, avec port disponible", async () => {
         const constl2 = créerConstellation({ dossier });
         await expect(constl2.obtIdCompte()).to.be.rejectedWith(
-          `Ce compte est déjà lancé, et le serveur local est disponible sur le port ${port}.`
+          `Ce compte est déjà lancé, et le serveur local est disponible sur le port ${port}.`,
         );
         await fermerServeur();
       });

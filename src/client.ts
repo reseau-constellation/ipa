@@ -542,7 +542,11 @@ export class Constellation {
     }
   }
 
-  async spécifierMessageVerrou({message}: {message: Jsonifiable}): Promise<void> {
+  async spécifierMessageVerrou({
+    message,
+  }: {
+    message: Jsonifiable;
+  }): Promise<void> {
     await this.attendreInitialisée();
     if (isElectronMain || isNode) {
       const fs = await import("fs");
@@ -550,7 +554,7 @@ export class Constellation {
       const contenu = JSON.parse(fs.readFileSync(fichierVerrou).toString());
       const contenuFinal = Object.assign(contenu, message);
       fs.writeFileSync(fichierVerrou, JSON.stringify(contenuFinal));
-    };
+    }
   }
 
   async effacerVerrou() {

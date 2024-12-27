@@ -146,7 +146,7 @@ export class Projets extends ComposanteClientListe<string> {
                 contenuBd.noms,
                 contenuBd.bds,
                 contenuBd.motsClefs,
-                contenuBd.image
+                contenuBd.image,
               ];
           } catch {
             return; // Si la structure n'est pas valide.
@@ -1131,8 +1131,8 @@ export class Projets extends ComposanteClientListe<string> {
       formatDoc,
       dossier,
       inclureFichiersSFIP,
-    })
-  } 
+    });
+  }
 
   async documentDonnéesÀFichier({
     données,

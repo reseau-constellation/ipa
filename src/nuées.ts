@@ -3152,8 +3152,8 @@ export class Nuées extends ComposanteClientListe<string> {
       formatDoc,
       dossier,
       inclureFichiersSFIP,
-    })
-  } 
+    });
+  }
 
   async générerDeBd({
     idBd,

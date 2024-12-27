@@ -853,7 +853,6 @@ export class Tableaux {
     return { doc, fichiersSFIP: données.fichiersSFIP, nomFichier };
   }
 
-
   async exporterTableauÀFichier({
     idTableau,
     langues,
@@ -885,8 +884,8 @@ export class Tableaux {
       formatDoc,
       dossier,
       inclureFichiersSFIP,
-    })
-  } 
+    });
+  }
 
   async ajouterÉlément<T extends élémentBdListeDonnées>({
     idTableau,
