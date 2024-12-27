@@ -65,6 +65,7 @@ import {
 } from "@/accès/cntrlConstellation.js";
 import stockageLocal, { exporterStockageLocal } from "@/stockageLocal.js";
 import {
+  Jsonifiable,
   RecursivePartial,
   schémaFonctionOublier,
   schémaFonctionSuivi,
@@ -539,6 +540,17 @@ export class Constellation {
         }
       }, intervaleVerrou);
     }
+  }
+
+  async spécifierMessageVerrou({message}: {message: Jsonifiable}): Promise<void> {
+    await this.attendreInitialisée();
+    if (isElectronMain || isNode) {
+      const fs = await import("fs");
+      const fichierVerrou = await join(await this.dossier(), "VERROU");
+      const contenu = JSON.parse(fs.readFileSync(fichierVerrou).toString());
+      const contenuFinal = Object.assign(contenu, message);
+      fs.writeFileSync(fichierVerrou, JSON.stringify(contenuFinal));
+    };
   }
 
   async effacerVerrou() {
