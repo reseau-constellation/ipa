@@ -1264,6 +1264,7 @@ export class Automatisations extends ComposanteClientDic<{
       await f(étatsAuto);
     };
     this.événements.on("misÀJour", fFinale);
+    await fFinale();
     return async () => {
       this.événements.off("misÀJour", fFinale);
     };
