@@ -2444,9 +2444,9 @@ export class BDs extends ComposanteClientListe<string> {
       if (!(isBrowser || isWebWorker)) {
         const fs = await import("fs");
         if (fs.existsSync(adresseFinale)) {
-          fs.rmSync(adresseFinale)
+          fs.rmSync(adresseFinale);
         }
-      };
+      }
       await zipper(
         [fichierDoc],
         fichiersDeSFIP,
