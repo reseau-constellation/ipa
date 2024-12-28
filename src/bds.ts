@@ -2413,7 +2413,6 @@ export class BDs extends ComposanteClientListe<string> {
       xls: "biff8",
     };
     const bookType: xlsx.BookType = conversionsTypes[formatDoc] || formatDoc;
-    const adresseFinale = path.join(dossier, `${nomFichier}.${formatDoc}`);
 
     // Créer le dossier si nécessaire. Sinon, xlsx n'écrit rien, et ce, sans se plaindre.
     if (!(isBrowser || isWebWorker)) {
@@ -2425,6 +2424,8 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     if (inclureDocuments) {
+      const adresseFinale = path.join(dossier, `${nomFichier}.zip`);
+
       const fichierDoc = {
         octets: xlsxWrite(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
@@ -2439,13 +2440,21 @@ export class BDs extends ComposanteClientListe<string> {
           };
         }),
       );
+      // Effacer le fichier s'il existe déjà (uniquement nécessaire pour `zipper`)
+      if (!(isBrowser || isWebWorker)) {
+        const fs = await import("fs");
+        if (fs.existsSync(adresseFinale)) {
+          fs.rmSync(adresseFinale)
+        }
+      };
       await zipper(
         [fichierDoc],
         fichiersDeSFIP,
         path.join(dossier, nomFichier),
       );
-      return path.join(dossier, `${nomFichier}.zip`);
+      return adresseFinale;
     } else {
+      const adresseFinale = path.join(dossier, `${nomFichier}.${formatDoc}`);
       if (isNode || isElectronMain) {
         xlsxWriteFile(doc, adresseFinale, {
           bookType,
