@@ -1179,6 +1179,12 @@ export class Automatisations extends ComposanteClientDic<{
     await fOublier();
   }
 
+  async modifierAutomatisation({ id, automatisation}: {id: string, automatisation: SpécificationAutomatisation}): Promise<void> {
+    const { bd, fOublier } = await this.obtBd();
+    bd.put(id, automatisation)
+    await fOublier();
+  }
+
   async résoudreAdressePrivéeFichier({
     clef,
   }: {
