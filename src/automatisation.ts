@@ -737,11 +737,6 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   const fLancer = async () => await fAutoAvecÉtats(uuidv4());
 
   if (spéc.fréquence.type === "fixe") {
-    const nouvelÉtat: ÉtatProgrammée = {
-      type: "programmée",
-      à: tempsInterval!,
-    };
-    fÉtat(nouvelÉtat);
     const dicFOublierIntervale: { f?: schémaFonctionOublier } = {};
 
     const fAutoAvecÉtatsRécursif = async () => {
@@ -760,9 +755,15 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       ? parseInt(dernièreFoisChaîne)
       : -Infinity;
     const tempsDepuisDernièreFois = maintenant - dernièreFois;
+    const exécuterDans = Math.max(obtTempsInterval(spéc.fréquence) - tempsDepuisDernièreFois, 0)
+    const nouvelÉtat: ÉtatProgrammée = {
+      type: "programmée",
+      à: Date.now() + exécuterDans,
+    };
+    fÉtat(nouvelÉtat);
     const crono = setTimeout(
       fAutoAvecÉtatsRécursif,
-      Math.max(tempsInterval! - tempsDepuisDernièreFois, 0),
+      exécuterDans,
     );
     dicFOublierIntervale.f = async () => clearTimeout(crono);
 
