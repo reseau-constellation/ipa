@@ -114,7 +114,7 @@ describe.skip("Connectivité SFIP", function () {
     expect(id).to.be.a("string");
   });
 
-  it("Connexion à Node.js", async () => {
+  it.skip("Connexion à Node.js", async () => {
     await attendreConnecté({ sfip, idPair: idPairNode });
   });
 
@@ -122,7 +122,7 @@ describe.skip("Connectivité SFIP", function () {
     await testerGossipSub({ sfip, idPair: idPairNode });
   });
 
-  it("Connexion à un navigateur", async () => {
+  it.skip("Connexion à un navigateur", async () => {
     await attendreConnecté({ sfip, idPair: idPairNavig });
   });
 
