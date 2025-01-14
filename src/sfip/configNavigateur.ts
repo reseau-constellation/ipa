@@ -22,6 +22,8 @@ import {
 import { résoudreInfoAdresses } from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
 
+// https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#recommendations-for-network-operators
+
 export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
   const transports = [
     webSockets({
