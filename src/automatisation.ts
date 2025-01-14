@@ -755,16 +755,16 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       ? parseInt(dernièreFoisChaîne)
       : -Infinity;
     const tempsDepuisDernièreFois = maintenant - dernièreFois;
-    const exécuterDans = Math.max(obtTempsInterval(spéc.fréquence) - tempsDepuisDernièreFois, 0)
+    const exécuterDans = Math.max(
+      obtTempsInterval(spéc.fréquence) - tempsDepuisDernièreFois,
+      0,
+    );
     const nouvelÉtat: ÉtatProgrammée = {
       type: "programmée",
       à: Date.now() + exécuterDans,
     };
     fÉtat(nouvelÉtat);
-    const crono = setTimeout(
-      fAutoAvecÉtatsRécursif,
-      exécuterDans,
-    );
+    const crono = setTimeout(fAutoAvecÉtatsRécursif, exécuterDans);
     dicFOublierIntervale.f = async () => clearTimeout(crono);
 
     const fOublier = async () => {
