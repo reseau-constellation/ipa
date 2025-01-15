@@ -112,7 +112,7 @@ importers:
         version: 2.0.0
       axios:
         specifier: ^1.7.8
-        version: 1.7.9
+        version: 1.7.9(debug@4.4.0)
       blockstore-fs:
         specifier: ^2.0.2
         version: 2.0.2
@@ -162,8 +162,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       helia:
-        specifier: 5.1.1
-        version: 5.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
+        specifier: 5.2.0
+        version: 5.2.0(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
       indexed-db-stream:
         specifier: ^1.0.0
         version: 1.0.0
@@ -404,6 +404,9 @@ packages:
 
   '@achingbrain/nat-port-mapper@2.0.10':
     resolution: {integrity: sha512-Eg3j9tlwTvN7yewAoCWqaSV78cni10s0HlJOskYBJKyuk+IU5JNPEah1QMnK1FxWBng7Qlqi6+BFDhgTeZd0tg==}
+
+  '@achingbrain/nat-port-mapper@4.0.1':
+    resolution: {integrity: sha512-F3Wg/MGrrlmcb75tZwQ7FQxrpWKxXCtmw5Y/jHC76VU+NDyHByy6PHIv6ESX4TNGUhy94/jcf2arAsancnvYEQ==}
 
   '@achingbrain/ssdp@4.2.1':
     resolution: {integrity: sha512-haY46oYyQWlM3qElCpQ1M5I5pVbPPJ5p3n3gYuMtZsDezT5mQ4e4PuqiIzhfmrURj+WKbSppgNRuczN0S+Xt1Q==}
@@ -1592,6 +1595,9 @@ packages:
   '@helia/routers@2.2.0':
     resolution: {integrity: sha512-MyPCfWV8KUkg8eguPW/gKJ/fsSRzWzcEjym4vhigy4KxQE7JvmrSL/+NFViqnlv83+77U0E1VWvKbUsQvuNX+w==}
 
+  '@helia/routers@3.0.0':
+    resolution: {integrity: sha512-WtbH+qam4YtcJfeQpteJ9o9By4TniUeltkClouoDkXpRoshjyTT0MowzpCOBRS0hS8gK3aX+kA3h1kU3qeR35Q==}
+
   '@helia/unixfs@4.0.2':
     resolution: {integrity: sha512-7xrIQsbU4MfTlgFsBuIRARAAXzD+rx/RsSugv/CrZSp0AA57Eg2iKxbQ+UkunobDUKf5YecoMf1iLCqM4zjpbw==}
 
@@ -1723,6 +1729,9 @@ packages:
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
 
+  '@libp2p/auto-tls@1.0.4':
+    resolution: {integrity: sha512-z3/D2UOvGEkaf+V4FRHjpml7ddodCNyBsxJKaONbR4VloE6hqzgZKlRPZfxVNsUOGErcK1Yeru8QIpWJkdXUHg==}
+
   '@libp2p/autonat@2.0.12':
     resolution: {integrity: sha512-EgJb6RwJmBwB7/Ddg3B3xFspc+OrNC6oonWh3osrP85J0cY7wOVmDSuLqk8tcxli9OuTYNSef/7dY9NVYEA+9g==}
 
@@ -1735,6 +1744,9 @@ packages:
   '@libp2p/circuit-relay-v2@3.1.7':
     resolution: {integrity: sha512-SsF49IVwIhnWtVtvxjdEKPHFwc3eN/XwV3BjLeYmuI9yR0DRs0+Li2VyKALB3bj+k6sghgT2ByC2FhtKe8JBPw==}
 
+  '@libp2p/config@1.0.1':
+    resolution: {integrity: sha512-N9XolyFa5AUihuDOUxxZf5k2pYJ3brpH7QWxJxMBsISabmRHddLY3poR/i1rU0XvPQTmENsiFvF4tIEq3zNDOA==}
+
   '@libp2p/crypto@4.1.9':
     resolution: {integrity: sha512-8Cf2VKh0uC/rQLvTLSloIOMqUvf4jsSTHXgjWQRf47lDNJlNNI0wSv2S6gakT72GZsRV/jCjYwKPqRlsa5S0iA==}
 
@@ -1743,6 +1755,9 @@ packages:
 
   '@libp2p/dcutr@2.0.15':
     resolution: {integrity: sha512-I7BQjudRrHlhvkCgEz8A16qHMbXDhqQBZOQG8Zfn+JY7IkpDl8l0Dy9rA6PMMJkIp9GvCchCoNRfCRfAreuW3w==}
+
+  '@libp2p/http-fetch@2.1.1':
+    resolution: {integrity: sha512-alJ4sQn4ueKWBt2l/5sfLuRQ7u7plCkb43YsYzGkbtc01za4Er5DYas8Vtqjs5WtFsQTfWYok+4nqQNgnb7vyA==}
 
   '@libp2p/identify@3.0.15':
     resolution: {integrity: sha512-P+G3VLcbCEntcAK5+cn20D6bG4DP/gX9+EOsuNqEoN8p6OH/llI+LV0EsnstoGk8ggLO7LNftFSNCliD8kQSaA==}
@@ -1851,6 +1866,9 @@ packages:
 
   '@libp2p/upnp-nat@2.0.12':
     resolution: {integrity: sha512-cH0iX2bizM5OlSQlBvvcbzSNfavHGkEQATiQ56oMcP5VpKVwOb/SupojRu2s5ohUal9x+I3rKU5dN0jx/HBnYA==}
+
+  '@libp2p/upnp-nat@3.0.4':
+    resolution: {integrity: sha512-N6fnWbMyWMGIbMEzz/NmQheqpymdnk99Cbc771Q7S8ts9I9JNEBps9lr71oLALl61WRKZIgPO7DMtwtk2KRatA==}
 
   '@libp2p/utils@6.3.1':
     resolution: {integrity: sha512-WkYBoWkkrEsuEsYppC4YlAW1hf7aAc/VrOT5frT3bXy1YIzO3RYyRdR1s3zbOK4loX1G8ic+2zi5h6d7YOhYlw==}
@@ -2083,6 +2101,10 @@ packages:
 
   '@peculiar/x509@1.12.3':
     resolution: {integrity: sha512-+Mzq+W7cNEKfkNZzyLl6A6ffqc3r21HGZUezgfKxpZrkORfOqgRXnS80Zu0IV6a9Ue9QBJeKD7kN0iWfc3bhRQ==}
+
+  '@perseveranza-pets/milo@0.2.1':
+    resolution: {integrity: sha512-Q96Q1cdYfofu5Rbaj3z5HYzkhlDS+pljh/g+GX/JHr/TlodpDDxFZ1sVuQI6O3+rFdfrU5ScgD1kx4NyCYebbw==}
+    engines: {node: '>= 18.18.0'}
 
   '@phenomnomnominal/tsquery@5.0.1':
     resolution: {integrity: sha512-3nVv+e2FQwsW8Aw6qTU6f+1rfcJ3hrcnvH/mu9i8YhxO+9sqbOfpL8m6PbET5+xKOlz/VSbp0RoYWYCtIsnmuA==}
@@ -2643,6 +2665,10 @@ packages:
   accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
     engines: {node: '>= 0.6'}
+
+  acme-client@5.4.0:
+    resolution: {integrity: sha512-mORqg60S8iML6XSmVjqjGHJkINrCGLMj2QvDmFzI9vIlv1RGlyjmw3nrzaINJjkNsYXC41XhhD5pfy7CtuGcbA==}
+    engines: {node: '>= 16'}
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -4855,6 +4881,9 @@ packages:
 
   helia@5.1.1:
     resolution: {integrity: sha512-xS+tk35ql+TovLGHvSt4pqERynD/E7wZm+319JPSripbNEMceNTTFkb74jlxmVJEWw570Fi9fnfmErvf3rhR2Q==}
+
+  helia@5.2.0:
+    resolution: {integrity: sha512-CL+cDnwSw2f030a9opTVvqy9jh5+b2tTNSQFTFPx11cfYxcF7qSDRhZKBlsKgzG2jSCAsCxwdV4ipnXkRfV8Sg==}
 
   hermes-estree@0.23.1:
     resolution: {integrity: sha512-eT5MU3f5aVhTqsfIReZ6n41X5sYn4IdQL0nvz6yO+MMlPxw49aSARHLg/MSehQftyjnrE8X6bYregzSumqc6cg==}
@@ -8771,6 +8800,18 @@ snapshots:
       race-signal: 1.1.0
       xml2js: 0.6.2
 
+  '@achingbrain/nat-port-mapper@4.0.1':
+    dependencies:
+      '@achingbrain/ssdp': 4.2.1
+      '@chainsafe/is-ip': 2.0.2
+      '@libp2p/logger': 5.1.6
+      abort-error: 1.0.0
+      err-code: 3.0.1
+      netmask: 2.0.2
+      p-defer: 4.0.1
+      race-signal: 1.1.0
+      xml2js: 0.6.2
+
   '@achingbrain/ssdp@4.2.1':
     dependencies:
       abort-error: 1.0.0
@@ -9804,7 +9845,7 @@ snapshots:
       '@orbitdb/set-db': 1.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
       ajv: 8.17.1
       events: 3.3.0
-      helia: 5.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
+      helia: 5.2.0(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
       uuid: 11.0.5
     transitivePeerDependencies:
       - bufferutil
@@ -9848,7 +9889,7 @@ snapshots:
       '@orbitdb/set-db': 1.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
       ajv: 8.17.1
       approx-string-match: 2.0.0
-      axios: 1.7.9
+      axios: 1.7.9(debug@4.4.0)
       blockstore-fs: 2.0.2
       blockstore-idb: 2.0.1
       browser-fs-access: 0.35.0
@@ -10279,6 +10320,19 @@ snapshots:
       multiformats: 13.3.1
       uint8arrays: 5.1.0
 
+  '@helia/routers@3.0.0':
+    dependencies:
+      '@helia/delegated-routing-v1-http-api-client': 4.2.1
+      '@helia/interface': 5.2.0
+      '@libp2p/interface': 2.4.0
+      '@libp2p/peer-id': 5.0.10
+      '@multiformats/uri-to-multiaddr': 8.0.0
+      ipns: 10.0.0
+      it-first: 3.0.6
+      it-map: 3.1.1
+      multiformats: 13.3.1
+      uint8arrays: 5.1.0
+
   '@helia/unixfs@4.0.2':
     dependencies:
       '@helia/interface': 5.2.0
@@ -10515,6 +10569,27 @@ snapshots:
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
+  '@libp2p/auto-tls@1.0.4':
+    dependencies:
+      '@chainsafe/is-ip': 2.0.2
+      '@libp2p/crypto': 5.0.9
+      '@libp2p/http-fetch': 2.1.1
+      '@libp2p/interface': 2.4.0
+      '@libp2p/interface-internal': 2.2.2
+      '@libp2p/keychain': 5.0.12
+      '@libp2p/utils': 6.3.1
+      '@multiformats/multiaddr': 12.3.4
+      '@multiformats/multiaddr-matcher': 1.6.0
+      '@peculiar/x509': 1.12.3
+      acme-client: 5.4.0
+      any-signal: 4.1.1
+      delay: 6.0.0
+      interface-datastore: 8.3.1
+      multiformats: 13.3.1
+      uint8arrays: 5.1.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@libp2p/autonat@2.0.12':
     dependencies:
       '@libp2p/interface': 2.4.0
@@ -10575,6 +10650,14 @@ snapshots:
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
 
+  '@libp2p/config@1.0.1':
+    dependencies:
+      '@libp2p/crypto': 5.0.9
+      '@libp2p/interface': 2.4.0
+      '@libp2p/keychain': 5.0.12
+      '@libp2p/logger': 5.1.6
+      interface-datastore: 8.3.1
+
   '@libp2p/crypto@4.1.9':
     dependencies:
       '@libp2p/interface': 1.7.0
@@ -10608,6 +10691,20 @@ snapshots:
       it-protobuf-stream: 1.1.5
       protons-runtime: 5.5.0
       uint8arraylist: 2.4.8
+
+  '@libp2p/http-fetch@2.1.1':
+    dependencies:
+      '@libp2p/crypto': 5.0.9
+      '@libp2p/interface': 2.4.0
+      '@libp2p/interface-internal': 2.2.2
+      '@libp2p/peer-id': 5.0.10
+      '@multiformats/multiaddr': 12.3.4
+      '@multiformats/multiaddr-to-uri': 11.0.0
+      '@perseveranza-pets/milo': 0.2.1
+      p-defer: 4.0.1
+      uint8-varint: 2.0.4
+      uint8arraylist: 2.4.8
+      uint8arrays: 5.1.0
 
   '@libp2p/identify@3.0.15':
     dependencies:
@@ -10960,6 +11057,18 @@ snapshots:
       p-defer: 4.0.1
       race-signal: 1.1.0
 
+  '@libp2p/upnp-nat@3.0.4':
+    dependencies:
+      '@achingbrain/nat-port-mapper': 4.0.1
+      '@chainsafe/is-ip': 2.0.2
+      '@libp2p/interface': 2.4.0
+      '@libp2p/interface-internal': 2.2.2
+      '@libp2p/utils': 6.3.1
+      '@multiformats/multiaddr': 12.3.4
+      '@multiformats/multiaddr-matcher': 1.6.0
+      p-defer: 4.0.1
+      race-signal: 1.1.0
+
   '@libp2p/utils@6.3.1':
     dependencies:
       '@chainsafe/is-ip': 2.0.2
@@ -11285,7 +11394,7 @@ snapshots:
   '@orbitdb/feed-db@1.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))':
     dependencies:
       '@orbitdb/core': 2.4.3
-      helia: 5.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
+      helia: 5.2.0(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -11295,7 +11404,7 @@ snapshots:
   '@orbitdb/ordered-keyvalue-db@1.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))':
     dependencies:
       '@orbitdb/core': 2.4.3
-      helia: 5.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
+      helia: 5.2.0(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -11305,7 +11414,7 @@ snapshots:
   '@orbitdb/set-db@1.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))':
     dependencies:
       '@orbitdb/core': 2.4.3
-      helia: 5.1.1(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
+      helia: 5.2.0(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
     transitivePeerDependencies:
       - bufferutil
       - react-native
@@ -11417,6 +11526,8 @@ snapshots:
       reflect-metadata: 0.2.2
       tslib: 2.8.1
       tsyringe: 4.8.0
+
+  '@perseveranza-pets/milo@0.2.1': {}
 
   '@phenomnomnominal/tsquery@5.0.1(typescript@5.6.3)':
     dependencies:
@@ -12197,6 +12308,16 @@ snapshots:
       mime-types: 2.1.35
       negotiator: 0.6.3
 
+  acme-client@5.4.0:
+    dependencies:
+      '@peculiar/x509': 1.12.3
+      asn1js: 3.0.5
+      axios: 1.7.9(debug@4.4.0)
+      debug: 4.4.0(supports-color@8.1.1)
+      node-forge: 1.3.1
+    transitivePeerDependencies:
+      - supports-color
+
   acorn-jsx@5.3.2(acorn@8.14.0):
     dependencies:
       acorn: 8.14.0
@@ -12540,9 +12661,9 @@ snapshots:
 
   average@0.0.1: {}
 
-  axios@1.7.9:
+  axios@1.7.9(debug@4.4.0):
     dependencies:
-      follow-redirects: 1.15.9
+      follow-redirects: 1.15.9(debug@4.4.0)
       form-data: 4.0.1
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -14753,7 +14874,9 @@ snapshots:
 
   flow-parser@0.258.1: {}
 
-  follow-redirects@1.15.9: {}
+  follow-redirects@1.15.9(debug@4.4.0):
+    optionalDependencies:
+      debug: 4.4.0(supports-color@8.1.1)
 
   for-each@0.3.3:
     dependencies:
@@ -15193,6 +15316,47 @@ snapshots:
       '@libp2p/tcp': 10.0.15
       '@libp2p/tls': 2.0.13
       '@libp2p/upnp-nat': 2.0.12
+      '@libp2p/webrtc': 5.0.23(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
+      '@libp2p/websockets': 9.1.2
+      '@multiformats/dns': 1.0.6
+      blockstore-core: 5.0.2
+      datastore-core: 10.0.2
+      interface-blockstore: 5.3.1
+      interface-datastore: 8.3.1
+      ipns: 10.0.0
+      libp2p: 2.5.0
+      multiformats: 13.3.1
+    transitivePeerDependencies:
+      - bufferutil
+      - react-native
+      - supports-color
+      - utf-8-validate
+
+  helia@5.2.0(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1)):
+    dependencies:
+      '@chainsafe/libp2p-noise': 16.0.0
+      '@chainsafe/libp2p-yamux': 7.0.1
+      '@helia/block-brokers': 4.0.3
+      '@helia/delegated-routing-v1-http-api-client': 4.2.1
+      '@helia/interface': 5.2.0
+      '@helia/routers': 3.0.0
+      '@helia/utils': 1.2.0
+      '@libp2p/auto-tls': 1.0.4
+      '@libp2p/autonat': 2.0.16
+      '@libp2p/bootstrap': 11.0.17
+      '@libp2p/circuit-relay-v2': 3.1.7
+      '@libp2p/config': 1.0.1
+      '@libp2p/dcutr': 2.0.15
+      '@libp2p/identify': 3.0.15
+      '@libp2p/interface': 2.4.0
+      '@libp2p/kad-dht': 14.2.0
+      '@libp2p/keychain': 5.0.12
+      '@libp2p/mdns': 11.0.17
+      '@libp2p/mplex': 11.0.17
+      '@libp2p/ping': 2.0.15
+      '@libp2p/tcp': 10.0.15
+      '@libp2p/tls': 2.0.13
+      '@libp2p/upnp-nat': 3.0.4
       '@libp2p/webrtc': 5.0.23(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
       '@libp2p/websockets': 9.1.2
       '@multiformats/dns': 1.0.6
