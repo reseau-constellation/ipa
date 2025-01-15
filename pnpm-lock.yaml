@@ -31,7 +31,7 @@ importers:
         version: 1.0.4
       '@helia/block-brokers':
         specifier: ^4.0.2
-        version: 4.0.2
+        version: 4.0.3
       '@helia/unixfs':
         specifier: ^4.0.1
         version: 4.0.2
@@ -1574,14 +1574,8 @@ packages:
     resolution: {integrity: sha512-zSkKow6H5Kdm0ZUQUB2kV5JIXqoG0+uH5YADhaEHswm664N9Db8dXSi0nMJpacpMf+MyyglF1vnZohpEg5yUtg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@helia/bitswap@2.0.2':
-    resolution: {integrity: sha512-aJfcQeyJFX+f7TWYZhf8zuZJFig6AhzFjiB+mgzL8YnCG01c+ouZ2iYLSImLGndcRr47uOey6rjHvWuwu1Id8Q==}
-
   '@helia/bitswap@2.0.3':
     resolution: {integrity: sha512-h6FCdHL5GlN8HW1QQrfAgWcqq3hyCewZeO5Ey2/TGPrRJI+TipVVRt+Dfu0UjSxAsSHujKdJ6wBDfbOCqRc9YA==}
-
-  '@helia/block-brokers@4.0.2':
-    resolution: {integrity: sha512-TGn/VFvZTnAZ12J2/l+XShqde+Dz10dVvgllIQlKnSxIcO+U7iGxDusrCvYL5KTn6yy/ghSUsQ2cBMEBCbjgvA==}
 
   '@helia/block-brokers@4.0.3':
     resolution: {integrity: sha512-EU3VaOVKicKSEJDyfzi9RVdr+pi8AO81B6bsJ7GQDGhruJfQAatNk4+uiSh58lwWrwnVMlXIFP3d8XskDwPbyQ==}
@@ -9918,7 +9912,7 @@ snapshots:
 
   '@constl/utils-tests@1.6.7(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))':
     dependencies:
-      '@helia/block-brokers': 4.0.2
+      '@helia/block-brokers': 4.0.3
       '@libp2p/peer-id': 5.0.10
       '@libp2p/webrtc': 5.0.23(react-native@0.76.6(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(react@18.3.1))
       '@orbitdb/core': 2.4.3
@@ -10193,33 +10187,6 @@ snapshots:
     dependencies:
       levn: 0.4.1
 
-  '@helia/bitswap@2.0.2':
-    dependencies:
-      '@helia/interface': 5.1.0
-      '@helia/utils': 1.1.0
-      '@libp2p/interface': 2.4.0
-      '@libp2p/logger': 5.1.6
-      '@libp2p/peer-collections': 6.0.14
-      '@libp2p/utils': 6.3.1
-      '@multiformats/multiaddr': 12.3.4
-      any-signal: 4.1.1
-      interface-blockstore: 5.3.1
-      interface-store: 6.0.2
-      it-drain: 3.0.7
-      it-length-prefixed: 9.1.0
-      it-length-prefixed-stream: 1.2.0
-      it-map: 3.1.1
-      it-pipe: 3.0.1
-      it-take: 3.0.6
-      multiformats: 13.3.1
-      p-defer: 4.0.1
-      progress-events: 1.0.1
-      protons-runtime: 5.5.0
-      race-event: 1.3.0
-      uint8-varint: 2.0.4
-      uint8arraylist: 2.4.8
-      uint8arrays: 5.1.0
-
   '@helia/bitswap@2.0.3':
     dependencies:
       '@helia/interface': 5.2.0
@@ -10246,21 +10213,6 @@ snapshots:
       uint8-varint: 2.0.4
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
-
-  '@helia/block-brokers@4.0.2':
-    dependencies:
-      '@helia/bitswap': 2.0.2
-      '@helia/interface': 5.1.0
-      '@helia/utils': 1.1.0
-      '@libp2p/interface': 2.4.0
-      '@libp2p/utils': 6.3.1
-      '@multiformats/multiaddr': 12.3.4
-      '@multiformats/multiaddr-matcher': 1.6.0
-      '@multiformats/multiaddr-to-uri': 11.0.0
-      interface-blockstore: 5.3.1
-      interface-store: 6.0.2
-      multiformats: 13.3.1
-      progress-events: 1.0.1
 
   '@helia/block-brokers@4.0.3':
     dependencies:
@@ -15220,7 +15172,7 @@ snapshots:
     dependencies:
       '@chainsafe/libp2p-noise': 16.0.0
       '@chainsafe/libp2p-yamux': 7.0.1
-      '@helia/block-brokers': 4.0.2
+      '@helia/block-brokers': 4.0.3
       '@helia/delegated-routing-v1-http-api-client': 4.2.1
       '@helia/interface': 5.1.0
       '@helia/routers': 2.2.0
