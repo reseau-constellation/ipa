@@ -24,8 +24,9 @@ import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import * as consts from "./const.js";
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
+import type { PrivateKey } from "@libp2p/interface";
 
-export type ServicesLibp2p = DefaultLibp2pServices & { pubsub: GossipSub };
+export type ServicesLibp2p = DefaultLibp2pServices & { pubsub: GossipSub; obtClefPrivée: ServiceClefPrivée};
 
 export const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
@@ -47,14 +48,37 @@ export const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   return configPlateforme;
 };
 
+interface ComposantesServiceClefPrivée {
+  privateKey: PrivateKey;
+}
+
+class ServiceClefPrivée {
+  private privateKey: PrivateKey;
+
+  constructor(components: ComposantesServiceClefPrivée) {
+    this.privateKey = components.privateKey;
+  }
+
+  obtenirClef(): PrivateKey {
+    return this.privateKey;
+  }
+}
+
 export async function initSFIP({
   dossier,
+  clefPrivée,
   configLibp2p = {},
 }: {
   dossier: string;
+  clefPrivée?: PrivateKey;
   configLibp2p?: Libp2pOptions;
 }): Promise<HeliaLibp2p<Libp2p<ServicesLibp2p>>> {
   const configParDéfaut = await obtConfigLibp2pPlateforme();
+
+  configParDéfaut.privateKey = clefPrivée;
+  configParDéfaut.services = configParDéfaut.services || {};
+  configParDéfaut.services.obtClefPrivée = (components: ComposantesServiceClefPrivée) =>
+    new ServiceClefPrivée(components);
 
   const libp2p = (await createLibp2p(
     mergeOptions(configParDéfaut, configLibp2p),

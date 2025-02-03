@@ -33,6 +33,11 @@ import { CID } from "multiformats";
 import { isBrowser, isElectronMain, isNode } from "wherearewe";
 import { isValidAddress } from "@orbitdb/core";
 import { TypedEmitter } from "tiny-typed-emitter";
+import {
+  fromString as uint8ArrayFromString,
+  toString as uint8ArrayToString,
+} from "uint8arrays";
+import { keys } from "@libp2p/crypto";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
@@ -80,6 +85,7 @@ import {
 } from "@/orbite.js";
 import { initSFIP } from "@/sfip/index.js";
 import { Protocoles } from "./protocoles.js";
+import type { PrivateKey } from "@libp2p/interface";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
 import type { infoUtilisateur, objRôles } from "@/accès/types.js";
@@ -576,6 +582,13 @@ export class Constellation {
     let sfipFinale: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
     let orbiteFinale: OrbitDB<Libp2p<ServicesLibp2p>>;
 
+    let clefPrivée: PrivateKey | undefined = undefined;
+    const texteClefPrivée = this.obtDeStockageLocal({clef: 'idPairLibp2p', parCompte: false})
+    if (texteClefPrivée) {
+      const encoded = uint8ArrayFromString(texteClefPrivée, "base64");
+      clefPrivée = keys.privateKeyFromRaw(encoded);
+    };
+
     if (orbite) {
       if (estOrbiteDB(orbite)) {
         this._sfipExterne = this._orbiteExterne = true;
@@ -591,6 +604,7 @@ export class Constellation {
         } else {
           sfipFinale = await initSFIP({
             dossier: await join(dossier, "sfip"),
+            clefPrivée,
           });
         }
         orbiteFinale = await initOrbite({
@@ -600,9 +614,9 @@ export class Constellation {
         sfipFinale = orbiteFinale.ipfs;
       }
     } else {
-      const { initSFIP } = await import("@/sfip/index.js");
       sfipFinale = await initSFIP({
         dossier: await join(await this.dossier(), "sfip"),
+        clefPrivée,
       });
 
       const { initOrbite } = await import("@/orbite.js");
@@ -610,6 +624,12 @@ export class Constellation {
         sfip: sfipFinale,
         dossierOrbite: await join(await this.dossier(), "orbite"),
       });
+    }
+
+    if (!clefPrivée) {
+      const clefPrivéeGénérée = orbiteFinale.ipfs.libp2p.services.obtClefPrivée.obtenirClef();
+      const texteNouvelleClefPrivée = uint8ArrayToString(clefPrivéeGénérée.raw, "base64");
+      this.sauvegarderAuStockageLocal({ clef: 'idPairLibp2p', val: texteNouvelleClefPrivée, parCompte: false})
     }
 
     return { sfip: sfipFinale, orbite: orbiteFinale };
