@@ -45,8 +45,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     connectionEncrypters: [noise()],
     streamMuxers: [yamux()],
     connectionGater: {
-      denyDialMultiaddr:
-        process.env.NODE_ENV !== "test" ? () => false : undefined,
+      denyDialMultiaddr: () => false,
     },
     connectionManager: {},
     peerDiscovery: [

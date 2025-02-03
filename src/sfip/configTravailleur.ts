@@ -26,8 +26,7 @@ export const obtOptionsLibp2pTravailleurWeb =
       connectionEncrypters: [noise()],
       streamMuxers: [yamux()],
       connectionGater: {
-        denyDialMultiaddr:
-          process.env.NODE_ENV !== "test" ? () => false : undefined,
+        denyDialMultiaddr: () => false,
       },
       peerDiscovery: [
         bootstrap({
