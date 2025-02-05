@@ -583,11 +583,14 @@ export class Constellation {
     let orbiteFinale: OrbitDB<Libp2p<ServicesLibp2p>>;
 
     let clefPrivée: PrivateKey | undefined = undefined;
-    const texteClefPrivée = await this.obtDeStockageLocal({clef: 'idPairLibp2p', parCompte: false})
+    const texteClefPrivée = await this.obtDeStockageLocal({
+      clef: "idPairLibp2p",
+      parCompte: false,
+    });
     if (texteClefPrivée) {
       const encoded = uint8ArrayFromString(texteClefPrivée, "base64");
       clefPrivée = keys.privateKeyFromRaw(encoded);
-    };
+    }
 
     if (orbite) {
       if (estOrbiteDB(orbite)) {
@@ -627,9 +630,17 @@ export class Constellation {
     }
 
     if (!clefPrivée) {
-      const clefPrivéeGénérée = orbiteFinale.ipfs.libp2p.services.obtClefPrivée.obtenirClef();
-      const texteNouvelleClefPrivée = uint8ArrayToString(clefPrivéeGénérée.raw, "base64");
-      await this.sauvegarderAuStockageLocal({ clef: 'idPairLibp2p', val: texteNouvelleClefPrivée, parCompte: false})
+      const clefPrivéeGénérée =
+        orbiteFinale.ipfs.libp2p.services.obtClefPrivée.obtenirClef();
+      const texteNouvelleClefPrivée = uint8ArrayToString(
+        clefPrivéeGénérée.raw,
+        "base64",
+      );
+      await this.sauvegarderAuStockageLocal({
+        clef: "idPairLibp2p",
+        val: texteNouvelleClefPrivée,
+        parCompte: false,
+      });
     }
 
     return { sfip: sfipFinale, orbite: orbiteFinale };

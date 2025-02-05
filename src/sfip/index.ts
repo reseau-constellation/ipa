@@ -26,7 +26,10 @@ import * as consts from "./const.js";
 import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
 import type { PrivateKey } from "@libp2p/interface";
 
-export type ServicesLibp2p = DefaultLibp2pServices & { pubsub: GossipSub; obtClefPrivée: ServiceClefPrivée};
+export type ServicesLibp2p = DefaultLibp2pServices & {
+  pubsub: GossipSub;
+  obtClefPrivée: ServiceClefPrivée;
+};
 
 export const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
@@ -77,8 +80,9 @@ export async function initSFIP({
 
   configParDéfaut.privateKey = clefPrivée;
   configParDéfaut.services = configParDéfaut.services || {};
-  configParDéfaut.services.obtClefPrivée = (components: ComposantesServiceClefPrivée) =>
-    new ServiceClefPrivée(components);
+  configParDéfaut.services.obtClefPrivée = (
+    components: ComposantesServiceClefPrivée,
+  ) => new ServiceClefPrivée(components);
 
   const libp2p = (await createLibp2p(
     mergeOptions(configParDéfaut, configLibp2p),
