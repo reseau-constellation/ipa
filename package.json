@@ -33,7 +33,7 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/utils-tests": "^1.6.7",
+    "@constl/utils-tests": "^1.6.9",
     "@eslint/js": "^9.19.0",
     "@libp2p/crypto": "^5.0.10",
     "@libp2p/interface": "^2.4.1",

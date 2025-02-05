@@ -217,8 +217,8 @@ importers:
         version: https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz
     devDependencies:
       '@constl/utils-tests':
-        specifier: ^1.6.7
-        version: 1.6.7(react-native@0.76.6(@babel/core@7.26.7)(@babel/preset-env@7.26.0(@babel/core@7.26.7))(react@18.3.1))
+        specifier: ^1.6.9
+        version: 1.6.9(react-native@0.76.6(@babel/core@7.26.7)(@babel/preset-env@7.26.0(@babel/core@7.26.7))(react@18.3.1))
       '@eslint/js':
         specifier: ^9.19.0
         version: 9.19.0
@@ -1174,8 +1174,8 @@ packages:
     resolution: {integrity: sha512-U9GCw5o9ZBJHBy5XK5Rt0rEn30ceSkhhQr6UTylVAF4hJ9ChlNsPKYVdk6KHk+opcwxcdS01RMczHIwEoRzRGg==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@1.6.7':
-    resolution: {integrity: sha512-DzkciiA+vOhyr92VlNHb2dqVj5Eqi0qaExfVuE7JMiDk5CmowtgQOBTkVyJ11U3wJOh+mfdmEIlJtwdp8nbtNA==}
+  '@constl/utils-tests@1.6.9':
+    resolution: {integrity: sha512-hSD5brDadZvwFdjThyXd7Kd+Us+zHvayuM0upwCDgwvWJnnhl6NPyU+yuJCrw3Loe+9c0jX46Ib0dJY5thi97Q==}
     engines: {node: '>=20'}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -9816,7 +9816,7 @@ snapshots:
       uint8arrays: 5.1.0
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@1.6.7(react-native@0.76.6(@babel/core@7.26.7)(@babel/preset-env@7.26.0(@babel/core@7.26.7))(react@18.3.1))':
+  '@constl/utils-tests@1.6.9(react-native@0.76.6(@babel/core@7.26.7)(@babel/preset-env@7.26.0(@babel/core@7.26.7))(react@18.3.1))':
     dependencies:
       '@helia/block-brokers': 4.0.3
       '@libp2p/peer-id': 5.0.11
@@ -9829,7 +9829,7 @@ snapshots:
       crypto-browserify: 3.12.1
       events: 3.3.0
       genversion: 3.2.0
-      helia: 5.1.1(react-native@0.76.6(@babel/core@7.26.7)(@babel/preset-env@7.26.0(@babel/core@7.26.7))(react@18.3.1))
+      helia: 5.2.0(react-native@0.76.6(@babel/core@7.26.7)(@babel/preset-env@7.26.0(@babel/core@7.26.7))(react@18.3.1))
       libp2p: 2.5.1
       os-browserify: 0.3.0
       process: 0.11.10
