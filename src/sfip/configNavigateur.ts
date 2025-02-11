@@ -14,6 +14,7 @@ import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { detect } from "detect-browser";
 
+import { IDBDatastore } from "datastore-idb";
 import {
   ADRESSES_NŒUDS_INITIAUX,
   ADRESSES_NŒUDS_RELAI_RUST,
@@ -24,7 +25,14 @@ import type { Libp2pOptions } from "libp2p";
 
 // https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#recommendations-for-network-operators
 
-export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
+// https://github.com/ipfs/helia/blob/main/packages/helia/src/utils/libp2p-defaults.browser.ts#L34
+
+export const obtOptionsLibp2pNavigateur = async (
+  {dossier}: {dossier: string}
+): Promise<Libp2pOptions> => {
+  const dossierStockage = `${dossier}/libp2p`
+  const stockage = new IDBDatastore(dossierStockage);
+
   const transports = [
     webSockets({
       filter: all,
@@ -47,7 +55,7 @@ export const obtOptionsLibp2pNavigateur = async (): Promise<Libp2pOptions> => {
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
-    connectionManager: {},
+    datastore: stockage,
     peerDiscovery: [
       bootstrap({
         list: ADRESSES_NŒUDS_INITIAUX,
