@@ -8,18 +8,18 @@ Les systèmes pair à pair peuvent être **décentralisés** ou bien **distribu�
 Au contraire, dans un système distribué, tout les participants sont égaux les un aux autres. Certains peuvent être connectés avec des machines plus puissantes ou avec plus de mémoire, bien sûr, mais tous intéragissent d'égal à égal dans le réseau.
 
 ::: info INFO
-Constellation n'est **pas** une chaîne de bloques !
+Constellation n'est **pas** une chaîne de blocs !
 
-Les systèmes pair à pair ont malheureusement une mauvaise réputation, peut-être parce que la majorité des premiers logiciels populaires étaient des platformes de partage de médias piratées. Ensuite sont arrivé les cryptomonnaies basées sur les chaînes de bloques, qui ont fréquemment bien mérité leur réputation en tant que [pyramides de Ponzi](https://web3isgoinggreat.com/) et trous noirs énergétiques [notoirement inefficaces](https://www.usenix.org/publications/loginonline/web3-fraud) pour toute application utile.
+Les systèmes pair à pair ont malheureusement une mauvaise réputation, peut-être parce que la majorité des premiers logiciels populaires étaient des platformes de partage de médias piratées. Ensuite sont arrivé les cryptomonnaies basées sur les chaînes de blocs, qui ont fréquemment bien mérité leur réputation en tant que [pyramides de Ponzi](https://web3isgoinggreat.com/) et trous noirs énergétiques [notoirement inefficaces](https://www.usenix.org/publications/loginonline/web3-fraud) pour toute application utile.
 
 Donc nous répétons : Constellation est un système distribué de pair 
- en pair, mais **pas** une chaîne de bloques !
+ en pair, mais **pas** une chaîne de blocs !
 :::
 
-## Mais pourquoi pas une chaîne de bloques ?
-Premièrement, parce que c'est ben trop cher. Chaque transaction sur une chaîne de bloques comme Éthereum coûte de la fausse argent (cryptomonnaies), que vous devez malheureusement achetter avec de la vraie argent. Et les fluctuations des prix sont bien entendu complètement hors de notre contrôle. Pourquoi créer un système de données distribuées pour améliorer la souveraineté des données pour ensuite devoir payer des personnes anonymes une somme d'argent variable pour le privilège d'écrire à nos propres bases de données ?
+## Mais pourquoi pas une chaîne de blocs ?
+Premièrement, parce que c'est ben trop cher. Chaque transaction sur une chaîne de blocs comme Éthereum coûte de la fausse argent (cryptomonnaies), que vous devez malheureusement achetter avec de la vraie argent. Et les fluctuations des prix sont bien entendu complètement hors de notre contrôle. Pourquoi créer un système de données distribuées pour améliorer la souveraineté des données pour ensuite devoir payer des personnes anonymes une somme d'argent variable pour le privilège d'écrire à nos propres bases de données ?
 
-Et deuxièmement, c'est complètement inutil. Les chaînes de bloques sont nécessaires pour les cryptomonnaies et leurs transactions financières. Mais nous, on veut partager des données scientifiques. Nous n'avons rien à faire avec de l'argent ou des transactions financières.
+Et deuxièmement, c'est complètement inutil. Les chaînes de blocs sont nécessaires pour les cryptomonnaies et leurs transactions financières. Mais nous, on veut partager des données scientifiques. Nous n'avons rien à faire avec de l'argent ou des transactions financières.
 
 Donc oublions tout ça. Constellation fonctionne de manière complètement distribuée, entièrement sur les dispositifs de ses utilisatrices et utilisateurs.
 
