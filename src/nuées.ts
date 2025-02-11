@@ -1434,10 +1434,9 @@ export class Nuées extends ComposanteClientListe<string> {
   async bloquerContenu({
     idNuée,
     // contenu,
-
   }: {
     idNuée: string;
-    contenu: élémentsBd
+    contenu: élémentsBd;
   }): Promise<void> {
     const idBdBloqués = await this.client.obtIdBd({
       nom: "bloqués",
@@ -1461,7 +1460,7 @@ export class Nuées extends ComposanteClientListe<string> {
     fOublier(); */
   }
 
-  async suivreContenuBloqué() {} 
+  async suivreContenuBloqué() {}
 
   async ajouterTableauNuée({
     idNuée,

@@ -46,9 +46,7 @@ export const préparerOrbite = () => {
   enregistrerContrôleurs();
 };
 
-export async function initOrbite<
-  T extends ServicesLibp2p = ServicesLibp2p,
->({
+export async function initOrbite<T extends ServicesLibp2p = ServicesLibp2p>({
   sfip,
   dossierOrbite,
 }: {
@@ -127,7 +125,7 @@ const typerBd = <
 
 type bdOuverte<T extends Store> = { bd: T; idsRequêtes: Set<string> };
 
-export class GestionnaireOrbite <T extends ServiceMap = ServiceMap> {
+export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
   orbite: OrbitDB<T>;
   _bdsOrbite: { [key: string]: bdOuverte<Store> };
   verrouOuvertureBd: Semaphore;
@@ -410,7 +408,11 @@ export class GestionnaireOrbiteGénéral {
     this.gestionnaires = {};
   }
 
-  obtGestionnaireOrbite<T extends ServiceMap = ServiceMap>({ orbite }: { orbite: OrbitDB<T> }): GestionnaireOrbite {
+  obtGestionnaireOrbite<T extends ServiceMap = ServiceMap>({
+    orbite,
+  }: {
+    orbite: OrbitDB<T>;
+  }): GestionnaireOrbite {
     if (!this.gestionnaires[orbite.identity.id]) {
       this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite(orbite);
     }

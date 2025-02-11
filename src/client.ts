@@ -111,7 +111,7 @@ type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
 >;
 
-type ÉvénementsClient <T extends ServicesLibp2p = ServicesLibp2p> = {
+type ÉvénementsClient<T extends ServicesLibp2p = ServicesLibp2p> = {
   comptePrêt: (args: { idCompte: string }) => void;
   erreurInitialisation: (args: Error) => void;
   sfipEtOrbitePrêts: (args: {
@@ -141,7 +141,7 @@ export interface Signature {
   clefPublique: string;
 }
 
-export interface optsConstellation <T extends ServicesLibp2p = ServicesLibp2p> {
+export interface optsConstellation<T extends ServicesLibp2p = ServicesLibp2p> {
   dossier?: string;
   sujetRéseau?: string;
   protocoles?: string[];
@@ -149,7 +149,7 @@ export interface optsConstellation <T extends ServicesLibp2p = ServicesLibp2p> {
   messageVerrou?: string;
 }
 
-export type optsInitOrbite <T extends ServicesLibp2p = ServicesLibp2p> = Omit<
+export type optsInitOrbite<T extends ServicesLibp2p = ServicesLibp2p> = Omit<
   Parameters<typeof createOrbitDB>[0],
   "ipfs" | "directory"
 > & {
@@ -157,7 +157,9 @@ export type optsInitOrbite <T extends ServicesLibp2p = ServicesLibp2p> = Omit<
   ipfs?: HeliaLibp2p<Libp2p<T>>;
 };
 
-export type optsOrbite <T extends ServicesLibp2p = ServicesLibp2p> = OrbitDB<T> | optsInitOrbite<T>;
+export type optsOrbite<T extends ServicesLibp2p = ServicesLibp2p> =
+  | OrbitDB<T>
+  | optsInitOrbite<T>;
 
 export type structureBdCompte = {
   protocoles?: string;
@@ -250,7 +252,7 @@ const join = async (...args: string[]) => {
   }
 };
 
-export class Constellation <T extends ServicesLibp2p = ServicesLibp2p> {
+export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   _opts: optsConstellation<T>;
   événements: TypedEmitter<ÉvénementsClient<T>>;
 
@@ -605,10 +607,10 @@ export class Constellation <T extends ServicesLibp2p = ServicesLibp2p> {
           this._sfipExterne = true;
           sfipFinale = orbite.ipfs;
         } else {
-          sfipFinale = await initSFIP({
+          sfipFinale = (await initSFIP({
             dossier: await join(dossier, "sfip"),
             clefPrivée,
-          }) as unknown as HeliaLibp2p<Libp2p<T>>;
+          })) as unknown as HeliaLibp2p<Libp2p<T>>;
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
@@ -617,10 +619,10 @@ export class Constellation <T extends ServicesLibp2p = ServicesLibp2p> {
         sfipFinale = orbiteFinale.ipfs;
       }
     } else {
-      sfipFinale = await initSFIP({
+      sfipFinale = (await initSFIP({
         dossier: await join(await this.dossier(), "sfip"),
         clefPrivée,
-      }) as unknown as HeliaLibp2p<Libp2p<T>>;
+      })) as unknown as HeliaLibp2p<Libp2p<T>>;
 
       const { initOrbite } = await import("@/orbite.js");
       orbiteFinale = await initOrbite({
@@ -2873,7 +2875,9 @@ export class Constellation <T extends ServicesLibp2p = ServicesLibp2p> {
     }
   }
 
-  static async créer<T extends ServicesLibp2p = ServicesLibp2p>(opts: optsConstellation<T> = {}): Promise<Constellation<T>> {
+  static async créer<T extends ServicesLibp2p = ServicesLibp2p>(
+    opts: optsConstellation<T> = {},
+  ): Promise<Constellation<T>> {
     const client = new Constellation(opts);
     await client.attendreInitialisée();
     return client;

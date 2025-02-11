@@ -31,28 +31,26 @@ export type ServicesLibp2p = {
   obtClefPrivée: ServiceClefPrivée;
 };
 
-export const obtConfigLibp2pPlateforme = async ({ dossier }: { dossier: string }): Promise<Libp2pOptions> => {
+export const obtConfigLibp2pPlateforme = async ({
+  dossier,
+}: {
+  dossier: string;
+}): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
   if (isBrowser || isElectronRenderer) {
     // À faire - migrer vers travailleur ?
-    configPlateforme = await obtOptionsLibp2pNavigateur(
-      { dossier }
-    );
+    configPlateforme = await obtOptionsLibp2pNavigateur({ dossier });
   } else if (isWebWorker) {
     configPlateforme = await obtOptionsLibp2pTravailleurWeb();
   } else if (isElectronMain) {
-    configPlateforme = await obtOptionsLibp2pÉlectionPrincipal({dossier});
+    configPlateforme = await obtOptionsLibp2pÉlectionPrincipal({ dossier });
   } else if (isNode) {
-    configPlateforme = await obtOptionsLibp2pNode(
-      { dossier }
-    );
+    configPlateforme = await obtOptionsLibp2pNode({ dossier });
   } else {
     console.warn(
       "Plateforme non reconnue. On utilisera la configuration navigateur.",
     );
-    configPlateforme = await obtOptionsLibp2pNavigateur(
-      { dossier }
-    );
+    configPlateforme = await obtOptionsLibp2pNavigateur({ dossier });
   }
   return configPlateforme;
 };

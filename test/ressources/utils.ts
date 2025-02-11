@@ -43,4 +43,4 @@ export const générerClientsInternes = async ({
   return { fOublier, clients };
 };
 
-export type OrbitDbTest = OrbitDB<libp2pTest.ServicesLibp2pConstlTest>
+export type OrbitDbTest = OrbitDB<libp2pTest.ServicesLibp2pConstlTest>;

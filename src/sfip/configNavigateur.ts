@@ -27,10 +27,12 @@ import type { Libp2pOptions } from "libp2p";
 
 // https://github.com/ipfs/helia/blob/main/packages/helia/src/utils/libp2p-defaults.browser.ts#L34
 
-export const obtOptionsLibp2pNavigateur = async (
-  {dossier}: {dossier: string}
-): Promise<Libp2pOptions> => {
-  const dossierStockage = `${dossier}/libp2p`
+export const obtOptionsLibp2pNavigateur = async ({
+  dossier,
+}: {
+  dossier: string;
+}): Promise<Libp2pOptions> => {
+  const dossierStockage = `${dossier}/libp2p`;
   const stockage = new IDBDatastore(dossierStockage);
 
   const transports = [

@@ -16,63 +16,66 @@ import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import type { Libp2pOptions } from "libp2p";
 // import { kadDHT } from "@libp2p/kad-dht";
 
-export const obtOptionsLibp2pÉlectionPrincipal =
-  async ({dossier}: {dossier: string}): Promise<Libp2pOptions> => {
-    const { tcp } = await import("@libp2p/tcp");
-    const { mdns } = await import("@libp2p/mdns");
-    const { FsDatastore } = await import("datastore-fs")
-    const dossierStockage = join(dossier, 'libp2p')
-    const stockage = new FsDatastore(dossierStockage);
+export const obtOptionsLibp2pÉlectionPrincipal = async ({
+  dossier,
+}: {
+  dossier: string;
+}): Promise<Libp2pOptions> => {
+  const { tcp } = await import("@libp2p/tcp");
+  const { mdns } = await import("@libp2p/mdns");
+  const { FsDatastore } = await import("datastore-fs");
+  const dossierStockage = join(dossier, "libp2p");
+  const stockage = new FsDatastore(dossierStockage);
 
-    return {
-      addresses: {
-        listen: [
-          "/ip4/0.0.0.0/tcp/0/ws",
-          "/webrtc",
-          "/webtransport",
-          "/p2p-circuit",
-        ],
-      },
-      transports: [
-        webSockets({
-          filter: all,
-        }),
-        webRTC(),
-        webTransport(),
-        webRTCDirect(),
-        tcp(),
-        circuitRelayTransport(),
+  return {
+    addresses: {
+      listen: [
+        "/ip4/0.0.0.0/tcp/0/ws",
+        "/webrtc",
+        "/webtransport",
+        "/p2p-circuit",
       ],
-      connectionEncrypters: [noise()],
-      streamMuxers: [yamux()],
-      connectionGater: {
-        denyDialMultiaddr: () => false,
-      },
-      datastore: stockage,
-      peerDiscovery: [
-        mdns(),
-        bootstrap({
-          list: ADRESSES_NŒUDS_INITIAUX,
-          timeout: 0,
-        }),
-        pubsubPeerDiscovery({
-          interval: 1000,
-          topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
-          listenOnly: false,
-        }),
-      ],
-      services: {
-        identify: identify(),
-        autoNAT: autoNAT(),
-        dcutr: dcutr(),
-        pubsub: gossipsub({
-          allowPublishToZeroTopicPeers: true,
-          runOnLimitedConnection: true,
-          canRelayMessage: true,
-        }),
-        /*dht: kadDHT({
+    },
+    transports: [
+      webSockets({
+        filter: all,
+      }),
+      webRTC(),
+      webTransport(),
+      webRTCDirect(),
+      tcp(),
+      circuitRelayTransport(),
+    ],
+    connectionEncrypters: [noise()],
+    streamMuxers: [yamux()],
+    connectionGater: {
+      denyDialMultiaddr: () => false,
+    },
+    datastore: stockage,
+    peerDiscovery: [
+      mdns(),
+      bootstrap({
+        list: ADRESSES_NŒUDS_INITIAUX,
+        timeout: 0,
+      }),
+      pubsubPeerDiscovery({
+        interval: 1000,
+        topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
+        listenOnly: false,
+      }),
+    ],
+    services: {
+      identify: identify(),
+      autoNAT: autoNAT(),
+      dcutr: dcutr(),
+      pubsub: gossipsub({
+        allowPublishToZeroTopicPeers: true,
+        runOnLimitedConnection: true,
+        canRelayMessage: true,
+      }),
+      /*dht: kadDHT({
           clientMode: true,
         }),*/
-      },
-    };
+    },
   };
+};
