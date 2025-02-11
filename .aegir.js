@@ -187,7 +187,8 @@ const avantTest = async (opts) => {
   return { 
     // fermerNavigateur, 
     // fermerNode, 
-    fermerServeurLocal };
+    fermerServeurLocal 
+  };
 };
 
 const aprèsTest = async (_, avant) => {
