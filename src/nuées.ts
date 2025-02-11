@@ -1431,6 +1431,38 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
+  async bloquerContenu({
+    idNuée,
+    // contenu,
+
+  }: {
+    idNuée: string;
+    contenu: élémentsBd
+  }): Promise<void> {
+    const idBdBloqués = await this.client.obtIdBd({
+      nom: "bloqués",
+      racine: idNuée,
+      type: "keyvalue",
+    });
+    if (!idBdBloqués) {
+      throw new Error(
+        `Permission de modification refusée pour nuée ${idNuée}.`,
+      );
+    }
+
+    /* const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdBloqués,
+      type: "set",
+      schéma: schémaBdContenuBloqué,
+    });
+    await bd.add({
+      contenu,
+    });
+    fOublier(); */
+  }
+
+  async suivreContenuBloqué() {} 
+
   async ajouterTableauNuée({
     idNuée,
     clefTableau,
