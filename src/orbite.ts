@@ -31,6 +31,7 @@ import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 import type { HeliaLibp2p } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2p } from "./sfip/index.js";
+import type { ServiceMap } from "@libp2p/interface";
 
 export type Store =
   | FeedDatabaseType
@@ -46,12 +47,12 @@ export const préparerOrbite = () => {
 };
 
 export async function initOrbite<
-  T extends Libp2p<ServicesLibp2p> = Libp2p<ServicesLibp2p>,
+  T extends ServicesLibp2p = ServicesLibp2p,
 >({
   sfip,
   dossierOrbite,
 }: {
-  sfip: HeliaLibp2p<T>;
+  sfip: HeliaLibp2p<Libp2p<T>>;
   dossierOrbite: string;
 }): Promise<OrbitDB<T>> {
   préparerOrbite();
@@ -126,13 +127,13 @@ const typerBd = <
 
 type bdOuverte<T extends Store> = { bd: T; idsRequêtes: Set<string> };
 
-export class GestionnaireOrbite {
-  orbite: OrbitDB;
+export class GestionnaireOrbite <T extends ServiceMap = ServiceMap> {
+  orbite: OrbitDB<T>;
   _bdsOrbite: { [key: string]: bdOuverte<Store> };
   verrouOuvertureBd: Semaphore;
   _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
 
-  constructor(orbite: OrbitDB) {
+  constructor(orbite: OrbitDB<T>) {
     this.orbite = orbite;
 
     this._bdsOrbite = {};
@@ -409,7 +410,7 @@ export class GestionnaireOrbiteGénéral {
     this.gestionnaires = {};
   }
 
-  obtGestionnaireOrbite({ orbite }: { orbite: OrbitDB }): GestionnaireOrbite {
+  obtGestionnaireOrbite<T extends ServiceMap = ServiceMap>({ orbite }: { orbite: OrbitDB<T> }): GestionnaireOrbite {
     if (!this.gestionnaires[orbite.identity.id]) {
       this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite(orbite);
     }
@@ -420,7 +421,7 @@ export class GestionnaireOrbiteGénéral {
     orbite,
     arrêterOrbite,
   }: {
-    orbite: OrbitDB;
+    orbite: OrbitDB<ServiceMap>;
     arrêterOrbite: boolean;
   }): Promise<void> {
     const gestionnaireOrbite = this.obtGestionnaireOrbite({ orbite });

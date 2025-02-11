@@ -1,6 +1,6 @@
 import toBuffer from "it-to-buffer";
 
-import { OrbitDB, isValidAddress } from "@orbitdb/core";
+import { isValidAddress } from "@orbitdb/core";
 
 import {
   faisRien,
@@ -27,6 +27,7 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { Constellation, infoAccès } from "@/client.js";
 import { générerClientsInternes } from "./ressources/utils.js";
+import type { OrbitDbTest } from "./ressources/utils";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
@@ -75,8 +76,8 @@ describe("Fermeture sécuritaire", function () {
 if (isNode || isElectronMain) {
   describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
-    let orbites: OrbitDB[];
-    let orbite2: OrbitDB, orbite3: OrbitDB;
+    let orbites: OrbitDbTest[];
+    let orbite2: OrbitDbTest, orbite3: OrbitDbTest;
     let clients: Constellation[];
     let client: Constellation,
       client2: Constellation,

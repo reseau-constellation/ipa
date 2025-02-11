@@ -23,30 +23,36 @@ import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import * as consts from "./const.js";
-import type { GossipSub } from "@chainsafe/libp2p-gossipsub";
-import type { PrivateKey } from "@libp2p/interface";
+import type { GossipsubEvents } from "@chainsafe/libp2p-gossipsub";
+import type { PrivateKey, PubSub } from "@libp2p/interface";
 
-export type ServicesLibp2p = DefaultLibp2pServices & {
-  pubsub: GossipSub;
+export type ServicesLibp2p = {
+  pubsub: PubSub<GossipsubEvents>;
   obtClefPrivée: ServiceClefPrivée;
 };
 
-export const obtConfigLibp2pPlateforme = async (): Promise<Libp2pOptions> => {
+export const obtConfigLibp2pPlateforme = async ({ dossier }: { dossier: string }): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
   if (isBrowser || isElectronRenderer) {
     // À faire - migrer vers travailleur ?
-    configPlateforme = await obtOptionsLibp2pNavigateur();
+    configPlateforme = await obtOptionsLibp2pNavigateur(
+      { dossier }
+    );
   } else if (isWebWorker) {
     configPlateforme = await obtOptionsLibp2pTravailleurWeb();
   } else if (isElectronMain) {
-    configPlateforme = await obtOptionsLibp2pÉlectionPrincipal();
+    configPlateforme = await obtOptionsLibp2pÉlectionPrincipal({dossier});
   } else if (isNode) {
-    configPlateforme = await obtOptionsLibp2pNode();
+    configPlateforme = await obtOptionsLibp2pNode(
+      { dossier }
+    );
   } else {
     console.warn(
       "Plateforme non reconnue. On utilisera la configuration navigateur.",
     );
-    configPlateforme = await obtOptionsLibp2pNavigateur();
+    configPlateforme = await obtOptionsLibp2pNavigateur(
+      { dossier }
+    );
   }
   return configPlateforme;
 };
@@ -56,7 +62,7 @@ interface ComposantesServiceClefPrivée {
 }
 
 class ServiceClefPrivée {
-  private privateKey: PrivateKey;
+  privateKey: PrivateKey;
 
   constructor(components: ComposantesServiceClefPrivée) {
     this.privateKey = components.privateKey;
@@ -76,7 +82,7 @@ export async function initSFIP({
   clefPrivée?: PrivateKey;
   configLibp2p?: Libp2pOptions;
 }): Promise<HeliaLibp2p<Libp2p<ServicesLibp2p>>> {
-  const configParDéfaut = await obtConfigLibp2pPlateforme();
+  const configParDéfaut = await obtConfigLibp2pPlateforme({ dossier });
 
   configParDéfaut.privateKey = clefPrivée;
   configParDéfaut.services = configParDéfaut.services || {};
@@ -97,13 +103,13 @@ export async function initSFIP({
     }
   });
   const dossierDonnées = `${dossier}/données`;
-  const dossierBloques = `${dossier}/blocks`;
+  const dossierBlocs = `${dossier}/blocks`;
 
   // Importer FsBlockstore et FsDatastore dynamiquement pour éviter les erreurs de compilation sur le navigateur
-  const stockageBloques =
+  const stockageBlocs =
     isNode || isElectronMain
-      ? new (await import("blockstore-fs")).FsBlockstore(dossierBloques)
-      : new IDBBlockstore(dossierBloques);
+      ? new (await import("blockstore-fs")).FsBlockstore(dossierBlocs)
+      : new IDBBlockstore(dossierBlocs);
   const stockageDonnées =
     isNode || isElectronMain
       ? new (await import("datastore-fs")).FsDatastore(dossierDonnées)
@@ -111,12 +117,12 @@ export async function initSFIP({
 
   // Ouverture manuelle requise pour une drôle de raison pour l'instant.
   if (!(isNode || isElectronMain)) {
-    await stockageBloques.open();
+    await stockageBlocs.open();
     await stockageDonnées.open();
   }
 
   const optionsHelia: HeliaInit = {
-    blockstore: stockageBloques,
+    blockstore: stockageBlocs,
     datastore: stockageDonnées,
     libp2p,
     blockBrokers: [bitswap()],

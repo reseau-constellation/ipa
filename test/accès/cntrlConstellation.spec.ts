@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
-import { type OrbitDB, KeyValueDatabase } from "@orbitdb/core";
+import { KeyValueDatabase } from "@orbitdb/core";
 import { orbite } from "@constl/utils-tests";
 import { typedKeyValue } from "@constl/bohr-db";
 import { expect } from "aegir/chai";
@@ -10,6 +10,7 @@ import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { JSONSchemaType } from "ajv";
+import type { OrbitDbTest } from "../ressources/utils";
 
 type TypeContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
@@ -44,8 +45,8 @@ describe("Contrôleur Constellation", function () {
     describe("Accès utilisateur", function () {
       describe("Accès par id Orbite", function () {
         let fOublierOrbites: () => Promise<void>;
-        let orbites: OrbitDB[];
-        let orbitdb1: OrbitDB, orbitdb2: OrbitDB;
+        let orbites: OrbitDbTest[];
+        let orbitdb1: OrbitDbTest, orbitdb2: OrbitDbTest;
         let bd: KeyValueDatabase;
 
         before(async () => {
@@ -111,11 +112,11 @@ describe("Contrôleur Constellation", function () {
 
       describe("Accès par id BD racine", function () {
         let fOublierOrbites: () => Promise<void>;
-        let orbites: OrbitDB[];
-        let orbitdb1: OrbitDB,
-          orbitdb2: OrbitDB,
-          orbitdb3: OrbitDB,
-          orbitdb4: OrbitDB;
+        let orbites: OrbitDbTest[];
+        let orbitdb1: OrbitDbTest,
+          orbitdb2: OrbitDbTest,
+          orbitdb3: OrbitDbTest,
+          orbitdb4: OrbitDbTest;
 
         let bdRacine: KeyValueDatabase;
         let bdRacine2: KeyValueDatabase;

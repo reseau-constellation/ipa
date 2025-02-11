@@ -111,11 +111,11 @@ type ContrôleurConstellation = Awaited<
   ReturnType<ReturnType<typeof générerContrôleurConstellation>>
 >;
 
-type ÉvénementsClient = {
+type ÉvénementsClient <T extends ServicesLibp2p = ServicesLibp2p> = {
   comptePrêt: (args: { idCompte: string }) => void;
   erreurInitialisation: (args: Error) => void;
   sfipEtOrbitePrêts: (args: {
-    sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+    sfip: HeliaLibp2p<Libp2p<T>>;
     orbite: GestionnaireOrbite;
   }) => void;
 };
@@ -141,23 +141,23 @@ export interface Signature {
   clefPublique: string;
 }
 
-export interface optsConstellation {
+export interface optsConstellation <T extends ServicesLibp2p = ServicesLibp2p> {
   dossier?: string;
   sujetRéseau?: string;
   protocoles?: string[];
-  orbite?: optsOrbite;
+  orbite?: optsOrbite<T>;
   messageVerrou?: string;
 }
 
-export type optsInitOrbite = Omit<
+export type optsInitOrbite <T extends ServicesLibp2p = ServicesLibp2p> = Omit<
   Parameters<typeof createOrbitDB>[0],
   "ipfs" | "directory"
 > & {
   directory?: string;
-  ipfs?: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+  ipfs?: HeliaLibp2p<Libp2p<T>>;
 };
 
-export type optsOrbite = OrbitDB<Libp2p<ServicesLibp2p>> | optsInitOrbite;
+export type optsOrbite <T extends ServicesLibp2p = ServicesLibp2p> = OrbitDB<T> | optsInitOrbite<T>;
 
 export type structureBdCompte = {
   protocoles?: string;
@@ -250,12 +250,12 @@ const join = async (...args: string[]) => {
   }
 };
 
-export class Constellation {
-  _opts: optsConstellation;
-  événements: TypedEmitter<ÉvénementsClient>;
+export class Constellation <T extends ServicesLibp2p = ServicesLibp2p> {
+  _opts: optsConstellation<T>;
+  événements: TypedEmitter<ÉvénementsClient<T>>;
 
   orbite?: GestionnaireOrbite;
-  sfip?: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+  sfip?: HeliaLibp2p<Libp2p<T>>;
 
   épingles: Épingles;
   profil: Profil;
@@ -285,10 +285,10 @@ export class Constellation {
   verrouObtIdBd: Semaphore;
   _intervaleVerrou?: NodeJS.Timeout;
 
-  constructor(opts: optsConstellation = {}) {
+  constructor(opts: optsConstellation<T> = {}) {
     this._opts = opts;
 
-    this.événements = new TypedEmitter<ÉvénementsClient>();
+    this.événements = new TypedEmitter<ÉvénementsClient<T>>();
 
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
@@ -466,7 +466,7 @@ export class Constellation {
 
   async attendreSfipEtOrbite(): Promise<{
     orbite: GestionnaireOrbite;
-    sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
+    sfip: HeliaLibp2p<Libp2p<T>>;
   }> {
     if (this.sfip && this.orbite) {
       return {
@@ -572,15 +572,15 @@ export class Constellation {
   }
 
   async _générerSFIPetOrbite(): Promise<{
-    sfip: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
-    orbite: OrbitDB;
+    sfip: HeliaLibp2p<Libp2p<T>>;
+    orbite: OrbitDB<T>;
   }> {
     const dossier = await this.dossier();
 
     const { orbite } = this._opts;
 
-    let sfipFinale: HeliaLibp2p<Libp2p<ServicesLibp2p>>;
-    let orbiteFinale: OrbitDB<Libp2p<ServicesLibp2p>>;
+    let sfipFinale: HeliaLibp2p<Libp2p<T>>;
+    let orbiteFinale: OrbitDB<T>;
 
     let clefPrivée: PrivateKey | undefined = undefined;
     const texteClefPrivée = await this.obtDeStockageLocal({
@@ -608,7 +608,7 @@ export class Constellation {
           sfipFinale = await initSFIP({
             dossier: await join(dossier, "sfip"),
             clefPrivée,
-          });
+          }) as unknown as HeliaLibp2p<Libp2p<T>>;
         }
         orbiteFinale = await initOrbite({
           sfip: sfipFinale,
@@ -620,7 +620,7 @@ export class Constellation {
       sfipFinale = await initSFIP({
         dossier: await join(await this.dossier(), "sfip"),
         clefPrivée,
-      });
+      }) as unknown as HeliaLibp2p<Libp2p<T>>;
 
       const { initOrbite } = await import("@/orbite.js");
       orbiteFinale = await initOrbite({
@@ -2873,7 +2873,7 @@ export class Constellation {
     }
   }
 
-  static async créer(opts: optsConstellation = {}): Promise<Constellation> {
+  static async créer<T extends ServicesLibp2p = ServicesLibp2p>(opts: optsConstellation<T> = {}): Promise<Constellation<T>> {
     const client = new Constellation(opts);
     await client.attendreInitialisée();
     return client;

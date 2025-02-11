@@ -1,11 +1,10 @@
 import { orbite } from "@constl/utils-tests";
 
 import { isBrowser } from "wherearewe";
-import { OrbitDB } from "@orbitdb/core";
-import { Libp2p } from "@libp2p/interface";
 import { Constellation as ConstellationInterne } from "@/client.js";
 import { préparerOrbite } from "@/orbite.js";
-import { ServicesLibp2p } from "@/sfip";
+import type { OrbitDB } from "@orbitdb/core";
+import type { libp2p as libp2pTest } from "@constl/utils-tests";
 
 export const générerClientsInternes = async ({
   n,
@@ -31,7 +30,8 @@ export const générerClientsInternes = async ({
     [...Array(n).keys()].map(async (i) => {
       return await ConstellationInterne.créer({
         dossier: orbites[i].directory.split("/").slice(0, -1).join("/"),
-        orbite: orbites[i] as OrbitDB<Libp2p<ServicesLibp2p>>,
+        // @ts-expect-error type privateKey
+        orbite: orbites[i],
       });
     }),
   );
@@ -42,3 +42,5 @@ export const générerClientsInternes = async ({
   };
   return { fOublier, clients };
 };
+
+export type OrbitDbTest = OrbitDB<libp2pTest.ServicesLibp2pConstlTest>
