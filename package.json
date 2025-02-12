@@ -124,7 +124,7 @@
     "@localfirst/auth": "^6.0.0",
     "@localfirst/crypto": "^6.0.0",
     "@multiformats/multiaddr-matcher": "^1.6.0",
-    "@orbitdb/core": "github:julienmalard/orbit-db#patch-1",
+    "@orbitdb/core": "^2.4.3",
     "@orbitdb/feed-db": "^1.1.1",
     "@orbitdb/ordered-keyvalue-db": "^1.1.1",
     "@orbitdb/set-db": "^1.1.1",
