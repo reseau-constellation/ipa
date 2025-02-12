@@ -34,6 +34,7 @@ export const obtOptionsLibp2pNavigateur = async ({
 }): Promise<Libp2pOptions> => {
   const dossierStockage = `${dossier}/libp2p`;
   const stockage = new IDBDatastore(dossierStockage);
+  await stockage.open()
 
   const transports = [
     webSockets({
