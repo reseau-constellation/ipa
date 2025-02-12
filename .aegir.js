@@ -114,7 +114,6 @@ const lancerSfipDansNavigateur = async (_opts) => {
     const umdPre = `(function (root, factory) {(typeof module === 'object' && module.exports) ? module.exports = factory() : root.${globalName} = factory()}(typeof self !== 'undefined' ? self : this, function () {`;
     const umdPost = `return ${globalName}}));`;
     const configEsbuild = await config.obtConfigEsbuild();
-    console.log("là 1");
     await esbuildCmd.build({
       entryPoints: ["dist/test/utils/lancerNœud.js"],
       bundle: true,
@@ -129,7 +128,6 @@ const lancerSfipDansNavigateur = async (_opts) => {
       },
       ...configEsbuild,
     });
-    console.log("là 2");
     const fichierHtml = path.join(dossierCompilation, "lancerNœud.html");
 
     const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -141,7 +139,6 @@ const lancerSfipDansNavigateur = async (_opts) => {
     const promesseIdPair = new Promise((résoudre) => {
       const fDonnées = (x) => {
         const texte = x.text();
-        console.log(texte);
         if (texte.startsWith("SFIP initialisé avec id de nœud :")) {
           page.off("console", fDonnées);
           const id = texte.split("\n")[0].split(":")[1].trim();
@@ -151,9 +148,7 @@ const lancerSfipDansNavigateur = async (_opts) => {
       page.on("console", fDonnées);
     });
     await page.goto(`file://${fichierHtml}`);
-    console.log("là 3");
     idPair = await promesseIdPair;
-    console.log("là 1");
   } catch (e) {
     // On arrête pas les tests pour une petite erreur comme ça
     console.error(e);
@@ -203,11 +198,8 @@ const générerConfigÆgirFinal = async () => {
 
   const avantTestDéfaut = configÆgir.test.before;
   configÆgir.test.before = async (opts) => {
-    console.log("ici");
     const retourAvantTestDéfaut = await avantTestDéfaut(opts);
-    console.log("ici 1");
     const retourAvantTest = await avantTest(opts);
-    console.log("ici 2");
     return {
       ...retourAvantTestDéfaut,
       ...retourAvantTest,
