@@ -16,7 +16,6 @@ import { isValidAddress } from "@orbitdb/core";
 import { expect } from "aegir/chai";
 import JSZip from "jszip";
 import { isElectronMain, isNode } from "wherearewe";
-import { préparerOrbite } from "@/orbite.js";
 import { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 import { créerConstellation, type Constellation } from "@/index.js";
 import { obtRessourceTest } from "./ressources/index.js";
@@ -46,7 +45,6 @@ describe("BDs", function () {
   const fsOublier: schémaFonctionOublier[] = [];
 
   before(async () => {
-    préparerOrbite();
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
       n: 1,
       créerConstellation,
