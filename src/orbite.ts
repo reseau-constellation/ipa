@@ -244,7 +244,11 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     }
 
     try {
-      const bd = (await this.orbite.open(id, { type, ...options, sync: true })) as T;
+      const bd = (await this.orbite.open(id, {
+        type,
+        ...options,
+        sync: true,
+      })) as T;
 
       this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
 
