@@ -187,8 +187,8 @@ const avantTest = async (opts) => {
 };
 
 const aprèsTest = async (_, avant) => {
-  await avant?.fermerNavigateur();
-  await avant?.fermerNode();
+  await avant.fermerNavigateur?.();
+  await avant.fermerNode?.();
   await avant?.fermerServeurLocal();
 };
 
