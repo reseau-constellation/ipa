@@ -24,16 +24,17 @@ Vous devrez d'abord initialiser un nœud Constellation local sur votre machine. 
 import Constellation
 
 # D'abord, lancer le nœud local
-Constellation.avecServeur() do port
-    Constellation.avecClient(port) do client
+Constellation.avecServeur() do port, codeSecret
+    Constellation.avecClient(port, codeSecret) do client
         # Faire quelque chose avec Constellation...
     end
 end
 
 # Ou, si vous avez lancé le nœud local à travers l'interface, notez le numéro de port et puis lancer le client directement
 port = 5123  # Changer comme nécessaire
+codeSecret = "le code secret donné par le serveur"
 
-Constellation.avecClient(port) do client
+Constellation.avecClient(port, codeSecret) do client
     # Faire quelque chose avec Constellation...
 end
 ```
@@ -47,8 +48,8 @@ Pour appeller une fonction de suivi, utilisez `Constellation.suivi`. Cette fonct
 import Constellation
 
 # D'abord, lancer le nœud local
-Constellation.avecServeur() do port
-    Constellation.avecClient(port) do client
+Constellation.avecServeur() do port, codeSecret
+    Constellation.avecClient(port, codeSecret) do client
         
         # Vous pouvez appeler une fonction sans argument...
         idCompte = Constellation.action(client, "obtIdCompte")
@@ -88,8 +89,8 @@ Quelques fonctions spéciales vous permettent d'effectuer rapidement des actions
 import Constellation
 
 # D'abord, lancer le nœud local
-Constellation.avecServeur() do port
-    Constellation.avecClient(port) do client
+Constellation.avecServeur() do port, codeSecret
+    Constellation.avecClient(port, codeSecret) do client
 
         # Obtenir les données d'un Tableau
         donnéesTableau = Constellation.obtDonnéesTableau(client, idTableau)
@@ -107,8 +108,8 @@ Les fonctions de recherche fonctionnent comme `Constellation.suivi`, mais elles 
 import Constellation
 
 # D'abord, lancer le nœud local
-Constellation.avecServeur() do port
-    Constellation.avecClient(port) do client
+Constellation.avecServeur() do port, codeSecret
+    Constellation.avecClient(port, codeSecret) do client
         
         # Créer 5 variables pour rechercher
         variables = [
@@ -193,8 +194,8 @@ Le client Julia inclut également quelques fonctions spéciales pour faciliter l
 import Constellation
 
 # D'abord, lancer le nœud local
-Constellation.avecServeur() do port
-    Constellation.avecClient(port) do client
+Constellation.avecServeur() do port, codeSecret
+    Constellation.avecClient(port, codeSecret) do client
         # Obtenir les données d'un tableau
         donnéesTableau = Constellation.obtDonnéesTableau(client, idTableau, ["த", "fr"])
 

@@ -181,12 +181,14 @@ library(constellationR)
 
 // Le numéro du port sur lequel vous avez lancé Constellation
 port <- 5003
+codeSecret <- "le code secret donné par le serveur"
 
 constellationR::avecClient(
   function(client) {
     // Faire quelque chose avec le client...
   },
-  port = port
+  port = port,
+  codeSecret = codeSecret
 )
 
 ```
