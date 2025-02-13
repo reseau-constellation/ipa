@@ -1,1 +1,0 @@
-import{_ as i,c as e,ag as a,o as t}from"./chunks/framework.D0uJDdXE.js";const u=JSON.parse('{"title":"Nuées","description":"","frontmatter":{},"headers":[],"relativePath":"ipa/nuées.md","filePath":"ipa/nuées.md"}'),n={name:"ipa/nuées.md"};function l(h,s,r,p,d,k){return t(),e("div",null,s[0]||(s[0]=[a("",375)]))}const c=i(n,[["render",l]]);export{u as __pageData,c as default};
