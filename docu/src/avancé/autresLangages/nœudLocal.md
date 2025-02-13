@@ -4,7 +4,7 @@
 La librairie `@constl/serveur` vous permet de créer un nœud local Constellation et de le rendre accessible à d'autres logiciels sur votre machine par l'entremise d'un serveur WS local.
 
 ::: danger DANGER
-⚠️ Ce serveur **local** n'est pas apte à être utilisé en tant que serveur publique ! Entre autres limitations, **il n'y a aucun contrôle d'authentification et il donne accès illimité à un environnement Node.js**. Il est donc configuré afin d'être uniquement disponible sur localhost. Ce serveur est dédié uniquement à la communication entre processus sur le même ordinateur, lorsque différents processus veulent accéder au même nœud Constellation local.
+⚠️ Ce serveur **local** n'est pas apte à être utilisé en tant que serveur publique ! Entre autres limitations, **il donne accès illimité à un environnement Node.js**. Il est donc configuré afin d'être uniquement disponible sur localhost. Ce serveur est dédié uniquement à la communication entre processus sur le même ordinateur, lorsque différents processus veulent accéder au même nœud Constellation local.
 
 **N'exposez jamais le serveur WS Constellation sur un port publique.**
 :::
