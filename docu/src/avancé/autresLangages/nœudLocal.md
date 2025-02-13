@@ -22,11 +22,10 @@ $ curl https://raw.githubusercontent.com/reseau-constellation/serveur-ws/princip
 :::
 
 ### Ligne de commande
-Vous pourrez ensuite lancer le nœud local en spécifiant (ou non) le port, l'identifiant de compte, et les dossiers à utiliser pour sauvegarder les données de votre compte :
+Vous pourrez ensuite lancer le nœud local en spécifiant (ou non) le port et le dossier à utiliser pour sauvegarder les données de votre compte :
 
-`$ constl lancer [-p <port>] [--compte <id-compte>] [--doss-orbite <dossierOrbite>] [--doss-sfip <dossierSFIP>]`
+`$ constl lancer [-p <port>] [--dossier <dossier>]`
 
-Si vous ne comprennez pas ce que font les options de compte ou de dossier, laissez-les vides et inquiétez-vous pas ; ça fonctionnera pareil.
 
 Pour obtenir le numéro de la version :
 ```bash
@@ -61,9 +60,10 @@ Constellation elle-même (`@constl/ipa`) est spécifiée en tant que dépendance
 ```JavaScript
 import { lancerServeur } from "@constl/serveur";
 
-const { fermerServeur, port } = await lancerServeur();
+const { fermerServeur, port, codeSecret } = await lancerServeur();
 
 // `port` contient maintenant le numéro de port à utiliser dans le client
+// `codeSecret` contient le code secret à utiliser pour se connecter au serveur
 
 // Lorsqu'on a fini :
 fermerServeur();
@@ -75,15 +75,10 @@ Invoqué sans configuration, `lancerServeur` trouvera un port disponible sur `lo
 ```TypeScript
 import { lancerServeur } from "@constl/serveur";
 
-const { fermerServeur, port } = await lancerServeur({
+const { fermerServeur, port, codeSecret } = await lancerServeur({
   port: 5003,
   optsConstellation: {
-    orbite: {
-      dossier: "mon-dossier-orbite",  // Dossier pour bd-orbite
-      sfip: {
-        dossier: "mon-dossier-sfip"  // Dossier du Système de fichiers interplanétaire
-      }
-    },
+    dossier: "mon-dossier",  // Dossier du compte Constellation
   }
 });
 
@@ -97,7 +92,8 @@ Vous voudrez aussi probablement utiliser le client websocket qui est aussi dispo
 import { lancerClient } from "@constl/serveur";
 
 const port = 5001  // Ou une autre valeur, selon `lancerServeur`
-const { client, fermerClient } = lancerClient(port);
+const codeSecret = "le code secret donné par le serveur"
+const { client, fermerClient } = lancerClient({ port, codeSecret });
 
 // On peut maintenant appeler des fonctions sur le client comme s'il
 // s'agissait d'un client Constellation ordinaire :
