@@ -56,7 +56,7 @@ Attention ! L'IPA synchrone fonctionne bien pour des petites tâches (p. ex., r�
 
 Donc, on commence. La façon la plus sure, c'est d'utiliser un bloc `with`, car celui-ci fermera automatiquement le
 serveur une fois que vous aurez terminé avec. **Cette syntaxe permettra aussi au client Constellation de détecter
-automatiquement le port auquel il devra se connecter.**
+automatiquement le port auquel il devra se connecter, de même que le code secret nécessaire.**
 
 ```python
 from constellationPy import Serveur, ClientSync
@@ -81,7 +81,7 @@ le plus de connexions et de données il obtiendra.
 Vous pouvez donc lancer votre nœud local à l'aide de la ligne de commande. Vous pouvez utiliser
 n'importe quel port libre (ici `5001`). Vous pouvez le laisser rouler aussi longtemps que vous voudrez,
 il y se synchronisera automatiquement avec le réseau Constellation.
-Tout client pyConstellation que vous lancerez en même temps obtiendra ainsi les données les plus
+Tout client de `constellationPy` que vous lancerez en même temps obtiendra ainsi les données les plus
 à jour disponibles.
 
 ::: tip CONSEIL
@@ -96,7 +96,7 @@ mettre_constellation_à_jour()
 
 Vous pourrez ensuite invoquer le serveur Constellation ainsi :
 ```shell
-$ constl lancer --port 5001 -b
+$ constl lancer --port 5001
 ```
 
 Vous ne savez pas quel port mettre ? Lancez tout simplement `constl lancer` et puis Constellation
@@ -107,7 +107,7 @@ Vu que vous avez déjà lancé votre propre serveur Constellation, vous devrez s
 ```python
 from constellationPy import ClientSync
 
-client = ClientSync(port=5001)
+client = ClientSync(port=5001, codeSecret="le code secret rendu par le serveur")
 ...
 
 ```
