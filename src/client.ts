@@ -2372,7 +2372,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     type?: "feed" | "keyvalue" | "ordered-keyvalue" | "set";
   }): Promise<string | undefined> {
     const schémaBdRacine: JSONSchemaType<
-      { [k in K]: string } & { [clef: string]: unknown }
+      { [k in K]: string } & { [clef: string]: élémentsBd }
     > = {
       type: "object",
       properties: {
