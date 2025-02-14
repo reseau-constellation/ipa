@@ -1639,19 +1639,10 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
           fFinale();
         })
-        .catch((e) => {
+        .catch(() => {
           // Ceci nous permet de ressayer d'obtenir le contenu de la BD en continue, tant que la requête n'a pas été annulée
           if (!annulé) {
-            if (
-              String(e).includes("ipfs unable to find") ||
-              String(e).includes("aborted") ||
-              String(e).includes("No Promise in Promise.any was resolved")
-            ) {
-              lancerSuivi();
-            } else {
-              console.error(e);
-              throw e;
-            }
+            lancerSuivi();
           }
         });
     };
