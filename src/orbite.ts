@@ -386,12 +386,11 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     args,
   }: {
     idBd: string;
-    fonction: string;
+    fonction: keyof Store;
     args: unknown[];
   }): Promise<unknown> {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
 
-    // @ts-expect-error L'inférence de types marche mal ici
     const résultat = await bd[fonction](...args);
 
     await fOublier();
