@@ -381,7 +381,6 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     const élément = effacerPropriétésNonDéfinies(épingle);
     const existant = bd.get(idObjet);
     if (!deepEqual(existant, élément))
-      // À faire : déménager à Bohr-DB
       await bd.put(idObjet, élément);
 
     await fOublier();
