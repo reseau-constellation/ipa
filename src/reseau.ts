@@ -1625,7 +1625,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const ajusterProfondeur = async (p: number) => {
       profondeur = p;
-      if (fChangerProfondeur) await fChangerProfondeur(p);  // À faire : fChangerProfondeur peut être non défini
+      if (fChangerProfondeur) await fChangerProfondeur(p); // À faire : fChangerProfondeur peut être non défini
       if (annulerRebours) clearTimeout(annulerRebours);
     };
 
