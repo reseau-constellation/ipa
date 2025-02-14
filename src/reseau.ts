@@ -1197,11 +1197,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     profondeur?: number;
     idCompteDébut?: string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
+    const monIdCompte = await this.client.obtIdCompte();
+
     const fSuivi = async (relations: infoRelation[]) => {
       // S'ajouter soi-même
       relations.push({
-        de: this.client.idCompte!,
-        pour: this.client.idCompte!,
+        de: monIdCompte,
+        pour: monIdCompte,
         confiance: 1,
         profondeur: 0,
       });
@@ -1297,10 +1299,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       return await f(membres);
     };
 
+    const monIdCompte = await this.client.obtIdCompte();
+
     const fOublierComptesEnLigne = await this.suivreConnexionsMembres({
       f: async (membres: statutMembre[]) => {
         const infoMembresEnLigne: infoMembreRéseau[] = membres
-          .filter((m) => m.infoMembre.idCompte !== this.client.idCompte)
+          .filter((m) => m.infoMembre.idCompte !== monIdCompte)
           .map((m) => {
             return {
               idCompte: m.infoMembre.idCompte,
@@ -1621,7 +1625,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const ajusterProfondeur = async (p: number) => {
       profondeur = p;
-      if (fChangerProfondeur) await fChangerProfondeur(p);
+      if (fChangerProfondeur) await fChangerProfondeur(p);  // À faire : fChangerProfondeur peut être non défini
       if (annulerRebours) clearTimeout(annulerRebours);
     };
 
