@@ -1,3 +1,4 @@
+import { join } from "path";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
@@ -6,22 +7,15 @@ import { bootstrap } from "@libp2p/bootstrap";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import { dcutr } from "@libp2p/dcutr";
 import { identify } from "@libp2p/identify";
+import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
 import { all } from "@libp2p/websockets/filters";
 import { webTransport } from "@libp2p/webtransport";
-
-import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
-// import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
-
 import { FaultTolerance } from "@libp2p/interface";
-import {
-  ADRESSES_NŒUDS_INITIAUX,
-  ADRESSES_NŒUDS_RELAI_RUST,
-  ADRESSES_NŒUDS_RELAI_WS,
-} from "./const.js";
-import { résoudreInfoAdresses } from "./utils.js";
+import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import type { Libp2pOptions } from "libp2p";
+// import { kadDHT } from "@libp2p/kad-dht";
 
 export const obtOptionsLibp2pNode = async ({
   dossier,
@@ -35,7 +29,7 @@ export const obtOptionsLibp2pNode = async ({
   const { mdns } = await import("@libp2p/mdns");
 
   const { FsDatastore } = await import("datastore-fs");
-  const dossierStockage = `${dossier}/libp2p`;
+  const dossierStockage = join(dossier, "libp2p");
   const stockage = new FsDatastore(dossierStockage);
 
   return {
@@ -87,18 +81,11 @@ export const obtOptionsLibp2pNode = async ({
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,
         canRelayMessage: true,
-        directPeers: résoudreInfoAdresses([
-          ...ADRESSES_NŒUDS_RELAI_WS,
-          ...ADRESSES_NŒUDS_RELAI_RUST,
-        ]),
-        scoreThresholds: {
-          acceptPXThreshold: 0,
-        },
       }),
       /*dht: kadDHT({
         clientMode: true,
         // peerInfoMapper: removePrivateAddressesMapper
-      }),*/
+        }),*/
     },
   };
 };

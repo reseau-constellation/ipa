@@ -59,7 +59,7 @@ export const obtOptionsLibp2pÉlectionPrincipal = async ({
         timeout: 0,
       }),
       pubsubPeerDiscovery({
-        interval: 1000,
+        interval: 10000,
         topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
         listenOnly: false,
       }),
