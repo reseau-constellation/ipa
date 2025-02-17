@@ -93,8 +93,8 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0
       '@orbitdb/core':
-        specifier: ^2.4.3
-        version: 2.4.3
+        specifier: next
+        version: 2.4.4-3d41ab5.0
       '@orbitdb/feed-db':
         specifier: ^1.1.1
         version: 1.1.1(react-native@0.76.6(@babel/core@7.26.8)(@babel/preset-env@7.26.0(@babel/core@7.26.8))(react@18.3.1))
@@ -1686,9 +1686,6 @@ packages:
   '@libp2p/autonat@2.0.12':
     resolution: {integrity: sha512-EgJb6RwJmBwB7/Ddg3B3xFspc+OrNC6oonWh3osrP85J0cY7wOVmDSuLqk8tcxli9OuTYNSef/7dY9NVYEA+9g==}
 
-  '@libp2p/autonat@2.0.17':
-    resolution: {integrity: sha512-+ViOfQAyyBzm8iLtUAlhPzZJCk5FcwgXneJivawRMfH2GI8PPJnrzyeipx3XaT1E7Mmh843wob0i2E9QC2kL8g==}
-
   '@libp2p/autonat@2.0.19':
     resolution: {integrity: sha512-FcCVheGZpBhgiCwVZrGekrHlH2IEMgt4ottZ9cpLVE4RoEEkTXaDV4qjDBkCDf32QrqmnrVDamff5B7TGSa2jA==}
 
@@ -1812,9 +1809,6 @@ packages:
   '@libp2p/tcp@10.0.13':
     resolution: {integrity: sha512-1oxkfMGJdnACSeq75k+K1JM9KkPUFgp7U/YH6+4f884MC7crciV28+FtrIoxS+79gX+EZeUOzvCPLWbuQddk9Q==}
 
-  '@libp2p/tcp@10.0.16':
-    resolution: {integrity: sha512-rKdM61z7IB7qn5bt/u5g/hsnajHDqeqGGBvq7cwp9e1+AFC1k3nNPQMkAWG4RfJH1fgrliP3mJ9Aaspn62xSfg==}
-
   '@libp2p/tcp@10.0.18':
     resolution: {integrity: sha512-m9GHWktE4m69rKQX9e0a3B5Y9xCY5ra57aSlq3PWnOD7QQxTRxlhoLLOZUWLi5Fip4RhF/3mAcLKQ2dTUG8e1Q==}
 
@@ -1835,9 +1829,6 @@ packages:
 
   '@libp2p/websockets@9.0.13':
     resolution: {integrity: sha512-e1Lukn8kzJC7YbfufT8rOy/BXUyl213srb+zizFu4JkTRloChEjq7VzARPo9lrMQye71JrTi2eBg+O/XadERsg==}
-
-  '@libp2p/websockets@9.1.3':
-    resolution: {integrity: sha512-/heZ/XB5/FlKu09ZHjAXKWMAJxvww2ilp4cuVTR4r3OFLEdNXjQyIvs9cS2l4Kue+P5D89MUe2kg8X5k9SqD3g==}
 
   '@libp2p/websockets@9.1.5':
     resolution: {integrity: sha512-E/PJLWMI8cHKLHONuvLJDJca1KuMcn5NaqhGt5/kXt2HC1i02lbEa8xsKsWSxoVBwK/jEwjwINiW4OaKuQr6SQ==}
@@ -2007,6 +1998,10 @@ packages:
 
   '@orbitdb/core@2.4.3':
     resolution: {integrity: sha512-pRHDJlODTy35nySEAPhTjzZIKQ7eedwCIoplmEXs1rW3KYqMHNQaNxrIc1uBMw9cRsPTeIGwxTUkvXfhhaf35Q==}
+    engines: {node: '>=20.0.0'}
+
+  '@orbitdb/core@2.4.4-3d41ab5.0':
+    resolution: {integrity: sha512-F25EGIvApiccaAmYlYD3PoejMcEMY5gIcC0dbJhrkRdbt2JEkPoYchvRVdVqPV68/o/5RpIjr0/4RqVjV+HyKA==}
     engines: {node: '>=20.0.0'}
 
   '@orbitdb/feed-db@1.1.1':
@@ -10466,20 +10461,6 @@ snapshots:
       protons-runtime: 5.5.0
       uint8arraylist: 2.4.8
 
-  '@libp2p/autonat@2.0.17':
-    dependencies:
-      '@libp2p/interface': 2.5.0
-      '@libp2p/interface-internal': 2.3.0
-      '@libp2p/peer-collections': 6.0.17
-      '@libp2p/peer-id': 5.0.12
-      '@libp2p/utils': 6.5.1
-      '@multiformats/multiaddr': 12.3.5
-      any-signal: 4.1.1
-      it-protobuf-stream: 1.1.5
-      multiformats: 13.3.2
-      protons-runtime: 5.5.0
-      uint8arraylist: 2.4.8
-
   '@libp2p/autonat@2.0.19':
     dependencies:
       '@libp2p/interface': 2.5.0
@@ -10888,19 +10869,6 @@ snapshots:
       race-event: 1.3.0
       stream-to-it: 1.0.1
 
-  '@libp2p/tcp@10.0.16':
-    dependencies:
-      '@libp2p/interface': 2.5.0
-      '@libp2p/utils': 6.5.1
-      '@multiformats/mafmt': 12.1.6
-      '@multiformats/multiaddr': 12.3.5
-      '@types/sinon': 17.0.3
-      p-defer: 4.0.1
-      p-event: 6.0.1
-      progress-events: 1.0.1
-      race-event: 1.3.0
-      stream-to-it: 1.0.1
-
   '@libp2p/tcp@10.0.18':
     dependencies:
       '@libp2p/interface': 2.5.0
@@ -11021,24 +10989,6 @@ snapshots:
       progress-events: 1.0.1
       race-signal: 1.1.0
       wherearewe: 2.0.1
-      ws: 8.18.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-
-  '@libp2p/websockets@9.1.3':
-    dependencies:
-      '@libp2p/interface': 2.5.0
-      '@libp2p/utils': 6.5.1
-      '@multiformats/multiaddr': 12.3.5
-      '@multiformats/multiaddr-matcher': 1.6.0
-      '@multiformats/multiaddr-to-uri': 11.0.0
-      '@types/ws': 8.5.14
-      it-ws: 6.1.5
-      p-defer: 4.0.1
-      p-event: 6.0.1
-      progress-events: 1.0.1
-      race-signal: 1.1.0
       ws: 8.18.0
     transitivePeerDependencies:
       - bufferutil
@@ -11281,6 +11231,18 @@ snapshots:
   '@orbitdb/core-types@1.0.13': {}
 
   '@orbitdb/core@2.4.3':
+    dependencies:
+      '@ipld/dag-cbor': 9.2.2
+      '@libp2p/crypto': 5.0.11
+      it-pipe: 3.0.1
+      level: 8.0.1
+      lru: 3.1.0
+      multiformats: 12.1.3
+      p-queue: 8.1.0
+      timeout-abort-controller: 3.0.0
+      uint8arrays: 5.1.0
+
+  '@orbitdb/core@2.4.4-3d41ab5.0':
     dependencies:
       '@ipld/dag-cbor': 9.2.2
       '@libp2p/crypto': 5.0.11
@@ -15189,7 +15151,7 @@ snapshots:
       '@helia/interface': 5.2.0
       '@helia/routers': 2.2.0
       '@helia/utils': 1.2.0
-      '@libp2p/autonat': 2.0.17
+      '@libp2p/autonat': 2.0.19
       '@libp2p/bootstrap': 11.0.21
       '@libp2p/circuit-relay-v2': 3.1.11
       '@libp2p/crypto': 5.0.11
@@ -15202,11 +15164,11 @@ snapshots:
       '@libp2p/mdns': 11.0.21
       '@libp2p/mplex': 11.0.21
       '@libp2p/ping': 2.0.18
-      '@libp2p/tcp': 10.0.16
+      '@libp2p/tcp': 10.0.18
       '@libp2p/tls': 2.0.15
       '@libp2p/upnp-nat': 2.0.12
       '@libp2p/webrtc': 5.0.27(react-native@0.76.6(@babel/core@7.26.8)(@babel/preset-env@7.26.0(@babel/core@7.26.8))(react@18.3.1))
-      '@libp2p/websockets': 9.1.3
+      '@libp2p/websockets': 9.1.5
       '@multiformats/dns': 1.0.6
       blockstore-core: 5.0.2
       datastore-core: 10.0.2
