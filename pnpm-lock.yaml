@@ -221,7 +221,7 @@ importers:
     devDependencies:
       '@constl/utils-tests':
         specifier: ^1.6.12
-        version: 1.6.12(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
+        version: 1.6.13(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
       '@eslint/js':
         specifier: ^9.20.0
         version: 9.20.0
@@ -1177,8 +1177,8 @@ packages:
     resolution: {integrity: sha512-U9GCw5o9ZBJHBy5XK5Rt0rEn30ceSkhhQr6UTylVAF4hJ9ChlNsPKYVdk6KHk+opcwxcdS01RMczHIwEoRzRGg==}
     engines: {node: '>=20'}
 
-  '@constl/utils-tests@1.6.12':
-    resolution: {integrity: sha512-fzLFOMO5mPiGyYJc0h9jibv47wAcdEq9dpiuWV6hMyf9hVRFWu+5w8vwcu24z5s2xqrwYIVYbJIaZr0VZZV1Fg==}
+  '@constl/utils-tests@1.6.13':
+    resolution: {integrity: sha512-3JkY0Y+0G8+zbidsghgxkkXy7FcfifsCzDKB2r6TFx1ChmiSbycNgDYVforSX9AJJV1WHvG9CXbSQ/X4Oejyng==}
     engines: {node: '>=20'}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -1604,6 +1604,9 @@ packages:
   '@ipld/dag-pb@4.1.3':
     resolution: {integrity: sha512-ueULCaaSCcD+dQga6nKiRr+RSeVgdiYiEPKVUu5iQMNYDN+9osd0KpR3UDd9uQQ+6RWuv9L34SchfEwj7YIbOA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+
+  '@ipshipyard/libp2p-auto-tls@1.0.0':
+    resolution: {integrity: sha512-wV1smnqbg3xUCHmPB8KWFuP8G9MKlx8KDuiJvhCWPi7B03xJq2FMybMDPI8tM9boa9sHD+5+NFu+Teo3Lz76fw==}
 
   '@ipshipyard/node-datachannel@0.26.4':
     resolution: {integrity: sha512-ico3hpz3/M9yrIeJa5dU4M3U2UsnF951b2xZgCnUfeslNBL+HL1heqmwKtfMCx4tfgLN4l/BUphhKKc4SlohmA==}
@@ -4877,6 +4880,9 @@ packages:
   helia@5.2.0:
     resolution: {integrity: sha512-CL+cDnwSw2f030a9opTVvqy9jh5+b2tTNSQFTFPx11cfYxcF7qSDRhZKBlsKgzG2jSCAsCxwdV4ipnXkRfV8Sg==}
 
+  helia@5.2.1:
+    resolution: {integrity: sha512-H5oqxXV4uFae5eWRv5aopUyKfO7pxdT7sVNomw/ImZabkidz2BrHqsNy6JaZPIQTSUP9yBlkKK2Sq3tmHngYaQ==}
+
   hermes-estree@0.23.1:
     resolution: {integrity: sha512-eT5MU3f5aVhTqsfIReZ6n41X5sYn4IdQL0nvz6yO+MMlPxw49aSARHLg/MSehQftyjnrE8X6bYregzSumqc6cg==}
 
@@ -5792,6 +5798,9 @@ packages:
 
   libp2p@2.6.1:
     resolution: {integrity: sha512-8XMMuD7UgX3MqtevEAV47GsxGJrhUvsUiPynNtEjv2F/Lz9hKFEhbp+DXj3SmNKQhWE5kBMfFDBU0f89jLH0yw==}
+
+  libp2p@2.6.2:
+    resolution: {integrity: sha512-MSc0MbHqytsl54hUkPpQBSsBUdNt177mW14FUtzHI2S60Iw2pBKraXqm1FuVf9J8nTOK6VIDbSLcC2269A0j0Q==}
 
   libsodium-sumo@0.7.15:
     resolution: {integrity: sha512-5tPmqPmq8T8Nikpm1Nqj0hBHvsLFCXvdhBFV7SGOitQPZAA6jso8XoL0r4L7vmfKXr486fiQInvErHtEvizFMw==}
@@ -9979,7 +9988,7 @@ snapshots:
       uint8arrays: 5.1.0
       wherearewe: 2.0.1
 
-  '@constl/utils-tests@1.6.12(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))':
+  '@constl/utils-tests@1.6.13(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))':
     dependencies:
       '@helia/block-brokers': 4.0.4
       '@libp2p/peer-id': 5.0.12
@@ -9992,8 +10001,8 @@ snapshots:
       crypto-browserify: 3.12.1
       events: 3.3.0
       genversion: 3.2.0
-      helia: 5.2.0(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
-      libp2p: 2.6.1
+      helia: 5.2.1(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
+      libp2p: 2.6.2
       os-browserify: 0.3.0
       process: 0.11.10
       read-package-up: 11.0.0
@@ -10445,6 +10454,27 @@ snapshots:
   '@ipld/dag-pb@4.1.3':
     dependencies:
       multiformats: 13.3.2
+
+  '@ipshipyard/libp2p-auto-tls@1.0.0':
+    dependencies:
+      '@chainsafe/is-ip': 2.1.0
+      '@libp2p/crypto': 5.0.11
+      '@libp2p/http-fetch': 2.1.1
+      '@libp2p/interface': 2.5.0
+      '@libp2p/interface-internal': 2.3.0
+      '@libp2p/keychain': 5.0.14
+      '@libp2p/utils': 6.5.1
+      '@multiformats/multiaddr': 12.3.5
+      '@multiformats/multiaddr-matcher': 1.6.0
+      '@peculiar/x509': 1.12.3
+      acme-client: 5.4.0
+      any-signal: 4.1.1
+      delay: 6.0.0
+      interface-datastore: 8.3.1
+      multiformats: 13.3.2
+      uint8arrays: 5.1.0
+    transitivePeerDependencies:
+      - supports-color
 
   '@ipshipyard/node-datachannel@0.26.4':
     dependencies:
@@ -15398,6 +15428,47 @@ snapshots:
       - supports-color
       - utf-8-validate
 
+  helia@5.2.1(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1)):
+    dependencies:
+      '@chainsafe/libp2p-noise': 16.0.1
+      '@chainsafe/libp2p-yamux': 7.0.1
+      '@helia/block-brokers': 4.0.4
+      '@helia/delegated-routing-v1-http-api-client': 4.2.2
+      '@helia/interface': 5.2.0
+      '@helia/routers': 3.0.0
+      '@helia/utils': 1.2.1
+      '@ipshipyard/libp2p-auto-tls': 1.0.0
+      '@libp2p/autonat': 2.0.19
+      '@libp2p/bootstrap': 11.0.22
+      '@libp2p/circuit-relay-v2': 3.1.12
+      '@libp2p/config': 1.0.3
+      '@libp2p/dcutr': 2.0.18
+      '@libp2p/identify': 3.0.18
+      '@libp2p/interface': 2.5.0
+      '@libp2p/kad-dht': 14.2.5
+      '@libp2p/keychain': 5.0.14
+      '@libp2p/mdns': 11.0.22
+      '@libp2p/mplex': 11.0.22
+      '@libp2p/ping': 2.0.18
+      '@libp2p/tcp': 10.0.18
+      '@libp2p/tls': 2.0.15
+      '@libp2p/upnp-nat': 3.1.2
+      '@libp2p/webrtc': 5.1.0(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
+      '@libp2p/websockets': 9.1.5
+      '@multiformats/dns': 1.0.6
+      blockstore-core: 5.0.2
+      datastore-core: 10.0.2
+      interface-blockstore: 5.3.1
+      interface-datastore: 8.3.1
+      ipns: 10.0.1
+      libp2p: 2.6.2
+      multiformats: 13.3.2
+    transitivePeerDependencies:
+      - bufferutil
+      - react-native
+      - supports-color
+      - utf-8-validate
+
   hermes-estree@0.23.1: {}
 
   hermes-estree@0.25.1: {}
@@ -16395,6 +16466,37 @@ snapshots:
       type-check: 0.4.0
 
   libp2p@2.6.1:
+    dependencies:
+      '@chainsafe/is-ip': 2.1.0
+      '@chainsafe/netmask': 2.0.0
+      '@libp2p/crypto': 5.0.11
+      '@libp2p/interface': 2.5.0
+      '@libp2p/interface-internal': 2.3.0
+      '@libp2p/logger': 5.1.8
+      '@libp2p/multistream-select': 6.0.13
+      '@libp2p/peer-collections': 6.0.17
+      '@libp2p/peer-id': 5.0.12
+      '@libp2p/peer-store': 11.0.17
+      '@libp2p/utils': 6.5.1
+      '@multiformats/dns': 1.0.6
+      '@multiformats/multiaddr': 12.3.5
+      '@multiformats/multiaddr-matcher': 1.6.0
+      any-signal: 4.1.1
+      datastore-core: 10.0.2
+      interface-datastore: 8.3.1
+      it-byte-stream: 1.1.0
+      it-merge: 3.0.5
+      it-parallel: 3.0.8
+      merge-options: 3.0.4
+      multiformats: 13.3.2
+      p-defer: 4.0.1
+      p-retry: 6.2.1
+      progress-events: 1.0.1
+      race-event: 1.3.0
+      race-signal: 1.1.0
+      uint8arrays: 5.1.0
+
+  libp2p@2.6.2:
     dependencies:
       '@chainsafe/is-ip': 2.1.0
       '@chainsafe/netmask': 2.0.0
