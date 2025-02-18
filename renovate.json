@@ -27,7 +27,7 @@
       "groupName": "Libp2p et Helia",
       "groupSlug": "libp2p-helia-node",
       "matchDatasources": ["npm"],
-      "matchPackageNames": ["@libp2p/**", "@chainsafe/**", "libp2p", "helia"]
+      "matchPackageNames": ["@libp2p/**", "@chainsafe/**", "libp2p", "helia", "@helia/**"]
     }
   ]
 }
