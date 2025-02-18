@@ -4,7 +4,7 @@ import { yamux } from "@chainsafe/libp2p-yamux";
 import { autoNAT } from "@libp2p/autonat";
 import { bootstrap } from "@libp2p/bootstrap";
 import { dcutr } from "@libp2p/dcutr";
-import { identify } from "@libp2p/identify";
+import { identify, identifyPush } from "@libp2p/identify";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
 import { all } from "@libp2p/websockets/filters";
@@ -13,6 +13,7 @@ import { webTransport } from "@libp2p/webtransport";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { detect } from "detect-browser";
+import { ping } from "@libp2p/ping"
 
 import { IDBDatastore } from "datastore-idb";
 import {
@@ -71,7 +72,9 @@ export const obtOptionsLibp2pNavigateur = async ({
       }),
     ],
     services: {
+      ping: ping(),
       identify: identify(),
+      identifyPush: identifyPush(),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
       pubsub: gossipsub({
