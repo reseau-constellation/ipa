@@ -13,7 +13,7 @@ import { webTransport } from "@libp2p/webtransport";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { detect } from "detect-browser";
-import { ping } from "@libp2p/ping"
+import { ping } from "@libp2p/ping";
 
 import { IDBDatastore } from "datastore-idb";
 import {

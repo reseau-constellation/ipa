@@ -12,8 +12,8 @@ import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
 import { all } from "@libp2p/websockets/filters";
 import { webTransport } from "@libp2p/webtransport";
-import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import { ping } from "@libp2p/ping";
+import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import type { Libp2pOptions } from "libp2p";
 // import { kadDHT } from "@libp2p/kad-dht";
 

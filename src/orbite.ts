@@ -41,7 +41,7 @@ export type Store =
 
 // https://stackoverflow.com/questions/56863875/typescript-how-do-you-filter-a-types-properties-to-those-of-a-certain-type
 type KeysMatching<T extends object, V> = {
-  [K in keyof T]-?: T[K] extends V ? K : never
+  [K in keyof T]-?: T[K] extends V ? K : never;
 }[keyof T];
 
 export const préparerOrbite = () => {
@@ -383,7 +383,9 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     return async () => clearInterval(i);
   }
 
-  async appliquerFonctionBdOrbite<T extends KeysMatching<Store, (...args: unknown[]) => unknown>>({
+  async appliquerFonctionBdOrbite<
+    T extends KeysMatching<Store, (...args: unknown[]) => unknown>,
+  >({
     idBd,
     fonction,
     args,
@@ -393,7 +395,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     args: Parameters<Store[T]>;
   }): Promise<ReturnType<Store[T]>> {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
-    const résultat = await bd[fonction](...args as unknown[]);
+    const résultat = await bd[fonction](...(args as unknown[]));
 
     await fOublier();
     return résultat;
