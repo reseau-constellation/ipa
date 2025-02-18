@@ -666,8 +666,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     if (!isValidAddress(idCompte)) return false;
     try {
-      const { orbite } = await this.client.attendreSfipEtOrbite();
-      const { bd: bdCompte, fOublier } = await orbite.ouvrirBd({
+      const { bd: bdCompte, fOublier } = await this.client.ouvrirBd({
         id: idCompte,
       });
 
