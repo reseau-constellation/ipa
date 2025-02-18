@@ -101,7 +101,7 @@ export async function initSFIP({
     }
   });
   const dossierDonnées = `${dossier}/données`;
-  const dossierBlocs = `${dossier}/blocks`;
+  const dossierBlocs = `${dossier}/blocs`;
 
   // Importer FsBlockstore et FsDatastore dynamiquement pour éviter les erreurs de compilation sur le navigateur
   const stockageBlocs =
