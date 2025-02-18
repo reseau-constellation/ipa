@@ -39,6 +39,11 @@ export type Store =
   | KeyValueDatabase
   | OrderedKeyValueDatabaseType;
 
+// https://stackoverflow.com/questions/56863875/typescript-how-do-you-filter-a-types-properties-to-those-of-a-certain-type
+type KeysMatching<T extends object, V> = {
+  [K in keyof T]-?: T[K] extends V ? K : never
+}[keyof T];
+
 export const préparerOrbite = () => {
   registerFeed();
   registerSet();
@@ -216,9 +221,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     const fOublier = async () => {
       // Si la BD a été effacée entre-temps par `client.effacerBd`,
       // elle ne sera plus disponible ici
-      if (!this._bdsOrbite[id]) return;
-
-      this._bdsOrbite[id].idsRequêtes.delete(idRequête);
+      this._bdsOrbite[id]?.idsRequêtes.delete(idRequête);
     };
 
     // Fonction utilitaire pour vérifier le type de la bd
@@ -380,18 +383,17 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     return async () => clearInterval(i);
   }
 
-  async appliquerFonctionBdOrbite({
+  async appliquerFonctionBdOrbite<T extends KeysMatching<Store, (...args: unknown[]) => unknown>>({
     idBd,
     fonction,
     args,
   }: {
     idBd: string;
-    fonction: keyof Store;
-    args: unknown[];
-  }): Promise<unknown> {
+    fonction: T;
+    args: Parameters<Store[T]>;
+  }): Promise<ReturnType<Store[T]>> {
     const { bd, fOublier } = await this.ouvrirBd({ id: idBd });
-
-    const résultat = await bd[fonction](...args);
+    const résultat = await bd[fonction](...args as unknown[]);
 
     await fOublier();
     return résultat;
