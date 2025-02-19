@@ -26,7 +26,6 @@ import {
 import { type JSONSchemaType } from "ajv";
 
 import Semaphore from "@chriscdn/promise-semaphore";
-import { TimeoutController } from "timeout-abort-controller";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import { réessayer } from "./utils.js";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
@@ -397,8 +396,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
   }
 
   async effacerBd({ id }: { id: string }): Promise<void> {
-    const signaleur = new TimeoutController(30_000); // La base de données devrait être présente localement
-    const { bd } = await this.ouvrirBd({ id, signal: signaleur.signal });
+    const { bd } = await this.ouvrirBd({ id });
     await bd.drop();
     delete this._bdsOrbite[id];
   }

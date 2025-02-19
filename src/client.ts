@@ -38,7 +38,6 @@ import {
   toString as uint8ArrayToString,
 } from "uint8arrays";
 import { keys } from "@libp2p/crypto";
-import { TimeoutController } from "timeout-abort-controller";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
@@ -1186,11 +1185,9 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     idDispositif: string;
   }): Promise<void> {
     const { idCompte } = await this.attendreInitialisée();
-    const signaleur = new TimeoutController(30_000); // La BD du compte devrait déjà être disponible localement
 
     const { bd: bdCompte, fOublier } = await this.ouvrirBd({
       id: idCompte,
-      signal: signaleur.signal,
     });
     const accès = bdCompte.access as ContrôleurConstellation;
     accès.grant(MODÉRATEUR, idDispositif);
@@ -1203,11 +1200,9 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     idDispositif: string;
   }): Promise<void> {
     const { idCompte } = await this.attendreInitialisée();
-    const signaleur = new TimeoutController(30_000); // La BD du compte devrait déjà être disponible localement
 
     const { bd: bdCompte, fOublier } = await this.ouvrirBd({
       id: idCompte,
-      signal: signaleur.signal,
     });
     const accès = bdCompte.access as ContrôleurConstellation;
     await accès.revoke(MODÉRATEUR, idDispositif);
