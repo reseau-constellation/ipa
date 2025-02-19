@@ -12,7 +12,9 @@ import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
 import { all } from "@libp2p/websockets/filters";
 import { webTransport } from "@libp2p/webtransport";
+import { uPnPNAT } from "@libp2p/upnp-nat";
 import { ping } from "@libp2p/ping";
+import { FaultTolerance } from "@libp2p/interface";
 import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import type { Libp2pOptions } from "libp2p";
 // import { kadDHT } from "@libp2p/kad-dht";
@@ -31,11 +33,17 @@ export const obtOptionsLibp2pÉlectionPrincipal = async ({
   return {
     addresses: {
       listen: [
+        "/ip4/0.0.0.0/tcp/0",
         "/ip4/0.0.0.0/tcp/0/ws",
+        "/ip6/::/tcp/0",
+        "/ip6/::/tcp/0/ws",
         "/webrtc",
         "/webtransport",
         "/p2p-circuit",
       ],
+    },
+    transportManager: {
+      faultTolerance: FaultTolerance.NO_FATAL,
     },
     transports: [
       webSockets({
@@ -76,6 +84,7 @@ export const obtOptionsLibp2pÉlectionPrincipal = async ({
         runOnLimitedConnection: true,
         canRelayMessage: true,
       }),
+      upnp: uPnPNAT(),
       /*dht: kadDHT({
           clientMode: true,
         }),*/

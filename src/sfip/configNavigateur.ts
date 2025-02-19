@@ -16,6 +16,7 @@ import { detect } from "detect-browser";
 import { ping } from "@libp2p/ping";
 
 import { IDBDatastore } from "datastore-idb";
+import { FaultTolerance } from "@libp2p/interface";
 import {
   ADRESSES_NŒUDS_INITIAUX,
   ADRESSES_NŒUDS_RELAI_RUST,
@@ -52,6 +53,9 @@ export const obtOptionsLibp2pNavigateur = async ({
   return {
     addresses: {
       listen: ["/webrtc", "/webtransport", "/p2p-circuit"],
+    },
+    transportManager: {
+      faultTolerance: FaultTolerance.NO_FATAL,
     },
     transports,
     connectionEncrypters: [noise()],

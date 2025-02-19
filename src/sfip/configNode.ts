@@ -4,7 +4,10 @@ import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
 import { autoNAT } from "@libp2p/autonat";
 import { bootstrap } from "@libp2p/bootstrap";
-import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
+import {
+  circuitRelayServer,
+  circuitRelayTransport,
+} from "@libp2p/circuit-relay-v2";
 import { dcutr } from "@libp2p/dcutr";
 import { identify, identifyPush } from "@libp2p/identify";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
@@ -14,8 +17,10 @@ import { all } from "@libp2p/websockets/filters";
 import { webTransport } from "@libp2p/webtransport";
 import { FaultTolerance } from "@libp2p/interface";
 import { ping } from "@libp2p/ping";
+import { uPnPNAT } from "@libp2p/upnp-nat";
 import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import type { Libp2pOptions } from "libp2p";
+
 // import { kadDHT } from "@libp2p/kad-dht";
 
 export const obtOptionsLibp2pNode = async ({
@@ -36,11 +41,13 @@ export const obtOptionsLibp2pNode = async ({
   return {
     addresses: {
       listen: [
+        "/ip4/0.0.0.0/tcp/0",
         "/ip4/0.0.0.0/tcp/0/ws",
+        "/ip6/::/tcp/0",
+        "/ip6/::/tcp/0/ws",
         "/webrtc",
         "/webtransport",
         "/p2p-circuit",
-        "/webrtc-direct",
       ],
     },
     transportManager: {
@@ -89,6 +96,8 @@ export const obtOptionsLibp2pNode = async ({
         clientMode: true,
         // peerInfoMapper: removePrivateAddressesMapper
         }),*/
+      upnp: uPnPNAT(),
+      relay: circuitRelayServer(),
     },
   };
 };
