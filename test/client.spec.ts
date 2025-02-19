@@ -1,3 +1,4 @@
+import { join } from "path";
 import toBuffer from "it-to-buffer";
 
 import { isValidAddress } from "@orbitdb/core";
@@ -11,8 +12,9 @@ import {
 import {
   attente,
   dossiers,
-  orbite,
-  constellation as utilsTestConstellation,
+  sfip as sfipTest,
+  orbite as orbiteTest,
+  constellation as constellationTest,
 } from "@constl/utils-tests";
 
 import { isElectronMain, isNode } from "wherearewe";
@@ -30,7 +32,7 @@ import { générerClientsInternes } from "./ressources/utils.js";
 import type { OrbitDbTest } from "./ressources/utils";
 import type { OptionsContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 
-const { créerConstellationsTest } = utilsTestConstellation;
+const { créerConstellationsTest } = constellationTest;
 
 const schémaKVNumérique: JSONSchemaType<{ [clef: string]: number }> = {
   type: "object",
@@ -70,6 +72,61 @@ describe("Fermeture sécuritaire", function () {
       dossier,
     });
     await client.fermer();
+  });
+});
+
+describe("Syncronisation après connexion", function () {
+  let dossier: string;
+  let fEffacer: () => void;
+
+  const attendreNom = new attente.AttendreRésultat<{ [lng: string]: string }>();
+
+  before(async () => {
+    ({ dossier, fEffacer } = await dossiers.dossierTempo());
+  });
+
+  after(async () => {
+    fEffacer?.();
+  });
+
+  it("Les données datant d'avant la connexion se synchronisent", async () => {
+    const dossierConstl1 = join(dossier, "constl1");
+    const dossierConstl2 = join(dossier, "constl2");
+
+    const sfip1 = await sfipTest.créerHéliaTest({
+      dossier: dossierConstl1,
+    });
+
+    const constl1 = créerConstellation({
+      dossier: dossierConstl1,
+      orbite: { ipfs: sfip1 },
+    });
+    const idCompte1 = await constl1.obtIdCompte();
+    await constl1.profil.sauvegarderNoms({ noms: { fr: "moi" } });
+
+    const sfip2 = await sfipTest.créerHéliaTest({
+      dossier: dossierConstl2,
+    });
+
+    const constl2 = créerConstellation({
+      dossier: dossierConstl2,
+      orbite: { ipfs: sfip2 },
+    });
+
+    // Ici on ne met pas d'`await` parce que ça attend d'ouvrir la bd avant de retourner
+    constl2.profil.suivreNoms({
+      f: (noms) => attendreNom.mettreÀJour(noms),
+      idCompte: idCompte1,
+    });
+    await sfipTest.connecterPairs(sfip1, sfip2);
+
+    const noms = await attendreNom.attendreQue((noms) => !!noms.fr);
+    expect(noms.fr).to.eq("moi");
+
+    await constl1.fermer();
+    await constl2.fermer();
+    await sfip1.stop();
+    await sfip2.stop();
   });
 });
 
@@ -196,7 +253,7 @@ if (isNode || isElectronMain) {
           schéma: schémaKVNumérique,
         });
         fsOublier.push(fOublier);
-        const autorisé = await orbite.peutÉcrire(bd_orbite2, orbite2);
+        const autorisé = await orbiteTest.peutÉcrire(bd_orbite2, orbite2);
         expect(autorisé).to.be.true();
       });
 
@@ -261,7 +318,7 @@ if (isNode || isElectronMain) {
           type: "keyvalue",
           schéma: schémaKVNumérique,
         });
-        const autorisé = await orbite.peutÉcrire(bd_orbite3, orbite3);
+        const autorisé = await orbiteTest.peutÉcrire(bd_orbite3, orbite3);
         await fOublier();
         expect(autorisé).to.be.true();
       });
@@ -1761,7 +1818,7 @@ if (isNode || isElectronMain) {
         });
         fsOublier.push(fOublier);
 
-        const autorisé = await orbite.peutÉcrire(bd, client.orbite?.orbite);
+        const autorisé = await orbiteTest.peutÉcrire(bd, client.orbite?.orbite);
         expect(autorisé).to.be.true();
       });
 
@@ -1781,7 +1838,7 @@ if (isNode || isElectronMain) {
         });
         fsOublier.push(fOublier);
 
-        const autorisé = await orbite.peutÉcrire(
+        const autorisé = await orbiteTest.peutÉcrire(
           bd_orbite2,
           client2.orbite?.orbite,
         );
@@ -2154,7 +2211,10 @@ if (isNode || isElectronMain) {
 
         fsOublier.push(fOublier);
 
-        const permission = await orbite.peutÉcrire(bd, client2.orbite?.orbite);
+        const permission = await orbiteTest.peutÉcrire(
+          bd,
+          client2.orbite?.orbite,
+        );
         expect(permission).to.be.true();
       });
 
