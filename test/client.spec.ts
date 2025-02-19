@@ -79,13 +79,15 @@ if (isNode || isElectronMain) {
   describe("Syncronisation après connexion", function () {
     let dossier: string;
     let fEffacer: () => void;
-  
-    const attendreNom = new attente.AttendreRésultat<{ [lng: string]: string }>();
-  
+
+    const attendreNom = new attente.AttendreRésultat<{
+      [lng: string]: string;
+    }>();
+
     before(async () => {
       ({ dossier, fEffacer } = await dossiers.dossierTempo());
     });
-  
+
     after(async () => {
       try {
         fEffacer?.();
@@ -99,41 +101,41 @@ if (isNode || isElectronMain) {
         }
       }
     });
-  
+
     it("Les données datant d'avant la connexion se synchronisent", async () => {
       const dossierConstl1 = join(dossier, "constl1");
       const dossierConstl2 = join(dossier, "constl2");
-  
+
       const sfip1 = await sfipTest.créerHéliaTest({
         dossier: dossierConstl1,
       });
-  
+
       const constl1 = créerConstellation({
         dossier: dossierConstl1,
         orbite: { ipfs: sfip1 },
       });
       const idCompte1 = await constl1.obtIdCompte();
       await constl1.profil.sauvegarderNoms({ noms: { fr: "moi" } });
-  
+
       const sfip2 = await sfipTest.créerHéliaTest({
         dossier: dossierConstl2,
       });
-  
+
       const constl2 = créerConstellation({
         dossier: dossierConstl2,
         orbite: { ipfs: sfip2 },
       });
-  
+
       // Ici on ne met pas d'`await` parce que ça attend d'ouvrir la bd avant de retourner
       constl2.profil.suivreNoms({
         f: (noms) => attendreNom.mettreÀJour(noms),
         idCompte: idCompte1,
       });
       await sfipTest.connecterPairs(sfip1, sfip2);
-  
+
       const noms = await attendreNom.attendreQue((noms) => !!noms.fr);
       expect(noms.fr).to.eq("moi");
-  
+
       await constl1.fermer();
       await constl2.fermer();
       await sfip1.stop();
