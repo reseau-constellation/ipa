@@ -86,7 +86,17 @@ describe("Syncronisation après connexion", function () {
   });
 
   after(async () => {
-    fEffacer?.();
+    try {
+      fEffacer?.();
+    } catch (e) {
+      // Sur Windows, parfois les fichiers de Hélia sont encore en utilisation
+      if ((isNode || isElectronMain) && process.platform === "win32") {
+        console.log("On ignore ça sur Windows\n", e);
+        return;
+      } else {
+        throw e;
+      }
+    }
   });
 
   it("Les données datant d'avant la connexion se synchronisent", async () => {
