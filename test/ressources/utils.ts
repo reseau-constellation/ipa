@@ -30,7 +30,6 @@ export const générerClientsInternes = async ({
     [...Array(n).keys()].map(async (i) => {
       return await ConstellationInterne.créer({
         dossier: orbites[i].directory.split("/").slice(0, -1).join("/"),
-        // @ts-expect-error type privateKey
         orbite: orbites[i],
       });
     }),
