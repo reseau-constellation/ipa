@@ -26,7 +26,9 @@ import {
 import { type JSONSchemaType } from "ajv";
 
 import Semaphore from "@chriscdn/promise-semaphore";
+import { TimeoutController } from "timeout-abort-controller";
 import { enregistrerContrôleurs } from "@/accès/index.js";
+import { réessayer } from "./utils.js";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 import type { HeliaLibp2p } from "helia";
 import type { Libp2p } from "libp2p";
@@ -135,6 +137,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
   _bdsOrbite: { [key: string]: bdOuverte<Store> };
   verrouOuvertureBd: Semaphore;
   _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
+  signaleurArrêt: AbortController;
 
   constructor(orbite: OrbitDB<T>) {
     this.orbite = orbite;
@@ -143,6 +146,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     this.verrouOuvertureBd = new Semaphore();
 
     this._oublierNettoyageBdsOuvertes = this.lancerNettoyageBdsOuvertes();
+    this.signaleurArrêt = new AbortController();
   }
 
   get identity(): OrbitDB["identity"] {
@@ -152,66 +156,82 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
   async ouvrirBd<T extends KeyValueDatabase>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type: "keyvalue";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends FeedDatabaseType>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type: "feed";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends SetDatabaseType>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type: "set";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends OrderedKeyValueDatabaseType>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type: "ordered-keyvalue";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
+    signal,
   }: {
     id: string;
-    options?: Omit<OpenDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<T extends Store>({
-    id,
-    type,
-    options,
-  }: {
-    id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    signal?: AbortSignal;
+    options?: Omit<OpenDatabaseOptions, "type">;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<T extends Store>({
+    id,
+    type,
+    signal,
+    options,
+  }: {
+    id: string;
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{
     bd: T;
     fOublier: schémaFonctionOublier;
   }> {
+    signal ??= this.signaleurArrêt.signal;
+
     // Nous avons besoin d'un verrou afin d'éviter la concurrence
     await this.verrouOuvertureBd.acquire(id);
     const existante = this._bdsOrbite[id];
@@ -219,7 +239,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     const idRequête = uuidv4();
 
     const fOublier = async () => {
-      // Si la BD a été effacée entre-temps par `client.effacerBd`,
+      // Si la BD a été effacée entre-temps par `orbite.effacerBd`,
       // elle ne sera plus disponible ici
       this._bdsOrbite[id]?.idsRequêtes.delete(idRequête);
     };
@@ -247,11 +267,15 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     }
 
     try {
-      const bd = (await this.orbite.open(id, {
-        type,
-        ...options,
-        sync: true,
-      })) as T;
+      const bd = await réessayer({
+        f: async (): Promise<T> =>
+          (await this.orbite.open(id, {
+            type,
+            ...options,
+            sync: true,
+          })) as T,
+        signal,
+      });
 
       this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
 
@@ -275,33 +299,39 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "keyvalue";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T = TypedFeed<U>>({
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "feed";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T = TypedSet<U>>({
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "set";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<
@@ -311,27 +341,32 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "ordered-keyvalue";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T>({
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "ordered-keyvalue" | "set" | "keyvalue" | "feed";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
     const { bd, fOublier } = await this.ouvrirBd({
       id,
       type,
+      signal,
       options,
     });
 
@@ -362,7 +397,8 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
   }
 
   async effacerBd({ id }: { id: string }): Promise<void> {
-    const { bd } = await this.ouvrirBd({ id });
+    const signaleur = new TimeoutController(30_000); // La base de données devrait être présente localement
+    const { bd } = await this.ouvrirBd({ id, signal: signaleur.signal });
     await bd.drop();
     delete this._bdsOrbite[id];
   }
@@ -402,6 +438,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
   }
 
   async fermer({ arrêterOrbite }: { arrêterOrbite: boolean }): Promise<void> {
+    this.signaleurArrêt.abort();
     if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
     if (arrêterOrbite) {
       await this.orbite.stop();

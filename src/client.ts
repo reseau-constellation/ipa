@@ -38,6 +38,7 @@ import {
   toString as uint8ArrayToString,
 } from "uint8arrays";
 import { keys } from "@libp2p/crypto";
+import { TimeoutController } from "timeout-abort-controller";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
@@ -483,7 +484,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
   async attendreInitialisée(): Promise<{ idCompte: string }> {
     if (this.erreurInitialisation) throw this.erreurInitialisation;
-
     if (this.idCompte) {
       return {
         idCompte: this.idCompte as string,
@@ -794,61 +794,75 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   async ouvrirBd<T extends KeyValueDatabase>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type: "keyvalue";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends FeedDatabaseType>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type: "feed";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends SetDatabaseType>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type: "set";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends OrderedKeyValueDatabaseType>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type: "ordered-keyvalue";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
+    signal,
   }: {
     id: string;
-    options?: Omit<OpenDatabaseOptions, "type">;
-  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
-  async ouvrirBd<T extends Store>({
-    id,
-    type,
-    options,
-  }: {
-    id: string;
-    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBd<T extends Store>({
     id,
     type,
+    signal,
     options,
   }: {
     id: string;
     type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    signal?: AbortSignal;
+    options?: Omit<OpenDatabaseOptions, "type">;
+  }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
+  async ouvrirBd<T extends Store>({
+    id,
+    type,
+    signal,
+    options,
+  }: {
+    id: string;
+    type?: "keyvalue" | "feed" | "set" | "ordered-keyvalue";
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{
     bd: T;
@@ -858,6 +872,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     return await orbite.ouvrirBd({
       id,
       type,
+      signal,
       options,
     });
   }
@@ -1171,7 +1186,12 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     idDispositif: string;
   }): Promise<void> {
     const { idCompte } = await this.attendreInitialisée();
-    const { bd: bdCompte, fOublier } = await this.ouvrirBd({ id: idCompte });
+    const signaleur = new TimeoutController(30_000); // La BD du compte devrait déjà être disponible localement
+
+    const { bd: bdCompte, fOublier } = await this.ouvrirBd({
+      id: idCompte,
+      signal: signaleur.signal,
+    });
     const accès = bdCompte.access as ContrôleurConstellation;
     accès.grant(MODÉRATEUR, idDispositif);
     await fOublier();
@@ -1183,7 +1203,12 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     idDispositif: string;
   }): Promise<void> {
     const { idCompte } = await this.attendreInitialisée();
-    const { bd: bdCompte, fOublier } = await this.ouvrirBd({ id: idCompte });
+    const signaleur = new TimeoutController(30_000); // La BD du compte devrait déjà être disponible localement
+
+    const { bd: bdCompte, fOublier } = await this.ouvrirBd({
+      id: idCompte,
+      signal: signaleur.signal,
+    });
     const accès = bdCompte.access as ContrôleurConstellation;
     await accès.revoke(MODÉRATEUR, idDispositif);
     await fOublier();

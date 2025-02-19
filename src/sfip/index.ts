@@ -18,6 +18,7 @@ import {
 } from "helia";
 import { Libp2p, createLibp2p, type Libp2pOptions } from "libp2p";
 
+import { Identify } from "@libp2p/identify";
 import { obtOptionsLibp2pNavigateur } from "./configNavigateur.js";
 import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
@@ -27,6 +28,7 @@ import type { GossipsubEvents } from "@chainsafe/libp2p-gossipsub";
 import type { PrivateKey, PubSub } from "@libp2p/interface";
 
 export type ServicesLibp2p = {
+  identify: Identify;
   pubsub: PubSub<GossipsubEvents>;
   obtClefPrivée: ServiceClefPrivée;
 };
@@ -78,7 +80,7 @@ export async function initSFIP({
 }: {
   dossier: string;
   clefPrivée?: PrivateKey;
-  configLibp2p?: Libp2pOptions;
+  configLibp2p?: Libp2pOptions<ServicesLibp2p>;
 }): Promise<HeliaLibp2p<Libp2p<ServicesLibp2p>>> {
   const configParDéfaut = await obtConfigLibp2pPlateforme({ dossier });
 

@@ -45,6 +45,7 @@ class AccèsUtilisateur extends EventEmitter {
   accès?: ContrôleurConstellation;
   idRequête: string;
   prêt: boolean;
+  signaleurArrêt: AbortController;
 
   constructor(orbite: OrbitDB, idBd: string) {
     super();
@@ -54,10 +55,14 @@ class AccèsUtilisateur extends EventEmitter {
     this.autorisés = [];
     this.idRequête = uuidv4();
     this.prêt = false;
+    this.signaleurArrêt = new AbortController();
   }
 
   async initialiser(): Promise<void> {
-    const { bd, fOublier } = await this.orbite.ouvrirBd({ id: this.idBd });
+    const { bd, fOublier } = await this.orbite.ouvrirBd({
+      id: this.idBd,
+      signal: this.signaleurArrêt.signal,
+    });
     this.fOublierBd = fOublier;
 
     this.accès = bd.access as ContrôleurConstellation;
@@ -89,6 +94,7 @@ class AccèsUtilisateur extends EventEmitter {
   }
 
   async fermer() {
+    this.signaleurArrêt.abort();
     if (this.oublierSuivi) await this.oublierSuivi();
     await this.fOublierBd?.();
   }
