@@ -418,14 +418,14 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     return await this.suivreBdPrincipale({
       f: async (favoris) => {
         if (favoris[idObjet])
-            await f(
-              await this.résoudreÉpinglesSurDispositif({
-                épingle: favoris[idObjet],
-              }),
-            )
-        else await f(undefined)
-        }
-      });
+          await f(
+            await this.résoudreÉpinglesSurDispositif({
+              épingle: favoris[idObjet],
+            }),
+          );
+        else await f(undefined);
+      },
+    });
   }
 
   async résoudreÉpinglesSurDispositif<T extends ÉpingleFavoris>({
