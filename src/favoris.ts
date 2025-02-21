@@ -416,13 +416,16 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     f: schémaFonctionSuivi<BooléenniserPropriétés<ÉpingleFavoris> | undefined>;
   }): Promise<schémaFonctionOublier> {
     return await this.suivreBdPrincipale({
-      f: async (favoris) =>
-        f(
-          await this.résoudreÉpinglesSurDispositif({
-            épingle: favoris[idObjet],
-          }),
-        ),
-    });
+      f: async (favoris) => {
+        if (favoris[idObjet])
+            await f(
+              await this.résoudreÉpinglesSurDispositif({
+                épingle: favoris[idObjet],
+              }),
+            )
+        else await f(undefined)
+        }
+      });
   }
 
   async résoudreÉpinglesSurDispositif<T extends ÉpingleFavoris>({
