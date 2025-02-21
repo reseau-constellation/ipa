@@ -275,6 +275,9 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
           })) as T,
         signal,
       });
+      this.orbite.ipfs.libp2p.addEventListener("peer:disconnect", (x) => {
+        bd.peers.delete(x.detail.toString())
+      })
 
       this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
 
@@ -389,6 +392,9 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
       ...options,
       sync: true,
     })) as Store;
+    this.orbite.ipfs.libp2p.addEventListener("peer:disconnect", (x) => {
+      bd.peers.delete(x.detail.toString())
+    });
     const { address } = bd;
 
     this._bdsOrbite[address] = { bd, idsRequêtes: new Set() };
