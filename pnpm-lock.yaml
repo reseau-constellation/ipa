@@ -100,7 +100,7 @@ importers:
         version: 1.6.0
       '@orbitdb/core':
         specifier: ^2.4.3
-        version: 2.4.3
+        version: 2.5.0
       '@orbitdb/feed-db':
         specifier: ^1.1.2
         version: 1.1.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
@@ -1979,8 +1979,8 @@ packages:
   '@orbitdb/core-types@1.0.14':
     resolution: {integrity: sha512-Mq+o9zMw8n1kD3eMOQZZ/XG9TnQ8HqUInmduBfMidPXFSQVrvVtTAxyFpHk+2+FMf6BTj1xhrAUCEZlcvYebeQ==}
 
-  '@orbitdb/core@2.4.3':
-    resolution: {integrity: sha512-pRHDJlODTy35nySEAPhTjzZIKQ7eedwCIoplmEXs1rW3KYqMHNQaNxrIc1uBMw9cRsPTeIGwxTUkvXfhhaf35Q==}
+  '@orbitdb/core@2.5.0':
+    resolution: {integrity: sha512-RE+te/z8MCLhkawby2j9J0T0hH8Mi9BgTUATWd99ih/cyU9OTbbXVuY64A64bdAQ4EZkfJ+OjO9vAMhJHwgnew==}
     engines: {node: '>=20.0.0'}
 
   '@orbitdb/feed-db@1.1.2':
@@ -2355,6 +2355,9 @@ packages:
 
   '@types/node@22.13.4':
     resolution: {integrity: sha512-ywP2X0DYtX3y08eFVx5fNIw7/uIv8hYUKgXoK8oayJlLnKcRfEYCxWMVE1XagUdVtCJlZT1AU4LXEABW+L1Peg==}
+
+  '@types/node@22.13.5':
+    resolution: {integrity: sha512-+lTU0PxZXn0Dr1NBtC7Y8cR21AJr87dLLU953CWA6pMxxv/UDc7jYAY90upcrie1nRcD6XNG5HOYEDtgW5TxAg==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -9689,7 +9692,7 @@ snapshots:
 
   '@constl/bohr-db@1.2.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))':
     dependencies:
-      '@orbitdb/core': 2.4.3
+      '@orbitdb/core': 2.5.0
       '@orbitdb/core-types': 1.0.14
       '@orbitdb/feed-db': 1.1.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
       '@orbitdb/ordered-keyvalue-db': 1.1.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
@@ -9728,7 +9731,7 @@ snapshots:
       '@helia/block-brokers': 4.0.4
       '@libp2p/peer-id': 5.0.13
       '@libp2p/webrtc': 5.2.0(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
-      '@orbitdb/core': 2.4.3
+      '@orbitdb/core': 2.5.0
       blockstore-core: 5.0.2
       blockstore-level: 2.0.1
       browserify-fs: 1.0.0
@@ -10227,14 +10230,14 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       jest-mock: 29.7.0
 
   '@jest/fake-timers@29.7.0':
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -10268,7 +10271,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -10306,7 +10309,7 @@ snapshots:
   '@lassi-js/kili@0.4.1':
     dependencies:
       '@constl/utils-ipa': 1.0.4
-      '@orbitdb/core': 2.4.3
+      '@orbitdb/core': 2.5.0
       deepcopy: 2.1.0
 
   '@leichtgewicht/ip-codec@2.0.5': {}
@@ -11039,7 +11042,7 @@ snapshots:
 
   '@orbitdb/core-types@1.0.14': {}
 
-  '@orbitdb/core@2.4.3':
+  '@orbitdb/core@2.5.0':
     dependencies:
       '@ipld/dag-cbor': 9.2.2
       '@libp2p/crypto': 5.0.12
@@ -11053,7 +11056,7 @@ snapshots:
 
   '@orbitdb/feed-db@1.1.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))':
     dependencies:
-      '@orbitdb/core': 2.4.3
+      '@orbitdb/core': 2.5.0
       helia: 5.2.1(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
     transitivePeerDependencies:
       - bufferutil
@@ -11063,7 +11066,7 @@ snapshots:
 
   '@orbitdb/ordered-keyvalue-db@1.1.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))':
     dependencies:
-      '@orbitdb/core': 2.4.3
+      '@orbitdb/core': 2.5.0
       helia: 5.2.1(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
     transitivePeerDependencies:
       - bufferutil
@@ -11073,7 +11076,7 @@ snapshots:
 
   '@orbitdb/set-db@1.1.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))':
     dependencies:
-      '@orbitdb/core': 2.4.3
+      '@orbitdb/core': 2.5.0
       helia: 5.2.1(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
     transitivePeerDependencies:
       - bufferutil
@@ -11559,7 +11562,7 @@ snapshots:
 
   '@types/graceful-fs@4.1.9':
     dependencies:
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
 
   '@types/http-cache-semantics@4.0.4': {}
 
@@ -11608,7 +11611,7 @@ snapshots:
 
   '@types/node-forge@1.3.11':
     dependencies:
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
 
   '@types/node-localstorage@1.3.3':
     dependencies:
@@ -11619,6 +11622,10 @@ snapshots:
       undici-types: 6.19.8
 
   '@types/node@22.13.4':
+    dependencies:
+      undici-types: 6.20.0
+
+  '@types/node@22.13.5':
     dependencies:
       undici-types: 6.20.0
 
@@ -12826,7 +12833,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -12835,7 +12842,7 @@ snapshots:
 
   chromium-edge-launcher@0.2.0:
     dependencies:
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -15693,7 +15700,7 @@ snapshots:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
@@ -15703,7 +15710,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@types/graceful-fs': 4.1.9
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -15730,7 +15737,7 @@ snapshots:
   jest-mock@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       jest-util: 29.7.0
 
   jest-regex-util@29.6.3: {}
@@ -15738,7 +15745,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -15755,7 +15762,7 @@ snapshots:
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 22.13.4
+      '@types/node': 22.13.5
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
