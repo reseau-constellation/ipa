@@ -26,8 +26,8 @@ import {
 import { type JSONSchemaType } from "ajv";
 
 import Semaphore from "@chriscdn/promise-semaphore";
+import { réessayer } from "@constl/utils-ipa";
 import { enregistrerContrôleurs } from "@/accès/index.js";
-import { réessayer } from "./utils.js";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 import type { HeliaLibp2p } from "helia";
 import type { Libp2p } from "libp2p";
