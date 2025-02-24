@@ -21,14 +21,14 @@ importers:
         specifier: ^2.0.9
         version: 2.0.9
       '@constl/bohr-db':
-        specifier: ^1.2.2
-        version: 1.2.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
+        specifier: ^1.2.3
+        version: 1.2.3(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))
       '@constl/mandataire':
         specifier: ^3.0.3
         version: 3.0.3
       '@constl/utils-ipa':
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.5
+        version: 1.0.5
       '@helia/block-brokers':
         specifier: ^4.0.4
         version: 4.0.4
@@ -292,8 +292,8 @@ importers:
         specifier: ^8.24.1
         version: 8.24.1(eslint@9.21.0)(typescript@5.6.3)
       aegir:
-        specifier: ^45.1.1
-        version: 45.1.1(@babel/core@7.26.9)(@typescript-eslint/parser@8.24.1(eslint@9.21.0)(typescript@5.6.3))(eslint-import-resolver-typescript@3.8.3)(eslint-plugin-n@17.15.1(eslint@9.21.0))
+        specifier: ^45.1.2
+        version: 45.1.2(@babel/core@7.26.9)(@typescript-eslint/parser@8.24.1(eslint@9.21.0)(typescript@5.6.3))(eslint-import-resolver-typescript@3.8.3)(eslint-plugin-n@17.15.1(eslint@9.21.0))
       bmp-js:
         specifier: ^0.1.0
         version: 0.1.0
@@ -1169,14 +1169,14 @@ packages:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
 
-  '@constl/bohr-db@1.2.2':
-    resolution: {integrity: sha512-6PN9i0FlUtX/IchBGPBBTMR7iDeP88/TZOtJvvPwecpshi/jZkceQskG3jCDSLjv7qZVVmyRcHRstkeCdnsUGQ==}
+  '@constl/bohr-db@1.2.3':
+    resolution: {integrity: sha512-IJXOqeMnJEOqD7DRNMowwPOY7bVKlTdQNu3DNn9zoSKj+fBzTXLzkxl4uRbKLu9vwWzjoXyxgvp2iw7vkt/amQ==}
 
   '@constl/mandataire@3.0.3':
     resolution: {integrity: sha512-J7zWtq2EOA46EIzAGjiOP/FVYvQrjvxXT7aLyKEA6chm6i/3kJnmv5pgYSF0rofGgzIyRUwsTLuzSB23DoZNyg==}
 
-  '@constl/utils-ipa@1.0.4':
-    resolution: {integrity: sha512-U9GCw5o9ZBJHBy5XK5Rt0rEn30ceSkhhQr6UTylVAF4hJ9ChlNsPKYVdk6KHk+opcwxcdS01RMczHIwEoRzRGg==}
+  '@constl/utils-ipa@1.0.5':
+    resolution: {integrity: sha512-br5uNxDQsFeVVe6WO2uE3cAF/WczOiJxXgE4yj7PlBEQ3NZp2qZqLyT3L3RofnSy4erm69GrUUjdOdUV1w4SUA==}
     engines: {node: '>=20'}
 
   '@constl/utils-tests@1.6.13':
@@ -2312,8 +2312,8 @@ packages:
   '@octokit/openapi-types@23.0.1':
     resolution: {integrity: sha512-izFjMJ1sir0jn0ldEKhZ7xegCTj/ObmEDlEfpFrx4k/JyZSMRHbO3/rBwgE7f3m2DHt+RrNGIVw4wSmwnm3t/g==}
 
-  '@octokit/plugin-paginate-rest@11.4.2':
-    resolution: {integrity: sha512-BXJ7XPCTDXFF+wxcg/zscfgw2O/iDPtNSkwwR1W1W5c4Mb3zav/M2XvxQ23nVmKj7jpweB4g8viMeCQdm7LMVA==}
+  '@octokit/plugin-paginate-rest@11.4.3':
+    resolution: {integrity: sha512-tBXaAbXkqVJlRoA/zQVe9mUdb8rScmivqtpv3ovsC5xhje/a+NOCivs7eUhWBwCApJVsR4G5HMeaLbq7PxqZGA==}
     engines: {node: '>= 18'}
     peerDependencies:
       '@octokit/core': '>=6'
@@ -2985,8 +2985,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  aegir@45.1.1:
-    resolution: {integrity: sha512-116zEI5AanflFqVscoxg7xx1y4EYrVEqH66Jv9tLL6kYUexaUiKzFiC54ZANMwg4R6NFdGMQFi2V9JpHHoH5Lg==}
+  aegir@45.1.2:
+    resolution: {integrity: sha512-dBCjF9ZM/KHPQHPT2lI7VUq54QqH+s74kW16c2s+/iYh/1S/wI5Una5FGvS3zX36H4GPceMzL7NbFIk9rT1RDw==}
     hasBin: true
 
   agent-base@7.1.3:
@@ -6770,9 +6770,6 @@ packages:
     resolution: {integrity: sha512-eajQ/ZH7qXZQR2AgtfpmSMizQzmyYVmCql7pdhldPuYQi4atACekbJaQplk6dWyIi10jCaFnd6pqvcEFXjbaJw==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
 
-  multiformats@13.3.1:
-    resolution: {integrity: sha512-QxowxTNwJ3r5RMctoGA5p13w5RbRT2QDkoM+yFlqfLiioBp78nhDjnRLvmSBI9+KAqN4VdgOVWM9c0CHd86m3g==}
-
   multiformats@13.3.2:
     resolution: {integrity: sha512-qbB0CQDt3QKfiAzZ5ZYjLFOs+zW43vA4uyM8g27PeEuXZybUOFyjrVdP93HPBHMoglibwfkdVwbzfUq8qGcH6g==}
 
@@ -10166,7 +10163,7 @@ snapshots:
 
   '@colors/colors@1.5.0': {}
 
-  '@constl/bohr-db@1.2.2(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))':
+  '@constl/bohr-db@1.2.3(react-native@0.76.6(@babel/core@7.26.9)(@babel/preset-env@7.26.0(@babel/core@7.26.9))(react@18.3.1))':
     dependencies:
       '@orbitdb/core': 2.5.0
       '@orbitdb/core-types': 1.0.14
@@ -10188,7 +10185,7 @@ snapshots:
       events: 3.3.0
       uuid: 11.1.0
 
-  '@constl/utils-ipa@1.0.4':
+  '@constl/utils-ipa@1.0.5':
     dependencies:
       '@chriscdn/promise-semaphore': 2.0.9
       browser-fs-access: 0.35.0
@@ -10197,7 +10194,7 @@ snapshots:
       genversion: 3.2.0
       geojson-validation: 1.0.2
       jszip: 3.10.1
-      multiformats: 13.3.1
+      multiformats: 13.3.2
       rimraf: 6.0.1
       uint8arrays: 5.1.0
       wherearewe: 2.0.1
@@ -11070,7 +11067,7 @@ snapshots:
 
   '@lassi-js/kili@0.4.1':
     dependencies:
-      '@constl/utils-ipa': 1.0.4
+      '@constl/utils-ipa': 1.0.5
       '@orbitdb/core': 2.5.0
       deepcopy: 2.1.0
 
@@ -11766,7 +11763,7 @@ snapshots:
 
   '@octokit/openapi-types@23.0.1': {}
 
-  '@octokit/plugin-paginate-rest@11.4.2(@octokit/core@6.1.4)':
+  '@octokit/plugin-paginate-rest@11.4.3(@octokit/core@6.1.4)':
     dependencies:
       '@octokit/core': 6.1.4
       '@octokit/types': 13.8.0
@@ -12175,7 +12172,7 @@ snapshots:
   '@semantic-release/github@11.0.1(semantic-release@24.2.3(typescript@5.6.3))':
     dependencies:
       '@octokit/core': 6.1.4
-      '@octokit/plugin-paginate-rest': 11.4.2(@octokit/core@6.1.4)
+      '@octokit/plugin-paginate-rest': 11.4.3(@octokit/core@6.1.4)
       '@octokit/plugin-retry': 7.1.4(@octokit/core@6.1.4)
       '@octokit/plugin-throttling': 9.4.0(@octokit/core@6.1.4)
       '@semantic-release/error': 4.0.0
@@ -12751,7 +12748,7 @@ snapshots:
 
   acorn@8.14.0: {}
 
-  aegir@45.1.1(@babel/core@7.26.9)(@typescript-eslint/parser@8.24.1(eslint@9.21.0)(typescript@5.6.3))(eslint-import-resolver-typescript@3.8.3)(eslint-plugin-n@17.15.1(eslint@9.21.0)):
+  aegir@45.1.2(@babel/core@7.26.9)(@typescript-eslint/parser@8.24.1(eslint@9.21.0)(typescript@5.6.3))(eslint-import-resolver-typescript@3.8.3)(eslint-plugin-n@17.15.1(eslint@9.21.0)):
     dependencies:
       '@electron/get': 3.1.0
       '@polka/send-type': 0.5.2
@@ -17861,8 +17858,6 @@ snapshots:
   multiformats@11.0.2: {}
 
   multiformats@12.1.3: {}
-
-  multiformats@13.3.1: {}
 
   multiformats@13.3.2: {}
 
