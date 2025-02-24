@@ -1,4 +1,3 @@
-import { join } from "path";
 import toBuffer from "it-to-buffer";
 
 import { isValidAddress } from "@orbitdb/core";
@@ -12,7 +11,6 @@ import {
 import {
   attente,
   dossiers,
-  sfip as sfipTest,
   orbite as orbiteTest,
   constellation as constellationTest,
 } from "@constl/utils-tests";
