@@ -11,7 +11,6 @@ import { bitswap } from "@helia/block-brokers";
 import { IDBBlockstore } from "blockstore-idb";
 import { IDBDatastore } from "datastore-idb";
 import {
-  DefaultLibp2pServices,
   HeliaInit,
   HeliaLibp2p,
   createHelia,
@@ -24,7 +23,7 @@ import { obtOptionsLibp2pNode } from "./configNode.js";
 import { obtOptionsLibp2pTravailleurWeb } from "./configTravailleur.js";
 import { obtOptionsLibp2pÉlectionPrincipal } from "./configÉlectronPrincipal.js";
 import * as consts from "./const.js";
-import type { GossipsubEvents } from "@chainsafe/libp2p-gossipsub";
+import type {  GossipsubEvents } from "@chainsafe/libp2p-gossipsub";
 import type { PrivateKey, PubSub } from "@libp2p/interface";
 
 export type ServicesLibp2p = {
@@ -92,7 +91,7 @@ export async function initSFIP({
 
   const libp2p = (await createLibp2p(
     mergeOptions(configParDéfaut, configLibp2p),
-  )) as Libp2p<DefaultLibp2pServices>;
+  )) as Libp2p<ServicesLibp2p>;  
 
   // À faire : créer un gestionnaire de pairs plus idiomatique et efficace
   libp2p.addEventListener("peer:discovery", async (x) => {

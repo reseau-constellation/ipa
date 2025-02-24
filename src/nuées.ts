@@ -3193,7 +3193,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idBd: string;
     patience?: number;
   }): Promise<string> {
-    const idNuée = await this.créerNuée({});
+    const idNuée = await this.créerNuée();
 
     const [noms, descriptions, idsMotsClefs, tableaux] = await Promise.all([
       // Noms
