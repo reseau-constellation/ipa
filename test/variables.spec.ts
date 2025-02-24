@@ -22,7 +22,7 @@ describe("Variables", function () {
   let client: Constellation;
 
   before("Préparer clients", async () => {
-    ({ fOublier: fOublierClients, clients: clients as unknown } =
+    ({ fOublier: fOublierClients, clients } =
       await créerConstellationsTest({
         n: 1,
         créerConstellation,

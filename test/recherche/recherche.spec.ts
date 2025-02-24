@@ -73,7 +73,7 @@ if (isElectronMain || isNode) {
       let idsComptes: string[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients: clients as unknown } =
+        ({ fOublier: fOublierClients, clients } =
           await créerConstellationsTest({
             n: 3,
             créerConstellation,
@@ -316,7 +316,7 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients: clients as unknown } =
+        ({ fOublier: fOublierClients, clients } =
           await créerConstellationsTest({
             n: 2,
             créerConstellation,
@@ -457,7 +457,7 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients: clients as unknown } =
+        ({ fOublier: fOublierClients, clients } =
           await créerConstellationsTest({
             n: 2,
             créerConstellation,
@@ -661,7 +661,7 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients: clients as unknown } =
+        ({ fOublier: fOublierClients, clients } =
           await créerConstellationsTest({
             n: 2,
             créerConstellation,
@@ -979,7 +979,7 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients: clients as unknown } =
+        ({ fOublier: fOublierClients, clients } =
           await créerConstellationsTest({
             n: 2,
             créerConstellation,
@@ -1297,7 +1297,7 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients: clients as unknown } =
+        ({ fOublier: fOublierClients, clients } =
           await créerConstellationsTest({
             n: 2,
             créerConstellation,
@@ -1694,7 +1694,7 @@ describe.skip("Test fonctionnalités recherche", function () {
   let idsComptes: string[];
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients: clients as unknown } =
+    ({ fOublier: fOublierClients, clients } =
       await créerConstellationsTest({
         n: 5,
         créerConstellation,

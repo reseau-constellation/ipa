@@ -30,7 +30,7 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients: clients as unknown } =
+      ({ fOublier: fOublierClients, clients } =
         await générerClientsInternes({
           n: 1,
         }));
@@ -101,7 +101,7 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients: clients as unknown } =
+      ({ fOublier: fOublierClients, clients } =
         await générerClientsInternes({
           n: 1,
         }));
@@ -162,7 +162,7 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients: clients as unknown } =
+      ({ fOublier: fOublierClients, clients } =
         await générerClientsInternes({
           n: 1,
         }));
@@ -219,7 +219,7 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients: clients as unknown } =
+      ({ fOublier: fOublierClients, clients } =
         await générerClientsInternes({
           n: 1,
         }));

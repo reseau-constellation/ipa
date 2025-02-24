@@ -20,7 +20,7 @@ describe("Rechercher mots clefs", function () {
   let client: Constellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients: clients as unknown } =
+    ({ fOublier: fOublierClients, clients } =
       await générerClientsInternes({
         n: 1,
       }));
