@@ -268,7 +268,7 @@ if (isNode || isElectronMain) {
     });
   });
 
-  describe("Concurrence", function () {
+  describe.only("Concurrence", function () {
     describe("Différents dossiers", async () => {
       let constl1: Constellation;
       let constl2: Constellation;
@@ -312,6 +312,7 @@ if (isNode || isElectronMain) {
         expect(idCompte1).to.not.equal(idCompte2);
       });
     });
+
     describe("Même dossier", async () => {
       let constl1: Constellation;
 
