@@ -1,12 +1,11 @@
 import { isElectronMain, isNode } from "wherearewe";
 
 import { JSONSchemaType } from "ajv";
-import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
+import { faisRien, suivreBdsDeFonctionListe  } from "@constl/utils-ipa";
 import deepEqual from "deep-equal";
 import deepcopy from "deepcopy";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
-import { effacerPropriétésNonDéfinies } from "./utils.js";
 import type { Constellation } from "@/client.js";
 import type {
   RecursivePartial,
@@ -378,9 +377,8 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
 
-    const élément = effacerPropriétésNonDéfinies(épingle);
     const existant = bd.get(idObjet);
-    if (!deepEqual(existant, élément)) await bd.put(idObjet, élément);
+    if (!deepEqual(existant, épingle)) await bd.put(idObjet, épingle);
 
     await fOublier();
   }
