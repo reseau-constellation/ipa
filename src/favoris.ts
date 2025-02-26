@@ -377,7 +377,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }): Promise<void> {
     const { bd, fOublier } = await this.obtBd();
 
-    const existant = bd.get(idObjet);
+    const existant = await bd.get(idObjet);
     if (!deepEqual(existant, épingle)) await bd.put(idObjet, épingle);
 
     await fOublier();
