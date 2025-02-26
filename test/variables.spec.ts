@@ -22,11 +22,10 @@ describe("Variables", function () {
   let client: Constellation;
 
   before("Préparer clients", async () => {
-    ({ fOublier: fOublierClients, clients } =
-      await créerConstellationsTest({
-        n: 1,
-        créerConstellation,
-      }));
+    ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
+      n: 1,
+      créerConstellation,
+    }));
     client = clients[0];
   });
 

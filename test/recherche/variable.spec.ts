@@ -21,10 +21,9 @@ describe("Rechercher variables", function () {
   let client: Constellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } =
-      await générerClientsInternes({
-        n: 1,
-      }));
+    ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+      n: 1,
+    }));
     client = clients[0];
   });
 

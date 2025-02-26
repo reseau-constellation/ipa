@@ -30,10 +30,9 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } =
-        await générerClientsInternes({
-          n: 1,
-        }));
+      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+        n: 1,
+      }));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonActivité();
@@ -101,10 +100,9 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } =
-        await générerClientsInternes({
-          n: 1,
-        }));
+      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+        n: 1,
+      }));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonNom("Julien");
@@ -162,10 +160,9 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } =
-        await générerClientsInternes({
-          n: 1,
-        }));
+      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+        n: 1,
+      }));
       client = clients[0];
       idCompte = await client.obtIdCompte();
       const fRecherche = rechercherProfilsSelonCourriel("julien");
@@ -219,10 +216,9 @@ describe("Rechercher profil", function () {
     >();
 
     before(async () => {
-      ({ fOublier: fOublierClients, clients } =
-        await générerClientsInternes({
-          n: 1,
-        }));
+      ({ fOublier: fOublierClients, clients } = await générerClientsInternes({
+        n: 1,
+      }));
       client = clients[0];
 
       idCompte = await client.obtIdCompte();

@@ -1,7 +1,7 @@
 import { peerIdFromString } from "@libp2p/peer-id";
 import { multiaddr } from "@multiformats/multiaddr";
-import type { AddrInfo } from "@chainsafe/libp2p-gossipsub/dist/src/types";
 import { ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
+import type { AddrInfo } from "@chainsafe/libp2p-gossipsub/dist/src/types";
 
 export const résoudreInfoAdresses = (adresses: string[]): AddrInfo[] => {
   const infos: AddrInfo[] = [];
@@ -18,11 +18,14 @@ export const résoudreInfoAdresses = (adresses: string[]): AddrInfo[] => {
   return infos;
 };
 
-
 export function applicationScore(p: string) {
-  if ([...ADRESSES_NŒUDS_RELAI_RUST, ...ADRESSES_NŒUDS_RELAI_WS].map(adr => multiaddr(adr).getPeerId()).includes(p)) {
-    return 150
+  if (
+    [...ADRESSES_NŒUDS_RELAI_RUST, ...ADRESSES_NŒUDS_RELAI_WS]
+      .map((adr) => multiaddr(adr).getPeerId())
+      .includes(p)
+  ) {
+    return 150;
   }
 
-  return 0
+  return 0;
 }

@@ -73,11 +73,12 @@ if (isElectronMain || isNode) {
       let idsComptes: string[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } =
-          await créerConstellationsTest({
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
             n: 3,
             créerConstellation,
-          }));
+          },
+        ));
 
         idsComptes = await Promise.all(
           clients.map(async (c) => await c.obtIdCompte()),
@@ -316,11 +317,12 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } =
-          await créerConstellationsTest({
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
             n: 2,
             créerConstellation,
-          }));
+          },
+        ));
       });
 
       after(async () => {
@@ -457,11 +459,12 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } =
-          await créerConstellationsTest({
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
             n: 2,
             créerConstellation,
-          }));
+          },
+        ));
       });
 
       after(async () => {
@@ -661,11 +664,12 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } =
-          await créerConstellationsTest({
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
             n: 2,
             créerConstellation,
-          }));
+          },
+        ));
       });
 
       after(async () => {
@@ -979,11 +983,12 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } =
-          await créerConstellationsTest({
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
             n: 2,
             créerConstellation,
-          }));
+          },
+        ));
       });
 
       after(async () => {
@@ -1297,11 +1302,12 @@ if (isElectronMain || isNode) {
       let clients: Constellation[];
 
       before(async () => {
-        ({ fOublier: fOublierClients, clients } =
-          await créerConstellationsTest({
+        ({ fOublier: fOublierClients, clients } = await créerConstellationsTest(
+          {
             n: 2,
             créerConstellation,
-          }));
+          },
+        ));
       });
 
       after(async () => {
@@ -1694,11 +1700,10 @@ describe.skip("Test fonctionnalités recherche", function () {
   let idsComptes: string[];
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients } =
-      await créerConstellationsTest({
-        n: 5,
-        créerConstellation,
-      }));
+    ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
+      n: 5,
+      créerConstellation,
+    }));
     client = clients[0];
     for (const [i, c] of clients.entries()) {
       idsComptes.push(await c.obtIdCompte());

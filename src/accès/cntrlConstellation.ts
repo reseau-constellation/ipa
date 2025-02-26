@@ -180,7 +180,7 @@ const ContrôleurConstellation =
 
     const gestRôles = new GestionnaireAccès(orbitdb);
     gestRôles.on("misÀJour", () => événements.emit("misÀJour"));
-    gestRôles.setMaxListeners(100)
+    gestRôles.setMaxListeners(100);
 
     const miseÀJourBdAccès = async (
       éléments: élémentBdAccès[],

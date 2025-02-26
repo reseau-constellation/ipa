@@ -1,7 +1,7 @@
 import { isElectronMain, isNode } from "wherearewe";
 
 import { JSONSchemaType } from "ajv";
-import { faisRien, suivreBdsDeFonctionListe  } from "@constl/utils-ipa";
+import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import deepEqual from "deep-equal";
 import deepcopy from "deepcopy";
 import { cacheSuivi } from "@/décorateursCache.js";

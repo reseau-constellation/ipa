@@ -504,7 +504,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     codeSecret: string;
   }): Promise<void> {
     const idDispositif = await this.client.obtIdDispositif();
-    const [idDispositifQuiInvite, codeSecretOriginal] = codeSecret.split(":");
+    let idDispositifQuiInvite: string | undefined = undefined;
+    let codeSecretOriginal: string | undefined = undefined;
+    if (codeSecret.includes(":")) {
+      [idDispositifQuiInvite, codeSecretOriginal] = codeSecret.split(":");
+    } else {
+      codeSecretOriginal = codeSecret;
+    }
     const msg: ValeurMessageRequêteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
       contenu: {
@@ -1382,7 +1388,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         pairs.map((p) => {
           const pair = p.toString();
           const adresses = connexions
-            .filter((c) => c.remotePeer.toString() === pair)
+            .filter(
+              (c) => c.remotePeer.toString() === pair && c.status !== "closed",
+            )
             .map((a) => a.remoteAddr.toString());
           return { pair, adresses };
         }),
