@@ -268,7 +268,7 @@ if (isNode || isElectronMain) {
     });
   });
 
-  describe.only("Concurrence", function () {
+  describe("Concurrence", function () {
     describe("Différents dossiers", async () => {
       let constl1: Constellation;
       let constl2: Constellation;
