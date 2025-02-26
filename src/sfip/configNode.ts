@@ -18,8 +18,9 @@ import { webTransport } from "@libp2p/webtransport";
 import { FaultTolerance } from "@libp2p/interface";
 import { ping } from "@libp2p/ping";
 import { uPnPNAT } from "@libp2p/upnp-nat";
-import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
+import { ADRESSES_NŒUDS_INITIAUX, ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
 import type { Libp2pOptions } from "libp2p";
+import { applicationScore, résoudreInfoAdresses } from "./utils.js";
 
 // import { kadDHT } from "@libp2p/kad-dht";
 
@@ -91,6 +92,16 @@ export const obtOptionsLibp2pNode = async ({
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,
         canRelayMessage: true,
+        directPeers: résoudreInfoAdresses([
+          ...ADRESSES_NŒUDS_RELAI_WS,
+          ...ADRESSES_NŒUDS_RELAI_RUST,
+        ]),
+        scoreParams: {
+          appSpecificScore: applicationScore,
+        },
+        scoreThresholds: {
+          acceptPXThreshold: 100,
+        },
       }),
       /*dht: kadDHT({
         clientMode: true,

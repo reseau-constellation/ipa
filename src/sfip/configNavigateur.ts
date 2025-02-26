@@ -22,7 +22,7 @@ import {
   ADRESSES_NŒUDS_RELAI_RUST,
   ADRESSES_NŒUDS_RELAI_WS,
 } from "./const.js";
-import { résoudreInfoAdresses } from "./utils.js";
+import { applicationScore, résoudreInfoAdresses } from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
 
 // https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#recommendations-for-network-operators
@@ -89,8 +89,11 @@ export const obtOptionsLibp2pNavigateur = async ({
           ...ADRESSES_NŒUDS_RELAI_WS,
           ...ADRESSES_NŒUDS_RELAI_RUST,
         ]),
+        scoreParams: {
+          appSpecificScore: applicationScore,
+        },
         scoreThresholds: {
-          acceptPXThreshold: 0,
+          acceptPXThreshold: 100,
         },
       }),
       /*dht: kadDHT({
