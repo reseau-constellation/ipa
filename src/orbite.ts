@@ -33,6 +33,7 @@ import type { HeliaLibp2p } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2p } from "./sfip/index.js";
 import type { ServiceMap } from "@libp2p/interface";
+import { anySignal } from "any-signal";
 
 export type Store =
   | FeedDatabaseType
@@ -229,7 +230,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     bd: T;
     fOublier: schémaFonctionOublier;
   }> {
-    signal ??= this.signaleurArrêt.signal;
+    signal = signal ? anySignal([signal, this.signaleurArrêt.signal]) : this.signaleurArrêt.signal;
 
     // Nous avons besoin d'un verrou afin d'éviter la concurrence
     await this.verrouOuvertureBd.acquire(id);
@@ -271,7 +272,6 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
           (await this.orbite.open(id, {
             type,
             ...options,
-            sync: true,
           })) as T,
         signal,
       });
