@@ -15,9 +15,13 @@ import { webTransport } from "@libp2p/webtransport";
 import { uPnPNAT } from "@libp2p/upnp-nat";
 import { ping } from "@libp2p/ping";
 import { FaultTolerance } from "@libp2p/interface";
-import { ADRESSES_NŒUDS_INITIAUX, ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
-import type { Libp2pOptions } from "libp2p";
+import {
+  ADRESSES_NŒUDS_INITIAUX,
+  ADRESSES_NŒUDS_RELAI_RUST,
+  ADRESSES_NŒUDS_RELAI_WS,
+} from "./const.js";
 import { applicationScore, résoudreInfoAdresses } from "./utils.js";
+import type { Libp2pOptions } from "libp2p";
 // import { kadDHT } from "@libp2p/kad-dht";
 
 export const obtOptionsLibp2pÉlectionPrincipal = async ({
@@ -61,6 +65,7 @@ export const obtOptionsLibp2pÉlectionPrincipal = async ({
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
+
     datastore: stockage,
     peerDiscovery: [
       mdns(),

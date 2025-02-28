@@ -18,9 +18,13 @@ import { webTransport } from "@libp2p/webtransport";
 import { FaultTolerance } from "@libp2p/interface";
 import { ping } from "@libp2p/ping";
 import { uPnPNAT } from "@libp2p/upnp-nat";
-import { ADRESSES_NŒUDS_INITIAUX, ADRESSES_NŒUDS_RELAI_RUST, ADRESSES_NŒUDS_RELAI_WS } from "./const.js";
-import type { Libp2pOptions } from "libp2p";
+import {
+  ADRESSES_NŒUDS_INITIAUX,
+  ADRESSES_NŒUDS_RELAI_RUST,
+  ADRESSES_NŒUDS_RELAI_WS,
+} from "./const.js";
 import { applicationScore, résoudreInfoAdresses } from "./utils.js";
+import type { Libp2pOptions } from "libp2p";
 
 // import { kadDHT } from "@libp2p/kad-dht";
 
@@ -68,6 +72,13 @@ export const obtOptionsLibp2pNode = async ({
     streamMuxers: [yamux()],
     connectionGater: {
       denyDialMultiaddr: () => false,
+    },
+    // https://github.com/libp2p/js-libp2p/issues/2897
+    connectionManager: {
+      inboundStreamProtocolNegotiationTimeout: 1e4,
+      inboundUpgradeTimeout: 1e4,
+      outboundStreamProtocolNegotiationTimeout: 1e4,
+      outboundUpgradeTimeout: 1e4,
     },
     datastore: stockage,
     peerDiscovery: [
