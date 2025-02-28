@@ -138,13 +138,13 @@ const schémaStructureBdNuée: JSONSchemaType<Partial<structureBdNuée>> = {
   required: [],
 };
 
-type structureBdAuthorisation = {
+type structureBdAutorisation = {
   philosophie: "CJPI" | "IJPC";
   membres: string;
 };
 
-const schémaStructureBdAuthorisation: JSONSchemaType<
-  Partial<structureBdAuthorisation>
+const schémaStructureBdAutorisation: JSONSchemaType<
+  Partial<structureBdAutorisation>
 > = {
   type: "object",
   properties: {
@@ -1150,7 +1150,7 @@ export class Nuées extends ComposanteClientListe<string> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdAutorisation,
       type: "keyvalue",
-      schéma: schémaStructureBdAuthorisation,
+      schéma: schémaStructureBdAutorisation,
     });
 
     await bd.set("philosophie", philosophie);
@@ -1177,7 +1177,7 @@ export class Nuées extends ComposanteClientListe<string> {
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idAutorisation,
       type: "keyvalue",
-      schéma: schémaStructureBdAuthorisation,
+      schéma: schémaStructureBdAutorisation,
     });
     await bd.set("philosophie", philosophie);
     fOublier();
@@ -1191,7 +1191,7 @@ export class Nuées extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<"IJPC" | "CJPI">;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (
-      bd?: TypedKeyValue<Partial<structureBdAuthorisation>>,
+      bd?: TypedKeyValue<Partial<structureBdAutorisation>>,
     ) => {
       if (!bd) return;
       const philosophie = await bd.get("philosophie");
@@ -1217,13 +1217,13 @@ export class Nuées extends ComposanteClientListe<string> {
     }: {
       id: string;
       fSuivreBd: schémaFonctionSuivi<
-        TypedKeyValue<Partial<structureBdAuthorisation>> | undefined
+        TypedKeyValue<Partial<structureBdAutorisation>> | undefined
       >;
     }) => {
       return await this.client.suivreBd({
         id,
         type: "keyvalue",
-        schéma: schémaStructureBdAuthorisation,
+        schéma: schémaStructureBdAutorisation,
         f: fSuivreBd,
       });
     };
