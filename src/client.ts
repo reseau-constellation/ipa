@@ -1,6 +1,6 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 import { unixfs } from "@helia/unixfs";
-import { Libp2p, PeerId } from "@libp2p/interface";
+import { Libp2p } from "@libp2p/interface";
 import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
 import indexedDbStream from "indexed-db-stream";
@@ -26,6 +26,8 @@ import { JSONSchemaType } from "ajv";
 import Base64 from "crypto-js/enc-base64.js";
 import md5 from "crypto-js/md5.js";
 import sha256 from "crypto-js/sha256.js";
+import { randomBytes } from "@noble/hashes/utils";
+import bs58 from "bs58";
 
 import { HeliaLibp2p } from "helia";
 import JSZip from "jszip";
@@ -40,7 +42,6 @@ import {
 import { keys } from "@libp2p/crypto";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
-import { Encryption, EncryptionLocalFirst } from "@/encryption.js";
 import { Épingles } from "@/epingles.js";
 import {
   Favoris,
@@ -87,7 +88,7 @@ import { initSFIP } from "@/sfip/index.js";
 import { Protocoles } from "./protocoles.js";
 import type { PrivateKey } from "@libp2p/interface";
 import type { ServicesLibp2p } from "@/sfip/index.js";
-import type { ContenuMessageRejoindreCompte } from "@/reseau.js";
+import type { ContenuMessageRejoindreCompte, statutDispositif } from "@/reseau.js";
 import type { infoUtilisateur, objRôles } from "@/accès/types.js";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
@@ -279,18 +280,19 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   _sfipExterne: boolean;
 
   idCompte?: string;
-  encryption: Encryption;
   sujet_réseau: string;
   motsDePasseRejoindreCompte: { [key: string]: number };
   ennikkai: எண்ணிக்கை;
 
   verrouObtIdBd: Semaphore;
   _intervaleVerrou?: NodeJS.Timeout;
+  signaleurArrêt: AbortController;
 
   constructor(opts: optsConstellation<T> = {}) {
     this._opts = opts;
 
     this.événements = new TypedEmitter<ÉvénementsClient<T>>();
+    this.signaleurArrêt = new AbortController();
 
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
@@ -299,7 +301,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     this._orbiteExterne = this._sfipExterne = false;
 
-    this.encryption = new EncryptionLocalFirst();
     this.ennikkai = new எண்ணிக்கை({});
 
     this.épingles = new Épingles({ client: this });
@@ -986,6 +987,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   }): Promise<schémaFonctionOublier> {
     const fSuivi = async ({
       id,
+      fSuivreBd,
     }: {
       id: string;
       fSuivreBd: schémaFonctionSuivi<string[] | undefined>;
@@ -1000,14 +1002,14 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
       const typeAccès = (accès as AccessController).type;
       if (typeAccès === "ipfs") {
-        await f((accès as IPFSAccessController).write);
+        await fSuivreBd((accès as IPFSAccessController).write);
         await fOublier();
         return faisRien;
       } else if (typeAccès === "contrôleur-constellation") {
         const contrôleurConstellation = accès as ContrôleurConstellation;
         const fFinale = async () => {
           const mods = contrôleurConstellation.gestRôles._rôles[MODÉRATEUR];
-          await f(mods);
+          await fSuivreBd(mods);
         };
         contrôleurConstellation.gestRôles.on("misÀJour", fFinale);
         fFinale();
@@ -1020,7 +1022,15 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         return faisRien;
       }
     };
-    return await suivreBdDeFonction({
+
+    const info: {autorisés: string[]; infos: statutDispositif[]; idCompte?: string} = { autorisés: [], infos: []};
+    const fFinale = async () => {
+      if (!idCompte) return;
+      const autorisésEtAcceptés = info.autorisés.filter(id => info.infos.find(i=>i.infoDispositif.idDispositif === id)?.infoDispositif.idCompte === idCompte)
+      return await f(autorisésEtAcceptés);
+    };
+
+    const fOublierDispositifsAutorisés = await suivreBdDeFonction({
       fRacine: async ({
         fSuivreRacine,
       }: {
@@ -1033,9 +1043,11 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           return await this.suivreIdCompte({ f: fSuivreRacine });
         }
       },
-      f: ignorerNonDéfinis(f),
-      fSuivre: fSuivi,
+      f: ignorerNonDéfinis(async (x: string[]) => { info.autorisés = x; return await fFinale()}),
+      fSuivre: async ({id, fSuivreBd}: {id: string; fSuivreBd: schémaFonctionSuivi<string[] | undefined>}) => {info.idCompte = id; return await fSuivi({id, fSuivreBd})},
     });
+    const fOublierInfosDispositifs = await this.réseau.suivreConnexionsDispositifs({f: async x => {info.infos = x; return await fFinale()}})
+    return async () => {await Promise.all([fOublierDispositifsAutorisés(), fOublierInfosDispositifs()])};
   }
 
   async nommerDispositif({
@@ -1111,7 +1123,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     codeSecret: string;
   }> {
     const idCompte = await this.obtIdCompte();
-    const codeSecret = await this.encryption.clefAléatoire();
+    const codeSecret = bs58.encode(randomBytes(6 * 3)).slice(0, 6);
     this.motsDePasseRejoindreCompte[codeSecret] = Date.now();
     const idDispositif = await this.obtIdDispositif();
     return { idCompte, codeSecret: `${idDispositif}:${codeSecret}` };
@@ -1287,9 +1299,9 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     };
   }
 
-  async obtIdSFIP(): Promise<PeerId> {
+  async obtIdLibp2p(): Promise<string> {
     const { sfip } = await this.attendreSfipEtOrbite();
-    return sfip.libp2p.peerId;
+    return sfip.libp2p.peerId.toString();
   }
 
   async obtIdDispositif(): Promise<string> {
@@ -2763,6 +2775,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   async fermer(): Promise<void> {
     await this.attendreInitialisée();
     const { orbite } = await this.attendreSfipEtOrbite();
+    this.signaleurArrêt.abort();
+
     await (await stockageLocal(await this.dossier())).fermer?.();
     await this.fermerCompte();
     await this.épingles.fermer();

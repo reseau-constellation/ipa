@@ -34,37 +34,38 @@ import type { élémentBdListeDonnées } from "@/tableaux.js";
 const { créerConstellationsTest } = utilsTestConstellation;
 
 async function toutPréparer(n: number) {
-  const { fOublier: fOublierClients, clients } = await créerConstellationsTest({
-    n,
-    créerConstellation,
-  });
-  const idsNodesSFIP = await Promise.all(
-    clients.map(async (c) => (await c.obtIdSFIP()).toString()),
+  const { fOublier: fOublierConstls, clients: constls } =
+    await créerConstellationsTest({
+      n,
+      créerConstellation,
+    });
+  const idsLibp2p = await Promise.all(
+    constls.map(async (c) => await c.obtIdLibp2p()),
   );
-  const idsOrbite = await Promise.all(
-    clients.map(async (c) => await c.obtIdDispositif()),
+  const idsDispositifs = await Promise.all(
+    constls.map(async (c) => await c.obtIdDispositif()),
   );
-  const idsBdCompte = await Promise.all(
-    clients.map(async (c) => await c.obtIdCompte()),
+  const idsComptes = await Promise.all(
+    constls.map(async (c) => await c.obtIdCompte()),
   );
 
   return {
-    clients,
-    fOublierClients,
-    idsNodesSFIP,
-    idsOrbite,
-    idsBdCompte,
+    constls,
+    fOublierConstls,
+    idsLibp2p,
+    idsDispositifs,
+    idsComptes,
   };
 }
 
 if (isNode || isElectronMain) {
-  describe("Réseau", function () {
+  describe.only("Réseau", function () {
     describe("Suivre en ligne", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let idsNodesSFIP: string[];
-      let idsOrbite: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let idsLibp2p: string[];
+      let idsDispositifs: string[];
+      let constls: Constellation[];
 
       const rés = new utilsTestAttente.AttendreRésultat<
         { pair: string; adresses: string[] }[]
@@ -78,21 +79,21 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, idsNodesSFIP, idsOrbite, clients, fOublierClients } =
+        ({ idsComptes, idsLibp2p, idsDispositifs, constls, fOublierConstls } =
           await toutPréparer(3));
 
         fsOublier.push(
-          await clients[0].réseau.suivreConnexionsPostesSFIP({
+          await constls[0].réseau.suivreConnexionsPostesSFIP({
             f: (c) => rés.mettreÀJour(c),
           }),
         );
         fsOublier.push(
-          await clients[0].réseau.suivreConnexionsDispositifs({
+          await constls[0].réseau.suivreConnexionsDispositifs({
             f: (d) => dispositifs.mettreÀJour(d),
           }),
         );
         fsOublier.push(
-          await clients[0].réseau.suivreConnexionsMembres({
+          await constls[0].réseau.suivreConnexionsMembres({
             f: (c) => membresEnLigne.mettreÀJour(c),
           }),
         );
@@ -100,7 +101,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
         dispositifs.toutAnnuler();
         membresEnLigne.toutAnnuler();
@@ -108,11 +109,11 @@ if (isNode || isElectronMain) {
 
       it("Autres postes détectés", async () => {
         const val = await rés.attendreQue((x) =>
-          idsNodesSFIP.slice(1).every((id) => x.find((p) => p.pair === id)),
+          idsLibp2p.slice(1).every((id) => x.find((p) => p.pair === id)),
         );
         expect(val.map((p) => p.pair)).to.have.members([
-          idsNodesSFIP[1],
-          idsNodesSFIP[2],
+          idsLibp2p[1],
+          idsLibp2p[2],
         ]);
         expect(val.map((p) => p.adresses.length)).to.have.members([1, 1]);
       });
@@ -122,28 +123,23 @@ if (isNode || isElectronMain) {
           (x?: statutDispositif[]) => !!x && x.length >= 3,
         );
         expect(val.map((d) => d.infoDispositif.idDispositif)).to.have.members(
-          idsOrbite,
+          idsDispositifs,
         );
       });
 
       it("Autres membres détectés", async () => {
         const réfRés: infoMembre[] = [];
-        for (let i = 0; i <= clients.length - 1; i++) {
-          const identitéOrbite = await clients[i].obtIdentitéOrbite();
+        for (let i = 0; i <= constls.length - 1; i++) {
+          const identitéOrbite = await constls[i].obtIdentitéOrbite();
           réfRés.push({
-            idCompte: idsBdCompte[i],
+            idCompte: idsComptes[i],
             protocoles: [],
             dispositifs: [
               {
-                idSFIP: idsNodesSFIP[i],
-                idDispositif: idsOrbite[i],
-                idCompte: idsBdCompte[i],
+                idLibp2p: idsLibp2p[i],
+                idDispositif: idsDispositifs[i],
+                idCompte: idsComptes[i],
                 clefPublique: identitéOrbite.publicKey,
-                encryption: {
-                  type: await clients[i].encryption.obtNom(),
-                  clefPublique: (await clients[i].encryption.obtClefs())
-                    .publique,
-                },
                 signatures: identitéOrbite.signatures,
               },
             ],
@@ -158,31 +154,31 @@ if (isNode || isElectronMain) {
       const fiablesPropres = new utilsTestAttente.AttendreRésultat<string[]>();
       const fiablesAutres = new utilsTestAttente.AttendreRésultat<string[]>();
 
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
 
-      let clients: Constellation[];
+      let constls: Constellation[];
 
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
         fsOublier.push(
-          await clients[0].réseau.suivreFiables({
+          await constls[0].réseau.suivreFiables({
             f: (m) => fiablesPropres.mettreÀJour(m),
           }),
         );
         fsOublier.push(
-          await clients[1].réseau.suivreFiables({
+          await constls[1].réseau.suivreFiables({
             f: (m) => fiablesAutres.mettreÀJour(m),
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
           }),
         );
       });
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         fiablesPropres.toutAnnuler();
         fiablesAutres.toutAnnuler();
       });
@@ -193,35 +189,35 @@ if (isNode || isElectronMain) {
       });
 
       it("Faire confiance", async () => {
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
         const val = await fiablesPropres.attendreQue(
           (x) => !!x && x.length > 0,
         );
         expect(val.length).to.equal(1);
-        expect(val).to.have.members([idsBdCompte[1]]);
+        expect(val).to.have.members([idsComptes[1]]);
       });
 
       it("Détecter confiance d'autre membre", async () => {
         const val = await fiablesAutres.attendreQue((x) => !!x && x.length > 0);
         expect(val.length).to.equal(1);
-        expect(val).to.have.members([idsBdCompte[1]]);
+        expect(val).to.have.members([idsComptes[1]]);
       });
 
       it("Un débloquage accidental ne fait rien", async () => {
-        await clients[0].réseau.débloquerMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.débloquerMembre({
+          idCompte: idsComptes[1],
         });
         const val = await fiablesPropres.attendreExiste();
         expect(Array.isArray(val)).to.be.true();
         expect(val.length).to.equal(1);
-        expect(val).to.have.members([idsBdCompte[1]]);
+        expect(val).to.have.members([idsComptes[1]]);
       });
 
       it("Il n'était pas si chouette que ça après tout", async () => {
-        await clients[0].réseau.nePlusFaireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.nePlusFaireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
         const val = await fiablesPropres.attendreQue((x) => x.length === 0);
         expect(val).to.be.an.empty("array");
@@ -229,9 +225,9 @@ if (isNode || isElectronMain) {
     });
 
     describe("Membres bloqués", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       const bloquésTous = new utilsTestAttente.AttendreRésultat<infoBloqué[]>();
       const bloquésPubliques = new utilsTestAttente.AttendreRésultat<
@@ -244,28 +240,28 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(3));
         fsOublier.push(
-          await clients[0].réseau.suivreBloqués({
+          await constls[0].réseau.suivreBloqués({
             f: (m) => bloquésTous.mettreÀJour(m),
           }),
         );
         fsOublier.push(
-          await clients[0].réseau.suivreBloquésPubliques({
+          await constls[0].réseau.suivreBloquésPubliques({
             f: (m) => bloquésPubliques.mettreÀJour(m),
           }),
         );
         fsOublier.push(
-          await clients[1].réseau.suivreBloqués({
+          await constls[1].réseau.suivreBloqués({
             f: (m) => bloquésAutreMembre.mettreÀJour(m),
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
           }),
         );
       });
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
 
         bloquésTous.toutAnnuler();
         bloquésPubliques.toutAnnuler();
@@ -278,24 +274,24 @@ if (isNode || isElectronMain) {
       });
 
       it("Bloquer quelqu'un", async () => {
-        await clients[0].réseau.bloquerMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.bloquerMembre({
+          idCompte: idsComptes[1],
         });
         const val = await bloquésTous.attendreQue((x) => !!x && x.length > 0);
 
         expect(val.length).to.equal(1);
         expect(val).to.have.deep.members([
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             privé: false,
           },
         ]);
-        expect(bloquésPubliques.val).to.have.members([idsBdCompte[1]]);
+        expect(bloquésPubliques.val).to.have.members([idsComptes[1]]);
       });
 
       it("Un dé-confiance accidental ne fait rien", async () => {
-        await clients[0].réseau.nePlusFaireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.nePlusFaireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
 
         const bloqués = await bloquésTous.attendreQue(
@@ -304,15 +300,15 @@ if (isNode || isElectronMain) {
 
         expect(bloqués).to.have.deep.members([
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             privé: false,
           },
         ]);
       });
 
       it("Bloquer privé", async () => {
-        await clients[0].réseau.bloquerMembre({
-          idCompte: idsBdCompte[2],
+        await constls[0].réseau.bloquerMembre({
+          idCompte: idsComptes[2],
           privé: true,
         });
 
@@ -321,11 +317,11 @@ if (isNode || isElectronMain) {
         );
         expect(bloqués).to.have.deep.members([
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             privé: false,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             privé: true,
           },
         ]);
@@ -337,7 +333,7 @@ if (isNode || isElectronMain) {
         );
         expect(val).to.have.deep.members([
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             privé: false,
           },
         ]);
@@ -345,34 +341,34 @@ if (isNode || isElectronMain) {
 
       it("On ne détecte pas le bloqué privé d'un autre membre", async () => {
         const val = await bloquésAutreMembre.attendreExiste();
-        expect(val.map((b) => b.idCompte)).not.to.contain(idsBdCompte[2]);
+        expect(val.map((b) => b.idCompte)).not.to.contain(idsComptes[2]);
       });
 
       it("Débloquer publique", async () => {
-        await clients[0].réseau.débloquerMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.débloquerMembre({
+          idCompte: idsComptes[1],
         });
         const val = await bloquésPubliques.attendreQue((x) => x.length === 0);
         expect(val.length).to.equal(0);
       });
 
       it("Débloquer privé", async () => {
-        await clients[0].réseau.débloquerMembre({
-          idCompte: idsBdCompte[2],
+        await constls[0].réseau.débloquerMembre({
+          idCompte: idsComptes[2],
         });
         const val = await bloquésTous.attendreQue((x) => x.length === 0);
         expect(val.length).to.equal(0);
       });
 
       it("Passer de bloqué privé à bloqué publique", async () => {
-        await clients[0].réseau.bloquerMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.bloquerMembre({
+          idCompte: idsComptes[1],
           privé: true,
         });
         let val = await bloquésPubliques.attendreExiste();
         expect(val.length).to.equal(0);
-        await clients[0].réseau.bloquerMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.bloquerMembre({
+          idCompte: idsComptes[1],
           privé: false,
         });
         val = await bloquésPubliques.attendreQue((x) => x.length > 0);
@@ -383,9 +379,9 @@ if (isNode || isElectronMain) {
 
     describe("Suivre relations immédiates", function () {
       describe("Relations explicites", function () {
-        let fOublierClients: () => Promise<void>;
-        let idsBdCompte: string[];
-        let clients: Constellation[];
+        let fOublierConstls: () => Promise<void>;
+        let idsComptes: string[];
+        let constls: Constellation[];
 
         const relationsPropres = new utilsTestAttente.AttendreRésultat<
           infoConfiance[]
@@ -397,23 +393,23 @@ if (isNode || isElectronMain) {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3));
+          ({ idsComptes, constls, fOublierConstls } = await toutPréparer(3));
           fsOublier.push(
-            await clients[0].réseau.suivreRelationsImmédiates({
+            await constls[0].réseau.suivreRelationsImmédiates({
               f: (c) => relationsPropres.mettreÀJour(c),
             }),
           );
           fsOublier.push(
-            await clients[1].réseau.suivreRelationsImmédiates({
+            await constls[1].réseau.suivreRelationsImmédiates({
               f: (c) => relationsAutres.mettreÀJour(c),
-              idCompte: idsBdCompte[0],
+              idCompte: idsComptes[0],
             }),
           );
         });
 
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
-          if (fOublierClients) await fOublierClients();
+          if (fOublierConstls) await fOublierConstls();
 
           relationsPropres.toutAnnuler();
           relationsAutres.toutAnnuler();
@@ -430,12 +426,12 @@ if (isNode || isElectronMain) {
         it("Ajout membre de confiance détecté", async () => {
           const réf: infoConfiance[] = [
             {
-              idCompte: idsBdCompte[1],
+              idCompte: idsComptes[1],
               confiance: 1,
             },
           ];
-          await clients[0].réseau.faireConfianceAuMembre({
-            idCompte: idsBdCompte[1],
+          await constls[0].réseau.faireConfianceAuMembre({
+            idCompte: idsComptes[1],
           });
           const val = await relationsPropres.attendreQue(
             (x) => !!x && !!x.length,
@@ -447,17 +443,17 @@ if (isNode || isElectronMain) {
         it("Bloquer membre détecté", async () => {
           const réf: infoConfiance[] = [
             {
-              idCompte: idsBdCompte[1],
+              idCompte: idsComptes[1],
               confiance: 1,
             },
             {
-              idCompte: idsBdCompte[2],
+              idCompte: idsComptes[2],
               confiance: -1,
             },
           ];
 
-          await clients[0].réseau.bloquerMembre({
-            idCompte: idsBdCompte[2],
+          await constls[0].réseau.bloquerMembre({
+            idCompte: idsComptes[2],
           });
           const val = await relationsPropres.attendreQue(
             (x) => !!x && x.length === 2,
@@ -468,18 +464,18 @@ if (isNode || isElectronMain) {
         it("Débloquer membre détecté", async () => {
           const réf: infoConfiance[] = [
             {
-              idCompte: idsBdCompte[1],
+              idCompte: idsComptes[1],
               confiance: 1,
             },
           ];
-          await clients[0].réseau.débloquerMembre({
-            idCompte: idsBdCompte[2],
+          await constls[0].réseau.débloquerMembre({
+            idCompte: idsComptes[2],
           });
           const val = await relationsPropres.attendreQue(
             (x) =>
-              x.find((r) => r.idCompte === idsBdCompte[1])?.confiance !== -1,
+              x.find((r) => r.idCompte === idsComptes[1])?.confiance !== -1,
           );
-          expect(val.find((r) => r.idCompte === idsBdCompte[1])).to.deep.equal(
+          expect(val.find((r) => r.idCompte === idsComptes[1])).to.deep.equal(
             réf[0],
           );
         });
@@ -487,7 +483,7 @@ if (isNode || isElectronMain) {
         it("Ajout membres au réseau d'un autre membre détecté", async () => {
           const réf: infoConfiance[] = [
             {
-              idCompte: idsBdCompte[1],
+              idCompte: idsComptes[1],
               confiance: 1,
             },
           ];
@@ -500,8 +496,8 @@ if (isNode || isElectronMain) {
         });
 
         it("Enlever membre de confiance détecté", async () => {
-          await clients[0].réseau.nePlusFaireConfianceAuMembre({
-            idCompte: idsBdCompte[1],
+          await constls[0].réseau.nePlusFaireConfianceAuMembre({
+            idCompte: idsComptes[1],
           });
           const val = await relationsPropres.attendreQue(
             (x) => !!x && x.length == 0,
@@ -511,9 +507,9 @@ if (isNode || isElectronMain) {
       });
 
       describe("Relations indirectes", function () {
-        let fOublierClients: () => Promise<void>;
-        let idsBdCompte: string[];
-        let clients: Constellation[];
+        let fOublierConstls: () => Promise<void>;
+        let idsComptes: string[];
+        let constls: Constellation[];
 
         let idMotClef1: string;
         let idMotClef2: string;
@@ -531,49 +527,49 @@ if (isNode || isElectronMain) {
         const fsOublier: schémaFonctionOublier[] = [];
 
         before(async () => {
-          ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+          ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
           fsOublier.push(
-            await clients[0].réseau.suivreRelationsImmédiates({
+            await constls[0].réseau.suivreRelationsImmédiates({
               f: (c) => relationsPropres.mettreÀJour(c),
             }),
           );
           fsOublier.push(
-            await clients[1].réseau.suivreRelationsImmédiates({
+            await constls[1].réseau.suivreRelationsImmédiates({
               f: (c) => relationsAutres.mettreÀJour(c),
-              idCompte: idsBdCompte[0],
+              idCompte: idsComptes[0],
             }),
           );
         });
 
         after(async () => {
           await Promise.all(fsOublier.map((f) => f()));
-          if (fOublierClients) await fOublierClients();
+          if (fOublierConstls) await fOublierConstls();
 
           relationsPropres.toutAnnuler();
           relationsAutres.toutAnnuler();
         });
 
         it("Ajout aux favoris détecté", async () => {
-          idMotClef2 = await clients[1].motsClefs.créerMotClef();
-          await clients[0].motsClefs.épinglerMotClef({
+          idMotClef2 = await constls[1].motsClefs.créerMotClef();
+          await constls[0].motsClefs.épinglerMotClef({
             idMotClef: idMotClef2,
           });
 
           const val = await relationsPropres.attendreQue(
             (x) => !!x && x.length > 0,
           );
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Ajout aux favoris d'un tiers détecté", async () => {
           const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length),
           );
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Enlever favori détecté", async () => {
-          await clients[0].favoris.désépinglerFavori({
+          await constls[0].favoris.désépinglerFavori({
             idObjet: idMotClef2,
           });
           const valPropres = await relationsPropres.attendreQue(
@@ -588,12 +584,12 @@ if (isNode || isElectronMain) {
         });
 
         it("Ajout coauteur variable détecté", async () => {
-          idVariable = await clients[0].variables.créerVariable({
+          idVariable = await constls[0].variables.créerVariable({
             catégorie: "numérique",
           });
-          await clients[0].variables.inviterAuteur({
+          await constls[0].variables.inviterAuteur({
             idVariable,
-            idCompteAuteur: idsBdCompte[1],
+            idCompteAuteur: idsComptes[1],
             rôle: MEMBRE,
           });
 
@@ -601,16 +597,16 @@ if (isNode || isElectronMain) {
             (x) => !!x && Boolean(x.length),
           );
 
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Ajout coauteur variable d'un tiers détecté", async () => {
           const val = await relationsAutres.attendreQue((x) => x.length > 0);
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Enlever variable détecté", async () => {
-          await clients[0].variables.effacerVariable({ idVariable });
+          await constls[0].variables.effacerVariable({ idVariable });
           const valPropres = await relationsPropres.attendreQue(
             (x) => x.length < 1,
           );
@@ -621,10 +617,10 @@ if (isNode || isElectronMain) {
         });
 
         it("Ajout coauteur BD détecté", async () => {
-          idBd = await clients[0].bds.créerBd({ licence: "ODbl-1_0" });
-          await clients[0].bds.inviterAuteur({
+          idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
+          await constls[0].bds.inviterAuteur({
             idBd,
-            idCompteAuteur: idsBdCompte[1],
+            idCompteAuteur: idsComptes[1],
             rôle: MEMBRE,
           });
 
@@ -632,18 +628,18 @@ if (isNode || isElectronMain) {
             (x) => !!x && Boolean(x.length),
           );
 
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Ajout coauteur BD d'un tiers détecté", async () => {
           const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length),
           );
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Enlever bd détecté", async () => {
-          await clients[0].bds.effacerBd({ idBd });
+          await constls[0].bds.effacerBd({ idBd });
           const valPropres = await relationsPropres.attendreQue(
             (x) => x.length < 1,
           );
@@ -654,28 +650,28 @@ if (isNode || isElectronMain) {
         });
 
         it("Ajout coauteur projet détecté", async () => {
-          idProjet = await clients[0].projets.créerProjet();
-          await clients[0].projets.inviterAuteur({
+          idProjet = await constls[0].projets.créerProjet();
+          await constls[0].projets.inviterAuteur({
             idProjet,
-            idCompteAuteur: idsBdCompte[1],
+            idCompteAuteur: idsComptes[1],
             rôle: MEMBRE,
           });
 
           const val = await relationsPropres.attendreQue(
             (x) => !!x && Boolean(x.length),
           );
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Ajout coauteur projet d'un tiers détecté", async () => {
           const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length),
           );
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Enlever projet détecté", async () => {
-          await clients[0].projets.effacerProjet({ idProjet });
+          await constls[0].projets.effacerProjet({ idProjet });
           const valPropres = await relationsPropres.attendreQue(
             (x) => !x.length,
           );
@@ -686,28 +682,28 @@ if (isNode || isElectronMain) {
         });
 
         it("Ajout coauteur mot-clef détecté", async () => {
-          idMotClef1 = await clients[0].motsClefs.créerMotClef();
-          await clients[0].motsClefs.inviterAuteur({
+          idMotClef1 = await constls[0].motsClefs.créerMotClef();
+          await constls[0].motsClefs.inviterAuteur({
             idMotClef: idMotClef1,
-            idCompteAuteur: idsBdCompte[1],
+            idCompteAuteur: idsComptes[1],
             rôle: MEMBRE,
           });
 
           const val = await relationsPropres.attendreQue(
             (x) => !!x && Boolean(x.length),
           );
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Ajout coauteur mot-clef d'un tiers détecté", async () => {
           const val = await relationsAutres.attendreQue(
             (x) => !!x && Boolean(x.length),
           );
-          expect(val.map((r) => r.idCompte)).to.contain(idsBdCompte[1]);
+          expect(val.map((r) => r.idCompte)).to.contain(idsComptes[1]);
         });
 
         it("Enlever mot-clef détecté", async () => {
-          await clients[0].motsClefs.effacerMotClef({
+          await constls[0].motsClefs.effacerMotClef({
             idMotClef: idMotClef1,
           });
           const valPropres = await relationsPropres.attendreQue(
@@ -725,18 +721,18 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre relations confiance", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
       const rés = new utilsTestAttente.AttendreRésultat<infoRelation[]>();
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(3));
         ({ fOublier, fChangerProfondeur } =
-          await clients[0].réseau.suivreRelationsConfiance({
+          await constls[0].réseau.suivreRelationsConfiance({
             f: (r) => rés.mettreÀJour(r),
             profondeur: 2,
           }));
@@ -744,7 +740,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         if (fOublier) await fOublier();
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
 
         rés.toutAnnuler();
       });
@@ -752,14 +748,14 @@ if (isNode || isElectronMain) {
       it("Relations immédiates", async () => {
         const réf: infoRelation[] = [
           {
-            de: idsBdCompte[0],
-            pour: idsBdCompte[1],
+            de: idsComptes[0],
+            pour: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
         ];
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
 
         const val = await rés.attendreQue((x) => !!x && !!x.length);
@@ -768,20 +764,20 @@ if (isNode || isElectronMain) {
       it("Relations indirectes", async () => {
         const réf: infoRelation[] = [
           {
-            de: idsBdCompte[0],
-            pour: idsBdCompte[1],
+            de: idsComptes[0],
+            pour: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            de: idsBdCompte[1],
-            pour: idsBdCompte[2],
+            de: idsComptes[1],
+            pour: idsComptes[2],
             confiance: 1,
             profondeur: 2,
           },
         ];
-        await clients[1].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[1].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
 
         const val = await rés.attendreQue((x) => !!x && x.length > 1);
@@ -791,8 +787,8 @@ if (isNode || isElectronMain) {
       it("Diminuer profondeur", async () => {
         const réf: infoRelation[] = [
           {
-            de: idsBdCompte[0],
-            pour: idsBdCompte[1],
+            de: idsComptes[0],
+            pour: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
@@ -805,14 +801,14 @@ if (isNode || isElectronMain) {
       it("Augmenter profondeur", async () => {
         const réf: infoRelation[] = [
           {
-            de: idsBdCompte[0],
-            pour: idsBdCompte[1],
+            de: idsComptes[0],
+            pour: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            de: idsBdCompte[1],
-            pour: idsBdCompte[2],
+            de: idsComptes[1],
+            pour: idsComptes[2],
             confiance: 1,
             profondeur: 2,
           },
@@ -826,10 +822,10 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre comptes réseau", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
       let moiMême: infoMembreRéseau;
-      let clients: Constellation[];
+      let constls: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
@@ -837,14 +833,14 @@ if (isNode || isElectronMain) {
       const rés = new utilsTestAttente.AttendreRésultat<infoMembreRéseau[]>();
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(3));
         moiMême = {
-          idCompte: idsBdCompte[0],
+          idCompte: idsComptes[0],
           profondeur: 0,
           confiance: 1,
         };
         ({ fOublier, fChangerProfondeur } =
-          await clients[0].réseau.suivreComptesRéseau({
+          await constls[0].réseau.suivreComptesRéseau({
             f: (c) => rés.mettreÀJour(c),
             profondeur: 2,
           }));
@@ -852,7 +848,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         if (fOublier) await fOublier();
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
       });
 
@@ -860,13 +856,13 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
         ];
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
 
         const val = await rés.attendreQue((x) => !!x && x.length > 1);
@@ -876,18 +872,18 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: 0.8,
             profondeur: 2,
           },
         ];
-        await clients[1].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[1].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
 
         await rés.attendreQue((x) => !!x && x.length > 2);
@@ -897,18 +893,18 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: 1,
             profondeur: 1,
           },
         ];
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
 
         const val = await rés.attendreQue(
@@ -922,18 +918,18 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: 0.8,
             profondeur: 2,
           },
         ];
-        await clients[0].réseau.nePlusFaireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[0].réseau.nePlusFaireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
 
         const val = await rés.attendreQue(
@@ -947,13 +943,13 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
         ];
-        await clients[1].réseau.nePlusFaireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[1].réseau.nePlusFaireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
 
         const val = await rés.attendreQue((x) => x.length === 2);
@@ -962,8 +958,8 @@ if (isNode || isElectronMain) {
       it("Enlever relation confiance directe", async () => {
         const réf = [moiMême];
 
-        await clients[0].réseau.nePlusFaireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.nePlusFaireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
 
         const val = await rés.attendreQue((x) => !!x && x.length === 1);
@@ -973,13 +969,13 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: -1,
             profondeur: 1,
           },
         ];
-        await clients[0].réseau.bloquerMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.bloquerMembre({
+          idCompte: idsComptes[1],
         });
 
         const val = await rés.attendreQue((x) => !!x && x.length > 1);
@@ -988,8 +984,8 @@ if (isNode || isElectronMain) {
       it("Membre débloqué directement", async () => {
         const réf = [moiMême];
 
-        await clients[0].réseau.débloquerMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.débloquerMembre({
+          idCompte: idsComptes[1],
         });
 
         const val = await rés.attendreQue((x) => !!x && x.length === 1);
@@ -999,21 +995,21 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: -0.9,
             profondeur: 2,
           },
         ];
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
-        await clients[1].réseau.bloquerMembre({
-          idCompte: idsBdCompte[2],
+        await constls[1].réseau.bloquerMembre({
+          idCompte: idsComptes[2],
         });
 
         const val = await rés.attendreQue((x) => !!x && x.length === 3);
@@ -1023,51 +1019,50 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: 1,
             profondeur: 1,
           },
         ];
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
 
         const val = await rés.attendreQue(
           (x) =>
-            !!x &&
-            x.find((y) => y.idCompte === idsBdCompte[2])?.confiance === 1,
+            !!x && x.find((y) => y.idCompte === idsComptes[2])?.confiance === 1,
         );
         expect(val).to.have.deep.members(réf);
 
-        await clients[0].réseau.nePlusFaireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[0].réseau.nePlusFaireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
-        await clients[0].réseau.nePlusFaireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.nePlusFaireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
-        await clients[1].réseau.débloquerMembre({
-          idCompte: idsBdCompte[2],
+        await constls[1].réseau.débloquerMembre({
+          idCompte: idsComptes[2],
         });
       });
       it("Diminuer profondeur", async () => {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
         ];
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
-        await clients[1].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[1].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
         rés.attendreQue(
           (x) => !!x && x.length === 3 && x.every((r) => r.confiance > 0),
@@ -1081,12 +1076,12 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: 0.8,
             profondeur: 2,
           },
@@ -1101,10 +1096,10 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre comptes réseau et en ligne", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
       let moiMême: infoMembreRéseau;
-      let clients: Constellation[];
+      let constls: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
@@ -1112,15 +1107,15 @@ if (isNode || isElectronMain) {
       const rés = new utilsTestAttente.AttendreRésultat<infoMembreRéseau[]>();
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(3));
         moiMême = {
-          idCompte: idsBdCompte[0],
+          idCompte: idsComptes[0],
           profondeur: 0,
           confiance: 1,
         };
 
         ({ fOublier, fChangerProfondeur } =
-          await clients[0].réseau.suivreComptesRéseauEtEnLigne({
+          await constls[0].réseau.suivreComptesRéseauEtEnLigne({
             f: (c) => rés.mettreÀJour(c),
             profondeur: 2,
           }));
@@ -1128,7 +1123,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         if (fOublier) await fOublier();
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
       });
 
@@ -1136,12 +1131,12 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 0,
             profondeur: Infinity,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: 0,
             profondeur: Infinity,
           },
@@ -1155,49 +1150,49 @@ if (isNode || isElectronMain) {
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: 0,
             profondeur: Infinity,
           },
         ];
 
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
         const val = await rés.attendreQue(
           (x) =>
             !!x &&
-            x.find((x) => x.idCompte === idsBdCompte[1])?.confiance === 1 &&
-            x.find((x) => x.idCompte === idsBdCompte[2])?.confiance === 0,
+            x.find((x) => x.idCompte === idsComptes[1])?.confiance === 1 &&
+            x.find((x) => x.idCompte === idsComptes[2])?.confiance === 0,
         );
 
         expect(val).to.have.deep.members(réf);
       });
 
       it("Changer profondeur", async () => {
-        await clients[1].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[1].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
         await rés.attendreQue(
           (x) =>
             !!x &&
-            (x.find((x) => x.idCompte === idsBdCompte[2])?.confiance || 0) > 0,
+            (x.find((x) => x.idCompte === idsComptes[2])?.confiance || 0) > 0,
         );
 
         const réf: infoMembreRéseau[] = [
           moiMême,
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             confiance: 1,
             profondeur: 1,
           },
           {
-            idCompte: idsBdCompte[2],
+            idCompte: idsComptes[2],
             confiance: 0,
             profondeur: Infinity,
           },
@@ -1205,8 +1200,7 @@ if (isNode || isElectronMain) {
         fChangerProfondeur(1);
         const val = await rés.attendreQue(
           (x) =>
-            !!x &&
-            x.find((x) => x.idCompte === idsBdCompte[2])?.confiance === 0,
+            !!x && x.find((x) => x.idCompte === idsComptes[2])?.confiance === 0,
         );
 
         expect(val).to.have.deep.members(réf);
@@ -1214,9 +1208,9 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre confiance mon réseau pour membre", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let fChangerProfondeur: schémaRetourFonctionRechercheParProfondeur["fChangerProfondeur"];
@@ -1224,10 +1218,10 @@ if (isNode || isElectronMain) {
       const rés = new utilsTestAttente.AttendreRésultat<number>();
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(3));
         ({ fOublier, fChangerProfondeur } =
-          await clients[0].réseau.suivreConfianceMonRéseauPourMembre({
-            idCompte: idsBdCompte[2],
+          await constls[0].réseau.suivreConfianceMonRéseauPourMembre({
+            idCompte: idsComptes[2],
             f: (confiance) => rés.mettreÀJour(confiance),
             profondeur: 4,
           }));
@@ -1237,7 +1231,7 @@ if (isNode || isElectronMain) {
         rés.toutAnnuler();
 
         if (fOublier) await fOublier();
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
       });
 
       it("Confiance initiale 0", async () => {
@@ -1245,11 +1239,11 @@ if (isNode || isElectronMain) {
       });
 
       it("Faire confiance au membre", async () => {
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
-        await clients[1].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[1].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
 
         const val = await rés.attendreQue((x) => !!x && x > 0);
@@ -1263,9 +1257,9 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre confiance auteurs", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let fOublier: schémaFonctionOublier;
       let idMotClef: string;
@@ -1273,10 +1267,10 @@ if (isNode || isElectronMain) {
       const rés = new utilsTestAttente.AttendreRésultat<number>();
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(3));
-        idMotClef = await clients[1].motsClefs.créerMotClef();
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(3));
+        idMotClef = await constls[1].motsClefs.créerMotClef();
 
-        fOublier = await clients[0].réseau.suivreConfianceAuteurs({
+        fOublier = await constls[0].réseau.suivreConfianceAuteurs({
           idItem: idMotClef,
           clef: "motsClefs",
           f: (confiance) => rés.mettreÀJour(confiance),
@@ -1285,7 +1279,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         if (fOublier) await fOublier();
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
       });
 
@@ -1294,8 +1288,8 @@ if (isNode || isElectronMain) {
       });
 
       it("Ajout auteur au réseau", async () => {
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[1],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[1],
         });
 
         const val = await rés.attendreQue((x) => !!x && x > 0);
@@ -1303,19 +1297,19 @@ if (isNode || isElectronMain) {
       });
 
       it("Ajout coauteur au réseau", async () => {
-        await clients[1].motsClefs.inviterAuteur({
+        await constls[1].motsClefs.inviterAuteur({
           idMotClef,
-          idCompteAuteur: idsBdCompte[2],
+          idCompteAuteur: idsComptes[2],
           rôle: MEMBRE,
         });
-        await clients[2].motsClefs.ajouterÀMesMotsClefs({ idMotClef });
+        await constls[2].motsClefs.ajouterÀMesMotsClefs({ idMotClef });
         const valAvant = await rés.attendreQue((x) => !!x && x > 1);
 
         expect(valAvant).to.be.greaterThan(1);
         expect(valAvant).to.be.lessThan(2);
 
-        await clients[0].réseau.faireConfianceAuMembre({
-          idCompte: idsBdCompte[2],
+        await constls[0].réseau.faireConfianceAuMembre({
+          idCompte: idsComptes[2],
         });
         const val = await rés.attendreQue((x) => !!x && x > valAvant);
 
@@ -1323,7 +1317,7 @@ if (isNode || isElectronMain) {
       });
 
       it("Coauteur se retire", async () => {
-        await clients[2].motsClefs.enleverDeMesMotsClefs({ idMotClef });
+        await constls[2].motsClefs.enleverDeMesMotsClefs({ idMotClef });
         const val = await rés.attendreQue((x) => !!x && x < 2);
 
         expect(val).to.equal(1);
@@ -1331,9 +1325,9 @@ if (isNode || isElectronMain) {
     });
 
     describe("Auteurs", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let idMotClef: string;
       let idVariable: string;
@@ -1348,37 +1342,37 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
 
-        idMotClef = await clients[0].motsClefs.créerMotClef();
+        idMotClef = await constls[0].motsClefs.créerMotClef();
         fsOublier.push(
-          await clients[0].réseau.suivreAuteursMotClef({
+          await constls[0].réseau.suivreAuteursMotClef({
             idMotClef,
             f: (auteurs) => résMotClef.mettreÀJour(auteurs),
           }),
         );
 
-        idVariable = await clients[0].variables.créerVariable({
+        idVariable = await constls[0].variables.créerVariable({
           catégorie: "numérique",
         });
         fsOublier.push(
-          await clients[0].réseau.suivreAuteursVariable({
+          await constls[0].réseau.suivreAuteursVariable({
             idVariable,
             f: (auteurs) => résVariable.mettreÀJour(auteurs),
           }),
         );
 
-        idBd = await clients[0].bds.créerBd({ licence: "ODbl-1_0" });
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
         fsOublier.push(
-          await clients[0].réseau.suivreAuteursBd({
+          await constls[0].réseau.suivreAuteursBd({
             idBd,
             f: (auteurs) => résBds.mettreÀJour(auteurs),
           }),
         );
 
-        idProjet = await clients[0].projets.créerProjet();
+        idProjet = await constls[0].projets.créerProjet();
         fsOublier.push(
-          await clients[0].réseau.suivreAuteursProjet({
+          await constls[0].réseau.suivreAuteursProjet({
             idProjet,
             f: (auteurs) => résProjet.mettreÀJour(auteurs),
           }),
@@ -1387,7 +1381,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         résMotClef.toutAnnuler();
         résVariable.toutAnnuler();
         résBds.toutAnnuler();
@@ -1397,19 +1391,19 @@ if (isNode || isElectronMain) {
       it("Mots-clefs : Inviter auteur", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: false,
             rôle: MEMBRE,
           },
         ];
-        await clients[0].motsClefs.inviterAuteur({
+        await constls[0].motsClefs.inviterAuteur({
           idMotClef,
-          idCompteAuteur: idsBdCompte[1],
+          idCompteAuteur: idsComptes[1],
           rôle: MEMBRE,
         });
 
@@ -1419,20 +1413,20 @@ if (isNode || isElectronMain) {
       it("Mots-clefs : Accepter invitation", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: true,
             rôle: MEMBRE,
           },
         ];
 
-        await clients[1].motsClefs.ajouterÀMesMotsClefs({ idMotClef });
+        await constls[1].motsClefs.ajouterÀMesMotsClefs({ idMotClef });
         const val = await résMotClef.attendreQue((x) =>
-          Boolean(!!x && x.find((y) => y.idCompte === idsBdCompte[1])?.accepté),
+          Boolean(!!x && x.find((y) => y.idCompte === idsComptes[1])?.accepté),
         );
 
         expect(val).to.deep.equal(réf);
@@ -1440,35 +1434,35 @@ if (isNode || isElectronMain) {
       it("Mots-clefs : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: false,
             rôle: MEMBRE,
           },
         ];
 
-        await clients[1].motsClefs.enleverDeMesMotsClefs({ idMotClef });
+        await constls[1].motsClefs.enleverDeMesMotsClefs({ idMotClef });
         const val = await résMotClef.attendreQue(
-          (x) => !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté,
+          (x) => !!x && !x.find((y) => y.idCompte === idsComptes[1])?.accepté,
         );
 
         expect(val).to.deep.equal(réf);
       });
       it("Mots-clefs : Promotion à modérateur", async () => {
-        await clients[0].motsClefs.inviterAuteur({
+        await constls[0].motsClefs.inviterAuteur({
           idMotClef,
-          idCompteAuteur: idsBdCompte[1],
+          idCompteAuteur: idsComptes[1],
           rôle: MODÉRATEUR,
         });
 
         await résMotClef.attendreQue(
           (auteurs) =>
             !!auteurs &&
-            auteurs.find((a) => a.idCompte === idsBdCompte[1])?.rôle ===
+            auteurs.find((a) => a.idCompte === idsComptes[1])?.rôle ===
               MODÉRATEUR,
         );
       });
@@ -1476,19 +1470,19 @@ if (isNode || isElectronMain) {
       it("Variables : Inviter auteur", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: false,
             rôle: MEMBRE,
           },
         ];
-        await clients[0].variables.inviterAuteur({
+        await constls[0].variables.inviterAuteur({
           idVariable,
-          idCompteAuteur: idsBdCompte[1],
+          idCompteAuteur: idsComptes[1],
           rôle: MEMBRE,
         });
 
@@ -1498,22 +1492,22 @@ if (isNode || isElectronMain) {
       it("Variables : Accepter invitation", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: true,
             rôle: MEMBRE,
           },
         ];
 
-        await clients[1].variables.ajouterÀMesVariables({
+        await constls[1].variables.ajouterÀMesVariables({
           idVariable,
         });
         const val = await résVariable.attendreQue(
-          (x) => !!x?.find((y) => y.idCompte === idsBdCompte[1])?.accepté,
+          (x) => !!x?.find((y) => y.idCompte === idsComptes[1])?.accepté,
         );
 
         expect(val).to.have.deep.members(réf);
@@ -1521,37 +1515,37 @@ if (isNode || isElectronMain) {
       it("Variables : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: false,
             rôle: MEMBRE,
           },
         ];
 
-        await clients[1].variables.enleverDeMesVariables({
+        await constls[1].variables.enleverDeMesVariables({
           idVariable,
         });
         const val = await résVariable.attendreQue(
-          (x) => !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté,
+          (x) => !!x && !x.find((y) => y.idCompte === idsComptes[1])?.accepté,
         );
 
         expect(val).to.have.deep.members(réf);
       });
       it("Variables : Promotion à modérateur", async () => {
-        await clients[0].variables.inviterAuteur({
+        await constls[0].variables.inviterAuteur({
           idVariable,
-          idCompteAuteur: idsBdCompte[1],
+          idCompteAuteur: idsComptes[1],
           rôle: MODÉRATEUR,
         });
 
         await résVariable.attendreQue(
           (auteurs) =>
             !!auteurs &&
-            auteurs.find((a) => a.idCompte === idsBdCompte[1])?.rôle ===
+            auteurs.find((a) => a.idCompte === idsComptes[1])?.rôle ===
               MODÉRATEUR,
         );
       });
@@ -1559,19 +1553,19 @@ if (isNode || isElectronMain) {
       it("Bds : Inviter auteur", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: false,
             rôle: MEMBRE,
           },
         ];
-        await clients[0].bds.inviterAuteur({
+        await constls[0].bds.inviterAuteur({
           idBd,
-          idCompteAuteur: idsBdCompte[1],
+          idCompteAuteur: idsComptes[1],
           rôle: MEMBRE,
         });
 
@@ -1581,20 +1575,20 @@ if (isNode || isElectronMain) {
       it("Bds : Accepter invitation", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: true,
             rôle: MEMBRE,
           },
         ];
 
-        await clients[1].bds.ajouterÀMesBds({ idBd });
+        await constls[1].bds.ajouterÀMesBds({ idBd });
         const val = await résBds.attendreQue((x) =>
-          Boolean(!!x && x.find((y) => y.idCompte === idsBdCompte[1])?.accepté),
+          Boolean(!!x && x.find((y) => y.idCompte === idsComptes[1])?.accepté),
         );
 
         expect(val).to.have.deep.members(réf);
@@ -1602,35 +1596,35 @@ if (isNode || isElectronMain) {
       it("Bds : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: false,
             rôle: MEMBRE,
           },
         ];
 
-        await clients[1].bds.enleverDeMesBds({ idBd });
+        await constls[1].bds.enleverDeMesBds({ idBd });
         const val = await résBds.attendreQue(
-          (x) => !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté,
+          (x) => !!x && !x.find((y) => y.idCompte === idsComptes[1])?.accepté,
         );
 
         expect(val).to.have.deep.members(réf);
       });
       it("Bds : Promotion à modérateur", async () => {
-        await clients[0].bds.inviterAuteur({
+        await constls[0].bds.inviterAuteur({
           idBd,
-          idCompteAuteur: idsBdCompte[1],
+          idCompteAuteur: idsComptes[1],
           rôle: MODÉRATEUR,
         });
 
         await résBds.attendreQue(
           (auteurs) =>
             !!auteurs &&
-            auteurs.find((a) => a.idCompte === idsBdCompte[1])?.rôle ===
+            auteurs.find((a) => a.idCompte === idsComptes[1])?.rôle ===
               MODÉRATEUR,
         );
       });
@@ -1638,19 +1632,19 @@ if (isNode || isElectronMain) {
       it("Projets : Inviter auteur", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: false,
             rôle: MEMBRE,
           },
         ];
-        await clients[0].projets.inviterAuteur({
+        await constls[0].projets.inviterAuteur({
           idProjet,
-          idCompteAuteur: idsBdCompte[1],
+          idCompteAuteur: idsComptes[1],
           rôle: MEMBRE,
         });
 
@@ -1660,20 +1654,20 @@ if (isNode || isElectronMain) {
       it("Projets : Accepter invitation", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: true,
             rôle: MEMBRE,
           },
         ];
 
-        await clients[1].projets.ajouterÀMesProjets({ idProjet });
+        await constls[1].projets.ajouterÀMesProjets({ idProjet });
         const val = await résProjet.attendreQue((x) =>
-          Boolean(!!x && x.find((y) => y.idCompte === idsBdCompte[1])?.accepté),
+          Boolean(!!x && x.find((y) => y.idCompte === idsComptes[1])?.accepté),
         );
 
         expect(val).to.have.deep.members(réf);
@@ -1681,44 +1675,44 @@ if (isNode || isElectronMain) {
       it("Projets : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             accepté: true,
             rôle: MODÉRATEUR,
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             accepté: false,
             rôle: MEMBRE,
           },
         ];
 
-        await clients[1].projets.enleverDeMesProjets({ idProjet });
+        await constls[1].projets.enleverDeMesProjets({ idProjet });
         const val = await résProjet.attendreQue(
-          (x) => !!x && !x.find((y) => y.idCompte === idsBdCompte[1])?.accepté,
+          (x) => !!x && !x.find((y) => y.idCompte === idsComptes[1])?.accepté,
         );
 
         expect(val).to.have.deep.members(réf);
       });
       it("Projets : Promotion à modérateur", async () => {
-        await clients[0].projets.inviterAuteur({
+        await constls[0].projets.inviterAuteur({
           idProjet,
-          idCompteAuteur: idsBdCompte[1],
+          idCompteAuteur: idsComptes[1],
           rôle: MODÉRATEUR,
         });
 
         await résProjet.attendreQue(
           (auteurs) =>
             !!auteurs &&
-            auteurs.find((a) => a.idCompte === idsBdCompte[1])?.rôle ===
+            auteurs.find((a) => a.idCompte === idsComptes[1])?.rôle ===
               MODÉRATEUR,
         );
       });
     });
 
     describe("Suivre membre", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
       let IMAGE: Buffer;
 
       const résNom = new utilsTestAttente.AttendreRésultat<{
@@ -1737,23 +1731,23 @@ if (isNode || isElectronMain) {
           nomFichier: "logo.svg",
         });
 
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
 
         fsOublier.push(
-          await clients[1].profil.suivreNoms({
-            idCompte: idsBdCompte[0],
+          await constls[1].profil.suivreNoms({
+            idCompte: idsComptes[0],
             f: (n) => résNom.mettreÀJour(n),
           }),
         );
         fsOublier.push(
-          await clients[1].profil.suivreCourriel({
-            idCompte: idsBdCompte[0],
+          await constls[1].profil.suivreCourriel({
+            idCompte: idsComptes[0],
             f: (c) => résCourriel.mettreÀJour(c),
           }),
         );
         fsOublier.push(
-          await clients[1].profil.suivreImage({
-            idCompte: idsBdCompte[0],
+          await constls[1].profil.suivreImage({
+            idCompte: idsComptes[0],
             f: (i) => résImage.mettreÀJour(i),
           }),
         );
@@ -1761,14 +1755,14 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         résNom.toutAnnuler();
         résCourriel.toutAnnuler();
         résImage.toutAnnuler();
       });
 
       it("Nom détecté", async () => {
-        await clients[0].profil.sauvegarderNom({
+        await constls[0].profil.sauvegarderNom({
           langue: "fr",
           nom: "Julien",
         });
@@ -1778,7 +1772,7 @@ if (isNode || isElectronMain) {
       });
 
       it("Courriel détecté", async () => {
-        await clients[0].profil.sauvegarderCourriel({
+        await constls[0].profil.sauvegarderCourriel({
           courriel: "தொடர்பு@லஸ்ஸி.இந்தியா",
         });
 
@@ -1789,7 +1783,7 @@ if (isNode || isElectronMain) {
       });
 
       it("Image détectée", async () => {
-        await clients[0].profil.sauvegarderImage({
+        await constls[0].profil.sauvegarderImage({
           image: { contenu: IMAGE, nomFichier: "image.svg" },
         });
 
@@ -1801,9 +1795,9 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre mots-clefs", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let idMotClef1: string;
       let idMotClef2: string;
@@ -1814,16 +1808,16 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
         fsOublier.push(
-          await clients[1].réseau.suivreMotsClefsMembre({
-            idCompte: idsBdCompte[0],
+          await constls[1].réseau.suivreMotsClefsMembre({
+            idCompte: idsComptes[0],
             f: (motsClefs) => résAutres.mettreÀJour(motsClefs),
           }),
         );
         fsOublier.push(
-          await clients[1].réseau.suivreMotsClefsMembre({
-            idCompte: idsBdCompte[1],
+          await constls[1].réseau.suivreMotsClefsMembre({
+            idCompte: idsComptes[1],
             f: (motsClefs) => résPropres.mettreÀJour(motsClefs),
           }),
         );
@@ -1831,29 +1825,29 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         résPropres.toutAnnuler();
         résAutres.toutAnnuler();
       });
 
       it("Mes propres mots-clefs détectés", async () => {
-        idMotClef2 = await clients[1].motsClefs.créerMotClef();
+        idMotClef2 = await constls[1].motsClefs.créerMotClef();
 
         const val = await résPropres.attendreQue((x) => !!x && !!x.length);
         expect(val).to.contain(idMotClef2);
       });
 
       it("Mot-clef d'un autre membre détecté", async () => {
-        idMotClef1 = await clients[0].motsClefs.créerMotClef();
+        idMotClef1 = await constls[0].motsClefs.créerMotClef();
         const val = await résAutres.attendreQue((x) => !!x && !!x.length);
         expect(val).to.contain(idMotClef1);
       });
     });
 
     describe("Suivre variables", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let idVariable1: string;
       let idVariable2: string;
@@ -1864,16 +1858,16 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
         fsOublier.push(
-          await clients[1].réseau.suivreVariablesMembre({
-            idCompte: idsBdCompte[0],
+          await constls[1].réseau.suivreVariablesMembre({
+            idCompte: idsComptes[0],
             f: (variables) => résAutres.mettreÀJour(variables),
           }),
         );
         fsOublier.push(
-          await clients[1].réseau.suivreVariablesMembre({
-            idCompte: idsBdCompte[1],
+          await constls[1].réseau.suivreVariablesMembre({
+            idCompte: idsComptes[1],
             f: (variables) => résPropres.mettreÀJour(variables),
           }),
         );
@@ -1884,11 +1878,11 @@ if (isNode || isElectronMain) {
         résAutres.toutAnnuler();
 
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
       });
 
       it("Mes variables détectées", async () => {
-        idVariable2 = await clients[1].variables.créerVariable({
+        idVariable2 = await constls[1].variables.créerVariable({
           catégorie: "numérique",
         });
 
@@ -1897,7 +1891,7 @@ if (isNode || isElectronMain) {
       });
 
       it("Variable d'un autre membre détectée", async () => {
-        idVariable1 = await clients[0].variables.créerVariable({
+        idVariable1 = await constls[0].variables.créerVariable({
           catégorie: "numérique",
         });
         const val = await résAutres.attendreQue((x) => Boolean(x?.length));
@@ -1906,9 +1900,9 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre BDs", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       const résPropres = new utilsTestAttente.AttendreRésultat<string[]>();
       const résAutres = new utilsTestAttente.AttendreRésultat<string[]>();
@@ -1916,16 +1910,16 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
         fsOublier.push(
-          await clients[1].réseau.suivreBdsMembre({
-            idCompte: idsBdCompte[0],
+          await constls[1].réseau.suivreBdsMembre({
+            idCompte: idsComptes[0],
             f: (bds) => résAutres.mettreÀJour(bds),
           }),
         );
         fsOublier.push(
-          await clients[1].réseau.suivreBdsMembre({
-            idCompte: idsBdCompte[1],
+          await constls[1].réseau.suivreBdsMembre({
+            idCompte: idsComptes[1],
             f: (bds) => résPropres.mettreÀJour(bds),
           }),
         );
@@ -1933,29 +1927,29 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         résPropres.toutAnnuler();
         résAutres.toutAnnuler();
       });
 
       it("Mes BDs détectées", async () => {
-        const idBd = await clients[1].bds.créerBd({ licence: "ODbl-1_0" });
+        const idBd = await constls[1].bds.créerBd({ licence: "ODbl-1_0" });
 
         const val = await résPropres.attendreQue((x) => !!x && !!x.length);
         expect(val).to.contain(idBd);
       });
 
       it("BD d'un autre membre détectée", async () => {
-        const idBd = await clients[0].bds.créerBd({ licence: "ODbl-1_0" });
+        const idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
         const val = await résAutres.attendreQue((x) => !!x && !!x.length);
         expect(val).to.contain(idBd);
       });
     });
 
     describe("Suivre projets", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       const résPropres = new utilsTestAttente.AttendreRésultat<string[]>();
       const résAutres = new utilsTestAttente.AttendreRésultat<string[]>();
@@ -1963,16 +1957,16 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
         fsOublier.push(
-          await clients[1].réseau.suivreProjetsMembre({
-            idCompte: idsBdCompte[0],
+          await constls[1].réseau.suivreProjetsMembre({
+            idCompte: idsComptes[0],
             f: (projets) => résAutres.mettreÀJour(projets),
           }),
         );
         fsOublier.push(
-          await clients[1].réseau.suivreProjetsMembre({
-            idCompte: idsBdCompte[1],
+          await constls[1].réseau.suivreProjetsMembre({
+            idCompte: idsComptes[1],
             f: (projets) => résPropres.mettreÀJour(projets),
           }),
         );
@@ -1980,29 +1974,29 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         résPropres.toutAnnuler();
         résAutres.toutAnnuler();
       });
 
       it("Mes projets détectés", async () => {
-        const idProjet = await clients[1].projets.créerProjet();
+        const idProjet = await constls[1].projets.créerProjet();
 
         const val = await résPropres.attendreQue((x) => !!x && !!x.length);
         expect(val).to.contain(idProjet);
       });
 
       it("Projet d'un autre membre détecté", async () => {
-        const idProjet = await clients[0].projets.créerProjet();
+        const idProjet = await constls[0].projets.créerProjet();
         const val = await résAutres.attendreQue((x) => !!x && !!x.length);
         expect(val).to.contain(idProjet);
       });
     });
 
     describe("Suivre favoris", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let idMotClef: string;
 
@@ -2016,22 +2010,22 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
 
         fsOublier.push(
-          await clients[1].réseau.suivreFavorisMembre({
-            idCompte: idsBdCompte[0],
+          await constls[1].réseau.suivreFavorisMembre({
+            idCompte: idsComptes[0],
             f: (favoris) => résAutres.mettreÀJour(favoris),
           }),
         );
         fsOublier.push(
-          await clients[1].réseau.suivreFavorisMembre({
-            idCompte: idsBdCompte[1],
+          await constls[1].réseau.suivreFavorisMembre({
+            idCompte: idsComptes[1],
             f: (favoris) => résPropres.mettreÀJour(favoris),
           }),
         );
 
-        idMotClef = await clients[0].motsClefs.créerMotClef({
+        idMotClef = await constls[0].motsClefs.créerMotClef({
           épingler: false,
         });
       });
@@ -2041,7 +2035,7 @@ if (isNode || isElectronMain) {
         résAutres.toutAnnuler();
 
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
       });
 
       it("Mes favoris détectés", async () => {
@@ -2052,7 +2046,7 @@ if (isNode || isElectronMain) {
             base: TOUS,
           },
         };
-        await clients[1].favoris.épinglerFavori({
+        await constls[1].favoris.épinglerFavori({
           idObjet: idMotClef,
           épingle: {
             type: "motClef",
@@ -2073,7 +2067,7 @@ if (isNode || isElectronMain) {
             base: TOUS,
           },
         };
-        await clients[0].favoris.épinglerFavori({
+        await constls[0].favoris.épinglerFavori({
           idObjet: idMotClef,
           épingle: {
             type: "motClef",
@@ -2090,9 +2084,9 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre favoris objet", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let idMotClef: string;
       let fOublier: schémaFonctionOublier;
@@ -2102,12 +2096,12 @@ if (isNode || isElectronMain) {
       >();
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
-        idMotClef = await clients[0].motsClefs.créerMotClef({
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
+        idMotClef = await constls[0].motsClefs.créerMotClef({
           épingler: false,
         });
 
-        ({ fOublier } = await clients[0].réseau.suivreFavorisObjet({
+        ({ fOublier } = await constls[0].réseau.suivreFavorisObjet({
           idObjet: idMotClef,
           f: (favoris) => rés.mettreÀJour(favoris),
           profondeur: 4,
@@ -2116,7 +2110,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         if (fOublier) await fOublier();
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
       });
 
@@ -2128,7 +2122,7 @@ if (isNode || isElectronMain) {
       it("Ajout à mes favoris détecté", async () => {
         const réf: { épingle: ÉpingleFavorisAvecId; idCompte: string }[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             épingle: {
               idObjet: idMotClef,
               épingle: {
@@ -2138,7 +2132,7 @@ if (isNode || isElectronMain) {
             },
           },
         ];
-        await clients[0].favoris.épinglerFavori({
+        await constls[0].favoris.épinglerFavori({
           idObjet: idMotClef,
           épingle: { type: "motClef", base: TOUS },
         });
@@ -2150,21 +2144,21 @@ if (isNode || isElectronMain) {
       it("Ajout aux favoris d'un autre membre détecté", async () => {
         const réf: { épingle: ÉpingleFavorisAvecId; idCompte: string }[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             épingle: {
               épingle: { type: "motClef", base: TOUS },
               idObjet: idMotClef,
             },
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             épingle: {
               épingle: { type: "motClef", base: TOUS },
               idObjet: idMotClef,
             },
           },
         ];
-        await clients[1].favoris.épinglerFavori({
+        await constls[1].favoris.épinglerFavori({
           idObjet: idMotClef,
           épingle: {
             type: "motClef",
@@ -2178,10 +2172,10 @@ if (isNode || isElectronMain) {
     });
 
     describe("Suivre réplications", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let idsOrbite: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let idsDispositifs: string[];
+      let constls: Constellation[];
 
       let idBd: string;
 
@@ -2189,12 +2183,12 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, idsOrbite, clients, fOublierClients } =
+        ({ idsComptes, idsDispositifs, constls, fOublierConstls } =
           await toutPréparer(2));
-        idBd = await clients[0].bds.créerBd({ licence: "ODbl-1_0" });
+        idBd = await constls[0].bds.créerBd({ licence: "ODbl-1_0" });
         fsOublier.push(
           (
-            await clients[0].réseau.suivreRéplications({
+            await constls[0].réseau.suivreRéplications({
               idObjet: idBd,
               f: (bds) => rés.mettreÀJour(bds),
               profondeur: 4,
@@ -2205,12 +2199,12 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
       });
 
       it("Auteur de la BD pour commencer", async () => {
-        await clients[0].favoris.épinglerFavori({
+        await constls[0].favoris.épinglerFavori({
           idObjet: idBd,
           épingle: { type: "motClef", base: TOUS },
         });
@@ -2218,15 +2212,15 @@ if (isNode || isElectronMain) {
         const val = await rés.attendreQue((x) => !!x && x.membres.length > 0);
 
         expect(val.membres.map((m) => m.infoMembre.idCompte)).to.contain(
-          idsBdCompte[0],
+          idsComptes[0],
         );
         expect(
           val.dispositifs.map((d) => d.dispositif.idDispositif),
-        ).to.contain(idsOrbite[0]);
+        ).to.contain(idsDispositifs[0]);
       });
 
       it("Ajout d'une réplication détectée", async () => {
-        await clients[1].favoris.épinglerFavori({
+        await constls[1].favoris.épinglerFavori({
           idObjet: idBd,
           épingle: {
             type: "bd",
@@ -2241,19 +2235,19 @@ if (isNode || isElectronMain) {
         const val = await rés.attendreQue((x) => !!x && x.membres.length > 1);
 
         expect(val.membres.map((m) => m.infoMembre.idCompte)).to.have.members([
-          idsBdCompte[0],
-          idsBdCompte[1],
+          idsComptes[0],
+          idsComptes[1],
         ]);
         expect(
           val.dispositifs.map((d) => d.dispositif.idDispositif),
-        ).to.have.members([idsOrbite[0], idsOrbite[1]]);
+        ).to.have.members([idsDispositifs[0], idsDispositifs[1]]);
       });
     });
 
     describe("Suivre BD par mot-clef unique", function () {
-      let fOublierClients: () => Promise<void>;
-      let idsBdCompte: string[];
-      let clients: Constellation[];
+      let fOublierConstls: () => Promise<void>;
+      let idsComptes: string[];
+      let constls: Constellation[];
 
       let idNuée: string;
       let idBd1: string;
@@ -2282,18 +2276,18 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        ({ idsBdCompte, clients, fOublierClients } = await toutPréparer(2));
-        const idVarClef = await clients[0].variables.créerVariable({
+        ({ idsComptes, constls, fOublierConstls } = await toutPréparer(2));
+        const idVarClef = await constls[0].variables.créerVariable({
           catégorie: "chaîneNonTraductible",
         });
-        const idVarLangue = await clients[0].variables.créerVariable({
+        const idVarLangue = await constls[0].variables.créerVariable({
           catégorie: "chaîneNonTraductible",
         });
-        const idVarTrad = await clients[0].variables.créerVariable({
+        const idVarTrad = await constls[0].variables.créerVariable({
           catégorie: "chaîneNonTraductible",
         });
 
-        idNuée = await clients[0].nuées.créerNuée({});
+        idNuée = await constls[0].nuées.créerNuée({});
 
         const schéma: schémaSpécificationBd = {
           licence: "ODbl-1_0",
@@ -2318,14 +2312,14 @@ if (isNode || isElectronMain) {
           ],
         };
 
-        idBd1 = await clients[0].bds.créerBdDeSchéma({ schéma });
-        idBd2 = await clients[1].bds.créerBdDeSchéma({ schéma });
+        idBd1 = await constls[0].bds.créerBdDeSchéma({ schéma });
+        idBd2 = await constls[1].bds.créerBdDeSchéma({ schéma });
 
-        await clients[0].bds.rejoindreNuées({
+        await constls[0].bds.rejoindreNuées({
           idsNuées: idNuée,
           idBd: idBd1,
         });
-        await clients[1].bds.rejoindreNuées({
+        await constls[1].bds.rejoindreNuées({
           idsNuées: idNuée,
           idBd: idBd2,
         });
@@ -2335,7 +2329,7 @@ if (isNode || isElectronMain) {
             async (
               fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
             ): Promise<schémaFonctionOublier> => {
-              return await clients[0].bds.suivreTableauxBd({
+              return await constls[0].bds.suivreTableauxBd({
                 idBd: idBd1,
                 f: fSuivi,
               });
@@ -2348,7 +2342,7 @@ if (isNode || isElectronMain) {
             async (
               fSuivi: schémaFonctionSuivi<infoTableauAvecId[]>,
             ): Promise<schémaFonctionOublier> => {
-              return await clients[1].bds.suivreTableauxBd({
+              return await constls[1].bds.suivreTableauxBd({
                 idBd: idBd2,
                 f: fSuivi,
               });
@@ -2358,7 +2352,7 @@ if (isNode || isElectronMain) {
 
         fsOublier.push(
           (
-            await clients[0].réseau.suivreBdsDeNuée({
+            await constls[0].réseau.suivreBdsDeNuée({
               idNuée,
               f: (bds) => résBds.mettreÀJour(bds),
             })
@@ -2366,7 +2360,7 @@ if (isNode || isElectronMain) {
         );
         fsOublier.push(
           (
-            await clients[0].réseau.suivreÉlémentsDeTableauxUniques({
+            await constls[0].réseau.suivreÉlémentsDeTableauxUniques({
               idNuéeUnique: idNuée,
               clef: clefTableau,
               f: (éléments) => résÉléments.mettreÀJour(éléments),
@@ -2375,19 +2369,19 @@ if (isNode || isElectronMain) {
         );
 
         id1 = (
-          await clients[0].tableaux.ajouterÉlément({
+          await constls[0].tableaux.ajouterÉlément({
             idTableau: idTableau1,
             vals: données1,
           })
         )[0];
         id2 = (
-          await clients[0].tableaux.ajouterÉlément({
+          await constls[0].tableaux.ajouterÉlément({
             idTableau: idTableau1,
             vals: données2,
           })
         )[0];
         id3 = (
-          await clients[1].tableaux.ajouterÉlément({
+          await constls[1].tableaux.ajouterÉlément({
             idTableau: idTableau2,
             vals: données3,
           })
@@ -2396,7 +2390,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await Promise.all(fsOublier.map((f) => f()));
-        if (fOublierClients) await fOublierClients();
+        if (fOublierConstls) await fOublierConstls();
         résBds.toutAnnuler();
         résÉléments.toutAnnuler();
       });
@@ -2418,21 +2412,21 @@ if (isNode || isElectronMain) {
 
         const réf: élémentDeMembre<élémentBdListeDonnées>[] = [
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             élément: {
               id: id1,
               données: données1,
             },
           },
           {
-            idCompte: idsBdCompte[0],
+            idCompte: idsComptes[0],
             élément: {
               id: id2,
               données: données2,
             },
           },
           {
-            idCompte: idsBdCompte[1],
+            idCompte: idsComptes[1],
             élément: {
               id: id3,
               données: données3,
@@ -2441,6 +2435,124 @@ if (isNode || isElectronMain) {
         ];
 
         expect(élémentsSansId).to.have.deep.members(réf);
+      });
+    });
+
+    describe.only("Messages", function () {
+      let fOublierConstls: () => Promise<void>;
+      let idsDispositifs: string[];
+      let idsComptes: string[];
+      let constls: Constellation[];
+
+      const rés = new utilsTestAttente.AttendreRésultat<infoRéplications>();
+      const fsOublier: schémaFonctionOublier[] = [];
+
+      before(async () => {
+        ({ idsComptes, idsDispositifs, constls, fOublierConstls } =
+          await toutPréparer(3));
+      });
+
+      after(async () => {
+        await Promise.all(fsOublier.map((f) => f()));
+        if (fOublierConstls) await fOublierConstls();
+        rés.toutAnnuler();
+      });
+
+      const messageReçu = ({
+        de,
+        à,
+      }: {
+        de: string;
+        à: Constellation | Constellation[];
+      }): { promesseBienReçu: Promise<boolean>; messageÀEnvoyer: string } => {
+        const messageÀEnvoyer = `C'est bien moi : ${de}`;
+        if (!Array.isArray(à)) à = [à];
+
+        const promesseReçuParDispositif = (d: Constellation) =>
+          new Promise<boolean>((résoudre) => {
+            let fOublierSuivreMesages: schémaFonctionOublier | undefined =
+              undefined;
+            d.réseau
+              .suivreMessagesDirectes({
+                type: "texte",
+                de,
+                f: (message) => {
+                  fOublierSuivreMesages?.();
+                  résoudre(
+                    (message.contenu as { message: string }).message ===
+                      messageÀEnvoyer,
+                  );
+                },
+              })
+              .then((fOublier) => (fOublierSuivreMesages = fOublier));
+          });
+
+        const promesseBienReçu = Promise.all(
+          à.map((d) => promesseReçuParDispositif(d)),
+        ).then((réceptions) => réceptions.every((r) => r));
+        return {
+          promesseBienReçu,
+          messageÀEnvoyer,
+        };
+      };
+
+      it("Envoyer message à un autre dispositif", async () => {
+        const { promesseBienReçu, messageÀEnvoyer } = messageReçu({
+          de: idsDispositifs[0],
+          à: constls[1],
+        });
+
+        await constls[0].réseau.envoyerMessageAuDispositif({
+          msg: {
+            type: "texte",
+            contenu: { message: messageÀEnvoyer },
+          },
+          idDispositif: idsDispositifs[1],
+        });
+        const bienReçu = await promesseBienReçu;
+        expect(bienReçu).to.be.true();
+      });
+      it("Envoyer message à un autre membre", async () => {
+        const { promesseBienReçu, messageÀEnvoyer } = messageReçu({
+          de: idsDispositifs[0],
+          à: constls[1],
+        });
+
+        await constls[0].réseau.envoyerMessageAuMembre({
+          msg: {
+            type: "texte",
+            contenu: { message: messageÀEnvoyer },
+          },
+          idCompte: idsComptes[1],
+        });
+        const bienReçu = await promesseBienReçu;
+        expect(bienReçu).to.be.true();
+      });
+
+      it("Envoyer message à un autre membre qui a plusieurs dispositifs", async () => {
+        const { promesseBienReçu, messageÀEnvoyer } = messageReçu({
+          de: idsDispositifs[0],
+          à: [constls[1], constls[2]],
+        });
+
+        const invitation = await constls[1].générerInvitationRejoindreCompte();
+        await constls[2].demanderEtPuisRejoindreCompte(invitation);
+        await uneFois(
+          async (fSuivi: schémaFonctionSuivi<string[]>) => {
+            return await constls[0].suivreDispositifs({idCompte: idsComptes[1], f: fSuivi})
+          },
+          ids => !!ids && ids.length > 1
+        );
+
+        await constls[0].réseau.envoyerMessageAuMembre({
+          msg: {
+            type: "texte",
+            contenu: { message: messageÀEnvoyer },
+          },
+          idCompte: idsComptes[1],
+        });
+        const bienReçu = await promesseBienReçu;
+        expect(bienReçu).to.be.true();
       });
     });
   });
