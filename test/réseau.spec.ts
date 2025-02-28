@@ -2539,9 +2539,12 @@ if (isNode || isElectronMain) {
         await constls[2].demanderEtPuisRejoindreCompte(invitation);
         await uneFois(
           async (fSuivi: schémaFonctionSuivi<string[]>) => {
-            return await constls[0].suivreDispositifs({idCompte: idsComptes[1], f: fSuivi})
+            return await constls[0].suivreDispositifs({
+              idCompte: idsComptes[1],
+              f: fSuivi,
+            });
           },
-          ids => !!ids && ids.length > 1
+          (ids) => !!ids && ids.length > 1,
         );
 
         await constls[0].réseau.envoyerMessageAuMembre({
