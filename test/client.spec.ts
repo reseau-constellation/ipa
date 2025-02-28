@@ -74,7 +74,7 @@ describe("Fermeture sécuritaire", function () {
 });
 
 if (isNode || isElectronMain) {
-  describe.only("Contrôle dispositifs", function () {
+  describe("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
     let orbites: OrbitDbTest[];
     let orbite2: OrbitDbTest, orbite3: OrbitDbTest;
