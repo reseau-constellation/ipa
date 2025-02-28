@@ -382,7 +382,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     idDispositif: string;
     signal?: AbortSignal;
   }): Promise<Pushable<Uint8Array>> {
-
     const signalCombiné = anySignal([
       this.client.signaleurArrêt.signal,
       ...(signal ? [signal] : []),
@@ -403,7 +402,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       },
     );
 
-    if (this.connexionsDirectes[idLibp2pDestinataire]) return this.connexionsDirectes[idLibp2pDestinataire];
+    if (this.connexionsDirectes[idLibp2pDestinataire])
+      return this.connexionsDirectes[idLibp2pDestinataire];
 
     const idPairDestinataire = peerIdFromString(idLibp2pDestinataire);
     await sfip.libp2p.dial(idPairDestinataire);
@@ -523,7 +523,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         `Aucun dispositif présentement en ligne pour membre ${idCompte}`,
       );
 
-      await Promise.all(
+    await Promise.all(
       dispositifsMembre.map(async (d) => {
         await this.envoyerMessageAuDispositif({
           msg,
