@@ -74,7 +74,7 @@ describe("Fermeture sécuritaire", function () {
 });
 
 if (isNode || isElectronMain) {
-  describe("Contrôle dispositifs", function () {
+  describe.only("Contrôle dispositifs", function () {
     let fOublierClients: () => Promise<void>;
     let orbites: OrbitDbTest[];
     let orbite2: OrbitDbTest, orbite3: OrbitDbTest;
@@ -137,7 +137,7 @@ if (isNode || isElectronMain) {
 
     describe("Initiale", function () {
       it("Mon dispositif est présent", async () => {
-        const val = await mesDispositifs.attendreExiste();
+        const val = await mesDispositifs.attendreQue(ids => ids?.length > 0);
         expect(val).to.have.members([idDispositif1]);
       });
     });

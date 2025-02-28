@@ -88,7 +88,10 @@ import { initSFIP } from "@/sfip/index.js";
 import { Protocoles } from "./protocoles.js";
 import type { PrivateKey } from "@libp2p/interface";
 import type { ServicesLibp2p } from "@/sfip/index.js";
-import type { ContenuMessageRejoindreCompte, statutDispositif } from "@/reseau.js";
+import type {
+  ContenuMessageRejoindreCompte,
+  statutDispositif,
+} from "@/reseau.js";
 import type { infoUtilisateur, objRôles } from "@/accès/types.js";
 import type { SetDatabaseType } from "@orbitdb/set-db";
 import type { OrderedKeyValueDatabaseType } from "@orbitdb/ordered-keyvalue-db";
@@ -985,6 +988,12 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     f: schémaFonctionSuivi<string[]>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
+    const info: {
+      autorisés: string[];
+      infos: statutDispositif[];
+      idCompte?: string;
+    } = { autorisés: [], infos: [] };
+
     const fSuivi = async ({
       id,
       fSuivreBd,
@@ -992,6 +1001,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       id: string;
       fSuivreBd: schémaFonctionSuivi<string[] | undefined>;
     }): Promise<schémaFonctionOublier> => {
+      info.idCompte = id;
       const { orbite } = await this.attendreSfipEtOrbite();
       const { bd, fOublier } = await orbite.ouvrirBdTypée({
         id,
@@ -1007,14 +1017,14 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         return faisRien;
       } else if (typeAccès === "contrôleur-constellation") {
         const contrôleurConstellation = accès as ContrôleurConstellation;
-        const fFinale = async () => {
+        const fFinaleSuiviCompte = async () => {
           const mods = contrôleurConstellation.gestRôles._rôles[MODÉRATEUR];
           await fSuivreBd(mods);
         };
-        contrôleurConstellation.gestRôles.on("misÀJour", fFinale);
-        fFinale();
+        contrôleurConstellation.gestRôles.on("misÀJour", fFinaleSuiviCompte);
+        fFinaleSuiviCompte();
         return async () => {
-          contrôleurConstellation.gestRôles.off("misÀJour", fFinale);
+          contrôleurConstellation.gestRôles.off("misÀJour", fFinaleSuiviCompte);
           await fOublier();
         };
       } else {
@@ -1023,10 +1033,13 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       }
     };
 
-    const info: {autorisés: string[]; infos: statutDispositif[]; idCompte?: string} = { autorisés: [], infos: []};
     const fFinale = async () => {
-      if (!idCompte) return;
-      const autorisésEtAcceptés = info.autorisés.filter(id => info.infos.find(i=>i.infoDispositif.idDispositif === id)?.infoDispositif.idCompte === idCompte)
+      if (!info.idCompte) return;
+      const autorisésEtAcceptés = info.autorisés.filter(
+        (idDispositif) =>
+          info.infos.find((i) => i.infoDispositif.idDispositif === idDispositif)
+            ?.infoDispositif?.idCompte === info.idCompte,
+      );
       return await f(autorisésEtAcceptés);
     };
 
@@ -1043,11 +1056,25 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           return await this.suivreIdCompte({ f: fSuivreRacine });
         }
       },
-      f: ignorerNonDéfinis(async (x: string[]) => { info.autorisés = x; return await fFinale()}),
-      fSuivre: async ({id, fSuivreBd}: {id: string; fSuivreBd: schémaFonctionSuivi<string[] | undefined>}) => {info.idCompte = id; return await fSuivi({id, fSuivreBd})},
+      f: ignorerNonDéfinis(async (x: string[]) => {
+        info.autorisés = x;
+        return await fFinale();
+      }),
+      fSuivre: fSuivi,
     });
-    const fOublierInfosDispositifs = await this.réseau.suivreConnexionsDispositifs({f: async x => {info.infos = x; return await fFinale()}})
-    return async () => {await Promise.all([fOublierDispositifsAutorisés(), fOublierInfosDispositifs()])};
+    const fOublierInfosDispositifs =
+      await this.réseau.suivreConnexionsDispositifs({
+        f: async (x) => {
+          info.infos = x;
+          return await fFinale();
+        },
+      });
+    return async () => {
+      await Promise.all([
+        fOublierDispositifsAutorisés(),
+        fOublierInfosDispositifs(),
+      ]);
+    };
   }
 
   async nommerDispositif({
