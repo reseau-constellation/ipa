@@ -230,9 +230,10 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     bd: T;
     fOublier: schémaFonctionOublier;
   }> {
-    signal = signal
-      ? anySignal([signal, this.signaleurArrêt.signal])
-      : this.signaleurArrêt.signal;
+    const signalCombiné = anySignal([
+      this.signaleurArrêt.signal,
+      ...(signal ? [signal] : []),
+    ]);
 
     // Nous avons besoin d'un verrou afin d'éviter la concurrence
     await this.verrouOuvertureBd.acquire(id);
@@ -275,8 +276,10 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
             type,
             ...options,
           })) as T,
-        signal,
+        signal: signalCombiné,
       });
+      signalCombiné.clear();
+
       this.orbite.ipfs.libp2p.addEventListener("peer:disconnect", (x) => {
         bd.peers.delete(x.detail.toString());
       });
