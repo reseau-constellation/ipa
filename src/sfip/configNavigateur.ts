@@ -7,7 +7,6 @@ import { dcutr } from "@libp2p/dcutr";
 import { identify, identifyPush } from "@libp2p/identify";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
-import { all } from "@libp2p/websockets/filters";
 import { webTransport } from "@libp2p/webtransport";
 // import { kadDHT } from "@libp2p/kad-dht";
 import { circuitRelayTransport } from "@libp2p/circuit-relay-v2";
@@ -39,9 +38,7 @@ export const obtOptionsLibp2pNavigateur = async ({
   await stockage.open();
 
   const transports = [
-    webSockets({
-      filter: all,
-    }),
+    webSockets(),
     webRTC(),
     webRTCDirect(),
     circuitRelayTransport(),
