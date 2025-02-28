@@ -59,7 +59,7 @@ async function toutPréparer(n: number) {
 }
 
 if (isNode || isElectronMain) {
-  describe.only("Réseau", function () {
+  describe("Réseau", function () {
     describe("Suivre en ligne", function () {
       let fOublierConstls: () => Promise<void>;
       let idsComptes: string[];
@@ -2438,7 +2438,7 @@ if (isNode || isElectronMain) {
       });
     });
 
-    describe.only("Messages", function () {
+    describe("Messages", function () {
       let fOublierConstls: () => Promise<void>;
       let idsDispositifs: string[];
       let idsComptes: string[];
