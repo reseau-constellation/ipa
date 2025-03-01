@@ -342,6 +342,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       await this.verrouillerDossier({ message: this._opts.messageVerrou });
     } catch (e) {
       this.erreurInitialisation = e;
+      await this.fermerCompte();
+      await this.épingles.fermer();
       this.événements.emit("erreurInitialisation", e);
     }
 
