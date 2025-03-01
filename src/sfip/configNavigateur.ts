@@ -60,7 +60,7 @@ export const obtOptionsLibp2pNavigateur = async ({
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
-    datastore: stockage,
+    // datastore: stockage,
     peerDiscovery: [
       bootstrap({
         list: ADRESSES_NŒUDS_INITIAUX,
@@ -74,8 +74,16 @@ export const obtOptionsLibp2pNavigateur = async ({
     ],
     services: {
       ping: ping(),
-      identify: identify(),
-      identifyPush: identifyPush(),
+      identify: identify({
+        maxMessageSize: 1e6,
+        maxInboundStreams: 50,
+        maxOutboundStreams: 50,
+      }),
+      identifyPush: identifyPush({
+        maxMessageSize: 1e6,
+        maxInboundStreams: 50,
+        maxOutboundStreams: 50,
+      }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
       pubsub: gossipsub({
@@ -90,7 +98,7 @@ export const obtOptionsLibp2pNavigateur = async ({
           appSpecificScore: applicationScore,
         },
         scoreThresholds: {
-          acceptPXThreshold: 100,
+          acceptPXThreshold: 0,
         },
       }),
       /*dht: kadDHT({

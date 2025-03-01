@@ -65,8 +65,7 @@ export const obtOptionsLibp2pÉlectionPrincipal = async ({
     connectionGater: {
       denyDialMultiaddr: () => false,
     },
-
-    datastore: stockage,
+    // datastore: stockage,
     peerDiscovery: [
       mdns(),
       bootstrap({
@@ -81,8 +80,16 @@ export const obtOptionsLibp2pÉlectionPrincipal = async ({
     ],
     services: {
       ping: ping(),
-      identify: identify(),
-      identifyPush: identifyPush(),
+      identify: identify({
+        maxMessageSize: 1e6,
+        maxInboundStreams: 50,
+        maxOutboundStreams: 50,
+      }),
+      identifyPush: identifyPush({
+        maxMessageSize: 1e6,
+        maxInboundStreams: 50,
+        maxOutboundStreams: 50,
+      }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
       pubsub: gossipsub({

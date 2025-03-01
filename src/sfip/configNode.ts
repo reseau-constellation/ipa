@@ -1,4 +1,4 @@
-import { join } from "path";
+// import { join } from "path";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
@@ -28,20 +28,16 @@ import type { Libp2pOptions } from "libp2p";
 
 // import { kadDHT } from "@libp2p/kad-dht";
 
-export const obtOptionsLibp2pNode = async ({
-  dossier,
-}: {
-  dossier: string;
-}): Promise<Libp2pOptions> => {
+export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
   // navigateur. Nous devons donc les importer dynamiquement ici afin d'éviter
   // des problèmes de compilation pour le navigateur.
   const { tcp } = await import("@libp2p/tcp");
   const { mdns } = await import("@libp2p/mdns");
 
-  const { FsDatastore } = await import("datastore-fs");
-  const dossierStockage = join(dossier, "libp2p");
-  const stockage = new FsDatastore(dossierStockage);
+  // const { FsDatastore } = await import("datastore-fs");
+  // const dossierStockage = join(dossier, "libp2p");
+  // const stockage = new FsDatastore(dossierStockage);
 
   return {
     addresses: {
@@ -80,7 +76,7 @@ export const obtOptionsLibp2pNode = async ({
       outboundStreamProtocolNegotiationTimeout: 1e4,
       outboundUpgradeTimeout: 1e4,
     },
-    datastore: stockage,
+    // datastore: stockage,
     peerDiscovery: [
       mdns(),
       bootstrap({
@@ -95,8 +91,16 @@ export const obtOptionsLibp2pNode = async ({
     ],
     services: {
       ping: ping(),
-      identify: identify(),
-      identifyPush: identifyPush(),
+      identify: identify({
+        maxMessageSize: 1e6,
+        maxInboundStreams: 50,
+        maxOutboundStreams: 50,
+      }),
+      identifyPush: identifyPush({
+        maxMessageSize: 1e6,
+        maxInboundStreams: 50,
+        maxOutboundStreams: 50,
+      }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
       pubsub: gossipsub({
