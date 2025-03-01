@@ -42,9 +42,9 @@ export const obtConfigLibp2pPlateforme = async ({
   } else if (isElectronMain) {
     configPlateforme = await obtOptionsLibp2pÉlectionPrincipal();
   } else if (isNode) {
-    configPlateforme = await obtOptionsLibp2pNode(
+    configPlateforme =
+      await obtOptionsLibp2pNode();
       // { dossier }
-    );
   } else {
     console.warn(
       "Plateforme non reconnue. On utilisera la configuration navigateur.",

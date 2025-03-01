@@ -24,86 +24,87 @@ import { applicationScore, résoudreInfoAdresses } from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
 // import { kadDHT } from "@libp2p/kad-dht";
 
-export const obtOptionsLibp2pÉlectionPrincipal = async (): Promise<Libp2pOptions> => {
-  const { tcp } = await import("@libp2p/tcp");
-  const { mdns } = await import("@libp2p/mdns");
-  // const { FsDatastore } = await import("datastore-fs");
-  // const dossierStockage = join(dossier, "libp2p");
-  // const stockage = new FsDatastore(dossierStockage);
+export const obtOptionsLibp2pÉlectionPrincipal =
+  async (): Promise<Libp2pOptions> => {
+    const { tcp } = await import("@libp2p/tcp");
+    const { mdns } = await import("@libp2p/mdns");
+    // const { FsDatastore } = await import("datastore-fs");
+    // const dossierStockage = join(dossier, "libp2p");
+    // const stockage = new FsDatastore(dossierStockage);
 
-  return {
-    addresses: {
-      listen: [
-        "/ip4/0.0.0.0/tcp/0",
-        "/ip4/0.0.0.0/tcp/0/ws",
-        "/ip6/::/tcp/0",
-        "/ip6/::/tcp/0/ws",
-        "/webrtc",
-        "/webtransport",
-        "/p2p-circuit",
+    return {
+      addresses: {
+        listen: [
+          "/ip4/0.0.0.0/tcp/0",
+          "/ip4/0.0.0.0/tcp/0/ws",
+          "/ip6/::/tcp/0",
+          "/ip6/::/tcp/0/ws",
+          "/webrtc",
+          "/webtransport",
+          "/p2p-circuit",
+        ],
+      },
+      transportManager: {
+        faultTolerance: FaultTolerance.NO_FATAL,
+      },
+      transports: [
+        webSockets({
+          filter: all,
+        }),
+        webRTC(),
+        webTransport(),
+        webRTCDirect(),
+        tcp(),
+        circuitRelayTransport(),
       ],
-    },
-    transportManager: {
-      faultTolerance: FaultTolerance.NO_FATAL,
-    },
-    transports: [
-      webSockets({
-        filter: all,
-      }),
-      webRTC(),
-      webTransport(),
-      webRTCDirect(),
-      tcp(),
-      circuitRelayTransport(),
-    ],
-    connectionEncrypters: [noise()],
-    streamMuxers: [yamux()],
-    connectionGater: {
-      denyDialMultiaddr: () => false,
-    },
-    // datastore: stockage,
-    peerDiscovery: [
-      mdns(),
-      bootstrap({
-        list: ADRESSES_NŒUDS_INITIAUX,
-        timeout: 0,
-      }),
-      pubsubPeerDiscovery({
-        interval: 10000,
-        topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
-        listenOnly: false,
-      }),
-    ],
-    services: {
-      ping: ping(),
-      identify: identify({
-        maxMessageSize: 1e6,
-        maxInboundStreams: 50,
-        maxOutboundStreams: 50,
-      }),
-      identifyPush: identifyPush({
-        maxMessageSize: 1e6,
-        maxInboundStreams: 50,
-        maxOutboundStreams: 50,
-      }),
-      autoNAT: autoNAT(),
-      dcutr: dcutr(),
-      pubsub: gossipsub({
-        allowPublishToZeroTopicPeers: true,
-        runOnLimitedConnection: true,
-        canRelayMessage: true,
-        directPeers: résoudreInfoAdresses([
-          ...ADRESSES_NŒUDS_RELAI_WS,
-          ...ADRESSES_NŒUDS_RELAI_RUST,
-        ]),
-        scoreParams: {
-          appSpecificScore: applicationScore,
-        },
-      }),
-      upnp: uPnPNAT(),
-      /*dht: kadDHT({
+      connectionEncrypters: [noise()],
+      streamMuxers: [yamux()],
+      connectionGater: {
+        denyDialMultiaddr: () => false,
+      },
+      // datastore: stockage,
+      peerDiscovery: [
+        mdns(),
+        bootstrap({
+          list: ADRESSES_NŒUDS_INITIAUX,
+          timeout: 0,
+        }),
+        pubsubPeerDiscovery({
+          interval: 10000,
+          topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
+          listenOnly: false,
+        }),
+      ],
+      services: {
+        ping: ping(),
+        identify: identify({
+          maxMessageSize: 1e6,
+          maxInboundStreams: 50,
+          maxOutboundStreams: 50,
+        }),
+        identifyPush: identifyPush({
+          maxMessageSize: 1e6,
+          maxInboundStreams: 50,
+          maxOutboundStreams: 50,
+        }),
+        autoNAT: autoNAT(),
+        dcutr: dcutr(),
+        pubsub: gossipsub({
+          allowPublishToZeroTopicPeers: true,
+          runOnLimitedConnection: true,
+          canRelayMessage: true,
+          directPeers: résoudreInfoAdresses([
+            ...ADRESSES_NŒUDS_RELAI_WS,
+            ...ADRESSES_NŒUDS_RELAI_RUST,
+          ]),
+          scoreParams: {
+            appSpecificScore: applicationScore,
+          },
+        }),
+        upnp: uPnPNAT(),
+        /*dht: kadDHT({
           clientMode: true,
         }),*/
-    },
+      },
+    };
   };
-};
