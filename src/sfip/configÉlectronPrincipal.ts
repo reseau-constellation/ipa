@@ -1,4 +1,4 @@
-import { join } from "path";
+// import { join } from "path";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
@@ -24,16 +24,12 @@ import { applicationScore, résoudreInfoAdresses } from "./utils.js";
 import type { Libp2pOptions } from "libp2p";
 // import { kadDHT } from "@libp2p/kad-dht";
 
-export const obtOptionsLibp2pÉlectionPrincipal = async ({
-  dossier,
-}: {
-  dossier: string;
-}): Promise<Libp2pOptions> => {
+export const obtOptionsLibp2pÉlectionPrincipal = async (): Promise<Libp2pOptions> => {
   const { tcp } = await import("@libp2p/tcp");
   const { mdns } = await import("@libp2p/mdns");
-  const { FsDatastore } = await import("datastore-fs");
-  const dossierStockage = join(dossier, "libp2p");
-  const stockage = new FsDatastore(dossierStockage);
+  // const { FsDatastore } = await import("datastore-fs");
+  // const dossierStockage = join(dossier, "libp2p");
+  // const stockage = new FsDatastore(dossierStockage);
 
   return {
     addresses: {
