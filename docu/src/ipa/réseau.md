@@ -713,7 +713,7 @@ interface statutMembre {
 }
 
 type infoDispositif = {
-  idSFIP: string;
+  idLibp2p: string;
   idDispositif: string;
   idCompte: string;
   clefPublique: string;

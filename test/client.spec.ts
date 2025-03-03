@@ -137,7 +137,7 @@ if (isNode || isElectronMain) {
 
     describe("Initiale", function () {
       it("Mon dispositif est présent", async () => {
-        const val = await mesDispositifs.attendreExiste();
+        const val = await mesDispositifs.attendreQue(ids => ids?.length > 0);
         expect(val).to.have.members([idDispositif1]);
       });
     });

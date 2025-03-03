@@ -1,10 +1,11 @@
-import { EventEmitter } from "events";
 import { isValidAddress } from "@orbitdb/core";
 
 import Semaphore from "@chriscdn/promise-semaphore";
 import { multiaddr } from "@multiformats/multiaddr";
 import { sum } from "lodash-es";
-
+import { TypedEmitter } from "tiny-typed-emitter";
+import { pipe } from "it-pipe";
+import { pushable } from "it-pushable";
 import { GossipsubMessage } from "@chainsafe/libp2p-gossipsub";
 import {
   faisRien,
@@ -14,6 +15,8 @@ import {
 } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
 import { v4 as uuidv4 } from "uuid";
+import { peerIdFromString } from "@libp2p/peer-id";
+import { anySignal } from "any-signal";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
   Constellation,
@@ -30,9 +33,18 @@ import { rechercherProfilsSelonActivité } from "@/recherche/profil.js";
 import { rechercherTous } from "@/recherche/utils.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
+import { PROTOCOLE_CONSTELLATION } from "./const.js";
+import type { Pushable } from "it-pushable";
+// import type {Sink} from 'it-stream-types';
+
 import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
 import type { infoScore } from "@/bds.js";
-import type { Libp2pEvents, PeerUpdate } from "@libp2p/interface";
+import type {
+  Connection,
+  Libp2pEvents,
+  PeerUpdate,
+  Stream,
+} from "@libp2p/interface";
 import type { élémentBdListeDonnées, élémentDonnées } from "@/tableaux.js";
 import type {
   infoAuteur,
@@ -57,12 +69,11 @@ type ContrôleurConstellation = Awaited<
 >;
 
 export type infoDispositif = {
-  idSFIP: string;
+  idLibp2p: string;
   idDispositif: string;
   idCompte: string;
   clefPublique: string;
   signatures: { id: string; publicKey: string };
-  encryption?: { type: string; clefPublique: string };
 };
 
 export type statutDispositif = {
@@ -146,60 +157,47 @@ export type bdDeMembre = {
   bd: string;
 };
 
-interface Message {
-  encrypté: boolean;
-  données: string | DonnéesMessage;
-  destinataire?: string;
-}
+export type MessageGossipSub = MessageGossipSubSalut | MessageGossipSubTexte;
 
-export interface MessageEncrypté extends Message {
-  encrypté: true;
-  clefPubliqueExpéditeur: string;
-  données: string;
-}
+export type MessageDirecte =
+  | MessageDirecteRequêteRejoindreCompte
+  | MessageDirecteTexte;
 
-export interface MessageNonEncrypté extends Message {
-  encrypté: false;
-  données: DonnéesMessage;
-}
-
-export interface DonnéesMessage {
-  signature: Signature;
-  valeur: ValeurMessage;
-}
-
-export interface ValeurMessage {
-  type: string;
-  contenu: ContenuMessage;
-}
-
-export interface ContenuMessage {
-  [key: string]: unknown;
-}
-
-export interface ValeurMessageSalut extends ValeurMessage {
+export type MessageGossipSubSalut = {
   type: "Salut !";
   contenu: ContenuMessageSalut;
-}
+};
 
-export interface ContenuMessageSalut extends ContenuMessage {
-  idSFIP: string;
-  idDispositif: string;
-  idCompte: string;
-  clefPublique: string;
-  signatures: { id: string; publicKey: string };
-  encryption?: { type: string; clefPublique: string };
-}
+export type MessageGossipSubTexte = {
+  type: "texte";
+  contenu: string;
+};
 
-export interface ValeurMessageRequêteRejoindreCompte extends ValeurMessage {
+export type ContenuMessageSalut = {
+  contenu: {
+    idLibp2p: string;
+    idDispositif: string;
+    idCompte: string;
+    clefPublique: string;
+    signatures: { id: string; publicKey: string };
+  };
+  signature: Signature;
+};
+
+export type MessageDirecteRequêteRejoindreCompte = {
   type: "Je veux rejoindre ce compte";
   contenu: ContenuMessageRejoindreCompte;
-}
+};
 
-export interface ContenuMessageRejoindreCompte extends ContenuMessage {
+export type ContenuMessageRejoindreCompte = {
   idDispositif: string;
   empreinteVérification: string;
-}
+};
+
+export type MessageDirecteTexte = {
+  type: "texte";
+  contenu: { message: string };
+};
 
 export type statutConfianceMembre = "FIABLE" | "BLOQUÉ" | "NEUTRE";
 
@@ -223,6 +221,13 @@ const CONFIANCE_DE_FAVORIS = 0.7;
 const DÉLAI_SESOUVENIR_MEMBRES_EN_LIGNE = 1000 * 60 * 60 * 24 * 30; // 1 mois
 const N_DÉSIRÉ_SOUVENIR_MEMBRES_EN_LIGNE = 50;
 
+type ÉvénementsRéseau = {
+  changementConnexions: () => void;
+  messageDirecte: (args: { de: string; message: MessageDirecte }) => void;
+  changementMembresBloqués: () => void;
+  membreVu: () => void;
+};
+
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: Constellation;
   bloquésPrivés: Set<string>;
@@ -232,8 +237,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     [key: string]: statutDispositif;
   };
 
+  connexionsDirectes: {
+    [key: string]: Pushable<Uint8Array>;
+  };
+
   fsOublier: schémaFonctionOublier[];
-  événements: EventEmitter;
+  événements: TypedEmitter<ÉvénementsRéseau>;
 
   constructor({ client }: { client: Constellation }) {
     super({
@@ -247,12 +256,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.bloquésPrivés = new Set();
 
     this.dispositifsEnLigne = {};
+    this.connexionsDirectes = {};
+
     this.client
       .obtDeStockageLocal({ clef: "dispositifsEnLigne" })
       .then((x) => (this.dispositifsEnLigne = JSON.parse(x || "{}")));
     this.fsOublier = [];
     this._fermé = false;
-    this.événements = new EventEmitter();
+    this.événements = new TypedEmitter<ÉvénementsRéseau>();
   }
 
   async initialiser(): Promise<void> {
@@ -261,14 +272,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const promesses: { [clef: string]: Promise<void> } = {};
 
     const pubsub = sfip.libp2p.services.pubsub;
-    pubsub.subscribe(this.client.sujet_réseau);
+    const libp2p = sfip.libp2p;
 
     const fÉcoutePubSub = (évé: CustomEvent<GossipsubMessage>) => {
       const messageGs = évé.detail.msg;
       const id = uuidv4();
       if (messageGs.topic === this.client.sujet_réseau) {
         try {
-          const promesse = this.messageReçu({
+          const promesse = this.messageGossipSubReçu({
             msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
           });
           promesses[id] = promesse;
@@ -282,15 +293,60 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       }
     };
     pubsub.addEventListener("gossipsub:message", fÉcoutePubSub);
+    pubsub.subscribe(this.client.sujet_réseau);
+
+    const gérerProtocoleConstellation = async ({
+      connection,
+      stream,
+    }: {
+      connection: Connection;
+      stream: Stream;
+    }) => {
+      const idPairSource = String(connection.remotePeer);
+      if (this.connexionsDirectes[idPairSource]) return;
+      try {
+        this.connexionsDirectes[idPairSource] = pushable();
+        pipe(stream, async (source) => {
+          for await (const value of source) {
+            const octets = value.subarray();
+            const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
+            this.événements.emit("messageDirecte", {
+              de: idPairSource,
+              message: messageDécodé,
+            });
+          }
+        });
+        pipe(this.connexionsDirectes[idPairSource], stream);
+      } catch {
+        delete this.connexionsDirectes[idPairSource];
+      }
+    };
+
+    await libp2p.handle(PROTOCOLE_CONSTELLATION, gérerProtocoleConstellation, {
+      runOnLimitedConnection: true,
+    });
+    libp2p.addEventListener(
+      "peer:disconnect",
+      ({ detail: pair }) => delete this.connexionsDirectes[pair.toString()],
+    );
+
+    this.fsOublier.push(
+      await this.suivreMessagesDirectes({
+        type: "Je veux rejoindre ce compte",
+        f: ({ contenu }) =>
+          this.client.considérerRequêteRejoindreCompte({
+            requête: contenu as ContenuMessageRejoindreCompte,
+          }),
+      }),
+    );
 
     this.fsOublier.push(async () => {
+      await libp2p.unhandle(PROTOCOLE_CONSTELLATION);
       // @ts-expect-error erreur de définition types sur GossipSub
       if (pubsub.isStarted()) pubsub.unsubscribe(this.client.sujet_réseau);
       pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
       await Promise.all(Object.values(promesses));
     });
-
-    const libp2p = sfip.libp2p;
 
     const fSuivreConnexions = () => {
       this.événements.emit("changementConnexions");
@@ -299,6 +355,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const événements: (keyof Libp2pEvents)[] = [
       "peer:connect",
       "peer:disconnect",
+      "peer:update",
     ];
     for (const é of événements) {
       libp2p.addEventListener(é, fSuivreConnexions);
@@ -309,15 +366,79 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       }),
     );
 
-    const intervale = setInterval(() => {
-      this.direSalut();
+    const intervale = setInterval(async () => {
+      await this.direSalut();
     }, INTERVALE_SALUT);
+
     this.fsOublier.unshift(async () => clearInterval(intervale));
 
     await this.direSalut();
   }
 
-  async suivreMessageGossipsub({
+  async obtFluxDispositif({
+    idDispositif,
+    signal,
+  }: {
+    idDispositif: string;
+    signal?: AbortSignal;
+  }): Promise<Pushable<Uint8Array>> {
+    const signalCombiné = anySignal([
+      this.client.signaleurArrêt.signal,
+      ...(signal ? [signal] : []),
+    ]);
+
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+    const idLibp2pDestinataire = await uneFois(
+      async (fSuivi: schémaFonctionSuivi<string>) => {
+        return await this.suivreConnexionsDispositifs({
+          f: async (dispositifs) => {
+            const correspondant = dispositifs?.find(
+              (d) => d.infoDispositif.idDispositif === idDispositif,
+            );
+            if (correspondant)
+              return await fSuivi(correspondant.infoDispositif.idLibp2p);
+          },
+        });
+      },
+    );
+
+    if (this.connexionsDirectes[idLibp2pDestinataire])
+      return this.connexionsDirectes[idLibp2pDestinataire];
+
+    const idPairDestinataire = peerIdFromString(idLibp2pDestinataire);
+    await sfip.libp2p.dial(idPairDestinataire);
+
+    const flux = await sfip.libp2p.dialProtocol(
+      idPairDestinataire,
+      PROTOCOLE_CONSTELLATION,
+      { signal: signalCombiné, runOnLimitedConnection: true },
+    );
+    signalCombiné.clear();
+
+    const fluxÀÉcrire = pushable();
+    this.connexionsDirectes[idLibp2pDestinataire] = fluxÀÉcrire;
+    pipe(fluxÀÉcrire, flux); // Pas d'await
+
+    return fluxÀÉcrire;
+  }
+
+  async envoyerMessageGossipsub({
+    message,
+    sujet,
+  }: {
+    message: unknown;
+    sujet?: string;
+  }): Promise<string[]> {
+    sujet ??= this.client.sujet_réseau;
+    const pubsub = (await this.client.attendreSfipEtOrbite()).sfip.libp2p
+      .services.pubsub;
+
+    const octetsMessage = new TextEncoder().encode(JSON.stringify(message));
+    const retour = await pubsub.publish(sujet, Buffer.from(octetsMessage));
+    return retour.recipients.map((r) => r.toString());
+  }
+
+  async suivreMessagesGossipsub({
     sujet,
     f,
   }: {
@@ -373,81 +494,23 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   async envoyerMessageAuDispositif({
     msg,
     idDispositif,
+    signal,
   }: {
-    msg: ValeurMessage;
-    idDispositif?: string;
+    msg: MessageDirecte;
+    idDispositif: string;
+    signal?: AbortSignal;
   }) {
-    const signature = await this.client.signer({
-      message: JSON.stringify(msg),
-    });
+    const flux = await this.obtFluxDispositif({ idDispositif, signal });
 
-    const msgSigné: DonnéesMessage = {
-      signature,
-      valeur: msg,
-    };
-    let idSFIP: string | undefined = undefined;
-    let encryption: { type: string; clefPublique: string } | undefined;
-    if (idDispositif) {
-      const dispositif = await uneFois(
-        async (fSuivi: schémaFonctionSuivi<statutDispositif>) => {
-          return await this.suivreConnexionsDispositifs({
-            f: async (dispositifs) => {
-              const correspondant = dispositifs.find(
-                (dsp) => dsp.infoDispositif.idDispositif === idDispositif,
-              );
-              if (correspondant) {
-                return await fSuivi(correspondant);
-              }
-            },
-          });
-        },
-      );
-      ({ idSFIP, encryption } = dispositif.infoDispositif);
-    }
-
-    let msgPourDispositif: MessageNonEncrypté | MessageEncrypté;
-    if (idDispositif) {
-      // Arrêter si le dispositif n'a pas la même encryption que nous
-      if (encryption?.type !== this.client.encryption.nom) return;
-
-      const msgEncrypté = await this.client.encryption.encrypter({
-        message: JSON.stringify(msgSigné),
-        clefPubliqueDestinataire: encryption.clefPublique,
-      });
-      const { publique: clefPubliqueExpéditeur } =
-        await this.client.encryption.obtClefs();
-      msgPourDispositif = {
-        encrypté: true,
-        clefPubliqueExpéditeur,
-        données: msgEncrypté,
-      };
-      if (idSFIP) {
-        msgPourDispositif.destinataire = idSFIP;
-      }
-    } else {
-      msgPourDispositif = {
-        encrypté: false,
-        données: msgSigné,
-      };
-      if (idSFIP) {
-        msgPourDispositif.destinataire = idSFIP;
-      }
-    }
-
-    const sujet = this.client.sujet_réseau;
-    const { sfip } = await this.client.attendreSfipEtOrbite();
-    const pubsub = sfip.libp2p.services.pubsub;
-    const msgBinaire = new TextEncoder().encode(
-      JSON.stringify(msgPourDispositif),
-    );
-    await pubsub.publish(sujet, Buffer.from(msgBinaire));
+    const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
+    flux.push(msgBinaire);
   }
 
   async envoyerMessageAuMembre({
     msg,
     idCompte,
   }: {
-    msg: ValeurMessage;
+    msg: MessageDirecte;
     idCompte: string;
   }): Promise<void> {
     const maintenant = Date.now();
@@ -459,6 +522,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       throw new Error(
         `Aucun dispositif présentement en ligne pour membre ${idCompte}`,
       );
+
     await Promise.all(
       dispositifsMembre.map(async (d) => {
         await this.envoyerMessageAuDispositif({
@@ -469,33 +533,66 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     );
   }
 
-  async direSalut({ à }: { à?: string } = {}): Promise<void> {
+  async suivreMessagesDirectes({
+    f,
+    type,
+    de,
+  }: {
+    f: schémaFonctionSuivi<MessageDirecte>;
+    type?: MessageDirecte["type"] | MessageDirecte["type"][];
+    de?: string;
+  }): Promise<schémaFonctionOublier> {
+    if (de) {
+      de = await uneFois(async (fSuivi: schémaFonctionSuivi<string>) => {
+        return await this.suivreConnexionsDispositifs({
+          f: async (dispositifs) => {
+            const correspondant = dispositifs?.find(
+              (d) => d.infoDispositif.idDispositif === de,
+            );
+            if (correspondant)
+              return await fSuivi(correspondant.infoDispositif.idLibp2p);
+          },
+        });
+      });
+    }
+    const gérerMessage = async ({
+      de: messageDe,
+      message,
+    }: {
+      de: string;
+      message: MessageDirecte;
+    }) => {
+      if (type && !(message.type === type)) return;
+      if (de && !(de === messageDe)) return;
+      await f(message);
+    };
+
+    this.événements.on("messageDirecte", gérerMessage);
+    return async () => {
+      this.événements.off("messageDirecte", gérerMessage);
+    };
+  }
+
+  async direSalut(): Promise<void> {
     const { orbite } = await this.client.attendreSfipEtOrbite();
-    const valeur: ValeurMessageSalut = {
+    const contenu = {
+      idLibp2p: await this.client.obtIdLibp2p(),
+      idDispositif: orbite.identity.id,
+      clefPublique: orbite.identity.publicKey,
+      signatures: orbite.identity.signatures,
+      idCompte: await this.client.obtIdCompte(),
+    };
+    const signature = await this.client.signer({
+      message: JSON.stringify(contenu),
+    });
+    const valeur: MessageGossipSubSalut = {
       type: "Salut !",
       contenu: {
-        idSFIP: (await this.client.obtIdSFIP()).toString(),
-        idDispositif: orbite.identity.id,
-        clefPublique: orbite.identity.publicKey,
-        signatures: orbite.identity.signatures,
-        idCompte: await this.client.obtIdCompte(),
+        contenu,
+        signature,
       },
     };
-    const { publique: clefPublique } = await this.client.encryption.obtClefs();
-    if (this.client.encryption) {
-      valeur.contenu.encryption = {
-        type: this.client.encryption.nom,
-        clefPublique,
-      };
-    }
-    try {
-      await this.envoyerMessageAuDispositif({ msg: valeur, idDispositif: à });
-    } catch (e) {
-      // On peut avoir cette erreur si l'autre poste s'est déconnecté entre-temps
-      if (!e.toString().includes("PublishError.InsufficientPeers")) {
-        throw e;
-      }
-    }
+    await this.envoyerMessageGossipsub({ message: valeur });
   }
 
   async envoyerDemandeRejoindreCompte({
@@ -511,7 +608,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     } else {
       codeSecretOriginal = codeSecret;
     }
-    const msg: ValeurMessageRequêteRejoindreCompte = {
+    const msg: MessageDirecteRequêteRejoindreCompte = {
       type: "Je veux rejoindre ce compte",
       contenu: {
         idDispositif,
@@ -524,80 +621,42 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     await this.envoyerMessageAuDispositif({
       msg,
-      idDispositif: idDispositifQuiInvite,
+      idDispositif: idDispositifQuiInvite!,
     });
   }
 
-  async messageReçu({ msg }: { msg: Message }): Promise<void> {
+  async messageGossipSubReçu({
+    msg,
+  }: {
+    msg: MessageGossipSub;
+  }): Promise<void> {
     if (this._fermé) return;
 
-    const { encrypté, destinataire } = msg;
-
-    if (
-      destinataire &&
-      destinataire !== (await this.client.obtIdSFIP()).toString()
-    )
-      return;
-
-    const données: DonnéesMessage = encrypté
-      ? JSON.parse(
-          await this.client.encryption.décrypter({
-            message: (msg as MessageEncrypté).données,
-            clefPubliqueExpéditeur: (msg as MessageEncrypté)
-              .clefPubliqueExpéditeur,
-          }),
-        )
-      : msg.données;
-
-    let valeur: ValeurMessage;
-    let signature: Signature;
-    try {
-      ({ valeur, signature } = données);
-    } catch {
-      // console.log("Erreur message externe : ", JSON.stringify(données), JSON.stringify(msg));
-      return;
-    }
-
-    // Ignorer les messages de nous-mêmes
     const { orbite } = await this.client.attendreSfipEtOrbite();
-    if (signature.clefPublique === orbite.identity.publicKey) {
-      return;
-    }
 
-    // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
-    const signatureValide = await this.client.vérifierSignature({
-      signature,
-      message: JSON.stringify(valeur),
-    });
-    if (!signatureValide) return;
-
-    const contenu = valeur.contenu;
-
-    switch (valeur.type) {
+    switch (msg.type) {
       case "Salut !": {
-        const contenuSalut = contenu as ContenuMessageSalut;
-        const { clefPublique } = contenuSalut;
+        const { signature, contenu } = msg.contenu;
+
+        // Ignorer les messages de nous-mêmes
+        if (signature.clefPublique === orbite.identity.publicKey) return;
+        const { clefPublique } = contenu;
+
+        // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
+        const signatureValide = await this.client.vérifierSignature({
+          signature,
+          message: JSON.stringify(contenu),
+        });
+        if (!signatureValide) return;
 
         // S'assurer que idDispositif est la même que celle sur la signature
         if (clefPublique !== signature.clefPublique) return;
 
-        await this.recevoirSalut({ message: contenuSalut });
-
-        if (!destinataire)
-          await this.direSalut({ à: contenuSalut.idDispositif }); // Renvoyer le message, si ce n'était pas déjà fait
-        break;
-      }
-      case "Je veux rejoindre ce compte": {
-        const contenuMessage = contenu as ContenuMessageRejoindreCompte;
-
-        await this.client.considérerRequêteRejoindreCompte({
-          requête: contenuMessage,
-        });
+        await this.recevoirSalut({ message: msg.contenu });
 
         break;
       }
     }
-    // this.écouteursMessages[valeur.type]?.(contenu);
   }
 
   async recevoirSalut({
@@ -605,14 +664,17 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }: {
     message: ContenuMessageSalut;
   }): Promise<void> {
-    const dispositifValid = await this._validerInfoMembre({ info: message });
+    const dispositifValid = await this._validerInfoMembre({
+      info: message.contenu,
+    });
     if (!dispositifValid) return;
 
-    // Peut-être possible de convertir à une méthode peer.onDisconnect pour détecter vuÀ ?
-    this.dispositifsEnLigne[message.idDispositif] = {
-      infoDispositif: message,
+    // À faire : Peut-être possible de convertir à une méthode peer.onDisconnect pour détecter vuÀ ?
+    const { idDispositif } = message.contenu;
+    this.dispositifsEnLigne[idDispositif] = {
+      infoDispositif: message.contenu,
       vuÀ:
-        message.idDispositif === (await this.client.obtIdDispositif())
+        idDispositif === (await this.client.obtIdDispositif())
           ? undefined
           : new Date().getTime(),
     };
@@ -1414,14 +1476,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }): Promise<schémaFonctionOublier> {
     const moi: statutDispositif = {
       infoDispositif: {
-        idSFIP: (await this.client.obtIdSFIP()).toString(),
+        idLibp2p: await this.client.obtIdLibp2p(),
         idDispositif: await this.client.obtIdDispositif(),
         idCompte: await this.client.obtIdCompte(),
         clefPublique: (await this.client.obtIdentitéOrbite()).publicKey,
-        encryption: {
-          type: await this.client.encryption.obtNom(),
-          clefPublique: (await this.client.encryption.obtClefs()).publique,
-        },
         signatures: (await this.client.obtIdentitéOrbite()).signatures,
       },
     };
