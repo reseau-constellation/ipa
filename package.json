@@ -1,5 +1,5 @@
 {
-  "version": "1.5.18",
+  "version": "1.6.0",
   "license": "AGPL-3.0-or-later",
   "name": "@constl/ipa",
   "author": "Julien Jean Malard-Adam",
@@ -176,16 +176,11 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@ipshipyard/node-datachannel",
-      "@localfirst/auth",
-      "@localfirst/crdx",
-      "@localfirst/crypto",
-      "@localfirst/shared",
       "classic-level",
       "core-js",
       "electron",
       "esbuild",
       "iso-constants",
-      "msgpackr-extract",
       "node-datachannel"
     ]
   }

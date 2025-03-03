@@ -2232,7 +2232,9 @@ if (isNode || isElectronMain) {
           },
         });
 
-        const val = await rés.attendreQue((x) => !!x && x.membres.length > 1 && x.dispositifs.length > 1);
+        const val = await rés.attendreQue(
+          (x) => !!x && x.membres.length > 1 && x.dispositifs.length > 1,
+        );
 
         expect(val.membres.map((m) => m.infoMembre.idCompte)).to.have.members([
           idsComptes[0],
