@@ -2768,7 +2768,10 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     await this.épingles.fermer();
 
     await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
-    if (this.sfip && !this._sfipExterne) await this.sfip.stop();
+    if (this.sfip && !this._sfipExterne) {
+      await this.sfip.stop();
+      await this.sfip.libp2p.stop();
+    }
 
     // Effacer fichier verrou
     await this.effacerVerrou();
