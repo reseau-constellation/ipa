@@ -107,20 +107,20 @@ const idDispositif = await client.obtIdDispositif();
 
 ```
 
-### `client.obtIdSFIP()`
-Obtenir l'identifiant du nœud de Système de fichiers interplanétaire ([SFIP](https://ipfs.io/)) connecté au compte Constellation.
+### `client.obtIdLibp2p()`
+Obtenir l'identifiant libp2p du dispositif présent.
 
 #### Retour
 | Type | Description |
 | ---- | ----------- |
-| `Promise<ipfs.IDResult>` | L'identifiant SFIP du compte. |
+| `Promise<string>` | L'identifiant libp2p du dispositif. |
 
 #### Exemple
 ```ts
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idSFIP = await client.obtIdSFIP();
+const idLibp2p = await client.obtIdLibp2p();
 
 ```
 

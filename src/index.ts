@@ -7,7 +7,6 @@ export * as mandataire from "@/mandataire/index.js";
 export * as automatisation from "@/automatisation.js";
 export * as bds from "@/bds.js";
 export * as client from "@/client.js";
-export * as encryption from "@/encryption.js";
 export * as épingles from "@/epingles.js";
 export * as favoris from "@/favoris.js";
 export * as licences from "@/licences.js";
