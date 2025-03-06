@@ -298,15 +298,12 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
   }: {
     noms: { [langue: string]: string };
   }): Promise<void> {
-    console.log("sauvegarderNoms")
     const idBdProfil = await this.obtIdBd();
-    console.log({idBdProfil})
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBdProfil,
       type: "keyvalue",
     });
-    console.log({idBdNoms})
     if (!idBdNoms) {
       throw new Error(
         `Permission de modification refusée pour BD ${idBdProfil}.`,

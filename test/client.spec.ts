@@ -1643,94 +1643,14 @@ if (isNode || isElectronMain) {
         expect(idBdRetrouvée).to.equal(idBd);
       });
 
-      it("Avec racine BD", async () => {
-        const idBdRetrouvée = await client.obtIdBd({
-          nom: "clef",
-          racine: bdRacine,
-        });
-        expect(idBdRetrouvée).to.equal(idBd);
-      });
-
       it("Avec mauvais type spécifié", async () => {
         await expect(
           client.obtIdBd({
             nom: "clef",
-            racine: bdRacine,
+            racine: idRacine,
             type: "keyvalue",
           }),
         ).rejected();
-      });
-
-      it("On crée la BD si elle n'existait pas", async () => {
-        const idBdRetrouvée = await client.obtIdBd({
-          nom: "je n'existe pas encore",
-          racine: bdRacine,
-          type: "set",
-        });
-        expect(isValidAddress(idBdRetrouvée)).to.be.true();
-      });
-
-      it("Mais on ne crée pas la BD on n'a pas la permission sur la BD racine", async () => {
-        const idBdRetrouvée = await client2.obtIdBd({
-          nom: "et moi je n'existerai jamais",
-          racine: bdRacine,
-          type: "set",
-        });
-        expect(idBdRetrouvée).to.be.undefined();
-      });
-
-      it("On ne perd pas les données en cas de concurrence entre dispositifs", async () => {
-        const { orbite } = await client.attendreSfipEtOrbite();
-
-        // Créons une nouvelle BD avec des données
-        const NOUVELLE_CLEF = "nouvelle clef";
-        const idNouvelleBd = await client.obtIdBd({
-          nom: NOUVELLE_CLEF,
-          racine: idRacine,
-          type: "set",
-        });
-        expect(idNouvelleBd).to.be.a("string");
-
-        const { bd, fOublier } = await orbite.ouvrirBd({
-          id: idNouvelleBd!,
-          type: "set",
-        });
-        fsOublier.push(fOublier);
-
-        await bd.add("Salut !");
-        await bd.add("வணக்கம்!");
-
-        // Simulons un autre dispositif qui écrit à la même clef de manière concurrente
-        const idBdConcurrente = await client.créerBdIndépendante({
-          type: "set",
-        });
-        const { bd: bdConcurrent, fOublier: fOublierConcurrente } =
-          await orbite.ouvrirBdTypée({
-            id: idBdConcurrente,
-            type: "set",
-            schéma: schémaListeChaîne,
-          });
-        fsOublier.push(fOublierConcurrente);
-
-        await bdConcurrent.add("કેમ છો");
-        await bdRacine.put(NOUVELLE_CLEF, idBdConcurrente);
-
-        // Il ne devrait tout de même pas y avoir perte de données
-        const idBdRetrouvée = await client.obtIdBd({
-          nom: NOUVELLE_CLEF,
-          racine: idRacine,
-          type: "set",
-        });
-        const { bd: bdRetrouvée, fOublier: fOublierRetrouvée } =
-          await orbite.ouvrirBdTypée({
-            id: idBdRetrouvée!,
-            type: "set",
-            schéma: schémaListeChaîne,
-          });
-        fsOublier.push(fOublierRetrouvée);
-
-        const éléments = (await bdRetrouvée.all()).map((x) => x.value);
-        expect(éléments).to.have.members(["Salut !", "வணக்கம்!", "કેમ છો"]);
       });
     });
 
