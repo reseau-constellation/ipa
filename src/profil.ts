@@ -65,13 +65,13 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     });
   }
 
-  async créerBdsInternes({idCompte}: {idCompte: string}): Promise<void> {
+  async créerBdsInternes({ idCompte }: { idCompte: string }): Promise<void> {
     const idProfil = await this.client.obtIdBd({
       nom: this.clef,
       racine: idCompte,
       type: "keyvalue",
     });
-    const {bd: bdBase, fOublier} = await this.client.ouvrirBdTypée({
+    const { bd: bdBase, fOublier } = await this.client.ouvrirBdTypée({
       id: idProfil,
       type: "keyvalue",
       schéma: schémaStructureBdProfil,

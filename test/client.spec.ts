@@ -641,7 +641,7 @@ if (isNode || isElectronMain) {
 
       it("Les changements à la BD suivie sont détectés", async () => {
         const { orbite } = await client.attendreSfipEtOrbite();
-        
+
         idBd = await client.créerBdIndépendante({
           nom: CLEF,
           type: "keyvalue",

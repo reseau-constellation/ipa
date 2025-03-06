@@ -407,9 +407,15 @@ export class Projets extends ComposanteClientListe<string> {
     await this.client.favoris.épinglerFavori({ idObjet: idProjet, épingle });
   }
 
-  async _confirmerPermission({idProjet}: {idProjet: string}): Promise<void> {
-    if (!await this.client.permission({idObjet: idProjet}))
-      throw new Error(`Permission de modification refusée pour le projet ${idProjet}.`)
+  async _confirmerPermission({
+    idProjet,
+  }: {
+    idProjet: string;
+  }): Promise<void> {
+    if (!(await this.client.permission({ idObjet: idProjet })))
+      throw new Error(
+        `Permission de modification refusée pour le projet ${idProjet}.`,
+      );
   }
 
   async suivreÉpingleProjet({
@@ -451,7 +457,7 @@ export class Projets extends ComposanteClientListe<string> {
     bd: TypedKeyValue<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
-    await this._confirmerPermission({idProjet});
+    await this._confirmerPermission({ idProjet });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idProjet,
@@ -509,7 +515,7 @@ export class Projets extends ComposanteClientListe<string> {
     bd: TypedKeyValue<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
-    await this._confirmerPermission({idProjet});
+    await this._confirmerPermission({ idProjet });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idProjet,
@@ -568,7 +574,7 @@ export class Projets extends ComposanteClientListe<string> {
   }: {
     idProjet: string;
   }): Promise<{ bd: TypedSet<string>; fOublier: schémaFonctionOublier }> {
-    await this._confirmerPermission({idProjet});
+    await this._confirmerPermission({ idProjet });
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idProjet,

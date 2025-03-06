@@ -115,7 +115,7 @@ const ContrôleurConstellation =
     address?: string;
   }) => {
     write ??= orbitdb.identity.id;
-    
+
     nom = nom || uuidv4();
     storage =
       storage ||
@@ -135,7 +135,7 @@ const ContrôleurConstellation =
     let fOublierBd: schémaFonctionOublier;
 
     if (write?.startsWith("/contrôleur-constellation/") && !address) {
-      address = write
+      address = write;
     }
 
     if (address) {
@@ -163,7 +163,7 @@ const ContrôleurConstellation =
         type: "set",
         schéma: schémaBdAccès,
         options: {
-          AccessController: ContrôleurAccès({ write, storage })
+          AccessController: ContrôleurAccès({ write, storage }),
         },
       }));
       adresseBdAccès = bd.address;
@@ -177,13 +177,10 @@ const ContrôleurConstellation =
 
     const gestRôles = new GestionnaireAccès(orbitdb);
 
-    const fOublierSuiviBdAccès = await suivreBdAccès(
-      bd, 
-      async (éléments) => {
-        éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
-        await gestRôles.ajouterÉléments(éléments);
-      }
-    );
+    const fOublierSuiviBdAccès = await suivreBdAccès(bd, async (éléments) => {
+      éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
+      await gestRôles.ajouterÉléments(éléments);
+    });
 
     const estAutorisé = async (id: string): Promise<boolean> => {
       return await gestRôles.estAutorisé(id);
@@ -267,12 +264,14 @@ const ContrôleurConstellation =
       const fFinale = async () => {
         const utilisateurs: infoUtilisateur[] = Object.entries(
           gestRôles._accèsUtilisateur,
-        ).filter(([_idCompte, accès]) => accès.rôles.size > 0).map(([idCompte, accès]) => {
-          return {
-            idCompte,
-            rôle: accès.rôles.has(MODÉRATEUR) ? MODÉRATEUR : MEMBRE
-          }
-        });
+        )
+          .filter(([_idCompte, accès]) => accès.rôles.size > 0)
+          .map(([idCompte, accès]) => {
+            return {
+              idCompte,
+              rôle: accès.rôles.has(MODÉRATEUR) ? MODÉRATEUR : MEMBRE,
+            };
+          });
         await f(utilisateurs);
       };
       gestRôles.on("misÀJour", fFinale);

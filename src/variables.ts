@@ -375,9 +375,15 @@ export class Variables extends ComposanteClientListe<string> {
     return idNouvelleBd;
   }
 
-  async _confirmerPermission({idVariable}: {idVariable: string}): Promise<void> {
-    if (!await this.client.permission({idObjet: idVariable}))
-      throw new Error(`Permission de modification refusée pour la variable ${idVariable}.`)
+  async _confirmerPermission({
+    idVariable,
+  }: {
+    idVariable: string;
+  }): Promise<void> {
+    if (!(await this.client.permission({ idObjet: idVariable })))
+      throw new Error(
+        `Permission de modification refusée pour la variable ${idVariable}.`,
+      );
   }
 
   async inviterAuteur({
@@ -403,7 +409,7 @@ export class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     noms: dicTrads;
   }): Promise<void> {
-    await this._confirmerPermission({idVariable});
+    await this._confirmerPermission({ idVariable });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idVariable,
@@ -430,7 +436,7 @@ export class Variables extends ComposanteClientListe<string> {
     langue: string;
     nom: string;
   }): Promise<void> {
-    await this._confirmerPermission({idVariable});
+    await this._confirmerPermission({ idVariable });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idVariable,
@@ -453,7 +459,7 @@ export class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idVariable});
+    await this._confirmerPermission({ idVariable });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idVariable,
@@ -476,7 +482,7 @@ export class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     descriptions: dicTrads;
   }): Promise<void> {
-    await this._confirmerPermission({idVariable});
+    await this._confirmerPermission({ idVariable });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idVariable,
@@ -503,7 +509,7 @@ export class Variables extends ComposanteClientListe<string> {
     langue: string;
     description: string;
   }): Promise<void> {
-    await this._confirmerPermission({idVariable});
+    await this._confirmerPermission({ idVariable });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idVariable,
@@ -527,7 +533,7 @@ export class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idVariable});
+    await this._confirmerPermission({ idVariable });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idVariable,
@@ -598,7 +604,7 @@ export class Variables extends ComposanteClientListe<string> {
     règle: règleVariable;
     idRègle?: string;
   }): Promise<string> {
-    await this._confirmerPermission({idVariable});
+    await this._confirmerPermission({ idVariable });
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idVariable,
@@ -626,7 +632,7 @@ export class Variables extends ComposanteClientListe<string> {
     idVariable: string;
     idRègle: string;
   }): Promise<void> {
-    await this._confirmerPermission({idVariable});
+    await this._confirmerPermission({ idVariable });
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idVariable,

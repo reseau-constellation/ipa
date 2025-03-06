@@ -235,9 +235,15 @@ export class MotsClefs extends ComposanteClientListe<string> {
     return idNouveauMotClef;
   }
 
-  async _confirmerPermission({idMotClef}: {idMotClef: string}): Promise<void> {
-    if (!await this.client.permission({idObjet: idMotClef}))
-      throw new Error(`Permission de modification refusée pour le mot-clef ${idMotClef}.`)
+  async _confirmerPermission({
+    idMotClef,
+  }: {
+    idMotClef: string;
+  }): Promise<void> {
+    if (!(await this.client.permission({ idObjet: idMotClef })))
+      throw new Error(
+        `Permission de modification refusée pour le mot-clef ${idMotClef}.`,
+      );
   }
 
   async inviterAuteur({
@@ -263,7 +269,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
     idMotClef: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    await this._confirmerPermission({idMotClef});
+    await this._confirmerPermission({ idMotClef });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
@@ -290,7 +296,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
     langue: string;
     nom: string;
   }): Promise<void> {
-    await this._confirmerPermission({idMotClef});
+    await this._confirmerPermission({ idMotClef });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
@@ -313,7 +319,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
     idMotClef: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idMotClef})
+    await this._confirmerPermission({ idMotClef });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
@@ -352,7 +358,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
     idMotClef: string;
     descriptions: { [key: string]: string };
   }): Promise<void> {
-    await this._confirmerPermission({idMotClef});
+    await this._confirmerPermission({ idMotClef });
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idMotClef,
@@ -379,7 +385,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
     langue: string;
     description: string;
   }): Promise<void> {
-    await this._confirmerPermission({idMotClef});
+    await this._confirmerPermission({ idMotClef });
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idMotClef,
@@ -402,7 +408,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
     idMotClef: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idMotClef});
+    await this._confirmerPermission({ idMotClef });
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idMotClef,

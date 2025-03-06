@@ -532,9 +532,11 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
-  async _confirmerPermission({idNuée}: {idNuée: string}): Promise<void> {
-    if (!await this.client.permission({idObjet: idNuée}))
-      throw new Error(`Permission de modification refusée pour la nuée ${idNuée}.`)
+  async _confirmerPermission({ idNuée }: { idNuée: string }): Promise<void> {
+    if (!(await this.client.permission({ idObjet: idNuée })))
+      throw new Error(
+        `Permission de modification refusée pour la nuée ${idNuée}.`,
+      );
   }
 
   async suivreDeParents<T>({
@@ -573,7 +575,7 @@ export class Nuées extends ComposanteClientListe<string> {
     clef: string;
     métadonnée: élémentsBd;
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idNuée,
@@ -596,7 +598,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     métadonnées: { [key: string]: string };
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idNuée,
@@ -622,7 +624,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     clef: string;
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idNuée,
@@ -686,7 +688,7 @@ export class Nuées extends ComposanteClientListe<string> {
     langue: string;
     nom: string;
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idNuée,
@@ -709,7 +711,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-     await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idNuée,
@@ -735,7 +737,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idNuée,
@@ -788,7 +790,7 @@ export class Nuées extends ComposanteClientListe<string> {
     langue: string;
     description: string;
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idNuée,
@@ -811,7 +813,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     descriptions: { [langue: string]: string };
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idNuée,
@@ -836,7 +838,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idNuée,
@@ -946,7 +948,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     idsMotsClefs: string | string[];
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
 
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
     const idBdMotsClefs = await this.client.obtIdBd({
@@ -974,7 +976,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     idMotClef: string;
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idNuée,
@@ -1400,7 +1402,7 @@ export class Nuées extends ComposanteClientListe<string> {
       fSuivre,
     });
   }
-    /*
+  /*
   async bloquerContenu({
     idNuée,
     // contenu,
@@ -1439,7 +1441,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     clefTableau?: string;
   }): Promise<string> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idNuée,
@@ -1471,7 +1473,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     idTableau: string;
   }): Promise<void> {
-    await this._confirmerPermission({idNuée});
+    await this._confirmerPermission({ idNuée });
 
     // D'abord effacer l'entrée dans notre liste de tableaux
     const idBdTableaux = await this.client.obtIdBd({
@@ -3396,7 +3398,7 @@ export class Nuées extends ComposanteClientListe<string> {
           type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
-      const tableaux: string[] = (await bdTableaux.all()).map(t=>t.key);
+      const tableaux: string[] = (await bdTableaux.all()).map((t) => t.key);
       for (const t of tableaux) {
         await this.client.tableaux.effacerTableau({ idTableau: t });
       }

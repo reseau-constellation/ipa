@@ -84,7 +84,9 @@ class AccèsUtilisateur {
     const { accès } = await this.initialisé();
     // await f({autorisés: [accès.write]});
     return await suivreBdAccès(accès.bd, async (éléments) => {
-      return await f({ autorisés: [accès.write, ...éléments.map((é) => é.id)] });
+      return await f({
+        autorisés: [accès.write, ...éléments.map((é) => é.id)],
+      });
     });
   }
 

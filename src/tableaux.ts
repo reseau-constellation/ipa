@@ -389,10 +389,15 @@ export class Tableaux {
     return idNouveauTableau;
   }
 
-
-  async _confirmerPermission({idTableau}: {idTableau: string}): Promise<void> {
-    if (!await this.client.permission({idObjet: idTableau}))
-      throw new Error(`Permission de modification refusée pour le tableau ${idTableau}.`)
+  async _confirmerPermission({
+    idTableau,
+  }: {
+    idTableau: string;
+  }): Promise<void> {
+    if (!(await this.client.permission({ idObjet: idTableau })))
+      throw new Error(
+        `Permission de modification refusée pour le tableau ${idTableau}.`,
+      );
   }
 
   @cacheSuivi
@@ -494,7 +499,7 @@ export class Tableaux {
     idColonne: string;
     val: boolean;
   }): Promise<void> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
@@ -896,7 +901,7 @@ export class Tableaux {
     idTableau: string;
     vals: T | T[];
   }): Promise<string[]> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
 
     if (!Array.isArray(vals)) {
       vals = [vals];
@@ -950,7 +955,7 @@ export class Tableaux {
     vals: { [key: string]: élémentsBd | undefined };
     idÉlément: string;
   }): Promise<void> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
@@ -985,7 +990,7 @@ export class Tableaux {
     idTableau: string;
     élément: élémentBdListeDonnées;
   }): Promise<T> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
@@ -1018,7 +1023,7 @@ export class Tableaux {
     idTableau: string;
     idÉlément: string;
   }): Promise<void> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdDonnées = await this.client.obtIdBd({
       nom: "données",
       racine: idTableau,
@@ -1513,7 +1518,7 @@ export class Tableaux {
     idTableau: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
@@ -1541,7 +1546,7 @@ export class Tableaux {
     langue: string;
     nom: string;
   }): Promise<void> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
@@ -1564,7 +1569,7 @@ export class Tableaux {
     idTableau: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idTableau,
@@ -1606,7 +1611,7 @@ export class Tableaux {
     idVariable: string;
     idColonne?: string;
   }): Promise<string> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
@@ -1637,7 +1642,7 @@ export class Tableaux {
     idTableau: string;
     idColonne: string;
   }): Promise<void> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
@@ -1788,7 +1793,7 @@ export class Tableaux {
     idColonne: string;
     règle: R;
   }): Promise<string> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idTableau,
@@ -1826,7 +1831,7 @@ export class Tableaux {
     idTableau: string;
     idRègle: string;
   }): Promise<void> {
-    await this._confirmerPermission({idTableau});
+    await this._confirmerPermission({ idTableau });
     const idBdRègles = await this.client.obtIdBd({
       nom: "règles",
       racine: idTableau,

@@ -944,7 +944,9 @@ const verrou = new Semaphore();
 export class Automatisations extends ComposanteClientDic<{
   [id: string]: SpécificationAutomatisation;
 }> {
-  automatisations: { [key: string]: {auto: AutomatisationActive, fOublier: ()=>void} };
+  automatisations: {
+    [key: string]: { auto: AutomatisationActive; fOublier: () => void };
+  };
   événements: EventEmitter;
 
   fOublier?: schémaFonctionOublier;
@@ -981,9 +983,12 @@ export class Automatisations extends ComposanteClientDic<{
       if (activePourCeDispositif(a, ceDispositif)) {
         if (!Object.keys(this.automatisations).includes(a.id)) {
           const auto = new AutomatisationActive(a, a.id, this.client);
-          const lorsquAutoMiseÀJour = () => this.événements.emit("misÀJour")
+          const lorsquAutoMiseÀJour = () => this.événements.emit("misÀJour");
           auto.on("misÀJour", lorsquAutoMiseÀJour);
-          this.automatisations[a.id] = {auto, fOublier: ()=>auto.off("misÀJour", lorsquAutoMiseÀJour)};
+          this.automatisations[a.id] = {
+            auto,
+            fOublier: () => auto.off("misÀJour", lorsquAutoMiseÀJour),
+          };
         }
       } else {
         const autoActif = this.automatisations[a.id];

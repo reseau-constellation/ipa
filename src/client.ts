@@ -446,7 +446,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       });
       await bdCompte.set(clef, idBd);
     }
-    await this.profil.créerBdsInternes({idCompte});
+    await this.profil.créerBdsInternes({ idCompte });
     await fOublier();
     return idCompte;
   }
@@ -2291,7 +2291,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     type,
   }: {
     nom: K;
-    racine: string
+    racine: string;
     type?: "feed" | "keyvalue" | "ordered-keyvalue" | "set";
   }): Promise<string> {
     const schémaBdRacine: JSONSchemaType<
@@ -2310,18 +2310,18 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     }
 
     // À faire : ajouter signal
-    const idBd = await new Promise<string>(résoudre => {
+    const idBd = await new Promise<string>((résoudre) => {
       let fOublierBdRacine: schémaFonctionOublier | undefined = undefined;
       this.suivreBdDic({
         id: racine,
         schéma: schémaBdRacine,
-        f: contenu => {
+        f: (contenu) => {
           if (contenu[nom]) {
             fOublierBdRacine?.();
-            résoudre(contenu[nom])
+            résoudre(contenu[nom]);
           }
         },
-      }).then(fOublier => fOublierBdRacine = fOublier)
+      }).then((fOublier) => (fOublierBdRacine = fOublier));
     });
 
     // Nous devons confirmer que la base de données spécifiée était du bon genre
@@ -2439,10 +2439,14 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     return await this.suivrePermission({ idObjet: id, f: fFinale });
   }
 
-  async permission({idObjet}: {idObjet: string}): Promise<(typeof rôles)[number] | undefined> {
+  async permission({
+    idObjet,
+  }: {
+    idObjet: string;
+  }): Promise<(typeof rôles)[number] | undefined> {
     return await uneFois(
-      async (fSuivi) => await this.suivrePermission({ idObjet, f: fSuivi})
-    )
+      async (fSuivi) => await this.suivrePermission({ idObjet, f: fSuivi }),
+    );
   }
 
   @cacheSuivi

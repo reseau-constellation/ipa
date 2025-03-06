@@ -1456,7 +1456,7 @@ if (isNode || isElectronMain) {
           langue: "fr",
           description: "Pour les données en hydrologie",
         });
-      })
+      });
       it("Mots-clefs : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
           {
@@ -1534,7 +1534,7 @@ if (isNode || isElectronMain) {
           idVariable,
           règle: {
             typeRègle: "existe",
-            détails: {}
+            détails: {},
           },
         });
       });
@@ -1668,29 +1668,29 @@ if (isNode || isElectronMain) {
         await constls[1].tableaux.sauvegarderNomTableau({
           idTableau,
           langue: "fr",
-          nom: "Nom tableau"
-        })
+          nom: "Nom tableau",
+        });
         const idColonne = await constls[1].tableaux.ajouterColonneTableau({
-          idTableau, idVariable
+          idTableau,
+          idVariable,
         });
         await constls[1].tableaux.ajouterRègleTableau({
           idTableau,
           idColonne,
-          règle: { typeRègle: "existe", détails: {} }
-        })
+          règle: { typeRègle: "existe", détails: {} },
+        });
         await constls[1].tableaux.ajouterÉlément({
           idTableau,
-          vals: {[idColonne]: 123}
-        })
+          vals: { [idColonne]: 123 },
+        });
         await constls[1].bds.rejoindreNuées({
           idBd,
           idsNuées: ["/orbitdb/idDUneNuéeÀRejoindre"],
         });
         await constls[1].bds.ajouterMotsClefsBd({
           idBd,
-          idsMotsClefs: [idMotClef]
+          idsMotsClefs: [idMotClef],
         });
-
       });
       it("Bds : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
@@ -1788,14 +1788,12 @@ if (isNode || isElectronMain) {
         });
         await constls[1].projets.ajouterMotsClefsProjet({
           idProjet,
-          idsMotsClefs: [idMotClef]
+          idsMotsClefs: [idMotClef],
         });
         await constls[1].projets.ajouterBdProjet({
           idProjet,
-          idBd
+          idBd,
         });
-        
-
       });
       it("Projets : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
@@ -1901,19 +1899,20 @@ if (isNode || isElectronMain) {
         });
         await constls[1].nuées.sauvegarderNomsTableauNuée({
           idTableau,
-          noms: {fr: "Nom tableau"}
-        })
+          noms: { fr: "Nom tableau" },
+        });
         const idColonne = await constls[1].nuées.ajouterColonneTableauNuée({
-          idTableau, idVariable
+          idTableau,
+          idVariable,
         });
         await constls[1].nuées.ajouterRègleTableauNuée({
           idTableau,
           idColonne,
-          règle: { typeRègle: "existe", détails: {} }
+          règle: { typeRègle: "existe", détails: {} },
         });
         await constls[1].nuées.ajouterMotsClefsNuée({
           idNuée,
-          idsMotsClefs: [idMotClef]
+          idsMotsClefs: [idMotClef],
         });
       });
       it("Nuées : Refuser invitation", async () => {

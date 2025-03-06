@@ -680,9 +680,9 @@ export class BDs extends ComposanteClientListe<string> {
     return idBd;
   }
 
-  async _confirmerPermission({idBd}: {idBd: string}): Promise<void> {
-    if (!await this.client.permission({idObjet: idBd}))
-      throw new Error(`Permission de modification refusée pour la BD ${idBd}.`)
+  async _confirmerPermission({ idBd }: { idBd: string }): Promise<void> {
+    if (!(await this.client.permission({ idObjet: idBd })))
+      throw new Error(`Permission de modification refusée pour la BD ${idBd}.`);
   }
 
   @cacheSuivi
@@ -1211,7 +1211,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     métadonnées: { [key: string]: élémentsBd };
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
@@ -1239,7 +1239,7 @@ export class BDs extends ComposanteClientListe<string> {
     clef: string;
     métadonnée: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
@@ -1262,7 +1262,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     clef: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
@@ -1301,7 +1301,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     noms: { [key: string]: string };
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
@@ -1329,7 +1329,7 @@ export class BDs extends ComposanteClientListe<string> {
     langue: string;
     nom: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
@@ -1352,7 +1352,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
@@ -1375,7 +1375,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     descriptions: { [key: string]: string };
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
@@ -1402,7 +1402,7 @@ export class BDs extends ComposanteClientListe<string> {
     langue: string;
     description: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
@@ -1425,7 +1425,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     langue: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
@@ -1484,7 +1484,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idsMotsClefs: string | string[];
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
@@ -1511,7 +1511,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idMotClef: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idBd,
@@ -1536,7 +1536,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idsNuées: string | string[];
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     if (!Array.isArray(idsNuées)) idsNuées = [idsNuées];
     const idBdNuées = await this.client.obtIdBd({
       nom: "nuées",
@@ -1563,7 +1563,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idNuée: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdNuées = await this.client.obtIdBd({
       nom: "nuée",
       racine: idBd,
@@ -1588,7 +1588,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     clefTableau?: string;
   }): Promise<string> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
@@ -1618,7 +1618,7 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idTableau: string;
   }): Promise<void> {
-    await this._confirmerPermission({idBd});
+    await this._confirmerPermission({ idBd });
 
     // D'abord effacer l'entrée dans notre liste de tableaux
     const idBdTableaux = await this.client.obtIdBd({
@@ -2494,7 +2494,6 @@ export class BDs extends ComposanteClientListe<string> {
     // D'abord effacer l'entrée dans notre liste de BDs
     await this.client.favoris.désépinglerFavori({ idObjet: idBd });
     await this.enleverDeMesBds({ idBd });
-    
 
     // Et puis maintenant aussi effacer les données et la BD elle-même
     const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
@@ -2522,7 +2521,7 @@ export class BDs extends ComposanteClientListe<string> {
           type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
-      const tableaux: string[] = (await bdTableaux.all()).map(t=>t.key);
+      const tableaux: string[] = (await bdTableaux.all()).map((t) => t.key);
       for (const t of tableaux) {
         await this.client.tableaux.effacerTableau({ idTableau: t });
       }
