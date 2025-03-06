@@ -167,6 +167,7 @@ export type optsOrbite<T extends ServicesLibp2p = ServicesLibp2p> =
 
 export type structureBdCompte = {
   protocoles?: string;
+  nomsDispositifs?: string;
 
   profil?: string;
   motsClefs?: string;
@@ -184,6 +185,7 @@ export const schémaStructureBdCompte: JSONSchemaType<structureBdCompte> = {
   type: "object",
   properties: {
     protocoles: { type: "string", nullable: true },
+    nomsDispositifs: { type: "string", nullable: true },
 
     profil: { type: "string", nullable: true },
     motsClefs: { type: "string", nullable: true },
@@ -356,23 +358,13 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
     this.événements.emit("sfipEtOrbitePrêts", { sfip, orbite: this.orbite });
 
-    const optionsAccèsRacine = {
-      type: nomTypeContrôleurConstellation,
-      write: this.orbite.identity.id,
-      nom: "racine",
-    };
-
     this.idCompte =
       (await this.obtDeStockageLocal({
         clef: "idCompte",
         parCompte: false,
       })) || undefined;
     if (!this.idCompte) {
-      this.idCompte = await this.créerBdIndépendante({
-        type: "keyvalue",
-        optionsAccès: optionsAccèsRacine,
-        nom: "racine",
-      });
+      this.idCompte = await this._créerBdCompte({ orbite });
 
       await this.nommerDispositif({
         type: this.détecterTypeDispositif(),
@@ -406,6 +398,59 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       idCompte: this.idCompte,
       options: épingle,
     });
+  }
+
+  async _créerBdCompte({ orbite }: { orbite: OrbitDB<T> }): Promise<string> {
+    const optionsAccèsRacine = {
+      type: nomTypeContrôleurConstellation,
+      write: orbite.identity.id,
+      nom: "racine",
+    };
+
+    const idCompte = await this.créerBdIndépendante({
+      type: "keyvalue",
+      optionsAccès: optionsAccèsRacine,
+      nom: "racine",
+    });
+    const { bd: bdCompte, fOublier } = await this.ouvrirBdTypée({
+      id: idCompte,
+      type: "keyvalue",
+      schéma: schémaStructureBdCompte,
+    });
+    const optionsAccès = await this.obtOpsAccès({
+      idBd: idCompte,
+    });
+    const sousComposantesDic: (keyof structureBdCompte)[] = [
+      "automatisations",
+      "favoris",
+      "nomsDispositifs",
+      "profil",
+      "protocoles",
+      "réseau",
+    ];
+    const sousComposantesEnsemble: (keyof structureBdCompte)[] = [
+      "motsClefs",
+      "variables",
+      "bds",
+      "projets",
+      "nuées",
+    ];
+    for (const clef of sousComposantesDic) {
+      const idBd = await this.créerBdIndépendante({
+        type: "keyvalue",
+        optionsAccès,
+      });
+      await bdCompte.set(clef, idBd);
+    }
+    for (const clef of sousComposantesEnsemble) {
+      const idBd = await this.créerBdIndépendante({
+        type: "set",
+        optionsAccès,
+      });
+      await bdCompte.set(clef, idBd);
+    }
+    await fOublier();
+    return idCompte;
   }
 
   async épinglerCompte({
@@ -1019,7 +1064,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         const contrôleurConstellation = accès as ContrôleurConstellation;
         const fFinaleSuiviCompte = async () => {
           const mods = contrôleurConstellation.gestRôles._rôles[MODÉRATEUR];
-          await fSuivreBd(mods);
+          await fSuivreBd([...mods]);
         };
         contrôleurConstellation.gestRôles.on("misÀJour", fFinaleSuiviCompte);
         fFinaleSuiviCompte();
@@ -2459,7 +2504,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     const clefRequête = bdRacine.address + ":" + nom;
     await this.verrouObtIdBd.acquire(clefRequête);
 
-    let idBd = (await bdRacine.get(nom)) as string | undefined;
+    const idBd = (await bdRacine.get(nom)) as string | undefined;
 
     const idBdPrécédente = await this.obtDeStockageLocal({ clef: clefRequête });
 
@@ -2491,25 +2536,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       } catch {
         this.verrouObtIdBd.release(clefRequête);
         throw new Error("Bd n'existe pas : " + nom + " " + idBd);
-      }
-    }
-
-    if (!idBd && type) {
-      const accès = bdRacine.access as ContrôleurConstellation;
-
-      const { orbite } = await this.attendreSfipEtOrbite();
-
-      const permission = await accès.estAutorisé(orbite.identity.id);
-
-      if (permission) {
-        const optionsAccès = await this.obtOpsAccès({
-          idBd: bdRacine.address,
-        });
-        idBd = await this.créerBdIndépendante({ type, optionsAccès });
-        if (!idBd) throw new Error("Bd non générée");
-
-        // @ts-expect-error  Aucune idée pourquoi ça fonctionne pas
-        await bdRacine.set(nom, idBd);
       }
     }
 
@@ -2557,8 +2583,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     await fOublier();
     return {
-      address: accès.bd.address,
-      write: accès.write,
+      write: accès.address,
     };
   }
 
