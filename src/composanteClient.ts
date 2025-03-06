@@ -193,7 +193,7 @@ export class ComposanteClientDic<
           f: async (bd) => {
             const idBd = await this.client.obtIdBd({
               nom: this.clef,
-              racine: bd,
+              racine: bd.address,
               type: "keyvalue",
             });
             return await fSuivreBd(idBd);
