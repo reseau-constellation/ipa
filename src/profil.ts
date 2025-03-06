@@ -8,7 +8,7 @@ import {
 
 import { ComposanteClientDic } from "@/composanteClient.js";
 import { cacheSuivi } from "@/décorateursCache.js";
-import type { Constellation } from "@/client.js";
+import { type Constellation } from "@/client.js";
 import type { ÉpingleFavorisAvecId, ÉpingleProfil } from "./favoris";
 
 export const MAX_TAILLE_IMAGE = 500 * 1000; // 500 kilooctets
@@ -63,6 +63,35 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       clef: "profil",
       schémaBdPrincipale: schémaStructureBdProfil,
     });
+  }
+
+  async créerBdsInternes({idCompte}: {idCompte: string}): Promise<void> {
+    const idProfil = await this.client.obtIdBd({
+      nom: this.clef,
+      racine: idCompte,
+      type: "keyvalue",
+    });
+    const {bd: bdBase, fOublier} = await this.client.ouvrirBdTypée({
+      id: idProfil,
+      type: "keyvalue",
+      schéma: schémaStructureBdProfil,
+    });
+    const optionsAccès = await this.client.obtOpsAccès({
+      idBd: bdBase.address,
+    });
+    const idBdNoms = await this.client.créerBdIndépendante({
+      type: "keyvalue",
+      optionsAccès,
+    });
+    await bdBase.set("noms", idBdNoms);
+
+    const idBdContacts = await this.client.créerBdIndépendante({
+      type: "set",
+      optionsAccès,
+    });
+    await bdBase.set("contacts", idBdContacts);
+
+    await fOublier();
   }
 
   async suivreRésolutionÉpingle({
@@ -269,12 +298,15 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
   }: {
     noms: { [langue: string]: string };
   }): Promise<void> {
+    console.log("sauvegarderNoms")
     const idBdProfil = await this.obtIdBd();
+    console.log({idBdProfil})
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBdProfil,
       type: "keyvalue",
     });
+    console.log({idBdNoms})
     if (!idBdNoms) {
       throw new Error(
         `Permission de modification refusée pour BD ${idBdProfil}.`,

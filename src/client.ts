@@ -445,6 +445,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       });
       await bdCompte.set(clef, idBd);
     }
+    await this.profil.créerBdsInternes({idCompte});
     await fOublier();
     return idCompte;
   }
@@ -2289,13 +2290,9 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     type,
   }: {
     nom: K;
-    racine:
-      | string
-      | TypedKeyValue<
-          Partial<{ [k in K]: string } & { [clef: string]: unknown }>
-        >;
+    racine: string
     type?: "feed" | "keyvalue" | "ordered-keyvalue" | "set";
-  }): Promise<string | undefined> {
+  }): Promise<string> {
     const schémaBdRacine: JSONSchemaType<
       { [k in K]: string } & { [clef: string]: élémentsBd }
     > = {
@@ -2311,16 +2308,20 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       throw new Error(`Adresse ${racine} non valide.`);
     }
 
-    const { bd: bdRacine, fOublier } =
-      typeof racine === "string"
-        ? await this.ouvrirBdTypée({
-            id: racine,
-            type: "keyvalue",
-            schéma: schémaBdRacine,
-          })
-        : { bd: racine, fOublier: faisRien };
-
-    const idBd = (await bdRacine.get(nom)) as string | undefined;
+    // À faire : ajouter signal
+    const idBd = await new Promise<string>(résoudre => {
+      let fOublierBdRacine: schémaFonctionOublier | undefined = undefined;
+      this.suivreBdDic({
+        id: racine,
+        schéma: schémaBdRacine,
+        f: contenu => {
+          if (contenu[nom]) {
+            fOublierBdRacine?.();
+            résoudre(contenu[nom])
+          }
+        },
+      }).then(fOublier => fOublierBdRacine = fOublier)
+    });
 
     // Nous devons confirmer que la base de données spécifiée était du bon genre
     if (typeof idBd === "string" && type) {
@@ -2336,9 +2337,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       }
     }
 
-    if (fOublier) await fOublier();
-
-    return typeof idBd === "string" ? idBd : undefined;
+    return idBd;
   }
 
   async créerBdIndépendante({
