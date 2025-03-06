@@ -289,7 +289,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
   motsDePasseRejoindreCompte: { [key: string]: number };
   ennikkai: எண்ணிக்கை;
 
-  verrouObtIdBd: Semaphore;
   _intervaleVerrou?: NodeJS.Timeout;
   signaleurArrêt: AbortController;
 
@@ -301,8 +300,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     this.sujet_réseau = opts.sujetRéseau || "réseau-constellation";
     this.motsDePasseRejoindreCompte = {};
-
-    this.verrouObtIdBd = new Semaphore();
 
     this._orbiteExterne = this._sfipExterne = false;
 
@@ -1439,183 +1436,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     fOublierNouvelle();
   }
 
-  async combinerBds({
-    idBdBase,
-    idBd2,
-  }: {
-    idBdBase: string;
-    idBd2: string;
-  }): Promise<void> {
-    // Extraire le type
-    const { bd, fOublier } = await this.ouvrirBd({ id: idBdBase });
-    const type = bd.type;
-    await fOublier();
-
-    // Un peu dupliqué, à cause de TypeScript
-    switch (type) {
-      case "keyvalue": {
-        const { bd: bdBase, fOublier: fOublierBase } = await this.ouvrirBd({
-          id: idBdBase,
-          type: "keyvalue",
-        });
-        const { bd: bd2, fOublier: fOublier2 } = await this.ouvrirBd({
-          id: idBd2,
-          type: "keyvalue",
-        });
-        await this.combinerBdsDict({
-          bdBase,
-          bd2,
-        });
-        await fOublierBase();
-        await fOublier2();
-        break;
-      }
-      case "set": {
-        const { bd: bdBase, fOublier: fOublierBase } = await this.ouvrirBd({
-          id: idBdBase,
-          type: "set",
-        });
-        const { bd: bd2, fOublier: fOublier2 } = await this.ouvrirBd({
-          id: idBd2,
-          type: "set",
-        });
-        await this.combinerBdsEnsemble({
-          bdBase,
-          bd2,
-        });
-        await fOublierBase();
-        await fOublier2();
-        break;
-      }
-
-      default:
-        throw new Error(`Type de BD ${type} non supporté.`);
-    }
-  }
-
-  async combinerBdsDict({
-    bdBase,
-    bd2,
-  }: {
-    bdBase: KeyValueDatabase;
-    bd2: KeyValueDatabase;
-  }): Promise<void>;
-  async combinerBdsDict<T extends { [clef: string]: unknown }>({
-    bdBase,
-    bd2,
-  }: {
-    bdBase: TypedKeyValue<T>;
-    bd2: TypedKeyValue<T>;
-  }): Promise<void>;
-  async combinerBdsDict<T extends { [clef: string]: unknown }>({
-    bdBase,
-    bd2,
-  }: {
-    bdBase: TypedKeyValue<T> | KeyValueDatabase;
-    bd2: TypedKeyValue<T> | KeyValueDatabase;
-  }): Promise<void> {
-    const contenuBd2 = Object.fromEntries(
-      (await bd2.all()).map((x) => [x.key, x.value]),
-    );
-
-    for (const [c, v] of Object.entries(contenuBd2)) {
-      const valBdBase = await bdBase.get(c);
-      if (valBdBase === v) {
-        continue;
-      } else if (valBdBase === undefined) {
-        await bdBase.put(c, v as T[typeof c]);
-      } else if (isValidAddress(valBdBase) && isValidAddress(v)) {
-        await this.combinerBds({
-          idBdBase: valBdBase as string,
-          idBd2: v as string,
-        });
-      }
-    }
-  }
-
-  async combinerBdsEnsemble<T extends élémentsBd>({
-    bdBase,
-    bd2,
-  }: {
-    bdBase: TypedSet<T> | SetDatabaseType;
-    bd2: TypedSet<T> | SetDatabaseType;
-  }): Promise<void>;
-  async combinerBdsEnsemble<T extends { [key: string]: élémentsBd }>({
-    bdBase,
-    bd2,
-    index,
-  }: {
-    bdBase: TypedSet<T> | SetDatabaseType;
-    bd2: TypedSet<T> | SetDatabaseType;
-    index: string[];
-  }): Promise<void>;
-  async combinerBdsEnsemble<
-    T extends élémentsBd | { [key: string]: élémentsBd },
-  >({
-    bdBase,
-    bd2,
-    index,
-  }: {
-    bdBase:
-      | TypedSet<{ [key: string]: élémentsBd } | élémentsBd>
-      | SetDatabaseType;
-    bd2: TypedSet<{ [key: string]: élémentsBd } | élémentsBd> | SetDatabaseType;
-    index?: string[];
-  }): Promise<void> {
-    const contenuBdBase = await bdBase.all();
-    const contenuBd2 = await bd2.all();
-
-    for (const é of contenuBd2) {
-      const valBd2 = é.value as T; // Note : peut-être existe-t-il une solution plus sécuritaire ?
-
-      if (index) {
-        if (typeof valBd2 !== "object")
-          throw new Error(`Erreur combinaison ensembles : ${typeof valBd2}`);
-        const existant = contenuBdBase.find(
-          (x) =>
-            typeof x.value === "object" &&
-            index.every(
-              (i) =>
-                (x.value as Record<string, unknown>)[i] ===
-                (valBd2 as Record<string, unknown>)[i],
-            ),
-        );
-
-        if (!existant) {
-          // Si pas d'existant, ajouter le nouvel élément
-          await bdBase.add(valBd2);
-        } else {
-          const valExistant = existant.value;
-
-          // Si existant, combiner et mettre à jour seulement si différents
-          if (!deepEqual(valExistant, valBd2)) {
-            const combiné = Object.assign({}, valExistant) as {
-              [clef: string]: élémentsBd;
-            };
-            for (const [c, v] of Object.entries(valBd2)) {
-              if (combiné[c] === undefined) {
-                combiné[c] = v;
-              } else if (!deepEqual(combiné[c], v)) {
-                if (isValidAddress(combiné[c]) && isValidAddress(v)) {
-                  await this.combinerBds({
-                    idBdBase: combiné[c] as string,
-                    idBd2: v as string,
-                  });
-                }
-              }
-            }
-            await bdBase.del(existant.value as T);
-            await bdBase.add(combiné);
-          }
-        }
-      } else {
-        if (!contenuBdBase.some((x) => deepEqual(x.value, valBd2))) {
-          await bdBase.add(valBd2);
-        }
-      }
-    }
-  }
-
   async suivreBd<
     U extends { [clef: string]: élémentsBd },
     T extends TypedKeyValue<U> = TypedKeyValue<U>,
@@ -2501,26 +2321,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           })
         : { bd: racine, fOublier: faisRien };
 
-    const clefRequête = bdRacine.address + ":" + nom;
-    await this.verrouObtIdBd.acquire(clefRequête);
-
     const idBd = (await bdRacine.get(nom)) as string | undefined;
-
-    const idBdPrécédente = await this.obtDeStockageLocal({ clef: clefRequête });
-
-    if (typeof idBd === "string" && idBdPrécédente && idBd !== idBdPrécédente) {
-      try {
-        await this.combinerBds({
-          idBdBase: idBd,
-          idBd2: idBdPrécédente,
-        });
-
-        await this.effacerBd({ id: idBdPrécédente });
-        await this.sauvegarderAuStockageLocal({ clef: clefRequête, val: idBd });
-      } catch {
-        // Rien à faire ; on démissionne !
-      }
-    }
 
     // Nous devons confirmer que la base de données spécifiée était du bon genre
     if (typeof idBd === "string" && type) {
@@ -2530,21 +2331,14 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           type,
         });
         await fOublierBd();
-
-        this.verrouObtIdBd.release(clefRequête);
         return idBd;
       } catch {
-        this.verrouObtIdBd.release(clefRequête);
         throw new Error("Bd n'existe pas : " + nom + " " + idBd);
       }
     }
 
-    if (typeof idBd === "string")
-      await this.sauvegarderAuStockageLocal({ clef: clefRequête, val: idBd });
-
     if (fOublier) await fOublier();
 
-    this.verrouObtIdBd.release(clefRequête);
     return typeof idBd === "string" ? idBd : undefined;
   }
 
