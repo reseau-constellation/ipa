@@ -10,4 +10,4 @@ export type infoUtilisateur = {
   idCompte: string;
 };
 
-export type objRôles = { [key in (typeof rôles)[number]]: string[] };
+export type objRôles = { [key in (typeof rôles)[number]]: Set<string> };
