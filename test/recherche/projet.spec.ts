@@ -272,7 +272,7 @@ describe("Rechercher projets", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idProjet = await client.bds.créerBd({ licence: "ODbl-1_0" });
+      idProjet = await client.projets.créerProjet();
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
