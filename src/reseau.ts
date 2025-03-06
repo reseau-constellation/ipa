@@ -35,7 +35,7 @@ import { ComposanteClientDic } from "./composanteClient.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import type { Pushable } from "it-pushable";
-// import type {Sink} from 'it-stream-types';
+import pRetry, {AbortError} from 'p-retry';
 
 import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
 import type { infoScore } from "@/bds.js";
@@ -408,10 +408,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const idPairDestinataire = peerIdFromString(idLibp2pDestinataire);
     await sfip.libp2p.dial(idPairDestinataire);
 
-    const flux = await sfip.libp2p.dialProtocol(
-      idPairDestinataire,
-      PROTOCOLE_CONSTELLATION,
-      { signal: signalCombiné, runOnLimitedConnection: true },
+    const flux = await pRetry(async () => {
+      if (signalCombiné.aborted) throw new AbortError("Opération annulée");
+      return await sfip.libp2p.dialProtocol(
+        idPairDestinataire,
+        PROTOCOLE_CONSTELLATION,
+        { signal: signalCombiné, runOnLimitedConnection: true },
+      )}
     );
     signalCombiné.clear();
 
