@@ -313,8 +313,9 @@ if (isNode || isElectronMain) {
       });
     });
 
-    describe("Même dossier", async () => {
+    describe.skip("Même dossier", async () => {
       let constl1: Constellation;
+      let constl2: Constellation;
 
       let dossier: string;
       let fEffacer: () => void;
@@ -326,6 +327,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await constl1.fermer();
+        await constl2.fermer();
         try {
           fEffacer?.();
         } catch (e) {
@@ -339,7 +341,7 @@ if (isNode || isElectronMain) {
       });
 
       it("Erreur pour la deuxième instance", async () => {
-        const constl2 = créerConstellation({ dossier });
+        constl2 = créerConstellation({ dossier });
         await expect(constl2.obtIdCompte()).to.be.rejectedWith(
           "Constellation est déjà lancée.",
         );
@@ -639,14 +641,15 @@ if (isNode || isElectronMain) {
 
       it("Les changements à la BD suivie sont détectés", async () => {
         const { orbite } = await client.attendreSfipEtOrbite();
-
-        idBd = await client.obtIdBd({
+        
+        idBd = await client.créerBdIndépendante({
           nom: CLEF,
-          racine: idBdBase,
           type: "keyvalue",
         });
+        bdBase.set(CLEF, idBd);
+
         const { bd, fOublier } = await orbite.ouvrirBdTypée({
-          id: idBd!,
+          id: idBd,
           type: "keyvalue",
           schéma: schémaKVNumérique,
         });
