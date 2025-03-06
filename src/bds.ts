@@ -9,6 +9,7 @@ import {
   uneFois,
   zipper,
   idcValide,
+  adresseOrbiteValide,
 } from "@constl/utils-ipa";
 import toBuffer from "it-to-buffer";
 import { v4 as uuidv4 } from "uuid";
@@ -357,7 +358,7 @@ export class BDs extends ComposanteClientListe<string> {
     if (licenceContenu) await bdBD.set("licenceContenu", licenceContenu);
 
     const accès = bdBD.access as ContrôleurConstellation;
-    const optionsAccès = { address: accès.address };
+    const optionsAccès = { write: accès.address };
 
     const idBdMétadonnées = await this.client.créerBdIndépendante({
       type: "keyvalue",
@@ -2506,22 +2507,24 @@ export class BDs extends ComposanteClientListe<string> {
 
   async effacerBd({ idBd }: { idBd: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs
-    const { bd: bdRacine, fOublier } = await this.client.ouvrirBdTypée({
-      id: await this.obtIdBd(),
-      type: "set",
-      schéma: schémaBdPrincipale,
-    });
-    await bdRacine.del(idBd);
-    await fOublier();
+    await this.client.favoris.désépinglerFavori({ idObjet: idBd });
+    await this.enleverDeMesBds({ idBd });
+    
 
     // Et puis maintenant aussi effacer les données et la BD elle-même
-    for (const clef of ["noms", "descriptions", "motsClefs"]) {
-      const idSousBd = await this.client.obtIdBd({
-        nom: clef,
-        racine: idBd,
-      });
-      if (idSousBd) await this.client.effacerBd({ id: idSousBd });
+    const { bd: bdBd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBd,
+      type: "keyvalue",
+      schéma: schémaStructureBdBd,
+    });
+    const contenuBd = await bdBd.all();
+    for (const item of contenuBd) {
+      if (item.key === "tableaux") continue;
+      if (typeof item.value === "string" && adresseOrbiteValide(item.value))
+        await this.client.effacerBd({ id: item.value });
     }
+    await fOublier();
+
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
@@ -2534,16 +2537,12 @@ export class BDs extends ComposanteClientListe<string> {
           type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
-      const tableaux: string[] = Object.keys(bdTableaux.all);
+      const tableaux: string[] = (await bdTableaux.all()).map(t=>t.key);
       for (const t of tableaux) {
         await this.client.tableaux.effacerTableau({ idTableau: t });
       }
       fOublierTableaux();
-      await this.client.effacerBd({ id: idBdTableaux });
     }
-
-    await this.enleverDeMesBds({ idBd });
-    await this.client.favoris.désépinglerFavori({ idObjet: idBd });
 
     await this.client.effacerBd({ id: idBd });
   }

@@ -1,4 +1,5 @@
 import {
+  adresseOrbiteValide,
   attendreStabilité,
   faisRien,
   ignorerNonDéfinis,
@@ -282,7 +283,7 @@ export class Nuées extends ComposanteClientListe<string> {
       });
 
     const accès = bdNuée.access as ContrôleurConstellation;
-    const optionsAccès = { address: accès.address };
+    const optionsAccès = { write: accès.address };
 
     await bdNuée.set("type", "nuée");
 
@@ -561,11 +562,11 @@ export class Nuées extends ComposanteClientListe<string> {
   async sauvegarderMétadonnéeNuée({
     idNuée,
     clef,
-    valeur,
+    métadonnée,
   }: {
     idNuée: string;
     clef: string;
-    valeur: élémentsBd;
+    métadonnée: élémentsBd;
   }): Promise<void> {
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
@@ -582,7 +583,7 @@ export class Nuées extends ComposanteClientListe<string> {
       type: "keyvalue",
       schéma: schémaStructureBdMétadonnées,
     });
-    await bdMétadonnées.set(clef, valeur);
+    await bdMétadonnées.set(clef, métadonnée);
     await fOublier();
   }
 
@@ -1156,7 +1157,7 @@ export class Nuées extends ComposanteClientListe<string> {
     await bd.set("philosophie", philosophie);
 
     const accès = bd.access as ContrôleurConstellation;
-    const optionsAccès = { address: accès.address };
+    const optionsAccès = { write: accès.address };
     const idBdMembres = await this.client.créerBdIndépendante({
       type: "keyvalue",
       optionsAccès,
@@ -3404,18 +3405,23 @@ export class Nuées extends ComposanteClientListe<string> {
 
   async effacerNuée({ idNuée }: { idNuée: string }): Promise<void> {
     // D'abord effacer l'entrée dans notre liste de BDs
-    const { bd: bdRacine, fOublier } = await this.obtBd();
-    await bdRacine.del(idNuée);
-    await fOublier();
+    await this.enleverDeMesNuées({ idNuée });
+    await this.client.favoris.désépinglerFavori({ idObjet: idNuée });
 
     // Et puis maintenant aussi effacer les tableaux et la Nuée elle-même
-    for (const clef of ["noms", "descriptions", "motsClefs"]) {
-      const idBd = await this.client.obtIdBd({
-        nom: clef,
-        racine: idNuée,
-      });
-      if (idBd) await this.client.effacerBd({ id: idBd });
+    const { bd: bdNuée, fOublier } = await this.client.ouvrirBdTypée({
+      id: idNuée,
+      type: "keyvalue",
+      schéma: schémaStructureBdNuée,
+    });
+    const contenuBd = await bdNuée.all();
+    for (const item of contenuBd) {
+      if (item.key === "tableaux") continue;
+      if (typeof item.value === "string" && adresseOrbiteValide(item.value))
+        await this.client.effacerBd({ id: item.value });
     }
+    await fOublier();
+
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idNuée,
@@ -3428,16 +3434,13 @@ export class Nuées extends ComposanteClientListe<string> {
           type: "ordered-keyvalue",
           schéma: schémaBdTableauxDeBd,
         });
-      const tableaux: string[] = Object.keys(bdTableaux.all);
+      const tableaux: string[] = (await bdTableaux.all()).map(t=>t.key);
       for (const t of tableaux) {
         await this.client.tableaux.effacerTableau({ idTableau: t });
       }
       fOublierTableaux();
-      await this.client.effacerBd({ id: idBdTableaux });
     }
 
-    await this.enleverDeMesNuées({ idNuée });
-    await this.client.favoris.désépinglerFavori({ idObjet: idNuée });
     await this.client.effacerBd({ id: idNuée });
   }
 }

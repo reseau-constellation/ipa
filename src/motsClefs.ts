@@ -1,4 +1,5 @@
 import { JSONSchemaType } from "ajv";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 import {
   type schémaFonctionOublier,
   type schémaFonctionSuivi,
@@ -118,7 +119,7 @@ export class MotsClefs extends ComposanteClientListe<string> {
       });
 
     const accès = bdMotClef.access as unknown as ContrôleurConstellation;
-    const optionsAccès = { address: accès.address };
+    const optionsAccès = { write: accès.address };
 
     await bdMotClef.set("type", "motClef");
 
@@ -458,13 +459,17 @@ export class MotsClefs extends ComposanteClientListe<string> {
     await this.client.favoris.désépinglerFavori({ idObjet: idMotClef });
 
     // Effacer le mot-clef lui-même
-    for (const clef of ["noms"]) {
-      const idBd = await this.client.obtIdBd({
-        nom: clef,
-        racine: idMotClef,
-      });
-      if (idBd) await this.client.effacerBd({ id: idBd });
+    const { bd: bdMotClef, fOublier } = await this.client.ouvrirBdTypée({
+      id: idMotClef,
+      type: "keyvalue",
+      schéma: schémaBdMotClef,
+    });
+    const contenuBd = await bdMotClef.all();
+    for (const item of contenuBd) {
+      if (item.value && adresseOrbiteValide(item.value))
+        await this.client.effacerBd({ id: item.value });
     }
+    await fOublier();
     await this.client.effacerBd({ id: idMotClef });
   }
 

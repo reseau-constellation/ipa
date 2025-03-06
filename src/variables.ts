@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { JSONSchemaType } from "ajv";
+import { adresseOrbiteValide } from "@constl/utils-ipa";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import { Constellation } from "@/client.js";
 import { cacheSuivi } from "@/décorateursCache.js";
@@ -198,7 +199,7 @@ export class Variables extends ComposanteClientListe<string> {
     const accès = bdVariable.access as ContrôleurConstellation;
     if (!estUnContrôleurConstellation(accès))
       throw Error("Contrôleur de type non reconnu.");
-    const optionsAccès = { address: accès.address };
+    const optionsAccès = { write: accès.address };
 
     await bdVariable.set("type", "variable");
 
@@ -938,13 +939,18 @@ export class Variables extends ComposanteClientListe<string> {
     await this.client.favoris.désépinglerFavori({ idObjet: idVariable });
 
     // Effacer la variable elle-même
-    for (const clef of ["noms", "descriptions", "règles"]) {
-      const idBd = await this.client.obtIdBd({
-        nom: clef,
-        racine: idVariable,
-      });
-      if (idBd) await this.client.effacerBd({ id: idBd });
+    const { bd: bdMotClef, fOublier } = await this.client.ouvrirBdTypée({
+      id: idVariable,
+      type: "keyvalue",
+      schéma: schémaStructureBdVariable,
+    });
+    const contenuBd = await bdMotClef.all();
+    for (const item of contenuBd) {
+      if (typeof item.value === "string" && adresseOrbiteValide(item.value))
+        await this.client.effacerBd({ id: item.value });
     }
+    await fOublier();
+
     await this.client.effacerBd({ id: idVariable });
   }
 }

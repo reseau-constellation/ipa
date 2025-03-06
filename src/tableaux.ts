@@ -1262,7 +1262,7 @@ export class Tableaux {
         });
 
       const accès = bdNuée.access as ContrôleurConstellation;
-      const optionsAccès = { address: accès.address };
+      const optionsAccès = { write: accès.address };
       await fOublierBdTableau();
       const idOrbite = await this.client.créerBdIndépendante({
         type: "keyvalue",

@@ -8,6 +8,7 @@ type ContrôleurConstellation = Awaited<
 
 import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import {
+  adresseOrbiteValide,
   attendreStabilité,
   suivreBdsDeFonctionListe,
   traduire,
@@ -235,7 +236,7 @@ export class Projets extends ComposanteClientListe<string> {
     if (!estUnContrôleurConstellation(accès))
       throw Error("Contrôleur de type non reconnu.");
 
-    const optionsAccès = { address: accès.address };
+    const optionsAccès = { write: accès.address };
 
     await bdProjet.set("type", "projet");
 
@@ -1180,13 +1181,17 @@ export class Projets extends ComposanteClientListe<string> {
     await this.client.favoris.désépinglerFavori({ idObjet: idProjet });
 
     // Et puis maintenant aussi effacer les données et le projet lui-même
-    for (const clef of ["noms", "descriptions", "motsClefs", "bds"]) {
-      const idBd = await this.client.obtIdBd({
-        nom: clef,
-        racine: idProjet,
-      });
-      if (idBd) await this.client.effacerBd({ id: idBd });
+    const { bd: bdProjet, fOublier } = await this.client.ouvrirBdTypée({
+      id: idProjet,
+      type: "keyvalue",
+      schéma: schémaStructureBdProjet,
+    });
+    const contenuBd = await bdProjet.all();
+    for (const item of contenuBd) {
+      if (typeof item.value === "string" && adresseOrbiteValide(item.value))
+        await this.client.effacerBd({ id: item.value });
     }
+    await fOublier();
 
     await this.client.effacerBd({ id: idProjet });
   }
