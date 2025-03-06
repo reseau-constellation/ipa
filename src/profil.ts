@@ -217,11 +217,6 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       racine: idBdProfil,
       type: "set",
     });
-    if (!idBdContacts) {
-      throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`,
-      );
-    }
 
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdContacts,
@@ -245,11 +240,6 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       racine: idBdProfil,
       type: "set",
     });
-    if (!idBdContacts) {
-      throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`,
-      );
-    }
 
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdContacts,
@@ -304,11 +294,6 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       racine: idBdProfil,
       type: "keyvalue",
     });
-    if (!idBdNoms) {
-      throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`,
-      );
-    }
 
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
@@ -328,11 +313,6 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
       racine: idBdProfil,
       type: "keyvalue",
     });
-    if (!idBdNoms) {
-      throw new Error(
-        `Permission de modification refusée pour BD ${idBdProfil}.`,
-      );
-    }
 
     const { bd, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,

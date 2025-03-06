@@ -13,6 +13,7 @@ import {
   ignorerNonDéfinis,
   sauvegarderFichierZip,
   toBuffer,
+  uneFois,
 } from "@constl/utils-ipa";
 import {
   TypedFeed,
@@ -2436,6 +2437,12 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       await f(rôle !== undefined);
     };
     return await this.suivrePermission({ idObjet: id, f: fFinale });
+  }
+
+  async permission({idObjet}: {idObjet: string}): Promise<(typeof rôles)[number] | undefined> {
+    return await uneFois(
+      async (fSuivi) => await this.suivrePermission({ idObjet, f: fSuivi})
+    )
   }
 
   @cacheSuivi

@@ -235,6 +235,11 @@ export class MotsClefs extends ComposanteClientListe<string> {
     return idNouveauMotClef;
   }
 
+  async _confirmerPermission({idMotClef}: {idMotClef: string}): Promise<void> {
+    if (!await this.client.permission({idObjet: idMotClef}))
+      throw new Error(`Permission de modification refusée pour le mot-clef ${idMotClef}.`)
+  }
+
   async inviterAuteur({
     idMotClef,
     idCompteAuteur,
@@ -258,16 +263,12 @@ export class MotsClefs extends ComposanteClientListe<string> {
     idMotClef: string;
     noms: { [key: string]: string };
   }): Promise<void> {
+    await this._confirmerPermission({idMotClef});
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
       type: "keyvalue",
     });
-    if (!idBdNoms) {
-      throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`,
-      );
-    }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
@@ -289,16 +290,12 @@ export class MotsClefs extends ComposanteClientListe<string> {
     langue: string;
     nom: string;
   }): Promise<void> {
+    await this._confirmerPermission({idMotClef});
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
       type: "keyvalue",
     });
-    if (!idBdNoms) {
-      throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`,
-      );
-    }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
@@ -316,16 +313,12 @@ export class MotsClefs extends ComposanteClientListe<string> {
     idMotClef: string;
     langue: string;
   }): Promise<void> {
+    await this._confirmerPermission({idMotClef})
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idMotClef,
       type: "keyvalue",
     });
-    if (!idBdNoms) {
-      throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`,
-      );
-    }
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
@@ -359,16 +352,12 @@ export class MotsClefs extends ComposanteClientListe<string> {
     idMotClef: string;
     descriptions: { [key: string]: string };
   }): Promise<void> {
+    await this._confirmerPermission({idMotClef});
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idMotClef,
       type: "keyvalue",
     });
-    if (!idBdDescriptions) {
-      throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`,
-      );
-    }
 
     const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescriptions,
@@ -390,16 +379,12 @@ export class MotsClefs extends ComposanteClientListe<string> {
     langue: string;
     description: string;
   }): Promise<void> {
+    await this._confirmerPermission({idMotClef});
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idMotClef,
       type: "keyvalue",
     });
-    if (!idBdDescriptions) {
-      throw new Error(
-        `Permission de modification refusée pour mot clef ${idMotClef}.`,
-      );
-    }
 
     const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescriptions,
@@ -411,22 +396,18 @@ export class MotsClefs extends ComposanteClientListe<string> {
   }
 
   async effacerDescriptionMotClef({
-    id,
+    idMotClef,
     langue,
   }: {
-    id: string;
+    idMotClef: string;
     langue: string;
   }): Promise<void> {
+    await this._confirmerPermission({idMotClef});
     const idBdDescriptions = await this.client.obtIdBd({
       nom: "descriptions",
-      racine: id,
+      racine: idMotClef,
       type: "keyvalue",
     });
-    if (!idBdDescriptions) {
-      throw new Error(
-        `Permission de modification refusée pour mot clef ${id}.`,
-      );
-    }
 
     const { bd: bdDescriptions, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescriptions,

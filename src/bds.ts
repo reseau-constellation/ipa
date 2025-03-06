@@ -680,6 +680,11 @@ export class BDs extends ComposanteClientListe<string> {
     return idBd;
   }
 
+  async _confirmerPermission({idBd}: {idBd: string}): Promise<void> {
+    if (!await this.client.permission({idObjet: idBd}))
+      throw new Error(`Permission de modification refusée pour la BD ${idBd}.`)
+  }
+
   @cacheSuivi
   async suivreParent({
     idBd,
@@ -1206,13 +1211,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     métadonnées: { [key: string]: élémentsBd };
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdMétadonnées)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdMétadonnées,
@@ -1235,13 +1239,12 @@ export class BDs extends ComposanteClientListe<string> {
     clef: string;
     métadonnée: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdMétadonnées)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdMétadonnées,
@@ -1259,13 +1262,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     clef: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdMétadonnées = await this.client.obtIdBd({
       nom: "métadonnées",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdMétadonnées)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdMétadonnées, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdMétadonnées,
@@ -1299,13 +1301,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     noms: { [key: string]: string };
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
@@ -1328,13 +1329,12 @@ export class BDs extends ComposanteClientListe<string> {
     langue: string;
     nom: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
@@ -1352,13 +1352,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     langue: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdNoms)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdNoms, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNoms,
@@ -1376,13 +1375,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     descriptions: { [key: string]: string };
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
@@ -1404,13 +1402,12 @@ export class BDs extends ComposanteClientListe<string> {
     langue: string;
     description: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
@@ -1428,13 +1425,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     langue: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idBd,
       type: "keyvalue",
     });
-    if (!idBdDescr)
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
 
     const { bd: bdDescr, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdDescr,
@@ -1488,15 +1484,13 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idsMotsClefs: string | string[];
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     if (!Array.isArray(idsMotsClefs)) idsMotsClefs = [idsMotsClefs];
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idBd,
       type: "set",
     });
-    if (!idBdMotsClefs) {
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
-    }
 
     const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdMotsClefs,
@@ -1517,14 +1511,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idMotClef: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idBd,
       type: "set",
     });
-    if (!idBdMotsClefs) {
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
-    }
 
     const { bd: bdMotsClefs, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdMotsClefs,
@@ -1544,15 +1536,13 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idsNuées: string | string[];
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     if (!Array.isArray(idsNuées)) idsNuées = [idsNuées];
     const idBdNuées = await this.client.obtIdBd({
       nom: "nuées",
       racine: idBd,
       type: "set",
     });
-    if (!idBdNuées) {
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
-    }
 
     const { bd: bdNuées, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNuées,
@@ -1573,14 +1563,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idNuée: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
     const idBdNuées = await this.client.obtIdBd({
       nom: "nuée",
       racine: idBd,
       type: "set",
     });
-    if (!idBdNuées) {
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
-    }
 
     const { bd: bdNuées, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdNuées,
@@ -1600,14 +1588,12 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     clefTableau?: string;
   }): Promise<string> {
+    await this._confirmerPermission({idBd});
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
       type: "ordered-keyvalue",
     });
-    if (!idBdTableaux) {
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
-    }
 
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdTableaux,
@@ -1632,15 +1618,14 @@ export class BDs extends ComposanteClientListe<string> {
     idBd: string;
     idTableau: string;
   }): Promise<void> {
+    await this._confirmerPermission({idBd});
+
     // D'abord effacer l'entrée dans notre liste de tableaux
     const idBdTableaux = await this.client.obtIdBd({
       nom: "tableaux",
       racine: idBd,
       type: "ordered-keyvalue",
     });
-    if (!idBdTableaux) {
-      throw new Error(`Permission de modification refusée pour BD ${idBd}.`);
-    }
 
     const { bd: bdTableaux, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdTableaux,

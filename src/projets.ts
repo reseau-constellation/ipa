@@ -407,6 +407,11 @@ export class Projets extends ComposanteClientListe<string> {
     await this.client.favoris.épinglerFavori({ idObjet: idProjet, épingle });
   }
 
+  async _confirmerPermission({idProjet}: {idProjet: string}): Promise<void> {
+    if (!await this.client.permission({idObjet: idProjet}))
+      throw new Error(`Permission de modification refusée pour le projet ${idProjet}.`)
+  }
+
   async suivreÉpingleProjet({
     idProjet,
     f,
@@ -446,16 +451,12 @@ export class Projets extends ComposanteClientListe<string> {
     bd: TypedKeyValue<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
+    await this._confirmerPermission({idProjet});
     const idBdNoms = await this.client.obtIdBd({
       nom: "noms",
       racine: idProjet,
       type: "keyvalue",
     });
-    if (!idBdNoms) {
-      throw new Error(
-        `Permission de modification refusée pour Projet ${idProjet}.`,
-      );
-    }
 
     return await this.client.ouvrirBdTypée({
       id: idBdNoms,
@@ -508,16 +509,12 @@ export class Projets extends ComposanteClientListe<string> {
     bd: TypedKeyValue<structureBdNoms>;
     fOublier: schémaFonctionOublier;
   }> {
+    await this._confirmerPermission({idProjet});
     const idBdDescr = await this.client.obtIdBd({
       nom: "descriptions",
       racine: idProjet,
       type: "keyvalue",
     });
-    if (!idBdDescr) {
-      throw new Error(
-        `Permission de modification refusée pour Projet ${idProjet}.`,
-      );
-    }
 
     return await this.client.ouvrirBdTypée({
       id: idBdDescr,
@@ -571,16 +568,12 @@ export class Projets extends ComposanteClientListe<string> {
   }: {
     idProjet: string;
   }): Promise<{ bd: TypedSet<string>; fOublier: schémaFonctionOublier }> {
+    await this._confirmerPermission({idProjet});
     const idBdMotsClefs = await this.client.obtIdBd({
       nom: "motsClefs",
       racine: idProjet,
       type: "set",
     });
-    if (!idBdMotsClefs) {
-      throw new Error(
-        `Permission de modification refusée pour projet ${idProjet}.`,
-      );
-    }
 
     return await this.client.ouvrirBdTypée({
       id: idBdMotsClefs,
