@@ -1,7 +1,6 @@
 import Semaphore from "@chriscdn/promise-semaphore";
 import { unixfs } from "@helia/unixfs";
 import { Libp2p } from "@libp2p/interface";
-import deepEqual from "deep-equal";
 import { எண்ணிக்கை } from "ennikkai";
 import indexedDbStream from "indexed-db-stream";
 import plateforme from "platform";
