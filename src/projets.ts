@@ -637,10 +637,6 @@ export class Projets extends ComposanteClientListe<string> {
       racine: idProjet,
       type: "set",
     });
-    if (!idBdBds)
-      throw new Error(
-        `Permission de modification refusée pour Projet ${idProjet}.`,
-      );
 
     return await this.client.ouvrirBdTypée({
       id: idBdBds,
