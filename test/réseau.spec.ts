@@ -2688,7 +2688,7 @@ if (isNode || isElectronMain) {
       });
     });
 
-    describe.only("Messages", function () {
+    describe("Messages", function () {
       let fOublierConstls: () => Promise<void>;
       let idsDispositifs: string[];
       let idsComptes: string[];
