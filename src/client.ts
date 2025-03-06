@@ -2304,7 +2304,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       required: [],
     };
 
-    if (typeof racine === "string" && !adresseOrbiteValide(racine)) {
+    if (!adresseOrbiteValide(racine)) {
       throw new Error(`Adresse ${racine} non valide.`);
     }
 
