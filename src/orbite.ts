@@ -395,11 +395,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     const bd = (await this.orbite.open(nom || uuidv4(), {
       type,
       ...options,
-      sync: true,
     })) as Store;
-    this.orbite.ipfs.libp2p.addEventListener("peer:disconnect", (x) => {
-      bd.peers.delete(x.detail.toString());
-    });
     const { address } = bd;
 
     this._bdsOrbite[address] = { bd, idsRequêtes: new Set() };
