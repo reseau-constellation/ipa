@@ -1333,11 +1333,13 @@ if (isNode || isElectronMain) {
       let idVariable: string;
       let idBd: string;
       let idProjet: string;
+      let idNuée: string;
 
       const résMotClef = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
       const résVariable = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
       const résBds = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
       const résProjet = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
+      const résNuée = new utilsTestAttente.AttendreRésultat<infoAuteur[]>();
 
       const fsOublier: schémaFonctionOublier[] = [];
 
@@ -1375,6 +1377,14 @@ if (isNode || isElectronMain) {
           await constls[0].réseau.suivreAuteursProjet({
             idProjet,
             f: (auteurs) => résProjet.mettreÀJour(auteurs),
+          }),
+        );
+
+        idNuée = await constls[0].nuées.créerNuée();
+        fsOublier.push(
+          await constls[0].réseau.suivreAuteursNuée({
+            idNuée,
+            f: (auteurs) => résNuée.mettreÀJour(auteurs),
           }),
         );
       });
@@ -1431,6 +1441,22 @@ if (isNode || isElectronMain) {
 
         expect(val).to.deep.equal(réf);
       });
+      it("Mots-clefs : Modification par le nouvel auteur", async () => {
+        await uneFois((fSuivi) =>
+          constls[1].suivrePermission({ idObjet: idMotClef, f: fSuivi }),
+        );
+
+        await constls[1].motsClefs.sauvegarderNomMotClef({
+          idMotClef,
+          langue: "fr",
+          nom: "Hydrologie",
+        });
+        await constls[1].motsClefs.sauvegarderDescriptionMotClef({
+          idMotClef,
+          langue: "fr",
+          description: "Pour les données en hydrologie",
+        });
+      })
       it("Mots-clefs : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
           {
@@ -1488,6 +1514,29 @@ if (isNode || isElectronMain) {
 
         const val = await résVariable.attendreQue((x) => !!x && x.length > 1);
         expect(val).to.have.deep.members(réf);
+      });
+      it("Variables : Modification par le nouvel auteur", async () => {
+        await uneFois((fSuivi) =>
+          constls[1].suivrePermission({ idObjet: idMotClef, f: fSuivi }),
+        );
+
+        await constls[1].variables.sauvegarderNomVariable({
+          idVariable,
+          langue: "fr",
+          nom: "Température",
+        });
+        await constls[1].variables.sauvegarderDescriptionVariable({
+          idVariable,
+          langue: "fr",
+          description: "La température moyenne journalière",
+        });
+        await constls[1].variables.ajouterRègleVariable({
+          idVariable,
+          règle: {
+            typeRègle: "existe",
+            détails: {}
+          },
+        });
       });
       it("Variables : Accepter invitation", async () => {
         const réf: infoAuteur[] = [
@@ -1593,6 +1642,56 @@ if (isNode || isElectronMain) {
 
         expect(val).to.have.deep.members(réf);
       });
+      it("Bds : Modification par le nouvel auteur", async () => {
+        await uneFois((fSuivi) =>
+          constls[1].suivrePermission({ idObjet: idBd, f: fSuivi }),
+        );
+
+        await constls[1].bds.sauvegarderMétadonnéeBd({
+          idBd,
+          clef: "test",
+          métadonnée: "valeur test",
+        });
+        await constls[1].bds.sauvegarderNomBd({
+          idBd,
+          langue: "fr",
+          nom: "Nom de la bd",
+        });
+        await constls[1].bds.sauvegarderDescriptionBd({
+          idBd,
+          langue: "fr",
+          description: "Description de la bd",
+        });
+        const idTableau = await constls[1].bds.ajouterTableauBd({
+          idBd,
+        });
+        await constls[1].tableaux.sauvegarderNomTableau({
+          idTableau,
+          langue: "fr",
+          nom: "Nom tableau"
+        })
+        const idColonne = await constls[1].tableaux.ajouterColonneTableau({
+          idTableau, idVariable
+        });
+        await constls[1].tableaux.ajouterRègleTableau({
+          idTableau,
+          idColonne,
+          règle: { typeRègle: "existe", détails: {} }
+        })
+        await constls[1].tableaux.ajouterÉlément({
+          idTableau,
+          vals: {[idColonne]: 123}
+        })
+        await constls[1].bds.rejoindreNuées({
+          idBd,
+          idsNuées: ["/orbitdb/idDUneNuéeÀRejoindre"],
+        });
+        await constls[1].bds.ajouterMotsClefsBd({
+          idBd,
+          idsMotsClefs: [idMotClef]
+        });
+
+      });
       it("Bds : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
           {
@@ -1672,6 +1771,32 @@ if (isNode || isElectronMain) {
 
         expect(val).to.have.deep.members(réf);
       });
+      it("Projets : Modification par le nouvel auteur", async () => {
+        await uneFois((fSuivi) =>
+          constls[1].suivrePermission({ idObjet: idProjet, f: fSuivi }),
+        );
+
+        await constls[1].projets.sauvegarderNomProjet({
+          idProjet,
+          langue: "fr",
+          nom: "Nom du projet",
+        });
+        await constls[1].projets.sauvegarderDescriptionProjet({
+          idProjet,
+          langue: "fr",
+          description: "Description du projet",
+        });
+        await constls[1].projets.ajouterMotsClefsProjet({
+          idProjet,
+          idsMotsClefs: [idMotClef]
+        });
+        await constls[1].projets.ajouterBdProjet({
+          idProjet,
+          idBd
+        });
+        
+
+      });
       it("Projets : Refuser invitation", async () => {
         const réf: infoAuteur[] = [
           {
@@ -1701,6 +1826,125 @@ if (isNode || isElectronMain) {
         });
 
         await résProjet.attendreQue(
+          (auteurs) =>
+            !!auteurs &&
+            auteurs.find((a) => a.idCompte === idsComptes[1])?.rôle ===
+              MODÉRATEUR,
+        );
+      });
+
+      it("Nuées : Inviter auteur", async () => {
+        const réf: infoAuteur[] = [
+          {
+            idCompte: idsComptes[0],
+            accepté: true,
+            rôle: MODÉRATEUR,
+          },
+          {
+            idCompte: idsComptes[1],
+            accepté: false,
+            rôle: MEMBRE,
+          },
+        ];
+        await constls[0].nuées.inviterAuteur({
+          idNuée,
+          idCompteAuteur: idsComptes[1],
+          rôle: MEMBRE,
+        });
+
+        const val = await résNuée.attendreQue((x) => !!x && x.length > 1);
+        expect(val).to.have.deep.members(réf);
+      });
+      it("Nuées : Accepter invitation", async () => {
+        const réf: infoAuteur[] = [
+          {
+            idCompte: idsComptes[0],
+            accepté: true,
+            rôle: MODÉRATEUR,
+          },
+          {
+            idCompte: idsComptes[1],
+            accepté: true,
+            rôle: MEMBRE,
+          },
+        ];
+
+        await constls[1].nuées.ajouterÀMesNuées({ idNuée });
+        const val = await résNuée.attendreQue((x) =>
+          Boolean(!!x && x.find((y) => y.idCompte === idsComptes[1])?.accepté),
+        );
+
+        expect(val).to.have.deep.members(réf);
+      });
+      it("Nuées : Modification par le nouvel auteur", async () => {
+        await uneFois((fSuivi) =>
+          constls[1].suivrePermission({ idObjet: idNuée, f: fSuivi }),
+        );
+
+        await constls[1].nuées.sauvegarderMétadonnéeNuée({
+          idNuée,
+          clef: "test",
+          métadonnée: "valeur test",
+        });
+        await constls[1].nuées.sauvegarderNomNuée({
+          idNuée,
+          langue: "fr",
+          nom: "Nom de la nuée",
+        });
+        await constls[1].nuées.sauvegarderDescriptionNuée({
+          idNuée,
+          langue: "fr",
+          description: "Description de la nuée",
+        });
+        const idTableau = await constls[1].nuées.ajouterTableauNuée({
+          idNuée,
+        });
+        await constls[1].nuées.sauvegarderNomsTableauNuée({
+          idTableau,
+          noms: {fr: "Nom tableau"}
+        })
+        const idColonne = await constls[1].nuées.ajouterColonneTableauNuée({
+          idTableau, idVariable
+        });
+        await constls[1].nuées.ajouterRègleTableauNuée({
+          idTableau,
+          idColonne,
+          règle: { typeRègle: "existe", détails: {} }
+        });
+        await constls[1].nuées.ajouterMotsClefsNuée({
+          idNuée,
+          idsMotsClefs: [idMotClef]
+        });
+      });
+      it("Nuées : Refuser invitation", async () => {
+        const réf: infoAuteur[] = [
+          {
+            idCompte: idsComptes[0],
+            accepté: true,
+            rôle: MODÉRATEUR,
+          },
+          {
+            idCompte: idsComptes[1],
+            accepté: false,
+            rôle: MEMBRE,
+          },
+        ];
+
+        await constls[1].nuées.enleverDeMesNuées({ idNuée });
+        const val = await résNuée.attendreQue(
+          (x) => !!x && !x.find((y) => y.idCompte === idsComptes[1])?.accepté,
+        );
+
+        expect(val).to.have.deep.members(réf);
+      });
+      it("Nuées : Promotion à modérateur", async () => {
+        await constls[0].nuées.inviterAuteur({
+          idNuée,
+          idCompteAuteur: idsComptes[1],
+          rôle: MODÉRATEUR,
+        });
+
+        await résNuée.attendreQue(
           (auteurs) =>
             !!auteurs &&
             auteurs.find((a) => a.idCompte === idsComptes[1])?.rôle ===
