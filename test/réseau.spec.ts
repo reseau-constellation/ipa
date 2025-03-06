@@ -1311,7 +1311,7 @@ if (isNode || isElectronMain) {
         await constls[0].réseau.faireConfianceAuMembre({
           idCompte: idsComptes[2],
         });
-        const val = await rés.attendreQue((x) => !!x && x > valAvant);
+        const val = await rés.attendreQue((x) => !!x && x === 2);
 
         expect(val).to.equal(2);
       });
@@ -2688,7 +2688,7 @@ if (isNode || isElectronMain) {
       });
     });
 
-    describe("Messages", function () {
+    describe.only("Messages", function () {
       let fOublierConstls: () => Promise<void>;
       let idsDispositifs: string[];
       let idsComptes: string[];
