@@ -448,6 +448,7 @@ if (isNode || isElectronMain) {
 
       before(async () => {
         idBd = await client.créerBdIndépendante({ type: "keyvalue" });
+
         const { orbite } = await client.attendreSfipEtOrbite();
         ({ bd, fOublier: fOublierBd } = await orbite.ouvrirBdTypée({
           id: idBd,
