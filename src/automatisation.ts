@@ -812,10 +812,11 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
               throw new Error(`Fichier ${adresseFichier} introuvable.`);
 
             const écouteur = chokidar.watch(adresseFichierRésolue);
-            écouteur.on("change", async () => {
+            const lorsqueFichierModifié = async () => {
               const maintenant = new Date().getTime().toString();
               fAutoAvecÉtats(maintenant);
-            });
+            };
+            écouteur.on("change", lorsqueFichierModifié);
 
             const dernièreModif = fs
               .statSync(adresseFichierRésolue)
@@ -831,7 +832,10 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
               fAutoAvecÉtats(maintenant);
             }
 
-            const fOublier = async () => await écouteur.close();
+            const fOublier = async () => {
+              écouteur.off("change", lorsqueFichierModifié);
+              return await écouteur.close();
+            };
             return { fOublier, fLancer };
           }
 
@@ -940,7 +944,7 @@ const verrou = new Semaphore();
 export class Automatisations extends ComposanteClientDic<{
   [id: string]: SpécificationAutomatisation;
 }> {
-  automatisations: { [key: string]: AutomatisationActive };
+  automatisations: { [key: string]: {auto: AutomatisationActive, fOublier: ()=>void} };
   événements: EventEmitter;
 
   fOublier?: schémaFonctionOublier;
@@ -977,8 +981,9 @@ export class Automatisations extends ComposanteClientDic<{
       if (activePourCeDispositif(a, ceDispositif)) {
         if (!Object.keys(this.automatisations).includes(a.id)) {
           const auto = new AutomatisationActive(a, a.id, this.client);
-          auto.on("misÀJour", () => this.événements.emit("misÀJour"));
-          this.automatisations[a.id] = auto;
+          const lorsquAutoMiseÀJour = () => this.événements.emit("misÀJour")
+          auto.on("misÀJour", lorsquAutoMiseÀJour);
+          this.automatisations[a.id] = {auto, fOublier: ()=>auto.off("misÀJour", lorsquAutoMiseÀJour)};
         }
       } else {
         const autoActif = this.automatisations[a.id];
@@ -1271,7 +1276,7 @@ export class Automatisations extends ComposanteClientDic<{
       const étatsAuto: { [key: string]: ÉtatAutomatisation } =
         Object.fromEntries(
           Object.keys(this.automatisations)
-            .map((a) => [a, this.automatisations[a].état])
+            .map((a) => [a, this.automatisations[a].auto.état])
             .filter((x) => x[1]),
         );
       await f(étatsAuto);
@@ -1284,11 +1289,12 @@ export class Automatisations extends ComposanteClientDic<{
   }
 
   async lancerManuellement({ id }: { id: string }) {
-    await this.automatisations[id]?.relancer();
+    await this.automatisations[id]?.auto.relancer();
   }
 
   async fermerAuto(id: string): Promise<void> {
-    await this.automatisations[id].fermer();
+    await this.automatisations[id]?.auto.fermer();
+    this.automatisations[id]?.fOublier();
     delete this.automatisations[id];
   }
 
