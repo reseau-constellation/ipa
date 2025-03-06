@@ -1444,6 +1444,7 @@ if (isNode || isElectronMain) {
       it("Mots-clefs : Modification par le nouvel auteur", async () => {
         await uneFois((fSuivi) =>
           constls[1].suivrePermission({ idObjet: idMotClef, f: fSuivi }),
+          x=>!!x
         );
 
         await constls[1].motsClefs.sauvegarderNomMotClef({
@@ -1517,7 +1518,8 @@ if (isNode || isElectronMain) {
       });
       it("Variables : Modification par le nouvel auteur", async () => {
         await uneFois((fSuivi) =>
-          constls[1].suivrePermission({ idObjet: idMotClef, f: fSuivi }),
+          constls[1].suivrePermission({ idObjet: idVariable, f: fSuivi }),
+          x=>!!x
         );
 
         await constls[1].variables.sauvegarderNomVariable({
@@ -1645,6 +1647,7 @@ if (isNode || isElectronMain) {
       it("Bds : Modification par le nouvel auteur", async () => {
         await uneFois((fSuivi) =>
           constls[1].suivrePermission({ idObjet: idBd, f: fSuivi }),
+          x=>!!x
         );
 
         await constls[1].bds.sauvegarderMétadonnéeBd({
@@ -1774,6 +1777,7 @@ if (isNode || isElectronMain) {
       it("Projets : Modification par le nouvel auteur", async () => {
         await uneFois((fSuivi) =>
           constls[1].suivrePermission({ idObjet: idProjet, f: fSuivi }),
+          x=>!!x
         );
 
         await constls[1].projets.sauvegarderNomProjet({
@@ -1877,6 +1881,7 @@ if (isNode || isElectronMain) {
       it("Nuées : Modification par le nouvel auteur", async () => {
         await uneFois((fSuivi) =>
           constls[1].suivrePermission({ idObjet: idNuée, f: fSuivi }),
+          x=>!!x
         );
 
         await constls[1].nuées.sauvegarderMétadonnéeNuée({
