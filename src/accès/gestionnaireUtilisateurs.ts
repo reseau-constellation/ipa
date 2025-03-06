@@ -1,9 +1,9 @@
 import { EventEmitter, once } from "events";
 import { isValidAddress, type OrbitDB } from "@orbitdb/core";
-import { v4 as uuidv4 } from "uuid";
 
 import { TypedSet } from "@constl/bohr-db";
-import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
+import { TypedEmitter } from "tiny-typed-emitter";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "./cntrlConstellation.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
@@ -33,29 +33,27 @@ export const suivreBdAccès = async (
   return oublier;
 };
 
-class AccèsUtilisateur extends EventEmitter {
+type ÉvénementsAccèsUtilisateur = {
+  initialisé: (args: { accès: ContrôleurConstellation }) => void;
+};
+
+class AccèsUtilisateur {
   orbite: GestionnaireOrbite;
   idBd: string;
 
-  idBdAccès?: string;
-  bdAccès?: TypedSet<élémentBdAccès>;
+  accès?: ContrôleurConstellation;
   fOublierBd?: schémaFonctionOublier;
   oublierSuivi?: schémaFonctionOublier;
-  autorisés: string[];
-  accès?: ContrôleurConstellation;
-  idRequête: string;
-  prêt: boolean;
   signaleurArrêt: AbortController;
+  événements: TypedEmitter<ÉvénementsAccèsUtilisateur>;
 
   constructor(orbite: OrbitDB, idBd: string) {
-    super();
     this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
     this.idBd = idBd;
 
-    this.autorisés = [];
-    this.idRequête = uuidv4();
-    this.prêt = false;
+    this.événements = new TypedEmitter<ÉvénementsAccèsUtilisateur>();
     this.signaleurArrêt = new AbortController();
+    this.initialiser();
   }
 
   async initialiser(): Promise<void> {
@@ -65,32 +63,29 @@ class AccèsUtilisateur extends EventEmitter {
     });
     this.fOublierBd = fOublier;
 
-    this.accès = bd.access as ContrôleurConstellation;
-    this.bdAccès = this.accès.bd!;
-    this.idBdAccès = this.bdAccès?.address;
+    const accès = bd.access as ContrôleurConstellation;
 
-    await this._miseÀJour([]);
-    this.oublierSuivi = await suivreBdAccès(this.bdAccès, async (éléments) => {
-      await this._miseÀJour(éléments);
-    });
-
-    this.prêt = true;
+    this.accès = accès;
+    this.événements.emit("initialisé", { accès });
   }
 
-  async _miseÀJour(éléments: élémentBdAccès[]) {
-    const autorisés: string[] = [];
-    éléments = [
-      {
-        id: this.accès!.write,
-        rôle: MODÉRATEUR,
-      },
-      ...éléments,
-    ];
-    éléments.forEach((é) => {
-      autorisés.push(é.id);
+  async initialisé(): Promise<{ accès: ContrôleurConstellation }> {
+    if (this.accès) return { accès: this.accès };
+    return new Promise((résoudre) =>
+      this.événements.once("initialisé", résoudre),
+    );
+  }
+
+  async suivreAccès({
+    f,
+  }: {
+    f: schémaFonctionSuivi<{ autorisés: string[] }>;
+  }): Promise<schémaFonctionOublier> {
+    const { accès } = await this.initialisé();
+    // await f({autorisés: [accès.write]});
+    return await suivreBdAccès(accès.bd, async (éléments) => {
+      return await f({ autorisés: [accès.write, ...éléments.map((é) => é.id)] });
     });
-    this.autorisés = autorisés;
-    this.emit("misÀJour");
   }
 
   async fermer() {
@@ -104,32 +99,51 @@ export class GestionnaireAccès extends EventEmitter {
   _rôles: objRôles;
   _rôlesIdOrbite: objRôles;
   _rôlesUtilisateurs: {
-    [key in (typeof rôles)[number]]: {
-      [key: string]: AccèsUtilisateur;
+    [idCompte: string]: string[];
+  };
+  _accèsUtilisateur: {
+    [idCompte: string]: {
+      accès: AccèsUtilisateur;
+      rôles: Set<string>;
     };
   };
+  fsOublier: schémaFonctionOublier[];
 
   _miseÀJourEnCours: boolean;
   orbite: OrbitDB;
 
   constructor(orbite: OrbitDB) {
     super();
-    this._rôles = { [MODÉRATEUR]: [], [MEMBRE]: [] };
-    this._rôlesIdOrbite = { [MODÉRATEUR]: [], [MEMBRE]: [] };
-    this._rôlesUtilisateurs = { [MODÉRATEUR]: {}, [MEMBRE]: {} };
+    this.setMaxListeners(100);
+
+    this._rôles = {
+      [MODÉRATEUR]: new Set<string>(),
+      [MEMBRE]: new Set<string>(),
+    };
+    this._rôlesIdOrbite = {
+      [MODÉRATEUR]: new Set<string>(),
+      [MEMBRE]: new Set<string>(),
+    };
+    this._rôlesUtilisateurs = {};
+    this._accèsUtilisateur = {};
 
     this._miseÀJourEnCours = false;
+    this.fsOublier = [];
     this.orbite = orbite;
   }
 
-  async estUnMembre(id: string): Promise<boolean> {
+  async àJour(): Promise<void> {
     if (this._miseÀJourEnCours) await once(this, "misÀJour");
-    return this._rôles[MEMBRE].includes(id);
+  }
+
+  async estUnMembre(id: string): Promise<boolean> {
+    await this.àJour();
+    return this._rôles[MEMBRE].has(id);
   }
 
   async estUnModérateur(id: string): Promise<boolean> {
-    if (this._miseÀJourEnCours) await once(this, "misÀJour");
-    return this._rôles[MODÉRATEUR].includes(id);
+    await this.àJour();
+    return this._rôles[MODÉRATEUR].has(id);
   }
 
   async estAutorisé(id: string): Promise<boolean> {
@@ -142,53 +156,63 @@ export class GestionnaireAccès extends EventEmitter {
     await Promise.all(
       éléments.map(async (élément) => {
         const { rôle, id } = élément;
-
         if (isValidAddress(id)) {
-          if (!this._rôlesUtilisateurs[rôle][id]) {
-            const objAccèsUtilisateur = new AccèsUtilisateur(this.orbite, id);
-            objAccèsUtilisateur.on("misÀJour", () => this._mettreRôlesÀJour());
-            this._rôlesUtilisateurs[rôle][id] = objAccèsUtilisateur;
-            await objAccèsUtilisateur.initialiser();
+          if (this._accèsUtilisateur[id]) {
+            this._accèsUtilisateur[id].rôles.add(rôle);
+          } else {
+            const accèsUtilisateur = new AccèsUtilisateur(this.orbite, id);
+            this._accèsUtilisateur[id] = {
+              accès: accèsUtilisateur,
+              rôles: new Set([rôle]),
+            };
+            const fOublierAccèsUtilisateur = await accèsUtilisateur.suivreAccès(
+              {
+                f: ({ autorisés }) => {
+                  this._rôlesUtilisateurs[id] = autorisés;
+                  this._mettreRôlesÀJour();
+                },
+              },
+            );
+            this.fsOublier.push(fOublierAccèsUtilisateur);
           }
         } else {
-          if (!this._rôlesIdOrbite[rôle].includes(id)) {
-            this._rôlesIdOrbite[rôle].push(id);
-            this._mettreRôlesÀJour();
-          }
+          this._rôlesIdOrbite[rôle].add(id);
+          this._mettreRôlesÀJour();
         }
       }),
     );
 
-    this._miseÀJourEnCours = false;
     this._mettreRôlesÀJour();
+    this._miseÀJourEnCours = false;
     this.emit("misÀJour");
   }
 
   _mettreRôlesÀJour(): void {
-    const _rôles: objRôles = { MODÉRATEUR: [], MEMBRE: [] };
-
+    const _rôles: objRôles = {
+      MODÉRATEUR: new Set<string>(),
+      MEMBRE: new Set<string>(),
+    };
     for (const [rôle, ids] of Object.entries(this._rôlesIdOrbite)) {
-      const listeRôle = _rôles[rôle as keyof objRôles];
+      const ensembleRôle = _rôles[rôle as keyof objRôles];
       ids.forEach((id) => {
-        if (!listeRôle.includes(id)) listeRôle.push(id);
+        ensembleRôle.add(id);
       });
     }
 
-    for (const [rôle, utl] of Object.entries(this._rôlesUtilisateurs)) {
-      const listeRôle = _rôles[rôle as keyof objRôles];
-      Object.values(utl).forEach((u) => {
-        u.autorisés.forEach((id) => {
-          if (!listeRôle.includes(id)) listeRôle.push(id);
+    for (const [idCompte, idsDispositifs] of Object.entries(
+      this._rôlesUtilisateurs,
+    )) {
+      for (const rôle of this._accèsUtilisateur[idCompte].rôles.values()) {
+        const ensembleRôle = _rôles[rôle as keyof objRôles];
+        idsDispositifs.forEach((id) => {
+          ensembleRôle.add(id);
         });
-      });
+      }
     }
     this._rôles = _rôles;
   }
 
   async fermer(): Promise<void> {
-    const utilisateurs = Object.values(this._rôlesUtilisateurs)
-      .map((l) => Object.values(l))
-      .flat();
-    await Promise.all(utilisateurs.map((u) => u.fermer()));
+    await Promise.all(this.fsOublier.map((f) => f()));
   }
 }

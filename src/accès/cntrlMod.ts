@@ -56,12 +56,12 @@ const ContrôleurAccès =
     address?: string;
   }) => {
     storage =
-      storage ||
+      storage ??
       (await ComposedStorage(
         await LRUStorage({ size: 1000 }),
         await IPFSBlockStorage({ ipfs: orbitdb.ipfs, pin: true }),
       ));
-    write = write || orbitdb.identity.id;
+    write = write ?? orbitdb.identity.id;
 
     const gestAccès = new GestionnaireAccès(orbitdb);
 
@@ -79,13 +79,13 @@ const ContrôleurAccès =
       address = await PremierModérateur({
         storage,
         type,
-        params: { write: write! },
+        params: { write },
       });
       address = pathJoin("/", type, address);
     }
 
     // Ajouter le premier modérateur
-    await gestAccès.ajouterÉléments([{ id: write!, rôle: MODÉRATEUR }]);
+    await gestAccès.ajouterÉléments([{ id: write, rôle: MODÉRATEUR }]);
 
     const canAppend = async (entry: LogEntry): Promise<boolean> => {
       // Pour l'instant, on ne peut qu'ajouter des membres

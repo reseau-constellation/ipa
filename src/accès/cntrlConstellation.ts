@@ -1,4 +1,3 @@
-import { EventEmitter } from "events";
 import * as dagCbor from "@ipld/dag-cbor";
 import {
   ComposedStorage,
@@ -64,7 +63,7 @@ const codec = dagCbor;
 const hasher = sha256;
 const hashStringEncoding = base58btc;
 
-const schémaBdAccès: JSONSchemaType<élémentBdAccès> = {
+export const schémaBdAccès: JSONSchemaType<élémentBdAccès> = {
   type: "object",
   properties: {
     rôle: {
@@ -115,8 +114,8 @@ const ContrôleurConstellation =
     identities: IdentitiesType;
     address?: string;
   }) => {
-    write = write || orbitdb.identity.id;
-
+    write ??= orbitdb.identity.id;
+    
     nom = nom || uuidv4();
     storage =
       storage ||
@@ -134,6 +133,10 @@ const ContrôleurConstellation =
 
     let bd: TypedSet<élémentBdAccès>;
     let fOublierBd: schémaFonctionOublier;
+
+    if (write?.startsWith("/contrôleur-constellation/") && !address) {
+      address = write
+    }
 
     if (address) {
       const manifestBytes = await storage.get(
@@ -153,9 +156,6 @@ const ContrôleurConstellation =
         id: adresseBdAccès,
         type: "set",
         schéma: schémaBdAccès,
-        options: {
-          sync: true,
-        },
       }));
     } else {
       ({ bd, fOublier: fOublierBd } = await gestionnaireOrbite.ouvrirBdTypée({
@@ -163,33 +163,27 @@ const ContrôleurConstellation =
         type: "set",
         schéma: schémaBdAccès,
         options: {
-          AccessController: ContrôleurAccès({ write, storage }),
-          sync: true,
+          AccessController: ContrôleurAccès({ write, storage })
         },
       }));
       adresseBdAccès = bd.address;
       address = await ManifestContrôleurConstellation({
         storage,
         type: nomType,
-        params: { write: write!, nom, adresseBdAccès },
+        params: { write, nom, adresseBdAccès },
       });
       address = pathJoin("/", nomType, address);
     }
 
-    const événements = new EventEmitter();
-
     const gestRôles = new GestionnaireAccès(orbitdb);
-    gestRôles.on("misÀJour", () => événements.emit("misÀJour"));
-    gestRôles.setMaxListeners(100);
 
-    const miseÀJourBdAccès = async (
-      éléments: élémentBdAccès[],
-    ): Promise<void> => {
-      éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
-
-      await gestRôles.ajouterÉléments(éléments);
-    };
-    const fOublierSuiviBdAccès = await suivreBdAccès(bd, miseÀJourBdAccès);
+    const fOublierSuiviBdAccès = await suivreBdAccès(
+      bd, 
+      async (éléments) => {
+        éléments = [{ rôle: MODÉRATEUR, id: write! }, ...éléments];
+        await gestRôles.ajouterÉléments(éléments);
+      }
+    );
 
     const estAutorisé = async (id: string): Promise<boolean> => {
       return await gestRôles.estAutorisé(id);
@@ -228,7 +222,7 @@ const ContrôleurConstellation =
       if (!rôles.includes(rôle)) {
         throw new Error(`Erreur: Le rôle ${rôle} n'existe pas.`);
       }
-      if (gestRôles._rôles[rôle].includes(id)) {
+      if (gestRôles._rôles[rôle].has(id)) {
         return;
       }
       try {
@@ -271,27 +265,14 @@ const ContrôleurConstellation =
       f: schémaFonctionSuivi<infoUtilisateur[]>,
     ): Promise<schémaFonctionOublier> => {
       const fFinale = async () => {
-        const mods: infoUtilisateur[] = Object.keys(
-          gestRôles._rôlesUtilisateurs[MODÉRATEUR],
-        ).map((m) => {
+        const utilisateurs: infoUtilisateur[] = Object.entries(
+          gestRôles._accèsUtilisateur,
+        ).filter(([_idCompte, accès]) => accès.rôles.size > 0).map(([idCompte, accès]) => {
           return {
-            idCompte: m,
-            rôle: MODÉRATEUR,
-          };
+            idCompte,
+            rôle: accès.rôles.has(MODÉRATEUR) ? MODÉRATEUR : MEMBRE
+          }
         });
-        const idsMods = mods.map((m) => m.idCompte);
-        const membres: infoUtilisateur[] = Object.keys(
-          gestRôles._rôlesUtilisateurs[MEMBRE],
-        )
-          .map((m) => {
-            return {
-              idCompte: m,
-              rôle: MEMBRE,
-            } as infoUtilisateur;
-          })
-          .filter((m) => !idsMods.includes(m.idCompte));
-
-        const utilisateurs: infoUtilisateur[] = [...mods, ...membres];
         await f(utilisateurs);
       };
       gestRôles.on("misÀJour", fFinale);
@@ -318,6 +299,7 @@ const ContrôleurConstellation =
 
     return {
       type: nomType,
+      nom,
       address,
       adresseBdAccès,
       write,
