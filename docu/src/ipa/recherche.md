@@ -1772,7 +1772,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
 const { 
   fOublier, 
@@ -1813,7 +1813,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 await client.nuées.sauvegarderNomNuée({ idNuée, langue: "fr", nom: "hydrologie" });
 const { 
   fOublier, 
@@ -1854,7 +1854,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatTexte>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 await client.nuées.sauvegarderDescriptionNuée({ idNuée, langue: "fr", description: "hydrologie" });
 const { 
   fOublier, 
@@ -1895,7 +1895,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.nuées.ajouterMotsClefsNuée({ idNuée, idsMotsClefs: idMotClef });
 
@@ -1938,7 +1938,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.nuées.ajouterColonneTableauNuée({ idTableau, idVariable })
@@ -1982,7 +1982,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.nuées.ajouterMotsClefsNuée({ idNuée, idsMotsClefs: idMotClef });
 
@@ -2031,7 +2031,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.nuées.ajouterColonneTableauNuée({ idTableau, idVariable })
@@ -2081,7 +2081,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.nuées.ajouterMotsClefsNuée({ idNuée, idsMotsClefs: idMotClef });
 
@@ -2130,7 +2130,7 @@ const résultats = ref<
   utils.résultatRecherche<utils.infoRésultatRecherche<utils.infoRésultatTexte>>
 >();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 await client.nuées.ajouterColonneTableauNuée({ idTableau, idVariable })
@@ -2180,7 +2180,7 @@ const résultats = ref<utils.résultatRecherche<
   utils.infoRésultatTexte | utils.infoRésultatRecherche<utils.infoRésultatTexte>
 >>();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idTableau = await client.nuées.ajouterTableauNuée({ idNuée, idVariable });
 
 const idVariable = await client.variables.créerVariable({ catégorie: "image" });

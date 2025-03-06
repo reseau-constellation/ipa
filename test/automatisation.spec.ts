@@ -822,7 +822,7 @@ describe("Automatisation", function () {
     before(async () => {
       ({ dossier, fEffacer } = await dossiers.dossierTempo());
       fsOublier.push(fEffacer);
-      idNuée = await client.nuées.créerNuée({});
+      idNuée = await client.nuées.créerNuée();
       await client.nuées.sauvegarderNomsNuée({
         idNuée,
         noms: { fr: "Science citoyenne" },

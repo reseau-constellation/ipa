@@ -88,7 +88,7 @@ describe("Nuées", function () {
 
     describe("Création", function () {
       it("Nuée", async () => {
-        const idNuée = await client.nuées.créerNuée({});
+        const idNuée = await client.nuées.créerNuée();
         expect(isValidAddress(idNuée)).to.be.true();
       });
     });
@@ -102,7 +102,7 @@ describe("Nuées", function () {
       }>();
 
       before(async () => {
-        idNuée = await client.nuées.créerNuée({});
+        idNuée = await client.nuées.créerNuée();
         fOublier = await client.nuées.suivreNomsNuée({
           idNuée,
           f: (n) => noms.mettreÀJour(n),
@@ -168,7 +168,7 @@ describe("Nuées", function () {
       }>();
 
       before(async () => {
-        idNuée = await client.nuées.créerNuée({});
+        idNuée = await client.nuées.créerNuée();
         fOublier = await client.nuées.suivreDescriptionsNuée({
           idNuée,
           f: (n) => descr.mettreÀJour(n),
@@ -237,7 +237,7 @@ describe("Nuées", function () {
       const motsClefs = new utilsTestAttente.AttendreRésultat<string[]>();
 
       before(async () => {
-        idNuée = await client.nuées.créerNuée({});
+        idNuée = await client.nuées.créerNuée();
         fOublier = await client.nuées.suivreMotsClefsNuée({
           idNuée,
           f: (m) => motsClefs.mettreÀJour(m),
@@ -278,7 +278,7 @@ describe("Nuées", function () {
       let schéma: schémaSpécificationBd;
 
       before(async () => {
-        idNuée = await client.nuées.créerNuée({});
+        idNuée = await client.nuées.créerNuée();
 
         idsMotsClefs = [
           await client.motsClefs.créerMotClef(),
@@ -383,7 +383,7 @@ describe("Nuées", function () {
       const nuées = new utilsTestAttente.AttendreRésultat<string[]>();
 
       before(async () => {
-        idNuée = await client.nuées.créerNuée({});
+        idNuée = await client.nuées.créerNuée();
         fOublier = await client.nuées.suivreNuées({
           f: (_nuées) => nuées.mettreÀJour(_nuées),
         });
@@ -425,7 +425,7 @@ describe("Nuées", function () {
       const statut = new utilsTestAttente.AttendreRésultat<schémaStatut>();
 
       before(async () => {
-        idNuée = await client.nuées.créerNuée({});
+        idNuée = await client.nuées.créerNuée();
         fOublier = await client.nuées.suivreStatutNuée({
           idNuée,
           f: (x) => statut.mettreÀJour(x),
@@ -483,7 +483,7 @@ describe("Nuées", function () {
         >();
 
         before(async () => {
-          idNuée = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée();
           fOublier = await client.nuées.suivreTableauxNuée({
             idNuée,
             f: (x) => tableaux.mettreÀJour(x),
@@ -527,7 +527,7 @@ describe("Nuées", function () {
         >();
 
         before(async () => {
-          idNuée = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée();
           idTableau = await client.nuées.ajouterTableauNuée({
             idNuée,
             clefTableau: "principal",
@@ -565,7 +565,7 @@ describe("Nuées", function () {
         const variables = new utilsTestAttente.AttendreRésultat<string[]>();
 
         before(async () => {
-          idNuée = await client.nuées.créerNuée({});
+          idNuée = await client.nuées.créerNuée();
           idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
 
           fOublier = await client.nuées.suivreVariablesNuée({
@@ -1172,7 +1172,7 @@ describe("Nuées", function () {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idNuéeParent = await client.nuées.créerNuée({});
+        idNuéeParent = await client.nuées.créerNuée();
         idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
 
         const fOublierParents = await client.nuées.suivreNuéesParents({
@@ -1193,7 +1193,7 @@ describe("Nuées", function () {
       });
 
       it("Parent transitif détecté", async () => {
-        const idNuéeGrandParent = await client.nuées.créerNuée({});
+        const idNuéeGrandParent = await client.nuées.créerNuée();
         await client.nuées.préciserParent({
           idNuée: idNuéeParent,
           idNuéeParent: idNuéeGrandParent,
@@ -1218,7 +1218,7 @@ describe("Nuées", function () {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idNuéeParent = await client.nuées.créerNuée({});
+        idNuéeParent = await client.nuées.créerNuée();
         idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
 
         const { fOublier: fOublierDescendants } =
@@ -1257,7 +1257,7 @@ describe("Nuées", function () {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idNuéeParent = await client.nuées.créerNuée({});
+        idNuéeParent = await client.nuées.créerNuée();
         idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
         const fOublierNoms = await client.nuées.suivreNomsNuée({
           idNuée,
@@ -1317,7 +1317,7 @@ describe("Nuées", function () {
       }>();
       const fsOublier: schémaFonctionOublier[] = [];
       before(async () => {
-        idNuéeParent = await client.nuées.créerNuée({});
+        idNuéeParent = await client.nuées.créerNuée();
         idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
         const fOublierDescriptions = await client.nuées.suivreDescriptionsNuée({
           idNuée,
@@ -1381,7 +1381,7 @@ describe("Nuées", function () {
       const règles = new utilsTestAttente.AttendreRésultat<règleColonne[]>();
       const fsOublier: schémaFonctionOublier[] = [];
       before(async () => {
-        idNuéeParent = await client.nuées.créerNuée({});
+        idNuéeParent = await client.nuées.créerNuée();
         idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
         const fOublierRègles = await client.nuées.suivreRèglesTableauNuée({
           idNuée,
@@ -1418,7 +1418,7 @@ describe("Nuées", function () {
       >();
 
       before(async () => {
-        idNuéeParent = await client.nuées.créerNuée({});
+        idNuéeParent = await client.nuées.créerNuée();
         idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
         const idTableau = await client.nuées.ajouterTableauNuée({
           idNuée,
@@ -1521,7 +1521,7 @@ describe("Nuées", function () {
       const fsOublier: schémaFonctionOublier[] = [];
 
       before(async () => {
-        idNuéeParent = await client.nuées.créerNuée({});
+        idNuéeParent = await client.nuées.créerNuée();
         idNuée = await client.nuées.créerNuée({ nuéeParent: idNuéeParent });
         const idTableau = await client.nuées.ajouterTableauNuée({
           idNuée: idNuéeParent,
@@ -1639,7 +1639,7 @@ describe("Nuées", function () {
       }));
       client = clients[0];
 
-      idNuée = await client.nuées.créerNuée({});
+      idNuée = await client.nuées.créerNuée();
       const idVariable = await client.variables.créerVariable({
         catégorie: "audio",
       });
@@ -1812,7 +1812,7 @@ describe("Nuées", function () {
 
       client = clients[0];
 
-      idNuée = await client.nuées.créerNuée({});
+      idNuée = await client.nuées.créerNuée();
       await client.nuées.sauvegarderNomNuée({
         idNuée,
         langue: "fr",

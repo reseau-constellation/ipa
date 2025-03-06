@@ -46,7 +46,7 @@ describe("Nuées", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée({});
+      idNuée = await client.nuées.créerNuée();
 
       const fRecherche = rechercherNuéesSelonNom("Météo");
       fOublier = await fRecherche(client, idNuée, async (r) =>
@@ -94,7 +94,7 @@ describe("Nuées", function () {
     let fOublier: schémaFonctionOublier;
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée({});
+      idNuée = await client.nuées.créerNuée();
 
       const fRecherche = rechercherNuéesSelonDescr("Météo");
       fOublier = await fRecherche(client, idNuée, async (r) =>
@@ -150,7 +150,7 @@ describe("Nuées", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée({});
+      idNuée = await client.nuées.créerNuée();
       idMotClef = await client.motsClefs.créerMotClef();
 
       const fRechercheNom = rechercherNuéesSelonNomMotClef("Météo");
@@ -267,7 +267,7 @@ describe("Nuées", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée({});
+      idNuée = await client.nuées.créerNuée();
       idVariable = await client.variables.créerVariable({
         catégorie: "numérique",
       });
@@ -429,7 +429,7 @@ describe("Nuées", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      idNuée = await client.nuées.créerNuée({});
+      idNuée = await client.nuées.créerNuée();
 
       const fRechercheNom = rechercherNuéesSelonTexte("Hydrologie");
       fsOublier.push(

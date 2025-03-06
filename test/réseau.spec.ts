@@ -2533,7 +2533,7 @@ if (isNode || isElectronMain) {
           catégorie: "chaîneNonTraductible",
         });
 
-        idNuée = await constls[0].nuées.créerNuée({});
+        idNuée = await constls[0].nuées.créerNuée();
 
         const schéma: schémaSpécificationBd = {
           licence: "ODbl-1_0",

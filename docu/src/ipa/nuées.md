@@ -77,7 +77,7 @@ Crée une copie d'une nuée.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 const idCopie = await client.nuées.copierNuée({ idNuée });
 
 ```
@@ -161,7 +161,7 @@ Cette action autorise la modification de la spécification de la nuée. Les aute
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerBd({ });
+const idNuée = await client.nuées.créerBd();
 await client.nuées.inviterAuteur({ 
     idNuée, 
     idCompteAuteur: "idDuCompteDeMonAmieÀQuiJeFaisTrèsConfiance",
@@ -211,7 +211,7 @@ import { créerConstellation, type bds } from "@constl/ipa";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 const qualité = ref<number>();
 const fOublierSuivi = await client.nuées.suivreQualitéNuée({ 
@@ -247,7 +247,7 @@ import { créerConstellation } from "@constl/ipa";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 const noms = ref<{[langue: string]: string}>();
 const fOublierNoms = await client.nuées.suivreNomsNuée({ 
@@ -281,7 +281,7 @@ Sauvegarde le nom de la nuée dans une langue donnée.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 await client.nuées.sauvegarderNomNuée({
     idNuée, 
     langue: "fr", 
@@ -305,7 +305,7 @@ Sauvegarde le nom de la nuée dans plusieurs langues en même temps.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idBd = await client.nuées.créerNuée({ });
+const idBd = await client.nuées.créerNuée();
 await client.nuées.sauvegarderNomsNuée({ 
     idBd, 
     noms: { 
@@ -350,7 +350,7 @@ Sauvegarde la description de la nuée dans une langue donnée.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 await client.nuée.sauvegarderDescriptionNuée({
     idNuée, 
     langue: "fr", 
@@ -374,7 +374,7 @@ Sauvegarde la description d'une nuée dans plusieurs langues en même temps.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 await client.nuées.sauvegarderDescriptionsNuée({ 
     idNuée, 
     descriptions: { 
@@ -422,7 +422,7 @@ import { créerConstellation } from "@constl/ipa";à
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 const descriptions = ref<{ [langue: string]: string }>();
 const fOublierDescriptions = await client.nuées.suivreDescriptionsNuée({ 
@@ -458,7 +458,7 @@ Sauvegarde une image décorative.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 const image = fs.readFileSync("mon image locale.jpeg");
 await client.nuées.sauvegarderImage({ idNuée, image });
@@ -501,7 +501,7 @@ import { créerConstellation } from "@constl/ipa";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 const image = ref<Uint8Array | null>();
 const fOublierImage = await client.nuées.suivreImage({ 
@@ -531,7 +531,7 @@ Ajoute des mots-clefs à la nuée.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 const idMotClef = await client.motsClefs.créerMotClef();
 await client.motsClefs.sauvegarderNomMotClef({
@@ -587,7 +587,7 @@ import { créerConstellation } from "@constl/ipa";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 const motsClefs = ref<string[]>();
 
@@ -636,7 +636,7 @@ import { créerConstellation } from "@constl/ipa";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 const variables = ref<string[]>();
 
@@ -671,7 +671,7 @@ Change le statut de la nuée.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
 await client.nuées.changerStatutNuée({ 
     idNuée, 
@@ -703,7 +703,7 @@ import { ref } from "vue";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
 const statut = ref<utils.schémaStatut>();
 const fOublierStatut = await client.nuées.suivreStatutNuée({ 
@@ -729,9 +729,9 @@ Indique que la nuée est maintenant obsolète.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
-const idNouvelle = await client.nuées.créerNuée({});
+const idNouvelle = await client.nuées.créerNuée();
 await client.nuées.marquerObsolète({ 
     idNuée, 
     idNouvelle
@@ -751,7 +751,7 @@ Indique que la nuée est active (pas obsolète).
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
 await client.nuées.marquerActive({ idNuée });
 ```
@@ -769,7 +769,7 @@ Indique que la nuée est un test et ne contient pas de vraies données.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
 await client.nuées.marquerJouet({ idNuée });
 ```
@@ -787,7 +787,7 @@ Indique que la nuée est une nuée interne pour une application tièrce et ne de
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
 await client.nuées.marquerInterne({ idNuée });
 ```
@@ -812,7 +812,7 @@ Ajoute un nouveau tableau à la nuée.
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idTableau = await client.nuées.ajouterTableauNuée({ idNuée });
 
 ```
@@ -857,7 +857,7 @@ import { créerConstellation, type bds } from "@constl/ipa";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
 const tableaux = ref<bds.infoTableauAvecId[]>();
 
@@ -911,7 +911,7 @@ const client = créerConstellation();
 
 const clefTableau = "mon tableau principal";
 
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 const idTableau = await client.nuées.ajouterTableauNuée({ idNuée, clefTableau });
 const idVariable = await client.variables.créerVariable({ catégorie: "numérique" });
 
@@ -1120,7 +1120,7 @@ import { créerConstellation } from "@constl/ipa";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 // ajouter des tableaux, créer des bases de données liées et y ajouter des données...
 
@@ -1160,7 +1160,7 @@ import { créerConstellation } from "@constl/ipa";
 
 const client = créerConstellation();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 
 // ajouter des tableaux, créer des bases de données liées et y ajouter des données...
 
@@ -1204,7 +1204,7 @@ const client = créerConstellation();
 
 const nuéesLiées = ref<string[]>();
 
-const idNuée = await client.nuées.créerNuée({ });
+const idNuée = await client.nuées.créerNuée();
 const idNuéeSpécialisée = await client.nuées.créerNuée({ nuéeParent: idNuée });
 
 const { 

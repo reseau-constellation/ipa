@@ -898,7 +898,7 @@ describe("BDs", function () {
         catégorie: "chaîneNonTraductible",
       });
 
-      const idNuée = await client.nuées.créerNuée({});
+      const idNuée = await client.nuées.créerNuée();
 
       const schéma: schémaSpécificationBd = {
         licence: "ODbl-1_0",
@@ -1003,7 +1003,7 @@ describe("BDs", function () {
         catégorie: "chaîneNonTraductible",
       });
 
-      const idNuée = await client.nuées.créerNuée({});
+      const idNuée = await client.nuées.créerNuée();
 
       const schéma: schémaSpécificationBd = {
         licence: "ODbl-1_0",

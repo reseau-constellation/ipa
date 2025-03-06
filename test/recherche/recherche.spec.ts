@@ -1002,7 +1002,7 @@ if (isElectronMain || isNode) {
         >();
 
         before(async () => {
-          idNuée = await clients[1].nuées.créerNuée({});
+          idNuée = await clients[1].nuées.créerNuée();
 
           ({ fOublier } = await clients[0].recherche.rechercherNuéesSelonId({
             idNuée,

@@ -90,7 +90,7 @@ await client.variables.sauvegarderNomVariable({
 // ...continuer pour les autres variables aussi
 
 // Créer nuée
-const idNuée = await client.nuées.créerNuée({});
+const idNuée = await client.nuées.créerNuée();
 
 // Créer tableaux nuée
 const idTableauObs = await client.nuées.ajouterTableauNuée({
