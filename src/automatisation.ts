@@ -5,6 +5,7 @@ import deepcopy from "deepcopy";
 import { v4 as uuidv4 } from "uuid";
 import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
+import { TypedEmitter } from "tiny-typed-emitter";
 import { ComposanteClientDic } from "@/composanteClient.js";
 import {
   importerFeuilleCalculDURL,
@@ -868,22 +869,40 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   }
 };
 
+
+type ÉvénementsAutomatisationActive = {
+  initialisée: (args: {fOublier: schémaFonctionOublier, fLancer: ()=>Promise<void>}) => void;
+}
+
 class AutomatisationActive extends EventEmitter {
   client: Constellation;
+  événements: TypedEmitter<ÉvénementsAutomatisationActive>
 
   état?: ÉtatAutomatisation;
   fOublier?: schémaFonctionOublier;
   fLancer?: () => Promise<void>;
 
-  constructor(
+  constructor({
+    spéc, idSpéc, client
+  }: {
     spéc: SpécificationAutomatisation,
     idSpéc: string,
     client: Constellation,
-  ) {
+  }) {
     super();
 
     this.client = client;
-    lancerAutomatisation({
+    this.événements = new TypedEmitter<ÉvénementsAutomatisationActive>();
+    this.initialiser({spéc, idSpéc});
+  }
+
+  async initialiser({
+    spéc, idSpéc
+  }: {
+    spéc: SpécificationAutomatisation,
+    idSpéc: string,
+  }): Promise<void> {
+    const { fOublier, fLancer } = await lancerAutomatisation({
       spéc,
       idSpéc,
       client: this.client,
@@ -891,33 +910,25 @@ class AutomatisationActive extends EventEmitter {
         this.état = état;
         this.emit("misÀJour");
       },
-    }).then(({ fOublier, fLancer }) => {
-      this.fOublier = fOublier;
-      this.fLancer = fLancer;
-      this.emit("prêt");
-    });
+    })
+    this.fOublier = fOublier;
+    this.fLancer = fLancer;
+    this.événements.emit("initialisée", {fOublier, fLancer});
+  }
+
+  async initialisée(): Promise<{fOublier: schémaFonctionOublier, fLancer: () => Promise<void>}> {
+    if (this.fOublier && this.fLancer) return {fLancer: this.fLancer, fOublier: this.fOublier}
+    return new Promise(résoudre => this.événements.once("initialisée", résoudre));
   }
 
   async relancer() {
-    if (!this.fOublier) {
-      await new Promise<void>((résoudre) => {
-        this.once("prêt", () => {
-          résoudre();
-        });
-      });
-    }
-    await this.fLancer?.();
+    const {fLancer} = await this.initialisée();
+    await fLancer();
   }
 
   async fermer(): Promise<void> {
-    if (!this.fOublier) {
-      await new Promise<void>((résoudre) => {
-        this.once("prêt", () => {
-          résoudre();
-        });
-      });
-    }
-    await this.fOublier?.();
+    const {fOublier} = await this.initialisée();
+    await fOublier();
   }
 }
 
@@ -941,13 +952,18 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
 
 const verrou = new Semaphore();
 
+type ÉvénementsAutomatisations = {
+  initialisée: (args: {fOublier: schémaFonctionOublier}) => void;
+  misÀJour: () => void
+};
+
 export class Automatisations extends ComposanteClientDic<{
   [id: string]: SpécificationAutomatisation;
 }> {
   automatisations: {
     [key: string]: { auto: AutomatisationActive; fOublier: () => void };
   };
-  événements: EventEmitter;
+  événements: TypedEmitter<ÉvénementsAutomatisations>;
 
   fOublier?: schémaFonctionOublier;
 
@@ -959,15 +975,21 @@ export class Automatisations extends ComposanteClientDic<{
     });
 
     this.automatisations = {};
-    this.événements = new EventEmitter();
+    this.événements = new TypedEmitter<ÉvénementsAutomatisations>();
 
-    this.initialiser();
   }
 
-  async initialiser(): Promise<void> {
+  async initialiser(): Promise<schémaFonctionOublier> {
     this.fOublier = await this.suivreBdPrincipale({
       f: (autos) => this.mettreAutosÀJour(Object.values(autos)),
     });
+    this.événements.emit("initialisée", {fOublier: this.fOublier})
+    return this.fOublier;
+  }
+
+  async initialisée(): Promise<{fOublier: schémaFonctionOublier}> {
+    if (this.fOublier) return {fOublier: this.fOublier};
+    return new Promise(résoudre => this.événements.once("initialisée", résoudre));
   }
 
   async mettreAutosÀJour(autos: SpécificationAutomatisation[]): Promise<void> {
@@ -982,7 +1004,7 @@ export class Automatisations extends ComposanteClientDic<{
     for (const a of autos) {
       if (activePourCeDispositif(a, ceDispositif)) {
         if (!Object.keys(this.automatisations).includes(a.id)) {
-          const auto = new AutomatisationActive(a, a.id, this.client);
+          const auto = new AutomatisationActive({spéc: a, idSpéc: a.id, client: this.client});
           const lorsquAutoMiseÀJour = () => this.événements.emit("misÀJour");
           auto.on("misÀJour", lorsquAutoMiseÀJour);
           this.automatisations[a.id] = {
@@ -1304,11 +1326,12 @@ export class Automatisations extends ComposanteClientDic<{
   }
 
   async fermer(): Promise<void> {
+    const {fOublier} = await this.initialisée();
+    await fOublier();
     await Promise.all(
       Object.keys(this.automatisations).map((a) => {
         this.fermerAuto(a);
       }),
     );
-    await this.fOublier?.();
   }
 }

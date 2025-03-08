@@ -17,6 +17,7 @@ import { JSONSchemaType } from "ajv";
 import { v4 as uuidv4 } from "uuid";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
+import pRetry, {AbortError} from 'p-retry';
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
   Constellation,
@@ -35,7 +36,6 @@ import { ComposanteClientDic } from "./composanteClient.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
 import type { Pushable } from "it-pushable";
-import pRetry, {AbortError} from 'p-retry';
 
 import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
 import type { infoScore } from "@/bds.js";

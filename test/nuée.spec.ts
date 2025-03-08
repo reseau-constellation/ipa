@@ -838,12 +838,7 @@ describe("Nuées", function () {
           expect(val[0]).to.deep.equal(réf);
         });
 
-        it("Mais pas chez les autres", async () => {
-          const val = await résultatChezLesAutres.attendreExiste();
-          expect(val.length).to.equal(0);
-        });
-
-        it("...à moins que ce ne soit l'intention", async () => {
+        it("et chez les autres, s'ils le veulent vraiment", async () => {
           const val = await résultatChezLesAutresSansVérification.attendreQue(
             (x) => x && x.length > 0,
           );
@@ -859,6 +854,13 @@ describe("Nuées", function () {
           };
           expect(val[0]).to.deep.equal(réf);
         });
+
+        it("Mais pas normalement", async () => {
+          const val = await résultatChezLesAutres.attendreExiste();
+          expect(val.length).to.equal(0);
+        });
+
+        
       });
     });
 

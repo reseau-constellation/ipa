@@ -1,5 +1,5 @@
-import { idcValide } from "@constl/utils-ipa";
-import { BaseDatabase, isValidAddress } from "@orbitdb/core";
+import { adresseOrbiteValide, idcValide } from "@constl/utils-ipa";
+import { BaseDatabase } from "@orbitdb/core";
 import { CID } from "multiformats";
 import drain from "it-drain";
 import { schémaFonctionOublier } from "@/types.js";
@@ -25,12 +25,14 @@ export class Épingles {
     [id: string]: { bd: BaseDatabase; fOublier: schémaFonctionOublier };
   };
   idcsÉpinglés: string[];
+  signaleurArrêt: AbortController;
 
   constructor({ client }: { client: Constellation }) {
     this.client = client;
     this.requêtes = {};
     this.bdsOuvertes = {};
     this.idcsÉpinglés = [];
+    this.signaleurArrêt = new AbortController();
   }
 
   async épingler({
@@ -40,11 +42,13 @@ export class Épingles {
     idRequête: string;
     épingles: Set<string>;
   }) {
+    if (this.signaleurArrêt.signal.aborted) return;
     this.requêtes[idRequête] = épingles;
     await this.mettreÀJour();
   }
 
   async désépingler({ idRequête }: { idRequête: string }) {
+    if (this.signaleurArrêt.signal.aborted) return;
     delete this.requêtes[idRequête];
     await this.mettreÀJour();
   }
@@ -56,7 +60,7 @@ export class Épingles {
   private async mettreÀJour() {
     const àÉpingler = new Set(...Object.values(this.requêtes));
     const bdsOrbiteÀÉpingler = [...àÉpingler].filter(
-      (id) => id && isValidAddress(id),
+      (id) => id && adresseOrbiteValide(id),
     );
 
     const idcsÀÉpingler = [...àÉpingler]
@@ -82,15 +86,15 @@ export class Épingles {
       await drain(sfip.pins.rm(CID.parse(idc)));
     }
 
-    for (const idBd of bdsOrbiteÀÉpingler) {
+    await Promise.all(bdsOrbiteÀÉpingler.map(async idBd => {
       // Faut pas trop s'en faire si la bd n'est pas accessible.
       try {
-        const { bd, fOublier } = await this.client.ouvrirBd({ id: idBd });
+        const { bd, fOublier } = await this.client.ouvrirBd({ id: idBd, signal: this.signaleurArrêt.signal });
         this.bdsOuvertes[idBd] = { bd, fOublier };
       } catch {
         return;
       }
-    }
+    }));
     const bdsOrbiteÀDésépingler = Object.keys(this.bdsOuvertes).filter(
       (id) => !bdsOrbiteÀÉpingler.includes(id),
     );
@@ -101,6 +105,7 @@ export class Épingles {
   }
 
   async fermer() {
+    this.signaleurArrêt.abort();
     await Promise.all(
       Object.values(this.bdsOuvertes).map(({ fOublier }) => fOublier()),
     );

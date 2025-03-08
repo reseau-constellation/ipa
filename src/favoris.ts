@@ -4,6 +4,7 @@ import { JSONSchemaType } from "ajv";
 import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
 import deepEqual from "deep-equal";
 import deepcopy from "deepcopy";
+import { TypedEmitter } from "tiny-typed-emitter";
 import { cacheSuivi } from "@/décorateursCache.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import type { Constellation } from "@/client.js";
@@ -233,14 +234,70 @@ const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
   required: [],
 };
 
+type ÉvénementsFavoris = {
+  initialisée: (args: {fOublier: schémaFonctionOublier}) => void;
+}
+
 export class Favoris extends ComposanteClientDic<structureBdFavoris> {
-  _promesseInit: Promise<void>;
-  oublierÉpingler?: schémaFonctionOublier;
+  fOublier?: schémaFonctionOublier;
+  événements: TypedEmitter<ÉvénementsFavoris>;
+
 
   constructor({ client }: { client: Constellation }) {
     super({ client, clef: "favoris", schémaBdPrincipale });
+    this.événements = new TypedEmitter<ÉvénementsFavoris>();
+  }
 
-    this._promesseInit = this._épinglerFavoris();
+  async initialiser() {
+    const fFinale = async (
+      résolutions: { idObjet: string; épingles: string[] }[],
+    ) => {
+      return await this.client.épingles.épingler({
+        idRequête: "favoris",
+        épingles: new Set(résolutions.map((r) => r.épingles).flat()),
+      });
+    };
+
+    const fListe = async (
+      fSuivreRacine: (éléments: ÉpingleFavorisAvecId[]) => Promise<void>,
+    ) => {
+      return await this.suivreBdPrincipale({
+        f: (x) =>{
+          return fSuivreRacine(
+            Object.entries(x).map(([idObjet, épingle]) => ({
+              idObjet,
+              épingle,
+            })),
+          )},
+      });
+    };
+    const fBranche = async (
+      _id: string,
+      fSuivreBranche: schémaFonctionSuivi<Set<string>>,
+      branche: ÉpingleFavorisAvecId<ÉpingleFavoris>,
+    ) => {
+      return await this.suivreRésolutionÉpingle({
+        épingle: branche,
+        f: fSuivreBranche,
+      });
+    };
+    const fIdBdDeBranche = (b: ÉpingleFavorisAvecId) => b.idObjet;
+    const fCode = (b: ÉpingleFavorisAvecId) => b.idObjet;
+
+    this.fOublier = await suivreBdsDeFonctionListe({
+      fListe,
+      f: fFinale,
+      fBranche,
+      fIdBdDeBranche,
+      fCode,
+    });
+
+    this.événements.emit("initialisée", {fOublier: this.fOublier})
+  }
+
+  async initialisée(): Promise<{fOublier: schémaFonctionOublier}> {
+    if (this.fOublier) return {fOublier: this.fOublier};
+    return new Promise(résoudre => this.événements.once("initialisée", résoudre));
   }
 
   async suivreRésolutionÉpingle({
@@ -293,53 +350,6 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
       default:
         throw new Error(String(épingle));
     }
-  }
-
-  async _épinglerFavoris() {
-    const fFinale = async (
-      résolutions: { idObjet: string; épingles: string[] }[],
-    ) => {
-      return await this.client.épingles.épingler({
-        idRequête: "favoris",
-        épingles: new Set(résolutions.map((r) => r.épingles).flat()),
-      });
-    };
-
-    const fListe = async (
-      fSuivreRacine: (éléments: ÉpingleFavorisAvecId[]) => Promise<void>,
-    ) => {
-      return await this.suivreBdPrincipale({
-        f: (x) =>
-          fSuivreRacine(
-            Object.entries(x).map(([idObjet, épingle]) => ({
-              idObjet,
-              épingle,
-            })),
-          ),
-      });
-    };
-    const fBranche = async (
-      _id: string,
-      fSuivreBranche: schémaFonctionSuivi<Set<string>>,
-      branche: ÉpingleFavorisAvecId<ÉpingleFavoris>,
-    ) => {
-      return await this.suivreRésolutionÉpingle({
-        épingle: branche,
-        f: fSuivreBranche,
-      });
-    };
-    const fIdBdDeBranche = (b: ÉpingleFavorisAvecId) => b.idObjet;
-    const fCode = (b: ÉpingleFavorisAvecId) => b.idObjet;
-
-    const fOublier = await suivreBdsDeFonctionListe({
-      fListe,
-      f: fFinale,
-      fBranche,
-      fIdBdDeBranche,
-      fCode,
-    });
-
-    this.oublierÉpingler = fOublier;
   }
 
   @cacheSuivi
@@ -492,7 +502,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }
 
   async fermer(): Promise<void> {
-    await this._promesseInit;
-    if (this.oublierÉpingler) await this.oublierÉpingler();
+    const {fOublier} = await this.initialisée();
+    await fOublier();
   }
 }

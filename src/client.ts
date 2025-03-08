@@ -331,7 +331,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     this.réseau = new Réseau({ client: this });
 
-    this.protocoles = new Protocoles({ client: this });
+    this.protocoles = new Protocoles({ client: this, protocoles: this._opts.protocoles });
 
     this._initialiser();
   }
@@ -345,9 +345,9 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       await this.verrouillerDossier({ message: this._opts.messageVerrou });
     } catch (e) {
       this.erreurInitialisation = e;
-      await this.fermerCompte();
-      await this.épingles.fermer();
       this.événements.emit("erreurInitialisation", e);
+      await this.fermer();
+      return;
     }
 
     const { sfip, orbite } = await this._générerSFIPetOrbite();
@@ -374,11 +374,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       });
     }
 
-    await this.réseau.initialiser();
-    await this.protocoles.établirProtocoles({
-      protocoles: this._opts.protocoles,
-    });
-
+    await this._initialiserComposantes();
     this.événements.emit("comptePrêt", { idCompte: this.idCompte });
 
     const épingle: ÉpingleCompte = {
@@ -395,6 +391,20 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       idCompte: this.idCompte,
       options: épingle,
     });
+  }
+
+  async _initialiserComposantes(): Promise<void> {
+    await this.réseau.initialiser();
+    await this.protocoles.initialiser();
+    await this.automatisations.initialiser();
+    await this.favoris.initialiser();
+  }
+
+  async _fermerComposantes(): Promise<void> {
+    await this.réseau.fermer();
+    await this.automatisations.fermer();
+    await this.favoris.fermer();
+    await this.épingles.fermer();
   }
 
   async _créerBdCompte({ orbite }: { orbite: OrbitDB<T> }): Promise<string> {
@@ -1437,7 +1447,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     fOublierNouvelle();
   }
 
-  async suivreBd<
+  suivreBd<
     U extends { [clef: string]: élémentsBd },
     T extends TypedKeyValue<U> = TypedKeyValue<U>,
   >({
@@ -1450,8 +1460,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     f: schémaFonctionSuivi<T>;
     type: "keyvalue";
     schéma?: JSONSchemaType<U>;
-  }): Promise<schémaFonctionOublier>;
-  async suivreBd<U extends élémentsBd = élémentsBd, T = TypedSet<U>>({
+  }): schémaFonctionOublier;
+  suivreBd<U extends élémentsBd = élémentsBd, T = TypedSet<U>>({
     id,
     f,
     type,
@@ -1461,8 +1471,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     f: schémaFonctionSuivi<T>;
     type: "set";
     schéma?: JSONSchemaType<U>;
-  }): Promise<schémaFonctionOublier>;
-  async suivreBd<
+  }): schémaFonctionOublier;
+  suivreBd<
     U extends { [clef: string]: élémentsBd },
     T = TypedOrderedKeyValue<U>,
   >({
@@ -1475,15 +1485,15 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     f: schémaFonctionSuivi<T>;
     type: "ordered-keyvalue";
     schéma?: JSONSchemaType<U>;
-  }): Promise<schémaFonctionOublier>;
-  async suivreBd({
+  }): schémaFonctionOublier;
+  suivreBd({
     id,
     f,
   }: {
     id: string;
     f: schémaFonctionSuivi<Store>;
-  }): Promise<schémaFonctionOublier>;
-  async suivreBd<U, T extends Store>({
+  }): schémaFonctionOublier;
+  suivreBd<U, T extends Store>({
     id,
     f,
     type,
@@ -1493,8 +1503,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     f: schémaFonctionSuivi<T>;
     type?: "keyvalue" | "set" | "ordered-keyvalue";
     schéma?: JSONSchemaType<U>;
-  }): Promise<schémaFonctionOublier> {
-    if (!isValidAddress(id)) throw new Error(`Adresse "${id}" non valide.`);
+  }): schémaFonctionOublier {
+    if (!adresseOrbiteValide(id)) throw new Error(`Adresse "${id}" non valide.`);
     const fsOublier: schémaFonctionOublier[] = [];
     const promesses: { [clef: string]: Promise<void> | void } = {};
 
@@ -2620,26 +2630,20 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     return fOublier;
   }
 
-  async fermerCompte(): Promise<void> {
-    if (this.réseau) await this.réseau.fermer();
-    if (this.favoris) await this.favoris.fermer();
-
-    if (this.automatisations) await this.automatisations.fermer();
-  }
-
   async fermer(): Promise<void> {
     await this.attendreInitialisée();
-    const { orbite } = await this.attendreSfipEtOrbite();
+    const { orbite, sfip } = await this.attendreSfipEtOrbite();
     this.signaleurArrêt.abort();
-
+    
     await (await stockageLocal(await this.dossier())).fermer?.();
-    await this.fermerCompte();
-    await this.épingles.fermer();
+    await this._fermerComposantes();
+    
+    if (!this._orbiteExterne)
+      await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
 
-    await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
-    if (this.sfip && !this._sfipExterne) {
-      await this.sfip.stop();
-      await this.sfip.libp2p.stop();
+    if (!this._sfipExterne) {
+      await sfip.stop();
+      await sfip.libp2p.stop();
     }
 
     // Effacer fichier verrou

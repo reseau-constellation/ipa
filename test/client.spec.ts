@@ -313,7 +313,7 @@ if (isNode || isElectronMain) {
       });
     });
 
-    describe.skip("Même dossier", async () => {
+    describe("Même dossier", async () => {
       let constl1: Constellation;
       let constl2: Constellation;
 
@@ -327,7 +327,6 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         await constl1.fermer();
-        await constl2.fermer();
         try {
           fEffacer?.();
         } catch (e) {
