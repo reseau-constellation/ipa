@@ -328,6 +328,11 @@ if (isNode || isElectronMain) {
       after(async () => {
         await constl1.fermer();
         try {
+          await constl2.fermer();
+        } catch (e) {
+          if (!e.toString().includes("Constellation est déjà lancée.")) throw e
+        }
+        try {
           fEffacer?.();
         } catch (e) {
           if ((isNode || isElectronMain) && process.platform === "win32") {
@@ -345,6 +350,11 @@ if (isNode || isElectronMain) {
           "Constellation est déjà lancée.",
         );
       });
+      it("Fermeture en double", async () => {
+        await expect(constl2.fermer()).to.be.rejectedWith(
+          "Constellation est déjà lancée.",
+        );
+      })
     });
 
     describe.skip("Même dossier - serveur local", async () => {
