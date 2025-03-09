@@ -2642,8 +2642,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     await this._fermerComposantes();
 
     const { orbite, sfip } = await this.attendreSfipEtOrbite();
-    if (!this._orbiteExterne)
-      await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
+
+    await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
 
     if (!this._sfipExterne) {
       await sfip.stop();
