@@ -86,15 +86,20 @@ export class Épingles {
       await drain(sfip.pins.rm(CID.parse(idc)));
     }
 
-    await Promise.all(bdsOrbiteÀÉpingler.map(async idBd => {
-      // Faut pas trop s'en faire si la bd n'est pas accessible.
-      try {
-        const { bd, fOublier } = await this.client.ouvrirBd({ id: idBd, signal: this.signaleurArrêt.signal });
-        this.bdsOuvertes[idBd] = { bd, fOublier };
-      } catch {
-        return;
-      }
-    }));
+    await Promise.all(
+      bdsOrbiteÀÉpingler.map(async (idBd) => {
+        // Faut pas trop s'en faire si la bd n'est pas accessible.
+        try {
+          const { bd, fOublier } = await this.client.ouvrirBd({
+            id: idBd,
+            signal: this.signaleurArrêt.signal,
+          });
+          this.bdsOuvertes[idBd] = { bd, fOublier };
+        } catch {
+          return;
+        }
+      }),
+    );
     const bdsOrbiteÀDésépingler = Object.keys(this.bdsOuvertes).filter(
       (id) => !bdsOrbiteÀÉpingler.includes(id),
     );

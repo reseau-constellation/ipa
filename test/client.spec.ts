@@ -330,7 +330,7 @@ if (isNode || isElectronMain) {
         try {
           await constl2.fermer();
         } catch (e) {
-          if (!e.toString().includes("Constellation est déjà lancée.")) throw e
+          if (!e.toString().includes("Constellation est déjà lancée.")) throw e;
         }
         try {
           fEffacer?.();
@@ -354,7 +354,7 @@ if (isNode || isElectronMain) {
         await expect(constl2.fermer()).to.be.rejectedWith(
           "Constellation est déjà lancée.",
         );
-      })
+      });
     });
 
     describe.skip("Même dossier - serveur local", async () => {

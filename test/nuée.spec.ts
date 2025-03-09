@@ -859,8 +859,6 @@ describe("Nuées", function () {
           const val = await résultatChezLesAutres.attendreExiste();
           expect(val.length).to.equal(0);
         });
-
-        
       });
     });
 

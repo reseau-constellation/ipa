@@ -17,7 +17,7 @@ import { JSONSchemaType } from "ajv";
 import { v4 as uuidv4 } from "uuid";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
-import pRetry, {AbortError} from 'p-retry';
+import pRetry, { AbortError } from "p-retry";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
   Constellation,
@@ -264,8 +264,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }
 
   async initialiser(): Promise<void> {
-    const texteDispositifsVus = await this.client.obtDeStockageLocal({ clef: "dispositifsEnLigne" })
-    this.dispositifsEnLigne = texteDispositifsVus ? JSON.parse(texteDispositifsVus) : {};
+    const texteDispositifsVus = await this.client.obtDeStockageLocal({
+      clef: "dispositifsEnLigne",
+    });
+    this.dispositifsEnLigne = texteDispositifsVus
+      ? JSON.parse(texteDispositifsVus)
+      : {};
 
     const { sfip } = await this.client.attendreSfipEtOrbite();
 
@@ -414,8 +418,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         idPairDestinataire,
         PROTOCOLE_CONSTELLATION,
         { signal: signalCombiné, runOnLimitedConnection: true },
-      )}
-    );
+      );
+    });
     signalCombiné.clear();
 
     const fluxÀÉcrire = pushable();

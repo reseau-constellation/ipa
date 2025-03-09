@@ -22,7 +22,13 @@ export const schémaStructureBdProtocoles: JSONSchemaType<structureBdProtocoles>
 export class Protocoles extends ComposanteClientDic<structureBdProtocoles> {
   protocoles_init: string[];
 
-  constructor({ client, protocoles = [] }: { client: Constellation; protocoles?: string[] }) {
+  constructor({
+    client,
+    protocoles = [],
+  }: {
+    client: Constellation;
+    protocoles?: string[];
+  }) {
     super({
       client,
       clef: "protocoles",
@@ -32,7 +38,7 @@ export class Protocoles extends ComposanteClientDic<structureBdProtocoles> {
   }
 
   async initialiser(): Promise<void> {
-    await this.établirProtocoles({protocoles: this.protocoles_init});
+    await this.établirProtocoles({ protocoles: this.protocoles_init });
   }
 
   async établirProtocoles({

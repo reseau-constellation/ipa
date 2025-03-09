@@ -235,13 +235,12 @@ const schémaBdPrincipale: JSONSchemaType<structureBdFavoris> = {
 };
 
 type ÉvénementsFavoris = {
-  initialisée: (args: {fOublier: schémaFonctionOublier}) => void;
-}
+  initialisée: (args: { fOublier: schémaFonctionOublier }) => void;
+};
 
 export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   fOublier?: schémaFonctionOublier;
   événements: TypedEmitter<ÉvénementsFavoris>;
-
 
   constructor({ client }: { client: Constellation }) {
     super({ client, clef: "favoris", schémaBdPrincipale });
@@ -262,13 +261,14 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
       fSuivreRacine: (éléments: ÉpingleFavorisAvecId[]) => Promise<void>,
     ) => {
       return await this.suivreBdPrincipale({
-        f: (x) =>{
+        f: (x) => {
           return fSuivreRacine(
             Object.entries(x).map(([idObjet, épingle]) => ({
               idObjet,
               épingle,
             })),
-          )},
+          );
+        },
       });
     };
     const fBranche = async (
@@ -292,12 +292,14 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
       fCode,
     });
 
-    this.événements.emit("initialisée", {fOublier: this.fOublier})
+    this.événements.emit("initialisée", { fOublier: this.fOublier });
   }
 
-  async initialisée(): Promise<{fOublier: schémaFonctionOublier}> {
-    if (this.fOublier) return {fOublier: this.fOublier};
-    return new Promise(résoudre => this.événements.once("initialisée", résoudre));
+  async initialisée(): Promise<{ fOublier: schémaFonctionOublier }> {
+    if (this.fOublier) return { fOublier: this.fOublier };
+    return new Promise((résoudre) =>
+      this.événements.once("initialisée", résoudre),
+    );
   }
 
   async suivreRésolutionÉpingle({
@@ -502,7 +504,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
   }
 
   async fermer(): Promise<void> {
-    const {fOublier} = await this.initialisée();
+    const { fOublier } = await this.initialisée();
     await fOublier();
   }
 }

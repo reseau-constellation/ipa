@@ -331,7 +331,10 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     this.réseau = new Réseau({ client: this });
 
-    this.protocoles = new Protocoles({ client: this, protocoles: this._opts.protocoles });
+    this.protocoles = new Protocoles({
+      client: this,
+      protocoles: this._opts.protocoles,
+    });
 
     this._initialiser();
   }
@@ -1503,7 +1506,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     type?: "keyvalue" | "set" | "ordered-keyvalue";
     schéma?: JSONSchemaType<U>;
   }): schémaFonctionOublier {
-    if (!adresseOrbiteValide(id)) throw new Error(`Adresse "${id}" non valide.`);
+    if (!adresseOrbiteValide(id))
+      throw new Error(`Adresse "${id}" non valide.`);
     const fsOublier: schémaFonctionOublier[] = [];
     const promesses: { [clef: string]: Promise<void> | void } = {};
 
@@ -2633,10 +2637,10 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     await this.attendreInitialisée();
 
     this.signaleurArrêt.abort();
-    
+
     await (await stockageLocal(await this.dossier())).fermer?.();
     await this._fermerComposantes();
-    
+
     const { orbite, sfip } = await this.attendreSfipEtOrbite();
     if (!this._orbiteExterne)
       await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
