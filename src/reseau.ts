@@ -258,15 +258,15 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.dispositifsEnLigne = {};
     this.connexionsDirectes = {};
 
-    this.client
-      .obtDeStockageLocal({ clef: "dispositifsEnLigne" })
-      .then((x) => (this.dispositifsEnLigne = JSON.parse(x || "{}")));
     this.fsOublier = [];
     this._fermé = false;
     this.événements = new TypedEmitter<ÉvénementsRéseau>();
   }
 
   async initialiser(): Promise<void> {
+    const texteDispositifsVus = await this.client.obtDeStockageLocal({ clef: "dispositifsEnLigne" })
+    this.dispositifsEnLigne = texteDispositifsVus ? JSON.parse(texteDispositifsVus) : {};
+
     const { sfip } = await this.client.attendreSfipEtOrbite();
 
     const promesses: { [clef: string]: Promise<void> } = {};
