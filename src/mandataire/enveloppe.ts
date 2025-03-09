@@ -18,6 +18,7 @@ import type { schémaFonctionOublier } from "@/types.js";
 
 export class EnveloppeIpa {
   ipa?: Constellation;
+  erreurInitialisation?: Error;
   _messagesEnAttente: MessagePourIpa[];
   prêt: boolean;
   dicFRetourSuivi: {
@@ -88,6 +89,7 @@ export class EnveloppeIpa {
     try {
       this.ipa = await Constellation.créer(this.opts);
     } catch (e) {
+      this.erreurInitialisation = e;
       this.fErreur({
         erreur: e.toString(),
         code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
@@ -114,14 +116,14 @@ export class EnveloppeIpa {
   async gérerMessage(message: MessagePourIpa): Promise<void> {
     if (this.prêt) {
       await this._gérerMessage(message);
-    } else if (this.ipa?.erreurInitialisation) {
+    } else if (this.erreurInitialisation) {
       this.fErreur({
-        erreur: this.ipa.erreurInitialisation.toString(),
+        erreur: this.erreurInitialisation.toString(),
         idRequête: message.idRequête,
         code:
-          this.ipa.erreurInitialisation.name === "Error"
+          this.erreurInitialisation.name === "Error"
             ? ERREUR_INIT_IPA
-            : this.ipa.erreurInitialisation.name,
+            : this.erreurInitialisation.name,
       });
     } else {
       this._messagesEnAttente.unshift(message);
