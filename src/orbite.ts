@@ -26,14 +26,52 @@ import {
 import { type JSONSchemaType } from "ajv";
 
 import Semaphore from "@chriscdn/promise-semaphore";
-import { réessayer } from "@constl/utils-ipa";
 import { anySignal } from "any-signal";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 import type { HeliaLibp2p } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2p } from "./sfip/index.js";
-import type { ServiceMap } from "@libp2p/interface";
+import { AbortError, type ServiceMap } from "@libp2p/interface";
+
+export const réessayer = async <T>({
+  f,
+  signal,
+}: {
+  f: () => Promise<T>;
+  signal: AbortSignal;
+}): Promise<T> => {
+  let avant = Date.now();
+  const _interne = async ({
+    f,
+    signal,
+    n,
+  }: {
+    f: () => Promise<T>;
+    signal: AbortSignal;
+    n: number
+  }): Promise<T>  => {
+    try {
+      avant = Date.now();
+      return await f();
+    } catch (e) {
+      console.log(e)
+      console.trace()
+      if (signal.aborted) throw new AbortError();
+      n++
+      const maintenant = Date.now();
+      const tempsÀAttendre = n * 1000 - (maintenant - avant) 
+      if (tempsÀAttendre > 0)
+        await new Promise(résoudre => {
+        const chrono = setTimeout(résoudre, tempsÀAttendre)
+        signal.addEventListener("abort", () => clearInterval(chrono))
+      })
+      return await _interne({ f, signal, n });
+    }
+  }
+  return _interne({f, signal, n: 0})
+};
+
 
 export type Store =
   | FeedDatabaseType
@@ -444,7 +482,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
 
   async fermer({ arrêterOrbite }: { arrêterOrbite: boolean }): Promise<void> {
     this.signaleurArrêt.abort();
-    if (this._oublierNettoyageBdsOuvertes) this._oublierNettoyageBdsOuvertes();
+    if (this._oublierNettoyageBdsOuvertes) await this._oublierNettoyageBdsOuvertes();
     if (arrêterOrbite) {
       await this.orbite.stop();
     }
