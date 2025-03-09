@@ -346,7 +346,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     } catch (e) {
       this.erreurInitialisation = e;
       this.événements.emit("erreurInitialisation", e);
-      await this.fermer();
       return;
     }
 
@@ -2632,12 +2631,13 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
   async fermer(): Promise<void> {
     await this.attendreInitialisée();
-    const { orbite, sfip } = await this.attendreSfipEtOrbite();
+
     this.signaleurArrêt.abort();
     
     await (await stockageLocal(await this.dossier())).fermer?.();
     await this._fermerComposantes();
     
+    const { orbite, sfip } = await this.attendreSfipEtOrbite();
     if (!this._orbiteExterne)
       await orbite.fermer({ arrêterOrbite: !this._orbiteExterne });
 
