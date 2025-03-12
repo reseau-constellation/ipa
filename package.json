@@ -33,7 +33,7 @@
     "postbuild": "./dist/**/*"
   },
   "devDependencies": {
-    "@constl/utils-tests": "^1.6.13",
+    "@constl/utils-tests": "^1.6.15",
     "@eslint/js": "^9.21.0",
     "@libp2p/crypto": "^5.0.13",
     "@libp2p/interface": "^2.6.1",
@@ -106,7 +106,7 @@
     "@helia/block-brokers": "^4.0.4",
     "@helia/unixfs": "^4.0.2",
     "@ipld/dag-cbor": "^9.2.2",
-    "@lassi-js/kili": "^0.4.1",
+    "@lassi-js/kili": "^0.4.2",
     "@libp2p/autonat": "^2.0.24",
     "@libp2p/bootstrap": "^11.0.28",
     "@libp2p/circuit-relay-v2": "^3.2.4",
