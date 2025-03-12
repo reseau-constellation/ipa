@@ -176,14 +176,14 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
   _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
   signaleurArrêt: AbortController;
 
-  constructor(orbite: OrbitDB<T>) {
+  constructor({orbite, signaleurArrêt}: {orbite: OrbitDB<T>; signaleurArrêt?: AbortController}) {
     this.orbite = orbite;
 
     this._bdsOrbite = {};
     this.verrouOuvertureBd = new Semaphore();
 
     this._oublierNettoyageBdsOuvertes = this.lancerNettoyageBdsOuvertes();
-    this.signaleurArrêt = new AbortController();
+    this.signaleurArrêt = signaleurArrêt || new AbortController();
   }
 
   get identity(): OrbitDB["identity"] {
@@ -498,11 +498,13 @@ export class GestionnaireOrbiteGénéral {
 
   obtGestionnaireOrbite<T extends ServiceMap = ServiceMap>({
     orbite,
+    signaleurArrêt,
   }: {
     orbite: OrbitDB<T>;
+    signaleurArrêt?: AbortController;
   }): GestionnaireOrbite {
     if (!this.gestionnaires[orbite.identity.id]) {
-      this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite(orbite);
+      this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite({orbite, signaleurArrêt});
     }
     return this.gestionnaires[orbite.identity.id];
   }
@@ -510,11 +512,13 @@ export class GestionnaireOrbiteGénéral {
   async fermer({
     orbite,
     arrêterOrbite,
+    signaleurArrêt,
   }: {
     orbite: OrbitDB<ServiceMap>;
     arrêterOrbite: boolean;
+    signaleurArrêt: AbortController;
   }): Promise<void> {
-    const gestionnaireOrbite = this.obtGestionnaireOrbite({ orbite });
+    const gestionnaireOrbite = this.obtGestionnaireOrbite({ orbite, signaleurArrêt });
     await gestionnaireOrbite.fermer({ arrêterOrbite });
     delete this.gestionnaires[orbite.identity.id];
   }

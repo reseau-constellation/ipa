@@ -354,7 +354,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
-    this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite });
+    this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite, signaleurArrêt: this.signaleurArrêt });
     this.événements.emit("sfipEtOrbitePrêts", { sfip, orbite: this.orbite });
 
     this.idCompte =
@@ -2638,8 +2638,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     this.signaleurArrêt.abort();
 
-    await (await stockageLocal(await this.dossier())).fermer?.();
     await this._fermerComposantes();
+    await (await stockageLocal(await this.dossier())).fermer?.();
 
     const { orbite, sfip } = await this.attendreSfipEtOrbite();
 
