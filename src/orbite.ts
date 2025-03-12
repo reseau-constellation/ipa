@@ -49,29 +49,28 @@ export const réessayer = async <T>({
   }: {
     f: () => Promise<T>;
     signal: AbortSignal;
-    n: number
-  }): Promise<T>  => {
+    n: number;
+  }): Promise<T> => {
     try {
       avant = Date.now();
       return await f();
     } catch (e) {
       if (signal.aborted) throw new AbortError();
-      console.log(e)
-      console.trace()
-      n++
+      console.log(e);
+      console.trace();
+      n++;
       const maintenant = Date.now();
-      const tempsÀAttendre = n * 1000 - (maintenant - avant) 
+      const tempsÀAttendre = n * 1000 - (maintenant - avant);
       if (tempsÀAttendre > 0)
-        await new Promise(résoudre => {
-        const chrono = setTimeout(résoudre, tempsÀAttendre)
-        signal.addEventListener("abort", () => clearInterval(chrono))
-      })
+        await new Promise((résoudre) => {
+          const chrono = setTimeout(résoudre, tempsÀAttendre);
+          signal.addEventListener("abort", () => clearInterval(chrono));
+        });
       return await _interne({ f, signal, n });
     }
-  }
-  return _interne({f, signal, n: 0})
+  };
+  return _interne({ f, signal, n: 0 });
 };
-
 
 export type Store =
   | FeedDatabaseType
@@ -482,7 +481,8 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
 
   async fermer({ arrêterOrbite }: { arrêterOrbite: boolean }): Promise<void> {
     this.signaleurArrêt.abort();
-    if (this._oublierNettoyageBdsOuvertes) await this._oublierNettoyageBdsOuvertes();
+    if (this._oublierNettoyageBdsOuvertes)
+      await this._oublierNettoyageBdsOuvertes();
     if (arrêterOrbite) {
       await this.orbite.stop();
     }
