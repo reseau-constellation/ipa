@@ -27,12 +27,12 @@ import { type JSONSchemaType } from "ajv";
 
 import Semaphore from "@chriscdn/promise-semaphore";
 import { anySignal } from "any-signal";
+import { AbortError, type ServiceMap } from "@libp2p/interface";
 import { enregistrerContrôleurs } from "@/accès/index.js";
 import type { schémaFonctionOublier, élémentsBd } from "./types.js";
 import type { HeliaLibp2p } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2p } from "./sfip/index.js";
-import { AbortError, type ServiceMap } from "@libp2p/interface";
 
 export const réessayer = async <T>({
   f,
@@ -55,9 +55,9 @@ export const réessayer = async <T>({
       avant = Date.now();
       return await f();
     } catch (e) {
+      if (signal.aborted) throw new AbortError();
       console.log(e)
       console.trace()
-      if (signal.aborted) throw new AbortError();
       n++
       const maintenant = Date.now();
       const tempsÀAttendre = n * 1000 - (maintenant - avant) 
