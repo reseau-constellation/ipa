@@ -180,8 +180,8 @@ importers:
         specifier: github:inverted-capital/iso-constants#patch-1
         version: https://codeload.github.com/inverted-capital/iso-constants/tar.gz/2af6fdfb2cacaa03ebd58543703918783e62649f
       it-drain:
-        specifier: ^3.0.7
-        version: 3.0.7
+        specifier: ^3.0.8
+        version: 3.0.8
       it-pipe:
         specifier: ^3.0.1
         version: 3.0.1
@@ -189,8 +189,8 @@ importers:
         specifier: ^3.2.3
         version: 3.2.3
       it-to-buffer:
-        specifier: ^4.0.7
-        version: 4.0.7
+        specifier: ^4.0.8
+        version: 4.0.8
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -5864,8 +5864,8 @@ packages:
   it-byte-stream@1.1.0:
     resolution: {integrity: sha512-WWponBWdKEa6o2U3NX+wGMY8X1EkWXcQvpC+3CUqKb4ZzK30q3EPqiTjFxLf9tNVgdF/MNAtx/XclpVfgaz9KQ==}
 
-  it-drain@3.0.7:
-    resolution: {integrity: sha512-vy6S1JKjjHSIFHgBpLpD1zhkCRl3z1zYWUxE14+kAYf+BL9ssWSFImJfhl361IIcwr0ofw8etzg11VqqB+ntUA==}
+  it-drain@3.0.8:
+    resolution: {integrity: sha512-eeOz+WwKc11ou1UuqZympcXPLCjpTn5ALcYFJiHeTEiYEZ2py/J1vq41XWYj88huCUiqp9iNHfObOKrbIk5Izw==}
 
   it-filter@3.1.1:
     resolution: {integrity: sha512-TOXmVuaSkxlLp2hXKoMTra0WMZMKVFxE3vSsbIA+PbADNCBAHhjJ/lM31vBOUTddHMO34Ku++vU8T9PLlBxQtg==}
@@ -5944,8 +5944,8 @@ packages:
   it-take@3.0.6:
     resolution: {integrity: sha512-uqw3MRzf9to1SOLxaureGa73lK8k8ZB/asOApTAkvrzUqCznGtKNgPFH7uYIWlt4UuWq/hU6I+U4Fm5xpjN8Vg==}
 
-  it-to-buffer@4.0.7:
-    resolution: {integrity: sha512-c7JXrFg8xntJTPzhg7Dg6WJYm+XW0wBUebvEBrc6zrL/QukGRXclw1OBz6M9Qmqkiorgb3qpsRwKlI/4Q3tmkQ==}
+  it-to-buffer@4.0.8:
+    resolution: {integrity: sha512-niZbR/+GbyQ2F2Nj79EJprT0gji5Si4nM1eJpgtlvfbvhsi5ZgA/y+mzSrOoNajiTC3svqvoNy8HGlTW2Faz/A==}
 
   it-ws@6.1.5:
     resolution: {integrity: sha512-uWjMtpy5HqhSd/LlrlP3fhYrr7rUfJFFMABv0F5d6n13Q+0glhZthwUKpEAVhDrXY95Tb1RB5lLqqef+QbVNaw==}
@@ -10812,7 +10812,7 @@ snapshots:
       any-signal: 4.1.1
       interface-blockstore: 5.3.1
       interface-store: 6.0.2
-      it-drain: 3.0.7
+      it-drain: 3.0.8
       it-length-prefixed: 9.1.1
       it-length-prefixed-stream: 1.2.0
       it-map: 3.1.1
@@ -10923,7 +10923,7 @@ snapshots:
       interface-blockstore: 5.3.1
       interface-datastore: 8.3.1
       interface-store: 6.0.2
-      it-drain: 3.0.7
+      it-drain: 3.0.8
       it-filter: 3.1.1
       it-foreach: 2.1.1
       it-merge: 3.0.5
@@ -11218,7 +11218,7 @@ snapshots:
       '@libp2p/utils': 6.5.5
       '@multiformats/multiaddr': 12.4.0
       '@multiformats/multiaddr-matcher': 1.6.0
-      it-drain: 3.0.7
+      it-drain: 3.0.8
       it-parallel: 3.0.8
       it-protobuf-stream: 1.1.5
       protons-runtime: 5.5.0
@@ -11308,7 +11308,7 @@ snapshots:
       any-signal: 4.1.1
       interface-datastore: 8.3.1
       it-all: 3.0.6
-      it-drain: 3.0.7
+      it-drain: 3.0.8
       it-length: 3.0.6
       it-length-prefixed: 10.0.1
       it-map: 3.1.1
@@ -13213,7 +13213,7 @@ snapshots:
       '@libp2p/logger': 5.1.10
       interface-blockstore: 5.3.1
       interface-store: 6.0.2
-      it-drain: 3.0.7
+      it-drain: 3.0.8
       it-filter: 3.1.1
       it-merge: 3.0.5
       it-pushable: 3.2.3
@@ -14056,7 +14056,7 @@ snapshots:
       '@libp2p/logger': 5.1.10
       interface-datastore: 8.3.1
       interface-store: 6.0.2
-      it-drain: 3.0.7
+      it-drain: 3.0.8
       it-filter: 3.1.1
       it-map: 3.1.1
       it-merge: 3.0.5
@@ -16458,7 +16458,7 @@ snapshots:
       it-stream-types: 2.0.2
       uint8arraylist: 2.4.8
 
-  it-drain@3.0.7: {}
+  it-drain@3.0.8: {}
 
   it-filter@3.1.1:
     dependencies:
@@ -16562,7 +16562,7 @@ snapshots:
 
   it-take@3.0.6: {}
 
-  it-to-buffer@4.0.7:
+  it-to-buffer@4.0.8:
     dependencies:
       uint8arrays: 5.1.0
 
