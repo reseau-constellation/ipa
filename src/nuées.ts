@@ -3380,7 +3380,7 @@ export class Nuées extends ComposanteClientListe<string> {
     });
     const contenuBd = await bdNuée.all();
     for (const item of contenuBd) {
-      if (item.key === "tableaux") continue;
+      if (item.key === "tableaux" || item.key === 'parent') continue;
       if (typeof item.value === "string" && adresseOrbiteValide(item.value))
         await this.client.effacerBd({ id: item.value });
     }
