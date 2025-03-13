@@ -305,34 +305,29 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
       };
     }
 
-    try {
-      const bd = await réessayer({
-        f: async (): Promise<T> =>
-          (await this.orbite.open(id, {
-            type,
-            ...options,
-          })) as T,
-        signal: signalCombiné,
-      });
-      signalCombiné.clear();
+    const bd = await réessayer({
+      f: async (): Promise<T> =>
+        (await this.orbite.open(id, {
+          type,
+          ...options,
+        })) as T,
+      signal: signalCombiné,
+    });
+    signalCombiné.clear();
 
-      this.orbite.ipfs.libp2p.addEventListener("peer:disconnect", (x) => {
-        bd.peers.delete(x.detail.toString());
-      });
+    this.orbite.ipfs.libp2p.addEventListener("peer:disconnect", (x) => {
+      bd.peers.delete(x.detail.toString());
+    });
 
-      this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
+    this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
 
-      // Maintenant que la BD a été créée, on peut relâcher le verrou
-      this.verrouOuvertureBd.release(id);
+    // Maintenant que la BD a été créée, on peut relâcher le verrou
+    this.verrouOuvertureBd.release(id);
 
-      return {
-        bd,
-        fOublier,
-      };
-    } catch (e) {
-      console.error((e as Error).toString());
-      throw e;
-    }
+    return {
+      bd,
+      fOublier,
+    };
   }
 
   async ouvrirBdTypée<
