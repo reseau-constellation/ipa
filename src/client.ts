@@ -951,33 +951,39 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "keyvalue";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T = TypedFeed<U>>({
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "feed";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T = TypedSet<U>>({
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "set";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<
@@ -987,22 +993,26 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "ordered-keyvalue";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }>;
   async ouvrirBdTypée<U extends élémentsBd, T>({
     id,
     type,
     schéma,
+    signal,
     options,
   }: {
     id: string;
     type: "ordered-keyvalue" | "set" | "keyvalue" | "feed";
     schéma: JSONSchemaType<U>;
+    signal?: AbortSignal;
     options?: Omit<OpenDatabaseOptions, "type">;
   }): Promise<{ bd: T; fOublier: schémaFonctionOublier }> {
     const { orbite } = await this.attendreSfipEtOrbite();
@@ -1012,6 +1022,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       type,
       // @ts-expect-error Va donc comprendre
       schéma,
+      signal,
       options,
     });
   }
@@ -1518,87 +1529,82 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     const fsOublier: schémaFonctionOublier[] = [];
     const promesses: { [clef: string]: Promise<void> | void } = {};
 
-    let annulé = false;
+    const signaleur = new AbortController();
 
-    const lancerSuivi = () => {
-      // Alambiqué, mais apparemment nécessaire pour TypeScript !
-      const promesseBd = schéma
-        ? type === "set"
+    // Alambiqué, mais apparemment nécessaire pour TypeScript !
+    const promesseBd = schéma
+    ? type === "set"
+      ? this.ouvrirBdTypée({
+          id,
+          type,
+          signal: signaleur.signal,
+          schéma: schéma as JSONSchemaType<Extract<U, élémentsBd>>,
+        })
+      : type === "keyvalue"
+        ? this.ouvrirBdTypée({
+            id,
+            type,
+            signal: signaleur.signal,
+            schéma: schéma as JSONSchemaType<
+              Extract<U, { [clef: string]: élémentsBd }>
+            >,
+          })
+        : type === "ordered-keyvalue"
           ? this.ouvrirBdTypée({
               id,
               type,
-              schéma: schéma as JSONSchemaType<Extract<U, élémentsBd>>,
+              signal: signaleur.signal,
+              schéma: schéma as JSONSchemaType<
+                Extract<U, { [clef: string]: élémentsBd }>
+              >,
             })
-          : type === "keyvalue"
-            ? this.ouvrirBdTypée({
-                id,
-                type,
-                schéma: schéma as JSONSchemaType<
-                  Extract<U, { [clef: string]: élémentsBd }>
-                >,
-              })
-            : type === "ordered-keyvalue"
-              ? this.ouvrirBdTypée({
-                  id,
-                  type,
-                  schéma: schéma as JSONSchemaType<
-                    Extract<U, { [clef: string]: élémentsBd }>
-                  >,
-                })
-              : this.ouvrirBd({
-                  id,
-                  type,
-                })
-        : this.ouvrirBd({
-            id,
+          : this.ouvrirBd({
+              id,
+              type,
+              signal: signaleur.signal,
+            })
+    : this.ouvrirBd({
+        id,
+        signal: signaleur.signal,
+      });
+  promesseBd
+    .then(({ bd, fOublier }) => {
+      fsOublier.push(fOublier);
+
+      const fFinale = () => {
+        const idSuivi = uuidv4();
+        const promesse = f(bd as T);
+
+        const estUnePromesse = (x: unknown): x is Promise<void> => {
+          return !!x && !!(x as Promise<void>).then;
+        };
+
+        if (estUnePromesse(promesse)) {
+          promesses[idSuivi] = promesse;
+          promesse.then(() => {
+            delete promesses[idSuivi];
           });
-      promesseBd
-        .then(({ bd, fOublier }) => {
-          fsOublier.push(fOublier);
+        }
+      };
 
-          const fFinale = () => {
-            const idSuivi = uuidv4();
-            const promesse = f(bd as T);
+      bd.events.on("update", fFinale);
+      fsOublier.push(async () => {
+        bd.events.off("update", fFinale);
+      });
 
-            const estUnePromesse = (x: unknown): x is Promise<void> => {
-              return !!x && !!(x as Promise<void>).then;
-            };
+      /* if (
+        bd.events.listenerCount("update") > bd.events.getMaxListeners()
+      ) {
+        console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("update")})
+        console.log({f})
+      } */
 
-            if (estUnePromesse(promesse)) {
-              promesses[idSuivi] = promesse;
-              promesse.then(() => {
-                delete promesses[idSuivi];
-              });
-            }
-          };
+      fFinale();
+    });
 
-          bd.events.on("update", fFinale);
-          fsOublier.push(async () => {
-            bd.events.off("update", fFinale);
-          });
-
-          /* if (
-            bd.events.listenerCount("update") > bd.events.getMaxListeners()
-          ) {
-            console.log({id: bd.id, type: bd.type, n: bd.events.listenerCount("update")})
-            console.log({f})
-          } */
-
-          fFinale();
-        })
-        .catch(() => {
-          // Ceci nous permet de ressayer d'obtenir le contenu de la BD en continue, tant que la requête n'a pas été annulée
-          // À faire : enlever vu que c'est déjà fait par `ouvrirBd`
-          if (!annulé) {
-            lancerSuivi();
-          }
-        });
-    };
-
-    lancerSuivi();
 
     const fOublier = async () => {
-      annulé = true;
+      signaleur.abort();
       await Promise.all(fsOublier.map((f) => f()));
       await Promise.all(Object.values(promesses));
     };
