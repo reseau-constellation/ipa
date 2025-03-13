@@ -55,7 +55,7 @@ export type schémaRetourFonctionRechercheParProfondeur = {
 
 export type schémaRetourFonctionRechercheParN = {
   fOublier: schémaFonctionOublier;
-  fChangerN: (p: number) => Promise<void>;
+  fChangerN: (n: number) => Promise<void>;
 };
 
 export interface infoRésultatTexte {

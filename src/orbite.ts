@@ -57,7 +57,6 @@ export const réessayer = async <T>({
     } catch (e) {
       if (signal.aborted) throw new AbortError();
       console.log(e);
-      console.trace();
       n++;
       const maintenant = Date.now();
       const tempsÀAttendre = n * 1000 - (maintenant - avant);
