@@ -39,13 +39,13 @@ async function toutPréparer(n: number) {
       n,
       créerConstellation,
     });
-  const idsLibp2p = await Promise.all(
+  const idsLibp2p = await Promise.allSettled(
     constls.map(async (c) => await c.obtIdLibp2p()),
   );
-  const idsDispositifs = await Promise.all(
+  const idsDispositifs = await Promise.allSettled(
     constls.map(async (c) => await c.obtIdDispositif()),
   );
-  const idsComptes = await Promise.all(
+  const idsComptes = await Promise.allSettled(
     constls.map(async (c) => await c.obtIdCompte()),
   );
 
@@ -100,7 +100,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
         dispositifs.toutAnnuler();
@@ -177,7 +177,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         fiablesPropres.toutAnnuler();
         fiablesAutres.toutAnnuler();
@@ -260,7 +260,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
 
         bloquésTous.toutAnnuler();
@@ -408,7 +408,7 @@ if (isNode || isElectronMain) {
         });
 
         after(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
           if (fOublierConstls) await fOublierConstls();
 
           relationsPropres.toutAnnuler();
@@ -542,7 +542,7 @@ if (isNode || isElectronMain) {
         });
 
         after(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
           if (fOublierConstls) await fOublierConstls();
 
           relationsPropres.toutAnnuler();
@@ -1390,7 +1390,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         résMotClef.toutAnnuler();
         résVariable.toutAnnuler();
@@ -2006,7 +2006,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         résNom.toutAnnuler();
         résCourriel.toutAnnuler();
@@ -2076,7 +2076,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         résPropres.toutAnnuler();
         résAutres.toutAnnuler();
@@ -2129,7 +2129,7 @@ if (isNode || isElectronMain) {
         résPropres.toutAnnuler();
         résAutres.toutAnnuler();
 
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
       });
 
@@ -2178,7 +2178,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         résPropres.toutAnnuler();
         résAutres.toutAnnuler();
@@ -2225,7 +2225,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         résPropres.toutAnnuler();
         résAutres.toutAnnuler();
@@ -2286,7 +2286,7 @@ if (isNode || isElectronMain) {
         résPropres.toutAnnuler();
         résAutres.toutAnnuler();
 
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
       });
 
@@ -2450,7 +2450,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
       });
@@ -2643,7 +2643,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         résBds.toutAnnuler();
         résÉléments.toutAnnuler();
@@ -2707,7 +2707,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         if (fOublierConstls) await fOublierConstls();
         rés.toutAnnuler();
       });
@@ -2741,7 +2741,7 @@ if (isNode || isElectronMain) {
               .then((fOublier) => (fOublierSuivreMesages = fOublier));
           });
 
-        const promesseBienReçu = Promise.all(
+        const promesseBienReçu = Promise.allSettled(
           à.map((d) => promesseReçuParDispositif(d)),
         ).then((réceptions) => réceptions.every((r) => r));
         return {

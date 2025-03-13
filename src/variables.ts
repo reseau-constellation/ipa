@@ -354,7 +354,7 @@ export class Variables extends ComposanteClientListe<string> {
         });
       const règles = await bdRègles.allAsJSON();
       await fOublierBdRègles();
-      await Promise.all(
+      await Promise.allSettled(
         Object.entries(règles).map(async ([id, r]) => {
           await this.ajouterRègleVariable({
             idVariable: idNouvelleBd,
@@ -370,7 +370,7 @@ export class Variables extends ComposanteClientListe<string> {
     };
     await this.établirStatut({ id: idNouvelleBd, statut });
 
-    await Promise.all([fOublierBase(), fOublierNouvelle()]);
+    await Promise.allSettled([fOublierBase(), fOublierNouvelle()]);
 
     return idNouvelleBd;
   }
@@ -875,7 +875,7 @@ export class Variables extends ComposanteClientListe<string> {
     });
 
     const fOublier = async () => {
-      await Promise.all([
+      await Promise.allSettled([
         oublierNoms(),
         oublierDescr(),
         oublierUnités(),

@@ -86,7 +86,7 @@ export class Épingles {
       await drain(sfip.pins.rm(CID.parse(idc)));
     }
 
-    await Promise.all(
+    await Promise.allSettled(
       bdsOrbiteÀÉpingler.map(async (idBd) => {
         // Faut pas trop s'en faire si la bd n'est pas accessible.
         try {
@@ -111,7 +111,7 @@ export class Épingles {
 
   async fermer() {
     this.signaleurArrêt.abort();
-    await Promise.all(
+    await Promise.allSettled(
       Object.values(this.bdsOuvertes).map(({ fOublier }) => fOublier()),
     );
   }

@@ -181,7 +181,7 @@ describe("Rechercher projets", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Pas de résultat quand le projet n'a pas de mot-clef", async () => {
@@ -302,7 +302,7 @@ describe("Rechercher projets", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Pas de résultat quand la bd n'a pas de variable", async () => {
@@ -474,7 +474,7 @@ describe("Rechercher projets", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Résultat id détecté", async () => {
@@ -782,7 +782,7 @@ describe("Rechercher projets", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       résultatMotClef.toutAnnuler();
     });
 

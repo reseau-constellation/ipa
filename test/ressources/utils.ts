@@ -26,7 +26,7 @@ export const générerClientsInternes = async ({
   });
   fsOublier.push(fOublierOrbites);
 
-  const clients = await Promise.all(
+  const clients = await Promise.allSettled(
     [...Array(n).keys()].map(async (i) => {
       return await ConstellationInterne.créer({
         dossier: orbites[i].directory.split("/").slice(0, -1).join("/"),
@@ -36,8 +36,8 @@ export const générerClientsInternes = async ({
   );
 
   const fOublier = async () => {
-    await Promise.all(clients.map((client) => client.fermer()));
-    await Promise.all(fsOublier.map((f) => f()));
+    await Promise.allSettled(clients.map((client) => client.fermer()));
+    await Promise.allSettled(fsOublier.map((f) => f()));
   };
   return { fOublier, clients };
 };

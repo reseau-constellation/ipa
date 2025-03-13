@@ -311,7 +311,7 @@ describe("Utils recherche", function () {
         ),
       );
     });
-    after(async () => await Promise.all(fsOublier.map((f) => f())));
+    after(async () => await Promise.allSettled(fsOublier.map((f) => f())));
 
     it("Rien pour commencer", () => {
       expect(résultat.val).to.be.undefined();

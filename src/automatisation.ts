@@ -1268,7 +1268,7 @@ export class Automatisations extends ComposanteClientDic<{
     const fFinale = async (autos: {
       [id: string]: SpécificationAutomatisation;
     }) => {
-      const autosFinales = await Promise.all(
+      const autosFinales = await Promise.allSettled(
         Object.values(autos).map(async (a) => {
           const autoFinale = deepcopy(a);
           if (
@@ -1344,7 +1344,7 @@ export class Automatisations extends ComposanteClientDic<{
   async fermer(): Promise<void> {
     const { fOublier } = await this.initialisée();
     await fOublier();
-    await Promise.all(
+    await Promise.allSettled(
       Object.keys(this.automatisations).map((a) => {
         this.fermerAuto(a);
       }),

@@ -309,7 +309,7 @@ export class Tableaux {
       await bdTableau.set("règles", idBdRègles);
     };
 
-    await Promise.all([
+    await Promise.allSettled([
       établirType(),
       établirNoms(),
       établirDonnées(),
@@ -384,7 +384,7 @@ export class Tableaux {
       });
     }
 
-    await Promise.all([fOublier(), fOublierNouvelle()]);
+    await Promise.allSettled([fOublier(), fOublierNouvelle()]);
 
     return idNouveauTableau;
   }
@@ -486,7 +486,7 @@ export class Tableaux {
     });
 
     return async () => {
-      await Promise.all([fOublierColonnesTableau, fOublierColonnesRéf]);
+      await Promise.allSettled([fOublierColonnesTableau, fOublierColonnesRéf]);
     };
   }
 
@@ -677,7 +677,7 @@ export class Tableaux {
       } else if (catégorie?.type === "liste") {
         if (Array.isArray(élément)) {
           val = JSON.stringify(
-            await Promise.all(
+            await Promise.allSettled(
               élément.map((x) => formaterValeur(x, catégorie.catégorie)),
             ),
           );
@@ -712,7 +712,7 @@ export class Tableaux {
       if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
         const fichiersSFIP: Set<string> = new Set();
 
-        let donnéesFormattées = await Promise.all(
+        let donnéesFormattées = await Promise.allSettled(
           données.map((d) =>
             this.formaterÉlément({
               é: d.données,
@@ -813,7 +813,7 @@ export class Tableaux {
     fsOublier.push(fOublierDonnées);
 
     return async () => {
-      Promise.all(fsOublier.map((f) => f()));
+      Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -1389,7 +1389,7 @@ export class Tableaux {
         case "intervaleTemps": {
           const valObjet = typeof val === "string" ? JSON.parse(val) : val;
           if (Array.isArray(valObjet)) {
-            return await Promise.all(
+            return await Promise.allSettled(
               valObjet.map(
                 async (v) =>
                   await convertir({
@@ -1446,7 +1446,7 @@ export class Tableaux {
           } else {
             const valListe = typeof val === "string" ? JSON.parse(val) : val;
             élément[c.id] = Array.isArray(valListe)
-              ? await Promise.all(
+              ? await Promise.allSettled(
                   valListe.map(
                     async (v) =>
                       await convertir({ val: v, catégorie, conversion }),

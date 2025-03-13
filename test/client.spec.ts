@@ -169,7 +169,7 @@ if (isNode || isElectronMain) {
 
       after(async () => {
         résNom.toutAnnuler();
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("Mes dispositifs sont mis à jour", async () => {
@@ -230,7 +230,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("Nouveau dispositif ajouté au compte", async () => {
@@ -640,7 +640,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         données.toutAnnuler();
       });
 
@@ -713,7 +713,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         données.toutAnnuler();
       });
 
@@ -786,7 +786,7 @@ if (isNode || isElectronMain) {
         });
       });
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         donnéesValeur.toutAnnuler();
         données.toutAnnuler();
       });
@@ -868,7 +868,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         attenteDonnées.toutAnnuler();
         attenteDonnéesValeur.toutAnnuler();
       });
@@ -1254,7 +1254,7 @@ if (isNode || isElectronMain) {
         await bdListe.add(idBd2);
       });
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         attenteDonnées.toutAnnuler();
       });
       it("Les éléments sont retournés", async () => {
@@ -1325,7 +1325,7 @@ if (isNode || isElectronMain) {
           );
         });
         after(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
           attendre.toutAnnuler();
         });
 
@@ -1430,7 +1430,7 @@ if (isNode || isElectronMain) {
           await changerBds([idBd1, idBd2]);
         });
         after(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
           attendre.toutAnnuler();
         });
 
@@ -1529,7 +1529,7 @@ if (isNode || isElectronMain) {
         );
       });
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
       it("Seules les bonnes BDs sont retournées", async () => {
         const { orbite } = await client.attendreSfipEtOrbite();
@@ -1593,7 +1593,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("On obtient la BD", async () => {
@@ -1606,7 +1606,7 @@ if (isNode || isElectronMain) {
       it("On évite la concurrence", async () => {
         const { orbite } = await client.attendreSfipEtOrbite();
 
-        const bds = await Promise.all(
+        const bds = await Promise.allSettled(
           [1, 2].map(async () => {
             const { bd, fOublier } = await orbite.ouvrirBd({
               id: idBd,
@@ -1643,7 +1643,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("Avec racine chaîne", async () => {
@@ -1670,7 +1670,7 @@ if (isNode || isElectronMain) {
       const fsOublier: schémaFonctionOublier[] = [];
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("La BD est crée", async () => {
@@ -1742,7 +1742,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("Les données n'existent plus", async () => {
@@ -1788,7 +1788,7 @@ if (isNode || isElectronMain) {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         rés.toutAnnuler();
       });
 

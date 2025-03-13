@@ -80,7 +80,7 @@ if (isElectronMain || isNode) {
           },
         ));
 
-        idsComptes = await Promise.all(
+        idsComptes = await Promise.allSettled(
           clients.map(async (c) => await c.obtIdCompte()),
         );
       });
@@ -1765,7 +1765,7 @@ describe.skip("Test fonctionnalités recherche", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       résMembresEnLigne.toutAnnuler();
       résMotsClefs.toutAnnuler();
     });

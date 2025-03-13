@@ -83,7 +83,7 @@ describe("Nuées", function () {
 
     after(async () => {
       if (fOublierClients) await fOublierClients();
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     describe("Création", function () {
@@ -642,7 +642,7 @@ describe("Nuées", function () {
 
       after(async () => {
         if (fOublierClients) await fOublierClients();
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
       describe("Vérifier autorisations", function () {
         it.skip("Nuée");
@@ -716,7 +716,7 @@ describe("Nuées", function () {
         });
 
         after(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
         });
 
         it("Mes données aparaissent chez moi", async () => {
@@ -818,7 +818,7 @@ describe("Nuées", function () {
         });
 
         after(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
         });
 
         it("Mes données aparaissent chez moi", async () => {
@@ -949,7 +949,7 @@ describe("Nuées", function () {
         });
 
         afterEach(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
           fsOublier = [];
         });
 
@@ -1062,7 +1062,7 @@ describe("Nuées", function () {
         });
 
         after(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
         });
 
         it("Bds de membres autorisés", async () => {
@@ -1119,7 +1119,7 @@ describe("Nuées", function () {
         });
 
         after(async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
         });
 
         it("Bds de membres autorisés", async () => {
@@ -1183,7 +1183,7 @@ describe("Nuées", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("Parent détecté", async () => {
@@ -1231,7 +1231,7 @@ describe("Nuées", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
       it("Descendant détecté", async () => {
         const val = await descendants.attendreQue((x) => x.length > 0);
@@ -1267,7 +1267,7 @@ describe("Nuées", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("Rien pour commencer", async () => {
@@ -1327,7 +1327,7 @@ describe("Nuées", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("Rien pour commencer", async () => {
@@ -1392,7 +1392,7 @@ describe("Nuées", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
       it("Rien pour commencer", async () => {
         const val = await règles.attendreExiste();
@@ -1449,7 +1449,7 @@ describe("Nuées", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
       it("Données nuée détectées", async () => {
         idÉlémentNuée = (
@@ -1552,7 +1552,7 @@ describe("Nuées", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       });
 
       it("Données nuée détectées", async () => {
@@ -1661,7 +1661,7 @@ describe("Nuées", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       if (fOublierClients) await fOublierClients();
     });
 
@@ -1750,7 +1750,7 @@ describe("Nuées", function () {
 
     after(async () => {
       résultat.toutAnnuler();
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       if (fOublierClients) await fOublierClients();
     });
 

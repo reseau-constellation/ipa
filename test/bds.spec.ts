@@ -54,7 +54,7 @@ describe("BDs", function () {
 
   after(async () => {
     if (fOublierClients) await fOublierClients();
-    await Promise.all(fsOublier.map((f) => f()));
+    await Promise.allSettled(fsOublier.map((f) => f()));
   });
 
   it("Création", async () => {
@@ -351,7 +351,7 @@ describe("BDs", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Pas de tableaux pour commencer", async () => {
@@ -548,7 +548,7 @@ describe("BDs", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       attenteNoms.toutAnnuler();
       attenteDescrs.toutAnnuler();
       attenteLicence.toutAnnuler();
@@ -707,7 +707,7 @@ describe("BDs", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       données1.toutAnnuler();
     });
 
@@ -803,7 +803,7 @@ describe("BDs", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Les tableaux sont créés", async () => {

@@ -108,7 +108,7 @@ describe("Favoris", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Juste un favori (notre propre compte) pour commencer", async () => {

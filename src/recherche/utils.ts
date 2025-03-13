@@ -90,7 +90,7 @@ export const combinerRecherches = async <T extends infoRésultat>(
     fSuivreRecherche(résultat);
   };
 
-  await Promise.all(
+  await Promise.allSettled(
     Object.entries(fsRecherche).map(async ([clef, fRecherche]) => {
       const fSuivre = async (résultat?: résultatObjectifRecherche<T>) => {
         résultats[clef] = résultat;
@@ -101,7 +101,7 @@ export const combinerRecherches = async <T extends infoRésultat>(
   );
 
   return async () => {
-    await Promise.all(fsOublier.map((f) => f()));
+    await Promise.allSettled(fsOublier.map((f) => f()));
   };
 };
 

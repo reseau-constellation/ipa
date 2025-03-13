@@ -349,7 +349,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       // @ts-expect-error erreur de définition types sur GossipSub
       if (pubsub.isStarted()) pubsub.unsubscribe(this.client.sujet_réseau);
       pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
-      await Promise.all(Object.values(promesses));
+      await Promise.allSettled(Object.values(promesses));
     });
 
     const fSuivreConnexions = () => {
@@ -530,7 +530,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         `Aucun dispositif présentement en ligne pour membre ${idCompte}`,
       );
 
-    await Promise.all(
+    await Promise.allSettled(
       dispositifsMembre.map(async (d) => {
         await this.envoyerMessageAuDispositif({
           msg,
@@ -934,7 +934,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     }
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -1124,7 +1124,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     );
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -1239,8 +1239,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
             .flat(),
         ),
       ].filter((id) => !Object.keys(dicRelations).includes(id));
-      await Promise.all(àOublier.map((id) => oublierRelationsImmédiates(id)));
-      await Promise.all(àSuivre.map((id) => suivreRelationsImmédiates(id)));
+      await Promise.allSettled(àOublier.map((id) => oublierRelationsImmédiates(id)));
+      await Promise.allSettled(àSuivre.map((id) => suivreRelationsImmédiates(id)));
 
       await fFinale();
       verrou.release("modification");
@@ -1255,7 +1255,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const fOublier = async () => {
       fermer = true;
-      await Promise.all(Object.values(dicOublierRelations).map((f) => f()));
+      await Promise.allSettled(Object.values(dicOublierRelations).map((f) => f()));
     };
 
     return { fOublier, fChangerProfondeur };
@@ -1842,7 +1842,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         const fOublierQualité = await fQualité(id, fSuivreQualité);
 
         const fOublierBranche = async () => {
-          await Promise.all([
+          await Promise.allSettled([
             fOublierObjectif(),
             fOublierConfiance(),
             fOublierQualité(),
@@ -1896,14 +1896,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         );
       });
 
-      await Promise.all(nouveaux.map(suivreRésultatsMembre));
-      await Promise.all(
+      await Promise.allSettled(nouveaux.map(suivreRésultatsMembre));
+      await Promise.allSettled(
         changés.map(
           async (c) => await résultatsParMembre[c.idCompte].mettreÀJour(c),
         ),
       );
 
-      await Promise.all(clefsObsolètes.map((o) => oublierRésultatsMembre(o)));
+      await Promise.allSettled(clefsObsolètes.map((o) => oublierRésultatsMembre(o)));
 
       verrou.release("rechercher");
     };
@@ -1927,7 +1927,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       annuler = true;
       if (annulerRebours) clearTimeout(annulerRebours);
       await fOublierSuivreComptes();
-      await Promise.all(
+      await Promise.allSettled(
         Object.values(fsOublierRechercheMembres).map((f) => f()),
       );
     };
@@ -2781,11 +2781,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           vuÀ?: number;
         };
       }[] = (
-        await Promise.all(
+        await Promise.allSettled(
           favoris.map(async (fav) => {
             const { favoris, dispositifs } = fav;
 
-            return await Promise.all(
+            return await Promise.allSettled(
               dispositifs.map(async (d) => {
                 const vuÀ = résultats.connexionsDispositifs.find(
                   (c) => c.infoDispositif.idDispositif === d,
@@ -3062,6 +3062,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
   async fermer(): Promise<void> {
     this._fermé = true;
-    await Promise.all(this.fsOublier.map((f) => f()));
+    await Promise.allSettled(this.fsOublier.map((f) => f()));
   }
 }

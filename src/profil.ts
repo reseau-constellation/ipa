@@ -137,7 +137,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     }
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -252,7 +252,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
         x.value.type === type &&
         (contact === undefined || x.value.contact === contact),
     );
-    await Promise.all(àEffacer.map(async (c) => await bd.del(c.value)));
+    await Promise.allSettled(àEffacer.map(async (c) => await bd.del(c.value)));
 
     await fOublier();
   }

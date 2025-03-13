@@ -101,7 +101,7 @@ export class CacheSuivi {
           return; // Ignorer si c'est la même valeur qu'avant
         this._cacheSuivi[codeCache].val = x;
         const fsSuivis = Object.values(this._cacheSuivi[codeCache].requêtes);
-        await Promise.all(fsSuivis.map((f_) => f_(x)));
+        await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
       };
       const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
 

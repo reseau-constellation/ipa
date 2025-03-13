@@ -848,7 +848,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     }
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -1143,7 +1143,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         },
       });
     return async () => {
-      await Promise.all([
+      await Promise.allSettled([
         fOublierDispositifsAutorisés(),
         fOublierInfosDispositifs(),
       ]);
@@ -1458,7 +1458,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     const données = await bdDicInit.all();
 
-    await Promise.all(
+    await Promise.allSettled(
       données.map(async (d) => {
         await nouvelleBdDic.put(d.key, d.value);
       }),
@@ -1605,8 +1605,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     const fOublier = async () => {
       signaleur.abort();
-      await Promise.all(fsOublier.map((f) => f()));
-      await Promise.all(Object.values(promesses));
+      await Promise.allSettled(fsOublier.map((f) => f()));
+      await Promise.allSettled(Object.values(promesses));
     };
     return fOublier;
   }
@@ -2535,7 +2535,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     const enleverRequêtesDe = async (de: string) => {
       delete dicBds[de];
-      await Promise.all(
+      await Promise.allSettled(
         Object.keys(dicBds).map(async (id) => {
           if (!dicBds[id]) return;
           dicBds[id].requêtes.delete(de);
@@ -2593,13 +2593,13 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
         dicBds[id].sousBds = idsOrbite;
 
-        await Promise.all(
+        await Promise.allSettled(
           obsolètes.map(async (o) => {
             dicBds[o]?.requêtes.delete(id);
             if (!dicBds[o]?.requêtes.size) await dicBds[o]?.fOublier();
           }),
         );
-        await Promise.all(
+        await Promise.allSettled(
           nouvelles.map(async (id_) => await _suivreBdsRécursives(id_, id)),
         );
         fFinale();
@@ -2642,7 +2642,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     await _suivreBdsRécursives(idBd, "");
 
     const fOublier = async () => {
-      await Promise.all(Object.values(dicBds).map((v) => v.fOublier()));
+      await Promise.allSettled(Object.values(dicBds).map((v) => v.fOublier()));
     };
     return fOublier;
   }
@@ -2673,7 +2673,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     if (indexedDB) {
       if (indexedDB.databases) {
         const indexedDbDatabases = await indexedDB.databases();
-        await Promise.all(
+        await Promise.allSettled(
           indexedDbDatabases.map((bd) => {
             if (bd.name) indexedDB.deleteDatabase(bd.name);
           }),

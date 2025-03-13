@@ -70,7 +70,7 @@ describe("Tableaux", function () {
       );
     });
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
     it("Créé", () => {
       expect(isValidAddress(idTableau)).to.be.true();
@@ -189,7 +189,7 @@ describe("Tableaux", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Tout est vide pour commencer", async () => {
@@ -418,7 +418,7 @@ describe("Tableaux", function () {
     });
 
     afterEach(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       fsOublier = [];
       résRègles.toutAnnuler();
       résErreurs.toutAnnuler();
@@ -723,7 +723,7 @@ describe("Tableaux", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       erreursValid.toutAnnuler();
       erreursRègles.toutAnnuler();
     });
@@ -989,7 +989,7 @@ describe("Tableaux", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         erreurs.toutAnnuler();
       });
 
@@ -1085,7 +1085,7 @@ describe("Tableaux", function () {
       });
 
       after(async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
         erreursValid.toutAnnuler();
         erreursRègles.toutAnnuler();
       });
@@ -1214,7 +1214,7 @@ describe("Tableaux", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Tableau créé", () => {
@@ -1356,7 +1356,7 @@ describe("Tableaux", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       colonnes.toutAnnuler();
     });
 

@@ -250,7 +250,7 @@ export class Nuées extends ComposanteClientListe<string> {
     }
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -515,7 +515,7 @@ export class Nuées extends ComposanteClientListe<string> {
 
     await nouvelleBd.set("copiéDe", idNuée);
 
-    await Promise.all([fOublier(), fOublierNouvelle()]);
+    await Promise.allSettled([fOublier(), fOublierNouvelle()]);
     return idNouvelleNuée;
   }
 
@@ -2134,7 +2134,7 @@ export class Nuées extends ComposanteClientListe<string> {
       });
 
       return async () => {
-        await Promise.all([fOublierDifférencesBd, fOublierDifférencesTableaux]);
+        await Promise.allSettled([fOublierDifférencesBd, fOublierDifférencesTableaux]);
       };
     };
 
@@ -2273,7 +2273,7 @@ export class Nuées extends ComposanteClientListe<string> {
     return async () => {
       annulé = true;
       await fOublier();
-      await Promise.all(Object.values(ascendance).map((a) => a.fOublier()));
+      await Promise.allSettled(Object.values(ascendance).map((a) => a.fOublier()));
     };
   }
 
@@ -2413,7 +2413,7 @@ export class Nuées extends ComposanteClientListe<string> {
         });
 
       const fOublier = async () => {
-        await Promise.all(
+        await Promise.allSettled(
           [fOublierBds, fOublierSuivreMembres, fOublierSuivrePhilo].map((f) =>
             f(),
           ),
@@ -2545,7 +2545,7 @@ export class Nuées extends ComposanteClientListe<string> {
 
     return {
       fOublier: async () => {
-        await Promise.all(fsOublier.map((f) => f()));
+        await Promise.allSettled(fsOublier.map((f) => f()));
       },
       fChangerProfondeur,
     };
@@ -2683,7 +2683,7 @@ export class Nuées extends ComposanteClientListe<string> {
         await fFinaleBdConforme();
 
         return async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
         };
       };
       return await this.client.suivreBdsSelonCondition({
@@ -2765,7 +2765,7 @@ export class Nuées extends ComposanteClientListe<string> {
         fsOublier.push(fOublierErreurs);
 
         return async () => {
-          await Promise.all(fsOublier.map((f) => f()));
+          await Promise.allSettled(fsOublier.map((f) => f()));
         };
       };
 
@@ -2825,7 +2825,7 @@ export class Nuées extends ComposanteClientListe<string> {
       });
 
       return async () => {
-        await Promise.all([fOublierSuivreTableau, fOublierAuteursBd]);
+        await Promise.allSettled([fOublierSuivreTableau, fOublierAuteursBd]);
       };
     };
 
@@ -2865,7 +2865,7 @@ export class Nuées extends ComposanteClientListe<string> {
       if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
         const fichiersSFIP: Set<string> = new Set();
 
-        let donnéesFormattées: élémentBdListeDonnées[] = await Promise.all(
+        let donnéesFormattées: élémentBdListeDonnées[] = await Promise.allSettled(
           données.map(async (d) => {
             const élémentFormatté = await this.client.tableaux.formaterÉlément({
               é: d.élément.données,
@@ -2980,7 +2980,7 @@ export class Nuées extends ComposanteClientListe<string> {
     fsOublier.push(fOublierDonnées);
 
     return async () => {
-      Promise.all(fsOublier.map((f) => f()));
+      Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -3058,7 +3058,7 @@ export class Nuées extends ComposanteClientListe<string> {
     }
 
     const fOublier = async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
     return fOublier;
   }
@@ -3160,7 +3160,7 @@ export class Nuées extends ComposanteClientListe<string> {
   }): Promise<string> {
     const idNuée = await this.créerNuée();
 
-    const [noms, descriptions, idsMotsClefs, tableaux] = await Promise.all([
+    const [noms, descriptions, idsMotsClefs, tableaux] = await Promise.allSettled([
       // Noms
       uneFois(
         async (
@@ -3206,7 +3206,7 @@ export class Nuées extends ComposanteClientListe<string> {
       ),
     ]);
 
-    await Promise.all([
+    await Promise.allSettled([
       this.sauvegarderNomsNuée({
         idNuée,
         noms,
@@ -3223,7 +3223,7 @@ export class Nuées extends ComposanteClientListe<string> {
       }),
     ]);
 
-    await Promise.all(
+    await Promise.allSettled(
       tableaux.map(async (tableau) => {
         const idTableau = tableau.id;
         const idTableauNuée = await this.ajouterTableauNuée({
@@ -3296,7 +3296,7 @@ export class Nuées extends ComposanteClientListe<string> {
     licence: string;
     patience?: number;
   }): Promise<schémaSpécificationBd> {
-    const [idsMotsClefs, tableaux] = await Promise.all([
+    const [idsMotsClefs, tableaux] = await Promise.allSettled([
       uneFois(async (fSuivi: schémaFonctionSuivi<string[]>) => {
         return await this.suivreMotsClefsNuée({
           idNuée,
@@ -3338,9 +3338,9 @@ export class Nuées extends ComposanteClientListe<string> {
       licence,
       nuées: [idNuée],
       motsClefs: idsMotsClefs,
-      tableaux: await Promise.all(
+      tableaux: await Promise.allSettled(
         tableaux.map(async (t) => {
-          const [cols, règles] = await Promise.all([
+          const [cols, règles] = await Promise.allSettled([
             générerCols(t.clef),
             obtRèglesTableau(t.clef),
           ]);

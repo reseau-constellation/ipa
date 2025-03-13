@@ -190,7 +190,7 @@ export class Projets extends ComposanteClientListe<string> {
     }
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -270,7 +270,7 @@ export class Projets extends ComposanteClientListe<string> {
 
     if (épingler) await this.épinglerProjet({ idProjet });
 
-    await Promise.all([fOublierRacine(), fOublierProjet()]);
+    await Promise.allSettled([fOublierRacine(), fOublierProjet()]);
 
     return idProjet;
   }
@@ -345,7 +345,7 @@ export class Projets extends ComposanteClientListe<string> {
         });
       const bds = (await bdBds.all()).map((x) => x.value);
       await fOublierBds();
-      await Promise.all(
+      await Promise.allSettled(
         bds.map(async (idBd: string) => {
           await this.ajouterBdProjet({ idProjet: idNouveauProjet, idBd });
         }),
@@ -362,7 +362,7 @@ export class Projets extends ComposanteClientListe<string> {
 
     await nouvelleBd.set("copiéDe", { id: idProjet });
 
-    await Promise.all([fOublierBase(), fOublierNouvelle()]);
+    await Promise.allSettled([fOublierBase(), fOublierNouvelle()]);
     return idNouveauProjet;
   }
 
@@ -600,7 +600,7 @@ export class Projets extends ComposanteClientListe<string> {
       idProjet,
     });
 
-    await Promise.all(
+    await Promise.allSettled(
       idsMotsClefs.map(async (id: string) => {
         const motsClefsExistants = (await bdMotsClefs.all()).map(
           (x) => x.value,
@@ -1041,7 +1041,7 @@ export class Projets extends ComposanteClientListe<string> {
     }
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -1155,7 +1155,7 @@ export class Projets extends ComposanteClientListe<string> {
       };
     });
     const fichiersDeSFIP = inclureDocuments
-      ? await Promise.all(
+      ? await Promise.allSettled(
           [...fichiersSFIP].map(async (fichier) => {
             return {
               nom: fichier.replace("/", "-"),

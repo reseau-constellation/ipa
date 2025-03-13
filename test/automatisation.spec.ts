@@ -94,7 +94,7 @@ const vérifierDonnéesProjet = async (
 
   const { dossier: dossierFichierExtrait, fEffacer } =
     await dossiers.dossierTempo();
-  await Promise.all(
+  await Promise.allSettled(
     Object.entries(zip.files).map(async ([adresseRelative, élémentZip]) => {
       const adresseAbsolue = path.join(dossierFichierExtrait, adresseRelative);
       if (élémentZip.dir) {
@@ -201,7 +201,7 @@ describe("Automatisation", function () {
     });
 
     afterEach(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       if (fOublierAuto) await fOublierAuto();
 
       rés.toutAnnuler();
@@ -617,7 +617,7 @@ describe("Automatisation", function () {
             f: fSuivi,
           }),
       );
-      await Promise.all(
+      await Promise.allSettled(
         automatisations.map(
           async (a) =>
             await client.automatisations.annulerAutomatisation({
@@ -982,14 +982,14 @@ describe("Automatisation", function () {
       résÉtats.toutAnnuler();
       résAutos.toutAnnuler();
 
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       const automatisations = await uneFois(
         async (fSuivi: schémaFonctionSuivi<SpécificationAutomatisation[]>) =>
           await client.automatisations.suivreAutomatisations({
             f: fSuivi,
           }),
       );
-      await Promise.all(
+      await Promise.allSettled(
         automatisations.map(
           async (a) =>
             await client.automatisations.annulerAutomatisation({
@@ -1173,7 +1173,7 @@ describe("Automatisation", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       résÉtats.toutAnnuler();
       résAutos.toutAnnuler();
     });

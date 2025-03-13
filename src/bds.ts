@@ -315,7 +315,7 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -611,7 +611,7 @@ export class BDs extends ComposanteClientListe<string> {
 
     await nouvelleBd.set("copiéDe", { id: idBd });
 
-    await Promise.all([
+    await Promise.allSettled([
       fOublier(),
       fOublierNouvelleTableaux(),
       fOublierNouvelle(),
@@ -2221,7 +2221,7 @@ export class BDs extends ComposanteClientListe<string> {
       },
     });
     return async () => {
-      await Promise.all([
+      await Promise.allSettled([
         oublierAccès,
         oublierCouverture,
         oublierValide,
@@ -2332,7 +2332,7 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     return async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     };
   }
 
@@ -2416,7 +2416,7 @@ export class BDs extends ComposanteClientListe<string> {
         octets: xlsxWrite(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
       };
-      const fichiersDeSFIP = await Promise.all(
+      const fichiersDeSFIP = await Promise.allSettled(
         [...fichiersSFIP].map(async (fichier) => {
           return {
             nom: fichier.replace("/", "-"),

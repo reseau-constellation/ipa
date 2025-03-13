@@ -155,7 +155,7 @@ export class GestionnaireAccès extends EventEmitter {
   async ajouterÉléments(éléments: élémentBdAccès[]): Promise<void> {
     this._miseÀJourEnCours = true;
 
-    await Promise.all(
+    await Promise.allSettled(
       éléments.map(async (élément) => {
         const { rôle, id } = élément;
         if (isValidAddress(id)) {
@@ -215,6 +215,6 @@ export class GestionnaireAccès extends EventEmitter {
   }
 
   async fermer(): Promise<void> {
-    await Promise.all(this.fsOublier.map((f) => f()));
+    await Promise.allSettled(this.fsOublier.map((f) => f()));
   }
 }

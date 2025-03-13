@@ -238,7 +238,7 @@ describe("Rechercher profil", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       résNom.toutAnnuler();
       résCourriel.toutAnnuler();
       if (fOublierClients) await fOublierClients();

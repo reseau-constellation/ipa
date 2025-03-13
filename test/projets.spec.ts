@@ -306,7 +306,7 @@ describe("Projets", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       variables.toutAnnuler();
       bds.toutAnnuler();
       motsClefs.toutAnnuler();
@@ -448,7 +448,7 @@ describe("Projets", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       noms.toutAnnuler();
       descrs.toutAnnuler();
       motsClefs.toutAnnuler();

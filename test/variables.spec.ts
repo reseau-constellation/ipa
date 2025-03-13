@@ -500,7 +500,7 @@ describe("Variables", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("La variable est copiée", async () => {

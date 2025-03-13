@@ -178,7 +178,7 @@ describe("Nuées", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Pas de résultat quand la nuée n'a pas de mot-clef", async () => {
@@ -297,7 +297,7 @@ describe("Nuées", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Pas de résultat quand la nuée n'a pas de variable", async () => {
@@ -468,7 +468,7 @@ describe("Nuées", function () {
     });
 
     after(async () => {
-      await Promise.all(fsOublier.map((f) => f()));
+      await Promise.allSettled(fsOublier.map((f) => f()));
       résultatMotClef.toutAnnuler();
     });
 

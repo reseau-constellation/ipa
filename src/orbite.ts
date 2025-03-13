@@ -441,7 +441,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
 
   private lancerNettoyageBdsOuvertes(): schémaFonctionOublier {
     const fNettoyer = async () => {
-      await Promise.all(
+      await Promise.allSettled(
         Object.keys(this._bdsOrbite).map(async (id) => {
           const { bd, idsRequêtes } = this._bdsOrbite[id];
           if (!idsRequêtes.size) {
