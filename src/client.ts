@@ -40,6 +40,7 @@ import {
   toString as uint8ArrayToString,
 } from "uint8arrays";
 import { keys } from "@libp2p/crypto";
+import { anySignal } from "any-signal";
 import { Automatisations } from "@/automatisation.js";
 import { BDs } from "@/bds.js";
 import { Épingles } from "@/epingles.js";
@@ -929,12 +930,18 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     fOublier: schémaFonctionOublier;
   }> {
     const { orbite } = await this.attendreSfipEtOrbite();
-    return await orbite.ouvrirBd({
+    const signalCombiné = anySignal(signal ? [signal, this.signaleurArrêt.signal] : [this.signaleurArrêt.signal]);
+    const bd = await orbite.ouvrirBd({
       id,
       type,
-      signal,
+      signal: signalCombiné,
       options,
-    });
+    }) as {
+      bd: T;
+      fOublier: schémaFonctionOublier;
+    };
+    signalCombiné.clear();
+    return bd;
   }
 
   async ouvrirBdTypée<
@@ -1581,6 +1588,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         })
         .catch(() => {
           // Ceci nous permet de ressayer d'obtenir le contenu de la BD en continue, tant que la requête n'a pas été annulée
+          // À faire : enlever vu que c'est déjà fait par `ouvrirBd`
           if (!annulé) {
             lancerSuivi();
           }
