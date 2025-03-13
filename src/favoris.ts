@@ -446,7 +446,7 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
     idDispositif?: string;
   }): Promise<BooléenniserPropriétés<T>> {
     const résultat = Object.fromEntries(
-      await Promise.allSettled(
+      await Promise.all(
         Object.entries(épingle)
           .filter(([clef, _val]) => clef !== "type")
           .map(async ([clef, val]) => {

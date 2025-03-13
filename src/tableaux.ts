@@ -712,7 +712,7 @@ export class Tableaux {
       if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
         const fichiersSFIP: Set<string> = new Set();
 
-        let donnéesFormattées = await Promise.allSettled(
+        let donnéesFormattées = await Promise.all(
           données.map((d) =>
             this.formaterÉlément({
               é: d.données,
@@ -1389,7 +1389,7 @@ export class Tableaux {
         case "intervaleTemps": {
           const valObjet = typeof val === "string" ? JSON.parse(val) : val;
           if (Array.isArray(valObjet)) {
-            return await Promise.allSettled(
+            return await Promise.all(
               valObjet.map(
                 async (v) =>
                   await convertir({
@@ -1446,7 +1446,7 @@ export class Tableaux {
           } else {
             const valListe = typeof val === "string" ? JSON.parse(val) : val;
             élément[c.id] = Array.isArray(valListe)
-              ? await Promise.allSettled(
+              ? await Promise.all(
                   valListe.map(
                     async (v) =>
                       await convertir({ val: v, catégorie, conversion }),

@@ -1268,7 +1268,7 @@ export class Automatisations extends ComposanteClientDic<{
     const fFinale = async (autos: {
       [id: string]: SpécificationAutomatisation;
     }) => {
-      const autosFinales = await Promise.allSettled(
+      const autosFinales = await Promise.all(
         Object.values(autos).map(async (a) => {
           const autoFinale = deepcopy(a);
           if (

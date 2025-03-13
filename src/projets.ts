@@ -1155,7 +1155,7 @@ export class Projets extends ComposanteClientListe<string> {
       };
     });
     const fichiersDeSFIP = inclureDocuments
-      ? await Promise.allSettled(
+      ? await Promise.all(
           [...fichiersSFIP].map(async (fichier) => {
             return {
               nom: fichier.replace("/", "-"),

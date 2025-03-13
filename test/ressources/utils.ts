@@ -26,7 +26,7 @@ export const générerClientsInternes = async ({
   });
   fsOublier.push(fOublierOrbites);
 
-  const clients = await Promise.allSettled(
+  const clients = await Promise.all(
     [...Array(n).keys()].map(async (i) => {
       return await ConstellationInterne.créer({
         dossier: orbites[i].directory.split("/").slice(0, -1).join("/"),

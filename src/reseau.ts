@@ -2781,11 +2781,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           vuÀ?: number;
         };
       }[] = (
-        await Promise.allSettled(
+        await Promise.all(
           favoris.map(async (fav) => {
             const { favoris, dispositifs } = fav;
 
-            return await Promise.allSettled(
+            return await Promise.all(
               dispositifs.map(async (d) => {
                 const vuÀ = résultats.connexionsDispositifs.find(
                   (c) => c.infoDispositif.idDispositif === d,

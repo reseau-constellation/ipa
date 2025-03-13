@@ -2416,7 +2416,7 @@ export class BDs extends ComposanteClientListe<string> {
         octets: xlsxWrite(doc, { bookType, type: "buffer" }),
         nom: `${nomFichier}.${formatDoc}`,
       };
-      const fichiersDeSFIP = await Promise.allSettled(
+      const fichiersDeSFIP = await Promise.all(
         [...fichiersSFIP].map(async (fichier) => {
           return {
             nom: fichier.replace("/", "-"),

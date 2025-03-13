@@ -1606,7 +1606,7 @@ if (isNode || isElectronMain) {
       it("On évite la concurrence", async () => {
         const { orbite } = await client.attendreSfipEtOrbite();
 
-        const bds = await Promise.allSettled(
+        const bds = await Promise.all(
           [1, 2].map(async () => {
             const { bd, fOublier } = await orbite.ouvrirBd({
               id: idBd,

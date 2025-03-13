@@ -2865,7 +2865,7 @@ export class Nuées extends ComposanteClientListe<string> {
       if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
         const fichiersSFIP: Set<string> = new Set();
 
-        let donnéesFormattées: élémentBdListeDonnées[] = await Promise.allSettled(
+        let donnéesFormattées: élémentBdListeDonnées[] = await Promise.all(
           données.map(async (d) => {
             const élémentFormatté = await this.client.tableaux.formaterÉlément({
               é: d.élément.données,
@@ -3160,7 +3160,7 @@ export class Nuées extends ComposanteClientListe<string> {
   }): Promise<string> {
     const idNuée = await this.créerNuée();
 
-    const [noms, descriptions, idsMotsClefs, tableaux] = await Promise.allSettled([
+    const [noms, descriptions, idsMotsClefs, tableaux] = await Promise.all([
       // Noms
       uneFois(
         async (
@@ -3296,7 +3296,7 @@ export class Nuées extends ComposanteClientListe<string> {
     licence: string;
     patience?: number;
   }): Promise<schémaSpécificationBd> {
-    const [idsMotsClefs, tableaux] = await Promise.allSettled([
+    const [idsMotsClefs, tableaux] = await Promise.all([
       uneFois(async (fSuivi: schémaFonctionSuivi<string[]>) => {
         return await this.suivreMotsClefsNuée({
           idNuée,
@@ -3338,9 +3338,9 @@ export class Nuées extends ComposanteClientListe<string> {
       licence,
       nuées: [idNuée],
       motsClefs: idsMotsClefs,
-      tableaux: await Promise.allSettled(
+      tableaux: await Promise.all(
         tableaux.map(async (t) => {
-          const [cols, règles] = await Promise.allSettled([
+          const [cols, règles] = await Promise.all([
             générerCols(t.clef),
             obtRèglesTableau(t.clef),
           ]);

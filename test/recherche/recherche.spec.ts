@@ -80,7 +80,7 @@ if (isElectronMain || isNode) {
           },
         ));
 
-        idsComptes = await Promise.allSettled(
+        idsComptes = await Promise.all(
           clients.map(async (c) => await c.obtIdCompte()),
         );
       });

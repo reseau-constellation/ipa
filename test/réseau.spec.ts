@@ -39,13 +39,13 @@ async function toutPréparer(n: number) {
       n,
       créerConstellation,
     });
-  const idsLibp2p = await Promise.allSettled(
+  const idsLibp2p = await Promise.all(
     constls.map(async (c) => await c.obtIdLibp2p()),
   );
-  const idsDispositifs = await Promise.allSettled(
+  const idsDispositifs = await Promise.all(
     constls.map(async (c) => await c.obtIdDispositif()),
   );
-  const idsComptes = await Promise.allSettled(
+  const idsComptes = await Promise.all(
     constls.map(async (c) => await c.obtIdCompte()),
   );
 
