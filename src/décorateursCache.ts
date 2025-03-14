@@ -92,22 +92,25 @@ export class CacheSuivi {
       this._cacheSuivi[codeCache] = {
         requêtes: { [idRequête]: f },
       };
-      const fFinale = async (x: unknown) => {
-        if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requête
-        if (
-          Object.keys(this._cacheSuivi[codeCache]).includes("val") &&
-          deepEqual(this._cacheSuivi[codeCache].val, x, { strict: true })
-        )
-          return; // Ignorer si c'est la même valeur qu'avant
-        this._cacheSuivi[codeCache].val = x;
-        const fsSuivis = Object.values(this._cacheSuivi[codeCache].requêtes);
-        await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
-      };
-      const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
-
-      const fOublier = await fOriginale.apply(ceciOriginal, [argsAvecF]);
-      this._cacheSuivi[codeCache].fOublier = fOublier;
-      this.verrou.release(codeCache);
+      try {
+        const fFinale = async (x: unknown) => {
+          if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requête
+          if (
+            Object.keys(this._cacheSuivi[codeCache]).includes("val") &&
+            deepEqual(this._cacheSuivi[codeCache].val, x, { strict: true })
+          )
+            return; // Ignorer si c'est la même valeur qu'avant
+          this._cacheSuivi[codeCache].val = x;
+          const fsSuivis = Object.values(this._cacheSuivi[codeCache].requêtes);
+          await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
+        };
+        const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
+  
+        const fOublier = await fOriginale.apply(ceciOriginal, [argsAvecF]);
+        this._cacheSuivi[codeCache].fOublier = fOublier;
+      } finally {
+        this.verrou.release(codeCache);
+      }
     } else {
       this.verrou.release(codeCache);
 
