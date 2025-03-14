@@ -1956,7 +1956,12 @@ export class BDs extends ComposanteClientListe<string> {
     
     return async () => {
       const chrono = setTimeout(()=>console.log("fOublier suivreTableauxBds coincée", idBd), 3000);
-      await x()
+      try {
+        await x()
+      } catch (e) {
+        console.log("erreur : ", e)
+        throw e
+      }
       clearTimeout(chrono)
     }
   }
