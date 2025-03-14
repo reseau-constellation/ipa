@@ -292,10 +292,15 @@ export class BDs extends ComposanteClientListe<string> {
         fListe: async (
           fSuivreRacine: (éléments: string[]) => Promise<void>,
         ) => {
-          return await this.suivreTableauxBd({
+          const x = await this.suivreTableauxBd({
             idBd: épingle.idObjet,
             f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
           });
+          return async () => {
+            const chrono = setTimeout(()=>console.log("coincée"), 2000)
+            await x();
+            clearTimeout(chrono);
+          }
         },
         fBranche: async (
           id: string,
@@ -303,10 +308,15 @@ export class BDs extends ComposanteClientListe<string> {
             élémentDonnées<élémentBdListeDonnées>[]
           >,
         ) => {
-          return await this.client.tableaux.suivreDonnées({
+          const x = await this.client.tableaux.suivreDonnées({
             idTableau: id,
             f: fSuivreBranche,
           });
+          return async () => {
+            const chrono = setTimeout(()=>console.log("coincée"), 2000)
+            await x();
+            clearTimeout(chrono);
+          }
         },
         f: async (données: élémentDonnées<élémentBdListeDonnées>[]) => {
           const idcs = données
