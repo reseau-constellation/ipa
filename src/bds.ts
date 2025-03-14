@@ -1927,7 +1927,7 @@ export class BDs extends ComposanteClientListe<string> {
     });
   }
 
-  // @cacheSuivi
+  @cacheSuivi
   async suivreTableauxBd({
     idBd,
     f,
