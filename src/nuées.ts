@@ -232,19 +232,32 @@ export class Nuées extends ComposanteClientListe<string> {
             f: fSuivreRacine,
           });
           clearTimeout(chrono)
-          return x
+          const x_ = async () => {
+            const chrono = setTimeout(()=>console.log("oublier fListe données coincée", épingle), 2000)
+            const y = await x.fOublier()
+            clearTimeout(chrono)
+            return y
+          }
+          return x_
         },
         fBranche: async (
           id: string,
           fSuivreBranche: schémaFonctionSuivi<string[]>,
         ) => {
-          return this.client.bds.suivreRésolutionÉpingle({
+          const x = await this.client.bds.suivreRésolutionÉpingle({
             épingle: {
               idObjet: id,
               épingle: épinglerDonnées,
             },
             f: (idcs) => fSuivreBranche([...idcs]),
           });
+          const x_ = async () => {
+            const chrono = setTimeout(()=>console.log("oublier fBranche données coincée", épingle), 2000)
+            const y = await x()
+            clearTimeout(chrono)
+            return y
+          }
+          return x_
         },
         f: async (idcs: string[]) => {
           info.données = idcs;
