@@ -1697,7 +1697,7 @@ describe.skip("Test fonctionnalités recherche", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
-  let idsComptes: string[];
+  const idsComptes: string[] = [];
 
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({

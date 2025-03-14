@@ -25,14 +25,15 @@ import type {
 
 describe("Rechercher projets", function () {
   let fOublierClients: () => Promise<void>;
-  let clients: Constellation[];
   let client: Constellation;
 
   before(async () => {
-    ({ fOublier: fOublierClients, clients: clients as unknown } =
+    const { fOublier, clients } =
       await générerClientsInternes({
         n: 1,
-      }));
+      });
+    fOublierClients = fOublier;
+    // @ts-ignore
     client = clients[0];
   });
 

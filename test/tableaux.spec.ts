@@ -1743,8 +1743,6 @@ describe("Tableaux", function () {
     let doc: XLSX.WorkBook;
     let fichiersSFIP: Set<string>;
 
-    let fOublier: schémaFonctionOublier;
-
     const nomTableauFr = "Tableau test";
 
     before(async () => {
@@ -1823,10 +1821,6 @@ describe("Tableaux", function () {
         idTableau,
         langues: ["த", "fr"],
       }));
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
     });
 
     it("Langue appropriée pour le nom du tableau", () => {

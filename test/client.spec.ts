@@ -303,7 +303,7 @@ if (isNode || isElectronMain) {
       });
 
       it("Création de la deuxième instance", async () => {
-        const constl2 = créerConstellation({ dossier: dossier2 });
+        constl2 = créerConstellation({ dossier: dossier2 });
         const idCompte1 = await constl1.obtIdCompte();
         const idCompte2 = await constl2.obtIdCompte();
 
@@ -357,7 +357,7 @@ if (isNode || isElectronMain) {
       });
     });
 
-    describe.skip("Même dossier - serveur local", async () => {
+    /*describe.skip("Même dossier - serveur local", async () => {
       let fermerServeur: schémaFonctionOublier;
       let port: number;
 
@@ -365,10 +365,10 @@ if (isNode || isElectronMain) {
       let fEffacer: () => void;
 
       before(async () => {
-        /*const {lancerServeur} = await import("@constl/serveur");
+        const {lancerServeur} = await import("@constl/serveur");
         ({ dossier, fEffacer } = await dossiers.dossierTempo());
         ({fermerServeur, port} = await lancerServeur({ optsConstellation: { dossier }}));
-        */
+        
       });
 
       after(async () => {
@@ -390,9 +390,9 @@ if (isNode || isElectronMain) {
         await expect(constl2.obtIdCompte()).to.be.rejectedWith(
           `Ce compte est déjà lancé, et le serveur local est disponible sur le port ${port}.`,
         );
-        await fermerServeur();
+       await fermerServeur();
       });
-    });
+    });*/
   });
 
   describe("Fonctionalités client", function () {
