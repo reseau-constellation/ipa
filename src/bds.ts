@@ -268,13 +268,7 @@ export class BDs extends ComposanteClientListe<string> {
           await fFinale();
         },
       });
-      const _fOublierBase = async () => {
-        const chrono = setTimeout(()=>console.log("fOublierBase bds coincée", épingle))
-        const x = await fOublierBase()
-        clearTimeout(chrono)
-        return x
-      }
-      fsOublier.push(_fOublierBase);
+      fsOublier.push(fOublierBase);
     }
 
     if (épinglerDonnées) {
