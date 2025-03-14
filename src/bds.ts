@@ -268,7 +268,13 @@ export class BDs extends ComposanteClientListe<string> {
           await fFinale();
         },
       });
-      fsOublier.push(fOublierBase);
+      const _fOublierBase = async () => {
+        const chrono = setTimeout(()=>console.log("fOublierBase bds coincée", épingle))
+        const x = await fOublierBase()
+        clearTimeout(chrono)
+        return x
+      }
+      fsOublier.push(_fOublierBase);
     }
 
     if (épinglerDonnées) {
@@ -279,7 +285,13 @@ export class BDs extends ComposanteClientListe<string> {
           await fFinale();
         },
       });
-      fsOublier.push(fOublierTableaux);
+      const _fOublierTableaux = async () => {
+        const chrono = setTimeout(()=>console.log("fOublierTableaux bds coincée", épingle))
+        const x = await fOublierTableaux()
+        clearTimeout(chrono)
+        return x
+      }
+      fsOublier.push(_fOublierTableaux);
     }
     if (épinglerFichiersDonnées) {
       const fOublierDonnées = await suivreBdsDeFonctionListe({
@@ -311,11 +323,19 @@ export class BDs extends ComposanteClientListe<string> {
           info.fichiersDonnées = idcs;
         },
       });
-      fsOublier.push(fOublierDonnées);
+      const _fOublierDonnées = async () => {
+        const chrono = setTimeout(()=>console.log("fOublierDonnées bds coincée", épingle))
+        const x = await fOublierDonnées()
+        clearTimeout(chrono)
+        return x
+      }
+      fsOublier.push(_fOublierDonnées);
     }
 
     return async () => {
+      const chrono = setTimeout(()=>console.log("bd coincée", épingle), 2000)
       await Promise.allSettled(fsOublier.map((f) => f()));
+      clearTimeout(chrono)
     };
   }
 
