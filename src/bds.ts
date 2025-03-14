@@ -308,13 +308,14 @@ export class BDs extends ComposanteClientListe<string> {
             f: fSuivreBranche,
           });
         },
-        f: (données: élémentDonnées<élémentBdListeDonnées>[]) => {
+        f: async (données: élémentDonnées<élémentBdListeDonnées>[]) => {
           const idcs = données
             .map((file) =>
               Object.values(file.données).filter((x) => idcValide(x)),
             )
             .flat() as string[];
           info.fichiersDonnées = idcs;
+          await fFinale();
         },
       });
       const _fOublierDonnées = async () => {
