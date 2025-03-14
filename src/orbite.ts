@@ -328,10 +328,6 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     });
     signalCombiné.clear();
 
-    this.orbite.ipfs.libp2p.addEventListener("peer:disconnect", (x) => {
-      bd.peers.delete(x.detail.toString());
-    });
-
     this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
 
     // Maintenant que la BD a été créée, on peut relâcher le verrou
