@@ -290,7 +290,10 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     await this.verrou.acquire(codeCache);
-    if (this._cacheSuivi[codeCache] === undefined) return;
+    if (this._cacheSuivi[codeCache] === undefined) {
+      this.verrou.release(codeCache);
+      return
+    };
     const { requêtes, fOublier } = this._cacheSuivi[codeCache];
     delete requêtes[idRequête];
 
