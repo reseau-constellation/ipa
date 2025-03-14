@@ -34,6 +34,17 @@ import type { HeliaLibp2p } from "helia";
 import type { Libp2p } from "libp2p";
 import type { ServicesLibp2p } from "./sfip/index.js";
 
+const pSignal = async (signal: AbortSignal): Promise<never> => {
+  if (signal.aborted) throw new AbortError();
+  return new Promise<never>((_résoudre, rejeter) => {
+    const lorsquAvorté = () => {
+      signal.removeEventListener("abort", lorsquAvorté)
+      rejeter()
+    }
+    signal.addEventListener("abort", lorsquAvorté)
+  })
+}
+
 export const réessayer = async <T>({
   f,
   signal,
@@ -51,10 +62,9 @@ export const réessayer = async <T>({
     signal: AbortSignal;
     n: number;
   }): Promise<T> => {
-    if (signal.aborted) throw new AbortError();
     try {
       avant = Date.now();
-      return await f();
+      return await Promise.race([f(), pSignal(signal)]);
     } catch (e) {
       if (signal.aborted) throw new AbortError();
       console.log(e);
