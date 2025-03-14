@@ -1927,7 +1927,7 @@ export class BDs extends ComposanteClientListe<string> {
     });
   }
 
-  @cacheSuivi
+  // @cacheSuivi
   async suivreTableauxBd({
     idBd,
     f,
@@ -1955,7 +1955,7 @@ export class BDs extends ComposanteClientListe<string> {
     });
     
     return async () => {
-      const chrono = setTimeout(()=>console.log("fOublier suivreTableauxBds coincée", idBd), 3000);
+      const chrono = setTimeout(()=>console.log("fOublier suivreTableauxBds coincée", idBd), 2000);
       try {
         await x()
       } catch (e) {
