@@ -1633,7 +1633,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       const fSuivreBdRacine = async (
         bd: TypedKeyValue<Record<typeof clef, string>>,
       ) => {
-        const chrono = setTimeout(()=>console.log("obt de clef coincée", clef), 2000)
+        const chrono = setTimeout(()=>console.log("obt de clef coincée", clef), 3000)
         const nouvelIdBdCible = await bd.get(clef);
         clearTimeout(chrono)
         return await fSuivreRacine(nouvelIdBdCible);

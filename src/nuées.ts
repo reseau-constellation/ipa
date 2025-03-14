@@ -181,7 +181,7 @@ export class Nuées extends ComposanteClientListe<string> {
       données?: (string | undefined)[];
     } = {};
     const fFinale = async () => {
-      const chrono = setTimeout(()=>console.log("fFinale coincée", épingle), 2000)
+      const chrono = setTimeout(()=>console.log("fFinale coincée", épingle), 3000)
       const x = await f(
         new Set(
           Object.values(info)
@@ -226,14 +226,14 @@ export class Nuées extends ComposanteClientListe<string> {
         fListe: async (
           fSuivreRacine: (éléments: string[]) => Promise<void>,
         ) => {
-          const chrono = setTimeout(()=>console.log("fListe données coincée", épingle), 2000)
+          const chrono = setTimeout(()=>console.log("fListe données coincée", épingle), 3000)
           const x = await this.suivreBdsCorrespondantes({
             idNuée: épingle.idObjet,
             f: fSuivreRacine,
           });
           clearTimeout(chrono)
           const x_ = async () => {
-            const chrono = setTimeout(()=>console.log("oublier fListe données coincée", épingle), 2000)
+            const chrono = setTimeout(()=>console.log("oublier fListe données coincée", épingle), 3000)
             const y = await x.fOublier()
             clearTimeout(chrono)
             return y
@@ -252,7 +252,7 @@ export class Nuées extends ComposanteClientListe<string> {
             f: (idcs) => fSuivreBranche([...idcs]),
           });
           const x_ = async () => {
-            const chrono = setTimeout(()=>console.log("oublier fBranche données coincée", épingle), 2000)
+            const chrono = setTimeout(()=>console.log("oublier fBranche données coincée", épingle), 3000)
             const y = await x()
             clearTimeout(chrono)
             return y
@@ -265,7 +265,7 @@ export class Nuées extends ComposanteClientListe<string> {
         },
       });
       const fOublierDonnéesTest = async ()=>{
-        const chrono = setTimeout(()=>console.log("fOublier données coincée", épingle), 2000)
+        const chrono = setTimeout(()=>console.log("fOublier données coincée", épingle), 3000)
         await fOublierDonnées()
         clearTimeout(chrono)
       }
@@ -274,7 +274,7 @@ export class Nuées extends ComposanteClientListe<string> {
     }
 
     return async () => {
-      const chrono = setTimeout(()=>console.log("coincée", épingle), 2000)
+      const chrono = setTimeout(()=>console.log("coincée", épingle), 3000)
       await Promise.allSettled(fsOublier.map((f) => f()));
       clearTimeout(chrono)
     };

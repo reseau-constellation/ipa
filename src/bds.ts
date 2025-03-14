@@ -280,7 +280,7 @@ export class BDs extends ComposanteClientListe<string> {
         },
       });
       const _fOublierTableaux = async () => {
-        const chrono = setTimeout(()=>console.log("fOublierTableaux bds coincée", épingle), 2000)
+        const chrono = setTimeout(()=>console.log("fOublierTableaux bds coincée", épingle), 3000)
         const x = await fOublierTableaux()
         clearTimeout(chrono)
         return x
@@ -297,7 +297,7 @@ export class BDs extends ComposanteClientListe<string> {
             f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
           });
           return async () => {
-            const chrono = setTimeout(()=>console.log("suivi racine données tableau coincée"), 2000)
+            const chrono = setTimeout(()=>console.log("suivi racine données tableau coincée"), 3000)
             await x();
             clearTimeout(chrono);
           }
@@ -313,7 +313,7 @@ export class BDs extends ComposanteClientListe<string> {
             f: fSuivreBranche,
           });
           return async () => {
-            const chrono = setTimeout(()=>console.log("suivi brances données tableau coincée"), 2000)
+            const chrono = setTimeout(()=>console.log("suivi brances données tableau coincée"), 3000)
             await x();
             clearTimeout(chrono);
           }
@@ -329,7 +329,7 @@ export class BDs extends ComposanteClientListe<string> {
         },
       });
       const _fOublierDonnées = async () => {
-        const chrono = setTimeout(()=>console.log("fOublierDonnées bds coincée", épingle), 2000)
+        const chrono = setTimeout(()=>console.log("fOublierDonnées bds coincée", épingle), 3000)
         const x = await fOublierDonnées()
         clearTimeout(chrono)
         return x
@@ -1955,7 +1955,7 @@ export class BDs extends ComposanteClientListe<string> {
     });
     
     return async () => {
-      const chrono = setTimeout(()=>console.log("fOublier suivreTableauxBds coincée", idBd), 2000);
+      const chrono = setTimeout(()=>console.log("fOublier suivreTableauxBds coincée", idBd), 3000);
       await x()
       clearTimeout(chrono)
     }
