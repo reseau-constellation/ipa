@@ -297,7 +297,7 @@ export class BDs extends ComposanteClientListe<string> {
             f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
           });
           return async () => {
-            const chrono = setTimeout(()=>console.log("coincée"), 2000)
+            const chrono = setTimeout(()=>console.log("suivi racine données tableau coincée"), 2000)
             await x();
             clearTimeout(chrono);
           }
@@ -313,7 +313,7 @@ export class BDs extends ComposanteClientListe<string> {
             f: fSuivreBranche,
           });
           return async () => {
-            const chrono = setTimeout(()=>console.log("coincée"), 2000)
+            const chrono = setTimeout(()=>console.log("suivi brances données tableau coincée"), 2000)
             await x();
             clearTimeout(chrono);
           }
