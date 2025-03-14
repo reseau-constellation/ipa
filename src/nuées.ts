@@ -226,10 +226,13 @@ export class Nuées extends ComposanteClientListe<string> {
         fListe: async (
           fSuivreRacine: (éléments: string[]) => Promise<void>,
         ) => {
-          return await this.suivreBdsCorrespondantes({
+          const chrono = setTimeout(()=>console.log("fListe données coincée", épingle), 2000)
+          const x = await this.suivreBdsCorrespondantes({
             idNuée: épingle.idObjet,
             f: fSuivreRacine,
           });
+          clearTimeout(chrono)
+          return x
         },
         fBranche: async (
           id: string,
