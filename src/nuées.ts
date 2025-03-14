@@ -248,8 +248,13 @@ export class Nuées extends ComposanteClientListe<string> {
           await fFinale();
         },
       });
+      const fOublierDonnéesTest = async ()=>{
+        const chrono = setTimeout(()=>console.log("fOublier données coincée", épingle), 2000)
+        await fOublierDonnées()
+        clearTimeout(chrono)
+      }
 
-      fsOublier.push(fOublierDonnées);
+      fsOublier.push(fOublierDonnéesTest);
     }
 
     return async () => {
