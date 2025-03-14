@@ -51,6 +51,7 @@ export const réessayer = async <T>({
     signal: AbortSignal;
     n: number;
   }): Promise<T> => {
+    if (signal.aborted) throw new AbortError();
     try {
       avant = Date.now();
       return await f();
