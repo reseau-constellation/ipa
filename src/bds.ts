@@ -294,7 +294,7 @@ export class BDs extends ComposanteClientListe<string> {
         ) => {
           const x = await this.suivreTableauxBd({
             idBd: épingle.idObjet,
-            f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
+            f: (tableaux) => {console.log({tableaux}); return fSuivreRacine(tableaux.map((t) => t.id))},
           });
           return async () => {
             const chrono = setTimeout(()=>console.log("suivi racine données tableau coincée"), 3000)
