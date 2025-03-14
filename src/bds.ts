@@ -280,7 +280,7 @@ export class BDs extends ComposanteClientListe<string> {
         },
       });
       const _fOublierTableaux = async () => {
-        const chrono = setTimeout(()=>console.log("fOublierTableaux bds coincée", épingle))
+        const chrono = setTimeout(()=>console.log("fOublierTableaux bds coincée", épingle), 2000)
         const x = await fOublierTableaux()
         clearTimeout(chrono)
         return x
@@ -318,7 +318,7 @@ export class BDs extends ComposanteClientListe<string> {
         },
       });
       const _fOublierDonnées = async () => {
-        const chrono = setTimeout(()=>console.log("fOublierDonnées bds coincée", épingle))
+        const chrono = setTimeout(()=>console.log("fOublierDonnées bds coincée", épingle), 2000)
         const x = await fOublierDonnées()
         clearTimeout(chrono)
         return x
@@ -327,7 +327,7 @@ export class BDs extends ComposanteClientListe<string> {
     }
 
     return async () => {
-      const chrono = setTimeout(()=>console.log("bd coincée", épingle), 2000)
+      const chrono = setTimeout(()=>console.log("bd coincée", épingle), 6000)
       await Promise.allSettled(fsOublier.map((f) => f()));
       clearTimeout(chrono)
     };
@@ -1935,13 +1935,19 @@ export class BDs extends ComposanteClientListe<string> {
       });
       await f(tableaux);
     };
-
-    return await this.client.suivreBdDicOrdonnéeDeClef({
+    
+    const x = await this.client.suivreBdDicOrdonnéeDeClef({
       id: idBd,
       clef: "tableaux",
       schéma: schémaBdTableauxDeBd,
       f: fFinale,
     });
+    
+    return async () => {
+      const chrono = setTimeout(()=>console.log("fOublier suivreTableauxBds coincée", idBd), 2000);
+      await x()
+      clearTimeout(chrono)
+    }
   }
 
   @cacheSuivi
