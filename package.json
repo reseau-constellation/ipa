@@ -62,7 +62,7 @@
     "cross-env": "^7.0.3",
     "crypto-browserify": "^3.12.1",
     "electron": "^34.3.0",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.25.0",
     "eslint": "^9.21.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^9.1.0",
