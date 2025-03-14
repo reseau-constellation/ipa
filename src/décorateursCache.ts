@@ -117,7 +117,7 @@ export class CacheSuivi {
       // Sinon, ajouter f à la liste de fonctions de rappel
       this._cacheSuivi[codeCache].requêtes[idRequête] = f;
       if (Object.keys(this._cacheSuivi[codeCache]).includes("val"))
-        await f(this._cacheSuivi[codeCache].val);
+        f(this._cacheSuivi[codeCache].val);
     }
 
     const fOublierRequête = async () => {
