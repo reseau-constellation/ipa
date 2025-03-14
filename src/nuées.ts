@@ -238,7 +238,7 @@ export class Nuées extends ComposanteClientListe<string> {
             clearTimeout(chrono)
             return y
           }
-          return x_
+          return {fOublier: x_}
         },
         fBranche: async (
           id: string,
