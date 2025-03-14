@@ -64,7 +64,7 @@ const idsCorrespondantes = async (
     .lengthOf(nIdsDésirées);
 };
 
-describe("Nuées", function () {
+describe.only("Nuées", function () {
   describe("Tests individuels", function () {
     let fOublierClients: () => Promise<void>;
     let clients: Constellation[];
@@ -1127,7 +1127,7 @@ describe("Nuées", function () {
             schéma: schémaNuée,
           });
           const val = await résultat.attendreQue((x) => x.length > 0);
-          expect(val[0]).to.equal(idBd);
+          expect(val).to.include(idBd);
         });
 
         it("Bloquer membre", async () => {

@@ -181,13 +181,16 @@ export class Nuées extends ComposanteClientListe<string> {
       données?: (string | undefined)[];
     } = {};
     const fFinale = async () => {
-      return await f(
+      const chrono = setTimeout(()=>console.log("fFinale coincée", épingle), 2000)
+      const x = await f(
         new Set(
           Object.values(info)
-            .flat()
-            .filter((x) => !!x) as string[],
+          .flat()
+          .filter((x) => !!x) as string[],
         ),
       );
+      clearTimeout(chrono)
+      return x
     };
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -250,7 +253,9 @@ export class Nuées extends ComposanteClientListe<string> {
     }
 
     return async () => {
+      const chrono = setTimeout(()=>console.log("coincée", épingle), 2000)
       await Promise.allSettled(fsOublier.map((f) => f()));
+      clearTimeout(chrono)
     };
   }
 

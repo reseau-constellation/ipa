@@ -60,11 +60,16 @@ export const réessayer = async <T>({
       n++;
       const maintenant = Date.now();
       const tempsÀAttendre = n * 1000 - (maintenant - avant);
-      if (tempsÀAttendre > 0)
-        await new Promise((résoudre) => {
+      if (tempsÀAttendre > 0) {
+        await new Promise<void>((résoudre) => {
           const chrono = setTimeout(résoudre, tempsÀAttendre);
-          signal.addEventListener("abort", () => clearInterval(chrono));
+          signal.addEventListener("abort", () => {
+            clearInterval(chrono);
+            résoudre();
+          });
         });
+        if (signal.aborted) throw new AbortError();
+      }
       return await _interne({ f, signal, n });
     }
   };
@@ -77,6 +82,13 @@ export type Store =
   | KeyValueDatabase
   | OrderedKeyValueDatabaseType;
 
+type TypesBdsOrbites = {
+  keyvalue: KeyValueDatabase;
+  feed: FeedDatabaseType;
+  set: SetDatabaseType;
+  "ordered-keyvalue": OrderedKeyValueDatabaseType
+}
+  
 // https://stackoverflow.com/questions/56863875/typescript-how-do-you-filter-a-types-properties-to-those-of-a-certain-type
 type KeysMatching<T extends object, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
@@ -284,9 +296,8 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     };
 
     // Fonction utilitaire pour vérifier le type de la bd
-    const vérifierTypeBd = (bd: Store): boolean => {
+    const vérifierTypeBd = <U extends keyof TypesBdsOrbites>(bd: Store, type: U): bd is TypesBdsOrbites[U] => {
       const { type: typeBd } = bd;
-      if (type === undefined) return true;
       return typeBd === type;
     };
 
@@ -294,8 +305,9 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
       this._bdsOrbite[id].idsRequêtes.add(idRequête);
       this.verrouOuvertureBd.release(id);
 
-      if (!vérifierTypeBd(existante.bd))
+      if (type && !vérifierTypeBd(existante.bd, type))
         throw new Error(
+          // @ts-expect-error Je ne comprends pas complètement
           `La bd est de type ${existante.bd.type}, et non ${type}.`,
         );
 
