@@ -70,8 +70,6 @@ describe("Nuées", function () {
     let clients: Constellation[];
     let client: Constellation;
 
-    const fsOublier: schémaFonctionOublier[] = [];
-
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
         n: 1,
@@ -83,7 +81,6 @@ describe("Nuées", function () {
 
     after(async () => {
       if (fOublierClients) await fOublierClients();
-      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     describe("Création", function () {
