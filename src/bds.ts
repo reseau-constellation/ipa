@@ -279,28 +279,17 @@ export class BDs extends ComposanteClientListe<string> {
           await fFinale();
         },
       });
-      const _fOublierTableaux = async () => {
-        const chrono = setTimeout(()=>console.log("fOublierTableaux bds coincée", épingle), 3000)
-        const x = await fOublierTableaux()
-        clearTimeout(chrono)
-        return x
-      }
-      fsOublier.push(_fOublierTableaux);
+      fsOublier.push(fOublierTableaux);
     }
     if (épinglerFichiersDonnées) {
       const fOublierDonnées = await suivreBdsDeFonctionListe({
         fListe: async (
           fSuivreRacine: (éléments: string[]) => Promise<void>,
         ) => {
-          const x = await this.suivreTableauxBd({
+          return await this.suivreTableauxBd({
             idBd: épingle.idObjet,
-            f: (tableaux) => {console.log({tableaux}); return fSuivreRacine(tableaux.map((t) => t.id))},
+            f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
           });
-          return async () => {
-            const chrono = setTimeout(()=>console.log("suivi racine données tableau coincée"), 3000)
-            await x();
-            clearTimeout(chrono);
-          }
         },
         fBranche: async (
           id: string,
@@ -308,15 +297,10 @@ export class BDs extends ComposanteClientListe<string> {
             élémentDonnées<élémentBdListeDonnées>[]
           >,
         ) => {
-          const x = await this.client.tableaux.suivreDonnées({
+          return await this.client.tableaux.suivreDonnées({
             idTableau: id,
             f: fSuivreBranche,
           });
-          return async () => {
-            const chrono = setTimeout(()=>console.log("suivi brances données tableau coincée"), 3000)
-            await x();
-            clearTimeout(chrono);
-          }
         },
         f: async (données: élémentDonnées<élémentBdListeDonnées>[]) => {
           const idcs = données
@@ -328,19 +312,11 @@ export class BDs extends ComposanteClientListe<string> {
           await fFinale();
         },
       });
-      const _fOublierDonnées = async () => {
-        const chrono = setTimeout(()=>console.log("fOublierDonnées bds coincée", épingle), 3000)
-        const x = await fOublierDonnées()
-        clearTimeout(chrono)
-        return x
-      }
-      fsOublier.push(_fOublierDonnées);
+      fsOublier.push(fOublierDonnées);
     }
 
     return async () => {
-      const chrono = setTimeout(()=>console.log("bd coincée", épingle), 6000)
       await Promise.allSettled(fsOublier.map((f) => f()));
-      clearTimeout(chrono)
     };
   }
 
@@ -1947,23 +1923,12 @@ export class BDs extends ComposanteClientListe<string> {
       await f(tableaux);
     };
     
-    const x = await this.client.suivreBdDicOrdonnéeDeClef({
+    return await this.client.suivreBdDicOrdonnéeDeClef({
       id: idBd,
       clef: "tableaux",
       schéma: schémaBdTableauxDeBd,
       f: fFinale,
     });
-    
-    return async () => {
-      const chrono = setTimeout(()=>console.log("fOublier suivreTableauxBds coincée", idBd), 2000);
-      try {
-        await x()
-      } catch (e) {
-        console.log("erreur : ", e)
-        throw e
-      }
-      clearTimeout(chrono)
-    }
   }
 
   @cacheSuivi

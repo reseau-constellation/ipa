@@ -181,16 +181,13 @@ export class Nuées extends ComposanteClientListe<string> {
       données?: (string | undefined)[];
     } = {};
     const fFinale = async () => {
-      const chrono = setTimeout(()=>console.log("fFinale coincée", épingle), 3000)
-      const x = await f(
+      return await f(
         new Set(
           Object.values(info)
           .flat()
           .filter((x) => !!x) as string[],
         ),
       );
-      clearTimeout(chrono)
-      return x
     };
 
     const fsOublier: schémaFonctionOublier[] = [];
@@ -226,57 +223,33 @@ export class Nuées extends ComposanteClientListe<string> {
         fListe: async (
           fSuivreRacine: (éléments: string[]) => Promise<void>,
         ) => {
-          const chrono = setTimeout(()=>console.log("fListe données coincée", épingle), 3000)
-          const x = await this.suivreBdsCorrespondantes({
+          return await this.suivreBdsCorrespondantes({
             idNuée: épingle.idObjet,
             f: fSuivreRacine,
           });
-          clearTimeout(chrono)
-          const x_ = async () => {
-            const chrono = setTimeout(()=>console.log("oublier fListe données coincée", épingle), 3000)
-            const y = await x.fOublier()
-            clearTimeout(chrono)
-            return y
-          }
-          return {fOublier: x_}
         },
         fBranche: async (
           id: string,
           fSuivreBranche: schémaFonctionSuivi<string[]>,
         ) => {
-          const x = await this.client.bds.suivreRésolutionÉpingle({
+          return await this.client.bds.suivreRésolutionÉpingle({
             épingle: {
               idObjet: id,
               épingle: épinglerDonnées,
             },
             f: (idcs) => fSuivreBranche([...idcs]),
           });
-          const x_ = async () => {
-            const chrono = setTimeout(()=>console.log("oublier fBranche données coincée", épingle), 3000)
-            const y = await x()
-            clearTimeout(chrono)
-            return y
-          }
-          return x_
         },
         f: async (idcs: string[]) => {
           info.données = idcs;
           await fFinale();
         },
       });
-      const fOublierDonnéesTest = async ()=>{
-        const chrono = setTimeout(()=>console.log("fOublier données coincée", épingle), 3000)
-        await fOublierDonnées()
-        clearTimeout(chrono)
-      }
-
-      fsOublier.push(fOublierDonnéesTest);
+      fsOublier.push(fOublierDonnées);
     }
 
     return async () => {
-      const chrono = setTimeout(()=>console.log("coincée", épingle), 3000)
       await Promise.allSettled(fsOublier.map((f) => f()));
-      clearTimeout(chrono)
     };
   }
 
