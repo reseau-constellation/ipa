@@ -6,7 +6,7 @@ import {
 import { isElectronMain, isNode } from "wherearewe";
 import { expect } from "aegir/chai";
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
-
+import { TypedEmitter } from "tiny-typed-emitter";
 import {
   infoAuteur,
   schémaFonctionOublier,
@@ -2712,47 +2712,48 @@ if (isNode || isElectronMain) {
         rés.toutAnnuler();
       });
 
-      const messageReçu = ({
+      const messageReçu = async ({
         de,
         à,
       }: {
         de: string;
         à: Constellation | Constellation[];
-      }): { promesseBienReçu: Promise<boolean>; messageÀEnvoyer: string } => {
+      }): Promise<{ promesseBienReçu: Promise<boolean>; messageÀEnvoyer: string }> => {
         const messageÀEnvoyer = `C'est bien moi : ${de}`;
         if (!Array.isArray(à)) à = [à];
 
-        const promesseReçuParDispositif = (d: Constellation) =>
-          new Promise<boolean>((résoudre) => {
-            let fOublierSuivreMesages: schémaFonctionOublier | undefined =
-              undefined;
-            d.réseau
-              .suivreMessagesDirectes({
-                type: "texte",
-                de,
-                f: (message) => {
-                  console.log("test", {message})
-                  fOublierSuivreMesages?.();
-                  résoudre(
-                    (message.contenu as { message: string }).message ===
-                      messageÀEnvoyer,
-                  );
-                },
-              })
-              .then((fOublier) => (fOublierSuivreMesages = fOublier));
+        const générerPromesseReçuParDisposoitif = async (d: Constellation): Promise<()=>Promise<boolean>> => {
+          const événementReçu = new TypedEmitter<{"reçu": (corresp: boolean) => void}>();
+          let résultat: boolean|undefined = undefined;
+          const fOublier = await d.réseau.suivreMessagesDirectes({
+            type: "texte",
+            de,
+            f: (message) => {
+              console.log("test", {message})
+              const corresp = (message.contenu as { message: string }).message === messageÀEnvoyer;
+              résultat = corresp;
+              événementReçu.emit("reçu", corresp);
+            },
           });
+          return () => new Promise<boolean>((résoudre)=>{
+            événementReçu.once("reçu", x => {fOublier(); résoudre(x)});
+            if (résultat !== undefined) {fOublier(); résoudre(résultat)};
+          })
+        }
 
-        const promesseBienReçu = Promise.allSettled(
-          à.map((d) => promesseReçuParDispositif(d)),
+        const promessesBienReçu = await Promise.all(à.map(d=>générerPromesseReçuParDisposoitif(d)))
+
+        const promesseTousBienReçus = Promise.all(
+          promessesBienReçu.map(p=>p())
         ).then((réceptions) => réceptions.every((r) => r));
         return {
-          promesseBienReçu,
+          promesseBienReçu: promesseTousBienReçus,
           messageÀEnvoyer,
         };
       };
 
       it("Envoyer message à un autre dispositif", async () => {
-        const { promesseBienReçu, messageÀEnvoyer } = messageReçu({
+        const { promesseBienReçu, messageÀEnvoyer } = await messageReçu({
           de: idsDispositifs[0],
           à: constls[1],
         });
@@ -2768,7 +2769,7 @@ if (isNode || isElectronMain) {
         expect(bienReçu).to.be.true();
       });
       it("Envoyer message à un autre membre", async () => {
-        const { promesseBienReçu, messageÀEnvoyer } = messageReçu({
+        const { promesseBienReçu, messageÀEnvoyer } = await messageReçu({
           de: idsDispositifs[0],
           à: constls[1],
         });
@@ -2785,7 +2786,7 @@ if (isNode || isElectronMain) {
       });
 
       it("Envoyer message à un autre membre qui a plusieurs dispositifs", async () => {
-        const { promesseBienReçu, messageÀEnvoyer } = messageReçu({
+        const { promesseBienReçu, messageÀEnvoyer } = await messageReçu({
           de: idsDispositifs[0],
           à: [constls[1], constls[2]],
         });
