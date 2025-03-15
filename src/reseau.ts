@@ -307,6 +307,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       stream: Stream;
     }) => {
       const idPairSource = String(connection.remotePeer);
+      console.log({idPairSource});
       if (this.connexionsDirectes[idPairSource]) return;
       try {
         this.connexionsDirectes[idPairSource] = pushable();
@@ -405,12 +406,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         });
       },
     );
-
+    
     if (this.connexionsDirectes[idLibp2pDestinataire])
       return this.connexionsDirectes[idLibp2pDestinataire];
-
+    
     const idPairDestinataire = peerIdFromString(idLibp2pDestinataire);
+    console.log({idLibp2pDestinataire, idPairDestinataire})
     await sfip.libp2p.dial(idPairDestinataire);
+    console.log("pair connecté")
 
     const flux = await pRetry(async () => {
       if (signalCombiné.aborted) throw new AbortError("Opération annulée");
@@ -507,10 +510,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     idDispositif: string;
     signal?: AbortSignal;
   }) {
+    console.log("envoyer", {msg}, "à", {idDispositif})
     const flux = await this.obtFluxDispositif({ idDispositif, signal });
-
+    console.log("flux générré")
     const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
     flux.push(msgBinaire);
+    console.log('message envoyé')
   }
 
   async envoyerMessageAuMembre({
