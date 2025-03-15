@@ -307,16 +307,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       stream: Stream;
     }) => {
       const idPairSource = String(connection.remotePeer);
-      console.log({idPairSource});
       if (this.connexionsDirectes[idPairSource]) return;
       try {
         this.connexionsDirectes[idPairSource] = pushable();
         pipe(stream, async (source) => {
-          console.log("données reçues <=");
           for await (const value of source) {
             const octets = value.subarray();
             const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
-            console.log({messageDécodé});
             this.événements.emit("messageDirecte", {
               de: idPairSource,
               message: messageDécodé,
@@ -413,9 +410,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       return this.connexionsDirectes[idLibp2pDestinataire];
     
     const idPairDestinataire = peerIdFromString(idLibp2pDestinataire);
-    console.log({idLibp2pDestinataire, idPairDestinataire})
     await sfip.libp2p.dial(idPairDestinataire);
-    console.log("pair connecté")
 
     const flux = await pRetry(async () => {
       if (signalCombiné.aborted) throw new AbortError("Opération annulée");
@@ -427,11 +422,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
     signalCombiné.clear();
     pipe(flux, async (source) => {
-      console.log("données reçues =>");
       for await (const value of source) {
         const octets = value.subarray();
         const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
-        console.log({messageDécodé});
         this.événements.emit("messageDirecte", {
           de: idLibp2pDestinataire,
           message: messageDécodé,
@@ -524,12 +517,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     idDispositif: string;
     signal?: AbortSignal;
   }) {
-    console.log("envoyer", {msg}, "à", {idDispositif})
     const flux = await this.obtFluxDispositif({ idDispositif, signal });
-    console.log("flux générré")
     const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
     flux.push(msgBinaire);
-    console.log('message envoyé')
   }
 
   async envoyerMessageAuMembre({
@@ -588,7 +578,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       de: string;
       message: MessageDirecte;
     }) => {
-      console.log("gérerMessage", {messageDe, message, type, de})
       if (type && !(message.type === type)) return;
       if (de && !(de === messageDe)) return;
       await f(message);

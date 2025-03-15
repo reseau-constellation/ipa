@@ -2729,7 +2729,6 @@ if (isNode || isElectronMain) {
             type: "texte",
             de,
             f: (message) => {
-              console.log("test", {message})
               const corresp = (message.contenu as { message: string }).message === messageÀEnvoyer;
               résultat = corresp;
               événementReçu.emit("reçu", corresp);
