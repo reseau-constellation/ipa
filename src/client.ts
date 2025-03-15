@@ -1337,17 +1337,11 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     const accès = bd.access as ContrôleurConstellation;
     const moi = await this.obtIdDispositif();
 
-    let oublierPermission: schémaFonctionOublier;
-    await new Promise<void>((résoudre) => {
-      accès
-        .suivreIdsOrbiteAutoriséesÉcriture((autorisés: string[]) => {
-          const autorisé = autorisés.includes(moi);
-          if (autorisé) {
-            oublierPermission().then(fOublier).then(résoudre);
-          }
-        })
-        .then((x) => (oublierPermission = x));
-    });
+    await uneFois(
+      async (fSuivi: schémaFonctionSuivi<string[]>) => accès.suivreIdsOrbiteAutoriséesÉcriture(fSuivi),
+      autorisés => !!autorisés && autorisés.includes(moi),
+    )
+    fOublier();
 
     // Là on peut y aller
     this.idCompte = idCompte;
