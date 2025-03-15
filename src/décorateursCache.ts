@@ -207,45 +207,49 @@ export class CacheSuivi {
       }
     };
 
-    // Vérifier si déjà en cache
-    if (!this._cacheRecherche[codeCache]) {
-      // Si pas en cache, générer
-      this._cacheRecherche[codeCache] = {
-        requêtes: { [idRequête]: { f, taille } },
-        taillePrésente: taille,
-      };
-
-      const argsComplets = {
-        ...argsSansFOuTaille,
-        [nomArgFonction]: fFinale,
-        [nomArgTaille]: taille,
-      };
-
-      if (par === "profondeur") {
-        const { fOublier, fChangerProfondeur } = (await fOriginale.apply(
-          ceciOriginal,
-          [argsComplets],
-        )) as schémaRetourFonctionRechercheParProfondeur;
-        this._cacheRecherche[codeCache].fs = {
-          fOublier,
-          fChangerTaille: fChangerProfondeur,
+    try {
+      // Vérifier si déjà en cache
+      if (!this._cacheRecherche[codeCache]) {
+        // Si pas en cache, générer
+        this._cacheRecherche[codeCache] = {
+          requêtes: { [idRequête]: { f, taille } },
+          taillePrésente: taille,
         };
+  
+        const argsComplets = {
+          ...argsSansFOuTaille,
+          [nomArgFonction]: fFinale,
+          [nomArgTaille]: taille,
+        };
+  
+        if (par === "profondeur") {
+          const { fOublier, fChangerProfondeur } = (await fOriginale.apply(
+            ceciOriginal,
+            [argsComplets],
+          )) as schémaRetourFonctionRechercheParProfondeur;
+          this._cacheRecherche[codeCache].fs = {
+            fOublier,
+            fChangerTaille: fChangerProfondeur,
+          };
+        } else {
+          const { fOublier, fChangerN } = (await fOriginale.apply(ceciOriginal, [
+            argsComplets,
+          ])) as schémaRetourFonctionRechercheParN;
+          this._cacheRecherche[codeCache].fs = {
+            fOublier,
+            fChangerTaille: fChangerN,
+          };
+        }
       } else {
-        const { fOublier, fChangerN } = (await fOriginale.apply(ceciOriginal, [
-          argsComplets,
-        ])) as schémaRetourFonctionRechercheParN;
-        this._cacheRecherche[codeCache].fs = {
-          fOublier,
-          fChangerTaille: fChangerN,
-        };
+        // Sinon, ajouter f à la liste de fonctions de rappel
+        this._cacheRecherche[codeCache].requêtes[idRequête] = { f, taille };
+        if (Object.keys(this._cacheRecherche[codeCache]).includes("val")) {
+          const { val } = this._cacheRecherche[codeCache];
+          if (val) fFinale(val);
+        }
       }
-    } else {
-      // Sinon, ajouter f à la liste de fonctions de rappel
-      this._cacheRecherche[codeCache].requêtes[idRequête] = { f, taille };
-      if (Object.keys(this._cacheRecherche[codeCache]).includes("val")) {
-        const { val } = this._cacheRecherche[codeCache];
-        if (val) fFinale(val);
-      }
+    } finally {
+      this.verrou.release(codeCache);
     }
 
     const fOublierRequête = async () => {
@@ -273,7 +277,6 @@ export class CacheSuivi {
         fChangerTaille(maxTaille);
       }
     };
-    this.verrou.release(codeCache);
 
     return {
       fOublier: fOublierRequête,
