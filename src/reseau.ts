@@ -312,9 +312,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       try {
         this.connexionsDirectes[idPairSource] = pushable();
         pipe(stream, async (source) => {
+          console.log("données reçues");
           for await (const value of source) {
             const octets = value.subarray();
             const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
+            console.log({messageDécodé});
             this.événements.emit("messageDirecte", {
               de: idPairSource,
               message: messageDécodé,
@@ -424,6 +426,18 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       );
     });
     signalCombiné.clear();
+    pipe(flux, async (source) => {
+      console.log("données reçues");
+      for await (const value of source) {
+        const octets = value.subarray();
+        const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
+        console.log({messageDécodé});
+        this.événements.emit("messageDirecte", {
+          de: idLibp2pDestinataire,
+          message: messageDécodé,
+        });
+      }
+    });
 
     const fluxÀÉcrire = pushable();
     this.connexionsDirectes[idLibp2pDestinataire] = fluxÀÉcrire;
