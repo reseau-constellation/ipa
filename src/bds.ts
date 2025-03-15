@@ -1922,7 +1922,7 @@ export class BDs extends ComposanteClientListe<string> {
       });
       await f(tableaux);
     };
-    
+
     return await this.client.suivreBdDicOrdonnéeDeClef({
       id: idBd,
       clef: "tableaux",

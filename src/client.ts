@@ -355,7 +355,10 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     const { sfip, orbite } = await this._générerSFIPetOrbite();
     this.sfip = sfip;
-    this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({ orbite, signaleurArrêt: this.signaleurArrêt });
+    this.orbite = gestionnaireOrbiteGénéral.obtGestionnaireOrbite({
+      orbite,
+      signaleurArrêt: this.signaleurArrêt,
+    });
     this.événements.emit("sfipEtOrbitePrêts", { sfip, orbite: this.orbite });
 
     this.idCompte =
@@ -930,13 +933,17 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     fOublier: schémaFonctionOublier;
   }> {
     const { orbite } = await this.attendreSfipEtOrbite();
-    const signalCombiné = anySignal(signal ? [signal, this.signaleurArrêt.signal] : [this.signaleurArrêt.signal]);
-    const bd = await orbite.ouvrirBd({
+    const signalCombiné = anySignal(
+      signal
+        ? [signal, this.signaleurArrêt.signal]
+        : [this.signaleurArrêt.signal],
+    );
+    const bd = (await orbite.ouvrirBd({
       id,
       type,
       signal: signalCombiné,
       options,
-    }) as {
+    })) as {
       bd: T;
       fOublier: schémaFonctionOublier;
     };
@@ -1338,9 +1345,10 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     const moi = await this.obtIdDispositif();
 
     await uneFois(
-      async (fSuivi: schémaFonctionSuivi<string[]>) => accès.suivreIdsOrbiteAutoriséesÉcriture(fSuivi),
-      autorisés => !!autorisés && autorisés.includes(moi),
-    )
+      async (fSuivi: schémaFonctionSuivi<string[]>) =>
+        accès.suivreIdsOrbiteAutoriséesÉcriture(fSuivi),
+      (autorisés) => !!autorisés && autorisés.includes(moi),
+    );
     fOublier();
 
     // Là on peut y aller
@@ -1527,23 +1535,14 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     // Alambiqué, mais apparemment nécessaire pour TypeScript !
     const promesseBd = schéma
-    ? type === "set"
-      ? this.ouvrirBdTypée({
-          id,
-          type,
-          signal: signaleur.signal,
-          schéma: schéma as JSONSchemaType<Extract<U, élémentsBd>>,
-        })
-      : type === "keyvalue"
+      ? type === "set"
         ? this.ouvrirBdTypée({
             id,
             type,
             signal: signaleur.signal,
-            schéma: schéma as JSONSchemaType<
-              Extract<U, { [clef: string]: élémentsBd }>
-            >,
+            schéma: schéma as JSONSchemaType<Extract<U, élémentsBd>>,
           })
-        : type === "ordered-keyvalue"
+        : type === "keyvalue"
           ? this.ouvrirBdTypée({
               id,
               type,
@@ -1552,17 +1551,25 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
                 Extract<U, { [clef: string]: élémentsBd }>
               >,
             })
-          : this.ouvrirBd({
-              id,
-              type,
-              signal: signaleur.signal,
-            })
-    : this.ouvrirBd({
-        id,
-        signal: signaleur.signal,
-      });
-  promesseBd
-    .then(({ bd, fOublier }) => {
+          : type === "ordered-keyvalue"
+            ? this.ouvrirBdTypée({
+                id,
+                type,
+                signal: signaleur.signal,
+                schéma: schéma as JSONSchemaType<
+                  Extract<U, { [clef: string]: élémentsBd }>
+                >,
+              })
+            : this.ouvrirBd({
+                id,
+                type,
+                signal: signaleur.signal,
+              })
+      : this.ouvrirBd({
+          id,
+          signal: signaleur.signal,
+        });
+    promesseBd.then(({ bd, fOublier }) => {
       fsOublier.push(fOublier);
 
       const fFinale = () => {
@@ -1595,7 +1602,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
       fFinale();
     });
-
 
     const fOublier = async () => {
       signaleur.abort();

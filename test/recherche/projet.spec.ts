@@ -28,10 +28,9 @@ describe("Rechercher projets", function () {
   let client: Constellation;
 
   before(async () => {
-    const { fOublier, clients } =
-      await générerClientsInternes({
-        n: 1,
-      });
+    const { fOublier, clients } = await générerClientsInternes({
+      n: 1,
+    });
     fOublierClients = fOublier;
     // @ts-ignore
     client = clients[0];

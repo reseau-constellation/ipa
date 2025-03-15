@@ -184,8 +184,8 @@ export class Nuées extends ComposanteClientListe<string> {
       return await f(
         new Set(
           Object.values(info)
-          .flat()
-          .filter((x) => !!x) as string[],
+            .flat()
+            .filter((x) => !!x) as string[],
         ),
       );
     };
@@ -2133,7 +2133,10 @@ export class Nuées extends ComposanteClientListe<string> {
       });
 
       return async () => {
-        await Promise.allSettled([fOublierDifférencesBd, fOublierDifférencesTableaux]);
+        await Promise.allSettled([
+          fOublierDifférencesBd,
+          fOublierDifférencesTableaux,
+        ]);
       };
     };
 
@@ -2272,7 +2275,9 @@ export class Nuées extends ComposanteClientListe<string> {
     return async () => {
       annulé = true;
       await fOublier();
-      await Promise.allSettled(Object.values(ascendance).map((a) => a.fOublier()));
+      await Promise.allSettled(
+        Object.values(ascendance).map((a) => a.fOublier()),
+      );
     };
   }
 

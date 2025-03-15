@@ -2718,32 +2718,50 @@ if (isNode || isElectronMain) {
       }: {
         de: string;
         à: Constellation | Constellation[];
-      }): Promise<{ promesseBienReçu: Promise<boolean>; messageÀEnvoyer: string }> => {
+      }): Promise<{
+        promesseBienReçu: Promise<boolean>;
+        messageÀEnvoyer: string;
+      }> => {
         const messageÀEnvoyer = `C'est bien moi : ${de}`;
         if (!Array.isArray(à)) à = [à];
 
-        const générerPromesseReçuParDisposoitif = async (d: Constellation): Promise<()=>Promise<boolean>> => {
-          const événementReçu = new TypedEmitter<{"reçu": (corresp: boolean) => void}>();
-          let résultat: boolean|undefined = undefined;
+        const générerPromesseReçuParDisposoitif = async (
+          d: Constellation,
+        ): Promise<() => Promise<boolean>> => {
+          const événementReçu = new TypedEmitter<{
+            reçu: (corresp: boolean) => void;
+          }>();
+          let résultat: boolean | undefined = undefined;
           const fOublier = await d.réseau.suivreMessagesDirectes({
             type: "texte",
             de,
             f: (message) => {
-              const corresp = (message.contenu as { message: string }).message === messageÀEnvoyer;
+              const corresp =
+                (message.contenu as { message: string }).message ===
+                messageÀEnvoyer;
               résultat = corresp;
               événementReçu.emit("reçu", corresp);
             },
           });
-          return () => new Promise<boolean>((résoudre)=>{
-            événementReçu.once("reçu", x => {fOublier(); résoudre(x)});
-            if (résultat !== undefined) {fOublier(); résoudre(résultat)};
-          })
-        }
+          return () =>
+            new Promise<boolean>((résoudre) => {
+              événementReçu.once("reçu", (x) => {
+                fOublier();
+                résoudre(x);
+              });
+              if (résultat !== undefined) {
+                fOublier();
+                résoudre(résultat);
+              }
+            });
+        };
 
-        const promessesBienReçu = await Promise.all(à.map(d=>générerPromesseReçuParDisposoitif(d)))
+        const promessesBienReçu = await Promise.all(
+          à.map((d) => générerPromesseReçuParDisposoitif(d)),
+        );
 
         const promesseTousBienReçus = Promise.all(
-          promessesBienReçu.map(p=>p())
+          promessesBienReçu.map((p) => p()),
         ).then((réceptions) => réceptions.every((r) => r));
         return {
           promesseBienReçu: promesseTousBienReçus,

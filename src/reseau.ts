@@ -405,10 +405,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         });
       },
     );
-    
+
     if (this.connexionsDirectes[idLibp2pDestinataire])
       return this.connexionsDirectes[idLibp2pDestinataire];
-    
+
     const idPairDestinataire = peerIdFromString(idLibp2pDestinataire);
     await sfip.libp2p.dial(idPairDestinataire);
 
@@ -1248,8 +1248,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
             .flat(),
         ),
       ].filter((id) => !Object.keys(dicRelations).includes(id));
-      await Promise.allSettled(àOublier.map((id) => oublierRelationsImmédiates(id)));
-      await Promise.allSettled(àSuivre.map((id) => suivreRelationsImmédiates(id)));
+      await Promise.allSettled(
+        àOublier.map((id) => oublierRelationsImmédiates(id)),
+      );
+      await Promise.allSettled(
+        àSuivre.map((id) => suivreRelationsImmédiates(id)),
+      );
 
       await fFinale();
       verrou.release("modification");
@@ -1264,7 +1268,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const fOublier = async () => {
       fermer = true;
-      await Promise.allSettled(Object.values(dicOublierRelations).map((f) => f()));
+      await Promise.allSettled(
+        Object.values(dicOublierRelations).map((f) => f()),
+      );
     };
 
     return { fOublier, fChangerProfondeur };
@@ -1912,7 +1918,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         ),
       );
 
-      await Promise.allSettled(clefsObsolètes.map((o) => oublierRésultatsMembre(o)));
+      await Promise.allSettled(
+        clefsObsolètes.map((o) => oublierRésultatsMembre(o)),
+      );
 
       verrou.release("rechercher");
     };

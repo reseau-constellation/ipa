@@ -105,7 +105,7 @@ export class CacheSuivi {
           await Promise.allSettled(fsSuivis.map((f_) => f_(x)));
         };
         const argsAvecF = { ...argsSansF, [nomArgFonction]: fFinale };
-  
+
         const fOublier = await fOriginale.apply(ceciOriginal, [argsAvecF]);
         this._cacheSuivi[codeCache].fOublier = fOublier;
       } finally {
@@ -215,13 +215,13 @@ export class CacheSuivi {
           requêtes: { [idRequête]: { f, taille } },
           taillePrésente: taille,
         };
-  
+
         const argsComplets = {
           ...argsSansFOuTaille,
           [nomArgFonction]: fFinale,
           [nomArgTaille]: taille,
         };
-  
+
         if (par === "profondeur") {
           const { fOublier, fChangerProfondeur } = (await fOriginale.apply(
             ceciOriginal,
@@ -232,9 +232,10 @@ export class CacheSuivi {
             fChangerTaille: fChangerProfondeur,
           };
         } else {
-          const { fOublier, fChangerN } = (await fOriginale.apply(ceciOriginal, [
-            argsComplets,
-          ])) as schémaRetourFonctionRechercheParN;
+          const { fOublier, fChangerN } = (await fOriginale.apply(
+            ceciOriginal,
+            [argsComplets],
+          )) as schémaRetourFonctionRechercheParN;
           this._cacheRecherche[codeCache].fs = {
             fOublier,
             fChangerTaille: fChangerN,
@@ -295,8 +296,8 @@ export class CacheSuivi {
     await this.verrou.acquire(codeCache);
     if (this._cacheSuivi[codeCache] === undefined) {
       this.verrou.release(codeCache);
-      return
-    };
+      return;
+    }
     const { requêtes, fOublier } = this._cacheSuivi[codeCache];
     delete requêtes[idRequête];
 

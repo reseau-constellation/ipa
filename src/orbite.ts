@@ -38,12 +38,12 @@ const pSignal = async (signal: AbortSignal): Promise<never> => {
   if (signal.aborted) throw new AbortError();
   return new Promise<never>((_résoudre, rejeter) => {
     const lorsquAvorté = () => {
-      signal.removeEventListener("abort", lorsquAvorté)
-      rejeter()
-    }
-    signal.addEventListener("abort", lorsquAvorté)
-  })
-}
+      signal.removeEventListener("abort", lorsquAvorté);
+      rejeter();
+    };
+    signal.addEventListener("abort", lorsquAvorté);
+  });
+};
 
 export const réessayer = async <T>({
   f,
@@ -97,9 +97,9 @@ type TypesBdsOrbites = {
   keyvalue: KeyValueDatabase;
   feed: FeedDatabaseType;
   set: SetDatabaseType;
-  "ordered-keyvalue": OrderedKeyValueDatabaseType
-}
-  
+  "ordered-keyvalue": OrderedKeyValueDatabaseType;
+};
+
 // https://stackoverflow.com/questions/56863875/typescript-how-do-you-filter-a-types-properties-to-those-of-a-certain-type
 type KeysMatching<T extends object, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
@@ -198,7 +198,13 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
   _oublierNettoyageBdsOuvertes?: schémaFonctionOublier;
   signaleurArrêt: AbortController;
 
-  constructor({orbite, signaleurArrêt}: {orbite: OrbitDB<T>; signaleurArrêt?: AbortController}) {
+  constructor({
+    orbite,
+    signaleurArrêt,
+  }: {
+    orbite: OrbitDB<T>;
+    signaleurArrêt?: AbortController;
+  }) {
     this.orbite = orbite;
 
     this._bdsOrbite = {};
@@ -307,7 +313,10 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
     };
 
     // Fonction utilitaire pour vérifier le type de la bd
-    const vérifierTypeBd = <U extends keyof TypesBdsOrbites>(bd: Store, type: U): bd is TypesBdsOrbites[U] => {
+    const vérifierTypeBd = <U extends keyof TypesBdsOrbites>(
+      bd: Store,
+      type: U,
+    ): bd is TypesBdsOrbites[U] => {
       const { type: typeBd } = bd;
       return typeBd === type;
     };
@@ -517,7 +526,10 @@ export class GestionnaireOrbiteGénéral {
     signaleurArrêt?: AbortController;
   }): GestionnaireOrbite {
     if (!this.gestionnaires[orbite.identity.id]) {
-      this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite({orbite, signaleurArrêt});
+      this.gestionnaires[orbite.identity.id] = new GestionnaireOrbite({
+        orbite,
+        signaleurArrêt,
+      });
     }
     return this.gestionnaires[orbite.identity.id];
   }
@@ -531,7 +543,10 @@ export class GestionnaireOrbiteGénéral {
     arrêterOrbite: boolean;
     signaleurArrêt: AbortController;
   }): Promise<void> {
-    const gestionnaireOrbite = this.obtGestionnaireOrbite({ orbite, signaleurArrêt });
+    const gestionnaireOrbite = this.obtGestionnaireOrbite({
+      orbite,
+      signaleurArrêt,
+    });
     await gestionnaireOrbite.fermer({ arrêterOrbite });
     delete this.gestionnaires[orbite.identity.id];
   }
