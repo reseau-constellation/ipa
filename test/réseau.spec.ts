@@ -5,8 +5,8 @@ import {
 } from "@constl/utils-tests";
 import { isElectronMain, isNode } from "wherearewe";
 import { expect } from "aegir/chai";
-import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { TypedEmitter } from "tiny-typed-emitter";
+import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import {
   infoAuteur,
   schémaFonctionOublier,
