@@ -2731,6 +2731,7 @@ if (isNode || isElectronMain) {
                 type: "texte",
                 de,
                 f: (message) => {
+                  console.log("test", {message})
                   fOublierSuivreMesages?.();
                   résoudre(
                     (message.contenu as { message: string }).message ===

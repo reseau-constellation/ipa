@@ -588,6 +588,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       de: string;
       message: MessageDirecte;
     }) => {
+      console.log("gérerMessage", {messageDe, message, type, de})
       if (type && !(message.type === type)) return;
       if (de && !(de === messageDe)) return;
       await f(message);
