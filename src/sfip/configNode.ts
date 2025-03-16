@@ -13,7 +13,6 @@ import { identify, identifyPush } from "@libp2p/identify";
 import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
-import { all } from "@libp2p/websockets/filters";
 import { webTransport } from "@libp2p/webtransport";
 import { FaultTolerance } from "@libp2p/interface";
 import { ping } from "@libp2p/ping";
@@ -55,9 +54,7 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
       faultTolerance: FaultTolerance.NO_FATAL,
     },
     transports: [
-      webSockets({
-        filter: all,
-      }),
+      webSockets(),
       webRTC(),
       webTransport(),
       webRTCDirect(),
