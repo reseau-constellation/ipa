@@ -37,16 +37,6 @@ export const obtOptionsLibp2pNavigateur = async ({
   const stockage = new IDBDatastore(dossierStockage);
   await stockage.open();
 
-  const transports = [
-    webSockets(),
-    webRTC(),
-    webRTCDirect(),
-    circuitRelayTransport(),
-  ];
-  // En attendant une résolution à https://github.com/libp2p/js-libp2p-webtransport/issues/64
-  if (detect()?.name !== "chrome") {
-    transports.push(webTransport());
-  }
   return {
     addresses: {
       listen: ["/webrtc", "/webtransport", "/p2p-circuit"],
@@ -54,7 +44,13 @@ export const obtOptionsLibp2pNavigateur = async ({
     transportManager: {
       faultTolerance: FaultTolerance.NO_FATAL,
     },
-    transports,
+    // En attendant une résolution à https://github.com/libp2p/js-libp2p-webtransport/issues/64
+    transports: [...[
+      webSockets(),
+      webRTC(),
+      webRTCDirect(),
+      circuitRelayTransport(),
+    ], ...(detect()?.name === "chrome" ? [] : [webTransport()])],
     connectionEncrypters: [noise()],
     streamMuxers: [yamux()],
     connectionGater: {
