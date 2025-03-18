@@ -75,7 +75,7 @@ export type InfoCol = {
   variable?: string;
   index?: boolean;
 };
-export type InfoColAvecVariable = InfoCol & {variable: string}
+export type InfoColAvecVariable = InfoCol & { variable: string };
 
 export type InfoColAvecCatégorie = InfoColAvecVariable & {
   catégorie?: catégorieVariables;
@@ -545,7 +545,7 @@ export class Tableaux {
   }): Promise<schémaFonctionOublier> {
     const info: {
       données?: { [id: string]: T };
-      colonnes?: { [key: string]: string|undefined };
+      colonnes?: { [key: string]: string | undefined };
     } = {};
 
     const fFinale = async () => {
@@ -1651,7 +1651,7 @@ export class Tableaux {
     f,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<(InfoCol)[]>;
+    f: schémaFonctionSuivi<InfoCol[]>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBdDicDeClef({
       id: idTableau,
@@ -1667,7 +1667,7 @@ export class Tableaux {
     f,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<(InfoColAvecCatégorie)[]>;
+    f: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (colonnes?: InfoColAvecCatégorie[]) => {
       if (colonnes) return await f(colonnes);
@@ -1682,7 +1682,10 @@ export class Tableaux {
       return await this.client.variables.suivreCatégorieVariable({
         idVariable,
         f: async (catégorie) => {
-          const col = Object.assign({ catégorie, variable: idVariable, }, branche);
+          const col = Object.assign(
+            { catégorie, variable: idVariable },
+            branche,
+          );
           await fSuivi(col);
         },
       });
@@ -1734,7 +1737,8 @@ export class Tableaux {
     }): Promise<schémaFonctionOublier> => {
       return await this.client.suivreBdListe({
         id,
-        f: (cols: InfoCol[]) => fSuivreBd(cols.map((c) => c.variable).filter(v=>!!v) as string[]),
+        f: (cols: InfoCol[]) =>
+          fSuivreBd(cols.map((c) => c.variable).filter((v) => !!v) as string[]),
       });
     };
     return await this.client.suivreBdDeClef({
@@ -1846,7 +1850,10 @@ export class Tableaux {
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreColonnesTableau({
         idTableau,
-        f: async cols => fSuivreRacine(cols.filter(c=>!!c.variable) as InfoColAvecVariable[]),
+        f: async (cols) =>
+          fSuivreRacine(
+            cols.filter((c) => !!c.variable) as InfoColAvecVariable[],
+          ),
       });
     };
 
@@ -1856,7 +1863,7 @@ export class Tableaux {
     };
 
     const fBranche = async (
-      idVariable: string|undefined,
+      idVariable: string | undefined,
       fSuivreBranche: schémaFonctionSuivi<règleColonne[]>,
       branche: InfoCol,
     ) => {
@@ -1948,7 +1955,7 @@ export class Tableaux {
       idTableau,
       f: async (cols) => {
         const varsÀColonnes = cols.reduce(
-          (o, c) => (c.variable ? { ...o, [c.variable]: c.id }: {...o}),
+          (o, c) => (c.variable ? { ...o, [c.variable]: c.id } : { ...o }),
           {},
         );
         info.varsÀColonnes = varsÀColonnes;

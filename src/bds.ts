@@ -1994,13 +1994,14 @@ export class BDs extends ComposanteClientListe<string> {
         }
       };
 
-      const fOublierCols = await this.client.tableaux.suivreColonnesEtCatégoriesTableau({
-        idTableau,
-        f: async (cols) => {
-          info.cols = cols;
-          await fFinaleBranche();
-        },
-      });
+      const fOublierCols =
+        await this.client.tableaux.suivreColonnesEtCatégoriesTableau({
+          idTableau,
+          f: async (cols) => {
+            info.cols = cols;
+            await fFinaleBranche();
+          },
+        });
 
       const fOublierRègles = await this.client.tableaux.suivreRègles({
         idTableau,
@@ -2127,15 +2128,14 @@ export class BDs extends ComposanteClientListe<string> {
         },
       });
 
-      const fOublierColonnes = await this.client.tableaux.suivreColonnesEtCatégoriesTableau(
-        {
+      const fOublierColonnes =
+        await this.client.tableaux.suivreColonnesEtCatégoriesTableau({
           idTableau,
           f: (cols) => {
             info.cols = cols;
             fFinaleBranche();
           },
-        },
-      );
+        });
 
       return async () => {
         await fOublierDonnées();

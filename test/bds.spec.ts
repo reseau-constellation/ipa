@@ -387,11 +387,11 @@ describe("BDs", function () {
       expect(accèsTableau).to.be.true();
     });
 
-    it("Suivre colonnes tableau")
-    it("Héritage des variables de la nuée")
-    it("Héritage des noms de tableau de la nuée")
-    it("Héritage des noms de bd de la nuée")
-    it("Héritage des mots-clefs de la nuée")
+    it("Suivre colonnes tableau");
+    it("Héritage des variables de la nuée");
+    it("Héritage des noms de tableau de la nuée");
+    it("Héritage des noms de bd de la nuée");
+    it("Héritage des mots-clefs de la nuée");
 
     it("Effacer un tableau", async () => {
       await client.bds.effacerTableauBd({ idBd, idTableau });

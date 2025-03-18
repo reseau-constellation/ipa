@@ -32,8 +32,7 @@ describe("Rechercher projets", function () {
       n: 1,
     });
     fOublierClients = fOublier;
-    // @ts-ignore
-    client = clients[0];
+    client = clients[0] as Constellation;
   });
 
   after(async () => {

@@ -45,12 +45,10 @@ export const obtOptionsLibp2pNavigateur = async ({
       faultTolerance: FaultTolerance.NO_FATAL,
     },
     // En attendant une résolution à https://github.com/libp2p/js-libp2p-webtransport/issues/64
-    transports: [...[
-      webSockets(),
-      webRTC(),
-      webRTCDirect(),
-      circuitRelayTransport(),
-    ], ...(detect()?.name === "chrome" ? [] : [webTransport()])],
+    transports: [
+      ...[webSockets(), webRTC(), webRTCDirect(), circuitRelayTransport()],
+      ...(detect()?.name === "chrome" ? [] : [webTransport()]),
+    ],
     connectionEncrypters: [noise()],
     streamMuxers: [yamux()],
     connectionGater: {
