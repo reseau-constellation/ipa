@@ -529,7 +529,7 @@ describe("Nuées", function () {
             idNuée,
             clefTableau: "principal",
           });
-          fOublier = await client.nuées.suivreColonnesTableauNuée({
+          fOublier = await client.nuées.suivreColonnesEtCatégoriesTableauNuée({
             idNuée,
             clefTableau: "principal",
             f: (x) => résultat.mettreÀJour(x),

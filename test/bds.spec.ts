@@ -387,6 +387,12 @@ describe("BDs", function () {
       expect(accèsTableau).to.be.true();
     });
 
+    it("Suivre colonnes tableau")
+    it("Héritage des variables de la nuée")
+    it("Héritage des noms de tableau de la nuée")
+    it("Héritage des noms de bd de la nuée")
+    it("Héritage des mots-clefs de la nuée")
+
     it("Effacer un tableau", async () => {
       await client.bds.effacerTableauBd({ idBd, idTableau });
 
@@ -819,10 +825,9 @@ describe("BDs", function () {
         async (
           fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>,
         ): Promise<schémaFonctionOublier> => {
-          return await client.tableaux.suivreColonnesTableau({
+          return await client.tableaux.suivreColonnesEtCatégoriesTableau({
             idTableau: val[0].id,
             f: fSuivi,
-            catégories: true,
           });
         },
         (c) => c !== undefined && c.length > 1,

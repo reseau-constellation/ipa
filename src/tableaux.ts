@@ -72,11 +72,12 @@ export type donnéesTableauExportation = {
 
 export type InfoCol = {
   id: string;
-  variable: string;
+  variable?: string;
   index?: boolean;
 };
+export type InfoColAvecVariable = InfoCol & {variable: string}
 
-export type InfoColAvecCatégorie = InfoCol & {
+export type InfoColAvecCatégorie = InfoColAvecVariable & {
   catégorie?: catégorieVariables;
 };
 
@@ -104,32 +105,24 @@ export type conversionDonnéesChaîne = {
   langue: string;
 };
 
-const schémaBdInfoColAvecCatégorie: JSONSchemaType<{
-  [id: string]: InfoColAvecCatégorie;
+const schémaBdInfoCol: JSONSchemaType<{
+  [id: string]: InfoCol;
 }> = {
   type: "object",
   additionalProperties: {
     type: "object",
     properties: {
-      catégorie: {
-        type: "object",
-        nullable: true,
-        properties: {
-          catégorie: { type: "string" },
-          type: { type: "string" },
-        },
-        required: ["catégorie", "type"],
-      },
       id: { type: "string" },
       variable: {
         type: "string",
+        nullable: true,
       },
       index: {
         type: "boolean",
         nullable: true,
       },
     },
-    required: ["id", "variable"],
+    required: ["id"],
   },
   required: [],
 };
@@ -216,8 +209,8 @@ export type différenceVariableColonne = {
   type: "variableColonne";
   sévère: true;
   idCol: string;
-  varColTableau: string;
-  varColTableauLiée: string;
+  varColTableau?: string;
+  varColTableauLiée?: string;
 };
 export type différenceIndexColonne = {
   type: "indexColonne";
@@ -363,7 +356,7 @@ export class Tableaux {
       bdBase,
       nouvelleBd,
       clef: "colonnes",
-      schéma: schémaBdInfoColAvecCatégorie,
+      schéma: schémaBdInfoCol,
     });
 
     // Copier les règles
@@ -473,7 +466,6 @@ export class Tableaux {
         info.colonnesTableau = x;
         await fFinale();
       },
-      catégories: false,
     });
 
     const fOublierColonnesRéf = await this.suivreColonnesTableau({
@@ -482,7 +474,6 @@ export class Tableaux {
         info.colonnesTableauRéf = x;
         await fFinale();
       },
-      catégories: false,
     });
 
     return async () => {
@@ -509,7 +500,7 @@ export class Tableaux {
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdColonnes,
       type: "keyvalue",
-      schéma: schémaBdInfoColAvecCatégorie,
+      schéma: schémaBdInfoCol,
     });
     const éléments = await bdColonnes.all();
     const élémentCol = éléments.find((x) => x.value.id === idColonne);
@@ -532,14 +523,13 @@ export class Tableaux {
     idTableau: string;
     f: schémaFonctionSuivi<string[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (cols: InfoColAvecCatégorie[]) => {
+    const fFinale = async (cols: InfoCol[]) => {
       const indexes = cols.filter((c) => c.index).map((c) => c.id);
       await f(indexes);
     };
     return await this.suivreColonnesTableau({
       idTableau,
       f: fFinale,
-      catégories: false,
     });
   }
 
@@ -555,7 +545,7 @@ export class Tableaux {
   }): Promise<schémaFonctionOublier> {
     const info: {
       données?: { [id: string]: T };
-      colonnes?: { [key: string]: string };
+      colonnes?: { [key: string]: string|undefined };
     } = {};
 
     const fFinale = async () => {
@@ -568,7 +558,7 @@ export class Tableaux {
               ? Object.keys(élément).reduce((acc: T, elem: string) => {
                   // Convertir au nom de la variable si souhaité
                   const idVar = elem === "id" ? "id" : colonnes[elem];
-                  (acc as élémentBdListeDonnées)[idVar] = élément[elem];
+                  (acc as élémentBdListeDonnées)[idVar || elem] = élément[elem];
                   return acc;
                 }, {} as T)
               : élément;
@@ -589,7 +579,6 @@ export class Tableaux {
     const oublierColonnes = await this.suivreColonnesTableau({
       idTableau,
       f: fSuivreColonnes,
-      catégories: false,
     });
 
     const fSuivreDonnées = async (données: { [id: string]: T }) => {
@@ -793,13 +782,12 @@ export class Tableaux {
       fsOublier.push(fOublierNomsVariables);
     }
 
-    const fOublierColonnes = await this.suivreColonnesTableau({
+    const fOublierColonnes = await this.suivreColonnesEtCatégoriesTableau({
       idTableau,
       f: async (cols) => {
         info.colonnes = cols;
         await fFinale();
       },
-      catégories: true,
     });
     fsOublier.push(fOublierColonnes);
 
@@ -922,7 +910,7 @@ export class Tableaux {
     // Éviter, autant que possible, de dédoubler des colonnes indexes
     const colsIndexe = (
       await uneFois((f: schémaFonctionSuivi<InfoCol[]>) =>
-        this.suivreColonnesTableau({ idTableau, f, catégories: false }),
+        this.suivreColonnesTableau({ idTableau, f }),
       )
     )
       .filter((c) => c.index)
@@ -1000,7 +988,7 @@ export class Tableaux {
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdColonnes,
       type: "keyvalue",
-      schéma: schémaBdInfoColAvecCatégorie,
+      schéma: schémaBdInfoCol,
     });
     const idsColonnes: string[] = (await bdColonnes.all()).map(
       (e) => e.value.id,
@@ -1063,7 +1051,6 @@ export class Tableaux {
         return await this.suivreColonnesTableau({
           idTableau: idTableauBase,
           f: fSuivi,
-          catégories: false,
         });
       },
       // Il faut attendre que toutes les colonnes soient présentes
@@ -1140,10 +1127,9 @@ export class Tableaux {
   }): Promise<T> {
     const colonnes = await uneFois(
       async (fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie[]>) => {
-        return await this.suivreColonnesTableau({
+        return await this.suivreColonnesEtCatégoriesTableau({
           idTableau,
           f: fSuivi,
-          catégories: true,
         });
       },
     );
@@ -1608,7 +1594,7 @@ export class Tableaux {
     idColonne,
   }: {
     idTableau: string;
-    idVariable: string;
+    idVariable?: string;
     idColonne?: string;
   }): Promise<string> {
     await this._confirmerPermission({ idTableau });
@@ -1621,11 +1607,11 @@ export class Tableaux {
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdColonnes,
       type: "keyvalue",
-      schéma: schémaBdInfoColAvecCatégorie,
+      schéma: schémaBdInfoCol,
     });
 
     idColonne = idColonne || uuidv4();
-    const élément: InfoCol = {
+    const élément = {
       id: idColonne,
       variable: idVariable,
     };
@@ -1652,67 +1638,51 @@ export class Tableaux {
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdColonnes,
       type: "keyvalue",
-      schéma: schémaBdInfoColAvecCatégorie,
+      schéma: schémaBdInfoCol,
     });
     await bdColonnes.del(idColonne);
 
     await fOublier();
   }
 
-  suivreColonnesTableau<T = InfoColAvecCatégorie>({
-    idTableau,
-    f,
-    catégories,
-  }: {
-    idTableau: string;
-    f: schémaFonctionSuivi<T[]>;
-    catégories: true;
-  }): Promise<schémaFonctionOublier>;
-
-  suivreColonnesTableau<T = InfoCol>({
-    idTableau,
-    f,
-    catégories,
-  }: {
-    idTableau: string;
-    f: schémaFonctionSuivi<T[]>;
-    catégories: false;
-  }): Promise<schémaFonctionOublier>;
-
-  suivreColonnesTableau<T = InfoCol | InfoColAvecCatégorie>({
-    idTableau,
-    f,
-    catégories,
-  }: {
-    idTableau: string;
-    f: schémaFonctionSuivi<T[]>;
-    catégories?: boolean;
-  }): Promise<schémaFonctionOublier>;
-
   @cacheSuivi
   async suivreColonnesTableau({
     idTableau,
     f,
-    catégories = false,
   }: {
     idTableau: string;
-    f: schémaFonctionSuivi<(InfoCol | InfoColAvecCatégorie)[]>;
-    catégories?: boolean;
+    f: schémaFonctionSuivi<(InfoCol)[]>;
+  }): Promise<schémaFonctionOublier> {
+    return await this.client.suivreBdDicDeClef({
+      id: idTableau,
+      clef: "colonnes",
+      schéma: schémaBdInfoCol,
+      f: async (cols) => await f(Object.values(cols)),
+    });
+  }
+
+  @cacheSuivi
+  async suivreColonnesEtCatégoriesTableau({
+    idTableau,
+    f,
+  }: {
+    idTableau: string;
+    f: schémaFonctionSuivi<(InfoColAvecCatégorie)[]>;
   }): Promise<schémaFonctionOublier> {
     const fFinale = async (colonnes?: InfoColAvecCatégorie[]) => {
       if (colonnes) return await f(colonnes);
     };
     const fBranche = async (
-      id: string,
+      idVariable: string | undefined,
       fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie>,
       branche: InfoCol,
     ): Promise<schémaFonctionOublier> => {
-      if (!id) return faisRien;
+      if (!idVariable) return faisRien;
 
       return await this.client.variables.suivreCatégorieVariable({
-        idVariable: id,
+        idVariable,
         f: async (catégorie) => {
-          const col = Object.assign({ catégorie }, branche);
+          const col = Object.assign({ catégorie, variable: idVariable, }, branche);
           await fSuivi(col);
         },
       });
@@ -1736,21 +1706,12 @@ export class Tableaux {
       });
     };
 
-    if (catégories) {
-      return await this.client.suivreBdDeClef({
-        id: idTableau,
-        clef: "colonnes",
-        f: fFinale,
-        fSuivre: fSuivreBdColonnes,
-      });
-    } else {
-      return await this.client.suivreBdDicDeClef({
-        id: idTableau,
-        clef: "colonnes",
-        schéma: schémaBdInfoColAvecCatégorie,
-        f: async (cols) => fFinale(Object.values(cols)),
-      });
-    }
+    return await this.client.suivreBdDeClef({
+      id: idTableau,
+      clef: "colonnes",
+      f: fFinale,
+      fSuivre: fSuivreBdColonnes,
+    });
   }
 
   @cacheSuivi
@@ -1773,7 +1734,7 @@ export class Tableaux {
     }): Promise<schémaFonctionOublier> => {
       return await this.client.suivreBdListe({
         id,
-        f: (cols: InfoCol[]) => fSuivreBd(cols.map((c) => c.variable)),
+        f: (cols: InfoCol[]) => fSuivreBd(cols.map((c) => c.variable).filter(v=>!!v) as string[]),
       });
     };
     return await this.client.suivreBdDeClef({
@@ -1881,12 +1842,11 @@ export class Tableaux {
 
     // Suivre les règles spécifiées dans les variables
     const fListe = async (
-      fSuivreRacine: (éléments: InfoCol[]) => Promise<void>,
+      fSuivreRacine: (éléments: InfoColAvecVariable[]) => Promise<void>,
     ): Promise<schémaFonctionOublier> => {
       return await this.suivreColonnesTableau({
         idTableau,
-        f: fSuivreRacine,
-        catégories: false,
+        f: async cols => fSuivreRacine(cols.filter(c=>!!c.variable) as InfoColAvecVariable[]),
       });
     };
 
@@ -1896,11 +1856,15 @@ export class Tableaux {
     };
 
     const fBranche = async (
-      idVariable: string,
+      idVariable: string|undefined,
       fSuivreBranche: schémaFonctionSuivi<règleColonne[]>,
       branche: InfoCol,
     ) => {
-      const fFinaleSuivreBranche = (
+      if (!idVariable) {
+        await fSuivreBranche([]);
+        return faisRien;
+      }
+      const fFinaleSuivreBranche = async (
         règles: règleVariableAvecId<règleVariable>[],
       ) => {
         const règlesColonnes: règleColonne[] = règles.map((r) => {
@@ -1910,7 +1874,7 @@ export class Tableaux {
             colonne: branche.id,
           };
         });
-        return fSuivreBranche(règlesColonnes);
+        return await fSuivreBranche(règlesColonnes);
       };
       return await this.client.variables.suivreRèglesVariable({
         idVariable,
@@ -1918,7 +1882,7 @@ export class Tableaux {
       });
     };
 
-    const fIdBdDeBranche = (b: InfoCol) => b.variable;
+    const fIdBdDeBranche = (b: InfoColAvecVariable) => b.variable;
     const fCode = (b: InfoCol) => b.id;
 
     const oublierRèglesVariable = await suivreBdsDeFonctionListe({
@@ -1965,10 +1929,11 @@ export class Tableaux {
       règles: { règle: règleColonne; donnéesCatégorie?: élémentsBd[] }[],
     ) => {
       if (info.varsÀColonnes) {
+        const varsÀColonnes = info.varsÀColonnes;
         info.règles = règles.map((r) =>
           générerFonctionRègle({
             règle: r.règle,
-            varsÀColonnes: info.varsÀColonnes!,
+            varsÀColonnes,
             donnéesCatégorie: r.donnéesCatégorie,
           }),
         );
@@ -1983,13 +1948,12 @@ export class Tableaux {
       idTableau,
       f: async (cols) => {
         const varsÀColonnes = cols.reduce(
-          (o, c) => ({ ...o, [c.variable]: c.id }),
+          (o, c) => (c.variable ? { ...o, [c.variable]: c.id }: {...o}),
           {},
         );
         info.varsÀColonnes = varsÀColonnes;
         await fFinale();
       },
-      catégories: false,
     });
 
     const fListeRègles = async (
@@ -2151,7 +2115,6 @@ export class Tableaux {
         info.colonnes = cols;
         return await fFinale();
       },
-      catégories: false,
     });
 
     const fListeRègles = async (
@@ -2180,7 +2143,6 @@ export class Tableaux {
               règle,
               colsTableauRéf: cols,
             }),
-          catégories: false,
         });
       } else {
         await fSuivreBranche({ règle });

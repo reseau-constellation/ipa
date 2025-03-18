@@ -160,10 +160,9 @@ describe("Tableaux", function () {
     before(async () => {
       idTableau = await client.tableaux.créerTableau({ idBd });
       fsOublier.push(
-        await client.tableaux.suivreColonnesTableau({
+        await client.tableaux.suivreColonnesEtCatégoriesTableau({
           idTableau,
           f: (c) => colonnes.mettreÀJour(c),
-          catégories: true,
         }),
       );
       fsOublier.push(
@@ -1192,17 +1191,15 @@ describe("Tableaux", function () {
         }),
       );
       fsOublier.push(
-        await client.tableaux.suivreColonnesTableau({
+        await client.tableaux.suivreColonnesEtCatégoriesTableau({
           idTableau,
           f: (c) => colonnes.mettreÀJour(c),
-          catégories: true,
         }),
       );
       fsOublier.push(
         await client.tableaux.suivreColonnesTableau({
           idTableau,
           f: (c) => colonnesSansCatégorie.mettreÀJour(c),
-          catégories: false,
         }),
       );
       fsOublier.push(
@@ -1335,10 +1332,9 @@ describe("Tableaux", function () {
         }),
       );
       fsOublier.push(
-        await client.tableaux.suivreColonnesTableau({
+        await client.tableaux.suivreColonnesEtCatégoriesTableau({
           idTableau: idTableauCopie,
           f: (x) => colonnes.mettreÀJour(x),
-          catégories: true,
         }),
       );
       fsOublier.push(

@@ -1622,7 +1622,7 @@ export class Nuées extends ComposanteClientListe<string> {
     index,
   }: {
     idTableau: string;
-    idVariable: string;
+    idVariable?: string;
     idColonne?: string;
     index?: boolean;
   }): Promise<string> {
@@ -1670,61 +1670,23 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
-  suivreColonnesTableauNuée<T = InfoColAvecCatégorie>({
-    idNuée,
-    clefTableau,
-    f,
-    catégories,
-  }: {
-    idNuée: string;
-    clefTableau: string;
-    f: schémaFonctionSuivi<T[]>;
-    catégories?: true;
-  }): Promise<schémaFonctionOublier>;
-
-  suivreColonnesTableauNuée<T = InfoCol>({
-    idNuée,
-    clefTableau,
-    f,
-    catégories,
-  }: {
-    idNuée: string;
-    clefTableau: string;
-    f: schémaFonctionSuivi<T[]>;
-    catégories: false;
-  }): Promise<schémaFonctionOublier>;
-
-  suivreColonnesTableauNuée<T = InfoCol | InfoColAvecCatégorie>({
-    idNuée,
-    clefTableau,
-    f,
-    catégories,
-  }: {
-    idNuée: string;
-    clefTableau: string;
-    f: schémaFonctionSuivi<T[]>;
-    catégories?: boolean;
-  }): Promise<schémaFonctionOublier>;
-
   @cacheSuivi
-  async suivreColonnesTableauNuée<T = InfoColAvecCatégorie | InfoCol>({
+  async suivreColonnesEtCatégoriesTableauNuée({
     idNuée,
     clefTableau,
     f,
-    catégories = true,
   }: {
     idNuée: string;
     clefTableau: string;
-    f: schémaFonctionSuivi<T[]>;
-    catégories?: boolean;
+    f: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
   }): Promise<schémaFonctionOublier> {
-    const fFinale = async (colonnes: T[][]) => {
+    const fFinale = async (colonnes: InfoColAvecCatégorie[][]) => {
       await f(colonnes.flat());
     };
 
     const fParents = async (
       idNuéeParent: string,
-      fSuivreBranche: schémaFonctionSuivi<T[]>,
+      fSuivreBranche: schémaFonctionSuivi<InfoColAvecCatégorie[]>,
     ): Promise<schémaFonctionOublier> => {
       return await suivreBdDeFonction({
         fRacine: async ({
@@ -1744,12 +1706,64 @@ export class Nuées extends ComposanteClientListe<string> {
           fSuivreBd,
         }: {
           id: string;
-          fSuivreBd: schémaFonctionSuivi<T[]>;
+          fSuivreBd: schémaFonctionSuivi<InfoColAvecCatégorie[]>;
         }): Promise<schémaFonctionOublier> => {
-          return await this.client.tableaux.suivreColonnesTableau<T>({
+          return await this.client.tableaux.suivreColonnesEtCatégoriesTableau({
             idTableau,
             f: fSuivreBd,
-            catégories,
+          });
+        },
+      });
+    };
+
+    return await this.suivreDeParents({
+      idNuée,
+      f: fFinale,
+      fParents,
+    });
+  }
+
+  @cacheSuivi
+  async suivreColonnesTableauNuée({
+    idNuée,
+    clefTableau,
+    f,
+  }: {
+    idNuée: string;
+    clefTableau: string;
+    f: schémaFonctionSuivi<InfoCol[]>;
+  }): Promise<schémaFonctionOublier> {
+    const fFinale = async (colonnes: InfoCol[][]) => {
+      await f(colonnes.flat());
+    };
+
+    const fParents = async (
+      idNuéeParent: string,
+      fSuivreBranche: schémaFonctionSuivi<InfoCol[]>,
+    ): Promise<schémaFonctionOublier> => {
+      return await suivreBdDeFonction({
+        fRacine: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (nouvelIdBdCible?: string) => Promise<void>;
+        }): Promise<schémaFonctionOublier> => {
+          return await this.client.bds.suivreIdTableauParClef({
+            idBd: idNuéeParent,
+            clef: clefTableau,
+            f: fSuivreRacine,
+          });
+        },
+        f: ignorerNonDéfinis(fSuivreBranche),
+        fSuivre: async ({
+          id: idTableau,
+          fSuivreBd,
+        }: {
+          id: string;
+          fSuivreBd: schémaFonctionSuivi<InfoCol[]>;
+        }): Promise<schémaFonctionOublier> => {
+          return await this.client.tableaux.suivreColonnesTableau({
+            idTableau,
+            f: fSuivreBd,
           });
         },
       });
@@ -2960,14 +2974,13 @@ export class Nuées extends ComposanteClientListe<string> {
       fsOublier.push(fOublierNomsVariables);
     }
 
-    const fOublierColonnes = await this.suivreColonnesTableauNuée({
+    const fOublierColonnes = await this.suivreColonnesEtCatégoriesTableauNuée({
       idNuée,
       clefTableau,
       f: async (cols) => {
         info.colonnes = cols;
         await fFinale();
       },
-      catégories: true,
     });
     fsOublier.push(fOublierColonnes);
 
@@ -3243,7 +3256,6 @@ export class Nuées extends ComposanteClientListe<string> {
             return await this.client.tableaux.suivreColonnesTableau({
               idTableau,
               f: fSuivi,
-              catégories: false,
             });
           },
           attendreStabilité(patience),
@@ -3333,7 +3345,6 @@ export class Nuées extends ComposanteClientListe<string> {
           idNuée,
           clefTableau,
           f: fSuivi,
-          catégories: false,
         });
       }, attendreStabilité(patience));
     };

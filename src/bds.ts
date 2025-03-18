@@ -64,8 +64,8 @@ export interface schémaSpécificationBd {
   statut?: schémaStatut;
   tableaux: {
     cols: {
-      idVariable: string;
       idColonne: string;
+      idVariable?: string;
       index?: boolean;
       optionnelle?: boolean;
     }[];
@@ -1994,13 +1994,12 @@ export class BDs extends ComposanteClientListe<string> {
         }
       };
 
-      const fOublierCols = await this.client.tableaux.suivreColonnesTableau({
+      const fOublierCols = await this.client.tableaux.suivreColonnesEtCatégoriesTableau({
         idTableau,
         f: async (cols) => {
           info.cols = cols;
           await fFinaleBranche();
         },
-        catégories: true,
       });
 
       const fOublierRègles = await this.client.tableaux.suivreRègles({
@@ -2128,14 +2127,13 @@ export class BDs extends ComposanteClientListe<string> {
         },
       });
 
-      const fOublierColonnes = await this.client.tableaux.suivreColonnesTableau(
+      const fOublierColonnes = await this.client.tableaux.suivreColonnesEtCatégoriesTableau(
         {
           idTableau,
           f: (cols) => {
             info.cols = cols;
             fFinaleBranche();
           },
-          catégories: true,
         },
       );
 
