@@ -2653,7 +2653,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     this.signaleurArrêt.abort();
 
     await this._fermerComposantes();
-    await (await stockageLocal(await this.dossier())).fermer?.();
 
     const { orbite, sfip } = await this.attendreSfipEtOrbite();
 
