@@ -469,7 +469,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
 
   private lancerNettoyageBdsOuvertes(): schémaFonctionOublier {
     const fNettoyer = async () => {
-      await Promise.allSettled(
+      /* await Promise.allSettled(
         Object.keys(this._bdsOrbite).map(async (id) => {
           const { bd, idsRequêtes } = this._bdsOrbite[id];
           if (!idsRequêtes.size) {
@@ -477,7 +477,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
             await bd.close();
           }
         }),
-      );
+      ); */
     };
     const i = setInterval(fNettoyer, 1000 * 60 * 5);
     return async () => clearInterval(i);
