@@ -206,6 +206,9 @@ importers:
       multiformats:
         specifier: ^13.3.2
         version: 13.3.2
+      p-queue:
+        specifier: ^8.1.0
+        version: 8.1.0
       p-retry:
         specifier: ^6.2.1
         version: 6.2.1
