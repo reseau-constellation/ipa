@@ -2353,16 +2353,12 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     // Nous devons confirmer que la base de données spécifiée était du bon genre
     if (typeof idBd === "string" && type) {
-      try {
-        const { fOublier: fOublierBd } = await this.ouvrirBd({
-          id: idBd,
-          type,
-        });
-        await fOublierBd();
-        return idBd;
-      } catch {
-        throw new Error("Bd n'existe pas : " + nom + " " + idBd);
-      }
+      const { fOublier: fOublierBd } = await this.ouvrirBd({
+        id: idBd,
+        type,
+      });
+      await fOublierBd();
+      return idBd;
     }
 
     return idBd;
