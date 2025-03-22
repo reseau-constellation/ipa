@@ -118,7 +118,7 @@ importers:
         version: 2.0.0
       axios:
         specifier: ^1.8.3
-        version: 1.8.3(debug@4.4.0)
+        version: 1.8.4(debug@4.4.0)
       blockstore-fs:
         specifier: ^2.0.2
         version: 2.0.2
@@ -2564,6 +2564,9 @@ packages:
   '@types/node@22.13.10':
     resolution: {integrity: sha512-I6LPUvlRH+O6VRUqYOcMudhaIdUVWfsjnZavnsraHvpBwaEyMN29ry+0UVJhImYL16xsscu0aske3yA+uPOWfw==}
 
+  '@types/node@22.13.11':
+    resolution: {integrity: sha512-iEUCUJoU0i3VnrCmgoWCXttklWcvoCIx4jzcP22fioIVSdTmjgoEvmAO/QPw6TcS9k5FrNgn4w7q5lGOd1CT5g==}
+
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
 
@@ -3141,8 +3144,8 @@ packages:
   average@0.0.1:
     resolution: {integrity: sha512-rnSkP7Xnbxz3cKEHscefV2Uu6GdlDrCCameNIbzM8c3zCMTigfndi1NuOxuks4fK3ZC/FtXLIS3Y8f7N70ZBmQ==}
 
-  axios@1.8.3:
-    resolution: {integrity: sha512-iP4DebzoNlP/YN2dpwCgb8zoCmhtkajzS48JvwmkSkXvPI3DHc7m+XYL5tGnSlJtR6nImXZmdCuN5aP8dh1d8A==}
+  axios@1.8.4:
+    resolution: {integrity: sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==}
 
   babel-core@7.0.0-bridge.0:
     resolution: {integrity: sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg==}
@@ -10854,14 +10857,14 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       jest-mock: 29.7.0
 
   '@jest/fake-timers@29.7.0':
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -10895,7 +10898,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -12128,7 +12131,7 @@ snapshots:
 
   '@types/graceful-fs@4.1.9':
     dependencies:
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
 
   '@types/http-cache-semantics@4.0.4': {}
 
@@ -12177,13 +12180,17 @@ snapshots:
 
   '@types/node-forge@1.3.11':
     dependencies:
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
 
   '@types/node-localstorage@1.3.3':
     dependencies:
       '@types/node': 22.13.10
 
   '@types/node@22.13.10':
+    dependencies:
+      undici-types: 6.20.0
+
+  '@types/node@22.13.11':
     dependencies:
       undici-types: 6.20.0
 
@@ -12566,7 +12573,7 @@ snapshots:
     dependencies:
       '@peculiar/x509': 1.12.3
       asn1js: 3.0.5
-      axios: 1.8.3(debug@4.4.0)
+      axios: 1.8.4(debug@4.4.0)
       debug: 4.4.0(supports-color@8.1.1)
       node-forge: 1.3.1
     transitivePeerDependencies:
@@ -12920,7 +12927,7 @@ snapshots:
 
   average@0.0.1: {}
 
-  axios@1.8.3(debug@4.4.0):
+  axios@1.8.4(debug@4.4.0):
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.0)
       form-data: 4.0.2
@@ -13460,7 +13467,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -13469,7 +13476,7 @@ snapshots:
 
   chromium-edge-launcher@0.2.0:
     dependencies:
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -16454,7 +16461,7 @@ snapshots:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
@@ -16464,7 +16471,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@types/graceful-fs': 4.1.9
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -16491,7 +16498,7 @@ snapshots:
   jest-mock@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       jest-util: 29.7.0
 
   jest-regex-util@29.6.3: {}
@@ -16499,7 +16506,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -16516,7 +16523,7 @@ snapshots:
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 22.13.10
+      '@types/node': 22.13.11
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
