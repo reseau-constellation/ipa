@@ -35,7 +35,7 @@ class LocalStorage {
     this.sauvegarder();
   }
   async sauvegarder(): Promise<void> {
-    fs.writeFileSync(this.fichier, JSON.stringify(this._données))
+    fs.writeFileSync(this.fichier, JSON.stringify(this._données));
   }
 }
 
