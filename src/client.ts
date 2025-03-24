@@ -87,6 +87,7 @@ import {
 } from "@/orbite.js";
 import { initSFIP } from "@/sfip/index.js";
 import { Protocoles } from "./protocoles.js";
+import { appelerLorsque, estUnePromesse } from "./utils.js";
 import type { PrivateKey } from "@libp2p/interface";
 import type { ServicesLibp2p } from "@/sfip/index.js";
 import type {
@@ -1101,12 +1102,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           const mods = contrôleurConstellation.gestRôles._rôles[MODÉRATEUR];
           await fSuivreBd([...mods]);
         };
-        contrôleurConstellation.gestRôles.on("misÀJour", fFinaleSuiviCompte);
         fFinaleSuiviCompte();
-        return async () => {
-          contrôleurConstellation.gestRôles.off("misÀJour", fFinaleSuiviCompte);
-          await fOublier();
-        };
+        return appelerLorsque({émetteur: contrôleurConstellation.gestRôles, événement: "misÀJour", f: fFinaleSuiviCompte});
       } else {
         await fOublier();
         return faisRien;
@@ -1393,12 +1390,13 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     const fFinale = async ({ idCompte }: { idCompte: string }) => {
       await f(idCompte);
     };
-    this.événements.on("comptePrêt", fFinale);
+
+
+    // @ts-expect-error À faire
+    const fOublier = appelerLorsque({ émetteur: this.événements, événement: "comptePrêt", f: fFinale });
     if (this.idCompte) await fFinale({ idCompte: this.idCompte });
 
-    return async () => {
-      this.événements.off("comptePrêt", fFinale);
-    };
+    return fOublier;
   }
 
   async obtIdLibp2p(): Promise<string> {
@@ -1575,10 +1573,6 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       const fFinale = () => {
         const idSuivi = uuidv4();
         const promesse = f(bd as T);
-
-        const estUnePromesse = (x: unknown): x is Promise<void> => {
-          return !!x && !!(x as Promise<void>).then;
-        };
 
         if (estUnePromesse(promesse)) {
           promesses[idSuivi] = promesse;

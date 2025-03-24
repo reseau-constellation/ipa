@@ -35,6 +35,7 @@ import { rechercherTous } from "@/recherche/utils.js";
 import { ComposanteClientDic } from "./composanteClient.js";
 import { estUnContrôleurConstellation } from "./accès/utils.js";
 import { PROTOCOLE_CONSTELLATION } from "./const.js";
+import { appelerLorsque } from "./utils.js";
 import type { Pushable } from "it-pushable";
 
 import type { ÉpingleFavoris, ÉpingleFavorisAvecId } from "@/favoris.js";
@@ -231,7 +232,6 @@ type ÉvénementsRéseau = {
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: Constellation;
   bloquésPrivés: Set<string>;
-  _fermé: boolean;
 
   dispositifsEnLigne: {
     [key: string]: statutDispositif;
@@ -241,7 +241,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     [key: string]: Pushable<Uint8Array>;
   };
 
-  fsOublier: schémaFonctionOublier[];
+  oublierSuivreMessagesRejoindreCompte?: schémaFonctionOublier
+  oublierGossipSub?: schémaFonctionOublier
+  oublierSuiviPairs?: schémaFonctionOublier
+  oublierSalut?: schémaFonctionOublier;
+
   événements: TypedEmitter<ÉvénementsRéseau>;
 
   constructor({ client }: { client: Constellation }) {
@@ -258,8 +262,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.dispositifsEnLigne = {};
     this.connexionsDirectes = {};
 
-    this.fsOublier = [];
-    this._fermé = false;
     this.événements = new TypedEmitter<ÉvénementsRéseau>();
   }
 
@@ -287,7 +289,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
             msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
           });
           promesses[id] = promesse;
-          promesse.then(() => {
+          promesse.finally(() => {
             delete promesses[id];
           });
         } catch (e) {
@@ -334,23 +336,21 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       ({ detail: pair }) => delete this.connexionsDirectes[pair.toString()],
     );
 
-    this.fsOublier.push(
+    this.oublierSuivreMessagesRejoindreCompte = 
       await this.suivreMessagesDirectes({
         type: "Je veux rejoindre ce compte",
         f: ({ contenu }) =>
           this.client.considérerRequêteRejoindreCompte({
             requête: contenu as ContenuMessageRejoindreCompte,
           }),
-      }),
-    );
+      });
 
-    this.fsOublier.push(async () => {
+    this.oublierGossipSub = async () => {
       await libp2p.unhandle(PROTOCOLE_CONSTELLATION);
-      // @ts-expect-error erreur de définition types sur GossipSub
-      if (pubsub.isStarted()) pubsub.unsubscribe(this.client.sujet_réseau);
+      pubsub.unsubscribe(this.client.sujet_réseau);
       pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
       await Promise.allSettled(Object.values(promesses));
-    });
+    };
 
     const fSuivreConnexions = () => {
       this.événements.emit("changementConnexions");
@@ -364,17 +364,17 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     for (const é of événements) {
       libp2p.addEventListener(é, fSuivreConnexions);
     }
-    this.fsOublier.push(
-      ...événements.map((é) => {
-        return async () => libp2p.removeEventListener(é, fSuivreConnexions);
-      }),
-    );
+    this.oublierSuiviPairs = async () => {
+      await Promise.allSettled(événements.map((é) => {
+        return libp2p.removeEventListener(é, fSuivreConnexions);
+      }),)
+    };
 
     const intervale = setInterval(async () => {
       await this.direSalut();
     }, INTERVALE_SALUT);
 
-    this.fsOublier.unshift(async () => clearInterval(intervale));
+    this.oublierSalut = async () => clearInterval(intervale);
 
     await this.direSalut();
   }
@@ -583,10 +583,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       await f(message);
     };
 
-    this.événements.on("messageDirecte", gérerMessage);
-    return async () => {
-      this.événements.off("messageDirecte", gérerMessage);
-    };
+    // @ts-expect-error à voir
+    return await appelerLorsque({émetteur: this.événements, événement: "messageDirecte", f: gérerMessage});
   }
 
   async direSalut(): Promise<void> {
@@ -646,7 +644,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }: {
     msg: MessageGossipSub;
   }): Promise<void> {
-    if (this._fermé) return;
 
     const { orbite } = await this.client.attendreSfipEtOrbite();
 
@@ -935,10 +932,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     if (idCompte === undefined || idCompte === this.client.idCompte) {
       await this._initaliserBloquésPrivés();
-      this.événements.on("changementMembresBloqués", fFinale);
-      fsOublier.push(async () => {
-        this.événements.off("changementMembresBloqués", fFinale);
-      });
+      fsOublier.push(
+        appelerLorsque({émetteur: this.événements, événement: "changementMembresBloqués", f: fFinale })
+      );
       await fFinale();
     }
 
@@ -1481,12 +1477,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       );
     };
 
-    this.événements.on("changementConnexions", fFinale);
+    const oublier = appelerLorsque({émetteur: this.événements, événement: "changementConnexions", f: fFinale})
     await fFinale();
 
-    const oublier = async () => {
-      this.événements.off("changementConnexions", fFinale);
-    };
     return oublier;
   }
 
@@ -1510,12 +1503,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       return await f([...Object.values(this.dispositifsEnLigne), moi]);
     };
 
-    this.événements.on("membreVu", fFinale);
+    const oublier = appelerLorsque({émetteur: this.événements, événement: "membreVu", f: fFinale});
     await fFinale();
 
-    const oublier = async () => {
-      this.événements.off("membreVu", fFinale);
-    };
     return oublier;
   }
 
@@ -3078,7 +3068,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }
 
   async fermer(): Promise<void> {
-    this._fermé = true;
-    await Promise.allSettled(this.fsOublier.map((f) => f()));
+    await this.oublierSalut?.();
+    await this.oublierSuivreMessagesRejoindreCompte?.();
+    await this.oublierGossipSub?.();
+    await this.oublierSuiviPairs?.();
   }
 }

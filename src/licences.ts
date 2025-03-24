@@ -1,4 +1,3 @@
-import EventEmitter from "events";
 import { faisRien } from "@constl/utils-ipa";
 import {
   கிளி,
@@ -6,6 +5,7 @@ import {
   type பிணையம்_பரிந்துரை,
 } from "@lassi-js/kili";
 
+import { TypedEmitter } from "tiny-typed-emitter";
 import { Constellation } from "@/client.js";
 import {
   CLEF_TABLEAU_LICENCES_APPROUVÉES,
@@ -421,17 +421,17 @@ export const infoLicences: { [key: string]: InfoLicence } = {
 
 export const licences = Object.keys(infoLicences);
 
+type ÉvénementsLicences = {prêt: (args: {perroquet?: கிளி<InfoLicenceAvecCode>}) => void}
+
 export class Licences {
   client: Constellation;
-  événements: EventEmitter;
-  prêt: boolean;
+  événements: TypedEmitter<ÉvénementsLicences>;
   perroquet?: கிளி<InfoLicenceAvecCode>;
 
   constructor({ client }: { client: Constellation }) {
     this.client = client;
 
-    this.prêt = false;
-    this.événements = new EventEmitter();
+    this.événements = new TypedEmitter<ÉvénementsLicences>();
     this.initialiser();
   }
 
@@ -441,7 +441,7 @@ export class Licences {
       CLEF_TABLEAU_LICENCES_APPROUVÉES &&
       ID_NUÉE_LICENCES
     ) {
-      this.perroquet = new கிளி({
+      const perroquet = new கிளி({
         // À faire: arranger types
         விண்மீன்: mandatairifier(
           this.client,
@@ -452,20 +452,20 @@ export class Licences {
         குழு_அடையாளம்: ID_NUÉE_LICENCES,
         வார்ப்புரு: SCHÉMA_BD_LICENCES,
       });
+      this.perroquet = perroquet;
     }
-    this.prêt = true;
-    this.événements.emit("prêt");
+    this.événements.emit("prêt", {perroquet: this.perroquet});
   }
 
-  async attendrePrêt() {
-    if (this.prêt) return;
-    return new Promise<void>((résoudre) => {
-      const fFinale = () => {
-        résoudre();
-        this.événements.off("prêt", fFinale);
-      };
-      this.événements.on("prêt", fFinale);
-    });
+  async obtPerroquet(): Promise<{perroquet: கிளி<InfoLicenceAvecCode>}> {
+    if (this.perroquet) return { perroquet: this.perroquet };
+    return new Promise((résoudre, rejeter) => {
+      this.événements.once("prêt", ({perroquet})=>{
+        if (perroquet) résoudre({perroquet});
+        // À faire: Enlever lorsque configuré.
+        rejeter("Configuration licences non initialisée.")
+      })
+    })
   }
 
   @cacheSuivi
@@ -476,14 +476,14 @@ export class Licences {
   }): Promise<schémaFonctionOublier> {
     await f(infoLicences);
 
-    await this.attendrePrêt();
-    if (this.perroquet) {
+    const {perroquet} = await this.obtPerroquet();  // À faire: Enlever lorsque configuré.
+    if (perroquet) {
       const fFinale = async (
         licences: அங்கீகரிக்கப்பட்ட_உறுப்படி_வகை<InfoLicenceAvecCode>[],
       ) => {
         return await f(Object.fromEntries(licences.map((l) => [l.code, l])));
       };
-      return await this.perroquet.உறுப்படிகளை_கேள்ளு({
+      return await perroquet.உறுப்படிகளை_கேள்ளு({
         செ: fFinale,
         பரிந்துரைகள்: "எனது",
       });
@@ -500,9 +500,9 @@ export class Licences {
     code: string;
     infoLicence: InfoLicence;
   }): Promise<void> {
-    await this.attendrePrêt();
-    if (this.perroquet) {
-      await this.perroquet.பரிந்துரையு({
+    const {perroquet} = await this.obtPerroquet();  // À faire: Enlever lorsque configuré.
+    if (perroquet) {
+      await perroquet.பரிந்துரையு({
         பரிந்துரை: {
           code,
           ...infoLicence,
@@ -516,9 +516,9 @@ export class Licences {
   }: {
     idÉlément: string;
   }): Promise<void> {
-    await this.attendrePrêt();
-    if (this.perroquet) {
-      await this.perroquet.பரிந்துரையை_நீக்கு({ அடையாளம்: idÉlément });
+    const {perroquet} = await this.obtPerroquet();  // À faire: Enlever lorsque configuré.
+    if (perroquet) {
+      await perroquet.பரிந்துரையை_நீக்கு({ அடையாளம்: idÉlément });
     }
   }
 
@@ -527,9 +527,9 @@ export class Licences {
   }: {
     f: schémaFonctionSuivi<பிணையம்_பரிந்துரை<InfoLicenceAvecCode>[]>;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
-    await this.attendrePrêt();
-    if (this.perroquet) {
-      return await this.perroquet.பரிந்துரைகளை_கேள்ளு({ செ: f });
+    const {perroquet} = await this.obtPerroquet();  // À faire: Enlever lorsque configuré.
+    if (perroquet) {
+      return await perroquet.பரிந்துரைகளை_கேள்ளு({ செ: f });
     }
     return { fOublier: faisRien, fChangerProfondeur: faisRien };
   }
@@ -539,9 +539,9 @@ export class Licences {
   }: {
     suggestion: பிணையம்_பரிந்துரை<InfoLicenceAvecCode>;
   }): Promise<void> {
-    await this.attendrePrêt();
-    if (this.perroquet) {
-      await this.perroquet.அங்கீகரி({ பரிந்துரை: suggestion });
+    const {perroquet} = await this.obtPerroquet();  // À faire: Enlever lorsque configuré.
+    if (perroquet) {
+      await perroquet.அங்கீகரி({ பரிந்துரை: suggestion });
     }
   }
 }

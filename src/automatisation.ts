@@ -1,4 +1,3 @@
-import { EventEmitter } from "events";
 import Semaphore from "@chriscdn/promise-semaphore";
 import { faisRien } from "@constl/utils-ipa";
 import deepcopy from "deepcopy";
@@ -13,6 +12,8 @@ import {
 } from "@/importateur/index.js";
 import { ImportateurDonnéesJSON, clefsExtraction } from "@/importateur/json.js";
 import { ImportateurFeuilleCalcul } from "@/importateur/xlsx.js";
+import { appelerLorsque } from "@/utils.js";
+import type { FSWatcherEventMap } from "chokidar";
 import type { Constellation } from "@/client.js";
 import type { JSONSchemaType } from "ajv";
 import type { conversionDonnées } from "@/tableaux.js";
@@ -817,7 +818,8 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
               const maintenant = new Date().getTime().toString();
               fAutoAvecÉtats(maintenant);
             };
-            écouteur.on("change", lorsqueFichierModifié);
+
+            const oublierChangements = appelerLorsque({émetteur: écouteur as TypedEmitter<{[K in keyof FSWatcherEventMap]: (...args: FSWatcherEventMap[K])=>void}>, événement: "change", f: lorsqueFichierModifié});
 
             const dernièreModif = fs
               .statSync(adresseFichierRésolue)
@@ -834,7 +836,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             }
 
             const fOublier = async () => {
-              écouteur.off("change", lorsqueFichierModifié);
+              await oublierChangements();
               return await écouteur.close();
             };
             return { fOublier, fLancer };
@@ -876,7 +878,7 @@ type ÉvénementsAutomatisationActive = {
   }) => void;
 };
 
-class AutomatisationActive extends EventEmitter {
+class AutomatisationActive extends TypedEmitter<{misÀJour: () => void}> {
   client: Constellation;
   événements: TypedEmitter<ÉvénementsAutomatisationActive>;
 
@@ -1022,10 +1024,10 @@ export class Automatisations extends ComposanteClientDic<{
             client: this.client,
           });
           const lorsquAutoMiseÀJour = () => this.événements.emit("misÀJour");
-          auto.on("misÀJour", lorsquAutoMiseÀJour);
+          const fOublier = appelerLorsque({émetteur: auto, événement: "misÀJour", f: lorsquAutoMiseÀJour});
           this.automatisations[a.id] = {
             auto,
-            fOublier: () => auto.off("misÀJour", lorsquAutoMiseÀJour),
+            fOublier,
           };
         }
       } else {
@@ -1324,11 +1326,9 @@ export class Automatisations extends ComposanteClientDic<{
         );
       await f(étatsAuto);
     };
-    this.événements.on("misÀJour", fFinale);
+
     await fFinale();
-    return async () => {
-      this.événements.off("misÀJour", fFinale);
-    };
+    return appelerLorsque({émetteur: this.événements, événement: "misÀJour", f: fFinale});
   }
 
   async lancerManuellement({ id }: { id: string }) {

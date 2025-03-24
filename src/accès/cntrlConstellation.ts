@@ -20,6 +20,7 @@ import {
 } from "@/accès/gestionnaireUtilisateurs.js";
 import { MEMBRE, MODÉRATEUR, rôles } from "@/accès/consts.js";
 import { gestionnaireOrbiteGénéral } from "@/orbite.js";
+import { appelerLorsque } from "@/utils.js";
 import { ContrôleurAccès } from "./cntrlMod.js";
 import { pathJoin } from "./utils.js";
 import type { OrbitDB, DagCborEncodable } from "@orbitdb/core";
@@ -274,12 +275,10 @@ const ContrôleurConstellation =
           });
         await f(utilisateurs);
       };
-      gestRôles.on("misÀJour", fFinale);
+
       await fFinale();
-      const fOublier = async () => {
-        gestRôles.off("misÀJour", fFinale);
-      };
-      return fOublier;
+
+      return appelerLorsque({émetteur: gestRôles, événement: "misÀJour", f: fFinale});
     };
 
     const suivreIdsOrbiteAutoriséesÉcriture = async (
@@ -288,12 +287,10 @@ const ContrôleurConstellation =
       const fFinale = async () => {
         await f([...gestRôles._rôles.MEMBRE, ...gestRôles._rôles.MODÉRATEUR]);
       };
-      gestRôles.on("misÀJour", fFinale);
+
       await fFinale();
-      const fOublier = async () => {
-        gestRôles.off("misÀJour", fFinale);
-      };
-      return fOublier;
+      
+      return appelerLorsque({émetteur: gestRôles, événement: "misÀJour", f: fFinale});;
     };
 
     return {

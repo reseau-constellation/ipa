@@ -1,10 +1,11 @@
-import { EventEmitter, once } from "events";
-import { isValidAddress, type OrbitDB } from "@orbitdb/core";
+import { once } from "events";
+import { DatabaseEvents, isValidAddress, type OrbitDB } from "@orbitdb/core";
 
 import { TypedSet } from "@constl/bohr-db";
 import { TypedEmitter } from "tiny-typed-emitter";
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import { GestionnaireOrbite, gestionnaireOrbiteGénéral } from "@/orbite.js";
+import { appelerLorsque } from "@/utils.js";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "./cntrlConstellation.js";
 import type { schémaFonctionOublier, schémaFonctionSuivi } from "@/types.js";
 
@@ -25,11 +26,8 @@ export const suivreBdAccès = async (
   };
 
   bd.events.setMaxListeners(100);
-  bd.events.on("update", fFinale);
+  const oublier = appelerLorsque({émetteur: bd.events as TypedEmitter<DatabaseEvents>, événement: "update", f: fFinale})
   await fFinale();
-  const oublier = async () => {
-    bd.events.off("update", fFinale);
-  };
   return oublier;
 };
 
@@ -97,7 +95,7 @@ class AccèsUtilisateur {
   }
 }
 
-export class GestionnaireAccès extends EventEmitter {
+export class GestionnaireAccès extends TypedEmitter<{misÀJour: () => void}> {
   _rôles: objRôles;
   _rôlesIdOrbite: objRôles;
   _rôlesUtilisateurs: {
