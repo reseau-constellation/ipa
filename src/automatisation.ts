@@ -682,59 +682,62 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     idDernièreRequêteOpération = requête;
 
     await verrou.acquire("opération");
-    if (
-      requête !== idDernièreRequêteOpération ||
-      requêtesDéjàExécutées.has(requête)
-    ) {
-      verrou.release("opération");
-      return;
-    }
-    await client.sauvegarderAuStockageLocal({
-      clef: clefStockageDernièreFois,
-      val: requête,
-    });
-    requêtesDéjàExécutées.add(requête);
-
-    const nouvelÉtat: ÉtatEnSync = {
-      type: "sync",
-      depuis: new Date().getTime(),
-    };
-    fÉtat(nouvelÉtat);
-
     try {
-      await fAuto();
-      if (tempsInterval) {
-        const nouvelÉtat: ÉtatProgrammée = {
-          type: "programmée",
-          à: Date.now() + tempsInterval,
-        };
-        fÉtat(nouvelÉtat);
-      } else {
-        const nouvelÉtat: ÉtatÉcoute = {
-          type: "écoute",
+      if (
+        requête !== idDernièreRequêteOpération ||
+        requêtesDéjàExécutées.has(requête)
+      ) {
+        verrou.release("opération");
+        return;
+      }
+      await client.sauvegarderAuStockageLocal({
+        clef: clefStockageDernièreFois,
+        val: requête,
+      });
+      requêtesDéjàExécutées.add(requête);
+
+      const nouvelÉtat: ÉtatEnSync = {
+        type: "sync",
+        depuis: new Date().getTime(),
+      };
+      fÉtat(nouvelÉtat);
+
+      try {
+        await fAuto();
+        if (tempsInterval) {
+          const nouvelÉtat: ÉtatProgrammée = {
+            type: "programmée",
+            à: Date.now() + tempsInterval,
+          };
+          fÉtat(nouvelÉtat);
+        } else {
+          const nouvelÉtat: ÉtatÉcoute = {
+            type: "écoute",
+          };
+          fÉtat(nouvelÉtat);
+        }
+      } catch (e) {
+        const nouvelÉtat: ÉtatErreur = {
+          type: "erreur",
+          erreur: JSON.stringify(
+            {
+              nom: (e as Error).name,
+              message: (e as Error).message,
+              pile: (e as Error).stack,
+              cause: (e as Error).cause,
+            },
+            undefined,
+            2,
+          ),
+          prochaineProgramméeÀ: tempsInterval
+            ? Date.now() + tempsInterval
+            : undefined,
         };
         fÉtat(nouvelÉtat);
       }
-    } catch (e) {
-      const nouvelÉtat: ÉtatErreur = {
-        type: "erreur",
-        erreur: JSON.stringify(
-          {
-            nom: (e as Error).name,
-            message: (e as Error).message,
-            pile: (e as Error).stack,
-            cause: (e as Error).cause,
-          },
-          undefined,
-          2,
-        ),
-        prochaineProgramméeÀ: tempsInterval
-          ? Date.now() + tempsInterval
-          : undefined,
-      };
-      fÉtat(nouvelÉtat);
+    } finally {
+      verrou.release("opération");
     }
-    verrou.release("opération");
   };
   const fLancer = async () => await fAutoAvecÉtats(uuidv4());
 
@@ -819,7 +822,15 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
               fAutoAvecÉtats(maintenant);
             };
 
-            const oublierChangements = appelerLorsque({émetteur: écouteur as TypedEmitter<{[K in keyof FSWatcherEventMap]: (...args: FSWatcherEventMap[K])=>void}>, événement: "change", f: lorsqueFichierModifié});
+            const oublierChangements = appelerLorsque({
+              émetteur: écouteur as TypedEmitter<{
+                [K in keyof FSWatcherEventMap]: (
+                  ...args: FSWatcherEventMap[K]
+                ) => void;
+              }>,
+              événement: "change",
+              f: lorsqueFichierModifié,
+            });
 
             const dernièreModif = fs
               .statSync(adresseFichierRésolue)
@@ -878,7 +889,7 @@ type ÉvénementsAutomatisationActive = {
   }) => void;
 };
 
-class AutomatisationActive extends TypedEmitter<{misÀJour: () => void}> {
+class AutomatisationActive extends TypedEmitter<{ misÀJour: () => void }> {
   client: Constellation;
   événements: TypedEmitter<ÉvénementsAutomatisationActive>;
 
@@ -1008,37 +1019,43 @@ export class Automatisations extends ComposanteClientDic<{
 
   async mettreAutosÀJour(autos: SpécificationAutomatisation[]): Promise<void> {
     await verrou.acquire("miseÀJour");
-    const automatisationsDavant = Object.keys(this.automatisations);
+    try {
+      const automatisationsDavant = Object.keys(this.automatisations);
 
-    for (const id of automatisationsDavant) {
-      if (!autos.find((a) => a.id === id)) await this.fermerAuto(id);
-    }
+      for (const id of automatisationsDavant) {
+        if (!autos.find((a) => a.id === id)) await this.fermerAuto(id);
+      }
 
-    const ceDispositif = await this.client.obtIdDispositif();
-    for (const a of autos) {
-      if (activePourCeDispositif(a, ceDispositif)) {
-        if (!Object.keys(this.automatisations).includes(a.id)) {
-          const auto = new AutomatisationActive({
-            spéc: a,
-            idSpéc: a.id,
-            client: this.client,
-          });
-          const lorsquAutoMiseÀJour = () => this.événements.emit("misÀJour");
-          const fOublier = appelerLorsque({émetteur: auto, événement: "misÀJour", f: lorsquAutoMiseÀJour});
-          this.automatisations[a.id] = {
-            auto,
-            fOublier,
-          };
-        }
-      } else {
-        const autoActif = this.automatisations[a.id];
-        if (autoActif) {
-          await this.fermerAuto(a.id);
+      const ceDispositif = await this.client.obtIdDispositif();
+      for (const a of autos) {
+        if (activePourCeDispositif(a, ceDispositif)) {
+          if (!Object.keys(this.automatisations).includes(a.id)) {
+            const auto = new AutomatisationActive({
+              spéc: a,
+              idSpéc: a.id,
+              client: this.client,
+            });
+            const lorsquAutoMiseÀJour = () => this.événements.emit("misÀJour");
+            const fOublier = appelerLorsque({
+              émetteur: auto,
+              événement: "misÀJour",
+              f: lorsquAutoMiseÀJour,
+            });
+            this.automatisations[a.id] = {
+              auto,
+              fOublier,
+            };
+          }
+        } else {
+          const autoActif = this.automatisations[a.id];
+          if (autoActif) {
+            await this.fermerAuto(a.id);
+          }
         }
       }
+    } finally {
+      verrou.release("miseÀJour");
     }
-
-    verrou.release("miseÀJour");
   }
 
   async obtDonnéesImportation<
@@ -1328,7 +1345,11 @@ export class Automatisations extends ComposanteClientDic<{
     };
 
     await fFinale();
-    return appelerLorsque({émetteur: this.événements, événement: "misÀJour", f: fFinale});
+    return appelerLorsque({
+      émetteur: this.événements,
+      événement: "misÀJour",
+      f: fFinale,
+    });
   }
 
   async lancerManuellement({ id }: { id: string }) {

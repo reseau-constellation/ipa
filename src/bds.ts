@@ -857,55 +857,58 @@ export class BDs extends ComposanteClientListe<string> {
       let idBd: string;
 
       await this.verrouBdUnique.acquire(idNuéeUnique);
-      const idBdLocale = await this.client.obtDeStockageLocal({
-        clef: clefStockageLocal,
-      });
+      try {
+        const idBdLocale = await this.client.obtDeStockageLocal({
+          clef: clefStockageLocal,
+        });
 
-      switch (bds.length) {
-        case 0: {
-          if (idBdLocale) {
-            idBd = idBdLocale;
-          } else {
-            idBd = await this.créerBdDeSchéma({ schéma });
+        switch (bds.length) {
+          case 0: {
+            if (idBdLocale) {
+              idBd = idBdLocale;
+            } else {
+              idBd = await this.créerBdDeSchéma({ schéma });
+              await this.client.sauvegarderAuStockageLocal({
+                clef: clefStockageLocal,
+                val: idBd,
+              });
+            }
+            break;
+          }
+          case 1: {
+            idBd = bds[0];
             await this.client.sauvegarderAuStockageLocal({
               clef: clefStockageLocal,
               val: idBd,
             });
+            if (idBdLocale && idBd !== idBdLocale) {
+              await this.combinerBds({ idBdBase: idBd, idBd2: idBdLocale });
+              await this.effacerBd({ idBd: idBdLocale });
+            }
+            break;
           }
-          break;
-        }
-        case 1: {
-          idBd = bds[0];
-          await this.client.sauvegarderAuStockageLocal({
-            clef: clefStockageLocal,
-            val: idBd,
-          });
-          if (idBdLocale && idBd !== idBdLocale) {
-            await this.combinerBds({ idBdBase: idBd, idBd2: idBdLocale });
-            await this.effacerBd({ idBd: idBdLocale });
+          default: {
+            if (idBdLocale) bds = [...new Set([...bds, idBdLocale])];
+            idBd = bds.sort()[0];
+            await this.client.sauvegarderAuStockageLocal({
+              clef: clefStockageLocal,
+              val: idBd,
+            });
+
+            for (const bd of bds.slice(1)) {
+              if (déjàCombinées.has(bd)) continue;
+
+              déjàCombinées.add(bd);
+              await this.combinerBds({ idBdBase: idBd, idBd2: bd });
+              await this.effacerBd({ idBd: bd });
+            }
+
+            break;
           }
-          break;
         }
-        default: {
-          if (idBdLocale) bds = [...new Set([...bds, idBdLocale])];
-          idBd = bds.sort()[0];
-          await this.client.sauvegarderAuStockageLocal({
-            clef: clefStockageLocal,
-            val: idBd,
-          });
-
-          for (const bd of bds.slice(1)) {
-            if (déjàCombinées.has(bd)) continue;
-
-            déjàCombinées.add(bd);
-            await this.combinerBds({ idBdBase: idBd, idBd2: bd });
-            await this.effacerBd({ idBd: bd });
-          }
-
-          break;
-        }
+      } finally {
+        this.verrouBdUnique.release(idNuéeUnique);
       }
-      this.verrouBdUnique.release(idNuéeUnique);
       await f(idBd);
     };
 

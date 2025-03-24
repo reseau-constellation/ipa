@@ -103,6 +103,7 @@ export class EnveloppeIpa {
           code: e.name === "Error" ? ERREUR_INIT_IPA : e.name,
         }),
       );
+      this._verrou.release("init");
       throw e;
     }
 

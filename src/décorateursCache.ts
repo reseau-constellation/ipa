@@ -88,11 +88,11 @@ export class CacheSuivi {
 
     // Vérifier si déjà en cache
     if (!this._cacheSuivi[codeCache]) {
-      // Si pas en cache, générer
-      this._cacheSuivi[codeCache] = {
-        requêtes: { [idRequête]: f },
-      };
       try {
+        // Si pas en cache, générer
+        this._cacheSuivi[codeCache] = {
+          requêtes: { [idRequête]: f },
+        };
         const fFinale = async (x: unknown) => {
           if (!this._cacheSuivi[codeCache]) return; // Si on a déjà annulé la requête
           if (
@@ -320,19 +320,18 @@ export class CacheSuivi {
   }) {
     await this.verrou.acquire(codeCache);
     if (this._cacheRecherche[codeCache] === undefined) {
-      this.verrou.release(codeCache)
-      return
-    };
+      this.verrou.release(codeCache);
+      return;
+    }
     try {
       const { requêtes, fs } = this._cacheRecherche[codeCache];
       delete requêtes[idRequête];
-  
+
       if (!Object.keys(requêtes).length) {
         await fs?.fOublier();
         delete this._cacheRecherche[codeCache];
       }
-    }
-    finally {
+    } finally {
       this.verrou.release(codeCache);
     }
   }

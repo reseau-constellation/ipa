@@ -241,9 +241,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     [key: string]: Pushable<Uint8Array>;
   };
 
-  oublierSuivreMessagesRejoindreCompte?: schémaFonctionOublier
-  oublierGossipSub?: schémaFonctionOublier
-  oublierSuiviPairs?: schémaFonctionOublier
+  oublierSuivreMessagesRejoindreCompte?: schémaFonctionOublier;
+  oublierGossipSub?: schémaFonctionOublier;
+  oublierSuiviPairs?: schémaFonctionOublier;
   oublierSalut?: schémaFonctionOublier;
 
   événements: TypedEmitter<ÉvénementsRéseau>;
@@ -336,7 +336,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       ({ detail: pair }) => delete this.connexionsDirectes[pair.toString()],
     );
 
-    this.oublierSuivreMessagesRejoindreCompte = 
+    this.oublierSuivreMessagesRejoindreCompte =
       await this.suivreMessagesDirectes({
         type: "Je veux rejoindre ce compte",
         f: ({ contenu }) =>
@@ -365,9 +365,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       libp2p.addEventListener(é, fSuivreConnexions);
     }
     this.oublierSuiviPairs = async () => {
-      await Promise.allSettled(événements.map((é) => {
-        return libp2p.removeEventListener(é, fSuivreConnexions);
-      }),)
+      await Promise.allSettled(
+        événements.map((é) => {
+          return libp2p.removeEventListener(é, fSuivreConnexions);
+        }),
+      );
     };
 
     const intervale = setInterval(async () => {
@@ -583,8 +585,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       await f(message);
     };
 
-    // @ts-expect-error à voir
-    return await appelerLorsque({émetteur: this.événements, événement: "messageDirecte", f: gérerMessage});
+    return appelerLorsque({
+      émetteur: this.événements,
+      événement: "messageDirecte",
+      // @ts-expect-error à voir
+      f: gérerMessage,
+    });
   }
 
   async direSalut(): Promise<void> {
@@ -644,7 +650,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }: {
     msg: MessageGossipSub;
   }): Promise<void> {
-
     const { orbite } = await this.client.attendreSfipEtOrbite();
 
     switch (msg.type) {
@@ -933,7 +938,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     if (idCompte === undefined || idCompte === this.client.idCompte) {
       await this._initaliserBloquésPrivés();
       fsOublier.push(
-        appelerLorsque({émetteur: this.événements, événement: "changementMembresBloqués", f: fFinale })
+        appelerLorsque({
+          émetteur: this.événements,
+          événement: "changementMembresBloqués",
+          f: fFinale,
+        }),
       );
       await fFinale();
     }
@@ -1232,27 +1241,29 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const fMiseÀJour = async () => {
       if (fermer) return;
       await verrou.acquire("modification");
+      try {
+        const àOublier: string[] = Object.keys(dicRelations).filter(
+          (r) => calcProfondeurCompte(r) >= profondeur,
+        );
+        const àSuivre: string[] = [
+          ...new Set(
+            Object.entries(dicRelations)
+              .filter(([de, _]) => calcProfondeurCompte(de) + 1 < profondeur)
+              .map(([_, info]) => info.relations.map((r) => r.idCompte))
+              .flat(),
+          ),
+        ].filter((id) => !Object.keys(dicRelations).includes(id));
+        await Promise.allSettled(
+          àOublier.map((id) => oublierRelationsImmédiates(id)),
+        );
+        await Promise.allSettled(
+          àSuivre.map((id) => suivreRelationsImmédiates(id)),
+        );
 
-      const àOublier: string[] = Object.keys(dicRelations).filter(
-        (r) => calcProfondeurCompte(r) >= profondeur,
-      );
-      const àSuivre: string[] = [
-        ...new Set(
-          Object.entries(dicRelations)
-            .filter(([de, _]) => calcProfondeurCompte(de) + 1 < profondeur)
-            .map(([_, info]) => info.relations.map((r) => r.idCompte))
-            .flat(),
-        ),
-      ].filter((id) => !Object.keys(dicRelations).includes(id));
-      await Promise.allSettled(
-        àOublier.map((id) => oublierRelationsImmédiates(id)),
-      );
-      await Promise.allSettled(
-        àSuivre.map((id) => suivreRelationsImmédiates(id)),
-      );
-
-      await fFinale();
-      verrou.release("modification");
+        await fFinale();
+      } finally {
+        verrou.release("modification");
+      }
     };
 
     await suivreRelationsImmédiates(idCompteDébutFinal);
@@ -1477,7 +1488,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       );
     };
 
-    const oublier = appelerLorsque({émetteur: this.événements, événement: "changementConnexions", f: fFinale})
+    const oublier = appelerLorsque({
+      émetteur: this.événements,
+      événement: "changementConnexions",
+      f: fFinale,
+    });
     await fFinale();
 
     return oublier;
@@ -1503,7 +1518,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       return await f([...Object.values(this.dispositifsEnLigne), moi]);
     };
 
-    const oublier = appelerLorsque({émetteur: this.événements, événement: "membreVu", f: fFinale});
+    const oublier = appelerLorsque({
+      émetteur: this.événements,
+      événement: "membreVu",
+      f: fFinale,
+    });
     await fFinale();
 
     return oublier;
@@ -1886,33 +1905,35 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     ): Promise<void> => {
       await verrou.acquire("rechercher");
 
-      comptes = comptes.filter((c) => c.confiance >= 0); // Enlever les membres bloqués
+      try {
+        comptes = comptes.filter((c) => c.confiance >= 0); // Enlever les membres bloqués
 
-      const nouveaux = comptes.filter((c) => !résultatsParMembre[c.idCompte]);
-      const clefsObsolètes = Object.keys(résultatsParMembre).filter(
-        (m) => !comptes.find((c) => c.idCompte === m),
-      );
-      const changés = comptes.filter((c) => {
-        const avant = résultatsParMembre[c.idCompte];
-        return (
-          avant &&
-          (c.confiance !== avant.membre.confiance ||
-            c.profondeur !== avant.membre.profondeur)
+        const nouveaux = comptes.filter((c) => !résultatsParMembre[c.idCompte]);
+        const clefsObsolètes = Object.keys(résultatsParMembre).filter(
+          (m) => !comptes.find((c) => c.idCompte === m),
         );
-      });
+        const changés = comptes.filter((c) => {
+          const avant = résultatsParMembre[c.idCompte];
+          return (
+            avant &&
+            (c.confiance !== avant.membre.confiance ||
+              c.profondeur !== avant.membre.profondeur)
+          );
+        });
 
-      await Promise.allSettled(nouveaux.map(suivreRésultatsMembre));
-      await Promise.allSettled(
-        changés.map(
-          async (c) => await résultatsParMembre[c.idCompte].mettreÀJour(c),
-        ),
-      );
+        await Promise.allSettled(nouveaux.map(suivreRésultatsMembre));
+        await Promise.allSettled(
+          changés.map(
+            async (c) => await résultatsParMembre[c.idCompte].mettreÀJour(c),
+          ),
+        );
 
-      await Promise.allSettled(
-        clefsObsolètes.map((o) => oublierRésultatsMembre(o)),
-      );
-
-      verrou.release("rechercher");
+        await Promise.allSettled(
+          clefsObsolètes.map((o) => oublierRésultatsMembre(o)),
+        );
+      } finally {
+        verrou.release("rechercher");
+      }
     };
 
     const { fChangerProfondeur, fOublier: fOublierSuivreComptes } =

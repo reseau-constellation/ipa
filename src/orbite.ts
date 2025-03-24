@@ -302,60 +302,62 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
 
     // Nous avons besoin d'un verrou afin d'éviter la concurrence
     await this.verrouOuvertureBd.acquire(id);
-    const existante = this._bdsOrbite[id];
+    try {
+      const existante = this._bdsOrbite[id];
 
-    const idRequête = uuidv4();
+      const idRequête = uuidv4();
 
-    const fOublier = async () => {
-      // Si la BD a été effacée entre-temps par `orbite.effacerBd`,
-      // elle ne sera plus disponible ici
-      this._bdsOrbite[id]?.idsRequêtes.delete(idRequête);
-    };
+      const fOublier = async () => {
+        // Si la BD a été effacée entre-temps par `orbite.effacerBd`,
+        // elle ne sera plus disponible ici
+        this._bdsOrbite[id]?.idsRequêtes.delete(idRequête);
+      };
 
-    // Fonction utilitaire pour vérifier le type de la bd
-    const vérifierTypeBd = <U extends keyof TypesBdsOrbites>(
-      bd: Store,
-      type: U,
-    ): bd is TypesBdsOrbites[U] => {
-      const { type: typeBd } = bd;
-      return typeBd === type;
-    };
+      // Fonction utilitaire pour vérifier le type de la bd
+      const vérifierTypeBd = <U extends keyof TypesBdsOrbites>(
+        bd: Store,
+        type: U,
+      ): bd is TypesBdsOrbites[U] => {
+        const { type: typeBd } = bd;
+        return typeBd === type;
+      };
 
-    if (existante) {
-      this._bdsOrbite[id].idsRequêtes.add(idRequête);
+      if (existante) {
+        this._bdsOrbite[id].idsRequêtes.add(idRequête);
+        this.verrouOuvertureBd.release(id);
+
+        if (type && !vérifierTypeBd(existante.bd, type))
+          throw new Error(
+            // @ts-expect-error Je ne comprends pas complètement
+            `La bd est de type ${existante.bd.type}, et non ${type}.`,
+          );
+
+        return {
+          bd: existante.bd as T,
+          fOublier,
+        };
+      }
+
+      const bd = await réessayer({
+        f: async (): Promise<T> =>
+          (await this.orbite.open(id, {
+            type,
+            ...options,
+          })) as T,
+        signal: signalCombiné,
+      });
+      signalCombiné.clear();
+
+      this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
+      // Maintenant que la BD a été créée, on peut relâcher le verrou
       this.verrouOuvertureBd.release(id);
-
-      if (type && !vérifierTypeBd(existante.bd, type))
-        throw new Error(
-          // @ts-expect-error Je ne comprends pas complètement
-          `La bd est de type ${existante.bd.type}, et non ${type}.`,
-        );
-
       return {
-        bd: existante.bd as T,
+        bd,
         fOublier,
       };
+    } finally {
+      this.verrouOuvertureBd.release(id);
     }
-
-    const bd = await réessayer({
-      f: async (): Promise<T> =>
-        (await this.orbite.open(id, {
-          type,
-          ...options,
-        })) as T,
-      signal: signalCombiné,
-    });
-    signalCombiné.clear();
-
-    this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
-
-    // Maintenant que la BD a été créée, on peut relâcher le verrou
-    this.verrouOuvertureBd.release(id);
-
-    return {
-      bd,
-      fOublier,
-    };
   }
 
   async ouvrirBdTypée<
