@@ -278,7 +278,11 @@ const ContrôleurConstellation =
 
       await fFinale();
 
-      return appelerLorsque({émetteur: gestRôles, événement: "misÀJour", f: fFinale});
+      return appelerLorsque({
+        émetteur: gestRôles,
+        événement: "misÀJour",
+        f: fFinale,
+      });
     };
 
     const suivreIdsOrbiteAutoriséesÉcriture = async (
@@ -289,8 +293,12 @@ const ContrôleurConstellation =
       };
 
       await fFinale();
-      
-      return appelerLorsque({émetteur: gestRôles, événement: "misÀJour", f: fFinale});;
+
+      return appelerLorsque({
+        émetteur: gestRôles,
+        événement: "misÀJour",
+        f: fFinale,
+      });
     };
 
     return {

@@ -26,7 +26,11 @@ export const suivreBdAccès = async (
   };
 
   bd.events.setMaxListeners(100);
-  const oublier = appelerLorsque({émetteur: bd.events as TypedEmitter<DatabaseEvents>, événement: "update", f: fFinale})
+  const oublier = appelerLorsque({
+    émetteur: bd.events as TypedEmitter<DatabaseEvents>,
+    événement: "update",
+    f: fFinale,
+  });
   await fFinale();
   return oublier;
 };
@@ -95,7 +99,7 @@ class AccèsUtilisateur {
   }
 }
 
-export class GestionnaireAccès extends TypedEmitter<{misÀJour: () => void}> {
+export class GestionnaireAccès extends TypedEmitter<{ misÀJour: () => void }> {
   _rôles: objRôles;
   _rôlesIdOrbite: objRôles;
   _rôlesUtilisateurs: {

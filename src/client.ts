@@ -1103,7 +1103,11 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           await fSuivreBd([...mods]);
         };
         fFinaleSuiviCompte();
-        return appelerLorsque({émetteur: contrôleurConstellation.gestRôles, événement: "misÀJour", f: fFinaleSuiviCompte});
+        return appelerLorsque({
+          émetteur: contrôleurConstellation.gestRôles,
+          événement: "misÀJour",
+          f: fFinaleSuiviCompte,
+        });
       } else {
         await fOublier();
         return faisRien;
@@ -1391,9 +1395,12 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       await f(idCompte);
     };
 
-
-    // @ts-expect-error À faire
-    const fOublier = appelerLorsque({ émetteur: this.événements, événement: "comptePrêt", f: fFinale });
+    const fOublier = appelerLorsque({
+      émetteur: this.événements,
+      événement: "comptePrêt",
+      // @ts-expect-error À faire
+      f: fFinale,
+    });
     if (this.idCompte) await fFinale({ idCompte: this.idCompte });
 
     return fOublier;
