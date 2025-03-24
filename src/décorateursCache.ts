@@ -298,14 +298,17 @@ export class CacheSuivi {
       this.verrou.release(codeCache);
       return;
     }
-    const { requêtes, fOublier } = this._cacheSuivi[codeCache];
-    delete requêtes[idRequête];
+    try {
+      const { requêtes, fOublier } = this._cacheSuivi[codeCache];
+      delete requêtes[idRequête];
 
-    if (!Object.keys(requêtes).length) {
-      await fOublier?.();
-      delete this._cacheSuivi[codeCache];
+      if (!Object.keys(requêtes).length) {
+        await fOublier?.();
+        delete this._cacheSuivi[codeCache];
+      }
+    } finally {
+      this.verrou.release(codeCache);
     }
-    this.verrou.release(codeCache);
   }
 
   async oublierRecherche({
@@ -316,15 +319,22 @@ export class CacheSuivi {
     idRequête: string;
   }) {
     await this.verrou.acquire(codeCache);
-    if (this._cacheRecherche[codeCache] === undefined) return;
-    const { requêtes, fs } = this._cacheRecherche[codeCache];
-    delete requêtes[idRequête];
-
-    if (!Object.keys(requêtes).length) {
-      await fs?.fOublier();
-      delete this._cacheRecherche[codeCache];
+    if (this._cacheRecherche[codeCache] === undefined) {
+      this.verrou.release(codeCache)
+      return
+    };
+    try {
+      const { requêtes, fs } = this._cacheRecherche[codeCache];
+      delete requêtes[idRequête];
+  
+      if (!Object.keys(requêtes).length) {
+        await fs?.fOublier();
+        delete this._cacheRecherche[codeCache];
+      }
     }
-    this.verrou.release(codeCache);
+    finally {
+      this.verrou.release(codeCache);
+    }
   }
 
   générerCodeCache({
