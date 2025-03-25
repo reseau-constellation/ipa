@@ -971,7 +971,7 @@ describe("Rechercher projets", function () {
         score: 1,
       };
 
-      const val = await résultatMotClef.attendreQue((x) => x && x.de !== "id");
+      const val = await résultatMotClef.attendreQue((x) => x && x.de !== "id" && (x.info.type === "résultat" && x.info.de === "nom"));
 
       // Il faut vérifier les deux, parce que le mot-clef peut être détecté sur le projet lui-même ou bien sur la bd
       if (val.de === "bd") {
