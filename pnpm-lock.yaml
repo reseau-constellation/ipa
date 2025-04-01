@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@chainsafe/libp2p-gossipsub':
-        specifier: 14.1.0
-        version: 14.1.0
+        specifier: 14.1.1
+        version: 14.1.1
       '@chainsafe/libp2p-noise':
         specifier: ^16.0.3
         version: 16.1.0
@@ -1166,6 +1166,10 @@ packages:
 
   '@chainsafe/libp2p-gossipsub@14.1.0':
     resolution: {integrity: sha512-nzFBbHOoRFa/bXUSzmJaXOgHI+EttTldhLJ33yWcM0DxnWhLKychHkCDLoJO3THa1+dnzrDJoxj3N3/V0WoPVw==}
+    engines: {npm: '>=8.7.0'}
+
+  '@chainsafe/libp2p-gossipsub@14.1.1':
+    resolution: {integrity: sha512-EUs2C+xHXXbw0pQQF2AN/ih4qB6BBWOGkDhvHz1VN52o2m/827IBEMT8RHdXMNZciQc90to1L57BKmhXkvztDw==}
     engines: {npm: '>=8.7.0'}
 
   '@chainsafe/libp2p-noise@16.1.0':
@@ -10109,6 +10113,23 @@ snapshots:
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
 
+  '@chainsafe/libp2p-gossipsub@14.1.1':
+    dependencies:
+      '@libp2p/crypto': 5.0.15
+      '@libp2p/interface': 2.7.0
+      '@libp2p/interface-internal': 2.3.9
+      '@libp2p/peer-id': 5.1.0
+      '@libp2p/pubsub': 10.1.4
+      '@multiformats/multiaddr': 12.4.0
+      denque: 2.1.0
+      it-length-prefixed: 9.1.1
+      it-pipe: 3.0.1
+      it-pushable: 3.2.3
+      multiformats: 13.3.2
+      protons-runtime: 5.5.0
+      uint8arraylist: 2.4.8
+      uint8arrays: 5.1.0
+
   '@chainsafe/libp2p-noise@16.1.0':
     dependencies:
       '@chainsafe/as-chacha20poly1305': 0.1.0
@@ -11387,7 +11408,7 @@ snapshots:
     dependencies:
       '@libp2p/crypto': 5.0.15
       '@libp2p/interface': 2.7.0
-      '@libp2p/interface-internal': 2.3.5
+      '@libp2p/interface-internal': 2.3.9
       '@libp2p/peer-collections': 6.0.25
       '@libp2p/peer-id': 5.1.0
       '@libp2p/utils': 6.6.0
