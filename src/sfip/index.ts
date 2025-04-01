@@ -30,19 +30,23 @@ export type ServicesLibp2p = {
 
 export const obtConfigLibp2pPlateforme = async ({
   dossier,
+  domaines,
+  clefPrivée
 }: {
   dossier: string;
+  domaines?: string[];
+  clefPrivée?: PrivateKey;
 }): Promise<Libp2pOptions> => {
   let configPlateforme: Libp2pOptions;
   if (isBrowser || isElectronRenderer) {
     // À faire - migrer vers travailleur ?
-    configPlateforme = await obtOptionsLibp2pNavigateur({ dossier });
+    configPlateforme = await obtOptionsLibp2pNavigateur({dossier});
   } else if (isWebWorker) {
     configPlateforme = await obtOptionsLibp2pTravailleurWeb();
   } else if (isElectronMain) {
     configPlateforme = await obtOptionsLibp2pÉlectionPrincipal();
   } else if (isNode) {
-    configPlateforme = await obtOptionsLibp2pNode();
+    configPlateforme = await obtOptionsLibp2pNode({dossier, domaines, clefPrivée});
   } else {
     console.warn(
       "Plateforme non reconnue. On utilisera la configuration navigateur.",
@@ -71,13 +75,15 @@ class ServiceClefPrivée {
 export async function initSFIP({
   dossier,
   clefPrivée,
+  domaines,
   configLibp2p = {},
 }: {
   dossier: string;
   clefPrivée?: PrivateKey;
+  domaines?: string[];
   configLibp2p?: Libp2pOptions<ServicesLibp2p>;
 }): Promise<HeliaLibp2p<Libp2p<ServicesLibp2p>>> {
-  const configParDéfaut = await obtConfigLibp2pPlateforme({ dossier });
+  const configParDéfaut = await obtConfigLibp2pPlateforme({ dossier, domaines });
 
   configParDéfaut.privateKey = clefPrivée;
   configParDéfaut.services = configParDéfaut.services || {};

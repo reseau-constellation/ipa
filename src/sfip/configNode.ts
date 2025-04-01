@@ -1,4 +1,4 @@
-// import { join } from "path";
+import { join } from "path";
 import { gossipsub } from "@chainsafe/libp2p-gossipsub";
 import { noise } from "@chainsafe/libp2p-noise";
 import { yamux } from "@chainsafe/libp2p-yamux";
@@ -14,9 +14,11 @@ import { pubsubPeerDiscovery } from "@libp2p/pubsub-peer-discovery";
 import { webRTC, webRTCDirect } from "@libp2p/webrtc";
 import { webSockets } from "@libp2p/websockets";
 import { webTransport } from "@libp2p/webtransport";
-import { FaultTolerance } from "@libp2p/interface";
+import { FaultTolerance, PrivateKey } from "@libp2p/interface";
 import { ping } from "@libp2p/ping";
 import { uPnPNAT } from "@libp2p/upnp-nat";
+import { peerIdFromPrivateKey } from "@libp2p/peer-id";
+import { FsDatastore } from "datastore-fs";
 import {
   ADRESSES_NŒUDS_INITIAUX,
   ADRESSES_NŒUDS_RELAI_RUST,
@@ -27,16 +29,23 @@ import type { Libp2pOptions } from "libp2p";
 
 // import { kadDHT } from "@libp2p/kad-dht";
 
-export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
+export const obtOptionsLibp2pNode = async ({dossier, domaines, clefPrivée}: {dossier?: string; domaines?: string[]; clefPrivée?: PrivateKey} = {}): Promise<Libp2pOptions> => {
+
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
   // navigateur. Nous devons donc les importer dynamiquement ici afin d'éviter
   // des problèmes de compilation pour le navigateur.
   const { tcp } = await import("@libp2p/tcp");
   const { mdns } = await import("@libp2p/mdns");
 
-  // const { FsDatastore } = await import("datastore-fs");
-  // const dossierStockage = join(dossier, "libp2p");
-  // const stockage = new FsDatastore(dossierStockage);
+  const idPair = clefPrivée ? peerIdFromPrivateKey(clefPrivée) : undefined;
+
+  let stockage: FsDatastore | undefined = undefined;
+  if (dossier) {
+    const { FsDatastore } = await import("datastore-fs");
+    const dossierStockage = join(dossier, "libp2p");
+    stockage = new FsDatastore(dossierStockage);
+    stockage.open()
+  }
 
   return {
     addresses: {
@@ -49,6 +58,12 @@ export const obtOptionsLibp2pNode = async (): Promise<Libp2pOptions> => {
         "/webtransport",
         "/p2p-circuit",
       ],
+      announce: (domaines?.length && idPair)
+        ? domaines.map(domaine => [
+            `/dns4/${domaine}/tcp/443/wss/p2p/${idPair.toString()}`,
+            `/dns4/${domaine}/tcp/80/ws/p2p/${idPair.toString()}`,
+          ]).flat()
+        : undefined,
     },
     transportManager: {
       faultTolerance: FaultTolerance.NO_FATAL,

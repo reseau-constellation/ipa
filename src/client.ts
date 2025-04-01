@@ -149,6 +149,7 @@ export interface Signature {
 
 export interface optsConstellation<T extends ServicesLibp2p = ServicesLibp2p> {
   dossier?: string;
+  domaines?: string[];
   sujetRéseau?: string;
   protocoles?: string[];
   orbite?: optsOrbite<T>;
@@ -674,6 +675,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         } else {
           sfipFinale = (await initSFIP({
             dossier: await join(dossier, "sfip"),
+            domaines: this._opts.domaines,
             clefPrivée,
           })) as unknown as HeliaLibp2p<Libp2p<T>>;
         }
@@ -686,6 +688,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     } else {
       sfipFinale = (await initSFIP({
         dossier: await join(await this.dossier(), "sfip"),
+        domaines: this._opts.domaines,
         clefPrivée,
       })) as unknown as HeliaLibp2p<Libp2p<T>>;
 
