@@ -29,8 +29,15 @@ import type { Libp2pOptions } from "libp2p";
 
 // import { kadDHT } from "@libp2p/kad-dht";
 
-export const obtOptionsLibp2pNode = async ({dossier, domaines, clefPrivée}: {dossier?: string; domaines?: string[]; clefPrivée?: PrivateKey} = {}): Promise<Libp2pOptions> => {
-
+export const obtOptionsLibp2pNode = async ({
+  dossier,
+  domaines,
+  clefPrivée,
+}: {
+  dossier?: string;
+  domaines?: string[];
+  clefPrivée?: PrivateKey;
+} = {}): Promise<Libp2pOptions> => {
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
   // navigateur. Nous devons donc les importer dynamiquement ici afin d'éviter
   // des problèmes de compilation pour le navigateur.
@@ -44,7 +51,7 @@ export const obtOptionsLibp2pNode = async ({dossier, domaines, clefPrivée}: {do
     const { FsDatastore } = await import("datastore-fs");
     const dossierStockage = join(dossier, "libp2p");
     stockage = new FsDatastore(dossierStockage);
-    stockage.open()
+    stockage.open();
   }
 
   return {
@@ -58,12 +65,15 @@ export const obtOptionsLibp2pNode = async ({dossier, domaines, clefPrivée}: {do
         "/webtransport",
         "/p2p-circuit",
       ],
-      announce: (domaines?.length && idPair)
-        ? domaines.map(domaine => [
-            `/dns4/${domaine}/tcp/443/wss/p2p/${idPair.toString()}`,
-            `/dns4/${domaine}/tcp/80/ws/p2p/${idPair.toString()}`,
-          ]).flat()
-        : undefined,
+      announce:
+        domaines?.length && idPair
+          ? domaines
+              .map((domaine) => [
+                `/dns4/${domaine}/tcp/443/wss/p2p/${idPair.toString()}`,
+                `/dns4/${domaine}/tcp/80/ws/p2p/${idPair.toString()}`,
+              ])
+              .flat()
+          : undefined,
     },
     transportManager: {
       faultTolerance: FaultTolerance.NO_FATAL,
