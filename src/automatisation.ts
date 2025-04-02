@@ -1,10 +1,10 @@
-import Semaphore from "@chriscdn/promise-semaphore";
 import { faisRien } from "@constl/utils-ipa";
 import deepcopy from "deepcopy";
 import { v4 as uuidv4 } from "uuid";
 import { isElectronMain, isNode } from "wherearewe";
 import * as XLSX from "xlsx";
 import { TypedEmitter } from "tiny-typed-emitter";
+import PQueue from "p-queue";
 import { ComposanteClientDic } from "@/composanteClient.js";
 import {
   importerFeuilleCalculDURL,
@@ -669,7 +669,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       ? obtTempsInterval(spéc.fréquence)
       : undefined;
 
-  const verrou = new Semaphore();
+  const queue = new PQueue({concurrency: 1});
   let idDernièreRequêteOpération = "";
   const requêteDernièreModifImportée = await client.obtDeStockageLocal({
     clef: clefStockageDernièreFois,
@@ -680,66 +680,60 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     if (requêtesDéjàExécutées.has(requête)) return;
 
     idDernièreRequêteOpération = requête;
+    if (
+      requête !== idDernièreRequêteOpération ||
+      requêtesDéjàExécutées.has(requête)
+    ) {
+      return;
+    }
+    await client.sauvegarderAuStockageLocal({
+      clef: clefStockageDernièreFois,
+      val: requête,
+    });
+    requêtesDéjàExécutées.add(requête);
 
-    await verrou.acquire("opération");
+    const nouvelÉtat: ÉtatEnSync = {
+      type: "sync",
+      depuis: new Date().getTime(),
+    };
+    fÉtat(nouvelÉtat);
+
     try {
-      if (
-        requête !== idDernièreRequêteOpération ||
-        requêtesDéjàExécutées.has(requête)
-      ) {
-        verrou.release("opération");
-        return;
-      }
-      await client.sauvegarderAuStockageLocal({
-        clef: clefStockageDernièreFois,
-        val: requête,
-      });
-      requêtesDéjàExécutées.add(requête);
-
-      const nouvelÉtat: ÉtatEnSync = {
-        type: "sync",
-        depuis: new Date().getTime(),
-      };
-      fÉtat(nouvelÉtat);
-
-      try {
-        await fAuto();
-        if (tempsInterval) {
-          const nouvelÉtat: ÉtatProgrammée = {
-            type: "programmée",
-            à: Date.now() + tempsInterval,
-          };
-          fÉtat(nouvelÉtat);
-        } else {
-          const nouvelÉtat: ÉtatÉcoute = {
-            type: "écoute",
-          };
-          fÉtat(nouvelÉtat);
-        }
-      } catch (e) {
-        const nouvelÉtat: ÉtatErreur = {
-          type: "erreur",
-          erreur: JSON.stringify(
-            {
-              nom: (e as Error).name,
-              message: (e as Error).message,
-              pile: (e as Error).stack,
-              cause: (e as Error).cause,
-            },
-            undefined,
-            2,
-          ),
-          prochaineProgramméeÀ: tempsInterval
-            ? Date.now() + tempsInterval
-            : undefined,
+      await fAuto();
+      if (tempsInterval) {
+        const nouvelÉtat: ÉtatProgrammée = {
+          type: "programmée",
+          à: Date.now() + tempsInterval,
+        };
+        fÉtat(nouvelÉtat);
+      } else {
+        const nouvelÉtat: ÉtatÉcoute = {
+          type: "écoute",
         };
         fÉtat(nouvelÉtat);
       }
-    } finally {
-      verrou.release("opération");
+    } catch (e) {
+      const nouvelÉtat: ÉtatErreur = {
+        type: "erreur",
+        erreur: JSON.stringify(
+          {
+            nom: (e as Error).name,
+            message: (e as Error).message,
+            pile: (e as Error).stack,
+            cause: (e as Error).cause,
+          },
+          undefined,
+          2,
+        ),
+        prochaineProgramméeÀ: tempsInterval
+          ? Date.now() + tempsInterval
+          : undefined,
+      };
+      fÉtat(nouvelÉtat);
     }
   };
-  const fLancer = async () => await fAutoAvecÉtats(uuidv4());
+
+  const fLancer = () => queue.add(async () => await fAutoAvecÉtats(uuidv4()));
 
   if (spéc.fréquence.type === "fixe") {
     const dicFOublierIntervale: { f?: schémaFonctionOublier } = {};
@@ -774,6 +768,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 
     const fOublier = async () => {
       if (dicFOublierIntervale.f) await dicFOublierIntervale.f();
+      await queue.onIdle();
     };
     return { fOublier, fLancer };
   } else if (spéc.fréquence.type === "dynamique") {
@@ -795,7 +790,11 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             idBd: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
-          return { fOublier, fLancer };
+          return { 
+            fOublier: async () => {
+            await fOublier();
+            await queue.onIdle();
+          }, fLancer };
         }
       }
 
@@ -848,7 +847,8 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 
             const fOublier = async () => {
               await oublierChangements();
-              return await écouteur.close();
+              await écouteur.close();
+              await queue.onIdle();
             };
             return { fOublier, fLancer };
           }
@@ -861,7 +861,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
               prochaineProgramméeÀ: undefined,
             };
             fÉtat(étatErreur);
-            return { fOublier: faisRien, fLancer: faisRien };
+            return { fOublier: faisRien, fLancer: async () => await queue.onIdle() };
           }
 
           default:
@@ -874,7 +874,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
     }
   } else if (spéc.fréquence.type === "manuelle") {
     return {
-      fOublier: faisRien,
+      fOublier: async () => await queue.onIdle(),
       fLancer,
     };
   } else {
@@ -974,8 +974,6 @@ const activePourCeDispositif = <T extends SpécificationAutomatisation>(
   }
 };
 
-const verrou = new Semaphore();
-
 type ÉvénementsAutomatisations = {
   initialisée: (args: { fOublier: schémaFonctionOublier }) => void;
   misÀJour: () => void;
@@ -988,6 +986,7 @@ export class Automatisations extends ComposanteClientDic<{
     [key: string]: { auto: AutomatisationActive; fOublier: () => void };
   };
   événements: TypedEmitter<ÉvénementsAutomatisations>;
+  queue: PQueue;
 
   fOublier?: schémaFonctionOublier;
 
@@ -1000,6 +999,7 @@ export class Automatisations extends ComposanteClientDic<{
 
     this.automatisations = {};
     this.événements = new TypedEmitter<ÉvénementsAutomatisations>();
+    this.queue = new PQueue({concurrency: 1});
   }
 
   async initialiser(): Promise<schémaFonctionOublier> {
@@ -1018,8 +1018,7 @@ export class Automatisations extends ComposanteClientDic<{
   }
 
   async mettreAutosÀJour(autos: SpécificationAutomatisation[]): Promise<void> {
-    await verrou.acquire("miseÀJour");
-    try {
+    const _mettreÀJour = async () => {
       const automatisationsDavant = Object.keys(this.automatisations);
 
       for (const id of automatisationsDavant) {
@@ -1053,9 +1052,9 @@ export class Automatisations extends ComposanteClientDic<{
           }
         }
       }
-    } finally {
-      verrou.release("miseÀJour");
+
     }
+    this.queue.add(_mettreÀJour);
   }
 
   async obtDonnéesImportation<
@@ -1370,5 +1369,6 @@ export class Automatisations extends ComposanteClientDic<{
         this.fermerAuto(a);
       }),
     );
+    await this.queue.onIdle();
   }
 }
