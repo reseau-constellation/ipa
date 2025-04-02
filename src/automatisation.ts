@@ -669,7 +669,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       ? obtTempsInterval(spéc.fréquence)
       : undefined;
 
-  const queue = new PQueue({concurrency: 1});
+  const queue = new PQueue({ concurrency: 1 });
   let idDernièreRequêteOpération = "";
   const requêteDernièreModifImportée = await client.obtDeStockageLocal({
     clef: clefStockageDernièreFois,
@@ -790,11 +790,13 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
             idBd: spéc.idObjet,
             f: fAutoAvecÉtats,
           });
-          return { 
+          return {
             fOublier: async () => {
-            await fOublier();
-            await queue.onIdle();
-          }, fLancer };
+              await fOublier();
+              await queue.onIdle();
+            },
+            fLancer,
+          };
         }
       }
 
@@ -861,7 +863,10 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
               prochaineProgramméeÀ: undefined,
             };
             fÉtat(étatErreur);
-            return { fOublier: faisRien, fLancer: async () => await queue.onIdle() };
+            return {
+              fOublier: faisRien,
+              fLancer: async () => await queue.onIdle(),
+            };
           }
 
           default:
@@ -999,7 +1004,7 @@ export class Automatisations extends ComposanteClientDic<{
 
     this.automatisations = {};
     this.événements = new TypedEmitter<ÉvénementsAutomatisations>();
-    this.queue = new PQueue({concurrency: 1});
+    this.queue = new PQueue({ concurrency: 1 });
   }
 
   async initialiser(): Promise<schémaFonctionOublier> {
@@ -1052,8 +1057,7 @@ export class Automatisations extends ComposanteClientDic<{
           }
         }
       }
-
-    }
+    };
     this.queue.add(_mettreÀJour);
   }
 

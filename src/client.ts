@@ -2612,11 +2612,11 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           verrou.release(id);
           return;
         }
-  
+
         const { bd, fOublier } = await this.ouvrirBd({ id });
         const { type } = bd;
         await fOublier();
-  
+
         dicBds[id] = {
           requêtes: new Set([de]),
           sousBds: [],
@@ -2625,12 +2625,15 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
             await enleverRequêtesDe(id);
           },
         };
-  
+
         let fOublierSuiviBd: schémaFonctionOublier;
         if (type === "keyvalue") {
           fOublierSuiviBd = await this.suivreBdDic({ id, f: fSuivreBd });
         } else if (type === "ordered-keyvalue") {
-          fOublierSuiviBd = await this.suivreBdDicOrdonnée({ id, f: fSuivreBd });
+          fOublierSuiviBd = await this.suivreBdDicOrdonnée({
+            id,
+            f: fSuivreBd,
+          });
         } else if (type === "set") {
           fOublierSuiviBd = await this.suivreBdListe({ id, f: fSuivreBd });
         } else {
