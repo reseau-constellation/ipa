@@ -22,6 +22,7 @@ import {
   ADRESSES_NŒUDS_RELAI_WS,
 } from "./const.js";
 import { applicationScore, résoudreInfoAdresses } from "./utils.js";
+import { reconnecteur } from "./services/reconnecteur.js";
 import type { Libp2pOptions } from "libp2p";
 
 // https://github.com/libp2p/specs/blob/master/pubsub/gossipsub/gossipsub-v1.1.md#recommendations-for-network-operators
@@ -80,6 +81,7 @@ export const obtOptionsLibp2pNavigateur = async ({
       }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
+      reconnecteur: reconnecteur({ liste: [...ADRESSES_NŒUDS_RELAI_WS] }),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,

@@ -89,6 +89,9 @@ importers:
       '@libp2p/webtransport':
         specifier: ^5.0.33
         version: 5.0.37
+      '@multiformats/mafmt':
+        specifier: ^12.1.6
+        version: 12.1.6
       '@multiformats/multiaddr-matcher':
         specifier: ^1.6.0
         version: 1.6.0
@@ -258,6 +261,9 @@ importers:
       '@libp2p/interface-connection-manager':
         specifier: ^3.0.1
         version: 3.0.1
+      '@libp2p/interface-internal':
+        specifier: ^2.3.9
+        version: 2.3.9
       '@libp2p/peer-id-factory':
         specifier: ^4.2.4
         version: 4.2.4
@@ -1968,9 +1974,6 @@ packages:
   '@libp2p/interface-connection@5.1.1':
     resolution: {integrity: sha512-ytknMbuuNW72LYMmTP7wFGP5ZTaUSGBCmV9f+uQ55XPcFHtKXLtKWVU/HE8IqPmwtyU8AO7veGoJ/qStMHNRVA==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
-
-  '@libp2p/interface-internal@2.3.5':
-    resolution: {integrity: sha512-uwKggyLi7UJI7YKGCxJ6R9u9yvtvDMKVI9ki0BG+kADV0TwR7P8gbmEJ8/iilxD//z3aDXT/R59jvDFI7ruOUA==}
 
   '@libp2p/interface-internal@2.3.9':
     resolution: {integrity: sha512-1hW/yHktO3txc+r4ASmVA9GbNN6ZoGnH8Bt9VrYwY580BT53TP3eipn3Bo1XyGBDtmV6bpQiKhFK5AYVbhnz0g==}
@@ -10100,7 +10103,7 @@ snapshots:
     dependencies:
       '@libp2p/crypto': 5.0.15
       '@libp2p/interface': 2.7.0
-      '@libp2p/interface-internal': 2.3.5
+      '@libp2p/interface-internal': 2.3.9
       '@libp2p/peer-id': 5.1.0
       '@libp2p/pubsub': 10.1.4
       '@multiformats/multiaddr': 12.4.0
@@ -11157,13 +11160,6 @@ snapshots:
       it-stream-types: 2.0.2
       uint8arraylist: 2.4.8
 
-  '@libp2p/interface-internal@2.3.5':
-    dependencies:
-      '@libp2p/interface': 2.7.0
-      '@libp2p/peer-collections': 6.0.25
-      '@multiformats/multiaddr': 12.4.0
-      progress-events: 1.0.1
-
   '@libp2p/interface-internal@2.3.9':
     dependencies:
       '@libp2p/interface': 2.7.0
@@ -11397,7 +11393,7 @@ snapshots:
     dependencies:
       '@libp2p/crypto': 5.0.15
       '@libp2p/interface': 2.7.0
-      '@libp2p/interface-internal': 2.3.5
+      '@libp2p/interface-internal': 2.3.9
       '@libp2p/peer-id': 5.1.0
       '@multiformats/multiaddr': 12.4.0
       protons-runtime: 5.5.0

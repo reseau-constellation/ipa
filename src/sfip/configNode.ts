@@ -25,6 +25,7 @@ import {
   ADRESSES_NŒUDS_RELAI_WS,
 } from "./const.js";
 import { applicationScore, résoudreInfoAdresses } from "./utils.js";
+import { reconnecteur } from "./services/reconnecteur.js";
 import type { Libp2pOptions } from "libp2p";
 
 // import { kadDHT } from "@libp2p/kad-dht";
@@ -125,6 +126,7 @@ export const obtOptionsLibp2pNode = async ({
       }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
+      reconnecteur: reconnecteur({ liste: [...ADRESSES_NŒUDS_RELAI_WS] }),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,
