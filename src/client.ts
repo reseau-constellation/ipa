@@ -2606,36 +2606,40 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       };
 
       await verrou.acquire(id);
-      if (dicBds[id]) {
-        dicBds[id].requêtes.add(de);
-        return;
+      try {
+        if (dicBds[id]) {
+          dicBds[id].requêtes.add(de);
+          verrou.release(id);
+          return;
+        }
+  
+        const { bd, fOublier } = await this.ouvrirBd({ id });
+        const { type } = bd;
+        await fOublier();
+  
+        dicBds[id] = {
+          requêtes: new Set([de]),
+          sousBds: [],
+          fOublier: async () => {
+            await fOublierSuiviBd();
+            await enleverRequêtesDe(id);
+          },
+        };
+  
+        let fOublierSuiviBd: schémaFonctionOublier;
+        if (type === "keyvalue") {
+          fOublierSuiviBd = await this.suivreBdDic({ id, f: fSuivreBd });
+        } else if (type === "ordered-keyvalue") {
+          fOublierSuiviBd = await this.suivreBdDicOrdonnée({ id, f: fSuivreBd });
+        } else if (type === "set") {
+          fOublierSuiviBd = await this.suivreBdListe({ id, f: fSuivreBd });
+        } else {
+          fOublierSuiviBd = faisRien; // Rien à suivre mais il faut l'inclure quand même !
+        }
+      } finally {
+        verrou.release(id);
       }
 
-      const { bd, fOublier } = await this.ouvrirBd({ id });
-      const { type } = bd;
-      await fOublier();
-
-      dicBds[id] = {
-        requêtes: new Set([de]),
-        sousBds: [],
-        fOublier: async () => {
-          await fOublierSuiviBd();
-          await enleverRequêtesDe(id);
-        },
-      };
-
-      let fOublierSuiviBd: schémaFonctionOublier;
-      if (type === "keyvalue") {
-        fOublierSuiviBd = await this.suivreBdDic({ id, f: fSuivreBd });
-      } else if (type === "ordered-keyvalue") {
-        fOublierSuiviBd = await this.suivreBdDicOrdonnée({ id, f: fSuivreBd });
-      } else if (type === "set") {
-        fOublierSuiviBd = await this.suivreBdListe({ id, f: fSuivreBd });
-      } else {
-        fOublierSuiviBd = faisRien; // Rien à suivre mais il faut l'inclure quand même !
-      }
-
-      verrou.release(id);
       fFinale();
     };
 
