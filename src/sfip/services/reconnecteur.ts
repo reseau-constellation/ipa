@@ -56,10 +56,8 @@ export class Reconnecteur implements Startable {
 
   start(): void | Promise<void> {
     this.intervale = setInterval(() => {
-      console.log("ici");
       const connectionsPairs =
         this.components.connectionManager.getConnectionsMap();
-      console.log({ connectionsPairs });
       for (const pair of this.liste) {
         if (connectionsPairs.has(pair.id)) continue;
         this.components.connectionManager
