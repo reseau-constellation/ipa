@@ -33,8 +33,8 @@ importers:
         specifier: ^4.0.4
         version: 4.1.0
       '@helia/unixfs':
-        specifier: ^4.0.2
-        version: 4.0.3
+        specifier: ^5.0.0
+        version: 5.0.0
       '@ipld/dag-cbor':
         specifier: ^9.2.2
         version: 9.2.2
@@ -1817,8 +1817,8 @@ packages:
   '@helia/routers@3.0.1':
     resolution: {integrity: sha512-Eshr/8XJU4c0H8s1m5oBFB2YM0n3HBbxB3ny8DbsRFS8cAQ/L8ujnQomniMjZuuOhcNz8EEGwkUc07HCtAqAFA==}
 
-  '@helia/unixfs@4.0.3':
-    resolution: {integrity: sha512-sbcnS64B6LCTHrGH6RPx2BuwLFjmVAoiX53RR/E0YCQMcHTDCF4bQ3I7P+7kzYkQLQkbLEekl7V2fnVOWxG7MA==}
+  '@helia/unixfs@5.0.0':
+    resolution: {integrity: sha512-wIv9Zf4vM7UN2A7jNiOa5rOfO1Hl/9AarKSFQeV09I1NflclSSu6EHaiNcH1K6LBhRJ36/w2RHXE8DK3+DK8hw==}
 
   '@helia/utils@1.2.2':
     resolution: {integrity: sha512-f8TC+gTQkMTVPaSDB8sSV+8W5/QIMX9XNWY2Xf0Y/WVzGm+Nz5o5wpVTT1kgBpILngXHSs4Xo+6aBQlafL15EA==}
@@ -10813,12 +10813,13 @@ snapshots:
       multiformats: 13.3.2
       uint8arrays: 5.1.0
 
-  '@helia/unixfs@4.0.3':
+  '@helia/unixfs@5.0.0':
     dependencies:
       '@helia/interface': 5.2.1
       '@ipld/dag-pb': 4.1.3
       '@libp2p/interface': 2.7.0
       '@libp2p/logger': 5.1.13
+      '@libp2p/utils': 6.6.0
       '@multiformats/murmur3': 2.1.8
       hamt-sharding: 3.0.6
       interface-blockstore: 5.3.1
@@ -10826,6 +10827,7 @@ snapshots:
       ipfs-unixfs-exporter: 13.6.2
       ipfs-unixfs-importer: 15.3.2
       it-all: 3.0.7
+      it-first: 3.0.7
       it-glob: 3.0.2
       it-last: 3.0.7
       it-pipe: 3.0.1
