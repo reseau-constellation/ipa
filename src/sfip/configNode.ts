@@ -33,10 +33,12 @@ import type { Libp2pOptions } from "libp2p";
 export const obtOptionsLibp2pNode = async ({
   dossier,
   domaines,
+  pairsParDéfaut=[],
   clefPrivée,
 }: {
   dossier?: string;
   domaines?: string[];
+  pairsParDéfaut?: string[];
   clefPrivée?: PrivateKey;
 } = {}): Promise<Libp2pOptions> => {
   // Ces librairies-ci ne peuvent pas être compilées pour l'environnement
@@ -103,7 +105,7 @@ export const obtOptionsLibp2pNode = async ({
     peerDiscovery: [
       mdns(),
       bootstrap({
-        list: ADRESSES_NŒUDS_INITIAUX,
+        list: [...ADRESSES_NŒUDS_INITIAUX, ...pairsParDéfaut],
         timeout: 0,
       }),
       pubsubPeerDiscovery({
@@ -126,7 +128,7 @@ export const obtOptionsLibp2pNode = async ({
       }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
-      reconnecteur: reconnecteur({ liste: [...ADRESSES_NŒUDS_RELAI_WS] }),
+      reconnecteur: reconnecteur({ liste: [...ADRESSES_NŒUDS_RELAI_WS, ...pairsParDéfaut] }),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,
@@ -134,6 +136,7 @@ export const obtOptionsLibp2pNode = async ({
         directPeers: résoudreInfoAdresses([
           ...ADRESSES_NŒUDS_RELAI_WS,
           ...ADRESSES_NŒUDS_RELAI_RUST,
+          ...pairsParDéfaut,
         ]),
         scoreParams: {
           appSpecificScore: applicationScore,

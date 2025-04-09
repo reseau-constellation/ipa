@@ -31,8 +31,10 @@ import type { Libp2pOptions } from "libp2p";
 
 export const obtOptionsLibp2pNavigateur = async ({
   dossier,
+  pairsParDéfaut = [],
 }: {
   dossier: string;
+  pairsParDéfaut?: string[]
 }): Promise<Libp2pOptions> => {
   const dossierStockage = `${dossier}/libp2p`;
   const stockage = new IDBDatastore(dossierStockage);
@@ -58,7 +60,7 @@ export const obtOptionsLibp2pNavigateur = async ({
     // datastore: stockage,
     peerDiscovery: [
       bootstrap({
-        list: ADRESSES_NŒUDS_INITIAUX,
+        list: [...ADRESSES_NŒUDS_INITIAUX, ...pairsParDéfaut],
         timeout: 0,
       }),
       pubsubPeerDiscovery({
@@ -81,7 +83,7 @@ export const obtOptionsLibp2pNavigateur = async ({
       }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
-      reconnecteur: reconnecteur({ liste: [...ADRESSES_NŒUDS_RELAI_WS] }),
+      reconnecteur: reconnecteur({ liste: [...ADRESSES_NŒUDS_RELAI_WS, ...pairsParDéfaut] }),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,
@@ -89,6 +91,7 @@ export const obtOptionsLibp2pNavigateur = async ({
         directPeers: résoudreInfoAdresses([
           ...ADRESSES_NŒUDS_RELAI_WS,
           ...ADRESSES_NŒUDS_RELAI_RUST,
+          ...pairsParDéfaut,
         ]),
         scoreParams: {
           appSpecificScore: applicationScore,
