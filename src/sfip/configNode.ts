@@ -33,7 +33,7 @@ import type { Libp2pOptions } from "libp2p";
 export const obtOptionsLibp2pNode = async ({
   dossier,
   domaines,
-  pairsParDéfaut=[],
+  pairsParDéfaut = [],
   clefPrivée,
 }: {
   dossier?: string;
@@ -128,7 +128,9 @@ export const obtOptionsLibp2pNode = async ({
       }),
       autoNAT: autoNAT(),
       dcutr: dcutr(),
-      reconnecteur: reconnecteur({ liste: [...ADRESSES_NŒUDS_RELAI_WS, ...pairsParDéfaut] }),
+      reconnecteur: reconnecteur({
+        liste: [...ADRESSES_NŒUDS_RELAI_WS, ...pairsParDéfaut],
+      }),
       pubsub: gossipsub({
         allowPublishToZeroTopicPeers: true,
         runOnLimitedConnection: true,

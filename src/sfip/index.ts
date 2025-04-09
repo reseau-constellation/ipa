@@ -42,11 +42,16 @@ export const obtConfigLibp2pPlateforme = async ({
   let configPlateforme: Libp2pOptions;
   if (isBrowser || isElectronRenderer) {
     // À faire - migrer vers travailleur ?
-    configPlateforme = await obtOptionsLibp2pNavigateur({ dossier, pairsParDéfaut });
+    configPlateforme = await obtOptionsLibp2pNavigateur({
+      dossier,
+      pairsParDéfaut,
+    });
   } else if (isWebWorker) {
     configPlateforme = await obtOptionsLibp2pTravailleurWeb({ pairsParDéfaut });
   } else if (isElectronMain) {
-    configPlateforme = await obtOptionsLibp2pÉlectionPrincipal({ pairsParDéfaut });
+    configPlateforme = await obtOptionsLibp2pÉlectionPrincipal({
+      pairsParDéfaut,
+    });
   } else if (isNode) {
     configPlateforme = await obtOptionsLibp2pNode({
       dossier,
@@ -58,7 +63,10 @@ export const obtConfigLibp2pPlateforme = async ({
     console.warn(
       "Plateforme non reconnue. On utilisera la configuration navigateur.",
     );
-    configPlateforme = await obtOptionsLibp2pNavigateur({ dossier, pairsParDéfaut });
+    configPlateforme = await obtOptionsLibp2pNavigateur({
+      dossier,
+      pairsParDéfaut,
+    });
   }
   return configPlateforme;
 };

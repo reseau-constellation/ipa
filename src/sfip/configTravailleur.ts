@@ -9,31 +9,30 @@ import { webTransport } from "@libp2p/webtransport";
 import { ADRESSES_NŒUDS_INITIAUX } from "./const.js";
 import type { Libp2pOptions } from "libp2p";
 
-export const obtOptionsLibp2pTravailleurWeb =
-  async ({pairsParDéfaut=[]}: {pairsParDéfaut?: string[]}): Promise<Libp2pOptions> => {
-    return {
-      addresses: {
-        listen: ["/webrtc", "/p2p-circuit"],
-      },
-      transports: [
-        webSockets(),
-        webTransport(),
-        circuitRelayTransport(),
-      ],
-      connectionEncrypters: [noise()],
-      streamMuxers: [yamux()],
-      connectionGater: {
-        denyDialMultiaddr: () => false,
-      },
-      peerDiscovery: [
-        bootstrap({
-          list: [...ADRESSES_NŒUDS_INITIAUX, ...pairsParDéfaut],
-          timeout: 0,
-        }),
-      ],
-      services: {
-        identify: identify(),
-        pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
-      },
-    };
+export const obtOptionsLibp2pTravailleurWeb = async ({
+  pairsParDéfaut = [],
+}: {
+  pairsParDéfaut?: string[];
+}): Promise<Libp2pOptions> => {
+  return {
+    addresses: {
+      listen: ["/webrtc", "/p2p-circuit"],
+    },
+    transports: [webSockets(), webTransport(), circuitRelayTransport()],
+    connectionEncrypters: [noise()],
+    streamMuxers: [yamux()],
+    connectionGater: {
+      denyDialMultiaddr: () => false,
+    },
+    peerDiscovery: [
+      bootstrap({
+        list: [...ADRESSES_NŒUDS_INITIAUX, ...pairsParDéfaut],
+        timeout: 0,
+      }),
+    ],
+    services: {
+      identify: identify(),
+      pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+    },
   };
+};
