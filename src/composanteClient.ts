@@ -187,18 +187,14 @@ export class ComposanteClientDic<
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBd({
+        return await this.client.suivreBdDic({
           id,
-          type: "keyvalue",
-          f: async (bd) => {
-            const idBd = await this.client.obtIdBd({
-              nom: this.clef,
-              racine: bd.address,
-              type: "keyvalue",
-            });
-            return await fSuivreBd(idBd);
+          schéma: schémaStructureBdCompte,
+          f: async (données) => {
+            const idBdComposante = données[this.clef]
+            await fSuivreBd(idBdComposante)
           },
-        });
+        })
       },
     });
   }
@@ -282,19 +278,14 @@ export class ComposanteClientListe<
       },
       f: ignorerNonDéfinis(f),
       fSuivre: async ({ id, fSuivreBd }) => {
-        return await this.client.suivreBd({
+        return await this.client.suivreBdDic({
           id,
-          type: "keyvalue",
           schéma: schémaStructureBdCompte,
-          f: async () => {
-            const idBd = await this.client.obtIdBd({
-              nom: this.clef,
-              racine: id,
-              type: "set",
-            });
-            return await fSuivreBd(idBd);
+          f: async (données) => {
+            const idBdComposante = données[this.clef]
+            await fSuivreBd(idBdComposante)
           },
-        });
+        })
       },
     });
   }
