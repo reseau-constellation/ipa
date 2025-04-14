@@ -186,8 +186,6 @@ export class CacheSuivi {
     });
     const idRequête = uuidv4();
 
-    await this.verrou.acquire(codeCache);
-
     const fFinale = (val: unknown[]) => {
       if (!this._cacheRecherche[codeCache]) return; // Si on a déjà annulé la requête
       this._cacheRecherche[codeCache].val = val;
@@ -207,6 +205,7 @@ export class CacheSuivi {
       }
     };
 
+    await this.verrou.acquire(codeCache);
     try {
       // Vérifier si déjà en cache
       if (!this._cacheRecherche[codeCache]) {
