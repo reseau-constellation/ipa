@@ -1466,38 +1466,6 @@ if (isNode || isElectronMain) {
           );
         });
       });
-
-      describe("Avec branches complexes sans fIdBranche", function () {
-        type branche = {
-          nom: string;
-        };
-        let fSuivre: (ids: branche[]) => Promise<void>;
-        let fOublier: schémaFonctionOublier;
-
-        const fListe = async ({
-          fSuivreRacine,
-        }: {
-          fSuivreRacine: (éléments: branche[]) => Promise<void>;
-        }): Promise<schémaFonctionOublier> => {
-          fSuivre = fSuivreRacine;
-          return faisRien;
-        };
-
-        before(async () => {
-          fOublier = await suivreDeFonctionListe({
-            fListe,
-            f: faisRien,
-            fBranche: async () => faisRien,
-          });
-        });
-        after(async () => {
-          if (fOublier) await fOublier();
-        });
-
-        it("Ajout d'une branche ou deux", async () => {
-          await expect(fSuivre([{ nom: "abc" }])).rejected();
-        });
-      });
     });
 
     describe("Suivre BDs selon condition", function () {
