@@ -1673,10 +1673,11 @@ export class Tableaux {
       if (colonnes) return await f(colonnes);
     };
     const fBranche = async (
-      idVariable: string | undefined,
+      _idCol: string | undefined,
       fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie>,
       branche: InfoCol,
     ): Promise<schémaFonctionOublier> => {
+      const idVariable = branche.variable
       if (!idVariable) return faisRien;
 
       return await this.client.variables.suivreCatégorieVariable({
@@ -1690,9 +1691,8 @@ export class Tableaux {
         },
       });
     };
-    const fIdBdDeBranche = (x: InfoColAvecCatégorie) => x.variable;
+    const fIdBdDeBranche = (x: InfoColAvecCatégorie) => x.id;
 
-    const fCode = (x: InfoColAvecCatégorie) => x.id;
     const fSuivreBdColonnes = async ({
       id,
       fSuivreBd,
@@ -1705,7 +1705,7 @@ export class Tableaux {
         f: fSuivreBd,
         fBranche,
         fIdBdDeBranche,
-        fCode,
+        fCode: fIdBdDeBranche,
       });
     };
 
