@@ -331,7 +331,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
             // @ts-expect-error Je ne comprends pas complètement
             `La bd est de type ${existante.bd.type}, et non ${type}.`,
           );
-
+        this.verrouOuvertureBd.release(id);
         return {
           bd: existante.bd as T,
           fOublier,
