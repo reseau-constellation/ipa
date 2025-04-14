@@ -14,7 +14,6 @@ import {
   uneFois,
 } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
-import { v4 as uuidv4 } from "uuid";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
 import pRetry, { AbortError } from "p-retry";
@@ -62,6 +61,7 @@ import type {
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
 import type { erreurValidation } from "@/valid.js";
+import PQueue from "p-queue";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
@@ -275,23 +275,18 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const { sfip } = await this.client.attendreSfipEtOrbite();
 
-    const promesses: { [clef: string]: Promise<void> } = {};
+    const promesses = new PQueue({concurrency: 1});
 
     const pubsub = sfip.libp2p.services.pubsub;
     const libp2p = sfip.libp2p;
 
     const fÉcoutePubSub = (évé: CustomEvent<GossipsubMessage>) => {
       const messageGs = évé.detail.msg;
-      const id = uuidv4();
       if (messageGs.topic === this.client.sujet_réseau) {
         try {
-          const promesse = this.messageGossipSubReçu({
+          promesses.add(() => this.messageGossipSubReçu({
             msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
-          });
-          promesses[id] = promesse;
-          promesse.finally(() => {
-            delete promesses[id];
-          });
+          }))
         } catch (e) {
           console.error(e.toString());
           console.error(e.stack.toString());
@@ -349,7 +344,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       await libp2p.unhandle(PROTOCOLE_CONSTELLATION);
       pubsub.unsubscribe(this.client.sujet_réseau);
       pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
-      await Promise.allSettled(Object.values(promesses));
+      await promesses.onIdle();
     };
 
     const fSuivreConnexions = () => {
