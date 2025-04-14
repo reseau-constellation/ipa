@@ -4,8 +4,8 @@ import { isValidAddress } from "@orbitdb/core";
 
 import {
   faisRien,
-  suivreBdDeFonction,
-  suivreBdsDeFonctionListe,
+  suivreFonctionImbriquée,
+  suivreDeFonctionListe,
 } from "@constl/utils-ipa";
 
 import {
@@ -558,7 +558,7 @@ if (isNode || isElectronMain) {
             schéma: schémaKVNumérique,
           });
         };
-        const fOublierSuivre = await suivreBdDeFonction({
+        const fOublierSuivre = await suivreFonctionImbriquée({
           fRacine,
           f,
           fSuivre: fSuivre_,
@@ -1209,15 +1209,18 @@ if (isNode || isElectronMain) {
         });
         fsOublier.push(fOublier);
 
-        const fBranche = async (
-          id: string,
-          f: schémaFonctionSuivi<branche>,
-        ) => {
+        const fBranche = async ({
+          id,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: schémaFonctionSuivi<branche>;
+        }) => {
           return await client.suivreBd({
             id,
             type: "keyvalue",
             schéma: schémaKVNumérique,
-            f: async (_bd) => f(await _bd.allAsJSON()),
+            f: async (bd) => fSuivreBranche(await bd.allAsJSON()),
           });
         };
         const fSuivi = (x: branche[]) => {
@@ -1299,30 +1302,33 @@ if (isNode || isElectronMain) {
           await bd1.put("b", 2);
           await bd2.put("c", 3);
 
-          const fListe = async (
-            fSuivreRacine: (éléments: string[]) => Promise<void>,
-          ): Promise<schémaFonctionOublier> => {
+          const fListe = async ({
+            fSuivreRacine,
+          }: {
+            fSuivreRacine: (éléments: string[]) => Promise<void>;
+          }): Promise<schémaFonctionOublier> => {
             fSuivre = fSuivreRacine;
             return faisRien;
           };
           const f = (x: number[]) => attendre.mettreÀJour(x);
-          const fBranche = async (
-            id: string,
-            f: schémaFonctionSuivi<number[]>,
-          ): Promise<schémaFonctionOublier> => {
+          const fBranche = async ({
+            id,
+            fSuivreBranche,
+          }: {
+            id: string;
+            fSuivreBranche: schémaFonctionSuivi<number[]>;
+          }): Promise<schémaFonctionOublier> => {
             return await client.suivreBd({
               id,
               type: "keyvalue",
               schéma: schémaKVNumérique,
               f: async (bd) => {
                 const vals: number[] = Object.values(await bd.allAsJSON());
-                await f(vals);
+                await fSuivreBranche(vals);
               },
             });
           };
-          fsOublier.push(
-            await suivreBdsDeFonctionListe({ fListe, f, fBranche }),
-          );
+          fsOublier.push(await suivreDeFonctionListe({ fListe, f, fBranche }));
         });
         after(async () => {
           await Promise.allSettled(fsOublier.map((f) => f()));
@@ -1363,30 +1369,34 @@ if (isNode || isElectronMain) {
         const attendre = new attente.AttendreRésultat<number[]>();
         const fsOublier: schémaFonctionOublier[] = [];
 
-        const fListe = async (
-          fSuivreRacine: (éléments: branche[]) => Promise<void>,
-        ): Promise<schémaFonctionOublier> => {
+        const fListe = async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (éléments: branche[]) => Promise<void>;
+        }): Promise<schémaFonctionOublier> => {
           fSuivre = fSuivreRacine;
           return faisRien;
         };
         const f = (x: number[]) => attendre.mettreÀJour(x);
-        const fBranche = async (
-          id: string,
-          f: schémaFonctionSuivi<number[]>,
-        ): Promise<schémaFonctionOublier> => {
+        const fBranche = async ({
+          id,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: schémaFonctionSuivi<number[]>;
+        }): Promise<schémaFonctionOublier> => {
           return await client.suivreBd({
             id,
             type: "keyvalue",
             schéma: schémaKVNumérique,
             f: async (bd) => {
               const vals: number[] = Object.values(await bd.allAsJSON());
-              return await f(vals);
+              return await fSuivreBranche(vals);
             },
           });
         };
 
-        const fIdBdDeBranche = (x: branche) => x.id;
-        const fCode = (x: branche) => x.id;
+        const fIdDeBranche = (x: branche) => x.id;
 
         const changerBds = async (ids: string[]) => {
           await fSuivre(
@@ -1419,12 +1429,11 @@ if (isNode || isElectronMain) {
           await bd2.put("c", 3);
 
           fsOublier.push(
-            await suivreBdsDeFonctionListe({
+            await suivreDeFonctionListe({
               fListe,
               f,
               fBranche,
-              fIdBdDeBranche,
-              fCode,
+              fIdDeBranche,
             }),
           );
           await changerBds([idBd1, idBd2]);
@@ -1447,34 +1456,35 @@ if (isNode || isElectronMain) {
           ];
 
           fsOublier.push(
-            await suivreBdsDeFonctionListe({
+            await suivreDeFonctionListe({
               fListe,
               f,
               fBranche,
-              fIdBdDeBranche,
+              fIdDeBranche,
               fRéduction,
-              fCode,
             }),
           );
         });
       });
 
-      describe("Avec branches complexes sans fCode", function () {
+      describe("Avec branches complexes sans fIdBranche", function () {
         type branche = {
           nom: string;
         };
         let fSuivre: (ids: branche[]) => Promise<void>;
         let fOublier: schémaFonctionOublier;
 
-        const fListe = async (
-          fSuivreRacine: (éléments: branche[]) => Promise<void>,
-        ): Promise<schémaFonctionOublier> => {
+        const fListe = async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (éléments: branche[]) => Promise<void>;
+        }): Promise<schémaFonctionOublier> => {
           fSuivre = fSuivreRacine;
           return faisRien;
         };
 
         before(async () => {
-          fOublier = await suivreBdsDeFonctionListe({
+          fOublier = await suivreDeFonctionListe({
             fListe,
             f: faisRien,
             fBranche: async () => faisRien,
@@ -1501,9 +1511,11 @@ if (isNode || isElectronMain) {
         idBd1 = await client.créerBdIndépendante({ type: "keyvalue" });
         idBd2 = await client.créerBdIndépendante({ type: "keyvalue" });
 
-        const fListe = async (
-          fSuivreRacine: (ids: string[]) => Promise<void>,
-        ): Promise<schémaFonctionOublier> => {
+        const fListe = async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (ids: string[]) => Promise<void>;
+        }): Promise<schémaFonctionOublier> => {
           await fSuivreRacine([idBd1, idBd2]);
           return faisRien;
         };

@@ -1,7 +1,7 @@
 import { isElectronMain, isNode } from "wherearewe";
 
 import { JSONSchemaType } from "ajv";
-import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
+import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import deepEqual from "deep-equal";
 import deepcopy from "deepcopy";
 import { TypedEmitter } from "tiny-typed-emitter";
@@ -257,9 +257,11 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
       });
     };
 
-    const fListe = async (
-      fSuivreRacine: (éléments: ÉpingleFavorisAvecId[]) => Promise<void>,
-    ) => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: ÉpingleFavorisAvecId[]) => Promise<void>;
+    }) => {
       return await this.suivreBdPrincipale({
         f: (x) => {
           return fSuivreRacine(
@@ -271,25 +273,25 @@ export class Favoris extends ComposanteClientDic<structureBdFavoris> {
         },
       });
     };
-    const fBranche = async (
-      _id: string,
-      fSuivreBranche: schémaFonctionSuivi<Set<string>>,
-      branche: ÉpingleFavorisAvecId<ÉpingleFavoris>,
-    ) => {
+    const fBranche = async ({
+      fSuivreBranche,
+      branche,
+    }: {
+      fSuivreBranche: schémaFonctionSuivi<Set<string>>;
+      branche: ÉpingleFavorisAvecId<ÉpingleFavoris>;
+    }) => {
       return await this.suivreRésolutionÉpingle({
         épingle: branche,
         f: fSuivreBranche,
       });
     };
-    const fIdBdDeBranche = (b: ÉpingleFavorisAvecId) => b.idObjet;
-    const fCode = (b: ÉpingleFavorisAvecId) => b.idObjet;
+    const fIdDeBranche = (b: ÉpingleFavorisAvecId) => b.idObjet;
 
-    this.fOublier = await suivreBdsDeFonctionListe({
+    this.fOublier = await suivreDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
-      fIdBdDeBranche,
-      fCode,
+      fIdDeBranche,
     });
 
     this.événements.emit("initialisée", { fOublier: this.fOublier });

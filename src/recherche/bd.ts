@@ -88,9 +88,11 @@ export const rechercherBdsSelonIdVariable = (
       infoRésultatRecherche<infoRésultatTexte>
     >,
   ): Promise<schémaFonctionOublier> => {
-    const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (idsVariables: string[]) => void;
+    }): Promise<schémaFonctionOublier> => {
       return await client.bds.suivreVariablesBd({
         idBd,
         f: fSuivreRacine,
@@ -121,9 +123,11 @@ export const rechercherBdsSelonNomVariable = (
       infoRésultatRecherche<infoRésultatTexte>
     >,
   ): Promise<schémaFonctionOublier> => {
-    const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (idsVariables: string[]) => void;
+    }): Promise<schémaFonctionOublier> => {
       return await client.bds.suivreVariablesBd({
         idBd,
         f: fSuivreRacine,
@@ -178,9 +182,11 @@ export const rechercherBdsSelonIdMotClef = (
       infoRésultatRecherche<infoRésultatTexte>
     >,
   ): Promise<schémaFonctionOublier> => {
-    const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (idsVariables: string[]) => void;
+    }): Promise<schémaFonctionOublier> => {
       return await client.bds.suivreMotsClefsBd({
         idBd,
         f: fSuivreRacine,
@@ -211,9 +217,11 @@ export const rechercherBdsSelonNomMotClef = (
       infoRésultatRecherche<infoRésultatTexte>
     >,
   ): Promise<schémaFonctionOublier> => {
-    const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (idsVariables: string[]) => void;
+    }): Promise<schémaFonctionOublier> => {
       return await client.bds.suivreMotsClefsBd({
         idBd,
         f: fSuivreRacine,

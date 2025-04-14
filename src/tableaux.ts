@@ -4,7 +4,7 @@ import { WorkBook, utils, BookType } from "xlsx";
 import {
   attendreStabilité,
   faisRien,
-  suivreBdsDeFonctionListe,
+  suivreDeFonctionListe,
   traduire,
   uneFois,
 } from "@constl/utils-ipa";
@@ -755,9 +755,12 @@ export class Tableaux {
       });
       fsOublier.push(fOublierNomsTableaux);
 
-      const fOublierNomsVariables = await suivreBdsDeFonctionListe({
-        fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) =>
-          this.suivreVariables({ idTableau, f: fSuivreRacine }),
+      const fOublierNomsVariables = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (éléments: string[]) => Promise<void>;
+        }) => this.suivreVariables({ idTableau, f: fSuivreRacine }),
         f: async (
           noms: { idVar: string; noms: { [langue: string]: string } }[],
         ) => {
@@ -766,13 +769,16 @@ export class Tableaux {
           );
           await fFinale();
         },
-        fBranche: async (
-          id: string,
+        fBranche: async ({
+          id,
+          fSuivreBranche,
+        }: {
+          id: string;
           fSuivreBranche: schémaFonctionSuivi<{
             idVar: string;
             noms: { [langue: string]: string };
-          }>,
-        ): Promise<schémaFonctionOublier> => {
+          }>;
+        }): Promise<schémaFonctionOublier> => {
           return await this.client.variables.suivreNomsVariable({
             idVariable: id,
             f: async (noms) => await fSuivreBranche({ idVar: id, noms }),
@@ -1672,12 +1678,14 @@ export class Tableaux {
     const fFinale = async (colonnes?: InfoColAvecCatégorie[]) => {
       if (colonnes) return await f(colonnes);
     };
-    const fBranche = async (
-      _idCol: string | undefined,
-      fSuivi: schémaFonctionSuivi<InfoColAvecCatégorie>,
-      branche: InfoCol,
-    ): Promise<schémaFonctionOublier> => {
-      const idVariable = branche.variable
+    const fBranche = async ({
+      fSuivreBranche,
+      branche,
+    }: {
+      fSuivreBranche: schémaFonctionSuivi<InfoColAvecCatégorie>;
+      branche: InfoCol;
+    }): Promise<schémaFonctionOublier> => {
+      const idVariable = branche.variable;
       if (!idVariable) return faisRien;
 
       return await this.client.variables.suivreCatégorieVariable({
@@ -1687,11 +1695,11 @@ export class Tableaux {
             { catégorie, variable: idVariable },
             branche,
           );
-          await fSuivi(col);
+          await fSuivreBranche(col);
         },
       });
     };
-    const fIdBdDeBranche = (x: InfoColAvecCatégorie) => x.id;
+    const fIdDeBranche = (x: InfoColAvecCatégorie) => x.id;
 
     const fSuivreBdColonnes = async ({
       id,
@@ -1704,8 +1712,7 @@ export class Tableaux {
         id,
         f: fSuivreBd,
         fBranche,
-        fIdBdDeBranche,
-        fCode: fIdBdDeBranche,
+        fIdDeBranche,
       });
     };
 
@@ -1845,9 +1852,11 @@ export class Tableaux {
     });
 
     // Suivre les règles spécifiées dans les variables
-    const fListe = async (
-      fSuivreRacine: (éléments: InfoColAvecVariable[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: InfoColAvecVariable[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreColonnesTableau({
         idTableau,
         f: async (cols) =>
@@ -1862,11 +1871,15 @@ export class Tableaux {
       return await fFinale();
     };
 
-    const fBranche = async (
-      idVariable: string | undefined,
-      fSuivreBranche: schémaFonctionSuivi<règleColonne[]>,
-      branche: InfoCol,
-    ) => {
+    const fBranche = async ({
+      id: idVariable,
+      fSuivreBranche,
+      branche,
+    }: {
+      id: string | undefined;
+      fSuivreBranche: schémaFonctionSuivi<règleColonne[]>;
+      branche: InfoCol;
+    }) => {
       if (!idVariable) {
         await fSuivreBranche([]);
         return faisRien;
@@ -1889,15 +1902,13 @@ export class Tableaux {
       });
     };
 
-    const fIdBdDeBranche = (b: InfoColAvecVariable) => b.variable;
-    const fCode = (b: InfoCol) => b.id;
+    const fIdDeBranche = (b: InfoColAvecVariable) => b.variable;
 
-    const oublierRèglesVariable = await suivreBdsDeFonctionListe({
+    const oublierRèglesVariable = await suivreDeFonctionListe({
       fListe,
       f: fFinaleRèglesVariables,
       fBranche,
-      fIdBdDeBranche,
-      fCode,
+      fIdDeBranche,
     });
 
     // Tout oublier
@@ -1963,20 +1974,24 @@ export class Tableaux {
       },
     });
 
-    const fListeRègles = async (
-      fSuivreRacine: (règles: règleColonne[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListeRègles = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (règles: règleColonne[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreRègles({ idTableau, f: fSuivreRacine });
     };
 
-    const fBrancheRègles = async (
-      _id: string,
+    const fBrancheRègles = async ({
+      fSuivreBranche,
+      branche: règle,
+    }: {
       fSuivreBranche: schémaFonctionSuivi<{
         règle: règleColonne;
         donnéesCatégorie?: élémentsBd[];
-      }>,
-      règle: règleColonne,
-    ): Promise<schémaFonctionOublier> => {
+      }>;
+      branche: règleColonne;
+    }): Promise<schémaFonctionOublier> => {
       if (
         règle.règle.règle.typeRègle === "valeurCatégorique" &&
         règle.règle.règle.détails.type === "dynamique"
@@ -1996,15 +2011,13 @@ export class Tableaux {
       }
     };
 
-    const fIdBdDeBranche = (b: règleColonne) => b.règle.id;
-    const fCode = (b: règleColonne) => b.règle.id;
+    const fIdDeBranche = (b: règleColonne) => b.règle.id;
 
-    const fOublierRègles = await suivreBdsDeFonctionListe({
+    const fOublierRègles = await suivreDeFonctionListe({
       fListe: fListeRègles,
       f: fFinaleRègles,
       fBranche: fBrancheRègles,
-      fIdBdDeBranche,
-      fCode,
+      fIdDeBranche,
     });
 
     const fOublierDonnées = await this.suivreDonnées({
@@ -2124,20 +2137,24 @@ export class Tableaux {
       },
     });
 
-    const fListeRègles = async (
-      fSuivreRacine: (règles: règleColonne<règleVariable>[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListeRègles = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (règles: règleColonne<règleVariable>[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreRègles({ idTableau, f: fSuivreRacine });
     };
 
-    const fBrancheRègles = async (
-      _id: string,
+    const fBrancheRègles = async ({
+      fSuivreBranche,
+      branche: règle,
+    }: {
       fSuivreBranche: schémaFonctionSuivi<{
         règle: règleColonne<règleVariable>;
         colsTableauRéf?: InfoCol[];
-      }>,
-      règle: règleColonne<règleVariable>,
-    ): Promise<schémaFonctionOublier> => {
+      }>;
+      branche: règleColonne<règleVariable>;
+    }): Promise<schémaFonctionOublier> => {
       if (
         règle.règle.règle.typeRègle === "valeurCatégorique" &&
         règle.règle.règle.détails.type === "dynamique"
@@ -2157,15 +2174,13 @@ export class Tableaux {
       }
     };
 
-    const fIdBdDeBranche = (b: règleColonne<règleVariable>) => b.règle.id;
-    const fCode = (b: règleColonne<règleVariable>) => b.règle.id;
+    const fIdDeBranche = (b: règleColonne<règleVariable>) => b.règle.id;
 
-    const fOublierRègles = await suivreBdsDeFonctionListe({
+    const fOublierRègles = await suivreDeFonctionListe({
       fListe: fListeRègles,
       f: fFinaleRègles,
       fBranche: fBrancheRègles,
-      fIdBdDeBranche,
-      fCode,
+      fIdDeBranche,
     });
 
     const fOublier = async () => {

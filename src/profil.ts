@@ -1,4 +1,4 @@
-import { ignorerNonDéfinis, suivreBdDeFonction } from "@constl/utils-ipa";
+import { ignorerNonDéfinis, suivreFonctionImbriquée } from "@constl/utils-ipa";
 import { JSONSchemaType } from "ajv";
 import {
   schémaFonctionOublier,
@@ -352,7 +352,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     f: schémaFonctionSuivi<Uint8Array | null>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) => {
         return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },

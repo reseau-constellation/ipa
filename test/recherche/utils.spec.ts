@@ -286,9 +286,11 @@ describe("Utils recherche", function () {
     before(async () => {
       idBd = await client.créerBdIndépendante({ type: "set" });
 
-      const fListe = async (
-        fSuivreRacine: (idsVariables: string[]) => void,
-      ): Promise<schémaFonctionOublier> => {
+      const fListe = async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: (idsVariables: string[]) => void;
+      }): Promise<schémaFonctionOublier> => {
         return await client.suivreBdListe({ id: idBd, f: fSuivreRacine });
       };
 

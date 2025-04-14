@@ -1,5 +1,5 @@
 import {
-  suivreBdDeFonction,
+  suivreFonctionImbriquée,
   faisRien,
   ignorerNonDéfinis,
 } from "@constl/utils-ipa";
@@ -96,7 +96,7 @@ export class ComposanteClientDic<
     idCompte?: string;
     f: schémaFonctionSuivi<T>;
   }): Promise<schémaFonctionOublier> {
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) => {
         return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
@@ -123,7 +123,7 @@ export class ComposanteClientDic<
     schéma: JSONSchemaType<U>;
     f: schémaFonctionSuivi<U>;
   }): Promise<schémaFonctionOublier> {
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) => {
         return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
@@ -151,7 +151,7 @@ export class ComposanteClientDic<
     schéma: JSONSchemaType<U>;
     f: schémaFonctionSuivi<U[]>;
   }): Promise<schémaFonctionOublier> {
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) => {
         return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
@@ -176,7 +176,7 @@ export class ComposanteClientDic<
     f: schémaFonctionSuivi<string>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) => {
         if (idCompte) {
           await fSuivreRacine(idCompte);
@@ -191,10 +191,10 @@ export class ComposanteClientDic<
           id,
           schéma: schémaStructureBdCompte,
           f: async (données) => {
-            const idBdComposante = données[this.clef]
-            await fSuivreBd(idBdComposante)
+            const idBdComposante = données[this.clef];
+            await fSuivreBd(idBdComposante);
           },
-        })
+        });
       },
     });
   }
@@ -243,7 +243,7 @@ export class ComposanteClientListe<
     idCompte?: string;
     f: schémaFonctionSuivi<T[]>;
   }): Promise<schémaFonctionOublier> {
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) => {
         return await this.suivreIdBd({ f: fSuivreRacine, idCompte });
       },
@@ -267,7 +267,7 @@ export class ComposanteClientListe<
     f: schémaFonctionSuivi<string>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) => {
         if (idCompte) {
           await fSuivreRacine(idCompte);
@@ -282,10 +282,10 @@ export class ComposanteClientListe<
           id,
           schéma: schémaStructureBdCompte,
           f: async (données) => {
-            const idBdComposante = données[this.clef]
-            await fSuivreBd(idBdComposante)
+            const idBdComposante = données[this.clef];
+            await fSuivreBd(idBdComposante);
           },
-        })
+        });
       },
     });
   }

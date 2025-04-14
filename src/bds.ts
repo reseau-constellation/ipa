@@ -1,8 +1,8 @@
 import path from "path";
 import {
   attendreStabilité,
-  suivreBdDeFonction,
-  suivreBdsDeFonctionListe,
+  suivreFonctionImbriquée,
+  suivreDeFonctionListe,
   faisRien,
   ignorerNonDéfinis,
   traduire,
@@ -282,21 +282,26 @@ export class BDs extends ComposanteClientListe<string> {
       fsOublier.push(fOublierTableaux);
     }
     if (épinglerFichiersDonnées) {
-      const fOublierDonnées = await suivreBdsDeFonctionListe({
-        fListe: async (
-          fSuivreRacine: (éléments: string[]) => Promise<void>,
-        ) => {
+      const fOublierDonnées = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (éléments: string[]) => Promise<void>;
+        }) => {
           return await this.suivreTableauxBd({
             idBd: épingle.idObjet,
             f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
           });
         },
-        fBranche: async (
-          id: string,
+        fBranche: async ({
+          id,
+          fSuivreBranche,
+        }: {
+          id: string;
           fSuivreBranche: schémaFonctionSuivi<
             élémentDonnées<élémentBdListeDonnées>[]
-          >,
-        ) => {
+          >;
+        }) => {
           return await this.client.tableaux.suivreDonnées({
             idTableau: id,
             f: fSuivreBranche,
@@ -731,9 +736,11 @@ export class BDs extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<string[]>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreBds({ f: fSuivreRacine, idCompte });
     };
 
@@ -763,9 +770,11 @@ export class BDs extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<string[]>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
-    const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreBds({ f: fSuivreRacine, idCompte });
     };
 
@@ -957,7 +966,7 @@ export class BDs extends ComposanteClientListe<string> {
         f: fSuivreBd,
       });
     };
-    return await suivreBdDeFonction<string>({
+    return await suivreFonctionImbriquée<string>({
       fRacine,
       f,
       fSuivre,
@@ -1008,7 +1017,7 @@ export class BDs extends ComposanteClientListe<string> {
       });
     };
 
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: fSuivreTableau,
       f: fFinale,
       fSuivre: fSuivreDonnéesDeTableau,
@@ -1969,10 +1978,13 @@ export class BDs extends ComposanteClientListe<string> {
       await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
     };
 
-    const fBranche = async (
-      idTableau: string,
-      f: schémaFonctionSuivi<scoreTableau>,
-    ): Promise<schémaFonctionOublier> => {
+    const fBranche = async ({
+      id: idTableau,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<scoreTableau>;
+    }): Promise<schémaFonctionOublier> => {
       const info: { cols?: InfoColAvecCatégorie[]; règles?: règleColonne[] } =
         {};
 
@@ -1993,7 +2005,7 @@ export class BDs extends ComposanteClientListe<string> {
                 r.règle.règle.typeRègle !== "catégorie" && r.colonne === c.id,
             ),
           ).length;
-          await f({ numérateur, dénominateur });
+          await fSuivreBranche({ numérateur, dénominateur });
         }
       };
 
@@ -2020,16 +2032,18 @@ export class BDs extends ComposanteClientListe<string> {
       };
     };
 
-    const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreTableauxBd({
         idBd,
         f: (tableaux) => fSuivreRacine(tableaux.map((x) => x.id)),
       });
     };
 
-    return await suivreBdsDeFonctionListe({
+    return await suivreDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -2058,10 +2072,13 @@ export class BDs extends ComposanteClientListe<string> {
       await f(dénominateur === 0 ? undefined : numérateur / dénominateur);
     };
 
-    const fBranche = async (
-      idTableau: string,
-      f: schémaFonctionSuivi<scoreTableau>,
-    ): Promise<schémaFonctionOublier> => {
+    const fBranche = async ({
+      id: idTableau,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<scoreTableau>;
+    }): Promise<schémaFonctionOublier> => {
       const info: {
         données?: élémentDonnées<élémentBdListeDonnées>[];
         cols?: InfoColAvecCatégorie[];
@@ -2111,7 +2128,7 @@ export class BDs extends ComposanteClientListe<string> {
 
           const numérateur = dénominateur - nCellulesÉrronnées;
 
-          f({ numérateur, dénominateur });
+          fSuivreBranche({ numérateur, dénominateur });
         }
       };
 
@@ -2147,16 +2164,18 @@ export class BDs extends ComposanteClientListe<string> {
       };
     };
 
-    const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreTableauxBd({
         idBd,
         f: (tableaux) => fSuivreRacine(tableaux.map((t) => t.id)),
       });
     };
 
-    return await suivreBdsDeFonctionListe({
+    return await suivreDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -2244,23 +2263,31 @@ export class BDs extends ComposanteClientListe<string> {
       return await f(variables || []);
     };
 
-    const fBranche = async (
-      id: string,
-      f: schémaFonctionSuivi<string[]>,
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.tableaux.suivreVariables({ idTableau: id, f });
+    const fBranche = async ({
+      id: idTableau,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<string[]>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.client.tableaux.suivreVariables({
+        idTableau,
+        f: fSuivreBranche,
+      });
     };
 
-    const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreTableauxBd({
         idBd,
         f: (x) => fSuivreRacine(x.map((x) => x.id)),
       });
     };
 
-    return await suivreBdsDeFonctionListe({
+    return await suivreDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -2295,20 +2322,25 @@ export class BDs extends ComposanteClientListe<string> {
       });
     };
 
-    const fOublierDonnées = await suivreBdsDeFonctionListe({
-      fListe: async (
-        fSuivreRacine: (éléments: infoTableauAvecId[]) => Promise<void>,
-      ) => {
+    const fOublierDonnées = await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: (éléments: infoTableauAvecId[]) => Promise<void>;
+      }) => {
         return await this.suivreTableauxBd({ idBd, f: fSuivreRacine });
       },
       f: async (données: donnéesTableauExportation[]) => {
         info.données = données;
         await fFinale();
       },
-      fBranche: async (
-        id: string,
-        fSuivreBranche: schémaFonctionSuivi<donnéesTableauExportation>,
-      ): Promise<schémaFonctionOublier> => {
+      fBranche: async ({
+        id,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: schémaFonctionSuivi<donnéesTableauExportation>;
+      }): Promise<schémaFonctionOublier> => {
         return await this.client.tableaux.suivreDonnéesExportation({
           idTableau: id,
           langues,
@@ -2317,8 +2349,7 @@ export class BDs extends ComposanteClientListe<string> {
           },
         });
       },
-      fIdBdDeBranche: (x) => x.id,
-      fCode: (x) => x.id,
+      fIdDeBranche: (x) => x.id,
     });
     fsOublier.push(fOublierDonnées);
 

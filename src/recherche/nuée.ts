@@ -88,9 +88,11 @@ export const rechercherNuéesSelonIdVariable = (
       infoRésultatRecherche<infoRésultatTexte>
     >,
   ): Promise<schémaFonctionOublier> => {
-    const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (idsVariables: string[]) => void;
+    }): Promise<schémaFonctionOublier> => {
       return await client.nuées.suivreVariablesNuée({
         idNuée,
         f: fSuivreRacine,
@@ -121,9 +123,11 @@ export const rechercherNuéesSelonNomVariable = (
       infoRésultatRecherche<infoRésultatTexte>
     >,
   ): Promise<schémaFonctionOublier> => {
-    const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (idsVariables: string[]) => void;
+    }): Promise<schémaFonctionOublier> => {
       return await client.nuées.suivreVariablesNuée({
         idNuée,
         f: fSuivreRacine,
@@ -178,9 +182,11 @@ export const rechercherNuéesSelonIdMotClef = (
       infoRésultatRecherche<infoRésultatTexte>
     >,
   ): Promise<schémaFonctionOublier> => {
-    const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (idsVariables: string[]) => void;
+    }): Promise<schémaFonctionOublier> => {
       return await client.nuées.suivreMotsClefsNuée({
         idNuée,
         f: fSuivreRacine,
@@ -211,9 +217,11 @@ export const rechercherNuéesSelonNomMotClef = (
       infoRésultatRecherche<infoRésultatTexte>
     >,
   ): Promise<schémaFonctionOublier> => {
-    const fListe = async (
-      fSuivreRacine: (idsVariables: string[]) => void,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (idsVariables: string[]) => void;
+    }): Promise<schémaFonctionOublier> => {
       return await client.nuées.suivreMotsClefsNuée({
         idNuée,
         f: fSuivreRacine,

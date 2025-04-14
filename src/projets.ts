@@ -10,7 +10,7 @@ import { TypedKeyValue, TypedSet } from "@constl/bohr-db";
 import {
   adresseOrbiteValide,
   attendreStabilité,
-  suivreBdsDeFonctionListe,
+  suivreDeFonctionListe,
   traduire,
   uneFois,
   zipper,
@@ -159,19 +159,24 @@ export class Projets extends ComposanteClientListe<string> {
     }
 
     if (épinglerBds) {
-      const fOublierBds = await suivreBdsDeFonctionListe({
-        fListe: async (
-          fSuivreRacine: (éléments: string[]) => Promise<void>,
-        ) => {
+      const fOublierBds = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (éléments: string[]) => Promise<void>;
+        }) => {
           return await this.suivreBdsProjet({
             idProjet: épingle.idObjet,
             f: fSuivreRacine,
           });
         },
-        fBranche: async (
-          id: string,
-          fSuivreBranche: schémaFonctionSuivi<string[]>,
-        ) => {
+        fBranche: async ({
+          id,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: schémaFonctionSuivi<string[]>;
+        }) => {
           return this.client.bds.suivreRésolutionÉpingle({
             épingle: {
               idObjet: id,
@@ -861,18 +866,26 @@ export class Projets extends ComposanteClientListe<string> {
       motsClefs.bds = mots;
       return await fFinale();
     };
-    const fListe = async (
-      fSuivreRacine: (éléments: string[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: string[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
     };
-    const fBranche = async (
-      idBd: string,
-      fSuivi: schémaFonctionSuivi<string[]>,
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds.suivreMotsClefsBd({ idBd, f: fSuivi });
+    const fBranche = async ({
+      id: idBd,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<string[]>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.client.bds.suivreMotsClefsBd({
+        idBd,
+        f: fSuivreBranche,
+      });
     };
-    const fOublierMotsClefsBds = await suivreBdsDeFonctionListe({
+    const fOublierMotsClefsBds = await suivreDeFonctionListe({
       fListe,
       f: fFinaleBds,
       fBranche,
@@ -911,11 +924,17 @@ export class Projets extends ComposanteClientListe<string> {
     const fFinale = async (variables?: string[]) => {
       return await f(variables || []);
     };
-    const fBranche = async (
-      idBd: string,
-      f: schémaFonctionSuivi<string[]>,
-    ): Promise<schémaFonctionOublier> => {
-      return await this.client.bds.suivreVariablesBd({ idBd, f });
+    const fBranche = async ({
+      id: idBd,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<string[]>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.client.bds.suivreVariablesBd({
+        idBd,
+        f: fSuivreBranche,
+      });
     };
     const fSuivreBds = async ({
       id,
@@ -953,24 +972,29 @@ export class Projets extends ComposanteClientListe<string> {
           : 0,
       );
     };
-    const fListe = async (
-      fSuiviListe: schémaFonctionSuivi<string[]>,
-    ): Promise<schémaFonctionOublier> => {
-      return await this.suivreBdsProjet({ idProjet, f: fSuiviListe });
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: schémaFonctionSuivi<string[]>;
+    }): Promise<schémaFonctionOublier> => {
+      return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
     };
-    const fBranche = async (
-      idBd: string,
-      fSuiviBranche: schémaFonctionSuivi<number>,
-    ): Promise<schémaFonctionOublier> => {
+    const fBranche = async ({
+      id: idBd,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<number>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.client.bds.suivreQualitéBd({
         idBd,
-        f: (score) => fSuiviBranche(score.total),
+        f: (score) => fSuivreBranche(score.total),
       });
     };
     const fRéduction = (scores: number[]) => {
       return scores.flat();
     };
-    return await suivreBdsDeFonctionListe({
+    return await suivreDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -1008,18 +1032,25 @@ export class Projets extends ComposanteClientListe<string> {
       });
     };
 
-    const fOublierDonnées = await suivreBdsDeFonctionListe({
-      fListe: async (fSuivreRacine: (éléments: string[]) => Promise<void>) => {
+    const fOublierDonnées = await suivreDeFonctionListe({
+      fListe: async ({
+        fSuivreRacine,
+      }: {
+        fSuivreRacine: (éléments: string[]) => Promise<void>;
+      }) => {
         return await this.suivreBdsProjet({ idProjet, f: fSuivreRacine });
       },
       f: async (données: donnéesBdExportation[]) => {
         info.données = données;
         await fFinale();
       },
-      fBranche: async (
-        id: string,
-        fSuivreBranche: schémaFonctionSuivi<donnéesBdExportation>,
-      ): Promise<schémaFonctionOublier> => {
+      fBranche: async ({
+        id,
+        fSuivreBranche,
+      }: {
+        id: string;
+        fSuivreBranche: schémaFonctionSuivi<donnéesBdExportation>;
+      }): Promise<schémaFonctionOublier> => {
         return await this.client.bds.suivreDonnéesExportation({
           idBd: id,
           langues,

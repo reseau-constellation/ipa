@@ -7,8 +7,8 @@ import plateforme from "platform";
 import { v4 as uuidv4 } from "uuid";
 import {
   adresseOrbiteValide,
-  suivreBdDeFonction,
-  suivreBdsDeFonctionListe,
+  suivreFonctionImbriquée,
+  suivreDeFonctionListe,
   faisRien,
   ignorerNonDéfinis,
   sauvegarderFichierZip,
@@ -789,7 +789,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       fsOublier.push(fOublierBase);
     }
     if (épinglerProfil) {
-      const fOublierProfil = await suivreBdDeFonction({
+      const fOublierProfil = await suivreFonctionImbriquée({
         fRacine: async ({
           fSuivreRacine,
         }: {
@@ -824,22 +824,26 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       fsOublier.push(fOublierProfil);
     }
     if (épinglerFavoris) {
-      const fOublierFavoris = await suivreBdsDeFonctionListe({
-        fListe: async (
+      const fOublierFavoris = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
           fSuivreRacine: (
             éléments: ÉpingleFavorisAvecId<ÉpingleFavoris>[],
-          ) => Promise<void>,
-        ) => {
+          ) => Promise<void>;
+        }) => {
           return await this.favoris.suivreFavoris({
             f: fSuivreRacine,
             idCompte: épingle.idObjet,
           });
         },
-        fBranche: async (
-          _id: string,
-          fSuivreBranche: schémaFonctionSuivi<Set<string>>,
-          branche: ÉpingleFavorisAvecId,
-        ) => {
+        fBranche: async ({
+          fSuivreBranche,
+          branche,
+        }: {
+          fSuivreBranche: schémaFonctionSuivi<Set<string>>;
+          branche: ÉpingleFavorisAvecId;
+        }) => {
           return await this.favoris.suivreRésolutionÉpingle({
             épingle: branche,
             f: fSuivreBranche,
@@ -850,8 +854,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
           info.favoris = favoris.map((f) => [...f]).flat();
           return await fFinale();
         },
-        fIdBdDeBranche: (b) => b.idObjet,
-        fCode: (b) => b.idObjet,
+        fIdDeBranche: (b) => b.idObjet,
       });
       fsOublier.push(fOublierFavoris);
     }
@@ -1129,7 +1132,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       return await f(autorisésEtAcceptés);
     };
 
-    const fOublierDispositifsAutorisés = await suivreBdDeFonction({
+    const fOublierDispositifsAutorisés = await suivreFonctionImbriquée({
       fRacine: async ({
         fSuivreRacine,
       }: {
@@ -1644,7 +1647,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       };
       return await this.suivreBd({ id, f: fSuivreBdRacine, type: "keyvalue" });
     };
-    return await suivreBdDeFonction<T>({ fRacine, f, fSuivre });
+    return await suivreFonctionImbriquée<T>({ fRacine, f, fSuivre });
   }
 
   async suivreBdDic<T extends { [clef: string]: élémentsBd }>({
@@ -2002,19 +2005,24 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       await f(calculerEmpreinte(têtes.sort().join()));
     };
 
-    const fListe = async (
-      fSuivreRacine: schémaFonctionSuivi<string[]>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: schémaFonctionSuivi<string[]>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreBdsRécursives({
         idBd,
         f: async (bds) => await fSuivreRacine(bds),
       });
     };
 
-    const fBranche = async (
-      id: string,
-      fSuivreBranche: schémaFonctionSuivi<string>,
-    ): Promise<schémaFonctionOublier> => {
+    const fBranche = async ({
+      id,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<string>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreBd({
         id,
         f: async (bd) => {
@@ -2024,7 +2032,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       });
     };
 
-    return await suivreBdsDeFonctionListe({
+    return await suivreDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,
@@ -2035,34 +2043,33 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     id,
     f,
     fBranche,
-    fIdBdDeBranche = (b) => b as string,
+    fIdDeBranche = (b) => b as string,
     fRéduction = (branches: U[]) =>
       [...new Set(branches.flat())] as unknown as V[],
-    fCode = (é) => é as string,
   }: {
     id: string;
     f: schémaFonctionSuivi<V[]>;
-    fBranche: (
-      id: string,
-      f: schémaFonctionSuivi<U>,
-      branche: T,
-    ) => Promise<schémaFonctionOublier | undefined>;
-    fIdBdDeBranche?: (b: T) => string;
+    fBranche: (args: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<U>;
+      branche: T;
+    }) => Promise<schémaFonctionOublier | undefined>;
+    fIdDeBranche?: (b: T) => string;
     fRéduction?: schémaFonctionRéduction<U[], V[]>;
-    fCode?: (é: T) => string;
   }): Promise<schémaFonctionOublier> {
-    const fListe = async (
-      fSuivreRacine: (éléments: T[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: T[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreBdListe({ id, f: fSuivreRacine });
     };
-    return await suivreBdsDeFonctionListe({
+    return await suivreDeFonctionListe({
       fListe,
       f,
       fBranche,
-      fIdBdDeBranche,
+      fIdDeBranche,
       fRéduction,
-      fCode,
     });
   }
 
@@ -2070,25 +2077,25 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     id,
     f,
     fBranche,
-    fIdBdDeBranche = (b) => b as string,
+    fIdDeBranche = (b) => b as string,
     fRéduction = (branches: U[]) =>
       [...new Set(branches.flat())] as unknown as V[],
-    fCode = (é) => é as string,
   }: {
     id: string;
     f: schémaFonctionSuivi<V[]>;
-    fBranche: (
-      id: string,
-      f: schémaFonctionSuivi<U>,
-      branche: T,
-    ) => Promise<schémaFonctionOublier | undefined>;
-    fIdBdDeBranche?: (b: T) => string;
+    fBranche: (args: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<U>;
+      branche: T;
+    }) => Promise<schémaFonctionOublier | undefined>;
+    fIdDeBranche?: (b: T) => string;
     fRéduction?: schémaFonctionRéduction<U[], V[]>;
-    fCode?: (é: T) => string;
   }): Promise<schémaFonctionOublier> {
-    const fListe = async (
-      fSuivreRacine: (éléments: T[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListe = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: T[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       return await this.suivreBd({
         id,
         f: async (bd) => {
@@ -2098,13 +2105,12 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         },
       });
     };
-    return await suivreBdsDeFonctionListe({
+    return await suivreDeFonctionListe({
       fListe,
       f,
       fBranche,
-      fIdBdDeBranche,
+      fIdDeBranche,
       fRéduction,
-      fCode,
     });
   }
 
@@ -2112,23 +2118,25 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     fListe,
     f,
     fBranche,
-    fIdBdDeBranche = (b) => b as string,
+    fIdDeBranche = (b) => b as string,
     fRéduction = (branches: U[]) =>
       [...new Set(branches.flat())] as unknown as V[],
-    fCode = (é) => é as string,
   }: {
     fListe: (
       fSuivreRacine: (éléments: T[]) => Promise<void>,
     ) => Promise<schémaRetourFonctionRechercheParProfondeur>;
     f: schémaFonctionSuivi<V[]>;
-    fBranche: (
-      id: string,
-      fSuivreBranche: schémaFonctionSuivi<U>,
-      branche: T,
-    ) => Promise<schémaFonctionOublier | undefined>;
-    fIdBdDeBranche?: (b: T) => string;
+    fBranche: ({
+      id,
+      fSuivreBranche,
+      branche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<U>;
+      branche: T;
+    }) => Promise<schémaFonctionOublier | undefined>;
+    fIdDeBranche?: (b: T) => string;
     fRéduction?: schémaFonctionRéduction<U[], V[]>;
-    fCode?: (é: T) => string;
   }): Promise<schémaRetourFonctionRechercheParProfondeur> {
     let _fChangerProfondeur: ((p: number) => Promise<void>) | undefined =
       undefined;
@@ -2136,22 +2144,23 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       if (_fChangerProfondeur) await _fChangerProfondeur(p);
     };
 
-    const fListeFinale = async (
-      fSuivreRacine: (éléments: T[]) => Promise<void>,
-    ): Promise<schémaFonctionOublier> => {
+    const fListeFinale = async ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (éléments: T[]) => Promise<void>;
+    }): Promise<schémaFonctionOublier> => {
       const { fOublier: fOublierL, fChangerProfondeur: fChangerL } =
         await fListe(fSuivreRacine);
       _fChangerProfondeur = fChangerL;
       return fOublierL;
     };
 
-    const fOublier = await suivreBdsDeFonctionListe({
+    const fOublier = await suivreDeFonctionListe({
       fListe: fListeFinale,
       f,
       fBranche,
-      fIdBdDeBranche,
+      fIdDeBranche,
       fRéduction,
-      fCode,
     });
     return { fOublier, fChangerProfondeur };
   }
@@ -2181,7 +2190,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
         fSuivreBd(condition ? id : undefined);
       });
     };
-    return await suivreBdDeFonction({
+    return await suivreFonctionImbriquée({
       fRacine: async ({ fSuivreRacine }) => await fRacine(fSuivreRacine),
       f: ignorerNonDéfinis(f),
       fSuivre,
@@ -2197,7 +2206,11 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     fCondition,
     f,
   }: {
-    fListe: (fSuivreRacine: (ids: string[]) => Promise<void>) => Promise<T>;
+    fListe: ({
+      fSuivreRacine,
+    }: {
+      fSuivreRacine: (ids: string[]) => Promise<void>;
+    }) => Promise<T>;
     fCondition: (
       id: string,
       fSuivreCondition: schémaFonctionSuivi<boolean>,
@@ -2216,17 +2229,20 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       return await f(bdsRecherchées);
     };
 
-    const fBranche = async (
-      id: string,
-      fSuivreBranche: schémaFonctionSuivi<branche>,
-    ): Promise<schémaFonctionOublier> => {
+    const fBranche = async ({
+      id,
+      fSuivreBranche,
+    }: {
+      id: string;
+      fSuivreBranche: schémaFonctionSuivi<branche>;
+    }): Promise<schémaFonctionOublier> => {
       const fFinaleSuivreBranche = async (état: boolean) => {
         return await fSuivreBranche({ id, état });
       };
       return await fCondition(id, fFinaleSuivreBranche);
     };
 
-    return await suivreBdsDeFonctionListe({
+    return await suivreDeFonctionListe({
       fListe,
       f: fFinale,
       fBranche,

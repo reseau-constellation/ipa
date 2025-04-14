@@ -1,7 +1,7 @@
 import correspTexte from "approx-string-match";
 import ssim from "ssim";
 
-import { faisRien, suivreBdsDeFonctionListe } from "@constl/utils-ipa";
+import { faisRien, suivreDeFonctionListe } from "@constl/utils-ipa";
 import type { Constellation } from "@/client.js";
 import type {
   infoRésultat,
@@ -107,22 +107,30 @@ export const combinerRecherches = async <T extends infoRésultat>(
 
 export const sousRecherche = async <T extends infoRésultat>(
   de: string,
-  fListe: (
-    fSuivreRacine: (ids: string[]) => void,
-  ) => Promise<schémaFonctionOublier>,
+  fListe: ({
+    fSuivreRacine,
+  }: {
+    fSuivreRacine: (ids: string[]) => void;
+  }) => Promise<schémaFonctionOublier>,
   fRechercher: schémaFonctionSuivreObjectifRecherche<T>,
   client: Constellation,
   fSuivreRecherche: schémaFonctionSuiviRecherche<infoRésultatRecherche<T>>,
 ): Promise<schémaFonctionOublier> => {
-  const fBranche = async (
-    idBd: string,
-    f: (x: { id: string; résultat: résultatObjectifRecherche<T> }) => void,
-  ): Promise<schémaFonctionOublier> => {
+  const fBranche = async ({
+    id: idBd,
+    fSuivreBranche,
+  }: {
+    id: string;
+    fSuivreBranche: (x: {
+      id: string;
+      résultat: résultatObjectifRecherche<T>;
+    }) => void;
+  }): Promise<schémaFonctionOublier> => {
     return await fRechercher(
       client,
       idBd,
       async (résultat?: résultatObjectifRecherche<T>) => {
-        if (résultat) f({ id: idBd, résultat });
+        if (résultat) fSuivreBranche({ id: idBd, résultat });
       },
     );
   };
@@ -153,7 +161,7 @@ export const sousRecherche = async <T extends infoRésultat>(
     }
   };
 
-  const fOublier = await suivreBdsDeFonctionListe({
+  const fOublier = await suivreDeFonctionListe({
     fListe,
     f: fFinale,
     fBranche,
