@@ -290,7 +290,7 @@ importers:
         version: 10.0.10
       '@types/node':
         specifier: ^22.13.10
-        version: 22.13.13
+        version: 22.14.1
       '@types/node-localstorage':
         specifier: ^1.3.3
         version: 1.3.3
@@ -2588,9 +2588,6 @@ packages:
 
   '@types/node-localstorage@1.3.3':
     resolution: {integrity: sha512-Wkn5g4eM5x10UNV9Xvl9K6y6m0zorocuJy4WjB5muUdyMZuPbZpSJG3hlhjGHe1HGxbOQO7RcB+jlHcNwkh+Jw==}
-
-  '@types/node@22.13.13':
-    resolution: {integrity: sha512-ClsL5nMwKaBRwPcCvH8E7+nU4GxHVx1axNvMZTFHMEfNI7oahimt26P5zjVCRrjiIWj6YFXfE1v3dEp94wLcGQ==}
 
   '@types/node@22.14.1':
     resolution: {integrity: sha512-u0HuPQwe/dHrItgHHpmw3N2fYCR6x4ivMNbPHRkBVP4CvN+kiRrKHWk3i8tXiO/joPwXLMYvF9TTF0eqgHIuOw==}
@@ -8805,9 +8802,6 @@ packages:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
 
-  undici-types@6.20.0:
-    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
-
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
@@ -12303,7 +12297,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
       '@types/responselike': 1.0.3
 
   '@types/chai-as-promised@7.1.8':
@@ -12330,7 +12324,7 @@ snapshots:
 
   '@types/dns-packet@5.6.5':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
 
   '@types/estree@1.0.7': {}
 
@@ -12339,7 +12333,7 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
 
   '@types/graceful-fs@4.1.9':
     dependencies:
@@ -12363,7 +12357,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
 
   '@types/lodash-es@4.17.12':
     dependencies:
@@ -12388,7 +12382,7 @@ snapshots:
   '@types/multicast-dns@7.2.4':
     dependencies:
       '@types/dns-packet': 5.6.5
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
 
   '@types/node-forge@1.3.11':
     dependencies:
@@ -12396,11 +12390,7 @@ snapshots:
 
   '@types/node-localstorage@1.3.3':
     dependencies:
-      '@types/node': 22.13.13
-
-  '@types/node@22.13.13':
-    dependencies:
-      undici-types: 6.20.0
+      '@types/node': 22.14.1
 
   '@types/node@22.14.1':
     dependencies:
@@ -12414,7 +12404,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
 
   '@types/retry@0.12.0': {}
 
@@ -12442,7 +12432,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -12452,7 +12442,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
     optional: true
 
   '@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)':
@@ -12840,7 +12830,7 @@ snapshots:
       '@types/chai-string': 1.4.5
       '@types/chai-subset': 1.3.6(@types/chai@4.3.20)
       '@types/mocha': 10.0.10
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@8.28.0(eslint@9.24.0)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)
       buffer: 6.0.3
       bytes: 3.1.2
@@ -12916,7 +12906,7 @@ snapshots:
       typedoc-plugin-mdn-links: 3.3.8(typedoc@0.25.13(typescript@5.8.3))
       typedoc-plugin-missing-exports: 2.3.0(typedoc@0.25.13(typescript@5.8.3))
       typescript: 5.8.3
-      typescript-docs-verifier: 2.5.3(@types/node@22.13.13)(typescript@5.8.3)
+      typescript-docs-verifier: 2.5.3(@types/node@22.14.1)(typescript@5.8.3)
       wherearewe: 2.0.1
       yargs: 17.7.2
       yargs-parser: 21.1.1
@@ -14453,7 +14443,7 @@ snapshots:
   electron@35.1.4:
     dependencies:
       '@electron/get': 2.0.3
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
       extract-zip: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -20052,14 +20042,14 @@ snapshots:
     dependencies:
       typescript: 5.8.3
 
-  ts-node@10.9.2(@types/node@22.13.13)(typescript@5.8.3):
+  ts-node@10.9.2(@types/node@22.14.1)(typescript@5.8.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 22.13.13
+      '@types/node': 22.14.1
       acorn: 8.14.1
       acorn-walk: 8.3.4
       arg: 4.1.3
@@ -20224,13 +20214,13 @@ snapshots:
       shiki: 0.14.7
       typescript: 5.8.3
 
-  typescript-docs-verifier@2.5.3(@types/node@22.13.13)(typescript@5.8.3):
+  typescript-docs-verifier@2.5.3(@types/node@22.14.1)(typescript@5.8.3):
     dependencies:
       chalk: 4.1.2
       fs-extra: 10.1.0
       ora: 5.4.1
       strip-ansi: 7.1.0
-      ts-node: 10.9.2(@types/node@22.13.13)(typescript@5.8.3)
+      ts-node: 10.9.2(@types/node@22.14.1)(typescript@5.8.3)
       tsconfig: 7.0.0
       typescript: 5.8.3
       yargs: 17.7.2
@@ -20282,8 +20272,6 @@ snapshots:
       has-bigints: 1.1.0
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
-
-  undici-types@6.20.0: {}
 
   undici-types@6.21.0: {}
 
