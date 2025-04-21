@@ -97,7 +97,7 @@ importers:
         version: 1.7.0
       '@noble/hashes':
         specifier: ^1.7.1
-        version: 1.7.2
+        version: 1.8.0
       '@orbitdb/core':
         specifier: ^2.5.0
         version: 2.5.0
@@ -2141,6 +2141,10 @@ packages:
 
   '@noble/hashes@1.7.2':
     resolution: {integrity: sha512-biZ0NUSxyjLLqo6KxEJ1b+C2NAx0wtDoFvCaXHGgUkeHzf3Xc1xKumFKREuT7f7DARNZ/slvYUwFG6B0f2b6hQ==}
+    engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@1.8.0':
+    resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -10180,7 +10184,7 @@ snapshots:
       '@libp2p/peer-id': 5.1.2
       '@noble/ciphers': 1.2.1
       '@noble/curves': 1.8.2
-      '@noble/hashes': 1.7.2
+      '@noble/hashes': 1.8.0
       it-length-prefixed: 10.0.1
       it-length-prefixed-stream: 2.0.1
       it-pair: 2.0.6
@@ -11128,7 +11132,7 @@ snapshots:
     dependencies:
       '@libp2p/interface': 1.7.0
       '@noble/curves': 1.8.2
-      '@noble/hashes': 1.7.2
+      '@noble/hashes': 1.8.0
       asn1js: 3.0.5
       multiformats: 13.3.2
       protons-runtime: 5.5.0
@@ -11139,7 +11143,7 @@ snapshots:
     dependencies:
       '@libp2p/interface': 2.9.0
       '@noble/curves': 1.8.2
-      '@noble/hashes': 1.7.2
+      '@noble/hashes': 1.8.0
       multiformats: 13.3.2
       protons-runtime: 5.5.0
       uint8arraylist: 2.4.8
@@ -11295,7 +11299,7 @@ snapshots:
     dependencies:
       '@libp2p/crypto': 5.1.1
       '@libp2p/interface': 2.9.0
-      '@noble/hashes': 1.7.2
+      '@noble/hashes': 1.8.0
       asn1js: 3.0.6
       interface-datastore: 8.3.1
       merge-options: 3.0.4
@@ -11307,7 +11311,7 @@ snapshots:
     dependencies:
       '@libp2p/crypto': 5.1.1
       '@libp2p/interface': 2.9.0
-      '@noble/hashes': 1.7.2
+      '@noble/hashes': 1.8.0
       asn1js: 3.0.6
       interface-datastore: 8.3.1
       merge-options: 3.0.4
@@ -11740,6 +11744,8 @@ snapshots:
       '@noble/hashes': 1.7.2
 
   '@noble/hashes@1.7.2': {}
+
+  '@noble/hashes@1.8.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
