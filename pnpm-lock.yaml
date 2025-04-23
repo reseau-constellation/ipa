@@ -13,7 +13,7 @@ importers:
         version: 14.1.1
       '@chainsafe/libp2p-noise':
         specifier: ^16.0.3
-        version: 16.1.2
+        version: 16.1.3
       '@chainsafe/libp2p-yamux':
         specifier: ^7.0.1
         version: 7.0.1
@@ -311,7 +311,7 @@ importers:
         version: 8.31.0(eslint@9.25.1)(typescript@5.8.3)
       aegir:
         specifier: ^45.1.2
-        version: 45.2.0(@babel/core@7.26.10)(@typescript-eslint/parser@8.31.0(eslint@9.25.1)(typescript@5.8.3))(eslint-import-resolver-typescript@4.3.4)(eslint-plugin-n@17.17.0(eslint@9.25.1))
+        version: 45.2.1(@babel/core@7.26.10)(@typescript-eslint/parser@8.31.0(eslint@9.25.1)(typescript@5.8.3))(eslint-import-resolver-typescript@4.3.4)(eslint-plugin-n@17.17.0(eslint@9.25.1))
       bmp-js:
         specifier: ^0.1.0
         version: 0.1.0
@@ -1178,8 +1178,8 @@ packages:
     resolution: {integrity: sha512-EUs2C+xHXXbw0pQQF2AN/ih4qB6BBWOGkDhvHz1VN52o2m/827IBEMT8RHdXMNZciQc90to1L57BKmhXkvztDw==}
     engines: {npm: '>=8.7.0'}
 
-  '@chainsafe/libp2p-noise@16.1.2':
-    resolution: {integrity: sha512-vVmUxcdTXHiSiNY7qCZ4GER33y2TOYeXYLXM559ttDsXgUP19y4zNyC8y7pMNXZu7I5IqnQRrzUrmxDUpfV/hg==}
+  '@chainsafe/libp2p-noise@16.1.3':
+    resolution: {integrity: sha512-YLonKdIUFk/0keKRfzlmdrsObi8r0EaZC14Vjh3qdLy4+W7NaQAs1sSMt8aDP07oE78pa51NyejmQLKOnt7tOw==}
 
   '@chainsafe/libp2p-yamux@7.0.1':
     resolution: {integrity: sha512-949MI0Ll0AsYq1gUETZmL/MijwX0jilOQ1i4s8wDEXGiMhuPWWiMsPgEnX6n+VzFmTrfNYyGaaJj5/MqxV9y/g==}
@@ -2139,6 +2139,10 @@ packages:
     resolution: {integrity: sha512-vnI7V6lFNe0tLAuJMu+2sX+FcL14TaCWy1qiczg1VwRmPrpQCdq5ESXQMqUc2tluRNf6irBXrWbl1mGN8uaU/g==}
     engines: {node: ^14.21.3 || >=16}
 
+  '@noble/curves@1.9.0':
+    resolution: {integrity: sha512-7YDlXiNMdO1YZeH6t/kvopHHbIZzlxrCV9WLqCY6QhcXOoXiNCMDqJIglZ9Yjx5+w7Dz30TITFrlTjnRg7sKEg==}
+    engines: {node: ^14.21.3 || >=16}
+
   '@noble/hashes@1.7.2':
     resolution: {integrity: sha512-biZ0NUSxyjLLqo6KxEJ1b+C2NAx0wtDoFvCaXHGgUkeHzf3Xc1xKumFKREuT7f7DARNZ/slvYUwFG6B0f2b6hQ==}
     engines: {node: ^14.21.3 || >=16}
@@ -2938,8 +2942,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  aegir@45.2.0:
-    resolution: {integrity: sha512-2p68aHU7gzBarafAb0D3Ftmmn911agXFZlf4jlN7QuqDMDAxBDTu6m5xKuVrh9/Hy2iLbh3wpN+iPLKrpgM+Cw==}
+  aegir@45.2.1:
+    resolution: {integrity: sha512-3w9s0tOvo2iNW3efMmaFC6hG3uNDt1a/ZN5nTmYUqcpHKH1aw55sLgbmK29+ij/QigGCo8f5xr3nMVOdiI0hmA==}
     hasBin: true
 
   agent-base@7.1.3:
@@ -10175,7 +10179,7 @@ snapshots:
       uint8arraylist: 2.4.8
       uint8arrays: 5.1.0
 
-  '@chainsafe/libp2p-noise@16.1.2':
+  '@chainsafe/libp2p-noise@16.1.3':
     dependencies:
       '@chainsafe/as-chacha20poly1305': 0.1.0
       '@chainsafe/as-sha256': 1.0.1
@@ -10183,7 +10187,7 @@ snapshots:
       '@libp2p/interface': 2.9.0
       '@libp2p/peer-id': 5.1.2
       '@noble/ciphers': 1.2.1
-      '@noble/curves': 1.8.2
+      '@noble/curves': 1.9.0
       '@noble/hashes': 1.8.0
       it-length-prefixed: 10.0.1
       it-length-prefixed-stream: 2.0.1
@@ -11613,7 +11617,7 @@ snapshots:
   '@libp2p/webrtc@5.2.12(react-native@0.76.6(@babel/core@7.26.10)(@babel/preset-env@7.26.0(@babel/core@7.26.10))(react@18.3.1))':
     dependencies:
       '@chainsafe/is-ip': 2.1.0
-      '@chainsafe/libp2p-noise': 16.1.2
+      '@chainsafe/libp2p-noise': 16.1.3
       '@ipshipyard/node-datachannel': 0.26.5
       '@libp2p/crypto': 5.1.1
       '@libp2p/interface': 2.9.0
@@ -11669,7 +11673,7 @@ snapshots:
 
   '@libp2p/webtransport@5.0.40':
     dependencies:
-      '@chainsafe/libp2p-noise': 16.1.2
+      '@chainsafe/libp2p-noise': 16.1.3
       '@libp2p/interface': 2.9.0
       '@libp2p/peer-id': 5.1.2
       '@libp2p/utils': 6.6.2
@@ -11742,6 +11746,10 @@ snapshots:
   '@noble/curves@1.8.2':
     dependencies:
       '@noble/hashes': 1.7.2
+
+  '@noble/curves@1.9.0':
+    dependencies:
+      '@noble/hashes': 1.8.0
 
   '@noble/hashes@1.7.2': {}
 
@@ -12823,7 +12831,7 @@ snapshots:
 
   acorn@8.14.1: {}
 
-  aegir@45.2.0(@babel/core@7.26.10)(@typescript-eslint/parser@8.31.0(eslint@9.25.1)(typescript@5.8.3))(eslint-import-resolver-typescript@4.3.4)(eslint-plugin-n@17.17.0(eslint@9.25.1)):
+  aegir@45.2.1(@babel/core@7.26.10)(@typescript-eslint/parser@8.31.0(eslint@9.25.1)(typescript@5.8.3))(eslint-import-resolver-typescript@4.3.4)(eslint-plugin-n@17.17.0(eslint@9.25.1)):
     dependencies:
       '@electron/get': 3.1.0
       '@polka/send-type': 0.5.2
@@ -15907,7 +15915,7 @@ snapshots:
 
   helia@5.2.1(react-native@0.76.6(@babel/core@7.26.10)(@babel/preset-env@7.26.0(@babel/core@7.26.10))(react@18.3.1)):
     dependencies:
-      '@chainsafe/libp2p-noise': 16.1.2
+      '@chainsafe/libp2p-noise': 16.1.3
       '@chainsafe/libp2p-yamux': 7.0.1
       '@helia/block-brokers': 4.1.0
       '@helia/delegated-routing-v1-http-api-client': 4.2.2
@@ -15948,7 +15956,7 @@ snapshots:
 
   helia@5.3.0(react-native@0.76.6(@babel/core@7.26.10)(@babel/preset-env@7.26.0(@babel/core@7.26.10))(react@18.3.1)):
     dependencies:
-      '@chainsafe/libp2p-noise': 16.1.2
+      '@chainsafe/libp2p-noise': 16.1.3
       '@chainsafe/libp2p-yamux': 7.0.1
       '@helia/block-brokers': 4.1.0
       '@helia/delegated-routing-v1-http-api-client': 4.2.2
