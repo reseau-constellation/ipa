@@ -19,7 +19,7 @@ importers:
         version: 7.0.1
       '@chriscdn/promise-semaphore':
         specifier: ^2.0.10
-        version: 2.0.10
+        version: 2.0.11
       '@constl/bohr-db':
         specifier: ^1.2.3
         version: 1.2.3(react-native@0.76.6(@babel/core@7.26.10)(@babel/preset-env@7.26.0(@babel/core@7.26.10))(react@18.3.1))
@@ -121,7 +121,7 @@ importers:
         version: 2.0.0
       axios:
         specifier: ^1.8.3
-        version: 1.8.4(debug@4.4.0)
+        version: 1.9.0(debug@4.4.0)
       blockstore-fs:
         specifier: ^2.0.2
         version: 2.0.2
@@ -290,7 +290,7 @@ importers:
         version: 10.0.10
       '@types/node':
         specifier: ^22.13.10
-        version: 22.14.1
+        version: 22.15.2
       '@types/node-localstorage':
         specifier: ^1.3.3
         version: 1.3.3
@@ -1187,8 +1187,8 @@ packages:
   '@chainsafe/netmask@2.0.0':
     resolution: {integrity: sha512-I3Z+6SWUoaljh3TBzCnCxjlUyN8tA+NAk5L6m9IxvCf1BENQTePzPMis97CoN/iMW1St3WN+AWCCRp+TTBRiDg==}
 
-  '@chriscdn/promise-semaphore@2.0.10':
-    resolution: {integrity: sha512-NagoHAZEYISDYYprsHe+x2BEcD6GKhTpEreI8BM1qgtHOtCS3lbwRvvTQxzAxU8JVSmw7ep/ROLv3Ng/MPcMHg==}
+  '@chriscdn/promise-semaphore@2.0.11':
+    resolution: {integrity: sha512-Fw68keZcPzifN44h3MXzYaLhxTpGWiQT6iEdJgdwaA2n86r9dCbljiuiys7BUKDDz4CIsVIflLTNXYS/RXULJA==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -2597,8 +2597,8 @@ packages:
   '@types/node-localstorage@1.3.3':
     resolution: {integrity: sha512-Wkn5g4eM5x10UNV9Xvl9K6y6m0zorocuJy4WjB5muUdyMZuPbZpSJG3hlhjGHe1HGxbOQO7RcB+jlHcNwkh+Jw==}
 
-  '@types/node@22.14.1':
-    resolution: {integrity: sha512-u0HuPQwe/dHrItgHHpmw3N2fYCR6x4ivMNbPHRkBVP4CvN+kiRrKHWk3i8tXiO/joPwXLMYvF9TTF0eqgHIuOw==}
+  '@types/node@22.15.2':
+    resolution: {integrity: sha512-uKXqKN9beGoMdBfcaTY1ecwz6ctxuJAcUlwE55938g0ZJ8lRxwAZqRz2AJ4pzpt5dHdTPMB863UZ0ESiFUcP7A==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -3207,8 +3207,8 @@ packages:
   average@0.0.1:
     resolution: {integrity: sha512-rnSkP7Xnbxz3cKEHscefV2Uu6GdlDrCCameNIbzM8c3zCMTigfndi1NuOxuks4fK3ZC/FtXLIS3Y8f7N70ZBmQ==}
 
-  axios@1.8.4:
-    resolution: {integrity: sha512-eBSYY4Y68NNlHbHBMdeDmKNtDgXWhQsJcGqzO3iLUM0GraQFSS9cVgPX5I9b3lbdFKyYoAEGAZF1DwhTaljNAw==}
+  axios@1.9.0:
+    resolution: {integrity: sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==}
 
   babel-core@7.0.0-bridge.0:
     resolution: {integrity: sha512-poPX9mZH/5CSanm50Q+1toVci6pv5KSRv/5TWCwtzQS5XEwn40BcCrgIeMFWP9CKKIniKXNxoIOnOq4VVlGXhg==}
@@ -10219,7 +10219,7 @@ snapshots:
     dependencies:
       '@chainsafe/is-ip': 2.1.0
 
-  '@chriscdn/promise-semaphore@2.0.10': {}
+  '@chriscdn/promise-semaphore@2.0.11': {}
 
   '@colors/colors@1.5.0': {}
 
@@ -11002,14 +11002,14 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       jest-mock: 29.7.0
 
   '@jest/fake-timers@29.7.0':
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -11043,7 +11043,7 @@ snapshots:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -12321,7 +12321,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       '@types/responselike': 1.0.3
 
   '@types/chai-as-promised@7.1.8':
@@ -12348,7 +12348,7 @@ snapshots:
 
   '@types/dns-packet@5.6.5':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
   '@types/estree@1.0.7': {}
 
@@ -12357,11 +12357,11 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
   '@types/graceful-fs@4.1.9':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
   '@types/http-cache-semantics@4.0.4': {}
 
@@ -12381,7 +12381,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
   '@types/lodash-es@4.17.12':
     dependencies:
@@ -12406,17 +12406,17 @@ snapshots:
   '@types/multicast-dns@7.2.4':
     dependencies:
       '@types/dns-packet': 5.6.5
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
   '@types/node-forge@1.3.11':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
   '@types/node-localstorage@1.3.3':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
-  '@types/node@22.14.1':
+  '@types/node@22.15.2':
     dependencies:
       undici-types: 6.21.0
 
@@ -12428,7 +12428,7 @@ snapshots:
 
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
   '@types/retry@0.12.0': {}
 
@@ -12456,7 +12456,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -12466,7 +12466,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
     optional: true
 
   '@typescript-eslint/eslint-plugin@7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)':
@@ -12819,7 +12819,7 @@ snapshots:
     dependencies:
       '@peculiar/x509': 1.12.3
       asn1js: 3.0.6
-      axios: 1.8.4(debug@4.4.0)
+      axios: 1.9.0(debug@4.4.0)
       debug: 4.4.0(supports-color@8.1.1)
       node-forge: 1.3.1
     transitivePeerDependencies:
@@ -12854,7 +12854,7 @@ snapshots:
       '@types/chai-string': 1.4.5
       '@types/chai-subset': 1.3.6(@types/chai@4.3.20)
       '@types/mocha': 10.0.10
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       '@typescript-eslint/eslint-plugin': 7.18.0(@typescript-eslint/parser@8.31.0(eslint@9.25.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)
       buffer: 6.0.3
       bytes: 3.1.2
@@ -12930,7 +12930,7 @@ snapshots:
       typedoc-plugin-mdn-links: 3.3.8(typedoc@0.25.13(typescript@5.8.3))
       typedoc-plugin-missing-exports: 2.3.0(typedoc@0.25.13(typescript@5.8.3))
       typescript: 5.8.3
-      typescript-docs-verifier: 2.5.3(@types/node@22.14.1)(typescript@5.8.3)
+      typescript-docs-verifier: 2.5.3(@types/node@22.15.2)(typescript@5.8.3)
       wherearewe: 2.0.1
       yargs: 17.7.2
       yargs-parser: 21.1.1
@@ -13177,7 +13177,7 @@ snapshots:
 
   average@0.0.1: {}
 
-  axios@1.8.4(debug@4.4.0):
+  axios@1.9.0(debug@4.4.0):
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.0)
       form-data: 4.0.2
@@ -13700,7 +13700,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -13709,7 +13709,7 @@ snapshots:
 
   chromium-edge-launcher@0.2.0:
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -14466,7 +14466,7 @@ snapshots:
   electron@35.2.1:
     dependencies:
       '@electron/get': 2.0.3
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       extract-zip: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -16794,7 +16794,7 @@ snapshots:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       jest-mock: 29.7.0
       jest-util: 29.7.0
 
@@ -16804,7 +16804,7 @@ snapshots:
     dependencies:
       '@jest/types': 29.6.3
       '@types/graceful-fs': 4.1.9
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -16831,7 +16831,7 @@ snapshots:
   jest-mock@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       jest-util: 29.7.0
 
   jest-regex-util@29.6.3: {}
@@ -16839,7 +16839,7 @@ snapshots:
   jest-util@29.7.0:
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -16856,7 +16856,7 @@ snapshots:
 
   jest-worker@29.7.0:
     dependencies:
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -20067,14 +20067,14 @@ snapshots:
     dependencies:
       typescript: 5.8.3
 
-  ts-node@10.9.2(@types/node@22.14.1)(typescript@5.8.3):
+  ts-node@10.9.2(@types/node@22.15.2)(typescript@5.8.3):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
       '@tsconfig/node12': 1.0.11
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
-      '@types/node': 22.14.1
+      '@types/node': 22.15.2
       acorn: 8.14.1
       acorn-walk: 8.3.4
       arg: 4.1.3
@@ -20241,13 +20241,13 @@ snapshots:
       shiki: 0.14.7
       typescript: 5.8.3
 
-  typescript-docs-verifier@2.5.3(@types/node@22.14.1)(typescript@5.8.3):
+  typescript-docs-verifier@2.5.3(@types/node@22.15.2)(typescript@5.8.3):
     dependencies:
       chalk: 4.1.2
       fs-extra: 10.1.0
       ora: 5.4.1
       strip-ansi: 7.1.0
-      ts-node: 10.9.2(@types/node@22.14.1)(typescript@5.8.3)
+      ts-node: 10.9.2(@types/node@22.15.2)(typescript@5.8.3)
       tsconfig: 7.0.0
       typescript: 5.8.3
       yargs: 17.7.2
