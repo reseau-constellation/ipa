@@ -275,7 +275,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const { sfip } = await this.client.attendreSfipEtOrbite();
 
-    const promesses = new PQueue({concurrency: 1});
+    const promesses = new PQueue({ concurrency: 1 });
 
     const pubsub = sfip.libp2p.services.pubsub;
     const libp2p = sfip.libp2p;
@@ -284,9 +284,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       const messageGs = évé.detail.msg;
       if (messageGs.topic === this.client.sujet_réseau) {
         try {
-          promesses.add(() => this.messageGossipSubReçu({
-            msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
-          }))
+          promesses.add(() =>
+            this.messageGossipSubReçu({
+              msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
+            }),
+          );
         } catch (e) {
           console.error(e.toString());
           console.error(e.stack.toString());

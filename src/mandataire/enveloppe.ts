@@ -107,7 +107,7 @@ export class EnveloppeIpa {
       throw e;
     }
 
-    this._messagesEnAttente.forEach((m) => this._gérerMessage(m));  // À faire: syncroniser
+    this._messagesEnAttente.forEach((m) => this._gérerMessage(m)); // À faire: syncroniser
     this.prêt = true;
 
     this._verrou.release("init");

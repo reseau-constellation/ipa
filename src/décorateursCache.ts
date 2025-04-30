@@ -186,7 +186,8 @@ export class CacheSuivi {
     });
     const idRequête = uuidv4();
 
-    const fFinale = (val: unknown[]) => {  // À faire: async ?
+    const fFinale = (val: unknown[]) => {
+      // À faire: async ?
       if (!this._cacheRecherche[codeCache]) return; // Si on a déjà annulé la requête
       this._cacheRecherche[codeCache].val = val;
       const infoRequêtes = Object.values(
