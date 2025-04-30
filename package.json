@@ -62,7 +62,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "crypto-browserify": "^3.12.1",
-    "electron": "^35.0.1",
+    "electron": "^36.0.0",
     "esbuild": "^0.25.1",
     "eslint": "^9.21.0",
     "eslint-config-airbnb-base": "^15.0.0",
