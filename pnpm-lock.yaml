@@ -19,7 +19,7 @@ importers:
         version: 7.0.1
       '@chriscdn/promise-semaphore':
         specifier: ^2.0.10
-        version: 2.0.11
+        version: 2.0.12
       '@constl/bohr-db':
         specifier: ^1.2.3
         version: 1.2.3(react-native@0.76.6(@babel/core@7.26.10)(@babel/preset-env@7.26.0(@babel/core@7.26.10))(react@18.3.1))
@@ -1187,8 +1187,8 @@ packages:
   '@chainsafe/netmask@2.0.0':
     resolution: {integrity: sha512-I3Z+6SWUoaljh3TBzCnCxjlUyN8tA+NAk5L6m9IxvCf1BENQTePzPMis97CoN/iMW1St3WN+AWCCRp+TTBRiDg==}
 
-  '@chriscdn/promise-semaphore@2.0.11':
-    resolution: {integrity: sha512-Fw68keZcPzifN44h3MXzYaLhxTpGWiQT6iEdJgdwaA2n86r9dCbljiuiys7BUKDDz4CIsVIflLTNXYS/RXULJA==}
+  '@chriscdn/promise-semaphore@2.0.12':
+    resolution: {integrity: sha512-hgbaEg1n+q2ZKKBCrzjRK56pB+IDkj4tFHywz5aVq4sX+2nvyxmD/MuPO8ULe+xOpoCkS3djTliWnXUyGOi3Yg==}
 
   '@colors/colors@1.5.0':
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -10222,7 +10222,7 @@ snapshots:
     dependencies:
       '@chainsafe/is-ip': 2.1.0
 
-  '@chriscdn/promise-semaphore@2.0.11': {}
+  '@chriscdn/promise-semaphore@2.0.12': {}
 
   '@colors/colors@1.5.0': {}
 
