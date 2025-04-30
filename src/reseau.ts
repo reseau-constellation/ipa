@@ -17,6 +17,7 @@ import { JSONSchemaType } from "ajv";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
 import pRetry, { AbortError } from "p-retry";
+import PQueue from "p-queue";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
   Constellation,
@@ -61,7 +62,6 @@ import type {
   schémaRetourFonctionRechercheParProfondeur,
 } from "@/types.js";
 import type { erreurValidation } from "@/valid.js";
-import PQueue from "p-queue";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
 
