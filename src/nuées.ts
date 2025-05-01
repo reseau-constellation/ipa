@@ -2954,7 +2954,7 @@ export class Nuées extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<donnéesTableauExportation>;
     nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
-    vérifierAutorisation?: boolean
+    vérifierAutorisation?: boolean;
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsTableau?: { [clef: string]: string };
