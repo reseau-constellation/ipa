@@ -39,7 +39,6 @@
     "@libp2p/interface": "^2.6.1",
     "@libp2p/interface-connection-manager": "^3.0.1",
     "@libp2p/interface-internal": "^2.3.9",
-    "@libp2p/peer-id-factory": "^4.2.4",
     "@multiformats/multiaddr": "^12.4.0",
     "@orbitdb/core-types": "^1.0.14",
     "@types/crypto-js": "^4.2.2",
