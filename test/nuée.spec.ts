@@ -1790,9 +1790,9 @@ describe("Nuées", function () {
     let client: Constellation;
 
     let idNuée: string;
-    let idTableau1Nuée: string
-    let idTableau2Nuée: string
-    let idColNum: string
+    let idTableau1Nuée: string;
+    let idTableau2Nuée: string;
+    let idColNum: string;
 
     let idBd: string;
     let doc: XLSX.WorkBook;
@@ -1909,8 +1909,9 @@ describe("Nuées", function () {
         idNuée,
         licence: "ODbl-1_0",
       });
-      const idNuéeNExistePas = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"  // N'existe pas
-      schéma.nuées = [idNuéeNExistePas]
+      const idNuéeNExistePas =
+        "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"; // N'existe pas
+      schéma.nuées = [idNuéeNExistePas];
       idBd = await client.bds.créerBdDeSchéma({ schéma });
       await client.bds.ajouterÉlémentÀTableauParClef({
         idBd,
@@ -1920,19 +1921,20 @@ describe("Nuées", function () {
         },
       });
 
-      const { doc, fichiersSFIP, nomFichier } = await client.nuées.exporterDonnéesNuée({
-        idNuée: idNuéeNExistePas,
-        langues: ["fr"],
-        clefTableau: "tableau 1",
-      });
+      const { doc, fichiersSFIP, nomFichier } =
+        await client.nuées.exporterDonnéesNuée({
+          idNuée: idNuéeNExistePas,
+          langues: ["fr"],
+          clefTableau: "tableau 1",
+        });
       expect(Array.isArray(doc.SheetNames));
       expect(doc.SheetNames).to.have.members(["tableau 1"]);
-      
+
       expect(isSet(fichiersSFIP)).to.be.true();
       expect(fichiersSFIP.size).to.equal(0);
 
       expect(nomFichier).to.eq(idNuéeNExistePas.slice("/orbitdb/".length));
-    })
+    });
   });
 
   describe("Générer de bd", function () {

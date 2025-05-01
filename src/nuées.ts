@@ -2988,7 +2988,7 @@ export class Nuées extends ComposanteClientListe<string> {
               acc[idCol] = d[idCol];
             } else {
               const idVar = colonnes?.find((c) => c.id === idCol)?.variable;
-              
+
               const nomVar =
                 langues && idVar && nomsVariables?.[idVar]
                   ? traduire(nomsVariables[idVar], langues) || idCol
