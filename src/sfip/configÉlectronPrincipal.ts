@@ -71,7 +71,7 @@ export const obtOptionsLibp2pÉlectionPrincipal = async ({
         timeout: 0,
       }),
       pubsubPeerDiscovery({
-        interval: 10000,
+        interval: 1000,
         topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
         listenOnly: false,
       }),
@@ -104,6 +104,9 @@ export const obtOptionsLibp2pÉlectionPrincipal = async ({
         ]),
         scoreParams: {
           appSpecificScore: applicationScore,
+        },
+        scoreThresholds: {
+          acceptPXThreshold: 0,
         },
       }),
       upnp: uPnPNAT(),

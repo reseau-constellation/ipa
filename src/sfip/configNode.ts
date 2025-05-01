@@ -109,7 +109,7 @@ export const obtOptionsLibp2pNode = async ({
         timeout: 0,
       }),
       pubsubPeerDiscovery({
-        interval: 10000,
+        interval: 1000,
         topics: ["constellation._peer-discovery._p2p._pubsub"], // defaults to ['_peer-discovery._p2p._pubsub']
         listenOnly: false,
       }),
@@ -144,7 +144,7 @@ export const obtOptionsLibp2pNode = async ({
           appSpecificScore: applicationScore,
         },
         scoreThresholds: {
-          acceptPXThreshold: 100,
+          acceptPXThreshold: 0,
         },
       }),
       /*dht: kadDHT({
