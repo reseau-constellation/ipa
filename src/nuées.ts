@@ -3099,6 +3099,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée,
     langues,
     f,
+    clefTableau,
     nRésultatsDésirés,
     héritage,
     vérifierAutorisation = true,
@@ -3106,6 +3107,7 @@ export class Nuées extends ComposanteClientListe<string> {
     idNuée: string;
     langues?: string[];
     f: schémaFonctionSuivi<donnéesNuéeExportation>;
+    clefTableau?: string;
     nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
     vérifierAutorisation?: boolean;
@@ -3129,40 +3131,58 @@ export class Nuées extends ComposanteClientListe<string> {
       });
     };
 
-    const fOublierTableaux = await suivreDeFonctionListe({
-      fListe: async ({
-        fSuivreRacine,
-      }: {
-        fSuivreRacine: (éléments: infoTableauAvecId[]) => Promise<void>;
-      }) => {
-        return await this.suivreTableauxNuée({ idNuée, f: fSuivreRacine });
-      },
-      f: async (données: donnéesTableauExportation[]) => {
-        info.données = données;
-        await fFinale();
-      },
-      fBranche: async ({
-        id,
-        fSuivreBranche,
-      }: {
-        id: string;
-        fSuivreBranche: schémaFonctionSuivi<donnéesTableauExportation>;
-      }): Promise<schémaFonctionOublier> => {
-        return await this.suivreDonnéesExportationTableau({
+    if (clefTableau) {
+      const fOublierDonnéesTableau = await this.suivreDonnéesExportationTableau(
+        {
           idNuée,
-          clefTableau: id,
+          clefTableau,
           langues,
           nRésultatsDésirés,
           héritage,
           vérifierAutorisation,
           f: async (données) => {
-            return await fSuivreBranche(données);
+            info.données = [données];
+            await fFinale();
           },
-        });
-      },
-      fIdDeBranche: (x) => x.clef,
-    });
-    fsOublier.push(fOublierTableaux);
+        },
+      );
+      fsOublier.push(fOublierDonnéesTableau);
+    } else {
+      const fOublierTableaux = await suivreDeFonctionListe({
+        fListe: async ({
+          fSuivreRacine,
+        }: {
+          fSuivreRacine: (éléments: infoTableauAvecId[]) => Promise<void>;
+        }) => {
+          return await this.suivreTableauxNuée({ idNuée, f: fSuivreRacine });
+        },
+        f: async (données: donnéesTableauExportation[]) => {
+          info.données = données;
+          await fFinale();
+        },
+        fBranche: async ({
+          id,
+          fSuivreBranche,
+        }: {
+          id: string;
+          fSuivreBranche: schémaFonctionSuivi<donnéesTableauExportation>;
+        }): Promise<schémaFonctionOublier> => {
+          return await this.suivreDonnéesExportationTableau({
+            idNuée,
+            clefTableau: id,
+            langues,
+            nRésultatsDésirés,
+            héritage,
+            vérifierAutorisation,
+            f: async (données) => {
+              return await fSuivreBranche(données);
+            },
+          });
+        },
+        fIdDeBranche: (x) => x.clef,
+      });
+      fsOublier.push(fOublierTableaux);
+    }
 
     if (langues) {
       const fOublierNomsNuée = await this.suivreNomsNuée({
@@ -3187,6 +3207,7 @@ export class Nuées extends ComposanteClientListe<string> {
     nomFichier,
     nRésultatsDésirés,
     héritage,
+    clefTableau,
     patience = 500,
     vérifierAutorisation = true,
   }: {
@@ -3195,6 +3216,7 @@ export class Nuées extends ComposanteClientListe<string> {
     nomFichier?: string;
     nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
+    clefTableau?: string;
     patience?: number;
     vérifierAutorisation?: boolean;
   }): Promise<donnéesBdExportées> {
@@ -3209,6 +3231,7 @@ export class Nuées extends ComposanteClientListe<string> {
           idNuée,
           langues,
           f: fSuivi,
+          clefTableau,
           héritage,
           vérifierAutorisation,
           nRésultatsDésirés,
