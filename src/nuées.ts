@@ -2967,14 +2967,14 @@ export class Nuées extends ComposanteClientListe<string> {
     const fFinale = async () => {
       const { colonnes, données, nomsTableau, nomsVariables } = info;
 
-      if (colonnes && données && (!langues || (nomsTableau && nomsVariables))) {
+      if (données) {
         const fichiersSFIP: Set<string> = new Set();
 
         let donnéesFormattées: élémentBdListeDonnées[] = await Promise.all(
           données.map(async (d) => {
             const élémentFormatté = await this.client.tableaux.formaterÉlément({
               é: d.élément.données,
-              colonnes,
+              colonnes: colonnes || [],
               fichiersSFIP,
               langues,
             });
@@ -2987,17 +2987,10 @@ export class Nuées extends ComposanteClientListe<string> {
             if (idCol === "auteur") {
               acc[idCol] = d[idCol];
             } else {
-              const idVar = colonnes.find((c) => c.id === idCol)?.variable;
-              if (!idVar)
-                throw new Error(
-                  `Colonnne avec id ${idCol} non trouvée parmis les colonnnes :\n${JSON.stringify(
-                    colonnes,
-                    undefined,
-                    2,
-                  )}.`,
-                );
+              const idVar = colonnes?.find((c) => c.id === idCol)?.variable;
+              
               const nomVar =
-                langues && nomsVariables?.[idVar]
+                langues && idVar && nomsVariables?.[idVar]
                   ? traduire(nomsVariables[idVar], langues) || idCol
                   : idCol;
               acc[nomVar] = d[idCol];

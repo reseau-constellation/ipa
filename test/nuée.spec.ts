@@ -1790,6 +1790,10 @@ describe("Nuées", function () {
     let client: Constellation;
 
     let idNuée: string;
+    let idTableau1Nuée: string
+    let idTableau2Nuée: string
+    let idColNum: string
+
     let idBd: string;
     let doc: XLSX.WorkBook;
     let fichiersSFIP: Set<string>;
@@ -1815,11 +1819,11 @@ describe("Nuées", function () {
         nom: "Ma nuée",
       });
 
-      const idTableau1Nuée = await client.nuées.ajouterTableauNuée({
+      idTableau1Nuée = await client.nuées.ajouterTableauNuée({
         idNuée,
         clefTableau: "tableau 1",
       });
-      const idTableau2Nuée = await client.nuées.ajouterTableauNuée({
+      idTableau2Nuée = await client.nuées.ajouterTableauNuée({
         idNuée,
         clefTableau: "tableau 2",
       });
@@ -1830,7 +1834,7 @@ describe("Nuées", function () {
       const idVarFichier = await client.variables.créerVariable({
         catégorie: "fichier",
       });
-      await client.nuées.ajouterColonneTableauNuée({
+      idColNum = await client.nuées.ajouterColonneTableauNuée({
         idTableau: idTableau1Nuée,
         idVariable: idVarNum,
       });
@@ -1861,13 +1865,13 @@ describe("Nuées", function () {
         },
       });
 
-      await client.tableaux.sauvegarderNomsTableau({
+      await client.nuées.sauvegarderNomsTableauNuée({
         idTableau: idTableau1Nuée,
         noms: {
           fr: nomTableau1,
         },
       });
-      await client.tableaux.sauvegarderNomsTableau({
+      await client.nuées.sauvegarderNomsTableauNuée({
         idTableau: idTableau2Nuée,
         noms: {
           fr: nomTableau2,
@@ -1899,6 +1903,36 @@ describe("Nuées", function () {
     it("Nom fichier", () => {
       expect(nomFichier).to.eq("Ma nuée");
     });
+
+    it("Exportable même si nuée non disponible", async () => {
+      const schéma = await client.nuées.générerSchémaBdNuée({
+        idNuée,
+        licence: "ODbl-1_0",
+      });
+      const idNuéeNExistePas = "/orbitdb/zdpuAsiATt21PFpiHj8qLX7X7kN3bgozZmhEVswGncZYVHidX"  // N'existe pas
+      schéma.nuées = [idNuéeNExistePas]
+      idBd = await client.bds.créerBdDeSchéma({ schéma });
+      await client.bds.ajouterÉlémentÀTableauParClef({
+        idBd,
+        clefTableau: "tableau 1",
+        vals: {
+          [idColNum]: 123,
+        },
+      });
+
+      const { doc, fichiersSFIP, nomFichier } = await client.nuées.exporterDonnéesNuée({
+        idNuée: idNuéeNExistePas,
+        langues: ["fr"],
+        clefTableau: "tableau 1",
+      });
+      expect(Array.isArray(doc.SheetNames));
+      expect(doc.SheetNames).to.have.members(["tableau 1"]);
+      
+      expect(isSet(fichiersSFIP)).to.be.true();
+      expect(fichiersSFIP.size).to.equal(0);
+
+      expect(nomFichier).to.eq(idNuéeNExistePas.slice("/orbitdb/".length));
+    })
   });
 
   describe("Générer de bd", function () {
