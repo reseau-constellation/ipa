@@ -2946,6 +2946,7 @@ export class Nuées extends ComposanteClientListe<string> {
     f,
     nRésultatsDésirés,
     héritage,
+    vérifierAutorisation = true,
   }: {
     clefTableau: string;
     idNuée: string;
@@ -2953,6 +2954,7 @@ export class Nuées extends ComposanteClientListe<string> {
     f: schémaFonctionSuivi<donnéesTableauExportation>;
     nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
+    vérifierAutorisation?: boolean
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsTableau?: { [clef: string]: string };
@@ -3080,6 +3082,7 @@ export class Nuées extends ComposanteClientListe<string> {
       clefTableau,
       nRésultatsDésirés,
       héritage,
+      vérifierAutorisation,
       f: async (données) => {
         info.données = données;
         await fFinale();
@@ -3098,12 +3101,14 @@ export class Nuées extends ComposanteClientListe<string> {
     f,
     nRésultatsDésirés,
     héritage,
+    vérifierAutorisation = true,
   }: {
     idNuée: string;
     langues?: string[];
     f: schémaFonctionSuivi<donnéesNuéeExportation>;
     nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
+    vérifierAutorisation?: boolean;
   }): Promise<schémaFonctionOublier> {
     const info: {
       nomsNuée?: { [langue: string]: string };
@@ -3149,6 +3154,7 @@ export class Nuées extends ComposanteClientListe<string> {
           langues,
           nRésultatsDésirés,
           héritage,
+          vérifierAutorisation,
           f: async (données) => {
             return await fSuivreBranche(données);
           },
@@ -3182,6 +3188,7 @@ export class Nuées extends ComposanteClientListe<string> {
     nRésultatsDésirés,
     héritage,
     patience = 500,
+    vérifierAutorisation = true,
   }: {
     idNuée: string;
     langues?: string[];
@@ -3189,6 +3196,7 @@ export class Nuées extends ComposanteClientListe<string> {
     nRésultatsDésirés?: number;
     héritage?: ("descendance" | "ascendance")[];
     patience?: number;
+    vérifierAutorisation?: boolean;
   }): Promise<donnéesBdExportées> {
     const doc = utils.book_new();
     const fichiersSFIP: Set<string> = new Set();
@@ -3202,6 +3210,7 @@ export class Nuées extends ComposanteClientListe<string> {
           langues,
           f: fSuivi,
           héritage,
+          vérifierAutorisation,
           nRésultatsDésirés,
         });
       },
