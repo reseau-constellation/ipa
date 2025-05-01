@@ -422,13 +422,13 @@ export const infoLicences: { [key: string]: InfoLicence } = {
 export const licences = Object.keys(infoLicences);
 
 type ÉvénementsLicences = {
-  prêt: (args: { perroquet?: கிளி<InfoLicenceAvecCode> }) => void;
+  prêt: (args: { perroquet?: கிளி<InfoLicenceAvecCode> | false }) => void;
 };
 
 export class Licences {
   client: Constellation;
   événements: TypedEmitter<ÉvénementsLicences>;
-  perroquet?: கிளி<InfoLicenceAvecCode>;
+  perroquet?: கிளி<InfoLicenceAvecCode> | false;
 
   constructor({ client }: { client: Constellation }) {
     this.client = client;
@@ -455,12 +455,14 @@ export class Licences {
         வார்ப்புரு: SCHÉMA_BD_LICENCES,
       });
       this.perroquet = perroquet;
+    } else {
+      this.perroquet = false;
     }
     this.événements.emit("prêt", { perroquet: this.perroquet });
   }
 
-  async obtPerroquet(): Promise<{ perroquet: கிளி<InfoLicenceAvecCode> }> {
-    if (this.perroquet) return { perroquet: this.perroquet };
+  async obtPerroquet(): Promise<{ perroquet: கிளி<InfoLicenceAvecCode> | false }> {
+    if (this.perroquet !== undefined) return { perroquet: this.perroquet };
     return new Promise((résoudre, rejeter) => {
       this.événements.once("prêt", ({ perroquet }) => {
         if (perroquet) résoudre({ perroquet });
