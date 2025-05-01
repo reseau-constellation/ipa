@@ -1,12 +1,12 @@
-import { type InfoLicence, infoLicences, licences } from "@/licences.js";
-import { schémaFonctionOublier } from "@/types.js";
-import type { Constellation } from "@/client.js";
 import {
   attente,
   constellation as utilsTestConstellation,
 } from "@constl/utils-tests";
-import { créerConstellation } from "@/index.js";
 import { expect } from "aegir/chai";
+import { type InfoLicence, infoLicences, licences } from "@/licences.js";
+import { schémaFonctionOublier } from "@/types.js";
+import { créerConstellation } from "@/index.js";
+import type { Constellation } from "@/client.js";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
@@ -22,7 +22,9 @@ describe("Licences", function () {
     let client: Constellation;
 
     const fsOublier: schémaFonctionOublier[] = [];
-    const licencesSuivies = new attente.AttendreRésultat<{ [licence: string]: InfoLicence; }>();
+    const licencesSuivies = new attente.AttendreRésultat<{
+      [licence: string]: InfoLicence;
+    }>();
 
     before(async () => {
       ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
@@ -38,14 +40,16 @@ describe("Licences", function () {
     });
 
     it("licences dynamiques", async () => {
-      
       const fOublier = await client.licences.suivreLicences({
-        f: x => {console.log("ahah", Object.keys(x).length); licencesSuivies.mettreÀJour(x)}
+        f: (x) => {
+          console.log("ahah", Object.keys(x).length);
+          licencesSuivies.mettreÀJour(x);
+        },
       });
       fsOublier.push(fOublier);
 
-      const val = await licencesSuivies.attendreExiste()
-      expect(Object.keys(val).length).to.be.gt(0)
+      const val = await licencesSuivies.attendreExiste();
+      expect(Object.keys(val).length).to.be.gt(0);
     });
-  })
+  });
 });

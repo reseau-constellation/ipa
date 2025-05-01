@@ -461,7 +461,9 @@ export class Licences {
     this.événements.emit("prêt", { perroquet: this.perroquet });
   }
 
-  async obtPerroquet(): Promise<{ perroquet: கிளி<InfoLicenceAvecCode> | false }> {
+  async obtPerroquet(): Promise<{
+    perroquet: கிளி<InfoLicenceAvecCode> | false;
+  }> {
     if (this.perroquet !== undefined) return { perroquet: this.perroquet };
     return new Promise((résoudre, rejeter) => {
       this.événements.once("prêt", ({ perroquet }) => {
