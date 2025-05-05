@@ -1275,6 +1275,44 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
+  async révoquerAcceptationMembreAutorisation({
+    idAutorisation,
+    idCompte,
+  }: {
+    idAutorisation: string;
+    idCompte: string;
+  }): Promise<void> {
+    const idBdMembres = await this.client.obtIdBd({
+      nom: "membres",
+      racine: idAutorisation,
+      type: "keyvalue",
+    });
+
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdMembres,
+      type: "keyvalue",
+      schéma: schémaBdAutorisations,
+    });
+    await bd.del(idCompte);
+    fOublier();
+  }
+
+  async révoquerAcceptationMembreNuée({
+    idNuée,
+    idCompte,
+  }: {
+    idNuée: string;
+    idCompte: string;
+  }): Promise<void> {
+    const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({
+      idNuée,
+    });
+    return await this.révoquerAcceptationMembreAutorisation({
+      idAutorisation,
+      idCompte,
+    });
+  }
+
   async exclureMembreAutorisation({
     idAutorisation,
     idCompte,
@@ -1308,6 +1346,44 @@ export class Nuées extends ComposanteClientListe<string> {
       idNuée,
     });
     return await this.exclureMembreAutorisation({
+      idAutorisation,
+      idCompte,
+    });
+  }
+
+  async révoquerExclusionMembreAutorisation({
+    idAutorisation,
+    idCompte,
+  }: {
+    idAutorisation: string;
+    idCompte: string;
+  }): Promise<void> {
+    const idBdMembres = await this.client.obtIdBd({
+      nom: "membres",
+      racine: idAutorisation,
+      type: "keyvalue",
+    });
+
+    const { bd, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdMembres,
+      type: "keyvalue",
+      schéma: schémaBdAutorisations,
+    });
+    await bd.del(idCompte);
+    fOublier();
+  }
+
+  async révoquerExclusionMembreNuée({
+    idNuée,
+    idCompte,
+  }: {
+    idNuée: string;
+    idCompte: string;
+  }): Promise<void> {
+    const idAutorisation = await this.obtGestionnaireAutorisationsDeNuée({
+      idNuée,
+    });
+    return await this.révoquerExclusionMembreAutorisation({
       idAutorisation,
       idCompte,
     });
