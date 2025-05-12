@@ -691,6 +691,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       sfipFinale = (await initSFIP({
         dossier: await join(await this.dossier(), "sfip"),
         domaines: this._opts.domaines,
+        pairsParDéfaut: this._opts.pairsParDéfaut,
         clefPrivée,
       })) as unknown as HeliaLibp2p<Libp2p<T>>;
 

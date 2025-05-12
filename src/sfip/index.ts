@@ -104,6 +104,7 @@ export async function initSFIP({
     dossier,
     domaines,
     pairsParDéfaut,
+    clefPrivée,
   });
 
   configParDéfaut.privateKey = clefPrivée;
