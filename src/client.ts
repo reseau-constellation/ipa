@@ -1444,11 +1444,13 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     nouvelleBd,
     clef,
     schéma,
+    ordonnée = false,
   }: {
     bdBase: TypedKeyValue<T>;
     nouvelleBd: TypedKeyValue<T>;
     clef: C;
     schéma: JSONSchemaType<U>;
+    ordonnée?: boolean
   }): Promise<void> {
     const idBdDicInit = await bdBase.get(clef);
 
@@ -1456,7 +1458,8 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
 
     const { bd: bdDicInit, fOublier: fOublierInit } = await this.ouvrirBdTypée({
       id: idBdDicInit,
-      type: "keyvalue",
+      // ‌‌À réparer...
+      type: (ordonnée ? "ordered-keyvalue" : "keyvalue") as "ordered-keyvalue",
       schéma,
     });
 
@@ -1465,10 +1468,12 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     if (typeof idNouvelleBdDic !== "string")
       throw new Error(`${idNouvelleBdDic} n'est pas une adresse Orbite.`);
 
+    // ‌‌‌@ts-ignore
     const { bd: nouvelleBdDic, fOublier: fOublierNouvelle } =
       await this.ouvrirBdTypée({
         id: idNouvelleBdDic,
-        type: "keyvalue",
+        // ‌‌À réparer...
+        type: (ordonnée ? "ordered-keyvalue" : "keyvalue") as "ordered-keyvalue",
         schéma,
       });
 

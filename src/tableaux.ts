@@ -288,7 +288,7 @@ export class Tableaux {
 
     const établirColonnes = async () => {
       const idBdColonnes = await this.client.créerBdIndépendante({
-        type: "keyvalue",
+        type: "ordered-keyvalue",
         optionsAccès,
       });
       await bdTableau.set("colonnes", idBdColonnes);
@@ -357,6 +357,7 @@ export class Tableaux {
       nouvelleBd,
       clef: "colonnes",
       schéma: schémaBdInfoCol,
+      ordonnée: true,
     });
 
     // Copier les règles
@@ -494,12 +495,12 @@ export class Tableaux {
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdColonnes,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
       schéma: schémaBdInfoCol,
     });
     const éléments = await bdColonnes.all();
@@ -988,12 +989,12 @@ export class Tableaux {
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdColonnes,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
       schéma: schémaBdInfoCol,
     });
     const idsColonnes: string[] = (await bdColonnes.all()).map(
@@ -1607,12 +1608,12 @@ export class Tableaux {
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdColonnes,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
       schéma: schémaBdInfoCol,
     });
 
@@ -1638,12 +1639,12 @@ export class Tableaux {
     const idBdColonnes = await this.client.obtIdBd({
       nom: "colonnes",
       racine: idTableau,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
     });
 
     const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
       id: idBdColonnes,
-      type: "keyvalue",
+      type: "ordered-keyvalue",
       schéma: schémaBdInfoCol,
     });
     await bdColonnes.del(idColonne);
@@ -1659,11 +1660,11 @@ export class Tableaux {
     idTableau: string;
     f: schémaFonctionSuivi<InfoCol[]>;
   }): Promise<schémaFonctionOublier> {
-    return await this.client.suivreBdDicDeClef({
+    return await this.client.suivreBdDicOrdonnéeDeClef({
       id: idTableau,
       clef: "colonnes",
       schéma: schémaBdInfoCol,
-      f: async (cols) => await f(Object.values(cols)),
+      f: async (cols) => await f(cols.map(c=>c.value)),
     });
   }
 

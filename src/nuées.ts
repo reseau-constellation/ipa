@@ -1639,6 +1639,34 @@ export class Nuées extends ComposanteClientListe<string> {
     });
   }
 
+  async réordonnerTableauxBd({
+    idNuée,
+    ordreIdsTableaux
+  }:{
+    idNuée: string;
+    ordreIdsTableaux: string[];
+  }): Promise<void> {
+    await this._confirmerPermission({ idNuée });
+    const idBdTableaux = await this.client.obtIdBd({
+      nom: "tableaux",
+      racine: idNuée,
+      type: "ordered-keyvalue",
+    });
+
+    const { bd: bdTableaux, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdTableaux,
+      type: "ordered-keyvalue",
+      schéma: schémaBdTableauxDeBd,
+    });
+
+    const tableauxExistants = await bdTableaux.all();
+    const ordreIdsExistants = tableauxExistants.map(t=>t.key) as string[];  // Drôle d'erreur de types
+    for (const [i, t] of ordreIdsTableaux.entries()) {
+      if (i !== ordreIdsExistants.indexOf(t)) await bdTableaux.move(t, i)
+    }
+    await fOublier();
+  }
+
   async sauvegarderNomsTableauNuée({
     idTableau,
     noms,
