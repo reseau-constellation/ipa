@@ -1,4 +1,4 @@
-import Semaphore from "@chriscdn/promise-semaphore";
+import {Semaphore} from "@chriscdn/promise-semaphore";
 import { unixfs } from "@helia/unixfs";
 import { Libp2p } from "@libp2p/interface";
 import { எண்ணிக்கை } from "ennikkai";
