@@ -25,7 +25,7 @@ import {
 } from "@constl/bohr-db";
 import { type JSONSchemaType } from "ajv";
 
-import Semaphore from "@chriscdn/promise-semaphore";
+import {Semaphore} from "@chriscdn/promise-semaphore";
 import { anySignal } from "any-signal";
 import { AbortError, type ServiceMap } from "@libp2p/interface";
 import { enregistrerContrôleurs } from "@/accès/index.js";
@@ -317,16 +317,17 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
       const vérifierTypeBd = <U extends keyof TypesBdsOrbites>(
         bd: Store,
         type: U,
+        stricte=true,
       ): bd is TypesBdsOrbites[U] => {
         const { type: typeBd } = bd;
-        return typeBd === type;
+        return typeBd === type || (!stricte && typeBd === 'keyvalue' && type === 'ordered-keyvalue');
       };
 
       if (existante) {
         this._bdsOrbite[id].idsRequêtes.add(idRequête);
         this.verrouOuvertureBd.release(id);
 
-        if (type && !vérifierTypeBd(existante.bd, type))
+        if (type && !vérifierTypeBd(existante.bd, type, false))
           throw new Error(
             // @ts-expect-error Je ne comprends pas complètement
             `La bd est de type ${existante.bd.type}, et non ${type}.`,

@@ -20,7 +20,7 @@ import xlsx, {
   writeFile as xlsxWriteFile,
 } from "xlsx";
 
-import Semaphore from "@chriscdn/promise-semaphore";
+import {Semaphore} from "@chriscdn/promise-semaphore";
 import pkg from "file-saver";
 import { cacheSuivi } from "@/décorateursCache.js";
 import {
