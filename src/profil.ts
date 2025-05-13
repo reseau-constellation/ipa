@@ -349,7 +349,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
     f,
     idCompte,
   }: {
-    f: schémaFonctionSuivi<Uint8Array | null>;
+    f: schémaFonctionSuivi<{image: Uint8Array, idImage: string} | null>;
     idCompte?: string;
   }): Promise<schémaFonctionOublier> {
     return await suivreFonctionImbriquée({
@@ -371,7 +371,7 @@ export class Profil extends ComposanteClientDic<structureBdProfil> {
                 id: idImage,
                 max: MAX_TAILLE_IMAGE_VIS,
               });
-              return await fSuivreBd(image);
+              return await fSuivreBd(image ? {image, idImage: idImage} : null);
             }
           },
         });
