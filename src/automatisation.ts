@@ -522,7 +522,7 @@ const générerFExportation = (
         const donnéesNuée = await client.nuées.exporterDonnéesNuée({
           idNuée: spéc.idObjet,
           langues: spéc.langues,
-          nRésultatsDésirés: spéc.nRésultatsDésirésNuée || 1000,
+          nRésultatsDésirés: spéc.nRésultatsDésirésNuée,
           héritage: spéc.héritage,
         });
         nomFichier = donnéesNuée.nomFichier;
@@ -670,7 +670,6 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
       : undefined;
 
   const queue = new PQueue({ concurrency: 1 });
-  let idDernièreRequêteOpération = "";
   const requêteDernièreModifImportée = await client.obtDeStockageLocal({
     clef: clefStockageDernièreFois,
   });
@@ -678,10 +677,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 
   const fAutoAvecÉtats = async (requête: string) => {
     if (requêtesDéjàExécutées.has(requête)) return;
-
-    idDernièreRequêteOpération = requête;
     if (
-      requête !== idDernièreRequêteOpération ||
       requêtesDéjàExécutées.has(requête)
     ) {
       return;

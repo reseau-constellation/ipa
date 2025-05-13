@@ -885,14 +885,12 @@ describe("Automatisation", function () {
         fichier,
       );
       fsOublier.push(() => attenteModifié.annuler());
-
       const avant = Date.now();
       await client.bds.ajouterÉlémentÀTableauParClef({
         idBd,
         clefTableau,
         vals: { [idColonneNumérique]: 123 },
       });
-
       await attenteModifié.attendre(avant, async () => {
         const doc = xlsxReadFile(fichier);
         return (
