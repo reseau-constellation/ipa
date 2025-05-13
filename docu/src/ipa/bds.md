@@ -801,6 +801,31 @@ const idTableau = await client.bds.ajouterTableauBd({ idBd });
 
 ```
 
+### `client.bds.réordonnerTableauxBd({ idBd, ordreIdsTableaux })`
+Réordonner les tableaux de la base de données.
+
+#### Paramètres
+| Nom | Type | Description |
+| --- | ---- | ----------- |
+| `idBd` | `string` | L'identifiant de la base de données. |
+| `ordreIdsTableaux` | `string[]` | Les identifiants des tableaux dans leur nouvel ordre. Tous les tableaux de la base de donnée doivent être présents dans cette liste ; dans le cas contraire, une erreur sera soulevée. |
+
+#### Exemple
+```ts
+import { créerConstellation } from "@constl/ipa";
+const client = créerConstellation();
+
+const idBd = await client.bds.créerBd(: "ODBl-1_0" });
+const idTableau = await client.bds.ajouterTableauBd({ idBd });
+const idTableau2 = await client.bds.ajouterTableauBd({ idBd });
+
+await client.bds.réordonnerTableauxBd({ 
+  idBd, 
+  ordreIdsTableaux: [idTableau2, idTableau]
+});
+
+```
+
 ### `client.bds.spécifierClefTableau({ idBd, idTableau, clef })`
 Change la clef identifiant un tableau de la base de données.
 
