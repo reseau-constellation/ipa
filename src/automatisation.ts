@@ -677,9 +677,7 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
 
   const fAutoAvecÉtats = async (requête: string) => {
     if (requêtesDéjàExécutées.has(requête)) return;
-    if (
-      requêtesDéjàExécutées.has(requête)
-    ) {
+    if (requêtesDéjàExécutées.has(requête)) {
       return;
     }
     await client.sauvegarderAuStockageLocal({

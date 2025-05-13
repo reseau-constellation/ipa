@@ -1973,8 +1973,10 @@ if (isNode || isElectronMain) {
       const résCourriel = new utilsTestAttente.AttendreRésultat<
         string | null
       >();
-      const résImage =
-        new utilsTestAttente.AttendreRésultat<{image: Uint8Array; idImage: string} | null>();
+      const résImage = new utilsTestAttente.AttendreRésultat<{
+        image: Uint8Array;
+        idImage: string;
+      } | null>();
 
       const fsOublier: schémaFonctionOublier[] = [];
 

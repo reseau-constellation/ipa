@@ -148,7 +148,10 @@ describe("Profil", function () {
   });
 
   describe("Images", function () {
-    const rés = new utilsTestAttente.AttendreRésultat<{image: Uint8Array; idImage: string} | null>();
+    const rés = new utilsTestAttente.AttendreRésultat<{
+      image: Uint8Array;
+      idImage: string;
+    } | null>();
 
     let fOublier: schémaFonctionOublier;
 

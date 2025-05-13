@@ -51,7 +51,9 @@ export const rechercherProfilsSelonActivité =
         infosCompte.noms = noms;
         fSuivreRecherche(calculerScore());
       };
-      const fSuivreImage = (infoImage: {image: Uint8Array, idImage: string} | null) => {
+      const fSuivreImage = (
+        infoImage: { image: Uint8Array; idImage: string } | null,
+      ) => {
         infosCompte.image = infoImage?.image;
         fSuivreRecherche(calculerScore());
       };
@@ -199,7 +201,7 @@ export const rechercherProfilsSelonImage = (
     };
     const fOublier = await client.profil.suivreImage({
       idCompte,
-      f: x=>fSuivre(x?.image || null),
+      f: (x) => fSuivre(x?.image || null),
     });
     return fOublier;
   };

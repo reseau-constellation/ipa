@@ -938,7 +938,7 @@ export class Nuées extends ComposanteClientListe<string> {
     f,
   }: {
     idNuée: string;
-    f: schémaFonctionSuivi<{image: Uint8Array, idImage: string} | null>;
+    f: schémaFonctionSuivi<{ image: Uint8Array; idImage: string } | null>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idNuée,
@@ -953,7 +953,7 @@ export class Nuées extends ComposanteClientListe<string> {
             id: idImage,
             max: MAX_TAILLE_IMAGE_VIS,
           });
-          await f(image ? {image, idImage: idImage} : null);
+          await f(image ? { image, idImage: idImage } : null);
         }
       },
     });

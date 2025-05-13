@@ -776,7 +776,7 @@ export class Projets extends ComposanteClientListe<string> {
     f,
   }: {
     idProjet: string;
-    f: schémaFonctionSuivi<{image: Uint8Array, idImage: string} | null>;
+    f: schémaFonctionSuivi<{ image: Uint8Array; idImage: string } | null>;
   }): Promise<schémaFonctionOublier> {
     return await this.client.suivreBd({
       id: idProjet,
@@ -791,7 +791,7 @@ export class Projets extends ComposanteClientListe<string> {
             id: idImage,
             max: MAX_TAILLE_IMAGE_VIS,
           });
-          return await f(image ? {image, idImage: idImage} : null);;
+          return await f(image ? { image, idImage: idImage } : null);
         }
       },
     });
