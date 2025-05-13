@@ -487,7 +487,7 @@ Suit l'image de la nuée.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idNuée` | `string` | L'identifiant de la nuée. |
-| `f` | `(image: Uint8Array | null) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
+| `f` | `(image: { image: Uint8Array, idImage: string } | null) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
 
 #### Retour
 | Type | Description |
@@ -503,7 +503,7 @@ const client = créerConstellation();
 
 const idNuée = await client.nuées.créerNuée();
 
-const image = ref<Uint8Array | null>();
+const image = ref<{ image: Uint8Array, idImage: string } | null>();
 const fOublierImage = await client.nuées.suivreImage({ 
     idNuée, 
     f: x => image.value = x

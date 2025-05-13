@@ -484,7 +484,7 @@ Suit l'image de la base de données.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idBd` | `string` | L'identifiant de la base de données. |
-| `f` | `(image: Uint8Array | null) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
+| `f` | `({ image: Uint8Array, idImage: string } | null) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
 
 #### Retour
 | Type | Description |

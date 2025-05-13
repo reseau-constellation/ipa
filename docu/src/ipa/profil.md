@@ -122,7 +122,7 @@ Suit l'image de profil de l'utilisatrice.
 #### Paramètres
 | Nom | Type | Description |
 | --- | ---- | ----------- |
-| `f` | `(image: Uint8Array) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
+| `f` | `(image: { image: Uint8Array, idImage: string } \| null) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
 | `idCompte?` | `string \| undefined` | L'id du compte de l'utilisateur. Par défaut, sera l'utilisateur courrant. |
 
 #### Retour
@@ -136,7 +136,7 @@ import { ref } from 'vue';
 import { créerConstellation } from "@constl/ipa";
 const client = créerConstellation();
 
-const image = ref<Uint8Array>();
+const image = ref<{ image: { image: Uint8Array, idImage: string }, idImage: string } | null>();
 const fOublierImage = await client.profil.suivreImage({ f: x => image.value = x });
 await fOublierImage();
 ```

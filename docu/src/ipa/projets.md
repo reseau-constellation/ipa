@@ -413,7 +413,7 @@ Suit l'image du projet.
 | Nom | Type | Description |
 | --- | ---- | ----------- |
 | `idProjet` | `string` | L'identifiant du projet. |
-| `f` | `(image: Uint8Array | null) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
+| `f` | `(image: { image: Uint8Array, idImage: string } | null) => void` | Une fonction qui sera appelée avec l'image chaque fois que celle-ci change. |
 
 #### Retour
 | Type | Description |
@@ -429,7 +429,7 @@ const client = créerConstellation();
 
 const idProjet = await client.projets.créerProjet();
 
-const image = ref<Uint8Array | null>();
+const image = ref<{ image: Uint8Array, idImage: string } | null>();
 const fOublierImage = await client.projets.suivreImage({ f: x => image.value = x });
 
 await fOublierImage();

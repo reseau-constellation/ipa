@@ -35,7 +35,7 @@ import { créerConstellation } from "@constl/ipa";
 
 const client = créerConstellation();
 
-let image: Uint8Array | null;
+let image: { image: Uint8Array, idImage: string } | null;
 
 const oublierImage = await client.profil.suivreImage({ 
     idCompte: "id du compte qui m'intéresse",
@@ -61,12 +61,12 @@ import { ref, inject, computed, onMounted, onUnmounted } from "vue";
 
 const client = inject<Constellation>("constl")  // Initialiser le client dans une extention Vue
 
-const image = ref<Uint8Array | null>();
+const image = ref<{ image: Uint8Array, idImage: string } | null>();
 
 const imageURL = computed(() => {
     if (image.value){
         return URL.createObjectURL(
-            new Blob([image.value.buffer], { type: `image/png` })
+            new Blob([image.value.image.buffer], { type: `image/png` })
         );
     } else {
         return undefined
