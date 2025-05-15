@@ -193,7 +193,6 @@ with Serveur():
     données = client.obt_données_tableau_nuée(
         id_nuée=id_nuée, 
         clef_tableau=clef_tableau,
-        n_résultats_désirés=100
     )
 ```
 
