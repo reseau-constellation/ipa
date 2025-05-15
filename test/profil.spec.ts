@@ -184,7 +184,7 @@ describe("Profil", function () {
         image: { contenu: IMAGE, nomFichier: "logo.svg" },
       });
       const val = await rés.attendreExiste();
-      expect(val).to.deep.equal(new Uint8Array(IMAGE));
+      expect(val?.image).to.deep.equal(new Uint8Array(IMAGE));
     });
 
     it("Effacer l'image", async () => {
