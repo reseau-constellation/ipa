@@ -31,15 +31,13 @@ import type {
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
-describe("Tableaux", function () {
+describe.only("Tableaux", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
 
   let idBd: string;
   let idTableau: string;
-
-  const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
 
   before(async () => {
     ({ fOublier: fOublierClients, clients } = await créerConstellationsTest({
@@ -149,6 +147,7 @@ describe("Tableaux", function () {
   describe("Données", function () {
     let idsVariables: string[];
 
+    const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
     const variables = new attente.AttendreRésultat<string[]>();
     const données = new attente.AttendreRésultat<
       élémentDonnées<élémentBdListeDonnées>[]
@@ -322,17 +321,25 @@ describe("Tableaux", function () {
 
   describe("Colonnes index", function () {
     const indexes = new attente.AttendreRésultat<string[]>();
-    let fOublier: schémaFonctionOublier;
+    const colonnes = new attente.AttendreRésultat<InfoColAvecCatégorie[]>();
+
+    const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      fOublier = await client.tableaux.suivreIndex({
+      fsOublier.push(await client.tableaux.suivreIndex({
         idTableau,
         f: (x) => indexes.mettreÀJour(x),
-      });
+      }));
+      fsOublier.push(
+        await client.tableaux.suivreColonnesEtCatégoriesTableau({
+          idTableau,
+          f: (c) => colonnes.mettreÀJour(c),
+        }),
+      );
     });
 
     after(async () => {
-      if (fOublier) await fOublier();
+      await Promise.allSettled(fsOublier.map(f=>f()))
     });
 
     it("Pas d'index pour commencer", async () => {
@@ -364,6 +371,34 @@ describe("Tableaux", function () {
 
       const valIndexes = await indexes.attendreQue((x) => x.length === 0);
       expect(valIndexes).to.be.an.empty("array");
+    });
+  });
+
+  describe("Id colonne", function () {
+    const colonnes = new attente.AttendreRésultat<InfoCol[]>();
+    let fOublier: schémaFonctionOublier;
+
+    before(async () => {
+      fOublier = await client.tableaux.suivreColonnesTableau({
+        idTableau,
+        f: (x) => colonnes.mettreÀJour(x),
+      });
+    });
+
+    after(async () => {
+      if (fOublier) await fOublier();
+    });
+
+    it("Changer un id de colonne", async () => {
+      const valColonnes = await colonnes.attendreExiste();
+
+      await client.tableaux.changerIdColonne({
+        idTableau,
+        idColonne: valColonnes[0].id,
+        nouvelleIdColonne: "nouvel identifiant"
+      });
+      const nouvellesColonnes = await colonnes.attendreQue((x) => x[0].id !== valColonnes[0].id);
+      expect(nouvellesColonnes[0].id).to.equal("nouvel identifiant");
     });
   });
 

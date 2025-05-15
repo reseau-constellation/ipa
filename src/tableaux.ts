@@ -516,6 +516,40 @@ export class Tableaux {
     await fOublier();
   }
 
+  async changerIdColonne({
+    idTableau,
+    idColonne,
+    nouvelleIdColonne,
+  }: {
+    idTableau: string;
+    idColonne: string;
+    nouvelleIdColonne: string;
+  }): Promise<void> {
+    await this._confirmerPermission({ idTableau });
+    const idBdColonnes = await this.client.obtIdBd({
+      nom: "colonnes",
+      racine: idTableau,
+      type: "ordered-keyvalue",
+    });
+
+    const { bd: bdColonnes, fOublier } = await this.client.ouvrirBdTypée({
+      id: idBdColonnes,
+      type: "ordered-keyvalue",
+      schéma: schémaBdInfoCol,
+    });
+    const élémentCol = await bdColonnes.get(idColonne);
+
+    if (élémentCol) {
+      const { value } = élémentCol;
+      const nouvelÉlément: InfoCol = Object.assign(value, { id: nouvelleIdColonne });
+      await bdColonnes.put(nouvelleIdColonne, nouvelÉlément, élémentCol.position);
+      await bdColonnes.del(idColonne)
+    }
+
+    await fOublier();
+  }
+
+
   @cacheSuivi
   async suivreIndex({
     idTableau,
