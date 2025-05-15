@@ -541,7 +541,8 @@ export class Tableaux {
 
     if (élémentCol) {
       const { value } = élémentCol;
-      const nouvelÉlément: InfoCol = Object.assign(value, {
+      // value || élémentCol nécessaire pour les anciennes bds qui n'avaient pas ordered-keyvalue
+      const nouvelÉlément: InfoCol = Object.assign(value || élémentCol, {
         id: nouvelleIdColonne,
       });
       await bdColonnes.put(
