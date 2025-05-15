@@ -1616,6 +1616,11 @@ export class BDs extends ComposanteClientListe<string> {
 
     const tableauxExistants = await bdTableaux.all();
     const ordreIdsExistants = tableauxExistants.map(t=>t.key) as string[];  // Drôle d'erreur de types
+    if (
+      !(ordreIdsExistants.length === ordreIdsTableaux.length) || !ordreIdsExistants.every(t=>ordreIdsTableaux.includes(t))
+    ) {
+      throw new Error('Liste de tableaux non conforme aux tableaux originaux.')
+    }
     for (const [i, t] of ordreIdsTableaux.entries()) {
       if (i !== ordreIdsExistants.indexOf(t)) await bdTableaux.move(t, i)
     }
