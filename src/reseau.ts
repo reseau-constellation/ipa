@@ -1,6 +1,6 @@
 import { isValidAddress } from "@orbitdb/core";
 
-import Semaphore from "@chriscdn/promise-semaphore";
+import { Semaphore } from "@chriscdn/promise-semaphore";
 import { multiaddr } from "@multiformats/multiaddr";
 import { sum } from "lodash-es";
 import { TypedEmitter } from "tiny-typed-emitter";

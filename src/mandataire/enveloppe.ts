@@ -1,4 +1,4 @@
-import Semaphore from "@chriscdn/promise-semaphore";
+import { Semaphore } from "@chriscdn/promise-semaphore";
 
 import {
   type ErreurMandataire,

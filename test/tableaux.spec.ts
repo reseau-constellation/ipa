@@ -326,10 +326,12 @@ describe.only("Tableaux", function () {
     const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
-      fsOublier.push(await client.tableaux.suivreIndex({
-        idTableau,
-        f: (x) => indexes.mettreÀJour(x),
-      }));
+      fsOublier.push(
+        await client.tableaux.suivreIndex({
+          idTableau,
+          f: (x) => indexes.mettreÀJour(x),
+        }),
+      );
       fsOublier.push(
         await client.tableaux.suivreColonnesEtCatégoriesTableau({
           idTableau,
@@ -339,7 +341,7 @@ describe.only("Tableaux", function () {
     });
 
     after(async () => {
-      await Promise.allSettled(fsOublier.map(f=>f()))
+      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Pas d'index pour commencer", async () => {
@@ -395,9 +397,11 @@ describe.only("Tableaux", function () {
       await client.tableaux.changerIdColonne({
         idTableau,
         idColonne: valColonnes[0].id,
-        nouvelleIdColonne: "nouvel identifiant"
+        nouvelleIdColonne: "nouvel identifiant",
       });
-      const nouvellesColonnes = await colonnes.attendreQue((x) => x[0].id !== valColonnes[0].id);
+      const nouvellesColonnes = await colonnes.attendreQue(
+        (x) => x[0].id !== valColonnes[0].id,
+      );
       expect(nouvellesColonnes[0].id).to.equal("nouvel identifiant");
     });
   });

@@ -1,4 +1,4 @@
-import {Semaphore} from "@chriscdn/promise-semaphore";
+import { Semaphore } from "@chriscdn/promise-semaphore";
 import { unixfs } from "@helia/unixfs";
 import { Libp2p } from "@libp2p/interface";
 import { எண்ணிக்கை } from "ennikkai";
@@ -1450,7 +1450,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     nouvelleBd: TypedKeyValue<T>;
     clef: C;
     schéma: JSONSchemaType<U>;
-    ordonnée?: boolean
+    ordonnée?: boolean;
   }): Promise<void> {
     const idBdDicInit = await bdBase.get(clef);
 
@@ -1473,7 +1473,9 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
       await this.ouvrirBdTypée({
         id: idNouvelleBdDic,
         // ‌‌À réparer...
-        type: (ordonnée ? "ordered-keyvalue" : "keyvalue") as "ordered-keyvalue",
+        type: (ordonnée
+          ? "ordered-keyvalue"
+          : "keyvalue") as "ordered-keyvalue",
         schéma,
       });
 

@@ -20,7 +20,7 @@ import xlsx, {
   writeFile as xlsxWriteFile,
 } from "xlsx";
 
-import {Semaphore} from "@chriscdn/promise-semaphore";
+import { Semaphore } from "@chriscdn/promise-semaphore";
 import pkg from "file-saver";
 import { cacheSuivi } from "@/décorateursCache.js";
 import {
@@ -1596,8 +1596,8 @@ export class BDs extends ComposanteClientListe<string> {
 
   async réordonnerTableauxBd({
     idBd,
-    ordreIdsTableaux
-  }:{
+    ordreIdsTableaux,
+  }: {
     idBd: string;
     ordreIdsTableaux: string[];
   }): Promise<void> {
@@ -1615,14 +1615,15 @@ export class BDs extends ComposanteClientListe<string> {
     });
 
     const tableauxExistants = await bdTableaux.all();
-    const ordreIdsExistants = tableauxExistants.map(t=>t.key) as string[];  // Drôle d'erreur de types
+    const ordreIdsExistants = tableauxExistants.map((t) => t.key) as string[]; // Drôle d'erreur de types
     if (
-      !(ordreIdsExistants.length === ordreIdsTableaux.length) || !ordreIdsExistants.every(t=>ordreIdsTableaux.includes(t))
+      !(ordreIdsExistants.length === ordreIdsTableaux.length) ||
+      !ordreIdsExistants.every((t) => ordreIdsTableaux.includes(t))
     ) {
-      throw new Error('Liste de tableaux non conforme aux tableaux originaux.')
+      throw new Error("Liste de tableaux non conforme aux tableaux originaux.");
     }
     for (const [i, t] of ordreIdsTableaux.entries()) {
-      if (i !== ordreIdsExistants.indexOf(t)) await bdTableaux.move(t, i)
+      if (i !== ordreIdsExistants.indexOf(t)) await bdTableaux.move(t, i);
     }
     await fOublier();
   }

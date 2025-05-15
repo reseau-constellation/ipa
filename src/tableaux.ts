@@ -541,14 +541,19 @@ export class Tableaux {
 
     if (élémentCol) {
       const { value } = élémentCol;
-      const nouvelÉlément: InfoCol = Object.assign(value, { id: nouvelleIdColonne });
-      await bdColonnes.put(nouvelleIdColonne, nouvelÉlément, élémentCol.position);
-      await bdColonnes.del(idColonne)
+      const nouvelÉlément: InfoCol = Object.assign(value, {
+        id: nouvelleIdColonne,
+      });
+      await bdColonnes.put(
+        nouvelleIdColonne,
+        nouvelÉlément,
+        élémentCol.position,
+      );
+      await bdColonnes.del(idColonne);
     }
 
     await fOublier();
   }
-
 
   @cacheSuivi
   async suivreIndex({
@@ -1698,7 +1703,7 @@ export class Tableaux {
       id: idTableau,
       clef: "colonnes",
       schéma: schémaBdInfoCol,
-      f: async (cols) => await f(cols.map(c=>c.value)),
+      f: async (cols) => await f(cols.map((c) => c.value)),
     });
   }
 

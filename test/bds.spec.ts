@@ -396,17 +396,24 @@ describe("BDs", function () {
     it("Réordonner tableaux", async () => {
       const idTableau2 = await client.bds.ajouterTableauBd({ idBd });
 
-      const tableauxAvant = await attenteTableaux.attendreQue((t) => t.length > 1);
-      expect(tableauxAvant.map(t=>t.id)).to.deep.equal([idTableau, idTableau2]);
+      const tableauxAvant = await attenteTableaux.attendreQue(
+        (t) => t.length > 1,
+      );
+      expect(tableauxAvant.map((t) => t.id)).to.deep.equal([
+        idTableau,
+        idTableau2,
+      ]);
 
       await client.bds.réordonnerTableauxBd({
         idBd,
-        ordreIdsTableaux: [idTableau2, idTableau]
-      })
+        ordreIdsTableaux: [idTableau2, idTableau],
+      });
 
-      const tableaux = await attenteTableaux.attendreQue((t) => t[0].id !== idTableau);
-      expect(tableaux.map(t=>t.id)).to.deep.equal([idTableau2, idTableau]);
-      
+      const tableaux = await attenteTableaux.attendreQue(
+        (t) => t[0].id !== idTableau,
+      );
+      expect(tableaux.map((t) => t.id)).to.deep.equal([idTableau2, idTableau]);
+
       await client.bds.effacerTableauBd({ idBd, idTableau: idTableau2 });
     });
 
