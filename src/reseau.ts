@@ -17,7 +17,6 @@ import { JSONSchemaType } from "ajv";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
 import pRetry, { AbortError } from "p-retry";
-import PQueue from "p-queue";
 import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
   Constellation,
@@ -43,6 +42,7 @@ import type { infoScore } from "@/bds.js";
 import type {
   Connection,
   Libp2pEvents,
+  PeerId,
   PeerUpdate,
   Stream,
 } from "@libp2p/interface";
@@ -158,21 +158,11 @@ export type bdDeMembre = {
   bd: string;
 };
 
-export type MessageGossipSub = MessageGossipSubSalut | MessageGossipSubTexte;
 
 export type MessageDirecte =
   | MessageDirecteRequêteRejoindreCompte
+  | MessageDirecteSalut
   | MessageDirecteTexte;
-
-export type MessageGossipSubSalut = {
-  type: "Salut !";
-  contenu: ContenuMessageSalut;
-};
-
-export type MessageGossipSubTexte = {
-  type: "texte";
-  contenu: string;
-};
 
 export type ContenuMessageSalut = {
   contenu: {
@@ -189,6 +179,12 @@ export type MessageDirecteRequêteRejoindreCompte = {
   type: "Je veux rejoindre ce compte";
   contenu: ContenuMessageRejoindreCompte;
 };
+
+export type MessageDirecteSalut = {
+  type: "Salut !";
+  contenu: ContenuMessageSalut;
+};
+
 
 export type ContenuMessageRejoindreCompte = {
   idDispositif: string;
@@ -244,7 +240,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   oublierSuivreMessagesRejoindreCompte?: schémaFonctionOublier;
   oublierGossipSub?: schémaFonctionOublier;
   oublierSuiviPairs?: schémaFonctionOublier;
-  oublierSalut?: schémaFonctionOublier;
 
   événements: TypedEmitter<ÉvénementsRéseau>;
 
@@ -275,28 +270,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
     const { sfip } = await this.client.attendreSfipEtOrbite();
 
-    const promesses = new PQueue({ concurrency: 1 });
-
-    const pubsub = sfip.libp2p.services.pubsub;
     const libp2p = sfip.libp2p;
-
-    const fÉcoutePubSub = (évé: CustomEvent<GossipsubMessage>) => {
-      const messageGs = évé.detail.msg;
-      if (messageGs.topic === this.client.sujet_réseau) {
-        try {
-          promesses.add(() =>
-            this.messageGossipSubReçu({
-              msg: JSON.parse(new TextDecoder().decode(messageGs.data)),
-            }),
-          );
-        } catch (e) {
-          console.error(e.toString());
-          console.error(e.stack.toString());
-        }
-      }
-    };
-    pubsub.addEventListener("gossipsub:message", fÉcoutePubSub);
-    pubsub.subscribe(this.client.sujet_réseau);
 
     const gérerProtocoleConstellation = async ({
       connection,
@@ -342,16 +316,29 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
           }),
       });
 
-    this.oublierGossipSub = async () => {
-      await libp2p.unhandle(PROTOCOLE_CONSTELLATION);
-      pubsub.unsubscribe(this.client.sujet_réseau);
-      pubsub.removeEventListener("gossipsub:message", fÉcoutePubSub);
-      await promesses.onIdle();
-    };
+      await this.suivreMessagesDirectes({
+        type: "Salut !",
+        f: ({ contenu }) =>
+          this.recevoirSalut({
+            message: contenu as ContenuMessageSalut,
+          }),
+      });
 
-    const fSuivreConnexions = () => {
+    const fSuivreConnexions = async () => {
       this.événements.emit("changementConnexions");
     };
+    const fSuivrePairConnecté = async (é: {detail: PeerId }) => {
+      try {
+        await this.direSalut({idPair: é.detail.toString()});
+      } catch {
+        // Tant pis
+      }
+    }
+    libp2p.addEventListener("peer:connect", fSuivrePairConnecté)
+    this.client.suivreIdCompte({
+      f: () =>  libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
+    })
+    
 
     const événements: (keyof Libp2pEvents)[] = [
       "peer:connect",
@@ -359,7 +346,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       "peer:update",
     ];
     for (const é of événements) {
-      libp2p.addEventListener(é, fSuivreConnexions);
+      libp2p.addEventListener(é,  fSuivreConnexions);
     }
     this.oublierSuiviPairs = async () => {
       await Promise.allSettled(
@@ -368,14 +355,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         }),
       );
     };
-
-    const intervale = setInterval(async () => {
-      await this.direSalut();
-    }, INTERVALE_SALUT);
-
-    this.oublierSalut = async () => clearInterval(intervale);
-
-    await this.direSalut();
   }
 
   async obtFluxDispositif({
@@ -385,12 +364,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     idDispositif: string;
     signal?: AbortSignal;
   }): Promise<Pushable<Uint8Array>> {
-    const signalCombiné = anySignal([
-      this.client.signaleurArrêt.signal,
-      ...(signal ? [signal] : []),
-    ]);
 
-    const { sfip } = await this.client.attendreSfipEtOrbite();
     const idLibp2pDestinataire = await uneFois(
       async (fSuivi: schémaFonctionSuivi<string>) => {
         return await this.suivreConnexionsDispositifs({
@@ -405,10 +379,31 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       },
     );
 
-    if (this.connexionsDirectes[idLibp2pDestinataire])
-      return this.connexionsDirectes[idLibp2pDestinataire];
+    return await this.obtFluxPair({
+      idPair: idLibp2pDestinataire,
+      signal
+    })
+  }
 
-    const idPairDestinataire = peerIdFromString(idLibp2pDestinataire);
+  async obtFluxPair({
+    idPair,
+    signal,
+  }: {
+    idPair: string;
+    signal?: AbortSignal;
+  }): Promise<Pushable<Uint8Array>> {
+
+    if (this.connexionsDirectes[idPair])
+      return this.connexionsDirectes[idPair];
+
+    const { sfip } = await this.client.attendreSfipEtOrbite();
+
+    const signalCombiné = anySignal([
+      this.client.signaleurArrêt.signal,
+      ...(signal ? [signal] : []),
+    ]);
+
+    const idPairDestinataire = peerIdFromString(idPair);
     await sfip.libp2p.dial(idPairDestinataire);
 
     const flux = await pRetry(async () => {
@@ -425,14 +420,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         const octets = value.subarray();
         const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
         this.événements.emit("messageDirecte", {
-          de: idLibp2pDestinataire,
+          de: idPair,
           message: messageDécodé,
         });
       }
     });
 
     const fluxÀÉcrire = pushable();
-    this.connexionsDirectes[idLibp2pDestinataire] = fluxÀÉcrire;
+    this.connexionsDirectes[idPair] = fluxÀÉcrire;
     pipe(fluxÀÉcrire, flux); // Pas d'await
 
     return fluxÀÉcrire;
@@ -521,6 +516,20 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     flux.push(msgBinaire);
   }
 
+  async envoyerMessageAuPair({
+    msg,
+    idPair,
+    signal
+  }: {
+    msg: MessageDirecte;
+    idPair: string;
+    signal?: AbortSignal;
+  }) {
+    const flux = await this.obtFluxPair({ idPair, signal });
+    const msgBinaire = new TextEncoder().encode(JSON.stringify(msg));
+    flux.push(msgBinaire);
+  }
+
   async envoyerMessageAuMembre({
     msg,
     idCompte,
@@ -590,7 +599,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
   }
 
-  async direSalut(): Promise<void> {
+  async direSalut({idPair}: {idPair: string}): Promise<void> {
     const { orbite } = await this.client.attendreSfipEtOrbite();
     const contenu = {
       idLibp2p: await this.client.obtIdLibp2p(),
@@ -602,14 +611,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const signature = await this.client.signer({
       message: JSON.stringify(contenu),
     });
-    const valeur: MessageGossipSubSalut = {
+    const valeur: MessageDirecteSalut = {
       type: "Salut !",
       contenu: {
         contenu,
         signature,
       },
     };
-    await this.envoyerMessageGossipsub({ message: valeur });
+    await this.envoyerMessageAuPair({ msg: valeur, idPair });
   }
 
   async envoyerDemandeRejoindreCompte({
@@ -642,43 +651,26 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
   }
 
-  async messageGossipSubReçu({
-    msg,
-  }: {
-    msg: MessageGossipSub;
-  }): Promise<void> {
-    const { orbite } = await this.client.attendreSfipEtOrbite();
-
-    switch (msg.type) {
-      case "Salut !": {
-        const { signature, contenu } = msg.contenu;
-
-        // Ignorer les messages de nous-mêmes
-        if (signature.clefPublique === orbite.identity.publicKey) return;
-        const { clefPublique } = contenu;
-
-        // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
-        const signatureValide = await this.client.vérifierSignature({
-          signature,
-          message: JSON.stringify(contenu),
-        });
-        if (!signatureValide) return;
-
-        // S'assurer que idDispositif est la même que celle sur la signature
-        if (clefPublique !== signature.clefPublique) return;
-
-        await this.recevoirSalut({ message: msg.contenu });
-
-        break;
-      }
-    }
-  }
-
   async recevoirSalut({
     message,
   }: {
     message: ContenuMessageSalut;
   }): Promise<void> {
+    const { signature, contenu } = message;
+
+    // Ignorer les messages de nous-mêmes
+    const { clefPublique } = contenu;
+
+    // Assurer que la signature est valide (message envoyé par détenteur de idDispositif)
+    const signatureValide = await this.client.vérifierSignature({
+      signature,
+      message: JSON.stringify(contenu),
+    });
+    if (!signatureValide) return;
+
+    // S'assurer que idDispositif est la même que celle sur la signature
+    if (clefPublique !== signature.clefPublique) return;
+
     const dispositifValid = await this._validerInfoMembre({
       info: message.contenu,
     });
@@ -3134,7 +3126,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }
 
   async fermer(): Promise<void> {
-    await this.oublierSalut?.();
     await this.oublierSuivreMessagesRejoindreCompte?.();
     await this.oublierGossipSub?.();
     await this.oublierSuiviPairs?.();
