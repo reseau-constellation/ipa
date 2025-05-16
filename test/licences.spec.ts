@@ -41,10 +41,7 @@ describe("Licences", function () {
 
     it("licences dynamiques", async () => {
       const fOublier = await client.licences.suivreLicences({
-        f: (x) => {
-          console.log("ahah", Object.keys(x).length);
-          licencesSuivies.mettreÀJour(x);
-        },
+        f: (x) => licencesSuivies.mettreÀJour(x),
       });
       fsOublier.push(fOublier);
 
