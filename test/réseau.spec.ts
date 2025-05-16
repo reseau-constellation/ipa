@@ -2042,7 +2042,7 @@ if (isNode || isElectronMain) {
         });
 
         const val = await résImage.attendreExiste();
-        expect(val).to.deep.equal(new Uint8Array(IMAGE));
+        expect(val?.image).to.deep.equal(new Uint8Array(IMAGE));
       });
 
       it.skip("Protocoles détectés");
