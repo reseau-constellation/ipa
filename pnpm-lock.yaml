@@ -129,8 +129,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1
       browser-fs-access:
-        specifier: ^0.35.0
-        version: 0.35.0
+        specifier: ^0.37.0
+        version: 0.37.0
       bs58:
         specifier: ^6.0.0
         version: 6.0.0
@@ -3336,6 +3336,9 @@ packages:
 
   browser-fs-access@0.35.0:
     resolution: {integrity: sha512-sLoadumpRfsjprP8XzVjpQc0jK8yqHBx0PtUTGYj2fftT+P/t+uyDAQdMgGAPKD011in/O+YYGh7fIs0oG/viw==}
+
+  browser-fs-access@0.37.0:
+    resolution: {integrity: sha512-MKpvZrKtv6pBJ2ACd+VwfS9XauBKTMVZg2UBibypuK1gfiXM7euZjbdKmvRsyxeQRhfzNVQrzCSVGXs19/LP8Q==}
 
   browser-level@1.0.1:
     resolution: {integrity: sha512-XECYKJ+Dbzw0lbydyQuJzwNXtOpbMSq737qxJN11sIRTErOMShvDpbzTlgju7orJKvx4epULolZAuJGLzCmWRQ==}
@@ -13366,6 +13369,8 @@ snapshots:
   brorand@1.1.0: {}
 
   browser-fs-access@0.35.0: {}
+
+  browser-fs-access@0.37.0: {}
 
   browser-level@1.0.1:
     dependencies:
