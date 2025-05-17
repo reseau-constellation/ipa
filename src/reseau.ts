@@ -409,7 +409,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       ]);
   
       const idPairDestinataire = peerIdFromString(idPair);
-      // await sfip.libp2p.dial(idPairDestinataire);
   
       const flux = await pRetry(async () => {
         if (signalCombiné.aborted) throw new AbortError("Opération annulée");
