@@ -228,6 +228,7 @@ type ÉvénementsRéseau = {
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: Constellation;
   bloquésPrivés: Set<string>;
+  verrouFlux: Semaphore;
 
   dispositifsEnLigne: {
     [key: string]: statutDispositif;
@@ -258,6 +259,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.connexionsDirectes = {};
 
     this.événements = new TypedEmitter<ÉvénementsRéseau>();
+    this.verrouFlux = new Semaphore()
   }
 
   async initialiser(): Promise<void> {
@@ -392,45 +394,51 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     idPair: string;
     signal?: AbortSignal;
   }): Promise<Pushable<Uint8Array>> {
+    await this.verrouFlux.acquire(idPair)
+    if (this.connexionsDirectes[idPair]){
+      this.verrouFlux.release(idPair)
+      return this.connexionsDirectes[idPair]
+    };
+    try {
 
-    if (this.connexionsDirectes[idPair])
-      return this.connexionsDirectes[idPair];
-
-    const { sfip } = await this.client.attendreSfipEtOrbite();
-
-    const signalCombiné = anySignal([
-      this.client.signaleurArrêt.signal,
-      ...(signal ? [signal] : []),
-    ]);
-
-    const idPairDestinataire = peerIdFromString(idPair);
-    await sfip.libp2p.dial(idPairDestinataire);
-
-    const flux = await pRetry(async () => {
-      if (signalCombiné.aborted) throw new AbortError("Opération annulée");
-      return await sfip.libp2p.dialProtocol(
-        idPairDestinataire,
-        PROTOCOLE_CONSTELLATION,
-        { signal: signalCombiné, runOnLimitedConnection: true },
-      );
-    });
-    signalCombiné.clear();
-    pipe(flux, async (source) => {
-      for await (const value of source) {
-        const octets = value.subarray();
-        const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
-        this.événements.emit("messageDirecte", {
-          de: idPair,
-          message: messageDécodé,
-        });
-      }
-    });
-
-    const fluxÀÉcrire = pushable();
-    this.connexionsDirectes[idPair] = fluxÀÉcrire;
-    pipe(fluxÀÉcrire, flux); // Pas d'await
-
-    return fluxÀÉcrire;
+      const { sfip } = await this.client.attendreSfipEtOrbite();
+      
+      const signalCombiné = anySignal([
+        this.client.signaleurArrêt.signal,
+        ...(signal ? [signal] : []),
+      ]);
+  
+      const idPairDestinataire = peerIdFromString(idPair);
+      await sfip.libp2p.dial(idPairDestinataire);
+  
+      const flux = await pRetry(async () => {
+        if (signalCombiné.aborted) throw new AbortError("Opération annulée");
+        return await sfip.libp2p.dialProtocol(
+          idPairDestinataire,
+          PROTOCOLE_CONSTELLATION,
+          { signal: signalCombiné, runOnLimitedConnection: true },
+        );
+      });
+      signalCombiné.clear();
+      pipe(flux, async (source) => {
+        for await (const value of source) {
+          const octets = value.subarray();
+          const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
+          this.événements.emit("messageDirecte", {
+            de: idPair,
+            message: messageDécodé,
+          });
+        }
+      });
+  
+      const fluxÀÉcrire = pushable();
+      this.connexionsDirectes[idPair] = fluxÀÉcrire;
+      pipe(fluxÀÉcrire, flux); // Pas d'await
+      this.verrouFlux.release(idPair)
+      return fluxÀÉcrire;
+    } finally {
+      this.verrouFlux.release(idPair)
+    }
   }
 
   async envoyerMessageGossipsub({
