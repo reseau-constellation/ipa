@@ -282,23 +282,20 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       stream: Stream;
     }) => {
       const idPairSource = String(connection.remotePeer);
-      if (this.connexionsDirectes[idPairSource]) return;
-      try {
-        this.connexionsDirectes[idPairSource] = pushable();
-        pipe(stream, async (source) => {
-          for await (const value of source) {
-            const octets = value.subarray();
-            const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
-            this.événements.emit("messageDirecte", {
-              de: idPairSource,
-              message: messageDécodé,
-            });
-          }
-        });
-        pipe(this.connexionsDirectes[idPairSource], stream);
-      } catch {
-        delete this.connexionsDirectes[idPairSource];
-      }
+
+      const flux = pushable();
+      pipe(stream, async (source) => {
+        for await (const value of source) {
+          const octets = value.subarray();
+          const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
+          this.événements.emit("messageDirecte", {
+            de: idPairSource,
+            message: messageDécodé,
+          });
+        }
+      });
+      pipe(flux, stream);
+      this.verrouFlux.release(idPairSource);
     };
 
     await libp2p.handle(PROTOCOLE_CONSTELLATION, gérerProtocoleConstellation, {
@@ -394,7 +391,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     idPair: string;
     signal?: AbortSignal;
   }): Promise<Pushable<Uint8Array>> {
-    await this.verrouFlux.acquire(idPair)
+    await this.verrouFlux.acquire(idPair);
     if (this.connexionsDirectes[idPair]){
       this.verrouFlux.release(idPair)
       return this.connexionsDirectes[idPair]
@@ -546,6 +543,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }): Promise<void> {
     const maintenant = Date.now();
 
+    // À faire : mettre à jour
     const dispositifsMembre = Object.values(this.dispositifsEnLigne)
       .filter((d) => d.infoDispositif.idCompte === idCompte)
       .filter((d) => d.vuÀ && maintenant - d.vuÀ < INTERVALE_SALUT + 1000 * 30);
