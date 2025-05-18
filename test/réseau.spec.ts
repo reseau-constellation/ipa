@@ -59,7 +59,7 @@ async function toutPréparer(n: number) {
 }
 
 if (isNode || isElectronMain) {
-  describe("Réseau", function () {
+  describe.only("Réseau", function () {
     describe("Suivre en ligne", function () {
       let fOublierConstls: () => Promise<void>;
       let idsComptes: string[];
@@ -2809,9 +2809,11 @@ if (isNode || isElectronMain) {
           de: idsDispositifs[0],
           à: [constls[1], constls[2]],
         });
-
+        console.log("initialisé")
         const invitation = await constls[1].générerInvitationRejoindreCompte();
+        console.log("invitation générée")
         await constls[2].demanderEtPuisRejoindreCompte(invitation);
+        console.log("compte rejoint")
         await uneFois(
           async (fSuivi: schémaFonctionSuivi<string[]>) => {
             return await constls[0].suivreDispositifs({
@@ -2821,6 +2823,7 @@ if (isNode || isElectronMain) {
           },
           (ids) => !!ids && ids.length > 1,
         );
+        console.log("dispositifs détectés")
 
         await constls[0].réseau.envoyerMessageAuMembre({
           msg: {
@@ -2829,7 +2832,9 @@ if (isNode || isElectronMain) {
           },
           idCompte: idsComptes[1],
         });
+        console.log("message envoyé")
         const bienReçu = await promesseBienReçu;
+        console.log("message bien reçu")
         expect(bienReçu).to.be.true();
       });
     });
