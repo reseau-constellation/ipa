@@ -1124,6 +1124,7 @@ export class Constellation<T extends ServicesLibp2p = ServicesLibp2p> {
     };
 
     const fFinale = async () => {
+      console.log(JSON.stringify(info, undefined, 2))
       if (!info.idCompte) return;
       const autorisésEtAcceptés = info.autorisés.filter(
         (idDispositif) =>
