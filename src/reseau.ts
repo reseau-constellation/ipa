@@ -345,7 +345,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     // À faire : fOublier
     libp2p.addEventListener("peer:connect", fSuivrePairConnecté)
     libp2p.addEventListener("peer:disconnect", fSuivrePairDéconnecté)
-    this.client.suivreIdCompte({
+    await this.client.suivreIdCompte({
       f: () =>  libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
     })
     
