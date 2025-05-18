@@ -210,7 +210,6 @@ const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> =
   required: [],
 };
 
-const INTERVALE_SALUT = 1000 * 10; // 10 secondes
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
 const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
 const CONFIANCE_DE_COAUTEUR = 0.9;
@@ -328,12 +327,24 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     };
     const fSuivrePairConnecté = async (é: {detail: PeerId }) => {
       try {
+        const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
+        if (idDispositif)
+          this.dispositifsEnLigne[idDispositif].vuÀ = undefined
+        this.événements.emit("membreVu");
         await this.direSalut({idPair: é.detail.toString()});
       } catch {
         // Tant pis
       }
     }
+    const fSuivrePairDéconnecté = async (é: {detail: PeerId }) => {
+      const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
+      if (idDispositif)
+        this.dispositifsEnLigne[idDispositif].vuÀ = Date.now()
+    }
+
+    // À faire : fOublier
     libp2p.addEventListener("peer:connect", fSuivrePairConnecté)
+    libp2p.addEventListener("peer:disconnect", fSuivrePairDéconnecté)
     this.client.suivreIdCompte({
       f: () =>  libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
     })
@@ -541,12 +552,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     msg: MessageDirecte;
     idCompte: string;
   }): Promise<void> {
-    const maintenant = Date.now();
-
-    // À faire : mettre à jour
     const dispositifsMembre = Object.values(this.dispositifsEnLigne)
       .filter((d) => d.infoDispositif.idCompte === idCompte)
-      .filter((d) => d.vuÀ && maintenant - d.vuÀ < INTERVALE_SALUT + 1000 * 30);
+      .filter((d) => d.vuÀ === undefined);
     if (!dispositifsMembre.length)
       throw new Error(
         `Aucun dispositif présentement en ligne pour membre ${idCompte}`,
@@ -681,14 +689,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
     if (!dispositifValid) return;
 
-    // À faire : Peut-être possible de convertir à une méthode peer.onDisconnect pour détecter vuÀ ?
     const { idDispositif } = message.contenu;
     this.dispositifsEnLigne[idDispositif] = {
       infoDispositif: message.contenu,
-      vuÀ:
-        idDispositif === (await this.client.obtIdDispositif())
-          ? undefined
-          : new Date().getTime(),
+      vuÀ: undefined,
     };
 
     this.événements.emit("membreVu");
