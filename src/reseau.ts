@@ -387,7 +387,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         });
       },
     );
-    console.log({idLibp2pDestinataire})
     return await this.obtFluxPair({
       idPair: idLibp2pDestinataire,
       signal
