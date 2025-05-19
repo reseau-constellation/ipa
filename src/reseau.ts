@@ -300,10 +300,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     await libp2p.handle(PROTOCOLE_CONSTELLATION, gérerProtocoleConstellation, {
       runOnLimitedConnection: true,
     });
-    libp2p.addEventListener(
-      "peer:disconnect",
-      ({ detail: pair }) => delete this.connexionsDirectes[pair.toString()],
-    );
 
     this.oublierSuivreMessagesRejoindreCompte =
       await this.suivreMessagesDirectes({
@@ -326,6 +322,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       this.événements.emit("changementConnexions");
     };
     const fSuivrePairConnecté = async (é: {detail: PeerId }) => {
+      console.log("connecté", é.detail.toString)
       try {
         const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
         if (idDispositif)
@@ -337,16 +334,21 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       }
     }
     const fSuivrePairDéconnecté = async (é: {detail: PeerId }) => {
+        
+      console.log("déconnecté: ", é.detail.toString());
+      delete this.connexionsDirectes[é.detail.toString()]
+
       const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
       if (idDispositif)
         this.dispositifsEnLigne[idDispositif].vuÀ = Date.now()
+      this.événements.emit("membreVu");
     }
 
     // À faire : fOublier
     libp2p.addEventListener("peer:connect", fSuivrePairConnecté)
     libp2p.addEventListener("peer:disconnect", fSuivrePairDéconnecté)
     await this.client.suivreIdCompte({
-      f: () =>  libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
+      f: () => libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
     })
     
 
