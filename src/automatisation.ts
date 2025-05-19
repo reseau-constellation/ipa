@@ -597,7 +597,6 @@ const générerFAuto = <T extends SpécificationAutomatisation>(
   spéc: T,
   client: Constellation,
 ): (() => Promise<void>) => {
-  console.log("générerFAuto")
   switch (spéc.type) {
     case "importation": {
       return async () => {
@@ -662,7 +661,6 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   fOublier: schémaFonctionOublier;
   fLancer: () => Promise<void>;
 }> => {
-  console.log("lancerAutomatisation")
   const fAuto = générerFAuto(spéc, client);
   const clefStockageDernièreFois = `auto: ${idSpéc}`;
 
@@ -678,7 +676,6 @@ const lancerAutomatisation = async <T extends SpécificationAutomatisation>({
   const requêtesDéjàExécutées = new Set([requêteDernièreModifImportée]);
 
   const fAutoAvecÉtats = async (requête: string) => {
-    console.log("fAutoAvecÉtats")
     if (requêtesDéjàExécutées.has(requête)) return;
     if (requêtesDéjàExécutées.has(requête)) {
       return;
