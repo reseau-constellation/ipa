@@ -670,7 +670,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }: {
     message: ContenuMessageSalut;
   }): Promise<void> {
-    console.log("message salut reçu par ", await this.client.obtIdLibp2p());
+    const monIdLibp2p = await this.client.obtIdLibp2p()
+    console.log("message salut reçu par ", monIdLibp2p);
     const { signature, contenu } = message;
 
     // Ignorer les messages de nous-mêmes
@@ -681,14 +682,17 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       signature,
       message: JSON.stringify(contenu),
     });
+    console.log(`message salut reçu par ${monIdLibp2p}, ${{signatureValide}}`)
     if (!signatureValide) return;
 
     // S'assurer que idDispositif est la même que celle sur la signature
+    console.log(`message salut reçu par ${monIdLibp2p}, ${clefPublique === signature.clefPublique}`)
     if (clefPublique !== signature.clefPublique) return;
 
     const dispositifValid = await this._validerInfoMembre({
       info: message.contenu,
     });
+    console.log(`message salut reçu par ${monIdLibp2p}, ${{dispositifValid}}`)
     if (!dispositifValid) return;
 
     const { idDispositif } = message.contenu;
@@ -758,7 +762,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       });
 
       if (!estUnContrôleurConstellation(bdCompte.access)) return false;
-      const bdCompteValide = (
+      const bdCompteValide = await (
         bdCompte.access
       ).estAutorisé(idDispositif);
       console.log({bdCompteValide})
