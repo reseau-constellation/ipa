@@ -325,7 +325,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       this.événements.emit("changementConnexions");
     };
     const fSuivrePairConnecté = async (é: {detail: PeerId }) => {
-      console.log("connecté", é.detail)
       try {
         await this.direSalut({idPair: é.detail.toString()});
       } catch {
@@ -333,7 +332,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       }
     }
     const fSuivrePairDéconnecté = async (é: {detail: PeerId }) => {
-      console.log("déconnecté", é.detail)
       delete this.connexionsDirectes[é.detail.toString()]
 
       const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
@@ -389,7 +387,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         });
       },
     );
-
+    console.log({idLibp2pDestinataire})
     return await this.obtFluxPair({
       idPair: idLibp2pDestinataire,
       signal
