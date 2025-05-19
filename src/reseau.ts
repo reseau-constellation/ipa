@@ -324,10 +324,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const fSuivrePairConnecté = async (é: {detail: PeerId }) => {
       console.log("connecté", é.detail.toString)
       try {
-        const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
-        if (idDispositif)
-          this.dispositifsEnLigne[idDispositif].vuÀ = undefined
-        this.événements.emit("membreVu");
+        // const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
+        // if (idDispositif)
+        //   this.dispositifsEnLigne[idDispositif].vuÀ = undefined
+        // this.événements.emit("membreVu");
         await this.direSalut({idPair: é.detail.toString()});
       } catch {
         // Tant pis
