@@ -66,7 +66,7 @@ export const réessayer = async <T>({
       avant = Date.now();
       return await Promise.race([f(), pSignal(signal)]);
     } catch (e) {
-      if (signal.aborted) {console.trace(); throw new AbortError()};
+      if (signal.aborted) throw new AbortError();
       console.log(e);
       n++;
       const maintenant = Date.now();
