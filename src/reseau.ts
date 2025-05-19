@@ -219,6 +219,14 @@ type ÉvénementsRéseau = {
   membreVu: () => void;
 };
 
+const attendreSuccès = async <T>(f: () => Promise<T>, n=5, t = 100): Promise<T> => {
+  const résultat = await f();
+  if (résultat || n <= 0) return résultat;
+
+  await new Promise(résoudre => setTimeout(résoudre, t));
+  return await attendreSuccès(f, n-1, t*2)
+}
+
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: Constellation;
   bloquésPrivés: Set<string>;
@@ -682,7 +690,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       signature,
       message: JSON.stringify(contenu),
     });
-    console.log(`message salut reçu par ${monIdLibp2p}, ${{signatureValide}}`)
+    console.log(`message salut reçu par ${monIdLibp2p}, ${signatureValide}`)
     if (!signatureValide) return;
 
     // S'assurer que idDispositif est la même que celle sur la signature
@@ -692,7 +700,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     const dispositifValid = await this._validerInfoMembre({
       info: message.contenu,
     });
-    console.log(`message salut reçu par ${monIdLibp2p}, ${{dispositifValid}}`)
+    console.log(`message salut reçu par ${monIdLibp2p}, ${dispositifValid}`)
     if (!dispositifValid) return;
 
     const { idDispositif } = message.contenu;
@@ -761,11 +769,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         id: idCompte,
       });
 
-      if (!estUnContrôleurConstellation(bdCompte.access)) return false;
-      const bdCompteValide = await (
-        bdCompte.access
-      ).estAutorisé(idDispositif);
-      console.log({bdCompteValide})
+      const bdCompteValide = await attendreSuccès(async () => {
+        if (!estUnContrôleurConstellation(bdCompte.access)) return false;
+        return await (bdCompte.access).estAutorisé(idDispositif) 
+      });
+      console.log({sigIdValide, sigClefPubliqueValide, bdCompteValide})
 
       await fOublier();
       return sigIdValide && sigClefPubliqueValide && bdCompteValide;
