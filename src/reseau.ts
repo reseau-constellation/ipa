@@ -240,9 +240,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     [key: string]: Pushable<Uint8Array>;
   };
 
-  oublierSuivreMessagesRejoindreCompte?: schémaFonctionOublier;
-  oublierGossipSub?: schémaFonctionOublier;
-  oublierSuiviPairs?: schémaFonctionOublier;
+  fsOublier: schémaFonctionOublier[];
 
   événements: TypedEmitter<ÉvénementsRéseau>;
 
@@ -261,7 +259,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.connexionsDirectes = {};
 
     this.événements = new TypedEmitter<ÉvénementsRéseau>();
-    this.verrouFlux = new Semaphore()
+    this.verrouFlux = new Semaphore();
+    this.fsOublier = [];
   }
 
   async initialiser(): Promise<void> {
@@ -304,28 +303,29 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       runOnLimitedConnection: true,
     });
 
-    this.oublierSuivreMessagesRejoindreCompte =
+    this.fsOublier.push(
       await this.suivreMessagesDirectes({
         type: "Je veux rejoindre ce compte",
         f: ({ contenu }) =>
           this.client.considérerRequêteRejoindreCompte({
             requête: contenu as ContenuMessageRejoindreCompte,
           }),
-      });
+      }));
     
-    // À faire : fOublier
-    await this.suivreMessagesDirectes({
+
+    this.fsOublier.push(await this.suivreMessagesDirectes({
       type: "Salut !",
       f: ({ contenu }) =>
         this.recevoirSalut({
           message: contenu as ContenuMessageSalut,
         }),
-    });
+    }));
 
     const fSuivreConnexions = async () => {
       this.événements.emit("changementConnexions");
     };
     const fSuivrePairConnecté = async (é: {detail: PeerId }) => {
+      console.log("connecté", é.detail)
       try {
         await this.direSalut({idPair: é.detail.toString()});
       } catch {
@@ -333,7 +333,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       }
     }
     const fSuivrePairDéconnecté = async (é: {detail: PeerId }) => {
-        
+      console.log("déconnecté", é.detail)
       delete this.connexionsDirectes[é.detail.toString()]
 
       const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
@@ -342,12 +342,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       this.événements.emit("membreVu");
     }
 
-    // À faire : fOublier
     libp2p.addEventListener("peer:connect", fSuivrePairConnecté)
     libp2p.addEventListener("peer:disconnect", fSuivrePairDéconnecté)
-    await this.client.suivreIdCompte({
+    this.fsOublier.push(async ()=> libp2p.removeEventListener("peer:connect", fSuivrePairConnecté))
+    this.fsOublier.push(async ()=> libp2p.removeEventListener("peer:disconnect", fSuivrePairConnecté))
+    this.fsOublier.push(await this.client.suivreIdCompte({
       f: () => libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
-    })
+    }));
     
 
     const événements: (keyof Libp2pEvents)[] = [
@@ -358,13 +359,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     for (const é of événements) {
       libp2p.addEventListener(é,  fSuivreConnexions);
     }
-    this.oublierSuiviPairs = async () => {
+    this.fsOublier.push( async () => {
       await Promise.allSettled(
         événements.map((é) => {
           return libp2p.removeEventListener(é, fSuivreConnexions);
         }),
       );
-    };
+    });
   }
 
   async obtFluxDispositif({
@@ -2014,8 +2015,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       idCompte: string;
       fSuivi: schémaFonctionSuivi<[string]>;
     }): Promise<schémaFonctionOublier> => {
-      await fSuivi([idCompte]); // Rien à faire parce que nous ne recherchons que le compte
-      return faisRien;
+      await fSuivi([idCompte]);
+      return faisRien;  // Rien à faire parce que nous ne recherchons que le compte
     };
 
     const fQualité = async (
@@ -3135,8 +3136,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }
 
   async fermer(): Promise<void> {
-    await this.oublierSuivreMessagesRejoindreCompte?.();
-    await this.oublierGossipSub?.();
-    await this.oublierSuiviPairs?.();
+    await Promise.allSettled(this.fsOublier.map(f=>f()));
   }
 }
