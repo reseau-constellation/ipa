@@ -284,14 +284,12 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       stream: Stream;
     }) => {
       const idPairSource = String(connection.remotePeer);
-      const monIdLibp2p = await this.client.obtIdLibp2p();
 
       const flux = pushable();
       pipe(stream, async (source) => {
         for await (const value of source) {
           const octets = value.subarray();
           const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
-          console.log(monIdLibp2p, " a reçu ce message de ", idPairSource, messageDécodé)
           this.événements.emit("messageDirecte", {
             de: idPairSource,
             message: messageDécodé,
@@ -328,12 +326,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       this.événements.emit("changementConnexions");
     };
     const fSuivrePairConnecté = async (é: {detail: PeerId }) => {
-      console.log("connecté", é.detail.toString)
       try {
-        // const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
-        // if (idDispositif)
-        //   this.dispositifsEnLigne[idDispositif].vuÀ = undefined
-        // this.événements.emit("membreVu");
         await this.direSalut({idPair: é.detail.toString()});
       } catch {
         // Tant pis
@@ -341,7 +334,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     }
     const fSuivrePairDéconnecté = async (é: {detail: PeerId }) => {
         
-      console.log("déconnecté: ", é.detail.toString());
       delete this.connexionsDirectes[é.detail.toString()]
 
       const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
@@ -629,7 +621,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       signatures: orbite.identity.signatures,
       idCompte: await this.client.obtIdCompte(),
     };
-    console.log(`${contenu.idLibp2p}, de compte ${contenu.idCompte}, dit salut à ${idPair}`)
     const signature = await this.client.signer({
       message: JSON.stringify(contenu),
     });
@@ -679,7 +670,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     message: ContenuMessageSalut;
   }): Promise<void> {
     const monIdLibp2p = await this.client.obtIdLibp2p()
-    console.log("message salut reçu par ", monIdLibp2p);
     const { signature, contenu } = message;
 
     // Ignorer les messages de nous-mêmes
@@ -690,17 +680,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       signature,
       message: JSON.stringify(contenu),
     });
-    console.log(`message salut reçu par ${monIdLibp2p}, ${signatureValide}`)
     if (!signatureValide) return;
 
     // S'assurer que idDispositif est la même que celle sur la signature
-    console.log(`message salut reçu par ${monIdLibp2p}, ${clefPublique === signature.clefPublique}`)
     if (clefPublique !== signature.clefPublique) return;
 
     const dispositifValid = await this._validerInfoMembre({
       info: message.contenu,
     });
-    console.log(`message salut reçu par ${monIdLibp2p}, ${dispositifValid}`)
     if (!dispositifValid) return;
 
     const { idDispositif } = message.contenu;
@@ -710,7 +697,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     };
 
     this.événements.emit("membreVu");
-    console.log(`${await this.client.obtIdLibp2p()}, a reçu un salut de ${contenu.idLibp2p}, de compte ${contenu.idCompte}`)
     await this._sauvegarderDispositifsEnLigne();
   }
 
@@ -773,7 +759,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         if (!estUnContrôleurConstellation(bdCompte.access)) return false;
         return await (bdCompte.access).estAutorisé(idDispositif) 
       });
-      console.log({sigIdValide, sigClefPubliqueValide, bdCompteValide})
 
       await fOublier();
       return sigIdValide && sigClefPubliqueValide && bdCompteValide;
