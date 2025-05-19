@@ -311,14 +311,15 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
             requête: contenu as ContenuMessageRejoindreCompte,
           }),
       });
-
-      await this.suivreMessagesDirectes({
-        type: "Salut !",
-        f: ({ contenu }) =>
-          this.recevoirSalut({
-            message: contenu as ContenuMessageSalut,
-          }),
-      });
+    
+    // À faire : fOublier
+    await this.suivreMessagesDirectes({
+      type: "Salut !",
+      f: ({ contenu }) =>
+        this.recevoirSalut({
+          message: contenu as ContenuMessageSalut,
+        }),
+    });
 
     const fSuivreConnexions = async () => {
       this.événements.emit("changementConnexions");
@@ -674,6 +675,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }: {
     message: ContenuMessageSalut;
   }): Promise<void> {
+    console.log("message salut reçu par ", await this.client.obtIdLibp2p());
     const { signature, contenu } = message;
 
     // Ignorer les messages de nous-mêmes
@@ -762,8 +764,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
       if (!estUnContrôleurConstellation(bdCompte.access)) return false;
       const bdCompteValide = (
-        bdCompte.access as ContrôleurConstellation
+        bdCompte.access
       ).estAutorisé(idDispositif);
+      console.log({bdCompteValide})
 
       await fOublier();
       return sigIdValide && sigClefPubliqueValide && bdCompteValide;
