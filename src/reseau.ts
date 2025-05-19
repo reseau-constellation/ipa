@@ -17,7 +17,6 @@ import { JSONSchemaType } from "ajv";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
 import pRetry, { AbortError } from "p-retry";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
   Constellation,
   Signature,
@@ -64,10 +63,6 @@ import type {
 import type { erreurValidation } from "@/valid.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
-
-type ContrôleurConstellation = Awaited<
-  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
->;
 
 export type infoDispositif = {
   idLibp2p: string;
@@ -210,7 +205,6 @@ const schémaBdPrincipaleRéseau: JSONSchemaType<structureBdPrincipaleRéseau> =
   required: [],
 };
 
-const INTERVALE_SALUT = 1000 * 10; // 10 secondes
 const FACTEUR_ATÉNUATION_CONFIANCE = 0.8;
 const FACTEUR_ATÉNUATION_BLOQUÉS = 0.9;
 const CONFIANCE_DE_COAUTEUR = 0.9;
@@ -225,6 +219,14 @@ type ÉvénementsRéseau = {
   membreVu: () => void;
 };
 
+const attendreSuccès = async <T>(f: () => Promise<T>, n=5, t = 100): Promise<T> => {
+  const résultat = await f();
+  if (résultat || n <= 0) return résultat;
+
+  await new Promise(résoudre => setTimeout(résoudre, t));
+  return await attendreSuccès(f, n-1, t*2)
+}
+
 export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   client: Constellation;
   bloquésPrivés: Set<string>;
@@ -238,9 +240,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     [key: string]: Pushable<Uint8Array>;
   };
 
-  oublierSuivreMessagesRejoindreCompte?: schémaFonctionOublier;
-  oublierGossipSub?: schémaFonctionOublier;
-  oublierSuiviPairs?: schémaFonctionOublier;
+  fsOublier: schémaFonctionOublier[];
 
   événements: TypedEmitter<ÉvénementsRéseau>;
 
@@ -259,7 +259,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     this.connexionsDirectes = {};
 
     this.événements = new TypedEmitter<ÉvénementsRéseau>();
-    this.verrouFlux = new Semaphore()
+    this.verrouFlux = new Semaphore();
+    this.fsOublier = [];
   }
 
   async initialiser(): Promise<void> {
@@ -301,27 +302,24 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     await libp2p.handle(PROTOCOLE_CONSTELLATION, gérerProtocoleConstellation, {
       runOnLimitedConnection: true,
     });
-    libp2p.addEventListener(
-      "peer:disconnect",
-      ({ detail: pair }) => delete this.connexionsDirectes[pair.toString()],
-    );
 
-    this.oublierSuivreMessagesRejoindreCompte =
+    this.fsOublier.push(
       await this.suivreMessagesDirectes({
         type: "Je veux rejoindre ce compte",
         f: ({ contenu }) =>
           this.client.considérerRequêteRejoindreCompte({
             requête: contenu as ContenuMessageRejoindreCompte,
           }),
-      });
+      }));
+    
 
-      await this.suivreMessagesDirectes({
-        type: "Salut !",
-        f: ({ contenu }) =>
-          this.recevoirSalut({
-            message: contenu as ContenuMessageSalut,
-          }),
-      });
+    this.fsOublier.push(await this.suivreMessagesDirectes({
+      type: "Salut !",
+      f: ({ contenu }) =>
+        this.recevoirSalut({
+          message: contenu as ContenuMessageSalut,
+        }),
+    }));
 
     const fSuivreConnexions = async () => {
       this.événements.emit("changementConnexions");
@@ -333,10 +331,22 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         // Tant pis
       }
     }
+    const fSuivrePairDéconnecté = async (é: {detail: PeerId }) => {
+      delete this.connexionsDirectes[é.detail.toString()]
+
+      const idDispositif = Object.values(this.dispositifsEnLigne).find((info)=>info.infoDispositif.idLibp2p === é.detail.toString())?.infoDispositif.idDispositif
+      if (idDispositif)
+        this.dispositifsEnLigne[idDispositif].vuÀ = Date.now()
+      this.événements.emit("membreVu");
+    }
+
     libp2p.addEventListener("peer:connect", fSuivrePairConnecté)
-    this.client.suivreIdCompte({
-      f: () =>  libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
-    })
+    libp2p.addEventListener("peer:disconnect", fSuivrePairDéconnecté)
+    this.fsOublier.push(async ()=> libp2p.removeEventListener("peer:connect", fSuivrePairConnecté))
+    this.fsOublier.push(async ()=> libp2p.removeEventListener("peer:disconnect", fSuivrePairConnecté))
+    this.fsOublier.push(await this.client.suivreIdCompte({
+      f: () => libp2p.getPeers().forEach(p=>this.direSalut({idPair: p.toString()}))
+    }));
     
 
     const événements: (keyof Libp2pEvents)[] = [
@@ -347,13 +357,13 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     for (const é of événements) {
       libp2p.addEventListener(é,  fSuivreConnexions);
     }
-    this.oublierSuiviPairs = async () => {
+    this.fsOublier.push( async () => {
       await Promise.allSettled(
         événements.map((é) => {
           return libp2p.removeEventListener(é, fSuivreConnexions);
         }),
       );
-    };
+    });
   }
 
   async obtFluxDispositif({
@@ -377,7 +387,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         });
       },
     );
-
     return await this.obtFluxPair({
       idPair: idLibp2pDestinataire,
       signal
@@ -541,12 +550,9 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     msg: MessageDirecte;
     idCompte: string;
   }): Promise<void> {
-    const maintenant = Date.now();
-
-    // À faire : mettre à jour
     const dispositifsMembre = Object.values(this.dispositifsEnLigne)
       .filter((d) => d.infoDispositif.idCompte === idCompte)
-      .filter((d) => d.vuÀ && maintenant - d.vuÀ < INTERVALE_SALUT + 1000 * 30);
+      .filter((d) => d.vuÀ === undefined);
     if (!dispositifsMembre.length)
       throw new Error(
         `Aucun dispositif présentement en ligne pour membre ${idCompte}`,
@@ -681,14 +687,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     });
     if (!dispositifValid) return;
 
-    // À faire : Peut-être possible de convertir à une méthode peer.onDisconnect pour détecter vuÀ ?
     const { idDispositif } = message.contenu;
     this.dispositifsEnLigne[idDispositif] = {
       infoDispositif: message.contenu,
-      vuÀ:
-        idDispositif === (await this.client.obtIdDispositif())
-          ? undefined
-          : new Date().getTime(),
+      vuÀ: undefined,
     };
 
     this.événements.emit("membreVu");
@@ -750,10 +752,10 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
         id: idCompte,
       });
 
-      if (!estUnContrôleurConstellation(bdCompte.access)) return false;
-      const bdCompteValide = (
-        bdCompte.access as ContrôleurConstellation
-      ).estAutorisé(idDispositif);
+      const bdCompteValide = await attendreSuccès(async () => {
+        if (!estUnContrôleurConstellation(bdCompte.access)) return false;
+        return await (bdCompte.access).estAutorisé(idDispositif) 
+      });
 
       await fOublier();
       return sigIdValide && sigClefPubliqueValide && bdCompteValide;
@@ -2010,8 +2012,8 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       idCompte: string;
       fSuivi: schémaFonctionSuivi<[string]>;
     }): Promise<schémaFonctionOublier> => {
-      await fSuivi([idCompte]); // Rien à faire parce que nous ne recherchons que le compte
-      return faisRien;
+      await fSuivi([idCompte]);
+      return faisRien;  // Rien à faire parce que nous ne recherchons que le compte
     };
 
     const fQualité = async (
@@ -3131,8 +3133,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }
 
   async fermer(): Promise<void> {
-    await this.oublierSuivreMessagesRejoindreCompte?.();
-    await this.oublierGossipSub?.();
-    await this.oublierSuiviPairs?.();
+    await Promise.allSettled(this.fsOublier.map(f=>f()));
   }
 }

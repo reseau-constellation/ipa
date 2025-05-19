@@ -84,7 +84,7 @@ export const réessayer = async <T>({
       return await _interne({ f, signal, n });
     }
   };
-  return _interne({ f, signal, n: 0 });
+  return await _interne({ f, signal, n: 0 });
 };
 
 export type Store =
@@ -350,6 +350,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
           })) as T,
         signal: signalCombiné,
       });
+      bd.events.on('error', console.log)
       signalCombiné.clear();
 
       this._bdsOrbite[id] = { bd, idsRequêtes: new Set([idRequête]) };
@@ -462,6 +463,7 @@ export class GestionnaireOrbite<T extends ServiceMap = ServiceMap> {
       ...options,
     })) as Store;
     const { address } = bd;
+    bd.events.on('error', console.log)
 
     this._bdsOrbite[address] = { bd, idsRequêtes: new Set() };
     return address;
