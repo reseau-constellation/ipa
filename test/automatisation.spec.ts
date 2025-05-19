@@ -129,7 +129,7 @@ const comparerDonnéesTableau = (
   expect(données.map((d) => enleverId(d.données))).to.have.deep.members(réf);
 };
 
-describe.skip("Automatisation", function () {
+describe("Automatisation", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
