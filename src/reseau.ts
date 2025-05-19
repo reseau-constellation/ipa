@@ -669,7 +669,6 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
   }: {
     message: ContenuMessageSalut;
   }): Promise<void> {
-    const monIdLibp2p = await this.client.obtIdLibp2p()
     const { signature, contenu } = message;
 
     // Ignorer les messages de nous-mêmes
