@@ -281,14 +281,14 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       stream: Stream;
     }) => {
       const idPairSource = String(connection.remotePeer);
+      const monIdLibp2p = await this.client.obtIdLibp2p();
 
       const flux = pushable();
       pipe(stream, async (source) => {
-        console.log("message reçu de ", idPairSource)
         for await (const value of source) {
           const octets = value.subarray();
           const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
-          console.log("message reçu de ", idPairSource, messageDécodé)
+          console.log(monIdLibp2p, " a reçu ce message de ", idPairSource, messageDécodé)
           this.événements.emit("messageDirecte", {
             de: idPairSource,
             message: messageDécodé,
