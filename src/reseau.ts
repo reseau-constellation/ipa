@@ -623,6 +623,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
       signatures: orbite.identity.signatures,
       idCompte: await this.client.obtIdCompte(),
     };
+    console.log(`${contenu.idLibp2p}, de compte ${contenu.idCompte}, dit salut à ${idPair}`)
     const signature = await this.client.signer({
       message: JSON.stringify(contenu),
     });
@@ -698,6 +699,7 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
     };
 
     this.événements.emit("membreVu");
+    console.log(`${await this.client.obtIdLibp2p()}, a reçu un salut de ${contenu.idLibp2p}, de compte ${contenu.idCompte}`)
     await this._sauvegarderDispositifsEnLigne();
   }
 
