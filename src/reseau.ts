@@ -17,7 +17,6 @@ import { JSONSchemaType } from "ajv";
 import { peerIdFromString } from "@libp2p/peer-id";
 import { anySignal } from "any-signal";
 import pRetry, { AbortError } from "p-retry";
-import { ContrôleurConstellation as générerContrôleurConstellation } from "@/accès/cntrlConstellation.js";
 import {
   Constellation,
   Signature,
@@ -64,10 +63,6 @@ import type {
 import type { erreurValidation } from "@/valid.js";
 
 type clefObjet = "bds" | "variables" | "motsClefs" | "projets" | "nuées";
-
-type ContrôleurConstellation = Awaited<
-  ReturnType<ReturnType<typeof générerContrôleurConstellation>>
->;
 
 export type infoDispositif = {
   idLibp2p: string;
