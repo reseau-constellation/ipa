@@ -6,6 +6,7 @@ import {
 import { isElectronMain, isNode } from "wherearewe";
 import { expect } from "aegir/chai";
 import { TypedEmitter } from "tiny-typed-emitter";
+import { peerIdFromString } from "@libp2p/peer-id";
 import { MEMBRE, MODÉRATEUR } from "@/accès/consts.js";
 import {
   infoAuteur,
@@ -2829,6 +2830,27 @@ if (isNode || isElectronMain) {
           idCompte: idsComptes[1],
         });
 
+        const bienReçu = await promesseBienReçu;
+        expect(bienReçu).to.be.true();
+      });
+
+      it("Envoyer après reconnexion", async () => {
+        const { promesseBienReçu, messageÀEnvoyer } = await messageReçu({
+          de: idsDispositifs[0],
+          à: constls[1],
+        });
+        const idLibp2pConstl1 = peerIdFromString(await constls[1].obtIdLibp2p())
+        await constls[0].orbite.orbite.ipfs.libp2p.hangUp(idLibp2pConstl1)
+
+        await constls[0].orbite.orbite.ipfs.libp2p.dial(idLibp2pConstl1)
+
+        await constls[0].réseau.envoyerMessageAuDispositif({
+          msg: {
+            type: "texte",
+            contenu: { message: messageÀEnvoyer },
+          },
+          idDispositif: idsDispositifs[1],
+        });
         const bienReçu = await promesseBienReçu;
         expect(bienReçu).to.be.true();
       });
