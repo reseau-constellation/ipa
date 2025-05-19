@@ -284,9 +284,11 @@ export class Réseau extends ComposanteClientDic<structureBdPrincipaleRéseau> {
 
       const flux = pushable();
       pipe(stream, async (source) => {
+        console.log("message reçu de ", idPairSource)
         for await (const value of source) {
           const octets = value.subarray();
           const messageDécodé = JSON.parse(new TextDecoder().decode(octets));
+          console.log("message reçu de ", idPairSource, messageDécodé)
           this.événements.emit("messageDirecte", {
             de: idPairSource,
             message: messageDécodé,
