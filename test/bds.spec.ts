@@ -369,29 +369,17 @@ describe("BDs", function () {
 
   describe("Tableaux", function () {
     let idTableau: string;
-    let accèsTableau: boolean;
     let idBd: string;
-
-    const attenteTableaux = new attente.AttendreRésultat<infoTableauAvecId[]>();
-    const attenteColonnes = new attente.AttendreRésultat<InfoCol[]>();
-    const fsOublier: schémaFonctionOublier[] = [];
 
     before(async () => {
       idBd = await constl.bds.créerBd({ licence: "ODbl-1_0" });
-      fsOublier.push(
-        await constl.bds.suivreTableauxBd({
-          idBd,
-          f: (t) => attenteTableaux.mettreÀJour(t),
-        }),
-      );
-    });
-
-    after(async () => {
-      await Promise.allSettled(fsOublier.map((f) => f()));
     });
 
     it("Pas de tableaux pour commencer", async () => {
-      const tableaux = await attenteTableaux.attendreExiste();
+      const tableaux = await obtenir<infoTableauAvecId[]>(({siDéfini})=> constl.bds.suivreTableauxBd({
+        idBd,
+        f: siDéfini(),
+      }),);
       expect(tableaux).to.be.an.empty("array");
     });
 
@@ -402,7 +390,10 @@ describe("BDs", function () {
       });
       expect(isValidAddress(idTableau)).to.be.true();
 
-      const tableaux = await attenteTableaux.attendreQue((t) => t.length > 0);
+      const tableaux = await obtenir<infoTableauAvecId[]>(({siPasVide})=> constl.bds.suivreTableauxBd({
+        idBd,
+        f: siPasVide(),
+      }),);
       expect(Array.isArray(tableaux)).to.be.true();
       expect(tableaux.length).to.equal(1);
       expect(tableaux).to.have.deep.members([
@@ -414,22 +405,14 @@ describe("BDs", function () {
     });
 
     it("Accès au tableau", async () => {
-      fsOublier.push(
-        await constl.suivrePermissionÉcrire({
-          id: idTableau,
-          f: (x) => (accèsTableau = x),
-        }),
-      );
+      const accèsTableau = await obtenir(({siDéfini})=>constl.suivrePermissionÉcrire({
+        id: idTableau,
+        f: siDéfini(),
+      }));
       expect(accèsTableau).to.be.true();
     });
 
     it("Suivre colonnes tableau", async () => {
-      fsOublier.push(
-        await constl.tableaux.suivreColonnesTableau({
-          idTableau,
-          f: (t) => attenteColonnes.mettreÀJour(t),
-        }),
-      );
       const idVariable = await constl.variables.créerVariable({
         catégorie: "vidéo",
       });
@@ -437,17 +420,25 @@ describe("BDs", function () {
         idTableau,
         idVariable,
       });
-      const rés = await attenteColonnes.attendreQue((c) => c.length > 0);
-      expect(rés[0].id).to.eq(idColonne);
-      expect(rés[0].variable).to.eq(idVariable);
+      const colonnes = await obtenir<InfoCol[]>(
+        ({siPasVide})=>constl.tableaux.suivreColonnesTableau({
+          idTableau,
+          f: siPasVide(),
+        })
+      )
+      expect(colonnes[0].id).to.eq(idColonne);
+      expect(colonnes[0].variable).to.eq(idVariable);
     });
 
     it("Réordonner tableaux", async () => {
       const idTableau2 = await constl.bds.ajouterTableauBd({ idBd });
 
-      const tableauxAvant = await attenteTableaux.attendreQue(
-        (t) => t.length > 1,
-      );
+      
+      const tableauxAvant = await obtenir<infoTableauAvecId[]>(({si})=> constl.bds.suivreTableauxBd({
+        idBd,
+        f: si((t) => t.length > 1),
+      }),);
+
       expect(tableauxAvant.map((t) => t.id)).to.deep.equal([
         idTableau,
         idTableau2,
@@ -459,9 +450,10 @@ describe("BDs", function () {
         position: 1,
       });
 
-      const tableaux = await attenteTableaux.attendreQue(
-        (t) => t[0].id !== idTableau,
-      );
+      const tableaux = await obtenir<infoTableauAvecId[]>(({si})=> constl.bds.suivreTableauxBd({
+        idBd,
+        f: si((t) => t[0].id !== idTableau),
+      }),);
       expect(tableaux.map((t) => t.id)).to.deep.equal([idTableau2, idTableau]);
 
       await constl.bds.effacerTableauBd({ idBd, idTableau: idTableau2 });
@@ -470,7 +462,10 @@ describe("BDs", function () {
     it("Effacer un tableau", async () => {
       await constl.bds.effacerTableauBd({ idBd, idTableau });
 
-      const tableaux = await attenteTableaux.attendreQue((t) => t.length === 0);
+      const tableaux = await obtenir<infoTableauAvecId[]>(({siVide})=> constl.bds.suivreTableauxBd({
+        idBd,
+        f: siVide(),
+      }),);
       expect(tableaux).to.be.an.empty("array");
     });
   });
