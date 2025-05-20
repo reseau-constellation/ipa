@@ -338,24 +338,16 @@ describe.only("BDs", function () {
 
   describe("Changer licence BD", function () {
     let idBd: string;
-    let fOublier: schémaFonctionOublier;
-    const attenteLicence = new attente.AttendreRésultat<string>();
 
     before(async () => {
       idBd = await client.bds.créerBd({ licence: "ODbl-1_0" });
-      fOublier = await client.bds.suivreLicenceBd({
-        idBd,
-        f: (l) => attenteLicence.mettreÀJour(l),
-      });
-    });
-
-    after(async () => {
-      if (fOublier) await fOublier();
-      attenteLicence.toutAnnuler();
     });
 
     it("Licence originale présente", async () => {
-      const licence = await attenteLicence.attendreExiste();
+      const licence = await obtenir(({siDéfini})=>client.bds.suivreLicenceBd({
+        idBd,
+        f: siDéfini(),
+      }));
 
       expect(licence).to.equal("ODbl-1_0");
     });
@@ -363,7 +355,10 @@ describe.only("BDs", function () {
     it("Changement de licence", async () => {
       await client.bds.changerLicenceBd({ idBd, licence: "ODC-BY-1_0" });
 
-      const licence = await attenteLicence.attendreQue((l) => l !== "ODbl-1_0");
+      const licence = await await obtenir(({si})=>client.bds.suivreLicenceBd({
+        idBd,
+        f: si((l) => l !== "ODbl-1_0"),
+      }));
       expect(licence).to.equal("ODC-BY-1_0");
     });
   });
