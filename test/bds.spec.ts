@@ -39,7 +39,7 @@ import type XLSX from "xlsx";
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
-describe.only("BDs", function () {
+describe("BDs", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;

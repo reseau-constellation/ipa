@@ -31,7 +31,7 @@ import type {
 
 const { créerConstellationsTest } = utilsTestConstellation;
 
-describe.only("Tableaux", function () {
+describe("Tableaux", function () {
   let fOublierClients: () => Promise<void>;
   let clients: Constellation[];
   let client: Constellation;
